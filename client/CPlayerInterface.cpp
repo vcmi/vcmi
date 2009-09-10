@@ -1029,7 +1029,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		battleInt->moveStarted = true;
 		if(battleInt->creAnims[action->stackNumber]->framesInGroup(20))
 		{
-			battleInt->creAnims[action->stackNumber]->setType(20);
+			battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveStart(battleInt, action->stackNumber), false));
 		}
 	}
 
@@ -1098,7 +1098,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	}
 	if(action->actionType == 6 || action->actionType == 2 && battleInt->creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
-		battleInt->handleEndOfMove(action->stackNumber, action->destinationTile);
+		battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(battleInt, action->stackNumber, action->destinationTile), false));
 	}
 }
 
@@ -1161,7 +1161,7 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 	tlog5 << "done!\n";
 
 
-	std::vector<CBattleInterface::SStackAttackedInfo> arg;
+	std::vector<SStackAttackedInfo> arg;
 	for(std::set<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
 		if(i->isEffect() && i->effect != 12) //and not armageddon
@@ -1170,7 +1170,7 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 			if (stack != NULL)
 				battleInt->displayEffect(i->effect, stack->position);
 		}
-		CBattleInterface::SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
+		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
 	}
 

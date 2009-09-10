@@ -32,6 +32,170 @@ class CGTownInstance;
 
 class CBattleInterface;
 
+struct SStackAttackedInfo
+{
+	int ID; //id of attacked stack
+	int dmg; //damage dealt
+	int amountKilled; //how many creatures in stack has been killed
+	int IDby; //ID of attacking stack
+	bool byShooting; //if true, stack has been attacked by shooting
+	bool killed; //if true, stack has been killed
+};
+
+struct SProjectileInfo
+{
+	int x, y; //position on the screen
+	int dx, dy; //change in position in one step
+	int step, lastStep; //to know when finish showing this projectile
+	int creID; //ID of creature that shot this projectile
+	int frameNum; //frame to display form projectile animation
+	bool spin; //if true, frameNum will be increased
+	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
+	bool reverse; //if true, projectile will be flipped by vertical asix
+};
+
+//battle animation handlers
+
+class CBattleAnimation
+{
+protected:
+	CBattleInterface * owner;
+public:
+	virtual bool init()=0; //to be called - if returned false, call again until returns true
+	virtual void nextFrame()=0; //call every new frame
+	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
+
+	bool isEarliest(); //determines if this animation is earlies of all
+
+	unsigned int ID; //unique identifier
+
+	CBattleAnimation(CBattleInterface * _owner);
+};
+
+class CBattleStackAnimation : public CBattleAnimation
+{
+public:
+	int stackID; //id of stack whose animation it is
+
+	CBattleStackAnimation(CBattleInterface * _owner, int stack);
+};
+
+class CReverseAnim : public CBattleStackAnimation
+{
+private:
+	int partOfAnim; //1 - first, 2 - second
+	bool secondPartSetup;
+	int hex;
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CReverseAnim(CBattleInterface * _owner, int stack, int dest);
+};
+
+class CDefenceAnim : public CBattleStackAnimation
+{
+private:
+	//std::vector<SStackAttackedInfo> attackedInfos;
+	int dmg; //damage dealt
+	int amountKilled; //how many creatures in stack has been killed
+	int IDby; //ID of attacking stack
+	bool byShooting; //if true, stack has been attacked by shooting
+	bool killed; //if true, stack has been killed
+
+	bool continueAnim;
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CDefenceAnim(SStackAttackedInfo _attackedInfo, CBattleInterface * _owner);
+};
+
+class CBattleStackMoved : public CBattleStackAnimation
+{
+private:
+	int destHex; //destination
+	bool endMoving; //if this is end of move
+	int distance;
+	float stepX, stepY; //how far stack is moved in one frame
+	float posX, posY;
+	int steps, whichStep;
+	int curStackPos; //position of stack before move
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CBattleStackMoved(CBattleInterface * _owner, int _number, int _destHex, bool _endMoving, int _distance);
+};
+
+class CBattleMoveStart : public CBattleStackAnimation
+{
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CBattleMoveStart(CBattleInterface * _owner, int stack);
+};
+
+class CBattleMoveEnd : public CBattleStackAnimation
+{
+private:
+	int destinationTile;
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CBattleMoveEnd(CBattleInterface * _owner, int stack, int destTile);
+};
+
+class CBattleAttack : public CBattleStackAnimation
+{
+protected:
+	int IDby; //attacked stack
+	int dest; //atacked hex
+	int frame, maxframe; //frame of animation, number of frames of animation
+	int hitCount; //for delaying animation
+	bool reversing;
+	int posShiftDueToDist;
+	bool shooting;
+	int group; //if shooting is true, print this animation group
+	int sh;			   // temporary sound handler
+public:
+	void nextFrame();
+
+	bool checkInitialConditions();
+
+	CBattleAttack(CBattleInterface * _owner, int _stackID);
+};
+
+class CMeleeAttack : public CBattleAttack
+{
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest);
+};
+
+class CShootingAnim : public CBattleAttack
+{
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest);
+};
+
+//end of battle animation handlers
+
+
 class CBattleHero : public CIntObject
 {
 public:
@@ -182,45 +346,17 @@ private:
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or cancelled)
 
-	class CAttHelper
-	{
-	public:
-		int ID; //attacking stack
-		int IDby; //attacked stack
-		int dest; //atacked hex
-		int frame, maxframe; //frame of animation, number of frames of animation
-		int hitCount; //for delaying animation
-		bool reversing;
-		int posShiftDueToDist;
-		bool shooting;
-		int shootingGroup; //if shooting is true, print this animation group
-		int sh;			   // temporary sound handler
-	} * attackingInfo;
-	void attackingShowHelper();
 	void showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to); //helper function for function show
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks); //helper function for show
 	void redrawBackgroundWithHexes(int activeStack);
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 
-	struct SProjectileInfo
-	{
-		int x, y; //position on the screen
-		int dx, dy; //change in position in one step
-		int step, lastStep; //to know when finish showing this projectile
-		int creID; //ID of creature that shot this projectile
-		int frameNum; //frame to display form projectile animation
-		bool spin; //if true, frameNum will be increased
-		int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
-		bool reverse; //if true, projectile will be flipped by vertical asix
-	};
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 	bool blockedByObstacle(int hex) const;
 	bool isCatapultAttackable(int hex) const; //returns true if given tile can be attacked by catapult
-
-	void handleEndOfMove(int stackNumber, int destinationTile); //helper function
 
 	struct SBattleEffect
 	{
@@ -249,6 +385,9 @@ private:
 		friend class CPlayerInterface;
 	} * siegeH;
 public:
+	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
+	unsigned int animIDhelper; //for giving IDs for animations
+
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect); //c-tor
 	~CBattleInterface(); //d-tor
 
@@ -291,19 +430,6 @@ public:
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	void clickRight(tribool down, bool previousState);
 
-	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
-	void handleStartMoving(int number); //animation of starting move; some units don't have this animation (ie. halberdier)
-
-	struct SStackAttackedInfo
-	{
-		int ID; //id of attacked stack
-		int dmg; //damage dealt
-		int amountKilled; //how many creatures in stack has been killed
-		int IDby; //ID of attacking stack
-		bool byShooting; //if true, stack has been attacked by shooting
-		bool killed; //if true, stack has been killed
-	};
-
 	//call-ins
 	void newStack(int stackID); //new stack appeared on battlefield
 	void stackRemoved(int stackID); //stack disappeared from batlefiled
@@ -326,6 +452,15 @@ public:
 	friend class CPlayerInterface;
 	friend class AdventureMapButton;
 	friend class CInGameConsole;
+	friend class CReverseAnim;
+	friend class CBattleAnimation;
+	friend class CDefenceAnim;
+	friend class CBattleStackMoved;
+	friend class CBattleMoveStart;
+	friend class CBattleMoveEnd;
+	friend class CBattleAttack;
+	friend class CMeleeAttack;
+	friend class CShootingAnim;
 };
 
 #endif // __CBATTLEINTERFACE_H__

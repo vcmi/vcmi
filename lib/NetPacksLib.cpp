@@ -720,7 +720,10 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
-	assert(st);
+
+	if(ba.actionType != 1) //don't check for stack if it's custom action by hero
+		assert(st);
+
 	switch(ba.actionType)
 	{
 	case 3:

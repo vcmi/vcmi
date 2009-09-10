@@ -71,11 +71,862 @@ static void transformPalette(SDL_Surface * surf, float rCor, float gCor, float b
 		}
 	}
 }
+////////////////////////Battle helpers
+
+//general anim
+
+void CBattleAnimation::endAnim()
+{
+	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	{
+		if(it->first == this)
+		{
+			it->first = NULL;
+		}
+	}
+}
+
+bool CBattleAnimation::isEarliest()
+{
+	int lowestMoveID = owner->animIDhelper + 5;
+	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	{
+		if(it->first)
+			amin(lowestMoveID, it->first->ID);
+	}
+	return ID == lowestMoveID;
+}
+
+CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
+: owner(_owner), ID(_owner->animIDhelper++)
+{}
+
+//stack's aniamtion
+
+CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, int stack)
+: CBattleAnimation(_owner), stackID(stack)
+{
+}
+
+//revering animation
+
+bool CReverseAnim::init()
+{
+	if( !isEarliest() )
+		return false;
+
+	if(owner->creAnims[stackID]==NULL)
+	{
+		endAnim();
+
+		return false; //there is no such creature
+	}
+	
+	owner->creAnims[stackID]->setType(8);
+
+	return true;
+}
+
+void CReverseAnim::nextFrame()
+{
+	if(partOfAnim == 1) //first part of animation
+	{
+		if(owner->creAnims[stackID]->onLastFrameInGroup())
+		{
+			partOfAnim = 2;
+		}
+	}
+	else if(partOfAnim == 2)
+	{
+		if(!secondPartSetup)
+		{
+			owner->creDir[stackID] = !owner->creDir[stackID];
+
+			const CStack * curs = LOCPLINT->cb->battleGetStackByID(stackID);
+			std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stackID], curs, owner);
+			owner->creAnims[stackID]->pos.x = coords.first;
+			//creAnims[stackID]->pos.y = coords.second;
+
+			if(curs->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				if(curs->attackerOwned)
+				{
+					if(!owner->creDir[stackID])
+						owner->creAnims[stackID]->pos.x -= 44;
+				}
+				else
+				{
+					if(owner->creDir[stackID])
+						owner->creAnims[stackID]->pos.x += 44;
+				}
+			}
+
+			owner->creAnims[stackID]->setType(7);
+			secondPartSetup = true;
+		}
+
+		if(owner->creAnims[stackID]->onLastFrameInGroup())
+		{
+			endAnim();
+		}
+	}
+}
+
+void CReverseAnim::endAnim()
+{
+	CBattleAnimation::endAnim();
+	if( LOCPLINT->cb->battleGetStackByID(stackID) )//don't do that if stack is dead
+		owner->creAnims[stackID]->setType(2);
+
+	delete this;
+}
+
+CReverseAnim::CReverseAnim(CBattleInterface * _owner, int stack, int dest)
+: CBattleStackAnimation(_owner, stack), partOfAnim(1), hex(dest), secondPartSetup(false)
+{
+}
+
+
+//defence anim
+
+bool CDefenceAnim::init()
+{
+	//checking initial conditions
+
+	//if(owner->creAnims[stackID]->getType() != 2)
+	//{
+	//	return false;
+	//}
+
+	int lowestMoveID = owner->animIDhelper + 5;
+	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	{
+		if(dynamic_cast<CDefenceAnim *>(it->first))
+			continue;
+
+		if(it->first)
+			amin(lowestMoveID, it->first->ID);
+	}
+	if(ID > lowestMoveID)
+		return false;
+
+
+	if(byShooting) //delay hit animation
+	{
+		const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+		
+		for(std::list<SProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
+		{
+			if(it->creID == attacker->creature->idNumber)
+			{
+				return false;
+			}
+		}
+	}
+
+	//initializing
+	int maxLen = 0;
+
+	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
+		
+	if(killed)
+	{
+		CGI->soundh->playSound(attacked->creature->sounds.killed);
+		owner->creAnims[stackID]->setType(5); //death
+	}
+	else
+	{
+		// TODO: this block doesn't seems correct if the unit is defending.
+		CGI->soundh->playSound(attacked->creature->sounds.wince);
+		owner->creAnims[stackID]->setType(3); //getting hit
+	}
+
+	return true; //initialized successfuly
+}
+
+void CDefenceAnim::nextFrame()
+{
+	if(continueAnim)
+	{
+		if((owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0 && !owner->creAnims[stackID]->onLastFrameInGroup())
+		{
+			owner->creAnims[stackID]->incrementFrame();
+		}
+		if(owner->creAnims[stackID]->onLastFrameInGroup() && owner->creAnims[stackID]->getType() == 3)
+			owner->creAnims[stackID]->setType(2);
+
+		if(owner->creAnims[stackID]->onLastFrameInGroup())
+		{
+			continueAnim = false;
+		}
+	}
+	else
+	{
+		endAnim();
+	}
+	
+}
+
+void CDefenceAnim::endAnim()
+{
+	//restoring animType
+
+	if(owner->creAnims[stackID]->getType() == 3)
+		owner->creAnims[stackID]->setType(2);
+
+	//printing info to console
+
+	if(IDby!=-1)
+		owner->printConsoleAttacked(stackID, dmg, amountKilled, IDby);
+
+
+	CBattleAnimation::endAnim();
+
+	delete this;
+}
+
+CDefenceAnim::CDefenceAnim(SStackAttackedInfo _attackedInfo, CBattleInterface * _owner)
+: CBattleStackAnimation(_owner, _attackedInfo.ID), continueAnim(true), dmg(_attackedInfo.dmg),
+	amountKilled(_attackedInfo.amountKilled), IDby(_attackedInfo.IDby), byShooting(_attackedInfo.byShooting),
+	killed(_attackedInfo.killed)
+{
+}
+
+////move anim
+
+bool CBattleStackMoved::init()
+{
+	if( !isEarliest() )
+		return false;
+
+	//a few useful variables
+	steps = owner->creAnims[stackID]->framesInGroup(0)*owner->getAnimSpeedMultiplier()-1;
+	whichStep = 0;
+	int hexWbase = 44, hexHbase = 42;
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+	if(!movedStack)
+	{
+		endAnim();
+		return false;
+	}
+	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+
+	
+	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
+	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
+
+	owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
+	CGI->curh->hide();
+	owner->creAnims[stackID]->setType(0);
+
+	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
+	
+	//reverse unit if necessary
+	if((begPosition.first > endPosition.first) && owner->creDir[stackID] == true)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, curStackPos), false));
+		return false;
+	}
+	else if ((begPosition.first < endPosition.first) && owner->creDir[stackID] == false)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, curStackPos), false));
+		return false;
+	}
+	if(owner->creAnims[stackID]->getType() != 0)
+	{
+		owner->creAnims[stackID]->setType(0);
+	}
+	//unit reversed
+
+	//step shift calculation
+	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
+	if(mutPos == -1 && movedStack->hasFeatureOfType(StackFeature::FLYING)) 
+	{
+		steps *= distance;
+
+		stepX = (endPosition.first - (float)begPosition.first)/steps;
+		stepY = (endPosition.second - (float)begPosition.second)/steps;
+	}
+	else
+	{
+		switch(mutPos)
+		{
+		case 0:
+			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
+			stepY = (-1.0)*((float)hexHbase)/((float)steps);
+			break;
+		case 1:
+			stepX = ((float)hexWbase)/(2.0f*steps);
+			stepY = (-1.0)*((float)hexHbase)/((float)steps);
+			break;
+		case 2:
+			stepX = ((float)hexWbase)/((float)steps);
+			stepY = 0.0;
+			break;
+		case 3:
+			stepX = ((float)hexWbase)/(2.0f*steps);
+			stepY = ((float)hexHbase)/((float)steps);
+			break;
+		case 4:
+			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
+			stepY = ((float)hexHbase)/((float)steps);
+			break;
+		case 5:
+			stepX = (-1.0)*((float)hexWbase)/((float)steps);
+			stepY = 0.0;
+			break;
+		}
+	}
+	//step shifts calculated
+
+	return true;
+}
+
+void CBattleStackMoved::nextFrame()
+{
+	//moving instructions
+	posX += stepX;
+	owner->creAnims[stackID]->pos.x = posX;
+	posY += stepY;
+	owner->creAnims[stackID]->pos.y = posY;
+
+	++whichStep;
+	if(whichStep == steps)
+	{
+		endAnim();
+	}
+}
+
+void CBattleStackMoved::endAnim()
+{
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+
+	CBattleAnimation::endAnim();
+
+	if(movedStack)
+	{
+		bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+
+		if(endMoving)
+		{
+			owner->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(owner, stackID, destHex), false));
+		}
+
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, owner->creDir[stackID], movedStack, owner);
+		owner->creAnims[stackID]->pos.x = coords.first;
+		if(!endMoving && twoTiles && bool(movedStack->attackerOwned) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big attacker creature is reversed
+			owner->creAnims[stackID]->pos.x -= 44;
+		else if(!endMoving && twoTiles && (! bool(movedStack->attackerOwned) ) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big defender creature is reversed
+			owner->creAnims[stackID]->pos.x += 44;
+		owner->creAnims[stackID]->pos.y = coords.second;
+	}
+
+	delete this;
+}
+
+CBattleStackMoved::CBattleStackMoved(CBattleInterface * _owner, int _number, int _destHex, bool _endMoving, int _distance)
+: CBattleStackAnimation(_owner, _number), destHex(_destHex), endMoving(_endMoving), distance(_distance), stepX(0.0f), stepY(0.0f)
+{
+	curStackPos = LOCPLINT->cb->battleGetPos(stackID);
+}
+
+//move started
+
+bool CBattleMoveStart::init()
+{
+	if( !isEarliest() )
+		return false;
+
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+
+	if(!movedStack)
+	{
+		CBattleMoveStart::endAnim();
+		return false;
+	}
+
+	if (movedStack->creature->sounds.startMoving)
+		CGI->soundh->playSound(movedStack->creature->sounds.startMoving);
+
+	return true;
+}
+
+void CBattleMoveStart::nextFrame()
+{
+	if(owner->creAnims[stackID]->onLastFrameInGroup())
+	{
+		endAnim();
+	}
+	else
+	{
+		if((owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0)
+			owner->creAnims[stackID]->incrementFrame();
+	}
+}
+
+void CBattleMoveStart::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	delete this;
+}
+
+CBattleMoveStart::CBattleMoveStart(CBattleInterface * _owner, int stack)
+: CBattleStackAnimation(_owner, stack)
+{
+}
+
+//move finished
+
+bool CBattleMoveEnd::init()
+{
+	if( !isEarliest() )
+		return false;
+
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+	if(!movedStack || owner->creAnims[stackID]->framesInGroup(21) == 0)
+	{
+		endAnim();
+
+		return false;
+	}
+
+	
+	if (movedStack->creature->sounds.endMoving)
+	{
+		CGI->soundh->playSound(movedStack->creature->sounds.endMoving);
+	}
+
+	owner->creAnims[stackID]->setType(21);
+
+	return true;
+}
+
+void CBattleMoveEnd::nextFrame()
+{
+	if(owner->creAnims[stackID]->onLastFrameInGroup())
+	{
+		endAnim();
+	}
+}
+
+void CBattleMoveEnd::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+
+	if(movedStack)
+		owner->creAnims[stackID]->setType(2); //resetting to default
+
+	CGI->curh->show();
+	CGI->soundh->stopSound(owner->moveSh);
+
+	if(movedStack && owner->creDir[stackID] != bool(movedStack->attackerOwned))
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, destinationTile), false));
+	}
+
+	delete this;
+}
+
+CBattleMoveEnd::CBattleMoveEnd(CBattleInterface * _owner, int stack, int destTile)
+: CBattleStackAnimation(_owner, stack), destinationTile(destTile)
+{
+}
+
+//general attack anim
+
+void CBattleAttack::nextFrame()
+{
+	if(owner->creAnims[stackID]->getType() != group)
+		owner->creAnims[stackID]->setType(group);
+
+	if(frame == 0)
+	{
+		const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
+		if(shooting)
+		{
+			// TODO: I see that we enter this function twice with
+			// attackingInfo->frame==0, so all the inits are done
+			// twice. The following is just a workaround until
+			// that is fixed. Once done, we can get rid of
+			// sh
+			if (sh == -1)
+				sh = CGI->soundh->playSound(aStack->creature->sounds.shoot);
+			owner->creAnims[stackID]->setType(group);
+		}
+		else
+		{
+			// TODO: see comment above
+			if (sh == -1)
+				sh = CGI->soundh->playSound(aStack->creature->sounds.attack);
+
+			static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
+			int type; //dependent on attack direction
+			if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				type = dirToType[ BattleInfo::mutualPosition(aStack->position + posShiftDueToDist, dest) ]; //attack direction
+			}
+			else //else for if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				type = BattleInfo::mutualPosition(aStack->position, dest);
+			}
+			owner->creAnims[stackID]->setType(type);
+		}
+	}
+	else if(frame == (maxframe - 1))
+	{
+		const CStack* aStackp = LOCPLINT->cb->battleGetStackByID(stackID); //attacking stack
+		if(aStackp == NULL)
+			return;
+
+		bool reverse = false;
+		if(aStackp->attackerOwned)
+		{
+			if(aStackp->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				switch(BattleInfo::mutualPosition(aStackp->position, dest)) //attack direction
+				{
+					case 5:
+						reverse = true;
+						break;
+					case -1:
+						if(posShiftDueToDist) //if reversing stack will make its position adjacent to dest
+						{
+							reverse = true;
+						}
+						break;
+				}
+			}
+			else //else for if(aStackp->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				switch(BattleInfo::mutualPosition(aStackp->position, dest)) //attack direction
+				{
+				case 0: case 4: case 5:
+					reverse = true;
+					break;
+				}
+			}
+		}
+		else //if(aStackp->attackerOwned)
+		{
+			if(aStackp->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				switch(BattleInfo::mutualPosition(aStackp->position, dest)) //attack direction
+				{
+					case 2:
+						reverse = true;
+						break;
+					case -1:
+						if(posShiftDueToDist) //if reversing stack will make its position adjacent to dest
+						{
+							reverse = true;
+						}
+						break;
+				}
+			}
+			else //else for if(aStackp->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			{
+				switch(BattleInfo::mutualPosition(aStackp->position, dest)) //attack direction
+				{
+				case 1: case 2: case 3:
+					reverse = true;
+					break;
+				}
+			}
+		}
+
+		if(reverse)
+		{
+			reversing = true;
+			owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, aStackp->position), false));
+		}
+
+		owner->creAnims[stackID]->setType(2);
+		endAnim();
+		return; //execution of endAnim deletes this !!!
+	}
+
+	hitCount++;
+	if(hitCount%(4/CBattleInterface::settings.animSpeed) == 0)
+		frame++;
+
+}
+
+bool CBattleAttack::checkInitialConditions()
+{
+	return isEarliest();
+}
+
+CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID)
+: CBattleStackAnimation(_owner, _stackID), frame(0), hitCount(0), sh(-1)
+{
+}
+
+////melee attack
+
+bool CMeleeAttack::init()
+{
+	if( !CBattleAttack::checkInitialConditions() )
+		return false;
+
+	//if(owner->creAnims[stackID]->getType()!=2)
+	//{
+	//	return false;
+	//}
+
+	owner->pendingAnims.push_back(std::make_pair(new CBattleMoveStart(owner, stackID), false));
+
+	const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID); //attacking stack
+
+	if(!aStack)
+	{
+		endAnim();
+		
+		return false;
+	}
+
+	int reversedShift = 0; //shift of attacking stack's position due to reversing
+
+	//reversing stack if necessary
+	bool reverse = false;
+	if(aStack->attackerOwned)
+	{
+		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		{
+			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			{
+			case 5:
+				reverse = true;
+				break;
+			case -1:
+				if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+				{
+					reverse = true;
+					reversedShift = (aStack->attackerOwned ? -1 : 1);
+				}
+				break;
+			}
+		}
+		else //else for if(astack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		{
+			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			{
+			case 0: case 4: case 5:
+				{
+					reverse = true;
+					break;
+				}
+			}
+		}
+	}
+	else //if(astack->attackerOwned)
+	{
+		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		{
+			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			{
+			case 2:
+				{
+					reverse = true;
+					break;
+				}
+			case -1:
+				{
+					if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+					{
+						reverse = true;
+						reversedShift = (aStack->attackerOwned ? -1 : 1);
+					}
+					break;
+				}
+			}
+		}
+		else //else for if(astack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		{
+			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			{
+			case 1: case 2: case 3:
+				{
+					reverse = true;
+					break;
+				}
+			}
+
+		}
+	}
+	if(reverse)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, aStack->position), false));
+	}
+	//reversed
+
+	IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
+	reversing = false;
+	shooting = false;
+	posShiftDueToDist = reversedShift;
+
+	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
+
+	int mutPos = BattleInfo::mutualPosition(aStack->position + reversedShift, dest);
+	switch(mutPos) //attack direction
+	{
+	case 0: case 1: case 2: case 3: case 4: case 5:
+		maxframe = owner->creAnims[stackID]->framesInGroup(mutPosToGroup[mutPos]);
+		group = mutPosToGroup[mutPos];
+		break;
+	default:
+		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<aStack->position<<" reversed shift: "<<reversedShift<<std::endl;
+	}
+
+	return true;
+}
+
+void CMeleeAttack::nextFrame()
+{
+	/*for(std::list<std::pair<CBattleAnimation *, bool> >::const_iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	{
+		CBattleMoveStart * anim = dynamic_cast<CBattleMoveStart *>(it->first);
+		CReverseAnim * anim2 = dynamic_cast<CReverseAnim *>(it->first);
+		if( (anim && anim->stackID == stackID) || (anim2 && anim2->stackID == stackID ) )
+			return;
+	}*/
+
+	CBattleAttack::nextFrame();
+}
+
+void CMeleeAttack::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	delete this;
+}
+
+CMeleeAttack::CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest)
+: CBattleAttack(_owner, attacker)
+{
+	dest = _dest;
+}
+
+//shooting anim
+
+bool CShootingAnim::init()
+{
+	if( !CBattleAttack::checkInitialConditions() )
+		return false;
+
+
+	//projectile
+	float projectileAngle; //in radians; if positive, projectiles goes up
+	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
+	int fromHex = LOCPLINT->cb->battleGetPos(stackID);
+	projectileAngle = atan2(float(abs(dest - fromHex)/BFIELD_WIDTH), float(abs(dest - fromHex)%BFIELD_WIDTH));
+	if(fromHex < dest)
+		projectileAngle = -projectileAngle;
+
+	SProjectileInfo spi;
+	spi.creID = LOCPLINT->cb->battleGetStackByID(stackID)->creature->idNumber;
+	spi.reverse = !LOCPLINT->cb->battleGetStackByID(stackID)->attackerOwned;
+
+	spi.step = 0;
+	spi.frameNum = 0;
+	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
+	const CStack * shooter = LOCPLINT->cb->battleGetStackByID(stackID);
+
+	if(!shooter)
+	{
+		endAnim();
+		return false;
+	}
+
+	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByPos(dest, false), owner); 
+	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
+
+	if(projectileAngle > straightAngle) //upper shot
+	{
+		spi.x = xycoord.first + 200 + shooter->creature->upperRightMissleOffsetX;
+		spi.y = xycoord.second + 100 - shooter->creature->upperRightMissleOffsetY;
+	}
+	else if(projectileAngle < -straightAngle) //lower shot
+	{
+		spi.x = xycoord.first + 200 + shooter->creature->lowerRightMissleOffsetX;
+		spi.y = xycoord.second + 150 - shooter->creature->lowerRightMissleOffsetY;
+	}
+	else //straight shot
+	{
+		spi.x = xycoord.first + 200 + shooter->creature->rightMissleOffsetX;
+		spi.y = xycoord.second + 125 - shooter->creature->rightMissleOffsetY;
+	}
+	spi.lastStep = sqrt((float)((destcoord.first - spi.x)*(destcoord.first - spi.x) + (destcoord.second - spi.y) * (destcoord.second - spi.y))) / 40;
+	if(spi.lastStep == 0)
+		spi.lastStep = 1;
+	spi.dx = (destcoord.first - spi.x) / spi.lastStep;
+	spi.dy = (destcoord.second - spi.y) / spi.lastStep;
+	//set starting frame
+	if(spi.spin)
+	{
+		spi.frameNum = 0;
+	}
+	else
+	{
+		spi.frameNum = ((M_PI/2.0f - projectileAngle) / (2.0f *M_PI) + 1/((float)(2*(owner->idToProjectile[spi.creID]->ourImages.size()-1)))) * (owner->idToProjectile[spi.creID]->ourImages.size()-1);
+	}
+	//set delay
+	spi.animStartDelay = CGI->creh->creatures[spi.creID].attackClimaxFrame;
+	owner->projectiles.push_back(spi);
+
+	//attack aniamtion
+	IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
+	reversing = false;
+	posShiftDueToDist = 0;
+	shooting = true;
+
+	if(projectileAngle > straightAngle) //upper shot
+		group = 14;
+	else if(projectileAngle < -straightAngle) //lower shot
+		group = 16;
+	else //straight shot
+		group = 15;
+
+	maxframe = owner->creAnims[stackID]->framesInGroup(group);
+
+	return true;
+}
+
+void CShootingAnim::nextFrame()
+{
+	for(std::list<std::pair<CBattleAnimation *, bool> >::const_iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	{
+		CBattleMoveStart * anim = dynamic_cast<CBattleMoveStart *>(it->first);
+		CReverseAnim * anim2 = dynamic_cast<CReverseAnim *>(it->first);
+		if( (anim && anim->stackID == stackID) || (anim2 && anim2->stackID == stackID ) )
+			return;
+	}
+
+	CBattleAttack::nextFrame();
+}
+
+void CShootingAnim::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	delete this;
+}
+
+CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest)
+: CBattleAttack(_owner, attacker)
+{
+	dest = _dest;
+}
+
+////////////////////////
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
-	  spellToCast(NULL), attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
+	  spellToCast(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), animIDhelper(0),
 	  showStackQueue(false), moveStarted(false), moveSh(-1), siegeH(NULL)
 {
 	pos = myRect;
@@ -514,7 +1365,30 @@ void CBattleInterface::show(SDL_Surface * to)
 			stackDeadByHex[j->second.position].push_back(j->second.ID);
 	}
 
-	attackingShowHelper(); // handle attack animation
+	//handle animations
+	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = pendingAnims.begin(); it != pendingAnims.end(); ++it)
+	{
+		if(!it->first) //this animation should be deleted
+			continue;
+
+		if(!it->second)
+		{
+			it->second = it->first->init();
+		}
+		if(it->second && it->first)
+			it->first->nextFrame();
+	}
+
+	//delete anims
+	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = pendingAnims.begin(); it != pendingAnims.end(); ++it)
+	{
+		if(it->first == NULL)
+		{
+			pendingAnims.erase(it);
+			it = pendingAnims.begin();
+			break;
+		}
+	}
 
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing dead stacks
 	{
@@ -849,26 +1723,22 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			}
 			else //available tile
 			{
+				//setting console text and cursor
 				const CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
+				char buf[500];
 				if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::FLYING))
 				{
 					CGI->curh->changeGraphic(1,2);
-					//setting console text
-					char buf[500];
 					sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
-					console->alterTxt = buf;
-					console->whoSetAlter = 0;
 				}
 				else
 				{
 					CGI->curh->changeGraphic(1,1);
-					//setting console text
-					char buf[500];
 					sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
-					console->alterTxt = buf;
-					console->whoSetAlter = 0;
 				}
 
+				console->alterTxt = buf;
+				console->whoSetAlter = 0;
 			}
 		}
 	}
@@ -962,66 +1832,6 @@ void CBattleInterface::clickRight(tribool down, bool previousState)
 	if(!down && spellDestSelectMode)
 	{
 		endCastingSpell();
-	}
-}
-
-bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
-{
-	if(creAnims[number]==NULL)
-		return false; //there is no such creature
-	creAnims[number]->setType(8);
-	//int firstFrame = creAnims[number]->getFrame();
-	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(8) + firstFrame - 1; ++g)
-	while(!creAnims[number]->onLastFrameInGroup())
-	{
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-	}
-	creDir[number] = !creDir[number];
-
-	const CStack * curs = LOCPLINT->cb->battleGetStackByID(number);
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs, this);
-	creAnims[number]->pos.x = coords.first;
-	//creAnims[number]->pos.y = coords.second;
-
-	if(wideTrick && curs->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-	{
-		if(curs->attackerOwned)
-		{
-			if(!creDir[number])
-				creAnims[number]->pos.x -= 44;
-		}
-		else
-		{
-			if(creDir[number])
-				creAnims[number]->pos.x += 44;
-		}
-	}
-
-	creAnims[number]->setType(7);
-	//firstFrame = creAnims[number]->getFrame();
-	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(7) + firstFrame - 1; ++g)
-	while(!creAnims[number]->onLastFrameInGroup())
-	{
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-	}
-	creAnims[number]->setType(2);
-
-	return true;
-}
-
-void CBattleInterface::handleStartMoving(int number)
-{
-	for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
-	{
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%(4/settings.animSpeed)==0)
-			creAnims[number]->incrementFrame();
 	}
 }
 
@@ -1160,398 +1970,20 @@ void CBattleInterface::stackActivated(int number)
 
 void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int distance)
 {
-	bool startMoving = creAnims[number]->getType()==20;
-	//a few useful variables
-	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
-	int hexWbase = 44, hexHbase = 42;
-	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(number);
-	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
-
-	
-	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, this);
-	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, this);
-
-	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
-	{
-		if (movedStack->creature->sounds.startMoving)
-			CGI->soundh->playSound(movedStack->creature->sounds.startMoving);
-		handleStartMoving(number);
-	}
-	if(moveStarted)
-	{
-		moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
-		CGI->curh->hide();
-		creAnims[number]->setType(0);
-		moveStarted = false;
-	}
-
-	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
-	float stepX=0.0, stepY=0.0; //how far stack is moved in one frame; calculated later
-
-	//reverse unit if necessary
-	if((begPosition.first > endPosition.first) && creDir[number] == true)
-	{
-		reverseCreature(number, curStackPos, twoTiles);
-	}
-	else if ((begPosition.first < endPosition.first) && creDir[number] == false)
-	{
-		reverseCreature(number, curStackPos, twoTiles);
-	}
-	if(creAnims[number]->getType() != 0)
-	{
-		creAnims[number]->setType(0);
-	}
-	//unit reversed
-
-	//step shift calculation
-	float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
-	if(mutPos == -1 && movedStack->hasFeatureOfType(StackFeature::FLYING)) 
-	{
-		steps *= distance;
-
-		stepX = (endPosition.first - (float)begPosition.first)/steps;
-		stepY = (endPosition.second - (float)begPosition.second)/steps;
-	}
-	else
-	{
-		switch(mutPos)
-		{
-		case 0:
-			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
-			stepY = (-1.0)*((float)hexHbase)/((float)steps);
-			break;
-		case 1:
-			stepX = ((float)hexWbase)/(2.0f*steps);
-			stepY = (-1.0)*((float)hexHbase)/((float)steps);
-			break;
-		case 2:
-			stepX = ((float)hexWbase)/((float)steps);
-			stepY = 0.0;
-			break;
-		case 3:
-			stepX = ((float)hexWbase)/(2.0f*steps);
-			stepY = ((float)hexHbase)/((float)steps);
-			break;
-		case 4:
-			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
-			stepY = ((float)hexHbase)/((float)steps);
-			break;
-		case 5:
-			stepX = (-1.0)*((float)hexWbase)/((float)steps);
-			stepY = 0.0;
-			break;
-		}
-	}
-	//step shifts calculated
-
-	//switch(mutPos) //reverse unit if necessary
-	//{
-	//case 0:	case 4:	case 5:
-	//	if(creDir[number] == true)
-	//		reverseCreature(number, curStackPos, twoTiles);
-	//	break;
-	//case 1:	case 2: case 3:
-	//	if(creDir[number] == false)
-	//		reverseCreature(number, curStackPos, twoTiles);
-	//	break;
-	//}
-
-	//moving instructions
-	for(int i=0; i<steps; ++i)
-	{
-		posX += stepX;
-		creAnims[number]->pos.x = posX;
-		posY += stepY;
-		creAnims[number]->pos.y = posY;
-		
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-	}
-	//unit moved
-	if(endMoving)
-	{
-		handleEndOfMove(number, destHex);
-	}
-
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack, this);
-	creAnims[number]->pos.x = coords.first;
-	if(!endMoving && twoTiles && (movedStack->owner == attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
-		creAnims[number]->pos.x -= 44;
-	else if(!endMoving && twoTiles && (movedStack->owner != attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big defender creature is reversed
-		creAnims[number]->pos.x += 44;
-	creAnims[number]->pos.y = coords.second;
+	pendingAnims.push_back(std::make_pair(new CBattleStackMoved(this, number, destHex, endMoving, distance), false));
 }
 
-void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAttackedInfo> attackedInfos)
+void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos)
 {
-	//restoring default state of battleWindow by calling show func
-	while(true)
+	for(int h = 0; h < attackedInfos.size(); ++h)
 	{
-		show(screen);
-		CSDL_Ext::update();
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-
-		//checking break conditions
-		bool break_loop = true;
-		for(size_t g=0; g<attackedInfos.size(); ++g)
-		{
-			if(creAnims[attackedInfos[g].ID]->getType() != 2)
-			{
-				break_loop = false;
-			}
-			if(attackingInfo && attackingInfo->IDby == attackedInfos[g].IDby)
-			{
-				break_loop = false;
-			}
-		}
-		if(break_loop) break;
-	}
-	if(attackedInfos.size() == 1 && attackedInfos[0].byShooting) //delay hit animation
-	{
-		CStack attacker = *LOCPLINT->cb->battleGetStackByID(attackedInfos[0].IDby);
-		while(true)
-		{
-			bool found = false;
-			for(std::list<SProjectileInfo>::const_iterator it = projectiles.begin(); it!=projectiles.end(); ++it)
-			{
-				if(it->creID == attacker.creature->idNumber)
-				{
-					found = true;
-					break;
-				}
-			}
-			if(!found)
-				break;
-			else
-			{
-				show(screen);
-				CSDL_Ext::update(screen);
-				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			}
-		}
-	}
-	//initializing
-	int maxLen = 0;
-	for(size_t g=0; g<attackedInfos.size(); ++g)
-	{
-		const CStack * attacked = LOCPLINT->cb->battleGetStackByID(attackedInfos[g].ID, false);
-			
-		if(attackedInfos[g].killed)
-		{
-			CGI->soundh->playSound(attacked->creature->sounds.killed);
-			creAnims[attackedInfos[g].ID]->setType(5); //death
-		}
-		else
-		{
-			// TODO: this block doesn't seems correct if the unit is defending.
-			CGI->soundh->playSound(attacked->creature->sounds.wince);
-			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
-		}
-	}
-	//main showing loop
-	bool continueLoop = true;
-	while(continueLoop)
-	{
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_Delay(5);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		for(size_t g=0; g<attackedInfos.size(); ++g)
-		{
-			if((animCount+1)%(4/settings.animSpeed)==0 && !creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
-			{
-				creAnims[attackedInfos[g].ID]->incrementFrame();
-			}
-			if(creAnims[attackedInfos[g].ID]->onLastFrameInGroup() && creAnims[attackedInfos[g].ID]->getType() == 3)
-				creAnims[attackedInfos[g].ID]->setType(2);
-		}
-		bool isAnotherOne = false; //if true, there is a stack whose hit/death anim must be continued
-		for(size_t g=0; g<attackedInfos.size(); ++g)
-		{
-			if(!creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
-			{
-				isAnotherOne = true;
-				break;
-			}
-		}
-		if(!isAnotherOne)
-			continueLoop = false;
-	}
-	//restoring animType
-	for(size_t g=0; g<attackedInfos.size(); ++g)
-	{
-		if(creAnims[attackedInfos[g].ID]->getType() == 3)
-			creAnims[attackedInfos[g].ID]->setType(2);
-	}
-
-	//printing info to console
-	for(size_t g=0; g<attackedInfos.size(); ++g)
-	{
-		if(attackedInfos[g].IDby!=-1)
-			printConsoleAttacked(attackedInfos[g].ID, attackedInfos[g].dmg, attackedInfos[g].amountKilled, attackedInfos[g].IDby);
+		pendingAnims.push_back(std::make_pair(new CDefenceAnim(attackedInfos[h], this), false));
 	}
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
-	if(attackingInfo == NULL && creAnims[ID]->getType() == 20)
-	{
-		handleStartMoving(ID);
-		creAnims[ID]->setType(2);
-	}
-	while(attackingInfo != NULL || creAnims[ID]->getType()!=2)
-	{
-		show(screen);
-		CSDL_Ext::update(screen);
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-	}
-	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
-	int reversedShift = 0; //shift of attacking stack's position due to reversing
-	if(aStack.attackerOwned)
-	{
-		if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
-			{
-				case 0:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 1:
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-				case 4:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 5:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case -1:
-					if(BattleInfo::mutualPosition(aStack.position + (aStack.attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-					{
-						reverseCreature(ID, aStack.position, true);
-						reversedShift = (aStack.attackerOwned ? -1 : 1);
-					}
-					break;
-			}
-		}
-		else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
-			{
-				case 0:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 1:
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-				case 4:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 5:
-					reverseCreature(ID, aStack.position, true);
-					break;
-			}
-		}
-	}
-	else //if(aStack.attackerOwned)
-	{
-		if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
-			{
-				case 0:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 1:
-					break;
-				case 2:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 3:
-					break;
-				case 4:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 5:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case -1:
-					if(BattleInfo::mutualPosition(aStack.position + (aStack.attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-					{
-						reverseCreature(ID, aStack.position, true);
-						reversedShift = (aStack.attackerOwned ? -1 : 1);
-					}
-					break;
-			}
-		}
-		else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
-			{
-				case 0:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 1:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 2:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 3:
-					reverseCreature(ID, aStack.position, true);
-					break;
-				case 4:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-				case 5:
-					//reverseCreature(ID, aStack.position, true);
-					break;
-			}
-		}
-	}
-
-	attackingInfo = new CAttHelper;
-	attackingInfo->dest = dest;
-	attackingInfo->frame = 0;
-	attackingInfo->hitCount = 0;
-	attackingInfo->ID = ID;
-	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
-	attackingInfo->reversing = false;
-	attackingInfo->posShiftDueToDist = reversedShift;
-	attackingInfo->shooting = false;
-	attackingInfo->sh = -1;
-
-	switch(BattleInfo::mutualPosition(aStack.position + reversedShift, dest)) //attack direction
-	{
-		case 0:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
-			break;
-		case 1:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
-			break;
-		case 2:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
-			break;
-		case 3:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(13);
-			break;
-		case 4:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(13);
-			break;
-		case 5:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
-			break;
-		default:
-			tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<aStack.position<<" reversed shift: "<<reversedShift<<std::endl;
-	}
+	pendingAnims.push_back(std::make_pair(new CMeleeAttack(this, ID, dest), false));
 }
 
 void CBattleInterface::newRound(int number)
@@ -1626,36 +2058,6 @@ bool CBattleInterface::isCatapultAttackable(int hex) const
 		return false;
 
 	return LOCPLINT->cb->battleGetWallState(wallUnder) < 3;
-}
-
-void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
-{
-	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
-	if(!movedStack)
-		return;
-	if(creAnims[stackNumber]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
-	{
-		if (movedStack->creature->sounds.endMoving)
-		{
-			CGI->soundh->playSound(movedStack->creature->sounds.endMoving);
-		}
-
-		creAnims[stackNumber]->setType(21);
-
-		//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
-		while(!creAnims[stackNumber]->onLastFrameInGroup())
-		{
-			show(screen);
-			CSDL_Ext::update(screen);
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		}
-	}
-	creAnims[stackNumber]->setType(2); //resetting to default
-	CGI->curh->show();
-	CGI->soundh->stopSound(moveSh);
-
-	if(creDir[stackNumber] != (movedStack->owner == attackingHeroInstance->tempOwner))
-		reverseCreature(stackNumber, destinationTile, movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE));	
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
@@ -1775,19 +2177,21 @@ void CBattleInterface::hexLclicked(int whichOne)
 						break;
 					}
 				case 8: //from left
-					if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
-						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
-						if(vstd::contains(acc, whichOne))
-							attackFromHex = whichOne - 1;
+						if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+						{
+							std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+							if(vstd::contains(acc, whichOne))
+								attackFromHex = whichOne - 1;
+							else
+								attackFromHex = whichOne - 2;
+						}
 						else
-							attackFromHex = whichOne - 2;
+						{
+							attackFromHex = whichOne - 1;
+						}
+						break;
 					}
-					else
-					{
-						attackFromHex = whichOne - 1;
-					}
-					break;
 				case 9: //from top left
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
@@ -1824,33 +2228,35 @@ void CBattleInterface::hexLclicked(int whichOne)
 						break;
 					}
 				case 11: //from right
-					if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
-						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
-						if(vstd::contains(acc, whichOne))
-							attackFromHex = whichOne + 1;
+						if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+						{
+							std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+							if(vstd::contains(acc, whichOne))
+								attackFromHex = whichOne + 1;
+							else
+								attackFromHex = whichOne + 2;
+						}
 						else
-							attackFromHex = whichOne + 2;
+						{
+							attackFromHex = whichOne + 1;
+						}
+						break;
 					}
-					else
-					{
-						attackFromHex = whichOne + 1;
-					}
-					break;
 				case 13: //from bottom
 					{
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
+							attackFromHex = destHex;
 						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1858,16 +2264,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
+							attackFromHex = destHex;
 						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1883,80 +2289,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsShooting(int ID, int dest)
 {
-	if(attackingInfo != NULL)
-	{
-		return; //something went wrong
-	}
-	//projectile
-	float projectileAngle; //in radians; if positive, projectiles goes up
-	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
-	int fromHex = LOCPLINT->cb->battleGetPos(ID);
-	projectileAngle = atan2(float(abs(dest - fromHex)/BFIELD_WIDTH), float(abs(dest - fromHex)%BFIELD_WIDTH));
-	if(fromHex < dest)
-		projectileAngle = -projectileAngle;
-
-	SProjectileInfo spi;
-	spi.creID = LOCPLINT->cb->battleGetStackByID(ID)->creature->idNumber;
-	spi.reverse = !LOCPLINT->cb->battleGetStackByID(ID)->attackerOwned;
-
-	spi.step = 0;
-	spi.frameNum = 0;
-	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
-
-	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(LOCPLINT->cb->battleGetPos(ID), true, LOCPLINT->cb->battleGetStackByID(ID), this);
-	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByPos(dest), this); 
-	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
-
-	if(projectileAngle > straightAngle) //upper shot
-	{
-		spi.x = xycoord.first + 200 + LOCPLINT->cb->battleGetCreature(ID).upperRightMissleOffsetX;
-		spi.y = xycoord.second + 100 - LOCPLINT->cb->battleGetCreature(ID).upperRightMissleOffsetY;
-	}
-	else if(projectileAngle < -straightAngle) //lower shot
-	{
-		spi.x = xycoord.first + 200 + LOCPLINT->cb->battleGetCreature(ID).lowerRightMissleOffsetX;
-		spi.y = xycoord.second + 150 - LOCPLINT->cb->battleGetCreature(ID).lowerRightMissleOffsetY;
-	}
-	else //straight shot
-	{
-		spi.x = xycoord.first + 200 + LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetX;
-		spi.y = xycoord.second + 125 - LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetY;
-	}
-	spi.lastStep = sqrt((float)((destcoord.first - spi.x)*(destcoord.first - spi.x) + (destcoord.second - spi.y) * (destcoord.second - spi.y))) / 40;
-	if(spi.lastStep == 0)
-		spi.lastStep = 1;
-	spi.dx = (destcoord.first - spi.x) / spi.lastStep;
-	spi.dy = (destcoord.second - spi.y) / spi.lastStep;
-	//set starting frame
-	if(spi.spin)
-	{
-		spi.frameNum = 0;
-	}
-	else
-	{
-		spi.frameNum = ((M_PI/2.0f - projectileAngle) / (2.0f *M_PI) + 1/((float)(2*(idToProjectile[spi.creID]->ourImages.size()-1)))) * (idToProjectile[spi.creID]->ourImages.size()-1);
-	}
-	//set delay
-	spi.animStartDelay = CGI->creh->creatures[spi.creID].attackClimaxFrame;
-	projectiles.push_back(spi);
-
-	//attack aniamtion
-	attackingInfo = new CAttHelper;
-	attackingInfo->dest = dest;
-	attackingInfo->frame = 0;
-	attackingInfo->hitCount = 0;
-	attackingInfo->ID = ID;
-	attackingInfo->reversing = false;
-	attackingInfo->posShiftDueToDist = 0;
-	attackingInfo->shooting = true;
-	attackingInfo->sh = -1;
-	if(projectileAngle > straightAngle) //upper shot
-		attackingInfo->shootingGroup = 14;
-	else if(projectileAngle < -straightAngle) //lower shot
-		attackingInfo->shootingGroup = 16;
-	else //straight shot
-		attackingInfo->shootingGroup = 15;
-	attackingInfo->maxframe = creAnims[ID]->framesInGroup(attackingInfo->shootingGroup);
+	pendingAnims.push_back(std::make_pair(new CShootingAnim(this, ID, dest), false));
 }
 
 void CBattleInterface::battleFinished(const BattleResult& br)
@@ -2236,171 +2569,6 @@ void CBattleInterface::endCastingSpell()
 	spellToCast = NULL;
 	spellDestSelectMode = false;
 	CGI->curh->changeGraphic(1, 6);
-}
-
-void CBattleInterface::attackingShowHelper()
-{
-	if(attackingInfo && !attackingInfo->reversing)
-	{
-		if(attackingInfo->frame == 0)
-		{
-			const CStack * aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
-			if(attackingInfo->shooting)
-			{
-				// TODO: I see that we enter this function twice with
-				// attackingInfo->frame==0, so all the inits are done
-				// twice. The following is just a workaround until
-				// that is fixed. Once done, we can get rid of
-				// attackingInfo->sh
-				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->soundh->playSound(aStack->creature->sounds.shoot);
-				creAnims[attackingInfo->ID]->setType(attackingInfo->shootingGroup);
-			}
-			else
-			{
-				// TODO: see comment above
-				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->soundh->playSound(aStack->creature->sounds.attack);
-
-				static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
-				int type; //dependent on attack direction
-				if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					type = dirToType[ BattleInfo::mutualPosition(aStack->position + attackingInfo->posShiftDueToDist, attackingInfo->dest) ]; //attack direction
-				}
-				else //else for if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					type = BattleInfo::mutualPosition(aStack->position, attackingInfo->dest);
-				}
-				creAnims[attackingInfo->ID]->setType(type);
-			}
-		}
-		else if(attackingInfo->frame == (attackingInfo->maxframe - 1))
-		{
-			attackingInfo->reversing = true;
-
-			const CStack* aStackp = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
-			if(aStackp == NULL)
-				return;
-			CStack aStack = *aStackp;
-			if(aStack.attackerOwned)
-			{
-				if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 1:
-							break;
-						case 2:
-							break;
-						case 3:
-							break;
-						case 4:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 5:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case -1:
-							if(attackingInfo->posShiftDueToDist) //if reversing stack will make its position adjacent to dest
-							{
-								reverseCreature(attackingInfo->ID, aStack.position, true);
-							}
-							break;
-					}
-				}
-				else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 1:
-							break;
-						case 2:
-							break;
-						case 3:
-							break;
-						case 4:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 5:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-					}
-				}
-			}
-			else //if(aStack.attackerOwned)
-			{
-				if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 1:
-							break;
-						case 2:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 3:
-							break;
-						case 4:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 5:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case -1:
-							if(attackingInfo->posShiftDueToDist) //if reversing stack will make its position adjacent to dest
-							{
-								reverseCreature(attackingInfo->ID, aStack.position, true);
-							}
-							break;
-					}
-				}
-				else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 1:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 2:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 3:
-							reverseCreature(attackingInfo->ID, aStack.position, true);
-							break;
-						case 4:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-						case 5:
-							//reverseCreature(ID, aStack.position, true);
-							break;
-					}
-				}
-			}
-			attackingInfo->reversing = false;
-			creAnims[attackingInfo->ID]->setType(2);
-			delete attackingInfo;
-			attackingInfo = NULL;
-		}
-		if(attackingInfo)
-		{
-			attackingInfo->hitCount++;
-			if(attackingInfo->hitCount%(4/settings.animSpeed) == 0)
-				attackingInfo->frame++;
-		}
-	}
 }
 
 void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to)
