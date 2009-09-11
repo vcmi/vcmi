@@ -1114,7 +1114,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	int terType = gs->battleGetBattlefieldType(tile);
 
 	//randomize obstacles
-	if(town == NULL) //do it only when it's not siege
+	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
 	{
 		bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
 		std::vector<int> possibleObstacles;

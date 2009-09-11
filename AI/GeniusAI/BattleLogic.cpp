@@ -589,8 +589,8 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 #if defined PRINT_DEBUG
 				PrintBattleAction(ba);
 #endif
-				assert(m_cb->battleGetStackByPos(ba.additionalInfo)); //if action is action_walk_and_attack additional info must point on enemy stack
-				assert(m_cb->battleGetStackByPos(ba.additionalInfo) != attackerStack); //don't attack ourselve
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo, false)); //if action is action_walk_and_attack additional info must point on enemy stack
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo, false) != attackerStack); //don't attack ourselve
 				return ba;
 			}
 		}

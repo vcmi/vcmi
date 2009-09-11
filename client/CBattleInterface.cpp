@@ -86,11 +86,19 @@ void CBattleAnimation::endAnim()
 	}
 }
 
-bool CBattleAnimation::isEarliest()
+bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 {
 	int lowestMoveID = owner->animIDhelper + 5;
 	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
 	{
+		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(it->first);
+		CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
+		if(perStackConcurrency && stAnim && thAnim && stAnim->stackID != thAnim->stackID)
+			continue;
+
+		if(dynamic_cast<CReverseAnim *>(stAnim) && stAnim->stackID == thAnim->stackID)
+			return false;
+
 		if(it->first)
 			amin(lowestMoveID, it->first->ID);
 	}
@@ -112,10 +120,7 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, int stac
 
 bool CReverseAnim::init()
 {
-	if( !isEarliest() )
-		return false;
-
-	if(owner->creAnims[stackID]==NULL)
+	if(owner->creAnims[stackID] == NULL || owner->creAnims[stackID]->getType() == 5)
 	{
 		endAnim();
 
@@ -142,7 +147,8 @@ void CReverseAnim::nextFrame()
 		{
 			owner->creDir[stackID] = !owner->creDir[stackID];
 
-			const CStack * curs = LOCPLINT->cb->battleGetStackByID(stackID);
+			const CStack * curs = LOCPLINT->cb->battleGetStackByID(stackID, false);
+
 			std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stackID], curs, owner);
 			owner->creAnims[stackID]->pos.x = coords.first;
 			//creAnims[stackID]->pos.y = coords.second;
@@ -204,17 +210,35 @@ bool CDefenceAnim::init()
 		if(dynamic_cast<CDefenceAnim *>(it->first))
 			continue;
 
+		if(dynamic_cast<CReverseAnim *>(it->first))
+			return false;
+
 		if(it->first)
 			amin(lowestMoveID, it->first->ID);
 	}
 	if(ID > lowestMoveID)
 		return false;
 
+	
+	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
+	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
+
+	//reverse unit if necessary
+	if((attacked->position > attacker->position) && owner->creDir[stackID] == true)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position), false));
+		return false;
+	}
+	else if ((attacked->position < attacker->position) && owner->creDir[stackID] == false)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position), false));
+		return false;
+	}
+	//unit reversed
+
 
 	if(byShooting) //delay hit animation
-	{
-		const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby);
-		
+	{		
 		for(std::list<SProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{
 			if(it->creID == attacker->creature->idNumber)
@@ -226,8 +250,6 @@ bool CDefenceAnim::init()
 
 	//initializing
 	int maxLen = 0;
-
-	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
 		
 	if(killed)
 	{
@@ -248,12 +270,11 @@ void CDefenceAnim::nextFrame()
 {
 	if(continueAnim)
 	{
-		if((owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0 && !owner->creAnims[stackID]->onLastFrameInGroup())
+		if( owner->creAnims[stackID]->getType() == 5 && (owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0
+			&& !owner->creAnims[stackID]->onLastFrameInGroup() )
 		{
 			owner->creAnims[stackID]->incrementFrame();
 		}
-		if(owner->creAnims[stackID]->onLastFrameInGroup() && owner->creAnims[stackID]->getType() == 3)
-			owner->creAnims[stackID]->setType(2);
 
 		if(owner->creAnims[stackID]->onLastFrameInGroup())
 		{
@@ -279,6 +300,19 @@ void CDefenceAnim::endAnim()
 	if(IDby!=-1)
 		owner->printConsoleAttacked(stackID, dmg, amountKilled, IDby);
 
+	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
+	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
+
+	//reverse unit if necessary
+	if((attacked->position > attacker->position) && owner->creDir[stackID] == false)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position), false));
+	}
+	else if ((attacked->position < attacker->position) && owner->creDir[stackID] == true)
+	{
+		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position), false));
+	}
+	//unit reversed
 
 	CBattleAnimation::endAnim();
 
@@ -296,28 +330,25 @@ CDefenceAnim::CDefenceAnim(SStackAttackedInfo _attackedInfo, CBattleInterface * 
 
 bool CBattleStackMoved::init()
 {
-	if( !isEarliest() )
+	if( !isEarliest(false) )
 		return false;
 
 	//a few useful variables
 	steps = owner->creAnims[stackID]->framesInGroup(0)*owner->getAnimSpeedMultiplier()-1;
 	whichStep = 0;
 	int hexWbase = 44, hexHbase = 42;
-	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
-	if(!movedStack)
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID, false);
+	if(!movedStack || owner->creAnims[stackID]->getType() == 5)
 	{
 		endAnim();
 		return false;
 	}
 	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
-
 	
 	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
 	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
 
-	owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
 	CGI->curh->hide();
-	owner->creAnims[stackID]->setType(0);
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
 	
@@ -332,11 +363,14 @@ bool CBattleStackMoved::init()
 		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, curStackPos), false));
 		return false;
 	}
+
 	if(owner->creAnims[stackID]->getType() != 0)
 	{
 		owner->creAnims[stackID]->setType(0);
 	}
 	//unit reversed
+
+	owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
@@ -434,12 +468,12 @@ CBattleStackMoved::CBattleStackMoved(CBattleInterface * _owner, int _number, int
 
 bool CBattleMoveStart::init()
 {
-	if( !isEarliest() )
+	if( !isEarliest(false) )
 		return false;
 
-	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID, false);
 
-	if(!movedStack)
+	if(!movedStack || owner->creAnims[stackID]->getType() == 5)
 	{
 		CBattleMoveStart::endAnim();
 		return false;
@@ -480,11 +514,11 @@ CBattleMoveStart::CBattleMoveStart(CBattleInterface * _owner, int stack)
 
 bool CBattleMoveEnd::init()
 {
-	if( !isEarliest() )
+	if( !isEarliest(true) )
 		return false;
 
-	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID);
-	if(!movedStack || owner->creAnims[stackID]->framesInGroup(21) == 0)
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackID, false);
+	if(!movedStack || owner->creAnims[stackID]->framesInGroup(21) == 0 || owner->creAnims[stackID]->getType() == 5)
 	{
 		endAnim();
 
@@ -542,7 +576,7 @@ void CBattleAttack::nextFrame()
 	if(owner->creAnims[stackID]->getType() != group)
 		owner->creAnims[stackID]->setType(group);
 
-	if(frame == 0)
+	if(owner->creAnims[stackID]->getFrame() == 0)
 	{
 		const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
 		if(shooting)
@@ -575,10 +609,10 @@ void CBattleAttack::nextFrame()
 			owner->creAnims[stackID]->setType(type);
 		}
 	}
-	else if(frame == (maxframe - 1))
+	else if(owner->creAnims[stackID]->onLastFrameInGroup())
 	{
-		const CStack* aStackp = LOCPLINT->cb->battleGetStackByID(stackID); //attacking stack
-		if(aStackp == NULL)
+		const CStack* aStackp = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
+		if(aStackp == NULL || owner->creAnims[stackID]->getType() == 5)
 			return;
 
 		bool reverse = false;
@@ -647,20 +681,15 @@ void CBattleAttack::nextFrame()
 		endAnim();
 		return; //execution of endAnim deletes this !!!
 	}
-
-	hitCount++;
-	if(hitCount%(4/CBattleInterface::settings.animSpeed) == 0)
-		frame++;
-
 }
 
 bool CBattleAttack::checkInitialConditions()
 {
-	return isEarliest();
+	return isEarliest(false);
 }
 
 CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID)
-: CBattleStackAnimation(_owner, _stackID), frame(0), hitCount(0), sh(-1)
+: CBattleStackAnimation(_owner, _stackID), hitCount(0), sh(-1)
 {
 }
 
@@ -678,9 +707,9 @@ bool CMeleeAttack::init()
 
 	owner->pendingAnims.push_back(std::make_pair(new CBattleMoveStart(owner, stackID), false));
 
-	const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID); //attacking stack
+	const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
 
-	if(!aStack)
+	if(!aStack || owner->creAnims[stackID]->getType() == 5)
 	{
 		endAnim();
 		
@@ -773,7 +802,6 @@ bool CMeleeAttack::init()
 	switch(mutPos) //attack direction
 	{
 	case 0: case 1: case 2: case 3: case 4: case 5:
-		maxframe = owner->creAnims[stackID]->framesInGroup(mutPosToGroup[mutPos]);
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
@@ -816,6 +844,13 @@ bool CShootingAnim::init()
 	if( !CBattleAttack::checkInitialConditions() )
 		return false;
 
+	const CStack * shooter = LOCPLINT->cb->battleGetStackByID(stackID, false);
+
+	if(!shooter || owner->creAnims[stackID]->getType() == 5)
+	{
+		endAnim();
+		return false;
+	}
 
 	//projectile
 	float projectileAngle; //in radians; if positive, projectiles goes up
@@ -826,19 +861,12 @@ bool CShootingAnim::init()
 		projectileAngle = -projectileAngle;
 
 	SProjectileInfo spi;
-	spi.creID = LOCPLINT->cb->battleGetStackByID(stackID)->creature->idNumber;
-	spi.reverse = !LOCPLINT->cb->battleGetStackByID(stackID)->attackerOwned;
+	spi.creID = shooter->creature->idNumber;
+	spi.reverse = !shooter->attackerOwned;
 
 	spi.step = 0;
 	spi.frameNum = 0;
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
-	const CStack * shooter = LOCPLINT->cb->battleGetStackByID(stackID);
-
-	if(!shooter)
-	{
-		endAnim();
-		return false;
-	}
 
 	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByPos(dest, false), owner); 
@@ -889,8 +917,6 @@ bool CShootingAnim::init()
 		group = 16;
 	else //straight shot
 		group = 15;
-
-	maxframe = owner->creAnims[stackID]->framesInGroup(group);
 
 	return true;
 }
@@ -1355,13 +1381,13 @@ void CBattleInterface::show(SDL_Surface * to)
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(j->second.alive() && j->second.position >= 0) //don't show turrets here
+		if(creAnims[j->second.ID]->getType() != 5 && j->second.position >= 0) //don't show turrets here
 			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
 	std::vector<int> stackDeadByHex[BFIELD_SIZE];
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(!j->second.alive())
+		if(creAnims[j->second.ID]->getType() == 5)
 			stackDeadByHex[j->second.position].push_back(j->second.ID);
 	}
 
@@ -2582,7 +2608,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	int affectingSpeed = settings.animSpeed;
 	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
-	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
+	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
 
 	if(animType == 2)
 	{

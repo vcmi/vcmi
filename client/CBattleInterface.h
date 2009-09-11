@@ -65,7 +65,7 @@ public:
 	virtual void nextFrame()=0; //call every new frame
 	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
 
-	bool isEarliest(); //determines if this animation is earlies of all
+	bool isEarliest(bool perStackConcurrency); //determines if this animation is earlies of all
 
 	unsigned int ID; //unique identifier
 
@@ -158,7 +158,6 @@ class CBattleAttack : public CBattleStackAnimation
 protected:
 	int IDby; //attacked stack
 	int dest; //atacked hex
-	int frame, maxframe; //frame of animation, number of frames of animation
 	int hitCount; //for delaying animation
 	bool reversing;
 	int posShiftDueToDist;
