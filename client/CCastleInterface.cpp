@@ -270,7 +270,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		else if(other->hero && other->highlight)
 		{
 			bool allow = true;
-			if(upg) //moving hero out of town - check if it is allowed
+			if(!upg) //moving hero out of town - check if it is allowed
 			{
 				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= 8)
 				{
@@ -505,7 +505,7 @@ CCastleInterface::~CCastleInterface()
 	SDL_FreeSurface(townInt);
 	SDL_FreeSurface(cityBg);
 	delete exit;
-	delete split;
+	//delete split;
 	delete hall;
 	delete fort;
 	delete garr;
@@ -749,7 +749,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 	exit->show(to);
-	split->show(to);
+	//split->show(to);
 }
 
 void CCastleInterface::townChange()
@@ -796,7 +796,7 @@ void CCastleInterface::activate()
 	garr->activate();
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
-	split->activate();
+	//split->activate();
 	for(size_t i=0;i<buildings.size();i++) //XXX pls use iterators or at() but not []
 	{
 		buildings[i]->activate();
@@ -812,7 +812,7 @@ void CCastleInterface::deactivate()
 	townlist->deactivate();
 	garr->deactivate();
 	exit->deactivate();
-	split->deactivate();
+	//split->deactivate();
 	for(size_t i=0;i<buildings.size();i++) //XXX iterators
 	{
 		buildings[i]->deactivate();

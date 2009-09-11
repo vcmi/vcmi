@@ -15,20 +15,28 @@
  */
 
 class CCreature;
+
+//a few typedefs for CCreatureSet
+typedef si32 TSlot, TQuantity;
+typedef ui32 TCreature;
+typedef std::pair<TCreature, TQuantity> TStack;
+typedef std::map<TSlot, TStack> TSlots;
+
 class CCreatureSet //seven combined creatures
 {
 public:
-	std::map<si32, std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
-	bool formation; //false - wide, true - tight
-	bool setCreature (si32 slot, ui32 type, si32 quantity) //slots 0 to 6
+	TSlots slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
+	ui8 formation; //false - wide, true - tight
+
+	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) //slots 0 to 6
 	{
-		slots[slot] = std::pair<ui32, si32>(type, quantity);  //brutal force
+		slots[slot] = TStack(type, quantity);  //brutal force
 		if (slots.size() > 7) return false;
 		else return true;
 	}
-	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) const //returns -1 if no slot available
+	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=7) const //returns -1 if no slot available
 	{	
-		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=slots.begin(); i!=slots.end(); ++i)
+		for(TSlots::const_iterator i=slots.begin(); i!=slots.end(); ++i)
 		{
 			if(i->second.first == creature)
 			{
@@ -44,6 +52,37 @@ public:
 		}
 		return -1; //no slot available
 	}
+	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) //looks for two same stacks, returns slot positions
+	{
+		//try to match creature to our preferred stack
+		if(preferable >= 0  &&  slots.find(preferable) != slots.end())
+		{
+			TCreature id = slots[preferable].first;
+			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
+			{
+				if(id == j->second.first)
+				{
+					out.first = preferable;
+					out.second = j->first;
+					return true;
+				}
+			}
+		}
+
+		for(TSlots::const_iterator i=slots.begin(); i!=slots.end(); ++i)
+		{
+			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
+			{
+				if(i->second.first == j->second.first)
+				{
+					out.first = i->first;
+					out.second = j->first;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & slots & formation;
@@ -54,7 +93,7 @@ public:
 	}
 	void sweep()
 	{
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); ++i)
+		for(TSlots::iterator i=slots.begin(); i!=slots.end(); ++i)
 		{
 			if(!i->second.second)
 			{

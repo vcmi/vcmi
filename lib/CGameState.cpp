@@ -2097,6 +2097,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				|| dp.turns > turn
 				|| (dp.turns >= turn  &&  dp.moveRemains < remains)) //this route is faster
 			{
+				assert(&dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp.moveRemains = remains;
 				dp.turns = turn;
 				dp.theNodeBefore = cp;

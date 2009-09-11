@@ -42,8 +42,8 @@ public:
 	int curimg; //curently displayed image from imgs
 	virtual void show(SDL_Surface * to);
 	virtual void showAll(SDL_Surface * to);
-	virtual void activate()=0;
-	virtual void deactivate()=0;
+	//virtual void activate()=0;
+	//virtual void deactivate()=0;
 	CButtonBase(); //c-tor
 	virtual ~CButtonBase(); //d-tor
 };
@@ -63,8 +63,8 @@ public:
 	virtual void clickLeft(tribool down, bool previousState);
 	void hover (bool on);
 	void block(ui8 on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
-	void activate(); // makes button active
-	void deactivate(); // makes button inactive (but doesn't delete)
+	//void activate(); // makes button active
+	//void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
 	AdventureMapButton( const std::map<int,std::string> &, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor

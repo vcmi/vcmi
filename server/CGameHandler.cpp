@@ -2162,10 +2162,21 @@ bool CGameHandler::garrisonSwap( si32 tid )
 			int pos = csn.getSlotFor(cso.slots.begin()->second.first);
 			if(pos<0)
 			{
-				complain("Cannot make garrison swap, not enough free slots!");
-				return false;
+				//try to merge two other stacks to make place
+				std::pair<TSlot, TSlot> toMerge;
+				if(csn.mergableStacks(toMerge, cso.slots.begin()->first))
+				{
+					//merge
+					csn.slots[toMerge.second].second += csn.slots[toMerge.first].second;
+					csn.slots[toMerge.first] = cso.slots.begin()->second;
+				}
+				else
+				{
+					complain("Cannot make garrison swap, not enough free slots!");
+					return false;
+				}
 			}
-			if(csn.slots.find(pos)!=csn.slots.end()) //add creatures to the existing stack
+			else if(csn.slots.find(pos) != csn.slots.end()) //add creatures to the existing stack
 			{
 				csn.slots[pos].second += cso.slots.begin()->second.second;
 			}

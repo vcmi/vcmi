@@ -571,7 +571,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 	if(!objs.size())
 		return;
 
-	const CGObjectInstance * obj = objs.front();
+	const CGObjectInstance * obj = objs.back();
 	switch(obj->ID)
 	{
 	case HEROI_TYPE:
@@ -1728,6 +1728,8 @@ void CAdvMapInt::centerOn(int3 on)
 	LOCPLINT->adventureInt->position = on;
 	LOCPLINT->adventureInt->updateScreen=true;
 	updateMinimap=true;
+	underground.curimg = on.z; //change underground switch button image 
+	underground.redraw();
 }
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {

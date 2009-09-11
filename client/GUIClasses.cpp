@@ -386,6 +386,9 @@ CGarrisonInt::~CGarrisonInt()
 		}
 		delete sdown;
 	}
+
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		delete splitButtons[i];
 }
 
 void CGarrisonInt::show(SDL_Surface * to)
@@ -459,9 +462,6 @@ void CGarrisonInt::activeteSlots()
 			}
 		}
 	}
-
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->activate();
 }
 void CGarrisonInt::createSlots()
 {
@@ -3424,6 +3424,12 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		{
 			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
 			{
+				if(ourArt->id == 3) //catapult cannot be highlighted
+				{
+					std::vector<SComponent *> catapult(1, new SComponent(SComponent::artifact, 3, 0));
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
+					return;
+				}
 				clicked = true;
 				ourOwner->commonInfo->activeArtPlace = this;
 			}
@@ -3432,8 +3438,24 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		{
 			if(slotID >= 19)	//we are an backpack slot - remove active artifact and put it to the last free pos in backpack
 			{					//TODO: putting artifacts in the middle of backpack (pushing following arts)
-				
-				LOCPLINT->cb->swapArtifacts(ourOwner->commonInfo->activeArtPlace->ourOwner->curHero, ourOwner->commonInfo->activeArtPlace->slotID, ourOwner->curHero, ourOwner->curHero->artifacts.size()+19);
+				const CArtifact *cur = ourOwner->commonInfo->activeArtPlace->ourArt;
+				assert(cur); //there is highlighted slot, it must contain an art
+				switch(cur->id)
+				{
+				case 3:
+					//should not happen, catapult cannot be selected
+					break;
+				case 4: case 5: case 6:
+					{
+						std::string text = CGI->generaltexth->allTexts[153];
+						boost::algorithm::replace_first(text, "%s", cur->Name());
+						LOCPLINT->showInfoDialog(text);
+					}
+					break;
+				default:
+					LOCPLINT->cb->swapArtifacts(ourOwner->commonInfo->activeArtPlace->ourOwner->curHero, ourOwner->commonInfo->activeArtPlace->slotID, ourOwner->curHero, ourOwner->curHero->artifacts.size()+19);
+					break;
+				}
 			}
 			//check if swap is possible
 			else if(this->fitsHere(ourOwner->commonInfo->activeArtPlace->ourArt) && ourOwner->commonInfo->activeArtPlace->fitsHere(this->ourArt))
@@ -3495,8 +3517,12 @@ bool CArtPlace::fitsHere(const CArtifact * art)
 {
 	if(!art)
 		return true; //you can have no artifact somewhere
-	if(slotID > 18   ||   vstd::contains(art->possibleSlots,slotID)) //backpack or right slot
+	if(slotID > 18 && art->id >= 3 && art->id <= 6		//everything can bee placed in backpack exept of War Machines
+	  || vstd::contains(art->possibleSlots,slotID))
+	{
 		return true;
+	}
+
 	return false;
 }
 CArtPlace::~CArtPlace()
@@ -4075,7 +4101,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	ourBar = new CStatusBar(pos.x + 3, pos.y + 577, "TSTATBAR.bmp", 726);
 
 	//garrison interface
-	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true);
+	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
 
 	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
 	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
