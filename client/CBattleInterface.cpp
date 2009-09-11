@@ -689,7 +689,7 @@ bool CBattleAttack::checkInitialConditions()
 }
 
 CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID)
-: CBattleStackAnimation(_owner, _stackID), hitCount(0), sh(-1)
+: CBattleStackAnimation(_owner, _stackID), sh(-1)
 {
 }
 
@@ -2608,6 +2608,8 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	int affectingSpeed = settings.animSpeed;
 	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
+	if(animType == 3 || animType == 11 || animType == 12 || animType == 13) //defend & attack should be slower
+		affectingSpeed = 1;
 	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
 
 	if(animType == 2)

@@ -158,7 +158,6 @@ class CBattleAttack : public CBattleStackAnimation
 protected:
 	int IDby; //attacked stack
 	int dest; //atacked hex
-	int hitCount; //for delaying animation
 	bool reversing;
 	int posShiftDueToDist;
 	bool shooting;
