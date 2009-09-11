@@ -400,6 +400,7 @@ void SelectionTab::filter( int size, bool selectFirst )
 			slider->moveTo(0);
 			onSelect(curItems[0]);
 		}
+		selectAbs(0);
 	}
 	else
 	{
@@ -578,6 +579,8 @@ void SelectionTab::sortBy( int criteria )
 		ascending = true;
 	}
 	sort();
+
+	selectAbs(0);
 }
 
 void SelectionTab::sort()
