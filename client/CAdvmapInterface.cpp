@@ -1896,13 +1896,17 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	{
 		int pos = vstd::findPos(townList.items,sel);
 		townList.selected = pos;
+		townList.fixPos();
 	}
 	else //hero selected
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(sel);
 
 		if(LOCPLINT->getWHero(heroList.selected) != h)
+		{
 			heroList.selected = heroList.getPosOfHero(h);
+			heroList.fixPos();
+		}
 
 		if(vstd::contains(paths,h)) //hero has assigned path
 		{

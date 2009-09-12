@@ -738,6 +738,13 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	ss.player = player;
 	ss.id = obj->id;
 	sendRequest(&ss);
+
+	if(obj->ID == HEROI_TYPE)
+	{
+		cl->gs->calculatePaths(static_cast<const CGHeroInstance *>(obj), *cl->pathInfo);
+		//nasty workaround. TODO: nice workaround
+		cl->gs->getPlayer(player)->currentSelection = obj->id;
+	}
 }
 
 void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)

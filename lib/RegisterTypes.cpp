@@ -25,6 +25,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CTownBonus>();
 	s.template registerType<CGPandoraBox>();
 	s.template registerType<CGEvent>();
+	s.template registerType<CGDwelling>();
 	s.template registerType<CGVisitableOPH>();
 	s.template registerType<CGVisitableOPW>();
 	s.template registerType<CGTeleport>();

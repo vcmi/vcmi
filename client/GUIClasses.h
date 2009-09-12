@@ -272,6 +272,8 @@ public:
 	virtual void genList()=0;
 	virtual void select(int which)=0;
 	virtual void draw(SDL_Surface * to)=0;
+	virtual int size() = 0; //how many elements do we have
+	void fixPos(); //scrolls list, so the selection will be visible
 };
 class CHeroList
 	: public CList
@@ -295,6 +297,7 @@ public:
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
 	void init();
+	int size(); //how many elements do we have
 };
 
 class CTownList
@@ -316,6 +319,7 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
+	int size(); //how many elements do we have
 };
 
 class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation

@@ -1504,12 +1504,14 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.pushInt(new CExchangeWindow(hero2, hero1));
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	//redraw minimap if owner changed
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(sop->what == 1)
 	{
 		const CGObjectInstance * obj = cb->getObjectInfo(sop->id);

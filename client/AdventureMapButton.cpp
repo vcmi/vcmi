@@ -91,6 +91,7 @@ AdventureMapButton::AdventureMapButton ()
 	ourObj=NULL;
 	state=0;
 	blocked = actOnDown = false;
+	used = LCLICK | RCLICK | HOVER | KEYBOARD;
 }
 //AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton)
 //{
@@ -435,10 +436,9 @@ void CHighlightableButtonsGroup::block( ui8 on )
 
 void CSlider::sliderClicked()
 {
-	if(!moving)
+	if(!(active & MOVE))
 	{
 		activateMouseMove();
-		moving = true;
 	}
 }
 
@@ -527,26 +527,24 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		float rw = 0;
 		if(horizontal)
 		{
-			pw = GH.current->motion.x-pos.x-16;
+			pw = GH.current->motion.x-pos.x-25;
 			rw = pw / ((float)(pos.w-48));
 		}
 		else
 		{
-			pw = GH.current->motion.y-pos.y-16;
+			pw = GH.current->motion.y-pos.y-24;
 			rw = pw / ((float)(pos.h-48));
 		}
-		if(pw < 0  ||  pw > (horizontal ? pos.w : pos.h) - 32)
+		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)
 			return;
 // 		if (rw>1) return;
 // 		if (rw<0) return;
+		slider->clickLeft(true, slider->pressedL);
 		moveTo(rw * positions  +  0.5f);
 		return;
 	}
-	if(moving)
-	{
+	if(active & MOVE)
 		deactivateMouseMove();
-		moving = false;
-	}
 }
 
 CSlider::~CSlider()
@@ -561,7 +559,6 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	setAmount(amount);
 
 	used = LCLICK;
-	moving = false;
 	strongInterest = true;
 
 

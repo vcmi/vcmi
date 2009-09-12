@@ -120,7 +120,7 @@ public:
 		amount, //how many elements
 		positions, //number of highest position (0 if there is only one)
 		value; //first active element
-	bool horizontal, moving;
+	bool horizontal;
 	CDefEssential *imgs ;
 
 	boost::function<void(int)> moved;

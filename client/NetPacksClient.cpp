@@ -547,7 +547,7 @@ void SetSelection::applyCl(CClient *cl)
 	if(!h)
 		return;
 
-	CPackForClient::GS(cl)->calculatePaths(h, *cl->pathInfo);
+	//CPackForClient::GS(cl)->calculatePaths(h, *cl->pathInfo);
 }
 
 void ShowInInfobox::applyCl(CClient *cl)

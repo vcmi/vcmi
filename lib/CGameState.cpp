@@ -1485,16 +1485,22 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		//init visiting and garrisoned heroes
 		for(unsigned int l=0; l<k->second.heroes.size();l++)
 		{ 
+			CGHeroInstance *h = k->second.heroes[l];
 			for(unsigned int m=0; m<k->second.towns.size();m++)
 			{
-				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
-				if(vistile == k->second.heroes[l]->pos || k->second.heroes[l]->pos==k->second.towns[m]->pos)
+				CGTownInstance *t = k->second.towns[m];
+				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
+				if(vistile == h->pos || h->pos==t->pos)
 				{
-					k->second.towns[m]->visitingHero = k->second.heroes[l];
-					k->second.heroes[l]->visitedTown = k->second.towns[m];
-					k->second.heroes[l]->inTownGarrison = false;
-					if(k->second.heroes[l]->pos==k->second.towns[m]->pos)
-						k->second.heroes[l]->pos.x -= 1;
+					t->visitingHero = h;
+					h->visitedTown = t;
+					h->inTownGarrison = false;
+					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
+					{
+						map->removeBlockVisTiles(h);
+						h->pos.x -= 1;
+						map->addBlockVisTiles(h);
+					}
 					break;
 				}
 			}

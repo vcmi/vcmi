@@ -1501,7 +1501,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 					return true;
 				}
 				//TODO: check for ally
-				startBattleI(h, dh, false);
+				startBattleI(h, dh);
 				return true;
 			}
 		}
@@ -1670,7 +1670,7 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	boost::thread(boost::bind(&CGameHandler::startBattle, this, army1, army2, tile, hero1, hero2, creatureBank, cb, town));
 }
 
-void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank, boost::function<void(BattleResult*)> cb )
+void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb, bool creatureBank )
 {
 	startBattleI(army1, army2, tile,
 		army1->ID == HEROI_TYPE ? static_cast<const CGHeroInstance*>(army1) : NULL, 
@@ -1678,9 +1678,9 @@ void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstan
 		creatureBank, cb);
 }
 
-void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank, boost::function<void(BattleResult*)> cb)
+void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb, bool creatureBank)
 {
-	startBattleI(army1, army2, army2->pos - army2->getVisitableOffset(), creatureBank, cb);
+	startBattleI(army1, army2, army2->pos - army2->getVisitableOffset(), cb, creatureBank);
 }
 
 //void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army

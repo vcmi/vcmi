@@ -777,10 +777,12 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			//exchange
 			cb->heroExchange(id, h->id);
 		}
-		else
+		else //battle
 		{
-			//battle
-			cb->startBattleI(h,	this, false);
+			if(visitedTown) //we're in town
+				visitedTown->onHeroVisit(h); //town will handle attacking
+			else
+				cb->startBattleI(h,	this);
 		}
 	}
 	else if(ID == 62) //prison
@@ -1350,7 +1352,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 void CGDwelling::wantsFight( const CGHeroInstance *h, ui32 answer ) const
 {
 	if(answer)
-		cb->startBattleI(h, this, false, boost::bind(&CGDwelling::fightOver, this, h, _1));
+		cb->startBattleI(h, this, boost::bind(&CGDwelling::fightOver, this, h, _1));
 }
 
 void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
@@ -1503,7 +1505,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	if(getOwner() != h->getOwner())
 	{
 		//TODO ally check
-		if(army)
+		if(army || visitingHero)
 		{
 			const CGHeroInstance *defendingHero = NULL;
 			if(visitingHero)
@@ -2226,7 +2228,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
-	cb->startBattleI(h, this, false, boost::bind(&CGCreature::endBattle,this,_1));
+	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
 }
 
 void CGCreature::flee( const CGHeroInstance * h ) const
@@ -2362,7 +2364,7 @@ void CGResource::collectRes( int player ) const
 void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
 {
 	if(agreed)
-		cb->startBattleI(h, this, false, boost::bind(&CGResource::endBattle,this,_1,h));
+		cb->startBattleI(h, this, boost::bind(&CGResource::endBattle,this,_1,h));
 }
 
 void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -2614,7 +2616,7 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
 {
 	if(agreed)
-		cb->startBattleI(h, this, false, boost::bind(&CGArtifact::endBattle,this,_1,h));
+		cb->startBattleI(h, this, boost::bind(&CGArtifact::endBattle,this,_1,h));
 }
 
 void CGArtifact::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -3118,7 +3120,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 			iw.player = h->tempOwner;
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 			cb->showInfoDialog(&iw);
-			cb->startBattleI(h, this, false, boost::bind(&CGPandoraBox::endBattle, this, h, _1)); //grants things after battle
+			cb->startBattleI(h, this, boost::bind(&CGPandoraBox::endBattle, this, h, _1)); //grants things after battle
 		}
 		else if (message.size() == 0 && resources.size() == 0
 				&& primskills.size() == 0 && abilities.size() == 0
@@ -3415,7 +3417,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
-		cb->startBattleI(h, this, false, boost::bind(&CGEvent::endBattle,this,h,_1));
+		cb->startBattleI(h, this, boost::bind(&CGEvent::endBattle,this,h,_1));
 	}
 	else
 	{
@@ -3623,7 +3625,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
 	if (h->tempOwner != tempOwner && army) {
 		//TODO: Find a way to apply magic garrison effects in battle.
-		cb->startBattleI(h, this, false, boost::bind(&CGGarrison::fightOver, this, h, _1));
+		cb->startBattleI(h, this, boost::bind(&CGGarrison::fightOver, this, h, _1));
 		return;
 	}
 
@@ -4026,7 +4028,7 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 	if (accept)
 	{
 		cb->setObjProperty (id, 17, ran()); //get army
-		cb->startBattleI (h, this, true, boost::bind (&CBank::endBattle, this, h, _1));
+		cb->startBattleI (h, this, boost::bind (&CBank::endBattle, this, h, _1), true);
 	}
 }
 void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) const

@@ -1126,6 +1126,20 @@ CList::CList(int Size)
 {
 }
 
+void CList::fixPos()
+{
+	int oldFrom = from;
+	if(selected < 0) //no selection, do nothing
+		return;
+	if(selected < from) //scroll up
+		from = selected;
+	else if(from + SIZE <= selected)
+		from = selected - SIZE + 1; 
+
+	amin(from, size() - SIZE);
+	amax(from, 0);
+}
+
 CHeroList::CHeroList(int Size)
 :CList(Size), heroes(LOCPLINT->wanderingHeroes)
 {
@@ -1422,6 +1436,12 @@ void CHeroList::show( SDL_Surface * to )
 {
 
 }
+
+int CHeroList::size()
+{
+	return heroes.size();
+}
+
 CTownList::~CTownList()
 {
 	delete arrup;
@@ -1657,6 +1677,11 @@ void CTownList::draw(SDL_Surface * to)
 void CTownList::show( SDL_Surface * to )
 {
 
+}
+
+int CTownList::size()
+{
+	return items.size();
 }
 
 CCreaturePic::CCreaturePic(const CCreature *cre, bool Big)
