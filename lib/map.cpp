@@ -1684,6 +1684,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					i+=4;
 				}
 				res->amount = readNormalNr(bufor,i); i+=4;
+				if (defInfo->subid == 6) // Gold is multiplied by 100.
+					res->amount *= 100;
 				i+=4;
 
 				break;
