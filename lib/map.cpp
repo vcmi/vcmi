@@ -981,6 +981,8 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id!=artmask)
 				nhi->artifWorn[16] = id;
+			else
+				nhi->artifWorn[16] = 3; //catapult by default
 		}
 		//spellbook
 		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
@@ -1027,6 +1029,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 
 		if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
 		{
+			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
 			int ist = i;
 			for(i; i<ist+9; ++i)
 			{
@@ -1045,9 +1048,11 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	else if(version==AB) //we can read one spell
 	{
 		unsigned char buff = bufor[i]; ++i;
-		if(buff!=254)
+		if(buff != 254)
 		{
-			nhi->spells.insert(buff);
+			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
+			if(buff < 254) //255 means no spells
+				nhi->spells.insert(buff);
 		}
 	}
 	//spells loaded

@@ -660,12 +660,16 @@ void CGHeroInstance::initHero()
 		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
-	artifWorn[16] = 3;
-	if(type->startingSpell >= 0) //hero starts with a spell
-	{
-		artifWorn[17] = 0; //give him spellbook
+	if(!vstd::contains(spells, 0xffffffff) && type->startingSpell >= 0) //hero starts with a spell
 		spells.insert(type->startingSpell);
+	else //remove placeholder
+		spells -= 0xffffffff;
+
+	if(!vstd::contains(artifWorn, 16) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set
+	{
+		artifWorn[17] = 0; //give spellbook
 	}
+	artifWorn[16] = 3; //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
