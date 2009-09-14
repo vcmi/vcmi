@@ -1100,6 +1100,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	{
 		battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(battleInt, action->stackNumber, action->destinationTile), false));
 	}
+
 }
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack

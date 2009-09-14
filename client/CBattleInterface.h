@@ -87,11 +87,12 @@ private:
 	bool secondPartSetup;
 	int hex;
 public:
+	bool priority; //true - high, false - low
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CReverseAnim(CBattleInterface * _owner, int stack, int dest);
+	CReverseAnim(CBattleInterface * _owner, int stack, int dest, bool _priority);
 };
 
 class CDefenceAnim : public CBattleStackAnimation
@@ -158,7 +159,6 @@ class CBattleAttack : public CBattleStackAnimation
 protected:
 	int IDby; //attacked stack
 	int dest; //atacked hex
-	bool reversing;
 	int posShiftDueToDist;
 	bool shooting;
 	int group; //if shooting is true, print this animation group
