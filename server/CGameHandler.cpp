@@ -533,7 +533,7 @@ askInterfaceForMove:
 	delete battleResult.data;
 }
 
-void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
+void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, const CStack *def)
 {	
 	bsa.killedAmount = bsa.damageAmount / def->MaxHealth();
 	unsigned damageFirst = bsa.damageAmount % def->MaxHealth();
@@ -560,7 +560,7 @@ void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 	}
 }
 
-void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def, int distance)
+void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance)
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
@@ -571,14 +571,15 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def, in
 		BattleStackAttacked *bsa = &*i;
 	#endif
 
-		bsa->stackAttacked = def->ID;
+	bsa->stackAttacked = def->ID;
+	bsa->attackerID = att->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance);//counting dealt damage
 	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
 	{
 		bsa->damageAmount *= 2;
 		bat.flags |= 4;
 	}
-	prepareAttacked(*bsa,def);
+	prepareAttacked(*bsa, def);
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
@@ -3030,6 +3031,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
 						bsa.damageAmount = calculateSpellDmg(s, h, *it);
 						bsa.stackAttacked = (*it)->ID;
+						bsa.attackerID = -1;
 						prepareAttacked(bsa,*it);
 						si.stacks.insert(bsa);
 					}

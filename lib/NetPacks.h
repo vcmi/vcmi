@@ -810,7 +810,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	ui32 stackAttacked;
+	ui32 stackAttacked, attackerID;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
 	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown;
 	ui32 effect; //set only if flag 2 is present
@@ -825,7 +825,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackAttacked & newAmount & newHP & flags & killedAmount & damageAmount & effect;
+		h & stackAttacked & attackerID & newAmount & newHP & flags & killedAmount & damageAmount & effect;
 	}
 	bool operator<(const BattleStackAttacked &b) const
 	{

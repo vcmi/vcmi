@@ -1171,7 +1171,7 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 			if (stack != NULL)
 				battleInt->displayEffect(i->effect, stack->position);
 		}
-		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
+		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, i->attackerID, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
 	}
 
