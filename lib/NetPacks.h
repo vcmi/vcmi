@@ -123,6 +123,7 @@ public:
 		message.push_back(TREPLACE_NUMBER);
 		numbers.push_back(txt);
 	}
+	DLL_EXPORT std::string buildList () const;
 	void clear()
 	{
 		exactStrings.clear();

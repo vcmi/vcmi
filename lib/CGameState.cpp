@@ -236,23 +236,74 @@ DLL_EXPORT void MetaString::toString(std::string &dst) const
 			dst += boost::lexical_cast<std::string>(numbers[nums++]);
 			break;
 		case TREPLACE_ESTRING:
-			dst.replace(dst.find("%s"), 2, exactStrings[exSt++]);
+			dst.replace (dst.find("%s"), 2, exactStrings[exSt++]);
 			break;
 		case TREPLACE_LSTRING:
 			{
 				std::string hlp;
 				getLocalString(localStrings[loSt++], hlp);
-				dst.replace(dst.find("%s"), 2, hlp);
+				dst.replace (dst.find("%s"), 2, hlp);
 			}
 			break;
 		case TREPLACE_NUMBER:
-			dst.replace(dst.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
+			dst.replace (dst.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
 			tlog1 << "MetaString processing error!\n";
 			break;
 		}
 	}
+}
+
+DLL_EXPORT std::string MetaString::buildList () const
+///used to handle loot from creature bank
+{
+
+	size_t exSt = 0, loSt = 0, nums = 0;
+	std::string lista;		
+	for (int i = 0; i < message.size(); ++i)
+	{
+		if (i > 0 && message[i] == TEXACT_STRING || message[i] == TLOCAL_STRING)
+		{
+			if (i == message.size())
+				lista += " and ";
+			else
+				lista += ", ";
+		}
+		switch (message[i])
+		{
+			case TEXACT_STRING:
+				lista += exactStrings[exSt++];
+				break;
+			case TLOCAL_STRING:
+			{
+				std::string hlp;
+				getLocalString (localStrings[loSt++], hlp);
+				lista += hlp;
+			}
+				break;
+			case TNUMBER:
+				lista += boost::lexical_cast<std::string>(numbers[nums++]);
+				break;
+			case TREPLACE_ESTRING:
+				lista.replace (lista.find("%s"), 2, exactStrings[exSt++]);
+				break;
+			case TREPLACE_LSTRING:
+			{
+				std::string hlp;
+				getLocalString (localStrings[loSt++], hlp);
+				lista.replace (lista.find("%s"), 2, hlp);
+			}
+				break;
+			case TREPLACE_NUMBER:
+				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
+				break;
+			default:
+				tlog1 << "MetaString processing error!\n";
+		}
+
+	}
+	return lista;
 }
 
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)

@@ -1566,7 +1566,7 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 	if (creatures->slots.size() <= 0)
 		return;
 	CCreatureSet heroArmy = h->army;
-	while(creatures)
+	while (creatures)
 	{
 		int slot = heroArmy.getSlotFor(creatures->slots.begin()->second.first);
 		if(slot < 0)
@@ -1575,6 +1575,7 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 		heroArmy.slots[slot].first = creatures->slots.begin()->second.first;
 		heroArmy.slots[slot].second += creatures->slots.begin()->second.second;
 		creatures->slots.erase(creatures->slots.begin());
+		//ourArmy.slots.erase(ourArmy.slots.begin());
 	}
 
 	if(!creatures) //all creatures can be moved to hero army - do that

@@ -4041,9 +4041,12 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 	{
 		int textID = -1;
 		InfoWindow iw;
+		iw.player = h->getOwner();
+		MetaString loot;
+
 		switch (ID)
 		{
-			case 16: //generic bank
+			case 16: case 25: case 84:
 				textID = 34;
 				break;
 			case 24: //derelict ship
@@ -4055,12 +4058,6 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
 				}
 				break;
-			case 25: //utopia
-				textID = 47;
-				break;
-			case 84: //crypt
-				textID = 121;
-				break;
 			case 85: //shipwreck
 				if (bc->resources.size() != 0)
 					textID = 124;
@@ -4071,36 +4068,57 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				}
 				break;
 		}
-		iw.text.addTxt (MetaString::ADVOB_TXT, textID);
-		iw.player = h->getOwner();
+
 		//grant resources
 		for (int it = 0; it < bc->resources.size(); it++)
 		{	
 			if (bc->resources[it] != 0)
 			{
 				iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
+				loot << "%d %s";
+				loot.addReplacement (iw.components.back().val);
+				loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+				//loot << iw.components.back().val << " ";
+				//loot.addTxt (iw.components.back().val);
+				//loot.addTxt (MetaString::RES_NAMES, iw.components.back().subtype);
 				cb->giveResource (h->getOwner(), it, bc->resources[it]);
-			}
+			}		
 		}
 		//grant artifacts
 		for (std::vector<ui32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
 		{
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
-			iw.text.addReplacement (MetaString::ART_NAMES, *it);
+			loot << "%s";
+			loot.addReplacement (MetaString::ART_NAMES, *it);
 			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
+		//display loot
+		if (textID == 34)
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT,34);//Heaving defeated %s, you discover %s
+			iw.text.addReplacement(MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
+			//std::string loot_final;
+			//loot.toString (loot_final);
+			iw.text.addReplacement (loot.buildList());
+			//iw.text.addReplacement(" %d %s%s%d %s");	
+		}
+		else
+			iw.text.addTxt (MetaString::ADVOB_TXT, textID);
+
 		cb->showInfoDialog(&iw);
+
 		//grant creatures
 		CCreatureSet ourArmy;
 		for (std::vector< std::pair <ui16, ui32> >::const_iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
 		{
-			int slot = ourArmy.getSlotFor (it->second);
-			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature
+			int slot = ourArmy.getSlotFor (it->first);
+			ourArmy.slots[slot].first = it->first;
+			ourArmy.slots[slot].second += it->second;
 		}
 		cb->giveCreatures (id, h, &ourArmy);
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
-	else
+	else //in case of defeat
 		cb->setObjProperty (id, 14, ran()); //reset
 }
 
