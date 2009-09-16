@@ -1096,7 +1096,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 		else
 			battleInt->attackingHero->setPhase(0);
 	}
-	if(action->actionType == 6 || action->actionType == 2 && battleInt->creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+	if(action->actionType == 2 && battleInt->creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
 		battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(battleInt, action->stackNumber, action->destinationTile), false));
 	}

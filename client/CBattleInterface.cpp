@@ -47,6 +47,7 @@ extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
 BattleSettings CBattleInterface::settings;
+CondSh<bool> CBattleInterface::animsAreDisplayed;
 
 struct CMP_stack2
 {
@@ -282,7 +283,7 @@ bool CDefenceAnim::init()
 	//reverse unit if necessary
 	if(isToReverse(attacked->position, attacker->position, owner->creDir[stackID], attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[IDby]))
 	{
-		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position, true), false));
+		owner->addNewAnim(new CReverseAnim(owner, stackID, attacked->position, true));
 		return false;
 	}
 	//unit reversed
@@ -353,17 +354,6 @@ void CDefenceAnim::endAnim()
 	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
 	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
 
-	////reverse unit if necessary
-	//if((attacked->position > attacker->position) && owner->creDir[stackID] == false)
-	//{
-	//	owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position, true), false));
-	//}
-	//else if ((attacked->position < attacker->position) && owner->creDir[stackID] == true)
-	//{
-	//	owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position, true), false));
-	//}
-	////unit reversed
-
 	CBattleAnimation::endAnim();
 
 	delete this;
@@ -403,12 +393,12 @@ bool CBattleStackMoved::init()
 	//reverse unit if necessary
 	if((begPosition.first > endPosition.first) && owner->creDir[stackID] == true)
 	{
-		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, curStackPos, true), false));
+		owner->addNewAnim(new CReverseAnim(owner, stackID, curStackPos, true));
 		return false;
 	}
 	else if ((begPosition.first < endPosition.first) && owner->creDir[stackID] == false)
 	{
-		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, curStackPos, true), false));
+		owner->addNewAnim(new CReverseAnim(owner, stackID, curStackPos, true));
 		return false;
 	}
 
@@ -491,7 +481,7 @@ void CBattleStackMoved::endAnim()
 
 		if(endMoving)
 		{
-			owner->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(owner, stackID, destHex), false));
+			owner->addNewAnim(new CBattleMoveEnd(owner, stackID, destHex));
 		}
 
 		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, owner->creDir[stackID], movedStack, owner);
@@ -681,8 +671,6 @@ bool CMeleeAttack::init()
 	//	return false;
 	//}
 
-	//owner->pendingAnims.push_back(std::make_pair(new CBattleMoveStart(owner, stackID), false));
-
 	const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
 
 	if(!aStack || owner->creAnims[stackID]->getType() == 5)
@@ -718,12 +706,12 @@ bool CMeleeAttack::init()
 	//reversing stack if necessary
 	if(isToReverse(aStack->position, dest, owner->creDir[stackID], attackedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[attackedStack->ID]))
 	{
-		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, aStack->position, true), false));
+		owner->addNewAnim(new CReverseAnim(owner, stackID, aStack->position, true));
 		return false;
 	}
 	//reversed
 
-	IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
+	IDby = attackedStack->ID;
 	shooting = false;
 	posShiftDueToDist = reversedShift;
 
@@ -877,12 +865,19 @@ CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest)
 
 ////////////////////////
 
+void CBattleInterface::addNewAnim(CBattleAnimation * anim)
+{
+	pendingAnims.push_back( std::make_pair(anim, false) );
+	animsAreDisplayed.setn(true);
+}
+
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), stackToActivate(-1),
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
 	  spellToCast(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), animIDhelper(0),
 	  showStackQueue(false), moveStarted(false), moveSh(-1), siegeH(NULL), bresult(NULL)
 {
+	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
@@ -1352,7 +1347,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			if(creDir[it->second.ID] != bool(it->second.attackerOwned) && it->second.alive())
 			{
-				pendingAnims.push_back(std::make_pair(new CReverseAnim(this, it->second.ID, it->second.position, false), false));
+				addNewAnim(new CReverseAnim(this, it->second.ID, it->second.position, false));
 			}
 		}
 
@@ -1365,6 +1360,9 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			displayBattleFinished();
 		}
+
+		//anims ended
+		animsAreDisplayed.setn(false);
 	}
 
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing dead stacks
@@ -1934,20 +1932,20 @@ void CBattleInterface::stackActivated(int number)
 
 void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int distance)
 {
-	pendingAnims.push_back(std::make_pair(new CBattleStackMoved(this, number, destHex, endMoving, distance), false));
+	addNewAnim(new CBattleStackMoved(this, number, destHex, endMoving, distance));
 }
 
 void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos)
 {
 	for(int h = 0; h < attackedInfos.size(); ++h)
 	{
-		pendingAnims.push_back(std::make_pair(new CDefenceAnim(attackedInfos[h], this), false));
+		addNewAnim(new CDefenceAnim(attackedInfos[h], this));
 	}
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
-	pendingAnims.push_back(std::make_pair(new CMeleeAttack(this, ID, dest), false));
+	addNewAnim(new CMeleeAttack(this, ID, dest));
 }
 
 void CBattleInterface::newRound(int number)
@@ -2253,12 +2251,13 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsShooting(int ID, int dest)
 {
-	pendingAnims.push_back(std::make_pair(new CShootingAnim(this, ID, dest), false));
+	addNewAnim(new CShootingAnim(this, ID, dest));
 }
 
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
+	//animsAreDisplayed.waitUntil(false);
 	displayBattleFinished();
 }
 

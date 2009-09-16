@@ -387,7 +387,9 @@ private:
 	} * siegeH;
 public:
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
+	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
 	unsigned int animIDhelper; //for giving IDs for animations
+	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect); //c-tor
 	~CBattleInterface(); //d-tor
