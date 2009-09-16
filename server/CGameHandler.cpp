@@ -2529,7 +2529,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//return
-			if(curStack->hasFeatureOfType(StackFeature::RETURN_AFTER_STRIKE))
+			if(curStack->hasFeatureOfType(StackFeature::RETURN_AFTER_STRIKE) && startingPos != curStack->position)
 			{
 				moveStack(ba.stackNumber, startingPos);
 			}
