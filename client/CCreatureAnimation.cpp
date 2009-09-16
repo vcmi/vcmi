@@ -1,6 +1,7 @@
 #include "CCreatureAnimation.h"
 #include "../hch/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include <assert.h>
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine
@@ -19,6 +20,7 @@ int CCreatureAnimation::getType() const
 
 void CCreatureAnimation::setType(int type)
 {
+	assert(framesInGroup(type) > 0 && "Bad type for void CCreatureAnimation::setType(int type)!");
 	this->type = type;
 	internalFrame = 0;
 	if(type!=-1)

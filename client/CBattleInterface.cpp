@@ -119,6 +119,45 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, int stac
 {
 }
 
+bool CBattleStackAnimation::isToReverseHlp(int hexFrom, int hexTo, bool curDir)
+{
+	int fromMod = hexFrom % BFIELD_WIDTH;
+	int fromDiv = hexFrom / BFIELD_WIDTH;
+	int toMod = hexTo % BFIELD_WIDTH;
+
+	if(curDir && fromMod < toMod)
+		return false;
+	else if(curDir && fromMod > toMod)
+		return true;
+	else if(curDir && fromMod == toMod)
+	{
+		return fromDiv % 2 == 0;
+	}
+	else if(!curDir && fromMod < toMod)
+		return true;
+	else if(!curDir && fromMod > toMod)
+		return false;
+	else if(!curDir && fromMod == toMod)
+	{
+		return fromDiv % 2 == 1;
+	}
+	tlog1 << "Catastrope in CBattleStackAnimation::isToReverse!" << std::endl;
+	return false; //should never happen
+}
+
+bool CBattleStackAnimation::isToReverse(int hexFrom, int hexTo, bool curDir, bool toDoubleWide, bool toDir)
+{
+	if(toDoubleWide)
+	{
+		return isToReverseHlp(hexFrom, hexTo, curDir) &&
+			(toDir ? isToReverseHlp(hexFrom, hexTo-1, curDir) : isToReverseHlp(hexFrom, hexTo+1, curDir) );
+	}
+	else
+	{
+		return isToReverseHlp(hexFrom, hexTo, curDir);
+	}
+}
+
 //revering animation
 
 bool CReverseAnim::init()
@@ -215,7 +254,9 @@ bool CDefenceAnim::init()
 	{
 		if(dynamic_cast<CDefenceAnim *>(it->first))
 			continue;
-		if(dynamic_cast<CBattleAttack *>(it->first))
+
+		CBattleAttack * attAnim = dynamic_cast<CBattleAttack *>(it->first);
+		if(attAnim && attAnim->stackID != stackID)
 			continue;
 
 		const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
@@ -239,18 +280,12 @@ bool CDefenceAnim::init()
 	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
 
 	//reverse unit if necessary
-	if((attacked->position > attacker->position) && owner->creDir[stackID] == true)
-	{
-		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position, true), false));
-		return false;
-	}
-	else if ((attacked->position < attacker->position) && owner->creDir[stackID] == false)
+	if(isToReverse(attacked->position, attacker->position, owner->creDir[stackID], attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[IDby]))
 	{
 		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, attacked->position, true), false));
 		return false;
 	}
 	//unit reversed
-
 
 	if(byShooting) //delay hit animation
 	{		
@@ -283,6 +318,11 @@ bool CDefenceAnim::init()
 
 void CDefenceAnim::nextFrame()
 {
+	if(!killed && owner->creAnims[stackID]->getType() != 3)
+	{
+		owner->creAnims[stackID]->setType(3);
+	}
+
 	if(!owner->creAnims[stackID]->onLastFrameInGroup())
 	{
 		if( owner->creAnims[stackID]->getType() == 5 && (owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0
@@ -623,9 +663,10 @@ bool CBattleAttack::checkInitialConditions()
 	return isEarliest(false);
 }
 
-CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID)
-: CBattleStackAnimation(_owner, _stackID), sh(-1)
+CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
+: CBattleStackAnimation(_owner, _stackID), sh(-1), dest(_dest)
 {
+	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
 }
 
 ////melee attack
@@ -652,77 +693,33 @@ bool CMeleeAttack::init()
 	}
 
 	int reversedShift = 0; //shift of attacking stack's position due to reversing
-
-	//reversing stack if necessary
-	bool reverse = false;
 	if(aStack->attackerOwned)
 	{
-		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(aStack->position, dest) == -1)
 		{
-			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
-			case 5:
-				reverse = true;
-				break;
-			case -1:
-				if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-				{
-					reverse = true;
-					reversedShift = (aStack->attackerOwned ? -1 : 1);
-				}
-				break;
-			}
-		}
-		else //else for if(astack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
-			{
-			case 0: case 4: case 5:
-				{
-					reverse = true;
-					break;
-				}
+				reversedShift = (aStack->attackerOwned ? -1 : 1);
 			}
 		}
 	}
 	else //if(astack->attackerOwned)
 	{
-		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(aStack->position, dest) == -1)
 		{
-			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
+			if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
-			case 2:
-				{
-					reverse = true;
-					break;
-				}
-			case -1:
-				{
-					if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-					{
-						reverse = true;
-						reversedShift = (aStack->attackerOwned ? -1 : 1);
-					}
-					break;
-				}
+				reversedShift = (aStack->attackerOwned ? -1 : 1);
 			}
 		}
-		else //else for if(astack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-		{
-			switch(BattleInfo::mutualPosition(aStack->position, dest)) //attack direction
-			{
-			case 1: case 2: case 3:
-				{
-					reverse = true;
-					break;
-				}
-			}
 
-		}
 	}
-	if( reverse && owner->creDir[stackID] == bool(aStack->attackerOwned) )
+
+	//reversing stack if necessary
+	if(isToReverse(aStack->position, dest, owner->creDir[stackID], attackedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[attackedStack->ID]))
 	{
 		owner->pendingAnims.push_back(std::make_pair(new CReverseAnim(owner, stackID, aStack->position, true), false));
+		return false;
 	}
 	//reversed
 
@@ -766,9 +763,8 @@ void CMeleeAttack::endAnim()
 }
 
 CMeleeAttack::CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest)
-: CBattleAttack(_owner, attacker)
+: CBattleAttack(_owner, attacker, _dest)
 {
-	dest = _dest;
 }
 
 //shooting anim
@@ -789,7 +785,7 @@ bool CShootingAnim::init()
 	//projectile
 	float projectileAngle; //in radians; if positive, projectiles goes up
 	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
-	int fromHex = LOCPLINT->cb->battleGetPos(stackID);
+	int fromHex = shooter->position;
 	projectileAngle = atan2(float(abs(dest - fromHex)/BFIELD_WIDTH), float(abs(dest - fromHex)%BFIELD_WIDTH));
 	if(fromHex < dest)
 		projectileAngle = -projectileAngle;
@@ -803,7 +799,7 @@ bool CShootingAnim::init()
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
 
 	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
-	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByPos(dest, false), owner); 
+	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
 	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
 
 	if(projectileAngle > straightAngle) //upper shot
@@ -840,7 +836,7 @@ bool CShootingAnim::init()
 	owner->projectiles.push_back(spi);
 
 	//attack aniamtion
-	IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
+	IDby = attackedStack->ID;
 	posShiftDueToDist = 0;
 	shooting = true;
 
@@ -875,9 +871,8 @@ void CShootingAnim::endAnim()
 }
 
 CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest)
-: CBattleAttack(_owner, attacker)
+: CBattleAttack(_owner, attacker, _dest)
 {
-	dest = _dest;
 }
 
 ////////////////////////

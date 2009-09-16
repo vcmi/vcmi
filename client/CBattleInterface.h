@@ -78,6 +78,8 @@ public:
 	int stackID; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, int stack);
+	static bool isToReverseHlp(int hexFrom, int hexTo, bool curDir); //helper for isToReverse
+	static bool isToReverse(int hexFrom, int hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 };
 
 class CReverseAnim : public CBattleStackAnimation
@@ -161,12 +163,13 @@ protected:
 	bool shooting;
 	int group; //if shooting is true, print this animation group
 	int sh;			   // temporary sound handler
+	const CStack * attackedStack;
 public:
 	void nextFrame();
 
 	bool checkInitialConditions();
 
-	CBattleAttack(CBattleInterface * _owner, int _stackID);
+	CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest);
 };
 
 class CMeleeAttack : public CBattleAttack
