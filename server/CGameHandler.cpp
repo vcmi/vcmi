@@ -2444,6 +2444,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	case 6: //walk or attack
 		{
 			sendAndApply(&StartAction(ba)); //start movement and attack
+			int startingPos = gs->curB->getStack(ba.stackNumber)->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
@@ -2525,6 +2526,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				bat.flags = 0;
 				prepareAttack(bat, curStack, stackAtEnd, 0);
 				sendAndApply(&bat);
+			}
+
+			//return
+			if(curStack->hasFeatureOfType(StackFeature::RETURN_AFTER_STRIKE))
+			{
+				moveStack(ba.stackNumber, startingPos);
 			}
 			sendAndApply(&EndAction());
 			break;

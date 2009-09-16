@@ -609,7 +609,6 @@ void CBattleAttack::nextFrame()
 
 	if(owner->creAnims[stackID]->getFrame() == 0)
 	{
-		const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
 		if(shooting)
 		{
 			// TODO: I see that we enter this function twice with
@@ -618,24 +617,24 @@ void CBattleAttack::nextFrame()
 			// that is fixed. Once done, we can get rid of
 			// sh
 			if (sh == -1)
-				sh = CGI->soundh->playSound(aStack->creature->sounds.shoot);
+				sh = CGI->soundh->playSound(attackingStack->creature->sounds.shoot);
 			owner->creAnims[stackID]->setType(group);
 		}
 		else
 		{
 			// TODO: see comment above
 			if (sh == -1)
-				sh = CGI->soundh->playSound(aStack->creature->sounds.attack);
+				sh = CGI->soundh->playSound(attackingStack->creature->sounds.attack);
 
 			static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
 			int type; //dependent on attack direction
-			if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+			if(attackingStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 			{
-				type = dirToType[ BattleInfo::mutualPosition(aStack->position + posShiftDueToDist, dest) ]; //attack direction
+				type = dirToType[ BattleInfo::mutualPosition(attackingStackPosBeforeReturn + posShiftDueToDist, dest) ]; //attack direction
 			}
 			else //else for if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 			{
-				type = BattleInfo::mutualPosition(aStack->position, dest);
+				type = BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest);
 			}
 			owner->creAnims[stackID]->setType(type);
 		}
@@ -657,6 +656,8 @@ CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
 : CBattleStackAnimation(_owner, _stackID), sh(-1), dest(_dest)
 {
 	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
+	attackingStack = LOCPLINT->cb->battleGetStackByID(_stackID, false);
+	attackingStackPosBeforeReturn = attackingStack->position;
 }
 
 ////melee attack
@@ -671,9 +672,7 @@ bool CMeleeAttack::init()
 	//	return false;
 	//}
 
-	const CStack * aStack = LOCPLINT->cb->battleGetStackByID(stackID, false); //attacking stack
-
-	if(!aStack || owner->creAnims[stackID]->getType() == 5)
+	if(!attackingStack || owner->creAnims[stackID]->getType() == 5)
 	{
 		endAnim();
 		
@@ -681,32 +680,32 @@ bool CMeleeAttack::init()
 	}
 
 	int reversedShift = 0; //shift of attacking stack's position due to reversing
-	if(aStack->attackerOwned)
+	if(attackingStack->attackerOwned)
 	{
-		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(aStack->position, dest) == -1)
+		if(attackingStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
 		{
-			if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+			if(BattleInfo::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
-				reversedShift = (aStack->attackerOwned ? -1 : 1);
+				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
 			}
 		}
 	}
 	else //if(astack->attackerOwned)
 	{
-		if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(aStack->position, dest) == -1)
+		if(attackingStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
 		{
-			if(BattleInfo::mutualPosition(aStack->position + (aStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+			if(BattleInfo::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
-				reversedShift = (aStack->attackerOwned ? -1 : 1);
+				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
 			}
 		}
 
 	}
 
 	//reversing stack if necessary
-	if(isToReverse(aStack->position, dest, owner->creDir[stackID], attackedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[attackedStack->ID]))
+	if(isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stackID], attackedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[attackedStack->ID]))
 	{
-		owner->addNewAnim(new CReverseAnim(owner, stackID, aStack->position, true));
+		owner->addNewAnim(new CReverseAnim(owner, stackID, attackingStackPosBeforeReturn, true));
 		return false;
 	}
 	//reversed
@@ -717,14 +716,14 @@ bool CMeleeAttack::init()
 
 	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
 
-	int mutPos = BattleInfo::mutualPosition(aStack->position + reversedShift, dest);
+	int mutPos = BattleInfo::mutualPosition(attackingStackPosBeforeReturn + reversedShift, dest);
 	switch(mutPos) //attack direction
 	{
 	case 0: case 1: case 2: case 3: case 4: case 5:
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
-		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<aStack->position<<" reversed shift: "<<reversedShift<<std::endl;
+		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" reversed shift: "<<reversedShift<<std::endl;
 	}
 
 	return true;
@@ -762,7 +761,7 @@ bool CShootingAnim::init()
 	if( !CBattleAttack::checkInitialConditions() )
 		return false;
 
-	const CStack * shooter = LOCPLINT->cb->battleGetStackByID(stackID, false);
+	const CStack * shooter = attackingStack;
 
 	if(!shooter || owner->creAnims[stackID]->getType() == 5)
 	{
