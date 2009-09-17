@@ -1566,19 +1566,17 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 	if (creatures->slots.size() <= 0)
 		return;
 	CCreatureSet heroArmy = h->army;
-	while (creatures)
+	while (*creatures)
 	{
-		int slot = heroArmy.getSlotFor(creatures->slots.begin()->second.first);
-		if(slot < 0)
+		int slot = heroArmy.getSlotFor (creatures->slots.begin()->second.first);
+		if (slot < 0)
 			break;
-
 		heroArmy.slots[slot].first = creatures->slots.begin()->second.first;
 		heroArmy.slots[slot].second += creatures->slots.begin()->second.second;
-		creatures->slots.erase(creatures->slots.begin());
-		//ourArmy.slots.erase(ourArmy.slots.begin());
+		creatures->slots.erase (creatures->slots.begin());
 	}
 
-	if(!creatures) //all creatures can be moved to hero army - do that
+	if (!*creatures) //all creatures can be moved to hero army - do that
 	{
 		SetGarrisons sg;
 		sg.garrs[h->id] = heroArmy;
@@ -1588,8 +1586,8 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 	{
 		SetGarrisons sg;
 		sg.garrs[objid] = *creatures;
-		sendAndApply(&sg);
-		showGarrisonDialog(objid, h->id, true, 0);
+		sendAndApply (&sg);
+		showGarrisonDialog (objid, h->id, true, 0);
 		return;
 	}
 }

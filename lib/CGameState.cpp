@@ -265,7 +265,7 @@ DLL_EXPORT std::string MetaString::buildList () const
 	{
 		if (i > 0 && message[i] == TEXACT_STRING || message[i] == TLOCAL_STRING)
 		{
-			if (i == message.size())
+			if (i == message.size() - 1)
 				lista += " and ";
 			else
 				lista += ", ";

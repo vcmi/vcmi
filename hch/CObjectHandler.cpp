@@ -4078,9 +4078,6 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				loot << "%d %s";
 				loot.addReplacement (iw.components.back().val);
 				loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
-				//loot << iw.components.back().val << " ";
-				//loot.addTxt (iw.components.back().val);
-				//loot.addTxt (MetaString::RES_NAMES, iw.components.back().subtype);
 				cb->giveResource (h->getOwner(), it, bc->resources[it]);
 			}		
 		}
@@ -4093,19 +4090,21 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
 		//display loot
-		if (textID == 34)
+		if (!loot.message.empty())
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT,34);//Heaving defeated %s, you discover %s
-			iw.text.addReplacement(MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
-			//std::string loot_final;
-			//loot.toString (loot_final);
-			iw.text.addReplacement (loot.buildList());
-			//iw.text.addReplacement(" %d %s%s%d %s");	
+			if (textID == 34)
+			{
+				iw.text.addTxt(MetaString::ADVOB_TXT, 34);//Heaving defeated %s, you discover %s
+				iw.text.addReplacement (MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
+				iw.text.addReplacement (loot.buildList());
+			}
+			else
+				iw.text.addTxt (MetaString::ADVOB_TXT, textID);
+			cb->showInfoDialog(&iw);
 		}
-		else
-			iw.text.addTxt (MetaString::ADVOB_TXT, textID);
-
-		cb->showInfoDialog(&iw);
+		loot.clear();
+		iw.components.clear();
+		iw.text.clear();
 
 		//grant creatures
 		CCreatureSet ourArmy;
@@ -4115,7 +4114,28 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			ourArmy.slots[slot].first = it->first;
 			ourArmy.slots[slot].second += it->second;
 		}
-		cb->giveCreatures (id, h, &ourArmy);
+		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = ourArmy.slots.begin(); i != ourArmy.slots.end(); i++)
+		{
+			iw.components.push_back (Component(Component::CREATURE, i->second.first, i->second.second, 0));
+			loot << "%s";
+			if (i->second.second == 1)
+				loot.addReplacement (MetaString::CRE_SING_NAMES, i->second.first);
+			else
+				loot.addReplacement (MetaString::CRE_PL_NAMES, i->second.first);
+		}
+
+		if (ourArmy.slots.size())
+		{
+			if (ourArmy.slots.size() == 1 && ourArmy.slots.begin()->second.second == 1)
+				iw.text.addTxt (MetaString::ADVOB_TXT, 185);
+			else
+				iw.text.addTxt (MetaString::ADVOB_TXT, 186);
+
+			iw.text.addReplacement (loot.buildList());
+			iw.text.addReplacement (h->name);
+			cb->showInfoDialog(&iw);
+			cb->giveCreatures (id, h, &ourArmy);
+		}
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else //in case of defeat

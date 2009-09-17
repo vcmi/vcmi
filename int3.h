@@ -89,7 +89,7 @@ public:
 	}
 	operator bool() const
 	{
-		return slots.size()>0;
+		return slots.size() > 0;
 	}
 	void sweep()
 	{
