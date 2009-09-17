@@ -22,6 +22,7 @@
 #include "../StartInfo.h"
 #include "../lib/map.h"
 #include <sstream>
+#include <SDL_stdinc.h>
 using namespace boost::assign;
 
 /*
@@ -177,9 +178,17 @@ void CObjectHandler::loadObjects()
 
 			istr >> bc.combatValue;
 			bc.resources.resize(RESOURCE_QUANTITY);
+			
+			//a dirty trick to make it work if there is no 0 for 0 quantity (like in grotto - last entry)
+			char buft[52];
+			istr.getline(buft, 50, '\t');
 			for(int h=0; h<7; ++h)
 			{
-				istr >> bc.resources[h];
+				istr.getline(buft, 50, '\t');
+				if(buft[0] == '\0')
+					bc.resources[h] = 0;
+				else
+					bc.resources[h] = SDL_atoi(buft);
 			}
 			readCreatures(istr, bc, false);
 

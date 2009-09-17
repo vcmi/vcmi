@@ -73,8 +73,10 @@
 71	InfernalTroglodyte
 72	Harpy
 73	HarpyHag
+73	M73
 74	Beholder
 75	EvilEye
+75	M75
 76	Medusa
 76	Medusae
 77	MedusaQueen
@@ -105,7 +107,8 @@
 102	CopperGorgon
 103	BronzeGorgon
 104	DragonFly
-104 SerpentFly
+104	SerpentFly
+104	Dragonflies
 105	FireDragonFly
 106	Basilisk
 107	GreaterBasilisk
