@@ -72,6 +72,22 @@ public:
 	CBattleAnimation(CBattleInterface * _owner);
 };
 
+class CSpellEffectAnim : public CBattleAnimation
+{
+private:
+	ui32 effect;
+	int destTile;
+	std::string customAnim;
+	int x, y, dx, dy;
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx = 0, int _dy = 0);
+	CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0);
+};
+
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
@@ -319,6 +335,14 @@ struct BattleSettings
 	}
 };
 
+struct SBattleEffect
+{
+	int x, y; //position on the screen
+	int frame, maxFrame;
+	CDefHandler * anim; //animation to display
+	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
+};
+
 class CBattleInterface : public CIntObject
 {
 private:
@@ -361,12 +385,6 @@ private:
 	bool blockedByObstacle(int hex) const;
 	bool isCatapultAttackable(int hex) const; //returns true if given tile can be attacked by catapult
 
-	struct SBattleEffect
-	{
-		int x, y; //position on the screen
-		int frame, maxFrame;
-		CDefHandler * anim; //animation to display
-	};
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
 	class SiegeHelper
@@ -468,6 +486,7 @@ public:
 	friend class CBattleAttack;
 	friend class CMeleeAttack;
 	friend class CShootingAnim;
+	friend class CSpellEffectAnim;
 };
 
 #endif // __CBATTLEINTERFACE_H__

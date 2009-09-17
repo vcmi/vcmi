@@ -2540,7 +2540,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 				|| (s->id == 26) //Armageddon
 				)
 			{
-				attackedCres.insert(stacks[it]);
+				if(stacks[it]->alive())
+					attackedCres.insert(stacks[it]);
 			}
 		}
 	}

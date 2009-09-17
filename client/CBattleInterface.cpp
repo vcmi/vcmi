@@ -113,6 +113,136 @@ CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
 : owner(_owner), ID(_owner->animIDhelper++)
 {}
 
+//effect animation
+bool CSpellEffectAnim::init()
+{
+	if(!isEarliest(false))
+		return false;
+
+	if(effect == 12) //armageddon
+	{
+		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
+		{
+			CDefHandler * anim;
+			if(customAnim.size())
+				anim = CDefHandler::giveDef(customAnim);
+			else
+				anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+
+			for(int i=0; i * anim->width < owner->pos.w ; ++i)
+			{
+				for(int j=0; j * anim->height < owner->pos.h ; ++j)
+				{
+					SBattleEffect be;
+					be.effectID = ID;
+					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+					be.frame = 0;
+					be.maxFrame = be.anim->ourImages.size();
+					be.x = i * anim->width;
+					be.y = j * anim->height;
+
+					owner->battleEffects.push_back(be);
+				}
+			}
+		}
+	}
+	else // Effects targeted at a specific creature/hex.
+	{
+		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
+		{
+			const CStack* destStack = LOCPLINT->cb->battleGetStackByPos(destTile, false);
+			Rect &tilePos = owner->bfield[destTile].pos;
+			SBattleEffect be;
+			be.effectID = ID;
+			if(customAnim.size())
+				be.anim = CDefHandler::giveDef(customAnim);
+			else
+				be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+			be.frame = 0;
+			be.maxFrame = be.anim->ourImages.size();
+
+			switch (effect)
+			{
+			case -1:
+				be.x = x;
+				be.y = y;
+				break;
+			case 0: // Prayer and Lightning Bolt.
+			case 1:
+				// Position effect with it's bottom center touching the bottom center of affected tile(s).
+				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
+				be.y = tilePos.y + tilePos.h - be.anim->height;
+				break;
+
+			default:
+				// Position effect with it's center touching the top center of affected tile(s).
+				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
+				be.y = tilePos.y - be.anim->height/2;
+				break;
+			}
+
+			// Correction for 2-hex creatures.
+			if (destStack != NULL && destStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
+
+			owner->battleEffects.push_back(be);
+		}
+	}
+	//battleEffects 
+	return true;
+}
+
+void CSpellEffectAnim::nextFrame()
+{
+	for(std::list<SBattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
+	{
+		++(it->frame);
+
+		if(it->frame == it->maxFrame)
+		{
+			endAnim();
+			break;
+		}
+		else
+		{
+			it->x += dx;
+			it->y += dy;
+		}
+	}
+}
+
+void CSpellEffectAnim::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	std::vector<std::list<SBattleEffect>::iterator> toDel;
+
+	for(std::list<SBattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
+	{
+		if(it->effectID == ID)
+		{
+			toDel.push_back(it);
+		}
+	}
+
+	for(int b=0; b<toDel.size(); ++b)
+	{
+		owner->battleEffects.erase(toDel[b]);
+	}
+
+	delete this;
+}
+
+CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx, int _dy)
+:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), dx(_dx), dy(_dy)
+{
+}
+
+CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy)
+:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy)
+{
+}
+
 //stack's aniamtion
 
 CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, int stack)
@@ -250,6 +380,9 @@ bool CDefenceAnim::init()
 	//	return false;
 	//}
 
+	if(IDby == -1 && owner->battleEffects.size() > 0)
+		return false;
+
 	int lowestMoveID = owner->animIDhelper + 5;
 	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
 	{
@@ -261,9 +394,12 @@ bool CDefenceAnim::init()
 			continue;
 
 		const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
-		int attackerAnimType = owner->creAnims[IDby]->getType();
-		if( attackerAnimType == 11 && attackerAnimType == 12 && attackerAnimType == 13 && owner->creAnims[IDby]->getFrame() < attacker->creature->attackClimaxFrame )
-			return false;
+		if(IDby != -1)
+		{
+			int attackerAnimType = owner->creAnims[IDby]->getType();
+			if( attackerAnimType == 11 && attackerAnimType == 12 && attackerAnimType == 13 && owner->creAnims[IDby]->getFrame() < attacker->creature->attackClimaxFrame )
+				return false;
+		}
 
 		CReverseAnim * animAsRev = dynamic_cast<CReverseAnim *>(it->first);
 
@@ -281,7 +417,7 @@ bool CDefenceAnim::init()
 	const CStack * attacked = LOCPLINT->cb->battleGetStackByID(stackID, false);
 
 	//reverse unit if necessary
-	if(isToReverse(attacked->position, attacker->position, owner->creDir[stackID], attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[IDby]))
+	if(attacker && isToReverse(attacked->position, attacker->position, owner->creDir[stackID], attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE), owner->creDir[IDby]))
 	{
 		owner->addNewAnim(new CReverseAnim(owner, stackID, attacked->position, true));
 		return false;
@@ -1388,22 +1524,10 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing spell effects
 	if(battleEffects.size())
 	{
-		std::vector< std::list<SBattleEffect>::iterator > toErase;
 		for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
 		{
 			SDL_Surface * bitmapToBlit = it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap;
 			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, pos.x + it->x, pos.y + it->y));
-			++(it->frame);
-
-			if(it->frame == it->maxFrame)
-			{
-				toErase.push_back(it);
-			}
-		}
-		for(size_t b=0; b<toErase.size(); ++b)
-		{
-			delete toErase[b]->anim;
-			battleEffects.erase(toErase[b]);
 		}
 	}
 	
@@ -2319,27 +2443,16 @@ void CBattleInterface::spellCast(SpellCast * sc)
 				animToDisplay = anims[4];
 
 			//displaying animation
+			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
 			int steps = sqrt((float)((destcoord.first - srccoord.first)*(destcoord.first - srccoord.first) + (destcoord.second - srccoord.second) * (destcoord.second - srccoord.second))) / 40;
 			if(steps <= 0)
 				steps = 1;
 
-			CDefHandler * animDef = CDefHandler::giveDef(animToDisplay);
-
 			int dx = (destcoord.first - srccoord.first - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.second - srccoord.second - animDef->ourImages[0].bitmap->h)/steps;
 
-			SDL_Rect buf;
-			SDL_GetClipRect(screen, &buf);
-			SDL_SetClipRect(screen, &pos); //setting rect we can blit to
-			for(int g=0; g<steps; ++g)
-			{
-				show(screen);
-				SDL_Rect & srcr = animDef->ourImages[g%animDef->ourImages.size()].bitmap->clip_rect;
-				SDL_Rect dstr = genRect(srcr.h, srcr.w, srccoord.first + g*dx, srccoord.second + g*dy);
-				SDL_BlitSurface(animDef->ourImages[g%animDef->ourImages.size()].bitmap, &srcr, screen, &dstr);
-				CSDL_Ext::update(screen);
-				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			}
-			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
+			delete animDef;
+			addNewAnim(new CSpellEffectAnim(this, animToDisplay, srccoord.first, srccoord.second, dx, dy));
+
 			break; //for 15 and 16 cases
 		}
 	case 17: //lightning bolt
@@ -2447,61 +2560,7 @@ void CBattleInterface::castThisSpell(int spellID)
 
 void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
-	if(effect == 12) //armageddon
-	{
-		if(graphics->battleACToDef[effect].size() != 0)
-		{
-			CDefHandler * anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-			for(int i=0; i * anim->width < pos.w ; ++i)
-			{
-				for(int j=0; j * anim->height < pos.h ; ++j)
-				{
-					SBattleEffect be;
-					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-					be.frame = 0;
-					be.maxFrame = be.anim->ourImages.size();
-					be.x = i * anim->width;
-					be.y = j * anim->height;
-
-					battleEffects.push_back(be);
-				}
-			}
-		}
-	}
-	else // Effects targeted at a specific creature/hex.
-	{
-		if(graphics->battleACToDef[effect].size() != 0)
-		{
-			const CStack* destStack = LOCPLINT->cb->battleGetStackByPos(destTile, false);
-			Rect &tilePos = bfield[destTile].pos;
-			SBattleEffect be;
-			be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-			be.frame = 0;
-			be.maxFrame = be.anim->ourImages.size();
-
-			switch (effect) {
-				case 0: // Prayer and Lightning Bolt.
-				case 1:
-					// Position effect with it's bottom center touching the bottom center of affected tile(s).
-					be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-					be.y = tilePos.y + tilePos.h - be.anim->height;
-					break;
-
-				default:
-					// Position effect with it's center touching the top center of affected tile(s).
-					be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-					be.y = tilePos.y - be.anim->height/2;
-					break;
-			}
-
-			// Correction for 2-hex creatures.
-			if (destStack != NULL && destStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
-
-			battleEffects.push_back(be);
-		}
-	}
-	//battleEffects 
+	addNewAnim(new CSpellEffectAnim(this, effect, destTile));
 }
 
 void CBattleInterface::setAnimSpeed(int set)
