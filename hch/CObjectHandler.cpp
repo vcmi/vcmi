@@ -154,8 +154,12 @@ void CObjectHandler::loadObjects()
 	
 	for(int g=0; g<21; ++g) //TODO: remove hardcoded value
 	{
-		//reading name - TODO: use it if necessary
+		//reading name
 		istr.getline(buffer, MAX_BUF, '\t');
+		creBanksNames[g] = std::string(buffer);
+		//remove trailing new line characters
+		while(creBanksNames[g][0] == 10 || creBanksNames[g][0] == 13)
+			creBanksNames[g].erase(creBanksNames[g].begin());
 
 		for(int i=0; i<4; ++i) //reading levels
 		{

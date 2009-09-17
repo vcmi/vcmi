@@ -951,7 +951,8 @@ class DLL_EXPORT CObjectHandler
 {
 public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
-	std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset], TODO: load it
+	std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset]
+	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 
 	void loadObjects();
 

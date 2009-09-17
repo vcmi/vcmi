@@ -695,7 +695,7 @@ list<int> CBattleLogic::PerformDefaultAction(int stackID, int &additionalInfo)
 
 	for (std::map<int, int>::iterator it = votes.begin(); it != votes.end(); ++it)
 	{
-		if (m_cb->battleGetStackByID(it->first)->attackerOwned == m_side  //it's hostile stack
+		if (bool(m_cb->battleGetStackByID(it->first)->attackerOwned) == m_side  //it's hostile stack
 			&& it->second > max_vote)
 		{
 			max_vote = it->second;
