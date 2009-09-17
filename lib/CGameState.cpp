@@ -265,8 +265,8 @@ DLL_EXPORT std::string MetaString::buildList () const
 	{
 		if (i > 0 && message[i] == TEXACT_STRING || message[i] == TLOCAL_STRING)
 		{
-			if (i == message.size() - 1)
-				lista += " and ";
+			if (exSt == exactStrings.size() - 1)
+				lista += VLC->generaltexth->allTexts[141]; //" and "
 			else
 				lista += ", ";
 		}
