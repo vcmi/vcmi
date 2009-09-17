@@ -874,6 +874,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 	ui32 daycounter;
 
 	void initObj();
+	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
 	void reset(ui16 var1, ui16 var2);
 	void newTurn() const;

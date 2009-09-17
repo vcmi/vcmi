@@ -3876,6 +3876,15 @@ void CBank::initObj()
 	daycounter = 0;
 	multiplier = 1;
 }
+const std::string & CBank::getHoverText() const
+{
+	hoverName = VLC->objh->creBanksNames[index];
+	if (bc == NULL)
+		hoverName += " " + VLC->generaltexth->allTexts[352];
+	else
+		hoverName += " " + VLC->generaltexth->allTexts[353];
+	return hoverName;
+}
 void CBank::reset(ui16 var1, ui16 var2) //prevents desync
 {
 	ui8 chance = 0;
@@ -4011,9 +4020,9 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::DANGER;
-		std::string desc =  VLC->generaltexth->advobtxt[banktext];
-		boost::algorithm::replace_first (desc, "%s", VLC->generaltexth->names[ID]);
-		bd.text << desc;
+		bd.text << VLC->generaltexth->advobtxt[banktext];
+		if (ID == 16)
+			bd.text.addReplacement (VLC->objh->creBanksNames[index]);
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
 	}
 	else
@@ -4034,9 +4043,9 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		}
 		iw.soundID = soundBase::GRAVEYARD;
 		iw.player = h->getOwner();
-		std::string desc = VLC->generaltexth->advobtxt[33];
-		boost::algorithm::replace_first (desc, "%s", VLC->generaltexth->names[ID]);
-		iw.text << desc;
+		iw.text << VLC->generaltexth->advobtxt[33];
+		if (ID == 16 || ID == 24 || ID == 85)
+			iw.text.addReplacement (VLC->objh->creBanksNames[index]);	
 		cb->showInfoDialog(&iw);
 	}
 }
