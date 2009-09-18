@@ -28,7 +28,7 @@ private:
 	int totalEntries, DEFType, totalBlocks;
 	bool allowRepaint;
 	int length;
-	unsigned int * RWEntries;
+	//unsigned int * RWEntries;
 	struct SEntry
 	{
 		std::string name;

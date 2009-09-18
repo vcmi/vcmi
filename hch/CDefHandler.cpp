@@ -26,15 +26,12 @@ static long long pow(long long a, int b)
 CDefHandler::CDefHandler()
 {
 	//FDef = NULL;
-	RWEntries = NULL;
 	notFreeImgs = false;
 }
 CDefHandler::~CDefHandler()
 {
 	//if (FDef)
 		//delete [] FDef;
-	if (RWEntries)
-		delete [] RWEntries;
 	if (notFreeImgs)
 		return;
 	for (size_t i=0; i<ourImages.size(); ++i)
@@ -184,7 +181,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	RWEntries = new unsigned int[height];
+	//RWEntries = new unsigned int[height];
 	for(size_t i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
@@ -339,11 +336,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 1:
 	{
-		memcpy(RWEntries, FDef+BaseOffset, SpriteHeight*sizeof(int));
+		unsigned int * RWEntriesLoc = (unsigned int *)(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor+RWEntries[i];
+			BaseOffset=BaseOffsetor+RWEntriesLoc[i];
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 
@@ -357,7 +354,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 				if (SegmentType==0xFF)
 				{
-					for (int k=0;k<SegmentLength;k++)
+					for (int k=0; k<SegmentLength;k++)
 					{
 						((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
 						if ((TotalRowLength+k)>=SpriteWidth)
@@ -387,12 +384,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 2:
 	{
-		for (int i=0;i<SpriteHeight;i++)
+		/*for (int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
-			RWEntries[i] = readNormalNr(BaseOffset,2,FDef);
-		}
-		BaseOffset = BaseOffsetor+RWEntries[0];
+			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
+		}*/
+		BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor ); //was + RWEntries[0];
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
@@ -433,14 +429,13 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 3:
 	{
+		/*for (int i=0;i<SpriteHeight;i++)
+		{
+			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
+		}*/
 		for (int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
-			RWEntries[i] = readNormalNr(BaseOffset,2,FDef);
-		}
-		for (int i=0;i<SpriteHeight;i++)
-		{
-			BaseOffset = BaseOffsetor+RWEntries[i];
+			BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor+i*2*(SpriteWidth/32) ); //was + RWEntries[i] before speedup
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 

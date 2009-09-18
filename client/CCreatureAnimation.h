@@ -22,7 +22,6 @@ private:
 	int totalEntries, DEFType, totalBlocks;
 	int length;
 	BMPPalette palette[256];
-	int * RLEntries;
 	struct SEntry
 	{
 		int offset;

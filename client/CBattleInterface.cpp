@@ -227,6 +227,7 @@ void CSpellEffectAnim::endAnim()
 
 	for(int b=0; b<toDel.size(); ++b)
 	{
+		delete toDel[b]->anim;
 		owner->battleEffects.erase(toDel[b]);
 	}
 

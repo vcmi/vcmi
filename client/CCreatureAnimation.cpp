@@ -36,7 +36,7 @@ void CCreatureAnimation::setType(int type)
 	}
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), internalFrame(0), once(false)
+CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), once(false)
 {
 	FDef = spriteh->giveFile(name); //load main file
 
@@ -91,7 +91,6 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), inte
 	curFrame = 0;
 	type = -1;
 	frames = totalEntries;
-	RLEntries = new int[fullHeight];
 }
 
 int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str) const
@@ -207,7 +206,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 		{
 			ftcp+=FullWidth * TopMargin;
 		}
-		memcpy(RLEntries, FDef+BaseOffset, SpriteHeight*sizeof(int));
+		int * RLEntries = (int*)(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i=0;i<SpriteHeight;i++)
 		{
@@ -280,8 +279,6 @@ int CCreatureAnimation::framesInGroup(int group) const
 CCreatureAnimation::~CCreatureAnimation()
 {
 	delete [] FDef;
-	if (RLEntries)
-		delete [] RLEntries;
 }
 
 inline void CCreatureAnimation::putPixel(
