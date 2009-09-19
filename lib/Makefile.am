@@ -1,4 +1,5 @@
 pkglib_LTLIBRARIES = libvcmi.la
+libvcmi_la_CXXFLAGS = @SDL_CXXFLAGS@
 libvcmi_la_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
