@@ -3897,27 +3897,31 @@ void CBank::reset(ui16 var1, ui16 var2) //prevents desync
 		}
 	}
 	artifacts.clear();
+	std::vector<CArtifact*>::iterator index;
 	for (ui8 i = 0; i <= 3; i++)
 	{	
 		std::vector<CArtifact*> arts; //to avoid addition of different tiers
+		switch (i)
+		{
+			case 0:
+				cb->getAllowed (arts, CArtifact::ART_TREASURE);
+				break;
+			case 1:
+				cb->getAllowed (arts, CArtifact::ART_MINOR);
+				break;
+			case 2:
+				cb->getAllowed (arts, CArtifact::ART_MAJOR);
+				break;
+			case 3:
+				cb->getAllowed (arts, CArtifact::ART_RELIC);
+				break;
+		}
 		for (ui8 n = 0; n < bc->artifacts[i]; n++)
 		{
-			switch (i)
-			{
-				case 0:
-					cb->getAllowed (arts, CArtifact::ART_TREASURE);
-					break;
-				case 1:
-					cb->getAllowed (arts, CArtifact::ART_MINOR);
-					break;
-				case 2:
-					cb->getAllowed (arts, CArtifact::ART_MAJOR);
-					break;
-				case 3:
-					cb->getAllowed (arts, CArtifact::ART_RELIC);
-					break;
-			}
-			artifacts.push_back (arts[var2 % arts.size()]->id);
+
+			index = arts.begin() + var2 % arts.size();
+			artifacts.push_back ((*index)->id);
+			arts.erase(index);
 			var2 *= (var1 + n * i); //almost like random
 		}
 	}
