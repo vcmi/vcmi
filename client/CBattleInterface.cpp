@@ -1936,6 +1936,9 @@ void CBattleInterface::clickRight(tribool down, bool previousState)
 
 void CBattleInterface::bOptionsf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	CGI->curh->changeGraphic(0,0);
 
 	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
@@ -1945,10 +1948,15 @@ void CBattleInterface::bOptionsf()
 
 void CBattleInterface::bSurrenderf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
 }
 
 void CBattleInterface::bFleef()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	if( LOCPLINT->cb->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
@@ -1982,10 +1990,15 @@ void CBattleInterface::reallyFlee()
 
 void CBattleInterface::bAutofightf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
 }
 
 void CBattleInterface::bSpellf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	CGI->curh->changeGraphic(0,0);
 
 	const CGHeroInstance * chi = NULL;
@@ -1999,23 +2012,35 @@ void CBattleInterface::bSpellf()
 
 void CBattleInterface::bWaitf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	if(activeStack != -1)
 		giveCommand(8,0,activeStack);
 }
 
 void CBattleInterface::bDefencef()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	if(activeStack != -1)
  		giveCommand(3,0,activeStack);
 }
 
 void CBattleInterface::bConsoleUpf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	console->scrollUp();
 }
 
 void CBattleInterface::bConsoleDownf()
 {
+	if(spellDestSelectMode) //we are casting a spell
+		return;
+
 	console->scrollDown();
 }
 
@@ -2967,6 +2992,9 @@ void CBattleHero::setPhase(int newPhase)
 
 void CBattleHero::clickLeft(tribool down, bool previousState)
 {
+	if(myOwner->spellDestSelectMode) //we are casting a spell
+		return;
+
 	if(!down && myHero && LOCPLINT->cb->battleCanCastSpell()) //check conditions
 	{
 		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield

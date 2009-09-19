@@ -487,6 +487,7 @@ public:
 	friend class CMeleeAttack;
 	friend class CShootingAnim;
 	friend class CSpellEffectAnim;
+	friend class CBattleHero;
 };
 
 #endif // __CBATTLEINTERFACE_H__

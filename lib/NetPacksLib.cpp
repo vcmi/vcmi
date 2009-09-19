@@ -608,9 +608,9 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->counterAttacks = 1 + s->valOfFeatures(StackFeature::ADDITIONAL_RETALIATION);
 
 		//regeneration
-		if( s->hasFeatureOfType(StackFeature::HP_REGENERATION) )
+		if( s->hasFeatureOfType(StackFeature::HP_REGENERATION) && s->alive() )
 			s->firstHPleft = std::min<ui32>( s->MaxHealth(), s->valOfFeatures(StackFeature::HP_REGENERATION) );
-		if( s->hasFeatureOfType(StackFeature::FULL_HP_REGENERATION) )
+		if( s->hasFeatureOfType(StackFeature::FULL_HP_REGENERATION) && s->alive() )
 			s->firstHPleft = s->MaxHealth();
 
 		//remove effects and restore only those with remaining turns in duration
