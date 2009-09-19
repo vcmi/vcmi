@@ -3,7 +3,7 @@
 clientSettings
 {
 	port=3030;
-	resolution=800x600; // format: WxH
+	resolution=1440x900; // format: WxH
 	bpp=24; // bytes per pixels: 24 or 32
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost
@@ -16,7 +16,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=593 height=547 smoothMove=1 puzzleSepia=1;
+			AdvMap: x=7 y=6 width=593 height=547 smoothMove=1;
 			InfoBox: x=605 y=389;
 			gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=556 y=508 graphic=agemLR.def;
@@ -44,7 +44,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=817 height=547 smoothMove=1 puzzleSepia=1;
+			AdvMap: x=7 y=6 width=817 height=547 smoothMove=1;
 			InfoBox: x=829 y=389;
 		 	gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=780 y=508 graphic=agemLR.def;
@@ -73,7 +73,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=817 height=715 smoothMove=1 puzzleSepia=1;
+			AdvMap: x=7 y=6 width=817 height=715 smoothMove=1;
 			InfoBox: x=829 y=557;
 			gem0: x=6 y=676 graphic=agemLL.def;
 			gem1: x=780 y=676 graphic=agemLR.def;
@@ -97,22 +97,22 @@ GUISettings
 			ButtonEndTurn: x=903 y=524 graphic=IAM001.DEF playerColoured=1;
 		};
 	}
-	1280x1024 //setting specific for this resolution
+	1280x960 //setting specific for this resolution
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=1073 height=971 smoothMove=1 puzzleSepia=1;
-			InfoBox: x=1085 y=557;
-			gem0: x=6 y=932 graphic=agemLL.def;
-			gem1: x=1036 y=932 graphic=agemLR.def;
+			AdvMap: x=7 y=6 width=1073 height=907 smoothMove=1;
+			InfoBox: x=1085 y=749;
+			gem0: x=6 y=868 graphic=agemLL.def;
+			gem1: x=1036 y=868 graphic=agemLR.def;
 			gem2: x=6 y=6 graphic=agemUL.def;
 			gem3: x=1036 y=6 graphic=agemUR.def;
-			background=ADVMAP4.PCX;
-			HeroList: size=10 x=1088 y=201 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
-			TownList: size=10 x=1226 y=201 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
+			background=ADVMAP5.pcx;
+			HeroList: size=16 x=1088 y=196 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
+			TownList: size=16 x=1226 y=196 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
 			Minimap: width=144 height=144 x=1110 y=26;
-			Statusbar: x=8 y=979 graphic=ADROLLVR2.pcx;
-			ResDataBar: x=0 y=999 graphic=ZRESBAR2.pcx offsetX=65 offsetY=2 resSpace=109 resDateSpace=135;
+			Statusbar: x=8 y=916 graphic=ADROLLVR5.pcx;
+			ResDataBar: x=0 y=935 graphic=ZRESBAR5.pcx offsetX=97 offsetY=2 resSpace=142 resDateSpace=160;
 			ButtonKingdomOv: x=1159 y=197 graphic=IAM002L.DEF playerColoured=1;
 			ButtonUnderground: x=1159 y=229 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF);
 			ButtonQuestLog: x=1159 y=261 graphic=IAM004L.DEF playerColoured=1;
@@ -121,15 +121,43 @@ GUISettings
 			ButtonSpellbook: x=1159 y=359 graphic=IAM007L.DEF playerColoured=1;
 			ButtonAdvOptions: x=1159 y=393 graphic=IAM008L.DEF playerColoured=1;
 			ButtonSysOptions: x=1159 y=426 graphic=IAM009L.DEF playerColoured=1;
-			ButtonNextHero: x=1159 y=491 graphic=IAM000.DEF playerColoured=1;
-			ButtonEndTurn: x=1159 y=524 graphic=IAM001.DEF playerColoured=1;
+			ButtonNextHero: x=1159 y=458 graphic=IAM000.DEF playerColoured=1;
+			ButtonEndTurn: x=1159 y=491 graphic=IAM001.DEF playerColoured=1;
+		};
+	}
+	1440x900 //setting specific for this resolution
+	{
+		AdventureMap
+		{
+			AdvMap: x=7 y=7 width=1234 height=846 smoothMove=1;
+			InfoBox: x=1246 y=690;
+			gem0: x=6 y=808 graphic=agemLL.def;
+			gem1: x=1196 y=808 graphic=agemLR.def;
+			gem2: x=6 y=6 graphic=agemUL.def;
+			gem3: x=1196 y=6 graphic=agemUR.def;
+			background=ADVMAP6.pcx;
+			HeroList: size=14 x=1248 y=200 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
+			TownList: size=14 x=1387 y=200 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
+			Minimap: width=144 height=144 x=1270 y=26;
+			Statusbar: x=8 y=855 graphic=ADROLLVR6.pcx;
+			ResDataBar: x=0 y=875 graphic=ZRESBAR6.pcx offsetX=100 offsetY=2 resSpace=155 resDateSpace=244;
+			ButtonKingdomOv: x=1319 y=197 graphic=IAM002L.DEF playerColoured=1;
+			ButtonUnderground: x=1319 y=229 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF);
+			ButtonQuestLog: x=1319 y=261 graphic=IAM004L.DEF playerColoured=1;
+			ButtonSleepWake: x=1319 y=293 graphic=IAM005L.DEF playerColoured=1;
+			ButtonMoveHero: x=1319 y=326 graphic=IAM006L.DEF playerColoured=1;
+			ButtonSpellbook: x=1319 y=359 graphic=IAM007L.DEF playerColoured=1;
+			ButtonAdvOptions: x=1319 y=392 graphic=IAM008L.DEF playerColoured=1;
+			ButtonSysOptions: x=1319 y=425 graphic=IAM009L.DEF playerColoured=1;
+			ButtonNextHero: x=1319 y=458 graphic=IAM000.DEF playerColoured=1;
+			ButtonEndTurn: x=1319 y=491 graphic=IAM001.DEF playerColoured=1;
 		};
 	}
 	1600x1200 //setting specific for this resolution
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=1395 height=1147 smoothMove=1 puzzleSepia=1;
+			AdvMap: x=7 y=6 width=1395 height=1147 smoothMove=1;
 			InfoBox: x=1406 y=989;
 			gem0: x=6 y=1108 graphic=agemLL.def;
 			gem1: x=1356 y=1108 graphic=agemLR.def;
