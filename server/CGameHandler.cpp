@@ -1030,11 +1030,11 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
 	{
-		if((stacks[g]->position%17)==1 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		if((stacks[g]->position%17)==1 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && stacks[g]->attackerOwned)
 		{
 			stacks[g]->position += 1;
 		}
-		else if((stacks[g]->position%17)==15 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		else if((stacks[g]->position%17)==15 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !stacks[g]->attackerOwned)
 		{
 			stacks[g]->position -= 1;
 		}
