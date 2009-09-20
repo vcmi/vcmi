@@ -138,7 +138,7 @@ struct DLL_EXPORT BattleInfo
 			& castSpells & si;
 	}
 	const CStack * getNextStack() const; //which stack will have turn after current one
-	void getStackQueue(std::vector<const CStack *> &out, int howMany, int mode = 0, int lastMoved = -1) const; //returns stack in order of their movement action
+	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	const CStack * getStack(int stackID, bool onlyAlive = true) const;
 	CStack * getStackT(int tileID, bool onlyAlive = true);
@@ -191,17 +191,17 @@ public:
 	};
 	std::vector<StackEffect> effects;
 
-	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1024) const;//subtype -> subtype of bonus, if -1024 then any
-	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1024) const; //determines if stack has a bonus of given type (and optionally subtype)
+	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1024, int turn = 0) const;//subtype -> subtype of bonus, if -1024 then any
+	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1024, int turn = 0) const; //determines if stack has a bonus of given type (and optionally subtype)
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S); //c-tor
 	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
-	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
+	const StackEffect * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
-	bool willMove() const; //if stack has remaining move this turn
-	bool moved() const; //if stack was already moved this turn
-	bool canMove() const; //if stack can move
-	ui32 Speed() const; //get speed of creature with all modificators
+	bool willMove(int turn = 0) const; //if stack has remaining move this turn
+	bool moved(int turn = 0) const; //if stack was already moved this turn
+	bool canMove(int turn = 0) const; //if stack can move
+	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
 	si8 Morale() const; //get morale of stack with all modificators
 	si8 Luck() const; //get luck of stack with all modificators
 	si32 Attack() const; //get attack of stack with all modificators
@@ -236,10 +236,11 @@ public:
 class DLL_EXPORT CMP_stack
 {
 	int phase; //rules of which phase will be used
+	int turn;
 public:
 
 	bool operator ()(const CStack* a, const CStack* b);
-	CMP_stack(int Phase = 1);
+	CMP_stack(int Phase = 1, int Turn = 0);
 };
 
 struct UpgradeInfo

@@ -191,6 +191,10 @@ struct Rect : public SDL_Rect
 		y -= p.y;
 		return *this;
 	}
+	template<typename T> Rect operator-(const T &t)
+	{
+		return Rect(x + t.x, y + t.y, w, h);
+	}
 	Rect operator&(const Rect &p) const //rect intersection
 	{
 		bool intersect = true;
@@ -355,6 +359,8 @@ public:
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r); //sets pos so that r will be in the center of screen, returns new position
 	const Rect & center(); //centers when pos.w and pos.h are set, returns new position
+	void moveBy(const Point &p, bool propagate = true);
+	void moveTo(const Point &p, bool propagate = true);
 };
 
 //class for binding keys to left mouse button clicks

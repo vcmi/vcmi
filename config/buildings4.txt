@@ -7,6 +7,9 @@ GROUP
 3
 4
 GROUP
+6
+20
+GROUP
 7
 8
 9

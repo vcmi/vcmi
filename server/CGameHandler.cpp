@@ -19,6 +19,7 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/assign/list_of.hpp>
 #include <fstream>
+#include <boost/system/system_error.hpp>
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -623,6 +624,11 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			pack = NULL;
 		}
 	}
+	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+	{
+		tlog1 << e.what() << std::endl;
+		end2 = true;
+	}
 	HANDLE_EXCEPTION(end2 = true);
 handleConEnd:
 	tlog1 << "Ended handling connection\n";
@@ -636,6 +642,9 @@ int CGameHandler::moveStack(int stack, int dest)
 
 	CStack *curStack = gs->curB->getStack(stack),
 		*stackAtEnd = gs->curB->getStackT(dest);
+
+	assert(curStack);
+	assert(dest < BFIELD_SIZE);
 
 	//initing necessary tables
 	bool accessibility[BFIELD_SIZE];
@@ -1393,7 +1402,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable)) 
 			&& complain("Cannot move hero, destination tile is blocked!") 
-		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() != 1 ||  t.visitableObjects.front()->ID != 8)) 
+		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() != 1 ||  (t.visitableObjects.front()->ID != 8 && t.visitableObjects.front()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land)
 			&& complain("Cannot move hero, destination tile is on water!")
 		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!")

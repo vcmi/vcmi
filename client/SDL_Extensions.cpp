@@ -829,7 +829,7 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(what)
 		SDL_UpdateRect(what, 0, 0, what->w, what->h);
 }
-void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color)
+void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
 	for(int i=0;i<w;i++)
 	{
@@ -842,6 +842,12 @@ void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 co
 		SDL_PutPixelWithoutRefresh(sur,x+w-1,y+i,color.x,color.y,color.z);
 	}
 }
+
+void CSDL_Ext::drawBorder( SDL_Surface * sur, const SDL_Rect &r, const int3 &color )
+{
+	drawBorder(sur, r.x, r.y, r.w, r.h, color);
+}
+
 void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 {
 	if(player==254)

@@ -258,6 +258,11 @@ int main(int argc, char** argv)
 			server.start();
 		}
 		io_service.run();
-	} HANDLE_EXCEPTION
+	} 
+	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+	{
+		tlog1 << e.what() << std::endl;
+		end2 = true;
+	}HANDLE_EXCEPTION
   return 0;
 }

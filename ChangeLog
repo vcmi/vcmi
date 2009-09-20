@@ -1,4 +1,80 @@
-0.72 -> 0.73 (1 Aug 2009) as for r1044
+0.73 -> 0.74
+GENERAL:
+* Scenario Information window
+* Save Game window
+* VCMI window should start centered
+* support for Necromancy and Ballistics secondary skills
+* new artifacts supported, including those improving Necromancy, Legion Statue parts, Shackles of War and most of combination artifacts (but not combining)
+* Ellipsis won't be split when breaking text on several lines
+* split button will be grayed out when no creature is selected
+* a few fixes for shipyard window
+
+ADVENTURE INTERFACE:
+* Cursor shows if tile is accesible and how many turns away
+* moving hero with arrow keys / numpad
+* fixed Next Hero button behaviour
+* fixed Surface/Underground switch button in higher resolutions
+
+BATTLES:
+* partial siege support
+* new stack queue for higher resolutions (graphics made by Dru, thx!)
+* 'Q' pressing toggles the queue displaying (so it can be enabled/disabled it with single key press)
+* more creatures special abilities supported
+* stack 
+* fixed crashes occuring on attacking two hex creatures from back
+* even large stack numbers will fit the boxes
+* shooters attacking twice (like Grand Elves) won't attack twice in melee 
+* ballista can shoot even if there's an enemy creature next to it 
+* improved obstacles placement, so they'll better fit hexes (thx to Ivan!)
+* selecting attack directions works as in H3
+* estimating damage that will be dealt while choosing stack to be attacked
+* modified the positioning of battle effects, they should look about right now.
+* after selecting a spell during combat, l-click is locked for any action other than casting. 
+* new spells supported:
+- Anti-Magic
+- Cure
+- Resurrection 
+- Animate Dead 
+- Counterstrike 
+- Berserk 
+- Hypnotize 
+- Blind 
+- Fire Elemental 
+- Earth Elemental 
+- Water Elemental 
+- Air Elemental 
+- Remove obstacle
+
+TOWNS:
+* enemy castle can be taken over
+* garrisoned hero can buy a spellbook
+* Lookout Tower supported
+* heroes available in tavern sould be always different
+* ship bought in town will be correctly placed
+
+HERO WINDOW:
+* war machines cannot be unequiped
+
+PREGAME:
+* sorting: a second click on the column header sorts in descending order.
+* advanced options tab: r-click popups for selected town, hero and bonus
+* starting scenario / game by double click
+* arrows in options tab are hidden when not available 
+* subtitles for choosen hero/town/bonus in pregame
+
+OBJECTS:
+* fixed pairing Subterranean Gates
+New objects supported:
+- Borderguard & Keymaster Tent
+- Cartographer
+- Creature banks
+- Eye of the Magi & Hut of the Magi
+- Garrison
+- Stables
+- Pandora Box
+
+
+0.72 -> 0.73 (1 Aug 2009)
 GENERAL:
 * infowindow popup will be completely on screen
 * fixed possible crash with in game console

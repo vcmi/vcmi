@@ -1085,22 +1085,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	delete curAction;
 	curAction = NULL;
-	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
-	{
-		battleInt->activate();
-	}
-	if(action->actionType == 1)
-	{
-		if(action->side)
-			battleInt->defendingHero->setPhase(0);
-		else
-			battleInt->attackingHero->setPhase(0);
-	}
-	if(action->actionType == 2 && battleInt->creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
-	{
-		battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(battleInt, action->stackNumber, action->destinationTile), false));
-	}
-
+	battleInt->endAction(action);
 }
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack

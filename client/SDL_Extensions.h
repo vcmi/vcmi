@@ -124,7 +124,8 @@ namespace CSDL_Ext
 	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, bool refrsh = false);
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
-	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color);
+	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
+	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given

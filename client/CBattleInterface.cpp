@@ -25,6 +25,7 @@
 #include "../hch/CVideoHandler.h"
 #include "../hch/CTownHandler.h"
 #include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
 #else
@@ -100,7 +101,7 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 
 		CReverseAnim * revAnim = dynamic_cast<CReverseAnim *>(stAnim);
 
-		if(revAnim && stAnim->stackID == thAnim->stackID && revAnim->priority)
+		if(revAnim && thAnim && stAnim && stAnim->stackID == thAnim->stackID && revAnim->priority)
 			return false;
 
 		if(it->first)
@@ -545,7 +546,8 @@ bool CBattleStackMoved::init()
 	}
 	//unit reversed
 
-	owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
+	if(owner->moveSh <= 0)
+		owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
@@ -628,6 +630,12 @@ void CBattleStackMoved::endAnim()
 		else if(!endMoving && twoTiles && (! bool(movedStack->attackerOwned) ) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big defender creature is reversed
 			owner->creAnims[stackID]->pos.x += 44;
 		owner->creAnims[stackID]->pos.y = coords.second;
+	}
+
+	if(owner->moveSh >= 0)
+	{
+		CGI->soundh->stopSound(owner->moveSh);
+		owner->moveSh = -1;
 	}
 
 	delete this;
@@ -727,8 +735,6 @@ void CBattleMoveEnd::endAnim()
 		owner->creAnims[stackID]->setType(2); //resetting to default
 
 	CGI->curh->show();
-	CGI->soundh->stopSound(owner->moveSh);
-
 	delete this;
 }
 
@@ -1011,13 +1017,29 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), stackToActivate(-1),
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
 	  spellToCast(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), animIDhelper(0),
-	  showStackQueue(false), moveStarted(false), moveSh(-1), siegeH(NULL), bresult(NULL)
+	  moveStarted(false), moveSh(-1), siegeH(NULL), bresult(NULL), queue(NULL)
 {
+	ObjectConstruction h__l__p(this);
+
 	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	
+	//create stack queue
+	bool embedQueue = screen->h < 700;
+	queue = new CStackQueue(embedQueue);
+ 	if(!embedQueue && settings.showQueue)
+	{
+		pos.y += queue->pos.h / 2; //center whole window
+		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
+// 		queue->pos.x = pos.x;
+// 		queue->pos.y = pos.y - queue->pos.h;
+//  		pos.h += queue->pos.h;
+//  		center();
+ 	}
+	queue->update();
+
 	//preparing siege info
 	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
 	if(town)
@@ -1239,6 +1261,7 @@ CBattleInterface::~CBattleInterface()
 
 	delete attackingHero;
 	delete defendingHero;
+	delete queue;
 
 	SDL_FreeSurface(cellBorder);
 	SDL_FreeSurface(cellShade);
@@ -1297,6 +1320,8 @@ void CBattleInterface::activate()
 		attackingHero->activate();
 	if(defendingHero)
 		defendingHero->activate();
+	if(settings.showQueue)
+		queue->activate();
 
 	LOCPLINT->cingconsole->activate();
 }
@@ -1323,6 +1348,8 @@ void CBattleInterface::deactivate()
 		attackingHero->deactivate();
 	if(defendingHero)
 		defendingHero->deactivate();
+	if(settings.showQueue)
+		queue->deactivate();
 
 	LOCPLINT->cingconsole->deactivate();
 }
@@ -1337,6 +1364,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	SDL_Rect buf;
 	SDL_GetClipRect(to, &buf);
 	SDL_SetClipRect(to, &pos);
+
 	//printing background and hexes
 	if(activeStack != -1 && creAnims[activeStack]->getType() != 0) //show everything with range
 	{
@@ -1492,11 +1520,6 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			activateStack();
 		}
-		if(pendingAnims.size() == 0 && bresult != NULL)
-		{
-			displayBattleFinished();
-		}
-
 		//anims ended
 		animsAreDisplayed.setn(false);
 	}
@@ -1531,53 +1554,6 @@ void CBattleInterface::show(SDL_Surface * to)
 			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, pos.x + it->x, pos.y + it->y));
 		}
 	}
-	
-
-	//showing queue of stacks
-	if(showStackQueue)
-	{
-		const int QUEUE_SIZE = 10;
-
-		int xPos = screen->w/2 - ( stacks.size() * 37 )/2;
-		int yPos = (screen->h - 600)/2 + 10;
-
-		std::vector<const CStack *> stacksSorted;
-// 		const CStack *curStack = LOCPLINT->cb->battleGetStackByID(activeStack);
-// 		if(curStack)
-// 			stacksSorted.push_back(curStack);
-		LOCPLINT->cb->getStackQueue(stacksSorted, QUEUE_SIZE);
-
-
-		for(size_t b=0; b < stacksSorted.size(); ++b)
-		{
-			const CStack * s = stacksSorted[b];
-			SDL_BlitSurface(graphics->smallImgs[-2], NULL, to, &genRect(32, 32, xPos, yPos));
-
-			//printing colored border
-			for(int xFrom = xPos-1; xFrom<xPos+33; ++xFrom)
-			{
-				for(int yFrom = yPos-1; yFrom<yPos+33; ++yFrom)
-				{
-					if(xFrom == xPos-1 || xFrom == xPos+32 || yFrom == yPos-1 || yFrom == yPos+32)
-					{
-						SDL_Color pc;
-						if(s->owner != 255)
-						{
-							pc = graphics->playerColors[s->owner];
-						}
-						else
-						{
-							pc = *graphics->neutralColor;
-						}
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(to, xFrom, yFrom, pc.r, pc.g, pc.b);
-					}
-				}
-			}
-			//colored border printed
-			SDL_BlitSurface(graphics->smallImgs[s->creature->idNumber], NULL, to, &genRect(32, 32, xPos, yPos));
-			xPos += 37;
-		}
-	}
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
@@ -1594,15 +1570,35 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
 
+	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
+
+	if(settings.showQueue)
+	{
+		if(!queue->embedded)
+		{
+			posWithQueue.y -= queue->pos.h;
+			posWithQueue.h += queue->pos.h;
+		}
+
+		//showing queue
+		if(!bresult)
+			queue->showAll(to);
+	}
+
 	//printing border around interface
 	if(screen->w != 800 || screen->h !=600)
-		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
+	{
+		CMessage::drawBorder(LOCPLINT->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
+	}
 }
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
-	if(key.keysym.sym == SDLK_q)
+	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
-		showStackQueue = key.state==SDL_PRESSED;
+		if(settings.showQueue) //hide queue
+			hideQueue();
+		else
+			showQueue();
 	}
 	else if(key.keysym.sym == SDLK_ESCAPE && spellDestSelectMode)
 	{
@@ -2121,7 +2117,7 @@ void CBattleInterface::newRound(int number)
 
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
 {
-	if(!LOCPLINT->cb->battleGetStackByID(stack))
+	if(!LOCPLINT->cb->battleGetStackByID(stack) && action != 1 && action != 4 && action != 5)
 	{
 		return;
 	}
@@ -2406,7 +2402,9 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
-	//animsAreDisplayed.waitUntil(false);
+	LOCPLINT->pim->unlock();
+	animsAreDisplayed.waitUntil(false);
+	LOCPLINT->pim->lock();
 	displayBattleFinished();
 }
 
@@ -2602,6 +2600,7 @@ int CBattleInterface::getAnimSpeed() const
 void CBattleInterface::activateStack()
 {
 	activeStack = stackToActivate;
+	queue->update();
 	stackToActivate = -1;
 	myTurn = true;
 	redrawBackgroundWithHexes(activeStack);
@@ -2896,6 +2895,51 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 	for(std::list< std::list<SProjectileInfo>::iterator >::iterator it = toBeDeleted.begin(); it!= toBeDeleted.end(); ++it)
 	{
 		projectiles.erase(*it);
+	}
+}
+
+void CBattleInterface::endAction(const BattleAction* action)
+{	
+	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
+	{
+		activate();
+	}
+	if(action->actionType == 1)
+	{
+		if(action->side)
+			defendingHero->setPhase(0);
+		else
+			attackingHero->setPhase(0);
+	}
+	if(action->actionType == 2 && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+	{
+		pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(this, action->stackNumber, action->destinationTile), false));
+	}
+}
+
+void CBattleInterface::hideQueue()
+{
+	settings.showQueue = false;
+	//if(queue->active)
+		queue->deactivate();
+
+	if(!queue->embedded)
+	{
+		moveBy(Point(0, -queue->pos.h / 2));
+		GH.totalRedraw();
+	}
+}
+
+void CBattleInterface::showQueue()
+{
+	settings.showQueue = true;
+	//if(!queue->active)
+		queue->activate();
+
+	if(!queue->embedded)
+	{
+		moveBy(Point(0, +queue->pos.h / 2));
+		GH.totalRedraw();
 	}
 }
 
@@ -3705,4 +3749,120 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 	{
 		blitAt(walls[what], pos.x, pos.y, to);
 	}
+}
+
+void CStackQueue::update()
+{
+	stacksSorted.clear();
+	LOCPLINT->cb->getStackQueue(stacksSorted, QUEUE_SIZE);
+	for (int i = 0; i < QUEUE_SIZE ; i++)
+	{
+		stackBoxes[i]->setStack(stacksSorted[i]);
+	}
+}
+
+CStackQueue::CStackQueue(bool Embedded)
+:embedded(Embedded)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	if(embedded)
+	{
+		box = NULL;
+		bg = NULL;
+		pos.w = QUEUE_SIZE * 37;
+		pos.h = 32; //height of small creature img
+		pos.x = screen->w/2 - pos.w/2;
+		pos.y = (screen->h - 600)/2 + 10;
+	}
+	else
+	{
+		box = BitmapHandler::loadBitmap("CHRROP.pcx");
+		bg = BitmapHandler::loadBitmap("DIBOXPI.pcx");
+		pos.w = 600;
+		pos.h = bg->h;
+	}
+
+	stackBoxes.resize(QUEUE_SIZE);
+	for (int i = 0; i < QUEUE_SIZE; i++)
+	{
+		stackBoxes[i] = new StackBox(box);
+		stackBoxes[i]->pos.x += 6 + (embedded ? 37 : 79)*i;
+	}
+}
+
+CStackQueue::~CStackQueue()
+{
+	SDL_FreeSurface(box);
+}
+
+void CStackQueue::showAll( SDL_Surface *to )
+{
+	if(bg)
+	{
+		for (int w = 0; w < pos.w; w += bg->w)
+		{
+			blitAtLoc(bg, w, 0, to);		
+		}
+	}
+	CIntObject::showAll(to);
+}
+
+void CStackQueue::StackBox::showAll( SDL_Surface *to )
+{
+	assert(my);
+	if(bg)
+	{
+		graphics->blueToPlayersAdv(bg, my->owner);
+		//SDL_UpdateRect(bg, 0, 0, 0, 0);
+		blitAt(bg, pos, to);
+		blitAt(graphics->bigImgs[my->creature->idNumber], pos.x +9, pos.y + 1, to);
+		printAtMiddleLoc(makeNumberShort(my->amount), pos.w/2, pos.h - 12, FONT_MEDIUM, zwykly, to);
+	}
+	else
+	{
+		blitAt(graphics->smallImgs[-2], pos, to);
+		blitAt(graphics->smallImgs[my->creature->idNumber], pos, to);
+		const SDL_Color &ownerColor = (my->owner == 255 ? *graphics->neutralColor : graphics->playerColors[my->owner]);
+		CSDL_Ext::drawBorder(to, pos, int3(ownerColor.r, ownerColor.g, ownerColor.b));
+		printAtMiddleLoc(makeNumberShort(my->amount), pos.w/2, pos.h - 8, FONT_TINY, zwykly, to);
+	}
+}
+
+void CStackQueue::StackBox::setStack( const CStack *nStack )
+{
+	my = nStack;
+}
+
+CStackQueue::StackBox::StackBox(SDL_Surface *BG)
+:bg(BG), my(NULL)
+{
+	if(bg)
+	{
+		pos.w = bg->w;
+		pos.h = bg->h;
+	}
+	else
+	{
+		pos.w = pos.h = 32;
+	}
+
+	pos.y += 2;
+}
+
+CStackQueue::StackBox::~StackBox()
+{
+}
+
+void CStackQueue::StackBox::hover( bool on )
+{
+
+}
+
+BattleSettings::BattleSettings()
+{
+	printCellBorders = true;
+	printStackRange = true;
+	animSpeed = 2;
+	printMouseShadow = true;
+	showQueue = true;
 }

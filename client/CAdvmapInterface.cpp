@@ -1729,7 +1729,8 @@ void CAdvMapInt::centerOn(int3 on)
 	LOCPLINT->adventureInt->updateScreen=true;
 	updateMinimap=true;
 	underground.curimg = on.z; //change underground switch button image 
-	underground.redraw();
+	if(GH.topInt() == this)
+		underground.redraw();
 }
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {

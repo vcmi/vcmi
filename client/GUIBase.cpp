@@ -631,6 +631,20 @@ const Rect & CIntObject::center()
 	return center(pos);
 }
 
+void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
+{
+	pos.x += p.x;
+	pos.y += p.y;
+	if(propagate)
+		for(size_t i = 0; i < children.size(); i++)
+			children[i]->moveBy(p, propagate);
+}
+
+void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )
+{
+	moveBy(Point(p.x - pos.x, p.y - pos.y), propagate);
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	bg = BG; 
@@ -647,8 +661,15 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 	freeSurf = true;;
 	pos.x += x;
 	pos.y += y;
-	pos.w = bg->w;
-	pos.h = bg->h;
+	if(bg)
+	{
+		pos.w = bg->w;
+		pos.h = bg->h;
+	}
+	else
+	{
+		pos.w = pos.h = 0;
+	}
 }
 
 CPicture::~CPicture()
@@ -659,7 +680,8 @@ CPicture::~CPicture()
 
 void CPicture::showAll( SDL_Surface * to )
 {
-	blitAt(bg, pos, to);
+	if(bg)
+		blitAt(bg, pos, to);
 }
 
 ObjectConstruction::ObjectConstruction( CIntObject *obj )

@@ -661,36 +661,36 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	return std::make_pair(path, dist[dest]);
 }
 
-int CStack::valOfFeatures(StackFeature::ECombatFeatures type, int subtype) const
+int CStack::valOfFeatures(StackFeature::ECombatFeatures type, int subtype, int turn) const
 {
 	int ret = 0;
 	if(subtype == -1024) //any subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
-			if(i->type == type)
+			if(i->type == type	&&  (!turn || i->turnsRemain > turn))
 				ret += i->value;
 	}
 	else //given subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
-			if(i->type == type && i->subtype == subtype)
+			if(i->type == type && i->subtype == subtype && (!turn || i->turnsRemain > turn))
 				ret += i->value;
 	}
 	return ret;
 }
 
-bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype) const
+bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype, int turn) const
 {
 	if(subtype == -1024) //any subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
-			if(i->type == type)
+			if(i->type == type && (!turn || i->turnsRemain > turn))
 				return true;
 	}
 	else //given subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
-			if(i->type == type && i->subtype == subtype)
+			if(i->type == type && i->subtype == subtype && (!turn || i->turnsRemain > turn))
 				return true;
 	}
 	return false;
@@ -712,19 +712,19 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	state.insert(ALIVE);
 }
 
-ui32 CStack::Speed() const
+ui32 CStack::Speed( int turn /*= 0*/ ) const
 {
-	if(hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //war machnes cannot move
+	if(hasFeatureOfType(StackFeature::SIEGE_WEAPON, -1024, turn)) //war machnes cannot move
 		return 0;
 
 	int speed = creature->speed;
 
-	speed += valOfFeatures(StackFeature::SPEED_BONUS);
+	speed += valOfFeatures(StackFeature::SPEED_BONUS, -1024, turn);
 
 	int percentBonus = 0;
 	for(int g=0; g<features.size(); ++g)
 	{
-		if(features[g].type == StackFeature::SPEED_BONUS)
+		if(features[g].type == StackFeature::SPEED_BONUS, -1024, turn)
 		{
 			percentBonus += features[g].additionalInfo;
 		}
@@ -748,11 +748,12 @@ ui32 CStack::Speed() const
 	return speed;
 }
 
-const CStack::StackEffect * CStack::getEffect(ui16 id) const
+const CStack::StackEffect * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
 	for (unsigned int i=0; i< effects.size(); i++)
 		if(effects[i].id == id)
-			return &effects[i];
+			if(!turn || effects[i].turnsRemain > turn)
+				return &effects[i];
 	return NULL;
 }
 
@@ -838,22 +839,25 @@ ui16 CStack::MaxHealth() const
 	return creature->hitPoints + valOfFeatures(StackFeature::HP_BONUS);
 }
 
-bool CStack::willMove() const
+bool CStack::willMove(int turn /*= 0*/) const
 {
-	return !vstd::contains(state, DEFENDING)
-		&& !moved()
-		&& canMove();
+	return ( turn ? true : !vstd::contains(state, DEFENDING) )
+		&& !moved(turn)
+		&& canMove(turn);
 }
 
-bool CStack::canMove() const
+bool CStack::canMove( int turn /*= 0*/ ) const
 {
 	return alive()
-		&& ! hasFeatureOfType(StackFeature::NOT_ACTIVE); //eg. Ammo Cart
+		&& !hasFeatureOfType(StackFeature::NOT_ACTIVE, -1024, turn); //eg. Ammo Cart
 }
 
-bool CStack::moved() const
+bool CStack::moved( int turn /*= 0*/ ) const
 {
-	return vstd::contains(state, MOVED);
+	if(!turn)
+		return vstd::contains(state, MOVED);
+	else
+		return false;
 }
 
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const
@@ -2150,6 +2154,15 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 			int cost = getMovementCost(hero, cp->coord, dp.coord, movement);
 			int remains = movement - cost;
 
+			if(remains < 0)
+			{
+				//occurs rarely, when hero with low movepoints tries to go leave the road
+				turn++;
+				movement = hero->maxMovePoints(ct.tertype != TerrainTile::water);
+				cost = getMovementCost(hero, cp->coord, dp.coord, movement); //cost must be updated, movement points changed :(
+				remains = movement - cost;
+			}
+
 			if(dp.turns==0xff		//we haven't been here before
 				|| dp.turns > turn
 				|| (dp.turns >= turn  &&  dp.moveRemains < remains)) //this route is faster
@@ -2760,7 +2773,7 @@ bool CGameState::battleCanShoot(int ID, int dest)
 const CStack * BattleInfo::getNextStack() const
 {
 	std::vector<const CStack *> hlp;
-	getStackQueue(hlp, 1, 2);
+	getStackQueue(hlp, 1, -1);
 
 	if(hlp.size())
 		return hlp[0];
@@ -2768,7 +2781,7 @@ const CStack * BattleInfo::getNextStack() const
 		return NULL;
 }
 
-static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
+static const CStack *takeStack(std::vector<const CStack *> &st, int &curside, int turn)
 {
 	const CStack *ret = NULL;
 	unsigned i, //fastest stack
@@ -2782,7 +2795,7 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
 		return NULL;
 
 	const CStack *fastest = st[i], *other = NULL;
-	int bestSpeed = fastest->Speed();
+	int bestSpeed = fastest->Speed(turn);
 
 	if(fastest->attackerOwned != curside)
 	{
@@ -2793,7 +2806,7 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
 		for(j = i + 1; j < st.size(); j++)
 		{
 			if(!st[j]) continue;
-			if(st[j]->attackerOwned != curside || st[j]->Speed() != bestSpeed)
+			if(st[j]->attackerOwned != curside || st[j]->Speed(turn) != bestSpeed)
 				break;
 		}
 
@@ -2804,7 +2817,7 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
 		else
 		{
 			other = st[j];
-			if(other->Speed() != bestSpeed)
+			if(other->Speed(turn) != bestSpeed)
 				ret = fastest;
 			else
 				ret = other;
@@ -2821,43 +2834,55 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
 	return ret;
 }
 
-void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int mode, int lastMoved ) const 
+void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int turn /*= 0*/, int lastMoved /*= -1*/ ) const
 {
 	//we'll split creatures with remaining movement to 4 parts
 	std::vector<const CStack *> phase[4]; //0 - turrets/catapult, 1 - normal (unmoved) creatures, other war machines, 2 - waited cres that had morale, 3 - rest of waited cres
 	int toMove = 0; //how many stacks still has move
+	const CStack *active = getStack(activeStack);
+
+	//active stack hasn't taken any action yet - must be placed at the beginning of queue, no matter what
+	if(!turn && active && active->willMove() && !vstd::contains(active->state, WAITING))
+	{
+		out.push_back(active);
+		if(out.size() == howMany)
+			return;
+	}
+
 
 	for(unsigned int i=0; i<stacks.size(); ++i)
 	{
 		const CStack * const s = stacks[i];
-		if(mode != 1  &&  s->willMove()
-			|| mode == 1  &&  s->canMove())
+		if(turn <= 0 && !s->willMove() //we are considering current round and stack won't move
+			|| turn > 0 && !s->canMove(turn) //stack won't be able to move in later rounds
+			|| turn <= 0 && s == active) //it's active stack already added at the beginning of queue
 		{
-			int p = -1; //in which phase this tack will move?
-			if(!mode && vstd::contains(s->state, WAITING))
-			{
-				if(vstd::contains(s->state, HAD_MORALE))
-					p = 2;
-				else
-					p = 3;
-			}
-			else if(vstd::contains(s->state, StackFeature::SIEGE_WEAPON)	 //catapult and turrets are first
-				&& (s->creature->idNumber == 145  ||  s->creature->idNumber == 149))
-			{
-				p = 0;
-			}
-			else
-			{
-				p = 1;
-			}
-
-			phase[p].push_back(s);
-			toMove++;
+			continue;
 		}
+
+		int p = -1; //in which phase this tack will move?
+		if(turn <= 0 && vstd::contains(s->state, WAITING)) //consider waiting state only for ongoing round
+		{
+			if(vstd::contains(s->state, HAD_MORALE))
+				p = 2;
+			else
+				p = 3;
+		}
+		else if(s->creature->idNumber == 145  ||  s->creature->idNumber == 149) //catapult and turrets are first
+		{
+			p = 0;
+		}
+		else
+		{
+			p = 1;
+		}
+
+		phase[p].push_back(s);
+		toMove++;
 	}
 
 	for(int i = 0; i < 4; i++)
-		std::sort(phase[i].begin(), phase[i].end(), CMP_stack(i));
+		std::sort(phase[i].begin(), phase[i].end(), CMP_stack(i, turn > 0 ? turn : 0));
 
 	for(size_t i = 0; i < phase[0].size() && i < howMany; i++)
 		out.push_back(phase[0][i]);
@@ -2867,12 +2892,12 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 
 	if(lastMoved == -1)
 	{
-		const CStack *current = getStack(activeStack);
-		if(current)
+		if(active)
 		{
-			lastMoved = !current->attackerOwned;
-			if(!current->willMove() || mode == 2)
-				lastMoved = !lastMoved;
+			if(out.size() && out.front() == active)
+				lastMoved = active->attackerOwned;
+			else
+				lastMoved = active->attackerOwned;
 		}
 		else
 		{
@@ -2883,14 +2908,14 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 	int pi = 1;
 	while(out.size() < howMany)
 	{
-		const CStack *hlp = takeStack(phase[pi], lastMoved);
+		const CStack *hlp = takeStack(phase[pi], lastMoved, turn);
 		if(!hlp)
 		{
 			pi++;
 			if(pi > 3)
 			{
-				if(mode != 2)
-					getStackQueue(out, howMany, 1, lastMoved);
+				//if(turn != 2)
+					getStackQueue(out, howMany, turn + 1, lastMoved);
 				return;
 			}
 		}
@@ -3003,7 +3028,7 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 		//TODO? turrets order
 	case 1: //fastest first, upper slot first
 		{
-			int as = a->Speed(), bs = b->Speed();
+			int as = a->Speed(turn), bs = b->Speed(turn);
 			if(as != bs)
 				return as > bs;
 			else
@@ -3013,7 +3038,7 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 		//TODO: should be replaced with order of receiving morale!
 	case 3: //fastest last, upper slot first
 		{
-			int as = a->Speed(), bs = b->Speed();
+			int as = a->Speed(turn), bs = b->Speed(turn);
 			if(as != bs)
 				return as < bs;
 			else
@@ -3026,9 +3051,10 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 
 }
 
-CMP_stack::CMP_stack( int Phase /*= 1*/ )
+CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 {
 	phase = Phase;
+	turn = Turn;
 }
 
 PlayerState::PlayerState() 

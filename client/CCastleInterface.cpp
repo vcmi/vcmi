@@ -524,6 +524,8 @@ void CCastleInterface::close()
 {
 	if(town->visitingHero)
 		LOCPLINT->adventureInt->select(town->visitingHero);
+	else
+		LOCPLINT->adventureInt->select(town);
 	LOCPLINT->castleInt = NULL;
 	GH.popIntTotally(this);
 	CGI->musich->stopMusic(5000);
@@ -906,6 +908,7 @@ void CCastleInterface::recreateBuildings()
 	}
 
 	//ship in shipyard
+	bool isThereShip = false;
 	if(vstd::contains(town->builtBuildings,6))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
@@ -914,6 +917,7 @@ void CCastleInterface::recreateBuildings()
 			Structure * st = CGI->townh->structures[town->subID][20];
 			buildings.push_back(new CBuildingRect(st));
 			s.insert(std::pair<int,int>(st->group,st->ID));
+			isThereShip = true;
 		}
 	}
 
@@ -943,26 +947,35 @@ void CCastleInterface::recreateBuildings()
 		}
 	}
 	//code for the shipyard in the Castle
-	else if((town->subID == 0) && (town->builtBuildings.find(6)!=town->builtBuildings.end()))
+	else if(town->subID == 0)
 	{
-		CBuildingRect *shipyard = NULL;
-		for(size_t i=0;i<buildings.size();i++)
+		int shipID = 0;
+		if(isThereShip)
+			shipID = 20;
+		else if(vstd::contains(town->builtBuildings, 6))
+			shipID = 6;
+
+		if(shipID)
 		{
-			if(buildings[i]->str->ID==6)
+			CBuildingRect *shipyard = NULL;
+			for(size_t i=0;i<buildings.size();i++)
 			{
-				shipyard=buildings[i];
-				break;
+				if(buildings[i]->str->ID==shipID)
+				{
+					shipyard=buildings[i];
+					break;
+				}
 			}
-		}
-		if(town->builtBuildings.find(8)!=town->builtBuildings.end()) //there is citadel
-		{
-			shipyard->offset = 1;
-			shipyard->max = shipyard->def->ourImages.size();
-		}
-		else
-		{
-			shipyard->offset = 0;
-			shipyard->max = 1;
+			if(town->builtBuildings.find(8)!=town->builtBuildings.end()) //there is citadel
+			{
+				shipyard->offset = 1;
+				shipyard->max = shipyard->def->ourImages.size();
+			}
+			else
+			{
+				shipyard->offset = 0;
+				shipyard->max = 1;
+			}
 		}
 	}
 

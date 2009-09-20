@@ -527,10 +527,11 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 			return;
 		}
 
-		for(int i=0; i<32; ++i)
-		{
-			sur->format->palette->colors[224+i] = palette[i];
-		}
+		SDL_SetColors(sur, palette, 224, 32);
+		//for(int i=0; i<32; ++i)
+		//{
+		//	sur->format->palette->colors[224+i] = palette[i];
+		//}
 	}
 	else if(sur->format->BitsPerPixel == 24) //should never happen in general
 	{

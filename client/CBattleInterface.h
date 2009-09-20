@@ -316,22 +316,16 @@ public:
 
 struct BattleSettings
 {
-	BattleSettings()
-	{
-		printCellBorders = true;
-		printStackRange = true;
-		animSpeed = 2;
-		printMouseShadow = true;
-	}
+	BattleSettings();
 	bool printCellBorders; //if true, cell borders will be printed
 	bool printStackRange; //if true,range of active stack will be printed
 	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	bool printMouseShadow; //if true, hex under mouse will be shaded
-
+	bool showQueue;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & printCellBorders & printStackRange & animSpeed & printMouseShadow;
+		h & printCellBorders & printStackRange & animSpeed & printMouseShadow & showQueue;
 	}
 };
 
@@ -343,6 +337,37 @@ struct SBattleEffect
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 };
 
+class CStackQueue : public CIntObject
+{
+	class StackBox : public CIntObject
+	{
+	public:
+		const CStack *my;
+		SDL_Surface *bg;
+
+		void hover (bool on);
+		void showAll(SDL_Surface *to);
+		void setStack(const CStack *nStack);
+		StackBox(SDL_Surface *BG);
+		~StackBox();
+	};
+
+public:
+	static const int QUEUE_SIZE = 10;
+	const bool embedded;
+	std::vector<const CStack *> stacksSorted;
+	std::vector<StackBox *> stackBoxes;
+
+	SDL_Surface *box;
+	SDL_Surface *bg;
+
+	void showAll(SDL_Surface *to);
+	CStackQueue(bool Embedded);
+	~CStackQueue();
+	void update();
+	//void showAll(SDL_Surface *to);
+};
+
 class CBattleInterface : public CIntObject
 {
 private:
@@ -351,6 +376,7 @@ private:
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
+	CStackQueue *queue;
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
@@ -428,7 +454,6 @@ public:
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered
 	CBattleResultWindow * resWindow; //window of end of battle
-	bool showStackQueue; //if true, queue of stacks will be shown
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 	int moveSh;		  // sound handler used when moving a unit
@@ -471,6 +496,9 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void endAction(const BattleAction* action);
+	void hideQueue();
+	void showQueue();
 
 	friend class CBattleHex;
 	friend class CBattleResultWindow;
