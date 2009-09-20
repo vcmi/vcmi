@@ -816,7 +816,6 @@ void CGeniusAI::yourTurn()
 	static boost::mutex mutex;
 	boost::mutex::scoped_lock lock(mutex);
 	m_cb->waitTillRealize = true;
-	m_cb->endTurn();
 	static int seed = rand();
 	srand(seed);
 	if(m_cb->getDate()==1)
@@ -844,6 +843,7 @@ void CGeniusAI::yourTurn()
 		objective->fulfill(*this,trueGameState);
 
 	seed = rand();
+	m_cb->endTurn();
 	
 	m_cb->waitTillRealize = false;
 }
