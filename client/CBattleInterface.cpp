@@ -630,6 +630,7 @@ void CBattleStackMoved::endAnim()
 		else if(!endMoving && twoTiles && (! bool(movedStack->attackerOwned) ) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big defender creature is reversed
 			owner->creAnims[stackID]->pos.x += 44;
 		owner->creAnims[stackID]->pos.y = coords.second;
+		owner->creAnims[stackID]->pos += LOCPLINT->battleInt->pos;
 	}
 
 	if(owner->moveSh >= 0)
@@ -1059,7 +1060,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//preparing menu background and terrain
 	if(siegeH)
 	{
-		background = BitmapHandler::loadBitmap( siegeH->getSiegeName(0) );
+		background = BitmapHandler::loadBitmap( siegeH->getSiegeName(0), false );
 		ui8 siegeLevel = LOCPLINT->cb->battleGetSiegeLevel();
 		if(siegeLevel >= 2) //citadel or castle
 		{
@@ -1082,7 +1083,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	else
 	{
 		std::vector< std::string > & backref = graphics->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
-		background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
+		background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()], false );
 	}
 	
 	//preparing menu background
@@ -1234,6 +1235,11 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		{
 			SDL_SetColorKey(idToObstacle[obst[t].ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[obst[t].ID]->ourImages[n].bitmap->format,0,255,255));
 		}
+	}
+
+	for (int i = 0; i < ARRAY_COUNT(bfield); i++)
+	{
+		children.push_back(&bfield[i]);
 	}
 }
 
@@ -2056,7 +2062,7 @@ void CBattleInterface::newStack(int stackID)
 		creAnims[stackID] = new CCreatureAnimation(newStack->creature->animDefName);	
 	}
 	creAnims[stackID]->setType(2);
-	creAnims[stackID]->pos = genRect(creAnims[newStack->ID]->fullHeight, creAnims[newStack->ID]->fullWidth, coords.first, coords.second);
+	creAnims[stackID]->pos = Rect(coords.first, coords.second, creAnims[newStack->ID]->fullWidth, creAnims[newStack->ID]->fullHeight) + pos;
 	creDir[stackID] = newStack->attackerOwned;
 }
 
@@ -2682,7 +2688,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 		}
 	}
 
-	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x + pos.x, creAnims[ID]->pos.y + pos.y, creDir[ID], animCount, incrementFrame, ID==activeStack, ID==mouseHoveredStack); //increment always when moving, never if stack died
+	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, ID==activeStack, ID==mouseHoveredStack); //increment always when moving, never if stack died
 
 	//printing amount
 	if(curStack.amount > 0 //don't print if stack is not alive
@@ -2723,12 +2729,12 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 				amountBG = amountEffNeutral;
 			}
 		}
-		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd + pos.x, creAnims[ID]->pos.y + 260 + pos.y));
+		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + 260));
 		//blitting amount
 		CSDL_Ext::printAtMiddle(
 			makeNumberShort(curStack.amount),
-			creAnims[ID]->pos.x + xAdd + 15 + pos.x,
-			creAnims[ID]->pos.y + 260 + 5 + pos.y,
+			creAnims[ID]->pos.x + xAdd + 15,
+			creAnims[ID]->pos.y + 260 + 5,
 			FONT_TINY,
 			zwykly,
 			to
@@ -3813,7 +3819,7 @@ void CStackQueue::StackBox::showAll( SDL_Surface *to )
 	if(bg)
 	{
 		graphics->blueToPlayersAdv(bg, my->owner);
-		//SDL_UpdateRect(bg, 0, 0, 0, 0);
+		SDL_UpdateRect(bg, 0, 0, 0, 0);
 		blitAt(bg, pos, to);
 		blitAt(graphics->bigImgs[my->creature->idNumber], pos.x +9, pos.y + 1, to);
 		printAtMiddleLoc(makeNumberShort(my->amount), pos.w/2, pos.h - 12, FONT_MEDIUM, zwykly, to);
