@@ -626,7 +626,8 @@ std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defend
 		defenderHero = gs->getHero(gs->curB->hero1);
 	}
 
-	const CStack * attacker = gs->curB->stacks[attackerID], * defender = gs->curB->stacks[defenderID];
+	const CStack * attacker = gs->curB->getStack(attackerID, false),
+		* defender = gs->curB->getStack(defenderID);
 
 	return BattleInfo::calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0);
 }
