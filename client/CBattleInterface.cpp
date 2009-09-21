@@ -2114,13 +2114,13 @@ void CBattleInterface::newRound(int number)
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
 	{
-		if( it->second.hasFeatureOfType(StackFeature::HP_REGENERATION) )
+		if( it->second.hasFeatureOfType(StackFeature::HP_REGENERATION) && it->second.alive() )
 			displayEffect(74, it->second.position);
 
-		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 0) )
+		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 0) && it->second.alive() )
 			displayEffect(4, it->second.position);
 
-		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 1) )
+		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 1) && it->second.alive() )
 			displayEffect(74, it->second.position);
 	}
 }
