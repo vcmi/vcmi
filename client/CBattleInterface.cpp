@@ -139,8 +139,8 @@ bool CSpellEffectAnim::init()
 					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 					be.frame = 0;
 					be.maxFrame = be.anim->ourImages.size();
-					be.x = i * anim->width;
-					be.y = j * anim->height;
+					be.x = i * anim->width + owner->pos.x;
+					be.y = j * anim->height + owner->pos.y;
 
 					owner->battleEffects.push_back(be);
 				}
@@ -327,8 +327,8 @@ void CReverseAnim::nextFrame()
 
 			const CStack * curs = LOCPLINT->cb->battleGetStackByID(stackID, false);
 
-			std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stackID], curs, owner);
-			owner->creAnims[stackID]->pos.x = coords.first;
+			Point coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stackID], curs, owner);
+			owner->creAnims[stackID]->pos.x = coords.x;
 			//creAnims[stackID]->pos.y = coords.second;
 
 			if(curs->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
@@ -523,18 +523,18 @@ bool CBattleStackMoved::init()
 	}
 	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
 	
-	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
-	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
+	Point begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
+	Point endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
 	
 	//reverse unit if necessary
-	if((begPosition.first > endPosition.first) && owner->creDir[stackID] == true)
+	if((begPosition.x > endPosition.x) && owner->creDir[stackID] == true)
 	{
 		owner->addNewAnim(new CReverseAnim(owner, stackID, curStackPos, true));
 		return false;
 	}
-	else if ((begPosition.first < endPosition.first) && owner->creDir[stackID] == false)
+	else if ((begPosition.x < endPosition.x) && owner->creDir[stackID] == false)
 	{
 		owner->addNewAnim(new CReverseAnim(owner, stackID, curStackPos, true));
 		return false;
@@ -554,9 +554,10 @@ bool CBattleStackMoved::init()
 	if(mutPos == -1 && movedStack->hasFeatureOfType(StackFeature::FLYING)) 
 	{
 		steps *= distance;
+		steps /= 2; //to make animation faster
 
-		stepX = (endPosition.first - (float)begPosition.first)/steps;
-		stepY = (endPosition.second - (float)begPosition.second)/steps;
+		stepX = (endPosition.x - (float)begPosition.x)/steps;
+		stepY = (endPosition.y - (float)begPosition.y)/steps;
 	}
 	else
 	{
@@ -623,14 +624,13 @@ void CBattleStackMoved::endAnim()
 			owner->addNewAnim(new CBattleMoveEnd(owner, stackID, destHex));
 		}
 
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, owner->creDir[stackID], movedStack, owner);
-		owner->creAnims[stackID]->pos.x = coords.first;
+		Point coords = CBattleHex::getXYUnitAnim(destHex, owner->creDir[stackID], movedStack, owner);
+		owner->creAnims[stackID]->pos = coords;
+
 		if(!endMoving && twoTiles && bool(movedStack->attackerOwned) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big attacker creature is reversed
 			owner->creAnims[stackID]->pos.x -= 44;
 		else if(!endMoving && twoTiles && (! bool(movedStack->attackerOwned) ) && (owner->creDir[stackID] != bool(movedStack->attackerOwned) )) //big defender creature is reversed
 			owner->creAnims[stackID]->pos.x += 44;
-		owner->creAnims[stackID]->pos.y = coords.second;
-		owner->creAnims[stackID]->pos += LOCPLINT->battleInt->pos;
 	}
 
 	if(owner->moveSh >= 0)
@@ -929,30 +929,30 @@ bool CShootingAnim::init()
 	spi.frameNum = 0;
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
 
-	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
-	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
-	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
+	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+	Point destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
+	destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
 
 	if(projectileAngle > straightAngle) //upper shot
 	{
-		spi.x = xycoord.first + 200 + shooter->creature->upperRightMissleOffsetX;
-		spi.y = xycoord.second + 100 - shooter->creature->upperRightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->creature->upperRightMissleOffsetX;
+		spi.y = xycoord.y + 100 - shooter->creature->upperRightMissleOffsetY;
 	}
 	else if(projectileAngle < -straightAngle) //lower shot
 	{
-		spi.x = xycoord.first + 200 + shooter->creature->lowerRightMissleOffsetX;
-		spi.y = xycoord.second + 150 - shooter->creature->lowerRightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->creature->lowerRightMissleOffsetX;
+		spi.y = xycoord.y + 150 - shooter->creature->lowerRightMissleOffsetY;
 	}
 	else //straight shot
 	{
-		spi.x = xycoord.first + 200 + shooter->creature->rightMissleOffsetX;
-		spi.y = xycoord.second + 125 - shooter->creature->rightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->creature->rightMissleOffsetX;
+		spi.y = xycoord.y + 125 - shooter->creature->rightMissleOffsetY;
 	}
-	spi.lastStep = sqrt((float)((destcoord.first - spi.x)*(destcoord.first - spi.x) + (destcoord.second - spi.y) * (destcoord.second - spi.y))) / 40;
+	spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / 40;
 	if(spi.lastStep == 0)
 		spi.lastStep = 1;
-	spi.dx = (destcoord.first - spi.x) / spi.lastStep;
-	spi.dy = (destcoord.second - spi.y) / spi.lastStep;
+	spi.dx = (destcoord.x - spi.x) / spi.lastStep;
+	spi.dy = (destcoord.y - spi.y) / spi.lastStep;
 	//set starting frame
 	if(spi.spin)
 	{
@@ -1047,6 +1047,8 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	{
 		siegeH = new SiegeHelper(town, this);
 	}
+
+	LOCPLINT->battleInt = this;
 
 	//initializing armies
 	this->army1 = army1;
@@ -1534,7 +1536,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(size_t v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x + pos.x, creAnims[stackDeadByHex[b][v]]->pos.y + pos.y, creDir[stackDeadByHex[b][v]], animCount, false); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], animCount, false); //increment always when moving, never if stack died
 		}
 	}
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
@@ -1557,7 +1559,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
 		{
 			SDL_Surface * bitmapToBlit = it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap;
-			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, pos.x + it->x, pos.y + it->y));
+			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, it->x, it->y));
 		}
 	}
 
@@ -1589,6 +1591,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		//showing queue
 		if(!bresult)
 			queue->showAll(to);
+		else
+			queue->blitBg(to); //blit only background, stacks are deleted
 	}
 
 	//printing border around interface
@@ -2050,7 +2054,7 @@ void CBattleInterface::newStack(int stackID)
 {
 	const CStack * newStack = LOCPLINT->cb->battleGetStackByID(stackID);
 
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack, this);;
+	Point coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack, this);;
 
 	if(newStack->position < 0) //turret
 	{
@@ -2062,7 +2066,7 @@ void CBattleInterface::newStack(int stackID)
 		creAnims[stackID] = new CCreatureAnimation(newStack->creature->animDefName);	
 	}
 	creAnims[stackID]->setType(2);
-	creAnims[stackID]->pos = Rect(coords.first, coords.second, creAnims[newStack->ID]->fullWidth, creAnims[newStack->ID]->fullHeight) + pos;
+	creAnims[stackID]->pos = Rect(coords.x, coords.y, creAnims[newStack->ID]->fullWidth, creAnims[newStack->ID]->fullHeight);
 	creDir[stackID] = newStack->attackerOwned;
 }
 
@@ -2453,12 +2457,12 @@ void CBattleInterface::spellCast(SpellCast * sc)
 		{ //common ice bolt and magic arrow part
 			//initial variables
 			std::string animToDisplay;
-			std::pair<int, int> srccoord = sc->side ? std::make_pair(770, 60) : std::make_pair(30, 60);
-			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
-			destcoord.first += 250; destcoord.second += 240;
+			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
+			Point destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
+			destcoord.x += 250; destcoord.y += 240;
 
 			//animation angle
-			float angle = atan2(float(destcoord.first - srccoord.first), float(destcoord.second - srccoord.second));
+			float angle = atan2(float(destcoord.x - srccoord.x), float(destcoord.y - srccoord.y));
 
 			//choosing animation by angle
 			if(angle > 1.50)
@@ -2474,14 +2478,14 @@ void CBattleInterface::spellCast(SpellCast * sc)
 
 			//displaying animation
 			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
-			int steps = sqrt((float)((destcoord.first - srccoord.first)*(destcoord.first - srccoord.first) + (destcoord.second - srccoord.second) * (destcoord.second - srccoord.second))) / 40;
+			int steps = sqrt((float)((destcoord.x - srccoord.x)*(destcoord.x - srccoord.x) + (destcoord.y - srccoord.y) * (destcoord.y - srccoord.y))) / 40;
 			if(steps <= 0)
 				steps = 1;
 
-			int dx = (destcoord.first - srccoord.first - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.second - srccoord.second - animDef->ourImages[0].bitmap->h)/steps;
+			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
 
 			delete animDef;
-			addNewAnim(new CSpellEffectAnim(this, animToDisplay, srccoord.first, srccoord.second, dx, dy));
+			addNewAnim(new CSpellEffectAnim(this, animToDisplay, srccoord.x, srccoord.y, dx, dy));
 
 			break; //for 15 and 16 cases
 		}
@@ -3093,8 +3097,9 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
+Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
 {
+	Point ret(-500, -500); //returned value
 	if(stack->position < 0) //creatures in turrets
 	{
 		const CCreature & turretCreature = CGI->creh->creatures[ CGI->creh->factionToTurretCreature[cbi->siegeH->town->town->typeID] ];
@@ -3103,42 +3108,43 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & a
 		switch(stack->position)
 		{
 		case -2: //keep
-			return std::make_pair(505 + xShift, -66);
+			ret = Point(505 + xShift, -66);
 			break;
 		case -3: //lower turret
-			return std::make_pair(368 + xShift, 304);
+			ret = Point(368 + xShift, 304);
 			break;
 		case -4: //upper turret
-			return std::make_pair(339 + xShift, -192);
+			ret = Point(339 + xShift, -192);
 			break;	
 		}
 	}
-
-	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
-	ret.second = -139 + 42 * (hexNum/BFIELD_WIDTH); //counting y
-	//counting x
-	if(attacker)
-	{
-		ret.first = -160 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
-	}
 	else
 	{
-		ret.first = -219 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
-	}
-	//shifting position for double - hex creatures
-	if(stack && stack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-	{
+		ret.y = -139 + 42 * (hexNum/BFIELD_WIDTH); //counting y
+		//counting x
 		if(attacker)
 		{
-			ret.first -= 42;
+			ret.x = -160 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
 		}
 		else
 		{
-			ret.first += 42;
+			ret.x = -219 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
+		}
+		//shifting position for double - hex creatures
+		if(stack && stack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		{
+			if(attacker)
+			{
+				ret.x -= 42;
+			}
+			else
+			{
+				ret.x += 42;
+			}
 		}
 	}
 	//returning
-	return ret;
+	return ret + LOCPLINT->battleInt->pos;
 }
 void CBattleHex::activate()
 {
@@ -3803,6 +3809,13 @@ CStackQueue::~CStackQueue()
 
 void CStackQueue::showAll( SDL_Surface *to )
 {
+	blitBg(to);
+
+	CIntObject::showAll(to);
+}
+
+void CStackQueue::blitBg( SDL_Surface * to )
+{
 	if(bg)
 	{
 		for (int w = 0; w < pos.w; w += bg->w)
@@ -3810,7 +3823,6 @@ void CStackQueue::showAll( SDL_Surface *to )
 			blitAtLoc(bg, w, 0, to);		
 		}
 	}
-	CIntObject::showAll(to);
 }
 
 void CStackQueue::StackBox::showAll( SDL_Surface *to )

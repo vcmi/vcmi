@@ -287,10 +287,12 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 
 void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 {
-	if(!to) return;
-	sInfo.mapname = to->filename;
 	sInfo.playerInfos.clear();
+	if(!to) 
+		return;
+
 	sInfo.playerInfos.resize(to->playerAmnt);
+	sInfo.mapname = to->filename;
 	playerColor = -1;
 
 	int serialC=0;

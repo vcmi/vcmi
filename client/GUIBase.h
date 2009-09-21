@@ -68,22 +68,29 @@ struct Point
 	Point(const int3 &a)
 		:x(a.x),y(a.y)
 	{}
-
-	Point operator+(const Point &b) const
+	
+	template<typename T>
+	Point operator+(const T &b) const
 	{
 		return Point(x+b.x,y+b.y);
 	}
-	Point& operator+=(const Point &b)
+
+	template<typename T>
+	Point& operator+=(const T &b)
 	{
 		x += b.x;
 		y += b.y;
 		return *this;
 	}
-	Point operator-(const Point &b) const
+
+	template<typename T>
+	Point operator-(const T &b) const
 	{
 		return Point(x+b.x,y+b.y);
 	}
-	Point& operator-=(const Point &b)
+
+	template<typename T>
+	Point& operator-=(const T &b)
 	{
 		x -= b.x;
 		y -= b.y;
@@ -158,6 +165,12 @@ struct Rect : public SDL_Rect
 	Rect operator+(const Point &p) const //moves this rect by p's point position
 	{
 		return Rect(x+p.x,y+p.y,w,h);
+	}
+	Rect& operator=(const Point &p) //assignment operator
+	{
+		x = p.x;
+		y = p.y;
+		return *this;
 	}
 	Rect& operator=(const Rect &p) //assignment operator
 	{

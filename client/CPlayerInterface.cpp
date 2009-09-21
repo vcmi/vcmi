@@ -951,7 +951,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
+	/*battleInt = */new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	CGI->musich->playMusicFromSet(CGI->musich->battleMusics, -1);
 	GH.pushInt(battleInt);
 }
