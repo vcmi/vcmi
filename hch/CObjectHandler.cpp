@@ -1392,6 +1392,16 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 	return 5;
 }
 
+void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
+{
+///this is freakin' overcomplicated solution
+	switch (what)
+	{
+		case 11: //add visitor of town building
+			bonusingBuildings[val]->setProperty (4, visitingHero->id);
+			break;
+	}
+}
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
 {
 	if((builtBuildings.find(9))!=builtBuildings.end())
@@ -1542,9 +1552,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
-	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		(*i)->onHeroVisit (h); //does not work
 	cb->heroVisitCastle(id, h->id);
+	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
+		(*i)->onHeroVisit (h); //put it inside heroVisitCastle call, make sure *visitingHero is set
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
@@ -1564,13 +1574,13 @@ void CGTownInstance::initObj()
 		if(creatureDwelling(i,true))
 			creatures[i].second.push_back(town->upgradedCreatures[i]);
 	}
-	switch (alignment)
+	switch (subID)
 	{ //add new visitable objects
 		case 2: case 3: case 5: case 6:
-			bonusingBuildings.push_back(new CTownBonus(23, this));
+				bonusingBuildings.push_back (new CTownBonus(23, this));
 			break;
 		case 7:
-			bonusingBuildings.push_back(new CTownBonus(17, this));
+				bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
 }
@@ -1923,6 +1933,12 @@ CTownBonus::CTownBonus (int index, CGTownInstance *TOWN)
 {
 	ID = index;
 	town = TOWN;
+	id = town->bonusingBuildings.size();
+}
+void CTownBonus::setProperty (ui8 what, ui32 val)
+{
+	if(what == 4)
+		visitors.insert(val);
 }
 void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 {
@@ -1933,7 +1949,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (ID)
 		{
 			case 23:
-				switch(town->alignment)
+				switch(town->subID)
 				{
 					case 2: //wall
 						cb->changePrimSkill (heroID, 3, 1);
@@ -1954,7 +1970,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				}
 				break;
 			case 17:
-				switch(town->alignment)
+				switch(town->subID)
 				{
 					case 7: //cage of warlords
 						cb->changePrimSkill (heroID, 1, 1);
@@ -1964,10 +1980,10 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				break;
 		}
 		iw.player = cb->getOwner(heroID);
-		iw.text << std::pair<ui8,ui32>(11,66);
+		iw.text << VLC->generaltexth->buildings[town->subID][ID].second;
 		//iw.soundID = sound;
 		cb->showInfoDialog(&iw);
-		cb->setObjProperty (id, 4, h->id); //add to visitors
+		cb->setObjProperty (town->id, 11, id); //add to visitors
 	}
 }
 bool CArmedInstance::needsLastStack() const
@@ -4539,4 +4555,56 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		cb->sendAndApply (&fw);
 		cb->setObjProperty (id, 10, h->tempOwner);
 	}
+}
+
+void CShop::setPropertyDer (ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 13: //sweep
+			avaliable.clear();
+			chosen.clear();
+			bought.clear();
+			break;
+		case 14: //reset - get new items
+			reset(val);
+			break;
+	}
+}
+void CGArtMerchant::reset(ui32 val)
+{
+	std::vector<CArtifact*>::iterator index;
+	for (ui8 i = 0; i <= 6; i++)
+	{	
+		int count = 0;
+		std::vector<CArtifact*> arts; //to avoid addition of different tiers
+		switch (i)
+		{
+			case 0:
+				cb->getAllowed (arts, CArtifact::ART_TREASURE);
+				count = 2;
+				break;
+			case 1:
+				cb->getAllowed (arts, CArtifact::ART_MINOR);
+				count = 2;
+				break;
+			case 2:
+				cb->getAllowed (arts, CArtifact::ART_MAJOR);
+				count = 1;
+				break;
+			case 3:
+				cb->getAllowed (arts, CArtifact::ART_RELIC);
+				count = 1;
+				break;
+		}
+		for (ui8 n = 0; n < count; n++)
+		{
+
+			index = arts.begin() + val % arts.size();
+			avaliable [avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+			arts.erase(index);
+			val *= (id + n * i); //randomize
+		}
+	}
+
 }

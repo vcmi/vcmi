@@ -26,6 +26,7 @@ struct InfoWindow;
 struct MetaString;
 struct ShowInInfobox;
 struct BattleResult;
+struct Component;
 class CGameState;
 struct PlayerSettings;
 struct CPackForClient;
@@ -94,7 +95,7 @@ public:
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map
 
-
+	friend struct CPack;
 	friend struct CPackForClient;
 	friend struct CPackForServer;
 };

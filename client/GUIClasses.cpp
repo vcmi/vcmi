@@ -4350,3 +4350,27 @@ void CPuzzleWindow::show(SDL_Surface * to)
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
+
+bool CShopWindow::swapItem (ui16 which, bool choose)
+{
+	bool itemFound = false;
+	if (choose == true) //choose item
+	{
+		if (chosen.count(which))
+		{
+			itemFound = true;
+			chosen[which] = avaliable[which];
+			avaliable.erase(which);
+		}
+	}
+	else //return item to avaliable list
+	{
+		if (avaliable.count(which))
+		{
+			itemFound = true;
+			avaliable[which] = chosen[which];
+			chosen.erase(which);
+		}
+	}
+	return itemFound;
+}

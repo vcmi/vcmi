@@ -673,6 +673,22 @@ struct HeroLevelUp : public Query//2000
 	}
 };
 
+struct TradeComponents : public CPackForClient, public CPackForServer
+{
+///used to handle info about components avaliable in shops
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	si32 heroid;
+	ui32 objectid;
+	std::map<ui16, Component> avaliable, chosen, bought;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & heroid & objectid & avaliable & chosen & bought;
+	}
+
+};
 //A dialog that requires making decision by player - it may contain components to choose between or has yes/no options
 //Client responds with QueryReply, where answer: 0 - cancel pressed, choice doesn't matter; 1/2/...  - first/second/... component selected and OK pressed
 //Until sending reply player won't be allowed to take any actions
@@ -1041,6 +1057,7 @@ struct ShowInInfobox : public CPackForClient //107
 		h & player & c & text;
 	}
 };
+
 
 /***********************************************************************************************************/
 

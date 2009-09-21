@@ -762,4 +762,25 @@ public:
 	~CPuzzleWindow();
 };
 
+class CShopWindow : public CIntObject
+{
+public:
+	std::map<ui16, Component> avaliable, chosen, bought;
+
+	bool swapItem (ui16 which, bool choose);
+};
+class CArtMerchantWindow : public CShopWindow
+{};
+class CUniversityWindow : public CShopWindow
+{};
+class CAltarWindow : public CShopWindow
+{};
+class CRefugeeCampWindow : public CShopWindow
+{};
+class CWarMachineWindow : public CShopWindow
+{};
+class CFreelancersWindow : public CShopWindow
+{};
+class CHillFortWindow : public CIntObject //garrison dialog? shop?
+{};
 #endif //__GUICLASSES_H__

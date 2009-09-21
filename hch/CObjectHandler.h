@@ -42,6 +42,7 @@ class CGDefInfo;
 class CSpecObjInfo;
 struct TerrainTile;
 struct InfoWindow;
+struct Component;
 struct BankConfig;
 class CGBoat;
 
@@ -355,25 +356,33 @@ public:
 		h & visitors & ttype;
 	}
 };
-class DLL_EXPORT CGTownBuilding : IObjectInterface
+class DLL_EXPORT CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
+	si32 ID; //from buildig list
+	si32 id; //identifies its index on towns vector
 	CGTownInstance *town;
 
-	virtual void onHeroVisit (const CGHeroInstance * h) const {};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & id;
+	}
 };
-class DLL_EXPORT CTownBonus : public CGVisitableOPH, public CGTownBuilding
+class DLL_EXPORT CTownBonus : public CGTownBuilding
 {
 ///used for one-time bonusing structures
+///feel free to merge inheritance tree
 public:
+	std::set<si32> visitors;
+	void setProperty(ui8 what, ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const;
 
 	CTownBonus (int index, CGTownInstance *TOWN);
 	CTownBonus (){ID = 0; town = NULL;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
 	}
 };
@@ -417,6 +426,7 @@ public:
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //returns sight distance
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	void setPropertyDer(ui8 what, ui32 val);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -927,6 +937,31 @@ public:
 
 };
 
+class DLL_EXPORT CShop : public CGObjectInstance
+{
+///base class for university, art merchant, slave market etc.
+public:
+	std::map<ui16, Component*> avaliable;
+	std::map<ui16, Component*> chosen, bought; //redundant?
+	//keys are unique for all three maps
+	std::map<ui16, ui32> price;
+
+	void initObj() {};
+	void setPropertyDer (ui8 what, ui32 val);
+	void newTurn() const {};
+	virtual void reset (ui32 val) {};
+	void onHeroVisit (const CGHeroInstance * h) const {};
+	virtual void trade (const CGHeroInstance * h) const {};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & avaliable & chosen & bought & price;
+	}
+};
+class DLL_EXPORT CGArtMerchant : public CShop
+{
+	void reset (ui32 val);
+};
 struct BankConfig
 {
 	BankConfig() {level = chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
