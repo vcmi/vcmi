@@ -208,6 +208,19 @@ void NewStructures::applyCl( CClient *cl )
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
 	}
 }
+void RazeStructures::applyCl (CClient *cl)
+{
+	CGTownInstance *town = GS(cl)->getTown(tid);
+	BOOST_FOREACH(si32 id, bid)
+	{
+		if (id == 13) //fort or capitol
+		{
+			town->defInfo = GS(cl)->forts[town->subID];
+		}
+		if(vstd::contains (cl->playerint,town->tempOwner))
+			cl->playerint[town->tempOwner]->buildChanged (town,id,2);
+	}
+}
 
 void SetAvailableCreatures::applyCl( CClient *cl )
 {

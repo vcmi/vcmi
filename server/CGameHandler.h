@@ -153,6 +153,7 @@ public:
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram);
 	bool buildStructure(si32 tid, si32 bid);
+	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
 	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val );
 	void save(const std::string &fname);

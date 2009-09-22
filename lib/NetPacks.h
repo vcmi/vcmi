@@ -442,7 +442,7 @@ struct NewStructures : public CPackForClient //504
 {
 	NewStructures(){type = 504;};
 	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
+	DLL_EXPORT virtual void applyGs(CGameState *gs);
 
 	si32 tid;
 	std::set<si32> bid;
@@ -452,7 +452,18 @@ struct NewStructures : public CPackForClient //504
 	{
 		h & tid & bid & builded;
 	}
-}; 
+};
+struct RazeStructures : public NewStructures //505
+{
+	RazeStructures() {type = 505;};
+	void applyCl (CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & bid & builded;
+	}
+};
 struct SetAvailableCreatures : public CPackForClient //506
 {
 	SetAvailableCreatures(){type = 506;};
@@ -1145,7 +1156,13 @@ struct BuildStructure : public CPackForServer
 		h & tid & bid;
 	}
 };
+struct RazeStructure : public BuildStructure
+{
+	RazeStructure(){};
+	//RazeStructure(si32 TID, si32 BID):bid(BID),tid(TID){};
 
+	bool applyGh(CGameHandler *gh);
+};
 struct RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures(){};

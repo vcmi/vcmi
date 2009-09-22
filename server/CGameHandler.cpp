@@ -1984,7 +1984,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 
 	if(gs->canBuildStructure(t,bid) != 7)
 	{
-		complain("Cannot build that building!");
+		complain("Cannot raze that building!");
 		return false;
 	}
 
@@ -2033,6 +2033,19 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 			giveSpells(t,t->garrisonHero);
 	}
 
+	return true;
+}
+bool CGameHandler::razeStructure (si32 tid, si32 bid)
+{
+///incomplete, simply erases target building
+	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
+	if (t->builtBuildings.find(bid) == t->builtBuildings.end())
+		return false;
+	RazeStructures rs;
+	rs.tid = tid;
+	rs.bid.insert(bid);
+	rs.builded = t->destroyed + 1; //define TRUE FALSE?
+	sendAndApply(&rs);
 	return true;
 }
 

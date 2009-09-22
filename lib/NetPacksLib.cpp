@@ -352,7 +352,15 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 	}
 	t->builded = builded;
 }
-
+DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
+{
+	CGTownInstance *t = gs->getTown(tid);
+	BOOST_FOREACH(si32 id,bid)
+	{
+		t->builtBuildings.erase(id);
+	}
+	t->destroyed = builded; //yeaha
+}
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
 	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid]);

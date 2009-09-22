@@ -1553,6 +1553,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			cb->setOwner(id, h->tempOwner);
+			removeCapitols (h->getOwner(), true);
 		}
 	}
 	cb->heroVisitCastle(id, h->id);
@@ -1618,11 +1619,16 @@ void CGTownInstance::removeCapitols (ui8 owner, bool me) const
 				{
 					if (me)
 					{
-						cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol
+						RazeStructures rs;
+						rs.tid = id;
+						rs.bid.insert(13);
+						si16 builded = destroyed; 
+						cb->sendAndApply(&rs);
+						//cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol
 						return;
 					}
 					else
-						(*i)->builtBuildings.erase(13); //destroy all other capitols
+						(*i)->builtBuildings.erase(13); //destroy all other capitols at the beginning of game
 				}
 			}
 		}
