@@ -1552,8 +1552,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			cb->setOwner(id, h->tempOwner);
 			removeCapitols (h->getOwner(), true);
+			cb->setOwner(id, h->tempOwner);
 		}
 	}
 	cb->heroVisitCastle(id, h->id);
@@ -2449,7 +2449,7 @@ void CGVisitableOPW::newTurn() const
 
 void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int mid, sound = 0;
+	int mid, sound = 0; //message id, sound
 	switch (ID)
 	{
 	case 55: //mystical garden
@@ -3129,6 +3129,38 @@ void CGBonusingObject::initObj()
 	}
 }
 
+void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
+{
+	int messageID;
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.soundID = soundBase::GENIE;
+	if (!visited)
+	{
+		if (h->mana > h->manaLimit()) 
+			messageID = 76;
+		else
+		{
+			messageID = 74;
+			cb->setManaPoints (h->id, 2 * h->manaLimit());
+			cb->setObjProperty (id, 5, true);
+		}
+	}
+	else
+		messageID = 75;
+	iw.text << std::pair<ui8,ui32>(11,messageID);
+	cb->showInfoDialog(&iw);
+}
+const std::string & CGMagicSpring::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if(!visited)
+		hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
+	else
+		hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+	return hoverName;
+}
+
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int message;
@@ -3389,34 +3421,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		}
 		cb->showInfoDialog(&iw);
 	}
-
-	//check if creatures can be moved to hero army
-	CCreatureSet heroArmy = h->army;
-	CCreatureSet ourArmy = creatures;
-	while(ourArmy)
-	{
-		int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
-		if(slot < 0)
-			break;
-
-		heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
-		heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
-		ourArmy.slots.erase(ourArmy.slots.begin());
-	}
-
-	if(!ourArmy) //all creatures can be moved to hero army - do that
-	{
-		SetGarrisons sg;
-		sg.garrs[h->id] = heroArmy;
-		cb->sendAndApply(&sg);
-	}
-	else //show garrison window and let player pick creatures
-	{
-		SetGarrisons sg;
-		sg.garrs[id] = creatures;
-		cb->sendAndApply(&sg);
-		cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
-	}
+	cb->giveCreatures (id, h, &creatures);
 
 	if(!afterBattle && message.size())
 	{

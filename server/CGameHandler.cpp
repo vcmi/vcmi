@@ -1570,7 +1570,7 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
-void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures)
+void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet *creatures) const
 {
 	if (creatures->slots.size() <= 0)
 		return;

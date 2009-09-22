@@ -752,6 +752,18 @@ public:
 	}
 };
 
+class DLL_EXPORT CGMagicSpring : public CGVisitableOPW
+{///unfortunatelly, this one is quite different than others
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visited;
+	}
+};
 class DLL_EXPORT CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:

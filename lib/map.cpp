@@ -1948,6 +1948,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CCartographer();
 				break;
 			}
+		case 48: //Magic Spring
+			{
+				nobj = new CGMagicSpring();
+				break;
+			}
 		default:
 			nobj = new CGObjectInstance();
 		} //end of main switch
