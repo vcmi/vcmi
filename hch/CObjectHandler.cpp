@@ -1508,7 +1508,10 @@ CGTownInstance::CGTownInstance()
 }
 
 CGTownInstance::~CGTownInstance()
-{}
+{
+	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
+		delete *i;
+}
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 {
@@ -1583,6 +1586,7 @@ void CGTownInstance::initObj()
 				bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
+	removeCapitols (getOwner(), false); // destroy other capitols
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -1599,10 +1603,30 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
-		cb->setOwner(id, h->tempOwner);
+		removeCapitols (h->getOwner(), true);
+		cb->setOwner (id, h->tempOwner); //give control after checkout is done
 	}
 }
-
+void CGTownInstance::removeCapitols (ui8 owner, bool me) const
+{
+		if (hasCapitol()) // search for older capitol
+		{
+			PlayerState* state = cb->gameState()->getPlayer (owner);
+			for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i)
+			{
+				if (*i != this && (*i)->hasCapitol())
+				{
+					if (me)
+					{
+						cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol
+						return;
+					}
+					else
+						(*i)->builtBuildings.erase(13); //destroy all other capitols
+				}
+			}
+		}
+}
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())
@@ -4557,6 +4581,22 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 	}
 }
 
+void CShop::newTurn() const
+{
+	switch (ID)
+	{
+		case 7: //ArtMerchant aka. Black Market
+			if (cb->getDate(0)%28 == 1)
+				cb->setObjProperty (id, 13, 0);
+				cb->setObjProperty (id, 14, rand());
+			break;
+		case 78: //Refugee Camp
+		case 95: //Tavern
+			if (cb->getDate(0)%7 == 1)
+				cb->setObjProperty (id, 14, rand());
+			break;
+	}
+}
 void CShop::setPropertyDer (ui8 what, ui32 val)
 {
 	switch (what)
@@ -4599,9 +4639,8 @@ void CGArtMerchant::reset(ui32 val)
 		}
 		for (ui8 n = 0; n < count; n++)
 		{
-
 			index = arts.begin() + val % arts.size();
-			avaliable [avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+			avaliable[avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
 			arts.erase(index);
 			val *= (id + n * i); //randomize
 		}

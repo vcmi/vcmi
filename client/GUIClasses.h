@@ -768,6 +768,7 @@ public:
 	std::map<ui16, Component> avaliable, chosen, bought;
 
 	bool swapItem (ui16 which, bool choose);
+	virtual void Buy() {};
 };
 class CArtMerchantWindow : public CShopWindow
 {};
