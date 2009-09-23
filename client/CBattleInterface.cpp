@@ -146,6 +146,11 @@ bool CSpellEffectAnim::init()
 				}
 			}
 		}
+		else //there is nothing to play
+		{
+			endAnim();
+			return false;
+		}
 	}
 	else // Effects targeted at a specific creature/hex.
 	{
@@ -161,6 +166,8 @@ bool CSpellEffectAnim::init()
 				be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 			be.frame = 0;
 			be.maxFrame = be.anim->ourImages.size();
+			if(effect == 1)
+				be.maxFrame = 3;
 
 			switch (effect)
 			{
@@ -188,6 +195,11 @@ bool CSpellEffectAnim::init()
 
 			owner->battleEffects.push_back(be);
 		}
+		else //there is nothing to play
+		{
+			endAnim();
+			return false;
+		}
 	}
 	//battleEffects 
 	return true;
@@ -197,17 +209,21 @@ void CSpellEffectAnim::nextFrame()
 {
 	for(std::list<SBattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
 	{
-		++(it->frame);
+		if(it->effectID == ID)
+		{
+			++(it->frame);
 
-		if(it->frame == it->maxFrame)
-		{
-			endAnim();
+			if(it->frame == it->maxFrame)
+			{
+				endAnim();
+				break;
+			}
+			else
+			{
+				it->x += dx;
+				it->y += dy;
+			}
 			break;
-		}
-		else
-		{
-			it->x += dx;
-			it->y += dy;
 		}
 	}
 }
