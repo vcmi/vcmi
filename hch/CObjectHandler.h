@@ -441,6 +441,7 @@ public:
 	bool hasCapitol() const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
+	void removeCapitols (ui8 owner, bool me) const;
 
 	CGTownInstance();
 	virtual ~CGTownInstance();
@@ -751,6 +752,19 @@ public:
 	}
 };
 
+class DLL_EXPORT CGMagicSpring : public CGVisitableOPW 
+{///unfortunatelly, this one is quite different than others 
+public: 
+	void onHeroVisit(const CGHeroInstance * h) const; 
+	const std::string & getHoverText() const; 
+
+	template <typename Handler> void serialize(Handler &h, const int version) 
+	{ 
+		h & static_cast<CGObjectInstance&>(*this); 
+		h & visited; 
+	} 
+}; 
+
 class DLL_EXPORT CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:
@@ -948,8 +962,8 @@ public:
 
 	void initObj() {};
 	void setPropertyDer (ui8 what, ui32 val);
-	void newTurn() const {};
-	virtual void reset (ui32 val) {};
+	void newTurn() const;
+	virtual void reset (ui32 val) {}; //get new items for Black Market, Tavern, Refugee Camp 
 	void onHeroVisit (const CGHeroInstance * h) const {};
 	virtual void trade (const CGHeroInstance * h) const {};
 	

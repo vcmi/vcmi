@@ -1508,7 +1508,10 @@ CGTownInstance::CGTownInstance()
 }
 
 CGTownInstance::~CGTownInstance()
-{}
+{
+	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++) 
+		delete *i;
+}
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 {
@@ -1549,6 +1552,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
+			removeCapitols (h->getOwner(), true);
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
@@ -1583,6 +1587,7 @@ void CGTownInstance::initObj()
 				bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
+	removeCapitols (getOwner(), false); // destroy other capitols
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -1599,9 +1604,36 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
-		cb->setOwner(id, h->tempOwner);
+		removeCapitols (h->getOwner(), true);
+		cb->setOwner (id, h->tempOwner); //give control after checkout is done
 	}
 }
+
+void CGTownInstance::removeCapitols (ui8 owner, bool me) const
+{ 
+	if (hasCapitol()) // search for older capitol
+	{ 
+		PlayerState* state = cb->gameState()->getPlayer (owner); 
+		for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
+		{ 
+			if (*i != this && (*i)->hasCapitol()) 
+			{ 
+				if (me) 
+				{ 
+					RazeStructures rs; 
+					rs.tid = id; 
+					rs.bid.insert(13); 
+					si16 builded = destroyed;  
+					cb->sendAndApply(&rs); 
+					//cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol 
+					return; 
+				} 
+				else 
+					(*i)->builtBuildings.erase(13); //destroy all other capitols at the beginning of game 
+			} 
+		} 
+	} 
+} 
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -3099,6 +3131,38 @@ void CGBonusingObject::initObj()
 	}
 }
 
+void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const 
+{ 
+	int messageID; 
+	InfoWindow iw; 
+	iw.player = h->tempOwner; 
+	iw.soundID = soundBase::GENIE; 
+	if (!visited) 
+	{ 
+		if (h->mana > h->manaLimit())  
+			messageID = 76; 
+		else 
+		{ 
+			messageID = 74; 
+			cb->setManaPoints (h->id, 2 * h->manaLimit()); 
+			cb->setObjProperty (id, 5, true); 
+		} 
+	} 
+	else 
+		messageID = 75; 
+	iw.text << std::pair<ui8,ui32>(11,messageID); 
+	cb->showInfoDialog(&iw); 
+} 
+const std::string & CGMagicSpring::getHoverText() const 
+{ 
+	hoverName = VLC->generaltexth->names[ID];
+	if(!visited)
+		hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
+	else
+		hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+	return hoverName;
+} 
+
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int message;
@@ -4554,6 +4618,25 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		cb->getAllTiles (fw.tiles, h->tempOwner, pos.z, surface);
 		cb->sendAndApply (&fw);
 		cb->setObjProperty (id, 10, h->tempOwner);
+	}
+}
+
+void CShop::newTurn() const 
+{ 
+	switch (ID)
+	{
+		case 7: //ArtMerchant aka. Black Market
+			if (cb->getDate(0)%28 == 1)
+			{
+				cb->setObjProperty (id, 13, 0);
+				cb->setObjProperty (id, 14, rand());
+			}
+			break;
+		case 78: //Refugee Camp
+		case 95: //Tavern
+			if (cb->getDate(0)%7 == 1)
+				cb->setObjProperty (id, 14, rand());
+			break;
 	}
 }
 

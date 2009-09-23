@@ -1950,7 +1950,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			}
 		case 48: //Magic Spring
 			{
-				//nobj = new CGMagicSpring();
+				nobj = new CGMagicSpring();
 				break;
 			}
 		default:
