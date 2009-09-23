@@ -42,7 +42,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGShrine>();
 	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGBonusingObject>();
-	s.template registerType<CGMagicSpring>();
+	//s.template registerType<CGMagicSpring>();
 	s.template registerType<CGMagicWell>();
 	s.template registerType<CGObservatory>();
 	s.template registerType<CGKeys>();

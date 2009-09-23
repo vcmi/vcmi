@@ -1244,7 +1244,7 @@ void CGDwelling::initObj()
 
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(h->tempOwner != tempOwner  &&  army) //object is guarded
+	if(h->tempOwner != tempOwner  &&  army.slots.size() > 0) //object is guarded
 	{
 		BlockingDialog bd;
 		bd.player = h->tempOwner;
@@ -1508,10 +1508,7 @@ CGTownInstance::CGTownInstance()
 }
 
 CGTownInstance::~CGTownInstance()
-{
-	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		delete *i;
-}
+{}
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 {
@@ -1535,7 +1532,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	if(getOwner() != h->getOwner())
 	{
 		//TODO ally check
-		if(army || visitingHero)
+		if(army.slots.size() > 0 || visitingHero)
 		{
 			const CGHeroInstance *defendingHero = NULL;
 			if(visitingHero)
@@ -1552,7 +1549,6 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			removeCapitols (h->getOwner(), true);
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
@@ -1587,7 +1583,6 @@ void CGTownInstance::initObj()
 				bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
-	removeCapitols (getOwner(), false); // destroy other capitols
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -1604,35 +1599,10 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
-		removeCapitols (h->getOwner(), true);
-		cb->setOwner (id, h->tempOwner); //give control after checkout is done
+		cb->setOwner(id, h->tempOwner);
 	}
 }
-void CGTownInstance::removeCapitols (ui8 owner, bool me) const
-{
-		if (hasCapitol()) // search for older capitol
-		{
-			PlayerState* state = cb->gameState()->getPlayer (owner);
-			for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i)
-			{
-				if (*i != this && (*i)->hasCapitol())
-				{
-					if (me)
-					{
-						RazeStructures rs;
-						rs.tid = id;
-						rs.bid.insert(13);
-						si16 builded = destroyed; 
-						cb->sendAndApply(&rs);
-						//cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol
-						return;
-					}
-					else
-						(*i)->builtBuildings.erase(13); //destroy all other capitols at the beginning of game
-				}
-			}
-		}
-}
+
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())
@@ -2449,7 +2419,7 @@ void CGVisitableOPW::newTurn() const
 
 void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int mid, sound = 0; //message id, sound
+	int mid, sound = 0;
 	switch (ID)
 	{
 	case 55: //mystical garden
@@ -3129,38 +3099,6 @@ void CGBonusingObject::initObj()
 	}
 }
 
-void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
-{
-	int messageID;
-	InfoWindow iw;
-	iw.player = h->tempOwner;
-	iw.soundID = soundBase::GENIE;
-	if (!visited)
-	{
-		if (h->mana > h->manaLimit()) 
-			messageID = 76;
-		else
-		{
-			messageID = 74;
-			cb->setManaPoints (h->id, 2 * h->manaLimit());
-			cb->setObjProperty (id, 5, true);
-		}
-	}
-	else
-		messageID = 75;
-	iw.text << std::pair<ui8,ui32>(11,messageID);
-	cb->showInfoDialog(&iw);
-}
-const std::string & CGMagicSpring::getHoverText() const
-{
-	hoverName = VLC->generaltexth->names[ID];
-	if(!visited)
-		hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
-	else
-		hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
-	return hoverName;
-}
-
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int message;
@@ -3209,7 +3147,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 {
 	if (accept)
 	{
-		if (army) //if pandora's box is protected by army
+		if (army.slots.size() > 0) //if pandora's box is protected by army
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -3220,7 +3158,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 		else if (message.size() == 0 && resources.size() == 0
 				&& primskills.size() == 0 && abilities.size() == 0
 				&& abilityLevels.size() == 0 &&  artifacts.size() == 0
-				&& spells.size() == 0 && creatures == 0
+				&& spells.size() == 0 && creatures.slots.size() > 0
 				&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			InfoWindow iw;
@@ -3421,7 +3359,34 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		}
 		cb->showInfoDialog(&iw);
 	}
-	cb->giveCreatures (id, h, &creatures);
+
+	//check if creatures can be moved to hero army
+	CCreatureSet heroArmy = h->army;
+	CCreatureSet ourArmy = creatures;
+	while(ourArmy.slots.size() > 0)
+	{
+		int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
+		if(slot < 0)
+			break;
+
+		heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
+		heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
+		ourArmy.slots.erase(ourArmy.slots.begin());
+	}
+
+	if(ourArmy.slots.size() > 0) //all creatures can be moved to hero army - do that
+	{
+		SetGarrisons sg;
+		sg.garrs[h->id] = heroArmy;
+		cb->sendAndApply(&sg);
+	}
+	else //show garrison window and let player pick creatures
+	{
+		SetGarrisons sg;
+		sg.garrs[id] = creatures;
+		cb->sendAndApply(&sg);
+		cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
+	}
 
 	if(!afterBattle && message.size())
 	{
@@ -3476,7 +3441,7 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGEvent::activated( const CGHeroInstance * h ) const
 {
-	if(army)
+	if(army.slots.size() > 0)
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -3691,7 +3656,7 @@ void CGScholar::initObj()
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	if (h->tempOwner != tempOwner && army) {
+	if (h->tempOwner != tempOwner && army.slots.size() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattleI(h, this, boost::bind(&CGGarrison::fightOver, this, h, _1));
 		return;
@@ -4211,7 +4176,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.text.addReplacement (loot.buildList());
 			iw.text.addReplacement (h->name);
 			cb->showInfoDialog(&iw);
-			cb->giveCreatures (id, h, &ourArmy);
+			cb->giveCreatures (id, h, ourArmy);
 		}
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
@@ -4592,22 +4557,6 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 	}
 }
 
-void CShop::newTurn() const
-{
-	switch (ID)
-	{
-		case 7: //ArtMerchant aka. Black Market
-			if (cb->getDate(0)%28 == 1)
-				cb->setObjProperty (id, 13, 0);
-				cb->setObjProperty (id, 14, rand());
-			break;
-		case 78: //Refugee Camp
-		case 95: //Tavern
-			if (cb->getDate(0)%7 == 1)
-				cb->setObjProperty (id, 14, rand());
-			break;
-	}
-}
 void CShop::setPropertyDer (ui8 what, ui32 val)
 {
 	switch (what)
@@ -4650,8 +4599,9 @@ void CGArtMerchant::reset(ui32 val)
 		}
 		for (ui8 n = 0; n < count; n++)
 		{
+
 			index = arts.begin() + val % arts.size();
-			avaliable[avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+			avaliable [avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
 			arts.erase(index);
 			val *= (id + n * i); //randomize
 		}
