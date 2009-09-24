@@ -2044,7 +2044,7 @@ bool CGameHandler::razeStructure (si32 tid, si32 bid)
 	RazeStructures rs;
 	rs.tid = tid;
 	rs.bid.insert(bid);
-	rs.builded = t->destroyed + 1; //define TRUE FALSE?
+	rs.destroyed = t->destroyed + 1;
 	sendAndApply(&rs);
 	return true;
 }

@@ -43,7 +43,7 @@ extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
-
+BankConfig CGPyramid::pyramidConfig;
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -1624,9 +1624,8 @@ void CGTownInstance::removeCapitols (ui8 owner, bool me) const
 					RazeStructures rs; 
 					rs.tid = id; 
 					rs.bid.insert(13); 
-					si16 builded = destroyed;  
+					rs.destroyed = destroyed;  
 					cb->sendAndApply(&rs); 
-					//cb->gameState()->getTown(id)->builtBuildings.erase(13); //destroy local capitol 
 					return; 
 				} 
 				else 
@@ -4249,6 +4248,72 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		cb->setObjProperty (id, 14, ran()); //reset
 }
 
+void CGPyramid::initObj()
+{
+//would be nice to do that only once
+	if (!pyramidConfig.guards.size())
+	{
+		pyramidConfig.level = 1;
+		pyramidConfig.chance = 100;
+		pyramidConfig.upgradeChance = 0;
+		for (int i = 0; i < 2; ++i)
+		{
+			pyramidConfig.guards.push_back (std::pair <ui16, ui32>(116, 20));
+			pyramidConfig.guards.push_back (std::pair <ui16, ui32>(117, 10));
+		}
+		pyramidConfig.combatValue; //how hard are guards of this level
+		pyramidConfig.value; //overall value of given things
+		pyramidConfig.rewardDifficulty; //proportion of reward value to difficulty of guards; how profitable is this creature Bank config
+		pyramidConfig.easiest; //?!?
+	}
+	bc = &pyramidConfig;
+	std::vector<ui16> avaliable;
+	cb->getAllowedSpells (avaliable, 5);
+	spell = (avaliable[rand()%avaliable.size()]);
+}
+void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
+{
+	if (bc)
+	{
+		BlockingDialog bd (true, false);
+		bd.player = h->getOwner();
+		bd.soundID = soundBase::DANGER;
+		bd.text << VLC->generaltexth->advobtxt[105];
+		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));	
+	}
+	else
+	{
+		InfoWindow iw;
+		iw.text << VLC->generaltexth->advobtxt[107];
+		iw.components.push_back (Component (Component::LUCK, 0 , -2, 0));
+		GiveBonus gb;
+		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,-2,id,VLC->generaltexth->arraytxt[ID]);
+		cb->giveHeroBonus(&gb);
+		cb->showInfoDialog(&iw);
+	}
+}
+
+void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) const
+{
+	if (result->winner == 0)
+	{
+		InfoWindow iw;
+		iw.text.addTxt (MetaString::ADVOB_TXT, 106);
+		iw.text.addTxt (MetaString::SPELL_NAME, spell);
+		if (!h->getArt(17)) //no spellbook
+			iw.text.addTxt (MetaString::ADVOB_TXT, 109);
+		else if (h->getSecSkillLevel(7) < 3) //no expert Wisdom
+			iw.text.addTxt (MetaString::ADVOB_TXT, 108);
+		else
+		{
+			std::set<ui32> spells;
+			spells.insert (spell);
+			cb->changeSpells (h->id, true, spells);
+				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
+		}
+		cb->showInfoDialog(&iw);
+	}
+}
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
 	if (what >= 101 && what <= (100 + PLAYER_LIMIT))
@@ -4658,7 +4723,7 @@ void CShop::setPropertyDer (ui8 what, ui32 val)
 void CGArtMerchant::reset(ui32 val)
 {
 	std::vector<CArtifact*>::iterator index;
-	for (ui8 i = 0; i <= 6; i++)
+	for (ui8 i = 0; i < 4; ++i) //each tier
 	{	
 		int count = 0;
 		std::vector<CArtifact*> arts; //to avoid addition of different tiers

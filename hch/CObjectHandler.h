@@ -912,6 +912,24 @@ class DLL_EXPORT CBank : public CArmedInstance
 		h & index & multiplier & artifacts & daycounter;
 	}
 };
+class DLL_EXPORT CGPyramid : public CBank
+{
+public:
+	static BankConfig pyramidConfig;
+	ui16 spell;
+
+	void initObj();
+	void newTurn() const {}; //empty, no reset
+	void onHeroVisit (const CGHeroInstance * h) const;
+	void fightGuards (const CGHeroInstance *h, ui32 accept) const {};
+	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & spell;
+	}
+};
 
 class CGShipyard : public CGObjectInstance, public IShipyard
 {

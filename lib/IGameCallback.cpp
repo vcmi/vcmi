@@ -5,6 +5,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../StartInfo.h"
 #include "../hch/CArtHandler.h"
+#include "../hch/CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
 
 /*
@@ -188,6 +189,17 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 		getAllowedArts(out,&CArtHandler::majors);
 	if(flags & CArtifact::ART_RELIC)
 		getAllowedArts(out,&CArtHandler::relics);
+}
+
+void IGameCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
+{
+	for (int i = 0; i < (VLC->spellh->spells).size(); i++)
+	{
+		if (isAllowed (1, i))
+		{
+			out.push_back(i);
+		}
+	}
 }
 
 int3 IGameCallback::getMapSize()

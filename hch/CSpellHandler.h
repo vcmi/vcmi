@@ -6,6 +6,7 @@
 #include <set>
 
 #include "CSoundBase.h"
+//#include "map.h"
 
 /*
  * CSpellHandler.h, part of VCMI engine
@@ -53,6 +54,7 @@ public:
 class DLL_EXPORT CSpellHandler
 {
 public:
+	CSpellHandler::CSpellHandler();
 	std::vector<CSpell> spells;
 	void loadSpells();
 

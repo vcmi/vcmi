@@ -122,7 +122,10 @@ namespace SRSLPraserHelpers
 	}
 }
 using namespace SRSLPraserHelpers;
-
+CSpellHandler::CSpellHandler()
+{
+	VLC->spellh = this;
+}
 std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
 {
 	std::set<ui16> ret;

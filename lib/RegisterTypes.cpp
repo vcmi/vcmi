@@ -53,6 +53,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGSirens>();
 	s.template registerType<CGOnceVisitable>();
 	s.template registerType<CBank>();
+	s.template registerType<CGPyramid>();
 	s.template registerType<CGShipyard>();
 	s.template registerType<CCartographer>();
 	s.template registerType<CGObjectInstance>();

@@ -359,7 +359,7 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 	{
 		t->builtBuildings.erase(id);
 	}
-	t->destroyed = builded; //yeaha
+	t->destroyed = destroyed; //yeaha
 }
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {

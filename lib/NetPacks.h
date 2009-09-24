@@ -453,15 +453,19 @@ struct NewStructures : public CPackForClient //504
 		h & tid & bid & builded;
 	}
 };
-struct RazeStructures : public NewStructures //505
+struct RazeStructures : public CPackForClient //505
 {
 	RazeStructures() {type = 505;};
 	void applyCl (CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
+	si32 tid;
+	std::set<si32> bid;
+	si16 destroyed; 
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & builded;
+		h & tid & bid & destroyed;
 	}
 };
 struct SetAvailableCreatures : public CPackForClient //506
