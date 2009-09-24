@@ -453,9 +453,9 @@ public:
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
 	void handleEvent(SDL_Event *sEvent);
-
 	void handleMouseMotion(SDL_Event *sEvent);
-
+	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
+	void fakeMouseMove();
 	ui8 defActionsDef; //default auto actions
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created

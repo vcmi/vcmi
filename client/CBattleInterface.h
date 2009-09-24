@@ -314,21 +314,6 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
-struct BattleSettings
-{
-	BattleSettings();
-	bool printCellBorders; //if true, cell borders will be printed
-	bool printStackRange; //if true,range of active stack will be printed
-	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
-	bool printMouseShadow; //if true, hex under mouse will be shaded
-	bool showQueue;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & printCellBorders & printStackRange & animSpeed & printMouseShadow & showQueue;
-	}
-};
-
 struct SBattleEffect
 {
 	int x, y; //position on the screen
@@ -442,7 +427,6 @@ public:
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
-	static BattleSettings settings;
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
 	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
@@ -480,6 +464,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 
 	//call-ins
+	void startAction(const BattleAction* action);
 	void newStack(int stackID); //new stack appeared on battlefield
 	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	//void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
@@ -500,7 +485,6 @@ public:
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-
 	friend class CBattleHex;
 	friend class CBattleResultWindow;
 	friend class CPlayerInterface;

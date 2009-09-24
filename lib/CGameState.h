@@ -154,7 +154,7 @@ struct DLL_EXPORT BattleInfo
 	static std::vector<int> neighbouringTiles(int hex);
 	static ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting)
 	static std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
-	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties) const;
+	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
 	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield

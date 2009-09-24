@@ -471,7 +471,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	if ((down==false) || indeterminate(down))
 		return;
 	int3 mp = whichTileIsIt();
-	if ((mp.x<0) || (mp.y<0))
+	if (mp.x<0 || mp.y<0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
 		return;
 
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
@@ -660,11 +660,20 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 }
 void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	int3 pom=LOCPLINT->adventureInt->verifyPos(whichTileIsIt(sEvent.x,sEvent.y));
-	if (pom!=curHoveredTile)
+	int3 tHovered = whichTileIsIt(sEvent.x,sEvent.y);
+	int3 pom = LOCPLINT->adventureInt->verifyPos(tHovered);
+
+	if(tHovered != pom) //tile outside the map
+	{
+		CGI->curh->changeGraphic(0, 0);
+		return;
+	}
+
+	if (pom != curHoveredTile)
 		curHoveredTile=pom;
 	else
 		return;
+
 	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
 	if (temp.size())
 	{

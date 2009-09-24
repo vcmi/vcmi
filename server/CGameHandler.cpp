@@ -95,7 +95,7 @@ static void giveExp(BattleResult &r)
 {
 	r.exp[0] = 0;
 	r.exp[1] = 0;
-	for(std::set<std::pair<ui32,si32> >::iterator i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
+	for(std::map<ui32,si32>::iterator i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
 	{
 		r.exp[r.winner] += VLC->creh->creatures[i->first].hitPoints * i->second;
 	}
@@ -1406,7 +1406,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			&& complain("Cannot move hero, destination tile is on water!")
 		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!")
-		|| (!h->movement && dst != h->pos)
+		|| (h->movement < cost  &&  dst != h->pos)
 			&& complain("Hero don't have any movement points left!")
 		|| states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))

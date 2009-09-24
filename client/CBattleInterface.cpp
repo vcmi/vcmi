@@ -47,7 +47,6 @@ extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
-BattleSettings CBattleInterface::settings;
 CondSh<bool> CBattleInterface::animsAreDisplayed;
 
 struct CMP_stack2
@@ -481,7 +480,7 @@ void CDefenceAnim::nextFrame()
 
 	if(!owner->creAnims[stackID]->onLastFrameInGroup())
 	{
-		if( owner->creAnims[stackID]->getType() == 5 && (owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0
+		if( owner->creAnims[stackID]->getType() == 5 && (owner->animCount+1)%(4/LOCPLINT->sysOpts.animSpeed)==0
 			&& !owner->creAnims[stackID]->onLastFrameInGroup() )
 		{
 			owner->creAnims[stackID]->incrementFrame();
@@ -694,7 +693,7 @@ void CBattleMoveStart::nextFrame()
 	}
 	else
 	{
-		if((owner->animCount+1)%(4/CBattleInterface::settings.animSpeed)==0)
+		if((owner->animCount+1)%(4/LOCPLINT->sysOpts.animSpeed)==0)
 			owner->creAnims[stackID]->incrementFrame();
 	}
 }
@@ -1047,7 +1046,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//create stack queue
 	bool embedQueue = screen->h < 700;
 	queue = new CStackQueue(embedQueue);
- 	if(!embedQueue && settings.showQueue)
+ 	if(!embedQueue && LOCPLINT->sysOpts.showQueue)
 	{
 		pos.y += queue->pos.h / 2; //center whole window
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
@@ -1306,21 +1305,24 @@ CBattleInterface::~CBattleInterface()
 
 void CBattleInterface::setPrintCellBorders(bool set)
 {
-	settings.printCellBorders = set;
+	LOCPLINT->sysOpts.printCellBorders = set;
+	LOCPLINT->sysOpts.settingsChanged();
 	redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintStackRange(bool set)
 {
-	settings.printStackRange = set;
+	LOCPLINT->sysOpts.printStackRange = set;
+	LOCPLINT->sysOpts.settingsChanged();
 	redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintMouseShadow(bool set)
 {
-	settings.printMouseShadow = set;
+	LOCPLINT->sysOpts.printMouseShadow = set;
+	LOCPLINT->sysOpts.settingsChanged();
 }
 
 void CBattleInterface::activate()
@@ -1345,7 +1347,7 @@ void CBattleInterface::activate()
 		attackingHero->activate();
 	if(defendingHero)
 		defendingHero->activate();
-	if(settings.showQueue)
+	if(LOCPLINT->sysOpts.showQueue)
 		queue->activate();
 
 	LOCPLINT->cingconsole->activate();
@@ -1373,7 +1375,7 @@ void CBattleInterface::deactivate()
 		attackingHero->deactivate();
 	if(defendingHero)
 		defendingHero->deactivate();
-	if(settings.showQueue)
+	if(LOCPLINT->sysOpts.showQueue)
 		queue->deactivate();
 
 	LOCPLINT->cingconsole->deactivate();
@@ -1399,7 +1401,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		//showing background
 		blitAt(background, pos.x, pos.y, to);
-		if(settings.printCellBorders)
+		if(LOCPLINT->sysOpts.printCellBorders)
 		{
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, &pos);
 		}
@@ -1436,7 +1438,7 @@ void CBattleInterface::show(SDL_Surface * to)
 				std::set<ui16> shaded = spToCast.rangeInHexes(b, schoolLevel);
 				for(std::set<ui16>::iterator it = shaded.begin(); it != shaded.end(); ++it) //for spells with range greater then one hex
 				{
-					if(settings.printMouseShadow && (*it % BFIELD_WIDTH != 0) && (*it % BFIELD_WIDTH != 16))
+					if(LOCPLINT->sysOpts.printMouseShadow && (*it % BFIELD_WIDTH != 0) && (*it % BFIELD_WIDTH != 16))
 					{
 						int x = 14 + ((*it/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(*it%BFIELD_WIDTH) + pos.x;
 						int y = 86 + 42 * (*it/BFIELD_WIDTH) + pos.y;
@@ -1444,7 +1446,7 @@ void CBattleInterface::show(SDL_Surface * to)
 					}
 				}
 			}
-			else if(settings.printMouseShadow) //when not casting spell
+			else if(LOCPLINT->sysOpts.printMouseShadow) //when not casting spell
 			{
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
@@ -1479,7 +1481,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH) + pos.x + shift.first;
 		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH) + pos.y + shift.second;
 		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages; //reference to animation of obstacle
-		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
+		blitAt(images[((animCount+1)/(4/LOCPLINT->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
 	}
 
 	//showing hero animations
@@ -1597,7 +1599,7 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
 
-	if(settings.showQueue)
+	if(LOCPLINT->sysOpts.showQueue)
 	{
 		if(!queue->embedded)
 		{
@@ -1622,10 +1624,12 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
-		if(settings.showQueue) //hide queue
+		if(LOCPLINT->sysOpts.showQueue) //hide queue
 			hideQueue();
 		else
 			showQueue();
+
+		LOCPLINT->sysOpts.settingsChanged();
 	}
 	else if(key.keysym.sym == SDLK_ESCAPE && spellDestSelectMode)
 	{
@@ -2154,9 +2158,20 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 addit
 	ba->destinationTile = tile;
 	ba->stackNumber = stack;
 	ba->additionalInfo = additional;
-	givenCommand->setn(ba);
+
+	//some basic validations
+	switch(action)
+	{
+	case 6:
+		assert(LOCPLINT->cb->battleGetStackByPos(additional)); //stack to attack must exist
+	case 2: case 7: case 9:
+		assert(tile < BFIELD_SIZE);
+		break;
+	}
+
 	myTurn = false;
 	activeStack = -1;
+	givenCommand->setn(ba);
 }
 
 bool CBattleInterface::isTileAttackable(const int & number) const
@@ -2616,20 +2631,23 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 
 void CBattleInterface::setAnimSpeed(int set)
 {
-	settings.animSpeed = set;
+	LOCPLINT->sysOpts.animSpeed = set;
+	LOCPLINT->sysOpts.settingsChanged();
 }
 
 int CBattleInterface::getAnimSpeed() const
 {
-	return settings.animSpeed;
+	return LOCPLINT->sysOpts.animSpeed;
+	LOCPLINT->sysOpts.settingsChanged();
 }
 
 void CBattleInterface::activateStack()
 {
 	activeStack = stackToActivate;
-	queue->update();
 	stackToActivate = -1;
 	myTurn = true;
+	queue->update();
+	GH.fakeMouseMove();
 	redrawBackgroundWithHexes(activeStack);
 	bWait->block(vstd::contains(LOCPLINT->cb->battleGetStackByID(activeStack)->state,WAITING)); //block waiting button if stack has been already waiting
 
@@ -2648,7 +2666,7 @@ void CBattleInterface::activateStack()
 
 float CBattleInterface::getAnimSpeedMultiplier() const
 {
-	switch(settings.animSpeed)
+	switch(LOCPLINT->sysOpts.animSpeed)
 	{
 	case 1:
 		return 3.5f;
@@ -2679,7 +2697,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	const CStack &curStack = stacks.find(ID)->second;
 	int animType = creAnims[ID]->getType();
 
-	int affectingSpeed = settings.animSpeed;
+	int affectingSpeed = LOCPLINT->sysOpts.animSpeed;
 	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
 	if(animType == 3 || animType == 7 || animType == 8 || animType == 9 || animType == 10 || animType == 11 || animType == 12 || animType == 13) //defend & attack should be slower
@@ -2836,10 +2854,10 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
-	if(settings.printCellBorders)
+	if(LOCPLINT->sysOpts.printCellBorders)
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
 
-	if(settings.printStackRange)
+	if(LOCPLINT->sysOpts.printStackRange)
 	{
 		for(size_t m=0; m<shadedHexes.size(); ++m) //rows
 		{
@@ -2946,9 +2964,9 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 void CBattleInterface::hideQueue()
 {
-	settings.showQueue = false;
-	//if(queue->active)
-		queue->deactivate();
+	LOCPLINT->sysOpts.showQueue = false;
+
+	queue->deactivate();
 
 	if(!queue->embedded)
 	{
@@ -2959,14 +2977,83 @@ void CBattleInterface::hideQueue()
 
 void CBattleInterface::showQueue()
 {
-	settings.showQueue = true;
-	//if(!queue->active)
-		queue->activate();
+	LOCPLINT->sysOpts.showQueue = true;
+
+	queue->activate();
 
 	if(!queue->embedded)
 	{
 		moveBy(Point(0, +queue->pos.h / 2));
 		GH.totalRedraw();
+	}
+}
+
+void CBattleInterface::startAction(const BattleAction* action)
+{
+	const CStack *stack = LOCPLINT->cb->battleGetStackByID(action->stackNumber);
+
+	if(stack)
+	{
+		queue->update();
+	}
+	else
+	{
+		assert(action->actionType == 1); //only cast spell is valid action without acting stack number
+	}
+
+	if(action->actionType == 2 
+		|| (action->actionType == 6 && action->destinationTile != stack->position))
+	{
+		moveStarted = true;
+		if(creAnims[action->stackNumber]->framesInGroup(20))
+		{
+			pendingAnims.push_back(std::make_pair(new CBattleMoveStart(this, action->stackNumber), false));
+		}
+	}
+
+
+	deactivate();
+
+	char txt[400];
+
+	if(action->actionType == 1)
+	{
+		if(action->side)
+			defendingHero->setPhase(4);
+		else
+			attackingHero->setPhase(4);
+		return;
+	}
+	if(!stack)
+	{
+		tlog1<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber<<std::endl;
+		return;
+	}
+
+	int txtid = 0;
+	switch(action->actionType)
+	{
+	case 3: //defend
+		txtid = 120;
+		break;
+	case 8: //wait
+		txtid = 136;
+		break;
+	case 11: //bad morale
+		txtid = -34; //negative -> no separate singular/plural form		
+		displayEffect(30,stack->position);
+		break;
+	}
+
+	if(txtid > 0  &&  stack->amount != 1)
+		txtid++; //move to plural text
+	else if(txtid < 0)
+		txtid = -txtid;
+
+	if(txtid)
+	{
+		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str(), 0);
+		console->addText(txt);
 	}
 }
 
@@ -3441,7 +3528,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		{
 			int xPos = 235 - (br.casualties[step].size()*32 + (br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
 			int yPos = 344 + step*97;
-			for(std::set<std::pair<ui32,si32> >::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
+			for(std::map<ui32,si32>::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
 			{
 				blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
 				std::ostringstream amount;
@@ -3554,11 +3641,11 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
 
 	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
-	viewGrid->select(owner->settings.printCellBorders);
+	viewGrid->select(LOCPLINT->sysOpts.printCellBorders);
 	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
-	movementShadow->select(owner->settings.printStackRange);
+	movementShadow->select(LOCPLINT->sysOpts.printStackRange);
 	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
-	mouseShadow->select(owner->settings.printMouseShadow);
+	mouseShadow->select(LOCPLINT->sysOpts.printMouseShadow);
 
 	animSpeeds = new CHighlightableButtonsGroup(0);
 	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def",188, 309, 1);
@@ -3891,13 +3978,4 @@ CStackQueue::StackBox::~StackBox()
 void CStackQueue::StackBox::hover( bool on )
 {
 
-}
-
-BattleSettings::BattleSettings()
-{
-	printCellBorders = true;
-	printStackRange = true;
-	animSpeed = 2;
-	printMouseShadow = true;
-	showQueue = true;
 }

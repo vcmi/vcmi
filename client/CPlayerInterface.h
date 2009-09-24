@@ -74,32 +74,33 @@ namespace boost
 
 struct SystemOptions
 {
-	ui8 heroMoveSpeed; //speed of player's hero movement
-	//TODO: enemy hero speed
+
+	ui8 heroMoveSpeed;/*, enemyMoveSpeed*/ //speed of player's hero movement
 	ui8 mapScrollingSpeed; //map scrolling speed
 	ui8 musicVolume, soundVolume;
-
 	//TODO: rest of system options
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & heroMoveSpeed & mapScrollingSpeed & musicVolume & soundVolume;
-	}
+	//battle settings
+	ui8 printCellBorders; //if true, cell borders will be printed
+	ui8 printStackRange; //if true,range of active stack will be printed
+	ui8 animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
+	ui8 printMouseShadow; //if true, hex under mouse will be shaded
+	ui8 showQueue;
 
-	SystemOptions()
-	{
-		heroMoveSpeed = 2;
-		mapScrollingSpeed = 2;
-		musicVolume = 88;
-		soundVolume = 88;
-	}
-
+	SystemOptions();
 	void setHeroMoveSpeed(int newSpeed); //set for the member above
 	void setMapScrollingSpeed(int newSpeed); //set the member above
 	void setMusicVolume(int newVolume);
 	void setSoundVolume(int newVolume);
 	void settingsChanged(); //updates file with "default" settings for next running of application
 	void apply();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroMoveSpeed & mapScrollingSpeed & musicVolume & soundVolume;
+
+		h & printCellBorders & printStackRange & animSpeed & printMouseShadow & showQueue;
+	}
 };
 
 extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores default settings loaded with application

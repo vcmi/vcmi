@@ -2493,18 +2493,14 @@ ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, co
 		return range.first;
 }
 
-void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties ) const
+void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 {
 	for(unsigned int i=0; i<stacks.size();i++)//setting casualties
 	{
-		if(!stacks[i]->alive())
-		{
-			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount));
-		}
-		else if(stacks[i]->amount != stacks[i]->baseAmount)
-		{
-			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount - stacks[i]->amount));
-		}
+		const CStack * const st = stacks[i];
+		si32 killed = (st->alive() ? st->baseAmount - st->amount : st->baseAmount);
+		amax(killed, 0);
+		casualties[!st->attackerOwned][st->creature->idNumber] += killed;
 	}
 }
 

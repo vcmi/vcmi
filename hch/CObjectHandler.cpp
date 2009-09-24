@@ -1054,11 +1054,11 @@ std::pair<ui32, si32> CGHeroInstance::calculateNecromancy (BattleResult &battleR
 	if (necromancyLevel > 0) {
 		double necromancySkill = necromancyLevel*0.1
 			+ valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 12)/100.0;
-		const std::set<std::pair<ui32, si32> > &casualties = battleResult.casualties[!battleResult.winner];
+		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
 
 		// Get lost enemy hit points convertible to units.
-		for (std::set<std::pair<ui32, si32> >::const_iterator it = casualties.begin(); it != casualties.end(); it++)
+		for (std::map<ui32,si32>::const_iterator it = casualties.begin(); it != casualties.end(); it++)
 			raisedUnits += VLC->creh->creatures[it->first].hitPoints*it->second;
 		raisedUnits *= necromancySkill;
 
@@ -1071,7 +1071,8 @@ std::pair<ui32, si32> CGHeroInstance::calculateNecromancy (BattleResult &battleR
 
 		// Make room for new units.
 		int slot = army.getSlotFor(raisedUnitType->idNumber);
-		if (slot == -1) {
+		if (slot == -1) 
+		{
 			// If there's no room for unit, try it's upgraded version 2/3rds the size.
 			raisedUnitType = &VLC->creh->creatures[*raisedUnitType->upgrades.begin()];
 			raisedUnits = (raisedUnits*2)/3;

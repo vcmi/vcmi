@@ -292,16 +292,7 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 		hlp[i]->hovered = true;
 	}
 
-
-	//sending active, MotionInterested objects mouseMoved() call
-	std::list<CIntObject*> miCopy = motioninterested;
-	for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
-	{
-		if ((*i)->strongInterest || isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-		{
-			(*i)->mouseMoved(sEvent->motion);
-		}
-	}
+	handleMoveInterested(sEvent->motion);
 }
 
 void CGuiHandler::simpleRedraw()
@@ -310,6 +301,29 @@ void CGuiHandler::simpleRedraw()
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
 	objsToBlit.back()->show(screen); //blit active interface/window
+}
+
+void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
+{	
+	//sending active, MotionInterested objects mouseMoved() call
+	std::list<CIntObject*> miCopy = motioninterested;
+	for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
+	{
+		if ((*i)->strongInterest || isItIn(&(*i)->pos, motion.x, motion.y))
+		{
+			(*i)->mouseMoved(motion);
+		}
+	}
+}
+
+void CGuiHandler::fakeMouseMove()
+{
+	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0};
+	int x, y;
+	sme.state = SDL_GetMouseState(&x, &y);
+	sme.x = x;
+	sme.y = y;
+	handleMoveInterested(sme);
 }
 
 void CIntObject::activateLClick()

@@ -1029,7 +1029,7 @@ void CGeniusAI::battleEnd(BattleResult *br)
 		case 2:	std::cout << "It's a draw." << std::endl;break;
 	};
 	cout << "lost ";
-	for(std::set<std::pair<ui32,si32> >::iterator i = br->casualties[0].begin(); i !=br->casualties[0].end();i++)
+	for(std::map<ui32,si32>::iterator i = br->casualties[0].begin(); i !=br->casualties[0].end();i++)
 		cout << i->second << " " << VLC->creh->creatures[i->first].namePl << endl;
 				
 	delete m_battleLogic;

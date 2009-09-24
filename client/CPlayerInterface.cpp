@@ -1024,60 +1024,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = new BattleAction(*action);
-	if( (action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber))) )
-	{
-		battleInt->moveStarted = true;
-		if(battleInt->creAnims[action->stackNumber]->framesInGroup(20))
-		{
-			battleInt->pendingAnims.push_back(std::make_pair(new CBattleMoveStart(battleInt, action->stackNumber), false));
-		}
-	}
-
-
-	battleInt->deactivate();
-
-	const CStack *stack = cb->battleGetStackByID(action->stackNumber);
-	char txt[400];
-
-	if(action->actionType == 1)
-	{
-		if(action->side)
-			battleInt->defendingHero->setPhase(4);
-		else
-			battleInt->attackingHero->setPhase(4);
-		return;
-	}
-	if(!stack)
-	{
-		tlog1<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber<<std::endl;
-		return;
-	}
-
-	int txtid = 0;
-	switch(action->actionType)
-	{
-	case 3: //defend
-		txtid = 120;
-		break;
-	case 8: //wait
-		txtid = 136;
-		break;
-	case 11: //bad morale
-		txtid = -34; //negative -> no separate singular/plural form		
-		battleInt->displayEffect(30,stack->position);
-		break;
-	}
-
-	if(txtid > 0  &&  stack->amount != 1)
-		txtid++; //move to plural text
-	else if(txtid < 0)
-		txtid = -txtid;
-
-	if(txtid)
-	{
-		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str(), 0);
-		LOCPLINT->battleInt->console->addText(txt);
-	}
+	battleInt->startAction(action);
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
@@ -1377,7 +1324,6 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 {
 	h & playerID & serialID;
 	h & sysOpts;
-	h & CBattleInterface::settings;
 }
 
 void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
@@ -1632,7 +1578,24 @@ void SystemOptions::settingsChanged()
 
 void SystemOptions::apply()
 {
-	CGI->musich->setVolume(musicVolume);
-	CGI->soundh->setVolume(soundVolume);
+	if(CGI->musich->getVolume() != musicVolume)
+		CGI->musich->setVolume(musicVolume);
+	if(CGI->soundh->getVolume() != soundVolume)
+		CGI->soundh->setVolume(soundVolume);
+
 	settingsChanged();
+}
+
+SystemOptions::SystemOptions()
+{
+	heroMoveSpeed = 2;
+	mapScrollingSpeed = 2;
+	musicVolume = 88;
+	soundVolume = 88;
+
+	printCellBorders = true;
+	printStackRange = true;
+	animSpeed = 2;
+	printMouseShadow = true;
+	showQueue = true;
 }
