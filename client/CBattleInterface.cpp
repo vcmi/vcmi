@@ -207,6 +207,7 @@ bool CSpellEffectAnim::init()
 
 void CSpellEffectAnim::nextFrame()
 {
+	//notice: there may be more than one effect in owner->battleEffects correcponding to this animation (ie. armageddon)
 	for(std::list<SBattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
 	{
 		if(it->effectID == ID)
@@ -223,7 +224,6 @@ void CSpellEffectAnim::nextFrame()
 				it->x += dx;
 				it->y += dy;
 			}
-			break;
 		}
 	}
 }
@@ -404,7 +404,8 @@ bool CDefenceAnim::init()
 	int lowestMoveID = owner->animIDhelper + 5;
 	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
 	{
-		if(dynamic_cast<CDefenceAnim *>(it->first))
+		CDefenceAnim * defAnim = dynamic_cast<CDefenceAnim *>(it->first);
+		if(defAnim && defAnim->stackID != stackID)
 			continue;
 
 		CBattleAttack * attAnim = dynamic_cast<CBattleAttack *>(it->first);
