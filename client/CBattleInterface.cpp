@@ -295,6 +295,9 @@ bool CBattleStackAnimation::isToReverseHlp(int hexFrom, int hexTo, bool curDir)
 
 bool CBattleStackAnimation::isToReverse(int hexFrom, int hexTo, bool curDir, bool toDoubleWide, bool toDir)
 {
+	if(hexTo < 0) //turret
+		return false;
+
 	if(toDoubleWide)
 	{
 		return isToReverseHlp(hexFrom, hexTo, curDir) &&
@@ -946,7 +949,16 @@ bool CShootingAnim::init()
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
 
 	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
-	Point destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
+	Point destcoord;
+	if(attackedStack)
+	{
+		destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
+	}
+	else //catapult attack
+	{
+		destcoord.x = -160 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH);
+		destcoord.y = -139 + 42 * (dest/BFIELD_WIDTH);
+	}
 	destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
 
 	if(projectileAngle > straightAngle) //upper shot
@@ -983,7 +995,11 @@ bool CShootingAnim::init()
 	owner->projectiles.push_back(spi);
 
 	//attack aniamtion
-	IDby = attackedStack->ID;
+	if(attackedStack)
+		IDby = attackedStack->ID;
+	else
+		IDby = -1;
+
 	posShiftDueToDist = 0;
 	shooting = true;
 
@@ -1017,9 +1033,15 @@ void CShootingAnim::endAnim()
 	delete this;
 }
 
-CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest)
-: CBattleAttack(_owner, attacker, _dest)
+CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, bool _catapult, int _catapultDmg)
+: CBattleAttack(_owner, attacker, _dest), catapultDamage(_catapultDmg), catapult(_catapult)
 {
+	if(catapult) //catapult attack
+	{
+		owner->addNewAnim( new CSpellEffectAnim(owner, "SGEXPL.DEF",
+			-130 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH),
+			-50 + 42 * (dest/BFIELD_WIDTH) ));
+	}
 }
 
 ////////////////////////
@@ -2441,6 +2463,18 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	addNewAnim(new CShootingAnim(this, ID, dest));
 }
 
+void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
+{
+	for(std::set< std::pair< std::pair< ui8, si16 >, ui8> >::const_iterator it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
+	{
+		addNewAnim(new CShootingAnim(this, ca.attacker, it->first.second, true, it->second));
+
+		SDL_FreeSurface(siegeH->walls[it->first.first + 2]);
+		siegeH->walls[it->first.first + 2] = BitmapHandler::loadBitmap(
+			siegeH->getSiegeName(it->first.first + 2, LOCPLINT->cb->battleGetWallState(it->first.first)) );
+	}
+}
+
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
@@ -2959,6 +2993,9 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if(action->actionType == 2 && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(this, action->stackNumber, action->destinationTile), false));
+	}
+	if(action->actionType == 9) //catapult
+	{
 	}
 }
 

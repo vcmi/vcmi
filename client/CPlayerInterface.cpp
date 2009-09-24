@@ -998,12 +998,7 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 {
-	for(std::set< std::pair<ui8, ui8> >::const_iterator it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
-	{
-		SDL_FreeSurface(battleInt->siegeH->walls[it->first + 2]);
-		battleInt->siegeH->walls[it->first + 2] = BitmapHandler::loadBitmap(
-			battleInt->siegeH->getSiegeName(it->first + 2, cb->battleGetWallState(it->first)) );
-	}
+	battleInt->stackIsCatapulting(ca);
 }
 
 void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)

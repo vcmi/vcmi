@@ -2602,8 +2602,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					continue;
 				
 				CatapultAttack ca; //package for clients
-				std::pair<ui8, ui8> attack;
-				attack.first = attackedPart;
+				std::pair< std::pair< ui8, si16 >, ui8> attack;
+				attack.first.first = attackedPart;
+				attack.first.second = ba.destinationTile;
 				attack.second = 0;
 
 				int chanceForHit = 0;
@@ -2672,7 +2673,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 						sendAndApply(&bsr);
 					}
 				}
-				ca.byCatapult = true;
+				ca.attacker = ba.stackNumber;
 				ca.attackedParts.insert(attack);
 
 				sendAndApply(&ca);

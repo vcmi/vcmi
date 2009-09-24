@@ -29,6 +29,7 @@ template <typename T> struct CondSh;
 struct SetStackEffect;;
 struct BattleAction;
 class CGTownInstance;
+struct CatapultAttack;
 
 class CBattleInterface;
 
@@ -187,6 +188,7 @@ public:
 
 	bool checkInitialConditions();
 
+
 	CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest);
 };
 
@@ -202,12 +204,15 @@ public:
 
 class CShootingAnim : public CBattleAttack
 {
+private:
+	int catapultDamage;
+	bool catapult;
 public:
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest);
+	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
 };
 
 //end of battle animation handlers
@@ -415,7 +420,7 @@ private:
 
 		void printPartOfWall(SDL_Surface * to, int what);//what: 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 15 - keep creature cover, 16 - bottom turret creature cover, 17 - upper turret creature cover
 
-		friend class CPlayerInterface;
+		friend class CBattleInterface;
 	} * siegeH;
 public:
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
@@ -475,6 +480,7 @@ public:
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
+	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
 	void displayBattleFinished(); //displays battle result

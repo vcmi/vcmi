@@ -1088,10 +1088,10 @@ DLL_EXPORT void CatapultAttack::applyGs( CGameState *gs )
 {
 	if(gs->curB && gs->curB->siege != 0) //if there is a battle and it's a siege
 	{
-		for(std::set< std::pair<ui8, ui8> >::const_iterator it = attackedParts.begin(); it != attackedParts.end(); ++it)
+		for(std::set< std::pair< std::pair< ui8, si16 >, ui8> >::const_iterator it = attackedParts.begin(); it != attackedParts.end(); ++it)
 		{
-			gs->curB->si.wallState[it->first] = 
-				std::min( gs->curB->si.wallState[it->first] + it->second, 3 );
+			gs->curB->si.wallState[it->first.first] = 
+				std::min( gs->curB->si.wallState[it->first.first] + it->second, 3 );
 		}
 	}
 }
