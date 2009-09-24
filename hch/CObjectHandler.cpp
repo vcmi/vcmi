@@ -3584,17 +3584,8 @@ void CGShrine::initObj()
 	if(spell == 255) //spell not set
 	{
 		int level = ID-87;
-		std::vector<ui32> possibilities;
-
-		//add all allowed spells of wanted level
-		for(int i=0; i<SPELLS_QUANTITY; i++)
-		{
-			if(VLC->spellh->spells[i].level == level
-				&& cb->isAllowed(0,VLC->spellh->spells[i].id))
-			{
-				possibilities.push_back(VLC->spellh->spells[i].id);
-			}
-		}
+		std::vector<ui16> possibilities;
+		cb->getAllowedSpells (possibilities, level);
 
 		if(!possibilities.size())
 		{

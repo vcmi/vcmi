@@ -193,9 +193,12 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 
 void IGameCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
 {
-	for (int i = 0; i < (VLC->spellh->spells).size(); i++)
+
+	CSpell *spell;
+	for (int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
-		if (isAllowed (1, i))
+		spell = &(VLC->spellh->spells[i]);
+		if (isAllowed (0, spell->id) && spell->level == level)
 		{
 			out.push_back(i);
 		}
