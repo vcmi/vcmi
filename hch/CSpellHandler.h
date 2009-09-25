@@ -54,7 +54,7 @@ public:
 class DLL_EXPORT CSpellHandler
 {
 public:
-	CSpellHandler::CSpellHandler();
+	CSpellHandler();
 	std::vector<CSpell> spells;
 	void loadSpells();
 
