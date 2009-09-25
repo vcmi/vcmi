@@ -142,9 +142,13 @@ void CObjectHandler::loadObjects()
 		tlog5 << "\t\tDone loading objects!\n";
 	}
 
-	std::string banksConfig = bitmaph->getTextFile("ZCRBANK.TXT");
+	std::ifstream istr;
+	istr.open("config/bankconfig.txt", std::ios_base::binary);
+	if(!istr.is_open())
+	{
+		tlog1 << "No config/bankconfig.txt file !!!\n";
+	}
 
-	std::istringstream istr(banksConfig);
 	const int MAX_BUF = 5000;
 	char buffer[MAX_BUF + 1];
 
