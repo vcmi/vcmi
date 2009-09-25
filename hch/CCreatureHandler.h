@@ -46,7 +46,8 @@ public:
 	///end of anim info
 
 	// Sound infos
-	struct {
+	class sounds {
+	public:
 		soundBase::soundID attack;
 		soundBase::soundID defend;
 		soundBase::soundID killed; // was killed died
