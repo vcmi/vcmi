@@ -45,7 +45,7 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	throw std::string("Cannot pick secondary skill!");
 }
 
-int CObstacleInfo::getWidth()
+int CObstacleInfo::getWidth() const
 {
 	int ret = 1;
 	int line = 1;
@@ -67,7 +67,7 @@ int CObstacleInfo::getWidth()
 	return ret;
 }
 
-int CObstacleInfo::getHeight()
+int CObstacleInfo::getHeight() const
 {
 	int ret = 1;
 	for(int h=0; h<blockmap.size(); ++h)
@@ -80,7 +80,7 @@ int CObstacleInfo::getHeight()
 	return ret;
 }
 
-std::vector<int> CObstacleInfo::getBlocked(int hex)
+std::vector<int> CObstacleInfo::getBlocked(int hex) const
 {
 	std::vector<int> ret;
 	int cur = hex; //currently browsed hex
@@ -111,6 +111,12 @@ std::vector<int> CObstacleInfo::getBlocked(int hex)
 		}
 	}
 	return ret;
+}
+
+int CObstacleInfo::getMaxBlocked(int hex) const
+{
+	std::vector<int> blocked = getBlocked(hex);
+	return *std::max_element(blocked.begin(), blocked.end());
 }
 
 CHeroHandler::~CHeroHandler()

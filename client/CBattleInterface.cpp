@@ -1495,22 +1495,14 @@ void CBattleInterface::show(SDL_Surface * to)
 	SDL_GetClipRect(to, &buf);
 	SDL_SetClipRect(to, &pos);
 
-	//showing obstacles
+	//preparing obstacles to be shown
 	std::vector<CObstacleInstance> obstacles = LOCPLINT->cb->battleGetAllObstacles();
+	std::multimap<int, int> hexToObstacle;
 	for(int b=0; b<obstacles.size(); ++b)
 	{
-		std::pair<si16, si16> shift = CGI->heroh->obstacles[obstacles[b].ID].posShift;
-		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH) + pos.x + shift.first;
-		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH) + pos.y + shift.second;
-		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages; //reference to animation of obstacle
-		blitAt(images[((animCount+1)/(4/LOCPLINT->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
+		int position = CGI->heroh->obstacles[obstacles[b].ID].getMaxBlocked(obstacles[b].pos);
+		hexToObstacle.insert(std::make_pair(position, b));
 	}
-
-	//showing hero animations
-	if(attackingHero)
-		attackingHero->show(to);
-	if(defendingHero)
-		defendingHero->show(to);
 
 	////showing units //a lot of work...
 	std::vector<int> stackAliveByHex[BFIELD_SIZE];
@@ -1589,9 +1581,31 @@ void CBattleInterface::show(SDL_Surface * to)
 			showAliveStack(stackAliveByHex[b][v], stacks, to);
 		}
 
+		//showing obstacles
+		std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> obstRange =
+			hexToObstacle.equal_range(b);
+
+		for(std::multimap<int, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
+		{
+			CObstacleInstance & curOb = obstacles[it->second];
+			std::pair<si16, si16> shift = CGI->heroh->obstacles[curOb.ID].posShift;
+			int x = ((curOb.pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%BFIELD_WIDTH) + pos.x + shift.first;
+			int y = 86 + 42 * (curOb.pos/BFIELD_WIDTH) + pos.y + shift.second;
+			std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
+			blitAt(images[((animCount+1)/(4/LOCPLINT->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
+		}
+
+		//showing wall pieces
 		showPieceOfWall(to, b, stacks);
 	}
 	//units shown
+
+	//showing hero animations
+	if(attackingHero)
+		attackingHero->show(to);
+	if(defendingHero)
+		defendingHero->show(to);
+
 	projectileShowHelper(to);//showing projectiles
 
 	//showing spell effects
@@ -2734,8 +2748,6 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	int affectingSpeed = LOCPLINT->sysOpts.animSpeed;
 	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
-	if(animType == 3 || animType == 7 || animType == 8 || animType == 9 || animType == 10 || animType == 11 || animType == 12 || animType == 13) //defend & attack should be slower
-		affectingSpeed = 1;
 	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
 
 	if(animType == 2)
