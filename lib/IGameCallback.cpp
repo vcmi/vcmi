@@ -200,7 +200,7 @@ void IGameCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
 		spell = &(VLC->spellh->spells[i]);
 		if (isAllowed (0, spell->id) && spell->level == level)
 		{
-			out.push_back(i);
+			out.push_back(spell->id);
 		}
 	}
 }
