@@ -349,7 +349,7 @@ public:
 	const CGHeroInstance * battleGetOwner(int stackID); //returns hero that owns given stack; NULL if none
 	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
-	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
+	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile

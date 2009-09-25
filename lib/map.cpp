@@ -151,7 +151,7 @@ static EDefType getDefType(CGDefInfo * a)
 		return TERRAINOBJ_DEF; // nothing to be handled
 	}
 }
-static int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false)
+static int readNormalNr (const unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false)
 {
 	int ret=0;
 	int amp=1;
@@ -166,11 +166,11 @@ static int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cy
 	}
 	return ret;
 }
-static char readChar(unsigned char * bufor, int &i)
+static char readChar(const unsigned char * bufor, int &i)
 {
 	return bufor[i++];
 }
-static std::string readString(unsigned char * bufor, int &i)
+static std::string readString(const unsigned char * bufor, int &i)
 {					
 	int len = readNormalNr(bufor,i); i+=4;
 	std::string ret; ret.reserve(len);
@@ -180,7 +180,7 @@ static std::string readString(unsigned char * bufor, int &i)
 	}
 	return ret;
 }
-static CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
+static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
 	if(version)
 	{
@@ -219,7 +219,7 @@ static CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, b
 		return ret;
 	}
 }
-CMapHeader::CMapHeader(unsigned char *map)
+CMapHeader::CMapHeader(const unsigned char *map)
 {
 	int i=0;
 	initFromMemory(map,i);
@@ -231,7 +231,7 @@ CMapHeader::CMapHeader()
 	height = width = twoLevel = -1;
 }
 
-void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
+void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 {
 	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
 	areAnyPLayers = readChar(bufor,i); //invalid on some maps
@@ -277,7 +277,7 @@ void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
 	if(version>RoE) //probably reserved for further heroes
 		i+=4;
 }
-void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
+void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 {
 	players.resize(8);
 	for (pom=0;pom<8;pom++)
@@ -363,7 +363,7 @@ void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 	}
 }
 
-void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
+void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 {
 	victoryCondition.condition = (EvictoryConditions)bufor[i++];
 	if (victoryCondition.condition != winStandard) //specific victory conditions
@@ -477,7 +477,7 @@ CMapHeader::~CMapHeader()
 
 }
 
-void Mapa::initFromBytes(unsigned char * bufor)
+void Mapa::initFromBytes(const unsigned char * bufor)
 {
 	int i=0;
 	initFromMemory(bufor,i);
@@ -659,7 +659,7 @@ CGHeroInstance * Mapa::getHero(int ID, int mode)
 	return NULL;
 }
 
-int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj )
+int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj )
 {
 	CGSeerHut *hut = new CGSeerHut();
 	nobj = hut;
@@ -762,7 +762,7 @@ int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj )
 	return i;
 }
 
-void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i, int subid)
+void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid)
 {
 	CGTownInstance * nt = new CGTownInstance();
 	//(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
@@ -894,7 +894,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i, in
 	nt->garrisonHero = NULL;
 }
 
-void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
+void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i )
 {
 	CGHeroInstance * nhi = new CGHeroInstance;
 	nobj=nhi;
@@ -1073,7 +1073,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	nhi->movement = -1;
 }
 
-void Mapa::readRumors( unsigned char * bufor, int &i)
+void Mapa::readRumors( const unsigned char * bufor, int &i)
 {
 	int rumNr = readNormalNr(bufor,i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
@@ -1089,7 +1089,7 @@ void Mapa::readRumors( unsigned char * bufor, int &i)
 	}
 }
 
-void Mapa::readHeader( unsigned char * bufor, int &i)
+void Mapa::readHeader( const unsigned char * bufor, int &i)
 {
 	//reading allowed heroes (20 bytes)
 	int ist = i;
@@ -1176,7 +1176,7 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 	}
 }
 
-void Mapa::readPredefinedHeroes( unsigned char * bufor, int &i)
+void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 {
 	switch(version)
 	{
@@ -1283,7 +1283,7 @@ void Mapa::readPredefinedHeroes( unsigned char * bufor, int &i)
 	}
 }
 
-void Mapa::readTerrain( unsigned char * bufor, int &i)
+void Mapa::readTerrain( const unsigned char * bufor, int &i)
 {
 	terrain = new TerrainTile**[width]; // allocate memory 
 	for (int ii=0;ii<width;ii++)
@@ -1328,7 +1328,7 @@ void Mapa::readTerrain( unsigned char * bufor, int &i)
 	}
 }
 
-void Mapa::readDefInfo( unsigned char * bufor, int &i)
+void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 {
 	int defAmount = readNormalNr(bufor,i); i+=4;
 	defy.reserve(defAmount);
@@ -1402,7 +1402,7 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 	}
 }
 
-void Mapa::readObjects( unsigned char * bufor, int &i)
+void Mapa::readObjects( const unsigned char * bufor, int &i)
 {
 	int howManyObjs = readNormalNr(bufor,i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
@@ -1978,7 +1978,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 	std::sort(heroes.begin(), heroes.end(), boost::bind(&CGHeroInstance::subID, _1) < boost::bind(&CGHeroInstance::subID, _2));
 }
 
-void Mapa::readEvents( unsigned char * bufor, int &i )
+void Mapa::readEvents( const unsigned char * bufor, int &i )
 {
 	int numberOfEvents = readNormalNr(bufor,i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
@@ -2027,7 +2027,7 @@ bool Mapa::isInTheMap(const int3 &pos) const
 	else return true;
 }
 
-void Mapa::loadQuest(CQuest * guard, unsigned char * bufor, int & i)
+void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 {
 	guard->missionType = bufor[i]; ++i;
 	int len1, len2, len3;
@@ -2137,7 +2137,7 @@ void CMapInfo::countPlayers()
 	}
 }
 
-CMapInfo::CMapInfo(const std::string &fname, unsigned char *map )
+CMapInfo::CMapInfo(const std::string &fname, const unsigned char *map )
 {
 	init(fname, map);
 }
@@ -2147,7 +2147,7 @@ CMapInfo::CMapInfo()
 	version = invalid;
 }
 
-void CMapInfo::init(const std::string &fname, unsigned char *map )
+void CMapInfo::init(const std::string &fname, const unsigned char *map )
 {
 	filename = fname;
 	int i = 0;

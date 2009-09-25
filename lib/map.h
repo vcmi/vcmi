@@ -221,10 +221,10 @@ public:
 	std::vector<PlayerInfo> players; // info about players - size 8
 	ui8 howManyTeams;
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
-	void initFromMemory(unsigned char *bufor, int &i);
-	void loadViCLossConditions( unsigned char * bufor, int &i);
-	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
-	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
+	void initFromMemory(const unsigned char *bufor, int &i);
+	void loadViCLossConditions( const unsigned char * bufor, int &i);
+	void loadPlayerInfo( int &pom, const unsigned char * bufor, int &i);
+	CMapHeader(const unsigned char *map); //an argument is a reference to string described a map (unpacked)
 	CMapHeader();
 	virtual ~CMapHeader();
 
@@ -244,8 +244,8 @@ public:
 	std::string date;
 	int playerAmnt, humenPlayers;
 	CMapInfo();
-	CMapInfo(const std::string &fname, unsigned char *map);
-	void init(const std::string &fname, unsigned char *map);
+	CMapInfo(const std::string &fname, const unsigned char *map);
+	void init(const std::string &fname, const unsigned char *map);
 	void countPlayers();
 };
 
@@ -254,7 +254,7 @@ class DLL_EXPORT mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(CMapHeader *a, CMapHeader *b)
+	bool operator()(const CMapHeader *a, const CMapHeader *b)
 	{
 		switch (sortBy)
 		{
@@ -315,19 +315,19 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
 
-	void initFromBytes(unsigned char * bufor); //creates map from decompressed .h3m data
+	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 
-	void readEvents( unsigned char * bufor, int &i);
-	void readObjects( unsigned char * bufor, int &i);
-	void loadQuest( CQuest * guard, unsigned char * bufor, int & i);
-	void readDefInfo( unsigned char * bufor, int &i);
-	void readTerrain( unsigned char * bufor, int &i);
-	void readPredefinedHeroes( unsigned char * bufor, int &i);
-	void readHeader( unsigned char * bufor, int &i);
-	void readRumors( unsigned char * bufor, int &i);
-	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
-	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i, int subid);
-	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj);
+	void readEvents( const unsigned char * bufor, int &i);
+	void readObjects( const unsigned char * bufor, int &i);
+	void loadQuest( CQuest * guard, const unsigned char * bufor, int & i);
+	void readDefInfo( const unsigned char * bufor, int &i);
+	void readTerrain( const unsigned char * bufor, int &i);
+	void readPredefinedHeroes( const unsigned char * bufor, int &i);
+	void readHeader( const unsigned char * bufor, int &i);
+	void readRumors( const unsigned char * bufor, int &i);
+	void loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i);
+	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
+	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
 
 	void addBlockVisTiles(CGObjectInstance * obj);

@@ -1692,18 +1692,18 @@ const CGHeroInstance * CGameState::battleGetOwner(int stackID)
 
 }
 
-UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)
+UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
-	CCreature *base = &VLC->creh->creatures[obj->army.slots[stackPos].first];
+	const CCreature *base = &VLC->creh->creatures[obj->army.slots.find(stackPos)->first];
 	if((obj->ID == TOWNI_TYPE)  ||  ((obj->ID == HEROI_TYPE) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
 	{
-		CGTownInstance * t;
+		const CGTownInstance * t;
 		if(obj->ID == TOWNI_TYPE)
-			t = static_cast<CGTownInstance *>(const_cast<CArmedInstance *>(obj));
+			t = static_cast<const CGTownInstance *>(obj);
 		else
 			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;
-		for(std::set<si32>::iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
+		for(std::set<si32>::const_iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
 		{
 			if( (*i) >= 37   &&   (*i) < 44 ) //upgraded creature dwelling
 			{
