@@ -4058,11 +4058,14 @@ void CBank::newTurn() const
 	{
 		if (daycounter >= 28 || cb->getDate(0) == 1)
 		{
-			cb->setObjProperty (id, 11, 0); //daycounter 0
-			cb->setObjProperty (id, 14, ran()); //reset
-			if (ID == 24 && cb->getDate(0) > 1)
+			if (subID < 13 || subID > 16) //no reset for Emissaries
 			{
-				cb->setObjProperty (id, 16, 0);; //derelict ships are usable only once
+				cb->setObjProperty (id, 11, 0); //daycounter 0
+				cb->setObjProperty (id, 14, ran()); //reset
+				if (ID == 24 && cb->getDate(0) > 1)
+				{
+					cb->setObjProperty (id, 16, 0);; //derelict ships are usable only once
+				}
 			}
 		}
 		else
