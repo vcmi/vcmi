@@ -22,7 +22,7 @@ AC_ARG_ENABLE(debug,
 		  fi],
 		  [ enable_debug="yes" ])
 if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
-   CXXFLAGS="-O0 -ggdb -Wall -Wcast-align -Wmissing-declarations -Wpointer-arith"
+   CXXFLAGS="-O0 -ggdb -Wall -Wcast-align -Wpointer-arith"
 fi
 
 # Check for Boost libraries
