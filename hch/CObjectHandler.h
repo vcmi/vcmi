@@ -902,9 +902,9 @@ class DLL_EXPORT CBank : public CArmedInstance
 	void setPropertyDer (ui8 what, ui32 val);
 	void reset(ui16 var1, ui16 var2);
 	void newTurn() const;
-	void onHeroVisit (const CGHeroInstance * h) const;
-	void fightGuards (const CGHeroInstance *h, ui32 accept) const;
-	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
+	virtual void onHeroVisit (const CGHeroInstance * h) const;
+	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;
+	virtual void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -919,9 +919,9 @@ public:
 	ui16 spell;
 
 	void initObj();
+	const std::string & getHoverText() const;
 	void newTurn() const {}; //empty, no reset
 	void onHeroVisit (const CGHeroInstance * h) const;
-	void fightGuards (const CGHeroInstance *h, ui32 accept) const {};
 	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

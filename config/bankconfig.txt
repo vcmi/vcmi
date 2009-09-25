@@ -45,10 +45,10 @@ Dragon Utopia	1	30%	8	Green Dragons	0%	5	Red Dragons	2	Gold Dragons	1	Black Drag
  	2	30%	8	Green Dragons	0%	6	Red Dragons	3	Gold Dragons	2	Black Dragons	2209	0	0	0	0	0	0	30000	0	None	0	1	1	2	57000	26	125%
  	3	30%	8	Green Dragons	0%	6	Red Dragons	4	Gold Dragons	3	Black Dragons	2556	0	0	0	0	0	0	40000	0	None	0	0	1	3	75000	29	145%
  	4	10%	8	Green Dragons	0%	7	Red Dragons	6	Gold Dragons	5	Black Dragons	3343	0	0	0	0	0	0	50000	0	None	0	0	0	4	90000	27	189%
-Hunting Lodge	1	30%	3	Dendroid	0%	4	Wood Elf	3	Dendroid	4	Wood Elf	100	15	0	0	0	0	0	500	0	None	0	0	0	0	2000	20	100%
- 	2	30%	4	Dendroid	0%	6	Wood Elf	4	Dendroid	6	Wood Elf	150	20	0	0	0	0	0	500	0	None	0	0	0	0	3000	20	100%
- 	3	30%	5	Dendroid	0%	8	Wood Elf	5	Dendroid	8	Wood Elf	200	25	0	0	0	0	0	500	0	None	0	0	0	0	4000	20	150%
- 	4	10%	6	Dendroid Soldier	100%	10	Grand Elf	6	Dendroid Soldier	10	Grand Elf	300	40	0	0	0	0	0	1000	0	None	0	0	0	0	6000	20	200%
+Hunting Lodge	1	30%	3	Dendroid Guard Guard Guard	0%	4	Wood Elf	3	Dendroid Guard	4	Wood Elf	100	15	0	0	0	0	0	500	0	None	0	0	0	0	2000	20	100%
+ 	2	30%	4	Dendroid Guard	0%	6	Wood Elf	4	Dendroid Guard	6	Wood Elf	150	20	0	0	0	0	0	500	0	None	0	0	0	0	3000	20	100%
+ 	3	30%	5	Dendroid Guard	0%	8	Wood Elf	5	Dendroid Guard	8	Wood Elf	200	25	0	0	0	0	0	500	0	None	0	0	0	0	4000	20	150%
+ 	4	10%	6	Dendroid Guard	100%	10	Wood Elf	6	Dendroid Guard	10	Wood Elf	300	40	0	0	0	0	0	1000	0	None	0	0	0	0	6000	20	200%
 Snow-covered Grotto	1	30%	5	Iron Golem	0%	20	Master Gremlin	5	Iron Golem	20	Master Gremlin	100	0	0	15	0	0	0	500	0	None	0	0	0	0	2000	20	100%
  	2	30%	6	Iron Golem	0%	30	Master Gremlin	6	Iron Golem	30	Master Gremlin	150	0	0	20	0	0	0	500	0	None	0	0	0	0	3000	20	100%
  	3	30%	7	Iron Golem	0%	40	Master Gremlin	7	Iron Golem	40	Master Gremlin	200	0	0	30	0	0	0	500	0	None	0	0	0	0	4000	20	150%

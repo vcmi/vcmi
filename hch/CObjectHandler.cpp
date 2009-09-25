@@ -3429,33 +3429,35 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	}
 
 	//check if creatures can be moved to hero army
-	CCreatureSet heroArmy = h->army;
-	CCreatureSet ourArmy = creatures;
-	while(ourArmy.slots.size() > 0)
-	{
-		int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
-		if(slot < 0)
-			break;
+	if (creatures.slots.size())
+		{
+		CCreatureSet heroArmy = h->army;
+		CCreatureSet ourArmy = creatures;
+		while(ourArmy.slots.size() > 0)
+		{
+			int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
+			if(slot < 0)
+				break;
 
-		heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
-		heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
-		ourArmy.slots.erase(ourArmy.slots.begin());
-	}
+			heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
+			heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
+			ourArmy.slots.erase(ourArmy.slots.begin());
+		}
 
-	if(ourArmy.slots.size() > 0) //all creatures can be moved to hero army - do that
-	{
-		SetGarrisons sg;
-		sg.garrs[h->id] = heroArmy;
-		cb->sendAndApply(&sg);
+		if(ourArmy.slots.size() > 0) //all creatures can be moved to hero army - do that
+		{
+			SetGarrisons sg;
+			sg.garrs[h->id] = heroArmy;
+			cb->sendAndApply(&sg);
+		}
+		else //show garrison window and let player pick creatures
+		{
+			SetGarrisons sg;
+			sg.garrs[id] = creatures;
+			cb->sendAndApply(&sg);
+			cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
+		}
 	}
-	else //show garrison window and let player pick creatures
-	{
-		SetGarrisons sg;
-		sg.garrs[id] = creatures;
-		cb->sendAndApply(&sg);
-		cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
-	}
-
 	if(!afterBattle && message.size())
 	{
 		iw.text << message;
@@ -4060,17 +4062,14 @@ void CBank::newTurn() const
 {
 	if (bc == NULL)
 	{
-		if (daycounter >= 28 || cb->getDate(0) == 1)
+		if (cb->getDate(0) == 1)
+			cb->setObjProperty (id, 14, ran()); //initialize on first day
+		else if (daycounter >= 28 && (subID < 13 || subID > 16)) //no reset for Emissaries
 		{
-			if (subID < 13 || subID > 16) //no reset for Emissaries
-			{
-				cb->setObjProperty (id, 11, 0); //daycounter 0
-				cb->setObjProperty (id, 14, ran()); //reset
-				if (ID == 24 && cb->getDate(0) > 1)
-				{
-					cb->setObjProperty (id, 16, 0);; //derelict ships are usable only once
-				}
-			}
+			cb->setObjProperty (id, 14, ran()); //reset
+			cb->setObjProperty (id, 11, 0); //daycounter 0
+			if (ID == 24 && cb->getDate(0) > 1)
+				cb->setObjProperty (id, 16, 0); //derelict ships are usable only once
 		}
 		else
 			cb->setObjProperty (id, 11, 1); //daycounter++
@@ -4269,6 +4268,15 @@ void CGPyramid::initObj()
 	cb->getAllowedSpells (available, 5);
 	spell = (available[rand()%available.size()]);
 }
+const std::string & CGPyramid::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if (bc == NULL)
+		hoverName += " " + VLC->generaltexth->allTexts[352];
+	else
+		hoverName += " " + VLC->generaltexth->allTexts[353];
+	return hoverName;
+}
 void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 {
 	if (bc)
@@ -4282,10 +4290,12 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 	else
 	{
 		InfoWindow iw;
+		iw.player = h->getOwner();
 		iw.text << VLC->generaltexth->advobtxt[107];
 		iw.components.push_back (Component (Component::LUCK, 0 , -2, 0));
 		GiveBonus gb;
-		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,-2,id,VLC->generaltexth->arraytxt[ID]);
+		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,-2,id,VLC->generaltexth->arraytxt[70]);
+		gb.hid = h->id;
 		cb->giveHeroBonus(&gb);
 		cb->showInfoDialog(&iw);
 	}
@@ -4296,12 +4306,13 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 	if (result->winner == 0)
 	{
 		InfoWindow iw;
+		iw.player = h->getOwner();
 		iw.text.addTxt (MetaString::ADVOB_TXT, 106);
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
-		if (!h->getArt(17)) //no spellbook
-			iw.text.addTxt (MetaString::ADVOB_TXT, 109);
-		else if (h->getSecSkillLevel(7) < 3) //no expert Wisdom
-			iw.text.addTxt (MetaString::ADVOB_TXT, 108);
+		if (!h->getArt(17))						
+			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
+		else if (h->getSecSkillLevel(7) < 3)	
+			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{
 			std::set<ui32> spells;
@@ -4310,6 +4321,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
 		}
 		cb->showInfoDialog(&iw);
+		cb->setObjProperty (id, 15, 0);
 	}
 }
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
