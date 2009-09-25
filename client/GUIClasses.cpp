@@ -2105,7 +2105,7 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		Point click(GH.current->motion.x,GH.current->motion.y);
-		click -= pos.topLeft();
+		click = click - pos.topLeft();
 		if(Rect(19,216,105,40).isIn(click)) //left picture
 			which = 0;
 		else if(Rect(175,216,105,40).isIn(click)) //right picture

@@ -86,7 +86,7 @@ struct Point
 	template<typename T>
 	Point operator-(const T &b) const
 	{
-		return Point(x+b.x,y+b.y);
+		return Point(x - b.x, y - b.y);
 	}
 
 	template<typename T>

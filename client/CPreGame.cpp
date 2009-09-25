@@ -799,7 +799,7 @@ int SelectionTab::getLine()
 {
 	int line = -1;
 	Point clickPos(GH.current->button.x, GH.current->button.y);
-	clickPos -= pos.topLeft();
+	clickPos = clickPos - pos.topLeft();
 
 	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 52  &&  clickPos.x < 366)
 	{

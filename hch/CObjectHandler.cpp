@@ -2181,7 +2181,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		myKindCres.insert(subID); //we
 		myKindCres.insert(VLC->creh->creatures[subID].upgrades.begin(),VLC->creh->creatures[subID].upgrades.end()); //our upgrades
 		for(std::vector<CCreature>::iterator i=VLC->creh->creatures.begin(); i!=VLC->creh->creatures.end(); i++)
-			if(vstd::contains(i->upgrades,id)) //it's our base creatures
+			if(vstd::contains(i->upgrades, (ui32) id)) //it's our base creatures
 				myKindCres.insert(i->idNumber);
 
 		int count = 0, //how many creatures of our kind has hero
@@ -3655,7 +3655,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	int ssl = h->getSecSkillLevel(bid); //current sec skill level, used if bonusType == 1
 	if((type == 1
 			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells,bid)))) //hero doesn't have a spellbook or already knows the spell
+		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)))) //hero doesn't have a spellbook or already knows the spell
 	{
 		type = 0;
 		bid = ran() % PRIMARY_SKILLS;
