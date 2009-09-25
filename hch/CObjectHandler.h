@@ -973,7 +973,7 @@ class DLL_EXPORT CShop : public CGObjectInstance
 {
 ///base class for university, art merchant, slave market etc.
 public:
-	std::map<ui16, Component*> avaliable;
+	std::map<ui16, Component*> available;
 	std::map<ui16, Component*> chosen, bought; //redundant?
 	//keys are unique for all three maps
 	std::map<ui16, ui32> price;
@@ -987,7 +987,7 @@ public:
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & avaliable & chosen & bought & price;
+		h & available & chosen & bought & price;
 	}
 };
 class DLL_EXPORT CGArtMerchant : public CShop

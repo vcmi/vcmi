@@ -690,17 +690,17 @@ struct HeroLevelUp : public Query//2000
 
 struct TradeComponents : public CPackForClient, public CPackForServer
 {
-///used to handle info about components avaliable in shops
+///used to handle info about components available in shops
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 heroid;
 	ui32 objectid;
-	std::map<ui16, Component> avaliable, chosen, bought;
+	std::map<ui16, Component> available, chosen, bought;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & heroid & objectid & avaliable & chosen & bought;
+		h & id & heroid & objectid & available & chosen & bought;
 	}
 
 };

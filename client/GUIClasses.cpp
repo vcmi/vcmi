@@ -4362,16 +4362,16 @@ bool CShopWindow::swapItem (ui16 which, bool choose)
 		if (chosen.count(which))
 		{
 			itemFound = true;
-			chosen[which] = avaliable[which];
-			avaliable.erase(which);
+			chosen[which] = available[which];
+			available.erase(which);
 		}
 	}
-	else //return item to avaliable list
+	else //return item to available list
 	{
-		if (avaliable.count(which))
+		if (available.count(which))
 		{
 			itemFound = true;
-			avaliable[which] = chosen[which];
+			available[which] = chosen[which];
 			chosen.erase(which);
 		}
 	}

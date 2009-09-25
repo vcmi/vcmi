@@ -765,7 +765,7 @@ public:
 class CShopWindow : public CIntObject
 {
 public:
-	std::map<ui16, Component> avaliable, chosen, bought;
+	std::map<ui16, Component> available, chosen, bought;
 
 	bool swapItem (ui16 which, bool choose);
 	virtual void Buy() {};

@@ -4258,9 +4258,9 @@ void CGPyramid::initObj()
 		pyramidConfig.easiest; //?!?
 	}
 	bc = &pyramidConfig;
-	std::vector<ui16> avaliable;
-	cb->getAllowedSpells (avaliable, 5);
-	spell = (avaliable[rand()%avaliable.size()]);
+	std::vector<ui16> available;
+	cb->getAllowedSpells (available, 5);
+	spell = (available[rand()%available.size()]);
 }
 void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 {
@@ -4702,7 +4702,7 @@ void CShop::setPropertyDer (ui8 what, ui32 val)
 	switch (what)
 	{
 		case 13: //sweep
-			avaliable.clear();
+			available.clear();
 			chosen.clear();
 			bought.clear();
 			break;
@@ -4741,7 +4741,7 @@ void CGArtMerchant::reset(ui32 val)
 		{
 
 			index = arts.begin() + val % arts.size();
-			avaliable [avaliable.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+			available [available.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
 			arts.erase(index);
 			val *= (id + n * i); //randomize
 		}
