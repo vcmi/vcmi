@@ -3397,66 +3397,33 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	for(int i=0; i<artifacts.size(); i++)
 		cb->giveHeroArtifact(artifacts[i],h->id,-2);
 
-	//show dialog with given creatures
 	iw.components.clear();
 	iw.text.clear();
-	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = creatures.slots.begin(); i != creatures.slots.end(); i++)
-	{
-		iw.components.push_back(Component(Component::CREATURE,i->second.first,i->second.second,0));
-	}
-	if(iw.components.size())
-	{
-		if(afterBattle)
-		{
-			if(iw.components.front().val == 1)
-			{
-				iw.text.addTxt(MetaString::ADVOB_TXT,185);//A %s joins %s's army.
-				iw.text.addReplacement(MetaString::CRE_SING_NAMES, iw.components.front().subtype);
-			}
-			else
-			{
-				iw.text.addTxt(MetaString::ADVOB_TXT,186);//%s join %s's army.
-				iw.text.addReplacement(MetaString::CRE_PL_NAMES, iw.components.front().subtype);
-			}
-			iw.text.addReplacement(h->name);
-		}
-		else
-		{
-			iw.text << message;
-			afterBattle = true;
-		}
-		cb->showInfoDialog(&iw);
-	}
 
-	//check if creatures can be moved to hero army
 	if (creatures.slots.size())
-		{
-		CCreatureSet heroArmy = h->army;
+	{ //this part is taken straight from creature bank
+		MetaString loot; 
 		CCreatureSet ourArmy = creatures;
-		while(ourArmy.slots.size() > 0)
-		{
-			int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
-			if(slot < 0)
-				break;
-
-			heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
-			heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
-			ourArmy.slots.erase(ourArmy.slots.begin());
+		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = ourArmy.slots.begin(); i != ourArmy.slots.end(); i++)
+		{ //build list of joined creatures
+			iw.components.push_back (Component(Component::CREATURE, i->second.first, i->second.second, 0));
+			loot << "%s";
+			if (i->second.second == 1)
+				loot.addReplacement (MetaString::CRE_SING_NAMES, i->second.first);
+			else
+				loot.addReplacement (MetaString::CRE_PL_NAMES, i->second.first);
 		}
 
-		if(ourArmy.slots.size() > 0) //all creatures can be moved to hero army - do that
-		{
-			SetGarrisons sg;
-			sg.garrs[h->id] = heroArmy;
-			cb->sendAndApply(&sg);
-		}
-		else //show garrison window and let player pick creatures
-		{
-			SetGarrisons sg;
-			sg.garrs[id] = creatures;
-			cb->sendAndApply(&sg);
-			cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
-		}
+		if (ourArmy.slots.size() == 1 && ourArmy.slots.begin()->second.second == 1)
+			iw.text.addTxt (MetaString::ADVOB_TXT, 185);
+		else
+			iw.text.addTxt (MetaString::ADVOB_TXT, 186);
+
+		iw.text.addReplacement (loot.buildList());
+		iw.text.addReplacement (h->name);
+
+		cb->showInfoDialog(&iw);
+		cb->giveCreatures (id, h, ourArmy);
 	}
 	if(!afterBattle && message.size())
 	{
