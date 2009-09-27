@@ -629,6 +629,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 			break;
 		}
 	case 33: // Garrison
+	case 219:
 		{
 			const CGGarrison *garr = dynamic_cast<const CGGarrison *>(obj);
 
