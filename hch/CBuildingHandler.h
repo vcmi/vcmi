@@ -23,8 +23,8 @@ public:
 	std::string name;
 	std::string description;
 
-	const std::string &Name();
-	const std::string &Description();
+	const std::string &Name() const;
+	const std::string &Description() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

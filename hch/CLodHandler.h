@@ -65,7 +65,6 @@ public:
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
 	std::string getTextFile(std::string name); //extracts one file
-	void extract(std::string FName);
 	void extractFile(std::string FName, std::string name); //extracts a specific file
 	void init(std::string lodFile, std::string dirName);
 };

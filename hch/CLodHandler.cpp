@@ -24,7 +24,7 @@
  *
  */
 
-DLL_EXPORT int readNormalNr (int pos, int bytCon, unsigned char * str)
+DLL_EXPORT int readNormalNr (int pos, int bytCon, const unsigned char * str)
 {
 	int ret=0;
 	int amp=1;
@@ -166,8 +166,6 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 	int ret;
 	unsigned have;
 	z_stream strm;
-	unsigned char inx[NLoadHandlerHelp::fCHUNK];
-	unsigned char outx[NLoadHandlerHelp::fCHUNK];
 	out = new unsigned char [realSize];
 	int latPosOut = 0;
 
@@ -183,95 +181,48 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 	int chunkNumber = 0;
 	do
 	{
-		int readBytes = 0;
-		for(int i=0; i<NLoadHandlerHelp::fCHUNK && (chunkNumber * NLoadHandlerHelp::fCHUNK + i)<size; ++i)
-		{
-			inx[i] = in[chunkNumber * NLoadHandlerHelp::fCHUNK + i];
-			++readBytes;
-		}
-		++chunkNumber;
-		strm.avail_in = readBytes;
+		if(size < chunkNumber * NLoadHandlerHelp::fCHUNK)
+			break;
+		strm.avail_in = std::min(NLoadHandlerHelp::fCHUNK, size - chunkNumber * NLoadHandlerHelp::fCHUNK);
 		if (strm.avail_in == 0)
 			break;
-		strm.next_in = inx;
+		strm.next_in = in + chunkNumber * NLoadHandlerHelp::fCHUNK;
 
 		/* run inflate() on input until output buffer not full */
 		do
 		{
-			strm.avail_out = NLoadHandlerHelp::fCHUNK;
-			strm.next_out = outx;
+			strm.avail_out = realSize - latPosOut;
+			strm.next_out = out + latPosOut;
 			ret = inflate(&strm, Z_NO_FLUSH);
 			//assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+			bool breakLoop = false;
 			switch (ret)
 			{
-				case Z_NEED_DICT:
-					ret = Z_DATA_ERROR;	 /* and fall through */
-				case Z_DATA_ERROR:
-				case Z_MEM_ERROR:
-					(void)inflateEnd(&strm);
-					return ret;
+			case Z_STREAM_END:
+				breakLoop = true;
+				break;
+			case Z_NEED_DICT:
+				ret = Z_DATA_ERROR;	 /* and fall through */
+			case Z_DATA_ERROR:
+			case Z_MEM_ERROR:
+				(void)inflateEnd(&strm);
+				return ret;
 			}
-			have = NLoadHandlerHelp::fCHUNK - strm.avail_out;
-			for(int oo=0; oo<have; ++oo)
-			{
-				out[latPosOut] = outx[oo];
-				++latPosOut;
-			}
+
+			if(breakLoop)
+				break;
+
+			have = realSize - latPosOut - strm.avail_out;
+			latPosOut += have;
 		} while (strm.avail_out == 0);
 
+		++chunkNumber;
 		/* done when inflate() says it's done */
 	} while (ret != Z_STREAM_END);
 
 	/* clean up and return */
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-}
-
-void CLodHandler::extract(std::string FName)
-{
-	std::ofstream FOut;
-	for (int i=0;i<totalFiles;i++)
-	{
-		fseek(FLOD, entries[i].offset, 0);
-		std::string bufff = (DATA_DIR + FName.substr(0, FName.size()-4) + PATHSEPARATOR + entries[i].nameStr);
-		unsigned char * outp;
-		if (entries[i].size==0) //file is not compressed
-		{
-			outp = new unsigned char[entries[i].realSize];
-			fread((char*)outp, 1, entries[i].realSize, FLOD);
-			std::ofstream out;
-			out.open(bufff.c_str(), std::ios::binary);
-			if(!out.is_open())
-			{
-				tlog1<<"Unable to create "<<bufff;
-			}
-			else
-			{
-				for(int hh=0; hh<entries[i].realSize; ++hh)
-				{
-					out<<*(outp+hh);
-				}
-				out.close();
-			}
-		}
-		else
-		{
-			outp = new unsigned char[entries[i].size];
-			fread((char*)outp, 1, entries[i].size, FLOD);
-			fseek(FLOD, 0, 0);
-			std::ofstream destin;
-			destin.open(bufff.c_str(), std::ios::binary);
-			//int decRes = decompress(outp, entries[i].size, entries[i].realSize, bufff);
-			int decRes = infs(outp, entries[i].size, entries[i].realSize, destin);
-			destin.close();
-			if(decRes!=0)
-			{
-				tlog1<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
-			}
-		}
-		delete[] outp;
-	}
-	fclose(FLOD);
 }
 
 void CLodHandler::extractFile(std::string FName, std::string name)

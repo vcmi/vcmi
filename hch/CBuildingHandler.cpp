@@ -152,7 +152,7 @@ CBuildingHandler::~CBuildingHandler()
 
 static std::string emptyStr = "";
 
-const std::string & CBuilding::Name()
+const std::string & CBuilding::Name() const
 {
 	if(name.length())
 		return name;
@@ -162,7 +162,7 @@ const std::string & CBuilding::Name()
 	return emptyStr;
 }
 
-const std::string & CBuilding::Description()
+const std::string & CBuilding::Description() const
 {
 	if(description.length())
 		return description;
