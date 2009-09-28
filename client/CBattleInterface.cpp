@@ -1870,7 +1870,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						console->whoSetAlter = 0;
 					}
 				}
-				else if( sactive->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(myNumber) ) //catapulting
+				else if( sactive && sactive->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(myNumber) ) //catapulting
 				{
 					CGI->curh->changeGraphic(1,16);
 					console->alterTxt = "";
@@ -1887,20 +1887,23 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			{
 				//setting console text and cursor
 				const CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
-				char buf[500];
-				if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::FLYING))
+				if(sactive) //there can be a moment when stack is dead ut next is not yet activated
 				{
-					CGI->curh->changeGraphic(1,2);
-					sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
-				}
-				else
-				{
-					CGI->curh->changeGraphic(1,1);
-					sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
-				}
+					char buf[500];
+					if(sactive->hasFeatureOfType(StackFeature::FLYING))
+					{
+						CGI->curh->changeGraphic(1,2);
+						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
+					}
+					else
+					{
+						CGI->curh->changeGraphic(1,1);
+						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
+					}
 
-				console->alterTxt = buf;
-				console->whoSetAlter = 0;
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+				}
 			}
 		}
 	}

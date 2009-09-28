@@ -443,7 +443,7 @@ askInterfaceForMove:
 				sas.stack = next->ID;
 				sendAndApply(&sas);
 				boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-				while(!battleMadeAction.data  &&  !battleResult.get()) //active stack hasn't made its action and battle is still going
+				while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
 					battleMadeAction.cond.wait(lock);
 				battleMadeAction.data = false;
 			}
@@ -3163,6 +3163,10 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				}
 			}
 			sendAndApply(&EndAction());
+			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
+			{
+				battleMadeAction.setn(true);
+			}
 			checkForBattleEnd(gs->curB->stacks);
 			if(battleResult.get())
 			{
