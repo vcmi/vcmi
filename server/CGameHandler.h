@@ -85,6 +85,11 @@ public:
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, int dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
+	////used only in endBattle - don't touch elsewhere
+	boost::function<void(BattleResult*)> * battleEndCallback;
+	const CArmedInstance * bEndArmy1, * bEndArmy2;
+	//
+	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance); //distance - number of hexes travelled before attacking
 	void prepareAttacked(BattleStackAttacked &bsa, const CStack *def);
 	void checkForBattleEnd( std::vector<CStack*> &stacks );

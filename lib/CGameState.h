@@ -335,7 +335,7 @@ public:
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
-	std::pair<int,int> pickObject(CGObjectInstance *obj);
+	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
 	void apply(CPack *pack);
 	CGHeroInstance *getHero(int objid);

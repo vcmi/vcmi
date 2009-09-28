@@ -1050,7 +1050,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
  * type and second value the amount. Both values are returned as -1 if necromancy
  * could not be applied.
  */
-std::pair<ui32, si32> CGHeroInstance::calculateNecromancy (BattleResult &battleResult) const
+std::pair<ui32, si32> CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
 	const ui8 necromancyLevel = getSecSkillLevel(12);
 

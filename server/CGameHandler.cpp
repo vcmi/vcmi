@@ -318,6 +318,9 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
 {
+	battleEndCallback = new boost::function<void(BattleResult*)>(cb);
+	bEndArmy1 = army1;
+	bEndArmy2 = army2;
 	{
 		BattleInfo *curB = new BattleInfo;
 		curB->side1 = army1->tempOwner;
@@ -465,20 +468,26 @@ askInterfaceForMove:
 		}
 	}
 
+	endBattle(tile, hero1, hero2);
+
+}
+
+void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
+{
 	BattleResultsApplied resultsApplied;
-	resultsApplied.player1 = army1->tempOwner;
-	resultsApplied.player2 = army2->tempOwner;
+	resultsApplied.player1 = bEndArmy1->tempOwner;
+	resultsApplied.player2 = bEndArmy2->tempOwner;
 
 	//unblock engaged players
-	if(army1->tempOwner<PLAYER_LIMIT)
-		states.setFlag(army1->tempOwner,&PlayerStatus::engagedIntoBattle,false);
-	if(army2 && army2->tempOwner<PLAYER_LIMIT)
-		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,false);	
+	if(bEndArmy1->tempOwner<PLAYER_LIMIT)
+		states.setFlag(bEndArmy1->tempOwner, &PlayerStatus::engagedIntoBattle, false);
+	if(bEndArmy2 && bEndArmy2->tempOwner<PLAYER_LIMIT)
+		states.setFlag(bEndArmy2->tempOwner, &PlayerStatus::engagedIntoBattle, false);	
 
 	//casualties among heroes armies
 	SetGarrisons sg;
-	sg.garrs[army1->id] = takeCasualties(army1->tempOwner,army1->army,gs->curB);
-	sg.garrs[army2->id] = takeCasualties(army2->tempOwner,army2->army,gs->curB);
+	sg.garrs[bEndArmy1->id] = takeCasualties(bEndArmy1->tempOwner, bEndArmy1->army, gs->curB);
+	sg.garrs[bEndArmy2->id] = takeCasualties(bEndArmy2->tempOwner, bEndArmy2->army, gs->curB);
 	sendAndApply(&sg);
 
 	//end battle, remove all info, free memory
@@ -503,8 +512,12 @@ askInterfaceForMove:
 	if(battleResult.data->exp[1] && hero2)
 		changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
 
-	if(cb)
-		cb(battleResult.data);
+	if(battleEndCallback && *battleEndCallback)
+	{
+		(*battleEndCallback)(battleResult.data);
+		delete battleEndCallback;
+		battleEndCallback = 0;
+	}
 
 	sendAndApply(&resultsApplied);
 
@@ -3150,6 +3163,11 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				}
 			}
 			sendAndApply(&EndAction());
+			checkForBattleEnd(gs->curB->stacks);
+			if(battleResult.get())
+			{
+				endBattle(gs->curB->tile, getHero(gs->curB->hero1), getHero(gs->curB->hero2));
+			}
 			return true;
 		}
 	}

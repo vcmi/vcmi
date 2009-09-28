@@ -972,7 +972,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 	switch(obj->ID)
 	{
 	case 65: //random artifact
-		return std::pair<int,int>(5,(ran()%136)+7); //tylko sensowny zakres - na poczatku sa katapulty itp, na koncu specjalne i blanki
+		return std::pair<int,int>(5,(ran()%136)+7); //the only reasonable range - there are siege weapons and blanks we must ommit
 	case 66: //random treasure artifact
 		return std::pair<int,int>(5,VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id);
 	case 67: //random minor artifact

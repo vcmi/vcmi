@@ -60,7 +60,7 @@ public:
 
 	CLodHandler();
 	~CLodHandler();
-	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
+	int readNormalNr (const unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!

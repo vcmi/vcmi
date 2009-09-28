@@ -297,7 +297,7 @@ public:
 	int getTotalStrength() const;
 	ui8 getSpellSchoolLevel(const CSpell * spell) const; //returns level on which given spell would be cast by this hero
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
-	std::pair<ui32, si32> calculateNecromancy (BattleResult &battleResult) const;
+	std::pair<ui32, si32> calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog (std::pair<ui32, si32> raisedStack) const;
 
 	//////////////////////////////////////////////////////////////////////////

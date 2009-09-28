@@ -275,7 +275,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 	}
 }
 
-int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
+int CLodHandler::readNormalNr (const unsigned char* bufor, int bytCon, bool cyclic)
 {
 	int ret=0;
 	int amp=1;
