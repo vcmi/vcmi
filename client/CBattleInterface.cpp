@@ -1572,13 +1572,17 @@ void CBattleInterface::show(SDL_Surface * to)
 			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], animCount, false); //increment always when moving, never if stack died
 		}
 	}
+	std::vector<int> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
 	{
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int curStackID = stackAliveByHex[b][v];
 			
-			showAliveStack(stackAliveByHex[b][v], stacks, to);
+			if(!stacks[curStackID].hasFeatureOfType(StackFeature::FLYING) || creAnims[curStackID]->getType() != 0)
+				showAliveStack(curStackID, stacks, to);
+			else
+				flyingStacks.push_back(curStackID);
 		}
 
 		//showing obstacles
@@ -1598,6 +1602,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		//showing wall pieces
 		showPieceOfWall(to, b, stacks);
 	}
+	
+	for(int b=0; b<flyingStacks.size(); ++b) //showing flyign stacks
+		showAliveStack(flyingStacks[b], stacks, to);
+
 	//units shown
 
 	//showing hero animations
