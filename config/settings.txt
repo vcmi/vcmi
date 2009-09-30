@@ -44,7 +44,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=817 height=547 smoothMove=1;
+			AdvMap: x=7 y=6 width=817 height=547 smoothMove=1 puzzleSepia=1;
 			InfoBox: x=829 y=389;
 		 	gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=780 y=508 graphic=agemLR.def;
@@ -73,7 +73,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=817 height=715 smoothMove=1;
+			AdvMap: x=7 y=6 width=817 height=715 smoothMove=1 puzzleSepia=1;
 			InfoBox: x=829 y=557;
 			gem0: x=6 y=676 graphic=agemLL.def;
 			gem1: x=780 y=676 graphic=agemLR.def;
@@ -101,7 +101,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=1073 height=907 smoothMove=1;
+			AdvMap: x=7 y=6 width=1073 height=907 smoothMove=1 puzzleSepia=1;
 			InfoBox: x=1085 y=749;
 			gem0: x=6 y=868 graphic=agemLL.def;
 			gem1: x=1036 y=868 graphic=agemLR.def;
@@ -157,7 +157,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=7 width=1234 height=846 smoothMove=1;
+			AdvMap: x=7 y=7 width=1234 height=846 smoothMove=1 puzzleSepia=1;
 			InfoBox: x=1246 y=690;
 			gem0: x=6 y=808 graphic=agemLL.def;
 			gem1: x=1196 y=808 graphic=agemLR.def;
@@ -185,7 +185,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 width=1395 height=1147 smoothMove=1;
+			AdvMap: x=7 y=6 width=1395 height=1147 smoothMove=1 puzzleSepia=1;
 			InfoBox: x=1406 y=989;
 			gem0: x=6 y=1108 graphic=agemLL.def;
 			gem1: x=1356 y=1108 graphic=agemLR.def;
