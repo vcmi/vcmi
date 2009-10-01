@@ -2500,7 +2500,8 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 		const CStack * const st = stacks[i];
 		si32 killed = (st->alive() ? st->baseAmount - st->amount : st->baseAmount);
 		amax(killed, 0);
-		casualties[!st->attackerOwned][st->creature->idNumber] += killed;
+		if(killed)
+			casualties[!st->attackerOwned][st->creature->idNumber] += killed;
 	}
 }
 

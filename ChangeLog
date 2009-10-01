@@ -1,12 +1,14 @@
-0.73 -> 0.74
+0.73 -> 0.74 (Oct 01 2009)
 GENERAL:
 * Scenario Information window
 * Save Game window
 * VCMI window should start centered
 * support for Necromancy and Ballistics secondary skills
 * new artifacts supported, including those improving Necromancy, Legion Statue parts, Shackles of War and most of combination artifacts (but not combining)
+* VCMI client has its own icon (thx for graphic to Dikamilo)
 * Ellipsis won't be split when breaking text on several lines
 * split button will be grayed out when no creature is selected
+* fixed issue when splitting stack to the hero with only one creatures
 * a few fixes for shipyard window
 
 ADVENTURE INTERFACE:
@@ -18,11 +20,13 @@ ADVENTURE INTERFACE:
 BATTLES:
 * partial siege support
 * new stack queue for higher resolutions (graphics made by Dru, thx!)
-* 'Q' pressing toggles the queue displaying (so it can be enabled/disabled it with single key press)
+* 'Q' pressing toggles the stack queue displaying (so it can be enabled/disabled it with single key press)
 * more creatures special abilities supported
-* stack 
+* battle settings will be stored
 * fixed crashes occuring on attacking two hex creatures from back
+* fixed crash when clicking on enemy stack without moving mouse just after receiving action
 * even large stack numbers will fit the boxes
+* when active stack is killed by spell, game behaves properly
 * shooters attacking twice (like Grand Elves) won't attack twice in melee 
 * ballista can shoot even if there's an enemy creature next to it 
 * improved obstacles placement, so they'll better fit hexes (thx to Ivan!)
@@ -30,6 +34,9 @@ BATTLES:
 * estimating damage that will be dealt while choosing stack to be attacked
 * modified the positioning of battle effects, they should look about right now.
 * after selecting a spell during combat, l-click is locked for any action other than casting. 
+* flying creatures will be blitted over all other creatures, obstacles and wall
+* obstacles and units should be printed in better order (not tested)
+* fixed armageddon animation
 * new spells supported:
 - Anti-Magic
 - Cure
@@ -47,10 +54,15 @@ BATTLES:
 
 TOWNS:
 * enemy castle can be taken over
+* only one capitol per player allowed (additional ones will be lost)
 * garrisoned hero can buy a spellbook
-* Lookout Tower supported
 * heroes available in tavern sould be always different
 * ship bought in town will be correctly placed
+* new special town structures supported:
+- Lookout Tower
+- Temple of Valhalla
+- Wall of Knowledge
+- Order of Fire
 
 HERO WINDOW:
 * war machines cannot be unequiped
@@ -72,9 +84,10 @@ New objects supported:
 - Garrison
 - Stables
 - Pandora Box
+- Pyramid
 
 
-0.72 -> 0.73 (1 Aug 2009)
+0.72 -> 0.73 (Aug 01 2009)
 GENERAL:
 * infowindow popup will be completely on screen
 * fixed possible crash with in game console
