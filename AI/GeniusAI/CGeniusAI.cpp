@@ -816,10 +816,6 @@ void CGeniusAI::yourTurn()
 	static boost::mutex mutex;
 	boost::mutex::scoped_lock lock(mutex);
 	m_cb->waitTillRealize = true;
-
-	m_cb->endTurn();
-	return;
-
 	static int seed = rand();
 	srand(seed);
 	if(m_cb->getDate()==1)

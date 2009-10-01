@@ -2009,7 +2009,6 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				switch(town->subID)
 				{
 					case 7: //cage of warlords
-						return;
 						cb->changePrimSkill (heroID, 1, 1);
 						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
 						break;
