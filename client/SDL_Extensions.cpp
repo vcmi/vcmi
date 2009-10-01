@@ -668,7 +668,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 		}
 		else
 		{
-				srcx = srcy = 0;
+			srcx = srcy = 0;
 			w = src->w;
 			h = src->h;
 		}

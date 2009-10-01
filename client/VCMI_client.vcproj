@@ -549,6 +549,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SDL_Extensions.h"
 				>
 			</File>
@@ -575,6 +579,14 @@
 		</File>
 		<File
 			RelativePath="C:\Documents and Settings\Micha³\Moje dokumenty\net.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\vcmi.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\VCMI_client.rc"
 			>
 		</File>
 	</Files>

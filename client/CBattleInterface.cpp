@@ -2706,7 +2706,6 @@ void CBattleInterface::activateStack()
 	stackToActivate = -1;
 	myTurn = true;
 	queue->update();
-	GH.fakeMouseMove();
 	redrawBackgroundWithHexes(activeStack);
 	bWait->block(vstd::contains(LOCPLINT->cb->battleGetStackByID(activeStack)->state,WAITING)); //block waiting button if stack has been already waiting
 
@@ -2721,6 +2720,7 @@ void CBattleInterface::activateStack()
 		if(!defendingHeroInstance->getArt(17)) //don't unlock if already locked
 			bSpell->block(!defendingHeroInstance->getArt(17));
 	}
+	GH.fakeMouseMove();
 }
 
 float CBattleInterface::getAnimSpeedMultiplier() const
@@ -3995,8 +3995,9 @@ void CStackQueue::StackBox::showAll( SDL_Surface *to )
 	if(bg)
 	{
 		graphics->blueToPlayersAdv(bg, my->owner);
-		SDL_UpdateRect(bg, 0, 0, 0, 0);
-		blitAt(bg, pos, to);
+		//SDL_UpdateRect(bg, 0, 0, 0, 0);
+		CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &genRect(bg->h, bg->w, pos.x, pos.y));
+		//blitAt(bg, pos, to);
 		blitAt(graphics->bigImgs[my->creature->idNumber], pos.x +9, pos.y + 1, to);
 		printAtMiddleLoc(makeNumberShort(my->amount), pos.w/2, pos.h - 12, FONT_MEDIUM, zwykly, to);
 	}
