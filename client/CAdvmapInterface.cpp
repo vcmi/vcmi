@@ -740,10 +740,18 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			{
 				if(obj->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
 				{
-					if(accessible)
-						CGI->curh->changeGraphic(0, 5 + turns*6);
-					else
+					if(accessible) {
+						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(obj);
+
+						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
+						if (townObj && townObj->army.slots.empty())
+							CGI->curh->changeGraphic(0, 9 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 5 + turns*6);
+							
+					} else {
 						CGI->curh->changeGraphic(0, 0);
+					}
 				}
 				else //our town
 				{
@@ -766,6 +774,25 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 					CGI->curh->changeGraphic(0, 6 + turns*6);
 				else
 					CGI->curh->changeGraphic(0, 0);
+			}
+			else if (obj->ID == 33 || obj->ID == 219) // Garrison
+			{
+				if (accessible) {
+					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(obj);
+
+					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
+					if (garrObj && garrObj->tempOwner != LOCPLINT->playerID
+						&& !garrObj->army.slots.empty())
+					{
+						CGI->curh->changeGraphic(0, 5 + turns*6);
+					}
+					else
+					{
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+					}
+				} else {
+					CGI->curh->changeGraphic(0, 0);
+				}
 			}
 			else
 			{
