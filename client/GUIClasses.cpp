@@ -4377,3 +4377,12 @@ bool CShopWindow::swapItem (ui16 which, bool choose)
 	}
 	return itemFound;
 }
+
+CArtMerchantWindow::CArtMerchantWindow()
+{
+}
+CArtMerchantWindow::~CArtMerchantWindow(){}
+void CArtMerchantWindow::activate() {}
+void CArtMerchantWindow::deactivate() {}
+void CArtMerchantWindow::show(SDL_Surface * to) {}
+void CArtMerchantWindow::Buy() {}

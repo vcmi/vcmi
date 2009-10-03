@@ -623,3 +623,20 @@ void NewObject::applyCl(CClient *cl)
 		}
 	}
 }
+
+void TradeComponents::applyCl(CClient *cl)
+{///Shop handler
+	switch (CGI->mh->map->objects[objectid]->ID)
+	{
+		case 7: //Black Market
+			break;
+		case 95: //Tavern
+			break;
+		case 97: //Den of Thieves
+			break;
+		case 221: //Trading Post
+			break;
+		default: 
+			tlog2 << "Shop type not supported! \n";
+	}
+}

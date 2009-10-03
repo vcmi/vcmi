@@ -700,8 +700,7 @@ struct TradeComponents : public CPackForClient, public CPackForServer
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		//FIXME: Deal with id properly.
-		h /* & id */ & heroid & objectid & available & chosen & bought;
+		h & heroid & objectid & available & chosen & bought;
 	}
 
 };

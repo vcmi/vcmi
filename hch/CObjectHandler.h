@@ -982,7 +982,7 @@ public:
 	void setPropertyDer (ui8 what, ui32 val);
 	void newTurn() const;
 	virtual void reset (ui32 val) {}; //get new items for Black Market, Tavern, Refugee Camp 
-	void onHeroVisit (const CGHeroInstance * h) const {};
+	virtual void onHeroVisit (const CGHeroInstance * h) const {};
 	virtual void trade (const CGHeroInstance * h) const {};
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -992,7 +992,15 @@ public:
 };
 class DLL_EXPORT CGArtMerchant : public CShop
 {
+public:
 	void reset (ui32 val);
+	void onHeroVisit (const CGHeroInstance * h) const {};
+};
+class DLL_EXPORT CGRefugeeCamp : public CShop
+{
+public:
+	void reset (ui32 val);
+	void onHeroVisit (const CGHeroInstance * h) const {};
 };
 struct BankConfig
 {

@@ -771,7 +771,16 @@ public:
 	virtual void Buy() {};
 };
 class CArtMerchantWindow : public CShopWindow
-{};
+{
+public:
+	void activate();
+	void deactivate();	
+	void show(SDL_Surface * to);
+	void Buy();
+
+	CArtMerchantWindow();
+	~CArtMerchantWindow();
+};
 class CUniversityWindow : public CShopWindow
 {};
 class CAltarWindow : public CShopWindow

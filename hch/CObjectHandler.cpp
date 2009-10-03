@@ -1592,7 +1592,8 @@ void CGTownInstance::initObj()
 				bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
-	removeCapitols (getOwner(), false); // destroy other capitols
+	if (getOwner() != 255)
+		removeCapitols (getOwner(), false); // destroy other capitols
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -1819,11 +1820,11 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 						return;
 					}
 
-					BlockingDialog sd(true,false);
+					BlockingDialog sd (true, false);
 					sd.soundID = sound;
 					sd.player = cb->getOwner(heroID);
 					sd.text << std::pair<ui8,ui32>(11,ot);
-					sd.components.push_back(Component(id,subid,val,0));
+					sd.components.push_back (Component (Component::RESOURCE, res, resval, 0));
 					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::treeSelected,this,heroID,res,resval,val,_1));
 				}
 				break;
@@ -3898,6 +3899,8 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
 			cb->giveHeroBonus(&gb);
 		}
+		cb->showInfoDialog(&iw);
+		cb->setObjProperty(id,10,h->getOwner());
 	}
 }
 
@@ -4676,7 +4679,7 @@ void CShop::newTurn() const
 			}
 			break;
 		case 78: //Refugee Camp
-		case 95: //Tavern
+		case 95: //Tavern -- global hero pool?
 			if (cb->getDate(0)%7 == 1)
 				cb->setObjProperty (id, 14, rand());
 			break;
@@ -4733,4 +4736,12 @@ void CGArtMerchant::reset(ui32 val)
 		}
 	}
 
+}
+
+void CGRefugeeCamp::reset(ui32 val)
+{
+	/*int creid = creh->creatures[val%creh->creatures.size()].idNumber;
+	VLC->creh->creatures[creatures[creid].second[0]].growth;
+	available[0] = new Component (Component::CREATURE, creid, 0, 0);
+	*/
 }
