@@ -31,6 +31,8 @@ public:
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) //slots 0 to 6
 	{
 		slots[slot] = TStack(type, quantity);  //brutal force
+		if (quantity == 0)
+			slots.erase(slot);
 		if (slots.size() > 7) return false;
 		else return true;
 	}
