@@ -26,7 +26,7 @@
  */
 
 extern SDL_Surface * screen;
-extern SDL_Color tytulowy, zwykly ;
+extern SDL_Color tytulowy, zwykly, darkTitle;
 extern TTF_Font *GEOR16;
 
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff)
@@ -462,15 +462,26 @@ void CSpellWindow::show(SDL_Surface *to)
 		//printing border (indicates level of magic school)
 		blitAt(schoolBorders[bestSchool]->ourImages[bestslvl].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
 
+		SDL_Color firstLineColor, secondLineColor;
+		if(LOCPLINT->cb->getSpellCost(spell, myHero) > myHero->mana) //hero cannot cast this spell
+		{
+			firstLineColor = zwykly;
+			secondLineColor = darkTitle;
+		}
+		else
+		{
+			firstLineColor = tytulowy;
+			secondLineColor = zwykly;
+		}
 		//printing spell's name
-		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, GEORM, tytulowy, to);
+		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, FONT_TIMES, firstLineColor, to);
 		//printing lvl
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, GEORM, zwykly, to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, FONT_TIMES, secondLineColor, to);
 		//printing  cost
 		std::ostringstream ss;
 		ss<<CGI->generaltexth->allTexts[387]<<": "<<LOCPLINT->cb->getSpellCost(spell, myHero);
 
-		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, GEORM, zwykly, to);
+		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, FONT_TIMES, secondLineColor, to);
 	}
 }
 
@@ -654,11 +665,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	if(!down && mySpell!=-1)
 	{
 		//we will cast a spell
-		if(LOCPLINT->battleInt) //if battle window is open
+		if(LOCPLINT->battleInt && LOCPLINT->cb->battleCanCastSpell() && LOCPLINT->cb->getSpellCost(&CGI->spellh->spells[mySpell], owner->myHero) <= owner->myHero->mana) //if battle window is open
 		{
 			LOCPLINT->battleInt->castThisSpell(mySpell);
+			owner->fexitb();
 		}
-		owner->fexitb();
 	}
 }
 
