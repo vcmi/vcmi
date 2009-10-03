@@ -28,6 +28,22 @@ public:
 	TSlots slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
 	ui8 formation; //false - wide, true - tight
 
+	int getCreature (TSlot slot) const //workaround of map issue
+	{
+		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
+		if (i != slots.end())
+			return i->second.first;
+		else
+			return -1;
+	}
+	int getAmount (TSlot slot) const
+	{
+		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
+		if (i != slots.end())
+			return i->second.second;
+		else
+			return -1;
+	}
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) //slots 0 to 6
 	{
 		slots[slot] = TStack(type, quantity);  //brutal force

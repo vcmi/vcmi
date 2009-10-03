@@ -195,6 +195,8 @@ public:
 	CCreatureSet army; //army
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	int getArmyStrength() const; //sum of AI values of creatures
+	ui64 getPower (TSlot slot) const; //value of specific stack
+	std::string getRoughAmount (TSlot slot) const; //rought size of specific stack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

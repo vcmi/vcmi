@@ -2035,6 +2035,14 @@ int CArmedInstance::getArmyStrength() const
 		ret += VLC->creh->creatures[i->second.first].AIValue * i->second.second;
 	return ret;
 }
+ui64 CArmedInstance::getPower (TSlot slot) const
+{
+	return VLC->creh->creatures[army.getCreature(slot)].AIValue * army.getAmount(slot);
+}
+std::string CArmedInstance::getRoughAmount (TSlot slot) const
+{
+	return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(army.getAmount(slot))];
+}
 
 /*const std::string & CGCreature::getHoverText() const
 {
