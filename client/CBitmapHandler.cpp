@@ -186,7 +186,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	if(e->offset<0)
 	{
-		fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".BMP");
+		fname.replace(fname.find_last_of('.'),fname.find_last_of('.')+4,".BMP");
 		fname = DATA_DIR "/Data/" + fname;
 		FILE * f = fopen(fname.c_str(),"r");
 		if(f)
@@ -197,7 +197,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		else  //file .bmp not present, check .pcx
 		{
 			char sign[3];
-			fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
+			fname.replace(fname.find_last_of('.'),fname.find_last_of('.')+4,".PCX");
 			f = fopen(fname.c_str(),"r");
 			if(!f)
 			{
