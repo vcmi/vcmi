@@ -1,0 +1,26 @@
+This package was debianized by frank zago <frank@zago.net> on
+Sat, 03 Oct 2009 12:28:04 -0500.
+
+It was downloaded from the SVN VCMI tree on sourceforge.net
+
+Upstream Author(s):
+
+    <put author's name and email here>
+    <likewise for another author>
+
+Copyright:
+
+    <Copyright (C) YYYY Name OfAuthor>
+    <likewise for another author>
+
+License:
+
+    You are free to distribute this software under the terms of
+    the GNU General Public License  either version 2 of the License,
+    or (at your option) any later version.
+    On Debian systems, the complete text of the GNU General Public
+    License can be found in the file `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is copyright 2009, frank <frank@zago.net> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+
