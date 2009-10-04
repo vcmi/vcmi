@@ -185,7 +185,7 @@ template <typename T> void nodrze<T>::wypiszObficie(std::ostream & strum)
 	strum << "Ostatnio bralismy "<<ktory<<std::flush<<" element, czyli "<<" ("<<ostatnio<<")"<<std::flush<<*ostatnio<<std::flush<<std::endl;
 	strum << "Nasze wezly in-order"<<std::endl;
 	wypisujPre(korzen,strum);
-};
+}
 template <typename T, class X> T* operator%(nodrze<T> & drzewko, X co)
 {
 	CLOG ("Szukam " <<co <<std::endl);
@@ -200,7 +200,7 @@ template <typename T, class X> T* operator%(nodrze<T> & drzewko, X co)
 		else w=w->prawy;
 	}
 	return w->zawart;
-};
+}
 template <typename T> int nodrze<T>::size()
 {
 	return ile;
@@ -219,7 +219,7 @@ template <typename T> void nodrze<T>::destrukcja(wezel<T> * w)
 	destrukcja(w->prawy);
 	//delete w->zawart;
 	delete w;
-};
+}
 template <typename T> nodrze<T> & nodrze<T>::operator()(std::istream & potoczek)
 {
 	int temp;
@@ -479,15 +479,15 @@ template <typename T> void nodrze<T>::inIt(std::ostream & strum, wezel<T> * wsk)
 	}
 	while (wsk != NIL);
 
-};
+}
 template <typename T> bool nodrze<T>::sprawdz()
 {
 	return (sprawdzW(korzen));
-};
+}
 template <typename T> T * nodrze<T>::znajdz (T co, bool iter)
 {
 	return ((iter)?(szukajIter(korzen,co)->zawart):(szukajRek(korzen,co)->zawart));
-};
+}
 template <typename T> void nodrze<T>::usun (T co)
 {
 	wezel<T> * w = szukajIter(korzen, co);
@@ -577,7 +577,7 @@ template <typename T> void nodrze<T>::naprawUsun (wezel<T> * x)
 	}
 	x->kolor = CZARNY;
 	CLOG("13... "<<std::flush);
-};
+}
 template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 {
 	CLOG ("Usuwam "<<*nowy->zawart<<std::endl);
@@ -627,7 +627,7 @@ template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 		naprawUsun(x);
 	CLOG ("koniec usuwania"<<std::endl);
 	return y;
-};
+}
 template <typename T> void nodrze<T>::naprawWstaw (wezel<T> * nowy)
 {
 	//CLOG ("Naprawiam po wstawieniu"<<std::endl);
@@ -713,7 +713,7 @@ template <typename T> void nodrze<T>::dodajRBT (wezel<T> * nowy)
 	else y->prawy = nowy;
 	nowy->kolor = CZERWONY;
 	naprawWstaw(nowy);
-};
+}
 template <typename T> void nodrze<T>::dodaj (T co)
 {
 	wezel<T> * w = new wezel<T>(NIL);
@@ -766,7 +766,7 @@ template <typename T> void nodrze<T>::rotacjaLewa (wezel<T> * x)
 		x->ojciec->prawy = y;
 	y->lewy = x; // a x bedzie lewym synem y
 	x->ojciec = y;
-};
+}
 template <typename T> void nodrze<T>::rotacjaPrawa (wezel<T> * y)
 {
 	//CLOG("Wykonuje prawa rotacjê na "<<y->zawart<<std::endl);
@@ -782,7 +782,7 @@ template <typename T> void nodrze<T>::rotacjaPrawa (wezel<T> * y)
 		y->ojciec->prawy = x;
 	x->prawy = y; // a y bedzie prawym synem x
 	y->ojciec = x;
-};
+}
 template <typename T> T * nodrze<T>::nast(T czego)
 {
 	wezel<T> * w = szukajIter(korzen,czego);
@@ -792,7 +792,7 @@ template <typename T> T * nodrze<T>::nast(T czego)
 	if (w != NIL)
 		return (w->zawart);
 	else throw std::exception("Nie znaleziono nastepnika");
-};
+}
 template <typename T> bool nodrze<T>::czyJest(T co)
 {
 	if ( szukajIter(korzen,co) != NIL )
@@ -806,7 +806,7 @@ template <typename T> wezel<T> * nodrze<T>::szukajRek(wezel<T> * w, T co)
 	if (co < (*w->zawart))
 		return szukajRek(w->lewy,co);
 	else return szukajRek(w->prawy,co);
-};
+}
 template <typename T> wezel<T> * nodrze<T>::szukajIter(wezel<T> * w, T co)
 {
 	while ( w!=NIL && (((*w->zawart)<co)||(co<(*w->zawart))) )
@@ -816,19 +816,19 @@ template <typename T> wezel<T> * nodrze<T>::szukajIter(wezel<T> * w, T co)
 		else w=w->prawy;
 	}
 	return (w)?w:NULL;
-};
+}
 template <typename T> wezel<T> * nodrze<T>::minimum(wezel<T> * w)
 {
 	while (w->lewy != NIL)
 		w=w->lewy;
 	return w;
-};
+}
 template <typename T> wezel<T> * nodrze<T>::maksimum(wezel<T> * w)
 {
 	while (w->prawy != NIL)
 		w=w->prawy;
 	return w;
-};
+}
 template <typename T> wezel<T> * nodrze<T>::nastepnik(wezel<T> * w)
 {
 	if (w->prawy != NIL)
@@ -840,7 +840,7 @@ template <typename T> wezel<T> * nodrze<T>::nastepnik(wezel<T> * w)
 		y=y->ojciec;
 	}
 	return y;
-};
+}
 template <typename T> wezel<T> * nodrze<T>::poprzednik(wezel<T> * w)
 {
 	if (w->lewy != NIL)
@@ -852,21 +852,21 @@ template <typename T> wezel<T> * nodrze<T>::poprzednik(wezel<T> * w)
 		y=y->ojciec;
 	}
 	return y;
-};
+}
 template <typename T> T * nodrze<T>::maksimumimum ()
 {
 	wezel<T> * ret = maksimum(korzen);
 	if (ret != NIL)
 		return (ret->zawart);
 	else throw std::exception("Drzewo jest puste");
-};
+}
 template <typename T> T * nodrze<T>::minimumimum ()
 {
 	wezel<T> * ret = minimum(korzen);
 	if (ret != NIL)
 		return (ret->zawart);
 	else throw std::exception("Drzewo jest puste");
-};
+}
 template <typename T> void nodrze<T>::inorder(std::ostream & strum)
 {
 	in(strum,korzen);
@@ -888,7 +888,7 @@ template <typename T> void nodrze<T>::in(std::ostream & strum, wezel<T> * wsk)
 	strum << *wsk->zawart<<"\t";
 	if (wsk->prawy != NIL)
 		in(strum,wsk->prawy);
-};
+}
 template <typename T> void nodrze<T>::post(std::ostream & strum, wezel<T> * wsk)
 {
 	if (wsk==NIL)
@@ -898,7 +898,7 @@ template <typename T> void nodrze<T>::post(std::ostream & strum, wezel<T> * wsk)
 	if (wsk->prawy != NIL)
 		post(strum,wsk->prawy);
 	strum << *wsk->zawart<<"\t";
-};
+}
 template <typename T> void nodrze<T>::pre(std::ostream & strum, wezel<T> * wsk)
 {
 	if (wsk == NIL)
@@ -908,5 +908,5 @@ template <typename T> void nodrze<T>::pre(std::ostream & strum, wezel<T> * wsk)
 		pre(strum,wsk->lewy);
 	if (wsk->prawy != NIL)
 		pre(strum,wsk->prawy);
-};
+}
 #endif //_NODRZE_H

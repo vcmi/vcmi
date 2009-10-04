@@ -20,13 +20,13 @@ struct SDL_Surface;
 class CDefHandler;
 class CDefEssential;
 namespace boost
-{class mutex;};
+{class mutex;}
 namespace NLoadHandlerHelp
 {
 	const int dmHelp=0, dmNoExtractingMask=1;
 	//std::string P1,P2,CurDir;
 	const int fCHUNK = 50000;
-};
+}
 
 struct Entry
 {
