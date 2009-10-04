@@ -123,6 +123,7 @@ public:
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
+	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
 	void moveArtifact(int hid, int oldPosition, int destPos);

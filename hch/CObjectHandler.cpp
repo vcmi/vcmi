@@ -1561,9 +1561,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
+	
 	cb->heroVisitCastle(id, h->id);
-	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		(*i)->onHeroVisit (h); //put it inside heroVisitCastle call, make sure *visitingHero is set
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const

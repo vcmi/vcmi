@@ -1624,7 +1624,15 @@ void CGameHandler::heroVisitCastle(int obj, int heroID)
 	vc.tid = obj;
 	vc.flags |= 1;
 	sendAndApply(&vc);
-	giveSpells(getTown(obj),getHero(heroID));
+	vistiCastleObjects (getTown(obj), getHero(heroID));
+	giveSpells (getTown(obj), getHero(heroID));
+}
+
+void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
+{
+	std::vector<CGTownBuilding*>::const_iterator i;
+	for (i = t->bonusingBuildings.begin(); i != t->bonusingBuildings.end(); i++)
+		(*i)->onHeroVisit (h);
 }
 
 void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
@@ -2414,7 +2422,8 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 	sr.val = gs->getPlayer(t->tempOwner)->resources[6] - 2500;
 	sendAndApply(&sr);
 
-	giveSpells(t,nh);
+	vistiCastleObjects (t, nh);
+	giveSpells (t,nh);
 	return true;
 }
 
