@@ -160,7 +160,7 @@ void Graphics::loadPaletteAndColors()
 
 	neutralColorPalette = new SDL_Color[32];
 	std::ifstream ncp;
-	ncp.open("config/NEUTRAL.PAL", std::ios::binary);
+	ncp.open(DATA_DIR "/config/NEUTRAL.PAL", std::ios::binary);
 	for(int i=0; i<32; ++i)
 	{
 		ncp.read((char*)&neutralColorPalette[i].r,1);
@@ -182,7 +182,7 @@ void Graphics::loadPaletteAndColors()
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
 
-	std::ifstream bback("config/mageBg.txt");
+	std::ifstream bback(DATA_DIR "/config/mageBg.txt");
 	while(!bback.eof())
 	{
 		bback >> pals;
@@ -193,7 +193,7 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	std::ifstream bback("config/battleBack.txt");
+	std::ifstream bback(DATA_DIR "/config/battleBack.txt");
 	battleBacks.resize(26);
 	for(int i=1; i<26; ++i) //25 - number of terrains battle can be fought on
 	{
@@ -207,7 +207,7 @@ void Graphics::initializeBattleGraphics()
 	}
 
 	//initializing battle hero animation
-	std::ifstream bher("config/battleHeroes.txt");
+	std::ifstream bher(DATA_DIR "/config/battleHeroes.txt");
 	int numberofh;
 	bher>>numberofh;
 	battleHeroes.resize(numberofh);
@@ -218,7 +218,7 @@ void Graphics::initializeBattleGraphics()
 
 	//initialization of AC->def name mapping
 	std::ifstream acd;
-	acd.open("config/AC_desc.txt", std::ios::binary);
+	acd.open(DATA_DIR "/config/AC_desc.txt", std::ios::binary);
 	if(!acd.is_open())
 	{
 		tlog1<<"lack of config/AC_desc.txt file!"<<std::endl;
@@ -292,7 +292,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 
-	std::ifstream ifs("config/cr_bgs.txt"); 
+	std::ifstream ifs(DATA_DIR "/config/cr_bgs.txt"); 
 	int id;
 	std::string name;
 	while(!ifs.eof())
@@ -322,7 +322,7 @@ Graphics::Graphics()
 }
 void Graphics::loadHeroPortraits()
 {	
-	std::ifstream of("config/portrety.txt");
+	std::ifstream of(DATA_DIR "/config/portrety.txt");
 	int numberOfPortraits;
 	of>>numberOfPortraits;
 	for (int j=0; j<numberOfPortraits; j++)

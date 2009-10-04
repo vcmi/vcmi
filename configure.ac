@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.73b)			# Follow NAME_VER in global.h
+AC_INIT(vcmi, 0.74b)			# Follow NAME_VER in global.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 
@@ -24,6 +24,8 @@ AC_ARG_ENABLE(debug,
 if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
    CXXFLAGS="-O0 -ggdb -Wall -Wcast-align -Wpointer-arith"
 fi
+
+CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
 
 # Check for Boost libraries
 AX_BOOST_BASE([1.36])

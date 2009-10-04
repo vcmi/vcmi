@@ -996,7 +996,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 	//reading battleStartpos
 	std::ifstream positions;
-	positions.open("config" PATHSEPARATOR "battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
+	positions.open(DATA_DIR "/config/battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
 	if(!positions.is_open())
 	{
 		tlog1<<"Unable to open battleStartpos.txt!"<<std::endl;
@@ -1840,14 +1840,14 @@ void CGameHandler::save( const std::string &fname )
 
 	{
 		tlog0 << "Serializing game info...\n";
-		CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vlgm1");
+		CSaveFile save(std::string("Games/") + fname + ".vlgm1");
 		char hlp[8] = "VCMISVG";
 		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
 	}
 
 	{
 		tlog0 << "Serializing server info...\n";
-		CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vsgm1");
+		CSaveFile save(std::string("Games/") + fname + ".vsgm1");
 		save << *this;
 	}
 	tlog0 << "Game has been succesfully saved!\n";

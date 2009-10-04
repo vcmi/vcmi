@@ -55,12 +55,11 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	if (ourEntry->offset<0) //file is in the sprites/ folder; no compression
 	{
 		unsigned char * outp = new unsigned char[ourEntry->realSize];
-		char name[30];memset(name,0,30);
-		strcat(name, myDir.c_str());
-		strcat(name, PATHSEPARATOR);
-		strcat(name,ourEntry->nameStr.c_str());
+		char name[30];
+		sprintf(name, "%s/%s/%s", DATA_DIR, myDir.c_str(), ourEntry->nameStr.c_str());
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);
+		fclose(f);
 		mutex->unlock();
 		if(result<0) {tlog1<<"Error in file reading: "<<name<<std::endl;delete[] outp; return NULL;}
 		else

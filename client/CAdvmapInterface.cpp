@@ -85,7 +85,7 @@ CMinimap::CMinimap(bool draw)
 	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
 
 	//radar = CDefHandler::giveDef("RADAR.DEF");
-	std::ifstream is("config/minimap.txt",std::ifstream::in);
+	std::ifstream is(DATA_DIR "/config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
 		std::pair<int,SDL_Color> vinya;

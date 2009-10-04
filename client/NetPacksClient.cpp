@@ -541,7 +541,7 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	CSaveFile save("Games" PATHSEPARATOR + fname + ".vcgm1");
+	CSaveFile save("Games/" + fname + ".vcgm1");
 	save << *cl;
 }
 

@@ -88,7 +88,7 @@ void CSoundHandler::init()
 
 	if (initialized)
 		// Load sounds
-		sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
+		sndh = new CSndHandler(std::string(DATA_DIR "/Data/Heroes3.snd"));
 }
 
 void CSoundHandler::release()
@@ -151,7 +151,7 @@ soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
-	std::ifstream ifs("config/cr_sounds.txt");
+	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");
 	std::string line;
 
 	while(getline(ifs, line))
@@ -225,7 +225,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
 {
 	tlog5 << "\t\tReading config/sp_sounds.txt" << std::endl;
-	std::ifstream ifs("config/sp_sounds.txt");
+	std::ifstream ifs(DATA_DIR "/config/sp_sounds.txt");
 	std::string line;
 
 	while(getline(ifs, line))
@@ -345,7 +345,7 @@ void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 	if (!initialized)
 		return;
 
-	std::string filename = DATA_DIR "Mp3" PATHSEPARATOR;
+	std::string filename = DATA_DIR "/Mp3/";
 	filename += musics[musicID];
 
 	musicMutex.lock();

@@ -187,7 +187,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	if(e->offset<0)
 	{
 		fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".BMP");
-		fname = "Data/"+fname;
+		fname = DATA_DIR "/Data/" + fname;
 		FILE * f = fopen(fname.c_str(),"r");
 		if(f)
 		{

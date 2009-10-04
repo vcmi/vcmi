@@ -59,7 +59,7 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-libvcmi_la_LIBADD =
+libvcmi_la_DEPENDENCIES =
 am_libvcmi_la_OBJECTS = libvcmi_la-CConsoleHandler.lo \
 	libvcmi_la-CArtHandler.lo libvcmi_la-CBuildingHandler.lo \
 	libvcmi_la-CCreatureHandler.lo \
@@ -228,6 +228,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 pkglib_LTLIBRARIES = libvcmi.la
+libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread
 libvcmi_la_CXXFLAGS = @SDL_CXXFLAGS@
 libvcmi_la_SOURCES = \
 	../CConsoleHandler.cpp \

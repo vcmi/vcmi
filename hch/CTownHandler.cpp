@@ -49,7 +49,7 @@ void CTownHandler::loadNames()
 	for(int x=0;x<towns.size();x++)
 		towns[x].basicCreatures.resize(7);
 
-	of.open("config/basicCres.txt");
+	of.open(DATA_DIR "/config/basicCres.txt");
 	while(!of.eof())
 	{
 		int tid, lid, cid; //town,level,creature
@@ -63,7 +63,7 @@ void CTownHandler::loadNames()
 	for(int x=0;x<towns.size();x++)
 		towns[x].upgradedCreatures.resize(7);
 
-	of.open("config/creatures_upgr.txt");
+	of.open(DATA_DIR "/config/creatures_upgr.txt");
 	while(!of.eof())
 	{
 		int tid, lid, cid; //town,level,creature
@@ -74,7 +74,7 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
-	of.open("config/building_horde.txt");
+	of.open(DATA_DIR "/config/building_horde.txt");
 	while(!of.eof())
 	{
 		int tid, lid, cid; //town,horde serial,creature level
@@ -84,7 +84,7 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
-	of.open("config/mageLevel.txt");
+	of.open(DATA_DIR "/config/mageLevel.txt");
 	of >> si;
 	for(itr=0; itr<si; itr++)
 	{
@@ -93,7 +93,7 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
-	of.open("config/requirements.txt");
+	of.open(DATA_DIR "/config/requirements.txt");
 	while(!of.eof())
 	{
 		int ile, town, build, pom;
@@ -125,7 +125,7 @@ void CTownHandler::loadNames()
 void CTownHandler::loadStructures()
 {
 	//read buildings coords
-	std::ifstream of("config/buildings.txt");
+	std::ifstream of(DATA_DIR "/config/buildings.txt");
 	while(!of.eof())
 	{
 		Structure *vinya = new Structure;
@@ -143,7 +143,7 @@ void CTownHandler::loadStructures()
 	of.clear();
 
 	//read building priorities
-	of.open("config/buildings2.txt");
+	of.open(DATA_DIR "/config/buildings2.txt");
 	int format, idt;
 	std::string s;
 	of >> format >> idt;
@@ -176,7 +176,7 @@ void CTownHandler::loadStructures()
 	of.clear();
 
 	//read borders and areas names
-	of.open("config/buildings3.txt");
+	of.open(DATA_DIR "/config/buildings3.txt");
 	while(!of.eof())
 	{
 		std::map<int,std::map<int, Structure*> >::iterator i;
@@ -202,7 +202,7 @@ void CTownHandler::loadStructures()
 
 	//read groups
 	int itr = 0;
-	of.open("config/buildings4.txt");
+	of.open(DATA_DIR "/config/buildings4.txt");
 	of >> format;
 	if(format!=1)
 	{

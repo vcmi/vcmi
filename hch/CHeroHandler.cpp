@@ -134,7 +134,7 @@ CHeroHandler::CHeroHandler()
 void CHeroHandler::loadWallPositions()
 {
 	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "wall_pos.txt", std::ios_base::in|std::ios_base::binary);
+	inp.open(DATA_DIR "/config/wall_pos.txt", std::ios_base::in|std::ios_base::binary);
 	if(!inp.is_open())
 	{
 		tlog1<<"missing file: config/wall_pos.txt"<<std::endl;
@@ -164,7 +164,7 @@ void CHeroHandler::loadWallPositions()
 void CHeroHandler::loadObstacles()
 {
 	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "obstacles.txt", std::ios_base::in|std::ios_base::binary);
+	inp.open(DATA_DIR "/config/obstacles.txt", std::ios_base::in|std::ios_base::binary);
 	if(!inp.is_open())
 	{
 		tlog1<<"missing file: config/obstacles.txt"<<std::endl;
@@ -197,7 +197,7 @@ void CHeroHandler::loadObstacles()
 void CHeroHandler::loadPuzzleInfo()
 {
 	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "puzzle_map.txt", std::ios_base::in|std::ios_base::binary);
+	inp.open(DATA_DIR "/config/puzzle_map.txt", std::ios_base::in|std::ios_base::binary);
 	if(!inp.is_open())
 	{
 		tlog1<<"missing file: config/puzzle_map.txt"<<std::endl;
@@ -306,7 +306,7 @@ void CHeroHandler::loadHeroes()
 	//loading initial secondary skills
 	{
 		std::ifstream inp;
-		inp.open("config" PATHSEPARATOR "heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
+		inp.open(DATA_DIR "/config/heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
 		if(!inp.is_open())
 		{
 			tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
@@ -338,7 +338,7 @@ void CHeroHandler::loadHeroes()
 		std::ifstream inp;
 		std::istringstream iss;
 		dump.clear();
-		inp.open("config" PATHSEPARATOR "hero_spells.txt");
+		inp.open(DATA_DIR "/config/hero_spells.txt");
 		while(inp)
 		{
 			getline(inp, dump);
@@ -517,7 +517,7 @@ ui64 CHeroHandler::reqExp (unsigned int level)
 void CHeroHandler::initTerrainCosts()
 {
 	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
+	inp.open(DATA_DIR "/config/TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
 
 	if(!inp.is_open())
 	{
@@ -544,7 +544,7 @@ void CHeroHandler::initTerrainCosts()
 void CHeroHandler::loadNativeTerrains()
 {
 	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "native_terrains.txt", std::ios_base::in|std::ios_base::binary);
+	inp.open(DATA_DIR "/config/native_terrains.txt", std::ios_base::in|std::ios_base::binary);
 
 	if(!inp.is_open())
 	{

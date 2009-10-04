@@ -39,7 +39,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
 #else
-	dllPath = "AI/"+dllname+".so";
+	dllPath = LIB_DIR "/" + dllname + ".so";
 	void *dll = dlopen(dllPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (!dll)
 	{

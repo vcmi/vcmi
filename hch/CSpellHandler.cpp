@@ -267,7 +267,7 @@ void CSpellHandler::loadSpells()
 	}
 	//loading of additional spell traits
 	std::ifstream ast;
-	ast.open("config/spell_info.txt", std::ios::binary);
+	ast.open(DATA_DIR "/config/spell_info.txt", std::ios::binary);
 	if(!ast.is_open())
 	{
 		tlog1<<"lack of config/spell_info.txt file!"<<std::endl;

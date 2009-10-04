@@ -344,7 +344,7 @@ CConfigHandler::~CConfigHandler(void)
 void config::CConfigHandler::init()
 {
 	std::vector<char> settings;
-	std::ifstream ifs("config/settings.txt");
+	std::ifstream ifs(DATA_DIR "/config/settings.txt");
 	if(!ifs)
 	{
 		tlog1 << "Cannot open config/settings.txt !\n";

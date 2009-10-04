@@ -92,11 +92,11 @@ void init()
 
 	TTF_Init();
 	atexit(TTF_Quit);
-	TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
-	GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
-	GEOR16 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",16);
-	GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
-	GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
+	TNRB16 = TTF_OpenFont(DATA_DIR "/Fonts/tnrb.ttf",16);
+	GEOR13 = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",13);
+	GEOR16 = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",16);
+	GEORXX = TTF_OpenFont(DATA_DIR "/Fonts/tnrb.ttf",22);
+	GEORM = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",10);
 	if(! (TNRB16 && GEOR16 && GEORXX && GEORM))
 	{
 		tlog1 << "One of the fonts couldn't be loaded!\n";
@@ -106,7 +106,7 @@ void init()
 
 	{
 		//read system options
-		CLoadFile settings("config" PATHSEPARATOR "sysopts.bin");
+		CLoadFile settings(DATA_DIR "/config/sysopts.bin");
 		if(settings.sfile)
 		{
 			settings >> GDefaultOptions;
@@ -326,7 +326,7 @@ void processCommand(const std::string &message)
 		boost::filesystem::create_directory("Extracted_txts");
 		tlog0<<"Command accepted. Opening .lod file...\t";
 		CLodHandler * txth = new CLodHandler;
-		txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"");
+		txth->init(std::string(DATA_DIR "/Data/H3bitmap.lod"),"");
 		tlog0<<"done.\nScanning .lod file\n";
 		int curp=0;
 		std::string pattern = ".TXT", pom;
@@ -335,7 +335,7 @@ void processCommand(const std::string &message)
 			pom = txth->entries[i].nameStr;
 			if(boost::algorithm::find_last(pom,pattern))
 			{
-				txth->extractFile(std::string("Extracted_txts" PATHSEPARATOR)+pom,pom);
+				txth->extractFile(std::string(DATA_DIR "/Extracted_txts/")+pom,pom);
 			}
 			if(i%8) continue;
 			int p2 = ((float)i/(float)txth->entries.size())*(float)100;

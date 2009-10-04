@@ -23,7 +23,7 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 {
 	std::map<int,int> mapa;
 	std::set<si32> ret;
-	std::ifstream b5("config/buildings5.txt");
+	std::ifstream b5(DATA_DIR "/config/buildings5.txt");
 	while(!b5.eof())
 	{
 		int a, b;

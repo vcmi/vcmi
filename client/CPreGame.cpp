@@ -418,7 +418,7 @@ void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirna
 	{
 		tlog1 << "Cannot find " << dirname << " directory!\n";
 	}
-	fs::path tie( (fs::initial_path<fs::path>())/dirname );
+	fs::path tie(dirname);
 	fs::directory_iterator end_iter;
 	for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
 	{
@@ -497,14 +497,14 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 	switch(type)
 	{
 	case newGame:
-		getFiles(toParse, "Maps", "h3m");
+		getFiles(toParse, DATA_DIR "/Maps", "h3m");
 		parseMaps(toParse);
 		positions = 18;
 		break;
 
 	case loadGame:
 	case saveGame:
-		getFiles(toParse, "Games", "vlgm1");
+		getFiles(toParse, USER_DIR "/Games", "vlgm1");
 		parseGames(toParse);
 		if(type == loadGame)
 		{
@@ -548,7 +548,7 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 	switch(type)
 	{
 	case newGame:
-		selectFName("Maps/Arrogance.h3m");
+		selectFName(DATA_DIR "Maps/Arrogance.h3m");
 		break;
 	case loadGame:
 		select(0);

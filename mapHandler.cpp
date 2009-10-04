@@ -442,7 +442,7 @@ void CMapHandler::init()
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
 
-	std::ifstream ifs("config/townsDefs.txt");
+	std::ifstream ifs(DATA_DIR "/config/townsDefs.txt");
 	int ccc;
 	ifs>>ccc;
 	for(int i=0;i<ccc*2;i++)

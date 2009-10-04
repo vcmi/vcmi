@@ -239,9 +239,9 @@ LibClasses::LibClasses()
 	//load .lod archives
 	timeHandler pomtime;
 	spriteh = new CLodHandler();
-	spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
+	spriteh->init(DATA_DIR "/Data/H3sprite.lod", DATA_DIR "/Sprites");
 	bitmaph = new CLodHandler;
-	bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
+	bitmaph->init(DATA_DIR "/Data/H3bitmap.lod", DATA_DIR "/Data");
 	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
 
 	//init pointers to handlers

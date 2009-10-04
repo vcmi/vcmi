@@ -172,7 +172,7 @@ void CCreatureHandler::loadCreatures()
 	bool useCreAbilsFromZCRTRAIT = true;
 
 	////////////reading cr_abils.txt ///////////////////
-	std::ifstream abils("config" PATHSEPARATOR "cr_abils.txt", std::ios::in | std::ios::binary); //this file is not in lod
+	std::ifstream abils(DATA_DIR "/config/cr_abils.txt", std::ios::in | std::ios::binary); //this file is not in lod
 	const int MAX_LINE_SIZE = 1000;
 	char abilLine[MAX_LINE_SIZE+1];
 	for(int i=0; i<5; ++i) //removing 5 comment lines
@@ -402,7 +402,7 @@ void CCreatureHandler::loadCreatures()
 
 	tlog5 << "\t\tReading config/crerefnam.txt" << std::endl;
 	//loading reference names
-	std::ifstream ifs("config/crerefnam.txt");
+	std::ifstream ifs(DATA_DIR "/config/crerefnam.txt");
 	int tempi;
 	std::string temps;
 	for (;;)
@@ -419,7 +419,7 @@ void CCreatureHandler::loadCreatures()
 		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
 
 	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
-	ifs.open("config/monsters.txt");
+	ifs.open(DATA_DIR "/config/monsters.txt");
 	{
 		while(!ifs.eof())
 		{
@@ -436,7 +436,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 
 	tlog5 << "\t\tReading config/cr_factions.txt" << std::endl;
-	ifs.open("config/cr_factions.txt");
+	ifs.open(DATA_DIR "/config/cr_factions.txt");
 	while(!ifs.eof())
 	{
 		int id, fact;
@@ -447,7 +447,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 
 	tlog5 << "\t\tReading config/cr_upgrade_list.txt" << std::endl;
-	ifs.open("config/cr_upgrade_list.txt");
+	ifs.open(DATA_DIR "/config/cr_upgrade_list.txt");
 	while(!ifs.eof())
 	{
 		int id, up;
@@ -459,7 +459,7 @@ void CCreatureHandler::loadCreatures()
 
 	//loading unit animation def names
 	tlog5 << "\t\tReading config/CREDEFS.TXT" << std::endl;
-	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	std::ifstream inp(DATA_DIR "/config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame2 = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
@@ -507,7 +507,7 @@ void CCreatureHandler::loadCreatures()
 	//loading id to projectile mapping
 
 	tlog5 << "\t\tReading config/cr_shots.txt" << std::endl;
-	std::ifstream inp2("config" PATHSEPARATOR "cr_shots.txt", std::ios::in | std::ios::binary); //this file is not in lod
+	std::ifstream inp2(DATA_DIR "/config/cr_shots.txt", std::ios::in | std::ios::binary); //this file is not in lod
 	char dump [200];
 	inp2.getline(dump, 200);
 	while(true)
@@ -529,7 +529,7 @@ void CCreatureHandler::loadCreatures()
 	//reading factionToTurretCreature
 
 	tlog5 << "\t\tReading config/cr_to_turret.txt" << std::endl;
-	std::ifstream inp3("config" PATHSEPARATOR "cr_to_turret.txt", std::ios::in | std::ios::binary); //this file is not in lod
+	std::ifstream inp3(DATA_DIR "/config/cr_to_turret.txt", std::ios::in | std::ios::binary); //this file is not in lod
 	std::string dump2;
 	inp3 >> dump2 >> dump2;
 	for(int g=0; g<F_NUMBER; ++g)

@@ -1302,7 +1302,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	/******************RESOURCES****************************************************/
 	//TODO: computer player should receive other amount of resource than computer (depending on difficulty)
 	std::vector<int> startres;
-	std::ifstream tis("config/startres.txt");
+	std::ifstream tis(DATA_DIR "/config/startres.txt");
 	int k;
 	for (int j=0;j<scenarioOps->difficulty;j++)
 	{
@@ -1325,7 +1325,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			(*i).second.resources[x] = startres[x];
 	}
 
-	tis.open("config/resources.txt");
+	tis.open(DATA_DIR "/config/resources.txt");
 	tis >> k;
 	int pom;
 	for(int i=0;i<k;i++)

@@ -132,7 +132,7 @@ void CObjectHandler::loadObjects()
 		{
 			cregens[i]=-1;
 		}
-		std::ifstream ifs("config/cregens.txt");
+		std::ifstream ifs(DATA_DIR "/config/cregens.txt");
 		while(!ifs.eof())
 		{
 			int dw, cr;
@@ -143,7 +143,7 @@ void CObjectHandler::loadObjects()
 	}
 
 	std::ifstream istr;
-	istr.open("config/bankconfig.txt", std::ios_base::binary);
+	istr.open(DATA_DIR "/config/bankconfig.txt", std::ios_base::binary);
 	if(!istr.is_open())
 	{
 		tlog1 << "No config/bankconfig.txt file !!!\n";

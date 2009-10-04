@@ -99,7 +99,7 @@ void CBuildingHandler::loadBuildings()
 	/////done reading BUILDING.TXT*****************************
 
 	char line[100]; //bufor
-	std::ifstream ofs("config/hall.txt");
+	std::ifstream ofs(DATA_DIR "/config/hall.txt");
 	int castles;
 	ofs>>castles;
 	for(int i=0;i<castles;i++)

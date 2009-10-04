@@ -24,20 +24,19 @@ To compile, at least the following packages (and their development counterparts)
 On Ubuntu 9.04, run:
   sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost1.37-dev
 
+Create a directory /YOUR_INSTALL_PATH/vcmi (such as
+/usr/local/share/games/vcmi) that will contain the game data files. The /vcmi at the end is necessary.
 
-Then do the usual 
-  ./configure
+Then run configure:
+  ./configure --datadir=/YOUR_INSTALL_PATH/ --bindir=/YOUR_INSTALL_PATH/vcmi --libdir=/YOUR_INSTALL_PATH/
 
-Note that on 64 bits linux, if the boost libraries are installed in /usr/lib64, configure will not find them and will fail. Until this is fixed, use:
-  ./configure --with-boost-libdir=/usr/lib64
+On 64 bits linux (such as OpenSUSE but not Ubuntu), if the boost
+libraries are installed in /usr/lib64, configure will not find them
+and will fail. Until this is fixed, add the following option to
+./configure: --with-boost-libdir=/usr/lib64
 
-Note: if you've not installed everything, some files will be missing, and you may want to hack your system (don't) such as:
-=============
-Another note on ubuntu(posible others to) - create symlincs to correct libnames in /usr/lib
-eg:
-sudo ln -s libswscale.so.0.7.1 libswscale.so
-sudo ln -s libavformat.so.52 libavformat.so
-=============
+If you want to use the Intel C++ compiler, add the following option to ./configure:
+  CXX="icc -diag-disable 383,981,1418,869,1563,2259,1782,444,271,1,10156,1419"
 
 Then build vcmi:
   make
@@ -47,37 +46,45 @@ That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 
 II. Installing Heroes of Might and Magic 3
 
-VCMI needs an installed version of Heroes III as well as WoG on top of it.
-The version of Heroes needed is (I think!) Shadow of Death or Complete.
- 
+VCMI needs an installed version of Heroes III as well as WoG on top of
+it.  The version of Heroes needed is (I think!) either Shadow of Death
+or Complete.
+
 Wog can be downloaded from: http://www.maps4heroes.com/heroes3/files/allinone_358f.zip
 
 Wine can be used to install both.
 
+Install Heroes 3 and Wog. Then move all the installed files into
+/YOUR_INSTALL_PATH/vcmi. For instance that will create
+/YOUR_INSTALL_PATH/vcmi/Data.
+
 Once both programs are installed, you can install VCMI.
 
-Download the windows VCMI release (at time of writing: http://vcmi.antypika.aplus.pl/forum/dload.php?action=download&id=11) and extract it in a private directory. Then move some files to your Heroes3 directory:
-  mv sprites /PATH_TO_H3_DIR/Sprites
-  mv Data/* /PATH_TO_H3_DIR/Data
-  mv Fonts Games /PATH_TO_H3_DIR/
+Download the windows VCMI release (at time of writing: 
+http://vcmi.antypika.aplu...=download&id=14)
+and extract it in a private directory. Populate /YOUR_INSTALL_PATH/vcmi:
+
+  mv sprites /YOUR_INSTALL_PATH/vcmi/Sprites
+  mv Data/* /YOUR_INSTALL_PATH/vcmi/Data
+  mv Fonts Games /YOUR_INSTALL_PATH/vcmi/
 
 If you also have the original linux version of Heroes, you can also install the videos:
-  cp -a /PATH_TO_CDROM/data/video /PATH_TO_H3_DIR/Data
+  cp -a /PATH_TO_CDROM/data/video /YOUR_INSTALL_PATH/vcmi/Data
 
 
 III. Installing VCMI
 
 Since VCMI is still in development, there's no install procedure, although something like 
   DESTDIR=/path/to/heroes3 make install
-might work.
+will work.
 
-For development puposes, it's better to use links. Go to your new Heroes3 directory, and type:
+For development puposes, it's better to use links. Go
+to /YOUR_INSTALL_PATH/vcmi, and type:
+
   ln -s /PATH_TO_VCMI/client/vcmiclient
   ln -s /PATH_TO_VCMI/server/vcmiserver
   ln -s /PATH_TO_VCMI/config
-  ln -s /PATH_TO_VCMI/AI/GeniusAI/.libs AI
+  ln -s /PATH_TO_VCMI/AI/GeniusAI/.libs/GeniusAI.so
+
 
 And start ./vcmiclient
-  
-
-

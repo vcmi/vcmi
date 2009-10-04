@@ -1563,12 +1563,12 @@ void SystemOptions::setMapScrollingSpeed( int newSpeed )
 
 void SystemOptions::settingsChanged()
 {
-	CSaveFile settings("config" PATHSEPARATOR "sysopts.bin");
+	CSaveFile settings(DATA_DIR "/config/sysopts.bin");
 
 	if(settings.sfile)
 		settings << *this;
 	else
-		tlog1 << "Cannot save settings to config" PATHSEPARATOR "sysopts.bin!\n";
+		tlog1 << "Cannot save settings to config/sysopts.bin!\n";
 }
 
 void SystemOptions::apply()

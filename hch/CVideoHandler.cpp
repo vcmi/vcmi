@@ -359,7 +359,7 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 CVideoPlayer::CVideoPlayer()
 {
-	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
+	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
 	current = NULL;
 }
 
@@ -573,7 +573,7 @@ CVideoPlayer::CVideoPlayer()
 	// Register our protocol 'lod' so we can directly read from mmaped memory
 	av_register_protocol(&lod_protocol);
 
-	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
+	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
 }
 
 // loop = to loop through the video
@@ -600,8 +600,8 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		}
 	} else {
 		// File is not in a container
-		if (av_open_input_file(&format, (DATA_DIR "Data/video/" + fname).c_str(), NULL, 0, NULL)!=0) {
-			// tlog1 << "Video file not found: " DATA_DIR "Data/video/" + fname << std::endl;
+		if (av_open_input_file(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, 0, NULL)!=0) {
+			// tlog1 << "Video file not found: " DATA_DIR "/Data/video/" + fname << std::endl;
 			return false;
 		}
 	}
