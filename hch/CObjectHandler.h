@@ -371,6 +371,21 @@ public:
 		h & ID & id;
 	}
 };
+class DLL_EXPORT COPWBonus : public CGTownBuilding
+{///used for OPW bonusing structures
+public:
+	std::set<si32> visitors;
+	void setProperty(ui8 what, ui32 val);
+	void onHeroVisit (const CGHeroInstance * h) const;
+
+	COPWBonus (int index, CGTownInstance *TOWN);
+	COPWBonus (){ID = 0; town = NULL;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGTownBuilding&>(*this);
+		h & visitors;
+	}
+};
 class DLL_EXPORT CTownBonus : public CGTownBuilding
 {
 ///used for one-time bonusing structures

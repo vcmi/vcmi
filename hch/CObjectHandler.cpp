@@ -1584,11 +1584,16 @@ void CGTownInstance::initObj()
 	}
 	switch (subID)
 	{ //add new visitable objects
+		case 0:
+			bonusingBuildings.push_back (new COPWBonus(21, this)); //Stables
+			break;
 		case 2: case 3: case 5: case 6:
-				bonusingBuildings.push_back (new CTownBonus(23, this));
+			bonusingBuildings.push_back (new CTownBonus(23, this));
+			if (subID == 5)
+				bonusingBuildings.push_back (new COPWBonus(18, this)); //Vortex
 			break;
 		case 7:
-				bonusingBuildings.push_back (new CTownBonus(17, this));
+			bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
 	if (getOwner() != 255)
@@ -1965,6 +1970,53 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
 }
 
+COPWBonus::COPWBonus (int index, CGTownInstance *TOWN)
+{
+	ID = index;
+	town = TOWN;
+	id = town->bonusingBuildings.size();
+}
+void COPWBonus::setProperty(ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 4:
+			visitors.insert(val);
+			break;
+		case 11:
+			visitors.clear();
+			break;
+	}
+}
+void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
+{
+	int heroID = h->id;
+	if (town->builtBuildings.find(ID) != town->builtBuildings.end())
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		switch (ID)
+		{
+			case 18: //Mana Vortex
+				if (visitors.size())
+				{
+					cb->setObjProperty (town->id, 11, id); //add to visitors
+				}
+				break;
+			case 21: //Stables
+				if (!h->getBonus(HeroBonus::OBJECT, 94)) //no advMap Stables
+				{
+					GiveBonus gb;
+					gb.bonus = HeroBonus(HeroBonus::ONE_WEEK, HeroBonus::LAND_MOVEMENT, HeroBonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
+					gb.hid = heroID;
+					cb->giveHeroBonus(&gb);
+					iw.text << std::pair<ui8,ui32>(11, 137);
+					cb->showInfoDialog(&iw);
+				}
+				break;
+		}
+	}
+}
 CTownBonus::CTownBonus (int index, CGTownInstance *TOWN)
 {
 	ID = index;
