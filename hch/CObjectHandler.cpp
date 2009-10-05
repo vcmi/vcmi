@@ -1982,25 +1982,30 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	if ((town->builtBuildings.find(ID) != town->builtBuildings.end()) && (visitors.find(heroID) == visitors.end()))
 	{
 		InfoWindow iw;
+		int what, val;
 		switch (ID)
 		{
 			case 23:
 				switch(town->subID)
 				{
 					case 2: //wall
-						cb->changePrimSkill (heroID, 3, 1);
+						what = 3;
+						val = 1;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
 						break;
 					case 3: //order of fire
-						cb->changePrimSkill (heroID, 2, 1);
+						what = 2;
+						val = 1;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
 						break;
 					case 6://hall of valhalla
-						cb->changePrimSkill (heroID, 0, 1);
+						what = 0;
+						val = 1;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
 						break;
 					case 5://academy of battle scholars
-						cb->changePrimSkill (heroID, 4, 1000);
+						what = 4;
+						val = 1000;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, 1000, 0));
 						break;
 				}
@@ -2009,7 +2014,8 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				switch(town->subID)
 				{
 					case 7: //cage of warlords
-						cb->changePrimSkill (heroID, 1, 1);
+						what = 1;
+						val = 1;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
 						break;
 				}
@@ -2017,8 +2023,8 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		}
 		iw.player = cb->getOwner(heroID);
 		iw.text << VLC->generaltexth->buildings[town->subID][ID].second;
-		//iw.soundID = sound;
 		cb->showInfoDialog(&iw);
+		cb->changePrimSkill (heroID, what, val);
 		cb->setObjProperty (town->id, 11, id); //add to visitors
 	}
 }
