@@ -347,7 +347,7 @@ void config::CConfigHandler::init()
 	std::ifstream ifs(DATA_DIR "/config/settings.txt");
 	if(!ifs)
 	{
-		tlog1 << "Cannot open config/settings.txt !\n";
+		tlog1 << "Cannot open " DATA_DIR "/config/settings.txt !" << std::endl;
 		return;
 	}
 	ifs.unsetf(std::ios::skipws); //  Turn of white space skipping on the stream
