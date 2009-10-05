@@ -45,7 +45,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	Entry * ourEntry = entries.znajdz(Entry(defName));
 	if(!ourEntry) //nothing's been found
 	{
-		tlog1<<"Cannot find file: "<<defName;
+		tlog1 << "Cannot find file: " << defName << std::endl;
 		return NULL;
 	}
 	if(length) *length = ourEntry->realSize;
@@ -54,15 +54,20 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	unsigned char * outp;
 	if (ourEntry->offset<0) //file is in the sprites/ folder; no compression
 	{
+		int result;
 		unsigned char * outp = new unsigned char[ourEntry->realSize];
-		char name[30];
-		sprintf(name, "%s/%s/%s", DATA_DIR, myDir.c_str(), ourEntry->nameStr.c_str());
-		FILE * f = fopen(name,"rb");
-		int result = fread(outp,1,ourEntry->realSize,f);
-		fclose(f);
+		FILE * f = fopen((myDir + "/" + ourEntry->nameStr).c_str(), "rb");
+		if (f) {
+			result = fread(outp,1,ourEntry->realSize,f);
+			fclose(f);
+		} else
+			result = -1;
 		mutex->unlock();
-		if(result<0) {tlog1<<"Error in file reading: "<<name<<std::endl;delete[] outp; return NULL;}
-		else
+		if(result<0) {
+			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry->nameStr << std::endl;
+			delete[] outp;
+			return NULL;
+		} else
 			return outp;
 	}
 	else if (ourEntry->size==0) //file is not compressed
@@ -371,6 +376,12 @@ std::string CLodHandler::getTextFile(std::string name)
 {
 	int length=-1;
 	unsigned char* data = giveFile(name,&length);
+
+	if (!data) {
+		tlog1<<"Fatal error. Missing game file. Aborting!"<<std::endl;
+		exit(1);
+	}
+
 	std::string ret;
 	ret.reserve(length);
 	for(int i=0;i<length;i++)
