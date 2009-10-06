@@ -11,7 +11,8 @@
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/type_traits/is_pointer.hpp> 
 #include <boost/type_traits/is_class.hpp> 
-#include  <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
