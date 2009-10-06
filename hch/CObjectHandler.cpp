@@ -1560,12 +1560,13 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			removeCapitols (h->getOwner(), true);
 			cb->setOwner(id, h->tempOwner);
+			removeCapitols (h->getOwner(), true);
+			cb->heroVisitCastle(id, h->id);
 		}
 	}
-	
-	cb->heroVisitCastle(id, h->id);
+	else
+		cb->heroVisitCastle(id, h->id);
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
@@ -1626,7 +1627,7 @@ void CGTownInstance::removeCapitols (ui8 owner, bool me) const
 { 
 	if (hasCapitol()) // search for older capitol
 	{ 
-		PlayerState* state = cb->gameState()->getPlayer (owner); 
+		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
 		for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
 		{ 
 			if (*i != this && (*i)->hasCapitol()) 

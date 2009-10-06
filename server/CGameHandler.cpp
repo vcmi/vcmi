@@ -2053,7 +2053,10 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		if(t->garrisonHero)
 			giveSpells(t,t->garrisonHero);
 	}
-
+	if(t->visitingHero)
+		vistiCastleObjects (t, t->visitingHero);
+	if(t->garrisonHero)
+		vistiCastleObjects (t, t->garrisonHero);
 	return true;
 }
 bool CGameHandler::razeStructure (si32 tid, si32 bid)
