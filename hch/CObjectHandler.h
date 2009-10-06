@@ -444,6 +444,7 @@ public:
 	int getSightRadious() const; //returns sight distance
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	void setPropertyDer(ui8 what, ui32 val);
+	void newTurn() const;
 
 	//////////////////////////////////////////////////////////////////////////
 

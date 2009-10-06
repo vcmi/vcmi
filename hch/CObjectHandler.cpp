@@ -1408,6 +1408,9 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 		case 11: //add visitor of town building
 			bonusingBuildings[val]->setProperty (4, visitingHero->id);
 			break;
+		case 12:
+			bonusingBuildings[val]->setProperty (12, 0);
+			break;
 	}
 }
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
@@ -1594,7 +1597,7 @@ void CGTownInstance::initObj()
 		case 2: case 3: case 5: case 6:
 			bonusingBuildings.push_back (new CTownBonus(23, this));
 			if (subID == 5)
-				bonusingBuildings.push_back (new COPWBonus(18, this)); //Vortex
+				bonusingBuildings.push_back (new COPWBonus(21, this)); //Vortex
 			break;
 		case 7:
 			bonusingBuildings.push_back (new CTownBonus(17, this));
@@ -1604,6 +1607,15 @@ void CGTownInstance::initObj()
 		removeCapitols (getOwner(), false); // destroy other capitols
 }
 
+void CGTownInstance::newTurn() const
+{
+	if (cb->getDate(0)%7 == 1) //reset on new week
+	{
+		for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
+			cb->setObjProperty (id, 12, 0); //reset visitors for Mana Vortex
+	}
+
+}
 int3 CGTownInstance::getSightCenter() const
 {
 	return pos - int3(2,0,0);
@@ -1987,7 +1999,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 		case 4:
 			visitors.insert(val);
 			break;
-		case 11:
+		case 12:
 			visitors.clear();
 			break;
 	}
@@ -1999,23 +2011,27 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
-		switch (ID)
+		switch (town->subID)
 		{
-			case 18: //Mana Vortex
-				if (visitors.size())
-				{
-					cb->setObjProperty (town->id, 11, id); //add to visitors
-				}
-				break;
-			case 21: //Stables
+			case 0: //Stables
 				if (!h->getBonus(HeroBonus::OBJECT, 94)) //no advMap Stables
 				{
 					GiveBonus gb;
 					gb.bonus = HeroBonus(HeroBonus::ONE_WEEK, HeroBonus::LAND_MOVEMENT, HeroBonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
 					gb.hid = heroID;
 					cb->giveHeroBonus(&gb);
-					iw.text << std::pair<ui8,ui32>(11, 137);
+					iw.text << VLC->generaltexth->allTexts[580];
 					cb->showInfoDialog(&iw);
+				}
+				break;
+			case 5: //Mana Vortex
+				if (visitors.find(heroID) == visitors.end() && h->mana <= h->manaLimit())
+				{
+					cb->setManaPoints (heroID, 2 * h->manaLimit()); 
+					cb->setObjProperty (id, 5, true);
+					iw.text << VLC->generaltexth->allTexts[579];
+					cb->showInfoDialog(&iw);
+					cb->setObjProperty (town->id, 11, id); //add to visitors
 				}
 				break;
 		}
@@ -2038,7 +2054,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	if ((town->builtBuildings.find(ID) != town->builtBuildings.end()) && (visitors.find(heroID) == visitors.end()))
 	{
 		InfoWindow iw;
-		int what, val;
+		int what, val, mid;
 		switch (ID)
 		{
 			case 23:
@@ -2047,21 +2063,25 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 					case 2: //wall
 						what = 3;
 						val = 1;
+						mid = 581;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
 						break;
 					case 3: //order of fire
 						what = 2;
 						val = 1;
+						mid = 582;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
 						break;
 					case 6://hall of valhalla
 						what = 0;
 						val = 1;
+						mid = 584;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
 						break;
 					case 5://academy of battle scholars
 						what = 4;
 						val = 1000;
+						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, 1000, 0));
 						break;
 				}
@@ -2072,13 +2092,14 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 					case 7: //cage of warlords
 						what = 1;
 						val = 1;
+						mid = 585;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
 						break;
 				}
 				break;
 		}
 		iw.player = cb->getOwner(heroID);
-		iw.text << VLC->generaltexth->buildings[town->subID][ID].second;
+		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
 		cb->changePrimSkill (heroID, what, val);
 		cb->setObjProperty (town->id, 11, id); //add to visitors
