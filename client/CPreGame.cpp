@@ -45,7 +45,7 @@ void startGame(StartInfo * options);
 CGPreGame * CGP;
 static const CMapHeader *curMap = NULL;
 static StartInfo *curOpts = NULL;
-static int playerColor;
+static int playerColor, playerSerial;
 
 static std::string selectedName; //set when game is started/loaded
 
@@ -252,7 +252,7 @@ CSelectionScreen::~CSelectionScreen()
 {
 	curMap = NULL;
 	curOpts = NULL;
-	playerColor = -1;
+	playerSerial = playerColor = -1;
 }
 
 void CSelectionScreen::toggleTab(CIntObject *tab)
@@ -293,7 +293,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 
 	sInfo.playerInfos.resize(to->playerAmnt);
 	sInfo.mapname = to->filename;
-	playerColor = -1;
+	playerSerial = playerColor = -1;
 
 	int serialC=0;
 	for (int i = 0; i < PLAYER_LIMIT; i++)
@@ -313,6 +313,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 			pset.name = CGI->generaltexth->allTexts[434]; //Player
 			pset.human = true;
 			playerColor = i;
+			playerSerial = pset.serial;
 		}
 		else
 		{
@@ -1107,8 +1108,8 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	if(s.hero >= 0)
 		s.hero = -1;
-	if(s.bonus == bresource)
-		s.bonus = brandom;
+ 	if(cur < 0  &&  s.bonus == bresource)
+ 		s.bonus = brandom;
 
 	entries[player]->selectButtons();
 	redraw();
@@ -1227,7 +1228,9 @@ void OptionsTab::setTurnLength( int npos )
 
 void OptionsTab::flagPressed( int player )
 {
-	int playerSerial = playerColor; //curMap->players[playerColor].serial;
+	if(player == playerSerial) //that color is already selected, no action needed
+		return;
+
 	PlayerSettings &s =  curOpts->playerInfos[player],
 		&old = curOpts->playerInfos[playerSerial];
 
@@ -1238,6 +1241,7 @@ void OptionsTab::flagPressed( int player )
 	if(!entries[playerSerial]->fixedHero)
 		old.hero = -1;
 
+	playerSerial = player;
 	entries[s.serial]->selectButtons();
 	entries[old.serial]->selectButtons();
 	GH.totalRedraw();
@@ -1451,17 +1455,21 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	int val;
 	switch(which)
 	{
-	case TOWN: val = s.castle; break;
+	case TOWN: 
+		val = s.castle; 
+		break;
 	case HERO: 
 		val = s.hero; 
 		if(val < 0)
 		{
 			int p9 = curMap->players[s.color].p9;
-			if(p9 != 255)
+			if(p9 != 255  &&  curOpts->playerInfos[player].heroPortrait >= 0)
 				val = p9;
 		}
 		break;
-	case BONUS: val = s.bonus; break;
+	case BONUS: 
+		val = s.bonus; 
+		break;
 	}
 
 	if(val == -1  ||  which == BONUS) //random or bonus box
@@ -1598,8 +1606,13 @@ CScenarioInfo::CScenarioInfo( const CMapHeader *mapInfo, const StartInfo *startI
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	for(size_t i = 0; i < startInfo->playerInfos.size(); i++)
+	{
 		if(startInfo->playerInfos[i].human)
+		{
 			playerColor = startInfo->playerInfos[i].color;
+			playerSerial = i;
+		}
+	}
 
 	pos.w = 762;
 	pos.h = 584;
