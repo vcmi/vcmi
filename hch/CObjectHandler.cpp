@@ -1155,6 +1155,9 @@ int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type, int subtype /*= -1*
 
 bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -1*/) const
 {
+	if(!this) //to allow calls on NULL and avoid checking duplication
+		return false; //if hero doesn't exist then bonus neither can
+
 	if(subtype == -1) //any subtype
 	{
 		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)

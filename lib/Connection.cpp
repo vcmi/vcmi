@@ -4,9 +4,17 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <fstream>
+
 #ifndef _MSC_VER
 #include "../lib/RegisterTypes.cpp"
+#include "../hch/CObjectHandler.h"
 #endif
+
+//for smart objs serialization over net
+#include "CGameState.h"
+#include "map.h"
+#include "../hch/CObjectHandler.h"
+
 
 /*
  * Connection.cpp, part of VCMI engine
@@ -54,6 +62,7 @@ void CConnection::init()
 	tlog0 << "Established connection with "<<pom<<std::endl;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
+	gs = NULL;
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
@@ -171,6 +180,27 @@ void CConnection::close()
 		delete socket;
 		socket = NULL;
 	}
+}
+
+CGObjectInstance *CConnection::loadObject()
+{
+	assert(gs);
+	si32 id;
+	*this >> id;
+	assert(id >= 0 && id < gs->map->objects.size());
+	return gs->map->objects[id];
+}
+
+void CConnection::saveObject( const CGObjectInstance *data )
+{
+	assert(gs);
+	assert(data);
+	*this << data->id;
+}
+
+void CConnection::setGS( CGameState *state )
+{
+	gs = state;
 }
 
 CSaveFile::CSaveFile( const std::string &fname )

@@ -572,9 +572,9 @@ bool CCallback::battleCanCastSpell()
 		return false;
 
 	if(gs->curB->side1 == player)
-		return gs->curB->castSpells[0] == 0 && gs->getHero(gs->curB->hero1)->getArt(17);
+		return gs->curB->castSpells[0] == 0 && gs->curB->heroes[0]->getArt(17);
 	else
-		return gs->curB->castSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
+		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1]->getArt(17);
 }
 
 bool CCallback::battleCanFlee()
@@ -617,13 +617,13 @@ std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defend
 
 	if(gs->curB->side1 == player)
 	{
-		attackerHero = gs->getHero(gs->curB->hero1);
-		defenderHero = gs->getHero(gs->curB->hero2);
+		attackerHero = gs->curB->heroes[0];
+		defenderHero = gs->curB->heroes[1];
 	}
 	else
 	{
-		attackerHero = gs->getHero(gs->curB->hero2);
-		defenderHero = gs->getHero(gs->curB->hero1);
+		attackerHero = gs->curB->heroes[1];
+		defenderHero = gs->curB->heroes[0];
 	}
 
 	const CStack * attacker = gs->curB->getStack(attackerID, false),

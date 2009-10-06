@@ -21,6 +21,8 @@
 #include <boost/type_traits/is_array.hpp>
 const ui32 version = 710;
 class CConnection;
+class CGObjectInstance;
+class CGameState;
 namespace mpl = boost::mpl;
 
 /*
@@ -305,6 +307,13 @@ public:
 		ui16 tid = typeList.getTypeID(data);
 		*this << tid;
 
+		This()->savePointerHlp(tid, data);
+	}
+
+	//that part of ptr serialization was extracted to allow customization of its behavior in derived classes
+	template <typename T>
+	void savePointerHlp(ui16 tid, const T &data)
+	{		
 		if(!tid)
 			*this << *data;	 //if type is unregistered simply write all data in a standard way
 		else
@@ -491,6 +500,10 @@ public:
 	template <typename T>
 	void loadSerializable(T &data)
 	{
+		////that const cast would be evil because it allows to implicitly overwrite const objects when deserializing
+		//typedef typename boost::remove_const<T>::type nonConstT;
+		//nonConstT &hlp = const_cast<nonConstT&>(data);
+		//hlp.serialize(*this,myVersion);
 		data.serialize(*this,myVersion);
 	}	
 	template <typename T>
@@ -514,7 +527,13 @@ public:
 		//get type id
 		ui16 tid;
 		*this >> tid;
+		This()->loadPointerHlp(tid, data);
+	}
 
+	//that part of ptr deserialization was extracted to allow customization of its behavior in derived classes
+	template <typename T>
+	void loadPointerHlp( ui16 tid, T & data )
+	{
 		if(!tid)
 		{
 			typedef typename boost::remove_pointer<T>::type npT;
@@ -526,6 +545,7 @@ public:
 			loaders[tid]->loadPtr(*this,&data);
 		}
 	}
+
 	template <typename T>
 	void loadSerializable(std::vector<T> &data)
 	{
@@ -620,7 +640,9 @@ public:
 class DLL_EXPORT CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
+	CGameState *gs;
 	CConnection(void);
+
 	void init();
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
@@ -646,6 +668,74 @@ public:
     template<class T>
     CConnection &operator&(const T&);
 	~CConnection(void);
+	void setGS(CGameState *state);
+
+	CGObjectInstance *loadObject(); //reads id from net and returns that obj
+	void saveObject(const CGObjectInstance *data);
+
+
+	template<typename T>
+	struct loadObjectHelper
+	{
+		static void invoke(CConnection &s, T &data, ui16 tid)
+		{
+			data = static_cast<T>(s.loadObject());
+		}
+	};
+	template<typename T>
+	struct loadRestHelper
+	{
+		static void invoke(CConnection &s, T &data, ui16 tid)
+		{
+			s.CISer<CConnection>::loadPointerHlp(tid, data);
+		}
+	};
+	template<typename T>
+	struct saveObjectHelper
+	{
+		static void invoke(CConnection &s, const T &data, ui16 tid)
+		{
+			//CGObjectInstance *&hlp = const_cast<CGObjectInstance*&>(data); //for loading pointer to const obj we must remove the qualifier
+			s.saveObject(data);
+		}
+	};
+	template<typename T>
+	struct saveRestHelper
+	{
+		static void invoke(CConnection &s, const T &data, ui16 tid)
+		{
+			s.COSer<CConnection>::savePointerHlp(tid, data);
+		}
+	};
+
+
+	//"overload" loading pointer procedure
+	template <typename T>
+	void loadPointerHlp( ui16 tid, T & data )
+	{
+		typedef typename 
+			//if
+			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
+			mpl::identity<loadObjectHelper<T> >,
+			//else
+			mpl::identity<loadRestHelper<T> >
+			>::type typex;
+		typex::invoke(*this, data, tid);
+	}
+
+	//"overload" saving pointer procedure
+	template <typename T>
+	void savePointerHlp( ui16 tid, const T & data )
+	{
+		typedef typename 
+			//if
+			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
+				mpl::identity<saveObjectHelper<T> >,
+			//else
+				mpl::identity<saveRestHelper<T> >
+			>::type typex;
+		typex::invoke(*this, data, tid);
+	}
 };
 
 #endif // __CONNECTION_H__

@@ -744,9 +744,12 @@ void SelectionTab::showAll( SDL_Surface * to )
 
 void SelectionTab::clickLeft( tribool down, bool previousState )
 {
-	int line = getLine();
-	if(line != -1)
-		select(line);
+	if(down)
+	{
+		int line = getLine();
+		if(line != -1)
+			select(line);
+	}
 }
 
 void SelectionTab::wheelScrolled( bool down, bool in )
@@ -801,7 +804,7 @@ int SelectionTab::getLine()
 	Point clickPos(GH.current->button.x, GH.current->button.y);
 	clickPos = clickPos - pos.topLeft();
 
-	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 52  &&  clickPos.x < 366)
+	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 22  &&  clickPos.x < 371)
 	{
 		line = (clickPos.y-115) / 25; //which line
 	}

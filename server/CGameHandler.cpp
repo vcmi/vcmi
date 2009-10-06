@@ -358,7 +358,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 			//check for bad morale => freeze
 			if(next->Morale() < 0 &&
-				!((hero1 && hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2 && hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE))) //checking if heroes have (or don't have) morale blocking bonuses)
+				!((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE))) //checking if heroes have (or don't have) morale blocking bonuses)
 				)
 			{
 				if( rand()%24   <   (-next->Morale())*2 )
@@ -461,7 +461,7 @@ askInterfaceForMove:
 				&& !vstd::contains(next->state,WAITING)
 				&&  next->alive()
 				&&  next->Morale() > 0
-				&& !((hero1 && hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2 && hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE)) ) //checking if heroes have (or don't have) morale blocking bonuses
+				&& !((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE)) ) //checking if heroes have (or don't have) morale blocking bonuses
 			)
 				if(rand()%24 < next->Morale()) //this stack hasn't got morale this turn
 					goto askInterfaceForMove; //move this stack once more
@@ -757,7 +757,7 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	tlog0 << "Map loaded!" << std::endl;
 	gs = new CGameState();
 	tlog0 << "Gamestate created!" << std::endl;
-	gs->init(si,map,Seed);	
+	gs->init(si,map,Seed);
 	tlog0 << "Gamestate initialized!" << std::endl;
 
 	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
@@ -978,8 +978,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	curB->tile = tile;
 	curB->army1=army1;
 	curB->army2=army2;
-	curB->hero1=(hero1)?(hero1->id):(-1);
-	curB->hero2=(hero2)?(hero2->id):(-1);
+	curB->heroes[0] = const_cast<CGHeroInstance*>(hero1);
+	curB->heroes[1] = const_cast<CGHeroInstance*>(hero2);
 	curB->round = -2;
 	curB->activeStack = -1;
 
@@ -2609,7 +2609,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	case 9: //catapult
 		{
 			sendAndApply(&StartAction(ba));
-			const CGHeroInstance * attackingHero = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(20)]; //artillery
 			
 			int attackedPart = gs->curB->hexToWallPart(ba.destinationTile);
@@ -3008,8 +3008,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 	{
 	case 1: //hero casts spell
 		{
-			CGHeroInstance *h = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
-			CGHeroInstance *secondHero = (!ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+			const CGHeroInstance *h = gs->curB->heroes[ba.side];
+			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
 			if(!h)
 			{
 				tlog2 << "Wrong caster!\n";
@@ -3028,7 +3028,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				|| (h->mana < gs->curB->getSpellCost(s, h)) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 				|| (gs->curB->castSpells[ba.side]) //spell has been cast
-				|| (secondHero && secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
+				|| (secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
 				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
@@ -3179,7 +3179,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			checkForBattleEnd(gs->curB->stacks);
 			if(battleResult.get())
 			{
-				endBattle(gs->curB->tile, getHero(gs->curB->hero1), getHero(gs->curB->hero2));
+				endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
 			}
 			return true;
 		}

@@ -196,7 +196,7 @@ namespace vstd
 		return std::find(c.begin(),c.end(),i);
 	}
 	template <typename Container, typename Item>
-	bool operator-=(Container &c, const Item &i) //removes element i from container c, returns false if c does not contain i
+	typename Container::size_type operator-=(Container &c, const Item &i) //removes element i from container c, returns false if c does not contain i
 	{
 		typename Container::iterator itr = find(c,i);
 		if(itr == c.end())

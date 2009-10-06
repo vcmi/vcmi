@@ -125,7 +125,7 @@ struct DLL_EXPORT BattleInfo
 	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
 	si32 tid; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
-	si32 hero1, hero2;
+	CGHeroInstance *heroes[2];
 	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
@@ -134,8 +134,9 @@ struct DLL_EXPORT BattleInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
+		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & obstacles
 			& castSpells & si;
+		h & heroes;
 	}
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action

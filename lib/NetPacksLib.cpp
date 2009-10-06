@@ -666,10 +666,11 @@ void BattleResult::applyGs( CGameState *gs )
 
 	//remove any "until next battle" bonuses
 	CGHeroInstance *h;
-	h = gs->getHero(gs->curB->hero1);
+	h = gs->curB->heroes[0];
 	if(h)
 		h->bonuses.remove_if(HeroBonus::OneBattle);
-	h = gs->getHero(gs->curB->hero2);
+
+	h = gs->curB->heroes[1];
 	if(h) 
 		h->bonuses.remove_if(HeroBonus::OneBattle);
 
@@ -748,7 +749,7 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 
 DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 {
-	CGHeroInstance *h = (side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+	CGHeroInstance *h = (side) ? gs->curB->heroes[1] : gs->curB->heroes[0];
 	if(h)
 	{
 		int spellCost = 0;

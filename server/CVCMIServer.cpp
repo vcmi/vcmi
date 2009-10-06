@@ -88,6 +88,7 @@ void CVCMIServer::newGame(CConnection *c)
 	}
 
 	gh.init(si,rand());
+	c->setGS(gh.gs);
 
 	CConnection* cc; //tcp::socket * ss;
 	for(int i=0; i<clients; i++)
@@ -107,6 +108,7 @@ void CVCMIServer::newGame(CConnection *c)
 				continue;
 			}
 			cc = new CConnection(s,NAME);
+			cc->setGS(gh.gs);
 		}	
 		gh.conns.insert(cc);
 	}
@@ -192,6 +194,7 @@ void CVCMIServer::loadGame( CConnection *c )
 		tlog0 <<"Reading handlers"<<std::endl;
 
 		lf >> (gh.gs);
+		c->setGS(gh.gs);
 		tlog0 <<"Reading gamestate"<<std::endl;
 	}
 
@@ -220,6 +223,7 @@ void CVCMIServer::loadGame( CConnection *c )
 				continue;
 			}
 			cc = new CConnection(s,NAME);
+			cc->setGS(gh.gs);
 		}	
 		gh.conns.insert(cc);
 	}

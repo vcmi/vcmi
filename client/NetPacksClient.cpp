@@ -347,10 +347,10 @@ void GarrisonDialog::applyCl(CClient *cl)
 void BattleStart::applyCl( CClient *cl )
 {
 	if(vstd::contains(cl->playerint,info->side1))
-		cl->playerint[info->side1]->battleStart(&info->army1, &info->army2, info->tile, GS(cl)->getHero(info->hero1), GS(cl)->getHero(info->hero2), 0);
+		cl->playerint[info->side1]->battleStart(&info->army1, &info->army2, info->tile, info->heroes[0], info->heroes[1], 0);
 
 	if(vstd::contains(cl->playerint,info->side2))
-		cl->playerint[info->side2]->battleStart(&info->army1, &info->army2, info->tile, GS(cl)->getHero(info->hero1), GS(cl)->getHero(info->hero2), 1);
+		cl->playerint[info->side2]->battleStart(&info->army1, &info->army2, info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
 void BattleNextRound::applyCl( CClient *cl )

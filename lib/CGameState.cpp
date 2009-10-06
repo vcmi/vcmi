@@ -1587,11 +1587,8 @@ bool CGameState::battleCanFlee(int player)
 	if(!curB) //there is no battle
 		return false;
 
-	const CGHeroInstance *h1 = getHero(curB->hero1);
-	const CGHeroInstance *h2 = getHero(curB->hero2);
-
-	if(h1 && h1->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
-		|| h2 && h2->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE))
+	if(curB->heroes[0]->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
+		|| curB->heroes[0]->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE))
 		return false;
 
 	return true;
@@ -1687,9 +1684,7 @@ const CGHeroInstance * CGameState::battleGetOwner(int stackID)
 	if(!curB)
 		return NULL;
 
-	si32 ourHero = curB->getStack(stackID)->attackerOwned ? curB->hero1 : curB->hero2;
-	return getHero(ourHero);
-
+	return curB->heroes[!curB->getStack(stackID)->attackerOwned];
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
@@ -2515,7 +2510,7 @@ si8 CGameState::battleMaxSpellLevel()
 
 	si8 levelLimit = SPELL_LEVELS;
 
-	const CGHeroInstance *h1 =  getHero(curB->hero1); 
+	const CGHeroInstance *h1 =  curB->heroes[0];
 	if(h1)
 	{
 		for(std::list<HeroBonus>::const_iterator i = h1->bonuses.begin(); i != h1->bonuses.end(); i++)
@@ -2523,7 +2518,7 @@ si8 CGameState::battleMaxSpellLevel()
 				amin(levelLimit, i->val);
 	}
 
-	const CGHeroInstance *h2 = getHero(curB->hero2); 
+	const CGHeroInstance *h2 = curB->heroes[1];
 	if(h2)
 	{
 		for(std::list<HeroBonus>::const_iterator i = h2->bonuses.begin(); i != h2->bonuses.end(); i++)
@@ -2759,8 +2754,8 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
-		&& (!curB->isStackBlocked(ID) || 
-			( ourHero && ourHero->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
+		&& (!curB->isStackBlocked(ID) 
+			|| ourHero->hasBonusOfType(HeroBonus::FREE_SHOOTING))
 		&& our->shots
 		)
 		return true;
