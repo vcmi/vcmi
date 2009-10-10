@@ -60,7 +60,7 @@ public:
 
 struct FileInfo
 {
-	std::string name;
+	std::string name; // file name with full path and extension
 	std::time_t date;
 };
 

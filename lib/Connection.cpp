@@ -204,7 +204,7 @@ void CConnection::setGS( CGameState *state )
 }
 
 CSaveFile::CSaveFile( const std::string &fname )
-	:sfile(new std::ofstream((USER_DIR "/" + fname).c_str(),std::ios::binary))
+	:sfile(new std::ofstream(fname.c_str(),std::ios::binary))
 {
 	registerTypes(*this);
 	if(!(*sfile))

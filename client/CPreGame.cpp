@@ -428,7 +428,7 @@ void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirna
 		{
 			out.resize(out.size()+1);
 			out.back().date = fs::last_write_time(file->path());
-			out.back().name = dirname+"/"+(file->path().leaf());
+			out.back().name = file->path().string();
 		}
 	}
 
@@ -549,7 +549,7 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 	switch(type)
 	{
 	case newGame:
-		selectFName(DATA_DIR "Maps/Arrogance.h3m");
+		selectFName(DATA_DIR "/Maps/Arrogance.h3m");
 		break;
 	case loadGame:
 		select(0);
@@ -614,9 +614,6 @@ void SelectionTab::select( int position )
 		slider->moveTo(slider->value + position);
 	else if(position >= positions)
 		slider->moveTo(slider->value + position - positions + 1);
-
-	if(txt)
-		txt->setText(curItems[py]->filename.substr(6,curItems[py]->filename.size()-12));
 
 	onSelect(curItems[py]);
 }
@@ -708,17 +705,12 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		blitAt(format->ourImages[temp].bitmap, POS(88, 117), to);
 
-		if (type == newGame)
-		{
-			if (!(curMap->name.length()))
+		if (type == newGame) {
+			if (!curMap->name.length())
 				curMap->name = "Unnamed";
 			CSDL_Ext::printAtMiddle(curMap->name, POS(213, 128), FONT_SMALL, nasz, to);
-		}
-		else
-		{
-			std::string &name = curMap->filename;
-			CSDL_Ext::printAtMiddle(name.substr(6,name.size()-12), POS(213, 128), FONT_SMALL, nasz, to);
-		}
+		} else
+			CSDL_Ext::printAtMiddle(fs::basename(curMap->filename), POS(213, 128), FONT_SMALL, nasz, to);
 
 		if (curMap->victoryCondition.condition == winStandard)
 			temp = 11;

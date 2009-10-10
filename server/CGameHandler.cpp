@@ -1848,14 +1848,14 @@ void CGameHandler::save( const std::string &fname )
 
 	{
 		tlog0 << "Serializing game info...\n";
-		CSaveFile save(std::string("Games/") + fname + ".vlgm1");
+		CSaveFile save(std::string(DATA_DIR "/Games/") + fname + ".vlgm1");
 		char hlp[8] = "VCMISVG";
 		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
 	}
 
 	{
 		tlog0 << "Serializing server info...\n";
-		CSaveFile save(std::string("Games/") + fname + ".vsgm1");
+		CSaveFile save(std::string(DATA_DIR "/Games/") + fname + ".vsgm1");
 		save << *this;
 	}
 	tlog0 << "Game has been succesfully saved!\n";
