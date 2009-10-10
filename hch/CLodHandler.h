@@ -60,12 +60,13 @@ struct Entry
 
 class DLL_EXPORT CLodHandler
 {
-public:
 	std::ifstream LOD;
-	nodrze<Entry> entries;
 	unsigned int totalFiles;
 	boost::mutex *mutex;
 	std::string myDir; //load files from this dir instead of .lod file
+
+public:
+	nodrze<Entry> entries;
 
 	CLodHandler();
 	~CLodHandler();

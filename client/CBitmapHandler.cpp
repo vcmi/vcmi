@@ -230,26 +230,9 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 			}
 		}
 	}
-	bitmap_handler_mx.lock();
-	bitmaph->LOD.seekg(e->offset, std::ios::beg);
-	if (e->size==0) //file is not compressed
-	{
-		pcx = new unsigned char[e->realSize];
-		bitmaph->LOD.read((char*)pcx, e->realSize);
-		bitmap_handler_mx.unlock();
-	}
-	else 
-	{
-		unsigned char * pcd = new unsigned char[e->size];
-		bitmaph->LOD.read((char*)pcd, e->size);
-		bitmap_handler_mx.unlock();
-		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
-		if(res!=0)
-		{
-			tlog2<<"an error "<<res<<" occurred while extracting file "<<fname<<std::endl;
-		}
-		delete [] pcd;
-	}
+
+	pcx = bitmaph->giveFile(e->nameStr, NULL);
+
 	CPCXConv cp;
 	cp.openPCX((char*)pcx, e->realSize);
 	SDL_Surface * ret = cp.getSurface();
