@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include "../nodrze.h"
+#include <SDL_stdinc.h>
 
 /*
  * CLodhandler.h, part of VCMI engine
@@ -27,6 +28,14 @@ namespace NLoadHandlerHelp
 	//std::string P1,P2,CurDir;
 	const int fCHUNK = 50000;
 }
+
+struct LodEntry {
+	char filename[16];
+	Uint32 offset;				/* little endian */
+	Uint32 uncompressedSize;	/* little endian */
+	Uint32 unused;				/* little endian */
+	Uint32 size;				/* little endian */
+};
 
 struct Entry
 {
@@ -52,7 +61,7 @@ struct Entry
 class DLL_EXPORT CLodHandler
 {
 public:
-	FILE* FLOD;
+	std::ifstream LOD;
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
 	boost::mutex *mutex;

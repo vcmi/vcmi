@@ -54,12 +54,13 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_vcmiserver_OBJECTS = CGameHandler.$(OBJEXT) CVCMIServer.$(OBJEXT) \
-	NetPacksServer.$(OBJEXT)
+am_vcmiserver_OBJECTS = vcmiserver-CGameHandler.$(OBJEXT) \
+	vcmiserver-CVCMIServer.$(OBJEXT) \
+	vcmiserver-NetPacksServer.$(OBJEXT)
 vcmiserver_OBJECTS = $(am_vcmiserver_OBJECTS)
 vcmiserver_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
 vcmiserver_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(vcmiserver_CXXFLAGS) \
 	$(CXXFLAGS) $(vcmiserver_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -214,6 +215,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 vcmiserver_LDADD = $(top_builddir)/lib/libvcmi.la
+vcmiserver_CXXFLAGS = @SDL_CXXFLAGS@
 vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_SOURCES = \
 	CGameHandler.cpp \
@@ -293,9 +295,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CGameHandler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CVCMIServer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetPacksServer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CGameHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CVCMIServer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-NetPacksServer.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -317,6 +319,48 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+vcmiserver-CGameHandler.o: CGameHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CGameHandler.o -MD -MP -MF $(DEPDIR)/vcmiserver-CGameHandler.Tpo -c -o vcmiserver-CGameHandler.o `test -f 'CGameHandler.cpp' || echo '$(srcdir)/'`CGameHandler.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-CGameHandler.Tpo $(DEPDIR)/vcmiserver-CGameHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CGameHandler.cpp' object='vcmiserver-CGameHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CGameHandler.o `test -f 'CGameHandler.cpp' || echo '$(srcdir)/'`CGameHandler.cpp
+
+vcmiserver-CGameHandler.obj: CGameHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CGameHandler.obj -MD -MP -MF $(DEPDIR)/vcmiserver-CGameHandler.Tpo -c -o vcmiserver-CGameHandler.obj `if test -f 'CGameHandler.cpp'; then $(CYGPATH_W) 'CGameHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CGameHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-CGameHandler.Tpo $(DEPDIR)/vcmiserver-CGameHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CGameHandler.cpp' object='vcmiserver-CGameHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CGameHandler.obj `if test -f 'CGameHandler.cpp'; then $(CYGPATH_W) 'CGameHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CGameHandler.cpp'; fi`
+
+vcmiserver-CVCMIServer.o: CVCMIServer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CVCMIServer.o -MD -MP -MF $(DEPDIR)/vcmiserver-CVCMIServer.Tpo -c -o vcmiserver-CVCMIServer.o `test -f 'CVCMIServer.cpp' || echo '$(srcdir)/'`CVCMIServer.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-CVCMIServer.Tpo $(DEPDIR)/vcmiserver-CVCMIServer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CVCMIServer.cpp' object='vcmiserver-CVCMIServer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CVCMIServer.o `test -f 'CVCMIServer.cpp' || echo '$(srcdir)/'`CVCMIServer.cpp
+
+vcmiserver-CVCMIServer.obj: CVCMIServer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CVCMIServer.obj -MD -MP -MF $(DEPDIR)/vcmiserver-CVCMIServer.Tpo -c -o vcmiserver-CVCMIServer.obj `if test -f 'CVCMIServer.cpp'; then $(CYGPATH_W) 'CVCMIServer.cpp'; else $(CYGPATH_W) '$(srcdir)/CVCMIServer.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-CVCMIServer.Tpo $(DEPDIR)/vcmiserver-CVCMIServer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CVCMIServer.cpp' object='vcmiserver-CVCMIServer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CVCMIServer.obj `if test -f 'CVCMIServer.cpp'; then $(CYGPATH_W) 'CVCMIServer.cpp'; else $(CYGPATH_W) '$(srcdir)/CVCMIServer.cpp'; fi`
+
+vcmiserver-NetPacksServer.o: NetPacksServer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-NetPacksServer.o -MD -MP -MF $(DEPDIR)/vcmiserver-NetPacksServer.Tpo -c -o vcmiserver-NetPacksServer.o `test -f 'NetPacksServer.cpp' || echo '$(srcdir)/'`NetPacksServer.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-NetPacksServer.Tpo $(DEPDIR)/vcmiserver-NetPacksServer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NetPacksServer.cpp' object='vcmiserver-NetPacksServer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-NetPacksServer.o `test -f 'NetPacksServer.cpp' || echo '$(srcdir)/'`NetPacksServer.cpp
+
+vcmiserver-NetPacksServer.obj: NetPacksServer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-NetPacksServer.obj -MD -MP -MF $(DEPDIR)/vcmiserver-NetPacksServer.Tpo -c -o vcmiserver-NetPacksServer.obj `if test -f 'NetPacksServer.cpp'; then $(CYGPATH_W) 'NetPacksServer.cpp'; else $(CYGPATH_W) '$(srcdir)/NetPacksServer.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiserver-NetPacksServer.Tpo $(DEPDIR)/vcmiserver-NetPacksServer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NetPacksServer.cpp' object='vcmiserver-NetPacksServer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-NetPacksServer.obj `if test -f 'NetPacksServer.cpp'; then $(CYGPATH_W) 'NetPacksServer.cpp'; else $(CYGPATH_W) '$(srcdir)/NetPacksServer.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

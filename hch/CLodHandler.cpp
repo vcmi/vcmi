@@ -6,10 +6,13 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <iostream>
+#include <fstream>
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
+#include <SDL_endian.h>
 #ifdef max
 #undef max
 #endif
@@ -39,6 +42,7 @@ DLL_EXPORT int readNormalNr (int pos, int bytCon, const unsigned char * str)
 	else return -1;
 	return ret;
 }
+
 unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 {
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
@@ -50,7 +54,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	}
 	if(length) *length = ourEntry->realSize;
 	mutex->lock();
-	fseek(FLOD, ourEntry->offset, 0);
+
 	unsigned char * outp;
 	if (ourEntry->offset<0) //file is in the sprites/ folder; no compression
 	{
@@ -73,14 +77,18 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	else if (ourEntry->size==0) //file is not compressed
 	{
 		outp = new unsigned char[ourEntry->realSize];
-		fread((char*)outp, 1, ourEntry->realSize, FLOD);
+
+		LOD.seekg(ourEntry->offset, std::ios::beg);
+		LOD.read((char*)outp, ourEntry->realSize);
 		mutex->unlock();
 		return outp;
 	}
 	else //we will decompress file
 	{
 		outp = new unsigned char[ourEntry->size];
-		fread((char*)outp, 1, ourEntry->size, FLOD);
+
+		LOD.seekg(ourEntry->offset, std::ios::beg);
+		LOD.read((char*)outp, ourEntry->size);
 		mutex->unlock();
 		unsigned char * decomp = NULL;
 		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
@@ -89,6 +97,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	}
 	return NULL;
 }
+
 int CLodHandler::infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits)
 {
 	int ret;
@@ -238,13 +247,13 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		if(buf1!=name)
 			continue;
-		fseek(FLOD, entries[i].offset, 0);
+		LOD.seekg(entries[i].offset, std::ios::beg);
 		std::string bufff = (FName);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
-			fread((char*)outp, 1, entries[i].realSize, FLOD);
+			LOD.read((char*)outp, entries[i].realSize);
 			std::ofstream out;
 			out.open(bufff.c_str(), std::ios::binary);
 			if(!out.is_open())
@@ -263,8 +272,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		else //we will decompressing file
 		{
 			outp = new unsigned char[entries[i].size];
-			fread((char*)outp, 1, entries[i].size, FLOD);
-			fseek(FLOD, 0, 0);
+			LOD.read((char*)outp, entries[i].size);
 			std::ofstream destin;
 			destin.open(bufff.c_str(), std::ios::binary);
 			//int decRes = decompress(outp, entries[i].size, entries[i].realSize, bufff);
@@ -299,47 +307,41 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 {
 	myDir = dirName;
 	std::string Ts;
-	FLOD = fopen(lodFile.c_str(), "rb");
-	if(!FLOD)
-	{
+	Uint32 temp;
+
+	LOD.open(lodFile.c_str(), std::ios::in | std::ios::binary);
+
+	if (!LOD.is_open()) {
 		tlog1 << "Cannot open " << lodFile << std::endl;
 		return;
 	}
-	fseek(FLOD, 8, 0);
-	unsigned char temp[4];
-	fread((char*)temp, 1, 4, FLOD);
-	totalFiles = readNormalNr(temp,4);
-	fseek(FLOD, 0x5c, 0);
-	for (int i=0; i<totalFiles; i++)
+
+	LOD.seekg(8);
+	LOD.read((char *)&temp, 4);
+	totalFiles = SDL_SwapLE32(temp);
+
+	LOD.seekg(0x5c, std::ios::beg);
+
+	struct LodEntry *lodEntries = new struct LodEntry[totalFiles];
+	LOD.read((char *)lodEntries, sizeof(struct LodEntry) * totalFiles);
+
+	for (unsigned int i=0; i<totalFiles; i++)
 	{
 		Entry entry;
-		char bufc = -1;
-		bool valid = true;
 
-		entry.nameStr = "";
+		entry.nameStr = lodEntries[i].filename;
+		std::transform(entry.nameStr.begin(), entry.nameStr.end(), 
+					   entry.nameStr.begin(), toupper);
 
-		// Read name
-		for(int kk=0; kk<16; ++kk)
-		{
-			fread(&bufc, 1, 1, FLOD);
-			if (valid) {
-				if (bufc)
-					entry.nameStr+=toupper(bufc);
-				else
-					valid = false;
-			}
-		}
-
-		fread((char*)temp, 1, 4, FLOD);
-		entry.offset=readNormalNr(temp,4);
-		fread((char*)temp, 1, 4, FLOD);
-		entry.realSize=readNormalNr(temp,4);
-		fread((char*)temp, 1, 4, FLOD);
-		fread((char*)temp, 1, 4, FLOD);
-		entry.size=readNormalNr(temp,4);
+		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
+		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
+		entry.size = SDL_SwapLE32(lodEntries[i].size);
 
 		entries.push_back(entry);
 	}
+
+	delete [] lodEntries;
+
 	boost::filesystem::directory_iterator enddir;
 	if(boost::filesystem::exists(dirName))
 	{
@@ -393,7 +395,6 @@ std::string CLodHandler::getTextFile(std::string name)
 CLodHandler::CLodHandler()
 {
 	mutex = new boost::mutex;
-	FLOD = NULL;
 	totalFiles = 0;
 }
 

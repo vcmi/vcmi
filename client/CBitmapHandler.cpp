@@ -231,17 +231,17 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		}
 	}
 	bitmap_handler_mx.lock();
-	fseek(bitmaph->FLOD, e->offset, 0);
+	bitmaph->LOD.seekg(e->offset, std::ios::beg);
 	if (e->size==0) //file is not compressed
 	{
 		pcx = new unsigned char[e->realSize];
-		fread((char*)pcx, 1, e->realSize, bitmaph->FLOD);
+		bitmaph->LOD.read((char*)pcx, e->realSize);
 		bitmap_handler_mx.unlock();
 	}
 	else 
 	{
 		unsigned char * pcd = new unsigned char[e->size];
-		fread((char*)pcd, 1, e->size, bitmaph->FLOD);
+		bitmaph->LOD.read((char*)pcd, e->size);
 		bitmap_handler_mx.unlock();
 		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
 		if(res!=0)
