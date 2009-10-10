@@ -28,13 +28,14 @@ extern std::string NAME_AFFIX; //client / server
 
 /* 
  * DATA_DIR contains the game data (Data/, MP3/, ...).
- * USER_DIR is where to save games (Games/).
- * BIN_DIR is where the vcmiclient/vcmiserver binaries reside (linux only) 
- * LIB_DIR is where the AI libraries reside (linux only) 
+ * USER_DIR is where to save games (Games/) and the config.
+ * BIN_DIR is where the vcmiclient/vcmiserver binaries reside
+ * LIB_DIR is where the AI libraries reside (linux only)
  */
 #ifdef _WIN32
 #define DATA_DIR "."
-#define USER_DIR "."
+#define USER_DIR  "."
+#define BIN_DIR  "."
 #define SERVER_NAME "VCMI_server.exe"
 #else
 #ifndef DATA_DIR
@@ -46,8 +47,7 @@ extern std::string NAME_AFFIX; //client / server
 #ifndef LIB_DIR
 #error LIB_DIR undefined.
 #endif
-#define USER_DIR DATA_DIR		// TODO: should be $HOME/.vcmi
-#define SERVER_NAME BIN_DIR "/vcmiserver"
+#define SERVER_NAME "vcmiserver"
 #endif
 
 /*
@@ -340,6 +340,5 @@ extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 		tlog1 << e->what()<< std::endl;	\
 		throw;							\
 	}
-
 
 #endif // __GLOBAL_H__

@@ -27,6 +27,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/map.h"
+#include "../lib/VCMIDirs.h"
 #include "../mapHandler.h"
 #include "../timeHandler.h"
 #include <boost/lexical_cast.hpp>
@@ -1563,7 +1564,7 @@ void SystemOptions::setMapScrollingSpeed( int newSpeed )
 
 void SystemOptions::settingsChanged()
 {
-	CSaveFile settings(DATA_DIR "/config/sysopts.bin");
+	CSaveFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin");
 
 	if(settings.sfile)
 		settings << *this;

@@ -11,6 +11,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
+#include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
@@ -1848,14 +1849,14 @@ void CGameHandler::save( const std::string &fname )
 
 	{
 		tlog0 << "Serializing game info...\n";
-		CSaveFile save(std::string(DATA_DIR "/Games/") + fname + ".vlgm1");
+		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vlgm1");
 		char hlp[8] = "VCMISVG";
 		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
 	}
 
 	{
 		tlog0 << "Serializing server info...\n";
-		CSaveFile save(std::string(DATA_DIR "/Games/") + fname + ".vsgm1");
+		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vsgm1");
 		save << *this;
 	}
 	tlog0 << "Game has been succesfully saved!\n";

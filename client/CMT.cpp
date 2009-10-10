@@ -40,6 +40,7 @@
 #include "CConfigHandler.h"
 #include "../lib/Connection.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/VCMIDirs.h"
 #include <cstdlib>
 #include "../lib/NetPacks.h"
 
@@ -66,6 +67,7 @@ SDL_Surface *screen = NULL, //main screen surface
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 SystemOptions GDefaultOptions; 
+VCMIDirs GVCMIDirs;
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
@@ -106,7 +108,7 @@ void init()
 
 	{
 		//read system options
-		CLoadFile settings(DATA_DIR "/config/sysopts.bin");
+		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin");
 		if(settings.sfile)
 		{
 			settings >> GDefaultOptions;

@@ -115,7 +115,7 @@ find . -name "*.exe" | xargs rm -f
 rm -rf AI
 rm -f AUTHORS ChangeLog license.txt Microsoft.VC90.CRT.manifest 
 rm -rf MP3
-#rm -rf Games    # TODO
+rm -rf Games
 
 mv sprites Sprites
 

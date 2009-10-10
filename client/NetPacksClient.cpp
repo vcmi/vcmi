@@ -10,6 +10,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
+#include "../lib/VCMIDirs.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CSoundBase.h"
 #include "../mapHandler.h"
@@ -541,7 +542,7 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	CSaveFile save(DATA_DIR "/Games/" + fname + ".vcgm1");
+	CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vcgm1");
 	save << *cl;
 }
 

@@ -20,6 +20,7 @@
 #include <boost/bind.hpp>
 #include <cstdlib>
 #include "../lib/Connection.h"
+#include "../lib/VCMIDirs.h"
 #include "../hch/CMusicHandler.h"
 #include "../hch/CVideoHandler.h"
 #include "AdventureMapButton.h"
@@ -370,7 +371,7 @@ void CSelectionScreen::startGame()
 		if(!(sel && sel->txt && sel->txt->text.size()))
 			return;
 
-		selectedName = "Games/" + sel->txt->text + ".vlgm1";
+		selectedName = GVCMIDirs.UserPath + "/Games/" + sel->txt->text + ".vlgm1";
 		LOCPLINT->cb->save(sel->txt->text);
 		GH.popIntTotally(this);
 	}
@@ -505,7 +506,7 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 
 	case loadGame:
 	case saveGame:
-		getFiles(toParse, USER_DIR "/Games", "vlgm1");
+		getFiles(toParse, GVCMIDirs.UserPath + "/Games", "vlgm1");
 		parseGames(toParse);
 		if(type == loadGame)
 		{

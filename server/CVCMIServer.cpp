@@ -24,6 +24,7 @@
 #include "../hch/CLodHandler.h" 
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
 std::string NAME_AFFIX = "server";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
@@ -33,6 +34,7 @@ using namespace boost::asio::ip;
 namespace intpr = boost::interprocess;
 bool end2 = false;
 int port = 3030;
+VCMIDirs GVCMIDirs;
 
 /*
  * CVCMIServer.cpp, part of VCMI engine

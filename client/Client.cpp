@@ -371,7 +371,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 void CClient::runServer(const char * portc)
 {
-	static std::string comm = std::string(SERVER_NAME) + " " + portc + " > server_log.txt"; //needs to be static, if not - will be probably destroyed before new thread reads it
+	static std::string comm = std::string(BIN_DIR "/" SERVER_NAME " ") + portc + " > server_log.txt"; //needs to be static, if not - will be probably destroyed before new thread reads it
 	boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 	//TODO: will it work on non-windows platforms?
 }
 
