@@ -22,10 +22,6 @@ CMediaHandler::~CMediaHandler()
 	delete mfile;
 }
 
-// Analyze the sound file. Half of this could go away if we were using
-// a simple structure. However, some post treatment would be necessary: file
-// size and offsets are little endian, and filename have a NUL in
-// them. */
 CMediaHandler::CMediaHandler(std::string fname)
 {
 	try //c-tor of mapped_file_source throws exception on failure

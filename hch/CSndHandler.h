@@ -31,17 +31,19 @@ struct MemberFile
 	int length;
 };
 
+// sound entry structure in catalog
 struct soundEntry
 {
 	char filename[40];
-	Uint32 offset;				/* lettle endian */
-	Uint32 size;				/* lettle endian */
+	Uint32 offset;				/* little endian */
+	Uint32 size;				/* little endian */
 };
 
+// video entry structure in catalog
 struct videoEntry
 {
 	char filename[40];
-	Uint32 offset;				/* lettle endian */
+	Uint32 offset;				/* little endian */
 };
 
 class CMediaHandler
