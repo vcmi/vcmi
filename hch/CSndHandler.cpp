@@ -2,6 +2,7 @@
 #include <fstream>
 #include "CSndHandler.h"
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <SDL_endian.h>
 
 /*
  * CSndHandler.cpp, part of VCMI engine
@@ -36,12 +37,6 @@ CMediaHandler::CMediaHandler(std::string fname)
 		tlog1 << "Cannot open " << fname << std::endl;
 		throw std::string("Cannot open ")+fname;
 	}
-}
-
-// Reads a 4 byte integer. Format on file is little endian.
-unsigned int CMediaHandler::readNormalNr (const unsigned char *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
 
 void CMediaHandler::extract(int index, std::string dstfile) //saves selected file
@@ -128,37 +123,24 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
 {
 	const unsigned char *data = (const unsigned char *)mfile->data();
+	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
+	struct soundEntry *se = (struct soundEntry *)&data[4];
 
-	unsigned int numFiles = readNormalNr(&data[0]);
-
-	for (unsigned int i=0; i<numFiles; i++)
+	for (unsigned int i=0; i<numFiles; i++, se++)
 	{
 		Entry entry;
-		const unsigned char *p;
+		char *p;
 
-		// Read file name and extension
-		p = &data[4+48*i];
-
-		while(*p) {
-			entry.name += *p;
-			p++;
-		}
-
-		entry.name+='.';
+		// Reassemble the filename and its extension
+		entry.name = se->filename;
+		entry.name += '.';
+		p = se->filename;
+		while(*p) p++;
 		p++;
+		entry.name += p;
 
-		while(*p)
-		{
-			entry.name += *p;
-			p++;
-		}
-
-		// Read offset and size
-		p = &data[4+48*i+40];
-		entry.offset = readNormalNr(p);
-
-		p += 4;
-		entry.size = readNormalNr(p);
+		entry.offset = SDL_SwapLE32(se->offset);
+		entry.size = SDL_SwapLE32(se->size);
 
 		entries.push_back(entry);
 		fimap[entry.name] = i;
@@ -168,34 +150,24 @@ CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
 CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname) 
 {
 	const unsigned char *data = (const unsigned char *)mfile->data();
+	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
+	struct videoEntry *ve = (struct videoEntry *)&data[4];
 
-	unsigned int numFiles = readNormalNr(&data[0]);
-
-	for (unsigned int i=0; i<numFiles; i++)
+	for (unsigned int i=0; i<numFiles; i++, ve++)
 	{
 		Entry entry;
-		const unsigned char *p;
 
-		// Read file name and extension
-		p = &data[4+44*i];
-
-		while(*p) {
-			entry.name += *p;
-			p++;
-		}
-
-		// Read offset and size
-		p = &data[4+44*i+40];
-		entry.offset = readNormalNr(p);
+		entry.name = ve->filename;
+		entry.offset = SDL_SwapLE32(ve->offset);
 
 		// There is no size, so check where the next file is
 		if (i == numFiles - 1) {
 			entry.size = mfile->size() - entry.offset;
 		} else {
-			p = &data[4+44*(i+1)+40];
-			int next_offset = readNormalNr(p);
-			entry.size = next_offset - entry.offset;
-		}	
+			struct videoEntry *ve_next = ve+1;
+
+			entry.size = SDL_SwapLE32(ve_next->offset) - entry.offset;
+		}
 
 		entries.push_back(entry);
 		fimap[entry.name] = i;

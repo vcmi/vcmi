@@ -4,6 +4,7 @@
 #include <vector>
 #include <iosfwd>
 #include <map>
+#include <SDL_stdinc.h>
 
 
 /*
@@ -30,6 +31,19 @@ struct MemberFile
 	int length;
 };
 
+struct soundEntry
+{
+	char filename[40];
+	Uint32 offset;				/* lettle endian */
+	Uint32 size;				/* lettle endian */
+};
+
+struct videoEntry
+{
+	char filename[40];
+	Uint32 offset;				/* lettle endian */
+};
+
 class CMediaHandler
 {
 protected:
@@ -40,7 +54,6 @@ protected:
 		unsigned int offset;
 	};
 
-	inline unsigned int readNormalNr (const unsigned char *p);
 	boost::iostreams::mapped_file_source *mfile;
 
 public:
