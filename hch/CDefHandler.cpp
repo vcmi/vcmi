@@ -48,141 +48,85 @@ CDefEssential::~CDefEssential()
 	for(size_t i=0; i < ourImages.size(); ++i)
 		SDL_FreeSurface(ourImages[i].bitmap);
 }
+// Note: this function is unused
 void CDefHandler::openDef(std::string name)
 {
-	int i,j, totalInBlock;
-	char Buffer[13];
-	BMPPalette palette[256];
-	defName=name;
-
 	int andame;
 	std::ifstream * is = new std::ifstream();
 	is -> open(name.c_str(),std::ios::binary);
 	is->seekg(0,std::ios::end); // na koniec
 	andame = is->tellg();  // read length
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
-	unsigned char * FDef = new unsigned char[andame]; // allocate memory 
+	unsigned char * FDef = new unsigned char[andame]; // allocate memory
 	is->read((char*)FDef, andame); // read map file to buffer
 	is->close();
 	delete is;
-	i = 0;
-	DEFType = readNormalNr(i,4,FDef); i+=4;
-	width = readNormalNr(i,4,FDef); i+=4;
-	height = readNormalNr(i,4,FDef); i+=4;
-	i=0xc;
-	totalBlocks = readNormalNr(i,4,FDef); i+=4;
 
-	i=0x10;
-	for (int it=0;it<256;it++)
-	{
-		palette[it].R = FDef[i++];
-		palette[it].G = FDef[i++];
-		palette[it].B = FDef[i++];
-		palette[it].F = 0;
-	}
-	i=0x310;
-	totalEntries=0;
-	for (int z=0; z<totalBlocks; z++)
-	{
-		i+=4;
-		totalInBlock = readNormalNr(i,4,FDef); i+=4;
-		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
-			SEntries.push_back(SEntry());
-		i+=8;
-		for (j=0; j<totalInBlock; j++)
-		{
-			for (int k=0;k<13;k++) Buffer[k]=FDef[i+k]; 
-			i+=13;
-			SEntries[totalEntries+j].name=Buffer;
-		}
-		for (j=0; j<totalInBlock; j++)
-		{ 
-			SEntries[totalEntries+j].offset = readNormalNr(i,4,FDef);
-			i+=4;
-		}
-		//totalEntries+=totalInBlock;
-		for(int hh=0; hh<totalInBlock; ++hh)
-		{
-			SEntries[totalEntries].group = z;
-			++totalEntries;
-		}
-	}
-	for(j=0; j<SEntries.size(); ++j)
-	{
-		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
-	}
-	for(size_t i=0; i < SEntries.size(); ++i)
-	{
-		Cimage nimg;
-		nimg.bitmap = getSprite(i, FDef, palette);
-		nimg.imName = SEntries[i].name;
-		nimg.groupNumber = SEntries[i].group;
-		ourImages.push_back(nimg);
-	}
+	openFromMemory(FDef, name);
+
 	delete [] FDef;
-	FDef = NULL;
 }
 
 void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 {
-	int i,j, totalInBlock;
 	BMPPalette palette[256];
-	defName=name;
-	i = 0;
-	DEFType = readNormalNr(i,4,table); i+=4;
-	width = readNormalNr(i,4,table); i+=4;
-	height = readNormalNr(i,4,table); i+=4;
-	i=0xc;
-	totalBlocks = readNormalNr(i,4,table); i+=4;
+	struct defEntry &de = *(struct defEntry *)table;
+	unsigned char *p;
 
-	i=0x10;
-	for (int it=0;it<256;it++)
+	defName = name;
+	DEFType = SDL_SwapLE32(de.DEFType);
+	width = SDL_SwapLE32(de.width);
+	height = SDL_SwapLE32(de.height);
+	totalBlocks = SDL_SwapLE32(de.totalBlocks);
+
+	for (unsigned int it=0;it<256;it++)
 	{
-		palette[it].R = table[i++];
-		palette[it].G = table[i++];
-		palette[it].B = table[i++];
+		palette[it].R = de.palette[it].R;
+		palette[it].G = de.palette[it].G;
+		palette[it].B = de.palette[it].B;
 		palette[it].F = 0;
 	}
-	i=0x310;
+
+	p = (unsigned char *)de.blocks;
 	totalEntries=0;
-	for (int z=0; z<totalBlocks; z++)
+	for (unsigned int z=0; z<totalBlocks; z++)
 	{
-		int unknown1 = readNormalNr(i,4,table); i+=4; //TODO use me
-		totalInBlock = readNormalNr(i,4,table); i+=4;
-		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
+		struct defEntryBlock &block = *(struct defEntryBlock *)p;
+		unsigned int totalInBlock;
+
+		totalInBlock = SDL_SwapLE32(block.totalInBlock);
+
+		for (unsigned int j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 			SEntries.push_back(SEntry());
-		int unknown2 = readNormalNr(i,4,table); //TODO use me
-        i+=4;
-		int unknown3 = readNormalNr(i,4,table); //TODO use me
-        i+=4;
-		for (j=0; j<totalInBlock; j++)
+
+		p = block.data;
+		for (unsigned int j=0; j<totalInBlock; j++)
 		{
 			char Buffer[13];
-			memcpy(Buffer, &table[i], 12);
+			memcpy(Buffer, p, 12);
 			Buffer[12] = 0;
 			SEntries[totalEntries+j].name=Buffer;
-
-			i+=13;
+			p += 13;
 		}
-		for (j=0; j<totalInBlock; j++)
+		for (unsigned int j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = readNormalNr(i,4,table);
-			int unknown4 = readNormalNr(i,4,table); //TODO use me
-            i+=4;
+			SEntries[totalEntries+j].offset = SDL_SwapLE32(*(Uint32 *)p);
+            p += 4;
 		}
 		//totalEntries+=totalInBlock;
-		for(int hh=0; hh<totalInBlock; ++hh)
+		for(unsigned int hh=0; hh<totalInBlock; ++hh)
 		{
 			SEntries[totalEntries].group = z;
 			++totalEntries;
 		}
 	}
-	for(j=0; j<SEntries.size(); ++j)
+
+	for(unsigned int j=0; j<SEntries.size(); ++j)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
 	//RWEntries = new unsigned int[height];
-	for(size_t i=0; i < SEntries.size(); ++i)
+	for(unsigned int i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
 		nimg.bitmap = getSprite(i, table, palette);
@@ -256,24 +200,29 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 {
 	SDL_Surface * ret=NULL;
 
-	long BaseOffset, 
+	unsigned int BaseOffset, 
 		SpriteWidth, SpriteHeight, //format sprite'a
-		LeftMargin, RightMargin, TopMargin,BottomMargin,
-		i, add, FullHeight,FullWidth,
-		TotalRowLength, // dlugosc przeczytanego segmentu
-		RowAdd;//, NextSpriteOffset; //TODO use me
+		TotalRowLength,			// dlugosc przeczytanego segmentu
+		add, FullHeight,FullWidth,
+		RowAdd,					//, NextSpriteOffset; //TODO use me
+		prSize,
+		defType2;
+	int LeftMargin, RightMargin, TopMargin, BottomMargin;
+
 
 	unsigned char SegmentType;//, BL, BR; //TODO use me
 
-	i=BaseOffset=SEntries[SIndex].offset;
-	int prSize=readNormalNr(i,4,FDef);i+=4; //TODO use me
-	int defType2 = readNormalNr(i,4,FDef);i+=4;
-	FullWidth = readNormalNr(i,4,FDef);i+=4;
-	FullHeight = readNormalNr(i,4,FDef);i+=4;
-	SpriteWidth = readNormalNr(i,4,FDef);i+=4;
-	SpriteHeight = readNormalNr(i,4,FDef);i+=4;
-	LeftMargin = readNormalNr(i,4,FDef);i+=4;
-	TopMargin = readNormalNr(i,4,FDef);i+=4;
+	BaseOffset=SEntries[SIndex].offset;
+	struct spriteDef sd = *(struct spriteDef *)(FDef + BaseOffset);
+
+	prSize = SDL_SwapLE32(sd.prSize); //TODO use me
+	defType2 = SDL_SwapLE32(sd.defType2);
+	FullWidth = SDL_SwapLE32(sd.FullWidth);
+	FullHeight = SDL_SwapLE32(sd.FullHeight);
+	SpriteWidth = SDL_SwapLE32(sd.SpriteWidth);
+	SpriteHeight = SDL_SwapLE32(sd.SpriteHeight);
+	LeftMargin = SDL_SwapLE32(sd.LeftMargin);
+	TopMargin = SDL_SwapLE32(sd.TopMargin);
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
@@ -292,7 +241,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
 	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
-	int BaseOffsetor = BaseOffset = i;
+	BaseOffset += sizeof(struct spriteDef);
+	int BaseOffsetor = BaseOffset;
 
 	for(int i=0; i<256; ++i)
 	{
@@ -319,7 +269,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	{
 	case 0:
 	{
-		for (int i=0;i<SpriteHeight;i++)
+		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
@@ -338,7 +288,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	{
 		unsigned int * RWEntriesLoc = (unsigned int *)(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
-		for (int i=0;i<SpriteHeight;i++)
+		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+RWEntriesLoc[i];
 			if (LeftMargin>0)
@@ -354,7 +304,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 				if (SegmentType==0xFF)
 				{
-					for (int k=0; k<SegmentLength;k++)
+					for (unsigned int k=0; k<SegmentLength;k++)
 					{
 						((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
 						if ((TotalRowLength+k)>=SpriteWidth)
@@ -389,7 +339,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
 		}*/
 		BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor ); //was + RWEntries[0];
-		for (int i=0;i<SpriteHeight;i++)
+		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
@@ -433,7 +383,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		{
 			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
 		}*/
-		for (int i=0;i<SpriteHeight;i++)
+		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor+i*2*(SpriteWidth/32) ); //was + RWEntries[i] before speedup
 			if (LeftMargin>0)

@@ -1,6 +1,7 @@
 #ifndef __CDEFHANDLER_H__
 #define __CDEFHANDLER_H__
 #include "../client/CBitmapHandler.h"
+#include <SDL_stdinc.h>
 struct SDL_Surface;
 class CDefEssential;
 class CLodHandler;
@@ -22,10 +23,50 @@ struct Cimage
 	SDL_Surface * bitmap;
 };
 
+// Def entry in file. Integer fields are all little endian and will
+// need to be converted.
+struct defEntryBlock {
+	Uint32 unknown1;
+	Uint32 totalInBlock;
+	Uint32 unknown2;
+	Uint32 unknown3;
+	unsigned char data[0];
+};
+
+// Def entry in file. Integer fields are all little endian and will
+// need to be converted.
+struct defEntry {
+	Uint32 DEFType;
+	Uint32 width;
+	Uint32 height;
+	Uint32 totalBlocks;
+
+	struct {
+		unsigned char R;
+		unsigned char G;
+		unsigned char B;
+	} palette[256];
+
+	struct defEntryBlock blocks[0];
+};
+
+// Def entry in file. Integer fields are all little endian and will
+// need to be converted.
+struct spriteDef {
+	Uint32 prSize;
+	Uint32 defType2;
+	Uint32 FullWidth;
+	Uint32 FullHeight;
+	Uint32 SpriteWidth;
+	Uint32 SpriteHeight;
+	Uint32 LeftMargin;
+	Uint32 TopMargin;
+};
+
 class CDefHandler
 {
 private:
-	int totalEntries, DEFType, totalBlocks;
+	unsigned int totalEntries, DEFType, totalBlocks;
 	bool allowRepaint;
 	int length;
 	//unsigned int * RWEntries;
