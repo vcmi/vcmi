@@ -287,22 +287,6 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 	}
 }
 
-int CLodHandler::readNormalNr (const unsigned char* bufor, int bytCon, bool cyclic)
-{
-	int ret=0;
-	int amp=1;
-	for (int i=0; i<bytCon; i++)
-	{
-		ret+=bufor[i]*amp;
-		amp*=256;
-	}
-	if(cyclic && bytCon<4 && ret>=amp/2)
-	{
-		ret = ret-amp;
-	}
-	return ret;
-}
-
 void CLodHandler::init(std::string lodFile, std::string dirName)
 {
 	myDir = dirName;
