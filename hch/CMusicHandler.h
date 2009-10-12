@@ -23,6 +23,32 @@ struct _Mix_Music;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
 
+
+// Sound infos for creatures in combat
+struct CreaturesBattleSounds {
+	soundBase::soundID attack;
+	soundBase::soundID defend;
+	soundBase::soundID killed; // was killed or died
+	soundBase::soundID move;
+	soundBase::soundID shoot; // range attack
+	soundBase::soundID wince; // attacked but did not die
+	soundBase::soundID ext1;  // creature specific extension
+	soundBase::soundID ext2;  // creature specific extension
+	soundBase::soundID startMoving; // usually same as ext1
+	soundBase::soundID endMoving;	// usually same as ext2
+
+	CreaturesBattleSounds(): attack(soundBase::invalid),
+							 defend(soundBase::invalid),
+							 killed(soundBase::invalid),
+							 move(soundBase::invalid),
+							 shoot(soundBase::invalid),
+							 wince(soundBase::invalid),
+							 ext1(soundBase::invalid),
+							 ext2(soundBase::invalid),
+							 startMoving(soundBase::invalid),
+							 endMoving(soundBase::invalid) {};
+};
+
 class CAudioBase {
 protected:
 	bool initialized;
@@ -61,11 +87,15 @@ public:
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
+	std::vector <struct CreaturesBattleSounds> CBattleSounds;
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> horseSounds;
 };
+
+// Helper
+#define battle_sound(creature,what_sound) CGI->soundh->CBattleSounds[(creature)->idNumber].what_sound
 
 class CMusicHandler: public CAudioBase
 {

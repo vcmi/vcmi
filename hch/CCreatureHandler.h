@@ -45,26 +45,6 @@ public:
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
 
-	// Sound infos
-	class sounds {
-	public:
-		soundBase::soundID attack;
-		soundBase::soundID defend;
-		soundBase::soundID killed; // was killed died
-		soundBase::soundID move;
-		soundBase::soundID shoot; // range attack
-		soundBase::soundID wince; // attacked but did not die
-		soundBase::soundID ext1;  // creature specific extension
-		soundBase::soundID ext2;  // creature specific extension
-		soundBase::soundID startMoving; // usually same as ext1
-		soundBase::soundID endMoving;	// usually same as ext2
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & attack & defend & killed & move & shoot & wince & ext1 & ext2 & startMoving & endMoving;
-		}
-	} sounds;
-
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot
@@ -95,8 +75,6 @@ public:
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
-
-		h & sounds;
 	}
 };
 

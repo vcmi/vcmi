@@ -154,6 +154,8 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");
 	std::string line;
 
+	CBattleSounds.resize(creatures.size());
+
 	while(getline(ifs, line))
 	{
 		std::string cname="", attack="", defend="", killed="", move="", 
@@ -179,27 +181,25 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 				continue;
 			}
 
-			CCreature &c = creatures[id];
-
-			if (c.sounds.killed != soundBase::invalid)
+			if (CBattleSounds[id].killed != soundBase::invalid)
 				tlog1 << "Creature << " << cname << " already has sounds" << std::endl;
 			
-			c.sounds.attack = getSoundID(attack);
-			c.sounds.defend = getSoundID(defend);
-			c.sounds.killed = getSoundID(killed);
-			c.sounds.move = getSoundID(move);
-			c.sounds.shoot = getSoundID(shoot);
-			c.sounds.wince = getSoundID(wince);
-			c.sounds.ext1 = getSoundID(ext1);
-			c.sounds.ext2 = getSoundID(ext2);
+			CBattleSounds[id].attack = getSoundID(attack);
+			CBattleSounds[id].defend = getSoundID(defend);
+			CBattleSounds[id].killed = getSoundID(killed);
+			CBattleSounds[id].move = getSoundID(move);
+			CBattleSounds[id].shoot = getSoundID(shoot);
+			CBattleSounds[id].wince = getSoundID(wince);
+			CBattleSounds[id].ext1 = getSoundID(ext1);
+			CBattleSounds[id].ext2 = getSoundID(ext2);
 
 			// Special creatures
-			if (c.idNumber == 55 || // Archdevil
-				c.idNumber == 62 || // Vampire
-				c.idNumber == 62)	// Vampire Lord
+			if (id == 55 || // Archdevil
+				id == 62 || // Vampire
+				id == 62)	// Vampire Lord
 			{
-				c.sounds.startMoving = c.sounds.ext1;
-				c.sounds.endMoving = c.sounds.ext2;
+				CBattleSounds[id].startMoving = CBattleSounds[id].ext1;
+				CBattleSounds[id].endMoving = CBattleSounds[id].ext2;
 			}
 		}
 	}

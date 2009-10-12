@@ -461,13 +461,13 @@ bool CDefenceAnim::init()
 		
 	if(killed)
 	{
-		CGI->soundh->playSound(attacked->creature->sounds.killed);
+		CGI->soundh->playSound(battle_sound(attacked->creature, killed));
 		owner->creAnims[stackID]->setType(5); //death
 	}
 	else
 	{
 		// TODO: this block doesn't seems correct if the unit is defending.
-		CGI->soundh->playSound(attacked->creature->sounds.wince);
+		CGI->soundh->playSound(battle_sound(attacked->creature, wince));
 		owner->creAnims[stackID]->setType(3); //getting hit
 	}
 
@@ -566,7 +566,7 @@ bool CBattleStackMoved::init()
 	//unit reversed
 
 	if(owner->moveSh <= 0)
-		owner->moveSh = CGI->soundh->playSound(movedStack->creature->sounds.move, -1);
+		owner->moveSh = CGI->soundh->playSound(battle_sound(movedStack->creature, move), -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
@@ -682,8 +682,7 @@ bool CBattleMoveStart::init()
 		return false;
 	}
 
-	if (movedStack->creature->sounds.startMoving)
-		CGI->soundh->playSound(movedStack->creature->sounds.startMoving);
+	CGI->soundh->playSound(battle_sound(movedStack->creature, startMoving));
 
 	return true;
 }
@@ -728,11 +727,7 @@ bool CBattleMoveEnd::init()
 		return false;
 	}
 
-	
-	if (movedStack->creature->sounds.endMoving)
-	{
-		CGI->soundh->playSound(movedStack->creature->sounds.endMoving);
-	}
+	CGI->soundh->playSound(battle_sound(movedStack->creature, endMoving));
 
 	owner->creAnims[stackID]->setType(21);
 
@@ -779,15 +774,16 @@ void CBattleAttack::nextFrame()
 			// twice. The following is just a workaround until
 			// that is fixed. Once done, we can get rid of
 			// sh
-			if (sh == -1)
-				sh = CGI->soundh->playSound(attackingStack->creature->sounds.shoot);
+			if (sh == -1) {
+				sh = CGI->soundh->playSound(battle_sound(attackingStack->creature, shoot));
+			}
 			owner->creAnims[stackID]->setType(group);
 		}
 		else
 		{
 			// TODO: see comment above
 			if (sh == -1)
-				sh = CGI->soundh->playSound(attackingStack->creature->sounds.attack);
+				sh = CGI->soundh->playSound(battle_sound(attackingStack->creature, attack));
 
 			static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
 			int type; //dependent on attack direction
