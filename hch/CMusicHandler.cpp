@@ -39,7 +39,7 @@ void CAudioBase::init()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
-		tlog1 << "Mix_OpenAudio error: %s!!!" << Mix_GetError() << std::endl;
+		tlog1 << "Mix_OpenAudio error: " << Mix_GetError() << std::endl;
 		return;
 	}
 
@@ -263,7 +263,7 @@ int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 	{
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
-			tlog1 << "Unable to play sound file " << soundID << std::endl;
+			tlog1 << "Unable to play sound file " << soundID << " , error " << Mix_GetError() << std::endl;
 		
 	} else {
 		channel = -1;
