@@ -60,7 +60,9 @@ CBuildingRect::CBuildingRect(Structure *Str)
 		area = border = NULL;
 		return;
 	}
-	if (border = BitmapHandler::loadBitmap(str->borderName)) //FIXME hmmm if '=' use () else '==' fatal mistake
+
+	border = BitmapHandler::loadBitmap(str->borderName);
+	if (border)
 	{
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	}
@@ -68,7 +70,9 @@ CBuildingRect::CBuildingRect(Structure *Str)
 	{
 		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
 	}
-	if (area = BitmapHandler::loadBitmap(str->areaName))//FIXME look up
+
+	area = BitmapHandler::loadBitmap(str->areaName); //FIXME look up
+	if (area)
 	{ 
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
 	}
@@ -1045,6 +1049,8 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		{
 			LOCPLINT->cb->swapGarrisonHero(town);
 		}
+		break;
+	default:
 		break;
 	}
 }
