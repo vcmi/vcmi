@@ -59,6 +59,7 @@ public:
 	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	void incrementFrame();
 	int getFrame() const;
+	bool onFirstFrameInGroup();
 	bool onLastFrameInGroup();
 
 	bool once;

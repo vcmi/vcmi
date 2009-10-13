@@ -179,7 +179,6 @@ protected:
 	int posShiftDueToDist;
 	bool shooting;
 	int group; //if shooting is true, print this animation group
-	int sh;			   // temporary sound handler
 	const CStack * attackedStack;
 	const CStack * attackingStack;
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature

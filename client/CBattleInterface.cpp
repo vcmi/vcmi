@@ -765,38 +765,12 @@ void CBattleAttack::nextFrame()
 	if(owner->creAnims[stackID]->getType() != group)
 		owner->creAnims[stackID]->setType(group);
 
-	if(owner->creAnims[stackID]->getFrame() == 0)
+	if(owner->creAnims[stackID]->onFirstFrameInGroup())
 	{
 		if(shooting)
-		{
-			// TODO: I see that we enter this function twice with
-			// attackingInfo->frame==0, so all the inits are done
-			// twice. The following is just a workaround until
-			// that is fixed. Once done, we can get rid of
-			// sh
-			if (sh == -1) {
-				sh = CGI->soundh->playSound(battle_sound(attackingStack->creature, shoot));
-			}
-			owner->creAnims[stackID]->setType(group);
-		}
+			CGI->soundh->playSound(battle_sound(attackingStack->creature, shoot));
 		else
-		{
-			// TODO: see comment above
-			if (sh == -1)
-				sh = CGI->soundh->playSound(battle_sound(attackingStack->creature, attack));
-
-			static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
-			int type; //dependent on attack direction
-			if(attackingStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-			{
-				type = dirToType[ BattleInfo::mutualPosition(attackingStackPosBeforeReturn + posShiftDueToDist, dest) ]; //attack direction
-			}
-			else //else for if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
-			{
-				type = BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest);
-			}
-			owner->creAnims[stackID]->setType(type);
-		}
+			CGI->soundh->playSound(battle_sound(attackingStack->creature, attack));
 	}
 	else if(owner->creAnims[stackID]->onLastFrameInGroup())
 	{
@@ -812,7 +786,7 @@ bool CBattleAttack::checkInitialConditions()
 }
 
 CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
-: CBattleStackAnimation(_owner, _stackID), sh(-1), dest(_dest)
+: CBattleStackAnimation(_owner, _stackID), dest(_dest)
 {
 	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
 	attackingStack = LOCPLINT->cb->battleGetStackByID(_stackID, false);

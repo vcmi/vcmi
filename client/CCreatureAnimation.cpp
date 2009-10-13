@@ -153,6 +153,11 @@ int CCreatureAnimation::getFrame() const
 	return curFrame;
 }
 
+bool CCreatureAnimation::onFirstFrameInGroup()
+{
+	return internalFrame == 0;
+}
+
 bool CCreatureAnimation::onLastFrameInGroup()
 {
 	if(internalFrame == frameGroups[type].size() - 1)
