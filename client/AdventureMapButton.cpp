@@ -126,9 +126,10 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
-	if (down)
+	if (down) {
+		CGI->soundh->playSound(soundBase::button);
 		state=1;
-	else
+	} else
 		state=0;
 	show(screenBuf);
 	if (actOnDown && down)
@@ -304,9 +305,10 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
-	if (down)
+	if (down) {
+		CGI->soundh->playSound(soundBase::button);
 		state = 1;
-	else
+	} else
 		state = selected ? 3 : 0;
 	show(screenBuf);
 	if(previousState  &&  down == false)

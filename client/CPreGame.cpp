@@ -608,7 +608,6 @@ void SelectionTab::select( int position )
 	amax(py, 0);
 	amin(py, curItems.size()-1);
 
-	CGI->soundh->playSound(soundBase::button);
 	selectionPos = py;
 
 	if(position < 0)
@@ -787,7 +786,7 @@ void SelectionTab::onDoubleClick()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
-		//act as start button was pressed
+		//act as if start button was pressed
 		(static_cast<CSelectionScreen*>(parent))->start->callback();
 	}
 }
@@ -933,7 +932,7 @@ void InfoCard::showAll( SDL_Surface * to )
 		blitAtLoc(sizes->ourImages[temp].bitmap, 318, 22, to);
 		temp = curMap->victoryCondition.condition;
 		if (temp>12) temp=11;
-		blitAtLoc(CGP->victory->ourImages[temp].bitmap, 24, 302, to); //vicotry cond descr
+		blitAtLoc(CGP->victory->ourImages[temp].bitmap, 24, 302, to); //victory cond descr
 		temp=curMap->lossCondition.typeOfLossCon;
 		if (temp>12) temp=3;
 		blitAtLoc(CGP->loss->ourImages[temp].bitmap, 24, 359, to); //loss cond 
