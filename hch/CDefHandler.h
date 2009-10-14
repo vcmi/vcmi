@@ -25,7 +25,7 @@ struct Cimage
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct defEntryBlock {
+struct SDefEntryBlock {
 	Uint32 unknown1;
 	Uint32 totalInBlock;
 	Uint32 unknown2;
@@ -35,7 +35,7 @@ struct defEntryBlock {
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct defEntry {
+struct SDefEntry {
 	Uint32 DEFType;
 	Uint32 width;
 	Uint32 height;
@@ -47,12 +47,12 @@ struct defEntry {
 		unsigned char B;
 	} palette[256];
 
-	struct defEntryBlock blocks[0];
+	struct SDefEntryBlock * blocks;
 };
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct spriteDef {
+struct SSpriteDef {
 	Uint32 prSize;
 	Uint32 defType2;
 	Uint32 FullWidth;

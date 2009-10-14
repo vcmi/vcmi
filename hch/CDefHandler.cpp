@@ -70,7 +70,7 @@ void CDefHandler::openDef(std::string name)
 void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 {
 	BMPPalette palette[256];
-	struct defEntry &de = *(struct defEntry *)table;
+	SDefEntry &de = * reinterpret_cast<SDefEntry *>(table);
 	unsigned char *p;
 
 	defName = name;
@@ -87,11 +87,11 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		palette[it].F = 0;
 	}
 
-	p = (unsigned char *)de.blocks;
+	p = reinterpret_cast<unsigned char *>(de.blocks);
 	totalEntries=0;
 	for (unsigned int z=0; z<totalBlocks; z++)
 	{
-		struct defEntryBlock &block = *(struct defEntryBlock *)p;
+		SDefEntryBlock &block = * reinterpret_cast<SDefEntryBlock *>(p);
 		unsigned int totalInBlock;
 
 		totalInBlock = SDL_SwapLE32(block.totalInBlock);
@@ -110,7 +110,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		}
 		for (unsigned int j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = SDL_SwapLE32(*(Uint32 *)p);
+			SEntries[totalEntries+j].offset = SDL_SwapLE32(* reinterpret_cast<Uint32 *>(p));
             p += 4;
 		}
 		//totalEntries+=totalInBlock;
@@ -212,8 +212,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	unsigned char SegmentType;//, BL, BR; //TODO use me
 
-	BaseOffset=SEntries[SIndex].offset;
-	struct spriteDef sd = *(struct spriteDef *)(FDef + BaseOffset);
+	BaseOffset = SEntries[SIndex].offset;
+	SSpriteDef sd = * reinterpret_cast<SSpriteDef *>(FDef + BaseOffset);
 
 	prSize = SDL_SwapLE32(sd.prSize); //TODO use me
 	defType2 = SDL_SwapLE32(sd.defType2);
@@ -241,7 +241,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
 	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
-	BaseOffset += sizeof(struct spriteDef);
+	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
 	for(int i=0; i<256; ++i)
@@ -286,7 +286,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 1:
 	{
-		unsigned int * RWEntriesLoc = (unsigned int *)(FDef+BaseOffset);
+		unsigned int * RWEntriesLoc = reinterpret_cast<unsigned int *>(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{

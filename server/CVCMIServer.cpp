@@ -153,7 +153,7 @@ void CVCMIServer::start()
 	tlog0<<"Got connection!" << std::endl;
 	while(!end2)
 	{
-		uint8_t mode;
+		ui8 mode;
 		*connection >> mode;
 		switch (mode)
 		{
