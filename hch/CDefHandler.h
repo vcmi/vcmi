@@ -47,7 +47,7 @@ struct SDefEntry {
 		unsigned char B;
 	} palette[256];
 
-	struct SDefEntryBlock * blocks;
+	struct SDefEntryBlock blocks[];
 };
 
 // Def entry in file. Integer fields are all little endian and will
