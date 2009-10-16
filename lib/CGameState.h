@@ -254,7 +254,7 @@ struct UpgradeInfo
 
 struct CPathNode
 {
-	bool accesible; //true if a hero can be on this node
+	bool accessible; //true if a hero can be on this node
 	int dist; //distance from the first node of searching; -1 is infinity
 	CPathNode * theNodeBefore;
 	int3 coord; //coordiantes

@@ -1911,7 +1911,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 			const TerrainTile *tinfo = &map->terrain[i][j][src.z];
 			CPathNode &node = graph[i][j];
 
-			node.accesible = !tinfo->blocked;
+			node.accessible = !tinfo->blocked;
 			node.dist = -1;
 			node.theNodeBefore = NULL;
 			node.visited = false;
@@ -1925,7 +1925,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 				|| !FoW[i][j][src.z] //tile is covered by the FoW
 			)
 			{
-				node.accesible = false;
+				node.accessible = false;
 			}
 		}
 	}
@@ -1939,7 +1939,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		//tile may be blocked by blockvis / normal vis obj but it still must be accessible
 		if(t->visitable) 
 		{
-			d.accesible = true; //for allowing visiting objects
+			d.accessible = true; //for allowing visiting objects
 		}
 
 		if(blockLandSea && t->tertype == TerrainTile::water) //hero can walk only on land and dst lays on the water
@@ -1949,11 +1949,11 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 				if(t->visitableObjects[i]->ID == 8  ||  t->visitableObjects[i]->ID == HEROI_TYPE) //it's a Boat
 					break;
 
-			d.accesible = (i < t->visitableObjects.size()); //dest is accessible only if there is boat/hero
+			d.accessible = (i < t->visitableObjects.size()); //dest is accessible only if there is boat/hero
 		}
 		else if(!blockLandSea && t->tertype != TerrainTile::water) //hero is moving by water
 		{
-			d.accesible = (t->siodmyTajemniczyBajt & 64) && !t->blocked; //tile is accessible if it's coastal and not blocked
+			d.accessible = (t->siodmyTajemniczyBajt & 64) && !t->blocked; //tile is accessible if it's coastal and not blocked
 		}
 	}
 
@@ -1991,10 +1991,10 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
 			CPathNode & dp = graph[neighbours[i].x][neighbours[i].y];
-			if(dp.accesible)
+			if(dp.accessible)
 			{
 				int cost = getMovementCost(hero,cp.coord,dp.coord,hero->movement - cp.dist);
-				if((dp.dist==-1 || (dp.dist > cp.dist + cost)) && dp.accesible && checkForVisitableDir(cp.coord, dp.coord) && checkForVisitableDir(dp.coord, cp.coord))
+				if((dp.dist==-1 || (dp.dist > cp.dist + cost)) && dp.accessible && checkForVisitableDir(cp.coord, dp.coord) && checkForVisitableDir(dp.coord, cp.coord))
 				{
 					dp.dist = cp.dist + cost;
 					dp.theNodeBefore = &cp;

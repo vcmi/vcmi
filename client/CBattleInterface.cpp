@@ -1172,14 +1172,14 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		int x = 14 + ((h/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(h%BFIELD_WIDTH);
 		int y = 86 + 42 * (h/BFIELD_WIDTH);
 		bfield[h].pos = genRect(cellShade->h, cellShade->w, x + pos.x, y + pos.y);
-		bfield[h].accesible = true;
+		bfield[h].accessible = true;
 		bfield[h].myInterface = this;
 	}
 	//locking occupied positions on batlefield
 	for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) //stacks gained at top of this function
 	{
 		if(it->second.position >= 0) //turrets have position < 0
-			bfield[it->second.position].accesible = false;
+			bfield[it->second.position].accessible = false;
 	}
 
 	//loading projectiles for units
@@ -3307,7 +3307,7 @@ void CBattleHex::hover(bool on)
 	}
 }
 
-CBattleHex::CBattleHex() : setAlterText(false), myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL)
+CBattleHex::CBattleHex() : setAlterText(false), myNumber(-1), accessible(true), hovered(false), strictHovered(false), myInterface(NULL)
 {
 }
 
