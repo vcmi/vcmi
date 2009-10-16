@@ -87,7 +87,10 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		palette[it].F = 0;
 	}
 
-	p = reinterpret_cast<unsigned char *>(de.blocks);
+	// The SDefEntryBlock starts just after the SDefEntry
+	p = reinterpret_cast<unsigned char *>(&de);
+	p += sizeof(de);
+
 	totalEntries=0;
 	for (unsigned int z=0; z<totalBlocks; z++)
 	{

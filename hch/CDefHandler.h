@@ -47,7 +47,9 @@ struct SDefEntry {
 		unsigned char B;
 	} palette[256];
 
-	struct SDefEntryBlock blocks[];
+	// SDefEntry is followed by a series of SDefEntryBlock
+	// This is commented out because VC++ doesn't accept C99 syntax.
+	//struct SDefEntryBlock blocks[];
 };
 
 // Def entry in file. Integer fields are all little endian and will
