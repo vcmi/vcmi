@@ -50,6 +50,12 @@ extern std::string NAME_AFFIX; //client / server
 #define SERVER_NAME "vcmiserver"
 #endif
 
+#ifdef _WIN32
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
 /*
  * global.h, part of VCMI engine
  *
