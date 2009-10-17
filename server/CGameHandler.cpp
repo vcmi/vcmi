@@ -408,7 +408,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 				for(int g=0; g<gs->curB->stacks.size(); ++g)
 				{
-					if(gs->curB->stacks[g]->attackerOwned)
+					if(gs->curB->stacks[g]->attackerOwned && gs->curB->stacks[g]->alive())
 					{
 						attack.destinationTile = gs->curB->stacks[g]->position;
 						break;
