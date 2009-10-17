@@ -2445,9 +2445,13 @@ void CBattleInterface::hexLclicked(int whichOne)
 					}
 				}
 
-				giveCommand(6, attackFromHex, activeStack, whichOne);
+				if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+				{
+					giveCommand(6, attackFromHex, activeStack, whichOne);
+					
+					CGI->curh->changeGraphic(1, 6); //cursor should be changed
+				}
 
-				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}
 	}
