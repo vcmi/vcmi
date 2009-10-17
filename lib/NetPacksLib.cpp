@@ -1016,7 +1016,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 {
 	for(int g=0; g<healedStacks.size(); ++g)
 	{
-		CStack * changedStack = gs->curB->stacks[healedStacks[g].stackID];
+		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
 		std::vector<int> access = gs->curB->getAccessibility(changedStack->ID, true);
@@ -1031,19 +1031,26 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			return; //position is already occupied
 
 		//applying changes
+		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
 		if(!changedStack->alive())
 		{
 			changedStack->state.insert(ALIVE);
 		}
 		int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
-		changedStack->amount += healedStacks[g].healedHP / changedStack->MaxHealth();
-		changedStack->firstHPleft += healedStacks[g].healedHP - changedStack->amount * changedStack->MaxHealth();
+		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->amount );
+		changedStack->amount += res;
+		changedStack->firstHPleft += healedStacks[g].healedHP - res * changedStack->MaxHealth();
 		if(changedStack->firstHPleft > changedStack->MaxHealth())
 		{
 			changedStack->firstHPleft -= changedStack->MaxHealth();
-			changedStack->amount += 1;
+			if(changedStack->baseAmount > changedStack->amount)
+			{
+				changedStack->amount += 1;
+			}
 		}
+		amin(changedStack->firstHPleft, changedStack->MaxHealth());
 		//removal of negative effects
+		if(resurrected)
 		{
 			for(int h=0; h<changedStack->effects.size(); ++h)
 			{

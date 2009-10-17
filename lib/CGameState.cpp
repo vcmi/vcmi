@@ -526,7 +526,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) c
 {
 	std::vector<int> ret;
 	bool ac[BFIELD_SIZE];
-	const CStack *s = getStack(stackID);
+	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
 
 	if(s->position < 0) //turrets
 		return std::vector<int>();
