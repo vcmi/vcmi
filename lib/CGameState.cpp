@@ -724,20 +724,13 @@ ui32 CStack::Speed( int turn /*= 0*/ ) const
 	int percentBonus = 0;
 	for(int g=0; g<features.size(); ++g)
 	{
-		if(features[g].type == StackFeature::SPEED_BONUS, -1024, turn)
+		if(features[g].type == StackFeature::SPEED_BONUS)
 		{
 			percentBonus += features[g].additionalInfo;
 		}
 	}
 
-	if(percentBonus < 0)
-	{
-		speed = (abs(percentBonus) * speed)/100;
-	}
-	else
-	{
-		speed = ((100 + percentBonus) * speed)/100;
-	}
+	speed = ((100 + percentBonus) * speed)/100;
 
 	//bind effect check
 	if(getEffect(72)) 

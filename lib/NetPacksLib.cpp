@@ -910,7 +910,7 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;
 	case 54: //slow
-		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, 0, sse.turnsRemain, -1 * VLC->spellh->spells[sse.id].powers[sse.level]));
+		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, 0, sse.turnsRemain, -1 * ( 100 - VLC->spellh->spells[sse.id].powers[sse.level] ) ));
 		break;
 	case 55: //slayer
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
