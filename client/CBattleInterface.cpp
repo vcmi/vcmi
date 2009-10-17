@@ -1051,7 +1051,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 
 	//preparing siege info
 	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
-	if(town)
+	if(town && town->hasFort())
 	{
 		siegeH = new SiegeHelper(town, this);
 	}

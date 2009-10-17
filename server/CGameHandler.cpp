@@ -1100,7 +1100,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 			stacks.push_back(stack);
 		}
 	}
-	if(town && hero1) //catapult
+	if(town && hero1 && town->hasFort()) //catapult
 	{
 		CStack * stack = curB->generateNewStack(hero1, 145, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 120);
 		stacks.push_back(stack);
@@ -1127,7 +1127,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//seting up siege
-	if(town)
+	if(town && town->hasFort())
 	{
 		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
 		{
