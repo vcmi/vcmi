@@ -59,6 +59,8 @@ namespace config
 		//gems
 		int gemX[4], gemY[4];
 		std::vector<std::string> gemG;
+		//in-game console
+		int inputLineLength, outputLineLength;
 	};
 	struct GUIOptions
 	{

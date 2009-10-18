@@ -288,6 +288,12 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 							  | "graphic=" >> fname[AddGemName()]
 							) 
 						 )
+				 | str_p("InGameConsole:") >> 
+						*(	
+							(	"maxInputPerLine=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::inputLineLength)]
+							  |	"maxOutputPerLine=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::outputLineLength)]
+							) 
+						 )
 				;
 			AdvMapOptionsSequence = *(AdvMapOption >> (';' | eps_p[lerror("Semicolon lacking in advmapopt!")]));
 			GUIResolution = (uint_p[assign_a(curRes.first)] >> 'x' >> uint_p[assign_a(curRes.second)])

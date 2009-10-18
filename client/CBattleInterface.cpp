@@ -790,6 +790,10 @@ CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
 {
 	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
 	attackingStack = LOCPLINT->cb->battleGetStackByID(_stackID, false);
+
+	assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
+	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
+
 	attackingStackPosBeforeReturn = attackingStack->position;
 }
 
@@ -3336,8 +3340,8 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			LOCPLINT->cb->battleGetStackByPos(myNumber)->alive())
 		{
 			char tabh[160];
-			CStack attackedStack = *LOCPLINT->cb->battleGetStackByPos(myNumber);
-			const std::string & attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
+			const CStack * attackedStack = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			const std::string & attackedName = attackedStack->amount == 1 ? attackedStack->creature->nameSing : attackedStack->creature->namePl;
 			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);
 			setAlterText = true;

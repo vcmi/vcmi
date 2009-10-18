@@ -3179,11 +3179,30 @@ void CInGameConsole::show(SDL_Surface * to)
 void CInGameConsole::print(const std::string &txt)
 {
 	texts_mx.lock();
+	int lineLen = conf.go()->ac.outputLineLength;
 
-	texts.push_back(std::make_pair(txt, SDL_GetTicks()));
-	if(texts.size() > maxDisplayedTexts)
+	if(txt.size() < lineLen)
 	{
-		texts.pop_front();
+		texts.push_back(std::make_pair(txt, SDL_GetTicks()));
+		if(texts.size() > maxDisplayedTexts)
+		{
+			texts.pop_front();
+		}
+	}
+	else
+	{
+		for(int g=0; g<txt.size() / lineLen + 1; ++g)
+		{
+			std::string part = txt.substr(g * lineLen, lineLen);
+			if(part.size() == 0)
+				break;
+
+			texts.push_back(std::make_pair(part, SDL_GetTicks()));
+			if(texts.size() > maxDisplayedTexts)
+			{
+				texts.pop_front();
+			}
+		}
 	}
 
 	texts_mx.unlock();
@@ -3268,7 +3287,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
-			if(enteredText.size() > 0)
+			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
 			{
 				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
 				{
