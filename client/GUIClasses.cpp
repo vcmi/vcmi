@@ -3421,6 +3421,7 @@ void CRClickPopupInt::show(SDL_Surface * to)
 
 CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
 {
+	CGI->curh->hide();
 	inner = our;
 	delInner = deleteInt;
 }
@@ -3434,6 +3435,8 @@ CRClickPopupInt::~CRClickPopupInt()
 
 	if(delInner)
 		delete inner;
+
+	CGI->curh->show();
 }
 
 
