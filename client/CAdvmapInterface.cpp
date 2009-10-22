@@ -25,6 +25,7 @@
 #include <boost/thread.hpp>
 #include <sstream>
 #include "CPreGame.h"
+#include "../lib/VCMI_Lib.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
