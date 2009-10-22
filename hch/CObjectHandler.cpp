@@ -3846,8 +3846,8 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		switch(artOrRes)
 		{
-		case 0:
-			txtid++;
+		case 0: // first visit but empty
+			txtid+=2;
 			break;
 		case 1: //art
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
