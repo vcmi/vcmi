@@ -5,7 +5,7 @@
 #include "CGeniusAI.h"
 #include "neuralNetwork.h"
 
-namespace GeniusAI {
+namespace geniusai {
 
 class Network
 {

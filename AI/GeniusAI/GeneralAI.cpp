@@ -1,7 +1,7 @@
 #include "GeneralAI.h"
 #include "../../CCallback.h"
 
-using namespace GeniusAI::GeneralAI;
+using namespace geniusai::GeneralAI;
 
 CGeneralAI::CGeneralAI()
 	: m_cb(NULL)

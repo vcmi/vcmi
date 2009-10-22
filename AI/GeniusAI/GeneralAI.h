@@ -3,7 +3,7 @@
 
 #include "Common.h"
 
-namespace GeniusAI { namespace GeneralAI {
+namespace geniusai { namespace GeneralAI {
 
 	class CGeneralAI
 	{

@@ -3,7 +3,7 @@
 
 #include "Common.h"
 
-namespace GeniusAI { namespace BattleAI {
+namespace geniusai { namespace BattleAI {
 
 	class CBattleHelper
 {

@@ -3,7 +3,7 @@
 #define AI_PRIORITIES
 #include "AIPriorities.h"
 #include <sstream>
-using namespace GeniusAI;
+using namespace geniusai;
 Network::Network()
 {}
 Network::Network(vector<unsigned int> whichFeatures)// random network

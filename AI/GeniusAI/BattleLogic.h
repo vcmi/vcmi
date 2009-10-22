@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace GeniusAI { namespace BattleAI {
+namespace geniusai { namespace BattleAI {
 
 /**
  * Class is responsible for making decision during the battle.

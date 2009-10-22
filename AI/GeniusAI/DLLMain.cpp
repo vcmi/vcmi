@@ -4,7 +4,7 @@
 
 #include "CGeniusAI.h"
 
-using namespace GeniusAI;
+using namespace geniusai;
 
 const char *g_cszAiName = "Genius 1.0";
 

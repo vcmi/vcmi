@@ -11,7 +11,7 @@
 
 class CBuilding;
 
-namespace GeniusAI {
+namespace geniusai {
 
 enum BattleState
 {
@@ -28,9 +28,9 @@ class CGeniusAI : public CGlobalAI
 {
 private:
 	ICallback*							m_cb;
-	GeniusAI::BattleAI::CBattleLogic*	m_battleLogic;
-	GeniusAI::GeneralAI::CGeneralAI		m_generalAI;
-	GeniusAI::Priorities *				m_priorities;
+	geniusai::BattleAI::CBattleLogic*	m_battleLogic;
+	geniusai::GeneralAI::CGeneralAI		m_generalAI;
+	geniusai::Priorities *				m_priorities;
 
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?

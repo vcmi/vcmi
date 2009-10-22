@@ -12,7 +12,7 @@ HANDLE handleIn;
 HANDLE handleOut;
 #endif
 
-using namespace GeniusAI::BattleAI;
+using namespace geniusai::BattleAI;
 using namespace boost::lambda;
 using namespace std;
 
