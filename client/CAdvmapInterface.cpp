@@ -558,25 +558,18 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
 	int3 mp = whichTileIsIt();
-	if ((mp.x<0) 
-		|| (mp.y<0) 
-		|| down != true
-	  )
-	{
-		LOCPLINT->adventureInt->handleRightClick("",down,this);
+
+	if (!CGI->mh->map->isInTheMap(mp) || down != true)
 		return;
-	}
 
 	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
 	if(!objs.size()) {
 		// Bare or undiscovered terrain
-		if (down) {
-			const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
-			if (tile) {
-				CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype],LOCPLINT->playerID,true);
-				CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
-				GH.pushInt(rcpi);
-			}
+		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
+		if (tile) {
+			CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype],LOCPLINT->playerID,true);
+			CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
+			GH.pushInt(rcpi);
 		}
 		return;
 	}
