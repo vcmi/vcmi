@@ -285,7 +285,16 @@ void CGeneralTextHandler::load()
 	{
 		loadToIt(temp,buf,it,3);
 		restypes.push_back(temp);
-	}	
+	}
+
+	tlog5 << "\t\tReading TERRNAME \n";
+	buf = bitmaph->getTextFile("TERRNAME.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		loadToIt(temp,buf,it,3);
+		terrainNames.push_back(temp);
+	}
 
 	tlog5 << "\t\tReading RANDSIGN \n";
 	buf = bitmaph->getTextFile("RANDSIGN.TXT");
