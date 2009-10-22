@@ -715,6 +715,8 @@ void CRClickPopup::close()
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
  :free(Free),bitmap(Bitmap)
 {
+	CGI->curh->hide();
+
 	pos.x = x;
 	pos.y = y;
 	pos.h = bitmap->h;
@@ -729,6 +731,8 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 
 CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 {
+	CGI->curh->hide();
+
 	free=Free;
 	bitmap=Bitmap;
 
@@ -750,6 +754,10 @@ void CInfoPopup::close()
 void CInfoPopup::show(SDL_Surface * to)
 {
 	blitAt(bitmap,pos.x,pos.y,to);
+}
+CInfoPopup::~CInfoPopup()
+{
+	CGI->curh->show();
 }
 
 void SComponent::init(Etype Type, int Subtype, int Val)

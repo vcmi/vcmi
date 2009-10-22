@@ -118,7 +118,7 @@ public:
 	void show(SDL_Surface * to);
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface *Bitmap = NULL, bool Free = false); //default c-tor
-	~CInfoPopup(){}; //d-tor
+	~CInfoPopup(); //d-tor
 };
 
 class SComponent : public virtual CIntObject //common popup window component
