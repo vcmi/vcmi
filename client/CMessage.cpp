@@ -311,7 +311,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 	} //ends for(int i=0; i<brtext->size();i++)
 	return txtg;
 }
-CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int Rmar, int Tmar, int Bmar)
+CSimpleWindow * CMessage::genWindow(std::string text, int player, bool centerOnMouse, int Lmar, int Rmar, int Tmar, int Bmar)
 {
 	CSimpleWindow * ret = new CSimpleWindow();
 	int fontHeight;
@@ -321,8 +321,19 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,player);
 	ret->pos.h = ret->bitmap->h;
 	ret->pos.w = ret->bitmap->w;
-	ret->pos.x = screen->w/2 - (ret->pos.w/2);
-	ret->pos.y = screen->h/2 - (ret->pos.h/2);
+	if (centerOnMouse) {
+		ret->pos.x = GH.current->motion.x - ret->pos.w/2;
+		ret->pos.y = GH.current->motion.y - ret->pos.h/2;
+		// Put the window back on screen if necessary
+		amax(ret->pos.x, 0);
+		amax(ret->pos.y, 0);
+		amin(ret->pos.x, conf.cc.resx - ret->pos.w);
+		amin(ret->pos.y, conf.cc.resy - ret->pos.h);
+	} else {
+		// Center on screen
+		ret->pos.x = screen->w/2 - (ret->pos.w/2);
+		ret->pos.y = screen->h/2 - (ret->pos.h/2);
+	}
 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
 	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap);
 	delete brtext;

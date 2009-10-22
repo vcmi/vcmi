@@ -62,7 +62,7 @@ public:
 	static std::vector<std::vector<SDL_Surface*> > * drawText(std::vector<std::string> * brtext, int &fontHeigh, TTF_Font *font = NULL);
 	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight, int & curh, SDL_Surface * ret, int xCenterPos=-1); //xPos==-1 works as if ret->w/2
 	static void drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline);
-	static CSimpleWindow * genWindow(std::string text, int player, int Lmar=35, int Rmar=35, int Tmar=35, int Bmar=35);//supports h3 text formatting; player sets color of window, Lmar/Rmar/Tmar/Bmar are Left/Right/Top/Bottom margins
+	static CSimpleWindow * genWindow(std::string text, int player, bool centerOnMouse=false, int Lmar=35, int Rmar=35, int Tmar=35, int Bmar=35);//supports h3 text formatting; player sets color of window, Lmar/Rmar/Tmar/Bmar are Left/Right/Top/Bottom margins
 	static SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly,
 								std::vector<CDefHandler*> *addPics=NULL, void * cb=NULL);
 	static SDL_Surface * drawBox1(int w, int h, int playerColor=1);

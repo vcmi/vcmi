@@ -1900,7 +1900,7 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 {
 	if (down)
 	{
-		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID);
+		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID,true);
 		CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 		GH.pushInt(rcpi);
 	}
