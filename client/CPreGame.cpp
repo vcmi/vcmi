@@ -731,8 +731,16 @@ void SelectionTab::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
 	printMaps(to);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->arraytxt[type==newGame ? 229 : 230], 208, 34, FONT_MEDIUM, tytulowy, to); //Select a Scenario to Play
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[510], 90, 68, FONT_SMALL, tytulowy, to); //Map sizes
+
+	int txtid;
+	switch(type) {
+	case newGame: txtid = 229; break;
+	case loadGame: txtid = 230; break;
+	case saveGame: txtid = 231; break;
+	}
+
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->arraytxt[txtid], pos.x+205, pos.y+28, FONT_MEDIUM, tytulowy, to); //Select a Scenario to Play
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[510], pos.x+87, pos.y+62, FONT_SMALL, tytulowy, to); //Map sizes
 }
 
 void SelectionTab::clickLeft( tribool down, bool previousState )
