@@ -842,6 +842,9 @@ const CGPathNode * CCallback::getPathInfo( int3 tile )
 
 bool CCallback::getPath2( int3 dest, CGPath &ret )
 {
+	if (!gs->map->isInTheMap(dest))
+		return false;
+
 	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
 	assert(cl->pathInfo->hero == h);
 	if(cl->pathInfo->hpos != h->getPosition(false)) //hero position changed, must update paths
