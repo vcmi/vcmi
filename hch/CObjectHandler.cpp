@@ -3767,7 +3767,10 @@ void CGScholar::initObj()
 			bonusID = ran() % SKILL_QUANTITY;
 			break;
 		case 2:
-			bonusID = ran() % SPELLS_QUANTITY;
+			std::vector<ui16> possibilities;
+			for (int i = 1; i < 6; ++i)
+				cb->getAllowedSpells (possibilities, i);
+			bonusID = possibilities[ran() % possibilities.size()];
 			break;
 		}
 	}
