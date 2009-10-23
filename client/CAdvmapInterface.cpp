@@ -1581,7 +1581,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57), LOCPLINT);
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(center(genRect(487, 481, 0, 0)), LOCPLINT);
 	GH.pushInt(sysopWindow);
 }
 
