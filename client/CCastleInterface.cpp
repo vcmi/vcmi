@@ -274,7 +274,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		else if(other->hero && other->highlight)
 		{
 			bool allow = true;
-			if(!upg) //moving hero out of town - check if it is allowed
+			if(upg) //moving hero out of town - check if it is allowed
 			{
 				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= 8)
 				{
