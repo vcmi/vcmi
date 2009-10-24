@@ -486,6 +486,11 @@ unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainT
 	}
 	return ret;
 }
+#if 0
+// Unused and buggy method. 
+//  - for loop is wrong. will not find all creatures. must use iterator instead.
+//  - -> is the slot number. use second->first for creature index
+// Is lowestSpeed() the correct equivalent ?
 unsigned int CGHeroInstance::getLowestCreatureSpeed() const
 {
 	unsigned int sl = 100;
@@ -496,6 +501,7 @@ unsigned int CGHeroInstance::getLowestCreatureSpeed() const
 	}
 	return sl;
 }
+#endif
 int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 {
 	if (toh3m)
