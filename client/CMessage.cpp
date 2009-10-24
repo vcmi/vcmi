@@ -380,18 +380,20 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	// Try to compute a reasonable number of characters per line
 	if (!charperline) 
 	{
-		if (text.size() < 30)
+		if (text.size() < 30 && ret->buttons.size() < 2)
 			charperline = 30;
 		else if (text.size() < 200)
 			charperline = 40;
-		else
+		else if (text.size() < 750)
 			charperline = 50;
+		else
+			charperline = 75; //TODO: add scrollbar for very long texts
 	}
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
 
-	std::vector<std::string> * brtext = breakText(text,charperline,true,true); //text 
+	std::vector<std::string> * brtext = breakText(text, charperline, true, true); //text 
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
 
@@ -400,19 +402,27 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	if (ret->components.size())
 		txts.second += 30 + comps.h; //space to first component
 
+	int bw = 0;
 	if (ret->buttons.size())
+	{
+		// Compute total width of buttons
+		bw = 20*(ret->buttons.size()-1); // space between all buttons
+		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
+			bw+=ret->buttons[i]->imgs[0][0]->w; 
 		txts.second += 20 + //before button
-		ok->ourImages[0].bitmap->h; //button
+		ok->ourImages[0].bitmap->h; //button	
+	}
 
 	// Clip window size
 	amax(txts.first, 80);
 	amax(txts.second, 50);
-	amax(txts.first,comps.w);
+	amax(txts.first, comps.w);
+	amax(txts.first, bw);
 
 	amin(txts.first, conf.cc.resx - 150);
 	amin(txts.second, conf.cc.resy - 150);
 
-	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN,txts.second+2*SIDE_MARGIN,player);
+	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN, txts.second+2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->pos.x=screen->w/2-(ret->pos.w/2);
@@ -429,13 +439,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	if(ret->buttons.size())
 	{
 		// Position the buttons at the bottom of the window
-		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0][0]->h;
-
-		// Compute total width of buttons
-		int bw = 20*(ret->buttons.size()-1); // space between all buttons
-		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
-			bw+=ret->buttons[i]->imgs[0][0]->w; 
 		bw = (ret->bitmap->w/2) - (bw/2);
+		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0][0]->h;
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{

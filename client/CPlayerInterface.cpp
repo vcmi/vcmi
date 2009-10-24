@@ -1232,7 +1232,10 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 		}
 
-		CSelWindow * temp = new CSelWindow(text,playerID,35,intComps,pom,askID);
+		int charperline = 35;
+		if (pom.size() > 1)
+			charperline = 50; 
+		CSelWindow * temp = new CSelWindow(text, playerID, charperline, intComps, pom, askID);
 		GH.pushInt(temp);
 		intComps[0]->clickLeft(true, false);
 	}
