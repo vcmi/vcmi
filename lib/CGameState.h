@@ -35,6 +35,7 @@ class CStack;
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
+class CGDwelling;
 class CGDefInfo;
 class CObjectScript;
 class CGObjectInstance;
@@ -66,6 +67,7 @@ public:
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
+	std::vector<CGDwelling *> dwellings; //used for town growth
 
 	PlayerState();
 

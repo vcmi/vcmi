@@ -918,7 +918,8 @@ class DLL_EXPORT CBank : public CArmedInstance
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
-	void reset(ui16 var1, ui16 var2);
+	void initialize() const;
+	void reset(ui16 var1);
 	void newTurn() const;
 	virtual void onHeroVisit (const CGHeroInstance * h) const;
 	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;

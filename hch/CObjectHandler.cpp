@@ -1201,6 +1201,8 @@ void CGHeroInstance::recreateArtBonuses()
 
 void CGDwelling::initObj()
 {
+	if (getOwner() != 255)
+		cb->gameState()->players[getOwner()].dwellings.push_back (this);
 	switch(ID)
 	{
 	case 17:
@@ -1272,7 +1274,14 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	if(h->tempOwner != tempOwner)
+	{
+		std::vector<CGDwelling *>* dwellings = &(cb->gameState()->players[tempOwner].dwellings);
+		dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 		cb->setOwner(id, h->tempOwner);
+		dwellings = &(cb->gameState()->players[h->tempOwner].dwellings);
+		//dwellings->push_back (this);
+		//cb->gameState()->players[getOwner()].dwellings.push_back (this);
+	}
 
 	BlockingDialog bd;
 	bd.player = h->tempOwner;
@@ -2836,7 +2845,7 @@ void CGPickable::initObj()
 			else
 			{
 				val1 = 1000;
-				val2 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+				val2 = cb->getRandomArt (CArtifact::ART_TREASURE);
 				type = 1;
 			}
 		}
@@ -2845,13 +2854,13 @@ void CGPickable::initObj()
 		{
 			int hlp = ran()%100;
 			if(hlp < 55)
-				val1 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+				val1 = cb->getRandomArt (CArtifact::ART_TREASURE);
 			else if(hlp < 75)
-				val1 = VLC->arth->minors[ran()%VLC->arth->minors.size()]->id;
+				val1 = cb->getRandomArt (CArtifact::ART_MINOR);
 			else if(hlp < 95)
-				val1 = VLC->arth->majors[ran()%VLC->arth->majors.size()]->id;
+				val1 = cb->getRandomArt (CArtifact::ART_MAJOR);
 			else
-				val1 = VLC->arth->relics[ran()%VLC->arth->relics.size()]->id;
+				val1 = cb->getRandomArt (CArtifact::ART_RELIC);
 		}
 		break;
 	case 101: //treasure chest
@@ -2860,7 +2869,7 @@ void CGPickable::initObj()
 			if(hlp >= 95)
 			{
 				type = 1;
-				val1 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+				val1 = cb->getRandomArt (CArtifact::ART_TREASURE);
 				return;
 			}
 			else if (hlp >= 65)
@@ -3902,9 +3911,7 @@ void CGOnceVisitable::initObj()
 			if(hlp < 20)
 			{
 				artOrRes = 1;
-				std::vector<CArtifact*> arts; 
-				cb->getAllowed(arts, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR);
-				bonusType = arts[ran() % arts.size()]->id;
+				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR);
 			}
 			else
 			{
@@ -3925,19 +3932,15 @@ void CGOnceVisitable::initObj()
 		{
 			artOrRes = 1;
 
-			std::vector<CArtifact*> arts; 
-
 			int hlp = ran()%100;
 			if(hlp < 30)
-				cb->getAllowed(arts,CArtifact::ART_TREASURE);
+				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE);
 			else if(hlp < 80)
-				cb->getAllowed(arts,CArtifact::ART_MINOR);
+				bonusType = cb->getRandomArt (CArtifact::ART_MINOR);
 			else if(hlp < 95)
-				cb->getAllowed(arts,CArtifact::ART_MAJOR);
+				bonusType = cb->getRandomArt (CArtifact::ART_MAJOR);
 			else
-				cb->getAllowed(arts,CArtifact::ART_RELIC);
-
-			bonusType = arts[ran() % arts.size()]->id;
+				bonusType = cb->getRandomArt (CArtifact::ART_RELIC);
 		}
 		break;
 
@@ -3952,9 +3955,7 @@ void CGOnceVisitable::initObj()
 			else if(hlp < 50) //minor or treasure art
 			{
 				artOrRes = 1;
-				std::vector<CArtifact*> arts; 
-				cb->getAllowed(arts, CArtifact::ART_TREASURE | CArtifact::ART_MINOR);
-				bonusType = arts[ran() % arts.size()]->id;
+				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR);
 			}
 			else //2 - 5 of non-gold resource
 			{
@@ -4031,7 +4032,7 @@ const std::string & CBank::getHoverText() const
 		hoverName += " " + VLC->generaltexth->allTexts[353];
 	return hoverName;
 }
-void CBank::reset(ui16 var1, ui16 var2) //prevents desync
+void CBank::reset(ui16 var1) //prevents desync
 {
 	ui8 chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
@@ -4043,35 +4044,32 @@ void CBank::reset(ui16 var1, ui16 var2) //prevents desync
 		}
 	}
 	artifacts.clear();
-	std::vector<CArtifact*>::iterator index;
-	for (ui8 i = 0; i <= 3; i++)
-	{	
-		std::vector<CArtifact*> arts; //to avoid addition of different tiers
-		switch (i)
-		{
-			case 0:
-				cb->getAllowed (arts, CArtifact::ART_TREASURE);
-				break;
-			case 1:
-				cb->getAllowed (arts, CArtifact::ART_MINOR);
-				break;
-			case 2:
-				cb->getAllowed (arts, CArtifact::ART_MAJOR);
-				break;
-			case 3:
-				cb->getAllowed (arts, CArtifact::ART_RELIC);
-				break;
-		}
-		for (ui8 n = 0; n < bc->artifacts[i]; n++)
-		{
+}
 
-			index = arts.begin() + var2 % arts.size();
-			artifacts.push_back ((*index)->id);
-			arts.erase(index);
-			var2 *= (var1 + n * i); //almost like random
+void CBank::initialize() const
+{
+	cb->setObjProperty (id, 14, ran()); //synchronous reset
+	for (ui8 i = 0; i <= 3; i++)
+	{
+		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
+		{
+			switch (i)
+			{
+				case 0:
+					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_TREASURE));
+					break;
+				case 1:
+					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_MINOR));
+					break;
+				case 2:
+					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_MAJOR));
+					break;
+				case 3:
+					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_RELIC));
+					break;				
+			}
 		}
 	}
-
 }
 void CBank::setPropertyDer (ui8 what, ui32 val)
 /// random values are passed as arguments and processed identically on all clients
@@ -4091,7 +4089,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			bc = &VLC->objh->banksInfo[index][val];
 			break;
 		case 14:
-			reset (val%100, val);
+			reset (val%100);
 			break;
 		case 15:
 			bc = NULL;
@@ -4100,29 +4098,34 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			artifacts.clear();
 			break;
 		case 17: //set ArmedInstance army
-			int upgraded = 0;
-			if (val%100 < bc->upgradeChance) //once again anti-desync
-				upgraded = 1;
-			switch (bc->guards.size())
 			{
-				case 1:
-					for	(int i = 0; i <= 4; i++)
-						army.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
-					break;
-				case 4:
+				int upgraded = 0;
+				if (val%100 < bc->upgradeChance) //once again anti-desync
+					upgraded = 1;
+				switch (bc->guards.size())
 				{
-					std::vector< std::pair <ui16, ui32> >::const_iterator it;
-					for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+					case 1:
+						for	(int i = 0; i <= 4; i++)
+							army.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
+						break;
+					case 4:
 					{
-						int n = army.slots.size(); //debug
-						army.setCreature (n, it->first, it->second);
+						std::vector< std::pair <ui16, ui32> >::const_iterator it;
+						for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+						{
+							int n = army.slots.size(); //debug
+							army.setCreature (n, it->first, it->second);
+						}
 					}
+						break;
+					default:
+						tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
+						return;
 				}
-					break;
-				default:
-					tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
-					return;
 			}
+			break;
+		case 18: //add Artifact
+			artifacts.push_back (val);
 			break;
 	}
 }
@@ -4132,10 +4135,10 @@ void CBank::newTurn() const
 	if (bc == NULL)
 	{
 		if (cb->getDate(0) == 1)
-			cb->setObjProperty (id, 14, ran()); //initialize on first day
+			initialize(); //initialize on first day
 		else if (daycounter >= 28 && (subID < 13 || subID > 16)) //no reset for Emissaries
 		{
-			cb->setObjProperty (id, 14, ran()); //reset
+			initialize();
 			cb->setObjProperty (id, 11, 0); //daycounter 0
 			if (ID == 24 && cb->getDate(0) > 1)
 				cb->setObjProperty (id, 16, 0); //derelict ships are usable only once
@@ -4311,7 +4314,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else //in case of defeat
-		cb->setObjProperty (id, 14, ran()); //reset
+		initialize();
 }
 
 void CGPyramid::initObj()
