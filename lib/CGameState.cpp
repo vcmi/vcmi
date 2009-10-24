@@ -1683,7 +1683,7 @@ const CGHeroInstance * CGameState::battleGetOwner(int stackID)
 UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
-	const CCreature *base = &VLC->creh->creatures[obj->army.slots.find(stackPos)->first];
+	const CCreature *base = &VLC->creh->creatures[obj->army.slots.find(stackPos)->second.first];
 	if((obj->ID == TOWNI_TYPE)  ||  ((obj->ID == HEROI_TYPE) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
 	{
 		const CGTownInstance * t;
