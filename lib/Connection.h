@@ -444,6 +444,14 @@ public:
 		myVersion = version;
 	}
 
+	~CISer()
+	{
+		std::map<ui16,CBasicPointerLoader*>::iterator iter;
+			
+		for(iter = loaders.begin(); iter != loaders.end(); iter++)
+			delete iter->second;
+	}
+
 	template<typename T> void registerType(const T * t=NULL)
 	{
 		ui16 ID = typeList.registerType(t);
