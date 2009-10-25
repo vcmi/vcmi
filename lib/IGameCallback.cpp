@@ -7,6 +7,7 @@
 #include "../hch/CArtHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include <boost/random/linear_congruential.hpp>
 
 /*
  * IGameCallback.cpp, part of VCMI engine

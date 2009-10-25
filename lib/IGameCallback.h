@@ -4,7 +4,6 @@
 #include "../global.h"
 #include <vector>
 #include <set>
-#include <boost/random/linear_congruential.hpp>
 #include "../client/FunctionList.h"
 
 /*
