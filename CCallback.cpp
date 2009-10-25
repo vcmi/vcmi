@@ -923,6 +923,7 @@ InfoAboutTown::~InfoAboutTown()
 
 void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 {
+	obj = t;
 	army = t->army;
 	built = t->builded;
 	fortLevel = t->fortLevel();
@@ -939,12 +940,12 @@ void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;
 	}
-	else
+	/*else
 	{
 		//hide info about hero stacks counts
 		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
 		{
 			i->second.second = 0;
 		}
-	}
+	}*/
 }

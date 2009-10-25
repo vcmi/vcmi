@@ -640,13 +640,22 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 			if (garr != NULL) {
 				InfoAboutTown iah;
 
+				iah.obj = garr;
 				iah.fortLevel = 0;
 				iah.army = garr->army;
-				iah.name = std::string("Garrison");
+				iah.name = VLC->generaltexth->names[33]; // "Garrison"
 				iah.owner = garr->tempOwner;
 				iah.built = false;
-				iah.details = NULL; // TODO: Find a suitable way to show detailed info.
 				iah.tType = NULL;
+
+				// Show detailed info only to owning player.
+				if (garr->tempOwner == LOCPLINT->playerID) {
+					iah.details = new InfoAboutTown::Details;
+					iah.details->customRes = false;
+					iah.details->garrisonedHero = false;
+					iah.details->goldIncome = -1;
+					iah.details->hallLevel = -1;
+				}
 
 				SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
 				CInfoPopup * ip = new CInfoPopup(iwin,

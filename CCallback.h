@@ -72,6 +72,7 @@ struct InfoAboutTown
 
 	} *details;
 
+	const CArmedInstance * obj;
 	char fortLevel; //0 - none
 	char owner;
 	std::string name;

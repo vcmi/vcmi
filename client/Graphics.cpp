@@ -111,8 +111,16 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
+			// Show exact creature amount.
 			SDL_itoa((*i).second.second,buf,10);
 			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		}
+		else
+		{
+			// Show only a rough amount for creature stacks.
+			// TODO: Deal with case when no information at all about size shold be presented.
+			std::string roughAmount = curh.obj->getRoughAmount(i->first);
+			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
 		}
 	}
 
@@ -132,8 +140,10 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 		if((pom=curh.details->hallLevel) >= 0)
 			blitAt(halls->ourImages[pom].bitmap, 77, 42, ret);
 
-		SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
-		printAtMiddle(buf, 167, 70, GEORM, zwykly, ret);
+		if (curh.details->goldIncome >= 0) {
+			SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
+			printAtMiddle(buf, 167, 70, GEORM, zwykly, ret);
+		}
 		if(curh.details->garrisonedHero) //garrisoned hero icon
 			blitAt(graphics->heroInGarrison,158,87,ret);
 	}
