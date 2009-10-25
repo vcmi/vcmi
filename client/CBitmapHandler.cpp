@@ -22,24 +22,6 @@ int readNormalNr (int pos, int bytCon, const unsigned char * str);
 
 extern DLL_EXPORT CLodHandler *bitmaph;
 
-void BMPHeader::print(std::ostream & out)
-{
-	CDefHandler::print(out,fullSize,4);
-	CDefHandler::print(out,_h1,4);
-	CDefHandler::print(out,_c1,4);
-	CDefHandler::print(out,_c2,4);
-	CDefHandler::print(out,x,4);
-	CDefHandler::print(out,y,4);
-	CDefHandler::print(out,_c3,2);
-	CDefHandler::print(out,_c4,2);
-	CDefHandler::print(out,_h2,4);
-	CDefHandler::print(out,_h3,4);
-	CDefHandler::print(out,dataSize1,4);
-	CDefHandler::print(out,dataSize2,4);
-	for (int i=0;i<8;i++)
-		out << _c5[i];
-	out.flush();
-}
 void CPCXConv::openPCX(char * PCX, int len)
 {
 	pcxs=len;
@@ -57,11 +39,11 @@ void CPCXConv::fromFile(std::string path)
 	is.close();
 }
 
-void CPCXConv::saveBMP(std::string path)
+void CPCXConv::saveBMP(std::string path) const
 {
 	std::ofstream os;
 	os.open(path.c_str(), std::ios::binary);
-	os.write((char*)bmp,bmps);
+	os.write(reinterpret_cast<const char*>(bmp), bmps);
 	os.close();
 }
 
@@ -131,19 +113,14 @@ SDL_Surface * CPCXConv::getSurface() const
 			tp.unused = 0;
 			*(ret->format->palette->colors+i) = tp;
 		}
-		for (y=height;y>0;y--)
+		for (y=height; y>0; --y)
 		{
-			it=0xC+(y-1)*width;
-			for (int j=0;j<width;j++)
-			{
-				*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * j) = pcx[it+j];
-			}
+			it = 0xC + (y-1)*width;
+			memcpy((char*)ret->pixels + ret->pitch * (y-1), pcx + it, width);
+
 			if (add>0)
 			{
-				for (int j=0;j<add;j++)
-				{
-					*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * (j+width)) = 0;
-				}
+				memset((char*)ret->pixels + ret->pitch * (y-1) + width, 0, add);
 			}
 		}
 	}
@@ -151,17 +128,13 @@ SDL_Surface * CPCXConv::getSurface() const
 	{
 		for (y=height; y>0; y--)
 		{
-			it=0xC+(y-1)*width*3;
-			for (int j=0;j<width*3;j++)
-			{
-				*((char*)ret->pixels + ret->pitch * (y-1) + j) = pcx[it+j];
-			}
+			it = 0xC + (y-1)*width*3;
+
+			memcpy((char*)ret->pixels + ret->pitch * (y-1), pcx + it, width*3);
+
 			if (add>0)
 			{
-				for (int j=0;j<add*3;j++)
-				{
-					*((char*)ret->pixels + ret->pitch * (y-1) + (j+width*3)) = 0;
-				}
+				memset((char*)ret->pixels + ret->pitch * (y-1) + width*3, 0, add*3);
 			}
 		}
 	}

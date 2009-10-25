@@ -77,7 +77,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	DEFType = SDL_SwapLE32(de.DEFType);
 	width = SDL_SwapLE32(de.width);
 	height = SDL_SwapLE32(de.height);
-	totalBlocks = SDL_SwapLE32(de.totalBlocks);
+	unsigned int totalBlocks = SDL_SwapLE32(de.totalBlocks);
 
 	for (unsigned int it=0;it<256;it++)
 	{
@@ -91,7 +91,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	p = reinterpret_cast<unsigned char *>(&de);
 	p += sizeof(de);
 
-	totalEntries=0;
+	int totalEntries=0;
 	for (unsigned int z=0; z<totalBlocks; z++)
 	{
 		SDefEntryBlock &block = * reinterpret_cast<SDefEntryBlock *>(p);
@@ -139,27 +139,6 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	}
 }
 
-unsigned char * CDefHandler::writeNormalNr (int nr, int bytCon)
-{
-	//int tralalalatoniedziala = 2*9+100-4*bytCon;
-	//unsigned char * ret = new unsigned char[bytCon];
-	unsigned char * ret = NULL;
-	for(int jj=0; jj<100; ++jj)
-	{
-		ret = (unsigned char*)calloc(1, bytCon);
-		if(ret!=NULL)
-			break;
-	}
-	long long amp = pow((long long int)256,bytCon-1);
-	for (int i=bytCon-1; i>=0;i--)
-	{
-		int test2 = nr/(amp);
-		ret[i]=test2;
-		nr -= (nr/(amp))*amp;
-		amp/=256;
-	}
-	return ret;
-}
 void CDefHandler::expand(unsigned char N,unsigned char & BL, unsigned char & BR)
 {
 	BL = (N & 0xE0) >> 5;
@@ -191,15 +170,8 @@ int CDefHandler::readNormalNr (int pos, int bytCon, const unsigned char * str, b
 	}
 	return ret;
 }
-void CDefHandler::print (std::ostream & stream, int nr, int bytcon)
-{
-	unsigned char * temp = writeNormalNr(nr,bytcon);
-	for (int i=0;i<bytcon;i++)
-		stream << char(temp[i]);
-	free(temp);
-}
 
-SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalette * palette)
+SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const
 {
 	SDL_Surface * ret=NULL;
 
@@ -216,7 +188,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	unsigned char SegmentType;//, BL, BR; //TODO use me
 
 	BaseOffset = SEntries[SIndex].offset;
-	SSpriteDef sd = * reinterpret_cast<SSpriteDef *>(FDef + BaseOffset);
+	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
 
 	prSize = SDL_SwapLE32(sd.prSize); //TODO use me
 	defType2 = SDL_SwapLE32(sd.defType2);
@@ -261,7 +233,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	// If there's a margin anywhere, just blank out the whole surface.
 	if (TopMargin > 0 || BottomMargin > 0 || LeftMargin > 0 || RightMargin > 0) {
-		memset(((char *)ret->pixels), 0, FullHeight*FullWidth);
+		memset( reinterpret_cast<char*>(ret->pixels), 0, FullHeight*FullWidth);
 	}
 
 	// Skip top margin
@@ -277,7 +249,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 
-			memcpy((char*)(ret->pixels)+ftcp, &FDef[BaseOffset], SpriteWidth);
+			memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], SpriteWidth);
 			ftcp += SpriteWidth;
 			BaseOffset += SpriteWidth;
 			
@@ -289,7 +261,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 1:
 	{
-		unsigned int * RWEntriesLoc = reinterpret_cast<unsigned int *>(FDef+BaseOffset);
+		const unsigned int * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
@@ -309,7 +281,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 				{
 					for (unsigned int k=0; k<SegmentLength;k++)
 					{
-						((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
+						(reinterpret_cast<char*>(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
 						if ((TotalRowLength+k)>=SpriteWidth)
 							break;
 					}
@@ -318,7 +290,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 				}
 				else
 				{
-					memset((char*)(ret->pixels)+ftcp, SegmentType, SegmentLength);
+					memset(reinterpret_cast<char*>(ret->pixels)+ftcp, SegmentType, SegmentLength);
 					ftcp += SegmentLength;
 					TotalRowLength += SegmentLength;
 				}
@@ -337,11 +309,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 2:
 	{
-		/*for (int i=0;i<SpriteHeight;i++)
-		{
-			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
-		}*/
-		BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor ); //was + RWEntries[0];
+		BaseOffset = BaseOffsetor + *reinterpret_cast<const unsigned short*>( FDef + BaseOffsetor ); //was + RWEntries[0];
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
@@ -357,13 +325,13 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 				unsigned char value = (SegmentType & 31) + 1;
 				if(code==7)
 				{
-					memcpy((char*)(ret->pixels)+ftcp, &FDef[BaseOffset], value);
+					memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], value);
 					ftcp += value;
 					BaseOffset += value;
 				}
 				else
 				{
-					memset((char*)(ret->pixels)+ftcp, code, value);
+					memset(reinterpret_cast<char*>(ret->pixels)+ftcp, code, value);
 					ftcp += value;
 				}
 				TotalRowLength+=value;
@@ -382,10 +350,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 	case 3:
 	{
-		/*for (int i=0;i<SpriteHeight;i++)
-		{
-			RWEntries[i] = readNormalNr(BaseOffsetor+i*2*(SpriteWidth/32), 2, FDef);
-		}*/
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor+i*2*(SpriteWidth/32) ); //was + RWEntries[i] before speedup

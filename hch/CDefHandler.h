@@ -68,8 +68,7 @@ struct SSpriteDef {
 class CDefHandler
 {
 private:
-	unsigned int totalEntries, DEFType, totalBlocks;
-	bool allowRepaint;
+	unsigned int DEFType;
 	int length;
 	//unsigned int * RWEntries;
 	struct SEntry
@@ -82,19 +81,17 @@ private:
 
 public:
 	int width, height; //width and height
-	std::string defName, curDir;
+	std::string defName;
 	std::vector<Cimage> ourImages;
 	bool alphaTransformed;
 	bool notFreeImgs;
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	static void print (std::ostream & stream, int nr, int bytcon);
 	static int readNormalNr (int pos, int bytCon, const unsigned char * str=NULL, bool cyclic=false);
-	static unsigned char *writeNormalNr (int nr, int bytCon);
-	SDL_Surface * getSprite (int SIndex, unsigned char * FDef, BMPPalette * palette); //zapisuje klatke o zadanym numerze do "testtt.bmp"
+	SDL_Surface * getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const; //zapisuje klatke o zadanym numerze do "testtt.bmp"
 	void openDef(std::string name);
-	void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
+	static void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
 	void openFromMemory(unsigned char * table, std::string name);
 	CDefEssential * essentialize();
 

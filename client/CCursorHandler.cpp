@@ -156,3 +156,12 @@ void CCursorHandler::shiftPos( int &x, int &y )
 		}
 	}
 }
+
+CCursorHandler::~CCursorHandler()
+{
+	if(help)
+		SDL_FreeSurface(help);
+
+	for(int g=0; g<cursors.size(); ++g)
+		delete cursors[g];
+}

@@ -70,7 +70,6 @@ public:
 
 	CLodHandler();
 	~CLodHandler();
-	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
 	std::string getTextFile(std::string name); //extracts one file
