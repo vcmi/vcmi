@@ -329,6 +329,7 @@ public:
 	}
 
 	void initObj();
+	void setProperty(ui8 what, ui32 val);
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h, ui32 answer) const;

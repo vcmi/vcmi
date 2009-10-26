@@ -1201,8 +1201,6 @@ void CGHeroInstance::recreateArtBonuses()
 
 void CGDwelling::initObj()
 {
-	if (getOwner() != 255)
-		cb->gameState()->players[getOwner()].dwellings.push_back (this);
 	switch(ID)
 	{
 	case 17:
@@ -1218,6 +1216,8 @@ void CGDwelling::initObj()
 				army.slots[0].first = crs->idNumber;
 				army.slots[0].second = (8 - crs->level) * 3;
 			}
+			if (getOwner() != 255)
+				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
 		break;
 
@@ -1258,6 +1258,25 @@ void CGDwelling::initObj()
 	}
 }
 
+void CGDwelling::setProperty(ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 1: //change owner
+			if (ID == 17) //single generators
+			{
+				if (tempOwner != NEUTRAL_PLAYER)
+				{
+					std::vector<CGDwelling *>* dwellings = &cb->gameState()->players[tempOwner].dwellings;
+					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
+				}
+				if (val != NEUTRAL_PLAYER) //can new owner be neutral?
+					cb->gameState()->players[val].dwellings.push_back (this);
+			}
+			tempOwner = val;
+			break;
+	}
+}
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(h->tempOwner != tempOwner  &&  army.slots.size() > 0) //object is guarded
@@ -1275,12 +1294,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(h->tempOwner != tempOwner)
 	{
-		std::vector<CGDwelling *>* dwellings = &(cb->gameState()->players[tempOwner].dwellings);
-		dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 		cb->setOwner(id, h->tempOwner);
-		dwellings = &(cb->gameState()->players[h->tempOwner].dwellings);
-		//dwellings->push_back (this);
-		//cb->gameState()->players[getOwner()].dwellings.push_back (this);
 	}
 
 	BlockingDialog bd;
@@ -1497,7 +1511,11 @@ int CGTownInstance::creatureGrowth(const int & level) const
 		ret += garrisonHero->valOfBonuses(HeroBonus::CREATURE_GROWTH, level);
 	if(visitingHero)
 		ret += visitingHero->valOfBonuses(HeroBonus::CREATURE_GROWTH, level);
-
+	for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
+	{ //foreach?!
+		if (VLC->creh->creatures[town->basicCreatures[level]].idNumber == (*it)->creatures[0].second[0])
+			++ret;
+	}
 	return ret;
 }
 int CGTownInstance::dailyIncome() const
@@ -4119,7 +4137,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					}
 						break;
 					default:
-						tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
+						tlog2 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
 						return;
 				}
 			}
