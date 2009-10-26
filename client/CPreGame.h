@@ -222,6 +222,8 @@ public:
 	CDefHandler *bonuses;
 	CDefHandler *victory, *loss;
 
+	bool terminate;
+
 	CGPreGame();
 	~CGPreGame();
 	void run();

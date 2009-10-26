@@ -65,6 +65,7 @@ CClient *client = NULL;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
+static boost::thread *hhh;
 
 SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
@@ -184,13 +185,13 @@ int main(int argc, char** argv)
 
 	srand ( time(NULL) );
 	//CPG=NULL;
-	atexit(SDL_Quit);
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 	{
 		tlog1<<"Something was wrong: "<< SDL_GetError() << std::endl;
 		exit(-1);
 	}
+	atexit(SDL_Quit);
 
 	setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
@@ -210,8 +211,10 @@ int main(int argc, char** argv)
 
 	new CGPreGame; //will set CGP pointer to itself
 	CGI->musich->playMusic(musicBase::mainMenu, -1);
-	boost::thread hhh(&CGPreGame::run, CGP);
+	hhh = new boost::thread(&CGPreGame::run, CGP);
 	listenForEvents();
+
+	return 0;
 }
 
 void processCommand(const std::string &message)
@@ -379,7 +382,8 @@ void playIntro()
 void dispose()
 {
 	delete logfile;
-	delete console;
+	if (console)
+		delete console;
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
@@ -429,7 +433,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	screenBuf = bufOnScreen ? screen : screen2;
 }
 
-void listenForEvents() 
+void listenForEvents()
 {
 	SDL_Event *ev = NULL;
 	while(1) //main SDL events loop
@@ -439,15 +443,26 @@ void listenForEvents()
 		//tlog0 << "Waiting... ";
 		int ret = SDL_WaitEvent(ev);
 		//tlog0 << "got " << (int)ev->type;
-		if(/*ret == 0 || */(ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+		if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 		{
 			if(LOCPLINT)
 				LOCPLINT->pim->lock();
-			client->close();
+			if (client)
+				client->close();
+			if (hhh) {
+				CGP->terminate = true;
+				hhh->join();
+				delete hhh;
+				hhh = NULL;
+			}
 			console->end();
+			delete console;
+			console = NULL;
 			SDL_Delay(750);
+			SDL_Quit();
 			tlog0 << "Ending...\n";
-			exit(EXIT_SUCCESS);
+
+			break;
 		}
 		else if(LOCPLINT && ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
 		{

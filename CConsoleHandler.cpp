@@ -209,17 +209,20 @@ CConsoleHandler::CConsoleHandler()
 }
 CConsoleHandler::~CConsoleHandler()
 {
+	tlog3 << "Killing console... ";
+	end();
 	delete cb;
-	delete thread;
+	tlog3 << "done!\n";
 }
 void CConsoleHandler::end()
 {
-	tlog3 << "Killing console... ";
-	ThreadHandle th = (ThreadHandle)thread->native_handle();
-	_kill_thread(th);
-	delete thread;
-	thread = NULL;
-	tlog3 << "done!\n";
+	if (thread) {
+		ThreadHandle th = (ThreadHandle)thread->native_handle();
+		int ret = _kill_thread(th);
+		thread->join();
+		delete thread;
+		thread = NULL;
+	}
 }
 
 void CConsoleHandler::start()
