@@ -2884,7 +2884,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 	delete effectsVolume;
 }
 
-static void do_quit()
+void do_quit()
 {
 	SDL_Event event;
 	event.quit.type = SDL_QUIT;
@@ -2893,7 +2893,7 @@ static void do_quit()
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(do_quit), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), do_quit, 0, false);
 }
 
 void CSystemOptionsWindow::breturnf()

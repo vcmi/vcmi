@@ -15,6 +15,8 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CObjectHandler.h"
+
 using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min

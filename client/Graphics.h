@@ -4,7 +4,6 @@
 
 #include "../global.h"
 #include "FontBase.h"
-#include "../hch/CObjectHandler.h"
 
 /*
  * Graphics.h, part of VCMI engine
