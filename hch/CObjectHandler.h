@@ -218,7 +218,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	CHero * type;
-	ui64 exp; //experience point
+	ui64 exp; //experience points
 	si32 level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //if custom

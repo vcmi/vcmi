@@ -231,9 +231,11 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
-	//printing experience
-	sprintf(bufor, CGI->generaltexth->allTexts[2].c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
-	expArea->text = std::string(bufor);
+	//printing experience - original foramt does not support ui64
+	expArea->text = CGI->generaltexth->allTexts[2].c_str();
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(hero->level));
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 	//printing spell points
 	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
