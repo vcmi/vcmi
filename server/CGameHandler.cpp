@@ -3332,6 +3332,7 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 bool CGameHandler::buildBoat( ui32 objid )
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
+	int boatType = 1; 
 
 	if(obj->state())
 	{
@@ -3370,7 +3371,22 @@ bool CGameHandler::buildBoat( ui32 objid )
 	//create boat
 	NewObject no;
 	no.ID = 8;
-	no.subID = 1;
+	if (obj->o->ID == TOWNI_TYPE)
+	{
+		switch ((static_cast<const CGTownInstance*>(obj))->alignment)
+		{
+		case 1: //good - standard
+			boatType = 1;
+			break;
+		case -1: //evil
+			boatType = 0;
+			break;
+		case 0: //neutral
+			boatType = 2;
+			break;
+		}
+	}
+	no.subID = boatType;
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
 

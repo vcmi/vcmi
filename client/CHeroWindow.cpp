@@ -231,7 +231,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
-	//printing experience - original foramt does not support ui64
+	//printing experience - original format does not support ui64
 	expArea->text = CGI->generaltexth->allTexts[2].c_str();
 	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(hero->level));
 	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));

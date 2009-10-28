@@ -69,10 +69,12 @@ public:
 	bool delComps; //whether comps will be deleted
 	std::vector<AdventureMapButton *> buttons;
 	std::vector<SComponent*> components;
+	CSlider *slider;
 	virtual void close();
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void activate();
+	void sliderMoved(int to);
 	void deactivate();
 	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
 	CInfoWindow(); //c-tor

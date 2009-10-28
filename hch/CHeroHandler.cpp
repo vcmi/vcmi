@@ -468,16 +468,11 @@ unsigned int CHeroHandler::level (ui64 experience)
 	int i;
 	if (experience <= expPerLevel.back())
 	{
-		
-		//i = expPerLevel.size() - 1;
-		//while (experience <= reqExp (i))
-		//	i--;
 		for (i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
 		return i + 1;
 	}
 	else
 	{
-		//for(i = expPerLevel.size(); experience > reqExp(i); i++);
 		i = expPerLevel.size() - 1;
 		while (experience > reqExp (i))
 			i++;
@@ -490,27 +485,18 @@ ui64 CHeroHandler::reqExp (unsigned int level)
 	if(!level)
 		return 0;
 
-	if(level <= expPerLevel.size())
+	if (level <= expPerLevel.size())
 	{
-		return expPerLevel[level - 1];
+		return expPerLevel[level-1];
 	}
 	else
 	{
-		//ui64 exp = expPerLevel[expPerLevel.size()-1];
-		//level-=(expPerLevel.size()-1);
-		//while(level>0)
-		//{
-		//	--level;
-		//	exp*=1.2;
-		//}
-		//return exp;
 		while (level > expPerLevel.size())
 		{
 			int i = expPerLevel.size() - 1;
-			expPerLevel.push_back ((ui64)(expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2));
+			expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
 		}
 		return expPerLevel[level-1];
-		//return (ui64)(reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2); //inefficient but follows exactly H3 values
 	}
 }
 

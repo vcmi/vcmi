@@ -414,27 +414,31 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	}
 
 	// Clip window size
-	amax(txts.first, 80);
 	amax(txts.second, 50);
+	if (txts.second > conf.cc.resy - 150)
+		ret->slider = new CSlider(ret->pos.x + ret->pos.w, ret->pos.y, txts.second, boost::bind (&CInfoWindow::sliderMoved, ret, _1), txts.second, txts.second, 0, false, 0);
+	else
+		ret->slider = NULL;
+	amax(txts.first, 80);
 	amax(txts.first, comps.w);
 	amax(txts.first, bw);
 
 	amin(txts.first, conf.cc.resx - 150);
 	amin(txts.second, conf.cc.resy - 150);
 
-	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN, txts.second+2*SIDE_MARGIN, player);
+	ret->bitmap = drawBox1 (txts.first + 2*SIDE_MARGIN, txts.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->pos.x=screen->w/2-(ret->pos.w/2);
 	ret->pos.y=screen->h/2-(ret->pos.h/2);
 
 	int curh = SIDE_MARGIN;
-	blitTextOnSur(txtg, fontHeight, curh,ret->bitmap);
+	blitTextOnSur (txtg, fontHeight, curh, ret->bitmap);
 
 	if (ret->components.size())
 	{
 		curh += BEFORE_COMPONENTS;
-		comps.blitCompsOnSur(_or, 10, curh, ret->bitmap);
+		comps.blitCompsOnSur (_or, 10, curh, ret->bitmap);
 	}
 	if(ret->buttons.size())
 	{

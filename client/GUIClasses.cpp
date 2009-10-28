@@ -669,6 +669,8 @@ CInfoWindow::~CInfoWindow()
 	}
 	for(int i=0;i<buttons.size();i++)
 		delete buttons[i];
+	if (slider)
+		delete slider;
 }
 void CInfoWindow::activate()
 {
@@ -676,6 +678,11 @@ void CInfoWindow::activate()
 		components[i]->activate();
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->activate();
+	if (slider)
+		slider->activate();
+}
+void CInfoWindow::sliderMoved(int to)
+{
 }
 void CInfoWindow::deactivate()
 {
@@ -683,6 +690,8 @@ void CInfoWindow::deactivate()
 		components[i]->deactivate();
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->deactivate();
+	if (slider)
+		slider->deactivate();
 }
 
 void CInfoWindow::showAll( SDL_Surface * to )
