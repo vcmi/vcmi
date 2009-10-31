@@ -3882,6 +3882,11 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 			cur->text = cur->ourArt->Description();
 		else
 			cur->text = std::string();
+
+		// Set hover text.
+		char bufor[400];
+		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), cur->ourArt->Name().c_str());
+		cur->hoverText = bufor;
 	}
 }
 
