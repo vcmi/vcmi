@@ -111,8 +111,11 @@ CPlayerInterface::~CPlayerInterface()
 
 	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!= graphics->heroWins.end(); i++)
 		SDL_FreeSurface(i->second);
+	graphics->heroWins.clear();
+
 	for(std::map<int,SDL_Surface*>::iterator i=graphics->townWins.begin(); i!= graphics->townWins.end(); i++)
 		SDL_FreeSurface(i->second);
+	graphics->townWins.clear();
 }
 void CPlayerInterface::init(ICallback * CB)
 {
