@@ -375,11 +375,11 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 		if(h.saving) //create vector with all defs used on map
 		{
-			for(int i=0; i<objects.size(); i++)
+			for(unsigned int i=0; i<objects.size(); i++)
 				if(objects[i])
 					objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
 
-			for(int i=0; i<objects.size(); i++)
+			for(unsigned int i=0; i<objects.size(); i++)
 			{
 				if(!objects[i]) continue;
 				CGDefInfo *cur = objects[i]->defInfo;
@@ -413,7 +413,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		h & CGMagi::eyelist;
 		h & CGPyramid::pyramidConfig;
 
-		for(int i=0; i<objects.size(); i++)
+		for(unsigned int i=0; i<objects.size(); i++)
 		{
 			CGObjectInstance *&obj = objects[i];
 			h & obj;
@@ -431,7 +431,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		if(!h.saving)
 		{
 
-			for(int i=0; i<objects.size(); i++)
+			for(unsigned int i=0; i<objects.size(); i++)
 			{
 				if(!objects[i]) continue;
 				if(objects[i]->ID == HEROI_TYPE)
@@ -441,10 +441,10 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 				addBlockVisTiles(objects[i]); //recreate blockvis map
 			}
-			for(int i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers
+			for(unsigned int i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers
 			{
 				int3 vistile = heroes[i]->pos; vistile.x++;
-				for(int j=0; j<towns.size(); j++)
+				for(unsigned int j=0; j<towns.size(); j++)
 				{
 					if(vistile == towns[j]->pos) //hero stands on the town entrance
 					{
@@ -467,7 +467,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 				const TerrainTile &t = getTile(vistile);
 				if(t.tertype != TerrainTile::water) continue;
 				//hero stands on the water - he must be in the boat
-				for(int j = 0; j < t.visitableObjects.size(); j++)
+				for(unsigned int j = 0; j < t.visitableObjects.size(); j++)
 				{
 					if(t.visitableObjects[j]->ID == 8)
 					{
