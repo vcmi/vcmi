@@ -318,7 +318,7 @@ extern DLL_EXPORT CLogger<3> tlog3; //yellow - minor warnings
 extern DLL_EXPORT CLogger<4> tlog4; //white - detailed log info
 extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 
-//XXX pls dont - 'debug macros' are usually more trubble then its worth
+//XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\
 	tlog1 << e.what() << std::endl;		\

@@ -96,7 +96,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int new
 }
 void CCallback::endTurn()
 {
-	tlog5 << "Player " << (unsigned)player << " end his turn." << std::endl;
+	tlog5 << "Player " << (unsigned)player << " ended his turn." << std::endl;
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
