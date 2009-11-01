@@ -44,13 +44,18 @@ using boost::ref;
 void startGame(StartInfo * options);
 
 CGPreGame * CGP;
-static const CMapHeader *curMap = NULL;
-static StartInfo *curOpts = NULL;
+static const CMapHeader *curMap;
+static StartInfo *curOpts;
 static int playerColor, playerSerial;
 
 static std::string selectedName; //set when game is started/loaded
 
-extern void do_quit();
+static void do_quit()
+{
+	SDL_Event event;
+	event.quit.type = SDL_QUIT;
+	SDL_PushEvent(&event);
+}
 
 CMenuScreen::CMenuScreen( EState which )
 {
@@ -126,15 +131,15 @@ void CGPreGame::run()
 	CGI->videoh->open("ACREDIT.SMK", true, false);
 #endif
 
-	GH.pushInt(scrs[mainMenu]);
-
 	while(!terminate)
 	{
+		if (GH.listInt.size() == 0)
+			GH.pushInt(scrs[mainMenu]);
+
 		CGI->curh->draw1();
 		SDL_Flip(screen);
 		CGI->curh->draw2();
 		SDL_Delay(20); //give time for other apps
-
 		GH.topInt()->show(screen);
 		GH.updateTime();
 		GH.handleEvents();
@@ -362,12 +367,11 @@ void CSelectionScreen::startGame()
 
 		selectedName = sInfo.mapname;
 		StartInfo *si = new StartInfo(sInfo);
-		GH.popIntTotally(this);
-		GH.popIntTotally(GH.topInt());
+		GH.popInt(this);
+		GH.popInt(GH.topInt());
 		curMap = NULL;
 		curOpts = NULL;
 		::startGame(si);
-		delete si; //rather won't be called...
 	}
 	else
 	{
@@ -376,7 +380,7 @@ void CSelectionScreen::startGame()
 
 		selectedName = GVCMIDirs.UserPath + "/Games/" + sel->txt->text + ".vlgm1";
 		LOCPLINT->cb->save(sel->txt->text);
-		GH.popIntTotally(this);
+		GH.popInt(this);
 	}
 }
 

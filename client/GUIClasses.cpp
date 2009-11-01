@@ -2840,13 +2840,15 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
 
 	//setting up buttons
-	save = new AdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::bsavef, this), pos.x+357, pos.y+297, "SOSAVE.DEF", SDLK_s);
+	save = new AdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), pos.x+357, pos.y+297, "SOSAVE.DEF", SDLK_s);
 	std::swap(save->imgs[0][0], save->imgs[0][1]);
 	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), pos.x+246, pos.y+414, "soquit.def", SDLK_q);
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
 	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), pos.x+357, pos.y+414, "soretrn.def", SDLK_RETURN);
+	mainMenu = new AdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+357, pos.y+357, "SOMAIN.DEF", SDLK_RETURN);
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
+	std::swap(mainMenu->imgs[0][0], mainMenu->imgs[0][1]);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[349].second),CGI->generaltexth->zelp[349].second, "sysopb1.def", pos.x+28, pos.y+77, 1);
@@ -2887,22 +2889,26 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 	delete save;
 	delete quitGame;
 	delete backToMap;
+	delete mainMenu;
 	delete heroMoveSpeed;
 	delete mapScrollSpeed;
 	delete musicVolume;
 	delete effectsVolume;
 }
 
-void do_quit()
+void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
 {
+	GH.popIntTotally(this);
+
 	SDL_Event event;
-	event.quit.type = SDL_QUIT;
+	event.type = type;
+	event.user.code = usercode;	// not necessarily used
 	SDL_PushEvent(&event);
 }
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), do_quit, 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -2910,6 +2916,10 @@ void CSystemOptionsWindow::breturnf()
 	GH.popIntTotally(this);
 }
 
+void CSystemOptionsWindow::bmainmenuf()
+{
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, 2), 0, false);
+}
 
 void CSystemOptionsWindow::bsavef()
 {
@@ -2929,6 +2939,7 @@ void CSystemOptionsWindow::activate()
 	save->activate();
 	quitGame->activate();
 	backToMap->activate();
+	mainMenu->activate();
 	heroMoveSpeed->activate();
 	mapScrollSpeed->activate();
 	musicVolume->activate();
@@ -2940,6 +2951,7 @@ void CSystemOptionsWindow::deactivate()
 	save->deactivate();
 	quitGame->deactivate();
 	backToMap->deactivate();
+	mainMenu->deactivate();
 	heroMoveSpeed->deactivate();
 	mapScrollSpeed->deactivate();
 	musicVolume->deactivate();
@@ -2953,6 +2965,7 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	save->show(to);
 	quitGame->show(to);
 	backToMap->show(to);
+	mainMenu->show(to);
 	heroMoveSpeed->show(to);
 	mapScrollSpeed->show(to);
 	musicVolume->show(to);

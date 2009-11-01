@@ -2,6 +2,7 @@
 #define __CPLAYERINTERFACE_H__
 #include "../global.h"
 #include "../CGameInterface.h"
+#include "../lib/CondSh.h"
 #include "SDL_framerate.h"
 #include <map>
 #include <list>
@@ -203,6 +204,9 @@ public:
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
+
+	bool terminate;				 // tell to terminate
+	CondSh<bool> terminate_cond; // confirm termination
 
 	//////////////////////////////////////////////////////////////////////////
 

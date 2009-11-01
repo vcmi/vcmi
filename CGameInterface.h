@@ -72,6 +72,7 @@ public:
 	int playerID, serialID;
 	std::string dllName;
 
+	virtual ~CGameInterface() {};
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
 	virtual void heroArtifactSetChanged(const CGHeroInstance*hero){};

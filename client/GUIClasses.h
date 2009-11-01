@@ -503,7 +503,7 @@ class CSystemOptionsWindow : public CIntObject
 {
 private:
 	SDL_Surface * background; //background of window
-	AdventureMapButton *load, *save, *restart, *mainMenu, * quitGame, * backToMap; //load, restart and main menu are not used yet
+	AdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
 	CHighlightableButtonsGroup * musicVolume, * effectsVolume;
@@ -515,6 +515,9 @@ public:
 	void bsavef(); //save game
 	void bquitf(); //quit game
 	void breturnf(); //return to game
+	void bmainmenuf(); //return to main menu
+
+	void pushSDLEvent(int type, int usercode);
 
 	void activate();
 	void deactivate();

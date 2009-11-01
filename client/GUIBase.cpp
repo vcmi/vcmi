@@ -521,12 +521,14 @@ void CIntObject::deactivate()
 		deactivateMouseMove();
 	if(used & KEYBOARD)
 		deactivateKeys();
-	if(used & TIME)
+	if(active & TIME)			// TIME is special
 		deactivateTimer();
 	if(used & WHEEL)
 		deactivateWheel();
 	if(used & DOUBLECLICK)
 		deactivateDClick();
+
+	assert(!active);
 
 	if(defActions & DEACTIVATE)
 		for(size_t i = 0; i < children.size(); i++)

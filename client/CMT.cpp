@@ -61,7 +61,7 @@
 std::string NAME_AFFIX = "client";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-CClient *client = NULL;
+static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -79,8 +79,7 @@ void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 void dispose();
 void playIntro();
-void listenForEvents();
-void startGame(StartInfo * options);
+static void listenForEvents();
 
 void init()
 {
@@ -209,8 +208,9 @@ int main(int argc, char** argv)
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-	new CGPreGame; //will set CGP pointer to itself
 	CGI->musich->playMusic(musicBase::mainMenu, -1);
+
+	new CGPreGame; //will set CGP pointer to itself
 	hhh = new boost::thread(&CGPreGame::run, CGP);
 	listenForEvents();
 
@@ -284,9 +284,10 @@ void processCommand(const std::string &message)
 	//}
 	else if(cn=="load")
 	{
+		// TODO: this code should end the running game and manage to call startGame instead
 		std::string fname;
 		readed >> fname;
-		client->load(fname);
+		client->loadGame(fname);
 	}
 	//else if(cn=="ln")
 	//{
@@ -433,29 +434,26 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	screenBuf = bufOnScreen ? screen : screen2;
 }
 
-void listenForEvents()
+static void listenForEvents()
 {
-	SDL_Event *ev = NULL;
 	while(1) //main SDL events loop
 	{
-		ev = new SDL_Event();
+		SDL_Event *ev = new SDL_Event();
 
 		//tlog0 << "Waiting... ";
 		int ret = SDL_WaitEvent(ev);
 		//tlog0 << "got " << (int)ev->type;
-		if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+		if (ret == 0 || (ev->type==SDL_QUIT) ||
+			(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 		{
-			if(LOCPLINT)
-				LOCPLINT->pim->lock();
 			if (client)
-				client->close();
+				client->stop();
 			if (hhh) {
 				CGP->terminate = true;
 				hhh->join();
 				delete hhh;
 				hhh = NULL;
 			}
-			console->end();
 			delete console;
 			console = NULL;
 			SDL_Delay(750);
@@ -470,6 +468,8 @@ void listenForEvents()
 			bool full = !(screen->flags&SDL_FULLSCREEN);
 			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
 			GH.totalRedraw();
+			delete ev;
+			continue;
 		}
 		else if(ev->type == SDL_USEREVENT && ev->user.code == 1)
 		{
@@ -477,6 +477,12 @@ void listenForEvents()
 			delete ev;
 			continue;
 		}
+		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) {
+			client->stop();
+			delete ev;
+			continue;
+		}
+
 		//tlog0 << " pushing ";
 		eventsM.lock();
 		events.push(ev);
@@ -507,47 +513,19 @@ void startGame(StartInfo * options)
 	CClient cl;
 	if(options->mode == 0) //new game
 	{
-		timeHandler pomtime;
-		char portc[10];
-		SDL_itoa(conf.cc.port,portc,10);
-		CClient::runServer(portc);
-		tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
-
-		pomtime.getDif();//reset timers
-
-		CConnection *c=NULL;
-		//wait until server is ready
-		tlog0<<"Waiting for server... ";
-		cl.waitForServer();
-		tlog0 << pomtime.getDif()<<std::endl;
-		while(!c)
-		{
-			try
-			{
-				tlog0 << "Establishing connection...\n";
-				c = new CConnection(conf.cc.server,portc,NAME);
-			}
-			catch(...)
-			{
-				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
-				SDL_Delay(2000);
-			}
-		}
-		THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
-		cl.newGame(c,options);
-		client = &cl;
-		CGI->musich->stopMusic();
-		client->run();
-		//boost::thread t(boost::bind(&CClient::run,&cl));
+		cl.newGame(NULL, options);
 	}
 	else //load game
 	{
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
-		cl.load(fname);
-		client = &cl;
-		CGI->musich->stopMusic();
-		client->run();
-		//boost::thread t(boost::bind(&CClient::run,&cl));
+		cl.loadGame(fname);
 	}
+
+	client = &cl;
+	CGI->musich->stopMusic();
+	client->run();
+	LOCPLINT->terminate_cond.waitUntil(true);
+	client->endGame();
+	client = NULL;
 }

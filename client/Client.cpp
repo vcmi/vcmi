@@ -20,6 +20,7 @@
 #include "../mapHandler.h"
 #include "CConfigHandler.h"
 #include "Client.h"
+#include "GUIBase.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
@@ -88,7 +89,7 @@ void CClient::init()
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
-	must_close = false;
+	terminate = false;
 	try
 	{
 		shared = new SharedMem();
@@ -129,10 +130,8 @@ void CClient::run()
 		CPack *pack;
 		while(1)
 		{
-			if (must_close) {
-				serv->close();
-				tlog3 << "Our socket has been closed.\n";
-				return;
+			if (terminate) {
+				break;
 			}
 
 			//get the package from the server
@@ -141,6 +140,11 @@ void CClient::run()
 				tlog5 << "Listening... ";
 				*serv >> pack;
 				tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
+			}
+
+			if (terminate) {
+				delete pack;
+				break;
 			}
 
 			CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
@@ -163,16 +167,12 @@ void CClient::run()
 	} HANDLE_EXCEPTION(tlog1 << "Lost connection to server, ending listening thread!\n");
 }
 
-void CClient::close()
+void CClient::stop()
 {
-	if(!serv)
-		return;
-
-	tlog3 << "Connection has been requested to be closed.\n";
-	boost::unique_lock<boost::mutex>(*serv->wmx);
-	*serv << &CloseServer();
-	tlog3 << "Sent closing signal to the server\n";
-	must_close = true;
+	// Game is ending
+	// Tell the network thread and interface thread to reach a stable state
+	terminate = true;
+	LOCPLINT->terminate = true;
 }
 
 void CClient::save(const std::string & fname)
@@ -186,29 +186,45 @@ void CClient::save(const std::string & fname)
 	*serv << &SaveGame(fname);
 }
 
-void CClient::load( const std::string & fname )
+void CClient::endGame()
 {
-	tlog0 <<"\n\nLoading procedure started!\n\n";
-
-	timeHandler tmh;
-	close(); //kill server
-	tlog0 <<"Sent kill signal to the server: "<<tmh.getDif()<<std::endl;
+	tlog0 << "\n\nEnding current game!" << std::endl;
 
 	delete CGI->mh;
+	CGI->mh = NULL;
+
 	delete CGI->state;
-	VLC->clear(); //delete old handlers
+	CGI->state = NULL;
 
-
-	for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i!=playerint.end(); i++)
+	while (!playerint.empty())
 	{
-		delete i->second; //delete player interfaces
+		delete playerint.begin()->second;
+		playerint.erase(playerint.begin());
 	}
 
 	BOOST_FOREACH(CCallback *cb, callbacks)
 	{
 		delete cb;
 	}
-	tlog0 <<"Deleting old data: "<<tmh.getDif()<<std::endl;
+
+	if (serv) {
+		tlog3 << "Connection has been requested to be closed.\n";
+		boost::unique_lock<boost::mutex>(*serv->wmx);
+		*serv << &CloseServer();
+		tlog3 << "Sent closing signal to the server\n";
+
+		serv->close();
+		delete serv;
+		serv = NULL;
+		tlog3 << "Our socket has been closed." << std::endl;
+	}
+}
+
+void CClient::loadGame( const std::string & fname )
+{
+	tlog0 <<"\n\nLoading procedure started!\n\n";
+
+	timeHandler tmh;
 
 	char portc[10];
 	SDL_itoa(conf.cc.port,portc,10);
@@ -300,6 +316,35 @@ int CClient::getSelectedHero()
 
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
+	if (con == NULL) {
+		timeHandler pomtime;
+		char portc[10];
+		SDL_itoa(conf.cc.port,portc,10);
+		CClient::runServer(portc);
+		tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
+
+		pomtime.getDif();//reset timers
+
+		//wait until server is ready
+		tlog0<<"Waiting for server... ";
+		waitForServer();
+		tlog0 << pomtime.getDif()<<std::endl;
+		while(!con)
+		{
+			try
+			{
+				tlog0 << "Establishing connection...\n";
+				con = new CConnection(conf.cc.server,portc,NAME);
+			}
+			catch(...)
+			{
+				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
+				SDL_Delay(2000);
+			}
+		}
+		THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
+	}
+
 	timeHandler tmh;
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;

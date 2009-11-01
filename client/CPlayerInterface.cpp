@@ -100,6 +100,8 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	SDL_setFramerate(mainFPSmng, 48);
 	//framerate keeper initialized
 	cingconsole = new CInGameConsole;
+	terminate = false;
+	terminate_cond.set(false);
 }
 CPlayerInterface::~CPlayerInterface()
 {
@@ -116,6 +118,8 @@ CPlayerInterface::~CPlayerInterface()
 	for(std::map<int,SDL_Surface*>::iterator i=graphics->townWins.begin(); i!= graphics->townWins.end(); i++)
 		SDL_FreeSurface(i->second);
 	graphics->townWins.clear();
+
+	LOCPLINT = NULL;
 }
 void CPlayerInterface::init(ICallback * CB)
 {
@@ -179,6 +183,9 @@ void CPlayerInterface::yourTurn()
 
 		while(makingTurn) // main loop
 		{
+			if (terminate)
+				break;
+
 			pim->lock();
 
 			//if there are any waiting dialogs, show them
@@ -208,7 +215,10 @@ void CPlayerInterface::yourTurn()
 		GH.popInt(adventureInt);
 
 		cb->endTurn();
-	} HANDLE_EXCEPTION
+	} HANDLE_EXCEPTION;
+
+	if (terminate)
+		terminate_cond.set(true);
 }
 
 inline void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)

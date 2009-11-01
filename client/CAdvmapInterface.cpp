@@ -1667,7 +1667,7 @@ void CAdvMapInt::deactivate()
 	townList.deactivate();
 	terrain.deactivate();
 	if(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),&infoBar)!=GH.timeinterested.end())
-		GH.timeinterested.erase(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),&infoBar));
+		infoBar.deactivate();
 	infoBar.mode=-1;
 
 	LOCPLINT->cingconsole->deactivate();

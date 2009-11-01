@@ -61,7 +61,6 @@ public:
 	std::set<CCallback*> callbacks; //callbacks given to player interfaces
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
-	bool must_close;
 	SharedMem *shared;
 	BattleAction *curbaction;
 	CPathsInfo *pathInfo;
@@ -75,11 +74,15 @@ public:
 	~CClient(void);
 
 	void init();
-	void close();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
+	void endGame();
 	void save(const std::string & fname);
-	void load(const std::string & fname);
+	void loadGame(const std::string & fname);
 	void run();
+	void stop();
+
+	bool terminate;				 // tell to terminate
+
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
 	int getCurrentPlayer();
