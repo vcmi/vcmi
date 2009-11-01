@@ -1,19 +1,24 @@
-
 #ifndef AI_PRIORITIES
 #define AI_PRIORITIES
 #include "AIPriorities.h"
 #include <sstream>
+// TODO: No using namespace!!
 using namespace geniusai;
+
 Network::Network()
 {}
 Network::Network(vector<unsigned int> whichFeatures)// random network
-:net(whichFeatures.size(), whichFeatures.size()*.601+2, whichFeatures.size()*.251+2, 1),whichFeatures(whichFeatures)
+    : net(whichFeatures.size(),
+          whichFeatures.size() * 0.601 + 2,
+          whichFeatures.size() * 0.251 + 2,
+          1),
+      whichFeatures(whichFeatures)
 {
-
 }
+
 Network::Network(istream & input)
 {
-	//vector<int> whichFeatures;
+	// vector<int> whichFeatures;
 	int feature;
 	string line;
 	getline(input,line);
@@ -21,17 +26,21 @@ Network::Network(istream & input)
 	while(lineIn>>feature)
 		whichFeatures.push_back(feature);
 
-	getline(input,line);//get R
-	net = neuralNetwork(whichFeatures.size(), whichFeatures.size()*.601+2, whichFeatures.size()*.251+2, 1);
+	getline(input, line);//get R
+	net = neuralNetwork(whichFeatures.size(),
+                      whichFeatures.size() * 0.601 + 2,
+                      whichFeatures.size() * 0.251 + 2,
+                      1);
 }
 
 
 float Network::feedForward(const vector<float> & stateFeatures)
 {
-	return (rand()%1000)/800.0;
+  // TODO: Should comment/rewrite it...
+	return (rand() % 1000) / 800.0f;
 	double * input = new double[whichFeatures.size()];
-	for(int i = 0; i < whichFeatures.size();i++)
-		input[i]=stateFeatures[whichFeatures[i]];
+	for (int i = 0; i < whichFeatures.size(); i++)
+		input[i] = stateFeatures[whichFeatures[i]];
 	
 	float ans = net.feedForwardPattern(input)[0];
 	
@@ -74,7 +83,7 @@ void Priorities::fillFeatures(const CGeniusAI::HypotheticalGameState & hgs)
 {
 	stateFeatures.clear();
 	stateFeatures.resize(50);
-	for(int i = 0; i < stateFeatures.size();i++)
+	for(int i = 0; i < stateFeatures.size(); i++)
 		stateFeatures[i]=0;
 	for(int i = 0; i < hgs.resourceAmounts.size();i++)	//features 0-7 are resources
 		stateFeatures[i]=hgs.resourceAmounts[i];

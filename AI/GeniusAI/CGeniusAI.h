@@ -27,10 +27,11 @@ class Priorities;
 class CGeniusAI : public CGlobalAI
 {
 private:
-	ICallback*							m_cb;
+  // TODO: cb... come back, croach busters!?
+	ICallback*							          m_cb;
 	geniusai::BattleAI::CBattleLogic*	m_battleLogic;
 	geniusai::GeneralAI::CGeneralAI		m_generalAI;
-	geniusai::Priorities *				m_priorities;
+	geniusai::Priorities*				      m_priorities;
 
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?
@@ -99,7 +100,7 @@ private:
 		CGeniusAI * AI;
 		Type type;
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
-		virtual HypotheticalGameState pretend(const HypotheticalGameState &) =0;
+		virtual HypotheticalGameState pretend(const HypotheticalGameState&) =0;
 		virtual void print() const=0;
 		virtual float getValue() const=0;	//how much is it worth to the AI to achieve
 	};
@@ -110,12 +111,16 @@ private:
 		HypotheticalGameState hgs;
 		int3 pos;
 		const CGObjectInstance * object;
-		mutable std::vector<HypotheticalGameState::HeroModel *> whoCanAchieve;
+		mutable std::vector<HypotheticalGameState::HeroModel*> whoCanAchieve;
 		
 		//HeroObjective(){}
 		//HeroObjective(Type t):object(NULL){type = t;}
-		HeroObjective(const HypotheticalGameState &hgs,Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * AI);
-		bool operator < (const HeroObjective &other)const;
+		HeroObjective(const HypotheticalGameState &hgs,
+                  Type t,
+                  const CGObjectInstance* object,
+                  HypotheticalGameState::HeroModel* h,
+                  CGeniusAI* AI);
+		bool operator< (const HeroObjective &other) const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
 		float getValue() const;
