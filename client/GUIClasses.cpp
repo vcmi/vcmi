@@ -3540,7 +3540,11 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 					}
 					break;
 				default:
-					LOCPLINT->cb->swapArtifacts(ourOwner->commonInfo->activeArtPlace->ourOwner->curHero, ourOwner->commonInfo->activeArtPlace->slotID, ourOwner->curHero, ourOwner->curHero->artifacts.size()+19);
+					LOCPLINT->cb->swapArtifacts(
+						ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,
+						ourOwner->commonInfo->activeArtPlace->slotID,
+						ourOwner->curHero,
+						ourOwner->curHero->artifacts.size() + 19);
 					break;
 				}
 			}
@@ -3550,7 +3554,11 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				int destSlot = slotID,
 					srcSlot = ourOwner->commonInfo->activeArtPlace->slotID;
 
-				LOCPLINT->cb->swapArtifacts(ourOwner->curHero,destSlot,ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,srcSlot);
+				LOCPLINT->cb->swapArtifacts(
+					ourOwner->curHero,
+					destSlot,
+					ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,
+					srcSlot);
 
 				ourOwner->commonInfo->activeArtPlace->clicked = false;
 				ourOwner->commonInfo->activeArtPlace = NULL;
@@ -3603,8 +3611,8 @@ void CArtPlace::show(SDL_Surface *to)
 bool CArtPlace::fitsHere(const CArtifact * art)
 {
 	if(!art)
-		return true; //you can have no artifact somewhere
-	if(slotID > 18 && art->id >= 3 && art->id <= 6		//everything can bee placed in backpack exept of War Machines
+		return true; // You can place 'no artifact' anywhere.
+	if(slotID > 18 && !(art->id >= 3 && art->id <= 6)	// Anything can be placed in the backpack, except War Machines.
 	  || vstd::contains(art->possibleSlots,slotID))
 	{
 		return true;
