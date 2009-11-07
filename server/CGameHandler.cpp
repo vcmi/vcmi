@@ -840,20 +840,10 @@ void CGameHandler::newTurn()
 						r.res[i->subtype] += i->val;
 			}
 		}
-		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
+		n.res.push_back(r);
+	}
+	for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{
-			if(gs->day && vstd::contains((**j).builtBuildings,15)) //not first day and there is resource silo
-			{
-				if((**j).town->primaryRes == 127) //we'll give wood and ore
-				{
-					r.res[0] += 1;
-					r.res[2] += 1;
-				}
-				else
-				{
-					r.res[(**j).town->primaryRes] += 1;
-				}
-			}
 			if(gs->getDate(1)==7) //first day of week
 			{
 				SetAvailableCreatures sac;
@@ -870,16 +860,29 @@ void CGameHandler::newTurn()
 				}
 				n.cres.push_back(sac);
 			}
-			if(gs->day  &&  i->first<PLAYER_LIMIT)//not the first day and town not neutral
+			if(gs->day  &&  (*j)->tempOwner < PLAYER_LIMIT)//not the first day and town not neutral
+			{
+				SetResources r;
+				if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
+				{
+					if((**j).town->primaryRes == 127) //we'll give wood and ore
+					{
+						r.res[0] += 1;
+						r.res[2] += 1;
+					}
+					else
+					{
+						r.res[(**j).town->primaryRes] += 1;
+					}
+				}
 				r.res[6] += (**j).dailyIncome();
+				n.res.push_back(r);
+			}	
 		}
-		n.res.push_back(r);
-	}	
+
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
-
 	handleTimeEvents();
-
 	//call objects
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
 		if(gs->map->objects[i])
