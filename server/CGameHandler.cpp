@@ -2840,87 +2840,6 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature)
-{
-	ui32 ret = 0; //value to return
-
-	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
-	//24 - death ripple, 25 - destroy undead, 26 - armageddon
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
-
-	ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id]  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-	
-	//applying sorcerery secondary skill
-	switch(caster->getSecSkillLevel(25))
-	{
-	case 1: //basic
-		ret *= 1.05f;
-		break;
-	case 2: //advanced
-		ret *= 1.1f;
-		break;
-	case 3: //expert
-		ret *= 1.15f;
-		break;
-	}
-	//applying hero bonuses
-	if(sp->air && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) / 100.0f);
-	}
-	else if(sp->fire && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) / 100.0f);
-	}
-	else if(sp->water && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) / 100.0f);
-	}
-	else if(sp->earth && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) / 100.0f);
-	}
-
-	//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-	if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
-	{
-		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 0);
-		ret /= 100;
-	}
-	else if(sp->fire && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-	{
-		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 1);
-		ret /= 100;
-	}
-	else if(sp->water && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-	{
-		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 2);
-		ret /= 100;
-	}
-	else if (sp->earth && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-	{
-		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 3);
-		ret /= 100;
-	}
-
-	//general spell dmg reduction
-	if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
-	{
-		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, -1);
-		ret /= 100;
-	}
-
-	//dmg increasing
-	if( affectedCreature->hasFeatureOfType(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id) )
-	{
-		ret *= 100 + affectedCreature->valOfFeatures(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id);
-		ret /= 100;
-	}
-
-
-	return ret;
-}
-
 static ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack)
 {
 	switch(spell->id)
@@ -3057,6 +2976,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			sc.id = ba.additionalInfo;
 			sc.skill = skill;
 			sc.tile = ba.destinationTile;
+			sc.dmgToDisplay = 0;
 
 			//calculating affected creatures for all spells
 			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
@@ -3067,6 +2987,14 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//checking if creatures resist
 			sc.resisted = calculateResistedStacks(s, h, secondHero, attackedCres);
+
+			//calculating dmg to display
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+					continue;
+				sc.dmgToDisplay += gs->curB->calculateSpellDmg(s, h, *it);
+			}
 			
 			sendAndApply(&sc);
 
@@ -3094,7 +3022,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						BattleStackAttacked bsa;
 						bsa.flags |= 2;
 						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
-						bsa.damageAmount = calculateSpellDmg(s, h, *it);
+						bsa.damageAmount = gs->curB->calculateSpellDmg(s, h, *it);
 						bsa.stackAttacked = (*it)->ID;
 						bsa.attackerID = -1;
 						prepareAttacked(bsa,*it);

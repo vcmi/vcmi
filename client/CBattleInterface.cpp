@@ -2579,6 +2579,29 @@ void CBattleInterface::spellCast(SpellCast * sc)
 		int tile = LOCPLINT->cb->battleGetStackByID(sc->resisted[j])->position;
 		displayEffect(78, tile);
 	}
+
+	//displaying message in console
+	if(sc->affectedCres.size() == 1)
+	{
+		std::string text = CGI->generaltexth->allTexts[195];
+		boost::algorithm::replace_first(text, "%s", LOCPLINT->cb->battleGetFightingHero(sc->side)->name);
+		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
+		boost::algorithm::replace_first(text, "%s", LOCPLINT->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->creature->namePl );
+		console->addText(text);
+	}
+	else
+	{
+		std::string text = CGI->generaltexth->allTexts[196];
+		boost::algorithm::replace_first(text, "%s", LOCPLINT->cb->battleGetFightingHero(sc->side)->name);
+		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
+		console->addText(text);
+	}
+	if(sc->dmgToDisplay != 0)
+	{
+		std::string dmgInfo = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1);
+		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
+		console->addText(dmgInfo);
+	}
 }
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)

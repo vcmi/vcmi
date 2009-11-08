@@ -933,6 +933,7 @@ struct SpellCast : public CPackForClient//3009
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
+	si32 dmgToDisplay; //this amount will be displayed as amount of damage dealt by spell
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id; //id of spell
 	ui8 skill; //caster's skill level
@@ -941,7 +942,7 @@ struct SpellCast : public CPackForClient//3009
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & id & skill & tile & resisted & affectedCres;
+		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres;
 	}
 };
 

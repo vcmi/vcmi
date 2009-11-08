@@ -131,6 +131,7 @@ public:
 	virtual const StartInfo * getStartInfo()const =0;
 	virtual const CMapHeader * getMapHeader()const =0;
 	virtual int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const =0; //when called during battle, takes into account creatures' spell cost reduction
+	virtual int estimateSpellDamage(const CSpell * sp) const =0; //estimates damage of given spell; returns 0 if spell causes no dmg
 
 	//hero
 	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
@@ -188,6 +189,7 @@ public:
 	virtual int battleGetWallUnderHex(int hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
+	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
 };
 
 struct HeroMoveDetails
@@ -260,6 +262,7 @@ public:
 	const StartInfo * getStartInfo() const;
 	const CMapHeader * getMapHeader()const ;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
+	int estimateSpellDamage(const CSpell * sp) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
@@ -299,6 +302,7 @@ public:
 	int battleGetWallUnderHex(int hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
+	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

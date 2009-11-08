@@ -22,6 +22,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <boost/assign/list_of.hpp>
 #include "RegisterTypes.cpp"
 
 boost::rand48 ran;
@@ -2737,6 +2738,94 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 	}
 
 	return std::make_pair<const CStack * , int>(NULL, -1);
+}
+
+ui32 BattleInfo::calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
+{
+	ui32 ret = 0; //value to return
+
+	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
+	//24 - death ripple, 25 - destroy undead, 26 - armageddon
+	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
+
+	//check if spell really does damage - if not, return 0
+	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
+		return 0;
+
+	ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id]  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+	
+	//applying sorcerery secondary skill
+	switch(caster->getSecSkillLevel(25))
+	{
+	case 1: //basic
+		ret *= 1.05f;
+		break;
+	case 2: //advanced
+		ret *= 1.1f;
+		break;
+	case 3: //expert
+		ret *= 1.15f;
+		break;
+	}
+	//applying hero bonuses
+	if(sp->air && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->fire && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->water && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->earth && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) / 100.0f);
+	}
+
+	//affected creature-specific part
+	if(affectedCreature)
+	{
+		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+		if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
+		{
+			ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 0);
+			ret /= 100;
+		}
+		else if(sp->fire && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
+		{
+			ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 1);
+			ret /= 100;
+		}
+		else if(sp->water && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
+		{
+			ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 2);
+			ret /= 100;
+		}
+		else if (sp->earth && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
+		{
+			ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 3);
+			ret /= 100;
+		}
+
+		//general spell dmg reduction
+		if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
+		{
+			ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, -1);
+			ret /= 100;
+		}
+
+		//dmg increasing
+		if( affectedCreature->hasFeatureOfType(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id) )
+		{
+			ret *= 100 + affectedCreature->valOfFeatures(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id);
+			ret /= 100;
+		}
+	}
+
+	return ret;
 }
 
 bool CGameState::battleCanShoot(int ID, int dest)

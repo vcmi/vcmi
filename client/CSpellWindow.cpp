@@ -677,9 +677,19 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 {
 	if(down && mySpell != -1)
 	{
+		std::string dmgInfo;
+		int causedDmg = LOCPLINT->cb->estimateSpellDamage( &CGI->spellh->spells[mySpell] );
+		if(causedDmg == 0)
+			dmgInfo = "";
+		else
+		{
+			dmgInfo = CGI->generaltexth->allTexts[343];
+			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
+		}
+
 		SDL_Surface *spellBox = CMessage::drawBoxTextBitmapSub(
 			LOCPLINT->playerID,
-			CGI->spellh->spells[mySpell].descriptions[0], this->owner->spells->ourImages[mySpell].bitmap,
+			CGI->spellh->spells[mySpell].descriptions[0] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
 			CGI->spellh->spells[mySpell].name,30,30);
 		CInfoPopup *vinya = new CInfoPopup(spellBox, true);
 		GH.pushInt(vinya);

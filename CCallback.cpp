@@ -124,6 +124,17 @@ int CCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) co
 	return sp->costs[caster->getSpellSchoolLevel(sp)];
 }
 
+int CCallback::estimateSpellDamage(const CSpell * sp) const
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+
+	if(!gs->curB)
+		return 0;
+
+	const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
+	return gs->curB->calculateSpellDmg(sp, ourHero, NULL);
+}
+
 int CCallback::howManyTowns() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -638,6 +649,14 @@ ui8 CCallback::battleGetSiegeLevel()
 		return 0;
 
 	return gs->curB->siege;
+}
+
+const CGHeroInstance * CCallback::battleGetFightingHero(ui8 side) const
+{
+	if(!gs->curB)
+		return 0;
+
+	return gs->curB->heroes[side];
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
