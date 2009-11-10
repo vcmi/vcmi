@@ -154,7 +154,7 @@ public:
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
 	bool buyArtifact( ui32 hid, si32 aid );
-	bool swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 );
+	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram);

@@ -3523,8 +3523,8 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		}
 		else //perform artifact substitution
 		{
-			if(slotID >= 19)	//we are an backpack slot - remove active artifact and put it to the last free pos in backpack
-			{					//TODO: putting artifacts in the middle of backpack (pushing following arts)
+			if (slotID >= 19) // Backpack slot - Remove active artifact and insert it into the designated position in backpack.
+			{
 				const CArtifact *cur = ourOwner->commonInfo->activeArtPlace->ourArt;
 				assert(cur); //there is highlighted slot, it must contain an art
 				switch(cur->id)
@@ -3544,21 +3544,21 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 						ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,
 						ourOwner->commonInfo->activeArtPlace->slotID,
 						ourOwner->curHero,
-						ourOwner->curHero->artifacts.size() + 19);
+						slotID);
 					break;
 				}
 			}
 			//check if swap is possible
 			else if(this->fitsHere(ourOwner->commonInfo->activeArtPlace->ourArt) && ourOwner->commonInfo->activeArtPlace->fitsHere(this->ourArt))
 			{
-				int destSlot = slotID,
-					srcSlot = ourOwner->commonInfo->activeArtPlace->slotID;
+				int srcSlot = ourOwner->commonInfo->activeArtPlace->slotID;
+				int destSlot = slotID;
 
 				LOCPLINT->cb->swapArtifacts(
-					ourOwner->curHero,
-					destSlot,
 					ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,
-					srcSlot);
+					srcSlot,
+					ourOwner->curHero,
+					destSlot);
 
 				ourOwner->commonInfo->activeArtPlace->clicked = false;
 				ourOwner->commonInfo->activeArtPlace = NULL;

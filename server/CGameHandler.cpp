@@ -2298,38 +2298,58 @@ bool CGameHandler::garrisonSwap( si32 tid )
 	}
 }
 
-bool CGameHandler::swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 )
+bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
 {
-	CGHeroInstance *h1 = gs->getHero(hid1), *h2 = gs->getHero(hid2);
-	if((distance(h1->pos,h2->pos) > 1.5)   ||   (h1->tempOwner != h2->tempOwner))
+	CGHeroInstance *srcHero = gs->getHero(srcHeroID);
+	CGHeroInstance *destHero = gs->getHero(destHeroID);
+
+	// Make sure exchange is even possible between the two heroes.
+	if ((distance(srcHero->pos,destHero->pos) > 1.5 )|| (srcHero->tempOwner != destHero->tempOwner))
 		return false;
 
-	const CArtifact *a1 = h1->getArt(slot1), 
-		*a2=h2->getArt(slot2);
+	const CArtifact *srcArtifact = srcHero->getArt(srcSlot); 
+	const CArtifact *destArtifact = destHero->getArt(destSlot);
 
-	//check if 
-	//	1) slots are appropriate for that artifacts 
-	//	2) they are not war machine
-	if((a1 && slot2<19 && !vstd::contains(a1->possibleSlots,slot2) || (a2 && slot1<19 && !vstd::contains(a2->possibleSlots,slot1))) && complain("Cannot swap artifacts!")
-		|| (slot1>=13 && slot1<=16 || slot2>=13 && slot2<=16) && complain("Cannot move war machine!")
-	)
+	// Check if src/dest slots are appropriate for the artifacts exchanged.
+	// Moving to the backpack is always allowed.
+	if ((!srcArtifact || destSlot < 19)
+		&& (((srcArtifact && !vstd::contains(srcArtifact->possibleSlots, destSlot))
+			|| (destArtifact && srcSlot < 19 && !vstd::contains(destArtifact->possibleSlots, srcSlot)))))
 	{
+		complain("Cannot swap artifacts!");
 		return false;
 	}
 
+	// Make sure the artifacts are not war machines.
+	if ((srcSlot>=13 && srcSlot<=16) || (destSlot>=13 && destSlot<=16)) {
+		complain("Cannot move war machine!");
+		return false;
+	}
+
+	// Perform the exchange.
 	SetHeroArtifacts sha;
-	sha.hid = hid1;
-	sha.artifacts = h1->artifacts;
-	sha.artifWorn = h1->artifWorn;
-	sha.setArtAtPos(slot1,h2->getArtAtPos(slot2));
-	if(h1 == h2) sha.setArtAtPos(slot2,h1->getArtAtPos(slot1));
+	sha.hid = srcHeroID;
+	sha.artifacts = srcHero->artifacts;
+	sha.artifWorn = srcHero->artifWorn;
+
+	sha.setArtAtPos(srcSlot, -1);
+	if (destSlot < 19 && (destArtifact || srcSlot < 19))
+		sha.setArtAtPos(srcSlot, destHero->getArtAtPos(destSlot));
+
+	// Correction for destination from removing source artifact in backpack.
+	if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
+		destSlot--;
+
+	// Internal hero artifact arrangement.
+	if(srcHero == destHero)
+		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
 	sendAndApply(&sha);
-	if(hid1 != hid2)
-	{
-		sha.hid = hid2;
-		sha.artifacts = h2->artifacts;
-		sha.artifWorn = h2->artifWorn;
-		sha.setArtAtPos(slot2, a1 ? a1->id : -1);
+	if (srcHeroID != destHeroID) {
+		// Exchange between two different heroes.
+		sha.hid = destHeroID;
+		sha.artifacts = destHero->artifacts;
+		sha.artifWorn = destHero->artifWorn;
+		sha.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
 		sendAndApply(&sha);
 	}
 

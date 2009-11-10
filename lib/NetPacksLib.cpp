@@ -451,17 +451,18 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 		if(pos<19)
 			artifWorn.erase(pos);
 		else
-			artifacts -= artifacts[pos-19];
+			artifacts.erase(artifacts.begin() + (pos - 19));
 	}
 	else
 	{
-		if(pos<19)
+		if (pos < 19) {
 			artifWorn[pos] = art;
-		else
-			if(pos-19 < artifacts.size())
-				artifacts[pos-19] = art;
+		} else { // Goes into the backpack.
+			if(pos - 19 < artifacts.size())
+				artifacts.insert(artifacts.begin() + (pos - 19), art);
 			else
 				artifacts.push_back(art);
+		}
 	}
 }
 
