@@ -396,7 +396,10 @@ int CGObjectInstance::getSightRadious() const
 {
 	return 3;
 }
-
+void CGObjectInstance::getSightTiles(std::set<int3> &tiles) const //returns reference to the set
+{
+	cb->getTilesInRange(tiles, pos, getSightRadious(), tempOwner, 1);
+}
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	for(int y = 0; y < 6; y++)
@@ -1422,7 +1425,7 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 	if (subID == 2) //tower
 	{
 		if ((builtBuildings.find(17)) != builtBuildings.end()) //skyship
-			return cb->getMapSize().x + cb->getMapSize().y;
+			return -1; //entire map
 		else if ((builtBuildings.find(21)) != builtBuildings.end()) //lookout tower
 			return 20;
 	}

@@ -2039,9 +2039,16 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		sendAndApply(&ssi);
 	}
 
+	//reveal ground for lookout tower
+	/* sdl conflict
 	ns.bid.insert(bid);
 	ns.builded = t->builded + 1;
 	sendAndApply(&ns);
+	*/
+
+	FoWChange fw;
+	t->getSightTiles(fw.tiles);
+	sendAndApply(&fw);
 
 	SetResources sr;
 	sr.player = t->tempOwner;
@@ -2061,12 +2068,6 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		vistiCastleObjects (t, t->visitingHero);
 	if(t->garrisonHero)
 		vistiCastleObjects (t, t->garrisonHero);
-	//reveal ground for lookout tower
-	FoWChange fw;
-	fw.player = t->tempOwner;
-	fw.mode = 1;
-	getTilesInRange(fw.tiles, t->pos, t->getSightRadious(), t->tempOwner,1);
-	sendAndApply(&fw);
 	
 	return true;
 }

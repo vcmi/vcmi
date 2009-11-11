@@ -100,19 +100,24 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 		tlog1 << "Illegal call to getTilesInRange!\n";
 		return;
 	}
-
-	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
+	if (radious == -1) //reveal entire map
+		getAllTiles (tiles, player, -1, 0);
+	else
 	{
-		for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
+		PlayerState * plr = &gs->players.find(player)->second;
+		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
 		{
-			double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
-			if(distance <= radious)
+			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
 			{
-				if(player < 0 
-					|| (mode == 1  && gs->players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0)
-					|| (mode == -1 && gs->players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==1)
-				)
-					tiles.insert(int3(xd,yd,pos.z));
+				double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
+				if(distance <= radious)
+				{
+					if(player < 0 
+						|| (mode == 1  && plr->fogOfWarMap[xd][yd][pos.z]==0)
+						|| (mode == -1 && plr->fogOfWarMap[xd][yd][pos.z]==1)
+					)
+						tiles.insert(int3(xd,yd,pos.z));
+				}
 			}
 		}
 	}
@@ -122,7 +127,7 @@ void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int l
 {
 	if(player >= PLAYER_LIMIT)
 	{
-		tlog1 << "Illegal call to getTilesInRange!\n";
+		tlog1 << "Illegal call to getAllTiles !\n";
 		return;
 	}
 	bool water = surface == 0 || surface == 2,

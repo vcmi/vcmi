@@ -144,6 +144,7 @@ public:
 
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
+	void getSightTiles(std::set<int3> &tiles) const; //returns reference to the set
 	int getOwner() const;
 	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
