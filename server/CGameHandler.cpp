@@ -2044,11 +2044,11 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 	sendAndApply(&ns);
 	
 	//reveal ground for lookout tower
-	/* sdl conflict
 	FoWChange fw;
-	t->getSightTiles(fw.tiles);
+	fw.player = t->tempOwner;
+	fw.mode = 1;
+	getTilesInRange(fw.tiles,t->pos,t->getSightRadious(),t->tempOwner,1);
 	sendAndApply(&fw);
-	*/
 
 	SetResources sr;
 	sr.player = t->tempOwner;
