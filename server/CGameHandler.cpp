@@ -2336,13 +2336,14 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	if (destSlot < 19 && (destArtifact || srcSlot < 19))
 		sha.setArtAtPos(srcSlot, destHero->getArtAtPos(destSlot));
 
-	// Correction for destination from removing source artifact in backpack.
-	if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
-		destSlot--;
-
 	// Internal hero artifact arrangement.
-	if(srcHero == destHero)
+	if(srcHero == destHero) {
+		// Correction for destination from removing source artifact in backpack.
+		if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
+			destSlot--;
+
 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
+	}
 	sendAndApply(&sha);
 	if (srcHeroID != destHeroID) {
 		// Exchange between two different heroes.
