@@ -575,7 +575,7 @@ void CCastleInterface::buildingClicked(int building)
 				{
 					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
 					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213],std::vector<SComponent*>(), soundBase::sound_todo);
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
 					}
 					else
 					{
@@ -594,7 +594,6 @@ void CCastleInterface::buildingClicked(int building)
 		case 5: //tavern
 			{
 				enterTavern();
-
 				break;
 			}
 		case 6: //shipyard
@@ -645,7 +644,7 @@ void CCastleInterface::buildingClicked(int building)
 		//TODO: case 18: //basic horde 1
 		//TODO: case 19: //upg horde 1
 		case 20: //ship at shipyard
-			//Do nothing.
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
 			break;
 		//TODO: case 21: //special 2
 		case 22: //special 3
@@ -916,7 +915,7 @@ void CCastleInterface::recreateBuildings()
 	if(vstd::contains(town->builtBuildings,6))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
-		if(vobjs.size() && vobjs.front()->ID == 8) //there is visitable obj at shipyard output tile and it's a boat
+		if(vobjs.size() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		{
 			Structure * st = CGI->townh->structures[town->subID][20];
 			buildings.push_back(new CBuildingRect(st));

@@ -1067,7 +1067,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			for(unsigned int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
-			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
+			tlog3 << "Cannot find a dwelling for creature "<< cid << std::endl;
 			return std::pair<int,int>(17,0); 
 		}
 	case 217:
@@ -3067,6 +3067,7 @@ bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 CPathsInfo::CPathsInfo( const int3 &Sizes )
 :sizes(Sizes)
 {
+	hero = NULL;
 	nodes = new CGPathNode**[sizes.x];
 	for(int i = 0; i < sizes.x; i++)
 	{

@@ -143,7 +143,8 @@ void RemoveObject::applyFirstCl( CClient *cl )
 
 void RemoveObject::applyCl( CClient *cl )
 {
-	GS(cl)->calculatePaths(cl->pathInfo->hero, *cl->pathInfo);
+	if(cl->pathInfo->hero)
+		GS(cl)->calculatePaths(cl->pathInfo->hero, *cl->pathInfo);
 }
 
 void TryMoveHero::applyFirstCl( CClient *cl )

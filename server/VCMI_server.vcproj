@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP2"
+				AdditionalOptions="/MP4"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include"
 				MinimalRebuild="false"

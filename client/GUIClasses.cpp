@@ -4148,16 +4148,17 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		//secondary skill's clickable areas
 		for(int g=0; g<heroInst[b]->secSkills.size(); ++g)
 		{
+			int skill = heroInst[b]->secSkills[g].first,
+				level = heroInst[b]->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(new LRClickableAreaWTextComp());
 			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
 			secSkillAreas[b][g]->baseType = 1;
 
-			secSkillAreas[b][g]->type = heroInst[b]->secSkills[g].first;
-			secSkillAreas[b][g]->bonus = heroInst[b]->secSkills[g].second;
-			std::string hlp = CGI->generaltexth->skillInfoTexts[ heroInst[b]->secSkills[g].first ][heroInst[b]->secSkills[g].second-1];
-			secSkillAreas[b][g]->text = hlp.substr(1, hlp.size()-2);
+			secSkillAreas[b][g]->type = skill;
+			secSkillAreas[b][g]->bonus = level;
+			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 
-			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[heroInst[b]->secSkills[g].second-1].c_str(), CGI->generaltexth->skillName[heroInst[b]->secSkills[g].first].c_str());
+			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level - 1].c_str(), CGI->generaltexth->skillName[skill].c_str());
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
 

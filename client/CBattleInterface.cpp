@@ -26,6 +26,7 @@
 #include "../hch/CTownHandler.h"
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
 #else

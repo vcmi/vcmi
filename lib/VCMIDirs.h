@@ -8,9 +8,11 @@
  *
  */
 
-#include <boost/filesystem.hpp>
+#ifndef _WIN32 //we need boost here only on non-win platforms
+	#include <boost/filesystem.hpp> 
+	using namespace boost::filesystem;
+#endif
 
-using namespace boost::filesystem;
 
 /* Where to find the various VCMI files. This is mostly usefull for linux. */
 class VCMIDirs {

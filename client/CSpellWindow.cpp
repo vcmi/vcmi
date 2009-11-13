@@ -14,6 +14,8 @@
 #include "../CCallback.h"
 #include <boost/bind.hpp>
 #include <sstream>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
 
 /*
  * CSpellWindow.cpp, part of VCMI engine

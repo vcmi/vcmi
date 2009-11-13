@@ -23,6 +23,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <cstdlib>
 #include <sstream>
+#include <boost/lexical_cast.hpp>
 
 /*
  * CHeroWindow.cpp, part of VCMI engine
