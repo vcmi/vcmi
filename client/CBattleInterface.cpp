@@ -1985,6 +1985,9 @@ void CBattleInterface::clickRight(tribool down, bool previousState)
 
 void CBattleInterface::bOptionsf()
 {
+	if(activeStack < 0) //workaround to prevent crashing calls in the middle of movement (action)
+		return;			//TODO: disable options button during action (other buttons should be disabled as well)
+
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 

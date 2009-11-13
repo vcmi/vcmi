@@ -37,12 +37,14 @@
 
 DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 {
+	assert(player < PLAYER_LIMIT);
 	amax(val, 0); //new value must be >= 0
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
 DLL_EXPORT void SetResources::applyGs( CGameState *gs )
 {
+	assert(player < PLAYER_LIMIT);
 	for(int i=0;i<res.size();i++)
 		gs->getPlayer(player)->resources[i] = res[i];
 }

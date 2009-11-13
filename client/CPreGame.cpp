@@ -70,6 +70,7 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[4].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0 /*cb*/, 524, 251, "ZMENUHS.DEF", SDLK_h);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c);
+			//boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, )
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, do_quit, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE);
 		}
 		break;

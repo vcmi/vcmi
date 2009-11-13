@@ -2150,6 +2150,9 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 		getNeighbours(ct, cp->coord, neighbours, boost::logic::indeterminate);
 		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
+			int moveAtNextTile = movement;
+			int turnAtNextTile = turn;
+
 			const int3 &n = neighbours[i]; //current neighbor
 			CGPathNode & dp = graph[n.x][n.y][n.z];
 			if( !checkForVisitableDir(cp->coord, dp.coord) 
@@ -2165,19 +2168,19 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 			if(remains < 0)
 			{
 				//occurs rarely, when hero with low movepoints tries to go leave the road
-				turn++;
-				movement = hero->maxMovePoints(ct.tertype != TerrainTile::water);
-				cost = getMovementCost(hero, cp->coord, dp.coord, movement); //cost must be updated, movement points changed :(
-				remains = movement - cost;
+				turnAtNextTile++;
+				moveAtNextTile = hero->maxMovePoints(ct.tertype != TerrainTile::water);
+				cost = getMovementCost(hero, cp->coord, dp.coord, moveAtNextTile); //cost must be updated, movement points changed :(
+				remains = moveAtNextTile - cost;
 			}
 
 			if(dp.turns==0xff		//we haven't been here before
-				|| dp.turns > turn
-				|| (dp.turns >= turn  &&  dp.moveRemains < remains)) //this route is faster
+				|| dp.turns > turnAtNextTile
+				|| (dp.turns >= turnAtNextTile  &&  dp.moveRemains < remains)) //this route is faster
 			{
 				assert(&dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp.moveRemains = remains;
-				dp.turns = turn;
+				dp.turns = turnAtNextTile;
 				dp.theNodeBefore = cp;
 				if(dp.accessible == CGPathNode::ACCESSIBLE)
 				{

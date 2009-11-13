@@ -23,7 +23,6 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGHeroInstance>();
 	s.template registerType<CGTownInstance>();
 	s.template registerType<CTownBonus>();
-	s.template registerType<COPWBonus>();
 	s.template registerType<CGPandoraBox>();
 	s.template registerType<CGEvent>();
 	s.template registerType<CGDwelling>();
@@ -58,6 +57,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGShipyard>();
 	s.template registerType<CCartographer>();
 	s.template registerType<CGObjectInstance>();
+	s.template registerType<COPWBonus>();
 }
 
 template<typename Serializer> DLL_EXPORT 

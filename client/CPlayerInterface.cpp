@@ -263,7 +263,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
 		}
-		else if(adventureInt->terrain.currentPath) //&& hero is moving
+		else if(adventureInt->terrain.currentPath  &&  details.result == TryMoveHero::SUCCESS) //&& hero is moving
 		{
 			//remove one node from the path (the one we went)
 			adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
@@ -1204,17 +1204,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT->showingDialog->setn(true);
-	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,DelComps);
-	temp->delComps = DelComps;
-	for(int i=0;i<onYes.funcs.size();i++)
-		temp->buttons[0]->callback += onYes.funcs[i];
-	for(int i=0;i<onNo.funcs.size();i++)
-		temp->buttons[1]->callback += onNo.funcs[i];
-
-	GH.pushInt(temp);
+	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
 }
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
@@ -1378,8 +1368,8 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
 	{
-		//stop sending move requests if hero exhausted all his move points
-		if(!h->movement)
+		//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
+		if(path.nodes[i-1].turns)
 		{
 			stillMoveHero.data = STOP_MOVE;
 			break;

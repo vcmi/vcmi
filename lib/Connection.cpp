@@ -253,7 +253,7 @@ CLoadFile::CLoadFile( const std::string &fname )
 		}
 
 		*this >> myVersion;	
-		if(myVersion != version)
+		if(myVersion > version  ||  myVersion < 110)
 		{
 			tlog1 << "Wrong save format! (file " << fname << " )\n";
 			delete sfile;

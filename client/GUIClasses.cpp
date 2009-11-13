@@ -699,6 +699,22 @@ void CInfoWindow::showAll( SDL_Surface * to )
 	show(to);
 }
 
+void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player)
+{
+	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+	CInfoWindow * temp = new CInfoWindow(text, player, 0, *components, pom, DelComps);
+	temp->delComps = DelComps;
+	for(int i=0;i<onYes.funcs.size();i++)
+		temp->buttons[0]->callback += onYes.funcs[i];
+	for(int i=0;i<onNo.funcs.size();i++)
+		temp->buttons[1]->callback += onNo.funcs[i];
+
+	GH.pushInt(temp);
+}
+
 void CRClickPopup::clickRight(tribool down, bool previousState)
 {
 	if(down)

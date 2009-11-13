@@ -782,6 +782,8 @@ void CGameHandler::newTurn()
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		if(i->first == 255) continue;
+		else if(i->first > PLAYER_LIMIT) assert(0); //illegal player number!
+
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
 			SetAvailableHeroes sah;
@@ -843,42 +845,43 @@ void CGameHandler::newTurn()
 		n.res.push_back(r);
 	}
 	for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+	{
+		if(gs->getDate(1)==7) //first day of week
 		{
-			if(gs->getDate(1)==7) //first day of week
+			SetAvailableCreatures sac;
+			sac.tid = (**j).id;
+			sac.creatures = (**j).creatures;
+			for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
 			{
-				SetAvailableCreatures sac;
-				sac.tid = (**j).id;
-				sac.creatures = (**j).creatures;
-				for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
+				if((**j).creatureDwelling(k))//there is dwelling (k-level)
 				{
-					if((**j).creatureDwelling(k))//there is dwelling (k-level)
-					{
-						sac.creatures[k].first += (**j).creatureGrowth(k);
-						if(!gs->getDate(0)) //first day of game: use only basic growths
-							amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]].growth);
-					}
+					sac.creatures[k].first += (**j).creatureGrowth(k);
+					if(!gs->getDate(0)) //first day of game: use only basic growths
+						amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]].growth);
 				}
-				n.cres.push_back(sac);
 			}
-			if(gs->day  &&  (*j)->tempOwner < PLAYER_LIMIT)//not the first day and town not neutral
-			{
-				SetResources r;
-				if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
-				{
-					if((**j).town->primaryRes == 127) //we'll give wood and ore
-					{
-						r.res[0] += 1;
-						r.res[2] += 1;
-					}
-					else
-					{
-						r.res[(**j).town->primaryRes] += 1;
-					}
-				}
-				r.res[6] += (**j).dailyIncome();
-				n.res.push_back(r);
-			}	
+			n.cres.push_back(sac);
 		}
+		if(gs->day  &&  (*j)->tempOwner < PLAYER_LIMIT)//not the first day and town not neutral
+		{
+			SetResources r;
+			r.player = (**j).tempOwner;
+			if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
+			{
+				if((**j).town->primaryRes == 127) //we'll give wood and ore
+				{
+					r.res[0] += 1;
+					r.res[2] += 1;
+				}
+				else
+				{
+					r.res[(**j).town->primaryRes] += 1;
+				}
+			}
+			r.res[6] += (**j).dailyIncome();
+			n.res.push_back(r);
+		}	
+	}
 
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
@@ -1862,7 +1865,7 @@ void CGameHandler::save( const std::string &fname )
 		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vsgm1");
 		save << *this;
 	}
-	tlog0 << "Game has been succesfully saved!\n";
+	tlog0 << "Game has been successfully saved!\n";
 }
 
 void CGameHandler::close()
