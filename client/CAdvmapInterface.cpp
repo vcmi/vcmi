@@ -434,7 +434,7 @@ void CMinimap::show( SDL_Surface * to )
 }
 
 CTerrainRect::CTerrainRect()
-	:currentPath(NULL)
+	:currentPath(NULL), curHoveredTile(-1,-1,-1)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
 	tilesh=(ADVOPT.advmapH+31)/32;
@@ -466,6 +466,7 @@ void CTerrainRect::deactivate()
 	deactivateRClick();
 	deactivateHover();
 	deactivateMouseMove();
+	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
 };
 void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
@@ -564,10 +565,12 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		return;
 
 	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
-	if(!objs.size()) {
+	if(!objs.size()) 
+	{
 		// Bare or undiscovered terrain
 		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
-		if (tile) {
+		if (tile) 
+		{
 			CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype],LOCPLINT->playerID,true);
 			CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 			GH.pushInt(rcpi);
@@ -1410,7 +1413,9 @@ void CInfoBar::newDay(int Day)
 		}
 	}
 	pom = 0;
-	activateTimer();
+	if(!(active & TIME))
+		activateTimer();
+
 	toNextTick = 500;
 	blitAnim(mode);
 }
@@ -1457,6 +1462,18 @@ void CInfoBar::tick()
 void CInfoBar::show( SDL_Surface * to )
 {
 
+}
+
+void CInfoBar::activate()
+{
+	//CIntObject::activate();
+}
+
+void CInfoBar::deactivate()
+{
+	//CIntObject::deactivate();
+	if(active & TIME)
+		deactivateTimer();
 }
 
 CAdvMapInt::CAdvMapInt(int Player)
@@ -1643,8 +1660,10 @@ void CAdvMapInt::activate()
 	heroList.activate();
 	townList.activate();
 	terrain.activate();
+	infoBar.activate();
 
 	LOCPLINT->cingconsole->activate();
+	GH.fakeMouseMove(); //to restore the cursor
 }
 void CAdvMapInt::deactivate()
 {
@@ -1666,8 +1685,7 @@ void CAdvMapInt::deactivate()
 	heroList.deactivate();
 	townList.deactivate();
 	terrain.deactivate();
-	if(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),&infoBar)!=GH.timeinterested.end())
-		infoBar.deactivate();
+	infoBar.deactivate();
 	infoBar.mode=-1;
 
 	LOCPLINT->cingconsole->deactivate();

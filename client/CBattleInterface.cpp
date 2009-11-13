@@ -1522,6 +1522,10 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	if(preSize > 0 && pendingAnims.size() == 0)
 	{
+		//action finished, restore the interface
+		if(!active)
+			activate();
+
 		//restoring good directions of stacks
 		for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
 		{
@@ -1704,7 +1708,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						CGI->curh->changeGraphic(1,3);
 						//setting console text
 						char buf[500];
-						//calculating esimated dmg
+						//calculating estimated dmg
 						std::pair<ui32, ui32> estimatedDmg = LOCPLINT->cb->battleEstimateDamage(sactive->ID, shere->ID);
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
@@ -1738,16 +1742,21 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 						// Exclude directions which cannot be attacked from.
 						// Check to the left.
-						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - 1)) {
+						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - 1)) 
+						{
 							sectorCursor[0] = -1;
 						}
 						// Check top left, top right as well as above for 2-hex creatures.
-						if (myNumber/BFIELD_WIDTH == 0) {
+						if (myNumber/BFIELD_WIDTH == 0) 
+						{
 								sectorCursor[1] = -1;
 								sectorCursor[2] = -1;
 								aboveAttackable = false;
-						} else {
-							if (doubleWide) {
+						} 
+						else 
+						{
+							if (doubleWide) 
+							{
 								bool attackRow[4] = {true, true, true, true};
 
 								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
@@ -1765,7 +1774,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 									aboveAttackable = false;
 								if (!(attackRow[2] && attackRow[3]))
 									sectorCursor[2] = -1;
-							} else {
+							}
+							else
+							{
 								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
 									sectorCursor[1] = -1;
 								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
@@ -1773,16 +1784,21 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							}
 						}
 						// Check to the right.
-						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + 1)) {
+						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + 1))
+						{
 							sectorCursor[3] = -1;
 						}
 						// Check bottom right, bottom left as well as below for 2-hex creatures.
-						if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1) {
+						if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1)
+						{
 							sectorCursor[4] = -1;
 							sectorCursor[5] = -1;
 							belowAttackable = false;
-						} else {
-							if (doubleWide) {
+						} 
+						else 
+						{
+							if (doubleWide)
+							{
 								bool attackRow[4] = {true, true, true, true};
 
 								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
@@ -1800,7 +1816,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 									belowAttackable = false;
 								if (!(attackRow[2] && attackRow[3]))
 									sectorCursor[4] = -1;
-							} else {
+							} 
+							else 
+							{
 								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
 									sectorCursor[4] = -1;
 								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
@@ -1810,7 +1828,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 						// Determine index from sector.
 						int cursorIndex;
-						if (doubleWide) {
+						if (doubleWide) 
+						{
 							sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
 							sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
 
@@ -1824,7 +1843,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 								cursorIndex = 6;
 							else
 								cursorIndex = (int) sector + 2;
-						} else {
+						} 
+						else 
+						{
 							cursorIndex = sector;
 						}
 
@@ -1837,7 +1858,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 						//setting console info
 						char buf[500];
-						//calculating esimated dmg
+						//calculating estimated dmg
 						std::pair<ui32, ui32> estimatedDmg = LOCPLINT->cb->battleEstimateDamage(sactive->ID, shere->ID);
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
@@ -1985,9 +2006,6 @@ void CBattleInterface::clickRight(tribool down, bool previousState)
 
 void CBattleInterface::bOptionsf()
 {
-	if(activeStack < 0) //workaround to prevent crashing calls in the middle of movement (action)
-		return;			//TODO: disable options button during action (other buttons should be disabled as well)
-
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
@@ -2726,6 +2744,9 @@ void CBattleInterface::activateStack()
 			bSpell->block(!defendingHeroInstance->getArt(17));
 	}
 	GH.fakeMouseMove();
+
+	if(!pendingAnims.size() && !active)
+		activate();
 }
 
 float CBattleInterface::getAnimSpeedMultiplier() const
@@ -3008,9 +3029,9 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 void CBattleInterface::endAction(const BattleAction* action)
 {	
 	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
-	{
-		activate();
-	}
+// 	{
+// 		activate();
+// 	}
 	if(action->actionType == 1)
 	{
 		if(action->side)
@@ -3076,8 +3097,8 @@ void CBattleInterface::startAction(const BattleAction* action)
 		}
 	}
 
-
-	deactivate();
+	if(active)
+		deactivate();
 
 	char txt[400];
 

@@ -127,6 +127,8 @@ public:
 	void blitAnim(int mode);//0 - day, 1 - week
 	CDefHandler * getAnim(int mode);
 	void show(SDL_Surface * to);
+	void activate();
+	void deactivate();
 };
 /*****************************/
 class CAdvMapInt : public CIntObject //adventure map interface
