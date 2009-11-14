@@ -186,6 +186,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CGObjectInstance&>(*this);
 		h & players;
 	}
 };
@@ -985,6 +986,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPlayersVisited&>(*this);
 		h & players;
 	}
 

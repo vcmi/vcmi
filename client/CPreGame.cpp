@@ -1683,8 +1683,9 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 			text.resize(text.size()-1);
 		break;
 	default:
-		char c = key.keysym.unicode;
-		if(std::isprint(c))
+		char c = key.keysym.unicode; //TODO 16-/>8
+		static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
+		if(!vstd::contains(forbiddenChars,c) && std::isprint(c))
 			text += c;
 		break;
 	}

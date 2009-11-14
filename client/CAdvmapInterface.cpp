@@ -853,7 +853,7 @@ void CTerrainRect::hover(bool on)
 	}
 	//Hoverable::hover(on);
 }
-void CTerrainRect::showPath(const SDL_Rect * extRect)
+void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 {
 	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
 	{
@@ -1130,60 +1130,60 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
 
 			SDL_Rect prevClip;
-			SDL_GetClipRect(screen, &prevClip);
-			SDL_SetClipRect(screen, extRect); //preventing blitting outside of that rect
+			SDL_GetClipRect(to, &prevClip);
+			SDL_SetClipRect(to, extRect); //preventing blitting outside of that rect
 
 			if(ADVOPT.smoothMove) //version for smooth hero move, with pos shifts
 			{
 				if (hvx<0 && hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x + moveX, y + moveY));
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &genRect(32, 32, x + moveX, y + moveY));
 				}
 				else if(hvx<0)
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY));
+						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY));
 				}
 				else if (hvy<0)
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+						to, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
 				}
 				else
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
 				}
 			}
 			else //standard version
 			{
 				if (hvx<0 && hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x, y));
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &genRect(32, 32, x, y));
 				}
 				else if(hvx<0)
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y));
+						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y));
 				}
 				else if (hvy<0)
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+						to, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y));
 				}
 				else
 				{
 					CSDL_Ext::blit8bppAlphaTo24bpp
 						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y));
 				}
 			}
-			SDL_SetClipRect(screen, &prevClip);
+			SDL_SetClipRect(to, &prevClip);
 
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
@@ -1205,7 +1205,7 @@ void CTerrainRect::show(SDL_Surface * to)
 	//SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
-		showPath(&pos);
+		showPath(&pos, to);
 	}
 }
 

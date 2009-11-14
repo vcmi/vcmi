@@ -4777,14 +4777,10 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		cb->giveResource (h->tempOwner, 6, -1000);
 		FoWChange fw;
 		fw.player = h->tempOwner;
-		int surface = 0;
-		if (cb->getTile(pos)->tertype == 8) //water
-			surface = 2;
-		else
-			surface = 1;
 
-		//reveal apropriate tiles
-		cb->getAllTiles (fw.tiles, h->tempOwner, pos.z, surface);
+		//subIDs of different types of cartographers:
+		//water = 0; land = 1; underground = 2;
+		cb->getAllTiles (fw.tiles, h->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
 		cb->setObjProperty (id, 10, h->tempOwner);
 	}
