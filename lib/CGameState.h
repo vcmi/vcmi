@@ -323,7 +323,7 @@ public:
 	struct DLL_EXPORT HeroesPool
 	{
 		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
-		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero
+		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
 		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const;
 

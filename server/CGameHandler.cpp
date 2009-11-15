@@ -2439,21 +2439,21 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 	hr.tile = t->pos - int3(1,0,0);
 	sendAndApply(&hr);
 
-
 	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
-	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
-			if(*j)
-				pool.erase((**j).subID);
 
 	SetAvailableHeroes sah;
-	CGHeroInstance *h1 = gs->hpool.pickHeroFor(false,t->tempOwner,t->town, pool),
+	CGHeroInstance *h1 = gs->hpool.pickHeroFor(false,t->tempOwner,t->town, pool), //new hero
 				*h2 = gs->getPlayer(t->tempOwner)->availableHeroes[!hid];
 	(hid ? sah.hid2 : sah.hid1) = h1 ? h1->subID : -1;
 	(hid ? sah.hid1 : sah.hid2) = h2 ? h2->subID : -1;
 	sah.player = t->tempOwner;
-	sah.flags = hid+1;
+	//sah.flags = hid+1; //without army - why?
 	sendAndApply(&sah);
+
+	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+			if(*j)
+				pool.erase((**j).subID); //hero is removed from available lists
 
 	SetResource sr;
 	sr.player = t->tempOwner;

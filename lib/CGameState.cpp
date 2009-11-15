@@ -873,7 +873,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 			if(pavailable.find(i->first)->second & 1<<player
 				&& i->second->type->heroType/2 == town->typeID)
 			{
-				pool.push_back(i->second);
+				pool.push_back(i->second); //get all avaliable heroes
 			}
 		}
 		if(!pool.size())
@@ -895,7 +895,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 			if(pavailable.find(i->first)->second & 1<<player)
 			{
 				pool.push_back(i->second);
-				sum += i->second->type->heroClass->selectionProbability[town->typeID];
+				sum += i->second->type->heroClass->selectionProbability[town->typeID]; //total weight
 			}
 		}
 		if(!pool.size())
@@ -905,11 +905,14 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 		}
 
 		r = rand()%sum;
-		for(unsigned int i=0; i<pool.size(); i++)
+		for (unsigned int i=0; i<pool.size(); i++)
 		{
 			r -= pool[i]->type->heroClass->selectionProbability[town->typeID];
-			if(r<0)
+			if(r < 0)
+			{
 				ret = pool[i];
+				break;
+			}
 		}
 		if(!ret)
 			ret = pool.back();
