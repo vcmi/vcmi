@@ -2384,7 +2384,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 		if(vstd::contains(hero->artifWorn,ui16(9+aid)) && complain("Hero already has this machine!")
 			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
 			|| gs->getPlayer(hero->getOwner())->resources[6] < price  && complain("Not enough gold!")  //no gold
-			|| town->town->warMachine!= aid  &&  complain("This machine is unavailale here!") ) //TODO: ballista yard in Stronghold
+			|| town->town->warMachine!= aid  &&  complain("This machine is unavailable here!") ) //TODO: ballista yard in Stronghold
 		{
 			return false;
 		}

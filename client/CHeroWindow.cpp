@@ -25,6 +25,8 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
+#undef min;
+
 /*
  * CHeroWindow.cpp, part of VCMI engine
  *
@@ -219,7 +221,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 
 	//secondary skills support
-	for(size_t g=0; g<hero->secSkills.size(); ++g)
+	for(size_t g=0; g<std::min(secSkillAreas.size(),hero->secSkills.size()); ++g)
 	{
 		int skill = hero->secSkills[g].first, 
 			level = hero->secSkills[g].second;
@@ -317,7 +319,7 @@ void CHeroWindow::activate()
 	{
 		primSkillAreas[v]->activate();
 	}
-	for(size_t v=0; v<curHero->secSkills.size(); ++v)
+	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 		secSkillAreas[v]->activate();
 	}
@@ -351,7 +353,7 @@ void CHeroWindow::deactivate()
 	{
 		primSkillAreas[v]->deactivate();
 	}
-	for(size_t v=0; v<curHero->secSkills.size(); ++v)
+	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 		secSkillAreas[v]->deactivate();
 	}

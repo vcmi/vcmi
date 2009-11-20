@@ -2954,7 +2954,7 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 		const CStack * const s = stacks[i];
 		if(turn <= 0 && !s->willMove() //we are considering current round and stack won't move
 			|| turn > 0 && !s->canMove(turn) //stack won't be able to move in later rounds
-			|| turn <= 0 && s == active) //it's active stack already added at the beginning of queue
+			|| turn <= 0 && s == active && out.size() && s == out.front()) //it's active stack already added at the beginning of queue
 		{
 			continue;
 		}

@@ -602,7 +602,7 @@ public:
 	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
+		h & static_cast<CPlayersVisited&>(*this);
 		h & allowedAbilities & ability;
 	}
 };
@@ -702,7 +702,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
+		h & static_cast<CPlayersVisited&>(*this);;
 		h & spell;
 	}
 };
@@ -904,7 +904,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
+		h & static_cast<CPlayersVisited&>(*this);;
 		h & bonusType & bonusVal;
 	}
 };

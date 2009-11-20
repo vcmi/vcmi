@@ -126,11 +126,15 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
-	if (down) {
+
+	if (down) 
+	{
 		CGI->soundh->playSound(soundBase::button);
 		state=1;
-	} else
+	} 
+	else
 		state=0;
+
 	show(screenBuf);
 	if (actOnDown && down)
 	{
@@ -200,25 +204,6 @@ void AdventureMapButton::hover (bool on)
 		}
 	}
 }
-
-//void AdventureMapButton::activate()
-//{
-//// 	if (active) return;
-//// 	active=true;
-//	activateLClick();
-//	activateRClick();
-//	activateHover();
-//	activateKeys();
-//}
-//void AdventureMapButton::deactivate()
-//{
-//// 	if (!active) return;
-//// 	active=false;
-//	deactivateLClick();
-//	deactivateRClick();
-//	deactivateHover();
-//	deactivateKeys();
-//}
 
 void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
 {
