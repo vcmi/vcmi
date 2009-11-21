@@ -1057,7 +1057,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & cregens & banksInfo;
+		h & cregens & banksInfo & creBanksNames;
 	}
 };
 
