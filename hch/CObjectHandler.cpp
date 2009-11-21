@@ -709,8 +709,6 @@ void CGHeroInstance::initHero()
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<ui8,ui8>(-1, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
-	if(mana < 0)
-		mana = manaLimit();
 	if (!name.length())
 		name = type->name;
 	if (exp == 0xffffffff)
@@ -764,6 +762,8 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 
 	recreateArtBonuses();
+	if(mana < 0)
+		mana = manaLimit(); //after all bonuses are taken into account
 }
 
 void CGHeroInstance::initHeroDefInfo()
