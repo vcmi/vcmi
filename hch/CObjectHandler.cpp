@@ -3326,7 +3326,7 @@ const std::string & CGMagicWell::getHoverText() const
 
 void CGPandoraBox::initObj()
 {
-	blockVisit = true;
+	blockVisit = (ID==6); //block only if it's really pandora's box (events also derive from that class)
 }
 
 void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
@@ -3501,8 +3501,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 	}
 
-	iw.components.clear();
-	getText(iw,afterBattle,183,h);
+ 	iw.components.clear();
+// 	getText(iw,afterBattle,183,h);
 	for(int i=0; i<artifacts.size(); i++)
 	{
 		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));

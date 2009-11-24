@@ -651,7 +651,8 @@ CInfoWindow::CInfoWindow()
 void CInfoWindow::close()
 {
 	GH.popIntTotally(this);
-	LOCPLINT->showingDialog->setn(false);
+	if(LOCPLINT)
+		LOCPLINT->showingDialog->setn(false);
 }
 void CInfoWindow::show(SDL_Surface * to)
 {
@@ -705,7 +706,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text, player, 0, *components, pom, DelComps);
+	CInfoWindow * temp = new CInfoWindow(text, player, 0, components ? *components : std::vector<SComponent*>(), pom, DelComps);
 	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];

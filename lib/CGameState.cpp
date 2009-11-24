@@ -2095,13 +2095,16 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				{
 					for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
 					{
-						if(tinfo->visitableObjects[ii]->blockVisit)
+						const CGObjectInstance * const obj = tinfo->visitableObjects[ii];
+						if(obj->blockVisit)
 						{
 							node.accessible = CGPathNode::BLOCKVIS;
 							break;
 						}
-						else
+						else if(obj->ID != 26) //pathfinder should ignore placed events
+						{
 							node.accessible = CGPathNode::VISITABLE;
+						}
 					}
 				}
 
