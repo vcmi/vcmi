@@ -43,6 +43,7 @@
 #include "../lib/VCMIDirs.h"
 #include <cstdlib>
 #include "../lib/NetPacks.h"
+#include "SDL_syswm.h"
 
 #if __MINGW32__
 #undef main
@@ -412,9 +413,6 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-
-
 	
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
 	{
@@ -430,6 +428,29 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	SDL_EnableUNICODE(1);
 	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 	SDL_ShowCursor(SDL_DISABLE);
+
+#ifdef _WIN32
+	SDL_SysWMinfo wm;
+	SDL_VERSION(&wm.version);
+	int getwm = SDL_GetWMInfo(&wm);
+	if(getwm == 1)
+	{
+		int sw = GetSystemMetrics(SM_CXSCREEN),
+			sh = GetSystemMetrics(SM_CYSCREEN);
+		RECT curpos;
+		GetWindowRect(wm.window,&curpos);
+		int ourw = curpos.right - curpos.left,
+			ourh = curpos.bottom - curpos.top;
+		SetWindowPos(wm.window, 0, (sw - ourw)/2, (sh - ourh)/2, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+	}
+	else
+	{
+		tlog3 << "Something went wrong, getwm=" << getwm << std::endl;
+		tlog3 << "SDL says: " << SDL_GetError() << std::endl;
+		tlog3 << "Window won't be centered.\n";
+	}
+#endif
+	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
 
 	screenBuf = bufOnScreen ? screen : screen2;
 }

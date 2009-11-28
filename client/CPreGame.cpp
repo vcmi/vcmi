@@ -126,16 +126,17 @@ void CGPreGame::run()
 {
 	GH.handleEvents();
 
-#ifdef _WIN32
-	CGI->videoh->open("ACREDIT.SMK");
-#else
-	CGI->videoh->open("ACREDIT.SMK", true, false);
-#endif
-
 	while(!terminate)
 	{
 		if (GH.listInt.size() == 0)
+		{
+		#ifdef _WIN32
+			CGI->videoh->open("ACREDIT.SMK");
+		#else
+			CGI->videoh->open("ACREDIT.SMK", true, false);
+		#endif
 			GH.pushInt(scrs[mainMenu]);
+		}
 
 		CGI->curh->draw1();
 		SDL_Flip(screen);
