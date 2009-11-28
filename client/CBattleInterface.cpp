@@ -1455,17 +1455,6 @@ void CBattleInterface::show(SDL_Surface * to)
 	
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
-	//showing buttons
-	bOptions->show(to);
-	bSurrender->show(to);
-	bFlee->show(to);
-	bAutofight->show(to);
-	bSpell->show(to);
-	bWait->show(to);
-	bDefence->show(to);
-	bConsoleUp->show(to);
-	bConsoleDown->show(to);
-
 	//prevents blitting outside this window
 	SDL_GetClipRect(to, &buf);
 	SDL_SetClipRect(to, &pos);
@@ -1610,6 +1599,17 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing menu background and console
 	blitAt(menu, pos.x, 556 + pos.y, to);
 	console->show(to);
+
+	//showing buttons
+	bOptions->show(to);
+	bSurrender->show(to);
+	bFlee->show(to);
+	bAutofight->show(to);
+	bSpell->show(to);
+	bWait->show(to);
+	bDefence->show(to);
+	bConsoleUp->show(to);
+	bConsoleDown->show(to);
 
 	//showing window with result of battle
 	if(resWindow)

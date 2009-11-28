@@ -246,16 +246,16 @@ CLoadFile::CLoadFile( const std::string &fname )
 
 		if(std::memcmp(buffer,"VCMI",4))
 		{
-			tlog1 << "Error: wrong save format! (file " << fname << " )\n";
+			tlog1 << "Error: not a VCMI save! (file " << fname << " )\n";
 			delete sfile;
 			sfile = NULL;
 			return;
 		}
 
 		*this >> myVersion;	
-		if(myVersion > version  ||  myVersion < 110)
+		if(myVersion != version)
 		{
-			tlog1 << "Wrong save format! (file " << fname << " )\n";
+			tlog1 << "Error: Not supported save format! (file " << fname << " )\n";
 			delete sfile;
 			sfile = NULL;
 		}

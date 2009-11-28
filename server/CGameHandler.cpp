@@ -801,10 +801,12 @@ void CGameHandler::newTurn()
 			sendAndApply(&sah);
 		}
 		if(i->first>=PLAYER_LIMIT) continue;
-		SetResources r;
-		r.player = i->first;
-		for(int j=0;j<RESOURCE_QUANTITY;j++)
-			r.res[j] = i->second.resources[j];
+
+		n.res[i->first] = i->second.resources;
+// 		SetResources r;
+// 		r.player = i->first;
+// 		for(int j=0;j<RESOURCE_QUANTITY;j++)
+// 			r.res[j] = i->second.resources[j];
 		
 		BOOST_FOREACH(CGHeroInstance *h, (*i).second.heroes)
 		{
@@ -827,25 +829,26 @@ void CGameHandler::newTurn()
 				switch(h->getSecSkillLevel(13)) //handle estates - give gold
 				{
 				case 1: //basic
-					r.res[6] += 125;
+					n.res[i->first][6] += 125;
 					break;
 				case 2: //advanced
-					r.res[6] += 250;
+					n.res[i->first][6] += 250;
 					break;
 				case 3: //expert
-					r.res[6] += 500;
+					n.res[i->first][6] += 500;
 					break;
 				}
 
-				for(std::list<HeroBonus>::iterator i = h->bonuses.begin(); i != h->bonuses.end(); i++)
-					if(i->type == HeroBonus::GENERATE_RESOURCE)
-						r.res[i->subtype] += i->val;
+				for(std::list<HeroBonus>::iterator  j = h->bonuses.begin(); j != h->bonuses.end(); j++)
+					if(j->type == HeroBonus::GENERATE_RESOURCE)
+						n.res[i->first][j->subtype] += j->val;
 			}
 		}
-		n.res.push_back(r);
+		//n.res.push_back(r);
 	}
 	for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 	{
+		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
 		{
 			SetAvailableCreatures sac;
@@ -862,24 +865,23 @@ void CGameHandler::newTurn()
 			}
 			n.cres.push_back(sac);
 		}
-		if(gs->day  &&  (*j)->tempOwner < PLAYER_LIMIT)//not the first day and town not neutral
+		if(gs->day  &&  player < PLAYER_LIMIT)//not the first day and town not neutral
 		{
-			SetResources r;
-			r.player = (**j).tempOwner;
+			////SetResources r;
+			//r.player = (**j).tempOwner;
 			if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
 			{
 				if((**j).town->primaryRes == 127) //we'll give wood and ore
 				{
-					r.res[0] += 1;
-					r.res[2] += 1;
+					n.res[player][0] += 1;
+					n.res[player][2] += 1;
 				}
 				else
 				{
-					r.res[(**j).town->primaryRes] += 1;
+					n.res[player][(**j).town->primaryRes] += 1;
 				}
 			}
-			r.res[6] += (**j).dailyIncome();
-			n.res.push_back(r);
+			n.res[player][6] += (**j).dailyIncome();
 		}	
 	}
 
@@ -2493,6 +2495,7 @@ bool CGameHandler::queryReply( ui32 qid, ui32 answer )
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
+	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
 	bool ok = true;
 	switch(ba.actionType)
 	{

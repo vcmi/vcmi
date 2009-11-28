@@ -42,12 +42,12 @@ DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
-DLL_EXPORT void SetResources::applyGs( CGameState *gs )
-{
-	assert(player < PLAYER_LIMIT);
-	for(int i=0;i<res.size();i++)
-		gs->getPlayer(player)->resources[i] = res[i];
-}
+ DLL_EXPORT void SetResources::applyGs( CGameState *gs )
+ {
+ 	assert(player < PLAYER_LIMIT);
+ 	for(int i=0;i<res.size();i++)
+ 		gs->getPlayer(player)->resources[i] = res[i];
+ }
 
 DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 {
@@ -546,8 +546,13 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		hero->mana = h.mana;
 	}
 
-	BOOST_FOREACH(SetResources h, res) //give resources
-		h.applyGs(gs);
+	for(std::map<ui8, std::vector<si32> >::iterator i = res.begin(); i != res.end(); i++)
+	{
+		assert(i->first < PLAYER_LIMIT);
+		std::vector<si32> &playerRes = gs->getPlayer(i->first)->resources;
+		for(int j = 0;  j < i->second.size();  j++)
+			playerRes[j] = i->second[j];
+	}
 
 	BOOST_FOREACH(SetAvailableCreatures h, cres) //set available creatures in towns
 		h.applyGs(gs);
@@ -748,7 +753,8 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 		break;
 	}
 
-	st->state -= WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
+	if(st)
+		st->state -= WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
 }
 
 DLL_EXPORT void SpellCast::applyGs( CGameState *gs )

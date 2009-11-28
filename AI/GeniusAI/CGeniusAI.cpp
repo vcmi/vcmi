@@ -1028,31 +1028,31 @@ void CGeniusAI::yourTurn()
 	m_cb->waitTillRealize = true;
 	static int seed = rand();
 	srand(seed);
-	if (m_cb->getDate() == 1) {
-	//	startFirstTurn();
-		
-	//	m_cb->endTurn();
-	//	return;
-	}
-	//////////////TODO: replace with updates. Also add suspected objects list./////////
-	knownVisitableObjects.clear();
-	int3 pos = m_cb->getMapSize();
-  for (int x = 0; x < pos.x; x++) {
-    for (int y = 0; y < pos.y; y++) {
-			for (int z = 0; z < pos.z; z++)
-				tileRevealed(int3(x,y,z));
-    }
-  }
-	///////////////////////////////////////////////////////////////////////////////////
-
-	reportResources();
-
-	trueGameState = HypotheticalGameState(*this);
-	AIObjective * objective;
-	while ((objective = getBestObjective()) != NULL)
-		objective->fulfill(*this,trueGameState);
-
-	seed = rand();
+// 	if (m_cb->getDate() == 1) {
+// 	//	startFirstTurn();
+// 		
+// 	//	m_cb->endTurn();
+// 	//	return;
+// 	}
+// 	//////////////TODO: replace with updates. Also add suspected objects list./////////
+// 	knownVisitableObjects.clear();
+// 	int3 pos = m_cb->getMapSize();
+//   for (int x = 0; x < pos.x; x++) {
+//     for (int y = 0; y < pos.y; y++) {
+// 			for (int z = 0; z < pos.z; z++)
+// 				tileRevealed(int3(x,y,z));
+//     }
+//   }
+// 	///////////////////////////////////////////////////////////////////////////////////
+// 
+// 	reportResources();
+// 
+// 	trueGameState = HypotheticalGameState(*this);
+// 	AIObjective * objective;
+// 	while ((objective = getBestObjective()) != NULL)
+// 		objective->fulfill(*this,trueGameState);
+// 
+// 	seed = rand();
 	m_cb->endTurn();
 	m_cb->waitTillRealize = false;
 }

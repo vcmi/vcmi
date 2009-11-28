@@ -20,7 +20,7 @@
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_array.hpp>
-const ui32 version = 711;
+const ui32 version = 712;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
