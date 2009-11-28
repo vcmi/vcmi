@@ -646,11 +646,14 @@ public:
 	ui16 slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
 	bool clicked;
+	bool marked;
 	CArtifactsOfHero * ourOwner;
 	const CArtifact * ourArt;
 	CArtPlace(const CArtifact * Art); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
+	void select ();
+	void deselect ();
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -663,6 +666,7 @@ class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero;
 
+	size_t backpackSize; // Used to check differences in backpack sizes.
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //unmber of first art visible in backpack (in hero's vector)
@@ -670,9 +674,14 @@ class CArtifactsOfHero : public CIntObject
 public:
 	struct SCommonPart
 	{
+		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
 		CArtPlace * activeArtPlace;
+		const CArtifact * srcArtifact;    // Held artifact., technically superfluous right now.
+		const CArtifactsOfHero * srcAOH;    // Following two needed to uniquely identify the source.
+		int srcSlotID;                      //
+		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
+		int destSlotID;	                     // Needed to determine what kind of action was last taken in setHero
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
-
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 
@@ -682,7 +691,11 @@ public:
 
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state
-	void scrollBackpack(int dir); //dir==-1 => to left; dir==-2 => to right
+	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
+	void markPossibleSlots (const CArtifact* art);
+	void unmarkSlots ();
+	void setSlotData (CArtPlace* artPlace, int slotID);
+	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
 	CArtifactsOfHero(const SDL_Rect & position); //c-tor
 	~CArtifactsOfHero(); //d-tor

@@ -54,6 +54,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 
 	artifs = new CArtifactsOfHero(pos);
 	artifs->commonInfo = new CArtifactsOfHero::SCommonPart;
+	artifs->commonInfo->participants.insert(artifs);
 	artifs->commonInfo->activeArtPlace = NULL;
 
 	garr = NULL;

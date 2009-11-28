@@ -21,6 +21,7 @@ class CCursorHandler //handles cursor
 public:
 	int mode, number;
 	SDL_Surface * help;
+	SDL_Surface * dndImage;
 	bool Show;
 
 	std::vector<CDefHandler*> cursors;
@@ -28,6 +29,7 @@ public:
 	void initCursor(); //inits cursorHandler - run only once, it's not memleak-proof (rev 1333)
 	void cursorMove(const int & x, const int & y); //change cursor's positions to (x, y)
 	void changeGraphic(const int & type, const int & no); //changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame no (not used for type 3)
+	void dragAndDropCursor (SDL_Surface* image); // Replace cursor with a custom image.
 	void draw1();
 
 	void shiftPos( int &x, int &y );

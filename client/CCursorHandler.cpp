@@ -20,6 +20,7 @@ extern SDL_Surface * screen;
 void CCursorHandler::initCursor()
 {
 	mode = number = xpos = ypos = 0;
+	dndImage = NULL;
 	help = CSDL_Ext::newSurface(40,40);
 	cursors.push_back(CDefHandler::giveDef("CRADVNTR.DEF"));
 	cursors.push_back(CDefHandler::giveDef("CRCOMBAT.DEF"));
@@ -34,6 +35,17 @@ void CCursorHandler::changeGraphic(const int & type, const int & no)
 	number = no;
 }
 
+/**
+ * Replaces the cursor with a custom image.
+ *
+ * @param image Image to replace cursor with or NULL to use the normal
+ * cursor.
+ */
+void CCursorHandler::dragAndDropCursor(SDL_Surface* image)
+{
+	dndImage = image;
+}
+
 void CCursorHandler::cursorMove(const int & x, const int & y)
 {
 	xpos = x;
@@ -45,7 +57,10 @@ void CCursorHandler::draw1()
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
 	SDL_BlitSurface(screen, &genRect(40,40,x,y), help, &genRect(40,40,0,0));
-	blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
+	if (dndImage)
+		blitAt(dndImage, x - dndImage->w/2, y - dndImage->h/2);
+	else
+		blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
 }
 void CCursorHandler::draw2()
 {
