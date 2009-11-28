@@ -3946,8 +3946,8 @@ void CGOnceVisitable::initObj()
 			artOrRes = 2;
 			bonusType = ran()%6; //any basic resource without gold
 			bonusVal = ran()%4 + 1;
-			break;
 		}
+		break;
 
 	case 108://Warrior's Tomb
 		{
@@ -3984,9 +3984,8 @@ void CGOnceVisitable::initObj()
 				bonusType = ran()%6;
 				bonusVal = ran()%4 + 2;
 			}
-
-			break;
 		}
+		break;
 	}
 }
 
