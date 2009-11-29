@@ -792,9 +792,15 @@ CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
 	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
 	attackingStack = LOCPLINT->cb->battleGetStackByID(_stackID, false);
 
-	assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
-
+	if(attackingStack->creature->idNumber != 145) //catapult is allowed to attack not-creature
+	{
+		assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
+	}
+	else //catapult can attack walls only
+	{
+		assert(LOCPLINT->cb->battleGetWallUnderHex(_dest) >= 0);
+	}
 	attackingStackPosBeforeReturn = attackingStack->position;
 }
 

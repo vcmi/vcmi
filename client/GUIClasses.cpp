@@ -2428,7 +2428,7 @@ void CLevelWindow::close()
 CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
 {
 	LOCPLINT->showingDialog->setn(true);
-	heroType = hero->subID;
+	heroPortrait = hero->portrait;
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 	{
@@ -2515,7 +2515,7 @@ void CLevelWindow::deactivate()
 void CLevelWindow::show(SDL_Surface * to)
 {
 	blitAt(bitmap,pos.x,pos.y,to);
-	blitAt(graphics->portraitLarge[heroType],170+pos.x,66+pos.y,to);
+	blitAt(graphics->portraitLarge[heroPortrait],170+pos.x,66+pos.y,to);
 	ok->show(to);
 	for(int i=0;i<comps.size();i++)
 		comps[i]->show(to);

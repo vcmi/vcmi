@@ -776,3 +776,8 @@ bool isArrowKey( SDLKey key )
 {
 	return key >= SDLK_UP && key <= SDLK_LEFT;
 }
+
+Rect Rect::createCentered( int w, int h )
+{
+	return Rect(screen->w/2 - w/2, screen->h/2 - h/2, w, h);
+}

@@ -25,7 +25,7 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
-#undef min;
+#undef min
 
 /*
  * CHeroWindow.cpp, part of VCMI engine

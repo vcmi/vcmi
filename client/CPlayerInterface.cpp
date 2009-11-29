@@ -252,7 +252,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	adventureInt->heroList.draw(screen2);
 
 	if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
+	{
+		adventureInt->paths.erase(ho); //if hero goes through teleport / gate his path will be erased
+		adventureInt->terrain.currentPath = NULL;
 		return;
+	}
 
 	int3 hp = details.start;
 
@@ -1542,6 +1546,11 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
 		heroKilled(h);
 	}
+}
+
+bool CPlayerInterface::ctrlPressed() const
+{
+	return SDL_GetKeyState(NULL)[SDLK_LCTRL]  ||  SDL_GetKeyState(NULL)[SDLK_RCTRL];
 }
 
 void SystemOptions::setMusicVolume( int newVolume )

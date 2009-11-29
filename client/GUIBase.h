@@ -132,6 +132,7 @@ struct Rect : public SDL_Rect
 		w = r.w;
 		h = r.h;
 	}
+	static Rect createCentered(int w, int h);
 	bool isIn(int qx, int qy) const //determines if given point lies inside rect
 	{
 		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)

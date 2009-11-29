@@ -1607,7 +1607,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(center(genRect(487, 481, 0, 0)), LOCPLINT);
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(Rect::createCentered(487, 481), LOCPLINT);
 	GH.pushInt(sysopWindow);
 }
 
@@ -1883,7 +1883,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				k = arrowToNum(SDLKey(k));
 			}
 
-			if(!active)
+			if(!active || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
 				break;
 
 			k -= SDLK_KP0 + 1;
@@ -1920,8 +1920,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	}
 	if(Dir && key.state == SDL_PRESSED //arrow is pressed
-		&& (SDL_GetKeyState(NULL)[SDLK_LCTRL] 
-			|| SDL_GetKeyState(NULL)[SDLK_RCTRL])
+		&& LOCPLINT->ctrlPressed()
 	)
 		scrollingDir |= Dir;
 	else

@@ -435,7 +435,7 @@ public:
 class CLevelWindow : public CIntObject
 {
 public:
-	int heroType;
+	int heroPortrait;
 	SDL_Surface *bitmap; //background
 	std::vector<CSelectableComponent *> comps; //skills to select
 	AdventureMapButton *ok;
