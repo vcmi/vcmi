@@ -3130,7 +3130,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 38: //idol of fortune
 		messageID = 62;
-		iw.soundID = soundBase::experience;
+		sound = soundBase::experience;
 		if(cb->getDate(1) == 7) //7th day of week
 			gbonus.bonus.type = HeroBonus::MORALE_AND_LUCK;
 		else
