@@ -3902,8 +3902,8 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			break;
 		case 2: //res
 			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
-			iw.components.push_back(Component(Component::RESOURCE,bonusType,bonusVal,0));
-			cb->giveResource(h->getOwner(),bonusType,bonusVal);
+			iw.components.push_back (Component(Component::RESOURCE, bonusType, bonusVal, 0));
+			cb->giveResource(h->getOwner(), bonusType, bonusVal);
 			break;
 		}
 		if(ID == 105  &&  artOrRes == 1) 
