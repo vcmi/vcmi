@@ -1276,9 +1276,9 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 				if (val != NEUTRAL_PLAYER) //can new owner be neutral?
 					cb->gameState()->players[val].dwellings.push_back (this);
 			}
-			tempOwner = val;
 			break;
 	}
+	 CGObjectInstance::setProperty(what,val);
 }
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {

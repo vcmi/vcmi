@@ -1,6 +1,7 @@
 #ifndef __CGAMESTATE_H__
 #define __CGAMESTATE_H__
 #include "../global.h"
+#include <cassert>
 #ifndef _MSC_VER
 #include "../hch/CCreatureHandler.h"
 #include "VCMI_Lib.h"
@@ -81,7 +82,17 @@ public:
 			size = availableHeroes.size();
 			h & size;
 			for(size_t i=0; i < size; i++)
-				h & availableHeroes[i]->subID;
+			{
+				if(availableHeroes[i])
+				{
+					h & availableHeroes[i]->subID;
+				}
+				else
+				{
+					ui32 none = 0xffffffff;
+					h & none;
+				}
+			}
 		}
 		else
 		{
@@ -390,7 +401,15 @@ public:
 				{
 					ui32 hlp = i->second.availableHeroes[j]->subID;
 					delete i->second.availableHeroes[j];
-					i->second.availableHeroes[j] = hpool.heroesPool[hlp];
+					if(hlp != 0xffffffff)
+					{
+						assert(vstd::contains(hpool.heroesPool, hlp));
+						i->second.availableHeroes[j] = hpool.heroesPool[hlp];
+					}
+					else
+					{
+						i->second.availableHeroes[j] = NULL;
+					}
 				}
 			}
 		}

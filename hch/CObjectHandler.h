@@ -429,7 +429,11 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
-			& possibleSpells & obligatorySpells & spells & /*strInfo & */events;
+			& possibleSpells & obligatorySpells & spells & /*strInfo & */events & bonusingBuildings;
+
+		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
+			(*i)->town = this;
+
 
 		ui8 standardType = (&VLC->townh->towns[subID] == town);
 		h & standardType;
