@@ -3878,27 +3878,34 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		txtid++;
 		if(ID == 105) //wagon has extra text (for finding art) we need to omit
 			txtid++;
-
-		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 	}
 	else //first visit - give bonus!
 	{
 		switch(artOrRes)
 		{
 		case 0: // first visit but empty
-			txtid+=2;
+			if (ID == 22) //Corpse
+				++txtid;
+			else
+				txtid+=2;
+			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 			break;
 		case 1: //art
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
 			cb->giveHeroArtifact(bonusType,h->id,-2);
+			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
+			if (ID == 22) //Corpse
+			{
+				iw.text << "%s";
+				iw.text.addReplacement (MetaString::ART_NAMES, bonusType);
+			}
 			break;
 		case 2: //res
+			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 			iw.components.push_back(Component(Component::RESOURCE,bonusType,bonusVal,0));
 			cb->giveResource(h->getOwner(),bonusType,bonusVal);
 			break;
 		}
-
-		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 		if(ID == 105  &&  artOrRes == 1) 
 		{
 			iw.text.localStrings.back().second++;
