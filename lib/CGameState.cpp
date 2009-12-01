@@ -1397,22 +1397,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 		{
 			if(obj->tempOwner != k->first) continue; //not a flagged object
-			/*
-			int3 objCenter = obj->getSightCenter();
-			int radious = obj->getSightRadious();
-			if (radious == -1) //maybe better handle it via getTilesInRange as below?
-				radious = map->width + map->height;
 
-			for (int xd = std::max<int>(objCenter.x - radious , 0); xd <= std::min<int>(objCenter.x + radious, map->width - 1); xd++)
-			{
-				for (int yd = std::max<int>(objCenter.y - radious, 0); yd <= std::min<int>(objCenter.y + radious, map->height - 1); yd++)
-				{
-					double distance = objCenter.dist2d(int3(xd,yd,objCenter.z)) - 0.5;
-					if(distance <= radious)
-						k->second.fogOfWarMap[xd][yd][objCenter.z] = 1;
-				}
-			}
-			*/
 			std::set<int3> tiles;
 			obj->getSightTiles(tiles);
 			BOOST_FOREACH(int3 tile, tiles)
@@ -1420,20 +1405,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				k->second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
 			}
 		}
-
-		//for(int xd=0; xd<map->width; ++xd) //revealing part of map around heroes
-		//{
-		//	for(int yd=0; yd<map->height; ++yd)
-		//	{
-		//		for(int ch=0; ch<k->second.heroes.size(); ++ch)
-		//		{
-		//			int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
-		//			int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
-		//			if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
-		//				k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
-		//		}
-		//	}
-		//}
 
 		//starting bonus
 		if(si->playerInfos[k->second.serial].bonus==brandom)

@@ -398,7 +398,7 @@ int CGObjectInstance::getSightRadious() const
 }
 void CGObjectInstance::getSightTiles(std::set<int3> &tiles) const //returns reference to the set
 {
-	cb->getTilesInRange(tiles, pos, getSightRadious(), tempOwner, 1);
+	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
 int3 CGObjectInstance::getVisitableOffset() const
 {
