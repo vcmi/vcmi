@@ -3249,6 +3249,7 @@ void CInGameConsole::print(const std::string &txt)
 	}
 	else
 	{
+		assert(lineLen);
 		for(int g=0; g<txt.size() / lineLen + 1; ++g)
 		{
 			std::string part = txt.substr(g * lineLen, lineLen);

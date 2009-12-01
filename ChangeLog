@@ -1,3 +1,35 @@
+0.74 -> 0.75 (Dec 01 2009)
+GENERAL:
+* Implemented "main menu" in-game option.
+* Hide the mouse cursor while displaying a popup window.
+* Better handling of huge and empty message boxes (still needs more changes)
+* Fixed several crashes when exiting.
+
+ADVENTURE INTERFACE:
+* Movement cursor shown for unguarded enemy towns.
+* Battle cursor shown for guarded enemy garrisons.
+* Clicking on the border no longer opens an empty info windows
+
+HERO WINDOW:
+* Improved artifact moving. Available slots are higlighted. Moved artifact is bound to mouse cursor. 
+
+TOWNS:
+* new special town structures supported:
+- Academy of Battle Scholars
+- Cage of Warlords
+- Mana Vortex
+- Stables
+- Skyship (revealing entire map only)
+
+OBJECTS:
+* External dwellings increase town growth
+* Right-click info window for castles and garrisons you do not own shows a rough amount of creatures instead of none
+* Scholar won't give unavaliable spells anymore.
+
+A lot of of various bugfixes and improvements:
+http://vcmi.antypika.aplus.pl/bugs/search.php?project_id=1&sticky_issues=off&fixed_in_version=0.75&sortby=id&dir=DESC&per_page=100&hide_status_id=-2
+
+
 0.73 -> 0.74 (Oct 01 2009)
 GENERAL:
 * Scenario Information window
