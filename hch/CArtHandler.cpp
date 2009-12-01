@@ -38,6 +38,10 @@ const std::string & CArtifact::Description() const
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
+
+	// War machines are the default big artifacts.
+	for (ui32 i = 3; i <= 6; i++)
+		bigArtifacts.insert(i);
 }
 void CArtHandler::loadArtifacts(bool onlyTxt)
 {

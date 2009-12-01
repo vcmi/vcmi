@@ -2326,6 +2326,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		return false;
 	}
 
+	// TODO: This relates to bug #112, fix later.
 	// Make sure the artifacts are not war machines.
 	if ((srcSlot>=13 && srcSlot<=16) || (destSlot>=13 && destSlot<=16)) {
 		complain("Cannot move war machine!");
@@ -2359,6 +2360,28 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		sha.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
 		sendAndApply(&sha);
 	}
+
+	return true;
+}
+
+/**
+ * Sets a hero artifact slot to contain a specific artifact.
+ *
+ * @param artID ID of an artifact or -1 for no artifact.
+ */
+bool CGameHandler::setArtifact(si32 heroID, ui16 slot, int artID)
+{
+	CGHeroInstance *hero = gs->getHero(heroID);
+
+	// TODO: Deal with war machine placement.
+
+	// Perform the exchange.
+	SetHeroArtifacts sha;
+	sha.hid = heroID;
+	sha.artifacts = hero->artifacts;
+	sha.artifWorn = hero->artifWorn;
+	sha.setArtAtPos(slot, artID);
+	sendAndApply(&sha);
 
 	return true;
 }

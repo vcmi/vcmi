@@ -2,6 +2,7 @@
 #define __CARTHANDLER_H__
 #include "../global.h"
 #include "../lib/HeroBonus.h"
+#include <set>
 #include <list>
 #include <string>
 #include <vector>
@@ -43,11 +44,13 @@ class DLL_EXPORT CArtHandler //handles artifacts
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
+	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
 	void addBonuses();
 	void clear();
+	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 

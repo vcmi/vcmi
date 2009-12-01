@@ -1307,7 +1307,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
-	//TODO: computer player should receive other amount of resource than computer (depending on difficulty)
+	//TODO: computer player should receive other amount of resource than player (depending on difficulty)
 	std::vector<int> startres;
 	std::ifstream tis(DATA_DIR "/config/startres.txt");
 	int k;

@@ -416,6 +416,16 @@ bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGH
 	return true;
 }
 
+bool CCallback::setArtifact(const CGHeroInstance * hero, ui16 pos, int artID)
+{
+	if(player != hero->tempOwner)
+		return false;
+
+	SetArtifact sa(hero->id, pos, artID);
+	sendRequest(&sa);
+	return true;
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 {
 	CGTownInstance * t = const_cast<CGTownInstance *>(town);

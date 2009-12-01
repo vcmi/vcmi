@@ -224,6 +224,7 @@ public:
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
+	bool setArtifact(const CGHeroInstance * hero, ui16 pos, int artID);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
