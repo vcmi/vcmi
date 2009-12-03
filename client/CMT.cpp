@@ -43,7 +43,10 @@
 #include "../lib/VCMIDirs.h"
 #include <cstdlib>
 #include "../lib/NetPacks.h"
+
+#ifdef _WIN32
 #include "SDL_syswm.h"
+#endif
 
 #if __MINGW32__
 #undef main
