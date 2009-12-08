@@ -21,7 +21,6 @@ using namespace boost::logic;
 class CCallback;
 class ICallback;
 class CGlobalAI;
-class CGHeroInstance;
 class Component;
 class CSelectableComponent;
 struct TryMoveHero;
