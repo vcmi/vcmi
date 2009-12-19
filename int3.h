@@ -78,7 +78,7 @@ public:
 			TCreature id = slots[preferable].first;
 			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
 			{
-				if(id == j->second.first)
+				if(id == j->second.first && j->first != preferable)
 				{
 					out.first = preferable;
 					out.second = j->first;
@@ -91,7 +91,7 @@ public:
 		{
 			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
 			{
-				if(i->second.first == j->second.first)
+				if(i->second.first == j->second.first  &&  i->first != j->first)
 				{
 					out.first = i->first;
 					out.second = j->first;

@@ -90,10 +90,11 @@ void CClient::init()
 	gs = NULL;
 	cb = NULL;
 	terminate = false;
+	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try
 	{
 		shared = new SharedMem();
-	} HANDLE_EXCEPTION
+	} HANDLE_EXCEPTIONC(tlog1 << "Cannot open interprocess memory: ";)
 }
 
 CClient::CClient(void)

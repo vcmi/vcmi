@@ -2217,7 +2217,7 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 bool CGameHandler::garrisonSwap( si32 tid )
 {
 	CGTownInstance *town = gs->getTown(tid);
-	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies
+	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
 	{
 		CCreatureSet csn = town->visitingHero->army, cso = town->army;
 		while(!cso.slots.empty())//while there are unmoved creatures

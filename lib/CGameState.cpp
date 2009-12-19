@@ -2011,6 +2011,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
 {
 	assert(hero);
+	boost::shared_lock<boost::shared_mutex> lock(*mx);
 	if(src.x < 0)
 		src = hero->getPosition(false);
 	if(movement < 0)
