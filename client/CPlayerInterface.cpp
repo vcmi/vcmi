@@ -1146,10 +1146,10 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	if(ba->shot())
 	{
 		for(std::set<BattleStackAttacked>::iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
-			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked));
+			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked), i->stackAttacked);
 	}
 	else
-	{
+	{//WARNING: does not support multiple attacked creatures
 		const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 		int shift = 0;
 		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
@@ -1159,7 +1159,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 			else
 				shift = -1;
 		}
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );
+		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, ba->bsa.begin()->stackAttacked );
 	}
 }
 

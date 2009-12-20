@@ -188,7 +188,7 @@ public:
 	bool checkInitialConditions();
 
 
-	CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest);
+	CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest, int _attackedID);
 };
 
 class CMeleeAttack : public CBattleAttack
@@ -198,7 +198,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest);
+	CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest, int _attackedID);
 };
 
 class CShootingAnim : public CBattleAttack
@@ -211,7 +211,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
+	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, int _attackedID, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
 };
 
 //end of battle animation handlers
@@ -475,10 +475,10 @@ public:
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(int ID, int dest, int attackedID); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
-	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
+	void stackIsShooting(int ID, int dest, int attackedID); //called when stack with id ID is shooting to hex dest
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end

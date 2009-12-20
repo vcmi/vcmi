@@ -786,10 +786,10 @@ bool CBattleAttack::checkInitialConditions()
 	return isEarliest(false);
 }
 
-CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest)
+CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest, int _attackedID)
 : CBattleStackAnimation(_owner, _stackID), dest(_dest)
 {
-	attackedStack = LOCPLINT->cb->battleGetStackByPos(_dest, false);
+	attackedStack = LOCPLINT->cb->battleGetStackByID(_attackedID, false);
 	attackingStack = LOCPLINT->cb->battleGetStackByID(_stackID, false);
 
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
@@ -893,8 +893,8 @@ void CMeleeAttack::endAnim()
 	delete this;
 }
 
-CMeleeAttack::CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest)
-: CBattleAttack(_owner, attacker, _dest)
+CMeleeAttack::CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest, int _attackedID)
+: CBattleAttack(_owner, attacker, _dest, _attackedID)
 {
 }
 
@@ -1014,8 +1014,8 @@ void CShootingAnim::endAnim()
 	delete this;
 }
 
-CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, bool _catapult, int _catapultDmg)
-: CBattleAttack(_owner, attacker, _dest), catapultDamage(_catapultDmg), catapult(_catapult)
+CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, int _attackedID, bool _catapult, int _catapultDmg)
+: CBattleAttack(_owner, attacker, _dest, _attackedID), catapultDamage(_catapultDmg), catapult(_catapult)
 {
 	if(catapult) //catapult attack
 	{
@@ -2168,9 +2168,9 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 	}
 }
 
-void CBattleInterface::stackAttacking(int ID, int dest)
+void CBattleInterface::stackAttacking(int ID, int dest, int attackedID)
 {
-	addNewAnim(new CMeleeAttack(this, ID, dest));
+	addNewAnim(new CMeleeAttack(this, ID, dest, attackedID));
 }
 
 void CBattleInterface::newRound(int number)
@@ -2489,16 +2489,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 	}
 }
 
-void CBattleInterface::stackIsShooting(int ID, int dest)
+void CBattleInterface::stackIsShooting(int ID, int dest, int attackedID)
 {
-	addNewAnim(new CShootingAnim(this, ID, dest));
+	addNewAnim(new CShootingAnim(this, ID, dest, attackedID));
 }
 
 void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
 	for(std::set< std::pair< std::pair< ui8, si16 >, ui8> >::const_iterator it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
 	{
-		addNewAnim(new CShootingAnim(this, ca.attacker, it->first.second, true, it->second));
+		addNewAnim(new CShootingAnim(this, ca.attacker, it->first.second, -1, true, it->second));
 
 		SDL_FreeSurface(siegeH->walls[it->first.first + 2]);
 		siegeH->walls[it->first.first + 2] = BitmapHandler::loadBitmap(
