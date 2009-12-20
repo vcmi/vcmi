@@ -277,7 +277,14 @@ struct CPathNode
 
 struct CGPathNode
 {
-	enum {ACCESSIBLE=1, VISITABLE, BLOCKVIS, BLOCKED}; //BLOCKVIS - visitable from neighbouring tile but not passable
+	enum 
+	{
+		ACCESSIBLE=1, //tile can be entered and passed
+		VISITABLE, //tile can be entered as the last tile in path
+		BLOCKVIS,  //visitable from neighbouring tile but not passable
+		BLOCKED //tile can't be entered nor visited
+	};
+
 	ui8 accessible; //the enum above
 	ui8 land;
 	ui8 turns;

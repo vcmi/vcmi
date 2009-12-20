@@ -2068,7 +2068,11 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 					for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
 					{
 						const CGObjectInstance * const obj = tinfo->visitableObjects[ii];
-						if(obj->blockVisit)
+						if(obj->getPassableness() & 1<<hero->tempOwner) //special object instance specific passableness flag - overwrites other accessibility flags
+						{
+							node.accessible = CGPathNode::ACCESSIBLE;
+						}
+						else if(obj->blockVisit)
 						{
 							node.accessible = CGPathNode::BLOCKVIS;
 							break;

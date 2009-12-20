@@ -646,8 +646,6 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	HANDLE_EXCEPTION(end2 = true);
 handleConEnd:
 	tlog1 << "Ended handling connection\n";
-#undef SPELL_CAST_TEMPLATE_1
-#undef SPELL_CAST_TEMPLATE_2
 }
 
 int CGameHandler::moveStack(int stack, int dest)
@@ -1476,7 +1474,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		tmh.movePoints = std::max(si32(0),h->movement-cost); //take move points
 		BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 		{
-			if(obj != h  &&  obj->blockVisit)
+			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner))
 			{
 				blockvis = true;
 				break;

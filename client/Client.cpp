@@ -317,7 +317,8 @@ int CClient::getSelectedHero()
 
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
-	if (con == NULL) {
+	if (con == NULL) 
+	{
 		timeHandler pomtime;
 		char portc[10];
 		SDL_itoa(conf.cc.port,portc,10);

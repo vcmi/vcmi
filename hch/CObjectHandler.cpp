@@ -439,6 +439,11 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 }
 
+ui8 CGObjectInstance::getPassableness() const
+{
+	return 0;
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->army.slots.size())
@@ -3833,6 +3838,11 @@ void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const
 		onHeroVisit(h);
 }
 
+ui8 CGGarrison::getPassableness() const
+{
+	return 1<<tempOwner;
+}
+
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int sound = 0;
@@ -4505,13 +4515,21 @@ void CGBorderGuard::openGate(const CGHeroInstance *h, ui32 accept) const
 
 void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passability 
 {
-	InfoWindow iw;
-	iw.player = h->getOwner();
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
+		InfoWindow iw;
+		iw.player = h->getOwner();
 		iw.text << std::pair<ui8,ui32>(11,18);
 		cb->showInfoDialog(&iw);
 	}
+}
+
+ui8 CGBorderGate::getPassableness() const
+{
+	ui8 ret = 0;
+	for (int i = 0; i < PLAYER_LIMIT; i++)
+		ret |= wasMyColorVisited(i)<<i;
+	return ret;
 }
 
 void CGMagi::initObj()

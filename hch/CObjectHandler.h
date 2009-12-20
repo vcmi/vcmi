@@ -142,6 +142,7 @@ public:
 	ui8 tempOwner;
 	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
+	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	void getSightTiles(std::set<int3> &tiles) const; //returns reference to the set
@@ -633,6 +634,7 @@ class DLL_EXPORT CGGarrison : public CArmedInstance
 public:
 	ui8 removableUnits;
 
+	ui8 getPassableness() const;
 	void onHeroVisit (const CGHeroInstance *h) const;
 	void fightOver (const CGHeroInstance *h, BattleResult *result) const;
 
@@ -872,6 +874,7 @@ class DLL_EXPORT CGBorderGate : public CGBorderGuard //not fully imlemented, wai
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
+	ui8 getPassableness() const;
 };
 
 class DLL_EXPORT CGBoat : public CGObjectInstance 
