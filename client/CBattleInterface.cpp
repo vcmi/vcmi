@@ -1020,8 +1020,8 @@ CShootingAnim::CShootingAnim(CBattleInterface * _owner, int attacker, int _dest,
 	if(catapult) //catapult attack
 	{
 		owner->addNewAnim( new CSpellEffectAnim(owner, "SGEXPL.DEF",
-			-130 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH),
-			-50 + 42 * (dest/BFIELD_WIDTH) ));
+			-130 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH) + owner->pos.x,
+			-50 + 42 * (dest/BFIELD_WIDTH) + owner->pos.y ));
 	}
 }
 

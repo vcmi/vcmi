@@ -2833,6 +2833,9 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
 		return false;
 
+	if(our->creature->idNumber == 145 && dst) //catapult cannot attack creatures
+		return false;
+
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
