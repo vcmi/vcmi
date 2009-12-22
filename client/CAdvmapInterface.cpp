@@ -708,7 +708,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	bool accessible  =  pnode->turns < 255;
 
 	int turns = pnode->turns;
-	amin(turns, 4);
+	amin(turns, 3);
 
 	if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
 	{
