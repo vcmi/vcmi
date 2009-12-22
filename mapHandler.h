@@ -29,9 +29,7 @@ struct TerrainTile2
 {
 	int3 pos;
 	const TerrainTile *tileInfo;
-	SDL_Surface * terbitmap; //frames of terrain animation
-	std::vector<SDL_Surface *> rivbitmap; //frames of river animation
-	std::vector<SDL_Surface *> roadbitmap; //frames of road animation
+	SDL_Surface * terbitmap; //bitmap of terrain
 
 	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 	TerrainTile2();

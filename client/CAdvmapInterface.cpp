@@ -1979,12 +1979,20 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 		if(vstd::contains(paths,h)) //hero has assigned path
 		{
 			CGPath &path = paths[h];
-			assert(h->getPosition(false) == path.startPos()); 
-			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPath2(path.endPos(), path))
-				terrain.currentPath = &path;
-			else
+			if(!path.nodes.size())
+			{
+				tlog3 << "Warning: empty path found...\n";
 				paths.erase(h);
+			}
+			else
+			{
+				assert(h->getPosition(false) == path.startPos()); 
+				//update the hero path in case of something has changed on map
+				if(LOCPLINT->cb->getPath2(path.endPos(), path))
+					terrain.currentPath = &path;
+				else
+					paths.erase(h);
+			}
 		}
 	}
 	townList.draw(screen);

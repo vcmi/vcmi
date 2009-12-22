@@ -1299,11 +1299,6 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 	}
 }
 
-void CPlayerInterface::updateWater()
-{
-
-}
-
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

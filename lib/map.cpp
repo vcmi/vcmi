@@ -1396,6 +1396,7 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 		for(int i=0; i<6; ++i)
 		{
 			vinya->coverageMap[i] = msk[i+2];
+			vinya->shadowCoverage[i] = msk[i+8];
 		}
 
 		defy.push_back(vinya); // add this def to the vector

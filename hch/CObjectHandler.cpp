@@ -316,7 +316,8 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
-	if((defInfo->coverageMap[y] >> (7-(x) )) & 1)
+	if((defInfo->coverageMap[y] >> (7-(x) )) & 1 
+		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
 }
@@ -786,6 +787,7 @@ void CGHeroInstance::initHeroDefInfo()
 		defInfo->blockMap[i] = 255;
 		defInfo->visitMap[i] = 0;
 		defInfo->coverageMap[i] = 0;
+		defInfo->shadowCoverage[i] = 0;
 	}
 	defInfo->handler=NULL;
 	defInfo->blockMap[5] = 253;

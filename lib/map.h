@@ -72,9 +72,9 @@ struct DLL_EXPORT TerrainTile
 
 	EterrainType tertype; // type of terrain
 	unsigned char terview; // look of terrain
-	Eriver nuine; // type of Eriver (0 if there is no Eriver)
+	Eriver nuine; // type of Eriver (0 if there is no river)
 	unsigned char rivDir; // direction of Eriver
-	Eroad malle; // type of Eroad (0 if there is no Eriver)
+	Eroad malle; // type of Eroad (0 if there is no river)
 	unsigned char roadDir; // direction of Eroad
 	unsigned char siodmyTajemniczyBajt; //bitfield, info whether this tile is coastal and how to rotate tile graphics
 

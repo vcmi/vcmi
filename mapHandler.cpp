@@ -175,7 +175,7 @@ void CMapHandler::roadsRiverTerrainInit()
 			ttiles[i][j].resize(CGI->mh->map->twoLevel+1, 0, 0);
 	}
 
-	// Draw the map
+	// prepare the map
 	for (int i=0; i<map->width; i++) //by width
 	{
 		for (int j=0; j<map->height;j++) //by height
@@ -185,74 +185,6 @@ void CMapHandler::roadsRiverTerrainInit()
 				TerrainTile2 &pom(ttiles[i][j][k]);
 				pom.pos = int3(i, j, k);
 				pom.tileInfo = &(map->terrain[i][j][k]);
-				if(pom.tileInfo->malle)
-				{
-					bool rotV, rotH;
-
-					int roadpom = pom.tileInfo->malle-1,
-						impom = pom.tileInfo->roadDir;
-					SDL_Surface *bitmap = roadDefs[roadpom]->ourImages[impom].bitmap;
-
-					rotH = (pom.tileInfo->siodmyTajemniczyBajt >> 5) & 1;
-					rotV = (pom.tileInfo->siodmyTajemniczyBajt >> 4) & 1;
-
-					if(rotH || rotV) 
-					{
-						if(rotH)
-							bitmap = CSDL_Ext::hFlip(bitmap);
-
-						if(rotV)
-						{
-							SDL_Surface *bitmap2 = CSDL_Ext::rotate01(bitmap);
-							if (rotH)
-								// bitmap is already a duplicated surface
-								SDL_FreeSurface(bitmap);
-							bitmap = bitmap2;
-						}
-
-						CSDL_Ext::alphaTransform(bitmap);
-					}
-
-					ttiles[i][j][k].roadbitmap.push_back(bitmap);
-				}
-			}
-		}
-	}
-
-	for (int i=0; i<map->width; i++) //by width
-	{
-		for (int j=0; j<map->height;j++) //by height
-		{
-			for(int k=0; k<=map->twoLevel; ++k) //by levels
-			{
-				if(map->terrain[i][j][k].nuine)
-				{
-					bool rotH, rotV;
-					
-					SDL_Surface *bitmap = staticRiverDefs[map->terrain[i][j][k].nuine-1]->ourImages[map->terrain[i][j][k].rivDir].bitmap;
-
-					rotH = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 3) & 1;
-					rotV = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 2) & 1;
-
-					if(rotH || rotV)
-					{
-						if(rotH)
-							bitmap = CSDL_Ext::hFlip(bitmap);
-
-						if(rotV)
-						{
-							SDL_Surface *bitmap2 = CSDL_Ext::rotate01(bitmap);
-							if (rotH)
-								// bitmap is already a duplicated surface
-								SDL_FreeSurface(bitmap);
-							bitmap = bitmap2;
-						}
-
-						CSDL_Ext::alphaTransform(bitmap);
-					}
-
-					ttiles[i][j][k].rivbitmap.push_back(bitmap);
-				}
 			}
 		}
 	}
@@ -517,10 +449,12 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	int srx, sry;	// absolute screen coordinates in pixels
 
 	// If moving, we need to add an extra column/line
-	if (moveX != 0) {
+	if (moveX != 0) 
+	{
 		dx++;
 		srx_init += moveX;
-		if (moveX > 0) {
+		if (moveX > 0) 
+		{
 			// Moving right. We still need to draw the old tile on the
 			// left, so adjust our referential
 			top_tile.x --;
@@ -528,10 +462,12 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 		}
 	}
 
-	if (moveY != 0) {
+	if (moveY != 0) 
+	{
 		dy++;
 		sry_init += moveY;
-		if (moveY > 0) {
+		if (moveY > 0) 
+		{
 			// Moving down. We still need to draw the tile on the top,
 			// so adjust our referential.
 			top_tile.y --;
@@ -556,12 +492,6 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_GetClipRect(extSurf, &prevClip);
 	SDL_SetClipRect(extSurf, extRect); //preventing blitting outside of that rect
 
-	// Temp surface for rotating tile and then properly blit. The
-	// problem is that blitWithRotate1clip & co do not respect the
-	// previous SDL_SetClipRect.
-	// TODO: optimize by pre-rotating those surfaces
-	SDL_Surface *rSurf = CSDL_Ext::newSurface(32, 32, extSurf);
-
 	// printing terrain
 	srx = srx_init;
 
@@ -575,140 +505,37 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 
 		for (int by=0; by < dy; by++, sry+=32)
 		{
+			int3 pos(top_tile.x+bx, top_tile.y+by, top_tile.z); //blitted tile position
+
 			// Skip tile if not in map
-			if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
+			if (pos.y < 0 || pos.y >= map->height)
 				continue;
 
-			const TerrainTile2 & tile = ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z];
-			SDL_Rect sr;
+			const TerrainTile2 & tile = ttiles[pos.x][pos.y][pos.z];
+			const TerrainTile &tinfo = *tile.tileInfo;
 
+			SDL_Rect sr;
 			sr.x=srx;
 			sr.y=sry;
 			sr.h=sr.w=32;
 
-			if(tile.terbitmap)
-			{
+			//blit terrain with river/road
+			if(tile.terbitmap) //if custom terrain graphic - use it
 				SDL_BlitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), extSurf, &sr);
-			}
-			else
-			{
-				switch(tile.tileInfo->siodmyTajemniczyBajt%4)
-				{
-				case 0:
-					SDL_BlitSurface(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
-									&rtile, extSurf, &sr);
-					break;
+			else //use default terrain graphic
+				CSDL_Ext::blitWithRotateClipVal(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
+			if(tinfo.nuine) //print river if present
+				CSDL_Ext::blitWithRotateClipValWithAlpha(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
+			if(tinfo.malle) //print road if present
+				CSDL_Ext::blitWithRotateClipValWithAlpha(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>4)%4);
 
-				case 1:
-					CSDL_Ext::blitWithRotate1clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
-												  &rtile, rSurf, &rtile);
-					SDL_BlitSurface(rSurf, &rtile, extSurf, &sr);
-					break;
-
-				case 2:
-					CSDL_Ext::blitWithRotate2clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
-												  &rtile, rSurf, &rtile);
-					SDL_BlitSurface(rSurf, &rtile, extSurf, &sr);
-					break;
-				default:
-					CSDL_Ext::blitWithRotate3clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
-												  &rtile, rSurf, &rtile);
-					SDL_BlitSurface(rSurf, &rtile, extSurf, &sr);
-					break;
-				}
-			}
-		}
-	}
-	// terrain printed
-
-	// printing rivers
-	srx = srx_init;
-
-	for (int bx = 0; bx<dx; bx++, srx+=32)
-	{
-		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
-			continue;
-
-		sry = sry_init;
-
-		for (int by= 0; by<dy; by++, sry+=32)
-		{
-			// Skip tile if not in map
-			if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
-				continue;
-
-			SDL_Rect sr;
-
-			sr.x=srx;
-			sr.y=sry;
-			sr.h=sr.w=32;
-
-			const std::vector<SDL_Surface *> &rivbitmap = ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].rivbitmap;
-			if(rivbitmap.size())
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(rivbitmap[anim%rivbitmap.size()],&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
-			}
-		}
-	}
-	// rivers printed
-
-	// printing roads
-	srx = srx_init;
-
-	for (int bx = 0; bx < dx; bx++, srx+=32)
-	{
-		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
-			continue;
-
-		sry = sry_init + 16;
-
-		for (int by = 0; by < dy; by++, sry+=32)
-		{
-			// Skip tile if not in map
-			if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
-				continue;
-
-			SDL_Rect sr;
-
-			sr.x = srx;
-			sr.y = sry;
-			sr.h=sr.w=32;
-
-			const std::vector<SDL_Surface *> &roadbitmap = ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].roadbitmap;
-			if(roadbitmap.size())
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(roadbitmap[anim%roadbitmap.size()], &genRect(sr.h, sr.w, 0, (by==-1 && moveY == 0 ? 16 : 0)),extSurf,&sr);
-			}
-		}
-	}
-	// roads printed
-
-	// printing objects
-	srx = srx_init;
-
-	for (int bx = 0; bx<dx; bx++, srx+=32)
-	{
-		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
-			continue;
-
-		sry = sry_init;
-
-		for (int by = 0; by<dy; by++, sry+=32)
-		{
-			// Skip tile if not in map
-			if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
-				continue;
-
-			std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects =
-				ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].objects;
-
+			//blit objects
+			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;
 			for(int h=0; h < objects.size(); ++h)
 			{
 				const CGObjectInstance *obj = objects[h].first;
 				ui8 color = obj->tempOwner;
+
 				//checking if object has non-empty graphic on this tile
 				if(obj->ID != HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
 					continue;
@@ -717,10 +544,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 				if(puzzleMode && obj->tempOwner != 254)
 					continue;
 
-				SDL_Rect sr;
-				sr.x = srx;
-				sr.y = sry;
-				sr.w = sr.h = 32;
+ 				SDL_Rect sr2(sr); 
 
 				SDL_Rect pp = objects[h].second;
 				pp.h = sr.h;
@@ -738,7 +562,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					std::vector<Cimage> * iv = NULL;
 					std::vector<CDefEssential *> Graphics::*flg = NULL;
 					SDL_Surface * tb; //surface to blitted
-					
+
 					if(themp) //hero
 					{
 						dir = themp->moveDir;
@@ -783,12 +607,12 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 								break;
 							}
 						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
+						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
 
 						//printing flag
 						pp.y+=IMGVAL*2-32;
-						sr.y-=16;
-						SDL_BlitSurface((graphics->*flg)[color]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr);
+						sr2.y-=16;
+						SDL_BlitSurface((graphics->*flg)[color]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
 					}
 					else //hero / boat stands still
 					{
@@ -801,14 +625,14 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 								break;
 							}
 						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
+						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
 
 						//printing flag
 						if(flg  
 							&&  obj->pos.x == top_tile.x + bx  
 							&&  obj->pos.y == top_tile.y + by)
 						{
-							SDL_Rect bufr = sr;
+							SDL_Rect bufr = sr2;
 							bufr.x-=2*32;
 							bufr.y-=1*32;
 							bufr.h = 64;
@@ -826,52 +650,15 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					//setting appropriate flag color
 					if(color < 8 || color==255)
 						CSDL_Ext::setPlayerColor(bitmap, color);
-					
-					CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr);
+
+					CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
 				}
 			}
+			//objects blitted
 		}
 	}
-	// objects printed
+	// terrain printed
 
-	// printing shadow
-	if(!puzzleMode)
-	{
-		srx = srx_init;
-
-		for (int bx = 0; bx<dx; bx++, srx+=32)
-		{
-			// Skip column if not in map
-			if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
-				continue;
-
-			sry = sry_init;
-
-			for (int by = 0; by<dy; by++, sry+=32)
-			{
-				// Skip tile if not in map
-				if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
-					continue;
-
-				SDL_Rect sr;
-
-				sr.x = srx;
-				sr.y = sry;
-				sr.h = sr.w = 32;
-
-				if (top_tile.x+bx >= 0 &&
-					top_tile.y+by >= 0 &&
-					top_tile.x+bx < CGI->mh->map->width &&
-					top_tile.y+by < CGI->mh->map->height &&
-					!(*visibilityMap)[top_tile.x+bx][top_tile.y+by][top_tile.z])
-				{
-					SDL_Surface * hide = getVisBitmap(top_tile.x+bx, top_tile.y+by, *visibilityMap, top_tile.z);
-					CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
-				}
-			}
-		}
-	}
-	// shadow printed
 
 	// printing borders
 	srx = srx_init;
@@ -882,21 +669,38 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 
 		for (int by = 0; by<dy; by++, sry+=32)
 		{
-			if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width ||
-				top_tile.y+by < 0 || top_tile.y+by >= map->height) {
+			int3 pos(top_tile.x+bx, top_tile.y+by, top_tile.z); //blitted tile position
 
-				SDL_Rect sr;
+			SDL_Rect sr;
+			sr.x=srx;
+			sr.y=sry;
+			sr.h=sr.w=32;
 
-				sr.x=srx;
-				sr.y=sry;
-				sr.h=sr.w=32;
+			if (pos.x < 0 || pos.x >= map->width ||
+				pos.y < 0 || pos.y >= map->height)
+			{
 
-				SDL_BlitSurface(ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].terbitmap,
+
+				SDL_BlitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
 								&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
-			} else {
+			}
+			else 
+			{
+				//blitting Fog of War
+				if (pos.x >= 0 &&
+					pos.y >= 0 &&
+					pos.x < CGI->mh->map->width &&
+					pos.y < CGI->mh->map->height &&
+					!(*visibilityMap)[pos.x][pos.y][top_tile.z])
+				{
+					SDL_Surface * hide = getVisBitmap(pos.x, pos.y, *visibilityMap, top_tile.z);
+					CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+				}
+				//FoW blitted
+
 				// TODO: these should be activable by the console
 #ifdef MARK_BLOCKED_POSITIONS
-				if(ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].tileInfo->blocked) //temporary hiding blocked positions
+				if(ttiles[pos.x][pos.y][top_tile.z].tileInfo->blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
 
@@ -909,7 +713,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 				}
 #endif
 #ifdef MARK_VISITABLE_POSITIONS
-				if(ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].tileInfo->visitable) //temporary hiding visitable positions
+				if(ttiles[pos.x][pos.y][top_tile.z].tileInfo->visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
 
@@ -1026,8 +830,6 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	//sepia / gray effect applied
 
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
-
-	SDL_FreeSurface(rSurf);
 }
 
 SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
@@ -1487,21 +1289,44 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 	return -2; //shouldn't happen
 }
 
+void shiftColors(SDL_Surface *img, int from, int howMany) //shifts colors in palette
+{
+	//works with at most 16 colors, if needed more -> increase values
+	assert(howMany < 16);
+	SDL_Color palette[16];
+
+	for(int i=0; i<howMany; ++i)
+	{
+		palette[(i+1)%howMany] =img->format->palette->colors[from + i];
+	}
+	SDL_SetColors(img,palette,from,howMany);
+}
+
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
-	SDL_Color palette[14];
+	for(size_t j=0; j < terrainGraphics[7].size(); ++j)
+	{
+		shiftColors(terrainGraphics[7][j],246, 9); 
+	}
 	for(size_t j=0; j < terrainGraphics[8].size(); ++j)
 	{
-		for(int i=0; i<12; ++i)
-		{
-			palette[(i+1)%12] = terrainGraphics[8][j]->format->palette->colors[229 + i];
-		}
-		SDL_SetColors(terrainGraphics[8][j],palette,229,12);
-		for(int i=0; i<14; ++i)
-		{
-			palette[(i+1)%14] = terrainGraphics[8][j]->format->palette->colors[242 + i];
-		}
-		SDL_SetColors(terrainGraphics[8][j],palette,242,14);
+		shiftColors(terrainGraphics[8][j],229, 12); 
+		shiftColors(terrainGraphics[8][j],242, 14); 
+	}
+	for(size_t j=0; j < staticRiverDefs[0]->ourImages.size(); ++j)
+	{
+		shiftColors(staticRiverDefs[0]->ourImages[j].bitmap,183, 12); 
+		shiftColors(staticRiverDefs[0]->ourImages[j].bitmap,195, 6); 
+	}
+	for(size_t j=0; j < staticRiverDefs[2]->ourImages.size(); ++j)
+	{
+		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,228, 12); 
+		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,183, 6); 
+		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,240, 6); 
+	}
+	for(size_t j=0; j < staticRiverDefs[3]->ourImages.size(); ++j)
+	{
+		shiftColors(staticRiverDefs[3]->ourImages[j].bitmap,240, 9); 
 	}
 }
 

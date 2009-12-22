@@ -192,7 +192,6 @@ public:
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
-	void updateWater();
 	void showComp(SComponent comp); //TODO: comment me
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
