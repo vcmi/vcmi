@@ -198,6 +198,15 @@ void CGeneralTextHandler::load()
 		hcommands.push_back(tmp);
 	}
 
+	buf = bitmaph->getTextFile("CASTINFO.TXT");
+	itr=0;
+	while(itr<buf.length()-1)
+	{
+		std::string tmp;
+		loadToIt(tmp, buf, itr, 3);
+		fcommands.push_back(tmp);
+	}
+
 	std::istringstream ins, namess;
 	ins.str(bitmaph->getTextFile("TOWNTYPE.TXT"));
 	namess.str(bitmaph->getTextFile("TOWNNAME.TXT"));

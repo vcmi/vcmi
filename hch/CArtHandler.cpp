@@ -364,12 +364,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 45); // Weakness
 	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
 
-	// Statue of Legion
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +5, 1);
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +4, 2);
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +3, 3);
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +2, 4);
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +1, 5);
+	// Statue of Legion - gives only 50% growth
 	giveArtBonus(133, HeroBonus::CREATURE_GROWTH_PERCENT, 50);
 
 	//Power of the Dragon Father

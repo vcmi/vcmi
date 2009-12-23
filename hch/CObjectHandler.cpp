@@ -1507,8 +1507,6 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	case 2:
 		ret*=(1.5); break;
 	}
-	if(builtBuildings.find(26)!=builtBuildings.end()) //grail
-		ret+=VLC->creh->creatures[town->basicCreatures[level]].growth;
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
 			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
@@ -1522,11 +1520,13 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	if(visitingHero)
 		ret += visitingHero->valOfBonuses(HeroBonus::CREATURE_GROWTH, level);
 	for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
-	{ //foreach?!
+	{ //+1 for each dwelling
 		if (VLC->creh->creatures[town->basicCreatures[level]].idNumber == (*it)->creatures[0].second[0])
 			++ret;
 	}
-	return ret;
+	if(builtBuildings.find(26)!=builtBuildings.end()) //grail - +50% to ALL growth
+		ret*=1.5;
+	return ret;//check CCastleInterface.cpp->CCastleInterface::CCreaInfo::clickRight if this one will be modified
 }
 int CGTownInstance::dailyIncome() const
 {

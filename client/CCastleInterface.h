@@ -72,6 +72,29 @@ public:
 
 class CCastleInterface : public CWindowWithGarrison
 {
+	class CCreaInfo : public CIntObject
+	{
+	public:
+		int crid,bid;
+		CCreaInfo(int CRID, int BID); //c-tor
+		~CCreaInfo();//d-tor
+		void hover(bool on);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
+		void show(SDL_Surface * to);
+	};
+	class CTownInfo : public CIntObject
+	{
+	public:
+		int bid;//typeID
+		CDefHandler * pic;
+		CTownInfo(int BID); //c-tor
+		~CTownInfo();//d-tor
+		void hover(bool on);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
+		void show(SDL_Surface * to);
+	};
 public:
 	SDL_Rect pos; //why not inherit this member from CIntObject ?
 	bool showing; //indicates if interface is active
@@ -85,7 +108,7 @@ public:
 
 	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
 		*status; //0 - already, 1 - can't, 2 - lack of resources
-	CDefHandler *hall,*fort;
+	CTownInfo *hall,*fort,*market;
 	CDefEssential* bicons; //150x70 buildings imgs
 	CTownList * townlist;
 
@@ -94,7 +117,7 @@ public:
 	AdventureMapButton *split;
 
 	musicBase::musicID musicID;
-
+	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
 	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
@@ -117,6 +140,7 @@ public:
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
 	void recreateBuildings();
+	void recreateIcons();
 };
 class CHallInterface : public IShowActivable
 {

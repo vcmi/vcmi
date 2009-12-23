@@ -208,7 +208,11 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 }
 void CHeroGSlot::hover (bool on)
 {
-	if(!on) return;
+	if(!on) 
+	{
+		LOCPLINT->statusbar->clear();
+		return;
+	}
 	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
 	std::string temp;
 	if(hero)
@@ -411,6 +415,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	LOCPLINT->castleInt = this;
 	hall = NULL;
+	fort = NULL;
+	market = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
 	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
 	pos.x = screen->w/2 - 400;
@@ -419,8 +425,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	hslotup.pos.y += pos.y;
 	hslotdown.pos.x += pos.x;
 	hslotdown.pos.y += pos.y;
-	hall = CDefHandler::giveDef("ITMTL.DEF");
-	fort = CDefHandler::giveDef("ITMCL.DEF");
 	hBuild = NULL;
 	count=0;
 	town = Town;
@@ -450,11 +454,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 
 	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
-
-
-	//buildings
+	//growth icons and buildings
 	recreateBuildings();
-
+	recreateIcons();
 
 	std::string defname;
 	switch (town->subID)
@@ -512,6 +514,7 @@ CCastleInterface::~CCastleInterface()
 	//delete split;
 	delete hall;
 	delete fort;
+	delete market;
 	delete garr;
 	delete townlist;
 	delete statusbar;
@@ -521,7 +524,10 @@ CCastleInterface::~CCastleInterface()
 		delete buildings[i];
 	}
 	delete bicons;
-
+	for(size_t i=0;i<creainfo.size();i++)
+	{
+		delete creainfo[i];
+	}
 }
 
 void CCastleInterface::close()
@@ -687,59 +693,14 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	resdatabar->draw(to);
 
 	garr->show(to);
-	int pom;
-
-	//draw fort icon
-	if(town->builtBuildings.find(9)!=town->builtBuildings.end())
-		pom = 2;
-	else if(town->builtBuildings.find(8)!=town->builtBuildings.end())
-		pom = 1;
-	else if(town->builtBuildings.find(7)!=town->builtBuildings.end())
-		pom = 0;
-	else pom = 3;
-	blitAt(fort->ourImages[pom].bitmap,pos.x+122,pos.y+413,to);
-
-	//draw ((village/town/city) hall)/capitol icon
-	if(town->builtBuildings.find(13)!=town->builtBuildings.end())
-		pom = 3;
-	else if(town->builtBuildings.find(12)!=town->builtBuildings.end())
-		pom = 2;
-	else if(town->builtBuildings.find(11)!=town->builtBuildings.end())
-		pom = 1;
-	else pom = 0;
-	blitAt(hall->ourImages[pom].bitmap,pos.x+80,pos.y+413,to);
-
 	//draw creatures icons and their growths
-	for(int i=0;i<CREATURES_PER_TOWN;i++)
-	{
-		int cid = -1;
-		if (town->builtBuildings.find(30+i)!=town->builtBuildings.end())
-		{
-			if (town->builtBuildings.find(30+CREATURES_PER_TOWN+i)!=town->builtBuildings.end())
-				cid = town->town->upgradedCreatures[i];
-			else
-				cid = town->town->basicCreatures[i];
-		}
-		if (cid>=0)
-		{
-			int pomx, pomy;
-			pomx = 22 + (55*((i>3)?(i-4):i));
-			pomy = (i>3)?(507):(459);
-			blitAt(graphics->smallImgs[cid],pos.x+pomx,pos.y+pomy,to);
-			std::ostringstream oss;
-			oss << '+' << town->creatureGrowth(i);
-			CSDL_Ext::printAtMiddle(oss.str(),pos.x+pomx+16,pos.y+pomy+37,GEOR13,zwykly,to);
-		}
-	}
+	for(size_t i=0;i<creainfo.size();i++)
+		creainfo[i]->show(to);
 
-	//print name and income
+	//print name
 	CSDL_Ext::printAt(town->name,pos.x+85,pos.y+389,GEOR13,zwykly,to);
-	char temp[10];
-	SDL_itoa(town->dailyIncome(),temp,10);
-	CSDL_Ext::printAtMiddle(temp,pos.x+195,pos.y+442,GEOR13,zwykly,to);
-
 	//blit town icon
-	pom = town->subID*2;
+	int pom = town->subID*2;
 	if (!town->hasFort())
 		pom += F_NUMBER*2;
 	if(town->builded >= MAX_BUILDING_PER_TURN)
@@ -748,7 +709,9 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 
 	hslotup.show(to);
 	hslotdown.show(to);
-
+	market->show(to);
+	fort->show(to);
+	hall->show(to);
 	show(to);
 
 	if(screen->w != 800 || screen->h !=600)
@@ -792,6 +755,7 @@ void CCastleInterface::show(SDL_Surface * to)
 		if(hBuild==buildings[i] && hBuild->border) //if this this higlighted structure and has border we'll blit it
 			blitAt(hBuild->border,hBuild->pos,to);
 	}
+	statusbar->show(to);//refreshing statusbar
 }
 
 void CCastleInterface::activate()
@@ -801,11 +765,16 @@ void CCastleInterface::activate()
 	garr->activate();
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
+	fort->activate();
+	hall->activate();
+	market->activate();
 	//split->activate();
 	for(size_t i=0;i<buildings.size();i++) //XXX pls use iterators or at() but not []
 	{
 		buildings[i]->activate();
 	}
+	for(size_t i=0;i<creainfo.size();i++)
+		creainfo[i]->activate();
 	hslotdown.activate();
 	hslotup.activate();
 	activateKeys();
@@ -817,11 +786,16 @@ void CCastleInterface::deactivate()
 	townlist->deactivate();
 	garr->deactivate();
 	exit->deactivate();
+	fort->deactivate();
+	hall->deactivate();
+	market->deactivate();
 	//split->deactivate();
 	for(size_t i=0;i<buildings.size();i++) //XXX iterators
 	{
 		buildings[i]->deactivate();
 	}
+	for(size_t i=0;i<creainfo.size();i++)
+		creainfo[i]->deactivate();
 	hslotdown.deactivate();
 	hslotup.deactivate();
 	deactivateKeys();
@@ -832,6 +806,7 @@ void CCastleInterface::addBuilding(int bid)
 	//TODO: lepiej by bylo tylko dodawac co trzeba pamietajac o grupach
 	deactivate();
 	recreateBuildings();
+	recreateIcons();
 	activate();
 }
 
@@ -839,6 +814,7 @@ void CCastleInterface::removeBuilding(int bid)
 {
 	//TODO: lepiej by bylo tylko usuwac co trzeba pamietajac o grupach
 	recreateBuildings();
+	recreateIcons();
 }
 
 void CCastleInterface::recreateBuildings()
@@ -987,6 +963,245 @@ void CCastleInterface::recreateBuildings()
 			buildings[i]->activate();
 }
 
+void CCastleInterface::recreateIcons()
+{
+	delete fort;
+	delete hall;
+	delete market;
+
+	hall = new CTownInfo(0);
+	fort = new CTownInfo(1);
+	market = new CTownInfo(2);
+
+	for(size_t i=0;i<creainfo.size();i++)
+	{
+		if(showing)
+			creainfo[i]->deactivate();
+		delete creainfo[i];
+	}
+	creainfo.clear();
+	for(size_t i=0;i<CREATURES_PER_TOWN;i++)
+	{
+		int crid = -1;
+		int bid = 30+i;
+		if (town->builtBuildings.find(bid)!=town->builtBuildings.end())
+		{
+			if (town->builtBuildings.find(bid+CREATURES_PER_TOWN)!=town->builtBuildings.end())
+			{
+				crid = town->town->upgradedCreatures[i];
+				bid += CREATURES_PER_TOWN;
+			}
+			else
+				crid = town->town->basicCreatures[i];
+		}
+		if (crid>=0)
+			creainfo.push_back(new CCreaInfo(crid,bid));
+	}
+}
+
+CCastleInterface::CCreaInfo::~CCreaInfo()
+{
+}
+CCastleInterface::CCreaInfo::CCreaInfo(int CRID, int BID)
+{
+	used = LCLICK | RCLICK | HOVER;
+	CCastleInterface * ci=LOCPLINT->castleInt;
+	bid = BID;
+	crid = CRID;
+	int i = (bid-30)%CREATURES_PER_TOWN;
+	pos.x = ci->pos.x+14+(55*(i%4));
+	pos.y = (i>3)?(507+ci->pos.y):(459+ci->pos.y);
+	pos.w = 48;
+	pos.h = 48;
+}
+
+void CCastleInterface::CCreaInfo::hover(bool on)
+{
+	if(on)
+	{
+		std::string descr=CGI->generaltexth->allTexts[588];
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		LOCPLINT->statusbar->print(descr);
+	}
+	else
+		LOCPLINT->statusbar->clear();
+}
+void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
+{
+	if(down)
+	{
+		LOCPLINT->castleInt->showRecruitmentWindow(bid);
+	}
+};
+
+int AddToString(std::string from, std::string & to, int numb)
+{
+	if (!numb)
+		return 0;//do not add string if 0
+	boost::algorithm::replace_first(from,"%+d", "+"+boost::lexical_cast<std::string>(numb));
+	to+="\n"+from;
+	return numb;
+};
+
+void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{
+		CCastleInterface * ci=LOCPLINT->castleInt;
+		std::set<si32> bld =ci->town->builtBuildings;
+		int summ=0, cnt=0;
+		int level=(bid-30)%CREATURES_PER_TOWN;
+		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(
+			ci->town->creatureGrowth(level)));
+
+		descr +="\n"+CGI->generaltexth->allTexts[590];
+		summ = CGI->creh->creatures[crid].growth;
+		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
+		
+
+		if ( bld.find(9)!=bld.end())//castle +100% to basic
+			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][9]->Name()+" %+d",descr,summ);
+		else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
+			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
+
+		if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
+		if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
+			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][18]->Name()+" %+d",descr,
+				CGI->creh->creatures[crid].hordeGrowth);
+
+		if(ci->town->town->hordeLvl[1]==level)//horde, x to summ
+		if((bld.find(24)!=bld.end()) || (bld.find(25)!=bld.end()))
+			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][24]->Name()+" %+d",descr,
+				CGI->creh->creatures[crid].hordeGrowth);
+
+		cnt = 0;
+		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[0].dwellings.begin();
+			it !=CGI->state->players[0].dwellings.end(); ++it)
+				if (CGI->creh->creatures[crid].idNumber == (*it)->creatures[0].second[0])
+					cnt++;//external dwellings count to summ
+		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
+
+		const CGHeroInstance * ch = ci->town->garrisonHero;
+		for (cnt = 0; cnt<2; cnt++) // "loop" to avoid copy-pasting code
+		{
+			if(ch)
+			{
+				for(std::list<HeroBonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
+					if(i->type == HeroBonus::CREATURE_GROWTH && i->subtype == level)
+						if (i->source == HeroBonus::ARTIFACT)
+							summ+=AddToString(CGI->arth->artifacts[i->id].Name()+" %+d",descr,i->val);
+			};
+			ch = ci->town->visitingHero;
+		};
+
+		if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
+			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][26]->Name()+" %+d",descr,summ/2);
+
+		CInfoPopup *mess = new CInfoPopup();//creating popup
+		mess->free = true;
+		mess->bitmap = CMessage::drawBoxTextBitmapSub
+		(LOCPLINT->playerID, descr,graphics->bigImgs[crid],"");
+		mess->pos.x = screen->w/2 - mess->bitmap->w/2;
+		mess->pos.y = screen->h/2 - mess->bitmap->h/2;
+		GH.pushInt(mess);
+	}
+}
+void CCastleInterface::CCreaInfo::show(SDL_Surface * to)
+{
+	blitAt(graphics->smallImgs[crid],pos.x+8,pos.y,to);
+	std::ostringstream oss;
+	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth((bid-30)%CREATURES_PER_TOWN);
+	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+37,GEOR13,zwykly,to);
+}
+
+CCastleInterface::CTownInfo::~CTownInfo()
+{
+	if (pic)
+	delete pic;
+}
+CCastleInterface::CTownInfo::CTownInfo(int BID)
+{
+	used = LCLICK | RCLICK | HOVER;
+	int pom=0;
+	CCastleInterface * ci=LOCPLINT->castleInt;
+	switch (BID)
+	{
+		case 0:	//hall
+			bid = 10 + ci->town->hallLevel();
+			pos.x = ci->pos.x+80; pos.y = ci->pos.y+413; pos.w=40; pos.h=40;
+			pic = CDefHandler::giveDef("ITMTL.DEF");
+			break;
+		case 1: //fort
+			bid = 6 + ci->town->fortLevel();
+			pos.x = ci->pos.x+122; pos.y = ci->pos.y+413; pos.w=40; pos.h=40;
+			pic = CDefHandler::giveDef("ITMCL.DEF");
+			break;
+		case 2:	pos.x = ci->pos.x+164;pos.y = ci->pos.y+409; pos.w=64; pos.h=44;
+			pic = NULL;
+			bid = 14;
+			break;
+	}
+}
+
+void CCastleInterface::CTownInfo::hover(bool on)
+{
+	if(on)
+	{
+		std::string descr;
+		if ( bid == 6 ) {} //empty "no fort" icon. no hover message
+		else 
+		if ( bid == 14 ) //marketplace/income icon
+			descr = CGI->generaltexth->allTexts[255];
+		else
+			descr = CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name();
+		LOCPLINT->statusbar->print(descr);
+	}
+	else
+		LOCPLINT->statusbar->clear();
+}
+void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
+{
+	if(down)
+		if (LOCPLINT->castleInt->town->builtBuildings.find(bid)!=LOCPLINT->castleInt->town->builtBuildings.end())
+			LOCPLINT->castleInt->buildingClicked(bid);//activate building
+}
+void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{	
+		if (( bid == 6 ) || ( bid == 14) )
+			return;
+		CInfoPopup *mess = new CInfoPopup();
+		mess->free = true;
+		CCastleInterface * ci=LOCPLINT->castleInt;
+		CBuilding *bld = CGI->buildh->buildings[ci->town->subID][bid];
+		mess->bitmap = CMessage::drawBoxTextBitmapSub
+			(LOCPLINT->playerID,bld->Description(),
+			LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,
+			bld->Name());
+		mess->pos.x = screen->w/2 - mess->bitmap->w/2;
+		mess->pos.y = screen->h/2 - mess->bitmap->h/2;
+		GH.pushInt(mess);
+	}
+}
+void CCastleInterface::CTownInfo::show(SDL_Surface * to)
+{
+	if ( bid == 14 )//marketplace/income
+	{
+		std::ostringstream oss;
+		oss << LOCPLINT->castleInt->town->dailyIncome();
+		CSDL_Ext::printAtMiddle(oss.str(),pos.x+32,pos.y+32,GEOR13,zwykly,to);
+	}
+	else if ( bid == 6 )//no fort
+		blitAt(pic->ourImages[3].bitmap,pos.x,pos.y,to);
+	else if (bid < 10)//fort-castle
+		blitAt(pic->ourImages[bid-7].bitmap,pos.x,pos.y,to);
+	else//town halls
+		blitAt(pic->ourImages[bid-10].bitmap,pos.x,pos.y,to);
+}
+
 CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 {
 	if(building>36) //upg dwelling
@@ -1070,6 +1285,8 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		std::string toPrint;
 		if(state==8)
 			toPrint = CGI->generaltexth->hcommands[5];
+		else if(state==5)//"already builded today" message
+			toPrint = CGI->generaltexth->allTexts[223];
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
 		std::vector<std::string> name;
@@ -1163,10 +1380,11 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	pos = owner->pos;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
+	LOCPLINT->castleInt->statusbar->clear();
 	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	exit = new AdventureMapButton
-		(CGI->generaltexth->tcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+		(CGI->generaltexth->hcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	//preparing boxes with buildings//
@@ -1507,7 +1725,10 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 	resdatabar = new CMinorResDataBar;
 	pos = owner->pos;
 	bg = NULL;
-	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+	LOCPLINT->castleInt->statusbar->clear();
+	std::string temp = CGI->generaltexth->fcommands[6];
+	boost::algorithm::replace_first(temp,"%s",CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name());
+	exit = new AdventureMapButton(temp,"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
 		genRect(126,386,10,155),genRect(126,386,404,155),
 		genRect(126,386,10,288),genRect(126,386,404,288),
@@ -1624,7 +1845,8 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
-	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+	LOCPLINT->castleInt->statusbar->clear();
+	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");
 	SDL_Surface *view = BitmapHandler::loadBitmap(graphics->guildBgs[owner->town->subID]);

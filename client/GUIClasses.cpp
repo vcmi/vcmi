@@ -1560,7 +1560,10 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		LOCPLINT->statusbar->clear();
 		return;
 	};
-	LOCPLINT->statusbar->print(items[from+ny]->name);
+	std::string temp = CGI->generaltexth->tcommands[4];
+	boost::algorithm::replace_first(temp,"%s",items[from+ny]->name);
+	temp += ", "+items[from+ny]->town->Name();
+	LOCPLINT->statusbar->print(temp);
 }
 
 void CTownList::clickLeft(tribool down, bool previousState)
