@@ -816,9 +816,9 @@ void CGameHandler::newTurn()
 			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != TerrainTile::water);
 
 			if(h->visitedTown && vstd::contains(h->visitedTown->builtBuildings,0)) //if hero starts turn in town with mage guild
-				hth.mana = h->manaLimit(); //restore all mana
+				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
 			else
-				hth.mana = std::max(si32(0), std::min(h->mana + h->manaRegain(), h->manaLimit()) ); 
+				hth.mana = std::max(si32(0), std::max(h->mana, std::min(h->mana + h->manaRegain(), h->manaLimit())) ); 
 
 			n.heroes.insert(hth);
 			
