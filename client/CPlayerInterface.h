@@ -7,6 +7,7 @@
 #include <map>
 #include <list>
 #include <algorithm>
+#include "GUIBase.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf 
@@ -106,7 +107,7 @@ struct SystemOptions
 
 extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores default settings loaded with application
 
-class CPlayerInterface : public CGameInterface
+class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 public:
 	//minor interfaces
@@ -114,6 +115,9 @@ public:
 
 	boost::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
+	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
+	int autosaveCount;
+	static const int SAVES_COUNT = 5;
 
 	SystemOptions sysOpts;
 
@@ -131,8 +135,11 @@ public:
 
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
+
+	void update();
 	void recreateWanderingHeroes();
 	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
+	int getLastIndex(std::string namePrefix);
 
 	//overloaded funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished

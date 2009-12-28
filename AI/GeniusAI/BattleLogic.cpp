@@ -39,7 +39,7 @@ ui8 side; //who made this action: false - left, true - right player
  */
 CBattleLogic::CBattleLogic(ICallback *cb,  CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
 	m_iCurrentTurn(-2),
-	m_bIsAttacker(false),
+	m_bIsAttacker(!side),
 	m_cb(cb),
 	m_army1(army1),
 	m_army2(army2),
@@ -261,7 +261,7 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 	MakeStatistics(stackID);
 
 	list<int> creatures;
-	int additionalInfo;
+	int additionalInfo = 0; //?
 
 	if (m_bEnemyDominates)
 	{

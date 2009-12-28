@@ -122,38 +122,11 @@ void CMenuScreen::moveTo( CMenuScreen *next )
 	GH.pushInt(next);
 }
 
-void CGPreGame::run()
-{
-	GH.handleEvents();
-
-	while(!terminate)
-	{
-		if (GH.listInt.size() == 0)
-		{
-		#ifdef _WIN32
-			CGI->videoh->open("ACREDIT.SMK");
-		#else
-			CGI->videoh->open("ACREDIT.SMK", true, false);
-		#endif
-			GH.pushInt(scrs[mainMenu]);
-		}
-
-		CGI->curh->draw1();
-		SDL_Flip(screen);
-		CGI->curh->draw2();
-		SDL_Delay(20); //give time for other apps
-		GH.topInt()->show(screen);
-		GH.updateTime();
-		GH.handleEvents();
-	}
-}
-
 CGPreGame::CGPreGame()
 {
 	GH.defActionsDef = 63;
 	CGP = this;
 	mainbg = BitmapHandler::loadBitmap("ZPIC1005.bmp");
-	terminate = false;
 
 	for(int i = 0; i < ARRAY_COUNT(scrs); i++)
 		scrs[i] = new CMenuScreen((EState)i);
@@ -191,6 +164,26 @@ void CGPreGame::disposeGraphics()
 	SDL_FreeSurface(nHero);
 	SDL_FreeSurface(rTown);
 	SDL_FreeSurface(nTown);
+}
+
+void CGPreGame::update()
+{
+	if (GH.listInt.size() == 0)
+	{
+	#ifdef _WIN32
+		CGI->videoh->open("ACREDIT.SMK");
+	#else
+		CGI->videoh->open("ACREDIT.SMK", true, false);
+	#endif
+		GH.pushInt(scrs[mainMenu]);
+	}
+
+	CGI->curh->draw1();
+	SDL_Flip(screen);
+	CGI->curh->draw2();
+	GH.topInt()->show(screen);
+	GH.updateTime();
+	GH.handleEvents();
 }
 
 CSelectionScreen::CSelectionScreen( EState Type )

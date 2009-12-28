@@ -81,7 +81,8 @@ public:
 	void run();
 	void stop();
 
-	bool terminate;				 // tell to terminate
+	bool terminate;	// tell to terminate
+	boost::thread *connectionHandler; //thread running run() method
 
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback

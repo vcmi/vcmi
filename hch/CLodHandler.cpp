@@ -187,7 +187,8 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 
 	LOD.open(lodFile.c_str(), std::ios::in | std::ios::binary);
 
-	if (!LOD.is_open()) {
+	if (!LOD.is_open()) 
+	{
 		tlog1 << "Cannot open " << lodFile << std::endl;
 		return;
 	}

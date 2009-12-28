@@ -405,7 +405,7 @@ struct RemoveObject : public CPackForClient //500
 }; 
 struct TryMoveHero : public CPackForClient //501
 {
-	TryMoveHero(){type = 501;};
+	TryMoveHero(){type = 501;humanKnows=false;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs);
@@ -419,6 +419,8 @@ struct TryMoveHero : public CPackForClient //501
 	ui8 result; //uses EResult
 	int3 start, end;
 	std::set<int3> fowRevealed; //revealed tiles
+
+	bool humanKnows; //used locally during applying to client
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

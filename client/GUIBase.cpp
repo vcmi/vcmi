@@ -331,6 +331,32 @@ void CGuiHandler::fakeMouseMove()
 	handleMoveInterested(sme);
 }
 
+void CGuiHandler::run()
+{
+	try
+	{
+		while(!terminate)
+		{
+			if(curInt)
+				curInt->update();
+			SDL_Delay(20); //give time for other apps
+		}
+	} HANDLE_EXCEPTION
+}
+
+CGuiHandler::CGuiHandler()
+:lastClick(-500, -500)
+{
+	curInt = NULL;
+	current = NULL;
+	terminate = false;
+}
+
+CGuiHandler::~CGuiHandler()
+{
+
+}
+
 void CIntObject::activateLClick()
 {
 	GH.lclickable.push_front(this);
@@ -462,6 +488,8 @@ CIntObject::CIntObject()
 			pos.y = parent->pos.y;
 		}
 	}
+	else
+		parent = NULL;
 }
 
 void CIntObject::show( SDL_Surface * to )

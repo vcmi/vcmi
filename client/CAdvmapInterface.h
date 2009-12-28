@@ -138,7 +138,7 @@ public:
 	~CAdvMapInt();
 
 	int3 position; //top left corner of visible map part
-	int player, active;
+	int player;
 
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
@@ -202,5 +202,6 @@ public:
 	void handleRightClick(std::string text, tribool down, CIntObject * client);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+	bool isActive();
 };
 #endif // __CADVMAPINTERFACE_H__

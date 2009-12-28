@@ -212,7 +212,7 @@ public:
 	~CScenarioInfo();
 };
 
-class CGPreGame : public CIntObject
+class CGPreGame : public CIntObject, public IUpdateable
 {
 public:
 	SDL_Surface *mainbg;
@@ -222,10 +222,9 @@ public:
 	CDefHandler *bonuses;
 	CDefHandler *victory, *loss;
 
-	bool terminate;
-
 	CGPreGame();
 	~CGPreGame();
+	void update();
 	void run();
 	void openSel(EState type);
 	void loadGraphics();

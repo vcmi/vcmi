@@ -40,6 +40,8 @@
 #include <cmath>
 #include <queue>
 #include <sstream>
+#include <boost/filesystem.hpp>
+
 #ifdef min
 #undef min
 #endif
@@ -102,12 +104,16 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	cingconsole = new CInGameConsole;
 	terminate = false;
 	terminate_cond.set(false);
+	firstCall = 1; //if loading will be overwritten in serialize
+	autosaveCount = 0;
 }
 CPlayerInterface::~CPlayerInterface()
 {
 	delete pim;
 	delete showingDialog;
 	delete mainFPSmng;
+	if(adventureInt->active & CIntObject::KEYBOARD)
+		adventureInt->deactivateKeys();
 	delete adventureInt;
 	delete cingconsole;
 
@@ -135,90 +141,58 @@ void CPlayerInterface::init(ICallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
-	try
+	LOCPLINT = this;
+	makingTurn = true;
+
+	if(firstCall)
 	{
-		LOCPLINT = this;
-		makingTurn = true;
-
-		static bool firstCall = true;
-		static int autosaveCount = 0;
-
-		if(firstCall)
-			firstCall = false;
-		else
-			LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
-
-		autosaveCount %= 5;
-
-		for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
-			SDL_FreeSurface(i->second);
-		graphics->heroWins.clear();
-		std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
-		for(int i=0;i<hh.size();i++)
-		{
-			SDL_Surface * pom = infoWin(hh[i]);
-			graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
-		}
-
-		/* TODO: This isn't quite right. First day in game should play
-		 * NEWDAY. And we don't play NEWMONTH. */
-		int day = cb->getDate(1);
-		if (day != 1)
-			CGI->soundh->playSound(soundBase::newDay);
-		else
-			CGI->soundh->playSound(soundBase::newWeek);
-
-		adventureInt->infoBar.newDay(day);
-
-		//select first hero if available.
-		//TODO: check if hero is slept
-		if(wanderingHeroes.size())
-			adventureInt->select(wanderingHeroes[0]);
-		else
-			adventureInt->select(adventureInt->townList.items[0]);
-
-		adventureInt->showAll(screen);
+		autosaveCount = getLastIndex("Autosave_");
 		GH.pushInt(adventureInt);
 		adventureInt->activateKeys();
-
-		while(makingTurn) // main loop
+		if(firstCall > 0) //new game, not laoded
 		{
-			if (terminate)
-				break;
-
-			pim->lock();
-
-			//if there are any waiting dialogs, show them
-			if(dialogs.size() && !showingDialog->get())
-			{
-				showingDialog->set(true);
-				GH.pushInt(dialogs.front());
-				dialogs.pop_front();
-			}
-
-			GH.updateTime();
-			GH.handleEvents();
-
-			if(!adventureInt->active && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
-				GH.totalRedraw();
-			else
-				GH.simpleRedraw();
-
-			CGI->curh->draw1();
-			CSDL_Ext::update(screen);
-			CGI->curh->draw2();
-			pim->unlock();
-			SDL_framerateDelay(mainFPSmng);
+			int index = getLastIndex("Newgame_Autosave_");
+			index %= SAVES_COUNT;
+			cb->save("Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
 		}
+		firstCall = 0;
+	}
+	else
+	{
+		LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+		autosaveCount %= 5;
+	}
 
-		adventureInt->deactivateKeys();
-		GH.popInt(adventureInt);
+	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
+		SDL_FreeSurface(i->second);
+	graphics->heroWins.clear();
+	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
+	for(int i=0;i<hh.size();i++)
+	{
+		SDL_Surface * pom = infoWin(hh[i]);
+		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+	}
 
-		cb->endTurn();
-	} HANDLE_EXCEPTION;
+	/* TODO: This isn't quite right. First day in game should play
+	 * NEWDAY. And we don't play NEWMONTH. */
+	int day = cb->getDate(1);
+	if (day != 1)
+		CGI->soundh->playSound(soundBase::newDay);
+	else
+		CGI->soundh->playSound(soundBase::newWeek);
 
-	if (terminate)
-		terminate_cond.set(true);
+	adventureInt->infoBar.newDay(day);
+
+	//select first hero if available.
+	//TODO: check if hero is slept
+	if(wanderingHeroes.size())
+		adventureInt->select(wanderingHeroes[0]);
+	else
+		adventureInt->select(adventureInt->townList.items[0]);
+
+	adventureInt->showAll(screen);
+
+	GH.curInt = this;
 }
 
 inline void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)
@@ -1338,6 +1312,7 @@ void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 {
 	serializeTempl(h,version);
 	sysOpts.apply();
+	firstCall = -1;
 }
 
 void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
@@ -1526,7 +1501,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	LOCPLINT->adventureInt->centerOn (pos);
 	if(focusTime)
 	{
-		bool activeAdv = (GH.topInt() == adventureInt  &&  adventureInt->active);
+		bool activeAdv = (GH.topInt() == adventureInt  &&  adventureInt->isActive());
 		if(activeAdv)
 			adventureInt->deactivate();
 
@@ -1549,6 +1524,64 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 bool CPlayerInterface::ctrlPressed() const
 {
 	return SDL_GetKeyState(NULL)[SDLK_LCTRL]  ||  SDL_GetKeyState(NULL)[SDLK_RCTRL];
+}
+
+void CPlayerInterface::update()
+{
+	pim->lock();
+
+	//if there are any waiting dialogs, show them
+	if(dialogs.size() && !showingDialog->get())
+	{
+		showingDialog->set(true);
+		GH.pushInt(dialogs.front());
+		dialogs.pop_front();
+	}
+
+	GH.updateTime();
+	GH.handleEvents();
+
+	if(!adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
+		GH.totalRedraw();
+	else
+		GH.simpleRedraw();
+
+	CGI->curh->draw1();
+	CSDL_Ext::update(screen);
+	CGI->curh->draw2();
+
+	pim->unlock();
+
+	SDL_framerateDelay(mainFPSmng);
+}
+
+int CPlayerInterface::getLastIndex( std::string namePrefix)
+{
+	using namespace boost::filesystem;
+	using namespace boost::algorithm;
+
+	std::map<std::time_t, int> dates; //save number => datestamp
+
+	directory_iterator enddir;
+	for (directory_iterator dir(DATA_DIR "/Games"); dir!=enddir; dir++)
+	{
+		if(is_regular(dir->status()))
+		{
+			std::string name = dir->path().leaf();
+			if(starts_with(name, namePrefix) && ends_with(name, ".vlgm1"))
+			{
+				char nr = name[namePrefix.size()];
+				if(std::isdigit(nr))
+				{
+					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
+				}
+			}
+		}
+	}
+
+	if(dates.size())
+		return (--dates.end())->second; //return latest file number
+	return 0;
 }
 
 void SystemOptions::setMusicVolume( int newVolume )

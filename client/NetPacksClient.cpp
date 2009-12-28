@@ -150,7 +150,18 @@ void RemoveObject::applyCl( CClient *cl )
 void TryMoveHero::applyFirstCl( CClient *cl )
 {
 	CGHeroInstance *h = GS(cl)->getHero(id);
-	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
+
+	//check if playerint will have the knowledge about movement - if not, directly update maphandler
+	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	{
+		if(i->first >= PLAYER_LIMIT)
+			continue;
+		PlayerState &p = GS(cl)->players[i->first];
+		if((p.fogOfWarMap[start.x-1][start.y][start.z] || p.fogOfWarMap[end.x-1][end.y][end.z]) && p.human)
+			humanKnows = true;
+	}
+
+	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK  ||  !humanKnows)
 		CGI->mh->removeObject(h);
 
 
@@ -179,10 +190,16 @@ void TryMoveHero::applyCl( CClient *cl )
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
 		if(i->first >= PLAYER_LIMIT) continue;
-		if(GS(cl)->players[i->first].fogOfWarMap[start.x-1][start.y][start.z] || GS(cl)->players[i->first].fogOfWarMap[end.x-1][end.y][end.z])
+		PlayerState &p = GS(cl)->players[i->first];
+		if(p.fogOfWarMap[start.x-1][start.y][start.z] || p.fogOfWarMap[end.x-1][end.y][end.z])
 		{
 			i->second->heroMoved(*this);
 		}
+	}
+
+	if(!humanKnows) //maphandler didn't get update from playerint, do it now
+	{				//TODO: restructure nicely
+		CGI->mh->printObject(h);
 	}
 }
 
@@ -538,7 +555,7 @@ void PlayerBlocked::applyCl( CClient *cl )
 
 void YourTurn::applyCl( CClient *cl )
 {
-	boost::thread(boost::bind(&CGameInterface::yourTurn,cl->playerint[player]));
+	INTERFACE_CALL_IF_PRESENT(player,yourTurn);
 }
 
 void SaveGame::applyCl(CClient *cl)

@@ -83,6 +83,7 @@ public:
 
 void CClient::init()
 {
+	connectionHandler = NULL;
 	pathInfo = NULL;
 	applier = new CCLApplier;
 	IObjectInterface::cb = this;
@@ -124,17 +125,14 @@ void CClient::waitForMoveAndSend(int color)
 	}HANDLE_EXCEPTION
 	tlog1 << "We should not be here!" << std::endl;
 }
+
 void CClient::run()
 {
 	try
 	{
 		CPack *pack;
-		while(1)
+		while(!terminate)
 		{
-			if (terminate) {
-				break;
-			}
-
 			//get the package from the server
 			{
 				boost::unique_lock<boost::mutex> lock(*serv->rmx);
@@ -143,7 +141,8 @@ void CClient::run()
 				tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
 			}
 
-			if (terminate) {
+			if (terminate) 
+			{
 				delete pack;
 				break;
 			}
@@ -174,6 +173,7 @@ void CClient::stop()
 	// Tell the network thread and interface thread to reach a stable state
 	terminate = true;
 	LOCPLINT->terminate = true;
+	endGame();
 }
 
 void CClient::save(const std::string & fname)
@@ -190,6 +190,10 @@ void CClient::save(const std::string & fname)
 void CClient::endGame()
 {
 	tlog0 << "\n\nEnding current game!" << std::endl;
+	GH.curInt = NULL;
+	GH.topInt()->deactivate();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
 
 	delete CGI->mh;
 	CGI->mh = NULL;
@@ -197,6 +201,7 @@ void CClient::endGame()
 	delete CGI->state;
 	CGI->state = NULL;
 
+	LOCPLINT = NULL;
 	while (!playerint.empty())
 	{
 		delete playerint.begin()->second;
@@ -208,7 +213,8 @@ void CClient::endGame()
 		delete cb;
 	}
 
-	if (serv) {
+	if (serv) 
+	{
 		tlog3 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		*serv << &CloseServer();
@@ -219,6 +225,10 @@ void CClient::endGame()
 		serv = NULL;
 		tlog3 << "Our socket has been closed." << std::endl;
 	}
+
+	connectionHandler->join();
+	delete connectionHandler;
+	connectionHandler = NULL;
 }
 
 void CClient::loadGame( const std::string & fname )

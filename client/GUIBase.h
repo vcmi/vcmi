@@ -287,6 +287,13 @@ public:
 	virtual ~IShowActivable(){}; //d-tor
 };
 
+class IUpdateable
+{
+public:
+	virtual void update()=0;
+	virtual ~IUpdateable(){}; //d-tor
+};
+
 class CIntObject : public IShowActivable //interface object
 {
 public:
@@ -440,10 +447,15 @@ public:
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Event * current; //current event
+	IUpdateable *curInt;
 
 	Point lastClick;
 	unsigned lastClickTime;
+	bool terminate;
 
+	CGuiHandler();
+	~CGuiHandler();
+	void run();
 	void totalRedraw(); //forces total redraw (using showAll)
 	void simpleRedraw(); //update only top interface and draw background from buffer
 	void popInt(IShowActivable *top); //removes given interface from the top and activates next

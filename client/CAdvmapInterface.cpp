@@ -710,138 +710,140 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	int turns = pnode->turns;
 	amin(turns, 3);
 
-	if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
+	if(LOCPLINT->adventureInt->selection)
 	{
-		if(obj)
+		if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
 		{
-			if(obj->ID == TOWNI_TYPE)
+			if(obj)
 			{
-				CGI->curh->changeGraphic(0, 3);
+				if(obj->ID == TOWNI_TYPE)
+				{
+					CGI->curh->changeGraphic(0, 3);
+				}
+				else if(obj->ID == HEROI_TYPE)
+				{
+					CGI->curh->changeGraphic(0, 2);
+				}
 			}
-			else if(obj->ID == HEROI_TYPE)
+			else
 			{
-				CGI->curh->changeGraphic(0, 2);
+				CGI->curh->changeGraphic(0, 0);
 			}
 		}
-		else
+		else if(LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
 		{
-			CGI->curh->changeGraphic(0, 0);
-		}
-	}
-	else if(LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
-	{
-		const CGHeroInstance *h = static_cast<const CGHeroInstance *>(LOCPLINT->adventureInt->selection);
-		if(obj)
-		{
-			if(obj->ID == HEROI_TYPE)
+			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(LOCPLINT->adventureInt->selection);
+			if(obj)
 			{
-				if(obj->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
+				if(obj->ID == HEROI_TYPE)
+				{
+					if(obj->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
+					{
+						if(accessible)
+							CGI->curh->changeGraphic(0, 5 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 0);
+					}
+					else //our hero
+					{
+						if(LOCPLINT->adventureInt->selection == obj)
+							CGI->curh->changeGraphic(0, 2);
+						else if(accessible)
+							CGI->curh->changeGraphic(0, 8 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 2);
+					}
+				}
+				else if(obj->ID == TOWNI_TYPE)
+				{
+					if(obj->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
+					{
+						if(accessible) {
+							const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(obj);
+
+							// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
+							if (townObj && townObj->army.slots.empty())
+								CGI->curh->changeGraphic(0, 9 + turns*6);
+							else
+								CGI->curh->changeGraphic(0, 5 + turns*6);
+								
+						} else {
+							CGI->curh->changeGraphic(0, 0);
+						}
+					}
+					else //our town
+					{
+						if(accessible)
+							CGI->curh->changeGraphic(0, 9 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 3);
+					}
+				}
+				else if(obj->ID == 54) //monster
 				{
 					if(accessible)
 						CGI->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CGI->curh->changeGraphic(0, 0);
 				}
-				else //our hero
+				else if(obj->ID == 8) //boat
 				{
-					if(LOCPLINT->adventureInt->selection == obj)
-						CGI->curh->changeGraphic(0, 2);
-					else if(accessible)
-						CGI->curh->changeGraphic(0, 8 + turns*6);
+					if(accessible)
+						CGI->curh->changeGraphic(0, 6 + turns*6);
 					else
-						CGI->curh->changeGraphic(0, 2);
+						CGI->curh->changeGraphic(0, 0);
 				}
-			}
-			else if(obj->ID == TOWNI_TYPE)
-			{
-				if(obj->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
+				else if (obj->ID == 33 || obj->ID == 219) // Garrison
 				{
-					if(accessible) {
-						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(obj);
+					if (accessible) {
+						const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(obj);
 
-						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
-						if (townObj && townObj->army.slots.empty())
-							CGI->curh->changeGraphic(0, 9 + turns*6);
-						else
+						// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
+						if (garrObj && garrObj->tempOwner != LOCPLINT->playerID
+							&& !garrObj->army.slots.empty())
+						{
 							CGI->curh->changeGraphic(0, 5 + turns*6);
-							
+						}
+						else
+						{
+							CGI->curh->changeGraphic(0, 9 + turns*6);
+						}
 					} else {
 						CGI->curh->changeGraphic(0, 0);
 					}
 				}
-				else //our town
+				else
 				{
 					if(accessible)
-						CGI->curh->changeGraphic(0, 9 + turns*6);
-					else
-						CGI->curh->changeGraphic(0, 3);
-				}
-			}
-			else if(obj->ID == 54) //monster
-			{
-				if(accessible)
-					CGI->curh->changeGraphic(0, 5 + turns*6);
-				else
-					CGI->curh->changeGraphic(0, 0);
-			}
-			else if(obj->ID == 8) //boat
-			{
-				if(accessible)
-					CGI->curh->changeGraphic(0, 6 + turns*6);
-				else
-					CGI->curh->changeGraphic(0, 0);
-			}
-			else if (obj->ID == 33 || obj->ID == 219) // Garrison
-			{
-				if (accessible) {
-					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(obj);
-
-					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-					if (garrObj && garrObj->tempOwner != LOCPLINT->playerID
-						&& !garrObj->army.slots.empty())
 					{
-						CGI->curh->changeGraphic(0, 5 + turns*6);
+						if(pnode->land)
+							CGI->curh->changeGraphic(0, 9 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 28 + turns);
 					}
 					else
-					{
-						CGI->curh->changeGraphic(0, 9 + turns*6);
-					}
-				} else {
-					CGI->curh->changeGraphic(0, 0);
+						CGI->curh->changeGraphic(0, 0);
 				}
-			}
-			else
+			} 
+			else //no objs 
 			{
 				if(accessible)
 				{
 					if(pnode->land)
-						CGI->curh->changeGraphic(0, 9 + turns*6);
+					{
+						if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
+							CGI->curh->changeGraphic(0, 4 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
+					}
 					else
-						CGI->curh->changeGraphic(0, 28 + turns);
+						CGI->curh->changeGraphic(0, 6 + turns*6);
 				}
 				else
 					CGI->curh->changeGraphic(0, 0);
 			}
-		} 
-		else //no objs 
-		{
-			if(accessible)
-			{
-				if(pnode->land)
-				{
-					if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
-						CGI->curh->changeGraphic(0, 4 + turns*6);
-					else
-						CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
-				}
-				else
-					CGI->curh->changeGraphic(0, 6 + turns*6);
-			}
-			else
-				CGI->curh->changeGraphic(0, 0);
 		}
 	}
-
 	//tlog1 << "Tile " << pom << ": Turns=" << (int)pnode->turns <<"  Move:=" << pnode->moveRemains <</* " (from  "  << ")" << */std::endl;
 }
 void CTerrainRect::hover(bool on)
@@ -1515,7 +1517,6 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
-	active = 0;
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
@@ -1631,14 +1632,14 @@ void CAdvMapInt::fnextHero()
 void CAdvMapInt::fendTurn()
 {
 	LOCPLINT->makingTurn = false;
+	LOCPLINT->cb->endTurn();
 }
 
 void CAdvMapInt::activate()
 {
-	if(active++)
+	if(isActive())
 	{
 		tlog1 << "Error: advmapint already active...\n";
-		active--;
 		return;
 	}
 	screenBuf = screen;
@@ -1689,12 +1690,6 @@ void CAdvMapInt::deactivate()
 	infoBar.mode=-1;
 
 	LOCPLINT->cingconsole->deactivate();
-
-	if(--active)
-	{
-		tlog1 << "Error: advmapint still active...\n";
-		deactivate();
-	}
 }
 void CAdvMapInt::showAll(SDL_Surface *to)
 {
@@ -1807,16 +1802,16 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	switch(k)
 	{
 	case SDLK_i: 
-		if(active)
+		if(isActive())
 			CAdventureOptions::showScenarioInfo();
 		return;
 	case SDLK_s: 
-		if(active)
+		if(isActive())
 			GH.pushInt(new CSelectionScreen(saveGame));
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
-			if(!active) 
+			if(!isActive()) 
 				return;
 			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
 			if(h && key.state == SDL_PRESSED)
@@ -1829,7 +1824,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_RETURN:
 		{
-			if(!active || !selection || key.state != SDL_PRESSED) 
+			if(!isActive() || !selection || key.state != SDL_PRESSED) 
 				return;
 			if(selection->ID == HEROI_TYPE)
 				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(selection));
@@ -1883,7 +1878,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				k = arrowToNum(SDLKey(k));
 			}
 
-			if(!active || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
+			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
 				break;
 
 			k -= SDLK_KP0 + 1;
@@ -2003,7 +1998,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  active)
+	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  isActive())
 	{
 		if(sEvent.x<15)
 		{
@@ -2038,6 +2033,11 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 			scrollingDir &= ~DOWN;
 		}
 	}
+}
+
+bool CAdvMapInt::isActive()
+{
+	return active & ~CIntObject.KEYBOARD;
 }
 
 CAdventureOptions::CAdventureOptions()

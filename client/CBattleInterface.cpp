@@ -2327,13 +2327,13 @@ void CBattleInterface::hexLclicked(int whichOne)
 					giveCommand(9,whichOne,activeStack);
 				}
 			}
-			else if(dest->owner != attackingHeroInstance->tempOwner
+			else if(dest->owner != actSt->owner
 				&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne) ) //shooting
 			{
 				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 				giveCommand(7,whichOne,activeStack);
 			}
-			else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
+			else if(dest->owner != actSt->owner) //attacking
 			{
 				const CStack * actStack = LOCPLINT->cb->battleGetStackByID(activeStack);
 				int attackFromHex = -1; //hex from which we will attack chosen stack

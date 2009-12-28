@@ -69,7 +69,7 @@ static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
-static boost::thread *hhh;
+static boost::thread *mainGUIThread;
 
 SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
@@ -214,8 +214,8 @@ int main(int argc, char** argv)
 
 	CGI->musich->playMusic(musicBase::mainMenu, -1);
 
-	new CGPreGame; //will set CGP pointer to itself
-	hhh = new boost::thread(&CGPreGame::run, CGP);
+	GH.curInt = new CGPreGame; //will set CGP pointer to itself
+	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
 	listenForEvents();
 
 	return 0;
@@ -472,18 +472,18 @@ static void listenForEvents()
 		{
 			if (client)
 				client->stop();
-			if (hhh) {
-				CGP->terminate = true;
-				hhh->join();
-				delete hhh;
-				hhh = NULL;
+			if (mainGUIThread) 
+			{
+				GH.terminate = true;
+				mainGUIThread->join();
+				delete mainGUIThread;
+				mainGUIThread = NULL;
 			}
 			delete console;
 			console = NULL;
 			SDL_Delay(750);
 			SDL_Quit();
 			tlog0 << "Ending...\n";
-
 			break;
 		}
 		else if(LOCPLINT && ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
@@ -501,9 +501,12 @@ static void listenForEvents()
 			delete ev;
 			continue;
 		}
-		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) {
+		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) 
+		{
 			client->stop();
 			delete ev;
+
+			GH.curInt = CGP;
 			continue;
 		}
 
@@ -517,6 +520,7 @@ static void listenForEvents()
 
 void startGame(StartInfo * options) 
 {
+	GH.curInt =NULL;
 	if(gOnlyAI)
 	{
 		for (size_t i =0; i < options->playerInfos.size(); i++)
@@ -534,22 +538,18 @@ void startGame(StartInfo * options)
 		SDL_PushEvent(&ev);
 	}
 
-	CClient cl;
+	client = new CClient;
 	if(options->mode == 0) //new game
 	{
-		cl.newGame(NULL, options);
+		client->newGame(NULL, options);
 	}
 	else //load game
 	{
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
-		cl.loadGame(fname);
+		client->loadGame(fname);
 	}
 
-	client = &cl;
 	CGI->musich->stopMusic();
-	client->run();
-	LOCPLINT->terminate_cond.waitUntil(true);
-	client->endGame();
-	client = NULL;
+	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
