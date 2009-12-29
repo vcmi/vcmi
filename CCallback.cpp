@@ -815,6 +815,11 @@ int CCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	return gs->canBuildStructure(t,ID);
 }
 
+std::set<int> CCallback::getBuildingRequiments( const CGTownInstance *t, int ID )
+{
+	return gs->getBuildingRequiments(t,ID);
+}
+
 bool CCallback::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

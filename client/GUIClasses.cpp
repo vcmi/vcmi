@@ -16,6 +16,7 @@
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
 #include "../hch/CArtHandler.h"
+#include "../hch/CBuildingHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CLodHandler.h"
@@ -813,6 +814,10 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 			tlog1 << "Wrong subtype=" << Subtype << std::endl;
 		}
 		subtitle = oss.str();
+		break;
+	case building:
+		description = CGI->buildh->buildings[Subtype][Val]->Description();
+		subtitle = CGI->buildh->buildings[Subtype][Val]->Name();
 		break;
 	case secskill44: case secskill:
 		subtitle += CGI->generaltexth->levels[Val-1] + " " + CGI->generaltexth->skillName[Subtype];

@@ -157,9 +157,6 @@ void AdventureMapButton::clickRight(tribool down, bool previousState)
 
 void AdventureMapButton::hover (bool on)
 {
-	if(blocked)
-		return;
-
 	if(hoverable)
 	{
 		if(on)
@@ -586,7 +583,10 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 
 	if(style == 0)
 	{
-		imgs = CDefHandler::giveDefEss("IGPCRDIV.DEF");
+		if (horizontal)
+			imgs = CDefHandler::giveDefEss("IGPCRDIV.DEF");
+		else
+			imgs = CDefHandler::giveDefEss("OVBUTN2.DEF");
 		left->imgs.resize(1); right->imgs.resize(1); slider->imgs.resize(1);
 		left->imgs[0].push_back(imgs->ourImages[0].bitmap); left->imgs[0].push_back(imgs->ourImages[1].bitmap);
 		right->imgs[0].push_back(imgs->ourImages[2].bitmap); right->imgs[0].push_back(imgs->ourImages[3].bitmap);

@@ -227,12 +227,14 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 			if(boost::filesystem::is_regular(dir->status()))
 			{
 				std::string name = dir->path().leaf();
+				std::string realname = name;
 				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 				boost::algorithm::replace_all(name,".BMP",".PCX");
 				Entry * e = entries.znajdz(name);
 				if(e) //file present in .lod - overwrite its entry
 				{
 					e->offset = -1;
+					e->realName = realname;
 					e->realSize = e->size = boost::filesystem::file_size(dir->path());
 				}
 				else //file not present in lod - add entry for it
@@ -240,6 +242,7 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 					Entry e2;
 					e2.offset = -1;
 					e2.nameStr = name;
+					e2.realName = realname;
 					e2.realSize = e2.size = boost::filesystem::file_size(dir->path());
 					entries.push_back(e2);
 				}

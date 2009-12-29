@@ -40,7 +40,8 @@ struct LodEntry {
 struct Entry
 {
 	// Info extracted from LOD file
-	std::string nameStr;
+	std::string nameStr,
+		    realName;
 	int offset, //from beginning
 		realSize, //size without compression
 		size;	//and with

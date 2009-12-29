@@ -156,7 +156,7 @@ public:
 	virtual std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const=0;
 	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	
+	virtual std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) =0;
 	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const = 0;
 
@@ -273,6 +273,7 @@ public:
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited
 	const TerrainTile * getTileInfo(int3 tile) const;
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
 	const CGPathNode *getPathInfo(int3 tile);
 	bool getPath2(int3 dest, CGPath &ret);

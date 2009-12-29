@@ -373,6 +373,7 @@ public:
 	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
+	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile

@@ -2041,6 +2041,12 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		ssi.creatures[bid-30].second.push_back(crid);
 		sendAndApply(&ssi);
 	}
+	else if(bid == 11)
+		ns.bid.insert(27);
+	else if(bid == 12)
+		ns.bid.insert(28);
+	else if(bid == 13)
+		ns.bid.insert(29);
 
 	ns.bid.insert(bid);
 	ns.builded = t->builded + 1;

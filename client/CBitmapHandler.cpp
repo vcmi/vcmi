@@ -159,47 +159,38 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	if(e->offset<0)
 	{
-		fname.replace(fname.find_last_of('.'),fname.find_last_of('.')+4,".BMP");
+		fname = e->realName;
 		fname = DATA_DIR "/Data/" + fname;
 		FILE * f = fopen(fname.c_str(),"r");
-		if(f)
+		char sign[3];
+		f = fopen(fname.c_str(),"r");
+		if(!f)
+		{
+			tlog1 << "Cannot open " << fname << " - not present as bmp nor as pcx.\n";
+			return NULL; 
+		}
+		fread(sign,1,3,f);
+		if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
 		{
 			fclose(f);
 			return SDL_LoadBMP(fname.c_str());
 		}
-		else  //file .bmp not present, check .pcx
+		else //PCX - but we don't know which
 		{
-			char sign[3];
-			fname.replace(fname.find_last_of('.'),fname.find_last_of('.')+4,".PCX");
-			f = fopen(fname.c_str(),"r");
-			if(!f)
-			{
-				tlog1 << "Cannot open " << fname << " - not present as bmp nor as pcx.\n";
-				return NULL; 
-			}
-			fread(sign,1,3,f);
-			if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
+			if((sign[0]==10) && (sign[1]<6) && (sign[2]==1)) //ZSoft PCX
 			{
 				fclose(f);
-				return SDL_LoadBMP(fname.c_str());
+				return IMG_Load(fname.c_str());
 			}
-			else //PCX - but we don't know which
+			else //H3-style PCX
 			{
-				if((sign[0]==10) && (sign[1]<6) && (sign[2]==1)) //ZSoft PCX
-				{
-					fclose(f);
-					return IMG_Load(fname.c_str());
-				}
-				else //H3-style PCX
-				{
-					CPCXConv cp;
-					pcx = new unsigned char[e->realSize];
-					memcpy(pcx,sign,3);
-					int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
-					fclose(f);
-					cp.openPCX((char*)pcx,e->realSize);
-					return cp.getSurface();
-				}
+				CPCXConv cp;
+				pcx = new unsigned char[e->realSize];
+				memcpy(pcx,sign,3);
+				int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
+				fclose(f);
+				cp.openPCX((char*)pcx,e->realSize);
+				return cp.getSurface();
 			}
 		}
 	}

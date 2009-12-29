@@ -78,6 +78,7 @@ class CCastleInterface : public CWindowWithGarrison
 		int crid,bid;
 		CCreaInfo(int CRID, int BID); //c-tor
 		~CCreaInfo();//d-tor
+		int AddToString(std::string from, std::string & to, int numb);
 		void hover(bool on);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
@@ -128,6 +129,7 @@ public:
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);
+	void defaultBuildingClicked(int building);//for buildings with simple description + pic left-click messages
 	void enterTavern();
 	void enterMageGuild();
 	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
@@ -189,7 +191,7 @@ public:
 	AdventureMapButton *exit;
 
 	SDL_Surface * bg; //background
-
+	int bid;//building ID
 
 	CHallInterface(CCastleInterface * owner); //c-tor
 	~CHallInterface(); //d-tor

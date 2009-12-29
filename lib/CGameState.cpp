@@ -1797,9 +1797,46 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	return ret;
 }
 
+std::set<int> CGameState::getBuildingRequiments(const CGTownInstance *t, int ID)
+{
+	std::set<int> used;
+	used.insert(ID);
+	std::set<int> reqs = VLC->townh->requirements[t->subID][ID];
+
+	while(true)
+	{
+		size_t noloop=0;
+		for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+		{
+			if(used.find(*i)==used.end()) //we haven't added requirements for this building
+			{
+				used.insert(*i);
+				for(
+					std::set<int>::iterator j=VLC->townh->requirements[t->subID][*i].begin();
+					j!=VLC->townh->requirements[t->subID][*i].end();
+					j++)
+					{
+						reqs.insert(*j);//creating full list of requirements
+					}
+			}
+			else
+			{
+				noloop++;
+			}
+		}
+		if(noloop==reqs.size())
+			break;
+	}
+	return reqs;
+}
+
 int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	int ret = 7; //allowed by default
+
+	if(t->builded >= MAX_BUILDING_PER_TURN)
+		ret = 5; //building limit
+
 	//checking resources
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
 	
@@ -1813,9 +1850,9 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 
 	//checking for requirements
-	for( std::set<int>::iterator ri  =  VLC->townh->requirements[t->subID][ID].begin();
-		ri != VLC->townh->requirements[t->subID][ID].end();
-		ri++ )
+	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requiments
+
+	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
 		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
 			ret = 8; //lack of requirements - cannot build
@@ -1824,8 +1861,6 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	//can we build it?
 	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
 		ret = 2; //forbidden
-	else if(t->builded >= MAX_BUILDING_PER_TURN)
-		ret = 5; //building limit
 
 	if(ID == 13) //capitol
 	{

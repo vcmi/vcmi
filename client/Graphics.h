@@ -70,7 +70,8 @@ public:
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
 	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
 	CDefEssential * pskillsb, *resources; //82x93
-	CDefEssential * pskillsm; //42x42
+	CDefEssential * pskillsm; //42x42  primary skills
+	CDefEssential * pskillst; //32x32
 	CDefEssential * un44; //many things
 	CDefEssential * smallIcons, *resources32; //resources 32x32
 	CDefEssential * flags;

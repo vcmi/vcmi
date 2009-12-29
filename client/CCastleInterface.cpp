@@ -442,7 +442,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	garr->splitButtons.push_back(split);
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
-	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
 
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
 	townlist->genList();
@@ -622,11 +621,8 @@ void CCastleInterface::buildingClicked(int building)
 				GH.pushInt(cmw);
 				break;
 			}
-		case 15: //resource silo
-			{
-				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->Description(),std::vector<SComponent*>(), soundBase::sound_todo);
-				break;
-			}
+		//case 15: //resource silo - default handling should be enought
+
 		case 16: //blacksmith
 			{
 				const CGHeroInstance *hero = town->visitingHero;
@@ -662,7 +658,7 @@ void CCastleInterface::buildingClicked(int building)
 					break;
 
 				default:
-					tlog4<<"This building isn't handled...\n";
+					defaultBuildingClicked(building);
 					break;
 				}
 				break;
@@ -672,9 +668,19 @@ void CCastleInterface::buildingClicked(int building)
 		//TODO: case 25: //upg horde 2
 		//TODO: case 26: //grail
 		default:
-			tlog4<<"This building isn't handled...\n";
+				defaultBuildingClicked(building);
+				break;
 		}
 	}
+}
+void CCastleInterface::defaultBuildingClicked(int building)
+{
+	std::vector<SComponent*> comps(1,
+			new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
+
+	LOCPLINT->showInfoDialog(
+		CGI->buildh->buildings[town->subID][building]->Description(),
+		comps, soundBase::sound_todo);
 }
 
 void CCastleInterface::enterHall()
@@ -1034,7 +1040,7 @@ void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 	}
 };
 
-int AddToString(std::string from, std::string & to, int numb)
+int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to, int numb)
 {
 	if (!numb)
 		return 0;//do not add string if 0
@@ -1077,8 +1083,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				CGI->creh->creatures[crid].hordeGrowth);
 
 		cnt = 0;
-		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[0].dwellings.begin();
-			it !=CGI->state->players[0].dwellings.end(); ++it)
+		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
+			it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
 				if (CGI->creh->creatures[crid].idNumber == (*it)->creatures[0].second[0])
 					cnt++;//external dwellings count to summ
 		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
@@ -1362,7 +1368,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int id)
 	:BID(id)
 {
 	pos.w = 150;
-	pos.h = 70;
+	pos.h = 88;
 }
 CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 	:BID(id)
@@ -1370,7 +1376,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 	pos.x = x;
 	pos.y = y;
 	pos.w = 150;
-	pos.h = 70;
+	pos.h = 88;
 }
 
 
@@ -1382,6 +1388,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	resdatabar->pos.y += pos.y;
 	LOCPLINT->castleInt->statusbar->clear();
 	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
+	bid = owner->town->hallLevel()+10;
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	exit = new AdventureMapButton
 		(CGI->generaltexth->hcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
@@ -1457,6 +1464,7 @@ void CHallInterface::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	LOCPLINT->castleInt->statusbar->show(to);
+	printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(),400+pos.x,13+pos.y,GEORXX,zwykly,to);
 	resdatabar->show(to);
 	exit->show(to);
 	for(int i=0; i<5; i++)
@@ -1553,53 +1561,19 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 	case 8:
 		{
 			ret = CGI->generaltexth->allTexts[52];
-			std::set<int> used;
-			used.insert(bid);
-			std::set<int> reqs;
+			std::set<int> reqs= LOCPLINT->cb->getBuildingRequiments(LOCPLINT->castleInt->town, bid);
 
-			for(std::set<int>::iterator i=CGI->townh->requirements[tid][bid].begin();
-				i!=CGI->townh->requirements[tid][bid].end();
-				i++
-			  )
-			{
-				if (LOCPLINT->castleInt->town->builtBuildings.find(*i)   ==  LOCPLINT->castleInt->town->builtBuildings.end())
-					reqs.insert(*i);
-			}
-			while(true)
-			{
-				size_t czystych=0;
-				for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
-				{
-					if(used.find(*i)==used.end()) //we haven't added requirements for this building
-					{
-						used.insert(*i);
-						for(
-							std::set<int>::iterator j=CGI->townh->requirements[tid][*i].begin();
-							j!=CGI->townh->requirements[tid][*i].end();
-							j++
-								)
-						{
-							if(LOCPLINT->castleInt->town->builtBuildings.find(*j)   ==   //this building is not built
-													LOCPLINT->castleInt->town->builtBuildings.end())
-							reqs.insert(*j);
-						}
-					}
-					else
-					{
-						czystych++;
-					}
-				}
-				if(czystych==reqs.size())
-					break;
-			}
 			bool first=true;
 			for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
 			{
+				if (vstd::contains(LOCPLINT->castleInt->town->builtBuildings, *i))
+					continue;//skipping constructed buildings
 				ret+=(((first)?(" "):(", ")) + CGI->buildh->buildings[tid][*i]->Name());
-				first = false;
+				first = false;//TODO - currently can return "Mage guild lvl 1, MG lvl 2..." - extra check needed
 			}
 		}
 	}
+
 	return ret;
 }
 

@@ -292,6 +292,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(bigTownPic,"ITPT.DEF");
 	tasks += GET_DEF_ESS(pskillsb,"PSKILL.DEF");
 	tasks += GET_DEF_ESS(pskillsm,"PSKIL42.DEF");
+	tasks += GET_DEF_ESS(pskillst,"PSKIL32.DEF");
 	tasks += GET_DEF_ESS(resources,"RESOUR82.DEF");
 	tasks += GET_DEF_ESS(un44,"UN44.DEF");
 	tasks += GET_DEF_ESS(smallIcons,"ITPA.DEF");
