@@ -4220,24 +4220,11 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 	else
 	{
 		InfoWindow iw;
-		if (ID == 85)
-		{
-			iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
-			GiveBonus gbonus;
-			gbonus.hid = h->id;
-			gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
-			gbonus.bonus.source = HeroBonus::OBJECT;
-			gbonus.bonus.id = ID;
-			gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
-			gbonus.bonus.type = HeroBonus::MORALE;
-			gbonus.bonus.val = -1;
-			cb->giveHeroBonus(&gbonus);
-		}
 		iw.soundID = soundBase::GRAVEYARD;
 		iw.player = h->getOwner();
+		//if (ID == 16 || ID == 24 || ID == 25 || ID == 84)
 		iw.text << VLC->generaltexth->advobtxt[33];
-		if (ID == 16 || ID == 24 || ID == 85)
-			iw.text.addReplacement (VLC->objh->creBanksNames[index]);	
+		iw.text.addReplacement (VLC->objh->creBanksNames[index]);
 		cb->showInfoDialog(&iw);
 	}
 }
@@ -4260,7 +4247,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 
 		switch (ID)
 		{
-			case 16: case 25: case 84:
+			case 16: case 25:
 				textID = 34;
 				break;
 			case 24: //derelict ship
@@ -4268,8 +4255,37 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					textID = 43;
 				else
 				{
+					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+					GiveBonus gbonus;
+					gbonus.hid = h->id;
+					gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
+					gbonus.bonus.source = HeroBonus::OBJECT;
+					gbonus.bonus.id = ID;
+					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
+					gbonus.bonus.type = HeroBonus::MORALE;
+					gbonus.bonus.val = -2;
+					cb->giveHeroBonus(&gbonus);
 					textID = 42;
 					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+				}
+				break;
+			case 84: //Crypt
+				if (bc->resources.size() != 0)
+					textID = 121;
+				else
+				{
+					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+					GiveBonus gbonus;
+					gbonus.hid = h->id;
+					gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
+					gbonus.bonus.source = HeroBonus::OBJECT;
+					gbonus.bonus.id = ID;
+					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
+					gbonus.bonus.type = HeroBonus::MORALE;
+					gbonus.bonus.val = -1;
+					cb->giveHeroBonus(&gbonus);
+					textID = 120;
+					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
 				}
 				break;
 			case 85: //shipwreck
