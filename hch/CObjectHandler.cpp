@@ -167,7 +167,9 @@ void CObjectHandler::loadObjects()
 
 		for(int i=0; i<4; ++i) //reading levels
 		{
-			BankConfig bc;
+			banksInfo[g].push_back(new BankConfig);
+
+			BankConfig &bc = *banksInfo[g].back();
 			std::string buf;
 			char dump;
 			//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
@@ -210,8 +212,6 @@ void CObjectHandler::loadObjects()
 			istr >> bc.rewardDifficulty;
 			istr >> buf;
 			bc.easiest = atoi(buf.c_str());
-
-			banksInfo[g].push_back(bc);
 		}
 	}
 }
@@ -4076,9 +4076,9 @@ void CBank::reset(ui16 var1) //prevents desync
 	ui8 chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
 	{	
-		if (var1 < (chance += VLC->objh->banksInfo[index][i].chance))
+		if (var1 < (chance += VLC->objh->banksInfo[index][i]->chance))
 		{
- 			bc = &VLC->objh->banksInfo[index][i];
+ 			bc = VLC->objh->banksInfo[index][i];
 			break;
 		}
 	}
@@ -4125,7 +4125,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			multiplier = ((float)val)/100;
 			break;
 		case 13: //bank preset
-			bc = &VLC->objh->banksInfo[index][val];
+			bc = VLC->objh->banksInfo[index][val];
 			break;
 		case 14:
 			reset (val%100);

@@ -20,7 +20,7 @@
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_array.hpp>
-const ui32 version = 713;
+const ui32 version = 714;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
@@ -255,9 +255,13 @@ public:
 	bool saving;
 	std::map<ui16,CBasicPointerSaver*> savers; // typeID => CPointerSaver<serializer,type>
 
+	std::map<const void*, ui32> savedPointers;
+	bool smartPointerSerialization;
+
 	COSer()
 	{
 		saving=true;
+		smartPointerSerialization = true;
 	}
 
 	template<typename T> void registerType(const T * t=NULL)
@@ -303,6 +307,22 @@ public:
 		//if pointer is NULL then we don't need anything more...
 		if(!hlp)
 			return;
+
+		if(smartPointerSerialization)
+		{
+			std::map<const void*,ui32>::iterator i = savedPointers.find(data);
+			if(i != savedPointers.end())
+			{
+				//this pointer has been already serialized - write only it's id
+				*this << i->second;
+				return;
+			}
+
+			//give id to this pointer
+			ui32 pid = (ui32)savedPointers.size();
+			savedPointers[data] = pid;
+			*this << pid;
+		}
 
 		//write type identifier
 		ui16 tid = typeList.getTypeID(data);
@@ -438,10 +458,14 @@ public:
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	ui32 myVersion;
 
+	std::map<ui32, void*> loadedPointers;
+	bool smartPointerSerialization;
+
 	CISer()
 	{
 		saving = false;
 		myVersion = version;
+		smartPointerSerialization = true;
 	}
 
 	~CISer()
@@ -533,10 +557,28 @@ public:
 			return;
 		}
 
+		ui32 pid = -1; //pointer id (or maybe rather pointee id) 
+		std::map<ui32, void*>::iterator i = loadedPointers.end();
+		if(smartPointerSerialization)
+		{
+			*this >> pid; //get the id
+			i = loadedPointers.find(pid); //lookup
+
+			if(i != loadedPointers.end())
+			{
+				//we already got this pointer
+				data = static_cast<T>(i->second);
+				return;
+			}
+		}
+
 		//get type id
 		ui16 tid;
 		*this >> tid;
 		This()->loadPointerHlp(tid, data);
+
+		if(smartPointerSerialization && i == loadedPointers.end())
+			loadedPointers[pid] = data; //add loaded pointer to our lookup map
 	}
 
 	//that part of ptr deserialization was extracted to allow customization of its behavior in derived classes

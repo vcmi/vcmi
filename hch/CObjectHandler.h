@@ -938,7 +938,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & index & multiplier & artifacts & daycounter;
+		h & index & multiplier & artifacts & daycounter & bc;
 	}
 };
 class DLL_EXPORT CGPyramid : public CBank
@@ -1057,7 +1057,7 @@ class DLL_EXPORT CObjectHandler
 {
 public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
-	std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset]
+	std::map <ui32, std::vector <BankConfig*> > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 
 	void loadObjects();

@@ -2037,7 +2037,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 
 bool CAdvMapInt::isActive()
 {
-	return active & ~CIntObject.KEYBOARD;
+	return active & ~CIntObject::KEYBOARD;
 }
 
 CAdventureOptions::CAdventureOptions()

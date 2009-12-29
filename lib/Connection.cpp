@@ -47,6 +47,8 @@ CTypeList typeList;
 
 void CConnection::init()
 {
+	CISer::smartPointerSerialization = false;
+	COSer::smartPointerSerialization = false;
 	registerTypes(static_cast<CISer<CConnection>&>(*this));
 	registerTypes(static_cast<COSer<CConnection>&>(*this));
 #ifdef LIL_ENDIAN
