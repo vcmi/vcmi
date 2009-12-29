@@ -661,6 +661,8 @@ void CInfoWindow::show(SDL_Surface * to)
 	CSimpleWindow::show(to);
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->show(to);
+	if (slider)
+		slider->show(to);
 }
 
 CInfoWindow::~CInfoWindow()
@@ -686,6 +688,10 @@ void CInfoWindow::activate()
 }
 void CInfoWindow::sliderMoved(int to)
 {
+	/*slider->moveTo(to);
+		if(!slider) return; //ignore spurious call when slider is being created
+	*/
+	redraw();
 }
 void CInfoWindow::deactivate()
 {

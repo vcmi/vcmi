@@ -368,10 +368,6 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	return ret;
 }
 
-
-
-
-
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline)
 {
 	SDL_Surface * _or = NULL;
@@ -415,22 +411,26 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 
 	// Clip window size
 	amax(txts.second, 50);
-	if (txts.second > conf.cc.resy - 150)
-		ret->slider = new CSlider(ret->pos.x + ret->pos.w, ret->pos.y, txts.second, boost::bind (&CInfoWindow::sliderMoved, ret, _1), txts.second, txts.second, 0, false, 0);
-	else
-		ret->slider = NULL;
 	amax(txts.first, 80);
 	amax(txts.first, comps.w);
 	amax(txts.first, bw);
 
 	amin(txts.first, conf.cc.resx - 150);
-	amin(txts.second, conf.cc.resy - 150);
 
 	ret->bitmap = drawBox1 (txts.first + 2*SIDE_MARGIN, txts.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->pos.x=screen->w/2-(ret->pos.w/2);
 	ret->pos.y=screen->h/2-(ret->pos.h/2);
+	if (txts.second > conf.cc.resy - 150)
+	{
+		amin(txts.second, conf.cc.resy - 150);
+		ret->slider = new CSlider(ret->pos.x + ret->pos.w - SIDE_MARGIN, ret->pos.y + SIDE_MARGIN,
+			ret->pos.h - 2*SIDE_MARGIN, boost::bind (&CInfoWindow::sliderMoved, ret, _1), brtext->size(), brtext->size(), brtext->size()-1, false, 0);
+		//ret->bitmap->w -= ret->slider->pos.w; //crop text so that slider has more place for itself
+	}
+	else
+		ret->slider = NULL;
 
 	int curh = SIDE_MARGIN;
 	blitTextOnSur (txtg, fontHeight, curh, ret->bitmap);
