@@ -1197,6 +1197,26 @@ si32 CGHeroInstance::getArtPos(int aid) const
 	return -1;
 }
 
+/**
+ * Places an artifact in hero's backpack. If it's a big artifact equips it
+ * or discards it if it cannot be equipped.
+ */
+void CGHeroInstance::giveArtifact (ui32 aid)
+{
+	const CArtifact &artifact = VLC->arth->artifacts[aid];
+
+	if (artifact.isBig()) {
+		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) {
+			if (artifWorn.find(*it) == artifWorn.end()) {
+				artifWorn[*it] = aid;
+				break;
+			}
+		}
+	} else {
+		artifacts.push_back(aid);
+	}
+}
+
 void CGHeroInstance::recreateArtBonuses()
 {
 	//clear all bonuses from artifacts (if present) and give them again

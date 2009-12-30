@@ -25,16 +25,18 @@ public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
+	bool isBig () const;
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
+	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
 	EartClass aClass;
 	ui32 id;
 	std::list<HeroBonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & description & price & possibleSlots & aClass & id & bonuses;
+		h & name & description & price & possibleSlots & constituents & aClass & id & bonuses;
 	}
 };
 

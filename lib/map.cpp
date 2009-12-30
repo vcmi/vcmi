@@ -1005,7 +1005,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 			{
 				id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 				if(id!=artmask)
-					nhi->artifacts.push_back(id);
+					nhi->giveArtifact(id);
 			}
 		}
 	} //artifacts
@@ -1244,7 +1244,7 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 						{
 							id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 							if(id!=artmask)
-								cgh->artifacts.push_back(id);
+								cgh->giveArtifact(id);
 						}
 					}
 				} //artifacts

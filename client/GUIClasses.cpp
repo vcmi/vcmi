@@ -3696,10 +3696,11 @@ bool CArtPlace::fitsHere(const CArtifact * art)
 	if(!art)
 		return true;
 
-	// Anything can be placed in the backpack, except War Machines.
-	if (slotID >= 19 && !CGI->arth->isBigArtifact(art->id)
-		|| vstd::contains(art->possibleSlots, slotID))
-	{
+	// Anything can but War Machines can be placed in backpack.
+	if (slotID >= 19) {
+		return !CGI->arth->isBigArtifact(art->id);
+	} else if (vstd::contains(art->possibleSlots, slotID)) {
+		// TODO: Deal with combinational at dest and as src.
 		return true;
 	}
 

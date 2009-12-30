@@ -1673,10 +1673,10 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 					break;
 				}
 			}
-			if(i == art.possibleSlots.size()) //if haven't find proper slot, use backpack
+			if(i == art.possibleSlots.size() && !art.isBig()) //if haven't find proper slot, use backpack or discard big artifact
 				sha.artifacts.push_back(artid);
 		}
-		else //should be -1 => put artifact into backpack
+		else if (!art.isBig()) //should be -1 => put artifact into backpack
 		{
 			sha.artifacts.push_back(artid);
 		}
@@ -1687,7 +1687,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 		{
 			sha.artifWorn[position] = artid;
 		}
-		else
+		else if (!art.isBig())
 		{
 			sha.artifacts.push_back(artid);
 		}
@@ -2330,10 +2330,13 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		return false;
 	}
 
-	// TODO: This relates to bug #112, fix later.
-	// Make sure the artifacts are not war machines.
-	if ((srcSlot>=13 && srcSlot<=16) || (destSlot>=13 && destSlot<=16)) {
-		complain("Cannot move war machine!");
+	if (destSlot >= 19 && srcArtifact->isBig()) {
+		complain("Cannot put big artifacts in backpack!");
+		return false;
+	}
+
+	if (srcSlot == 16 || destSlot == 16) {
+		complain("Cannot move catapult!");
 		return false;
 	}
 
@@ -2375,9 +2378,26 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
  */
 bool CGameHandler::setArtifact(si32 heroID, ui16 slot, int artID)
 {
-	CGHeroInstance *hero = gs->getHero(heroID);
+	const CGHeroInstance *hero = gs->getHero(heroID);
 
-	// TODO: Deal with war machine placement.
+	if (artID != -1) {
+		const CArtifact &artifact = VLC->arth->artifacts[artID]; 
+
+		if (slot < 19 && !vstd::contains(artifact.possibleSlots, slot)) {
+			complain("Artifact does not fit!");
+			return false;
+		}
+
+		if (slot >= 19 && artifact.isBig()) {
+			complain("Cannot put big artifacts in backpack!");
+			return false;
+		}
+	}
+
+	if (slot == 16) {
+		complain("Cannot alter catapult slot!");
+		return false;
+	}
 
 	// Perform the exchange.
 	SetHeroArtifacts sha;

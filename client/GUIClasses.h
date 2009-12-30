@@ -674,11 +674,11 @@ public:
 	{
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
 		const CArtifact * srcArtifact;    // Held artifact.
-		const CArtifactsOfHero * srcAOH;    // Following two needed to uniquely identify the source.
-		int srcSlotID;                      //
+		const CArtifactsOfHero * srcAOH;  // Following two needed to uniquely identify the source.
+		int srcSlotID;                    //
 		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
-		int destSlotID;	                     // Needed to determine what kind of action was last taken in setHero
-		const CArtifact * destArtifact;    // For swapping.
+		int destSlotID;	                  // Needed to determine what kind of action was last taken in setHero
+		const CArtifact * destArtifact;   // For swapping.
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;

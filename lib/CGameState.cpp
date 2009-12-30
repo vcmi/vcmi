@@ -1448,7 +1448,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					hero->recreateArtBonuses();
 				}
 				else
-					hero->artifacts.push_back(toGive->id);
+					hero->giveArtifact(toGive->id);
 			}
 		}
 	}

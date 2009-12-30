@@ -35,6 +35,12 @@ const std::string & CArtifact::Description() const
 	else
 		return VLC->generaltexth->artifDescriptions[id];
 }
+
+bool CArtifact::isBig () const
+{
+	return VLC->arth->isBigArtifact(id);
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
@@ -78,6 +84,75 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		loadToIt(desc,buf,it,3);
 		if(desc[0] == '\"' && desc[desc.size()-1] == '\"')
 			desc = desc.substr(1,desc.size()-2);
+
+		// Fill in information about combined artifacts.
+		switch (nart.id) {
+			case 129: // Angelic Alliance
+				nart.constituents = new std::vector<ui32>(6);
+				*nart.constituents += 31, 32, 33, 34, 35, 36;
+				break;
+
+			case 130: // Cloak of the Undead King
+				nart.constituents = new std::vector<ui32>(3);
+				*nart.constituents += 54, 55, 56;
+				break;
+
+			case 131: // Elixir of Life
+				nart.constituents = new std::vector<ui32>(3);
+				*nart.constituents += 94, 95, 96;
+				break;
+
+			case 132: // Armor of the Damned
+				nart.constituents = new std::vector<ui32>(4);
+				*nart.constituents += 8, 14, 20, 26;
+				break;
+
+			case 133: // Statue of Legion
+				nart.constituents = new std::vector<ui32>(5);
+				*nart.constituents += 118, 119, 120, 121, 122;
+				break;
+
+			case 134: // Power of the Dragon Father
+				nart.constituents = new std::vector<ui32>(9);
+				*nart.constituents += 37, 38, 39, 40, 41, 42, 43, 44, 45;
+				break;
+
+			case 135: // Titan's Thunder
+				nart.constituents = new std::vector<ui32>(4);
+				*nart.constituents += 12, 18, 24, 30;
+				break;
+
+			case 136: // Admiral's Hat
+				nart.constituents = new std::vector<ui32>(2);
+				*nart.constituents += 71, 123;
+				break;
+
+			case 137: // Bow of the Sharpshooter
+				nart.constituents = new std::vector<ui32>(3);
+				*nart.constituents += 60, 61, 62;
+				break;
+
+			case 138: // Wizards' Well
+				nart.constituents = new std::vector<ui32>(3);
+				*nart.constituents += 73, 74, 75;
+				break;
+
+			case 139: // Ring of the Magi
+				nart.constituents = new std::vector<ui32>(3);
+				*nart.constituents += 76, 77, 78;
+				break;
+
+			case 140: // Cornucopia
+				nart.constituents = new std::vector<ui32>(4);
+				*nart.constituents += 109, 110, 111, 113;
+				break;
+
+			// TODO: WoG combinationals
+
+			default:
+				nart.constituents = NULL;
+				break;
+		}
 
 		if(!onlyTxt)
 			artifacts.push_back(nart);
