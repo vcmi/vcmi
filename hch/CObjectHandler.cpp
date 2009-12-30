@@ -1470,6 +1470,9 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 		case 12:
 			bonusingBuildings[val]->setProperty (12, 0);
 			break;
+		case 13: //add garrisoned hero to visitors
+			bonusingBuildings[val]->setProperty (4, garrisonHero->id);
+			break;
 	}
 }
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
@@ -2165,7 +2168,10 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
 		cb->changePrimSkill (heroID, what, val);
-		cb->setObjProperty (town->id, 11, id); //add to visitors
+		if (town->visitingHero == h)
+			cb->setObjProperty (town->id, 11, id); //add to visitors
+		else
+			cb->setObjProperty (town->id, 13, id); //then it must be garrisoned hero
 	}
 }
 bool CArmedInstance::needsLastStack() const
@@ -3060,6 +3066,11 @@ void CGPickable::chosen( int which, int heroID ) const
 		throw std::string("Unhandled treasure choice");
 	}
 	cb->removeObject(id);
+}
+
+const std::string & CGSeerHut::getHoverText() const
+{
+	return VLC->generaltexth->names[ID]; //TODO
 }
 
 void CGWitchHut::initObj()
@@ -4809,7 +4820,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 				case 2:
 					text = 27;
 					break;
-				default:
+				default:	
 					tlog2 << "Unrecognized subtype of cartographer" << std::endl;
 			}
 			BlockingDialog bd (true, false);

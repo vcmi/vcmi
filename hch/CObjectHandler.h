@@ -73,7 +73,10 @@ public:
 class CQuest
 {
 public:
-	ui8 missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain playe
+	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
+		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};
+
+	ui8 missionType;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 
 	ui32 m13489val;
@@ -586,14 +589,19 @@ class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
 {
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
-
 	si32 rID; //reward ID
 	si32 rVal; //reward value
+	ui8 textOption; //store randomized mission write-ups
+
+	void initObj() {};
+	const std::string & getHoverText() const;
+	void onHeroVisit (const CGHeroInstance * h) const {};
+	void finishQuest (const CGHeroInstance * h) const {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
-		h & rewardType & rID & rVal;
+		h & rewardType & rID & rVal & textOption;
 	}
 };
 
@@ -830,7 +838,7 @@ public:
 };
 
 
-class DLL_EXPORT CGKeys : public CGObjectInstance //Base class for Keymaster and guards, ToDo Border Gate
+class DLL_EXPORT CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {	
 public:
 	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
