@@ -4778,14 +4778,19 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			//ask if he wants to buy one
 			int text;
-			if (cb->getTile(pos)->tertype == 8) //water
-					text = 25;
-			else
+			switch (subID)
 			{
-				if (pos.z == 0)
+				case 0:
+					text = 25;
+					break;
+				case 1:
 					text = 26;
-				else
+					break;
+				case 2:
 					text = 27;
+					break;
+				default:
+					tlog2 << "Unrecognized subtype of cartographer" << std::endl;
 			}
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
