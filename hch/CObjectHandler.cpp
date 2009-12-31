@@ -3073,6 +3073,67 @@ void CGPickable::chosen( int which, int heroID ) const
 	cb->removeObject(id);
 }
 
+bool CQuest::checkQuest (const CGHeroInstance * h) const
+{
+	switch (missionType)
+	{
+		case MISSION_NONE:
+			return true;
+			break;
+		case MISSION_LEVEL:
+			if (m13489val <= h->level)
+				return true;
+			return false;
+			break;
+		case MISSION_PRIMARY_STAT:
+			for (int i = 0; i < 4; ++i)
+			{
+				if (m2stats[i] < h->primSkills[i])
+					return false;
+			}
+			return true;
+			break;
+		case MISSION_KILL_HERO:
+		case MISSION_KILL_CREATURE:
+			if (h->cb->getObj (m13489val))
+				return false; //if the pointer is not NULL
+			return true;
+			break;
+		case MISSION_ART:
+			for (int i = 0; i < m5arts.size(); ++i)
+			{
+				if (vstd::contains(h->artifacts, m5arts[i]))
+					continue;
+				if (vstd::contains(h->artifWorn, m5arts[i]))
+					continue;
+				return false; //if the artifact was not found
+			}
+			return true;
+			break;
+		case MISSION_ARMY:
+		case MISSION_RESOURCES:
+			for (int i = 0; i < 7; ++i) //including Mithril ?
+			{	//Quest has no direct access to callback
+				if (h->cb->getResource (h->tempOwner, i) < m7resources[i]) 
+					return false;
+			}
+			return true;
+			break;
+		case MISSION_HERO:
+			if (m13489val == h->ID)
+				return true;
+			return false;
+			break;
+		case MISSION_PLAYER:
+			if (m13489val == h->getOwner())
+				return true;
+			return false;
+			break;
+		default:
+			return false;
+	}
+}
+
 const std::string & CGSeerHut::getHoverText() const
 {
 	return VLC->generaltexth->names[ID]; //TODO

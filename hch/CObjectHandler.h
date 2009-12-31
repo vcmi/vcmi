@@ -87,6 +87,8 @@ public:
 
 	std::string firstVisitText, nextVisitText, completedText;
 
+	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest ic complete or not
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & missionType & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
