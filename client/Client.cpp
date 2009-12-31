@@ -173,6 +173,7 @@ void CClient::stop()
 	// Tell the network thread and interface thread to reach a stable state
 	terminate = true;
 	LOCPLINT->terminate = true;
+	LOCPLINT->pim->lock();
 	endGame();
 }
 

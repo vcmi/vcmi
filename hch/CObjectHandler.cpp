@@ -578,7 +578,12 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	int ret = std::min(2000, 1270+70*lowestSpeed(this)),
+	static const int moveForSpeed[] = { 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 }; //first element for 3 and lower; last for 11 and more
+	int index = lowestSpeed(this) - 3;
+	amin(index, ARRAY_COUNT(moveForSpeed)-1);
+	amax(index, 0);
+
+	int ret = moveForSpeed[index],
 		bonus = valOfBonuses(HeroBonus::MOVEMENT) + (onLand ? valOfBonuses(HeroBonus::LAND_MOVEMENT) : valOfBonuses(HeroBonus::SEA_MOVEMENT));
 
 	double modifier = 0;

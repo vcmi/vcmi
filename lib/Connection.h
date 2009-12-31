@@ -234,6 +234,7 @@ class CBasicPointerSaver
 {
 public:
 	virtual void savePtr(CSaverBase &ar, const void *data) const =0;
+	~CBasicPointerSaver(){}
 };
 
 template <typename Serializer, typename T> class CPointerSaver : public CBasicPointerSaver
@@ -262,6 +263,13 @@ public:
 	{
 		saving=true;
 		smartPointerSerialization = true;
+	}
+	~COSer()
+	{
+		std::map<ui16,CBasicPointerSaver*>::iterator iter;
+
+		for(iter = savers.begin(); iter != savers.end(); iter++)
+			delete iter->second;
 	}
 
 	template<typename T> void registerType(const T * t=NULL)
@@ -431,6 +439,7 @@ class CBasicPointerLoader
 {
 public:
 	virtual void loadPtr(CLoaderBase &ar, void *data) const =0; //data is pointer to the ACTUAL POINTER
+	virtual ~CBasicPointerLoader(){}
 };
 
 template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader

@@ -97,6 +97,8 @@ void FoWChange::applyCl( CClient *cl )
 		cl->playerint[player]->tileRevealed(tiles);
 	else
 		cl->playerint[player]->tileHidden(tiles);
+
+	GS(cl)->calculatePaths(cl->IGameCallback::getSelectedHero(player), *cl->pathInfo);
 }
 
 void SetAvailableHeroes::applyCl( CClient *cl )
