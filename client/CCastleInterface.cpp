@@ -1034,7 +1034,7 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 }
 void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 {
-	if(down)
+	if(previousState && (!down))
 	{
 		LOCPLINT->castleInt->showRecruitmentWindow(bid);
 	}
@@ -1169,7 +1169,7 @@ void CCastleInterface::CTownInfo::hover(bool on)
 }
 void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
 {
-	if(down)
+	if(previousState && (!down))
 		if (LOCPLINT->castleInt->town->builtBuildings.find(bid)!=LOCPLINT->castleInt->town->builtBuildings.end())
 			LOCPLINT->castleInt->buildingClicked(bid);//activate building
 }
@@ -1321,7 +1321,11 @@ void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
 void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 {
 	CCastleInterface *ci = LOCPLINT->castleInt;
-	blitAt(ci->bicons->ourImages[BID].bitmap,pos.x,pos.y,to);
+	if (( (BID == 18) && (vstd::contains(ci->town->builtBuildings,(ci->town->town->hordeLvl[0]+37))))
+	||  ( (BID == 24) && (vstd::contains(ci->town->builtBuildings,(ci->town->town->hordeLvl[1]+37)))) )
+		blitAt(ci->bicons->ourImages[BID+1].bitmap,pos.x,pos.y,to);		
+	else
+		blitAt(ci->bicons->ourImages[BID].bitmap,pos.x,pos.y,to);
 	int pom, pom2=-1;
 	switch (state)
 	{
@@ -1349,30 +1353,20 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 		blitAt(ci->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54,to);
 	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[ci->town->subID][BID]->Name(),pos.x-1+ci->bars->ourImages[0].bitmap->w/2,pos.y+71+ci->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly,to);
 }
-void CHallInterface::CBuildingBox::activate()
-{
-	activateHover();
-	activateLClick();
-	activateRClick();
-}
-void CHallInterface::CBuildingBox::deactivate()
-{
-	deactivateHover();
-	deactivateLClick();
-	deactivateRClick();
-}
 CHallInterface::CBuildingBox::~CBuildingBox()
 {
 }
 CHallInterface::CBuildingBox::CBuildingBox(int id)
 	:BID(id)
 {
+	used = LCLICK | RCLICK | HOVER;
 	pos.w = 150;
 	pos.h = 88;
 }
 CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 	:BID(id)
 {
+	used = LCLICK | RCLICK | HOVER;
 	pos.x = x;
 	pos.y = y;
 	pos.w = 150;
@@ -1797,16 +1791,6 @@ void CFortScreen::RecArea::clickLeft(tribool down, bool previousState)
 	}
 	//ClickableL::clickLeft(down);
 }
-void CFortScreen::RecArea::activate()
-{
-	activateLClick();
-	activateRClick();
-}
-void CFortScreen::RecArea::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-}
 
 void CFortScreen::RecArea::clickRight(tribool down, bool previousState)
 {
@@ -1931,20 +1915,6 @@ void CMageGuildScreen::Scroll::hover(bool on)
 	else
 		LOCPLINT->statusbar->clear();
 
-}
-
-void CMageGuildScreen::Scroll::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-}
-
-void CMageGuildScreen::Scroll::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
 }
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)

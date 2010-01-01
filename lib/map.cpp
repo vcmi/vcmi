@@ -39,21 +39,8 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 			ret.insert(mapa[*i]);
 		else if(mapa[*i]  >=  (-CREATURES_PER_TOWN)) // horde buildings
 		{
-			int level = (-mapa[*i]);
-			if(h3m.find(20+(level*3)) != h3m.end()) //upgraded creature horde building
-			{
-				if(((castleID==1 && level==5)  ||  (castleID==3 && level==3)))
-					ret.insert(25);
-				else
-					ret.insert(19);
-			}
-			//else
-			//{
-			if(((castleID==1 && level==5)  ||  (castleID==3 && level==3)))
-					ret.insert(24);
-				else
-					ret.insert(18);
-			//}
+			int level = (mapa[*i]);
+			ret.insert(level-30);//(-30)..(-36) - horde buildings (for game loading only), don't see other way to handle hordes in random towns
 		}
 		else
 		{

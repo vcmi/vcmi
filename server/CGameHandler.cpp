@@ -2018,11 +2018,15 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 
 	NewStructures ns;
 	ns.tid = tid;
-	if(bid>36) //upg dwelling
+	if ( (bid == 18) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[0]+37))) )
+		ns.bid.insert(19);//we have upgr. dwelling, upgr. horde will be builded as well
+	else if ( (bid == 24) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[1]+37))) )
+		ns.bid.insert(25);
+	else if(bid>36) //upg dwelling
 	{
-		if(t->getHordeLevel(0) == (bid-37))
-			ns.bid.insert(19);
-		else if(t->getHordeLevel(1) == (bid-37))
+		if ( (bid-37 == t->town->hordeLvl[0]) && (vstd::contains(t->builtBuildings,18)) )
+			ns.bid.insert(19);//we have horde, will be upgraded as well as dwelling
+		if ( (bid-37 == t->town->hordeLvl[1]) && (vstd::contains(t->builtBuildings,24)) )
 			ns.bid.insert(25);
 
 		SetAvailableCreatures ssi;

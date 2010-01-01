@@ -160,8 +160,6 @@ public:
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
-		void activate();
-		void deactivate();
 		CBuildingBox(int id); //c-tor
 		CBuildingBox(int id, int x, int y); //c-tor
 		~CBuildingBox(); //d-tor
@@ -207,11 +205,9 @@ class CFortScreen : public CIntObject
 	{
 	public:
 		int bid;
-		RecArea(int BID):bid(BID){}; //c-tor
+		RecArea(int BID):bid(BID){used = LCLICK | RCLICK;}; //c-tor
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
-		void activate();
-		void deactivate();
 	};
 public:
 	CMinorResDataBar * resdatabar;
@@ -239,12 +235,10 @@ public:
 	public:
 		CSpell *spell;
 
-		Scroll(CSpell *Spell):spell(Spell){};
+		Scroll(CSpell *Spell):spell(Spell){used = LCLICK | RCLICK | HOVER;};
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
-		void activate();
-		void deactivate();
 	};
 	std::vector<std::vector<SDL_Rect> > positions;
 

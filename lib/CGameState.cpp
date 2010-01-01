@@ -1124,6 +1124,28 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	}
 	return std::pair<int,int>(-1,-1);
 }
+
+void convertHordes(CGTownInstance * town)//converting hordes from -36..-30 to 18 & 24
+{
+for (int i = 0; i<CREATURES_PER_TOWN; i++)
+	if (vstd::contains(town->builtBuildings,(-31-i))) //if we have horde for this level
+	{
+		town->builtBuildings.erase(-31-i);//remove old ID
+		if (town->town->hordeLvl[0] == i)//if town first horde is this one
+		{
+			town->builtBuildings.insert(18);//add it
+			if (vstd::contains(town->builtBuildings,(37+i)))//if we have upgraded dwelling as well
+				town->builtBuildings.insert(19);//add it as well
+		}
+		if (town->town->hordeLvl[1] == i)//if town second horde is this one
+		{
+			town->builtBuildings.insert(24);//add it
+			if (vstd::contains(town->builtBuildings,(37+i)))//if we have upgraded dwelling as well
+				town->builtBuildings.insert(25);//add it as well
+		}
+	}
+}
+
 void CGameState::randomizeObject(CGObjectInstance *cur)
 {		
 	std::pair<int,int> ran = pickObject(cur);
@@ -1138,6 +1160,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 				t->defInfo = forts[t->subID];
 			else
 				t->defInfo = villages[t->subID]; 
+			convertHordes(t);
 		}
 		return;
 	}
@@ -1164,6 +1187,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			t->defInfo = forts[t->subID];
 		else
 			t->defInfo = villages[t->subID]; 
+		convertHordes(t);
 		map->towns.push_back(t);
 		return;
 	}
