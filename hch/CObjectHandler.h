@@ -82,12 +82,12 @@ public:
 	ui32 m13489val;
 	std::vector<ui32> m2stats;
 	std::vector<ui16> m5arts; //artifacts id
-	std::vector<std::pair<ui32, ui32> > m6creatures; //pair[cre id, cre count]
+	TSlots m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources;
 
 	std::string firstVisitText, nextVisitText, completedText;
 
-	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest ic complete or not
+	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -593,17 +593,18 @@ public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
 	si32 rID; //reward ID
 	si32 rVal; //reward value
-	ui8 textOption; //store randomized mission write-ups
+	ui8 textOption; //store randomized mission write-ups rather than entire string (?)
+	std::string * seerName;
 
-	void initObj() {};
+	void initObj();
 	const std::string & getHoverText() const;
-	void onHeroVisit (const CGHeroInstance * h) const {};
+	void onHeroVisit (const CGHeroInstance * h) const;
 	void finishQuest (const CGHeroInstance * h) const {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
-		h & rewardType & rID & rVal & textOption;
+		h & rewardType & rID & rVal & textOption & seerName;
 	}
 };
 

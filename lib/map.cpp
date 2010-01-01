@@ -2068,7 +2068,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			{
 				ui32 creType = readNormalNr(bufor,i, 2); i+=2;
 				ui32 creNumb = readNormalNr(bufor,i, 2); i+=2;
-				guard->m6creatures.push_back(std::make_pair(creType,creNumb));
+				guard->m6creatures[hh] = std::make_pair(creType,creNumb);
 			}
 			break;
 		}

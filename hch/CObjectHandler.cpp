@@ -1680,10 +1680,13 @@ void CGTownInstance::initObj()
 
 void CGTownInstance::newTurn() const
 {
-	if (cb->getDate(0)%7 == 1) //reset on new week
+	if (cb->getDate(0)%7 == 1 && subID == 5) //reset on new for week for Dungeon, needs to be moved if town list expands
 	{
 		for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
-			cb->setObjProperty (id, 12, 0); //reset visitors for Mana Vortex
+		{
+			if ((*i)->ID == 21)
+				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
+		}
 	}
 
 }
@@ -2096,7 +2099,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				}
 				break;
 			case 5: //Mana Vortex
-				if (visitors.find(heroID) == visitors.end() && h->mana <= h->manaLimit())
+				if (visitors.empty() && h->mana <= h->manaLimit())
 				{
 					cb->setManaPoints (heroID, 2 * h->manaLimit()); 
 					cb->setObjProperty (id, 5, true);
@@ -3094,6 +3097,10 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return true;
 			break;
 		case MISSION_KILL_HERO:
+			if (h->cb->getHero (m13489val)) //first we must check if the hero was ever alive
+				return false; //if the pointer is not NULL
+			return true;
+			break;
 		case MISSION_KILL_CREATURE:
 			if (h->cb->getObj (m13489val))
 				return false; //if the pointer is not NULL
@@ -3111,6 +3118,22 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return true;
 			break;
 		case MISSION_ARMY:
+			{
+				TSlots::const_iterator it, cre;
+				ui32 count;
+				for (cre = m6creatures.begin(); cre != m6creatures.end(); ++cre)
+				{
+					for (count = 0, it = h->army.slots.begin(); it !=  h->army.slots.end(); ++it)
+					{
+						if (it->second.first == cre->second.first)
+							count += it->second.second;
+					}
+					if (count < cre->second.second) //not enough creatures of this kind
+						return false;
+				}
+			}
+			return true;
+			break;
 		case MISSION_RESOURCES:
 			for (int i = 0; i < 7; ++i) //including Mithril ?
 			{	//Quest has no direct access to callback
@@ -3134,9 +3157,31 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 	}
 }
 
+void CGSeerHut::initObj()
+{
+	//seerName = & (VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()]);
+}
+
 const std::string & CGSeerHut::getHoverText() const
 {
 	return VLC->generaltexth->names[ID]; //TODO
+}
+
+void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if (missionType)
+	{
+	}
+	else
+	{
+		if (checkQuest(h))
+		{
+			finishQuest(h);
+		}
+		else
+		{
+		}
+	}
 }
 
 void CGWitchHut::initObj()
@@ -3987,6 +4032,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		txtid++;
 		if(ID == 105) //wagon has extra text (for finding art) we need to omit
 			txtid++;
+		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 	}
 	else //first visit - give bonus!
 	{

@@ -137,7 +137,7 @@ public:
 	void loadPuzzleInfo();
 
 	unsigned int level(ui64 experience); //calculates level corresponding to given experience amount
-	ui64 reqExp(unsigned int level); //calculates experience resuired for given level
+	ui64 reqExp(unsigned int level); //calculates experience required for given level
 
 	void loadHeroes();
 	void loadHeroClasses();
