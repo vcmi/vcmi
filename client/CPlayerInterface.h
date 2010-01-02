@@ -208,11 +208,13 @@ public:
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	bool moveHero(const CGHeroInstance *h, CGPath path);
+	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
+	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
+	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
 
-	bool terminate;				 // tell to terminate
 	CondSh<bool> terminate_cond; // confirm termination
 
 	//////////////////////////////////////////////////////////////////////////

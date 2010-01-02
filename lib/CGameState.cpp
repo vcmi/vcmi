@@ -60,6 +60,7 @@ class CBaseForGSApply
 {
 public:
 	virtual void applyOnGS(CGameState *gs, void *pack) const =0; 
+	virtual ~CBaseForGSApply(){};
 };
 template <typename T> class CApplyOnGS : public CBaseForGSApply
 {
@@ -82,6 +83,13 @@ public:
 	CGSApplier()
 	{
 		registerTypes2(*this);
+	}
+	~CGSApplier()
+	{
+		std::map<ui16,CBaseForGSApply*>::iterator iter;
+
+		for(iter = apps.begin(); iter != apps.end(); iter++)
+			delete iter->second;
 	}
 	template<typename T> void registerType(const T * t=NULL)
 	{

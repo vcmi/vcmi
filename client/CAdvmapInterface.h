@@ -203,5 +203,6 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	bool isActive();
+	void eraseCurrentPathOf( const CGHeroInstance * ho );
 };
 #endif // __CADVMAPINTERFACE_H__

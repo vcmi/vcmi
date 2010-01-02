@@ -550,10 +550,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 			CGPath &path = LOCPLINT->adventureInt->paths[currentHero];
 			currentPath = &path;
 			if(!LOCPLINT->cb->getPath2(mp, path))
-			{
-				LOCPLINT->adventureInt->paths.erase(currentHero);
-				currentPath = NULL;
-			}
+				LOCPLINT->adventureInt->eraseCurrentPathOf(currentHero);
 		}
 	} //end of hero is selected "case"
 }
@@ -2038,6 +2035,15 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 bool CAdvMapInt::isActive()
 {
 	return active & ~CIntObject::KEYBOARD;
+}
+
+void CAdvMapInt::eraseCurrentPathOf( const CGHeroInstance * ho )
+{
+	assert(vstd::contains(paths, ho));
+	assert(ho == selection);
+
+	paths.erase(ho);
+	terrain.currentPath = NULL;
 }
 
 CAdventureOptions::CAdventureOptions()

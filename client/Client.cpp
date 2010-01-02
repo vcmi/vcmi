@@ -48,6 +48,7 @@ class CBaseForCLApply
 public:
 	virtual void applyOnClAfter(CClient *cl, void *pack) const =0; 
 	virtual void applyOnClBefore(CClient *cl, void *pack) const =0; 
+	virtual ~CBaseForCLApply(){}
 };
 template <typename T> class CApplyOnCL : public CBaseForCLApply
 {
@@ -72,6 +73,13 @@ public:
 	CCLApplier()
 	{
 		registerTypes2(*this);
+	}
+	~CCLApplier()
+	{
+		std::map<ui16,CBaseForCLApply*>::iterator iter;
+
+		for(iter = apps.begin(); iter != apps.end(); iter++)
+			delete iter->second;
 	}
 	template<typename T> void registerType(const T * t=NULL)
 	{
@@ -130,38 +138,19 @@ void CClient::run()
 {
 	try
 	{
-		CPack *pack;
+		CPack *pack = NULL;
 		while(!terminate)
 		{
-			//get the package from the server
-			{
-				boost::unique_lock<boost::mutex> lock(*serv->rmx);
-				tlog5 << "Listening... ";
-				*serv >> pack;
-				tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
-			}
-
+			pack = retreivePack(); //get the package from the server
+			
 			if (terminate) 
 			{
 				delete pack;
+				pack = NULL;
 				break;
 			}
 
-			CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
-			if(apply)
-			{
-				apply->applyOnClBefore(this,pack);
-				tlog5 << "\tMade first apply on cl\n";
-				gs->apply(pack);
-				tlog5 << "\tApplied on gs\n";
-				apply->applyOnClAfter(this,pack);
-				tlog5 << "\tMade second apply on cl\n";
-			}
-			else
-			{
-				tlog1 << "Message cannot be applied, cannot find applier!\n";
-			}
-			delete pack;
+			handlePack(pack);
 			pack = NULL;
 		}
 	} HANDLE_EXCEPTION(tlog1 << "Lost connection to server, ending listening thread!\n");
@@ -170,9 +159,8 @@ void CClient::run()
 void CClient::stop()
 {
 	// Game is ending
-	// Tell the network thread and interface thread to reach a stable state
+	// Tell the network thread to reach a stable state
 	terminate = true;
-	LOCPLINT->terminate = true;
 	LOCPLINT->pim->lock();
 	endGame();
 }
@@ -484,16 +472,34 @@ void CClient::serialize( Handler &h, const int version )
 	}
 }
 
-//void CClient::sendRequest( const CPackForServer *request, bool waitForRealization )
-//{
-//	if(waitForRealization)
-//		waitingRequest.set(true);
-//
-//	*serv << request;
-//
-//	if(waitForRealization)
-//		waitingRequest.waitWhileTrue();
-//}
+CPack * CClient::retreivePack()
+{
+	CPack *ret = NULL;
+	boost::unique_lock<boost::mutex> lock(*serv->rmx);
+	tlog5 << "Listening... ";
+	*serv >> ret;
+	tlog5 << "\treceived server message of type " << typeid(*ret).name() << std::endl;
+	return ret;
+}
+
+void CClient::handlePack( CPack * pack )
+{			
+	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
+	if(apply)
+	{
+		apply->applyOnClBefore(this,pack);
+		tlog5 << "\tMade first apply on cl\n";
+		gs->apply(pack);
+		tlog5 << "\tApplied on gs\n";
+		apply->applyOnClAfter(this,pack);
+		tlog5 << "\tMade second apply on cl\n";
+	}
+	else
+	{
+		tlog1 << "Message cannot be applied, cannot find applier!\n";
+	}
+	delete pack;
+}
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );

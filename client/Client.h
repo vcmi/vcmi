@@ -6,6 +6,7 @@
 #include <boost/thread.hpp>
 #include "../lib/IGameCallback.h"
 #include "../lib/CondSh.h"
+#include <queue>
 
 /*
  * Client.h, part of VCMI engine
@@ -28,31 +29,6 @@ class CClient;
 struct CPathsInfo;
 
 void processCommand(const std::string &message, CClient *&client);
-namespace boost
-{
-	class mutex;
-	class condition_variable;
-}
-
-template <typename T>
-struct CSharedCond
-{
-	boost::mutex *mx;
-	boost::condition_variable *cv;
-	T *res;
-	CSharedCond(T*R)
-	{
-		res = R;
-		mx = new boost::mutex;
-		cv = new boost::condition_variable;
-	}
-	~CSharedCond()
-	{
-		delete res;
-		delete mx;
-		delete cv;
-	}
-};
 
 class CClient : public IGameCallback
 {
@@ -66,6 +42,9 @@ public:
 	CPathsInfo *pathInfo;
 
 	CondSh<bool> waitingRequest;
+
+	std::queue<CPack *> packs;
+	boost::mutex packsM;
 
 	void waitForMoveAndSend(int color);
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);
@@ -128,6 +107,8 @@ public:
 	
 	static void runServer(const char * portc);
 	void waitForServer();
+	CPack * retreivePack(); //gets from server next pack (allocates it with new)
+	void handlePack( CPack * pack ); //applies the given pack and deletes it
 
 	//////////////////////////////////////////////////////////////////////////
 

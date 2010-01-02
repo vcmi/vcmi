@@ -102,7 +102,6 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	SDL_setFramerate(mainFPSmng, 48);
 	//framerate keeper initialized
 	cingconsole = new CInGameConsole;
-	terminate = false;
 	terminate_cond.set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
@@ -220,36 +219,32 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	const CGHeroInstance * ho = cb->getHeroInfo(details.id); //object representing this hero
+	int3 hp = details.start;
 
 	adventureInt->centerOn(ho->pos); //actualizing screen pos
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.draw(screen2);
 
-	if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
-	{
-		adventureInt->paths.erase(ho); //if hero goes through teleport / gate his path will be erased
-		adventureInt->terrain.currentPath = NULL;
-		return;
-	}
 
-	int3 hp = details.start;
-
-	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero
+	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
+		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
+		{
+			adventureInt->eraseCurrentPathOf(ho);
+			return; //teleport - no fancy moving animation
+					//TODO: smooth disappear / appear effect
+		}
+
 		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
 		{
-			adventureInt->paths.erase(ho);
-			adventureInt->terrain.currentPath = NULL;
+			adventureInt->eraseCurrentPathOf(ho);
 		}
 		else if(adventureInt->terrain.currentPath  &&  details.result == TryMoveHero::SUCCESS) //&& hero is moving
 		{
 			//remove one node from the path (the one we went)
 			adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
 			if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
-			{
-				adventureInt->paths.erase(ho);
-				adventureInt->terrain.currentPath = NULL;
-			}
+				adventureInt->eraseCurrentPathOf(ho);
 		}
 	}
 
@@ -261,441 +256,26 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		return;
 	}
 
-	//initializing objects and performing first step of move
-	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
-	{
-		//ho->moveDir = 1;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, -31)));
+	initMovement(details, ho, hp);
 
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 33)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		//ho->moveDir = 2;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		//ho->moveDir = 3;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
-		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 33)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		//ho->moveDir = 4;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 0)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		//ho->moveDir = 5;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 31)));
-
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
-		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		//ho->moveDir = 6;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
-
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		//ho->moveDir = 7;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 31)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 63)));
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-	}
-	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		//ho->moveDir = 8;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 32)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-	}
 	//first initializing done
 	SDL_framerateDelay(mainFPSmng); // after first move
+
 	//main moving
 	for(int i=1; i<32; i+=2*sysOpts.heroMoveSpeed)
 	{
-		if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveX = i-32;
-			adventureInt->terrain.moveY = i-32;
-
-			subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
-			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
-			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
-			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 65+i, -31+i), ho->id);
-
-			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 1+i), ho->id);
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 1+i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 1+i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 1+i), ho->id);
-
-			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 33+i), ho->id);
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
-		}
-		else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveY = i-32;
-
-			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
-			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
-			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
-
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1+i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1+i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1+i), ho->id);
-
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
-		}
-		else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveX = -i+32;
-			adventureInt->terrain.moveY = i-32;
-
-			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
-			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
-			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
-			subRect(hp.x+1, hp.y-2, hp.z, genRect(32, 32, 95-i, -31+i), ho->id);
-
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 1+i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 1+i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 1+i), ho->id);
-			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 1+i), ho->id);
-
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 33+i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
-			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
-		}
-		else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveX = -i+32;
-
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
-			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 0), ho->id);
-
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 32), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
-			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
-		}
-		else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-		{
-			
-			//setting advmap shift
-			adventureInt->terrain.moveX = -i+32;
-			adventureInt->terrain.moveY = -i+32;
-
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
-			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, -1-i), ho->id);
-
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 31-i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 31-i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 31-i), ho->id);
-			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 31-i), ho->id);
-
-			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, -1-i, 63-i), ho->id);
-			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
-			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
-			subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
-		}
-		else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveY = -i+32;
-
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
-
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31-i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31-i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31-i), ho->id);
-
-			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
-			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
-			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
-		}
-		else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveX = i-32;
-			adventureInt->terrain.moveY = -i+32;
-
-			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, -1-i), ho->id);
-
-			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 31-i), ho->id);
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 31-i), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 31-i), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 31-i), ho->id);
-
-			subRect(hp.x-3, hp.y+1, hp.z, genRect(32, 32, -31+i, 63-i), ho->id);
-			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
-			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
-			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
-		}
-		else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-		{
-			//setting advmap shift
-			adventureInt->terrain.moveX = i-32;
-
-			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
-			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
-			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
-			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 0), ho->id);
-
-			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 32), ho->id);
-			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
-			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
-			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
-		}
+		movementPxStep(details, i, hp, ho);
 		adventureInt->updateScreen = true;
 		adventureInt->show(screen);
-		//LOCPLINT->adventureInt->show(); //updating screen
 		CSDL_Ext::update(screen);
-
-		SDL_Delay(5);
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
+
 	//finishing move
-
-	//restoring adventureInt->terrain.move*
-	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
-
-	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
-	{
-		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
-	}
-	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
-	}
-	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-	}
-
-	//restoring good rects
-	subRect(details.end.x-2, details.end.y-1, details.end.z, genRect(32, 32, 0, 0), ho->id);
-	subRect(details.end.x-1, details.end.y-1, details.end.z, genRect(32, 32, 32, 0), ho->id);
-	subRect(details.end.x, details.end.y-1, details.end.z, genRect(32, 32, 64, 0), ho->id);
-
-	subRect(details.end.x-2, details.end.y, details.end.z, genRect(32, 32, 0, 32), ho->id);
-	subRect(details.end.x-1, details.end.y, details.end.z, genRect(32, 32, 32, 32), ho->id);
-	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
-
-	//restoring good order of objects
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
-
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
-
+	finishMovement(details, hp, ho);
 	ho->isStanding = true;
+
 	//move finished
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.updateMove(ho);
@@ -1584,6 +1164,432 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	return 0;
 }
 
+void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
+{
+	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	{
+		//ho->moveDir = 1;
+		ho->isStanding = false;
+		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, -31)));
+
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 1)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 33)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
+	{
+		//ho->moveDir = 2;
+		ho->isStanding = false;
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
+	{
+		//ho->moveDir = 3;
+		ho->isStanding = false;
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
+		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -31)));
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 1)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 33)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
+	{
+		//ho->moveDir = 4;
+		ho->isStanding = false;
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 0)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
+	{
+		//ho->moveDir = 5;
+		ho->isStanding = false;
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -1)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 31)));
+
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
+		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
+	{
+		//ho->moveDir = 6;
+		ho->isStanding = false;
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
+
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
+	{
+		//ho->moveDir = 7;
+		ho->isStanding = false;
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 31)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
+	{
+		//ho->moveDir = 8;
+		ho->isStanding = false;
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 32)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+	}
+}
+
+void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho )
+{
+	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveX = i-32;
+		adventureInt->terrain.moveY = i-32;
+
+		subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
+		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
+		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
+		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 65+i, -31+i), ho->id);
+
+		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 1+i), ho->id);
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 1+i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 1+i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 1+i), ho->id);
+
+		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 33+i), ho->id);
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
+	}
+	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveY = i-32;
+
+		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
+		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
+		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1+i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1+i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1+i), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveX = -i+32;
+		adventureInt->terrain.moveY = i-32;
+
+		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
+		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
+		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
+		subRect(hp.x+1, hp.y-2, hp.z, genRect(32, 32, 95-i, -31+i), ho->id);
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 1+i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 1+i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 1+i), ho->id);
+		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 1+i), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 33+i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
+		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveX = -i+32;
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
+		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 0), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
+		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
+	{
+
+		//setting advmap shift
+		adventureInt->terrain.moveX = -i+32;
+		adventureInt->terrain.moveY = -i+32;
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
+		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, -1-i), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 31-i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 31-i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 31-i), ho->id);
+		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 31-i), ho->id);
+
+		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, -1-i, 63-i), ho->id);
+		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
+		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
+		subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
+	}
+	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveY = -i+32;
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31-i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31-i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31-i), ho->id);
+
+		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
+		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
+		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveX = i-32;
+		adventureInt->terrain.moveY = -i+32;
+
+		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, -1-i), ho->id);
+
+		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 31-i), ho->id);
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 31-i), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 31-i), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 31-i), ho->id);
+
+		subRect(hp.x-3, hp.y+1, hp.z, genRect(32, 32, -31+i, 63-i), ho->id);
+		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
+		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
+		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
+	{
+		//setting advmap shift
+		adventureInt->terrain.moveX = i-32;
+
+		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 0), ho->id);
+
+		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 32), ho->id);
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
+	}
+}
+
+void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )
+{
+	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
+
+	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	{
+		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
+	}
+	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
+	{
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
+	{
+		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x+1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
+	{
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
+	{
+		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+		delObjRect(hp.x+1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+	}
+	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-3, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
+	}
+	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+	}
+
+	//restoring good rects
+	subRect(details.end.x-2, details.end.y-1, details.end.z, genRect(32, 32, 0, 0), ho->id);
+	subRect(details.end.x-1, details.end.y-1, details.end.z, genRect(32, 32, 32, 0), ho->id);
+	subRect(details.end.x, details.end.y-1, details.end.z, genRect(32, 32, 64, 0), ho->id);
+
+	subRect(details.end.x-2, details.end.y, details.end.z, genRect(32, 32, 0, 32), ho->id);
+	subRect(details.end.x-1, details.end.y, details.end.z, genRect(32, 32, 32, 32), ho->id);
+	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
+
+	//restoring good order of objects
+	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
+
+	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
+}
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;
