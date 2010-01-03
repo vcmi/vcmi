@@ -61,7 +61,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib zdll.lib SDL_image.lib SDL_ttf.lib"
-				AdditionalLibraryDirectories="../../libs;"
+				AdditionalLibraryDirectories="D:\Programowanie\VCMI;../../libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
