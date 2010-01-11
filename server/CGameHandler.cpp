@@ -3389,19 +3389,13 @@ bool CGameHandler::buildBoat( ui32 objid )
 	NewObject no;
 	no.ID = 8;
 	if (obj->o->ID == TOWNI_TYPE)
-	{
-		switch ((static_cast<const CGTownInstance*>(obj))->alignment)
-		{
-		case 1: //good - standard
+	{ //check what kind  of creatures are avaliable in town
+		if (VLC->creh->creatures[(static_cast<const CGTownInstance*>(obj))->creatures[0].second[0]].isGood())
 			boatType = 1;
-			break;
-		case -1: //evil
+		else if (VLC->creh->creatures[(static_cast<const CGTownInstance*>(obj))->creatures[0].second[0]].isEvil())
 			boatType = 0;
-			break;
-		case 0: //neutral
+		else //neutral
 			boatType = 2;
-			break;
-		}
 	}
 	no.subID = boatType;
 	no.pos = tile + int3(1,0,0);
