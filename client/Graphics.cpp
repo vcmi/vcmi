@@ -294,6 +294,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(pskillsm,"PSKIL42.DEF");
 	tasks += GET_DEF_ESS(pskillst,"PSKIL32.DEF");
 	tasks += GET_DEF_ESS(resources,"RESOUR82.DEF");
+	tasks += GET_DEF_ESS(un32,"UN32.DEF");
 	tasks += GET_DEF_ESS(un44,"UN44.DEF");
 	tasks += GET_DEF_ESS(smallIcons,"ITPA.DEF");
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
@@ -676,3 +677,10 @@ int Font::getWidth(const char *text ) const
 
 	return ret;
 }
+/*
+void Font::WriteAt(const char *text, SDL_Surface *sur, int x, int y )
+{
+	 SDL_Surface *SDL_CreateRGBSurfaceFrom(pixels, w, h, 8, int pitch,
+                        224, 28, 3, 0);
+}
+*/

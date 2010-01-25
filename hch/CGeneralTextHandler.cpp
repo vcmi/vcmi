@@ -352,6 +352,15 @@ void CGeneralTextHandler::load()
 		allTexts.push_back(buflet);
 	}
 
+	std::string  stro = bitmaph->getTextFile("Overview.txt");
+	itr=0;
+	while(itr<stro.length()-1)
+	{
+		loadToIt(tmp, stro, itr, 3);
+		trimQuotation(tmp);
+		overview.push_back(tmp);
+	}
+
 	std::string  strs = bitmaph->getTextFile("ARRAYTXT.TXT");
 
 	itr=0;

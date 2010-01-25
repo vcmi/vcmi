@@ -33,6 +33,7 @@ public:
 	std::vector<std::string> primarySkillNames;
 	std::vector<std::string> jktexts;
 	std::vector<std::string> heroscrn;
+	std::vector<std::string> overview;//text for Kingdom Overview window
 
 	//artifacts
 	std::vector<std::string> artifEvents;

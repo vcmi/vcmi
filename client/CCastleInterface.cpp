@@ -621,52 +621,82 @@ void CCastleInterface::buildingClicked(int building)
 				GH.pushInt(cmw);
 				break;
 			}
-		//case 15: //resource silo - default handling should be enought
+		//case 15: //resource silo - default handling only
 
 		case 16: //blacksmith
-			{
-				const CGHeroInstance *hero = town->visitingHero;
-				if(!hero)
-				{
-					std::string pom = CGI->generaltexth->allTexts[273];
-					boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->Name());
-					LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
-					return;
-				}
-				int aid = town->town->warMachine;
-				int price = CGI->arth->artifacts[aid].price;
-				bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
-				if(vstd::contains(hero->artifWorn,ui16(aid+9))) //hero already has machine
-					possible = false;
-
-				GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id));
-				break;
-			}
-		//TODO: case 17: //special 1
-		//TODO: case 18: //basic horde 1
-		//TODO: case 19: //upg horde 1
-		case 20: //ship at shipyard
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
+			enterBlacksmith(town->town->warMachine);
 			break;
-		//TODO: case 21: //special 2
-		case 22: //special 3
+		case 17:
 			{
 				switch(town->subID)
 				{
-				case 0: //brotherhood of sword
-					enterTavern();
+	/*Rampart*/		case 1://Mystic Pond
+					enterFountain(building);
 					break;
-
+	/*Tower*/		case 2://Artifact Merchant
+	/*Dungeon*/		case 5://Artifact Merchant
+	/*Conflux*/		case 8://Artifact Merchant
+					tlog4<<"Artifact Merchant not handled\n";
+					break;
 				default:
 					defaultBuildingClicked(building);
 					break;
 				}
 				break;
 			}
-		//TODO: case 23: //special 4
-		//TODO: case 24: //basic horde 2
-		//TODO: case 25: //upg horde 2
-		//TODO: case 26: //grail
+		//case 18: //basic horde 1 - can't be selected
+		//case 19: //upg horde 1 - can't be selected
+		case 20: //ship at shipyard
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
+			break;
+		case 21: //special 2
+			{
+				switch(town->subID)
+				{
+	/*Rampart*/		case 1: //Fountain of Fortune
+					enterFountain(building);
+					break;
+	/*Stronghold*/		case 6: //Freelancer's Guild
+					tlog4<<"Freelancer's Guild not handled\n";
+					break;
+	/*Conflux*/		case 8: //Magic University
+					tlog4<<"Magic University not handled\n";
+					break;
+				default:
+					defaultBuildingClicked(building);
+					break;
+				}
+				break;
+			}
+		case 22: //special 3
+			{
+				switch(town->subID)
+				{
+	/*Castle*/		case 0: //brotherhood of sword
+					enterTavern();
+					break;
+	/*Inferno*/		case 3: //Castle Gate
+					tlog4<<"Castle Gate not handled\n";
+					break;
+	/*Necropolis*/		case 4: //Skeleton Transformer
+					tlog4<<"Skeleton Transformer not handled\n";
+					break;
+	/*Dungeon*/		case 5: //Portal of Summoning
+					tlog4<<"Portal of Summoning not handled\n";
+					break;
+	/*Stronghold*/		case 6: //Ballista Yard
+					enterBlacksmith(4);
+					break;
+				default:
+					defaultBuildingClicked(building);
+					break;
+				}
+				break;
+			}
+		//case 23: //special 4 - default handling only
+		//case 24: //basic horde 2 - can't be selected
+		//case 25: //upg horde 2 - can't be selected
+		//case 26: //grail - default handling only
 		default:
 				defaultBuildingClicked(building);
 				break;
@@ -676,11 +706,49 @@ void CCastleInterface::buildingClicked(int building)
 void CCastleInterface::defaultBuildingClicked(int building)
 {
 	std::vector<SComponent*> comps(1,
-			new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
+		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
 
 	LOCPLINT->showInfoDialog(
 		CGI->buildh->buildings[town->subID][building]->Description(),
 		comps, soundBase::sound_todo);
+}
+
+void CCastleInterface::enterFountain(int building)
+{
+	std::vector<SComponent*> comps(1,
+		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
+
+	std::string descr = CGI->buildh->buildings[town->subID][building]->Description();
+	if ( building == 21)//we need description for mystic pond as well
+	descr += "\n\n"+CGI->buildh->buildings[town->subID][17]->Description();
+//	if (true)//fountain was builded this week
+		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
+/*	else//fountain produced something;
+	{
+		descr+= "\n\n"+ CGI->generaltexth->allTexts[678];
+		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[resID]);
+		char buf[10];
+		SDL_itoa(ResCount,buf,10);
+		boost::algorithm::replace_first(descr,"%d",buf);
+	}*/
+	LOCPLINT->showInfoDialog(descr, comps, soundBase::sound_todo);
+}
+
+void CCastleInterface::enterBlacksmith(int ArtifactID)
+{
+	const CGHeroInstance *hero = town->visitingHero;
+	if(!hero)
+	{
+		std::string pom = CGI->generaltexth->allTexts[273];
+		boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->Name());
+		LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
+		return;
+	}
+	int price = CGI->arth->artifacts[ArtifactID].price;
+	bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
+	if(vstd::contains(hero->artifWorn,ui16(ArtifactID+9))) //hero already has machine
+		possible = false;
+	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
 }
 
 void CCastleInterface::enterHall()

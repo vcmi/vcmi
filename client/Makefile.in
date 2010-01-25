@@ -73,7 +73,9 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CCreatureAnimation.$(OBJEXT) \
 	vcmiclient-CCursorHandler.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
-	vcmiclient-CHeroWindow.$(OBJEXT) vcmiclient-CMT.$(OBJEXT) \
+	vcmiclient-CHeroWindow.$(OBJEXT) \
+	vcmiclient-CKingdomInterface.$(OBJEXT) \
+	vcmiclient-CMT.$(OBJEXT) \
 	vcmiclient-CMessage.$(OBJEXT) \
 	vcmiclient-CPlayerInterface.$(OBJEXT) \
 	vcmiclient-CPreGame.$(OBJEXT) \
@@ -296,6 +298,8 @@ vcmiclient_SOURCES = \
 	CGameInfo.h \
 	CHeroWindow.cpp \
 	CHeroWindow.h \
+	CKingdomInterface.cpp \
+	CKingdomInterface.h \
 	CMT.cpp \
 	CMessage.cpp \
 	CMessage.h \
@@ -421,6 +425,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CGameInfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CGameInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CHeroWindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CKingdomInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMessage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMusicHandler.Po@am__quote@
@@ -711,6 +716,20 @@ vcmiclient-CHeroWindow.obj: CHeroWindow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CHeroWindow.cpp' object='vcmiclient-CHeroWindow.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CHeroWindow.obj `if test -f 'CHeroWindow.cpp'; then $(CYGPATH_W) 'CHeroWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/CHeroWindow.cpp'; fi`
+
+vcmiclient-CKingdomInterface.o: CKingdomInterface.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CKingdomInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CKingdomInterface.Tpo -c -o vcmiclient-CKingdomInterface.o `test -f 'CKingdomInterface.cpp' || echo '$(srcdir)/'`CKingdomInterface.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-CKingdomInterface.Tpo $(DEPDIR)/vcmiclient-CKingdomInterface.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CKingdomInterface.cpp' object='vcmiclient-CKingdomInterface.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CKingdomInterface.o `test -f 'CKingdomInterface.cpp' || echo '$(srcdir)/'`CKingdomInterface.cpp
+
+vcmiclient-CKingdomInterface.obj: CKingdomInterface.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CKingdomInterface.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CKingdomInterface.Tpo -c -o vcmiclient-CKingdomInterface.obj `if test -f 'CKingdomInterface.cpp'; then $(CYGPATH_W) 'CKingdomInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/CKingdomInterface.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-CKingdomInterface.Tpo $(DEPDIR)/vcmiclient-CKingdomInterface.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CKingdomInterface.cpp' object='vcmiclient-CKingdomInterface.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CKingdomInterface.obj `if test -f 'CKingdomInterface.cpp'; then $(CYGPATH_W) 'CKingdomInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/CKingdomInterface.cpp'; fi`
 
 vcmiclient-CMT.o: CMT.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMT.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMT.Tpo -c -o vcmiclient-CMT.o `test -f 'CMT.cpp' || echo '$(srcdir)/'`CMT.cpp

@@ -130,6 +130,8 @@ public:
 	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);
 	void defaultBuildingClicked(int building);//for buildings with simple description + pic left-click messages
+	void enterFountain(int building);
+	void enterBlacksmith(int ArtifactID);//support for blacksmith + ballista yard
 	void enterTavern();
 	void enterMageGuild();
 	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
@@ -154,7 +156,7 @@ public:
 	{
 	public:
 		int BID;
-		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - already builded today, 6 - cannot afford, 7 - build, 8 - lack of requirements
 		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
 		void clickLeft(tribool down, bool previousState);

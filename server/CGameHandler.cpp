@@ -774,6 +774,9 @@ void CGameHandler::newTurn()
 	NewTurn n;
 	n.day = gs->day + 1;
 	n.resetBuilded = true;
+	
+	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
+	srand(time(NULL));
 
 	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
 
@@ -781,6 +784,10 @@ void CGameHandler::newTurn()
 	{
 		if(i->first == 255) continue;
 		else if(i->first > PLAYER_LIMIT) assert(0); //illegal player number!
+
+		std::pair<ui8,si32> playerGold(i->first,i->second.resources[6]);
+		hadGold.insert(playerGold); 
+		tlog1<<i->first<<" & "<<i->second.resources[6]<<"\n";
 
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
@@ -849,6 +856,20 @@ void CGameHandler::newTurn()
 		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
 		{
+			if  ( ((**j).subID == 1) && (gs->getDate(0)) && (player < PLAYER_LIMIT) )//this is rampart and not a first day
+			{
+				if (vstd::contains((**j).builtBuildings,22))//we have treasury
+				{
+					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
+				}
+				if (vstd::contains((**j).builtBuildings,17))//we have mystic pond
+				{//TODO: whole week pond should have message "pond produced %d" - need vars to store it
+					int restype = rand()%4+2;//bonus to random rare resource
+					restype = (restype==2)?1:restype;
+					int cnt = rand()%4+1;//with size 1..4
+					n.res[player][restype] += cnt;
+				}
+			}
 			SetAvailableCreatures sac;
 			sac.tid = (**j).id;
 			sac.creatures = (**j).creatures;

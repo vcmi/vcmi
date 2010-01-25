@@ -5,6 +5,7 @@
 #include "CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
+#include "CKingdomInterface.h"
 #include "CMessage.h"
 #include "SDL_Extensions.h"
 #include "CBitmapHandler.h"
@@ -1550,6 +1551,7 @@ CAdvMapInt::~CAdvMapInt()
 
 void CAdvMapInt::fshowOverview()
 {
+	GH.pushInt(new CKingdomInterface);
 }
 void CAdvMapInt::fswitchLevel()
 {

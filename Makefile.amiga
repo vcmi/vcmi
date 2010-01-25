@@ -12,6 +12,7 @@ SOURCES = AdventureMapButton.cpp \
 	CBattleInterface.cpp   		\
 	CCallback.cpp          		\
 	CCastleInterface.cpp   		\
+	CKingdomInterface.cpp  		\
 	CConsoleHandler.cpp    		\
 	CCursorHandler.cpp     		\
 	CGameInfo.cpp          		\

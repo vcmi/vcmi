@@ -54,6 +54,8 @@ vcmiclient_SOURCES =  \
 	CGameInfo.h \
 	CHeroWindow.cpp \
 	CHeroWindow.h \
+	CKingdomInterface.cpp \
+	CKingdomInterface.h \
 	CMT.cpp \
 	CMessage.cpp \
 	CMessage.h \
