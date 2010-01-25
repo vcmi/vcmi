@@ -33,7 +33,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp> 
+#include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
@@ -738,7 +738,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	
+
 	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
 		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
 
@@ -795,7 +795,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 		int charperline = 35;
 		if (pom.size() > 1)
-			charperline = 50; 
+			charperline = 50;
 		CSelWindow * temp = new CSelWindow(text, playerID, charperline, intComps, pom, askID);
 		GH.pushInt(temp);
 		intComps[0]->clickLeft(true, false);
@@ -903,7 +903,7 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 		return;
 	}
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);
-	graphics->heroWins[hero->subID] = infoWin(hero); 
+	graphics->heroWins[hero->subID] = infoWin(hero);
 	if (adventureInt->selection == hero)
 		adventureInt->infoBar.draw(screen);
 }
@@ -1067,8 +1067,8 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CGI->mh->printObject(obj);
 	//we might have built a boat in shipyard in opened town screen
-	if(obj->ID == 8 
-		&& LOCPLINT->castleInt  
+	if(obj->ID == 8
+		&& LOCPLINT->castleInt
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CGI->soundh->playSound(soundBase::newBuilding);
@@ -1143,7 +1143,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	std::map<std::time_t, int> dates; //save number => datestamp
 
 	directory_iterator enddir;
-	for (directory_iterator dir(DATA_DIR "/Games"); dir!=enddir; dir++)
+	for (directory_iterator dir(GVCMIDirs.UserPath + "/Games"); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{
