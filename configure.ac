@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.74b)			# Follow NAME_VER in global.h
+AC_INIT(vcmi, 0.75)			# Follow NAME_VER in global.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 

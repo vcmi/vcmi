@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Copyright (c) 2009 Frank Zago
-# 
+# Copyright (c) 2009,2010 Frank Zago
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@
 # Data files needed:
 #   data1.cab and data1.hdr from the original CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_074.zip
+#   the VCMI distribution: vcmi_075.zip
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -82,7 +82,7 @@ unrar x -o+ ../main4.wog
 #unrar x -o+ ../main8_optional.wog
 #unrar x -o+ ../main9_optional.wog
 
-rm -rf picsall Documentation Data data update 
+rm -rf picsall Documentation Data data update
 rm -f action.txt h3bitmap.txt H3sprite.txt InstMult.txt
 rm -f ACTION.TXT H3BITMAP.TXT H3SPRITE.TXT INSTMULT.TXT
 rm -f *.DLL *.dll *.fnt readme.txt *.exe *.EXE *.lod *.vid h3ab_ahd.snd
@@ -95,25 +95,25 @@ mv MAPS/* $DESTDIR/Maps
 rmdir MAPS
 mkdir $DESTDIR/Sprites
 mv *.MSK *.DEF $DESTDIR/Sprites
-mv * $DESTDIR/Data/ 
+mv * $DESTDIR/Data/
 
 cd ../../..
 
 
 # Extract Data from VCMI release
-# 3516139 2009-10-03 23:03 vcmi_074.zip
+# 3516139 2009-10-03 23:03 vcmi_075.zip
 
 rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_074.zip
+unzip ../vcmi_075.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
 find . -name "*.exe" | xargs rm -f
 rm -rf AI
-rm -f AUTHORS ChangeLog license.txt Microsoft.VC90.CRT.manifest 
+rm -f AUTHORS ChangeLog license.txt Microsoft.VC90.CRT.manifest
 rm -rf MP3
 rm -rf Games
 
