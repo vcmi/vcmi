@@ -11,6 +11,8 @@
 #include "../hch/CDefHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CTownHandler.h"
+#include "../lib/map.h"
 #include <boost/assign/std/vector.hpp> 
 #include <sstream>
 using namespace boost::assign;
