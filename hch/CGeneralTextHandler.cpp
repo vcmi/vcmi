@@ -440,6 +440,47 @@ void CGeneralTextHandler::load()
 		loadToIt(buffo,buf,it,3);
 		levels.push_back(buffo);
 	}
+	buf = bitmaph->getTextFile ("SEERHUT.TXT");
+	it = 0;
+	for (i = 0; i < 7; ++i) //misc description
+		loadToIt (dump,buf,it,3);
+	tlog5 << "\t\t Drop the crap\n";
+	seerEmpty.resize(6);
+	for (i = 0; i < 6; ++i)
+	{
+		loadToIt(tmp, buf, it, 4);
+		seerEmpty.push_back(tmp);
+	}
+	tlog5 << "\t\t Loaded empty\n";
+	int j,k;
+	quests.resize(6);
+	for (i = 0; i < 6; ++i)
+	{
+		quests[i].resize(5);
+		for (j = 0; j < 5; ++j)
+		{
+			quests[i][j].resize(6);
+			loadToIt (dump, buf, it, 4); //front desciption
+			for (k = 0; k < 6; ++k)
+			{
+				loadToIt (quests[i][j][k], buf, it, 4);
+				trimQuotation (quests[i][j][k]);
+			}
+		}
+	}
+	tlog5 << "\t\t Loaded quests\n";
+	for (i = 0; i < 6; ++i) //gap description
+		loadToIt(dump,buf,it,4);
+	seerNames.resize(48);
+	for (i = 0; i < 14; ++i) //additional tabs
+	{
+		loadToIt(seerNames[i], buf, it, 4);
+		loadToIt(dump, buf, it, 3);
+	}
+	tlog5 << "\t\t Loaded names1\n";
+	for (i = 14; i < 48; ++i)
+		loadToIt(seerNames[i], buf, it, 3);
+	tlog5 << "\t\t Loaded names2\n";
 }
 
 

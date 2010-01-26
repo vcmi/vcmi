@@ -61,6 +61,7 @@ public:
 	std::vector<std::string> terrainNames;
 	std::vector<std::string> randsign;
 	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
+	std::vector<std::string> seerEmpty;
 	std::vector <std::vector <std::vector <std::string> > >  quests; //[quest][type][index]
 	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
 	std::vector<std::string> seerNames;
