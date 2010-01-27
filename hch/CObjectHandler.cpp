@@ -3159,7 +3159,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 
 void CGSeerHut::initObj()
 {
-	seerName = & (VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()]);
+	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
 }
 
 const std::string & CGSeerHut::getHoverText() const

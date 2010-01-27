@@ -594,7 +594,7 @@ public:
 	si32 rID; //reward ID
 	si32 rVal; //reward value
 	ui8 textOption; //store randomized mission write-ups rather than entire string (?)
-	std::string * seerName;
+	std::string seerName;
 
 	void initObj();
 	const std::string & getHoverText() const;
