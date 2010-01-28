@@ -403,10 +403,10 @@ CKingdomInterface::CResIncomePic::CResIncomePic(int RID, CDefEssential * Mines)
 	pos.w = (resID!=7)?68:136;//gold pile is bigger
 	mines = Mines;
 
-	if ( ResID != 7)
+	if ( resID != 7)
 	{
 		MetaString ms;
-		ms << std::pair<ui8,ui32>(9,ResID);
+		ms << std::pair<ui8,ui32>(9,resID);
 		ms.toString(hoverText);
 	}
 	else
