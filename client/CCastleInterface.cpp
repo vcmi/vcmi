@@ -721,16 +721,16 @@ void CCastleInterface::enterFountain(int building)
 	std::string descr = CGI->buildh->buildings[town->subID][building]->Description();
 	if ( building == 21)//we need description for mystic pond as well
 	descr += "\n\n"+CGI->buildh->buildings[town->subID][17]->Description();
-//	if (true)//fountain was builded this week
+	if (town->bonusValue.first == 0)//fountain was builded this week
 		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
-/*	else//fountain produced something;
+	else//fountain produced something;
 	{
 		descr+= "\n\n"+ CGI->generaltexth->allTexts[678];
-		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[resID]);
+		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
 		char buf[10];
-		SDL_itoa(ResCount,buf,10);
+		SDL_itoa(town->bonusValue.second,buf,10);
 		boost::algorithm::replace_first(descr,"%d",buf);
-	}*/
+	}
 	LOCPLINT->showInfoDialog(descr, comps, soundBase::sound_todo);
 }
 

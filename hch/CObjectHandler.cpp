@@ -1478,6 +1478,12 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 		case 13: //add garrisoned hero to visitors
 			bonusingBuildings[val]->setProperty (4, garrisonHero->id);
 			break;
+		case 14:
+			bonusValue.first = val;
+			break;
+		case 15:
+			bonusValue.second = val;
+			break;			
 	}
 }
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
@@ -1680,16 +1686,27 @@ void CGTownInstance::initObj()
 
 void CGTownInstance::newTurn() const
 {
-	if (cb->getDate(0)%7 == 1 && subID == 5) //reset on new for week for Dungeon, needs to be moved if town list expands
+	if (cb->getDate(1) == 1) //reset on new week
 	{
-		for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
+		if (vstd::contains(builtBuildings,17) && subID == 1 && cb->getDate(0) && (tempOwner < PLAYER_LIMIT) )//give resources for Rampart, Mystic Pond
+		{
+			int resID = rand()%4+2;//bonus to random rare resource
+			resID = (resID==2)?1:resID;
+			int resVal = rand()%4+1;//with size 1..4
+			cb->giveResource(tempOwner, resID, resVal);
+			cb->setObjProperty (id, 14, resID);
+			cb->setObjProperty (id, 15, resVal);
+		}
+
+		if ( subID == 5 )
+			for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 		{
 			if ((*i)->ID == 21)
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
 		}
 	}
-
 }
+
 int3 CGTownInstance::getSightCenter() const
 {
 	return pos - int3(2,0,0);

@@ -856,20 +856,9 @@ void CGameHandler::newTurn()
 		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
 		{
-			if  ( ((**j).subID == 1) && (gs->getDate(0)) && (player < PLAYER_LIMIT) )//this is rampart and not a first day
-			{
-				if (vstd::contains((**j).builtBuildings,22))//we have treasury
-				{
+			if  ( (**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT
+				&& vstd::contains((**j).builtBuildings,22) )//dwarven treasury
 					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
-				}
-				if (vstd::contains((**j).builtBuildings,17))//we have mystic pond
-				{//TODO: whole week pond should have message "pond produced %d" - need vars to store it
-					int restype = rand()%4+2;//bonus to random rare resource
-					restype = (restype==2)?1:restype;
-					int cnt = rand()%4+1;//with size 1..4
-					n.res[player][restype] += cnt;
-				}
-			}
 			SetAvailableCreatures sac;
 			sac.tid = (**j).id;
 			sac.creatures = (**j).creatures;
@@ -2936,7 +2925,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		cheated = false;
 	if(cheated)
 	{
-		sendAndApply(&SystemMessage("CHEATER!!!"));
+		sendAndApply(&SystemMessage(VLC->generaltexth->allTexts[260]));
 	}
 }
 

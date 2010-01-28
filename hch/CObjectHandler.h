@@ -428,6 +428,7 @@ public:
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::set<CCastleEvent> events;
+	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -435,7 +436,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
+		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings & bonusValue
 			& possibleSpells & obligatorySpells & spells & /*strInfo & */events & bonusingBuildings;
 
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)

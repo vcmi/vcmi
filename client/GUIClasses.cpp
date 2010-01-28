@@ -3712,6 +3712,24 @@ CArtPlace::~CArtPlace()
 	deactivate();
 }
 
+void HoverableArea::hover (bool on)
+{
+	if (on)
+		LOCPLINT->statusbar->print(hoverText);
+	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
+		LOCPLINT->statusbar->clear();
+}
+
+void HoverableArea::activate()
+{
+	activateHover();
+}
+
+void HoverableArea::deactivate()
+{
+	deactivateHover();
+}
+
 void LClickableArea::activate()
 {
 	activateLClick();
@@ -3768,14 +3786,6 @@ void LRClickableAreaWText::deactivate()
 	RClickableArea::deactivate();
 	deactivateHover();
 }
-void LRClickableAreaWText::hover(bool on)
-{
-	//Hoverable::hover(on);
-	if (on)
-		LOCPLINT->statusbar->print(hoverText);
-	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
-		LOCPLINT->statusbar->clear();
-}
 
 void LClickableAreaHero::clickLeft(tribool down, bool previousState)
 {
@@ -3813,14 +3823,6 @@ void LRClickableAreaWTextComp::deactivate()
 	LClickableArea::deactivate();
 	RClickableArea::deactivate();
 	deactivateHover();
-}
-void LRClickableAreaWTextComp::hover(bool on)
-{
-	//Hoverable::hover(on);
-	if (on)
-		LOCPLINT->statusbar->print(hoverText);
-	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
-		LOCPLINT->statusbar->clear();
 }
 
 void CArtifactsOfHero::activate()

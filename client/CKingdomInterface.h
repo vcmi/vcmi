@@ -13,6 +13,7 @@ class CResDataBar;
 class CStatusBar;
 class CSlider;
 class CMinorResDataBar;
+class HoverableArea;
 
 /*
  * CKingdomInterface.h, part of VCMI engine
@@ -26,19 +27,11 @@ class CMinorResDataBar;
 
 class CKingdomInterface : public CIntObject
 {
-/*	class CDwellingList : public
-	{
-	public:
-		void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-		void genList();
-		void select(int which);
-		void draw(SDL_Surface * to);
-		int size(); //how many elements do we have
-	}*/
 	class CResIncomePic : public CIntObject
 	{
 	public:
 		int resID,value;//resource ID
+		std::string hoverText;
 		CResIncomePic(int RID, CDefEssential * Mines);//c-tor
 		~CResIncomePic();//d-tor
 		void hover(bool on);
@@ -48,12 +41,12 @@ class CKingdomInterface : public CIntObject
 	class CTownItem : public CIntObject
 	{
 	public:
-		int numb;//position on screen (1..4)
+		int numb;//position on screen (1..size)
 		const CGTownInstance * town;
 		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
-		CTownItem (int num, const CGTownInstance * Town);//c-tor
+		CTownItem (int num);//c-tor
 		~CTownItem();//d-tor
 	};
 	class CHeroItem : public CIntObject
@@ -65,27 +58,36 @@ class CKingdomInterface : public CIntObject
 		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
-		CHeroItem (int num, const CGHeroInstance * Hero);//c-tor
+		CHeroItem (int num);//c-tor
 		~CHeroItem();//d-tor
 	};
 public:
 	//common data
-	int state;//0 = initialisation 1 = towns showed, 2 = heroes;
+	int state;//1 = towns showed, 2 = heroes;
 	SDL_Surface * bg;//background
 	CStatusBar * statusbar;//statusbar
 	CResDataBar *resdatabar;//resources
 
+	//buttons
 	AdventureMapButton *exit;//exit button
 	AdventureMapButton *toTowns;//town button
 	AdventureMapButton *toHeroes;//hero button
 	CDefEssential * title; //title bar
+
 	//hero/town lists
-	bool showHarrisoned;//show harrisoned hero in heroes list or not
 	CSlider * slider;//slider
-	int heroPos,townPos,size;//position of lists; size of list
+	bool showHarrisoned;//show harrisoned hero in heroes list or not, disabled by default
+	int heroPos,townPos;//position of lists
 	std::vector<CHeroItem *> heroes;//heroes list
 	std::vector<CTownItem *> towns;//towns list
 	static CDefEssential * slots, *fort, *hall;
+
+	//objects list
+	int objSize, objPos;
+	CDefEssential *objPics;
+	std::map<int,std::pair<int, std::string*> > objList; //dwelling ID, count, hover text
+	std::vector <HoverableArea* > ObjList;//list of dwellings
+	AdventureMapButton* ObjUp, *ObjDown, *ObjTop, *ObjBottom;//buttons for dwellings list
 
 	//income pics
 	std::vector<CResIncomePic *> incomes;//mines + incomes
@@ -93,6 +95,7 @@ public:
 
 	CKingdomInterface(); //c-tor
 	~CKingdomInterface(); //d-tor
+	void moveObjectList(int newPos);
 	void recreateHeroList(int pos);//recreating heroes list (on slider move)
 	void recreateTownList(int pos);//same for town list
 	void keyPressed(const SDL_KeyboardEvent & key);

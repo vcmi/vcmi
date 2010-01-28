@@ -586,6 +586,14 @@ public:
 	CInGameConsole(); //c-tor
 };
 
+class HoverableArea: public virtual CIntObject
+{
+public:
+	std::string hoverText;
+	virtual void hover (bool on);
+	virtual void activate();
+	virtual void deactivate();
+};
 
 class LClickableArea: public virtual CIntObject
 {
@@ -611,28 +619,26 @@ public:
 	virtual void clickLeft(tribool down, bool previousState);
 };
 
-class LRClickableAreaWText: public LClickableArea, public RClickableArea
+class LRClickableAreaWText: public LClickableArea, public RClickableArea, public HoverableArea
 {
 public:
-	std::string text, hoverText;
+	std::string text;
 	virtual void activate();
 	virtual void deactivate();
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
-	virtual void hover(bool on);
 };
 
-class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea
+class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea, public HoverableArea
 {
 public:
-	std::string text, hoverText;
+	std::string text;
 	int baseType;
 	int bonus, type;
 	virtual void activate();
 	virtual void deactivate();
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
-	virtual void hover(bool on);
 };
 
 class CArtPlace: public LRClickableAreaWTextComp

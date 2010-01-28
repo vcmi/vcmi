@@ -1168,7 +1168,6 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 				t->defInfo = forts[t->subID];
 			else
 				t->defInfo = villages[t->subID]; 
-			//convertHordes(t);
 		}
 		return;
 	}
@@ -1195,7 +1194,6 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			t->defInfo = forts[t->subID];
 		else
 			t->defInfo = villages[t->subID]; 
-		convertHordes(t);
 		map->towns.push_back(t);
 		return;
 	}
@@ -1503,7 +1501,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			if(ran()%2)
 				vti->builtBuildings.insert(31);
 		}
-
+		convertHordes(vti);
 		//init spells
 		vti->spells.resize(SPELL_LEVELS);
 		CSpell *s;
