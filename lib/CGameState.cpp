@@ -1168,7 +1168,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 				t->defInfo = forts[t->subID];
 			else
 				t->defInfo = villages[t->subID]; 
-			convertHordes(t);
+			//convertHordes(t);
 		}
 		return;
 	}
