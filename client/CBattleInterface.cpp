@@ -1139,6 +1139,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	bFlee = new AdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
 	bAutofight  = new AdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
 	bSpell = new AdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
+	bSpell->block(true);
 	bWait = new AdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, boost::bind(&CBattleInterface::bWaitf,this), 696 + pos.x, 561 + pos.y, "icm006.def", SDLK_w);
 	bDefence = new AdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, boost::bind(&CBattleInterface::bDefencef,this), 747 + pos.x, 561 + pos.y, "icm007.def", SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
@@ -2178,7 +2179,8 @@ void CBattleInterface::newRound(int number)
 	console->addText(CGI->generaltexth->allTexts[412]);
 
 	//unlock spellbook
-	bSpell->block(!LOCPLINT->cb->battleCanCastSpell());
+	//bSpell->block(!LOCPLINT->cb->battleCanCastSpell());
+	//don't unlock spellbook - this should be done when we have axctive creature
 
 	//handle regeneration
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
@@ -2739,16 +2741,8 @@ void CBattleInterface::activateStack()
 	bWait->block(vstd::contains(LOCPLINT->cb->battleGetStackByID(activeStack)->state,WAITING)); //block waiting button if stack has been already waiting
 
 	//block cast spell button if hero doesn't have a spellbook
-	if(attackingHeroInstance && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
-	{
-		if(!attackingHeroInstance->getArt(17)) //don't unlock if already locked
-			bSpell->block(!attackingHeroInstance->getArt(17));
-	}
-	else if(defendingHeroInstance && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
-	{
-		if(!defendingHeroInstance->getArt(17)) //don't unlock if already locked
-			bSpell->block(!defendingHeroInstance->getArt(17));
-	}
+	bSpell->block(!LOCPLINT->cb->battleCanCastSpell());
+
 	GH.fakeMouseMove();
 
 	if(!pendingAnims.size() && !active)
