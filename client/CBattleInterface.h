@@ -73,6 +73,19 @@ public:
 	CBattleAnimation(CBattleInterface * _owner);
 };
 
+class CDummyAnim : public CBattleAnimation
+{
+private:
+	int counter;
+	int howMany;
+public:
+	bool init();
+	void nextFrame();
+	void endAnim();
+
+	CDummyAnim(CBattleInterface * _owner, int howManyFrames);
+};
+
 class CSpellEffectAnim : public CBattleAnimation
 {
 private:

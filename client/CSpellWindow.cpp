@@ -669,8 +669,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(LOCPLINT->battleInt && LOCPLINT->cb->battleCanCastSpell() && LOCPLINT->cb->getSpellCost(&CGI->spellh->spells[mySpell], owner->myHero) <= owner->myHero->mana) //if battle window is open
 		{
-			LOCPLINT->battleInt->castThisSpell(mySpell);
+			int spell = mySpell;
 			owner->fexitb();
+			LOCPLINT->battleInt->castThisSpell(spell);
 		}
 	}
 }

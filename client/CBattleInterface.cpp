@@ -114,6 +114,33 @@ CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
 : owner(_owner), ID(_owner->animIDhelper++)
 {}
 
+//Dummy animation
+
+
+bool CDummyAnim::init()
+{
+	return true;
+}
+
+void CDummyAnim::nextFrame()
+{
+	counter++;
+	if(counter > howMany)
+		endAnim();
+}
+
+void CDummyAnim::endAnim()
+{
+	CBattleAnimation::endAnim();
+
+	delete this;
+}
+
+CDummyAnim::CDummyAnim(CBattleInterface * _owner, int howManyFrames) : CBattleAnimation(_owner), howMany(howManyFrames), counter(0)
+{
+}
+
+
 //effect animation
 bool CSpellEffectAnim::init()
 {
@@ -1480,12 +1507,16 @@ void CBattleInterface::show(SDL_Surface * to)
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
+		if(creAnims.find(j->second.ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+			continue;
 		if(creAnims[j->second.ID]->getType() != 5 && j->second.position >= 0) //don't show turrets here
 			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
 	std::vector<int> stackDeadByHex[BFIELD_SIZE];
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
+		if(creAnims.find(j->second.ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+			continue;
 		if(creAnims[j->second.ID]->getType() == 5)
 			stackDeadByHex[j->second.position].push_back(j->second.ID);
 	}
@@ -2601,6 +2632,9 @@ void CBattleInterface::spellCast(SpellCast * sc)
 			displayEffect(spell.mainEffectAnim, LOCPLINT->cb->battleGetStackByID(*it, false)->position);
 		}
 		break;
+	case 66: case 67: case 68: case 69: //summon elemental
+		addNewAnim(new CDummyAnim(this, 2));
+		break;
 	} //switch(sc->id)
 
 	//support for resistance
@@ -2699,14 +2733,15 @@ void CBattleInterface::castThisSpell(int spellID)
 	{
 		spellSelMode = 4;
 	}
+	if(CGI->spellh->spells[spellID].range[ castingHero->getSpellSchoolLevel(&CGI->spellh->spells[spellID]) ] == "X") //spell has no range
+	{
+		spellSelMode = -1;
+	}
 	if(spellSelMode == -1) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;
 		LOCPLINT->cb->battleMakeAction(spellToCast);
-		delete spellToCast;
-		spellToCast = NULL;
-		spellDestSelectMode = false;
-		CGI->curh->changeGraphic(1, 6);
+		endCastingSpell();
 	}
 	else
 	{

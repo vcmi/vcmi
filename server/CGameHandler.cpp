@@ -2721,13 +2721,15 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("catapult tried to attack non-catapultable hex!");
 				break;
 			}
+			int wallInitHP = gs->curB->si.wallState[attackedPart];
+			int dmgAlreadyDealt = 0; //in successive iterations damage is dealt but not yet substracted from wall's HPs
 			for(int g=0; g<sbi.shots; ++g)
 			{
-				if(gs->curB->si.wallState[attackedPart] == 3) //it's not destroyed
+				if(wallInitHP + dmgAlreadyDealt == 3) //it's not destroyed
 					continue;
 				
 				CatapultAttack ca; //package for clients
-				std::pair< std::pair< ui8, si16 >, ui8> attack;
+				std::pair< std::pair< ui8, si16 >, ui8> attack; //<< attackedPart , destination tile >, damageDealt >
 				attack.first.first = attackedPart;
 				attack.first.second = ba.destinationTile;
 				attack.second = 0;
@@ -2765,10 +2767,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					{
 						if(dmgRand <= dmgChance[v])
 						{
-							attack.second = v;
+							attack.second = std::min(3 - dmgAlreadyDealt - wallInitHP, v);
+							dmgAlreadyDealt += attack.second;
 							break;
 						}
 					}
+
+					//removing creatures in turrets / keep if one is destroyed
 					if(attack.second > 0 && (attackedPart == 0 || attackedPart == 1 || attackedPart == 6))
 					{
 						int posRemove = -1;
