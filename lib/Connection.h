@@ -11,16 +11,17 @@
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/type_traits/is_pointer.hpp> 
 #include <boost/type_traits/is_class.hpp> 
-#include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 
-#include <boost/type_traits/is_array.hpp>
-const ui32 version = 714;
+const ui32 version = 716;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
@@ -542,11 +543,11 @@ public:
 	template <typename T>
 	void loadSerializable(T &data)
 	{
-		////that const cast would be evil because it allows to implicitly overwrite const objects when deserializing
-		//typedef typename boost::remove_const<T>::type nonConstT;
-		//nonConstT &hlp = const_cast<nonConstT&>(data);
-		//hlp.serialize(*this,myVersion);
-		data.serialize(*this,myVersion);
+		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
+		typedef typename boost::remove_const<T>::type nonConstT;
+		nonConstT &hlp = const_cast<nonConstT&>(data);
+		hlp.serialize(*this,myVersion);
+		//data.serialize(*this,myVersion);
 	}	
 	template <typename T>
 	void loadArray(T &data)
@@ -587,7 +588,7 @@ public:
 		This()->loadPointerHlp(tid, data);
 
 		if(smartPointerSerialization && i == loadedPointers.end())
-			loadedPointers[pid] = data; //add loaded pointer to our lookup map
+			loadedPointers[pid] = (void*)data; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
 	//that part of ptr deserialization was extracted to allow customization of its behavior in derived classes
@@ -597,7 +598,8 @@ public:
 		if(!tid)
 		{
 			typedef typename boost::remove_pointer<T>::type npT;
-			data = new npT;
+			typedef typename boost::remove_const<npT>::type ncpT;
+			data = new ncpT;
 			*this >> *data;
 		}
 		else
@@ -723,8 +725,8 @@ public:
 		std::string Name); //use immediately after accepting connection into socket
 	int write(const void * data, unsigned size);
 	int read(void * data, unsigned size);
-	int readLine(void * data, unsigned maxSize);
 	void close();
+	bool isOpen() const;
     template<class T>
     CConnection &operator&(const T&);
 	~CConnection(void);

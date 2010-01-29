@@ -127,6 +127,12 @@ void ChangeObjPos::applyCl( CClient *cl )
 		CGI->mh->printObject(obj);
 }
 
+void PlayerEndsGame::applyCl( CClient *cl )
+{
+	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+		i->second->gameOver(player,	victory);
+}
+
 void RemoveObject::applyFirstCl( CClient *cl )
 {
 	const CGObjectInstance *o = cl->getObj(id);

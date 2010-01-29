@@ -746,7 +746,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,false);
 
-	if(makingTurn && GH.listInt.size())
+	if(/*makingTurn && */GH.listInt.size())
 	{
 		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
@@ -1590,6 +1590,26 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
 	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
 }
+
+void CPlayerInterface::gameOver(ui8 player, bool victory )
+{
+	if(player == playerID)
+	{
+		if(!victory)
+			showInfoDialog(CGI->generaltexth->allTexts[95]);
+// 		else
+// 			showInfoDialog("Placeholder message: you won!");
+
+		waitWhileDialog();
+
+ 		//return to main menu
+ 		SDL_Event event;
+ 		event.type = SDL_USEREVENT;
+ 		event.user.code = 2;
+ 		SDL_PushEvent(&event);
+	}
+}
+
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;

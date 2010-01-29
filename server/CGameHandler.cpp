@@ -491,6 +491,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	sg.garrs[bEndArmy2->id] = takeCasualties(bEndArmy2->tempOwner, bEndArmy2->army, gs->curB);
 	sendAndApply(&sg);
 
+	ui8 sides[2];
+	sides[0] = gs->curB->side1;
+	sides[1] = gs->curB->side2;
+
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
 	sendAndApply(battleResult.data);
@@ -524,14 +528,17 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	// Necromancy if applicable.
 	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
-	if (winnerHero) {
+	if (winnerHero) 
+	{
 		std::pair<ui32, si32> raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
 
 		// Give raised units to winner and show dialog, if any were raised.
-		if (raisedStack.first != -1) {
+		if (raisedStack.first != -1) 
+		{
 			int slot = winnerHero->army.getSlotFor(raisedStack.first);
 
-			if (slot != -1) {
+			if (slot != -1) 
+			{
 				SetGarrisons sg;
 
 				sg.garrs[winnerHero->id] = winnerHero->army;
@@ -545,6 +552,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 	}
 
+	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
 	delete battleResult.data;
 }
 
@@ -602,7 +610,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	CPack *pack = NULL;
 	try
 	{
-		while(!end2)
+		while(1)//server should never shut connection first //was: while(!end2)
 		{
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
@@ -640,11 +648,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
+		assert(!c.connected); //make sure that connection has been marked as broken
 		tlog1 << e.what() << std::endl;
 		end2 = true;
 	}
 	HANDLE_EXCEPTION(end2 = true);
-handleConEnd:
+
 	tlog1 << "Ended handling connection\n";
 }
 
@@ -901,6 +910,8 @@ void CGameHandler::newTurn()
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
 		if(gs->map->objects[i])
 			gs->map->objects[i]->newTurn();
+
+	winLoseHandle(0xff);
 }
 void CGameHandler::run(bool resume)
 {	
@@ -948,7 +959,13 @@ void CGameHandler::run(bool resume)
 		for(; i != gs->players.end(); i++)
 		{
 
-			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
+			if(i->second.towns.size()==0 && i->second.heroes.size()==0
+				|| i->second.color<0 
+				|| i->first>=PLAYER_LIMIT  
+				|| i->second.status) 
+			{
+				continue; 
+			}
 			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
 			gs->currentPlayer = i->first;
 			{
@@ -968,6 +985,9 @@ void CGameHandler::run(bool resume)
 			}
 		}
 	}
+
+	while(conns.size() && (*conns.begin())->isOpen())
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
 }
 
 namespace CGH
@@ -1385,6 +1405,8 @@ bool CGameHandler::removeObject( int objid )
 	RemoveObject ro;
 	ro.id = objid;
 	sendAndApply(&ro);
+
+	winLoseHandle(255); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
 	return true;
 }
 
@@ -1556,6 +1578,8 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 {
 	SetObjectProperty sop(objid,1,owner);
 	sendAndApply(&sop);
+
+	winLoseHandle(1<<owner);
 }
 void CGameHandler::setHoverName(int objid, MetaString* name)
 {
@@ -3432,4 +3456,139 @@ void CGameHandler::engageIntoBattle( ui8 player )
 	pb.player = player;
 	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
 	sendAndApply(&pb);
+}
+
+void CGameHandler::winLoseHandle(ui8 players )
+{
+	for(size_t i = 0; i < PLAYER_LIMIT; i++)
+	{
+		if(players & 1<<i  &&  gs->getPlayer(i))
+		{
+			checkLossVictory(i);
+		}
+	}
+}
+
+void CGameHandler::checkLossVictory( ui8 player )
+{
+	int loss = gs->lossCheck(player);
+	int vic = gs->victoryCheck(player);
+
+	if(!loss && !vic)
+		return;
+
+	InfoWindow iw;
+	getLossVicMessage(player, vic ? vic < 0 : loss < 0, vic, iw);
+	sendAndApply(&iw);
+
+	PlayerEndsGame peg;
+	peg.player = player;
+	peg.victory = vic;
+	sendAndApply(&peg);
+
+	if(vic)
+		end2 = true;
+}
+
+void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, InfoWindow &out ) const
+{
+	const PlayerState *p = gs->getPlayer(player);
+	if(!p->human)
+		return; //AI doesn't need text info of loss
+
+	out.player = player;
+
+	if(victory)
+	{
+		if(!standard) //not std loss
+		{
+			switch(gs->map->victoryCondition.condition)
+			{
+			case artifact:
+				out.text.addTxt(MetaString::GENERAL_TXT, 280); //Congratulations! You have found the %s, and can claim victory!
+				out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.obj->subID); //artifact name
+				break;
+			case gatherTroop:
+				out.text.addTxt(MetaString::GENERAL_TXT, 276); //Congratulations! You have over %d %s in your armies. Your enemies have no choice but to bow down before your power!
+				out.text.addReplacement(gs->map->victoryCondition.count);
+				out.text.addReplacement(MetaString::CRE_PL_NAMES, gs->map->victoryCondition.ID);
+				break;
+			case gatherResource:
+				out.text.addTxt(MetaString::GENERAL_TXT, 278); //Congratulations! You have collected over %d %s in your treasury. Victory is yours!
+				out.text.addReplacement(gs->map->victoryCondition.count);
+				out.text.addReplacement(MetaString::RES_NAMES, gs->map->victoryCondition.ID);
+				break;
+			case buildCity:
+				out.text.addTxt(MetaString::GENERAL_TXT, 282); //Congratulations! You have successfully upgraded your town, and can claim victory!
+				break;
+			case buildGrail:
+				out.text.addTxt(MetaString::GENERAL_TXT, 284); //Congratulations! You have constructed a permanent home for the Grail, and can claim victory!
+				break;
+			case beatHero:
+				{
+					out.text.addTxt(MetaString::GENERAL_TXT, 252); //Congratulations! You have completed your quest to defeat the enemy hero %s. Victory is yours!
+					const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(gs->map->victoryCondition.obj);
+					assert(h);
+					out.text.addReplacement(h->name);
+				}
+				break;
+			case captureCity:
+				{
+					out.text.addTxt(MetaString::GENERAL_TXT, 249); //Congratulations! You captured %s, and are victorious!
+					const CGTownInstance *t = dynamic_cast<const CGTownInstance*>(gs->map->victoryCondition.obj);
+					assert(t);
+					out.text.addReplacement(t->name);
+				}
+				break;
+			case beatMonster:
+				out.text.addTxt(MetaString::GENERAL_TXT, 286); //Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!
+				break;
+			case takeDwellings:
+				out.text.addTxt(MetaString::GENERAL_TXT, 288); //Congratulations! Your flag flies on the dwelling of every creature. Victory is yours!
+				break;
+			case takeMines:
+				out.text.addTxt(MetaString::GENERAL_TXT, 290); //Congratulations! Your flag flies on every mine. Victory is yours!
+				break;
+			case transportItem:
+				out.text.addTxt(MetaString::GENERAL_TXT, 292); //Congratulations! You have reached your destination, precious cargo intact, and can claim victory!
+				break;
+			}
+		}
+		else
+		{
+
+		}
+	}
+	else
+	{
+		if(!standard) //not std loss
+		{
+			switch(gs->map->lossCondition.typeOfLossCon)
+			{
+			case lossCastle:
+				{
+					out.text.addTxt(MetaString::GENERAL_TXT, 251); //The town of %s has fallen - all is lost!
+					const CGTownInstance *t = dynamic_cast<const CGTownInstance*>(gs->map->lossCondition.obj);
+					assert(t);
+					out.text.addReplacement(t->name);
+				}
+				break;
+			case lossHero:
+				{
+					out.text.addTxt(MetaString::GENERAL_TXT, 253); //The hero, %s, has suffered defeat - your quest is over!
+					const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(gs->map->lossCondition.obj);
+					assert(h);
+					out.text.addReplacement(h->name);
+				}
+				break;
+			case timeExpires:
+				out.text.addTxt(MetaString::GENERAL_TXT, 254); //Alas, time has run out on your quest. All is lost.
+				break;
+			}
+		}
+		else //lost all towns and heroes
+		{
+			out.text.addReplacement(MetaString::GENERAL_TXT, 660); //All your forces have been defeated, and you are banished from this land!
+		}
+	}
 }

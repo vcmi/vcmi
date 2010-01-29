@@ -219,6 +219,12 @@ DLL_EXPORT void ChangeObjPos::applyGs( CGameState *gs )
 	gs->map->addBlockVisTiles(obj);
 }
 
+DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
+{
+	PlayerState *p = gs->getPlayer(player);
+	p->status = victory ? 2 : 1;
+}
+
 DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[id];
@@ -230,6 +236,8 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		int player = h->tempOwner;
 		nitr = std::find(gs->getPlayer(player)->heroes.begin(), gs->getPlayer(player)->heroes.end(), h);
 		gs->getPlayer(player)->heroes.erase(nitr);
+		h->tempOwner = 255; //no one owns beaten hero
+
 		if(h->visitedTown)
 		{
 			if(h->inTownGarrison)

@@ -169,6 +169,7 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv("SDL_VIDEO_WINDOW_POS");
 	putenv("SDL_VIDEO_CENTERED=1");
 
@@ -504,6 +505,9 @@ static void listenForEvents()
 		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) //something want to quit to main menu
 		{
 			client->stop();
+			delete client;
+			client = NULL;
+
 			delete ev;
 
 			GH.curInt = CGP;

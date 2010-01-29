@@ -14,6 +14,7 @@
 #include "../hch/CLodHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CHeroHandler.h"
+#include "../hch/CObjectHandler.h"
 #include <cmath>
 #include "Graphics.h"
 //#include <boost/thread.hpp>

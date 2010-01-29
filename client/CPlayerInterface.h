@@ -170,6 +170,7 @@ public:
 	void centerView (int3 pos, int focusTime);
 	void objectPropertyChanged(const SetObjectProperty * sop);
 	void objectRemoved(const CGObjectInstance *obj);
+	void gameOver(ui8 player, bool victory);
 	void serialize(COSer<CSaveFile> &h, const int version); //saving
 	void serialize(CISer<CLoadFile> &h, const int version); //loading
 

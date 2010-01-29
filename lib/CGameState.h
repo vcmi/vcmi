@@ -60,6 +60,7 @@ namespace boost
 struct DLL_EXPORT PlayerState
 {
 public:
+	enum EStatus {INGAME, LOSER, WINNER};
 	ui8 color, serial;
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
@@ -70,42 +71,46 @@ public:
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	std::vector<CGDwelling *> dwellings; //used for town growth
 
+	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
+	ui8 daysWithoutCastle;
+
 	PlayerState();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & serial & human & currentSelection & fogOfWarMap & resources;
+		h & color & serial & human & currentSelection & fogOfWarMap & resources & status;
+		h & heroes & towns & availableHeroes & dwellings & status & daysWithoutCastle;
 
-		ui32 size;
-		if(h.saving) //write subids of available heroes
-		{
-			size = availableHeroes.size();
-			h & size;
-			for(size_t i=0; i < size; i++)
-			{
-				if(availableHeroes[i])
-				{
-					h & availableHeroes[i]->subID;
-				}
-				else
-				{
-					ui32 none = 0xffffffff;
-					h & none;
-				}
-			}
-		}
-		else
-		{
-			ui32 hid; 
-			h & size;
-			for(size_t i=0; i < size; i++)
-			{
-				//fill availableHeroes with dummy hero instances, holding subids
-				h & hid;
-				availableHeroes.push_back(new CGHeroInstance);
-				availableHeroes[availableHeroes.size()-1]->subID = hid;
-			}
-		}
+// 		ui32 size;
+// 		if(h.saving) //write subids of available heroes
+// 		{
+// 			size = availableHeroes.size();
+// 			h & size;
+// 			for(size_t i=0; i < size; i++)
+// 			{
+// 				if(availableHeroes[i])
+// 				{
+// 					h & availableHeroes[i]->subID;
+// 				}
+// 				else
+// 				{
+// 					ui32 none = 0xffffffff;
+// 					h & none;
+// 				}
+// 			}
+// 		}
+// 		else
+// 		{
+// 			ui32 hid; 
+// 			h & size;
+// 			for(size_t i=0; i < size; i++)
+// 			{
+// 				//fill availableHeroes with dummy hero instances, holding subids
+// 				h & hid;
+// 				availableHeroes.push_back(new CGHeroInstance);
+// 				availableHeroes[availableHeroes.size()-1]->subID = hid;
+// 			}
+// 		}
 	}
 };
 
@@ -334,7 +339,7 @@ public:
 	BattleInfo *curB; //current battle
 	ui32 day; //total number of days in game
 	Mapa * map;
-	std::map<ui8,PlayerState> players; //ID <-> player state
+	std::map<ui8, PlayerState> players; //ID <-> player state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals; //default values of resources in gold
 
@@ -354,6 +359,7 @@ public:
 	boost::shared_mutex *mx;
 
 	PlayerState *getPlayer(ui8 color);
+	const PlayerState *getPlayer(ui8 color) const;
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
@@ -362,6 +368,8 @@ public:
 	void apply(CPack *pack);
 	CGHeroInstance *getHero(int objid);
 	CGTownInstance *getTown(int objid);
+	const CGHeroInstance *getHero(int objid) const;
+	const CGTownInstance *getTown(int objid) const;
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);
@@ -379,6 +387,10 @@ public:
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
+	int victoryCheck(ui8 player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
+	int lossCheck(ui8 player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
+	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
+	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);
@@ -395,31 +407,31 @@ public:
 		{
 			loadTownDInfos();
 
-			//recreating towns/heroes vectors in players entries
-			for(int i=0; i<map->towns.size(); i++)
-				if(map->towns[i]->tempOwner < PLAYER_LIMIT)
-					getPlayer(map->towns[i]->tempOwner)->towns.push_back(map->towns[i]);
-			for(int i=0; i<map->heroes.size(); i++)
-				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
-					getPlayer(map->heroes[i]->tempOwner)->heroes.push_back(map->heroes[i]);
-			//recreating available heroes
-			for(std::map<ui8,PlayerState>::iterator i=players.begin(); i!=players.end(); i++)
-			{
-				for(size_t j=0; j < i->second.availableHeroes.size(); j++)
-				{
-					ui32 hlp = i->second.availableHeroes[j]->subID;
-					delete i->second.availableHeroes[j];
-					if(hlp != 0xffffffff)
-					{
-						assert(vstd::contains(hpool.heroesPool, hlp));
-						i->second.availableHeroes[j] = hpool.heroesPool[hlp];
-					}
-					else
-					{
-						i->second.availableHeroes[j] = NULL;
-					}
-				}
-			}
+// 			//recreating towns/heroes vectors in players entries
+// 			for(int i=0; i<map->towns.size(); i++)
+// 				if(map->towns[i]->tempOwner < PLAYER_LIMIT)
+// 					getPlayer(map->towns[i]->tempOwner)->towns.push_back(map->towns[i]);
+// 			for(int i=0; i<map->heroes.size(); i++)
+// 				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
+// 					getPlayer(map->heroes[i]->tempOwner)->heroes.push_back(map->heroes[i]);
+// 			//recreating available heroes
+// 			for(std::map<ui8,PlayerState>::iterator i=players.begin(); i!=players.end(); i++)
+// 			{
+// 				for(size_t j=0; j < i->second.availableHeroes.size(); j++)
+// 				{
+// 					ui32 hlp = i->second.availableHeroes[j]->subID;
+// 					delete i->second.availableHeroes[j];
+// 					if(hlp != 0xffffffff)
+// 					{
+// 						assert(vstd::contains(hpool.heroesPool, hlp));
+// 						i->second.availableHeroes[j] = hpool.heroesPool[hlp];
+// 					}
+// 					else
+// 					{
+// 						i->second.availableHeroes[j] = NULL;
+// 					}
+// 				}
+// 			}
 		}
 	}
 

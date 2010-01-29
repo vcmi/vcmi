@@ -298,10 +298,12 @@ public:
 	int getPrimSkillLevel(int id) const;
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
+
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	const CArtifact * getArt(int pos) const;
 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	void giveArtifact (ui32 aid);
+	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
+
 	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getHeroStrength() const;
@@ -316,7 +318,9 @@ public:
 	void initHero(); 
 	void initHero(int SUBID); 
 	void recreateArtBonuses();
+	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
+
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 
@@ -605,7 +609,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
-		h & rewardType & rID & rVal & textOption & seerName;
+		h & rewardType & rID & rVal & textOption;
 	}
 };
 

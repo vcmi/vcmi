@@ -1234,6 +1234,17 @@ void CGHeroInstance::recreateArtBonuses()
 	}
 }
 
+bool CGHeroInstance::hasArt( ui32 aid ) const
+{
+	if(vstd::contains(artifacts, aid))
+		return true;
+	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		if(i->second == aid)
+			return true;
+
+	return true;
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)

@@ -147,22 +147,40 @@ CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp
 int CConnection::write(const void * data, unsigned size)
 {
 	//LOG("Sending " << size << " byte(s) of data" <<std::endl);
-	int ret;
-	ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
-	return ret;
+	try
+	{
+		int ret;
+		ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
+		return ret;
+	}
+	catch(...)
+	{
+		//connection has been lost
+		connected = false;
+		throw;
+	}
 }
 int CConnection::read(void * data, unsigned size)
 {
 	//LOG("Receiving " << size << " byte(s) of data" <<std::endl);
-	int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
-	return ret;
+	try
+	{
+		int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
+		return ret;
+	}
+	catch(...)
+	{
+		//connection has been lost
+		connected = false;
+		throw;
+	}
 }
 CConnection::~CConnection(void)
 {
 	close();
-	delete io_service;
-	delete wmx;
-	delete rmx;
+ 	delete io_service;
+ 	delete wmx;
+ 	delete rmx;
 }
 
 template<class T>
@@ -203,6 +221,11 @@ void CConnection::saveObject( const CGObjectInstance *data )
 void CConnection::setGS( CGameState *state )
 {
 	gs = state;
+}
+
+bool CConnection::isOpen() const
+{
+	return socket && connected;
 }
 
 CSaveFile::CSaveFile( const std::string &fname )

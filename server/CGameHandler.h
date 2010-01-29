@@ -85,6 +85,10 @@ public:
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, int dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
+	void checkLossVictory(ui8 player);
+	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
+	void getLossVicMessage(ui8 player, bool standard, bool victory, InfoWindow &out) const;
+
 	////used only in endBattle - don't touch elsewhere
 	boost::function<void(BattleResult*)> * battleEndCallback;
 	const CArmedInstance * bEndArmy1, * bEndArmy2;
@@ -94,7 +98,6 @@ public:
 	void prepareAttacked(BattleStackAttacked &bsa, const CStack *def);
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town);
-
 
 	CGameHandler(void);
 	~CGameHandler(void);

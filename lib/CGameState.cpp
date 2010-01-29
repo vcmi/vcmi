@@ -966,12 +966,24 @@ CGHeroInstance *CGameState::getHero(int objid)
 		return NULL;
 	return static_cast<CGHeroInstance *>(map->objects[objid]);
 }
+
+const CGHeroInstance * CGameState::getHero( int objid ) const
+{
+	return (const_cast<CGameState *>(this))->getHero(objid);
+}
+
 CGTownInstance *CGameState::getTown(int objid)
 {
 	if(objid<0 || objid>=map->objects.size())
 		return NULL;
 	return static_cast<CGTownInstance *>(map->objects[objid]);
 }
+
+const CGTownInstance * CGameState::getTown( int objid ) const
+{
+	return (const_cast<CGameState *>(this))->getTown(objid);
+}
+
 std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
@@ -1162,6 +1174,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		if(cur->ID==TOWNI_TYPE) //town - set def
 		{
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
+			t->town = &VLC->townh->towns[t->subID];
 			if(t->hasCapitol())
 				t->defInfo = capitols[t->subID];
 			else if(t->hasFort())
@@ -1935,6 +1948,11 @@ PlayerState * CGameState::getPlayer( ui8 color )
 		tlog2 << "Warning: Cannot find info for player " << int(color) << std::endl;
 		return NULL;
 	}
+}
+
+const PlayerState * CGameState::getPlayer( ui8 color ) const
+{
+	return (const_cast<CGameState *>(this))->getPlayer(color);
 }
 
 bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
@@ -2916,6 +2934,191 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	return false;
 }
 
+int CGameState::victoryCheck( ui8 player ) const
+{
+	const PlayerState *p = getPlayer(player);
+	if(map->victoryCondition.condition == winStandard  ||  map->victoryCondition.allowNormalVictory)
+		if(player == checkForStandardWin())
+			return -1;
+
+	if(p->human || map->victoryCondition.appliesToAI)
+	{
+ 		switch(map->victoryCondition.condition)
+		{
+		case artifact:
+			//check if any hero has winning artifact
+			for(size_t i = 0; i < p->heroes.size(); i++)
+				if(p->heroes[i]->hasArt(map->victoryCondition.ID))
+					return 1;
+
+			break;
+
+		case gatherTroop:
+			{
+				//check if in players armies there is enough creatures
+				int total = 0; //creature counter
+				for(size_t i = 0; i < map->objects.size(); i++)
+				{
+					const CArmedInstance *ai = NULL;
+					if(map->objects[i] 
+						&& map->objects[i]->tempOwner  //object controlled by player
+						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
+					{
+						for(TSlots::const_iterator i=ai->army.slots.begin(); i!=ai->army.slots.end(); ++i) //iterate through army
+							if(i->second.first == map->victoryCondition.ID) //it's searched creature
+								total += i->second.second;
+					}
+				}
+
+				if(total >= map->victoryCondition.count)
+					return 1;
+			}
+			break;
+
+		case gatherResource:
+			if(p->resources[map->victoryCondition.ID] >= map->victoryCondition.count)
+				return 1;
+
+			break;
+
+		case buildCity:
+			for(size_t i = 0; i < map->towns.size(); i++)
+				if(map->towns[i]->pos == map->victoryCondition.pos
+					&& map->towns[i]->tempOwner == player 
+					&& map->towns[i]->hallLevel() >= map->victoryCondition.ID)
+					return 1;
+			break;
+
+		case buildGrail:
+			for(size_t i = 0; i < map->towns.size(); i++)
+				if(map->towns[i]->pos == map->victoryCondition.pos
+					&& map->towns[i]->tempOwner == player 
+					&& vstd::contains(map->towns[i]->builtBuildings, 26))
+					return 1;
+			break;
+
+		case beatHero:
+			if(map->victoryCondition.obj->tempOwner >= PLAYER_LIMIT) //target hero not present on map
+				return 1;
+			break;
+		case captureCity:
+			{
+				if(map->victoryCondition.obj->tempOwner == player)
+					return 1;
+			}
+			break;
+		case beatMonster:
+			if(!map->objects[map->victoryCondition.obj->id]) //target monster not present on map
+				return 1;
+			break;
+		case takeDwellings:
+			for(size_t i = 0; i < map->objects.size(); i++)
+			{
+				if(map->objects[i] && map->objects[i]->tempOwner != player) //check not flagged objs
+				{
+					switch(map->objects[i]->ID)
+					{
+					case 17: case 18: case 19: case 20: //dwellings
+					case 216: case 217: case 218:
+						return 0; //found not flagged dwelling - player not won
+					}
+				}
+			}
+			return 1;
+			break;
+		case takeMines:
+			for(size_t i = 0; i < map->objects.size(); i++)
+			{
+				if(map->objects[i] && map->objects[i]->tempOwner != player) //check not flagged objs
+				{
+					switch(map->objects[i]->ID)
+					{
+					case 53: case 220:
+						return 0; //found not flagged mine - player not won
+					}
+				}
+			}
+			return 1;
+			break;
+		case transportItem:
+			//TODO
+			break;
+ 		}
+	}
+
+	return 0;
+}
+
+ui8 CGameState::checkForStandardWin() const
+{
+	//std victory condition is:
+	//all enemies lost
+	ui8 supposedWinner = 255, winnerTeam = 255;
+	for(std::map<ui8,PlayerState>::const_iterator i = players.begin(); i != players.end(); i++)
+	{
+		if(i->second.status == PlayerState::INGAME)
+		{
+			if(supposedWinner == 255)		
+			{
+				//first player remaining ingame - candidate for victory
+				supposedWinner = i->second.color;
+				winnerTeam = map->players[supposedWinner].team;
+			}
+			else if(winnerTeam != map->players[i->second.color].team)
+			{
+				//current candidate has enemy remaining in game -> no vicotry
+				return 255;
+			}
+		}
+	}
+
+	return supposedWinner;
+}
+
+bool CGameState::checkForStandardLoss( ui8 player ) const
+{
+	//std loss condition is: player lost all towns and heroes
+	const PlayerState &p = *getPlayer(player);
+	return p.heroes.size() || p.towns.size();
+}
+
+int CGameState::lossCheck( ui8 player ) const
+{
+	const PlayerState *p = getPlayer(player);
+	if(map->lossCondition.typeOfLossCon == lossStandard)
+		if(checkForStandardLoss(player))
+			return -1;
+
+	if(p->human) //special loss condition applies only to human player
+	{
+		switch(map->lossCondition.typeOfLossCon)
+		{
+		case lossCastle:
+			{
+				const CGTownInstance *t = dynamic_cast<const CGTownInstance *>(map->lossCondition.obj);
+				assert(t);
+				if(t->tempOwner != player)
+					return 1;
+			}
+			break;
+		case lossHero:
+			{
+				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(map->lossCondition.obj);
+				assert(h);
+				if(h->tempOwner != player)
+					return 1;
+			}
+			break;
+		case timeExpires:
+			if(map->lossCondition.timeLimit < day)
+				return 1;
+			break;
+		}
+	}
+
+	return false;
+}
+
 const CStack * BattleInfo::getNextStack() const
 {
 	std::vector<const CStack *> hlp;
@@ -3205,7 +3408,7 @@ CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 }
 
 PlayerState::PlayerState() 
- : color(-1), currentSelection(0xffffffff)
+ : color(-1), currentSelection(0xffffffff), status(INGAME), daysWithoutCastle(0)
 {
 
 }

@@ -388,6 +388,26 @@ struct ChangeObjPos : public CPackForClient //116
 	}
 };
 
+struct PlayerEndsGame : public CPackForClient //117
+{
+	PlayerEndsGame()
+	{
+		type = 117;
+	}
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	ui8 player;
+	ui8 victory;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & victory;
+	}
+};
+
+
 struct RemoveObject : public CPackForClient //500
 {
 	RemoveObject(){type = 500;};

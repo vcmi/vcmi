@@ -326,6 +326,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CKingdomInterface.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Client.cpp"
 				>
 			</File>
@@ -469,6 +473,10 @@
 			</File>
 			<File
 				RelativePath=".\CHeroWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CKingdomInterface.h"
 				>
 			</File>
 			<File

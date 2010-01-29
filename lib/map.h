@@ -137,14 +137,19 @@ struct DLL_EXPORT PlayerInfo
 struct DLL_EXPORT LossCondition
 {
 	ElossCon typeOfLossCon;
-	int3 castlePos;
-	int3 heroPos;
-	int timeLimit; // in days
+
+	int3 pos;
+
+	si32 timeLimit; // in days; -1 if not used
+	const CGObjectInstance *obj; //set during map parsing: hero/town (depending on typeOfLossCon); NULL if not used
+
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & typeOfLossCon & castlePos & heroPos & timeLimit;
+		h & typeOfLossCon & pos & timeLimit & obj;
 	}
+
+	LossCondition();
 };
 struct DLL_EXPORT CVictoryCondition
 {
@@ -155,10 +160,13 @@ struct DLL_EXPORT CVictoryCondition
 	ui32 ID; //artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8)
 	ui32 count; //needed count for creatures (1) / resource (2); upgraded town hall level (3); 
 
+	const CGObjectInstance *obj; //object of specific monster / city / hero instance (NULL if not used); set during map parsing
+
+	CVictoryCondition();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & condition & allowNormalVictory & appliesToAI & pos & ID & count;
+		h & condition & allowNormalVictory & appliesToAI & pos & ID & count & obj;
 	}
 };
 
@@ -329,6 +337,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
+	void checkForObjectives();
 
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);

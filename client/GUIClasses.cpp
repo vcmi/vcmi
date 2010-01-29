@@ -628,6 +628,7 @@ void CGarrisonInt::deactivate()
 
 CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
 {
+	slider = NULL;
 	ID = -1;
 	this->delComps = delComps;
 	for(int i=0;i<Buttons.size();i++)

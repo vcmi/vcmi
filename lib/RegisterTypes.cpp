@@ -79,6 +79,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetAvailableHeroes>();
 	s.template registerType<GiveBonus>();
 	s.template registerType<ChangeObjPos>();
+	s.template registerType<PlayerEndsGame>();
 	s.template registerType<RemoveObject>();
 	s.template registerType<TryMoveHero>();
 	s.template registerType<SetGarrisons>();

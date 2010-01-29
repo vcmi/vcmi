@@ -8,6 +8,7 @@
 #include <boost/crc.hpp>
 #include "../hch/CLodHandler.h"
 #include <boost/bind.hpp>
+#include <assert.h>
 
 /*
  * map.cpp, part of VCMI engine
@@ -353,6 +354,7 @@ void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 
 void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 {
+	victoryCondition.obj = NULL;
 	victoryCondition.condition = (EvictoryConditions)bufor[i++];
 	if (victoryCondition.condition != winStandard) //specific victory conditions
 	{
@@ -367,8 +369,8 @@ void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 			}
 		case gatherTroop:
 			{
-				int temp1 = bufor[i+2];
-				int temp2 = bufor[i+3];
+// 				int temp1 = bufor[i+2];
+// 				int temp2 = bufor[i+3];
 				victoryCondition.ID = bufor[i+2];
 				victoryCondition.count = readNormalNr(bufor, i+(version==RoE ? 3 : 4));
 				nr=(version==RoE ? 5 : 6);
@@ -438,17 +440,11 @@ void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 	switch (lossCondition.typeOfLossCon) //read loss conditions
 	{
 	case lossCastle:
-		{
-			lossCondition.castlePos.x=bufor[i++];
-			lossCondition.castlePos.y=bufor[i++];
-			lossCondition.castlePos.z=bufor[i++];
-			break;
-		}
 	case lossHero:
 		{
-			lossCondition.heroPos.x=bufor[i++];
-			lossCondition.heroPos.y=bufor[i++];
-			lossCondition.heroPos.z=bufor[i++];
+			lossCondition.pos.x=bufor[i++];
+			lossCondition.pos.y=bufor[i++];
+			lossCondition.pos.z=bufor[i++];
 			break;
 		}
 	case timeExpires:
@@ -500,6 +496,9 @@ void Mapa::initFromBytes(const unsigned char * bufor)
 		addBlockVisTiles(objects[f]);
 	}
 	tlog0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
+
+	checkForObjectives();
+	tlog0 << "\tMap initialization done!" << std::endl;
 }	
 void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
@@ -1402,6 +1401,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		pos.x = bufor[i++];
 		pos.y = bufor[i++];
 		pos.z = bufor[i++];
+
 		int defnum = readNormalNr(bufor,i, 4); i+=4;
 
 		CGDefInfo * defInfo = defy[defnum];
@@ -2109,6 +2109,23 @@ bool Mapa::isWaterTile(const int3 &pos) const
 	return isInTheMap(pos) && getTile(pos).tertype == TerrainTile::water;
 }
 
+void Mapa::checkForObjectives()
+{
+	if(isInTheMap(victoryCondition.pos))
+	{
+		const std::vector <CGObjectInstance*> &objs = getTile(victoryCondition.pos).visitableObjects;
+		assert(objs.size());
+		victoryCondition.obj = objs.front();
+	}
+
+	if(isInTheMap(lossCondition.pos))
+	{
+		const std::vector <CGObjectInstance*> &objs = getTile(lossCondition.pos).visitableObjects;
+		assert(objs.size());
+		lossCondition.obj = objs.front();
+	}
+}
+
 void CMapInfo::countPlayers()
 {
 	playerAmnt = humenPlayers = 0;
@@ -2142,4 +2159,18 @@ void CMapInfo::init(const std::string &fname, const unsigned char *map )
 	int i = 0;
 	initFromMemory(map, i);
 	countPlayers();
+}
+
+LossCondition::LossCondition()
+{
+	obj = NULL;
+	timeLimit = -1;
+	pos = int3(-1,-1,-1);
+}
+
+CVictoryCondition::CVictoryCondition()
+{
+	pos = int3(-1,-1,-1);
+	obj = NULL;
+	ID = allowNormalVictory = appliesToAI = count = 0;
 }

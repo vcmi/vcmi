@@ -153,7 +153,17 @@ void CClient::run()
 			handlePack(pack);
 			pack = NULL;
 		}
-	} HANDLE_EXCEPTION(tlog1 << "Lost connection to server, ending listening thread!\n");
+	} 
+	catch (const std::exception& e)
+	{	
+		tlog3 << "Lost connection to server, ending listening thread!\n";					
+		tlog1 << e.what() << std::endl;
+		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
+		{
+			tlog1 << "Something wrong, lost connection while game is still ongoing...\n";
+			throw;
+		}
+	}
 }
 
 void CClient::stop()
