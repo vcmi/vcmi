@@ -1000,9 +1000,10 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	{
 		ui32 stackID;
 		ui32 healedHP;
+		ui8 lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & stackID & healedHP;
+			h & stackID & healedHP & lowLevelResurrection;
 		}
 	};
 

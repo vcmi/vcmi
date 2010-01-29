@@ -3184,6 +3184,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						StacksHealedOrResurrected::HealInfo hi;
 						hi.stackID = (*it)->ID;
 						hi.healedHP = calculateHealedHP(h, s, *it);
+						hi.lowLevelResurrection = h->getSpellSchoolLevel(s) <= 1;
 						shr.healedStacks.push_back(hi);
 					}
 					if(!shr.healedStacks.empty())

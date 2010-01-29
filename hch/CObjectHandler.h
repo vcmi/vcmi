@@ -306,7 +306,7 @@ public:
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getHeroStrength() const;
 	int getTotalStrength() const;
-	ui8 getSpellSchoolLevel(const CSpell * spell) const; //returns level on which given spell would be cast by this hero
+	ui8 getSpellSchoolLevel(const CSpell * spell) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc)
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	std::pair<ui32, si32> calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog (std::pair<ui32, si32> raisedStack) const;
