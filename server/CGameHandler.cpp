@@ -2676,9 +2676,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//return
-			if(curStack->hasFeatureOfType(StackFeature::RETURN_AFTER_STRIKE) && startingPos != curStack->position)
+			if(curStack->hasFeatureOfType(StackFeature::RETURN_AFTER_STRIKE) && startingPos != curStack->position && curStack->alive())
 			{
 				moveStack(ba.stackNumber, startingPos);
+				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
 			}
 			sendAndApply(&EndAction());
 			break;
