@@ -106,7 +106,6 @@ public:
 	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
 	std::vector<CDefEssential *> roadDefs;
 	std::vector<CDefEssential *> staticRiverDefs;
-	std::vector<CDefEssential*> defs;
 
 	std::map<std::string, CDefEssential*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 

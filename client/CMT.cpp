@@ -501,7 +501,7 @@ static void listenForEvents()
 			delete ev;
 			continue;
 		}
-		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) 
+		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) //something want to quit to main menu
 		{
 			client->stop();
 			delete ev;

@@ -666,12 +666,24 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && mySpell!=-1)
 	{
+		int spellCost = LOCPLINT->cb->getSpellCost(&CGI->spellh->spells[mySpell], owner->myHero);
 		//we will cast a spell
-		if(LOCPLINT->battleInt && LOCPLINT->cb->battleCanCastSpell() && LOCPLINT->cb->getSpellCost(&CGI->spellh->spells[mySpell], owner->myHero) <= owner->myHero->mana) //if battle window is open
+		if(LOCPLINT->battleInt && LOCPLINT->cb->battleCanCastSpell() && spellCost <= owner->myHero->mana) //if battle window is open
 		{
 			int spell = mySpell;
 			owner->fexitb();
 			LOCPLINT->battleInt->castThisSpell(spell);
+		}
+		else
+		{
+			//insufficient mana
+			if(spellCost > owner->myHero->mana)
+			{
+				std::vector<SComponent*> comps;
+				char msgBuf[500];
+				sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
+				LOCPLINT->showInfoDialog(std::string(msgBuf), comps);
+			}
 		}
 	}
 }

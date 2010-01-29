@@ -569,7 +569,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
 		if (tile) 
 		{
-			CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype],LOCPLINT->playerID,true);
+			CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype], LOCPLINT->playerID, true);
 			CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 			GH.pushInt(rcpi);
 		}

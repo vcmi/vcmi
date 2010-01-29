@@ -750,6 +750,7 @@ CGameHandler::~CGameHandler(void)
 	applier = NULL;
 	delete gs;
 }
+
 void CGameHandler::init(StartInfo *si, int Seed)
 {
 	Mapa *map = new Mapa(si->mapname);

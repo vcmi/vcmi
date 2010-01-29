@@ -222,8 +222,8 @@ void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 {
 	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
 	areAnyPLayers = readChar(bufor,i); //invalid on some maps
-	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
-	twoLevel = readChar(bufor,i); //czy sa lochy
+	height = width = (readNormalNr(bufor,i)); i+=4; // dimensions of map
+	twoLevel = readChar(bufor,i); //if there is underground
 	int pom;
 	name = readString(bufor,i);
 	description= readString(bufor,i);
@@ -271,7 +271,7 @@ void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 	{
 		players[pom].canHumanPlay = bufor[i++];
 		players[pom].canComputerPlay = bufor[i++];
-		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay)))
+		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay))) //if nobody can play with this player
 		{
 			switch(version)
 			{
@@ -295,6 +295,7 @@ void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 		else
 			players[pom].p7= -1;
 
+		//factions this player can choose
 		players[pom].allowedFactions = 0;
 		players[pom].allowedFactions += bufor[i++];
 		if(version != RoE)
