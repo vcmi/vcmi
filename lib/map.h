@@ -157,8 +157,8 @@ struct DLL_EXPORT CVictoryCondition
 	ui8 allowNormalVictory, appliesToAI;
 
 	int3 pos; //pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6); monster pos (7); destination pos(8)
-	ui32 ID; //artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8)
-	ui32 count; //needed count for creatures (1) / resource (2); upgraded town hall level (3); 
+	si32 ID; //artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8)
+	si32 count; //needed count for creatures (1) / resource (2); upgraded town hall level (3); 
 
 	const CGObjectInstance *obj; //object of specific monster / city / hero instance (NULL if not used); set during map parsing
 

@@ -1242,7 +1242,7 @@ bool CGHeroInstance::hasArt( ui32 aid ) const
 		if(i->second == aid)
 			return true;
 
-	return true;
+	return false;
 }
 
 void CGDwelling::initObj()

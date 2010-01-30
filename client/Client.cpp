@@ -190,7 +190,8 @@ void CClient::endGame()
 {
 	tlog0 << "\n\nEnding current game!" << std::endl;
 	GH.curInt = NULL;
-	GH.topInt()->deactivate();
+	if(GH.topInt())
+		GH.topInt()->deactivate();
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
 

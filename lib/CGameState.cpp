@@ -2961,7 +2961,7 @@ int CGameState::victoryCheck( ui8 player ) const
 				{
 					const CArmedInstance *ai = NULL;
 					if(map->objects[i] 
-						&& map->objects[i]->tempOwner  //object controlled by player
+						&& map->objects[i]->tempOwner == player //object controlled by player
 						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->army.slots.begin(); i!=ai->army.slots.end(); ++i) //iterate through army
@@ -2982,11 +2982,11 @@ int CGameState::victoryCheck( ui8 player ) const
 			break;
 
 		case buildCity:
-			for(size_t i = 0; i < map->towns.size(); i++)
-				if(map->towns[i]->pos == map->victoryCondition.pos
-					&& map->towns[i]->tempOwner == player 
-					&& map->towns[i]->hallLevel() >= map->victoryCondition.ID)
+			{
+				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
+				if(t->tempOwner == player && t->fortLevel()-1 >= map->victoryCondition.ID && t->hallLevel()-1 >= map->victoryCondition.count)
 					return 1;
+			}
 			break;
 
 		case buildGrail:
@@ -3041,7 +3041,14 @@ int CGameState::victoryCheck( ui8 player ) const
 			return 1;
 			break;
 		case transportItem:
-			//TODO
+			{
+				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
+				if(t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.ID)
+					|| t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.ID))
+				{
+					return 1;
+				}
+			}
 			break;
  		}
 	}

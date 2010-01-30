@@ -1666,8 +1666,12 @@ void CGameHandler::heroVisitCastle(int obj, int heroID)
 	vc.tid = obj;
 	vc.flags |= 1;
 	sendAndApply(&vc);
-	vistiCastleObjects (getTown(obj), getHero(heroID));
+	const CGHeroInstance *h = getHero(heroID);
+	vistiCastleObjects (getTown(obj), h);
 	giveSpells (getTown(obj), getHero(heroID));
+
+	if(gs->map->victoryCondition.condition == transportItem)
+		checkLossVictory(h->tempOwner); //transported artifact?
 }
 
 void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
@@ -1879,6 +1883,34 @@ void CGameHandler::sendAndApply( CPackForClient * info )
 	sendToAllClients(info);
 }
 
+void CGameHandler::sendAndApply( SetGarrisons * info )
+{
+	sendAndApply((CPackForClient*)info);
+	if(gs->map->victoryCondition.condition == gatherTroop)
+		for(std::map<ui32,CCreatureSet>::const_iterator i = info->garrs.begin(); i != info->garrs.end(); i++)
+			checkLossVictory(getObj(i->first)->tempOwner);
+}
+
+void CGameHandler::sendAndApply( SetResource * info )
+{
+	sendAndApply((CPackForClient*)info);
+	if(gs->map->victoryCondition.condition == gatherResource)
+		checkLossVictory(info->player);
+}
+
+void CGameHandler::sendAndApply( SetResources * info )
+{
+	sendAndApply((CPackForClient*)info);
+	if(gs->map->victoryCondition.condition == gatherResource)
+		checkLossVictory(info->player);
+}
+
+void CGameHandler::sendAndApply( NewStructures * info )
+{
+	sendAndApply((CPackForClient*)info);
+	if(gs->map->victoryCondition.condition == buildCity)
+		checkLossVictory(getTown(info->tid)->tempOwner);
+}
 void CGameHandler::save( const std::string &fname )
 {
 	{
@@ -3506,7 +3538,7 @@ void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, I
 			{
 			case artifact:
 				out.text.addTxt(MetaString::GENERAL_TXT, 280); //Congratulations! You have found the %s, and can claim victory!
-				out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.obj->subID); //artifact name
+				out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.ID); //artifact name
 				break;
 			case gatherTroop:
 				out.text.addTxt(MetaString::GENERAL_TXT, 276); //Congratulations! You have over %d %s in your armies. Your enemies have no choice but to bow down before your power!

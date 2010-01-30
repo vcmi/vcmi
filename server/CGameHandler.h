@@ -31,6 +31,10 @@ struct BattleAttack;
 struct BattleStackAttacked;
 struct CPack;
 struct Query;
+struct SetGarrisons;
+struct SetResource;
+struct SetResources;
+struct NewStructures;
 class CGHeroInstance;
 extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
 extern boost::mutex gsm;
@@ -185,6 +189,10 @@ public:
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info);
+	void sendAndApply(SetGarrisons * info);
+	void sendAndApply(SetResource * info);
+	void sendAndApply(SetResources * info);
+	void sendAndApply(NewStructures * info);
 
 	void run(bool resume);
 	void newTurn();
