@@ -3063,7 +3063,7 @@ ui8 CGameState::checkForStandardWin() const
 	ui8 supposedWinner = 255, winnerTeam = 255;
 	for(std::map<ui8,PlayerState>::const_iterator i = players.begin(); i != players.end(); i++)
 	{
-		if(i->second.status == PlayerState::INGAME)
+		if(i->second.status == PlayerState::INGAME && i->first < PLAYER_LIMIT)
 		{
 			if(supposedWinner == 255)		
 			{
@@ -3086,7 +3086,7 @@ bool CGameState::checkForStandardLoss( ui8 player ) const
 {
 	//std loss condition is: player lost all towns and heroes
 	const PlayerState &p = *getPlayer(player);
-	return p.heroes.size() || p.towns.size();
+	return !p.heroes.size() && !p.towns.size();
 }
 
 int CGameState::lossCheck( ui8 player ) const

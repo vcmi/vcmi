@@ -3620,7 +3620,7 @@ void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, I
 		}
 		else //lost all towns and heroes
 		{
-			out.text.addReplacement(MetaString::GENERAL_TXT, 660); //All your forces have been defeated, and you are banished from this land!
+			out.text.addTxt(MetaString::GENERAL_TXT, 660); //All your forces have been defeated, and you are banished from this land!
 		}
 	}
 }
