@@ -2,8 +2,10 @@
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "../CCallback.h"
+#include "CConfigHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
+#include "CSpellWindow.h"
 #include "CMessage.h"
 #include "SDL_Extensions.h"
 #include "Graphics.h"
@@ -15,6 +17,8 @@
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
 #include <boost/assign/std/vector.hpp> 
+#include <boost/assign/list_of.hpp>
+#include <boost/format.hpp>
 #include <sstream>
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -29,9 +33,7 @@ using namespace CSDL_Ext;
  *
  */
 
-int PicCount = 4;//how many pictures for background present in .def TODO - move to config
-int size = 4;//we have 4 visible items in the list, would be nice to move this value to configs later
-
+#define ADVOPT (conf.go()->ac)
 CDefEssential* CKingdomInterface::slots;
 CDefEssential* CKingdomInterface::fort;
 CDefEssential* CKingdomInterface::hall;
@@ -39,21 +41,23 @@ CDefEssential* CKingdomInterface::hall;
 CKingdomInterface::CKingdomInterface()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	defActions = /*ACTIVATE | DEACTIVATE |*/ SHARE_POS | DISPOSE;//??? why buttons dont receive activate/deactivate???
+	defActions =/* ACTIVATE | DEACTIVATE | */SHARE_POS | DISPOSE;
+	PicCount = ADVOPT.overviewPics;
+	size = ADVOPT.overviewSize;
 	pos.x = screen->w/2 - 400;
 	pos.y = screen->h/2 - (68+58*size);
 	heroPos = townPos = objPos = 0;
-	state = 2;
-	showHarrisoned = false;
+	state = 0;
+	showHarrisoned = false;//set to true if you want to see garrisoned heroes
 
-	bg = BitmapHandler::loadBitmap("OVCAST.bmp");
+	bg = BitmapHandler::loadBitmap(ADVOPT.overviewBg);
 	graphics->blueToPlayersAdv(bg, LOCPLINT->playerID);
 	mines = CDefHandler::giveDefEss("OVMINES.DEF");
-	slots = CDefHandler::giveDefEss("OVSLOT.DEF");
 	title = CDefHandler::giveDefEss("OVTITLE.DEF");
 	hall = CDefHandler::giveDefEss("ITMTL.DEF");
 	fort = CDefHandler::giveDefEss("ITMCL.DEF");
 	objPics = CDefHandler::giveDefEss("FLAGPORT.DEF");
+	slots = CDefHandler::giveDefEss("OVSLOT.DEF");
 
 	toHeroes = new AdventureMapButton (CGI->generaltexth->overview[11],"",
 		boost::bind(&CKingdomInterface::listToHeroes,this),748,28+size*116,"OVBUTN1.DEF");
@@ -70,15 +74,18 @@ CKingdomInterface::CKingdomInterface()
 	statusbar = new CStatusBar(pos.x+7,pos.y+91+size*116,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("KRESBAR.bmp",pos.x+3,pos.y+111+size*116,32,2,76,76);
 
-	for (int i=0; i<RESOURCE_QUANTITY; i++)
-		incomes.push_back(new CResIncomePic(i,mines));
+	for (int i = 0; i<size; i++)
+		blitAt(slots->ourImages[PicCount].bitmap,23,26+i*116,bg);
+
+	for (size_t i=0; i<RESOURCE_QUANTITY; i++)
+		incomes.push_back(new CResIncomePic(i,mines,this));//bottom panel with mines
 
 	heroes.resize(size);
-	for(size_t i=0;i<size;i++)//preparing lists for input
-		heroes[i] = new  CHeroItem(i);
+	for(size_t i=0;i<size;i++)//creating empty hero/town lists for input
+		heroes[i] = new  CHeroItem(i,this);
 	towns.resize(size);
 	for(size_t i=0;i<size;i++)
-		towns[i] = new  CTownItem(i);
+		towns[i] = new  CTownItem(i,this);
 
 	slider = new CSlider(4, 4, size*116+19, boost::bind (&CKingdomInterface::sliderMoved, this, _1),
 		size, LOCPLINT->cb->howManyHeroes(showHarrisoned), 0, false, 0);
@@ -115,20 +122,20 @@ CKingdomInterface::CKingdomInterface()
 	#undef INSERT_MAP
 	for(size_t i = 0; i<CGI->state->map->objects.size(); i++)
 	{
-		CGObjectInstance* obj = CGI->state->map->objects[i];
+		CGObjectInstance* obj = CGI->state->map->objects[i];//current object
 		if (obj)
 		{
 			std::pair<int,int > curElm = std::pair<int,int >(obj->ID, obj->subID);
 
-			if (obj->tempOwner == CGI->state->currentPlayer)
+			if (obj->tempOwner == CGI->state->currentPlayer)//if object is our
 			{
-				if ( obj->ID == 17 )
+				if ( obj->ID == 17 )//dwelling, text is a plural name of a creature
 				{
 					objList[obj->subID].first += 1;
 					objList[obj->subID].second = & CGI->creh->creatures[CGI->objh->cregens[obj->subID]].namePl;
 				}
 				else if (addObjects.find(curElm) != addObjects.end())
-				{
+				{//object from addObjects map, text is name of the object
 					objList[addObjects[curElm]].first += 1;
 					objList[addObjects[curElm]].second = & obj->hoverName;
 				}
@@ -151,13 +158,13 @@ void CKingdomInterface::moveObjectList(int newPos)
 	int bottom = objList.size() > objSize ? objList.size() - objSize : 0 ;
 	switch (newPos)//checking what button was pressed
 	{
-		case 0: objPos = top;
+/*  Top */	case 0: objPos = top;
 			break;
-		case 1: objPos = objPos==top?top:(objPos-1);
+/*  Up  */	case 1: objPos = objPos==top?top:(objPos-1);
 			break;
-		case 2: objPos = objPos==bottom?bottom:(objPos+1);
+/* Down */	case 2: objPos = objPos==bottom?bottom:(objPos+1);
 			break;
-		case 3: objPos = bottom;
+/*Bottom*/	case 3: objPos = bottom;
 			break;
 	}
 	GH.totalRedraw();
@@ -167,13 +174,14 @@ CKingdomInterface::~CKingdomInterface()
 {
 	SDL_FreeSurface(bg);
 
-	delete title;
+	delete title;//deleting .def
 	delete slots;
 	delete fort;
 	delete hall;
 	delete mines;
+	delete objPics;
 
-	towns.clear();
+	towns.clear();//deleting lists
 	heroes.clear();
 	incomes.clear();
 	ObjList.clear();
@@ -205,14 +213,14 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 	int skipCount=0, curPos=objPos<0?(-objPos):0;
 	for (std::map<int,std::pair<int, std::string*> >::iterator it=objList.begin(); it!= objList.end(); it++)
 	{
-		if (skipCount<objPos)
+		if (skipCount<objPos)//we will show only objects from objPos
 		{
 			skipCount++;
 			continue;
 		}
 		blitAt(objPics->ourImages[(*it).first].bitmap,pos.x+740,pos.y+44+curPos*57,to);
 
-		std::ostringstream ostrs;
+		std::ostringstream ostrs;//objects count
 		ostrs << (*it).second.first;
 		CSDL_Ext::printTo(ostrs.str(),pos.x+790,pos.y+94+curPos*57,GEOR13,zwykly,to);
 
@@ -228,14 +236,14 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[4],pos.x+370,pos.y+12,TNRB16,zwykly,to);
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[5],pos.x+600,pos.y+12,TNRB16,zwykly,to);
 		for (size_t i=0; i<size; i++)
-			towns[i]->show(to);//show town list
+			towns[i]->showAll(to);//show town list
 	}
 	else
 	{//text "Hero/stats" and "Skills"
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[0],pos.x+150,pos.y+12,TNRB16,zwykly,to);
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[1],pos.x+500,pos.y+12,TNRB16,zwykly,to);
 		for (size_t i=0; i<size; i++)
-			heroes[i]->show(to);//show hero list
+			heroes[i]->showAll(to);//show hero list
 	}
 
 	for(size_t i=0;i<incomes.size();i++)
@@ -269,12 +277,11 @@ void CKingdomInterface::activate()
 
 	for (size_t i=0; i<incomes.size(); i++)
 		incomes[i]->activate();
-
 	if (state == 1)
-		for (int i=0; i<size; i++)
+		for (size_t i=0; i<size; i++)
 			towns[i]->activate();
 	else
-		for (int i=0; i<size; i++)
+		for (size_t i=0; i<size; i++)
 			heroes[i]->activate();
 
 	slider->activate();
@@ -298,10 +305,10 @@ void CKingdomInterface::deactivate()
 		incomes[i]->deactivate();
 
 	if (state == 1)
-		for (int i=0; i<size; i++)
+		for (size_t i=0; i<size; i++)
 			towns[i]->deactivate();
 	else
-		for (int i=0; i<size; i++)
+		for (size_t i=0; i<size; i++)
 			heroes[i]->deactivate();
 	slider->deactivate();
 }
@@ -314,34 +321,32 @@ void CKingdomInterface::recreateHeroList(int pos)
 {
 	std::vector<const CGHeroInstance*> Heroes = LOCPLINT->cb->getHeroesInfo(true);
 	int i=0, cnt=0;
-	for (int j = 0; ((j<Heroes.size()) && (i<size));j++)
+	for (size_t j = 0; ((j<Heroes.size()) && (i<size));j++)
 	{
 		if (Heroes[j]->inTownGarrison && (!showHarrisoned))//if hero in garrison and we don't show them
-		{
 			continue;
-		}
 		if (cnt<pos)//skipping heroes
 		{
 			cnt++;
 			continue;
 		}//this hero will be added
-		heroes[i]->hero = Heroes[j];
+		heroes[i]->setHero(Heroes[j]);
 		i++;
 	}
 	for (i;i<size;i++)//if we still have empty pieces
-		heroes[i]->hero = NULL;//empty pic
+		heroes[i]->setHero(NULL);//empty pic
 	GH.totalRedraw();
 }
 
 void CKingdomInterface::recreateTownList(int pos)
 {
 	std::vector<const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
-	for(int i=0;i<size;i++)
+	for(size_t i=0;i<size;i++)
 	{
 		if (i+pos<Towns.size())
-			towns[i]->town = Towns[i+pos];//replace town
+			towns[i]->setTown(Towns[i+pos]);//replace town
 		else
-			towns[i]->town = NULL;//only empty pic
+			towns[i]->setTown(NULL);//only empty pic
 	}
 	GH.totalRedraw();
 }
@@ -355,10 +360,10 @@ void CKingdomInterface::listToTowns()
 	slider->setAmount(LOCPLINT->cb->howManyTowns());
 	slider->value=townPos;//moving slider
 	recreateTownList(townPos);
-	for (size_t i=0;i<size;i++)//TODO:is this loop needed?
+	for (size_t i=0;i<size;i++)
 	{
-		towns[i]->deactivate();
-		heroes[i]->activate();
+		heroes[i]->deactivate();
+		towns[i]->activate();
 	}
 }
 
@@ -371,7 +376,7 @@ void CKingdomInterface::listToHeroes()
 	slider->setAmount(LOCPLINT->cb->howManyHeroes(showHarrisoned));
 	slider->value=heroPos;//moving slider
 	recreateHeroList(heroPos);
-	for (size_t i=0;i<size;i++)//TODO:is this loop needed?
+	for (size_t i=0;i<size;i++)
 	{
 		towns[i]->deactivate();
 		heroes[i]->activate();
@@ -380,25 +385,39 @@ void CKingdomInterface::listToHeroes()
 
 void CKingdomInterface::sliderMoved(int newpos)
 {
-	if ( state == 1 )//towns
+	if (state == 0)
 	{
 		townPos = newpos;
+		recreateHeroList(newpos);
+		state = 2;
+	}
+	else if ( state == 1 )//towns
+	{
+		for (size_t i=0; i<size; i++)
+			towns[i]->deactivate();
+		townPos = newpos;
 		recreateTownList(newpos);
+		for (size_t i=0; i<size; i++)
+			towns[i]->activate();
 	}
 	else//heroes
 	{
+		for (size_t i=0; i<size; i++)
+			heroes[i]->deactivate();
 		heroPos = newpos;
 		recreateHeroList(newpos);
+		for (size_t i=0; i<size; i++)
+			heroes[i]->activate();
 	}
 }
 
-CKingdomInterface::CResIncomePic::CResIncomePic(int RID, CDefEssential * Mines)
+CKingdomInterface::CResIncomePic::CResIncomePic(int RID, CDefEssential * Mines, CKingdomInterface * Owner)
 {
 	used = HOVER;
-	recActions = DISPOSE | SHARE_POS;
+	recActions =/* ACTIVATE | DEACTIVATE | SHOWALL |*/ DISPOSE | SHARE_POS;
 	resID = RID;
 	pos.x += 20 + RID*80;
-	pos.y += 31+size*116;
+	pos.y += 31+Owner->size*116;
 	pos.h = 54;
 	pos.w = (resID!=7)?68:136;//gold pile is bigger
 	mines = Mines;
@@ -411,7 +430,6 @@ CKingdomInterface::CResIncomePic::CResIncomePic(int RID, CDefEssential * Mines)
 	}
 	else
 		hoverText = CGI->generaltexth->allTexts[255];
-	tlog1<<hoverText<<"\n";
 
 	value = 0;
 	int resource = resID==7?6:resID;
@@ -472,9 +490,10 @@ void CKingdomInterface::CResIncomePic::show(SDL_Surface * to)
 }
 
 
-CKingdomInterface::CTownItem::CTownItem(int num)
+CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 {
 	recActions = DISPOSE | SHARE_POS;
+	owner = Owner;
 	numb = num;
 	pos.x += 23;
 	pos.y += 26+num*116;
@@ -487,6 +506,11 @@ CKingdomInterface::CTownItem::~CTownItem()
 {
 }
 
+void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
+{
+	town = newTown;
+}
+
 void CKingdomInterface::CTownItem::activate()
 {
 }
@@ -495,14 +519,14 @@ void CKingdomInterface::CTownItem::deactivate()
 {
 }
 
-void CKingdomInterface::CTownItem::show(SDL_Surface * to)
+void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 {
 	if (!town)
 	{//if NULL - print background & exit
-		blitAt(slots->ourImages[numb % PicCount].bitmap,pos.x,pos.y,to);
+		blitAt(slots->ourImages[numb % owner->PicCount].bitmap,pos.x,pos.y,to);
 		return;
 	}//background
-	blitAt(slots->ourImages[PicCount+2].bitmap,pos.x,pos.y,to);
+	blitAt(slots->ourImages[owner->PicCount+2].bitmap,pos.x,pos.y,to);
 	//town pic/name
 	int townPic = town->subID*2;
 	if (!town->hasFort())
@@ -522,7 +546,7 @@ void CKingdomInterface::CTownItem::show(SDL_Surface * to)
 	std::ostringstream oss;
 	oss << town->dailyIncome();
 	CSDL_Ext::printAtMiddle(oss.str(),pos.x+188,pos.y+60,GEOR13,zwykly,to);
-//	Creature bonuses/ Creature available texts - need to find text wrapper thingy
+//	Creature bonuses/ Creature available texts - need to find text wrapper thingy (have "\n" inside text)
 //	CSDL_Ext::printAtWR(CGI->generaltexth->allTexts[265],pos.x,pos.y+80,GEOR13,zwykly,to);
 //	CSDL_Ext::printTo(CGI->generaltexth->allTexts[266],pos.x+350,pos.y+80,GEOR13,zwykly,to);
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
@@ -575,43 +599,218 @@ void CKingdomInterface::CTownItem::show(SDL_Surface * to)
 		}
 }
 
-CKingdomInterface::CHeroItem::CHeroItem(int num)
+CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	recActions = DISPOSE | SHARE_POS;
+	defActions = SHARE_POS;
+	owner = Owner;
 	numb = num;
 	pos.x += 23;
 	pos.y += 26+num*116;
 	pos.w = 702;
 	pos.h = 114;
 	hero = NULL;
+	garr = NULL;
 	artGroup = 0;
+	backpackPos = 0;
+	artButtons = new CHighlightableButtonsGroup(0);
+	for (size_t it = 0; it<3; it++)
+	{
+		artButtons->addButton(boost::assign::map_list_of(0,CGI->generaltexth->overview[13+it]),
+			CGI->generaltexth->overview[8+it], "OVBUTN3.DEF",364+it*112, 46, it);
+		std::string str = CGI->generaltexth->overview[8+it];//TODO:find function for this if any
+		str = str.substr(str.find_first_of("{"), str.find_first_of("}")-str.find_first_of("{"));
+		artButtons->buttons[it]->addTextOverlay(str, FONT_SMALL, tytulowy);
+	}
+	artButtons->onChange = boost::bind(&CKingdomInterface::CHeroItem::onArtChange, this, _1);
+	artButtons->select(0,0);
+
+	artLeft = new AdventureMapButton("", "", boost::bind
+		(&CKingdomInterface::CHeroItem::scrollArts,this,-1), 269, 66, "hsbtns3.def", SDLK_LEFT);
+	artRight = new AdventureMapButton("", "", boost::bind
+		(&CKingdomInterface::CHeroItem::scrollArts,this,+1), 675, 66, "hsbtns5.def", SDLK_RIGHT);
+
+	portrait = new LRClickableAreaWText();
+	portrait->pos = genRect(64, 58, pos.x+5, pos.y + 5);
+	char bufor[400];
+	for(int i=0; i<4; i++)
+	{
+		primarySkills.push_back(new LRClickableAreaWTextComp());
+		primarySkills[i]->pos = genRect(45, 32, pos.x+77 + 36*i, pos.y+26);
+		primarySkills[i]->text = CGI->generaltexth->arraytxt[2+i];
+		primarySkills[i]->type = i;
+		primarySkills[i]->baseType = 0;
+		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[i].c_str());
+		primarySkills[i]->hoverText = std::string(bufor);
+	};
+	experience = new LRClickableAreaWText();
+	experience->pos = genRect(33, 49, pos.x+322, pos.y+4);
+	experience->hoverText = CGI->generaltexth->heroscrn[9];
+
+	morale = new LRClickableAreaWTextComp();
+	morale->pos = genRect(20,32,pos.x+221,pos.y+52);
+
+	luck = new LRClickableAreaWTextComp();
+	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
+
+	spellPoints = new LRClickableAreaWText();
+	spellPoints->pos = genRect(32, 48, pos.x+271, pos.y+4);	spellPoints->hoverText = CGI->generaltexth->heroscrn[22];
+
+	speciality = new LRClickableAreaWText();
+	speciality->pos = genRect(32, 48, pos.x+271, pos.y+4);	speciality->hoverText = CGI->generaltexth->heroscrn[27];
+
+	for(int i=0; i<8; ++i)
+	{
+		secondarySkills.push_back(new LRClickableAreaWTextComp());		secondarySkills[i]->pos = genRect(32, 32, pos.x+410+i*37, pos.y+4);
+		secondarySkills[i]->baseType = 1;
+	};
+
+	for (int i=0; i<18;i++)
+	{
+		artifacts.push_back(new CArtPlace(this));		artifacts[i]->pos = genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66);
+		artifacts[i]->baseType = SComponent::artifact;
+	};
+
+	for (int i=0; i<8;i++)
+	{
+		backpack.push_back(new CArtPlace(this));		backpack[i]->pos = genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66);
+		backpack[i]->baseType = SComponent::artifact;
+	};
+
 }
 
 CKingdomInterface::CHeroItem::~CHeroItem()
 {
+	delete artButtons;
 }
 
-void CKingdomInterface::CHeroItem::show(SDL_Surface * to)
+void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
+{
+	BLOCK_CAPTURING;
+	delete garr;
+	hero = newHero;
+	if (!hero)
+	{
+		return;
+		garr = NULL;
+	}
+	char bufor[400];
+	artLeft->block(hero->artifacts.size() <= 8);
+	artRight->block(hero->artifacts.size() <= 8);
+	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), owner->bg, Point(29,104), hero, NULL, false, true);
+	garr->update = false;
+
+	for (int i=0; i<artifacts.size(); i++)
+	{
+		artifacts[i]->type = hero->getArtAtPos(i);
+		if (artifacts[i]->type<0)
+			artifacts[i]->hoverText = CGI->generaltexth->heroscrn[11];
+		else
+		{
+			artifacts[i]->text = CGI->generaltexth->artifDescriptions[artifacts[i]->type];
+			artifacts[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[artifacts[i]->type].Name());
+		}
+	}
+
+	for (int i=0; i<backpack.size(); i++)
+	{
+		backpack[i]->type = hero->getArtAtPos(19+i);
+		if (backpack[i]->type<0)
+			backpack[i]->hoverText ="";
+		else
+		{
+			backpack[i]->text = CGI->generaltexth->artifDescriptions[backpack[i]->type];
+			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type].Name());
+		}
+	}
+
+	sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), hero->name.c_str(), hero->type->heroClass->name.c_str());
+	portrait->hoverText = std::string(bufor);
+	portrait->text = hero->getBiography();
+
+	//primary skills
+	for(size_t g=0; g<primarySkills.size(); ++g)
+		primarySkills[g]->bonus = hero->getPrimSkillLevel(g);
+
+	//secondary skills
+	for(size_t g=0; g<std::min(secondarySkills.size(),hero->secSkills.size()); ++g)
+	{
+		int skill = hero->secSkills[g].first, 
+		    level = hero->secSkills[g].second;
+		secondarySkills[g]->type = skill;
+		secondarySkills[g]->bonus = level;
+		secondarySkills[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
+		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level-1].c_str(), CGI->generaltexth->skillName[skill].c_str());
+		secondarySkills[g]->hoverText = std::string(bufor);
+	}
+	//experience
+	experience->text = CGI->generaltexth->allTexts[2].c_str();
+	boost::replace_first(experience->text, "%d", boost::lexical_cast<std::string>(hero->level));
+	boost::replace_first(experience->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
+	boost::replace_first(experience->text, "%d", boost::lexical_cast<std::string>(hero->exp));
+
+	//spell points
+	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
+	spellPoints->text = std::string(bufor);
+
+	//setting morale
+	std::vector<std::pair<int,std::string> > mrl = hero->getCurrentMoraleModifiers();
+	int mrlv = hero->getCurrentMorale();
+	int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
+	morale->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
+	morale->baseType = SComponent::morale;
+	morale->bonus = mrlv;
+	morale->text = CGI->generaltexth->arraytxt[88];
+	boost::algorithm::replace_first(morale->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
+	for(int it=0; it < mrl.size(); it++)
+		morale->text += mrl[it].second;
+
+	//setting luck
+	mrl = hero->getCurrentLuckModifiers();
+	mrlv = hero->getCurrentLuck();
+	mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
+	luck->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
+	luck->baseType = SComponent::luck;
+	luck->bonus = mrlv;
+	luck->text = CGI->generaltexth->arraytxt[62];
+	boost::algorithm::replace_first(luck->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
+	for(int it=0; it < mrl.size(); it++)
+		luck->text += mrl[it].second;
+//	redrawCurBack();
+}
+
+void CKingdomInterface::CHeroItem::scrollArts(int move)
+{
+	backpackPos = ( backpackPos + move + hero->artifacts.size()) % hero->artifacts.size();
+	for (int i=0; i<backpack.size(); i++)
+	{
+		backpack[i]->type = hero->getArtAtPos(19+(backpackPos + i)%hero->artifacts.size());
+		if (backpack[i]->type<0)
+			backpack[i]->hoverText ="";
+		else
+		{
+			backpack[i]->text = CGI->generaltexth->artifDescriptions[backpack[i]->type];
+			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type].Name());
+		}
+	}
+	GH.totalRedraw();
+}
+
+void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 {
 	if (!hero)
 	{//if we have no hero for this slot - print background & exit
-		blitAt(slots->ourImages[numb % PicCount].bitmap,pos.x,pos.y,to);
+		blitAt(slots->ourImages[numb % owner->PicCount].bitmap,pos.x,pos.y,to);
 		return;
 	}//print background, different for arts view/backpack mode
-	blitAt(slots->ourImages[(artGroup=2)?PicCount:(PicCount+1)].bitmap,pos.x,pos.y,to);
+	blitAt(slots->ourImages[(artGroup!=2)?owner->PicCount:(owner->PicCount+1)].bitmap,pos.x,pos.y,to);
 	//text "Artifacts"
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[2],pos.x+320,pos.y+55,GEOR13,zwykly,to);
-	int X = pos.x+6;//portrait
 	blitAt(graphics->portraitLarge[hero->portrait],pos.x+5,pos.y+6,to);
-	for(std::map<si32,std::pair<ui32,si32> >::const_iterator
-		j=hero->army.slots.begin(); j!=hero->army.slots.end(); j++)
-	{//army
-		blitAt(graphics->smallImgs[j->second.first],X,pos.y+78,to);
-		std::ostringstream creanum;
-		creanum << (j->second.second);
-		CSDL_Ext::printTo(creanum.str(),X+30,pos.y+110,GEOR13,zwykly,to);
-		X+=36;
-	}//hero name
+
+	garr->show(to);
+	//hero name
 	CSDL_Ext::printAt(hero->name,pos.x+73,pos.y+7,GEOR13,zwykly,to);
 	for (int i = 0; i<6; i++)
 	{//primary skills, mana and exp. pics
@@ -642,33 +841,138 @@ void CKingdomInterface::CHeroItem::show(SDL_Surface * to)
 		blitAt(graphics->abils32->ourImages[skill*3+level+2].bitmap,pos.x+411+i*36,pos.y+6,to);
 	}
 
+	artButtons->show(to);
+
 	int iter=0;
 	switch (artGroup)
 	{//arts
 		case 1:iter = 9;//misc. arts, spellbook, war machines
 		case 0://equipped arts
-			for (int i = iter ; i<iter+9;i++) 
+			for (int i = iter ; i<iter+9;i++)
 			{
 				int artID = hero->getArtAtPos(i);
 				if (artID>=0)
 					blitAt(graphics->artDefs->ourImages[artID].bitmap,pos.x+268+48*(i%9),pos.y+66,to);
 			}
 			break;
-		case 2://TODO:backpack
+		case 2:
+			artLeft->show(to);
+			artRight->show(to);
+			int max = hero->artifacts.size();
+			iter = std::min(8, max);
+			for (size_t it = 0 ; it<iter;it++)
+				blitAt(graphics->artDefs->ourImages[hero->artifacts[(it+backpackPos)%max]].bitmap,pos.x+293+48*it,pos.y+66,to);
 			break;
-		default: tlog1<<"Unknown artifact group: "<<artGroup<<"\n";
 	}
+	show(to);
 }
 
 void CKingdomInterface::CHeroItem::onArtChange(int newstate)
 {
+	if (!hero)
+		return;
+	deactivate();
 	artGroup = newstate;
+	activate();
+	GH.totalRedraw();
 }
 
 void CKingdomInterface::CHeroItem::activate()
 {
+	if (!hero)
+		return;
+	artButtons->activate();
+	garr->activate();
+	if ( artGroup == 2 )
+	{
+		artLeft->activate();
+		artRight->activate();
+		for (size_t i=0; i<8;i++)
+			backpack[i]->activate();
+	}
+	else
+	{
+		for (size_t i=artGroup*9; i<9+artGroup*9;i++)
+			artifacts[i]->activate();
+	}
+	portrait->activate();
+	experience->activate();
+	morale->activate();
+	luck->activate();
+	spellPoints->activate();
+	speciality->activate();
+
+	for (size_t i=0; i<primarySkills.size();i++)
+		primarySkills[i]->activate();
+
+	for (size_t i=0; i<std::min(secondarySkills.size(),hero->secSkills.size());i++)
+		secondarySkills[i]->activate();
 }
 
 void CKingdomInterface::CHeroItem::deactivate()
 {
+	if (!hero)
+		return;
+	artButtons->deactivate();
+	garr->deactivate();
+	if ( artGroup == 2 )
+	{
+		artLeft->deactivate();
+		artRight->deactivate();
+		for (size_t i=0; i<8;i++)
+			backpack[i]->deactivate();
+	}
+	else
+	{
+		for (size_t i=artGroup*9; i<9+artGroup*9;i++)
+			artifacts[i]->deactivate();
+	}
+
+	portrait->deactivate();
+	experience->deactivate();
+	morale->deactivate();
+	luck->deactivate();
+	spellPoints->deactivate();
+	speciality->deactivate();
+	for (size_t i=0; i<primarySkills.size();i++)
+		primarySkills[i]->deactivate();
+
+	for (size_t i=0; i<std::min(secondarySkills.size(),hero->secSkills.size());i++)
+		secondarySkills[i]->deactivate();
+}
+
+CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner)
+{
+	hero = owner;
+	used = LCLICK | RCLICK | HOVER;
+}
+
+void CKingdomInterface::CHeroItem::CArtPlace::activate()
+{
+	LRClickableAreaWTextComp::activate();
+}
+
+void CKingdomInterface::CHeroItem::CArtPlace::clickLeft(tribool down, bool previousState)
+{tlog1<<pos.x<<" "<<type<<"\n";
+	if (!down && previousState && type>=0)
+	{
+		if(type == 0)
+		{
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), hero->hero);
+			GH.pushInt(spellWindow);
+		}
+		else
+			LRClickableAreaWTextComp::clickLeft(down,previousState);
+	}
+}
+
+void CKingdomInterface::CHeroItem::CArtPlace::clickRight(tribool down, bool previousState)
+{
+	if (type>=0)
+		LRClickableAreaWTextComp::clickRight(down, previousState);
+}
+
+void CKingdomInterface::CHeroItem::CArtPlace::deactivate()
+{
+		LRClickableAreaWTextComp::deactivate();
 }

@@ -294,6 +294,13 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 							  |	"maxOutputPerLine=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::outputLineLength)]
 							) 
 						 )
+				| str_p("Overview:") >>
+						*(	
+							(	"pics=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::overviewPics)]
+							  |	"size=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::overviewSize)]
+							  |	"graphic=" >> fname[SetAdventureStr(&AdventureMapConfig::overviewBg)]
+							) 
+						 )
 				;
 			AdvMapOptionsSequence = *(AdvMapOption >> (';' | eps_p[lerror("Semicolon lacking in advmapopt!")]));
 			GUIResolution = (uint_p[assign_a(curRes.first)] >> 'x' >> uint_p[assign_a(curRes.second)])

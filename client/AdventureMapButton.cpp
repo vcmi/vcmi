@@ -55,8 +55,8 @@ void CButtonBase::show(SDL_Surface * to)
 	{
 		blitAt(imgs[curimg][img],pos.x,pos.y,to);
 		if(text)
-		{
-			CSDL_Ext::printAt(text->text, text->x + pos.x + state, text->y + pos.y + state, text->font, zwykly, to);
+		{//using "state" instead of "state == 1" screwed up hoverable buttons with text
+			CSDL_Ext::printAt(text->text, text->x + pos.x + (state == 1), text->y + pos.y + (state == 1), text->font, text->color, to);
 		}
 	}
 	else
@@ -70,7 +70,7 @@ void CButtonBase::showAll( SDL_Surface * to )
 	show(to);
 }
 
-void CButtonBase::addTextOverlay( const std::string Text, EFonts font )
+void CButtonBase::addTextOverlay( const std::string Text, EFonts font, SDL_Color color)
 {
 	text = new TextOverlay;
 	text->text = Text;
@@ -79,6 +79,7 @@ void CButtonBase::addTextOverlay( const std::string Text, EFonts font )
 	text->x = pos.w/2 - f->getWidth(Text.c_str())/2;
 	text->y = pos.h/2 - f->height/2;
 	text->font = font;
+	text->color = color;
 }
 
 

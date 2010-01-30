@@ -15,6 +15,8 @@
  *
  */
 
+extern SDL_Color tytulowy, tlo, zwykly ;
+
 class CDefEssential;
 
 namespace config{struct ButtonInfo;}
@@ -27,9 +29,10 @@ public:
 	{
 		EFonts font;
 		std::string text;
+		SDL_Color color;
 		int x, y;
 	} *text;
-	void addTextOverlay(const std::string Text, EFonts font);
+	void addTextOverlay(const std::string Text, EFonts font, SDL_Color color = zwykly);
 
 	int bitmapOffset; //TODO: comment me
 	int type; //advmapbutton=2 //TODO: comment me

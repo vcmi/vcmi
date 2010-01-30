@@ -61,6 +61,9 @@ namespace config
 		std::vector<std::string> gemG;
 		//in-game console
 		int inputLineLength, outputLineLength;
+		//kingdom overview
+		int overviewPics, overviewSize; //pic count in def and count of visible slots
+		std::string overviewBg; //background name
 	};
 	struct GUIOptions
 	{

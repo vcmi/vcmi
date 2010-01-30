@@ -362,11 +362,11 @@ void CGarrisonSlot::show(SDL_Surface * to)
 			blitAt(imgs[-1],pos,to);
 		}
 	}
-	else //empty slot
+	else//empty slot
 	{
 		Rect pos1 = pos, pos2 = pos; //positions on the garr bg sur and scren
-		pos1.x = owner->surOffset.x;
-		pos1.y = owner->surOffset.y;
+		pos1.x = owner->surOffset.x+ pos.x-owner->pos.x;
+		pos1.y = owner->surOffset.y+ pos.y-owner->pos.y;
 
 		SDL_BlitSurface(owner->sur,&pos1,to,&pos2);
 		if(owner->splitting)

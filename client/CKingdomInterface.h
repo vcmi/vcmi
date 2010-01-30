@@ -6,6 +6,7 @@
 #include "../global.h"
 #include <SDL.h>
 #include "GUIBase.h"
+#include "GUIClasses.h"
 #include "../hch/CMusicBase.h"
 class AdventureMapButton;
 class CHighlightableButtonsGroup;
@@ -14,6 +15,8 @@ class CStatusBar;
 class CSlider;
 class CMinorResDataBar;
 class HoverableArea;
+/*class LRClickableAreaWText
+class LRClickableAreaWTextComp*/
 
 /*
  * CKingdomInterface.h, part of VCMI engine
@@ -32,7 +35,7 @@ class CKingdomInterface : public CIntObject
 	public:
 		int resID,value;//resource ID
 		std::string hoverText;
-		CResIncomePic(int RID, CDefEssential * Mines);//c-tor
+		CResIncomePic(int RID, CDefEssential * Mines, CKingdomInterface * Owner);//c-tor
 		~CResIncomePic();//d-tor
 		void hover(bool on);
 		void show(SDL_Surface * to);
@@ -40,25 +43,53 @@ class CKingdomInterface : public CIntObject
 	};
 	class CTownItem : public CIntObject
 	{
-	public:
-		int numb;//position on screen (1..size)
+	private:
 		const CGTownInstance * town;
-		void show(SDL_Surface * to);
+	public:
+		CKingdomInterface * owner;
+		int numb;//position on screen (1..size)
+		void setTown(const CGTownInstance * newTown);//change town and update info
+		void showAll(SDL_Surface * to);
 		void activate();
 		void deactivate();
-		CTownItem (int num);//c-tor
+		CTownItem (int num, CKingdomInterface * Owner);//c-tor
 		~CTownItem();//d-tor
 	};
-	class CHeroItem : public CIntObject
+	class CHeroItem : public CWindowWithGarrison
 	{
+		class CArtPlace: public LRClickableAreaWTextComp
+		{
+		public:
+			CHeroItem * hero;
+			CArtPlace(CHeroItem * owner); //c-tor
+			void clickLeft(tribool down, bool previousState);
+			void clickRight(tribool down, bool previousState);
+			void activate();
+			void deactivate();
+		};
 	public:
 		const CGHeroInstance * hero;
+		CKingdomInterface * owner;
 		int artGroup,numb;//current art group (0 = equiped, 1 = misc, 2 = backpack)
+		int backpackPos;//first visible artifact in backpack
+		AdventureMapButton * artLeft, * artRight;//buttons for backpack
+		LRClickableAreaWText * portrait;
+		LRClickableAreaWText * experience;
+		LRClickableAreaWTextComp * morale, * luck;
+		LRClickableAreaWText * spellPoints;
+		LRClickableAreaWText * speciality;
+		std::vector<LRClickableAreaWTextComp *> primarySkills;
+		std::vector<LRClickableAreaWTextComp *> secondarySkills;
+		std::vector<LRClickableAreaWTextComp *> artifacts;
+		std::vector<LRClickableAreaWTextComp *> backpack;
+		CHighlightableButtonsGroup * artButtons;
+		void setHero(const CGHeroInstance * newHero);//change hero and update info
+		void scrollArts(int move);//moving backpack, receiving distance
 		void onArtChange(int newstate);//changes artgroup
-		void show(SDL_Surface * to);
+		void showAll(SDL_Surface * to);
 		void activate();
 		void deactivate();
-		CHeroItem (int num);//c-tor
+		CHeroItem (int num, CKingdomInterface * Owner);//c-tor
 		~CHeroItem();//d-tor
 	};
 public:
@@ -67,6 +98,7 @@ public:
 	SDL_Surface * bg;//background
 	CStatusBar * statusbar;//statusbar
 	CResDataBar *resdatabar;//resources
+	int size,PicCount;
 
 	//buttons
 	AdventureMapButton *exit;//exit button
