@@ -2847,19 +2847,19 @@ ui32 BattleInfo::calculateSpellDmg(const CSpell * sp, const CGHeroInstance * cas
 	//applying hero bonuses
 	if(sp->air && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
 	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) / 100.0f);
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY)) / 100.0f;
 	}
 	else if(sp->fire && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
 	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) / 100.0f);
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY)) / 100.0f;
 	}
 	else if(sp->water && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
 	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) / 100.0f);
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
 	}
 	else if(sp->earth && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
 	{
-		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) / 100.0f);
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
 	}
 
 	//affected creature-specific part
