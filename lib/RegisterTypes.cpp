@@ -33,6 +33,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGCreature>();
 	s.template registerType<CGSignBottle>();
 	s.template registerType<CGSeerHut>();
+	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGWitchHut>();
 	s.template registerType<CGScholar>();
 	s.template registerType<CGGarrison>();
@@ -40,7 +41,6 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGResource>();
 	s.template registerType<CGMine>();
 	s.template registerType<CGShrine>();
-	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGBonusingObject>();
 	s.template registerType<CGMagicSpring>();
 	s.template registerType<CGMagicWell>();

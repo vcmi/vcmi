@@ -76,7 +76,7 @@ public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
 		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};
 
-	ui8 missionType;
+	ui8 missionType, progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 
 	ui32 m13489val;
@@ -88,10 +88,11 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 
 	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual void completeQuest (const CGHeroInstance * h) const {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & missionType & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
+		h & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
 			& firstVisitText & nextVisitText & completedText;
 	}
 };
@@ -603,13 +604,29 @@ public:
 
 	void initObj();
 	const std::string & getHoverText() const;
+	void setPropertyDer (ui8 what, ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const;
-	void finishQuest (const CGHeroInstance * h) const {};
+	void completeQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
-		h & rewardType & rID & rVal & textOption;
+		h & rewardType & rID & rVal & textOption & seerName;
+	}
+};
+
+class DLL_EXPORT CGQuestGuard : public CGSeerHut
+{
+public:
+	void initObj();
+	const std::string & getHoverText() const;
+	void onHeroVisit( const CGHeroInstance * h ) const;
+	void completeQuest (const CGHeroInstance * h) const;
+	void openGate (const CGHeroInstance *h, ui32 accept) const;
+ 
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGSeerHut&>(*this);
 	}
 };
 
@@ -727,15 +744,6 @@ public:
 	{
 		h & static_cast<CPlayersVisited&>(*this);;
 		h & spell;
-	}
-};
-
-class DLL_EXPORT CGQuestGuard : public CGObjectInstance, public CQuest
-{
-public:
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CQuest&>(*this) & static_cast<CGObjectInstance&>(*this);
 	}
 };
 

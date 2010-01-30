@@ -3188,31 +3188,96 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 void CGSeerHut::initObj()
 {
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
+	textOption = ran()%3;
+	progress = 0;
+	firstVisitText = VLC->generaltexth->quests[missionType][0][textOption];
+	nextVisitText = VLC->generaltexth->quests[missionType][1][textOption];
+	completedText = VLC->generaltexth->quests[missionType][2][textOption];
 }
 
 const std::string & CGSeerHut::getHoverText() const
 {
-	//return VLC->generaltexth->names[ID]; //TODO
-	return seerName;
+	hoverName = VLC->generaltexth->allTexts[347];
+	boost::algorithm::replace_first(hoverName,"%s", seerName);
+	return hoverName;
+}
+
+void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 10:
+			progress = val;
+			break;
+		case 11:
+			missionType = CQuest::MISSION_NONE;
+			break;
+	}
 }
 
 void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 {
+	InfoWindow iw;
+	iw.player = h->getOwner();
 	if (missionType)
 	{
+		if (!progress)
+		{
+				iw.text << firstVisitText;
+				cb->setObjProperty (id,10,1);
+		}
+		else
+			if (!checkQuest(h))
+				iw.text << nextVisitText;
+			else
+			{
+				//iw.text << completedText;
+				completeQuest (h);
+				return;
+			}
 	}
 	else
 	{
-		if (checkQuest(h))
-		{
-			finishQuest(h);
-		}
-		else
-		{
-		}
+		iw.text << VLC->generaltexth->seerEmpty[textOption];
+		iw.text.addReplacement(seerName);
 	}
+	cb->showInfoDialog(&iw);
 }
 
+void CGSeerHut::completeQuest (const CGHeroInstance * h) const
+{
+	cb->setObjProperty (id,11,0); //no more mission avaliable
+}
+
+void CGQuestGuard::initObj()
+{
+	progress = 0;
+	textOption = ran()%3 + 3; //3-5
+	firstVisitText = VLC->generaltexth->quests[missionType][0][textOption];
+	nextVisitText = VLC->generaltexth->quests[missionType][1][textOption];
+	completedText = VLC->generaltexth->quests[missionType][2][textOption];
+}
+const std::string & CGQuestGuard::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if (progress){}//what does it seek for?
+	return hoverName;
+}
+void CGQuestGuard::onHeroVisit( const CGHeroInstance * h ) const
+{}
+void CGQuestGuard::completeQuest (const CGHeroInstance * h) const
+{
+	BlockingDialog bd (true, false);
+	bd.player = h->getOwner();
+	bd.soundID = soundBase::QUEST;
+	bd.text << completedText;
+	cb->showBlockingDialog (&bd, boost::bind (&CGQuestGuard::openGate, this, h, _1));	
+}
+void CGQuestGuard::openGate(const CGHeroInstance *h, ui32 accept) const
+{
+	if (accept)
+		cb->removeObject(id);
+}
 void CGWitchHut::initObj()
 {
 	ability = allowedAbilities[ran()%allowedAbilities.size()];
