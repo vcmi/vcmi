@@ -13,6 +13,7 @@
 #include "../hch/CDefHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CHeroHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
@@ -655,26 +656,31 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
 
 	spellPoints = new LRClickableAreaWText();
-	spellPoints->pos = genRect(32, 48, pos.x+271, pos.y+4);	spellPoints->hoverText = CGI->generaltexth->heroscrn[22];
+	spellPoints->pos = genRect(32, 48, pos.x+271, pos.y+4);
+	spellPoints->hoverText = CGI->generaltexth->heroscrn[22];
 
 	speciality = new LRClickableAreaWText();
-	speciality->pos = genRect(32, 48, pos.x+271, pos.y+4);	speciality->hoverText = CGI->generaltexth->heroscrn[27];
+	speciality->pos = genRect(32, 48, pos.x+271, pos.y+4);
+	speciality->hoverText = CGI->generaltexth->heroscrn[27];
 
 	for(int i=0; i<8; ++i)
 	{
-		secondarySkills.push_back(new LRClickableAreaWTextComp());		secondarySkills[i]->pos = genRect(32, 32, pos.x+410+i*37, pos.y+4);
+		secondarySkills.push_back(new LRClickableAreaWTextComp());
+		secondarySkills[i]->pos = genRect(32, 32, pos.x+410+i*37, pos.y+4);
 		secondarySkills[i]->baseType = 1;
 	};
 
 	for (int i=0; i<18;i++)
 	{
-		artifacts.push_back(new CArtPlace(this));		artifacts[i]->pos = genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66);
+		artifacts.push_back(new CArtPlace(this));
+		artifacts[i]->pos = genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66);
 		artifacts[i]->baseType = SComponent::artifact;
 	};
 
 	for (int i=0; i<8;i++)
 	{
-		backpack.push_back(new CArtPlace(this));		backpack[i]->pos = genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66);
+		backpack.push_back(new CArtPlace(this));
+		backpack[i]->pos = genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66);
 		backpack[i]->baseType = SComponent::artifact;
 	};
 
