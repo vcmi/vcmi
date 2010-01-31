@@ -557,6 +557,7 @@ public:
 
 	void recruitb();
 	void close();
+	void thievesguildb();
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -818,4 +819,23 @@ class CFreelancersWindow : public CShopWindow
 {};
 class CHillFortWindow : public CIntObject //garrison dialog? shop?
 {};
+
+class CThievesGuildWindow : public CIntObject
+{
+	CStatusBar * statusBar;
+	AdventureMapButton * exitb;
+	SDL_Surface * background;
+	CResDataBar * resdatabar;
+
+public:
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to);
+
+	void bexitf();
+
+	CThievesGuildWindow();
+	~CThievesGuildWindow();
+};
+
 #endif //__GUICLASSES_H__

@@ -3039,9 +3039,9 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	h1.pos.y += pos.y;
 	h2.pos.y += pos.y;
 
-	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"",boost::bind(&CTavernWindow::close,this),pos.x+310,pos.y+428,"ICANCEL.DEF",SDLK_ESCAPE);
-	recruit = new AdventureMapButton("","",boost::bind(&CTavernWindow::recruitb,this),pos.x+272,pos.y+355,"TPTAV01.DEF",SDLK_RETURN);
-	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"",0,pos.x+22,pos.y+428,"TPTAV02.DEF",SDLK_t);
+	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), pos.x+310,pos.y+428, "ICANCEL.DEF", SDLK_ESCAPE);
+	recruit = new AdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), pos.x+272, pos.y+355, "TPTAV01.DEF", SDLK_RETURN);
+	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), pos.x+22, pos.y+428, "TPTAV02.DEF", SDLK_t);
 
 	if(LOCPLINT->cb->getResourceAmount(6) < 2500) //not enough gold
 	{
@@ -3077,6 +3077,11 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1).h;
 	close();
 	LOCPLINT->cb->recruitHero(LOCPLINT->castleInt->town,toBuy);
+}
+
+void CTavernWindow::thievesguildb()
+{
+	GH.pushInt(new CThievesGuildWindow());
 }
 
 CTavernWindow::~CTavernWindow()
@@ -4671,3 +4676,98 @@ void CArtMerchantWindow::activate() {}
 void CArtMerchantWindow::deactivate() {}
 void CArtMerchantWindow::show(SDL_Surface * to) {}
 void CArtMerchantWindow::Buy() {}
+
+
+void CThievesGuildWindow::activate()
+{
+	statusBar->activate();
+	exitb->activate();
+	resdatabar->activate();
+
+	LOCPLINT->statusbar = statusBar;
+}
+
+void CThievesGuildWindow::deactivate()
+{
+	statusBar->deactivate();
+	exitb->deactivate();
+	resdatabar->deactivate();
+}
+
+void CThievesGuildWindow::show(SDL_Surface * to)
+{
+	blitAt(background, pos.x, pos.y, to);
+
+	statusBar->show(to);
+	exitb->show(to);
+	resdatabar->show(to);
+
+	//showing border around window
+	if(screen->w != 800 || screen->h !=600)
+	{
+		CMessage::drawBorder(LOCPLINT->playerID, to, pos.w + 28, pos.h + 28, pos.x-14, pos.y-15);
+	}
+}
+
+void CThievesGuildWindow::bexitf()
+{
+	GH.popIntTotally(this);
+}
+
+CThievesGuildWindow::CThievesGuildWindow()
+{
+	pos = Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
+
+	//loading backround and converting to more bpp form
+	SDL_Surface * bg = background = BitmapHandler::loadBitmap("TpRank.bmp", false);
+	background = newSurface(bg->w, bg->h);
+	blitAt(bg, 0, 0, background);
+	SDL_FreeSurface(bg);
+
+	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748 + pos.x, 556 + pos.y, "HSBTNS.def", SDLK_RETURN);
+	statusBar = new CStatusBar(pos.x + 3, pos.y + 555, "TStatBar.bmp", 742);
+
+	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
+
+	//printing texts & descriptions to background
+
+	for(int g=0; g<12; ++g)
+	{
+		int y;
+		if(g == 9)
+		{
+			y = 400;
+		}
+		else if(g == 10)
+		{
+			y = 460;
+		}
+		else if(g == 11)
+		{
+			y = 510;
+		}
+		else
+		{
+			y = 52 + 32*g;
+		}
+		printAtMiddle(CGI->generaltexth->jktexts[24+g], 135, y, EFonts::FONT_MEDIUM, tytulowy, background);
+	}
+
+	for(int g=0; g<8; ++g)
+	{
+		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 20, EFonts::FONT_MEDIUM, tytulowy, background);
+	}
+}
+
+CThievesGuildWindow::~CThievesGuildWindow()
+{
+	SDL_FreeSurface(background);
+	delete exitb;
+	delete statusBar;
+	delete resdatabar;
+}
+
+
+
+
+
