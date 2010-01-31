@@ -30,24 +30,27 @@ class LRClickableAreaWTextComp*/
 
 class CKingdomInterface : public CIntObject
 {
-	class CResIncomePic : public CIntObject
+	class CTownItem : public CWindowWithGarrison
 	{
+		class CCreaPlace: public LRClickableAreaWTextComp
+		{
+		public:
+			const CGTownInstance * town;
+			CCreaPlace(); //c-tor
+			void clickLeft(tribool down, bool previousState);
+			void clickRight(tribool down, bool previousState);
+			void activate();
+			void deactivate();
+		};
 	public:
-		int resID,value;//resource ID
-		std::string hoverText;
-		CResIncomePic(int RID, CDefEssential * Mines, CKingdomInterface * Owner);//c-tor
-		~CResIncomePic();//d-tor
-		void hover(bool on);
-		void show(SDL_Surface * to);
-		CDefEssential * mines;//pointer to mines pictures;
-	};
-	class CTownItem : public CIntObject
-	{
-	private:
 		const CGTownInstance * town;
-	public:
 		CKingdomInterface * owner;
 		int numb;//position on screen (1..size)
+		HoverableArea *hallArea, *fortArea, *incomeArea;//hoverable text for town hall, fort, income
+		HoverableArea * garrHero, *visitHero;//portraits of heroes
+		HoverableArea * townImage;//town image
+		std::vector < HoverableArea * > creaGrowth;
+		std::vector < CCreaPlace * > creaCount;
 		void setTown(const CGTownInstance * newTown);//change town and update info
 		void showAll(SDL_Surface * to);
 		void activate();
@@ -122,8 +125,9 @@ public:
 	AdventureMapButton* ObjUp, *ObjDown, *ObjTop, *ObjBottom;//buttons for dwellings list
 
 	//income pics
-	std::vector<CResIncomePic *> incomes;//mines + incomes
-	CDefEssential * mines;//picture of mines
+	std::vector<HoverableArea*> incomes;//mines + incomes
+	std::vector<int> incomesVal;//values to print
+	CDefEssential * mines;
 
 	CKingdomInterface(); //c-tor
 	~CKingdomInterface(); //d-tor

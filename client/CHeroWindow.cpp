@@ -51,6 +51,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	pos.w = background->w;
 	curBack = NULL;
 	curHero = NULL;
+	char bufor[400];
 
 	artifs = new CArtifactsOfHero(pos);
 	artifs->commonInfo = new CArtifactsOfHero::SCommonPart;
@@ -87,15 +88,23 @@ CHeroWindow::CHeroWindow(int playerColor):
 	portraitArea = new LRClickableAreaWText();
 	portraitArea->pos = genRect(64, 58, pos.x+83, pos.y  +  26);
 
-	for(int v=0; v<4; ++v)
+	for(int v=0; v<PRIMARY_SKILLS; ++v)
 	{
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[v]->pos = genRect(42, 42, pos.x+95 + 70*v, pos.y  +  111);
+		primSkillAreas[v]->pos = genRect(64, 42, pos.x+95 + 70*v, pos.y  +  117);
 		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v];
 		primSkillAreas[v]->type = v;
 		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
 		primSkillAreas[v]->baseType = 0;
+		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[v].c_str());
+		primSkillAreas[v]->hoverText = std::string(bufor);
+
 	}
+
+	specArea = new LRClickableAreaWText();
+	specArea->pos = genRect(42, 136, pos.x+83, pos.y  +  188);
+	specArea->hoverText = CGI->generaltexth->heroscrn[27];
+
 	expArea = new LRClickableAreaWText();
 	expArea->pos = genRect(42, 136, pos.x+83, pos.y  +  236);
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
@@ -110,7 +119,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	spellPointsArea->pos = genRect(42, 136, pos.x+227, pos.y  +  236);
 	spellPointsArea->hoverText = CGI->generaltexth->heroscrn[22];
 
-	for(int i=0; i<8; ++i)
+	for(int i=0; i<SKILL_PER_HERO; ++i)
 	{
 		secSkillAreas.push_back(new LRClickableAreaWTextComp());
 		secSkillAreas[i]->pos = genRect(42, 136, pos.x  +  ((i%2==0) ? (83) : (227)), pos.y  +  (284 + 48 * (i/2)));
@@ -154,6 +163,7 @@ CHeroWindow::~CHeroWindow()
 	delete expArea;
 	delete luck;
 	delete morale;
+	delete specArea;
 	delete spellPointsArea;
 	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
@@ -195,6 +205,8 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	//pos temporarily switched, restored later
 	pos.x -= 65;
 	pos.y -= 8;
+
+	specArea->text = CGI->generaltexth->hTxts[hero->subID].longBonus;
 
 	gar2button->callback.clear();
 	gar2button->callback2.clear();
@@ -271,8 +283,12 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	morale->bonus = mrlv;
 	morale->text = CGI->generaltexth->arraytxt[88];
 	boost::algorithm::replace_first(morale->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-	for(int it=0; it < mrl.size(); it++)
-		morale->text += mrl[it].second;
+	if (!mrl.size())
+		morale->text += CGI->generaltexth->arraytxt[108];
+	else
+		for(int it=0; it < mrl.size(); it++)
+			morale->text += mrl[it].second;
+
 
 	//setting luck
 	mrl = hero->getCurrentLuckModifiers();
@@ -283,8 +299,11 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	luck->bonus = mrlv;
 	luck->text = CGI->generaltexth->arraytxt[62];
 	boost::algorithm::replace_first(luck->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-	for(int it=0; it < mrl.size(); it++)
-		luck->text += mrl[it].second;
+	if (!mrl.size())
+		luck->text += CGI->generaltexth->arraytxt[77];
+	else
+		for(int it=0; it < mrl.size(); it++)
+			luck->text += mrl[it].second;
 
 	//restoring pos
 	pos.x += 65;
@@ -308,6 +327,7 @@ void CHeroWindow::activate()
 	formations->activate();
 	//gar4button->activate();
 	portraitArea->activate();
+	specArea->activate();
 	expArea->activate();
 	spellPointsArea->activate();
 	morale->activate();
@@ -341,6 +361,7 @@ void CHeroWindow::deactivate()
 	questlogButton->deactivate();
 	gar2button->deactivate();
 	formations->deactivate();
+	specArea->deactivate();
 	//gar4button->deactivate();
 	portraitArea->deactivate();
 	expArea->deactivate();
@@ -488,6 +509,8 @@ void CHeroWindow::redrawCurBack()
 
 	//printing special ability
 	blitAt(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, GEOR13, tytulowy, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 199, GEOR16, zwykly, curBack);
 
 	//printing necessery texts
 	CSDL_Ext::printAt(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 231, GEOR13, tytulowy, curBack);

@@ -495,6 +495,12 @@ void CGarrisonInt::createSlots()
 		for(int i=0; i<sup->size(); i++)
 			if((*sup)[i] == NULL)
 				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL, 0);
+		if (shiftPos)
+			for (int i=shiftPos; i<sup->size(); i++)
+			{
+				(*sup)[i]->pos.x += shiftPoint.x;
+				(*sup)[i]->pos.y += shiftPoint.y;
+			};
 	}
 	if(set2)
 	{
@@ -510,6 +516,12 @@ void CGarrisonInt::createSlots()
 		for(int i=0; i<sdown->size(); i++)
 			if((*sdown)[i] == NULL)
 				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL, 0);
+		if (shiftPos)
+			for (int i=shiftPos; i<sup->size(); i++)
+			{
+				(*sdown)[i]->pos.x += shiftPoint.x;
+				(*sdown)[i]->pos.y += shiftPoint.y;
+			};
 	}
 }
 void CGarrisonInt::deleteSlots()
@@ -578,9 +590,9 @@ void CGarrisonInt::splitStacks(int am2)
 
 }
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
-						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs)
+						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs, int _shiftPos, const Point &_shiftPoint)
 	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(SurOffset),sup(NULL),
-	 sdown(NULL),oup(s1),odown(s2), removableUnits(_removableUnits), smallIcons(smallImgs)
+	 sdown(NULL),oup(s1),odown(s2), removableUnits(_removableUnits), smallIcons(smallImgs), shiftPos(_shiftPos), shiftPoint(_shiftPoint)
 {
 	active = false;
 	splitting = false;
@@ -4165,26 +4177,30 @@ void CExchangeWindow::activate()
 	}
 
 	for(int b=0; b<primSkillAreas.size(); ++b)
-	{
 		primSkillAreas[b]->activate();
-	}
 
 	LOCPLINT->statusbar = ourBar;
 
 	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
-	{
 		questlogButton[g]->activate();
-	}
 
 	for(int g=0; g<ARRAY_COUNT(morale); g++)
-	{
 		morale[g]->activate();
-	}
 
 	for(int g=0; g<ARRAY_COUNT(luck); g++)
-	{
 		luck[g]->activate();
-	}
+
+	for(int g=0; g<ARRAY_COUNT(portrait); g++)
+		portrait[g]->activate();
+
+	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
+		spellPoints[g]->activate();
+
+	for(int g=0; g<ARRAY_COUNT(experience); g++)
+		experience[g]->activate();
+
+	for(int g=0; g<ARRAY_COUNT(speciality); g++)
+		speciality[g]->activate();
 }
 
 void CExchangeWindow::deactivate()
@@ -4204,24 +4220,28 @@ void CExchangeWindow::deactivate()
 	}
 
 	for(int b=0; b<primSkillAreas.size(); ++b)
-	{
 		primSkillAreas[b]->deactivate();
-	}
 
 	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
-	{
 		questlogButton[g]->deactivate();
-	}
 
 	for(int g=0; g<ARRAY_COUNT(morale); g++)
-	{
 		morale[g]->deactivate();
-	}
 
 	for(int g=0; g<ARRAY_COUNT(luck); g++)
-	{
 		luck[g]->deactivate();
-	}
+
+	for(int g=0; g<ARRAY_COUNT(portrait); g++)
+		portrait[g]->deactivate();
+
+	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
+		spellPoints[g]->deactivate();
+
+	for(int g=0; g<ARRAY_COUNT(experience); g++)
+		experience[g]->deactivate();
+
+	for(int g=0; g<ARRAY_COUNT(speciality); g++)
+		speciality[g]->deactivate();
 }
 
 void CExchangeWindow::show(SDL_Surface * to)
@@ -4350,11 +4370,13 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	{
 		//primary skill's clickable areas
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[g]->pos = genRect(32, 32, pos.x+385, pos.y + 19 + 36 * g);
+		primSkillAreas[g]->pos = genRect(32, 140, pos.x+329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonus = -1;
 		primSkillAreas[g]->baseType = 0;
+		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[g].c_str());
+		primSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
 	//heroes related thing
@@ -4376,6 +4398,31 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level - 1].c_str(), CGI->generaltexth->skillName[skill].c_str());
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
+
+		portrait[b] = new LRClickableAreaWText();
+		portrait[b]->pos = genRect(64, 58, pos.x + 257 + 228*b, pos.y + 13);
+		portrait[b]->text = heroInst[b]->getBiography();
+		sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), heroInst[b]->name.c_str(), heroInst[b]->type->heroClass->name.c_str());
+		portrait[b]->hoverText = std::string(bufor);
+
+		speciality[b] = new LRClickableAreaWText();
+		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		speciality[b]->hoverText = CGI->generaltexth->heroscrn[27];
+		speciality[b]->text = CGI->generaltexth->hTxts[heroInst[b]->subID].longBonus;
+
+		experience[b] = new LRClickableAreaWText();
+		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
+		experience[b]->hoverText = CGI->generaltexth->heroscrn[9];
+		experience[b]->text = CGI->generaltexth->allTexts[2].c_str();
+		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
+		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(heroInst[b]->level+1)));
+		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
+
+		spellPoints[b] = new LRClickableAreaWText();
+		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
+		spellPoints[b]->hoverText = CGI->generaltexth->heroscrn[22];
+		sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), heroInst[b]->name.c_str(), heroInst[b]->mana, heroInst[b]->manaLimit());
+		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
 		morale[b] = new LRClickableAreaWTextComp();
@@ -4460,14 +4507,22 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	}
 
 	for(int g=0; g<ARRAY_COUNT(morale); g++)
-	{
 		delete morale[g];
-	}
 
 	for(int g=0; g<ARRAY_COUNT(luck); g++)
-	{
 		delete luck[g];
-	}
+
+	for(int g=0; g<ARRAY_COUNT(portrait); g++)
+		delete portrait[g];
+
+	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
+		delete spellPoints[g];
+
+	for(int g=0; g<ARRAY_COUNT(experience); g++)
+		delete experience[g];
+
+	for(int g=0; g<ARRAY_COUNT(speciality); g++)
+		delete speciality[g];
 }
 
 void CShipyardWindow::activate()

@@ -207,12 +207,14 @@ class CGarrisonInt :public CIntObject
 public:
 	int interx; //space between slots
 	Point garOffset, //offset between garrisons (not used if only one hero)
-		surOffset; //offset between garrison position on the bg surface and position on the screen
+		surOffset, //offset between garrison position on the bg surface and position on the screen
+		shiftPoint;//how last slots will be shifted (for second row, set shiftPoint for effect)
 	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
 	SDL_Surface *&sur; //bg surface
-	int p2; //TODO: comment me
+	int p2, //TODO: comment me
+	    shiftPos;//1st slot of the second row, set shiftPoint for effect
 	bool ignoreEvent, update, active, splitting, pb, 
 		smallIcons; //true - 32x32 imgs, false - 58x64
 	bool removableUnits;
@@ -235,7 +237,7 @@ public:
 	void splitClick(); //handles click on split button
 	void splitStacks(int am2); //TODO: comment me
 
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false); //c-tor
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, int _shiftPos = 0, const Point &_shiftPoint =Point()); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 
@@ -734,6 +736,11 @@ class CExchangeWindow : public CWindowWithGarrison
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
 	LRClickableAreaWTextComp *morale[2], *luck[2];
+
+	LRClickableAreaWText *speciality[2];
+	LRClickableAreaWText *experience[2];
+	LRClickableAreaWText *spellPoints[2];
+	LRClickableAreaWText *portrait[2];
 
 public:
 

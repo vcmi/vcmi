@@ -47,6 +47,7 @@ class CHeroWindow: public CWindowWithGarrison
 	LRClickableAreaWText * expArea;
 	LRClickableAreaWText * spellPointsArea;
 	LRClickableAreaWTextComp * luck;
+	LRClickableAreaWText * specArea;//speciality
 	LRClickableAreaWTextComp * morale;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
