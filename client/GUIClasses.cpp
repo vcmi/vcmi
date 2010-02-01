@@ -4805,12 +4805,12 @@ CThievesGuildWindow::CThievesGuildWindow()
 		{
 			y = 52 + 32*g;
 		}
-		printAtMiddle(CGI->generaltexth->jktexts[24+g], 135, y, EFonts::FONT_MEDIUM, tytulowy, background);
+		printAtMiddle(CGI->generaltexth->jktexts[24+g], 135, y, FONT_MEDIUM, tytulowy, background);
 	}
 
 	for(int g=0; g<8; ++g)
 	{
-		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 20, EFonts::FONT_MEDIUM, tytulowy, background);
+		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 20, FONT_MEDIUM, tytulowy, background);
 	}
 }
 
