@@ -217,6 +217,9 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		case SEC_SKILL_NAME:
 			vec = &VLC->generaltexth->skillName;
 			break;
+		case COLOR:
+			vec = &VLC->generaltexth->capColors;
+			break;
 		}
 		dst = (*vec)[ser];
 	}
@@ -3223,6 +3226,9 @@ int CGameState::lossCheck( ui8 player ) const
 			break;
 		}
 	}
+
+	if(!p->towns.size() && p->daysWithoutCastle >= 7)
+		return 2;
 
 	return false;
 }

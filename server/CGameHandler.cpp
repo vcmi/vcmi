@@ -912,6 +912,38 @@ void CGameHandler::newTurn()
 			gs->map->objects[i]->newTurn();
 
 	winLoseHandle(0xff);
+
+	//warn players without town
+	if(gs->day)
+	{
+		for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+		{
+			if(i->second.status || i->second.towns.size() || i->second.color >= PLAYER_LIMIT)
+				continue;
+
+			InfoWindow iw;
+			iw.player = i->first;
+			iw.components.push_back(Component(Component::FLAG,i->first,0,0));
+
+			if(!i->second.daysWithoutCastle)
+			{
+				iw.text.addTxt(MetaString::GENERAL_TXT,6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addReplacement(MetaString::COLOR, i->first);
+			}
+			else if(i->second.daysWithoutCastle == 6)
+			{
+				iw.text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+				iw.text.addReplacement(MetaString::COLOR, i->first);
+			}
+			else
+			{
+				iw.text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+				iw.text.addReplacement(MetaString::COLOR, i->first);
+				iw.text.addReplacement(7 - i->second.daysWithoutCastle);
+			}
+			sendAndApply(&iw);
+		}
+	}
 }
 void CGameHandler::run(bool resume)
 {	
@@ -1583,10 +1615,18 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 }
 void CGameHandler::setOwner(int objid, ui8 owner)
 {
+	ui8 oldOwner = getOwner(objid);
 	SetObjectProperty sop(objid,1,owner);
 	sendAndApply(&sop);
 
-	winLoseHandle(1<<owner);
+	winLoseHandle(1<<owner | 1<<oldOwner);
+	if(owner < PLAYER_LIMIT && getTown(objid) && !gs->getPlayer(owner)->towns.size()) //player lost last town
+	{
+		InfoWindow iw;
+		iw.player = oldOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+		sendAndApply(&iw);
+	}
 }
 void CGameHandler::setHoverName(int objid, MetaString* name)
 {
@@ -2877,7 +2917,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			break;
 		}
 	}
-	if(ba.stackNumber == gs->curB->activeStack)
+	if(ba.stackNumber == gs->curB->activeStack  ||  battleResult.get()) //active stack has moved or battle has finished
 		battleMadeAction.setn(true);
 	return ok;
 }
@@ -3522,7 +3562,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 		return;
 
 	InfoWindow iw;
-	getLossVicMessage(player, vic ? vic < 0 : loss < 0, vic, iw);
+	getLossVicMessage(player, vic ? vic : loss , vic, iw);
 	sendAndApply(&iw);
 
 	PlayerEndsGame peg;
@@ -3530,7 +3570,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	peg.victory = vic;
 	sendAndApply(&peg);
 
-	if(vic) //one player won -> all enemies lost  //TODO: allies
+	if(vic > 0) //one player won -> all enemies lost  //TODO: allies
 	{
 		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
 
@@ -3549,18 +3589,25 @@ void CGameHandler::checkLossVictory( ui8 player )
 	}
 	else //player lost -> all his objects become unflagged (neutral)
 	{
-		for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++)
+		std::vector<CGHeroInstance*> hlp = p->heroes;
+		for (std::vector<CGHeroInstance*>::const_iterator i = hlp.begin(); i != hlp.end(); i++) //eliminate heroes
+			removeObject((*i)->id);
+
+		for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 		{
 			if(*i  &&  (*i)->tempOwner == player)
 				setOwner((**i).id,NEUTRAL_PLAYER);
 		}
+
+		//eliminating one player may cause victory of anoother:
+		winLoseHandle(ALL_PLAYERS & ~(1<<player));
 	}
 
 	if(vic)
 		end2 = true;
 }
 
-void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, InfoWindow &out ) const
+void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, InfoWindow &out ) const
 {
 	const PlayerState *p = gs->getPlayer(player);
 // 	if(!p->human)
@@ -3570,7 +3617,7 @@ void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, I
 
 	if(victory)
 	{
-		if(!standard) //not std loss
+		if(standard < 0) //not std loss
 		{
 			switch(gs->map->victoryCondition.condition)
 			{
@@ -3626,12 +3673,12 @@ void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, I
 		}
 		else
 		{
-
+			out.text.addTxt(MetaString::GENERAL_TXT, 659); //Congratulations! You have reached your destination, precious cargo intact, and can claim victory!
 		}
 	}
 	else
 	{
-		if(!standard) //not std loss
+		if(standard < 0) //not std loss
 		{
 			switch(gs->map->lossCondition.typeOfLossCon)
 			{
@@ -3655,6 +3702,12 @@ void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, I
 				out.text.addTxt(MetaString::GENERAL_TXT, 254); //Alas, time has run out on your quest. All is lost.
 				break;
 			}
+		}
+		else if(standard == 2)
+		{
+			out.text.addTxt(MetaString::GENERAL_TXT, 7);//%s, your heroes abandon you, and you are banished from this land.
+			out.text.addReplacement(MetaString::COLOR, player);
+			out.components.push_back(Component(Component::FLAG,player,0,0));
 		}
 		else //lost all towns and heroes
 		{

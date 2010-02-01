@@ -73,7 +73,7 @@ private:
 	enum EMessage {TEXACT_STRING, TLOCAL_STRING, TNUMBER, TREPLACE_ESTRING, TREPLACE_LSTRING, TREPLACE_NUMBER};
 public:
 	enum {GENERAL_TXT=1, XTRAINFO_TXT, OBJ_NAMES, RES_NAMES, ART_NAMES, ARRAY_TXT, CRE_PL_NAMES, CREGENS, MINE_NAMES, 
-		MINE_EVNTS, ADVOB_TXT, ART_EVNTS, SPELL_NAME, SEC_SKILL_NAME, CRE_SING_NAMES, CREGENS4};
+		MINE_EVNTS, ADVOB_TXT, ART_EVNTS, SPELL_NAME, SEC_SKILL_NAME, CRE_SING_NAMES, CREGENS4, COLOR};
 
 	std::vector<ui8> message; //vector of EMessage
 
@@ -631,7 +631,7 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	enum {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE=8, LUCK, HERO};
+	enum {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE=8, LUCK, HERO, FLAG};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days

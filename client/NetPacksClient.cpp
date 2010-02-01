@@ -152,7 +152,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 
 void RemoveObject::applyCl( CClient *cl )
 {
-	if(cl->pathInfo->hero)
+	if(cl->pathInfo->hero && cl->pathInfo->hero->id != id)
 		GS(cl)->calculatePaths(cl->pathInfo->hero, *cl->pathInfo);
 }
 
