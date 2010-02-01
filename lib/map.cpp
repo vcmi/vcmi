@@ -263,7 +263,11 @@ void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 					allowedHeroes[(i-pom)*8+yy] = true;
 	}
 	if(version>RoE) //probably reserved for further heroes
-		i+=4;
+	{
+		int placeholdersQty = readNormalNr(bufor, i); i+=4;
+		for(int p = 0; p < placeholdersQty; p++)
+			placeholdedHeroes.push_back(bufor[i++]);
+	}
 }
 void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 {
@@ -333,7 +337,7 @@ void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 
 		if(version != RoE)
 		{
-			i++; ////unknown byte
+			players[pom].powerPlacehodlers = bufor[i++];//unknown byte
 			int heroCount = bufor[i++];
 			i+=3;
 			for (int pp=0;pp<heroCount;pp++)
@@ -1905,7 +1909,21 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			}
 		case 214: //hero placeholder
 			{
-				i+=3; //TODO: handle it more properly
+				CGHeroPlaceholder *hp = new CGHeroPlaceholder();;
+				nobj = hp;
+
+				int a = bufor[i++]; //unkown byte, seems to be always 0 (if not - scream!)
+				assert(!a);
+
+				int htid = bufor[i++]; //hero type id
+				nobj->subID = htid;
+
+				if(htid == 0xff)
+					hp->power = bufor[i++];
+				else
+					hp->power = 0;
+
+				break;
 			}
 		case 10: //Keymaster
 			{
@@ -1954,7 +1972,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		nobj->pos = pos;
 		nobj->ID = defInfo->id;
 		nobj->id = objects.size();
-		if(nobj->ID != HEROI_TYPE)
+		if(nobj->ID != HEROI_TYPE && nobj->ID != 214)
 			nobj->subID = defInfo->subid;
 		nobj->defInfo = defInfo;
 		objects.push_back(nobj);

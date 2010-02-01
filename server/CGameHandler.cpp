@@ -1519,13 +1519,17 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			tmh.result = TryMoveHero::BLOCKING_VISIT;
 			sendAndApply(&tmh); 
 			//failed to move to that tile but we visit object
-			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
-			{
-				if (obj->blockVisit)
-				{
-					objectVisited(obj, h);
-				}
-			}
+			if(t.visitableObjects.size())
+				objectVisited(t.visitableObjects.back(), h);
+
+
+// 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+// 			{
+// 				if (obj->blockVisit)
+// 				{
+// 					objectVisited(obj, h);
+// 				}
+// 			}
 			tlog5 << "Blocking visit at " << hmpos << std::endl;
 			return true;
 		}
@@ -1542,10 +1546,13 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
 			//call objects if they are visited
-			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
-			{
-				objectVisited(obj, h);
-			}
+
+			if(t.visitableObjects.size())
+				objectVisited(t.visitableObjects.back(), h);
+// 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+// 			{
+// 				objectVisited(obj, h);
+// 			}
 		}
 		tlog5 << "Movement end!\n";
 		return true;
@@ -3518,6 +3525,24 @@ void CGameHandler::checkLossVictory( ui8 player )
 	peg.victory = vic;
 	sendAndApply(&peg);
 
+	if(vic) //one player won -> all enemies lost  //TODO: allies
+	{
+		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
+
+		for (std::map<ui8,PlayerState>::const_iterator i = gs->players.begin(); i!=gs->players.end(); i++)
+		{
+			if(i->first < PLAYER_LIMIT && i->first != player)
+			{
+				iw.player = i->first;
+				sendAndApply(&iw);
+
+				peg.player = i->first;
+				peg.victory = false;
+				sendAndApply(&peg);
+			}
+		}
+	}
+
 	if(vic)
 		end2 = true;
 }
@@ -3525,8 +3550,8 @@ void CGameHandler::checkLossVictory( ui8 player )
 void CGameHandler::getLossVicMessage( ui8 player, bool standard, bool victory, InfoWindow &out ) const
 {
 	const PlayerState *p = gs->getPlayer(player);
-	if(!p->human)
-		return; //AI doesn't need text info of loss
+// 	if(!p->human)
+// 		return; //AI doesn't need text info of loss
 
 	out.player = player;
 

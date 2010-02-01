@@ -13,14 +13,16 @@
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CDefHandler.h"
+#include "../hch/CHeroHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
-#include "../hch/CHeroHandler.h"
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <sstream>
 using namespace boost::assign;

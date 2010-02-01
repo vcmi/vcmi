@@ -361,6 +361,16 @@ void CGeneralTextHandler::load()
 		overview.push_back(tmp);
 	}
 
+	std::string  strc = bitmaph->getTextFile("PLCOLORS.TXT");
+	itr=0;
+	while(itr<strc.length()-1)
+	{
+		loadToIt(tmp, strc, itr, 3);
+		colors.push_back(tmp);
+		toupper(tmp[0]);
+		capColors.push_back(tmp);
+	}
+
 	std::string  strs = bitmaph->getTextFile("ARRAYTXT.TXT");
 
 	itr=0;

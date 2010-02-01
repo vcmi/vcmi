@@ -108,6 +108,7 @@ struct DLL_EXPORT SheroName //name of starting hero
 struct DLL_EXPORT PlayerInfo
 {
 	si32 p7, p8, p9;
+	ui8 powerPlacehodlers; //q-ty of hero placeholders containing hero type, WARNING: powerPlacehodlers sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning???
 	ui8 canHumanPlay;
 	ui8 canComputerPlay;
 	ui32 AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
@@ -229,6 +230,7 @@ public:
 	std::vector<PlayerInfo> players; // info about players - size 8
 	ui8 howManyTeams;
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
+	std::vector<ui16> placeholdedHeroes; //ID of types of heroes in placeholders
 	void initFromMemory(const unsigned char *bufor, int &i);
 	void loadViCLossConditions( const unsigned char * bufor, int &i);
 	void loadPlayerInfo( int &pom, const unsigned char * bufor, int &i);

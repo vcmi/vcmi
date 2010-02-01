@@ -182,6 +182,18 @@ public:
 		//definfo is handled by map serializer
 	}
 };
+class CGHeroPlaceholder : public CGObjectInstance
+{
+public:
+	//subID stores id of hero type. If it's 0xff then following field is used
+	ui8 power;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & power;
+	}
+};
 
 class DLL_EXPORT CPlayersVisited: public CGObjectInstance
 {
@@ -460,6 +472,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //returns sight distance
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed

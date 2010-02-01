@@ -1667,6 +1667,7 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 
 void CGTownInstance::initObj()
 { 
+	blockVisit = true;
 	hoverName = name + ", " + town->Name();
 
 	creatures.resize(CREATURES_PER_TOWN);
@@ -1761,6 +1762,11 @@ void CGTownInstance::removeCapitols (ui8 owner, bool me) const
 		} 
 	} 
 } 
+
+ui8 CGTownInstance::getPassableness() const
+{
+	return army ? 1<<tempOwner : ALL_PLAYERS; //if there is garrison, castle be entered only by owner //TODO: allies
+}
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {

@@ -34,6 +34,8 @@ public:
 	std::vector<std::string> jktexts;
 	std::vector<std::string> heroscrn;
 	std::vector<std::string> overview;//text for Kingdom Overview window
+	std::vector<std::string> colors; //names of player colors ("red",...)
+	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
 
 	//artifacts
 	std::vector<std::string> artifEvents;

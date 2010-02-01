@@ -105,6 +105,10 @@ public:
 	{
 		h & slots & formation;
 	}
+	operator bool() const
+	{
+		return slots.size() > 0;
+	}
 	void sweep()
 	{
 		for(TSlots::iterator i=slots.begin(); i!=slots.end(); ++i)

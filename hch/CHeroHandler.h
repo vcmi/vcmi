@@ -41,8 +41,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & lowStack & highStack & refTypeStack	& heroType & startingSpell;
-		//hero class pointer is restored by herohandler
+		h & name & ID & lowStack & highStack & refTypeStack	& heroType & startingSpell & heroClass;
 	}
 };
 

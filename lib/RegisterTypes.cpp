@@ -20,6 +20,7 @@
 template<typename Serializer> DLL_EXPORT
 void registerTypes1(Serializer &s)
 {
+	s.template registerType<CGHeroPlaceholder>();
 	s.template registerType<CGHeroInstance>();
 	s.template registerType<CGTownInstance>();
 	s.template registerType<CTownBonus>();
