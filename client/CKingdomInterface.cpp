@@ -16,6 +16,7 @@
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CHeroHandler.h"
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
 #include <boost/assign/std/vector.hpp> 
