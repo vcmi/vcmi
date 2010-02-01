@@ -3098,7 +3098,7 @@ void CTavernWindow::recruitb()
 
 void CTavernWindow::thievesguildb()
 {
-	GH.pushInt(new CThievesGuildWindow());
+	GH.pushInt( new CThievesGuildWindow(LOCPLINT->castleInt->town) );
 }
 
 CTavernWindow::~CTavernWindow()
@@ -4774,8 +4774,12 @@ void CThievesGuildWindow::bexitf()
 	GH.popIntTotally(this);
 }
 
-CThievesGuildWindow::CThievesGuildWindow()
+CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
+	:owner(_owner)
 {
+	SThievesGuildInfo tgi; //info to be displayed
+	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
+
 	pos = Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
 
 	//loading backround and converting to more bpp form
@@ -4794,15 +4798,15 @@ CThievesGuildWindow::CThievesGuildWindow()
 	for(int g=0; g<12; ++g)
 	{
 		int y;
-		if(g == 9)
+		if(g == 9) //best hero
 		{
 			y = 400;
 		}
-		else if(g == 10)
+		else if(g == 10) //personality
 		{
 			y = 460;
 		}
-		else if(g == 11)
+		else if(g == 11) //best monster
 		{
 			y = 510;
 		}
@@ -4813,10 +4817,24 @@ CThievesGuildWindow::CThievesGuildWindow()
 		printAtMiddle(CGI->generaltexth->jktexts[24+g], 135, y, FONT_MEDIUM, tytulowy, background);
 	}
 
-	for(int g=0; g<8; ++g)
+	CDefHandler * strips = CDefHandler::giveDef("PRSTRIPS.DEF");
+
+	static const std::string colorToBox[] = {"PRRED.BMP", "PRBLUE.BMP", "PRTAN.BMP", "PRGREEN.BMP", "PRORANGE.BMP", "PRPURPLE.BMP", "PRTEAL.BMP", "PRPINK.BMP"};
+
+	for(int g=0; g<tgi.playerColors.size(); ++g)
 	{
+		if(g > 0)
+		{
+			blitAt(strips->ourImages[g-1].bitmap, 250 + 66*g, 7, background);
+		}
 		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 20, FONT_MEDIUM, tytulowy, background);
+		SDL_Surface * box = BitmapHandler::loadBitmap(colorToBox[tgi.playerColors[g]]);
+		blitAt(box, 253 + 66*g, 334, background);
+		SDL_FreeSurface(box);
 	}
+
+	delete strips;
+
 }
 
 CThievesGuildWindow::~CThievesGuildWindow()

@@ -132,6 +132,7 @@ public:
 	virtual const CMapHeader * getMapHeader()const =0;
 	virtual int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const =0; //when called during battle, takes into account creatures' spell cost reduction
 	virtual int estimateSpellDamage(const CSpell * sp) const =0; //estimates damage of given spell; returns 0 if spell causes no dmg
+	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)=0; //get thieves' guild info obtainable while visiting given object
 
 	//hero
 	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
@@ -264,6 +265,7 @@ public:
 	const CMapHeader * getMapHeader()const ;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp) const; //estimates damage of given spell; returns 0 if spell causes no dmg
+	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;

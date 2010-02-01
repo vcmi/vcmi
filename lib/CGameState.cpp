@@ -3089,6 +3089,107 @@ bool CGameState::checkForStandardLoss( ui8 player ) const
 	return !p.heroes.size() && !p.towns.size();
 }
 
+void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
+{
+	struct HLP
+	{
+		typedef std::pair< ui8, si64 > TStat;
+		//converts [<player's color, value>] to vec[place] -> platers
+		static std::vector< std::list< ui8 > > getRank( std::vector<TStat> stats )
+		{
+			std::sort(stats.begin(), stats.end(), HLP());
+
+			//put first element
+			std::vector< std::list<ui8> > ret;
+			std::list<ui8> tmp;
+			tmp.push_back( stats[0].first );
+			ret.push_back( tmp );
+
+			//the rest of elements
+			for(int g=1; g<stats.size(); ++g)
+			{
+				if(stats[g].second == stats[g-1].second)
+				{
+					(ret.end()-1)->push_back( stats[g].first );
+				}
+				else
+				{
+					//create next occupied rank
+					std::list<ui8> tmp;
+					tmp.push_back(stats[g].first);
+					ret.push_back(tmp);
+				}
+			}
+
+			return ret;
+		}
+
+		bool operator()(const TStat & a, const TStat & b) const
+		{
+			return a.second > b.second;
+		}
+	};
+
+#define FILL_FIELD(FIELD, VAL_GETTER) \
+	{ \
+		std::vector< std::pair< ui8, si64 > > stats; \
+		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g) \
+		{ \
+			if(g->second.color == 255) \
+				continue; \
+			std::pair< ui8, si64 > stat; \
+			stat.first = g->second.color; \
+			stat.second = VAL_GETTER; \
+			stats.push_back(stat); \
+		} \
+		tgi.FIELD = HLP::getRank(stats); \
+	}
+
+	for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+	{
+		if(g->second.color != 255)
+			tgi.playerColors.push_back(g->second.color);
+	}
+	
+	if(level >= 1) //num of towns & num of heroes
+	{
+		//num of towns
+		FILL_FIELD(numOfTowns, g->second.towns.size())
+		//num of heroes
+		FILL_FIELD(numOfHeroes, g->second.heroes.size())
+	}
+	if(level >= 2) //gold
+	{
+		FILL_FIELD(gold, g->second.resources[6])
+	}
+	if(level >= 2) //wood & ore
+	{
+		FILL_FIELD(woodOre, g->second.resources[0] + g->second.resources[1])
+	}
+	if(level >= 3) //mercury, sulfur, crystal, gems
+	{
+		FILL_FIELD(woodOre, g->second.resources[2] + g->second.resources[3] + g->second.resources[4] + g->second.resources[5])
+	}
+	if(level >= 4) //obelisks found
+	{
+		//TODO
+	}
+	if(level >= 5) //artifacts
+	{
+		//TODO
+	}
+	if(level >= 6) //army strength
+	{
+		//TODO
+	}
+	if(level >= 7) //income
+	{
+		//TODO
+	}
+
+#undef FILL_FIELD
+}
+
 int CGameState::lossCheck( ui8 player ) const
 {
 	const PlayerState *p = getPlayer(player);

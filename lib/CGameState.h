@@ -9,6 +9,7 @@
 #endif
 #include <set>
 #include <vector>
+#include <list>
 #include "StackFeature.h"
 #ifdef _WIN32
 #include <tchar.h>
@@ -56,6 +57,21 @@ namespace boost
 {
 	class shared_mutex;
 }
+
+struct DLL_EXPORT SThievesGuildInfo
+{
+	std::vector<ui8> playerColors; //colors of players that are in-game
+
+	std::vector< std::list< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
+
+	//TODO: best hero, personality, best monster
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
+	}
+
+};
 
 struct DLL_EXPORT PlayerState
 {
@@ -391,6 +407,7 @@ public:
 	int lossCheck(ui8 player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
 	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
 	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
+	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

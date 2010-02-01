@@ -829,6 +829,8 @@ class CHillFortWindow : public CIntObject //garrison dialog? shop?
 
 class CThievesGuildWindow : public CIntObject
 {
+	const CGObjectInstance * owner;
+
 	CStatusBar * statusBar;
 	AdventureMapButton * exitb;
 	SDL_Surface * background;
@@ -841,7 +843,7 @@ public:
 
 	void bexitf();
 
-	CThievesGuildWindow();
+	CThievesGuildWindow(const CGObjectInstance * _owner);
 	~CThievesGuildWindow();
 };
 

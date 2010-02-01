@@ -135,6 +135,23 @@ int CCallback::estimateSpellDamage(const CSpell * sp) const
 	return gs->curB->calculateSpellDmg(sp, ourHero, NULL);
 }
 
+void CCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+
+	if(obj == NULL)
+		return;
+
+	if(obj->ID == TOWNI_TYPE) //it is a town
+	{
+		gs->obtainPlayersStats(thi, gs->players[player].towns.size());
+	}
+	else if(obj->ID == 97) //Den of Thieves
+	{
+		gs->obtainPlayersStats(thi, 20);
+	}
+}
+
 int CCallback::howManyTowns() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
