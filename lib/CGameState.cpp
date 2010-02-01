@@ -3193,7 +3193,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 int CGameState::lossCheck( ui8 player ) const
 {
 	const PlayerState *p = getPlayer(player);
-	if(map->lossCondition.typeOfLossCon == lossStandard)
+	//if(map->lossCondition.typeOfLossCon == lossStandard)
 		if(checkForStandardLoss(player))
 			return -1;
 

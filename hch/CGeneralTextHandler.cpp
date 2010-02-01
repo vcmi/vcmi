@@ -367,7 +367,7 @@ void CGeneralTextHandler::load()
 	{
 		loadToIt(tmp, strc, itr, 3);
 		colors.push_back(tmp);
-		toupper(tmp[0]);
+		tmp[0] = toupper(tmp[0]);
 		capColors.push_back(tmp);
 	}
 

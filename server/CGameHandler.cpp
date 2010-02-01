@@ -2877,7 +2877,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			break;
 		}
 	}
-	battleMadeAction.setn(true);
+	if(ba.stackNumber == gs->curB->activeStack)
+		battleMadeAction.setn(true);
 	return ok;
 }
 
@@ -3510,6 +3511,10 @@ void CGameHandler::winLoseHandle(ui8 players )
 
 void CGameHandler::checkLossVictory( ui8 player )
 {
+	const PlayerState *p = gs->getPlayer(player);
+	if(p->status) //player already won / lost
+		return;
+
 	int loss = gs->lossCheck(player);
 	int vic = gs->victoryCheck(player);
 
@@ -3540,6 +3545,14 @@ void CGameHandler::checkLossVictory( ui8 player )
 				peg.victory = false;
 				sendAndApply(&peg);
 			}
+		}
+	}
+	else //player lost -> all his objects become unflagged (neutral)
+	{
+		for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++)
+		{
+			if(*i  &&  (*i)->tempOwner == player)
+				setOwner((**i).id,NEUTRAL_PLAYER);
 		}
 	}
 
