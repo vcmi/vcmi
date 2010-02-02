@@ -251,7 +251,7 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 
 		std::ostringstream ostrs;//objects count
 		ostrs << (*it).second.first;
-		CSDL_Ext::printTo(ostrs.str(),pos.x+790,pos.y+94+curPos*57,GEOR13,zwykly,to);
+		CSDL_Ext::printTo(ostrs.str(),pos.x+790,pos.y+94+curPos*57,FONT_SMALL,zwykly,to);
 
 		ObjList[curPos]->hoverText = * (*it).second.second;
 		curPos++;
@@ -261,16 +261,16 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 
 	if (state == 1)
 	{//printing text "Town", "Harrisoned hero", "Visiting hero"
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[3],pos.x+145,pos.y+12,TNRB16,zwykly,to);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[4],pos.x+370,pos.y+12,TNRB16,zwykly,to);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[5],pos.x+600,pos.y+12,TNRB16,zwykly,to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[3],pos.x+144,pos.y+14,FONT_MEDIUM,zwykly,to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[4],pos.x+373,pos.y+14,FONT_MEDIUM,zwykly,to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[5],pos.x+606,pos.y+14,FONT_MEDIUM,zwykly,to);
 		for (size_t i=0; i<size; i++)
 			towns[i]->showAll(to);//show town list
 	}
 	else
 	{//text "Hero/stats" and "Skills"
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[0],pos.x+150,pos.y+12,TNRB16,zwykly,to);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[1],pos.x+500,pos.y+12,TNRB16,zwykly,to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[0],pos.x+150,pos.y+14,FONT_MEDIUM,zwykly,to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[1],pos.x+500,pos.y+14,FONT_MEDIUM,zwykly,to);
 		for (size_t i=0; i<size; i++)
 			heroes[i]->showAll(to);//show hero list
 	}
@@ -281,7 +281,7 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 	{
 		std::ostringstream oss;
 		oss << incomesVal[i];
-		CSDL_Ext::printAtMiddle(oss.str(),incomes[i]->pos.x+incomes[i]->pos.w/2,incomes[i]->pos.y+50,GEOR13,zwykly,to);
+		CSDL_Ext::printAtMiddle(oss.str(),incomes[i]->pos.x+incomes[i]->pos.w/2,incomes[i]->pos.y+50,FONT_SMALL,zwykly,to);
 	}
 
 	slider->showAll(to);
@@ -609,7 +609,7 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 	if(town->builded >= MAX_BUILDING_PER_TURN)
 		townPic++;
 	blitAt(graphics->bigTownPic->ourImages[townPic].bitmap,pos.x+5,pos.y+6,to);
-	CSDL_Ext::printAt(town->name,pos.x+73,pos.y+7,GEOR13,zwykly,to);
+	CSDL_Ext::printAt(town->name,pos.x+73,pos.y+8,FONT_SMALL,zwykly,to);
 	//fort pic
 	townPic = town->fortLevel()-1;
 	if (townPic==-1) townPic = 3;
@@ -620,7 +620,7 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 	//income pic
 	std::ostringstream oss;
 	oss << town->dailyIncome();
-	CSDL_Ext::printAtMiddle(oss.str(),pos.x+188,pos.y+60,GEOR13,zwykly,to);
+	CSDL_Ext::printAtMiddle(oss.str(),pos.x+189,pos.y+61,FONT_SMALL,zwykly,to);
 //	Creature bonuses/ Creature available texts - need to find text wrapper thingy (have "\n" inside text)
 //	CSDL_Ext::printAtWR(CGI->generaltexth->allTexts[265],pos.x,pos.y+80,GEOR13,zwykly,to);
 //	CSDL_Ext::printTo(CGI->generaltexth->allTexts[266],pos.x+350,pos.y+80,GEOR13,zwykly,to);
@@ -642,12 +642,12 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 		blitAt(graphics->smallImgs[crid],pos.x+56+i*37,pos.y+78,to);
 		std::ostringstream oss;
 		oss << '+' << town->creatureGrowth(i);
-		CSDL_Ext::printTo(oss.str(),pos.x+87+i*37,pos.y+110,GEORM,zwykly,to);
+		CSDL_Ext::printTo(oss.str(),pos.x+87+i*37,pos.y+110,FONT_TINY,zwykly,to);
 		//creature available
 		blitAt(graphics->smallImgs[crid],pos.x+409+i*37,pos.y+78,to);
 		std::ostringstream ostrs;
 		ostrs << town->creatures[i].first;
-		CSDL_Ext::printTo(ostrs.str(),pos.x+440+i*37,pos.y+110,GEORM,zwykly,to);
+		CSDL_Ext::printTo(ostrs.str(),pos.x+440+i*37,pos.y+110,FONT_TINY,zwykly,to);
 	}
 
 	garr->show(to);
@@ -882,12 +882,12 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 	}//print background, different for arts view/backpack mode
 	blitAt(slots->ourImages[(artGroup!=2)?owner->PicCount:(owner->PicCount+1)].bitmap,pos.x,pos.y,to);
 	//text "Artifacts"
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[2],pos.x+320,pos.y+55,GEOR13,zwykly,to);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[2],pos.x+320,pos.y+55,FONT_SMALL,zwykly,to);
 	blitAt(graphics->portraitLarge[hero->portrait],pos.x+5,pos.y+6,to);
 
 	garr->show(to);
 	//hero name
-	CSDL_Ext::printAt(hero->name,pos.x+73,pos.y+7,GEOR13,zwykly,to);
+	CSDL_Ext::printAt(hero->name,pos.x+73,pos.y+7,FONT_SMALL,zwykly,to);
 	for (int i = 0; i<6; i++)
 	{//primary skills, mana and exp. pics
 		blitAt(graphics->pskillst->ourImages[i].bitmap,(i<4)?(pos.x+78+36*i):(pos.x+539-52*i),
@@ -895,17 +895,17 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 		if (i>3) continue;//primary skills text
 		std::ostringstream str;
 		str << (hero->primSkills[i]);
-		CSDL_Ext::printAtMiddle(str.str(),pos.x+95+36*i,pos.y+65,GEOR13,zwykly,to);
+		CSDL_Ext::printAtMiddle(str.str(),pos.x+94+36*i,pos.y+66,FONT_SMALL,zwykly,to);
 	}
 	{//luck and morale pics, experience and mana text
 		blitAt(graphics->luck30->ourImages[hero->getCurrentLuck()+3].bitmap,pos.x+222,pos.y+30,to);
 		blitAt(graphics->morale30->ourImages[hero->getCurrentMorale()+3].bitmap,pos.x+222,pos.y+54,to);
 		std::ostringstream str;
 		str << (hero->exp);
-		CSDL_Ext::printAtMiddle(str.str(),(pos.x+348),(pos.y+31),GEORM,zwykly,to);
+		CSDL_Ext::printAtMiddle(str.str(),(pos.x+348),(pos.y+31),FONT_TINY,zwykly,to);
 		std::ostringstream strnew;
 		strnew << (hero->mana)<<"/"<<(hero->manaLimit());
-		CSDL_Ext::printAtMiddle(strnew.str(),(pos.x+298),(pos.y+31),GEORM,zwykly,to);
+		CSDL_Ext::printAtMiddle(strnew.str(),(pos.x+295),(pos.y+30),FONT_TINY,zwykly,to);
 	}
 	//hero speciality
 	blitAt(graphics->un32->ourImages[hero->subID].bitmap, pos.x+375, pos.y+6, to);

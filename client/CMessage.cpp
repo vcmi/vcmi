@@ -362,7 +362,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
-	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,GEOR13,zwykly,ret);
+	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,zwykly,ret);
 	delete tekst;
 	delete txtg;
 	return ret;

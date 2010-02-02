@@ -45,7 +45,6 @@ const double M_PI = 3.14159265358979323846;
  */
 
 extern SDL_Surface * screen;
-extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
 CondSh<bool> CBattleInterface::animsAreDisplayed;
@@ -3494,22 +3493,22 @@ void CBattleConsole::show(SDL_Surface * to)
 {
 	if(ingcAlter.size())
 	{
-		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, zwykly, to);
 	}
 	else if(alterTxt.size())
 	{
-		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, zwykly, to);
 	}
 	else if(texts.size())
 	{
 		if(texts.size()==1)
 		{
-			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, zwykly, to);
 		}
 		else
 		{
-			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
-			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 26, GEOR13, 80, zwykly, to);
+			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, zwykly, to);
+			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 27, FONT_SMALL, 80, zwykly, to);
 		}
 	}
 }
@@ -3574,19 +3573,19 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 
 	if(br.winner==0) //attacker won
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 60, 122, GEOR13, zwykly, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 410, 122, GEOR13, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 59, 124, FONT_SMALL, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 408, 124, FONT_SMALL, zwykly, background);
 	}
 	else //if(br.winner==1)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 60, 122, GEOR13, zwykly, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 410, 122, GEOR13, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 59, 124, FONT_SMALL, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 412, 124, FONT_SMALL, zwykly, background);
 	}
 
 	
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[407], 235, 299, GEOR16, tytulowy, background);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[408], 235, 329, GEOR16, zwykly, background);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[409], 235, 426, GEOR16, zwykly, background);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[407], 232, 302, FONT_BIG, tytulowy, background);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[408], 232, 332, FONT_BIG, zwykly, background);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[409], 237, 428, FONT_BIG, zwykly, background);
 
 	std::string attackerName, defenderName;
 
@@ -3636,14 +3635,14 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	}
 
 	//printing attacker and defender's names
-	CSDL_Ext::printAtMiddle(attackerName, 156, 44, GEOR16, zwykly, background);
-	CSDL_Ext::printAtMiddle(defenderName, 314, 44, GEOR16, zwykly, background);
+	CSDL_Ext::printAt(attackerName, 89, 37, FONT_SMALL, zwykly, background);
+	CSDL_Ext::printTo(defenderName, 381, 53, FONT_SMALL, zwykly, background);
 	//printing casualities
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
 		{
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360 + 97*step, GEOR16, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360 + 97*step, FONT_SMALL, zwykly, background);
 		}
 		else
 		{
@@ -3654,7 +3653,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
 				std::ostringstream amount;
 				amount<<it->second;
-				CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
+				CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, FONT_SMALL, zwykly, background);
 				xPos += 42;
 			}
 		}
@@ -3672,13 +3671,13 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 #else
 			CGI->videoh->open(VIDEO_WIN, true);
 #endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::loseCombat);
 			CGI->videoh->open(VIDEO_LOSE_BATTLE_START);
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		break;
 	case 1: //flee
@@ -3690,13 +3689,13 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 #else
 			CGI->videoh->open(VIDEO_WIN, true);
 #endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::retreatBattle);
 			CGI->videoh->open(VIDEO_RETREAT_START);
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		break;
 	case 2: //surrender
@@ -3708,13 +3707,13 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 #else
 			CGI->videoh->open(VIDEO_WIN, true);
 #endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::surrenderBattle);
 			CGI->videoh->open(VIDEO_SURRENDER);
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, GEOR13, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, FONT_SMALL, zwykly, background);
 		}
 		break;
 	}
@@ -3758,8 +3757,12 @@ void CBattleResultWindow::bExitf()
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
 {
 	pos = position;
-	background = BitmapHandler::loadBitmap("comopbck.bmp", true);
-	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("comopbck.bmp", true);
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	background = SDL_ConvertSurface(hhlp,screen->format,0);
+	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+	SDL_FreeSurface(hhlp);
+
 
 	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
 	viewGrid->select(LOCPLINT->sysOpts.printCellBorders);
@@ -3781,29 +3784,29 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
 
 	//printing texts to background
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 240, 32, GEOR16, tytulowy, background); //window title
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[393], 122, 211, GEOR16, tytulowy, background); //animation speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 292, GEOR16, tytulowy, background); //music volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 358, GEOR16, tytulowy, background); //effects' volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[396], 353, 64, GEOR16, tytulowy, background); //auto - combat options
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[397], 353, 264, GEOR16, tytulowy, background); //creature info
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 242, 32, FONT_BIG, tytulowy, background); //window title
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[393], 122, 214, FONT_MEDIUM, tytulowy, background); //animation speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 293, FONT_MEDIUM, tytulowy, background); //music volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 359, FONT_MEDIUM, tytulowy, background); //effects' volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[396], 353, 66, FONT_MEDIUM, tytulowy, background); //auto - combat options
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[397], 353, 265, FONT_MEDIUM, tytulowy, background); //creature info
 
 		//auto - combat options
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[398], 283, 87, GEOR16, zwykly, background); //creatures
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[399], 283, 117, GEOR16, zwykly, background); //spells
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[400], 283, 147, GEOR16, zwykly, background); //catapult
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[151], 283, 177, GEOR16, zwykly, background); //ballista
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[401], 283, 207, GEOR16, zwykly, background); //first aid tent
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[398], 283, 86, FONT_MEDIUM, zwykly, background); //creatures
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[399], 283, 116, FONT_MEDIUM, zwykly, background); //spells
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[400], 283, 146, FONT_MEDIUM, zwykly, background); //catapult
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[151], 283, 176, FONT_MEDIUM, zwykly, background); //ballista
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[401], 283, 206, FONT_MEDIUM, zwykly, background); //first aid tent
 
 		//creature info
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[402], 283, 286, GEOR16, zwykly, background); //all stats
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[403], 283, 316, GEOR16, zwykly, background); //spells only
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[402], 283, 285, FONT_MEDIUM, zwykly, background); //all stats
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[403], 283, 315, FONT_MEDIUM, zwykly, background); //spells only
 	
 		//general options
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[404], 61, 58, GEOR16, zwykly, background); //hex grid
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[405], 61, 91, GEOR16, zwykly, background); //movement shadow
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[406], 61, 124, GEOR16, zwykly, background); //cursor shadow
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 61, 157, GEOR16, zwykly, background); //spellbook animation
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[404], 61, 57, FONT_MEDIUM, zwykly, background); //hex grid
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[405], 61, 90, FONT_MEDIUM, zwykly, background); //movement shadow
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[406], 61, 124, FONT_MEDIUM, zwykly, background); //cursor shadow
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 61, 156, FONT_MEDIUM, zwykly, background); //spellbook animation
 	//texts printed
 }
 

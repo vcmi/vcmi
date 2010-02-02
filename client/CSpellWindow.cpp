@@ -29,7 +29,6 @@
 
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, zwykly, darkTitle;
-extern TTF_Font *GEOR16;
 
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff)
 {
@@ -217,10 +216,6 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 	pos = myRect;
 	background = BitmapHandler::loadBitmap("SpelBack.bmp");
 	graphics->blueToPlayersAdv(background, myHero->tempOwner);
-
-	std::ostringstream mana;
-	mana<<myHero->mana;
-	CSDL_Ext::printAtMiddle(mana.str(), 434, 425, GEOR16, tytulowy, background);
 
 	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
 	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
@@ -420,6 +415,10 @@ void CSpellWindow::show(SDL_Surface *to)
 {
 	SDL_BlitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
+
+	std::ostringstream mana;
+	mana<<myHero->mana;
+	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, tytulowy, to);
 	
 	statusBar->show(to);
 
@@ -476,14 +475,14 @@ void CSpellWindow::show(SDL_Surface *to)
 			secondLineColor = zwykly;
 		}
 		//printing spell's name
-		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, FONT_TIMES, firstLineColor, to);
+		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, FONT_TINY, firstLineColor, to);
 		//printing lvl
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, FONT_TIMES, secondLineColor, to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, FONT_TINY, secondLineColor, to);
 		//printing  cost
 		std::ostringstream ss;
 		ss<<CGI->generaltexth->allTexts[387]<<": "<<LOCPLINT->cb->getSpellCost(spell, myHero);
 
-		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, FONT_TIMES, secondLineColor, to);
+		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, FONT_TINY, secondLineColor, to);
 	}
 }
 

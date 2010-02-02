@@ -36,7 +36,6 @@ using namespace CSDL_Ext;
  *
  */
 
-extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 	:moi(false), offset(0), str(Str)
 {
@@ -772,7 +771,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 		creainfo[i]->show(to);
 
 	//print name
-	CSDL_Ext::printAt(town->name,pos.x+85,pos.y+389,GEOR13,zwykly,to);
+	CSDL_Ext::printAt(town->name,pos.x+85,pos.y+389,FONT_SMALL,zwykly,to);
 	//blit town icon
 	int pom = town->subID*2;
 	if (!town->hasFort())
@@ -1187,7 +1186,7 @@ void CCastleInterface::CCreaInfo::show(SDL_Surface * to)
 	blitAt(graphics->smallImgs[crid],pos.x+8,pos.y,to);
 	std::ostringstream oss;
 	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth((bid-30)%CREATURES_PER_TOWN);
-	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+37,GEOR13,zwykly,to);
+	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+37,FONT_TINY,zwykly,to);
 }
 
 CCastleInterface::CTownInfo::~CTownInfo()
@@ -1266,7 +1265,7 @@ void CCastleInterface::CTownInfo::show(SDL_Surface * to)
 	{
 		std::ostringstream oss;
 		oss << LOCPLINT->castleInt->town->dailyIncome();
-		CSDL_Ext::printAtMiddle(oss.str(),pos.x+32,pos.y+32,GEOR13,zwykly,to);
+		CSDL_Ext::printAtMiddle(oss.str(),pos.x+32,pos.y+32,FONT_SMALL,zwykly,to);
 	}
 	else if ( bid == 6 )//no fort
 		blitAt(pic->ourImages[3].bitmap,pos.x,pos.y,to);
@@ -1419,7 +1418,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 	blitAt(ci->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71,to);
 	if(pom2>=0)
 		blitAt(ci->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54,to);
-	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[ci->town->subID][BID]->Name(),pos.x-1+ci->bars->ourImages[0].bitmap->w/2,pos.y+71+ci->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly,to);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[ci->town->subID][BID]->Name(),pos.x-1+ci->bars->ourImages[0].bitmap->w/2,pos.y+71+ci->bars->ourImages[0].bitmap->h/2, FONT_SMALL,zwykly,to);
 }
 CHallInterface::CBuildingBox::~CBuildingBox()
 {
@@ -1526,7 +1525,7 @@ void CHallInterface::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	LOCPLINT->castleInt->statusbar->show(to);
-	printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(),400+pos.x,13+pos.y,GEORXX,zwykly,to);
+	printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(),399+pos.x,12+pos.y,FONT_MEDIUM,zwykly,to);
 	resdatabar->show(to);
 	exit->show(to);
 	for(int i=0; i<5; i++)
@@ -1651,9 +1650,9 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	pos.y = screen->h/2 - bitmap->h/2;
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
 	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->Name());
-	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->Description(),197,168,GEOR16,40,zwykly,bitmap);
-	CSDL_Ext::printAtMiddleWB(getTextForState(state),197,248,GEOR13,50,zwykly,bitmap);
-	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->generaltexth->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
+	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->Description(),197,168,FONT_MEDIUM,43,zwykly,bitmap);
+	CSDL_Ext::printAtMiddleWB(getTextForState(state),199,248,FONT_SMALL,50,zwykly,bitmap);
+	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->generaltexth->hcommands[7],pom),197,30,FONT_BIG,tytulowy,bitmap);
 
 	int resamount=0; 
 	for(int i=0;i<7;i++)
@@ -1663,7 +1662,7 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 			resamount++;
 		}
 	}
-	int ah = (resamount>4) ? 304 : 341;
+	int ah = (resamount>4) ? 304 : 340;
 	int cn=-1, it=0;
 	int row1w = std::min(resamount,4) * 32 + (std::min(resamount,4)-1) * 45,
 		row2w = (resamount-4) * 32 + (resamount-5) * 45;
@@ -1675,12 +1674,12 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 		SDL_itoa(CGI->buildh->buildings[tid][bid]->resources[cn],buf,10);
 		if(it<4)
 		{
-			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row1w/2)+77*it+16,ah+42,GEOR16,zwykly,bitmap);
+			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row1w/2)+77*it+16,ah+47,FONT_SMALL,zwykly,bitmap);
 			blitAt(graphics->resources32->ourImages[cn].bitmap,(bitmap->w/2-row1w/2)+77*it++,ah,bitmap);
 		}
 		else
 		{
-			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row2w/2)+77*it+16-308,ah+42,GEOR16,zwykly,bitmap);
+			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row2w/2)+77*it+16-308,ah+47,FONT_SMALL,zwykly,bitmap);
 			blitAt(graphics->resources32->ourImages[cn].bitmap,(bitmap->w/2-row2w/2)+77*it++ - 308,ah,bitmap);
 		}
 		if(it==4)
@@ -1785,34 +1784,34 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
 	bg = SDL_ConvertSurface(bg2,screen->format,0); 
 	SDL_FreeSurface(bg2);
-	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,GEORXX,zwykly,bg);
+	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,FONT_MEDIUM,zwykly,bg);
 	for(int i=0;i<CREATURES_PER_TOWN; i++)
 	{
 		bool upgraded = owner->town->creatureDwelling(i,true);
 		bool present = owner->town->creatureDwelling(i,false);
 		CCreature *c = &CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
-		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,GEOR13,zwykly,bg); //cr. name
+		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,FONT_SMALL,zwykly,bg); //cr. name
 		blitAt(owner->bicons->ourImages[30+i+upgraded*7].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
-		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,GEOR13,zwykly,bg); //dwelling name
+		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
 		if(present) //if creature is present print avail able quantity
 		{
 			SDL_itoa(owner->town->creatures[i].first,buf,10);
-			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,GEOR13,zwykly,bg);
+			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,FONT_SMALL,zwykly,bg);
 		}
 		blitAt(icons,positions[i].x+261,positions[i].y+3,bg);
 
 		//attack
-		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,GEOR13,zwykly,bg);
+		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->attack,buf,10);
-		printToWR(buf,positions[i].x+381,positions[i].y+18,GEOR13,zwykly,bg);
+		printTo(buf,positions[i].x+381,positions[i].y+21,FONT_SMALL,zwykly,bg);
 
 		//defense
-		printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,GEOR13,zwykly,bg);
+		printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->defence,buf,10);
-		printToWR(buf,positions[i].x+381,positions[i].y+38,GEOR13,zwykly,bg);
+		printTo(buf,positions[i].x+381,positions[i].y+41,FONT_SMALL,zwykly,bg);
 
 		//damage
-		printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,GEOR13,zwykly,bg);
+		printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->damageMin,buf,10);
 		int hlp;
 		if(c->damageMin > 0)
@@ -1821,23 +1820,23 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 			hlp = 2;
 		buf[hlp-1]=' '; buf[hlp]='-'; buf[hlp+1]=' ';
 		SDL_itoa(c->damageMax,buf+hlp+2,10);
-		printToWR(buf,positions[i].x+381,positions[i].y+59,GEOR13,zwykly,bg);
+		printTo(buf,positions[i].x+381,positions[i].y+62,FONT_SMALL,zwykly,bg);
 
 		//health
-		printAt(CGI->generaltexth->zelp[439].first,positions[i].x+288,positions[i].y+66,GEOR13,zwykly,bg);
+		printAt(CGI->generaltexth->zelp[439].first,positions[i].x+288,positions[i].y+66,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->hitPoints,buf,10);
-		printToWR(buf,positions[i].x+381,positions[i].y+79,GEOR13,zwykly,bg);
+		printTo(buf,positions[i].x+381,positions[i].y+82,FONT_SMALL,zwykly,bg);
 
 		//speed
-		printAt(CGI->generaltexth->zelp[441].first,positions[i].x+288,positions[i].y+87,GEOR13,zwykly,bg);
+		printAt(CGI->generaltexth->zelp[441].first,positions[i].x+288,positions[i].y+87,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->speed,buf,10);
-		printToWR(buf,positions[i].x+381,positions[i].y+100,GEOR13,zwykly,bg);
+		printTo(buf,positions[i].x+381,positions[i].y+103,FONT_SMALL,zwykly,bg);
 
 		if(present)//growth
 		{
-			printAt(CGI->generaltexth->allTexts[194],positions[i].x+288,positions[i].y+107,GEOR13,zwykly,bg);
+			printAt(CGI->generaltexth->allTexts[194],positions[i].x+288,positions[i].y+107,FONT_SMALL,zwykly,bg);
 			SDL_itoa(owner->town->creatureGrowth(i),buf,10);
-			printToWR(buf,positions[i].x+381,positions[i].y+120,GEOR13,zwykly,bg);
+			printTo(buf,positions[i].x+381,positions[i].y+123,FONT_SMALL,zwykly,bg);
 		}
 		if(first)
 		{
@@ -2000,10 +1999,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	cra.nextFrameMiddle(bmp,170,120,true,0,false);
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID].nameSing.c_str()); //build a new ...
-	printAtMiddle(pom,165,28,GEORXX,tytulowy,bmp);
-	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,GEOR16,zwykly,bmp); //resource cost
+	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,bmp);
+	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid].price,pom,10);
-	printAtMiddle(pom,165,290,GEOR13,zwykly,bmp);
+	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,bmp);
 
 	pos.w = bmp->w;
 	pos.h = bmp->h;

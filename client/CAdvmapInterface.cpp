@@ -42,8 +42,6 @@
  *
  */
 
-extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
-
 #define ADVOPT (conf.go()->ac)
 using namespace boost::logic;
 using namespace boost::assign;
@@ -1279,13 +1277,13 @@ void CResDataBar::draw(SDL_Surface * to)
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly,to);
+		printAt(buf,txtpos[i].first,txtpos[i].second,FONT_SMALL,zwykly,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
-	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly,to);
+	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,FONT_SMALL,zwykly,to);
 	temp.clear();
 	//updateRect(&pos,screen);
 	delete[] buf;
@@ -1380,7 +1378,7 @@ void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
 	}
 	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
-	printAtMiddle(txt.str(),pos.x+95,pos.y+31,TNRB16,zwykly);
+	printAtMiddle(txt.str(),pos.x+95,pos.y+31,FONT_MEDIUM,zwykly);
 	if (pom == anim->ourImages.size()-1)
 		toNextTick+=750;
 }
@@ -1425,8 +1423,8 @@ void CInfoBar::showComp(SComponent * comp, int time)
 	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
 	blitAt(comp->getImg(),pos.x+52,pos.y+54);
-	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,GEOR13,zwykly);
-	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,GEOR13,26,zwykly);
+	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,zwykly);
+	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,zwykly);
 	SDL_FreeSurface(b);
 	activateTimer();
 	mode = 6;

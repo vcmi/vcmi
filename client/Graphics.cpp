@@ -45,7 +45,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 
-	printAt(curh.name,75,15,GEOR13,zwykly,ret); //name
+	printAt(curh.name,75,13,FONT_SMALL,zwykly,ret); //name
 	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
 
 	//army
@@ -55,11 +55,11 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 		if(curh.details)
 		{
 			SDL_itoa((*i).second.second,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else
 		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*i->second.second],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*i->second.second],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 	}
 
@@ -68,12 +68,12 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 		for (int i = 0; i < PRIMARY_SKILLS; i++)
 		{
 			SDL_itoa(curh.details->primskills[i], buf, 10);
-			printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
+			printAtMiddle(buf,84+28*i,70,FONT_SMALL,zwykly,ret);
 		}
 
 		//mana points
 		SDL_itoa(curh.details->mana,buf,10);
-		printAtMiddle(buf,166,109,GEORM,zwykly,ret); 
+		printAtMiddle(buf,167,108,FONT_TINY,zwykly,ret); 
 
 		blitAt(morale22->ourImages[curh.details->morale+3].bitmap,14,84,ret);	//luck
 		blitAt(luck22->ourImages[curh.details->morale+3].bitmap,14,101,ret);	//morale
@@ -102,7 +102,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 
-	printAt(curh.name,75,15,GEOR13,zwykly,ret); //name
+	printAt(curh.name,75,12,FONT_SMALL,zwykly,ret); //name
 	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
 
@@ -115,14 +115,14 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 		{
 			// Show exact creature amount.
 			SDL_itoa((*i).second.second,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else
 		{
 			// Show only a rough amount for creature stacks.
 			// TODO: Deal with case when no information at all about size shold be presented.
 			std::string roughAmount = curh.obj->getRoughAmount(i->first);
-			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 	}
 
@@ -144,7 +144,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 
 		if (curh.details->goldIncome >= 0) {
 			SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
-			printAtMiddle(buf, 167, 70, GEORM, zwykly, ret);
+			printAtMiddle(buf, 167, 70, FONT_TINY, zwykly, ret);
 		}
 		if(curh.details->garrisonedHero) //garrisoned hero icon
 			blitAt(graphics->heroInGarrison,158,87,ret);

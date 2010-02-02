@@ -58,7 +58,6 @@
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
-extern TTF_Font * GEOR16;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
@@ -354,7 +353,7 @@ void CGarrisonSlot::show(SDL_Surface * to)
 		char buf[15];
 		SDL_itoa(count,buf,10);
 		blitAt(imgs[creature->idNumber],pos,to);
-		printToWR(buf, pos.x+pos.w-2, pos.y+pos.h-2, owner->smallIcons ? GEORM : GEOR16, zwykly, to);
+		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_VERD, zwykly, to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
@@ -1046,7 +1045,7 @@ void CSelectableComponent::select(bool on)
 void CSelectableComponent::show(SDL_Surface * to)
 {
 	blitAt(myBitmap,pos.x,pos.y,to);
-	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+14,GEOR13,12,zwykly,to);
+	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
 }
 void CSimpleWindow::show(SDL_Surface * to)
 {
@@ -1158,7 +1157,7 @@ void CStatusBar::show(SDL_Surface * to)
 {
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
 	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),to,&pom);
-	printAtMiddle(current,middlex,middley,GEOR13,zwykly,to);
+	printAtMiddle(current,middlex,middley,FONT_SMALL,zwykly,to);
 }
 
 std::string CStatusBar::getCurrent()
@@ -1910,10 +1909,10 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,to);
+	printAtMiddle(pom,pos.x+205,pos.y+254,FONT_SMALL,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,to);
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,to); //eg "Recruit Dragon flies"
+	printAtMiddle(pom,pos.x+279,pos.y+254,FONT_SMALL,zwykly,to);
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
 
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
@@ -1921,9 +1920,9 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,to);
 		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,to);
 		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,to);
+		printAtMiddle(pom,curx+14,pos.y+288,FONT_SMALL,zwykly,to);
 		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,to);
+		printAtMiddle(pom,curx+12+258,pos.y+286,FONT_SMALL,zwykly,to);
 		curx+=32;
 	}
 
@@ -1959,10 +1958,10 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 
 	initCres();
 
-	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
-	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t
-	printAtMiddle(CGI->generaltexth->allTexts[16],279,231,GEOR13,zwykly,bitmap); //recruit t
-	printAtMiddle(CGI->generaltexth->allTexts[466],373,231,GEOR13,zwykly,bitmap); //total cost t
+	printAtMiddle(CGI->generaltexth->allTexts[346],113,233,FONT_SMALL,zwykly,bitmap); //cost per troop t
+	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,zwykly,bitmap); //available t
+	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,zwykly,bitmap); //recruit t
+	printAtMiddle(CGI->generaltexth->allTexts[466],373,233,FONT_SMALL,zwykly,bitmap); //total cost t
 	drawBorder(bitmap,172,222,67,42,int3(239,215,123));
 	drawBorder(bitmap,246,222,67,42,int3(239,215,123));
 	drawBorder(bitmap,64,222,99,76,int3(239,215,123));
@@ -2050,9 +2049,12 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	c=cid;
 	slider = NULL;
 	gar = Owner;
-	bitmap = BitmapHandler::loadBitmap("GPUCRDIV.bmp");
-	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
+
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("GPUCRDIV.bmp");
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
+	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
@@ -2068,7 +2070,7 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid].namePl);
-	printAtMiddle(title,150,34,GEOR16,tytulowy,bitmap);
+	printAtMiddle(title,150,34,FONT_BIG,tytulowy,bitmap);
 }
 
 CSplitWindow::~CSplitWindow() //d-tor
@@ -2123,8 +2125,8 @@ void CSplitWindow::show(SDL_Surface * to)
 	ok->show(to);
 	cancel->show(to);
 	slider->show(to);
-	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,GEOR16,zwykly,to);
-	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,GEOR16,zwykly,to);
+	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,FONT_BIG,zwykly,to);
+	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,FONT_BIG,zwykly,to);
 	anim->blitPic(to,pos.x+20,pos.y+54,false);
 	anim->blitPic(to,pos.x+177,pos.y+54,false);
 }
@@ -2189,7 +2191,7 @@ void CCreInfoWindow::show(SDL_Surface * to)
 	if(++anf==4) 
 		anf=0;
 	if(count.size())
-		printTo(count.c_str(),pos.x+114,pos.y+174,GEOR16,zwykly,to);
+		printTo(count.c_str(),pos.x+114,pos.y+174,FONT_TIMES,zwykly,to);
 	if(upgrade)
 		upgrade->show(to);
 	if(dismiss)
@@ -2204,13 +2206,15 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	//active = false;
 	anf = 0;
 	c = &CGI->creh->creatures[Cid];
-	bitmap = BitmapHandler::loadBitmap("CRSTKPU.bmp");
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("CRSTKPU.bmp");
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
+	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
+	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
-	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	anim = new CCreaturePic(c);
 	if(!type) anim->anim->setType(2);
 
@@ -2222,10 +2226,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		count = pom;
 	}
 
-	printAtMiddle(c->namePl,149,30,GEOR13,tytulowy,bitmap); //creature name
+	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,bitmap); //creature name
 
 	//atttack
-	printAt(CGI->generaltexth->primarySkillNames[0],155,48,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->primarySkillNames[0],155,48,FONT_SMALL,zwykly,bitmap);
 	SDL_itoa(c->attack,pom,10);
 	if(State && State->attackBonus)
 	{
@@ -2239,10 +2243,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		hlp += 2+(int)log10f(State->attackBonus+c->attack);
 		pom[hlp] = ')'; pom[hlp+1] = '\0';
 	}
-	printToWR(pom,276,61,GEOR13,zwykly,bitmap);
+	printTo(pom,276,61,FONT_SMALL,zwykly,bitmap);
 
 	//defense
-	printAt(CGI->generaltexth->primarySkillNames[1],155,67,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->primarySkillNames[1],155,67,FONT_SMALL,zwykly,bitmap);
 	SDL_itoa(c->defence,pom,10);
 	if(State && State->defenseBonus)
 	{
@@ -2256,24 +2260,24 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		hlp += 2+(int)log10f(State->defenseBonus+c->defence);
 		pom[hlp] = ')'; pom[hlp+1] = '\0';
 	}
-	printToWR(pom,276,80,GEOR13,zwykly,bitmap);
+	printTo(pom,276,80,FONT_SMALL,zwykly,bitmap);
 
 	//shots
 	if(c->shots)
 	{
-		printAt(CGI->generaltexth->allTexts[198], 155, 86, GEOR13, zwykly, bitmap);
+		printAt(CGI->generaltexth->allTexts[198], 155, 86, FONT_SMALL, zwykly, bitmap);
 		if(State  &&  State->shotsLeft >= 0)
 			sprintf(pom,"%d (%d)", c->shots, State->shotsLeft);
 		else
 			SDL_itoa(c->shots, pom, 10);
-		printToWR(pom, 276, 99, GEOR13, zwykly, bitmap);
+		printTo(pom, 276, 99, FONT_SMALL, zwykly, bitmap);
 	}
 
 	//damage
 	int dmgMin = c->damageMin * (State ? State->dmgMultiplier : 1);
 	int dmgMax = c->damageMax * (State ? State->dmgMultiplier : 1);
 
-	printAt(CGI->generaltexth->allTexts[199], 155, 105, GEOR13, zwykly, bitmap);
+	printAt(CGI->generaltexth->allTexts[199], 155, 105, FONT_SMALL, zwykly, bitmap);
 	SDL_itoa(dmgMin, pom, 10);
 	if(dmgMin > 0)
 		hlp = log10f(dmgMin) + 2;
@@ -2281,26 +2285,26 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		hlp = 2;
 	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
 	SDL_itoa(dmgMax, pom+hlp+2, 10);
-	printToWR(pom, 276, 118, GEOR13, zwykly, bitmap);
+	printTo(pom, 276, 118, FONT_SMALL, zwykly, bitmap);
 
 	//health
-	printAt(CGI->generaltexth->allTexts[388],155,124,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->allTexts[388],155,124,FONT_SMALL,zwykly,bitmap);
 	if(State  &&  State->healthBonus)
 		sprintf(pom,"%d (%d)",c->hitPoints, c->hitPoints + State->healthBonus);
 	else
 		SDL_itoa(c->hitPoints,pom,10);
-	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
+	printTo(pom,276,137,FONT_SMALL,zwykly,bitmap);
 
 	//remaining health
 	if(State && State->currentHealth)
 	{
-		printAt(CGI->generaltexth->allTexts[200],155,143,GEOR13,zwykly,bitmap);
+		printAt(CGI->generaltexth->allTexts[200],155,143,FONT_SMALL,zwykly,bitmap);
 		SDL_itoa(State->currentHealth,pom,10);
-		printToWR(pom,276,156,GEOR13,zwykly,bitmap);
+		printTo(pom,276,156,FONT_SMALL,zwykly,bitmap);
 	}
 
 	//speed
-	printAt(CGI->generaltexth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->zelp[441].first,155,162,FONT_SMALL,zwykly,bitmap);
 	SDL_itoa(c->speed,pom,10);
 	if(State && State->speedBonus)
 	{
@@ -2314,7 +2318,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		hlp += 2+(int)log10f(c->speed + State->speedBonus);
 		pom[hlp] = ')'; pom[hlp+1] = '\0';
 	}
-	printToWR(pom,276,175,GEOR13,zwykly,bitmap);
+	printTo(pom,276,175,FONT_SMALL,zwykly,bitmap);
 
 
 	//luck and morale
@@ -2365,7 +2369,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	}
 	else
 	{
-		printAtWB(c->abilityText,17,231,GEOR13,35,zwykly,bitmap);
+		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,bitmap);
 	}
 
 	//spell effects
@@ -2467,9 +2471,12 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
 		comps.back()->assignedKeys.insert(SDLK_1 + i);
 	}
-	bitmap = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
-	graphics->blueToPlayersAdv(bitmap,hero->tempOwner);
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
+	SDL_FreeSurface(hhlp);
+
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
@@ -2479,27 +2486,30 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	char buf[100], buf2[100];
 	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
 	sprintf(buf,buf2,hero->name.c_str());
-	printAtMiddle(buf,192,35,GEOR16,zwykly,bitmap);
+	printAtMiddle(buf,192,33,FONT_MEDIUM,zwykly,bitmap);
 
 	strcpy(buf2,CGI->generaltexth->allTexts[445].c_str()); //%s is now a level %d %s.
 	sprintf(buf,buf2,hero->name.c_str(),hero->level,hero->type->heroClass->name.c_str());
-	printAtMiddle(buf,192,162,GEOR16,zwykly,bitmap);
+	printAtMiddle(buf,192,162,FONT_MEDIUM,zwykly,bitmap);
 
 	blitAt(graphics->pskillsm->ourImages[pskill].bitmap,174,190,bitmap);
 
-	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,252,GEOR16,zwykly,bitmap);
+	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,253,FONT_MEDIUM,zwykly,bitmap);
 
-	SDL_Surface * ort = TTF_RenderText_Blended(GEOR16,CGI->generaltexth->allTexts[4].c_str(),zwykly);
-	int curx = bitmap->w/2 - ( skills.size()*44   +   (skills.size()-1)*(36+ort->w) )/2;
+	const Font *f = graphics->fonts[FONT_MEDIUM];
+	std::string text = CGI->generaltexth->allTexts[4];
+	int fontWidth = f->getWidth(text.c_str())/2;
+	int curx = bitmap->w/2 - ( skills.size()*44 + (skills.size()-1)*(36+fontWidth) )/2;
+
 	for(int i=0;i<comps.size();i++)
 	{
 		comps[i]->pos.x = curx+pos.x;
 		comps[i]->pos.y = 326+pos.y;
 		if( i < (comps.size()-1) )
 		{
-			curx += 44 + 18; //skill width + margin to "or"
-			blitAt(ort,curx,346,bitmap);
-			curx += ort->w + 18;
+			curx += 44+21; //skill width + margin to "or"
+			printAtMiddle(text ,curx,346,FONT_MEDIUM,zwykly,bitmap);
+			curx += fontWidth+15;
 		}
 	}
 
@@ -2511,9 +2521,6 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	{
 		comps[0]->select(true);
 	}
-
-	SDL_FreeSurface(ort);
-
 }
 void CLevelWindow::selectionChanged(unsigned to)
 {
@@ -2560,7 +2567,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly,to);
+		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,zwykly,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
@@ -2573,7 +2580,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 	+ ": %s, "
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly,to);
+		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,zwykly,to);
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -2703,8 +2710,8 @@ void CMarketplaceWindow::setMode( int mode )
 			initItems(left,lpos,0,7,true,NULL);
 			initItems(right,rpos,0,7,false,NULL);
 			printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,bg); //title
-			printAtMiddle(CGI->generaltexth->allTexts[270],155,148,FONT_SMALL,zwykly,bg); //kingdom res.
-			printAtMiddle(CGI->generaltexth->allTexts[168],450,147,FONT_SMALL,zwykly,bg); //available for trade
+			printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,zwykly,bg); //kingdom res.
+			printAtMiddle(CGI->generaltexth->allTexts[168],445,147,FONT_SMALL,zwykly,bg); //available for trade
 		}
 	}
 }
@@ -2870,24 +2877,27 @@ void CMarketplaceWindow::selectionChanged(bool side)
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
 {
 	this->pos = pos;
-	background = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
-	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	background = SDL_ConvertSurface(hhlp,screen->format,0);
+	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+	SDL_FreeSurface(hhlp);
 
 	//printing texts
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 240, 32, GEOR16, tytulowy, background); //window title
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 65, GEOR16, tytulowy, background); //hero speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 131, GEOR16, tytulowy, background); //enemy speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 197, GEOR16, tytulowy, background); //map scroll speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 263, GEOR16, tytulowy, background); //video quality
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 348, GEOR16, tytulowy, background); //music volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 414, GEOR16, tytulowy, background); //effects volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 242, 32, FONT_BIG, tytulowy, background); //window title
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 64, FONT_MEDIUM, tytulowy, background); //hero speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 130, FONT_MEDIUM, tytulowy, background); //enemy speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 196, FONT_MEDIUM, tytulowy, background); //map scroll speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 262, FONT_MEDIUM, tytulowy, background); //video quality
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 347, FONT_MEDIUM, tytulowy, background); //music volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 412, FONT_MEDIUM, tytulowy, background); //effects volume
 
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 283, 57, GEOR16, zwykly, background); //show move path
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 283, 89, GEOR16, zwykly, background); //show hero reminder
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 283, 121, GEOR16, zwykly, background); //quick combat
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 283, 153, GEOR16, zwykly, background); //video subtitles
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 283, 185, GEOR16, zwykly, background); //town building outlines
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 282, 57, FONT_MEDIUM, zwykly, background); //show move path
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 282, 89, FONT_MEDIUM, zwykly, background); //show hero reminder
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 282, 121, FONT_MEDIUM, zwykly, background); //quick combat
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 282, 153, FONT_MEDIUM, zwykly, background); //video subtitles
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 282, 185, FONT_MEDIUM, zwykly, background); //town building outlines
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 282, 217, FONT_MEDIUM, zwykly, background); //spell book animation
 
 	//setting up buttons
 	// load = new AdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
@@ -3039,13 +3049,17 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	else
 		selected = -1;
 	oldSelected = -1;
-	bg = BitmapHandler::loadBitmap("TPTAVERN.bmp");
+
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPTAVERN.bmp");
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	bg = SDL_ConvertSurface(hhlp,screen->format,0);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,GEOR16,tytulowy,bg);
-	printAtMiddle("2500",320,328,GEOR13,zwykly,bg);
-	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,GEOR16,tytulowy,bg);
-	printAtMiddleWB(gossip,200,220,GEOR13,50,zwykly,bg);
+	SDL_FreeSurface(hhlp);
+
+	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,tytulowy,bg);
+	printAtMiddle("2500",320,328,FONT_SMALL,zwykly,bg);
+//	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,FONT_BIG,tytulowy,bg); //what is this???
+	printAtMiddleWB(gossip,200,220,FONT_SMALL,50,zwykly,bg);
 	pos.w = bg->w;
 	pos.h = bg->h;
 	pos.x = (screen->w-bg->w)/2;
@@ -3166,7 +3180,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,to);
+		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,zwykly,to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -3265,7 +3279,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		{
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
 		}
-		CSDL_Ext::printAt(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, TNRB16, green);
+		CSDL_Ext::printAt(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, FONT_MEDIUM, green);
 		if(SDL_GetTicks() - it->second > defaultTimeout)
 		{
 			toDel.push_back(it);
@@ -3482,7 +3496,7 @@ void CGarrisonWindow::show(SDL_Surface * to)
 
 	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);
 	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
-	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
+	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,FONT_BIG,tytulowy,to);
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
@@ -4291,9 +4305,9 @@ void CExchangeWindow::prepareBackground()
 	//printing heroes' names and levels
 	std::ostringstream os, os2;
 	os<<heroInst[0]->name<<", Level "<<heroInst[0]->level<<" "<<heroInst[0]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os.str(), 147, 23, GEOR13, zwykly, bg);
+	CSDL_Ext::printAtMiddle(os.str(), 147, 25, FONT_SMALL, zwykly, bg);
 	os2<<heroInst[1]->name<<", Level "<<heroInst[1]->level<<" "<<heroInst[1]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os2.str(), 653, 23, GEOR13, zwykly, bg);
+	CSDL_Ext::printAtMiddle(os2.str(), 653, 25, FONT_SMALL, zwykly, bg);
 
 	//printing primary skills
 	CDefHandler * skilldef = CDefHandler::giveDef("PSKIL32.DEF");
@@ -4312,7 +4326,7 @@ void CExchangeWindow::prepareBackground()
 		{
 			std::ostringstream primarySkill;
 			primarySkill<<heroInst[b]->getPrimSkillLevel(m);
-			CSDL_Ext::printAtMiddle(primarySkill.str(), 353 + 93 * b, 35 + 36 * m, TNRB16, zwykly, bg);
+			CSDL_Ext::printAtMiddle(primarySkill.str(), 352 + 93 * b, 35 + 36 * m, FONT_SMALL, zwykly, bg);
 		}
 
 		//printing secondary skills
@@ -4326,11 +4340,11 @@ void CExchangeWindow::prepareBackground()
 
 		//experience
 		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, GEOR13, zwykly, bg );
+		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, FONT_SMALL, zwykly, bg );
 
 		//mana points
 		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, GEOR13, zwykly, bg );
+		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, zwykly, bg );
 
 		//setting morale
 		blitAt(graphics->morale30->ourImages[heroInst[b]->getCurrentMorale()+3].bitmap, 177 + 490*b, 45, bg);
@@ -4578,9 +4592,9 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 	std::string goldCost = boost::lexical_cast<std::string>(1000);
 	std::string woodCost = boost::lexical_cast<std::string>(10);
 	blitAt(graphics->resources32->ourImages[6].bitmap, 100, 244, bg);
-	printAtMiddle(goldCost.c_str(), 116, 290, GEOR13, zwykly, bg);
+	printAtMiddle(goldCost.c_str(), 118, 294, FONT_SMALL, zwykly, bg);
 	blitAt(graphics->resources32->ourImages[0].bitmap, 196, 244, bg);
-	printAtMiddle(woodCost.c_str(), 212, 290, GEOR13, zwykly, bg);
+	printAtMiddle(woodCost.c_str(), 212, 294, FONT_SMALL, zwykly, bg);
 
 	bool affordable = true;
 	for(int i = 0; i < cost.size(); i++)
@@ -4599,8 +4613,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 	if(!affordable)
 		build->block(true);
 
-	printAtMiddle(CGI->generaltexth->jktexts[13], 165, 28, GEORXX, tytulowy, bg);  //Build A New Ship
-	printAtMiddle(CGI->generaltexth->jktexts[14], 165, 218, GEOR16, zwykly, bg); //Resource cost:
+	printAtMiddle(CGI->generaltexth->jktexts[13], 164, 27, FONT_BIG, tytulowy, bg);  //Build A New Ship
+	printAtMiddle(CGI->generaltexth->jktexts[14], 164, 220, FONT_MEDIUM, zwykly, bg); //Resource cost:
 }
 
 CPuzzleWindow::CPuzzleWindow()

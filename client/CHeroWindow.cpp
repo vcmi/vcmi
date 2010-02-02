@@ -38,7 +38,6 @@
  */
 
 extern SDL_Surface * screen;
-extern TTF_Font * GEOR16;
 using namespace boost::assign;
 CHeroWindow::CHeroWindow(int playerColor):
 	player(playerColor)
@@ -417,41 +416,41 @@ void CHeroWindow::redrawCurBack()
 	blitAt(graphics->portraitLarge[curHero->portrait], 19, 19, curBack);
 
 	//printing hero's name
-	CSDL_Ext::printAtMiddle(curHero->name, 190, 40, GEORXX, tytulowy, curBack);
+	CSDL_Ext::printAtMiddle(curHero->name, 190, 38, FONT_BIG, tytulowy, curBack);
 
 	//printing hero's level
 	std::ostringstream secondLine;
 	secondLine<<"Level "<<curHero->level<<" "<<curHero->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(secondLine.str(), 190, 66, TNRB16, zwykly, curBack);
+	CSDL_Ext::printAtMiddle(secondLine.str(), 190, 65, FONT_MEDIUM, zwykly, curBack);
 
 	//primary skills names
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[1], 53, 98, GEOR13, tytulowy, curBack);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[2], 123, 98, GEOR13, tytulowy, curBack);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[3], 193, 98, GEOR13, tytulowy, curBack);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[4], 263, 98, GEOR13, tytulowy, curBack);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, tytulowy, curBack);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, tytulowy, curBack);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, tytulowy, curBack);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, tytulowy, curBack);
 
 	//dismiss / quest log
 	std::vector<std::string> * toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8].substr(1, CGI->generaltexth->jktexts[8].size()-2));
 	if(toPrin->size()==1)
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 372, 440, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[0], 372, 439, FONT_SMALL, zwykly, curBack);
 	}
 	else
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 372, 431, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt((*toPrin)[1], 372, 447, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[0], 372, 430, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[1], 372, 446, FONT_SMALL, zwykly, curBack);
 	}
 	delete toPrin;
 
 	toPrin = CMessage::breakText(CGI->generaltexth->jktexts[9].substr(1, CGI->generaltexth->jktexts[9].size()-2));
 	if(toPrin->size()==1)
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 512, 440, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[0], 512, 439, FONT_SMALL, zwykly, curBack);
 	}
 	else
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 512, 431, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt((*toPrin)[1], 512, 447, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[0], 512, 430, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt((*toPrin)[1], 512, 446, FONT_SMALL, zwykly, curBack);
 	}
 	delete toPrin;
 
@@ -460,7 +459,7 @@ void CHeroWindow::redrawCurBack()
 	{
 		std::ostringstream primarySkill;
 		primarySkill<<curHero->getPrimSkillLevel(m);
-		CSDL_Ext::printAtMiddle(primarySkill.str(), 53 + 70 * m, 165, TNRB16, zwykly, curBack);
+		CSDL_Ext::printAtMiddle(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, zwykly, curBack);
 	}
 
 	//morale and luck printing
@@ -502,25 +501,25 @@ void CHeroWindow::redrawCurBack()
 		if(curHero->secSkills.size()>=g)
 		{
 			blitAt(graphics->abils44->ourImages[curHero->secSkills[g-1].first*3+3+curHero->secSkills[g-1].second-1].bitmap, g%2 ? 18 : 161, 276 + 48 * ((g-1)/2), curBack);
-			CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[g-1].second-1], g%2 ? 69 : 213, 279 + 48 * ((g-1)/2), GEOR13, zwykly, curBack);
-			CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[g-1].first], g%2 ? 69 : 213, 299 + 48 * ((g-1)/2), GEOR13, zwykly, curBack);
+			CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[g-1].second-1], g%2 ? 68 : 212, 280 + 48 * ((g-1)/2), FONT_SMALL, zwykly, curBack);
+			CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[g-1].first], g%2 ? 68 : 212, 300 + 48 * ((g-1)/2), FONT_SMALL, zwykly, curBack);
 		}
 	}
 
 	//printing special ability
 	blitAt(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, curBack);
-	CSDL_Ext::printAt(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, GEOR13, tytulowy, curBack);
-	CSDL_Ext::printAt(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 199, GEOR16, zwykly, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, tytulowy, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, zwykly, curBack);
 
 	//printing necessery texts
-	CSDL_Ext::printAt(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 231, GEOR13, tytulowy, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, tytulowy, curBack);
 	std::ostringstream expstr;
 	expstr<<curHero->exp;
-	CSDL_Ext::printAt(expstr.str(), 69, 247, GEOR16, zwykly, curBack);
-	CSDL_Ext::printAt(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 212, 231, GEOR13, tytulowy, curBack);
+	CSDL_Ext::printAt(expstr.str(), 68, 252, FONT_SMALL, zwykly, curBack);
+	CSDL_Ext::printAt(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, tytulowy, curBack);
 	std::ostringstream manastr;
 	manastr << curHero->mana << '/' << curHero->manaLimit();
-	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
+	CSDL_Ext::printAt(manastr.str(), 211, 252, FONT_SMALL, zwykly, curBack);
 }
 
 void CHeroWindow::dispose()
