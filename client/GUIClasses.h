@@ -130,7 +130,7 @@ class SComponent : public virtual CIntObject //common popup window component
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck, building, flag
+		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck, building, hero, flag
 	} type; //component type
 	int subtype; //TODO: comment me
 	int val; //TODO: comment me

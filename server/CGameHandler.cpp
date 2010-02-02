@@ -1702,6 +1702,8 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 		return;
 	}
 }
+void CGameHandler::takeCreatures (int objid, CCreatureSet creatures)
+{}
 void CGameHandler::showCompInfo(ShowInInfobox * comp)
 {
 	sendToAllClients(comp);
@@ -1781,6 +1783,8 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 
 	sendAndApply(&sha);
 }
+void CGameHandler::removeArtifact(int artid, int hid)
+{}
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
 {

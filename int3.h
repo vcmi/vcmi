@@ -44,6 +44,14 @@ public:
 		else
 			return -1;
 	}
+	const TStack* getStack (TSlot slot) const
+	{
+		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
+		if (i != slots.end())
+			return &(i->second);
+		else
+			return NULL;
+	}
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) //slots 0 to 6
 	{
 		slots[slot] = TStack(type, quantity);  //brutal force

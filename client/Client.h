@@ -83,10 +83,12 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void giveResource(int player, int which, int val){};
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures) {};
+	void takeCreatures (int objid, CCreatureSet creatures){};
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};
 	void stopHeroVisitCastle(int obj, int heroID){};
 	void giveHeroArtifact(int artid, int hid, int position){}; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	void removeArtifact(int artid, int hid){};
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL){}; //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false){}; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false){}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle

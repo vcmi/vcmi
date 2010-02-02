@@ -77,6 +77,7 @@ extern CGameInfo* CGI;
 
 #define HEROI_TYPE (34)
 #define TOWNI_TYPE (98)
+#define CREI_TYPE (54)
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
@@ -148,6 +149,13 @@ namespace vstd
 	bool contains(const std::map<Item,V> & c, const Item2 &i) //returns true if map c contains item i
 	{
 		return c.find(i)!=c.end();
+	}
+	template <typename V, typename Item, typename Item2>
+	bool contains2(const std::map<Item,V> & c, const Item2 &i) //returns true if map c leads to item i
+	{
+		for (std::map<Item,V>::const_iterator it = c.begin(); it!= c.end(); ++it)
+			if (it->second == i) return true;
+		return false;
 	}
 	template <typename Container1, typename Container2>
 	typename Container2::iterator findFirstNot(Container1 &c1, Container2 &c2)//returns first element of c2 not present in c1

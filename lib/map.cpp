@@ -1540,6 +1540,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				if(version>RoE)
 				{
 					cre->identifier = readNormalNr(bufor,i); i+=4;
+					monsters[cre->identifier] = cre;
 				}
 				cre->army.slots[0].second = readNormalNr(bufor,i, 2); i+=2;
 				cre->character = bufor[i]; ++i;

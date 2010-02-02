@@ -27,6 +27,7 @@
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
+class CGCreature;
 class CQuest;
 class CGTownInstance;
 enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
@@ -324,6 +325,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<CGObjectInstance*> objects;
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
+	std::map<ui16, CGCreature*> monsters;
 
 	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 
@@ -355,6 +357,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
+		h & monsters; //hoprfully serialization is now automagical?
 
 		//TODO: viccondetails
 		if(h.saving)

@@ -618,7 +618,9 @@ public:
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
+	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
+	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -865,6 +865,9 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 			subtitle = oss.str();
 		}
 		break;
+	case hero:
+		subtitle = description = CGI->heroh->heroes[Subtype]->name;
+		break;
 	case flag:
 		subtitle = CGI->generaltexth->capColors[Subtype];
 		break;
@@ -935,6 +938,9 @@ SDL_Surface * SComponent::getImg()
 		break;
 	case creature:
 		return graphics->bigImgs[subtype];
+		break;
+	case hero:
+		return graphics->portraitLarge[subtype];
 	case flag:
 		return graphics->flags->ourImages[subtype].bitmap;
 	}
