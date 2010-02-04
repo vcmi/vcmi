@@ -3160,6 +3160,28 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		FILL_FIELD(numOfTowns, g->second.towns.size())
 		//num of heroes
 		FILL_FIELD(numOfHeroes, g->second.heroes.size())
+		//best hero's portrait
+		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		{
+			if(g->second.color == 255)
+				continue;
+			//best hero will be that with highest exp
+			int best = 0;
+			for(int b=1; b<g->second.heroes.size(); ++b)
+			{
+				if(g->second.heroes[b]->exp > g->second.heroes[best]->exp)
+				{
+					best = b;
+				}
+			}
+			SThievesGuildInfo::InfoAboutHero iah;
+			iah.portrait = g->second.heroes[best]->portrait;
+			for(int c=0; c<PRIMARY_SKILLS; ++c)
+			{
+				iah.primSkills[c] = -1; //mark as unknown
+			}
+			tgi.colorToBestHero[g->second.color] = iah;
+		}
 	}
 	if(level >= 2) //gold
 	{

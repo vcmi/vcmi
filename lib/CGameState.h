@@ -64,11 +64,25 @@ struct DLL_EXPORT SThievesGuildInfo
 
 	std::vector< std::list< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	//TODO: best hero, personality, best monster
+	//TODO: personality, best monster
+
+	struct InfoAboutHero
+	{
+		ui32 portrait;
+		si32 primSkills[PRIMARY_SKILLS]; //-1 if not available; otherwise values
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & portrait & primSkills;
+		}
+	};
+
+	std::map<ui8, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
+		h & colorToBestHero;
 	}
 
 };

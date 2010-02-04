@@ -4843,7 +4843,12 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748 + pos.x, 556 + pos.y, "HSBTNS.def", SDLK_RETURN);
 	statusBar = new CStatusBar(pos.x + 3, pos.y + 555, "TStatBar.bmp", 742);
 
-	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
+	resdatabar = new CMinorResDataBar();
+	resdatabar->pos.y += pos.y;
+
+	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = { &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
+		&SThievesGuildInfo::woodOre, &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks, &SThievesGuildInfo::artifacts, &SThievesGuildInfo::army,
+		&SThievesGuildInfo::income};
 
 	//printing texts & descriptions to background
 
@@ -4886,6 +4891,38 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	}
 
 	delete strips;
+
+	CDefHandler * flagPictures = CDefHandler::giveDef("itgflags.def");
+
+	//printing flags
+	for(int g=0; g<ARRAY_COUNT(fields); ++g) //by lines
+	{
+		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
+		{
+			std::list<ui8> players = (tgi .* fields[g])[b]; //get players with this place in this line
+			//std::sort(players.begin(), players.end());
+
+			int counter = 0;
+			for(std::list<ui8>::const_iterator it = players.begin(); it != players.end(); ++it)
+			{
+				int xpos = 259 + 66 * b + 12 * (counter % 4) + 6 * (counter / 4);
+				int ypos = 41 + 32 * g + 4 * (counter / 4);
+				blitAt(flagPictures->ourImages[*it].bitmap, xpos, ypos, background);
+				counter++;
+			}
+		}
+	}
+	delete flagPictures;
+	flagPictures = NULL;
+
+	//printing best hero
+
+	int counter = 0;
+	for(std::map<ui8, SThievesGuildInfo::InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
+	{
+		blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
+		counter++;
+	}
 
 }
 

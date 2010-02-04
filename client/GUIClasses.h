@@ -851,7 +851,7 @@ class CThievesGuildWindow : public CIntObject
 	CStatusBar * statusBar;
 	AdventureMapButton * exitb;
 	SDL_Surface * background;
-	CResDataBar * resdatabar;
+	CMinorResDataBar * resdatabar;
 
 public:
 	void activate();
