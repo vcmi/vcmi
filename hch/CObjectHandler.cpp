@@ -3174,7 +3174,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return true;
 			break;
 		case MISSION_KILL_HERO:
-			if (h->cb->getHero (m13489val)) //first we must check if the hero was ever alive
+			if (h->cb->gameState()->map->heroesToBeat[m13489val]->tempOwner < PLAYER_LIMIT)
 				return false; //if the pointer is not NULL
 			return true;
 			break;
@@ -3186,9 +3186,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 		case MISSION_ART:
 			for (int i = 0; i < m5arts.size(); ++i)
 			{
-				if (vstd::contains(h->artifacts, m5arts[i]))
-					continue;
-				if (vstd::contains2(h->artifWorn, m5arts[i]))
+				if (h->hasArt(m5arts[i]))
 					continue;
 				return false; //if the artifact was not found
 			}
@@ -3220,7 +3218,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return true;
 			break;
 		case MISSION_HERO:
-			if (m13489val == h->ID)
+			if (m13489val == h->type->ID)
 				return true;
 			return false;
 			break;
@@ -3233,7 +3231,6 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return false;
 	}
 }
-
 void CGSeerHut::initObj()
 {
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
@@ -3253,6 +3250,7 @@ const std::string & CGSeerHut::getHoverText() const
 {
 	hoverName = VLC->generaltexth->allTexts[347];
 	boost::algorithm::replace_first(hoverName,"%s", seerName);
+	if (progress){}//what does it seek for?
 	return hoverName;
 }
 
@@ -3309,8 +3307,12 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 				}
 					break;
 				case MISSION_KILL_HERO:
+					iw.components.push_back (Component (Component::HERO,
+						cb->gameState()->map->heroesToBeat[m13489val]->type->ID, 0, 0));
+					iw.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+					break;
 				case MISSION_HERO:
-					iw.components.push_back (Component (Component::HERO, 1, m13489val, 0));
+					iw.components.push_back (Component (Component::HERO, m13489val, 0, 0));
 					iw.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
 				case MISSION_KILL_CREATURE:
@@ -3321,6 +3323,10 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						iw.text.addReplacement (MetaString::CRE_SING_NAMES, stack->first);
 					else
 						iw.text.addReplacement (MetaString::CRE_PL_NAMES, stack->first);
+					if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
+					{
+						iw.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+					}
 				}
 					break;
 				case MISSION_ART:
@@ -3421,7 +3427,6 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						break;
 				}
 				cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
-				//cb->showBlockingDialog (&bd, boost::bind (&CGBorderGuard::openGate, this, h, _1));
 				return;
 			}
 		}
@@ -3429,9 +3434,41 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		iw.text << VLC->generaltexth->seerEmpty[textOption];
-		iw.text.addReplacement(seerName);
+		if (ID == 83)
+			iw.text.addReplacement(seerName);
 	}
 	cb->showInfoDialog(&iw);
+}
+int CGSeerHut::checkDirection() const
+{
+	int3 cord = cb->gameState()->map->monsters[m13489val]->pos;
+	if ((double)cord.x/(double)cb->getMapSize().x < 0.34) //north
+	{
+		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //northwest
+			return 8;
+		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //north
+			return 1;
+		else //northeast
+			return 2;
+	}
+	else if ((double)cord.x/(double)cb->getMapSize().x < 0.67) //horizontal
+	{
+		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //west
+			return 7;
+		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //central
+			return 9;
+		else //east
+			return 3;
+	}
+	else //south
+	{
+		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //southwest
+			return 6;
+		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //south
+			return 5;
+		else //southeast
+			return 4;
+	}
 }
 void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 {
@@ -3455,15 +3492,78 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
+		completeQuest(h);
 	}
 }
-void CGSeerHut::completeQuest (const CGHeroInstance * h) const
+void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 {
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	switch (rewardType)
+	{
+		case 1: //experience
+			cb->changePrimSkill(h->id, 5, rVal, false);
+			iw.components.push_back (Component (Component::EXPERIENCE, 0, rVal, 0));
+			break;
+		case 2: //mana points
+			cb->setManaPoints(h->id, h->mana+rVal);
+			iw.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
+			break;
+		case 3: case 4: //morale /luck
+		{
+			HeroBonus hb(HeroBonus::ONE_WEEK, (rewardType == 3 ? HeroBonus::MORALE : HeroBonus::LUCK),
+				HeroBonus::OBJECT, rVal, h->id, "", -1);
+			GiveBonus gb;
+			gb.hid = h->id;
+			gb.bonus = hb;
+			//gb.descr = "";
+			cb->giveHeroBonus(&gb);
+			iw.components.push_back (Component (
+				(rewardType == 3 ? Component::MORALE : Component::LUCK), 0, rVal, 0));
+		}
+			break;
+		case 5: //resources
+			cb->giveResource(h->getOwner(), rID, rVal);
+			iw.components.push_back (Component (Component::RESOURCE, rID, rVal, 0));
+			break;
+		case 6: //main ability bonus (attak, defence etd.)
+			cb->changePrimSkill(h->id, rID, rVal, false);
+			iw.components.push_back (Component (Component::PRIM_SKILL, rID, rVal, 0));
+			break;
+		case 7: // secondary ability gain
+			cb->changeSecSkill(h->id, rID, rVal, false);
+			iw.components.push_back (Component (Component::SEC_SKILL, rID, rVal, 0));
+			break;
+		case 8: // artifact
+			cb->giveHeroArtifact(rID, h->id, -2);
+			iw.components.push_back (Component (Component::ARTIFACT, rID, 0, 0));
+			break;
+		case 9:// spell
+		{
+			std::set<ui32> spell;
+			spell.insert (rID);
+			cb->changeSpells(h->id, true, spell);
+			iw.components.push_back (Component (Component::SPELL, rID, 0, 0));
+		}
+			break;
+		case 10:// creature
+		{
+			CCreatureSet creatures;
+			creatures.setCreature (0, rID, rVal);
+			cb->giveCreatures (id, h,  creatures);
+			iw.components.push_back (Component (Component::CREATURE, rID, rVal, 0));
+		}
+			break;
+		default:
+			break;
+	}
+	cb->showInfoDialog(&iw);
 	cb->setObjProperty (id,11,0); //no more mission avaliable
 }
 
 void CGQuestGuard::initObj()
 {
+	blockVisit = true;
 	progress = 0;
 	textOption = ran()%3 + 3; //3-5
 	if (missionType)
@@ -3481,20 +3581,9 @@ const std::string & CGQuestGuard::getHoverText() const
 	if (progress){}//what does it seek for?
 	return hoverName;
 }
-void CGQuestGuard::onHeroVisit( const CGHeroInstance * h ) const
-{}
-void CGQuestGuard::completeQuest (const CGHeroInstance * h) const
+void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
-	BlockingDialog bd (true, false);
-	bd.player = h->getOwner();
-	bd.soundID = soundBase::QUEST;
-	bd.text << completedText;
-	cb->showBlockingDialog (&bd, boost::bind (&CGQuestGuard::openGate, this, h, _1));	
-}
-void CGQuestGuard::openGate(const CGHeroInstance *h, ui32 accept) const
-{
-	if (accept)
-		cb->removeObject(id);
+	cb->removeObject(id);
 }
 void CGWitchHut::initObj()
 {

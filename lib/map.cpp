@@ -922,7 +922,8 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 			break;
 		}
 	}
-	nhi->identifier = identifier;
+	nhi->identifier = identifier; //probably redundant
+	heroesToBeat[identifier] = nhi;
 	if(readChar(bufor,i))//true if hero has nonstandard name
 		nhi->name = readString(bufor,i);
 	if(version>AB)

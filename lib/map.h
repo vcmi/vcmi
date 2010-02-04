@@ -326,6 +326,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
 	std::map<ui16, CGCreature*> monsters;
+	std::map<ui16, CGHeroInstance*> heroesToBeat;
 
 	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 
@@ -357,7 +358,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
-		h & monsters; //hoprfully serialization is now automagical?
+		h & monsters & heroesToBeat; //hoprfully serialization is now automagical?
 
 		//TODO: viccondetails
 		if(h.saving)

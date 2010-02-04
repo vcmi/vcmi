@@ -619,6 +619,7 @@ public:
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
+	int checkDirection() const; //calculates the region of map where monster is placed
 	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
@@ -636,9 +637,8 @@ class DLL_EXPORT CGQuestGuard : public CGSeerHut
 public:
 	void initObj();
 	const std::string & getHoverText() const;
-	void onHeroVisit( const CGHeroInstance * h ) const;
+	//void onHeroVisit( const CGHeroInstance * h ) const;
 	void completeQuest (const CGHeroInstance * h) const;
-	void openGate (const CGHeroInstance *h, ui32 accept) const;
  
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
