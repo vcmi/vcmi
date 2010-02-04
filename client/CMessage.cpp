@@ -7,9 +7,6 @@
 #include "../hch/CLodHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "../hch/CDefHandler.h"
-#include "CGameInfo.h"
-#include "SDL_Extensions.h"
 #include <sstream>
 #include "../hch/CGeneralTextHandler.h"
 #include "Graphics.h"
@@ -33,7 +30,6 @@ SDL_Color tytulowy = {229, 215, 123, 0},
 	darkTitle = {215, 175, 78, 0};
 
 extern SDL_Surface * screen;
-extern TTF_Font * TNRB16, *TNR, *GEOR13;
 
 using namespace NMessage;
 
@@ -264,12 +260,29 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 
 	return ret;
 }
-std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext, int &fontHeigh, TTF_Font *font)
+
+SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= zwykly)
 {
-	if(!font) font = TNRB16;
+	if (graphics->fontsTrueType[font])
+		return TTF_RenderText_Blended(graphics->fontsTrueType[font], text.c_str(), kolor);
+	const Font *f = graphics->fonts[font];
+	int w = f->getWidth(text.c_str()),
+	    h = f->height;
+	SDL_Surface * ret = CSDL_Ext::newSurface(w, h, screen);
+	SDL_FillRect (ret, NULL, SDL_MapRGB(ret->format,128,128,128));//if use default black - no shadowing
+	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,128,128,128));
+	CSDL_Ext::printAt(text.c_str(), 0, 0, font, kolor, ret);
+	return ret;
+}
+
+std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext, int &fontHeigh, EFonts font)
+{
 	std::vector<std::vector<SDL_Surface*> > * txtg = new std::vector<std::vector<SDL_Surface*> >();
 	txtg->resize(brtext->size());
-	fontHeigh = TTF_FontHeight(font);
+	if (graphics->fontsTrueType[font])
+		fontHeigh = TTF_FontHeight(graphics->fontsTrueType[font]);
+	else
+		fontHeigh = graphics->fonts[font]->height;
 
 	for (size_t i=0; i<brtext->size();i++) //foreach line
 	{
@@ -283,7 +296,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(TTF_RenderText_Blended(font, (*brtext)[i].substr(0,z).c_str(), zwykly));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), zwykly));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i][0] == '{')
@@ -300,7 +313,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(TTF_RenderText_Blended(font, (*brtext)[i].substr(0,z).c_str(), tytulowy));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), tytulowy));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i][0] == '}')
@@ -387,7 +400,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	}
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
-		_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
+		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);
 
 	std::vector<std::string> * brtext = breakText(text, charperline, true, true); //text 
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
@@ -493,7 +506,7 @@ SDL_Surface * CMessage::genMessage
 
 	if (title.length())
 	{
-		SDL_Surface * titleText = TTF_RenderText_Blended(TNRB16,title.c_str(),tytulowy);
+		SDL_Surface * titleText = FNT_RenderText(FONT_BIG,title,tytulowy);
 
 		//draw title
 		SDL_Rect tytul = genRect(titleText->h,titleText->w,((ret->w/2)-(titleText->w/2)),37);
@@ -505,7 +518,7 @@ SDL_Surface * CMessage::genMessage
 	{
 		int by = 37+i*21;
 		if (title.length()) by+=40;
-		SDL_Surface * tresc = TTF_RenderText_Blended(TNRB16,(*tekst)[i].c_str(),zwykly);
+		SDL_Surface * tresc = FNT_RenderText(FONT_BIG,(*tekst)[i],zwykly);
 		SDL_Rect trescRect = genRect(tresc->h,tresc->w,((ret->w/2)-(tresc->w/2)),by);
 		SDL_BlitSurface(tresc,NULL,ret,&trescRect);
 		SDL_FreeSurface(tresc);
@@ -570,7 +583,7 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 	comp = Comp;
 	img = comp->getImg();
 	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,13,true,true); //text 
-	txt = CMessage::drawText(brtext,txtFontHeight,GEOR13);
+	txt = CMessage::drawText(brtext,txtFontHeight,FONT_MEDIUM);
 	delete brtext;
 
 	//calculate dimensions

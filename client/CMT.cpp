@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/thread.hpp>
-#include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
@@ -76,7 +75,6 @@ VCMIDirs GVCMIDirs;
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
-TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 static bool gOnlyAI = false;
 
 void processCommand(const std::string &message);
@@ -95,21 +93,6 @@ void init()
 #endif
 	CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
 	tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
-
-	TTF_Init();
-	atexit(TTF_Quit);
-	TNRB16 = TTF_OpenFont(DATA_DIR "/Fonts/tnrb.ttf",16);
-	GEOR13 = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",13);
-	GEOR16 = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",16);
-	GEORXX = TTF_OpenFont(DATA_DIR "/Fonts/tnrb.ttf",22);
-	GEORM = TTF_OpenFont(DATA_DIR "/Fonts/georgia.ttf",10);
-	if(! (TNRB16 && GEOR16 && GEORXX && GEORM))
-	{
-		tlog1 << "One of the fonts couldn't be loaded!\n";
-		exit(-1);
-	}
-	THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
-
 	{
 		//read system options
 		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin");
@@ -138,7 +121,7 @@ void init()
 	//CGI->musich->init();
 	//CGI->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
-	tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
+	tlog0<<"Initializing screen and sound handling: "<<tmh.getDif()<<std::endl;
 
 	initDLL(::console,logfile);
 	CGI->setFromLib();

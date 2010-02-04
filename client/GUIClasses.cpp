@@ -3868,6 +3868,30 @@ void LRClickableAreaWTextComp::deactivate()
 	deactivateHover();
 }
 
+void LRClickableAreaOpenHero::clickLeft(tribool down, bool previousState)
+{
+	if((!down) && previousState && hero)
+		LOCPLINT->openHeroWindow(hero);
+}
+
+void LRClickableAreaOpenHero::clickRight(tribool down, bool previousState)
+{
+	if((!down) && previousState && hero)
+		LOCPLINT->openHeroWindow(hero);
+}
+
+void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
+{
+	if((!down) && previousState && town)
+		LOCPLINT->openTownWindow(town);
+}
+
+void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
+{
+	if((!down) && previousState && town)
+		LOCPLINT->openTownWindow(town);
+}
+
 void CArtifactsOfHero::activate()
 {
 	for(size_t f=0; f<artWorn.size(); ++f)
@@ -4190,7 +4214,9 @@ void CExchangeWindow::activate()
 	quit->activate();
 	garr->activate();
 
+	artifs[0]->setHero(heroInst[0]);
 	artifs[0]->activate();
+	artifs[1]->setHero(heroInst[1]);
 	artifs[1]->activate();
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
@@ -4424,9 +4450,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
 
-		portrait[b] = new LRClickableAreaWText();
+		portrait[b] = new LRClickableAreaOpenHero();
 		portrait[b]->pos = genRect(64, 58, pos.x + 257 + 228*b, pos.y + 13);
-		portrait[b]->text = heroInst[b]->getBiography();
+		portrait[b]->hero = heroInst[b];
 		sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), heroInst[b]->name.c_str(), heroInst[b]->type->heroClass->name.c_str());
 		portrait[b]->hoverText = std::string(bufor);
 
@@ -4461,8 +4487,11 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		morale[b]->bonus = mrlv;
 		morale[b]->text = CGI->generaltexth->arraytxt[88];
 		boost::algorithm::replace_first(morale[b]->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-		for(int it=0; it < mrl.size(); it++)
-			morale[b]->text += mrl[it].second;
+		if (!mrl.size())
+			morale[b]->text += CGI->generaltexth->arraytxt[108];
+		else
+			for(int it=0; it < mrl.size(); it++)
+				morale[b]->text += mrl[it].second;
 
 		//setting luck
 		luck[b] = new LRClickableAreaWTextComp();
@@ -4476,8 +4505,11 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		luck[b]->bonus = mrlv;
 		luck[b]->text = CGI->generaltexth->arraytxt[62];
 		boost::algorithm::replace_first(luck[b]->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-		for(int it=0; it < mrl.size(); it++)
-			luck[b]->text += mrl[it].second;
+		if (!mrl.size())
+			luck[b]->text += CGI->generaltexth->arraytxt[77];
+		else
+			for(int it=0; it < mrl.size(); it++)
+				luck[b]->text += mrl[it].second;
 	}
 
 	//buttons

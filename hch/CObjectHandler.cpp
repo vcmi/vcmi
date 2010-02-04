@@ -1622,6 +1622,49 @@ int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 	return ret;
 }
 
+int CGTownInstance::defenceBonus(int type) const
+{
+	int ret=0;
+	switch (type)
+		{
+/*attack*/		case 0: 
+						if (subID == 6 && vstd::contains(builtBuildings,26))//Stronghold, grail
+							ret += 12;
+						if (subID == 7 && vstd::contains(builtBuildings,26))//Fortress, grail
+							ret += 10;
+						if (subID == 7 && vstd::contains(builtBuildings,22))//Fortress, Blood Obelisk
+							ret += 2;
+							return ret;
+/*defence*/		case 1:
+						if (subID == 7 && vstd::contains(builtBuildings,21))//Fortress, Glyphs of Fear
+							ret += 2;
+						if (subID == 7 && vstd::contains(builtBuildings,26))//Fortress, Grail
+							ret += 10;
+							return ret;
+/*spellpower*/	case 2:
+						if (subID == 3 && vstd::contains(builtBuildings,21))//Inferno, Brimstone Clouds
+							ret += 2;
+						if (subID == 5 && vstd::contains(builtBuildings,26))//Dungeon, Grail
+							ret += 12;
+							return ret;
+/*knowledge*/	case 3:
+						if (subID == 2 && vstd::contains(builtBuildings,26))//Tower, Grail
+							ret += 15;
+							return ret;
+/*morale*/		case 4:
+						if (              vstd::contains(builtBuildings, 5))//Any, Tavern
+							ret += 1;
+						if (subID == 0 && vstd::contains(builtBuildings,22))//Castle, Brotherhood of the sword
+							ret += 1;
+							return ret;
+/*luck*/		case 5:
+						if (subID == 1 && vstd::contains(builtBuildings,21))//Rampart, Fountain of Fortune
+							ret += 2;
+							return ret;
+		}
+		return 0;//Why we are here? wrong type?
+}
+
 bool CGTownInstance::needsLastStack() const
 {
 	if(garrisonHero)
@@ -1700,7 +1743,7 @@ void CGTownInstance::newTurn() const
 {
 	if (cb->getDate(1) == 1) //reset on new week
 	{
-		if (vstd::contains(builtBuildings,17) && subID == 1 && cb->getDate(0) && (tempOwner < PLAYER_LIMIT) )//give resources for Rampart, Mystic Pond
+		if (vstd::contains(builtBuildings,17) && subID == 1 && cb->getDate(0) != 1 && (tempOwner < PLAYER_LIMIT) )//give resources for Rampart, Mystic Pond
 		{
 			int resID = rand()%4+2;//bonus to random rare resource
 			resID = (resID==2)?1:resID;

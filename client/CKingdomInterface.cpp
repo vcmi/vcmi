@@ -66,15 +66,15 @@ CKingdomInterface::CKingdomInterface()
 	slots   = CDefHandler::giveDefEss("OVSLOT.DEF");
 
 	toHeroes = new AdventureMapButton (CGI->generaltexth->overview[11],"",
-		boost::bind(&CKingdomInterface::listToHeroes,this),748,28+size*116,"OVBUTN1.DEF");
+		boost::bind(&CKingdomInterface::listToHeroes,this),748,28+size*116,"OVBUTN1.DEF", SDLK_h);
 	toHeroes->block(2);
 
 	toTowns = new AdventureMapButton (CGI->generaltexth->overview[12],"",
-		boost::bind(&CKingdomInterface::listToTowns,this),748,64+size*116,"OVBUTN6.DEF");
+		boost::bind(&CKingdomInterface::listToTowns,this),748,64+size*116,"OVBUTN6.DEF", SDLK_t);
 	toTowns->block(0);
 
 	exit = new AdventureMapButton (CGI->generaltexth->allTexts[600],"",
-		boost::bind(&CKingdomInterface::close,this),748,99+size*116,"OVBUTN1.DEF");
+		boost::bind(&CKingdomInterface::close,this),748,99+size*116,"OVBUTN1.DEF", SDLK_RETURN);
 	exit->bitmapOffset = 3;
 
 	statusbar = new CStatusBar(pos.x+7,pos.y+91+size*116,"TSTATBAR.bmp",732);
@@ -108,7 +108,7 @@ CKingdomInterface::CKingdomInterface()
 	for (size_t i=0; i<SKILL_PER_HERO; i++)
 	{
 		incomes.push_back(new HoverableArea());//bottom panel with mines
-		incomes[i]->pos = genRect(54,68,pos.x+20+i*80,pos.y+31+size*116);
+		incomes[i]->pos = genRect(57,68,pos.x+20+i*80,pos.y+31+size*116);
 		incomes[i]->hoverText = CGI->generaltexth->mines[i].first;
 	}
 	incomes[7]->pos.w = 136;
@@ -129,7 +129,7 @@ CKingdomInterface::CKingdomInterface()
 	INSERT_MAP (87,0) ,87));//Harbor
 	#undef INSERT_MAP
 
-	for(size_t i = 0; i<CGI->state->map->objects.size(); i++)
+	for(size_t i = 0; i<CGI->state->map->objects.size(); i++)//getting mines and dwelling (in one pass to make it faster)
 	{
 		CGObjectInstance* obj = CGI->state->map->objects[i];//current object
 		if (obj)
@@ -197,7 +197,7 @@ void CKingdomInterface::moveObjectList(int newPos)
 /*Bottom*/	case 3: objPos = bottom;
 			break;
 	}
-	GH.totalRedraw();
+	showAll(screen2);
 }
 
 CKingdomInterface::~CKingdomInterface()
@@ -349,10 +349,6 @@ void CKingdomInterface::deactivate()
 	slider->deactivate();
 }
 
-void CKingdomInterface::keyPressed(const SDL_KeyboardEvent & key)
-{
-}
-
 void CKingdomInterface::recreateHeroList(int pos)
 {
 	std::vector<const CGHeroInstance*> Heroes = LOCPLINT->cb->getHeroesInfo(true);
@@ -371,20 +367,18 @@ void CKingdomInterface::recreateHeroList(int pos)
 	}
 	for (i;i<size;i++)//if we still have empty pieces
 		heroes[i]->setHero(NULL);//empty pic
-	GH.totalRedraw();
 }
 
 void CKingdomInterface::recreateTownList(int pos)
 {
-	std::vector<const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
+	std::vector<const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
 	for(size_t i=0;i<size;i++)
 	{
-		if (i+pos<Towns.size())
+		if (i+pos<LOCPLINT->cb->howManyTowns())
 			towns[i]->setTown(Towns[i+pos]);//replace town
 		else
 			towns[i]->setTown(NULL);//only empty pic
 	}
-	GH.totalRedraw();
 }
 
 void CKingdomInterface::listToTowns()
@@ -401,6 +395,7 @@ void CKingdomInterface::listToTowns()
 		heroes[i]->deactivate();
 		towns[i]->activate();
 	}
+	showAll(screen2);
 }
 
 void CKingdomInterface::listToHeroes()
@@ -417,6 +412,7 @@ void CKingdomInterface::listToHeroes()
 		towns[i]->deactivate();
 		heroes[i]->activate();
 	}
+	showAll(screen2);
 }
 
 void CKingdomInterface::sliderMoved(int newpos)
@@ -435,6 +431,7 @@ void CKingdomInterface::sliderMoved(int newpos)
 		recreateTownList(newpos);
 		for (size_t i=0; i<size; i++)
 			towns[i]->activate();
+		showAll(screen2);
 	}
 	else//heroes
 	{
@@ -444,6 +441,7 @@ void CKingdomInterface::sliderMoved(int newpos)
 		recreateHeroList(newpos);
 		for (size_t i=0; i<size; i++)
 			heroes[i]->activate();
+		showAll(screen2);
 	}
 }
 
@@ -459,10 +457,10 @@ CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 	town = NULL;
 	garr = NULL;
 
-	garrHero = new HoverableArea();
+	garrHero = new LRClickableAreaOpenHero();
 	garrHero->pos = genRect(64, 58, pos.x+244, pos.y + 6);
 
-	visitHero = new HoverableArea();
+	visitHero = new LRClickableAreaOpenHero();
 	visitHero->pos = genRect(64, 58, pos.x+476, pos.y + 6);
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
@@ -480,7 +478,7 @@ CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 	fortArea = new HoverableArea();
 	fortArea->pos = genRect(38, 38, pos.x+111, pos.y + 31);
 
-	townImage = new HoverableArea();
+	townImage = new LRClickableAreaOpenTown();
 	townImage->pos = genRect(64, 58, pos.x+5, pos.y + 6);
 
 	incomeArea = new HoverableArea();
@@ -506,24 +504,28 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 		return;
 		garr = NULL;
 	}
-	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),slots->ourImages[owner->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,false,true, 4,Point(-126,37));
-	garr->update = false;
+	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),slots->ourImages[owner->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, 4,Point(-126,37));
+	garr->update = true;
 
-	/*for (int i=4; i<7; i++)
-	{
-		garr->sup[0][i][0].pos.x -= 126;
-		garr->sup[0][i][0].pos.y += 37;
-		garr->sdown[0][i][0].pos.x -= 126;
-		garr->sdown[0][i][0].pos.y += 37;
-	}*/
+	char buf[400];
+	if (town->garrisonHero)
+		{
+		garrHero->hero = town->garrisonHero;
+		sprintf(buf, CGI->generaltexth->allTexts[15].c_str(), town->garrisonHero->name.c_str(), town->garrisonHero->type->heroClass->name.c_str());
+		garrHero->hoverText = buf;
+		}
+	if (town->visitingHero)
+		{
+		visitHero->hero = town->visitingHero;
+		sprintf(buf, CGI->generaltexth->allTexts[15].c_str(), town->visitingHero->name.c_str(), town->visitingHero->type->heroClass->name.c_str());
+		visitHero->hoverText = buf;
+		}
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 	{
 		creaCount[i]->town = NULL;
 
 		int crid = -1;
-		if (!vstd::contains(town->builtBuildings,30+i))
-			continue;
 
 		if (vstd::contains(town->builtBuildings,30+i+CREATURES_PER_TOWN))
 			crid = town->town->upgradedCreatures[i];
@@ -541,6 +543,7 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 	}
 
 	townImage->hoverText = town->name;
+	townImage->town = town;
 
 	hallArea->hoverText = CGI->buildh->buildings[town->subID][10+town->hallLevel()]->Name();
 	if (town->hasFort())
@@ -553,7 +556,8 @@ void CKingdomInterface::CTownItem::activate()
 {
 	if (!town)
 		return;
-	garr->activate();
+
+	setTown(town);
 	hallArea->activate();
 	fortArea->activate();
 	incomeArea->activate();
@@ -570,13 +574,14 @@ void CKingdomInterface::CTownItem::activate()
 			creaGrowth[i]->activate();
 			creaCount [i]->activate();
 		}
+	garr->activate();
 }
 
 void CKingdomInterface::CTownItem::deactivate()
 {
 	if (!town)
 		return;
-	garr->deactivate();
+
 	hallArea->deactivate();
 	fortArea->deactivate();
 	incomeArea->deactivate();
@@ -592,7 +597,7 @@ void CKingdomInterface::CTownItem::deactivate()
 		{
 			creaGrowth[i]->deactivate();
 			creaCount [i]->deactivate();
-		}
+		}	garr->deactivate();
 }
 
 void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
@@ -602,7 +607,7 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 		blitAt(slots->ourImages[numb % owner->PicCount].bitmap,pos.x,pos.y,to);
 		return;
 	}//background
-	blitAt(slots->ourImages[owner->PicCount+2].bitmap,pos.x,pos.y,to);
+	blitAt(slots->ourImages[owner->PicCount+2].bitmap,pos.x,pos.y,to);	garr->show(to);
 	//town pic/name
 	int townPic = town->subID*2;
 	if (!town->hasFort())
@@ -622,9 +627,21 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 	std::ostringstream oss;
 	oss << town->dailyIncome();
 	CSDL_Ext::printAtMiddle(oss.str(),pos.x+189,pos.y+61,FONT_SMALL,zwykly,to);
-//	Creature bonuses/ Creature available texts - need to find text wrapper thingy (have "\n" inside text)
-//	CSDL_Ext::printAtWR(CGI->generaltexth->allTexts[265],pos.x,pos.y+80,GEOR13,zwykly,to);
-//	CSDL_Ext::printTo(CGI->generaltexth->allTexts[266],pos.x+350,pos.y+80,GEOR13,zwykly,to);
+
+	std::vector<std::string> * toPrin = CMessage::breakText(CGI->generaltexth->allTexts[265]);
+
+	CSDL_Ext::printAt((*toPrin)[0], pos.x+4, pos.y+76, FONT_SMALL, tytulowy, to);
+	if(toPrin->size()!=1)
+		CSDL_Ext::printAt((*toPrin)[1], pos.x+4, pos.y+92, FONT_SMALL, tytulowy, to);
+
+	delete toPrin;
+	toPrin = CMessage::breakText(CGI->generaltexth->allTexts[266]);
+
+	CSDL_Ext::printAt((*toPrin)[0], pos.x+351, pos.y+76, FONT_SMALL, tytulowy, to);
+	if(toPrin->size()!=1)
+		CSDL_Ext::printAt((*toPrin)[1], pos.x+351, pos.y+92, FONT_SMALL, tytulowy, to);
+	delete toPrin;
+
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 	{//creatures info
 		int crid = -1;
@@ -651,7 +668,7 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 		CSDL_Ext::printTo(ostrs.str(),pos.x+440+i*37,pos.y+110,FONT_TINY,zwykly,to);
 	}
 
-	garr->show(to);
+
 	if (town->garrisonHero)
 		blitAt(graphics->portraitLarge[town->garrisonHero->portrait],pos.x+244,pos.y+6,to);
 
@@ -691,7 +708,7 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	artRight = new AdventureMapButton("", "", boost::bind
 		(&CKingdomInterface::CHeroItem::scrollArts,this,+1), 675, 66, "hsbtns5.def", SDLK_RIGHT);
 
-	portrait = new LRClickableAreaWText();
+	portrait = new LRClickableAreaOpenHero();
 	portrait->pos = genRect(64, 58, pos.x+5, pos.y + 5);
 	char bufor[400];
 	for(int i=0; i<PRIMARY_SKILLS; i++)
@@ -769,8 +786,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	artLeft->block(hero->artifacts.size() <= 8);
 	artRight->block(hero->artifacts.size() <= 8);
 	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), slots->ourImages[owner->PicCount].bitmap,
-		Point(6,78), hero, NULL, false, true);
-	garr->update = false;
+		Point(6,78), hero, NULL, true, true);
 
 	for (int i=0; i<artifacts.size(); i++)
 	{
@@ -798,7 +814,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 	sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), hero->name.c_str(), hero->type->heroClass->name.c_str());
 	portrait->hoverText = std::string(bufor);
-	portrait->text = hero->getBiography();
+	portrait->hero = hero;
 
 	speciality->text = CGI->generaltexth->hTxts[hero->subID].longBonus;
 
@@ -872,6 +888,7 @@ void CKingdomInterface::CHeroItem::scrollArts(int move)
 			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type].Name());
 		}
 	}
+	showAll(screen2);
 }
 
 void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
@@ -951,11 +968,12 @@ void CKingdomInterface::CHeroItem::onArtChange(int newstate)
 	deactivate();
 	artGroup = newstate;
 	activate();
-	GH.totalRedraw();
+	showAll(screen2);
 }
 
 void CKingdomInterface::CHeroItem::activate()
 {
+	setHero(hero);
 	if (!hero)
 		return;
 	artButtons->activate();
@@ -1077,7 +1095,15 @@ void CKingdomInterface::CTownItem::CCreaPlace::clickLeft(tribool down, bool prev
 
 void CKingdomInterface::CTownItem::CCreaPlace::clickRight(tribool down, bool previousState)
 {
-//TODO
+	if (down && town)
+	{
+		int crid;
+		if (town->builtBuildings.find(30+type+CREATURES_PER_TOWN)!=town->builtBuildings.end())
+			crid = town->town->upgradedCreatures[type];
+		else
+			crid = town->town->basicCreatures[type];
+		GH.pushInt(new CCreInfoWindow(crid, 0, town->creatures[type].first, NULL, 0, 0, NULL));
+	}
 }
 
 void CKingdomInterface::CTownItem::CCreaPlace::deactivate()

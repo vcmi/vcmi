@@ -47,8 +47,8 @@ class CKingdomInterface : public CIntObject
 		CKingdomInterface * owner;
 		int numb;//position on screen (1..size)
 		HoverableArea *hallArea, *fortArea, *incomeArea;//hoverable text for town hall, fort, income
-		HoverableArea * garrHero, *visitHero;//portraits of heroes
-		HoverableArea * townImage;//town image
+		LRClickableAreaOpenHero * garrHero, *visitHero;//portraits of heroes
+		LRClickableAreaOpenTown * townImage;//town image
 		std::vector < HoverableArea * > creaGrowth;
 		std::vector < CCreaPlace * > creaCount;
 		void setTown(const CGTownInstance * newTown);//change town and update info
@@ -70,13 +70,14 @@ class CKingdomInterface : public CIntObject
 			void activate();
 			void deactivate();
 		};
-	public:
+
+		public:
 		const CGHeroInstance * hero;
 		CKingdomInterface * owner;
 		int artGroup,numb;//current art group (0 = equiped, 1 = misc, 2 = backpack)
 		int backpackPos;//first visible artifact in backpack
 		AdventureMapButton * artLeft, * artRight;//buttons for backpack
-		LRClickableAreaWText * portrait;
+		LRClickableAreaOpenHero * portrait;
 		LRClickableAreaWText * experience;
 		LRClickableAreaWTextComp * morale, * luck;
 		LRClickableAreaWText * spellPoints;
@@ -134,7 +135,6 @@ public:
 	void moveObjectList(int newPos);
 	void recreateHeroList(int pos);//recreating heroes list (on slider move)
 	void recreateTownList(int pos);//same for town list
-	void keyPressed(const SDL_KeyboardEvent & key);
 	void listToTowns();//changing list to town view
 	void listToHeroes();//changing list to heroes view
 	void sliderMoved(int newpos);//when we move a slider...

@@ -1,7 +1,7 @@
 #ifndef __GRAPHICS_H__
 #define __GRAPHICS_H__
 
-
+#include <SDL_ttf.h>
 #include "../global.h"
 #include "FontBase.h"
 
@@ -50,6 +50,7 @@ public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
 	Font *fonts[FONTS_NUMBER];
+	TTF_Font * fontsTrueType[FONTS_NUMBER];//true type fonts, if some of the fonts not loaded - NULL
 
 	//various graphics
 	SDL_Color * playerColors; //array [8]
@@ -108,6 +109,7 @@ public:
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
+	void loadTrueType();
 	void loadFonts();
 	Font *loadFont(const char * name);
 };

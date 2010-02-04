@@ -1265,6 +1265,35 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		}
 	}
 
+	//giving building bonuses, if siege and we have harrisoned hero
+	if (town)
+	{
+		if (hero2)
+			for (int i=0; i<4; i++)
+			{
+				int val = town->defenceBonus(i);
+				if (val)
+				{
+					GiveBonus gs;
+					gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::PRIMARY_SKILL, HeroBonus::OBJECT, val, -1, "", i);
+					gs.hid = hero2->id;
+					sendAndApply(&gs);
+				}
+			}
+
+		int bonuseValue = town->defenceBonus(4);//morale
+		if (bonuseValue)
+			for(int g=0; g<stacks.size(); ++g)
+				if (!stacks[g]->attackerOwned)//garrisoned stack
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, bonuseValue, StackFeature::OTHER_SOURCE));
+
+		bonuseValue = town->defenceBonus(5);//luck
+		if (bonuseValue)
+			for(int g=0; g<stacks.size(); ++g)
+				if (!stacks[g]->attackerOwned)//garrisoned stack
+					stacks[g]->features.push_back(makeFeature(StackFeature::LUCK_BONUS, StackFeature::WHOLE_BATTLE, 0, bonuseValue, StackFeature::OTHER_SOURCE));
+	}
+
 	//giving terrain premies for heroes & stacks
 
 	int bonusSubtype = -1;
@@ -2555,7 +2584,8 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 		if(vstd::contains(hero->artifWorn,ui16(9+aid)) && complain("Hero already has this machine!")
 			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
 			|| gs->getPlayer(hero->getOwner())->resources[6] < price  && complain("Not enough gold!")  //no gold
-			|| town->town->warMachine!= aid  &&  complain("This machine is unavailable here!") ) //TODO: ballista yard in Stronghold
+			|| (!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(22) ) )
+			&& town->town->warMachine!= aid ) &&  complain("This machine is unavailable here!") ) 
 		{
 			return false;
 		}

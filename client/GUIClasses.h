@@ -644,6 +644,23 @@ public:
 	virtual void clickRight(tribool down, bool previousState);
 };
 
+class LRClickableAreaOpenHero: public LRClickableAreaWTextComp
+{
+public:
+	const CGHeroInstance * hero;
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
+};
+
+
+class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
+{
+public:
+	const CGTownInstance * town;
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
+};
+
 class CArtPlace: public LRClickableAreaWTextComp
 {
 private:
@@ -740,7 +757,7 @@ class CExchangeWindow : public CWindowWithGarrison
 	LRClickableAreaWText *speciality[2];
 	LRClickableAreaWText *experience[2];
 	LRClickableAreaWText *spellPoints[2];
-	LRClickableAreaWText *portrait[2];
+	LRClickableAreaOpenHero *portrait[2];
 
 public:
 

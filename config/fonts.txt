@@ -1,0 +1,29 @@
+0	0	tnrb.ttf	20
+0	1	georgia.ttf	10
+0	2	tnrb.ttf	13
+0	3	georgia.ttf	13
+0	4	tnrb.ttf	16
+0	5	georgia.ttf	13
+0	6	tnrb.ttf	08
+0	7	georgia.ttf	10
+0	8	georgia.ttf	13
+-1
+
+Format: 
+1 = enabled, 0=disabled
+font numeric ID
+TTF font name
+font size
+
+
+ID of fonts:
+
+0  BIGFONT.FNT //windows titles
+1  CALLI10R.FNT ?
+2  CREDITS.FNT 
+3  HISCORE.FNT 
+4  MEDFONT.FNT //most used font
+5  SMALFONT.FNT //most used font
+6  TIMES08R.FNT ?
+7  TINY.FNT //used for small texts
+8  VERD10B.FNT ?

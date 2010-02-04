@@ -78,7 +78,7 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
 
-/*void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+void printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
@@ -107,9 +107,9 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 	for (size_t i=0; i < wesu.size(); ++i)
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
-}*/
+}
 
-/*void CSDL_Ext::printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
@@ -128,9 +128,14 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
-*/
+
 void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refresh)
 {
+	if (graphics->fontsTrueType[font])
+	{
+		printAtWB(text,x, y, graphics->fontsTrueType[font], charpr, kolor, dst);
+		return;
+	}
 	const Font *f = graphics->fonts[font];
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 
@@ -146,6 +151,12 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, in
 
 void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=tytulowy*/, SDL_Surface * dst/*=screen*/, bool refrsh /*= false*/ )
 {
+	if (graphics->fontsTrueType[font])
+	{
+		printAtMiddleWB(text,x, y, graphics->fontsTrueType[font], charpr, kolor, dst);
+		return;
+	}
+
 	const Font *f = graphics->fonts[font];
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	int totalHeight = ws->size() * f->height;
@@ -159,7 +170,7 @@ void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts f
 	delete ws;
 }
 
-/*void CSDL_Ext::printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality, bool refresh)
+void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)
 {
 	if(text.length()==0) return;
 	SDL_Surface * temp;
@@ -187,10 +198,15 @@ void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts f
 	if(refresh)
 		SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
 	SDL_FreeSurface(temp);
-}*/
+}
 
 void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
 {
+	if (graphics->fontsTrueType[font])
+	{
+		printAtMiddle(text,x, y, graphics->fontsTrueType[font], kolor, dst);
+		return;
+	}
 	const Font *f = graphics->fonts[font];
 	int nx = x - f->getWidth(text.c_str())/2,
 		ny = y - f->height/2;
@@ -198,7 +214,7 @@ void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts fon
 	printAt(text, nx, ny, font, kolor, dst, refresh);
 }
 
-/*void CSDL_Ext::printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality, bool refresh)
+void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)
 {
 	if (text.length()==0)
 		return;
@@ -227,12 +243,17 @@ void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts fon
 	if(refresh)
 		SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
-}*/
+}
 
 void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
 {
 	if(!text.size())
 		return;
+	if (graphics->fontsTrueType[font])
+	{
+		printAt(text,x, y, graphics->fontsTrueType[font], kolor, dst);
+		return;
+	}
 
 	assert(dst);
 	assert(font < Graphics::FONTS_NUMBER);
@@ -250,13 +271,15 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 	for(int txti = first; txti < beyondEnd; txti++)
 	{
 		const unsigned char c = text[txti];
-		src = f->chars[c].pixels;
 		x += f->chars[c].unknown1;
 
 		for(int i = 0; i < f->height  &&  (y + i) < (dst->h - 1); i++)
 		{
 			px = (Uint8*)dst->pixels;
 			px +=  (y+i) * dst->pitch  +  x * bpp;
+	 		src = f->chars[c].pixels;
+			src += i * f->chars[c].width;//if we have reached end of surface in previous line
+
 			for(int j = 0; j < f->chars[c].width  &&  (j + x) < (dst->w - 1); j++)
 			{
 				switch(*src)
@@ -285,12 +308,7 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 	}
 }
 
-/*void CSDL_Ext::printAtWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
-{
-	printAt(text,x,y,font,kolor,dst,quality, true);
-}*/
-
-/*void CSDL_Ext::printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
 {
 	if (text.length()==0)
 		return;
@@ -318,15 +336,20 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
 	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
 	SDL_FreeSurface(temp);
-}*/
+}
 
 void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
 {
+	if (graphics->fontsTrueType[font])
+	{
+		printTo(text,x, y, graphics->fontsTrueType[font], kolor, dst);
+		return;
+	}
 	const Font *f = graphics->fonts[font];
 	printAt(text, x - f->getWidth(text.c_str()), y - f->height, font, kolor, dst, refresh);
 }
 
-/*void CSDL_Ext::printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
 {
 	if (text.length()==0)
 		return;
@@ -353,7 +376,7 @@ void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
 	SDL_FreeSurface(temp);
-}*/
+}
 
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
 {

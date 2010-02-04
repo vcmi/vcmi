@@ -5,6 +5,7 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
+#include "CKingdomInterface.h"
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CBitmapHandler.h"
@@ -258,7 +259,20 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 
 	artifs->setHero(hero);
 
-	dismissButton->block(!!hero->visitedTown);
+	//if we have exchange window with this hero open
+	bool noDismiss=false;
+	for(std::list<IShowActivable *>::iterator it=GH.listInt.begin() ; it != GH.listInt.end(); it++)
+	{
+		CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>((*it));
+			if(cew)
+				for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
+					if(cew->heroInst[g] == hero)
+						noDismiss = true;
+		CKingdomInterface * cki = dynamic_cast<CKingdomInterface*>((*it));
+			if (cki)
+				noDismiss = true;
+	}
+	dismissButton->block(!!hero->visitedTown || noDismiss);
 	if(hero->getSecSkillLevel(19)==0)
 		gar2button->block(true);
 	else

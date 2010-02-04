@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "../hch/CDefHandler.h"
 #include "SDL_Extensions.h"
+#include <SDL_ttf.h>
 #include <boost/assign/std/vector.hpp> 
 #include <sstream>
 #include <iomanip>
@@ -271,6 +272,7 @@ Graphics::Graphics()
 
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
+	tasks += boost::bind(&Graphics::loadTrueType,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
@@ -610,6 +612,39 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 			}
 		}
 	}
+}
+
+void Graphics::loadTrueType()
+{
+	bool ttfPresent;//was TTF initialised or not
+	for(int i = 0; i < FONTS_NUMBER; i++)
+		fontsTrueType[i] = NULL;
+	std::ifstream ff(DATA_DIR "/config/fonts.txt");
+	while(!ff.eof())
+	{
+		int enabl, fntID, fntSize;
+		std::string fntName;
+
+		ff >> enabl;//enabled font or not
+		if (enabl==-1)
+			break;//end of data
+		ff >> fntID;//what font will be replaced
+		ff >> fntName;//name of truetype font
+		ff >> fntSize;//size of font
+		if (enabl)
+		{
+			if (!ttfPresent)
+			{
+				ttfPresent = true;
+				TTF_Init();
+				atexit(TTF_Quit);
+			};
+			fntName = DATA_DIR + ( "/Fonts/" + fntName);
+			fontsTrueType[fntID] = TTF_OpenFont(fntName.c_str(),fntSize);
+		}
+	}
+	ff.close();
+	ff.clear();
 }
 
 Font * Graphics::loadFont( const char * name )
