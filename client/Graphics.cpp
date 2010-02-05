@@ -616,7 +616,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 
 void Graphics::loadTrueType()
 {
-	bool ttfPresent;//was TTF initialised or not
+	bool ttfPresent = false;//was TTF initialised or not
 	for(int i = 0; i < FONTS_NUMBER; i++)
 		fontsTrueType[i] = NULL;
 	std::ifstream ff(DATA_DIR "/config/fonts.txt");
