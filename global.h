@@ -150,6 +150,7 @@ namespace vstd
 	{
 		return c.find(i)!=c.end();
 	}
+#if 0
 	template <typename V, typename Item, typename Item2>
 	bool contains2(const std::map<Item,V> & c, const Item2 &i) //returns true if map c leads to item i
 	{
@@ -157,6 +158,7 @@ namespace vstd
 			if (it->second == i) return true;
 		return false;
 	}
+#endif
 	template <typename Container1, typename Container2>
 	typename Container2::iterator findFirstNot(Container1 &c1, Container2 &c2)//returns first element of c2 not present in c1
 	{
