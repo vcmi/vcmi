@@ -1249,22 +1249,6 @@ struct ExchangeArtifacts : public CPackForServer
 	}
 };
 
-struct SetArtifact : public CPackForServer
-{
-	SetArtifact () {};
-	SetArtifact (si32 hid, ui16 slot, int artID)
-		:hid(hid), slot(slot), artID(artID) {};
-	si32 hid;
-	ui16 slot;
-	int artID;
-
-	bool applyGh(CGameHandler *gh);
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & hid & slot & artID;
-	}
-};
-
 struct BuyArtifact : public CPackForServer
 {
 	BuyArtifact(){};

@@ -3613,7 +3613,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		}
 		else //perform artifact substitution
 		{
-			if (slotID >= 19) // Backpack slot - Remove active artifact and insert it into the designated position in backpack.
+			if (slotID >= 19) // Backpack destination.
 			{
 				const CArtifact * cur = ourOwner->commonInfo->srcArtifact;
 
@@ -3635,10 +3635,17 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 					ourOwner->commonInfo->destSlotID = slotID;
 					ourOwner->commonInfo->destArtifact = NULL;
 
-					LOCPLINT->cb->setArtifact(
+					// Correction for backpack position when src lies before dest.
+					ourOwner->commonInfo->destSlotID +=
+						(ourOwner->commonInfo->srcAOH == ourOwner
+						&& ourOwner->commonInfo->srcSlotID >= 19
+						&& ourOwner->commonInfo->srcSlotID <= slotID);
+
+					LOCPLINT->cb->swapArtifacts(
+						ourOwner->commonInfo->srcAOH->curHero,
+						ourOwner->commonInfo->srcSlotID,
 						ourOwner->curHero,
-						slotID,
-						ourOwner->commonInfo->srcArtifact->id);
+						ourOwner->commonInfo->destSlotID);
 
 					break;
 				}
@@ -3650,10 +3657,11 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				ourOwner->commonInfo->destSlotID = slotID;
 				ourOwner->commonInfo->destArtifact = ourArt;
 
-				LOCPLINT->cb->setArtifact(
-					ourOwner->curHero,
-					slotID,
-					ourOwner->commonInfo->srcArtifact->id);
+				LOCPLINT->cb->swapArtifacts(
+						ourOwner->commonInfo->srcAOH->curHero,
+						ourOwner->commonInfo->srcSlotID,
+						ourOwner->curHero,
+						slotID);
 			}
 		}
 	}
@@ -3684,13 +3692,41 @@ void CArtPlace::select ()
 	ourOwner->commonInfo->srcSlotID = slotID;
 	ourOwner->commonInfo->srcAOH = ourOwner;
 
+	// Temporarily remove artifact from hero.
+	CGHeroInstance* hero = const_cast<CGHeroInstance*>(ourOwner->curHero);
+	if (slotID < 19)
+		hero->artifWorn.erase(slotID);
+	else
+		hero->artifacts.erase(hero->artifacts.begin() + (slotID - 19));
+	hero->recreateArtBonuses();
+
+	// Update the hero bonuses.
+	CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt());
+	if (chw != NULL) {
+		chw->deactivate();
+		chw->setHero(hero);
+		chw->activate();
+	} else {
+		CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt());
+		assert(cew); // Either an exchange- or hero window should be active if an artifact slot is selected.
+		cew->deactivate();
+		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
+		{
+			if(cew->heroInst[g] == hero)
+			{
+				cew->artifs[g]->setHero(hero);
+			}
+		}
+		cew->prepareBackground();
+		cew->activate();
+	}
+
 	if (slotID >= 19) {
 		// Correcting position in backpack.
 		ourOwner->scrollBackpack(-(slotID - 19 < ourOwner->backpackPos));
 	} else {
 		ourOwner->eraseSlotData(this, slotID);
 	}
-	LOCPLINT->cb->setArtifact(ourOwner->curHero, slotID, -1);
 }
 
 /**
@@ -3952,32 +3988,42 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 			backpackPos++;
 		}
 
-		// A swap was made, make the replaced artifact into current selected.
-		if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) {
-			// Source <- Dest
-			commonInfo->srcAOH = commonInfo->destAOH;
-			commonInfo->srcArtifact = commonInfo->destArtifact;
-			commonInfo->srcSlotID = -1; // The artifact's original place is taken now.
+		if (commonInfo->srcAOH == this) {
+			// A swap was made, make the replaced artifact the current selected.
+			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) {
+				// Temporarily remove artifact from hero.
+				CGHeroInstance * hero = const_cast<CGHeroInstance *>(curHero);
+				if (commonInfo->srcSlotID < 19)
+					hero->artifWorn.erase(commonInfo->srcSlotID);
+				else
+					hero->artifacts.erase(hero->artifacts.begin() + (commonInfo->srcSlotID - 19));
+				hero->recreateArtBonuses();
 
-			// Reset destination parameters.
-			commonInfo->destAOH = NULL;
-			commonInfo->destArtifact = NULL;
-			commonInfo->destSlotID = -1;
+				// Source <- Dest
+				//commonInfo->srcAOH = commonInfo->destAOH;
+				commonInfo->srcArtifact = commonInfo->destArtifact;
+				//commonInfo->srcSlotID = commonInfo->destSlotID;
 
-			CGI->curh->dragAndDropCursor(
-				graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
-			markPossibleSlots(commonInfo->srcArtifact);
-		} else if (commonInfo->destAOH != NULL) {
-			// Reset all parameters.
-			commonInfo->srcAOH = NULL;
-			commonInfo->srcArtifact = NULL;
-			commonInfo->srcSlotID = -1;
-			commonInfo->destAOH = NULL;
-			commonInfo->destArtifact = NULL;
-			commonInfo->destSlotID = -1;
+				// Reset destination parameters.
+				commonInfo->destAOH = NULL;
+				commonInfo->destArtifact = NULL;
+				commonInfo->destSlotID = -1;
 
-			CGI->curh->dragAndDropCursor(NULL);
-			unmarkSlots();
+				CGI->curh->dragAndDropCursor(
+					graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
+				markPossibleSlots(commonInfo->srcArtifact);
+			} else if (commonInfo->destAOH != NULL) {
+				// Reset all parameters.
+				commonInfo->srcAOH = NULL;
+				commonInfo->srcArtifact = NULL;
+				commonInfo->srcSlotID = -1;
+				commonInfo->destAOH = NULL;
+				commonInfo->destArtifact = NULL;
+				commonInfo->destSlotID = -1;
+
+				CGI->curh->dragAndDropCursor(NULL);
+				unmarkSlots();
+			}
 		}
 	} else {
 		rollback();
@@ -4007,42 +4053,37 @@ void CArtifactsOfHero::rollback()
 {
 	if (curHero != NULL) {
 		// Restore any held artifact to it's original position.
-		if (commonInfo->destArtifact && commonInfo->destAOH == this) {
-			// For an unlikely race condition scenario, put swapped artifact into backpack.
-			LOCPLINT->cb->setArtifact(
-				curHero,
-				19 + curHero->artifacts.size(),
-				commonInfo->destArtifact->id);
-		}
-		else if (commonInfo->srcArtifact && commonInfo->srcAOH == this) {
-			if (commonInfo->srcSlotID != -1) { // Held artifact, just put it back to it's spot.
-				LOCPLINT->cb->setArtifact(
-					curHero,
-					commonInfo->srcSlotID,
-					commonInfo->srcArtifact->id);
-			} else { // Swapped artifact.
+		if (commonInfo->srcArtifact && commonInfo->srcAOH == this) {
+			CGHeroInstance * hero = const_cast<CGHeroInstance *>(curHero);
+
+			if (commonInfo->srcSlotID != -1) {
+				// Put a held artifact back to it's spot.
+				if (commonInfo->srcSlotID < 19)
+					hero->artifWorn[commonInfo->srcSlotID] = commonInfo->srcArtifact->id;
+				else
+					hero->artifacts.insert(hero->artifacts.begin() + (commonInfo->srcSlotID - 19), commonInfo->srcArtifact->id);
+			} else { // Held swapped artifact.
 				// Wear the artifact in a suitable spot.
 				ui16 i = 0;
 				for (; i < 19; i++) {
 					if (artWorn[i]->fitsHere(commonInfo->srcArtifact)
 						&& curHero->artifWorn.find(i) == curHero->artifWorn.end())
 					{
-						LOCPLINT->cb->setArtifact(
-							curHero, i, commonInfo->srcArtifact->id);
+						hero->artifWorn[i] = commonInfo->srcArtifact->id;
 						break;
 					}
 				}
 
 				// If it can't be worn, put it in the backpack.
 				if (i == 19)
-					LOCPLINT->cb->setArtifact(
-						curHero,
-						19 + curHero->artifacts.size(),
-						commonInfo->srcArtifact->id);
+					hero->artifacts.push_back(commonInfo->srcArtifact->id);
 			}
+
+			hero->recreateArtBonuses();
 		}
 	}
-		unmarkSlots();
+
+	unmarkSlots();
 	backpackPos = 0;
 
 	commonInfo->srcAOH = NULL;

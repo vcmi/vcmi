@@ -163,7 +163,6 @@ public:
 	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
 	bool buyArtifact( ui32 hid, si32 aid );
 	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
-	bool setArtifact(si32 heroID, ui16 slot, int artID);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram);

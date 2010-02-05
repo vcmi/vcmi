@@ -2522,45 +2522,6 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	return true;
 }
 
-/**
- * Sets a hero artifact slot to contain a specific artifact.
- *
- * @param artID ID of an artifact or -1 for no artifact.
- */
-bool CGameHandler::setArtifact(si32 heroID, ui16 slot, int artID)
-{
-	const CGHeroInstance *hero = gs->getHero(heroID);
-
-	if (artID != -1) {
-		const CArtifact &artifact = VLC->arth->artifacts[artID]; 
-
-		if (slot < 19 && !vstd::contains(artifact.possibleSlots, slot)) {
-			complain("Artifact does not fit!");
-			return false;
-		}
-
-		if (slot >= 19 && artifact.isBig()) {
-			complain("Cannot put big artifacts in backpack!");
-			return false;
-		}
-	}
-
-	if (slot == 16) {
-		complain("Cannot alter catapult slot!");
-		return false;
-	}
-
-	// Perform the exchange.
-	SetHeroArtifacts sha;
-	sha.hid = heroID;
-	sha.artifacts = hero->artifacts;
-	sha.artifWorn = hero->artifWorn;
-	sha.setArtAtPos(slot, artID);
-	sendAndApply(&sha);
-
-	return true;
-}
-
 bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);

@@ -1225,7 +1225,7 @@ void CGHeroInstance::giveArtifact (ui32 aid)
 void CGHeroInstance::recreateArtBonuses()
 {
 	//clear all bonuses from artifacts (if present) and give them again
-	std::remove_if(bonuses.begin(), bonuses.end(), boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
+	bonuses.remove_if(boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
 	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
 	{
 		CArtifact &art = VLC->arth->artifacts[ari->second];
