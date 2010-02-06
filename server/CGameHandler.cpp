@@ -1930,7 +1930,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	cs.learn = true;
 	cs.hid = toHero;//giving spells to first hero
 
-	for(std::set<ui32>::iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
+	for(std::set<ui32>::const_iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
 		if ( h2Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
 			cs.spells.insert(*it);//spell to learn
 
@@ -1940,7 +1940,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	cs.hid = fromHero;
 	cs.spells.clear();
 
-	for(std::set<ui32>::iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
+	for(std::set<ui32>::const_iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
 		if ( h1Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h1->spells, *it))
 			cs.spells.insert(*it);
 	if (cs.spells.size())
