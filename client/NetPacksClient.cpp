@@ -668,3 +668,10 @@ void TradeComponents::applyCl(CClient *cl)
 			tlog2 << "Shop type not supported! \n";
 	}
 }
+
+void SShowThievesGuildWindow::applyCl(CClient *cl)
+{
+	//displays Thieves' Guild window (when hero enters Den of Thieves)
+	const CGObjectInstance *obj = cl->getObj(requestingObject);
+	GH.pushInt( new CThievesGuildWindow(obj) );
+}

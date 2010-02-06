@@ -1427,5 +1427,18 @@ struct CenterView : public CPackForClient//515
 	}
 };  
 
+struct SShowThievesGuildWindow : public CPackForClient //516
+{
+	SShowThievesGuildWindow(){CPackForClient::type = 516;};
+	void applyCl(CClient *cl);
+
+	si32 requestingObject;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & requestingObject;
+	}
+};
+
 
 #endif //__NETPACKS_H__

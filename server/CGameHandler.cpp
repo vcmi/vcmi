@@ -3458,6 +3458,13 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 	}
 }
 
+void CGameHandler::showThievesGuildWindow(int requestingObjId)
+{
+	SShowThievesGuildWindow sthg;
+	sthg.requestingObject = requestingObjId;
+	sendAndApply(&sthg);
+}
+
 bool CGameHandler::isAllowedExchange( int id1, int id2 )
 {
 	if(id1 == id2)

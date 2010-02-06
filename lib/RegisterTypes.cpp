@@ -123,6 +123,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
 	s.template registerType<CenterView>();
+	s.template registerType<SShowThievesGuildWindow>();
 }
 
 template<typename Serializer> DLL_EXPORT

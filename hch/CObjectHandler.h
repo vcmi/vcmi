@@ -308,7 +308,7 @@ public:
 	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
 	std::vector<std::pair<int,std::string> > getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
-	int getPrimSkillLevel(int id) const;
+	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
 
@@ -1061,18 +1061,26 @@ public:
 		h & available & chosen & bought & price;
 	}
 };
+
 class DLL_EXPORT CGArtMerchant : public CShop
 {
 public:
 	void reset (ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const {};
 };
+
 class DLL_EXPORT CGRefugeeCamp : public CShop
 {
 public:
 	void reset (ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const {};
 };
+
+class DLL_EXPORT CGDenOfthieves : public CGObjectInstance
+{
+	void onHeroVisit (const CGHeroInstance * h) const;
+};
+
 struct BankConfig
 {
 	BankConfig() {level = chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };

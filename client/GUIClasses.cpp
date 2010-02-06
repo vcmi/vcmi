@@ -4885,6 +4885,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	statusBar = new CStatusBar(pos.x + 3, pos.y + 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
+	resdatabar->pos.x += pos.x - 3;
 	resdatabar->pos.y += pos.y;
 
 	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = { &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
@@ -4962,6 +4963,14 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	for(std::map<ui8, SThievesGuildInfo::InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
 	{
 		blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
+		counter++;
+	}
+
+	//printing best creature
+	counter = 0;
+	for(std::map<ui8, si32>::const_iterator it = tgi.bestCreature.begin(); it !=  tgi.bestCreature.end(); ++it)
+	{
+		blitAt(graphics->bigImgs[it->second], 255 + 66 * counter, 479, background);
 		counter++;
 	}
 

@@ -5450,3 +5450,9 @@ void CGRefugeeCamp::reset(ui32 val)
 	available[0] = new Component (Component::CREATURE, creid, 0, 0);
 	*/
 }
+
+
+void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
+{
+	cb->showThievesGuildWindow(id);
+}

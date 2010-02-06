@@ -1724,7 +1724,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				shr->spell = bufor[i]; i+=4;
 				break;
 			}
-		case 6:
+		case 6: //pandora's box
 			{
 				CGPandoraBox *box = new CGPandoraBox();
 				nobj = box;
@@ -1787,7 +1787,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				i+=8;
 				break;
 			}
-		case 36:
+		case 36: //grail
 			{
 				grailPos = pos;
 				grailRadious = readNormalNr(bufor,i); i+=4;
@@ -1967,8 +1967,16 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = new CGMagicSpring();
 				break;
 			}
-		default:
-			nobj = new CGObjectInstance();
+		case 97: //den of thieves
+			{
+				nobj = new CGDenOfthieves();
+				break;
+			}
+		default: //any other object
+			{
+				nobj = new CGObjectInstance();
+				break;
+			}
 		} //end of main switch
 
 		nobj->pos = pos;

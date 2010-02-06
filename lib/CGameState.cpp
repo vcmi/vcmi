@@ -3131,6 +3131,31 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			return a.second > b.second;
 		}
+
+		static const CGHeroInstance * findBestHero(CGameState * gs, int color)
+		{
+			//best hero will be that with highest exp
+			int best = 0;
+			for(int b=1; b<gs->players[color].heroes.size(); ++b)
+			{
+				if(gs->players[color].heroes[b]->exp > gs->players[color].heroes[best]->exp)
+				{
+					best = b;
+				}
+			}
+			return gs->players[color].heroes[best];
+		}
+
+		//calculates total number of artifacts that belong to given player
+		static int getNumberOfArts(const PlayerState * ps)
+		{
+			int ret = 0;
+			for(int g=0; g<ps->heroes.size(); ++g)
+			{
+				ret += ps->heroes[g]->artifacts.size() + ps->heroes[g]->artifWorn.size();
+			}
+			return ret;
+		}
 	};
 
 #define FILL_FIELD(FIELD, VAL_GETTER) \
@@ -3165,17 +3190,9 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			if(g->second.color == 255)
 				continue;
-			//best hero will be that with highest exp
-			int best = 0;
-			for(int b=1; b<g->second.heroes.size(); ++b)
-			{
-				if(g->second.heroes[b]->exp > g->second.heroes[best]->exp)
-				{
-					best = b;
-				}
-			}
+			const CGHeroInstance * best = HLP::findBestHero(this, g->second.color);
 			SThievesGuildInfo::InfoAboutHero iah;
-			iah.portrait = g->second.heroes[best]->portrait;
+			iah.portrait = best->portrait;
 			for(int c=0; c<PRIMARY_SKILLS; ++c)
 			{
 				iah.primSkills[c] = -1; //mark as unknown
@@ -3193,7 +3210,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //mercury, sulfur, crystal, gems
 	{
-		FILL_FIELD(woodOre, g->second.resources[2] + g->second.resources[3] + g->second.resources[4] + g->second.resources[5])
+		FILL_FIELD(mercSulfCrystGems, g->second.resources[2] + g->second.resources[3] + g->second.resources[4] + g->second.resources[5])
 	}
 	if(level >= 4) //obelisks found
 	{
@@ -3201,7 +3218,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 5) //artifacts
 	{
-		//TODO
+		FILL_FIELD(artifacts, HLP::getNumberOfArts(&g->second))
 	}
 	if(level >= 6) //army strength
 	{
@@ -3210,6 +3227,60 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	if(level >= 7) //income
 	{
 		//TODO
+	}
+	if(level >= 8) //best hero's stats
+	{
+		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		{
+			if(g->second.color == 255) //do nothing for neutral player
+				continue;
+			const CGHeroInstance * best = HLP::findBestHero(this, g->second.color);
+
+			for(int k=0; k<ARRAY_COUNT(tgi.colorToBestHero[g->second.color].primSkills); ++k)
+			{
+				//getting prim skills with all bonuses
+				tgi.colorToBestHero[g->second.color].primSkills[k] = best->getPrimSkillLevel(k);
+			}
+		}
+	}
+	if(level >= 9) //personality
+	{
+		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		{
+			if(g->second.color == 255) //do nothing for neutral player
+				continue;
+			if(g->second.human)
+			{
+				tgi.personality[g->second.color] = -1;
+			}
+			else //AI
+			{
+				tgi.personality[g->second.color] = map->players[g->second.serial].AITactic;
+			}
+			
+		}
+	}
+	if(level >= 10) //best creature
+	{
+		//best creatures belonging to player (highest AI value)
+		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		{
+			if(g->second.color == 255) //do nothing for neutral player
+				continue;
+			int bestCre = -1; //best creature's ID
+			for(int b=0; b<g->second.heroes.size(); ++b)
+			{
+				for(TSlots::const_iterator it = g->second.heroes[b]->army.slots.begin(); it != g->second.heroes[b]->army.slots.end(); ++it)
+				{
+					int toCmp = it->second.first; //ID of creature we should compare with the best one
+					if(bestCre == -1 || VLC->creh->creatures[bestCre].AIValue < VLC->creh->creatures[toCmp].AIValue)
+					{
+						bestCre = toCmp;
+					}
+				}
+			}
+			tgi.bestCreature[g->second.color] = bestCre;
+		}
 	}
 
 #undef FILL_FIELD
