@@ -616,7 +616,7 @@ void CCastleInterface::buildingClicked(int building)
 			break;
 		case 14:  //marketplace
 			{
-				CMarketplaceWindow *cmw = new CMarketplaceWindow(0);
+				CMarketplaceWindow *cmw = new CMarketplaceWindow();
 				GH.pushInt(cmw);
 				break;
 			}

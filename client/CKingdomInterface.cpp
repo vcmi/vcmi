@@ -105,7 +105,7 @@ CKingdomInterface::CKingdomInterface()
 		733,size*116+2,"OVBUTN4.DEF");
 	ObjBottom->bitmapOffset = 2;
 
-	for (size_t i=0; i<SKILL_PER_HERO; i++)
+	for (size_t i=0; i<8; i++)
 	{
 		incomes.push_back(new HoverableArea());//bottom panel with mines
 		incomes[i]->pos = genRect(57,68,pos.x+20+i*80,pos.y+31+size*116);
@@ -221,6 +221,20 @@ CKingdomInterface::~CKingdomInterface()
 void CKingdomInterface::close()
 {
 	GH.popIntTotally(this);
+}
+
+void CKingdomInterface::updateAllGarrisons()
+{
+	for (int i = 0; i<towns.size(); i++)
+	{tlog1<<"Have "<<towns.size()<<" town elements, recreating "<<i<<"\n";
+		if (towns[i] && towns[i]->garr)
+			towns[i]->garr->recreateSlots();
+	}
+	for (int i = 0; i<heroes.size(); i++)
+	{tlog1<<"Have "<<heroes.size()<<" hero elements, recreating "<<i<<"\n";
+		if (heroes[i] && heroes[i]->garr)
+			heroes[i]->garr->recreateSlots();
+	}
 }
 
 void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
@@ -696,8 +710,8 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	{
 		artButtons->addButton(boost::assign::map_list_of(0,CGI->generaltexth->overview[13+it]),
 			CGI->generaltexth->overview[8+it], "OVBUTN3.DEF",364+it*112, 46, it);
-		std::string str = CGI->generaltexth->overview[8+it];//TODO:find function for this if any
-		str = str.substr(str.find_first_of("{"), str.find_first_of("}")-str.find_first_of("{"));
+		std::string str = CGI->generaltexth->overview[8+it];
+		str = str.substr(str.find_first_of("{")+1, str.find_first_of("}")-str.find_first_of("{"));
 		artButtons->buttons[it]->addTextOverlay(str, FONT_SMALL, tytulowy);
 	}
 	artButtons->onChange = boost::bind(&CKingdomInterface::CHeroItem::onArtChange, this, _1);
@@ -856,7 +870,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		morale->text += CGI->generaltexth->arraytxt[108];
 	else
 		for(int it=0; it < mrl.size(); it++)
-			morale->text += mrl[it].second;
+			morale->text += "\n" + mrl[it].second;
 
 	//setting luck
 	mrl = hero->getCurrentLuckModifiers();
@@ -871,7 +885,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		luck->text += CGI->generaltexth->arraytxt[77];
 	else
 		for(int it=0; it < mrl.size(); it++)
-			luck->text += mrl[it].second;
+			luck->text += "\n" + mrl[it].second;
 }
 
 void CKingdomInterface::CHeroItem::scrollArts(int move)

@@ -146,6 +146,7 @@ public:
 	void setManaPoints(int hid, int val);
 	void giveHero(int id, int player);
 	void changeObjPos(int objid, int3 newPos, ui8 flags);
+	void useScholarSkill(si32 hero1, si32 hero2);
 	void heroExchange(si32 hero1, si32 hero2);
 	//////////////////////////////////////////////////////////////////////////
 

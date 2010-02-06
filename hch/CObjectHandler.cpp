@@ -894,12 +894,12 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 		ret.push_back(std::make_pair(getSecSkillLevel(6),VLC->generaltexth->arraytxt[104+getSecSkillLevel(6)]));
 
 	//town structures
-	if(town && visitedTown)
+	if(visitedTown)
 	{
 		if(visitedTown->subID == 0  &&  vstd::contains(visitedTown->builtBuildings,22)) //castle, brotherhood of sword built
 			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[0][22].first + " +2"));
 		else if(vstd::contains(visitedTown->builtBuildings,5)) //tavern is built
-			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[0][5].first + " +1"));
+			ret.push_back(std::pair<int,std::string>(1,VLC->generaltexth->buildings[0][5].first + " +1"));
 	}
 
 	//number of alignments and presence of undead
@@ -980,6 +980,13 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentLuckModifiers
 	//luck skill
 	if(getSecSkillLevel(9)) 
 		ret.push_back(std::make_pair(getSecSkillLevel(9),VLC->generaltexth->arraytxt[73+getSecSkillLevel(9)]));
+
+	if(visitedTown)
+	{
+		if(visitedTown->subID == 1  &&  vstd::contains(visitedTown->builtBuildings,21)) //castle, brotherhood of sword built
+			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[1][21].first + " +2"));
+	}
+
 
 	return ret;
 }
@@ -1650,16 +1657,6 @@ int CGTownInstance::defenceBonus(int type) const
 /*knowledge*/	case 3:
 						if (subID == 2 && vstd::contains(builtBuildings,26))//Tower, Grail
 							ret += 15;
-							return ret;
-/*morale*/		case 4:
-						if (              vstd::contains(builtBuildings, 5))//Any, Tavern
-							ret += 1;
-						if (subID == 0 && vstd::contains(builtBuildings,22))//Castle, Brotherhood of the sword
-							ret += 1;
-							return ret;
-/*luck*/		case 5:
-						if (subID == 1 && vstd::contains(builtBuildings,21))//Rampart, Fountain of Fortune
-							ret += 2;
 							return ret;
 		}
 		return 0;//Why we are here? wrong type?
@@ -5411,9 +5408,11 @@ void CShop::setPropertyDer (ui8 what, ui32 val)
 	}
 }
 void CGArtMerchant::reset(ui32 val)
-{
+{//TODO: it should have 2 global pools instead of unique for each merchant:
+// 1) for town merchants - resets every month,
+// 2) for adv. map - resets only on game start
 	std::vector<CArtifact*>::iterator index;
-	for (ui8 i = 0; i < 4; ++i) //each tier
+	for (ui8 i = 0; i < 3; ++i) //each tier
 	{	
 		int count = 0;
 		std::vector<CArtifact*> arts; //to avoid addition of different tiers
@@ -5421,19 +5420,15 @@ void CGArtMerchant::reset(ui32 val)
 		{
 			case 0:
 				cb->getAllowed (arts, CArtifact::ART_TREASURE);
-				count = 2;
+				count = 3; // first row - three treasures,
 				break;
 			case 1:
 				cb->getAllowed (arts, CArtifact::ART_MINOR);
-				count = 2;
+				count = 3; // second row three minors
 				break;
 			case 2:
 				cb->getAllowed (arts, CArtifact::ART_MAJOR);
-				count = 1;
-				break;
-			case 3:
-				cb->getAllowed (arts, CArtifact::ART_RELIC);
-				count = 1;
+				count = 1; // and a third row - one major
 				break;
 		}
 		for (ui8 n = 0; n < count; n++)

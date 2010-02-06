@@ -300,7 +300,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		morale->text += CGI->generaltexth->arraytxt[108];
 	else
 		for(int it=0; it < mrl.size(); it++)
-			morale->text += mrl[it].second;
+			morale->text += "\n" + mrl[it].second;
 
 
 	//setting luck
@@ -316,7 +316,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		luck->text += CGI->generaltexth->arraytxt[77];
 	else
 		for(int it=0; it < mrl.size(); it++)
-			luck->text += mrl[it].second;
+			luck->text += "\n" + mrl[it].second;
 
 	//restoring pos
 	pos.x += 65;

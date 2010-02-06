@@ -3,6 +3,7 @@
 #include "CBattleInterface.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
+#include "CKingdomInterface.h"
 #include "CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
@@ -483,6 +484,12 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			CWindowWithGarrison *wwg = static_cast<CWindowWithGarrison*>(*i);
 			wwg->garr->recreateSlots();
 			wasGarrison = true;
+		}
+		else
+		{//a cheat for Kingdom Overview window (it has CWindowWithGarrison-childrens which are not present in ListInt)
+			CKingdomInterface *cki = dynamic_cast<CKingdomInterface*>(*i);//need to create "Garrison Holder" class thingy
+			if (cki)
+				cki->updateAllGarrisons();
 		}
 	}
 

@@ -4532,7 +4532,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			morale[b]->text += CGI->generaltexth->arraytxt[108];
 		else
 			for(int it=0; it < mrl.size(); it++)
-				morale[b]->text += mrl[it].second;
+				morale[b]->text += "\n" + mrl[it].second;
 
 		//setting luck
 		luck[b] = new LRClickableAreaWTextComp();
@@ -4550,7 +4550,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			luck[b]->text += CGI->generaltexth->arraytxt[77];
 		else
 			for(int it=0; it < mrl.size(); it++)
-				luck[b]->text += mrl[it].second;
+				luck[b]->text += "\n" + mrl[it].second;
 	}
 
 	//buttons

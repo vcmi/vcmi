@@ -132,6 +132,7 @@ public:
 
 	CKingdomInterface(); //c-tor
 	~CKingdomInterface(); //d-tor
+	void updateAllGarrisons();//garrison updater
 	void moveObjectList(int newPos);
 	void recreateHeroList(int pos);//recreating heroes list (on slider move)
 	void recreateTownList(int pos);//same for town list

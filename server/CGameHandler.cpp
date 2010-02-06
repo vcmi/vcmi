@@ -797,7 +797,6 @@ void CGameHandler::newTurn()
 
 		std::pair<ui8,si32> playerGold(i->first,i->second.resources[6]);
 		hadGold.insert(playerGold); 
-		tlog1<<i->first<<" & "<<i->second.resources[6]<<"\n";
 
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
@@ -1269,6 +1268,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	if (town)
 	{
 		if (hero2)
+		{
 			for (int i=0; i<4; i++)
 			{
 				int val = town->defenceBonus(i);
@@ -1280,18 +1280,21 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 					sendAndApply(&gs);
 				}
 			}
+		}
+		else//if we don't have hero - apply separately, if hero present - will be taken from hero bonuses
+		{
+			if(town->subID == 0  &&  vstd::contains(town->builtBuildings,22)) //castle, brotherhood of sword built
+				for(int g=0; g<stacks.size(); ++g)
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 2, StackFeature::OTHER_SOURCE));
 
-		int bonuseValue = town->defenceBonus(4);//morale
-		if (bonuseValue)
-			for(int g=0; g<stacks.size(); ++g)
-				if (!stacks[g]->attackerOwned)//garrisoned stack
-					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, bonuseValue, StackFeature::OTHER_SOURCE));
+			else if(vstd::contains(town->builtBuildings,5)) //tavern is built
+				for(int g=0; g<stacks.size(); ++g)
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
 
-		bonuseValue = town->defenceBonus(5);//luck
-		if (bonuseValue)
-			for(int g=0; g<stacks.size(); ++g)
-				if (!stacks[g]->attackerOwned)//garrisoned stack
-					stacks[g]->features.push_back(makeFeature(StackFeature::LUCK_BONUS, StackFeature::WHOLE_BATTLE, 0, bonuseValue, StackFeature::OTHER_SOURCE));
+			if(town->subID == 1  &&  vstd::contains(town->builtBuildings,21)) //rampart, fountain of fortune is present
+				for(int g=0; g<stacks.size(); ++g)
+					stacks[g]->features.push_back(makeFeature(StackFeature::LUCK_BONUS, StackFeature::WHOLE_BATTLE, 0, 2, StackFeature::OTHER_SOURCE));
+		}
 	}
 
 	//giving terrain premies for heroes & stacks
@@ -1911,13 +1914,47 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 	sendAndApply(&cop);
 }
 
+void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
+{//TODO: dialog window;
+	const CGHeroInstance * h1 = getHero(fromHero);
+	const CGHeroInstance * h2 = getHero(toHero);
+
+	int ScholarLevel = std::max( h1->getSecSkillLevel(18), h2->getSecSkillLevel(18));//heroes can trade with this levels
+	if ( ScholarLevel == 0 )
+		return;
+
+	ScholarLevel++;
+	int h1Lvl = std::min(ScholarLevel, h1->getSecSkillLevel(7)+2),
+	    h2Lvl = std::min(ScholarLevel, h2->getSecSkillLevel(7)+2);//heroes can receive this levels
+	ChangeSpells cs;
+	cs.learn = true;
+	cs.hid = toHero;//giving spells to first hero
+
+	for(std::set<ui32>::iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
+		if ( h2Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
+			cs.spells.insert(*it);//spell to learn
+
+	if (cs.spells.size())//if found new spell - apply
+		sendAndApply(&cs);
+
+	cs.hid = fromHero;
+	cs.spells.clear();
+
+	for(std::set<ui32>::iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
+		if ( h1Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h1->spells, *it))
+			cs.spells.insert(*it);
+	if (cs.spells.size())
+		sendAndApply(&cs);
+}
+
 void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 {
 	ui8 player1 = getHero(hero1)->tempOwner;
 	ui8 player2 = getHero(hero2)->tempOwner;
 
-	if(player1 == player2)
+	if(player1 == player2)//TODO: allies
 	{
+		useScholarSkill(hero1,hero2);
 		OpenWindow hex;
 		hex.window = OpenWindow::EXCHANGE_WINDOW;
 		hex.id1 = hero1;
