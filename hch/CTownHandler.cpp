@@ -131,6 +131,8 @@ void CTownHandler::loadStructures()
 		Structure *vinya = new Structure;
 		vinya->group = -1;
 		of >> vinya->townID;
+		if (vinya->townID == -1)
+			break;
 		of >> vinya->ID;
 		of >> vinya->defName;
 		vinya->name = vinya->defName; //TODO - use normal names
