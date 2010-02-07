@@ -252,7 +252,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	else if (obj->ID==CREI_TYPE) //only fixed monsters can be a part of quest
 	{
 		CGCreature *cre = static_cast<CGCreature*>(obj);
-		gs->map->monsters[cre->identifier] = NULL;	
+		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
 	}
 	gs->map->objects[id] = NULL;	
 

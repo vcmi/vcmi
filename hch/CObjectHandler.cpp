@@ -3176,9 +3176,9 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			return true;
 			break;
 		case MISSION_KILL_CREATURE:
-			if (h->cb->gameState()->map->monsters[m13489val])
-				return false;
-			return true;
+			if (h->cb->gameState()->map->monsters[m13489val]->pos == int3(-1,-1,-1))
+				return true;
+			return false;
 			break;
 		case MISSION_ART:
 			for (int i = 0; i < m5arts.size(); ++i)
@@ -3245,9 +3245,80 @@ void CGSeerHut::initObj()
 
 const std::string & CGSeerHut::getHoverText() const
 {
-	hoverName = VLC->generaltexth->allTexts[347];
-	boost::algorithm::replace_first(hoverName,"%s", seerName);
-	if (progress){}//what does it seek for?
+	switch (ID)
+	{
+			case 83:
+				hoverName = VLC->generaltexth->allTexts[347];
+				boost::algorithm::replace_first(hoverName,"%s", seerName);
+				break;
+			case 215:
+				hoverName = VLC->generaltexth->names[ID];
+				break;
+			default:
+				tlog5 << "unrecognized quest object\n";
+	}
+	if (progress & missionType) //rollover when the quest is active
+	{
+		MetaString ms;
+		ms << "\n\n" << VLC->generaltexth->quests[missionType-1][3][textOption];
+		std::string str;
+		switch (missionType)
+		{
+			case MISSION_LEVEL:
+				ms.addReplacement (m13489val);
+				break;
+			case MISSION_PRIMARY_STAT:
+			{
+				MetaString loot;
+				for (int i = 0; i < 4; ++i)
+				{
+					if (m2stats[i])
+					{
+						loot << "%d %s";
+						loot.addReplacement (m2stats[i]);
+						loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
+					}		
+				}
+				ms.addReplacement(loot.buildList());
+			}
+				break;
+			case MISSION_KILL_HERO:
+				ms.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+				break;
+			case MISSION_HERO:
+				ms.addReplacement(VLC->heroh->heroes[m13489val]->name);
+				break;
+			case MISSION_KILL_CREATURE:
+			{
+				const TStack* stack = cb->gameState()->map->monsters[m13489val]->army.getStack(0);
+				if (stack->first == 1)
+					ms.addReplacement (MetaString::CRE_SING_NAMES, stack->first);
+				else
+					ms.addReplacement (MetaString::CRE_PL_NAMES, stack->first);
+			}
+				break;
+			case MISSION_ART:
+			{
+				MetaString loot;
+				for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
+				{
+					loot << "%s";
+					loot.addReplacement (MetaString::ART_NAMES, *it);
+				}
+				ms.addReplacement(loot.buildList());
+			}
+				break;
+			case MISSION_ARMY:
+			case MISSION_RESOURCES:
+			case MISSION_PLAYER:
+				ms.addReplacement (VLC->generaltexth->colors[m13489val]);
+				break;
+			default:
+				break;
+		}
+		ms.toString(str);
+		hoverName += str; 
+	}
 	return hoverName;
 }
 
@@ -3375,57 +3446,104 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					break;
 			}
 			cb->setObjProperty (id,10,1);
+			cb->showInfoDialog(&iw);
 		}
-		else
+		else if (!checkQuest(h))
 		{
-			if (!checkQuest(h))
-				iw.text << nextVisitText;
-			else
+			iw.text << nextVisitText;
+			cb->showInfoDialog(&iw);
+		}
+		if (checkQuest(h)) // propose completion, also on first visit
+		{
+			BlockingDialog bd (true, false);
+			bd.player = h->getOwner();
+			bd.soundID = soundBase::QUEST;
+			bd.text << completedText;
+			switch (missionType)
 			{
-				BlockingDialog bd (true, false);
-				bd.player = h->getOwner();
-				bd.soundID = soundBase::QUEST;
-				bd.text << completedText;
-				switch (missionType)
-				{
-					case CQuest::MISSION_LEVEL:
-						bd.text.addReplacement(m13489val);
-						break;
-					case CQuest::MISSION_PRIMARY_STAT:
-						if (vstd::contains (completedText,'%')) //there's one case when there's nothing to replace
+				case CQuest::MISSION_LEVEL:
+					bd.text.addReplacement(m13489val);
+					break;
+				case CQuest::MISSION_PRIMARY_STAT:
+					if (vstd::contains (completedText,'%')) //there's one case when there's nothing to replace
+					{
+						MetaString loot;
+						for (int i = 0; i < 4; ++i)
 						{
-							MetaString loot;
-							for (int i = 0; i < 4; ++i)
+							if (m2stats[i])
 							{
-								if (m2stats[i])
-								{
-									loot << "%d %s";
-									loot.addReplacement (m2stats[i]);
-									loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
-								}
+								loot << "%d %s";
+								loot.addReplacement (m2stats[i]);
+								loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
 							}
-							bd.text.addReplacement (loot.buildList());
 						}
-						break;
-					case CQuest::MISSION_ART:
-						for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
-							bd.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
-						break;
-					case CQuest::MISSION_ARMY:
-						for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
-							bd.components.push_back (Component (Component::CREATURE, it->second.first, it->second.second, 0));
-						break;
-					case CQuest::MISSION_RESOURCES:
-						for (int i = 0; i < 7; ++i)
-						{
-							if (m7resources[i])
-								bd.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
-						}
-						break;
+						bd.text.addReplacement (loot.buildList());
+					}
+					break;
+				case CQuest::MISSION_ART:
+				{
+					MetaString loot;
+					for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
+					{
+						bd.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
+						loot << "%s";
+						loot.addReplacement (MetaString::ART_NAMES, *it);
+					}
+					bd.text.addReplacement (loot.buildList());
 				}
-				cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
-				return;
+					break;
+				case CQuest::MISSION_ARMY:
+				{
+					MetaString loot;
+					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+					{
+						bd.components.push_back (Component (Component::CREATURE, it->second.first, it->second.second, 0));
+						loot << "%s";
+						if (it->second.second == 1)
+							loot.addReplacement (MetaString::CRE_SING_NAMES, it->second.first);
+						else
+							loot.addReplacement (MetaString::CRE_PL_NAMES, it->second.first);
+					}
+					bd.text.addReplacement	(loot.buildList());
+				}
+					break;
+				case CQuest::MISSION_RESOURCES:
+				{
+					MetaString loot;
+					for (int i = 0; i < 7; ++i)
+					{
+						if (m7resources[i])
+						{
+							bd.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
+							loot << "%d %s";
+							loot.addReplacement (iw.components.back().val);
+							loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+						}
+					}
+					bd.text.addReplacement (loot.buildList());
+				}
+					break;
+				case MISSION_KILL_HERO:
+					bd.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+					break;
+				case MISSION_HERO:
+					bd.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
+					break;
+				case MISSION_KILL_CREATURE:
+				{
+					const TStack* stack = cb->gameState()->map->monsters[m13489val]->army.getStack(0);
+					if (stack->first == 1)
+						bd.text.addReplacement (MetaString::CRE_SING_NAMES, stack->first);
+					else
+						bd.text.addReplacement (MetaString::CRE_PL_NAMES, stack->first);
+					if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
+					{
+						bd.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+					}
+				}
 			}
+			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
+			return;
 		}
 	}
 	else
@@ -3433,8 +3551,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text << VLC->generaltexth->seerEmpty[textOption];
 		if (ID == 83)
 			iw.text.addReplacement(seerName);
+		cb->showInfoDialog(&iw);
 	}
-	cb->showInfoDialog(&iw);
 }
 int CGSeerHut::checkDirection() const
 {
@@ -3475,10 +3593,12 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 		{
 			case CQuest::MISSION_ART:
 				for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
-				{}
+				{
+					cb->removeArtifact(*it, h->id);
+				}
 				break;
 			case CQuest::MISSION_ARMY:
-					//cb->takeCreatures (h->id, m7creatures);
+					cb->takeCreatures (h->id, m6creatures);
 				break;
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
@@ -3489,7 +3609,8 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		completeQuest(h);
+		cb->setObjProperty (id,11,0); //no more mission avaliable	
+		completeQuest(h); //make sure to remove QuestQuard at the very end	
 	}
 }
 void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
@@ -3555,7 +3676,6 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			break;
 	}
 	cb->showInfoDialog(&iw);
-	cb->setObjProperty (id,11,0); //no more mission avaliable
 }
 
 void CGQuestGuard::initObj()
@@ -3571,12 +3691,6 @@ void CGQuestGuard::initObj()
 	}
 	else
 		firstVisitText = VLC->generaltexth->seerEmpty[textOption];
-}
-const std::string & CGQuestGuard::getHoverText() const
-{
-	hoverName = VLC->generaltexth->names[ID];
-	if (progress){}//what does it seek for?
-	return hoverName;
 }
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {

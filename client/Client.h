@@ -84,7 +84,7 @@ public:
 	void showThievesGuildWindow(int requestingObjId){};
 	void giveResource(int player, int which, int val){};
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures) {};
-	void takeCreatures (int objid, CCreatureSet creatures){};
+	void takeCreatures (int objid, TSlots creatures){};
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};
 	void stopHeroVisitCastle(int obj, int heroID){};

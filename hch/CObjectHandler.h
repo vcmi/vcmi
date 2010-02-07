@@ -248,7 +248,6 @@ public:
 	std::vector<si32> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	si32 movement; //remaining movement points
-	si32 identifier; //from the map file
 	ui8 sex;
 	ui8 inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
@@ -276,7 +275,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
-			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
+			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
 			& moveDir;
 
 		ui8 standardType = (VLC->heroh->heroes[subID] == type);
@@ -636,8 +635,6 @@ class DLL_EXPORT CGQuestGuard : public CGSeerHut
 {
 public:
 	void initObj();
-	const std::string & getHoverText() const;
-	//void onHeroVisit( const CGHeroInstance * h ) const;
 	void completeQuest (const CGHeroInstance * h) const;
  
 	template <typename Handler> void serialize(Handler &h, const int version)

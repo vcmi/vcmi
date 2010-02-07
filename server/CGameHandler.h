@@ -129,7 +129,7 @@ public:
 	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
 	void giveResource(int player, int which, int val);
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures);
-	void takeCreatures (int objid, CCreatureSet creatures);
+	void takeCreatures (int objid, TSlots creatures);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);

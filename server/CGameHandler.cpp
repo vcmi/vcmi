@@ -1734,8 +1734,25 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 		return;
 	}
 }
-void CGameHandler::takeCreatures (int objid, CCreatureSet creatures)
-{}
+void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we could use ArmedInstance as well
+{
+	if (creatures.size() <= 0)
+		return;
+	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
+	CCreatureSet newArmy = obj->army;
+	while (creatures.size() > 0)
+	{
+		int slot = newArmy.getSlotFor (creatures.begin()->second.first);
+		if (slot < 0)
+			break;
+		newArmy.slots[slot].first = creatures.begin()->second.first;
+		newArmy.slots[slot].second -= creatures.begin()->second.second;
+		creatures.erase (creatures.begin());
+	}
+	SetGarrisons sg;
+	sg.garrs[objid] = newArmy;
+	sendAndApply(&sg);
+}
 void CGameHandler::showCompInfo(ShowInInfobox * comp)
 {
 	sendToAllClients(comp);
@@ -1816,7 +1833,30 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	sendAndApply(&sha);
 }
 void CGameHandler::removeArtifact(int artid, int hid)
-{}
+{
+	const CGHeroInstance* h = getHero(hid);
+
+	SetHeroArtifacts sha;
+	sha.hid = hid;
+	sha.artifacts = h->artifacts;
+	sha.artifWorn = h->artifWorn;
+	
+	std::vector<ui32>::iterator it;
+	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), artid)) != sha.artifacts.end()) //it is in backpack
+		sha.artifacts.erase(it);
+	else //worn
+	{
+		for (std::map<ui16,ui32>::iterator itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
+		{
+			if (itr->second == artid)
+			{
+				sha.artifWorn.erase(itr);
+				break;
+			}
+		}
+	}
+	sendAndApply(&sha);
+}
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
 {
