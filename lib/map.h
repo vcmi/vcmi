@@ -47,7 +47,7 @@ class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
 public:
 	unsigned char player; //owner
 	bool asCastle;
-	int identifier;
+	ui32 identifier;
 	unsigned char castles[2]; //allowed castles
 };
 class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
@@ -55,7 +55,7 @@ class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
 public:
 	unsigned char player; //owner
 	bool asCastle;
-	int identifier;
+	ui32 identifier;
 	unsigned char castles[2]; //allowed castles
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };

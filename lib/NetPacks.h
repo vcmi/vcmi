@@ -573,7 +573,7 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD};
 	ui8 window;
 	ui32 id1, id2;
 
@@ -1424,19 +1424,6 @@ struct CenterView : public CPackForClient//515
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & pos & player & focusTime;
-	}
-};  
-
-struct SShowThievesGuildWindow : public CPackForClient //516
-{
-	SShowThievesGuildWindow(){CPackForClient::type = 516;};
-	void applyCl(CClient *cl);
-
-	si32 requestingObject;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & requestingObject;
 	}
 };
 

@@ -141,6 +141,7 @@ void CPlayerInterface::init(ICallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT = this;
 	makingTurn = true;
 

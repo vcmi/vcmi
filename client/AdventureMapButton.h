@@ -22,7 +22,7 @@ class CDefEssential;
 namespace config{struct ButtonInfo;}
 
 
-class CButtonBase : public KeyShortcut//basic buttton class
+class CButtonBase : public KeyShortcut//basic button class
 {
 public:
 	struct TextOverlay

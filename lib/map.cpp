@@ -762,7 +762,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	nt->identifier = 0;
 	if(version>RoE)
 	{	
-		readNormalNr(bufor,i); i+=4;
+		nt->identifier = readNormalNr(bufor,i); i+=4;
 	}
 	nt->tempOwner = bufor[i]; ++i;
 	if(readChar(bufor,i)) //has name

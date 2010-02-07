@@ -3191,12 +3191,9 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			if(g->second.color == 255)
 				continue;
 			const CGHeroInstance * best = HLP::findBestHero(this, g->second.color);
-			SThievesGuildInfo::InfoAboutHero iah;
-			iah.portrait = best->portrait;
-			for(int c=0; c<PRIMARY_SKILLS; ++c)
-			{
-				iah.primSkills[c] = -1; //mark as unknown
-			}
+			InfoAboutHero iah;
+			iah.initFromHero(best, level >= 8);
+			iah.army.slots.clear();
 			tgi.colorToBestHero[g->second.color] = iah;
 		}
 	}
@@ -3230,18 +3227,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 8) //best hero's stats
 	{
-		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
-		{
-			if(g->second.color == 255) //do nothing for neutral player
-				continue;
-			const CGHeroInstance * best = HLP::findBestHero(this, g->second.color);
-
-			for(int k=0; k<ARRAY_COUNT(tgi.colorToBestHero[g->second.color].primSkills); ++k)
-			{
-				//getting prim skills with all bonuses
-				tgi.colorToBestHero[g->second.color].primSkills[k] = best->getPrimSkillLevel(k);
-			}
-		}
+		//already set in  lvl 1 handling
 	}
 	if(level >= 9) //personality
 	{
@@ -3619,3 +3605,48 @@ PlayerState::PlayerState()
 {
 
 }
+
+InfoAboutHero::InfoAboutHero()
+{
+	details = NULL;
+	hclass = NULL;
+	portrait = -1;
+}
+
+InfoAboutHero::~InfoAboutHero()
+{
+	delete details;
+}
+
+void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
+{
+	owner = h->tempOwner;
+	hclass = h->type->heroClass;
+	name = h->name;
+	portrait = h->portrait;
+	army = h->army; 
+
+	if(detailed) 
+	{
+		//include details about hero
+		details = new Details;
+		details->luck = h->getCurrentLuck();
+		details->morale = h->getCurrentMorale();
+		details->mana = h->mana;
+		details->primskills.resize(PRIMARY_SKILLS);
+
+		for (int i = 0; i < PRIMARY_SKILLS ; i++)
+		{
+			details->primskills[i] = h->getPrimSkillLevel(i);
+		}
+	}
+	else
+	{
+		//hide info about hero stacks counts using descriptives names ids
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
+		{
+			i->second.second = CCreature::getQuantityID(i->second.second);
+		}
+	}
+}
+

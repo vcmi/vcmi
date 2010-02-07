@@ -43,25 +43,6 @@ class CMapHeader;
 struct CGPathNode;
 struct CGPath;
 
-struct InfoAboutHero
-{
-	struct Details
-	{
-		std::vector<int> primskills;
-		int mana, luck, morale;
-	} *details;
-
-	char owner;
-	const CHeroClass *hclass;
-	std::string name;
-	int portrait;
-	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
-
-	InfoAboutHero();
-	~InfoAboutHero();
-	void initFromHero(const CGHeroInstance *h, bool detailed);
-};
-
 struct InfoAboutTown
 {
 	struct Details

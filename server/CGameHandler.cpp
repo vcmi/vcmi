@@ -3460,9 +3460,10 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 
 void CGameHandler::showThievesGuildWindow(int requestingObjId)
 {
-	SShowThievesGuildWindow sthg;
-	sthg.requestingObject = requestingObjId;
-	sendAndApply(&sthg);
+	OpenWindow ow;
+	ow.window = OpenWindow::THIEVES_GUILD;
+	ow.id1 = requestingObjId;
+	sendAndApply(&ow);
 }
 
 bool CGameHandler::isAllowedExchange( int id1, int id2 )
@@ -3638,7 +3639,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 				setOwner((**i).id,NEUTRAL_PLAYER);
 		}
 
-		//eliminating one player may cause victory of anoother:
+		//eliminating one player may cause victory of another:
 		winLoseHandle(ALL_PLAYERS & ~(1<<player));
 	}
 

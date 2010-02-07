@@ -52,11 +52,33 @@ struct MetaString;
 struct CPack;
 class CSpell;
 struct TerrainTile;
+class CHeroClass;
 
 namespace boost
 {
 	class shared_mutex;
 }
+
+struct DLL_EXPORT InfoAboutHero
+{
+	struct DLL_EXPORT Details
+	{
+		std::vector<int> primskills;
+		int mana, luck, morale;
+	} *details;
+
+	char owner;
+	const CHeroClass *hclass;
+	std::string name;
+	int portrait;
+	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
+
+	InfoAboutHero();
+	~InfoAboutHero();
+	void initFromHero(const CGHeroInstance *h, bool detailed);
+};
+
+
 
 struct DLL_EXPORT SThievesGuildInfo
 {
@@ -64,27 +86,16 @@ struct DLL_EXPORT SThievesGuildInfo
 
 	std::vector< std::list< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	struct InfoAboutHero
-	{
-		ui32 portrait;
-		si32 primSkills[PRIMARY_SKILLS]; //-1 if not available; otherwise values
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & portrait & primSkills;
-		}
-	};
-
 	std::map<ui8, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
 
 	std::map<ui8, si8> personality; // color to personality // -1 - human, AI -> (00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
 	std::map<ui8, si32> bestCreature; // color to ID // id or -1 if not known
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
-		h & colorToBestHero & personality & bestCreature;
-	}
+// 	template <typename Handler> void serialize(Handler &h, const int version)
+// 	{
+// 		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
+// 		h & colorToBestHero & personality & bestCreature;
+// 	}
 
 };
 

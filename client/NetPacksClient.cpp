@@ -628,6 +628,13 @@ void OpenWindow::applyCl(CClient *cl)
 			INTERFACE_CALL_IF_PRESENT(sy->o->tempOwner, showShipyardDialog, sy);
 		}
 		break;
+	case THIEVES_GUILD:
+		{
+			//displays Thieves' Guild window (when hero enters Den of Thieves)
+			const CGObjectInstance *obj = cl->getObj(id1);
+			GH.pushInt( new CThievesGuildWindow(obj) );
+		}
+		break;
 	}
 
 }
@@ -667,11 +674,4 @@ void TradeComponents::applyCl(CClient *cl)
 		default: 
 			tlog2 << "Shop type not supported! \n";
 	}
-}
-
-void SShowThievesGuildWindow::applyCl(CClient *cl)
-{
-	//displays Thieves' Guild window (when hero enters Den of Thieves)
-	const CGObjectInstance *obj = cl->getObj(requestingObject);
-	GH.pushInt( new CThievesGuildWindow(obj) );
 }

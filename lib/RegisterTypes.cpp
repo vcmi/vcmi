@@ -59,6 +59,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CCartographer>();
 	s.template registerType<CGObjectInstance>();
 	s.template registerType<COPWBonus>();
+	s.template registerType<CGDenOfthieves>();
 }
 
 template<typename Serializer> DLL_EXPORT 
@@ -123,7 +124,6 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
 	s.template registerType<CenterView>();
-	s.template registerType<SShowThievesGuildWindow>();
 }
 
 template<typename Serializer> DLL_EXPORT

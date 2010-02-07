@@ -109,10 +109,10 @@ CHeroWindow::CHeroWindow(int playerColor):
 	expArea->pos = genRect(42, 136, pos.x+83, pos.y  +  236);
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new LRClickableAreaWTextComp();
+	morale = new MoraleLuckBox();
 	morale->pos = genRect(45,53,pos.x+240,pos.y+187);
 
-	luck = new LRClickableAreaWTextComp();
+	luck = new MoraleLuckBox();
 	luck->pos = genRect(45,53,pos.x+298,pos.y+187);
 
 	spellPointsArea = new LRClickableAreaWText();
@@ -287,36 +287,8 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	formations->select(hero->army.formation,true);
 	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, hero, _1);
 
-	//setting morale
-	std::vector<std::pair<int,std::string> > mrl = hero->getCurrentMoraleModifiers();
-	int mrlv = hero->getCurrentMorale();
-	int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
-	morale->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
-	morale->baseType = SComponent::morale;
-	morale->bonus = mrlv;
-	morale->text = CGI->generaltexth->arraytxt[88];
-	boost::algorithm::replace_first(morale->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-	if (!mrl.size())
-		morale->text += CGI->generaltexth->arraytxt[108];
-	else
-		for(int it=0; it < mrl.size(); it++)
-			morale->text += "\n" + mrl[it].second;
-
-
-	//setting luck
-	mrl = hero->getCurrentLuckModifiers();
-	mrlv = hero->getCurrentLuck();
-	mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
-	luck->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
-	luck->baseType = SComponent::luck;
-	luck->bonus = mrlv;
-	luck->text = CGI->generaltexth->arraytxt[62];
-	boost::algorithm::replace_first(luck->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-	if (!mrl.size())
-		luck->text += CGI->generaltexth->arraytxt[77];
-	else
-		for(int it=0; it < mrl.size(); it++)
-			luck->text += "\n" + mrl[it].second;
+	morale->set(true, hero);
+	luck->set(false, hero);
 
 	//restoring pos
 	pos.x += 65;

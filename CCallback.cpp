@@ -905,50 +905,6 @@ void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int
 	gs->calculatePaths(hero, out, src, movement);
 }
 
-InfoAboutHero::InfoAboutHero()
-{
-	details = NULL;
-	hclass = NULL;
-	portrait = -1;
-}
-
-InfoAboutHero::~InfoAboutHero()
-{
-	delete details;
-}
-
-void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
-{
-	owner = h->tempOwner;
-	hclass = h->type->heroClass;
-	name = h->name;
-	portrait = h->portrait;
-	army = h->army; 
-
-	if(detailed) 
-	{
-		//include details about hero
-		details = new Details;
-		details->luck = h->getCurrentLuck();
-		details->morale = h->getCurrentMorale();
-		details->mana = h->mana;
-		details->primskills.resize(PRIMARY_SKILLS);
-
-		for (int i = 0; i < PRIMARY_SKILLS ; i++)
-		{
-			details->primskills[i] = h->getPrimSkillLevel(i);
-		}
-	}
-	else
-	{
-		//hide info about hero stacks counts using descriptives names ids
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
-		{
-			i->second.second = CCreature::getQuantityID(i->second.second);
-		}
-	}
-}
-
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

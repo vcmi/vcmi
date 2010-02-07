@@ -306,7 +306,7 @@ public:
 	int ID; //object ID, rarely used by some classes for identification / internal info
 
 	CIntObject();
-	virtual ~CIntObject();; //d-tor
+	virtual ~CIntObject(); //d-tor
 
 	//l-clicks handling
 	bool pressedL; //for determining if object is L-pressed
@@ -420,6 +420,11 @@ class CPicture : public CIntObject
 public: 
 	SDL_Surface *bg;
 	bool freeSurf;
+
+	operator SDL_Surface*()
+	{
+		return bg;
+	}
 
 	CPicture(SDL_Surface *BG, int x, int y, bool Free = true);
 	CPicture(const std::string &bmpname, int x, int y);

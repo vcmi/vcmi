@@ -408,32 +408,6 @@ public:
 	void sliderMoved(int to);
 };
 
-class CCreInfoWindow : public CIntObject
-{
-public:
-	//bool active; //TODO: comment me
-	int type;//0 - rclick popup; 1 - normal window
-	SDL_Surface *bitmap; //background
-	char anf; //animation counter
-	std::string count; //creature count in text format
-
-	boost::function<void()> dsm; //dismiss button callback
-	CCreaturePic *anim; //related creature's animation
-	CCreature *c; //related creature
-	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
-
-	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //c-tor
-	~CCreInfoWindow(); //d-tor
-	void activate();
-	void close();
-	void clickRight(tribool down, bool previousState); //call-in
-	void dismissF();
-	void keyPressed (const SDL_KeyboardEvent & key); //call-in
-	void deactivate();
-	void show(SDL_Surface * to);
-};
-
 class CLevelWindow : public CIntObject
 {
 public:
@@ -644,6 +618,13 @@ public:
 	virtual void clickRight(tribool down, bool previousState);
 };
 
+class MoraleLuckBox : public LRClickableAreaWTextComp
+{
+public:
+	
+	void set(bool morale, const CGHeroInstance *hero, int slot = -1); //slot -1 means only hero modifiers
+};
+
 class LRClickableAreaOpenHero: public LRClickableAreaWTextComp
 {
 public:
@@ -659,6 +640,34 @@ public:
 	const CGTownInstance * town;
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
+};
+
+class CCreInfoWindow : public CIntObject
+{
+public:
+	//bool active; //TODO: comment me
+	int type;//0 - rclick popup; 1 - normal window
+	SDL_Surface *bitmap; //background
+	char anf; //animation counter
+	std::string count; //creature count in text format
+
+	boost::function<void()> dsm; //dismiss button callback
+	CCreaturePic *anim; //related creature's animation
+	CCreature *c; //related creature
+	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
+
+	//MoraleLuckBox *luck, *morale;
+
+	AdventureMapButton *dismiss, *upgrade, *ok;
+	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //c-tor
+	~CCreInfoWindow(); //d-tor
+	void activate();
+	void close();
+	void clickRight(tribool down, bool previousState); //call-in
+	void dismissF();
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
+	void deactivate();
+	void show(SDL_Surface * to);
 };
 
 class CArtPlace: public LRClickableAreaWTextComp
@@ -855,7 +864,6 @@ class CThievesGuildWindow : public CIntObject
 
 public:
 	void activate();
-	void deactivate();
 	void show(SDL_Surface * to);
 
 	void bexitf();

@@ -353,7 +353,7 @@ void CGarrisonSlot::show(SDL_Surface * to)
 		char buf[15];
 		SDL_itoa(count,buf,10);
 		blitAt(imgs[creature->idNumber],pos,to);
-		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_VERD, zwykly, to);
+		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, zwykly, to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
@@ -1125,8 +1125,8 @@ CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
 	bg=BitmapHandler::loadBitmap(name);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	pos.x=x;
-	pos.y=y;
+	pos.x += x;
+	pos.y += y;
 	if(maxw >= 0)
 		pos.w = std::min(bg->w,maxw);
 	else
@@ -4833,18 +4833,8 @@ void CArtMerchantWindow::Buy() {}
 
 void CThievesGuildWindow::activate()
 {
-	statusBar->activate();
-	exitb->activate();
-	resdatabar->activate();
-
+	CIntObject::activate();
 	LOCPLINT->statusbar = statusBar;
-}
-
-void CThievesGuildWindow::deactivate()
-{
-	statusBar->deactivate();
-	exitb->deactivate();
-	resdatabar->deactivate();
 }
 
 void CThievesGuildWindow::show(SDL_Surface * to)
@@ -4870,10 +4860,12 @@ void CThievesGuildWindow::bexitf()
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	:owner(_owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
-	pos = Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
+	pos = center(Rect(0,0,800,600));// Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
 
 	//loading backround and converting to more bpp form
 	SDL_Surface * bg = background = BitmapHandler::loadBitmap("TpRank.bmp", false);
@@ -4881,8 +4873,8 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	blitAt(bg, 0, 0, background);
 	SDL_FreeSurface(bg);
 
-	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748 + pos.x, 556 + pos.y, "HSBTNS.def", SDLK_RETURN);
-	statusBar = new CStatusBar(pos.x + 3, pos.y + 555, "TStatBar.bmp", 742);
+	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "HSBTNS.def", SDLK_RETURN);
+	statusBar = new CStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x - 3;
@@ -4960,7 +4952,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	//printing best hero
 
 	int counter = 0;
-	for(std::map<ui8, SThievesGuildInfo::InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
+	for(std::map<ui8, InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
 	{
 		blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
 		counter++;
@@ -4979,12 +4971,53 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 CThievesGuildWindow::~CThievesGuildWindow()
 {
 	SDL_FreeSurface(background);
-	delete exitb;
-	delete statusBar;
-	delete resdatabar;
+// 	delete exitb;
+// 	delete statusBar;
+// 	delete resdatabar;
 }
 
 
 
 
 
+
+void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -1*/ )
+{
+	int mrlv = -9, mrlt = -9;
+	std::vector<std::pair<int,std::string> > mrl;
+
+	if(morale)
+	{
+		//setting morale
+		mrl = hero->getCurrentMoraleModifiers();
+		mrlv = hero->getCurrentMorale();
+		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
+		hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
+		baseType = SComponent::morale;
+		bonus = mrlv;
+		text = CGI->generaltexth->arraytxt[88];
+		boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
+		if (!mrl.size())
+			text += CGI->generaltexth->arraytxt[108];
+		else
+			for(int it=0; it < mrl.size(); it++)
+				text += "\n" + mrl[it].second;
+	}
+	else
+	{
+		//setting luck
+		mrl = hero->getCurrentLuckModifiers();
+		mrlv = hero->getCurrentLuck();
+		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
+		hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
+		baseType = SComponent::luck;
+		bonus = mrlv;
+		text = CGI->generaltexth->arraytxt[62];
+		boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
+		if (!mrl.size())
+			text += CGI->generaltexth->arraytxt[77];
+		else
+			for(int it=0; it < mrl.size(); it++)
+				text += "\n" + mrl[it].second;
+	}
+}
