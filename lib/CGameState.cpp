@@ -3613,6 +3613,11 @@ InfoAboutHero::InfoAboutHero()
 	portrait = -1;
 }
 
+InfoAboutHero::InfoAboutHero( const InfoAboutHero & iah )
+{
+	assign(iah);
+}
+
 InfoAboutHero::~InfoAboutHero()
 {
 	delete details;
@@ -3650,3 +3655,18 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 	}
 }
 
+void InfoAboutHero::assign( const InfoAboutHero & iah )
+{
+	army = iah.army;
+	details = (iah.details ? new Details(*iah.details) : NULL);
+	hclass = iah.hclass;
+	name = iah.name;
+	owner = iah.owner;
+	portrait = iah.portrait;
+}
+
+InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
+{
+	assign(iah);
+	return *this;
+}

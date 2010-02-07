@@ -4956,6 +4956,19 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	{
 		blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
 		counter++;
+
+		//printing stats
+		if(it->second.details)
+		{
+			for (int i=0; i<it->second.details->primskills.size(); ++i)
+			{
+				printAt(CGI->generaltexth->allTexts[380+i], 191 + 66*counter, 394 + 11*i, FONT_SMALL, zwykly, background);
+				std::ostringstream skill;
+				skill << it->second.details->primskills[i];
+				printTo(skill.str(), 244 + 66 * counter, 410 + 11*i, FONT_SMALL, zwykly, background);
+			}
+		}
+
 	}
 
 	//printing best creature
@@ -4963,6 +4976,25 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	for(std::map<ui8, si32>::const_iterator it = tgi.bestCreature.begin(); it !=  tgi.bestCreature.end(); ++it)
 	{
 		blitAt(graphics->bigImgs[it->second], 255 + 66 * counter, 479, background);
+		counter++;
+	}
+
+	//printing personality
+	counter = 0;
+	for(std::map<ui8, si8>::const_iterator it = tgi.personality.begin(); it !=  tgi.personality.end(); ++it)
+	{
+		int toPrint = 0;
+		if(it->second == -1)
+		{
+			toPrint = 172;
+		}
+		else
+		{
+			toPrint = 168 + it->second;
+		}
+
+		printAtMiddle(CGI->generaltexth->arraytxt[toPrint], 283 + 66*counter, 459, FONT_SMALL, zwykly, background);
+
 		counter++;
 	}
 

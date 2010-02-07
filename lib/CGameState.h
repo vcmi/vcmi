@@ -61,6 +61,9 @@ namespace boost
 
 struct DLL_EXPORT InfoAboutHero
 {
+private:
+	void assign(const InfoAboutHero & iah);
+public:
 	struct DLL_EXPORT Details
 	{
 		std::vector<int> primskills;
@@ -74,6 +77,8 @@ struct DLL_EXPORT InfoAboutHero
 	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
 
 	InfoAboutHero();
+	InfoAboutHero(const InfoAboutHero & iah);
+	InfoAboutHero & operator=(const InfoAboutHero & iah);
 	~InfoAboutHero();
 	void initFromHero(const CGHeroInstance *h, bool detailed);
 };
