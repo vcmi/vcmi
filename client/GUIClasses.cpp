@@ -3657,9 +3657,20 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				ourOwner->commonInfo->destSlotID = slotID;
 				ourOwner->commonInfo->destArtifact = ourArt;
 
+				// Special case when the dest artifact can't be fit into the src slot.
+				CGHeroInstance *destHero = const_cast<CGHeroInstance *>(ourOwner->curHero);
+				CGI->arth->unequipArtifact(destHero->artifWorn, slotID);
+				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->srcAOH;
+				ui16 srcSlotID = ourOwner->commonInfo->srcSlotID;
+				if (ourArt && srcSlotID < 19 && !ourArt->fitsAt(srcAOH->curHero->artifWorn, srcSlotID)) {
+					// Put dest artifact into owner's backpack.
+					ourOwner->commonInfo->srcAOH = ourOwner;
+					ourOwner->commonInfo->srcSlotID = ourOwner->curHero->artifacts.size() + 19;
+				}
+
 				LOCPLINT->cb->swapArtifacts(
-						ourOwner->commonInfo->srcAOH->curHero,
-						ourOwner->commonInfo->srcSlotID,
+						srcAOH->curHero,
+						srcSlotID,
 						ourOwner->curHero,
 						slotID);
 			}
@@ -3676,7 +3687,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(text.size()) //if there is no description, do nothing ;]
+	if(!locked() && text.size()) //if there is no description or it's a lock, do nothing ;]
 		LRClickableAreaWTextComp::clickRight(down, previousState);
 }
 
@@ -3685,8 +3696,10 @@ void CArtPlace::clickRight(tribool down, bool previousState)
  */
 void CArtPlace::select ()
 {
+	if (locked())
+		return;
+
 	CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->id].bitmap);
-	ourOwner->markPossibleSlots(ourArt);
 
 	ourOwner->commonInfo->srcArtifact = ourArt;
 	ourOwner->commonInfo->srcSlotID = slotID;
@@ -3695,9 +3708,10 @@ void CArtPlace::select ()
 	// Temporarily remove artifact from hero.
 	CGHeroInstance* hero = const_cast<CGHeroInstance*>(ourOwner->curHero);
 	if (slotID < 19)
-		hero->artifWorn.erase(slotID);
+		CGI->arth->unequipArtifact(hero->artifWorn, slotID);
 	else
 		hero->artifacts.erase(hero->artifacts.begin() + (slotID - 19));
+	ourOwner->markPossibleSlots(ourArt);
 	hero->recreateArtBonuses();
 
 	// Update the hero bonuses.
@@ -3776,14 +3790,10 @@ bool CArtPlace::fitsHere(const CArtifact * art)
 		return true;
 
 	// Anything can but War Machines can be placed in backpack.
-	if (slotID >= 19) {
+	if (slotID >= 19)
 		return !CGI->arth->isBigArtifact(art->id);
-	} else if (vstd::contains(art->possibleSlots, slotID)) {
-		// TODO: Deal with combinational at dest and as src.
-		return true;
-	}
 
-	return false;
+	return art->fitsAt(ourOwner->curHero->artifWorn, slotID);
 }
 
 CArtPlace::~CArtPlace()
@@ -3988,21 +3998,20 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 			backpackPos++;
 		}
 
-		if (commonInfo->srcAOH == this) {
+		if (updateState && commonInfo->srcAOH == this) {
+			curHero = hero;
 			// A swap was made, make the replaced artifact the current selected.
 			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) {
 				// Temporarily remove artifact from hero.
-				CGHeroInstance * hero = const_cast<CGHeroInstance *>(curHero);
+				CGHeroInstance * nonconstCurHero = const_cast<CGHeroInstance *>(curHero);
 				if (commonInfo->srcSlotID < 19)
-					hero->artifWorn.erase(commonInfo->srcSlotID);
+					CGI->arth->unequipArtifact(nonconstCurHero->artifWorn, commonInfo->srcSlotID);
 				else
-					hero->artifacts.erase(hero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-				hero->recreateArtBonuses();
+					nonconstCurHero->artifacts.erase(nonconstCurHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
+				nonconstCurHero->recreateArtBonuses();
 
 				// Source <- Dest
-				//commonInfo->srcAOH = commonInfo->destAOH;
 				commonInfo->srcArtifact = commonInfo->destArtifact;
-				//commonInfo->srcSlotID = commonInfo->destSlotID;
 
 				// Reset destination parameters.
 				commonInfo->destAOH = NULL;
@@ -4059,7 +4068,7 @@ void CArtifactsOfHero::rollback()
 			if (commonInfo->srcSlotID != -1) {
 				// Put a held artifact back to it's spot.
 				if (commonInfo->srcSlotID < 19)
-					hero->artifWorn[commonInfo->srcSlotID] = commonInfo->srcArtifact->id;
+					CGI->arth->equipArtifact(hero->artifWorn, commonInfo->srcSlotID, commonInfo->srcArtifact->id);
 				else
 					hero->artifacts.insert(hero->artifacts.begin() + (commonInfo->srcSlotID - 19), commonInfo->srcArtifact->id);
 			} else { // Held swapped artifact.
@@ -4069,7 +4078,7 @@ void CArtifactsOfHero::rollback()
 					if (artWorn[i]->fitsHere(commonInfo->srcArtifact)
 						&& curHero->artifWorn.find(i) == curHero->artifWorn.end())
 					{
-						hero->artifWorn[i] = commonInfo->srcArtifact->id;
+						CGI->arth->equipArtifact(hero->artifWorn, i, commonInfo->srcArtifact->id);
 						break;
 					}
 				}
@@ -4137,6 +4146,8 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
 		for (int i = 0; i < (*it)->artWorn.size(); i++) {
 			if ((*it)->artWorn[i]->fitsHere(art))
 				(*it)->artWorn[i]->marked = true;
+			else
+				(*it)->artWorn[i]->marked = false;
 		}
 	}
 }
@@ -4166,7 +4177,10 @@ void CArtifactsOfHero::setSlotData (CArtPlace* artPlace, int slotID)
 
 	if (artPlace->ourArt) {
 		artPlace->text = artPlace->ourArt->Description();
-		artPlace->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % artPlace->ourArt->Name().c_str());
+		if (artPlace->locked()) // Locks should appear as empty.
+			artPlace->hoverText = CGI->generaltexth->allTexts[507];
+		else
+			artPlace->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % artPlace->ourArt->Name().c_str());
 	} else {
 		eraseSlotData(artPlace, slotID);
 	}
@@ -4184,7 +4198,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const SDL_Rect & position) :
-	backpackPos(0)
+	backpackPos(0), updateState(false)
 {
 	pos = position;
 	artWorn.resize(19);

@@ -6,6 +6,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
@@ -36,9 +37,67 @@ const std::string & CArtifact::Description() const
 		return VLC->generaltexth->artifDescriptions[id];
 }
 
-bool CArtifact::isBig () const
+inline bool CArtifact::isBig () const
 {
 	return VLC->arth->isBigArtifact(id);
+}
+
+/**
+ * Checks whether the artifact fits at a given slot.
+ * @param artifWorn A hero's set of worn artifacts.
+ */
+bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) const
+{
+	if (!vstd::contains(possibleSlots, slotID))
+		return false;
+
+	// Can't put an artifact in a locked slot.
+	std::map<ui16, ui32>::const_iterator it = artifWorn.find(slotID);
+	if (it != artifWorn.end() && it->second == 145)
+		return false;
+
+	// Check if a combination artifact fits.
+	// TODO: Might want a more general algorithm?
+	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
+	if (constituents != NULL) {
+		std::map<ui16, ui32> tempArtifWorn = artifWorn;
+		const ui16 ringSlots[] = {6, 7};
+		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
+		int rings = 0;
+		int misc = 0;
+
+		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
+
+		BOOST_FOREACH(ui32 constituentID, *constituents) {
+			const CArtifact& constituent = VLC->arth->artifacts[constituentID];
+			const int slot = constituent.possibleSlots[0];
+
+			if (slot == 6 || slot == 7)
+				rings++;
+			else if (slot >= 9 && slot <= 12 || slot == 18)
+				misc++;
+			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
+				return false;
+		}
+
+		// Ensure enough ring slots are free
+		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) {
+			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
+				rings--;
+		}
+		if (rings > 0)
+			return false;
+
+		// Ensure enough misc slots are free.
+		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) {
+			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
+				misc--;
+		}
+		if (misc > 0)
+			return false;
+	}
+
+	return true;
 }
 
 CArtHandler::CArtHandler()
@@ -52,7 +111,7 @@ CArtHandler::CArtHandler()
 void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
-	slots += 17, 16, 15,14,13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+	slots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
 	static std::map<char, CArtifact::EartClass> classes = 
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
@@ -85,65 +144,65 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		if(desc[0] == '\"' && desc[desc.size()-1] == '\"')
 			desc = desc.substr(1,desc.size()-2);
 
-		// Fill in information about combined artifacts.
+		// Fill in information about combined artifacts. Should perhaps be moved to a config file?
 		switch (nart.id) {
 			case 129: // Angelic Alliance
-				nart.constituents = new std::vector<ui32>(6);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 31, 32, 33, 34, 35, 36;
 				break;
 
 			case 130: // Cloak of the Undead King
-				nart.constituents = new std::vector<ui32>(3);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 54, 55, 56;
 				break;
 
 			case 131: // Elixir of Life
-				nart.constituents = new std::vector<ui32>(3);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 94, 95, 96;
 				break;
 
 			case 132: // Armor of the Damned
-				nart.constituents = new std::vector<ui32>(4);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 8, 14, 20, 26;
 				break;
 
 			case 133: // Statue of Legion
-				nart.constituents = new std::vector<ui32>(5);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 118, 119, 120, 121, 122;
 				break;
 
 			case 134: // Power of the Dragon Father
-				nart.constituents = new std::vector<ui32>(9);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 37, 38, 39, 40, 41, 42, 43, 44, 45;
 				break;
 
 			case 135: // Titan's Thunder
-				nart.constituents = new std::vector<ui32>(4);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 12, 18, 24, 30;
 				break;
 
 			case 136: // Admiral's Hat
-				nart.constituents = new std::vector<ui32>(2);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 71, 123;
 				break;
 
 			case 137: // Bow of the Sharpshooter
-				nart.constituents = new std::vector<ui32>(3);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 60, 61, 62;
 				break;
 
 			case 138: // Wizards' Well
-				nart.constituents = new std::vector<ui32>(3);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 73, 74, 75;
 				break;
 
 			case 139: // Ring of the Magi
-				nart.constituents = new std::vector<ui32>(3);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 76, 77, 78;
 				break;
 
 			case 140: // Cornucopia
-				nart.constituents = new std::vector<ui32>(4);
+				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 109, 110, 111, 113;
 				break;
 
@@ -484,4 +543,76 @@ void CArtHandler::clear()
 	minors.clear();
 	majors.clear();
 	relics.clear();
+}
+
+/**
+ * Locally equips an artifact to a hero's worn slots. Unequips an already present artifact.
+ * Does not test if the operation is legal.
+ * @param artifWorn A hero's set of worn artifacts.
+ */
+void CArtHandler::equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID)
+{
+	unequipArtifact(artifWorn, slotID);
+
+	const CArtifact &artifact = artifacts[artifactID];
+
+	// Add artifact.
+	artifWorn[slotID] = artifactID;
+
+	// Add locks, in reverse order of being removed.
+	if (artifact.constituents != NULL) {
+		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
+
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+			const CArtifact &constituent = artifacts[constituentID];
+
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) {
+				destConsumed = true;
+			} else {
+				BOOST_FOREACH(ui16 slot, constituent.possibleSlots) {
+					if (artifWorn.find(slot) == artifWorn.end()) {
+						artifWorn[slot] = 145;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Locally unequips an artifact from a hero's worn slots.
+ * Does not test if the operation is legal.
+ * @param artifWorn A hero's set of worn artifacts.
+ */
+void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
+{
+	if (artifWorn.find(slotID) == artifWorn.end())
+		return;
+
+	const CArtifact &artifact = artifacts[artifWorn[slotID]];
+
+	// Remove artifact, if it's not already removed.
+	artifWorn.erase(slotID);
+
+	// Remove locks, in reverse order of being added.
+	if (artifact.constituents != NULL) {
+		bool destConsumed = false;
+
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+			const CArtifact &constituent = artifacts[constituentID];
+
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) {
+				destConsumed = true;
+			} else {
+				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) {
+					if (artifWorn.find(slot) != artifWorn.end() && artifWorn[slot] == 145) {
+						artifWorn.erase(slot);
+						break;
+					}
+				}
+			}
+
+		}
+	}
 }

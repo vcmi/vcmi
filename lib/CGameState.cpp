@@ -1490,7 +1490,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				std::vector<ui16>::iterator slot = vstd::findFirstNot(hero->artifWorn,toGive->possibleSlots);
 				if(slot!=toGive->possibleSlots.end())
 				{
-					hero->artifWorn[*slot] = toGive->id;
+					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive->id);
 					hero->recreateArtBonuses();
 				}
 				else

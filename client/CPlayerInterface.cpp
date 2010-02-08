@@ -853,7 +853,9 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		{
 			if(cew->heroInst[g] == hero)
 			{
+				cew->artifs[g]->updateState = true;
 				cew->artifs[g]->setHero(hero);
+				cew->artifs[g]->updateState = false;
 			}
 		}
 		cew->prepareBackground();

@@ -26,6 +26,7 @@ public:
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	bool isBig () const;
+	bool fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slot) const;
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
@@ -53,6 +54,8 @@ public:
 	void addBonuses();
 	void clear();
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
+	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID);
+	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 

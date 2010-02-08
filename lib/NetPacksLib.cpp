@@ -464,14 +464,14 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 	if(art<0)
 	{
 		if(pos<19)
-			artifWorn.erase(pos);
+			VLC->arth->unequipArtifact(artifWorn, pos);
 		else
 			artifacts.erase(artifacts.begin() + (pos - 19));
 	}
 	else
 	{
 		if (pos < 19) {
-			artifWorn[pos] = art;
+			VLC->arth->equipArtifact(artifWorn, pos, (ui32) art);
 		} else { // Goes into the backpack.
 			if(pos - 19 < artifacts.size())
 				artifacts.insert(artifacts.begin() + (pos - 19), art);

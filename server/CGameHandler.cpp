@@ -1806,7 +1806,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 				if( !vstd::contains(sha.artifWorn,art.possibleSlots[i]) )
 				{
 					//we've found a free suitable slot
-					sha.artifWorn[art.possibleSlots[i]] = artid;
+					VLC->arth->equipArtifact(sha.artifWorn, art.possibleSlots[i], artid);
 					break;
 				}
 			}
@@ -1822,7 +1822,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	{
 		if(!vstd::contains(sha.artifWorn,ui16(position)))
 		{
-			sha.artifWorn[position] = artid;
+			VLC->arth->equipArtifact(sha.artifWorn, position, artid);
 		}
 		else if (!art.isBig())
 		{
@@ -1850,7 +1850,7 @@ void CGameHandler::removeArtifact(int artid, int hid)
 		{
 			if (itr->second == artid)
 			{
-				sha.artifWorn.erase(itr);
+				VLC->arth->unequipArtifact(sha.artifWorn, itr->first);
 				break;
 			}
 		}
@@ -2536,6 +2536,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 	}
 }
 
+// With the amount of changes done to the function, it's more like transferArtifacts.
 bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
 {
 	CGHeroInstance *srcHero = gs->getHero(srcHeroID);
@@ -2545,16 +2546,32 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	if ((distance(srcHero->pos,destHero->pos) > 1.5 )|| (srcHero->tempOwner != destHero->tempOwner))
 		return false;
 
-	const CArtifact *srcArtifact = srcHero->getArt(srcSlot); 
+	const CArtifact *srcArtifact = srcHero->getArt(srcSlot);
 	const CArtifact *destArtifact = destHero->getArt(destSlot);
+
+	SetHeroArtifacts sha;
+	sha.hid = srcHeroID;
+	sha.artifacts = srcHero->artifacts;
+	sha.artifWorn = srcHero->artifWorn;
+
+	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
+	if (srcHeroID == destHeroID && srcSlot < 19) {
+		VLC->arth->unequipArtifact(sha.artifWorn, srcSlot);
+		if (sha.artifWorn.find(destSlot) == sha.artifWorn.end())
+			destArtifact = NULL;
+	}
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
 	if ((!srcArtifact || destSlot < 19)
-		&& (((srcArtifact && !vstd::contains(srcArtifact->possibleSlots, destSlot))
-			|| (destArtifact && srcSlot < 19 && !vstd::contains(destArtifact->possibleSlots, srcSlot)))))
+		&& (srcArtifact && !srcArtifact->fitsAt(srcHeroID == destHeroID ? sha.artifWorn : destHero->artifWorn, destSlot)))
 	{
 		complain("Cannot swap artifacts!");
+		return false;
+	}
+
+	if ((srcArtifact && srcArtifact->id == 145) || (destArtifact && destArtifact->id == 145)) {
+		complain("Cannot move artifact locks.");
 		return false;
 	}
 
@@ -2568,14 +2585,11 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		return false;
 	}
 
-	// Perform the exchange.
-	SetHeroArtifacts sha;
-	sha.hid = srcHeroID;
-	sha.artifacts = srcHero->artifacts;
-	sha.artifWorn = srcHero->artifWorn;
+	// If dest does not fit in src, put it in dest's backpack instead.
+	bool destFits = !destArtifact || srcSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
 
 	sha.setArtAtPos(srcSlot, -1);
-	if (destSlot < 19 && (destArtifact || srcSlot < 19))
+	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
 		sha.setArtAtPos(srcSlot, destHero->getArtAtPos(destSlot));
 
 	// Internal hero artifact arrangement.
@@ -2593,6 +2607,8 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		sha.artifacts = destHero->artifacts;
 		sha.artifWorn = destHero->artifWorn;
 		sha.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
+		if (!destFits)
+			sha.setArtAtPos(sha.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
 		sendAndApply(&sha);
 	}
 
@@ -3026,7 +3042,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 			sha.hid = h->id;
 			sha.artifacts = h->artifacts;
 			sha.artifWorn = h->artifWorn;
-			sha.artifWorn[17] = 0;
+			VLC->arth->equipArtifact(sha.artifWorn, 17, 0);
 			sendAndApply(&sha);
 		}
 
@@ -3063,9 +3079,9 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		sha.hid = hero->id;
 		sha.artifacts = hero->artifacts;
 		sha.artifWorn = hero->artifWorn;
-		sha.artifWorn[13] = 4;
-		sha.artifWorn[14] = 5;
-		sha.artifWorn[15] = 6;
+		VLC->arth->equipArtifact(sha.artifWorn, 13, 4);
+		VLC->arth->equipArtifact(sha.artifWorn, 14, 5);
+		VLC->arth->equipArtifact(sha.artifWorn, 15, 6);
 		sendAndApply(&sha);
 	}
 	else if(message == "vcminahar") //1000000 movement points

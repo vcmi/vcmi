@@ -31,7 +31,7 @@ struct DLL_EXPORT HeroBonus
 		NONEVIL_ALIGNMENT_MIX, //good and neutral creatures can be mixed without morale penalty
 		HP_REGENERATION, //regenerates a certain amount of hp for the top of each stack every turn, val - hp regained
 		LEVEL_SPELL_IMMUNITY, //val - spell level creatures become immune to and below
-		//not handled yet:
+		//might not be handled yet:
 		MAGIC_RESISTANCE, // %
 		SECONDARY_SKILL_PREMY, //%
 		SURRENDER_DISCOUNT, //%
