@@ -30,6 +30,10 @@
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
 #include <boost/lexical_cast.hpp>
+#include <cstdlib>
+#include "CMessage.h"
+#include "../lib/map.h"
+#include "../hch/CCampaignHandler.h"
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -80,7 +84,7 @@ CMenuScreen::CMenuScreen( EState which )
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
 			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame), 545, 4, "ZTSINGL.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, 0 /*cb*/, 568, 120, "ZTMULTI.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
+			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
 		}
@@ -93,6 +97,16 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
+		}
+		break;
+	case campaignMain:
+		{
+			buttons[0] = new AdventureMapButton("", "", 0 /*cb*/, 535, 8, "ZSSSOD.DEF", SDLK_s);
+			buttons[1] = new AdventureMapButton("", "", 0 /*cb*/, 494, 117, "ZSSROE.DEF", SDLK_m);
+			buttons[2] = new AdventureMapButton("", "", 0 /*cb*/, 486, 241, "ZSSARM.DEF", SDLK_c);
+			buttons[3] = new AdventureMapButton("", "", 0 /*cb*/, 550, 358, "ZSSCUS.DEF", SDLK_t);
+			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
+			(new CCampaignHandler())->getCampaignHeaders(); //just for testing
 		}
 		break;
 	}
@@ -1694,4 +1708,44 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 	redraw();
 	if(callCb)
 		cb(text);
+}
+
+bool mapSorter::operator()( const CMapHeader *a, const CMapHeader *b )
+{
+	switch (sortBy)
+	{
+	case _format:
+		return (a->version<b->version);
+		break;
+	case _loscon:
+		return (a->lossCondition.typeOfLossCon<b->lossCondition.typeOfLossCon);
+		break;
+	case _playerAm:
+		int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
+		playerAmntB=humenPlayersB=playerAmntA=humenPlayersA=0;
+		for (int i=0;i<8;i++)
+		{
+			if (a->players[i].canHumanPlay) {playerAmntA++;humenPlayersA++;}
+			else if (a->players[i].canComputerPlay) {playerAmntA++;}
+			if (b->players[i].canHumanPlay) {playerAmntB++;humenPlayersB++;}
+			else if (b->players[i].canComputerPlay) {playerAmntB++;}
+		}
+		if (playerAmntB!=playerAmntA)
+			return (playerAmntA<playerAmntB);
+		else
+			return (humenPlayersA<humenPlayersB);
+		break;
+	case _size:
+		return (a->width<b->width);
+		break;
+	case _viccon:
+		return (a->victoryCondition.condition < b->victoryCondition.condition);
+		break;
+	case _name:
+		return (a->name<b->name);
+		break;
+	default:
+		return (a->name<b->name);
+		break;
+	}
 }

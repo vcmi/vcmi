@@ -79,7 +79,7 @@ struct TypeComparer
 class DLL_EXPORT CTypeList
 {
 	typedef std::multimap<const std::type_info *,ui16,TypeComparer> TTypeMap;
-	 TTypeMap types;
+	TTypeMap types;
 public:
 	CTypeList();
 	ui16 registerType(const std::type_info *type);

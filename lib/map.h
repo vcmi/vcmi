@@ -30,7 +30,7 @@ class CGHeroInstance;
 class CGCreature;
 class CQuest;
 class CGTownInstance;
-enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
+
 enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
 	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
 	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
@@ -260,52 +260,6 @@ public:
 	void countPlayers();
 };
 
-
-class DLL_EXPORT mapSorter
-{
-public:
-	ESortBy sortBy;
-	bool operator()(const CMapHeader *a, const CMapHeader *b)
-	{
-		switch (sortBy)
-		{
-		case _format:
-			return (a->version<b->version);
-			break;
-		case _loscon:
-			return (a->lossCondition.typeOfLossCon<b->lossCondition.typeOfLossCon);
-			break;
-		case _playerAm:
-			int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
-			playerAmntB=humenPlayersB=playerAmntA=humenPlayersA=0;
-			for (int i=0;i<8;i++)
-			{
-				if (a->players[i].canHumanPlay) {playerAmntA++;humenPlayersA++;}
-				else if (a->players[i].canComputerPlay) {playerAmntA++;}
-				if (b->players[i].canHumanPlay) {playerAmntB++;humenPlayersB++;}
-				else if (b->players[i].canComputerPlay) {playerAmntB++;}
-			}
-			if (playerAmntB!=playerAmntA)
-				return (playerAmntA<playerAmntB);
-			else
-				return (humenPlayersA<humenPlayersB);
-			break;
-		case _size:
-			return (a->width<b->width);
-			break;
-		case _viccon:
-			return (a->victoryCondition.condition < b->victoryCondition.condition);
-			break;
-		case _name:
-			return (a->name<b->name);
-			break;
-		default:
-			return (a->name<b->name);
-			break;
-		}
-	};
-	mapSorter(ESortBy es):sortBy(es){};
-};
 struct DLL_EXPORT Mapa : public CMapHeader
 {
 	ui32 checksum;

@@ -4,9 +4,6 @@
 #include <set>
 #include <SDL.h>
 #include "../StartInfo.h"
-#include "CMessage.h"
-#include "../lib/map.h"
-#include <cstdlib>
 #include "GUIBase.h"
 #include "FunctionList.h"
 
@@ -21,11 +18,22 @@
  */
 
 struct CMusicHandler;
+class CMapInfo;
+class CMapHeader;
 
 enum EState { //where are we?
-	mainMenu, newGame, loadGame, ScenarioList, saveGame, scenarioInfo
+	mainMenu, newGame, loadGame, campaignMain, ScenarioList, saveGame, scenarioInfo
 };
 
+enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
+
+class mapSorter
+{
+public:
+	ESortBy sortBy;
+	bool operator()(const CMapHeader *a, const CMapHeader *b);;
+	mapSorter(ESortBy es):sortBy(es){};
+};
 
 class CTextInput : public CIntObject
 {
@@ -216,7 +224,7 @@ class CGPreGame : public CIntObject, public IUpdateable
 {
 public:
 	SDL_Surface *mainbg;
-	CMenuScreen *scrs[3];
+	CMenuScreen *scrs[4];
 
 	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
 	CDefHandler *bonuses;

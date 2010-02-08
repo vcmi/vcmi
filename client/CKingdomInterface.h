@@ -2,9 +2,7 @@
 #define __CKINGDOMINTERFACE_H__
 
 
-
 #include "../global.h"
-#include <SDL.h>
 #include "GUIBase.h"
 #include "GUIClasses.h"
 #include "../hch/CMusicBase.h"

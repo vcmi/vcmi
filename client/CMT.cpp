@@ -42,6 +42,7 @@
 #include "../lib/VCMIDirs.h"
 #include <cstdlib>
 #include "../lib/NetPacks.h"
+#include "CMessage.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"

@@ -26,6 +26,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <sstream>
+#include <SDL.h>
+
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
