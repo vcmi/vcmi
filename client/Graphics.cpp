@@ -680,16 +680,16 @@ Font::Font(unsigned char *Data)
 	i = 32;
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].unknown1 = CDefHandler::readNormalNr(i, 4, data); i+=4;
-		chars[ci].width = CDefHandler::readNormalNr(i, 4, data); i+=4;
-		chars[ci].unknown2 = CDefHandler::readNormalNr(i, 4, data); i+=4;
+		chars[ci].unknown1 = readNormalNr(data, i); i+=4;
+		chars[ci].width = readNormalNr(data, i); i+=4;
+		chars[ci].unknown2 =readNormalNr(data, i); i+=4;
 
 		//if(ci>=30)
 		//	tlog0 << ci << ". (" << (char)ci << "). Width: " << chars[ci].width << " U1/U2:" << chars[ci].unknown1 << "/" << chars[ci].unknown2 << std::endl;
 	}
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].offset = CDefHandler::readNormalNr(i, 4, data); i+=4;
+		chars[ci].offset = readNormalNr(data, i); i+=4;
 		chars[ci].pixels = data + 4128 + chars[ci].offset;
 	}
 }

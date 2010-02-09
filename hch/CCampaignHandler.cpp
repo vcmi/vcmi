@@ -4,9 +4,19 @@
 #include <boost/filesystem.hpp>
 #include <stdio.h>
 #include <boost/algorithm/string/predicate.hpp>
-
+#include "CLodHandler.h"
 
 namespace fs = boost::filesystem;
+
+/*
+ * CCampaignHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 
 std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders()
@@ -37,15 +47,19 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders()
 
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name, int size )
 {
-	FILE * input = fopen(name.c_str(), "rb");
-	char * tab = new char[size];
-	fread(tab, 1, size, input);
+	int realSize;
+	unsigned char * cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
 
 	CCampaignHeader ret;
+	int it = 0;//iterator for reading
+	ret.version = readNormalNr(cmpgn, it); it+=4;
+	ret.mapVersion = readChar(cmpgn, it);
+	ret.name = readString(cmpgn, it);
+	ret.description = readString(cmpgn, it);
+	ret.difficultyChoosenByPlayer = readChar(cmpgn, it);
+	ret.music = readChar(cmpgn, it);
 
-
-
-	delete [] tab;
+	delete [] cmpgn;
 
 	return ret;
 }

@@ -37,6 +37,12 @@ struct LodEntry {
 	Uint32 size;				/* little endian */
 };
 
+DLL_EXPORT int readNormalNr (const unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false);
+
+DLL_EXPORT char readChar(const unsigned char * bufor, int &i);
+
+DLL_EXPORT std::string readString(const unsigned char * bufor, int &i);
+
 struct Entry
 {
 	// Info extracted from LOD file
@@ -76,6 +82,8 @@ public:
 	std::string getTextFile(std::string name); //extracts one file
 	void extractFile(std::string FName, std::string name); //extracts a specific file
 	void init(std::string lodFile, std::string dirName);
+
+	static unsigned char * getUnpackedFile(const std::string & path, int * sizeOut); //loads given file, decompresses and returns
 };
 
 

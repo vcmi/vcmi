@@ -144,32 +144,6 @@ void CDefHandler::expand(unsigned char N,unsigned char & BL, unsigned char & BR)
 	BL = (N & 0xE0) >> 5;
 	BR = N & 0x1F;
 }
-int CDefHandler::readNormalNr (int pos, int bytCon, const unsigned char * str, bool cyclic)
-{
-	int ret=0;
-	int amp=1;
-	if (str)
-	{
-		for (int i=0; i<bytCon; i++)
-		{
-			ret+=str[pos+i]*amp;
-			amp*=256;
-		}
-	}
-	//else 
-	//{
-	//	for (int i=0; i<bytCon; i++)
-	//	{
-	//		ret+=FDef[pos+i]*amp;
-	//		amp*=256;
-	//	}
-	//}
-	if(cyclic && bytCon<4 && ret>=amp/2)
-	{
-		ret = ret-amp;
-	}
-	return ret;
-}
 
 SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const
 {

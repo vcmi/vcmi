@@ -18,7 +18,6 @@
  */
 
 boost::mutex bitmap_handler_mx;
-int readNormalNr (int pos, int bytCon, const unsigned char * str);
 
 extern DLL_EXPORT CLodHandler *bitmaph;
 
@@ -58,9 +57,9 @@ SDL_Surface * CPCXConv::getSurface() const
 	unsigned char add;
 	int it=0;
 
-	fSize = readNormalNr(it,4,pcx);it+=4;
-	width = readNormalNr(it,4,pcx);it+=4;
-	height = readNormalNr(it,4,pcx);it+=4;
+	fSize = readNormalNr(pcx, it); it+=4;
+	width = readNormalNr(pcx, it); it+=4;
+	height = readNormalNr(pcx, it); it+=4;
 	if (fSize==width*height*3)
 		check1=true;
 	else 

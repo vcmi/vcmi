@@ -27,19 +27,35 @@
  *
  */
 
-DLL_EXPORT int readNormalNr (int pos, int bytCon, const unsigned char * str)
+int readNormalNr (const unsigned char * bufor, int pos, int bytCon, bool cyclic)
 {
 	int ret=0;
 	int amp=1;
-	if (str)
+	for (int ir=0; ir<bytCon; ir++)
 	{
-		for (int i=0; i<bytCon; i++)
-		{
-			ret+=str[pos+i]*amp;
-			amp<<=8;
-		}
+		ret+=bufor[pos+ir]*amp;
+		amp*=256;
 	}
-	else return -1;
+	if(cyclic && bytCon<4 && ret>=amp/2)
+	{
+		ret = ret-amp;
+	}
+	return ret;
+}
+
+char readChar(const unsigned char * bufor, int &i)
+{
+	return bufor[i++];
+}
+
+std::string readString(const unsigned char * bufor, int &i)
+{					
+	int len = readNormalNr(bufor,i); i+=4;
+	std::string ret; ret.reserve(len);
+	for(int gg=0; gg<len; ++gg)
+	{
+		ret += bufor[i++];
+	}
 	return ret;
 }
 
@@ -278,4 +294,48 @@ CLodHandler::CLodHandler()
 CLodHandler::~CLodHandler()
 {
 	delete mutex;
+}
+
+unsigned char * CLodHandler::getUnpackedFile( const std::string & path, int * sizeOut )
+{
+	const int bufsize = 65536;
+	int mapsize = 0;
+
+	gzFile map = gzopen(path.c_str(), "rb");
+	std::vector<unsigned char *> mapstr;
+
+	// Read a map by chunks
+	// We could try to read the map size directly (cf RFC 1952) and then read
+	// directly the whole map, but that would create more problems.
+	do {
+		unsigned char *buf = new unsigned char[bufsize];
+
+		int ret = gzread(map, buf, bufsize);
+		if (ret == 0 || ret == -1) {
+			delete [] buf;
+			break;
+		}
+
+		mapstr.push_back(buf);
+		mapsize += ret;
+	} while(1);
+
+	gzclose(map);
+
+	// Now that we know the uncompressed size, reassemble the chunks
+	unsigned char *initTable = new unsigned char[mapsize];
+
+	std::vector<unsigned char *>::iterator it;
+	int offset;
+	int tocopy = mapsize;
+	for (it = mapstr.begin(), offset = 0; 
+		it != mapstr.end(); 
+		it++, offset+=bufsize ) {
+			memcpy(&initTable[offset], *it, tocopy > bufsize ? bufsize : tocopy);
+			tocopy -= bufsize;
+			delete [] *it;
+	}
+
+	*sizeOut = mapsize;
+	return initTable;
 }

@@ -88,7 +88,6 @@ public:
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	static int readNormalNr (int pos, int bytCon, const unsigned char * str=NULL, bool cyclic=false);
 	SDL_Surface * getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const; //zapisuje klatke o zadanym numerze do "testtt.bmp"
 	void openDef(std::string name);
 	static void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
