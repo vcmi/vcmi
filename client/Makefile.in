@@ -59,6 +59,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CGameInterface.$(OBJEXT) \
 	vcmiclient-CThreadHelper.$(OBJEXT) \
+	vcmiclient-CCampaignHandler.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CSndHandler.$(OBJEXT) \
@@ -75,8 +76,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
 	vcmiclient-CHeroWindow.$(OBJEXT) \
 	vcmiclient-CKingdomInterface.$(OBJEXT) \
-	vcmiclient-CMT.$(OBJEXT) \
-	vcmiclient-CMessage.$(OBJEXT) \
+	vcmiclient-CMT.$(OBJEXT) vcmiclient-CMessage.$(OBJEXT) \
 	vcmiclient-CPlayerInterface.$(OBJEXT) \
 	vcmiclient-CPreGame.$(OBJEXT) \
 	vcmiclient-CSpellWindow.$(OBJEXT) vcmiclient-Client.$(OBJEXT) \
@@ -258,6 +258,8 @@ vcmiclient_SOURCES = \
 	../StartInfo.h \
 	../global.h \
 	../hch/CAmbarCendamo.h \
+	../hch/CCampaignHandler.cpp \
+	../hch/CCampaignHandler.h \
 	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
@@ -417,6 +419,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBitmapHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCallback.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCampaignHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCastleInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConfigHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureAnimation.Po@am__quote@
@@ -506,6 +509,20 @@ vcmiclient-CThreadHelper.obj: ../CThreadHelper.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CThreadHelper.cpp' object='vcmiclient-CThreadHelper.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CThreadHelper.obj `if test -f '../CThreadHelper.cpp'; then $(CYGPATH_W) '../CThreadHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/../CThreadHelper.cpp'; fi`
+
+vcmiclient-CCampaignHandler.o: ../hch/CCampaignHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCampaignHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCampaignHandler.Tpo -c -o vcmiclient-CCampaignHandler.o `test -f '../hch/CCampaignHandler.cpp' || echo '$(srcdir)/'`../hch/CCampaignHandler.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-CCampaignHandler.Tpo $(DEPDIR)/vcmiclient-CCampaignHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CCampaignHandler.cpp' object='vcmiclient-CCampaignHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCampaignHandler.o `test -f '../hch/CCampaignHandler.cpp' || echo '$(srcdir)/'`../hch/CCampaignHandler.cpp
+
+vcmiclient-CCampaignHandler.obj: ../hch/CCampaignHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCampaignHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCampaignHandler.Tpo -c -o vcmiclient-CCampaignHandler.obj `if test -f '../hch/CCampaignHandler.cpp'; then $(CYGPATH_W) '../hch/CCampaignHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CCampaignHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-CCampaignHandler.Tpo $(DEPDIR)/vcmiclient-CCampaignHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CCampaignHandler.cpp' object='vcmiclient-CCampaignHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCampaignHandler.obj `if test -f '../hch/CCampaignHandler.cpp'; then $(CYGPATH_W) '../hch/CCampaignHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CCampaignHandler.cpp'; fi`
 
 vcmiclient-CDefHandler.o: ../hch/CDefHandler.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.o `test -f '../hch/CDefHandler.cpp' || echo '$(srcdir)/'`../hch/CDefHandler.cpp

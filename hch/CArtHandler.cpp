@@ -37,7 +37,7 @@ const std::string & CArtifact::Description() const
 		return VLC->generaltexth->artifDescriptions[id];
 }
 
-inline bool CArtifact::isBig () const
+bool CArtifact::isBig () const
 {
 	return VLC->arth->isBigArtifact(id);
 }

@@ -14,6 +14,8 @@ vcmiclient_SOURCES =  \
 	../StartInfo.h \
 	../global.h \
 	../hch/CAmbarCendamo.h \
+	../hch/CCampaignHandler.cpp \
+	../hch/CCampaignHandler.h \
 	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
