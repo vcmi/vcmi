@@ -31,6 +31,7 @@ libvcmi_la_SOURCES = \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
+	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \
 	IGameCallback.h \

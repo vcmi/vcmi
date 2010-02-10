@@ -85,9 +85,10 @@ am_libvcmi_la_OBJECTS = libvcmi_la-CConsoleHandler.lo \
 	libvcmi_la-CLodHandler.lo libvcmi_la-CObjectHandler.lo \
 	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
 	libvcmi_la-stdafx.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-Connection.lo libvcmi_la-IGameCallback.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-RegisterTypes.lo \
-	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
+	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
+	libvcmi_la-IGameCallback.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo \
+	libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 libvcmi_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libvcmi_la_CXXFLAGS) \
@@ -279,6 +280,7 @@ libvcmi_la_SOURCES = \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
+	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \
 	IGameCallback.h \
@@ -380,6 +382,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-RegisterTypes.Plo@am__quote@
@@ -505,6 +508,13 @@ libvcmi_la-Connection.lo: Connection.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Connection.cpp' object='libvcmi_la-Connection.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-Connection.lo `test -f 'Connection.cpp' || echo '$(srcdir)/'`Connection.cpp
+
+libvcmi_la-HeroBonus.lo: HeroBonus.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-HeroBonus.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-HeroBonus.Tpo -c -o libvcmi_la-HeroBonus.lo `test -f 'HeroBonus.cpp' || echo '$(srcdir)/'`HeroBonus.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libvcmi_la-HeroBonus.Tpo $(DEPDIR)/libvcmi_la-HeroBonus.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='HeroBonus.cpp' object='libvcmi_la-HeroBonus.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-HeroBonus.lo `test -f 'HeroBonus.cpp' || echo '$(srcdir)/'`HeroBonus.cpp
 
 libvcmi_la-IGameCallback.lo: IGameCallback.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-IGameCallback.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-IGameCallback.Tpo -c -o libvcmi_la-IGameCallback.lo `test -f 'IGameCallback.cpp' || echo '$(srcdir)/'`IGameCallback.cpp
