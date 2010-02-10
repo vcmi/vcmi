@@ -2764,7 +2764,8 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 103: //find nearest subterranean gate on the other level
 		{
-			for(int i=0; i < gates.size(); i++)
+			int i=0;
+			for(; i < gates.size(); i++)
 			{
 				if(gates[i].first == id)
 				{
@@ -2776,6 +2777,14 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 					destinationid = gates[i].first;
 					break;
 				}
+			}
+
+			if(destinationid < 0  ||  i == gates.size()) //no exit
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::ADVOB_TXT, 153); //Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
+				cb->sendAndApply(&iw);
 			}
 			break;
 		}
@@ -2830,8 +2839,15 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 			}
 		}
 
-		gates.push_back(std::pair<int, int>(cur->id, gatesSplit[1][best.first]->id));
-		gatesSplit[1][best.first] = NULL;
+		if(best.first >= 0) //found pair
+		{
+			gates.push_back(std::pair<int, int>(cur->id, gatesSplit[1][best.first]->id));
+			gatesSplit[1][best.first] = NULL;
+		}
+		else
+		{
+			gates.push_back(std::pair<int, int>(cur->id, -1));
+		}
 	}
 
 
