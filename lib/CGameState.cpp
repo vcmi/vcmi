@@ -1444,6 +1444,11 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
 		hids.erase(vhi->subID);
 	}
+	for (unsigned int i=0; i<map->objects.size();i++) //heroes instances initialization
+	{
+		if (map->objects[i]->ID == 62)
+			hids.erase(map->objects[i]->subID);
+	}
 	for(unsigned int i=0; i<map->predefinedHeroes.size(); i++)
 	{
 		if(!vstd::contains(hids,map->predefinedHeroes[i]->subID))

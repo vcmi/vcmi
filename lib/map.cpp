@@ -1933,7 +1933,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		nobj->pos = pos;
 		nobj->ID = defInfo->id;
 		nobj->id = objects.size();
-		if(nobj->ID != HEROI_TYPE && nobj->ID != 214)
+		if(nobj->ID != HEROI_TYPE && nobj->ID != 214 && nobj->ID != 62)
 			nobj->subID = defInfo->subid;
 		nobj->defInfo = defInfo;
 		objects.push_back(nobj);

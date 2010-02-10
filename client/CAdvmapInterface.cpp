@@ -535,6 +535,11 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 				}
 			}
 		}
+		else if(currentHero == vobjs.back()) //selected hero is standing at the town entrance
+		{
+			LOCPLINT->openHeroWindow(currentHero);
+			return;
+		}
 
 		//still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		if (currentPath  &&  currentPath->endPos() == mp)//we'll be moving
