@@ -3080,6 +3080,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if(action->actionType == 9) //catapult
 	{
 	}
+	queue->update();
 }
 
 void CBattleInterface::hideQueue()

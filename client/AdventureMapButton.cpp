@@ -424,6 +424,7 @@ void CSlider::sliderClicked()
 	if(!(active & MOVE))
 	{
 		activateMouseMove();
+		used |= MOVE;
 	}
 }
 
@@ -529,7 +530,10 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		return;
 	}
 	if(active & MOVE)
+	{
 		deactivateMouseMove();
+		used &= ~MOVE;
+	}
 }
 
 CSlider::~CSlider()
