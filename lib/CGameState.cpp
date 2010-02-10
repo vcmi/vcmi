@@ -1280,6 +1280,45 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	scenarioOps = si;
 	this->map = map;
 	loadTownDInfos();
+
+ 	//pick grail location
+ 	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
+ 	{
+		if(!map->grailRadious) //radius not given -> anywhere on map
+			map->grailRadious = map->width * 2;
+
+
+ 		std::vector<int3> allowedPos;
+ 
+		// add all not blocked tiles in range
+ 		for (int i = 0; i < map->width ; i++)
+ 		{
+ 			for (int j = 0; j < map->height ; j++)
+ 			{
+ 				for (int k = 0; k <= map->twoLevel ; k++)
+ 				{
+ 					const TerrainTile &t = map->terrain[i][j][k];
+ 					if(!t.blocked 
+						&& !t.visitable 
+						&& t.tertype != TerrainTile::water 
+						&& t.tertype != TerrainTile::rock
+						&& map->grailPos.dist2d(int3(i,j,k)) <= map->grailRadious)
+ 						allowedPos.push_back(int3(i,j,k));
+ 				}
+ 			}
+ 		}
+ 
+		//remove tiles with holes
+		for(unsigned int no=0; no<map->objects.size(); ++no)
+			if(map->objects[no]->ID == 124)
+				allowedPos -= map->objects[no]->pos;
+
+		if(allowedPos.size())
+			map->grailPos = allowedPos[ran() % allowedPos.size()];
+		else
+			tlog2 << "Warning: Grail cannot be placed, no appropriate tile found!\n";
+ 	}
+
 	//picking random factions for players
 	for(unsigned int i=0;i<scenarioOps->playerInfos.size();i++)
 	{
@@ -1293,11 +1332,12 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			scenarioOps->playerInfos[i].castle = f;
 		}
 	}
+
 	//randomizing objects
 	for(unsigned int no=0; no<map->objects.size(); ++no)
 	{
 		randomizeObject(map->objects[no]);
-		if(map->objects[no]->ID==26)
+		if(map->objects[no]->ID==EVENTI_TYPE)
 		{
 			map->objects[no]->defInfo->handler=NULL;
 		}
@@ -1940,7 +1980,7 @@ void CGameState::apply(CPack *pack)
 	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 
-PlayerState * CGameState::getPlayer( ui8 color )
+PlayerState * CGameState::getPlayer( ui8 color, bool verbose )
 {
 	if(vstd::contains(players,color))
 	{
@@ -1948,14 +1988,15 @@ PlayerState * CGameState::getPlayer( ui8 color )
 	}
 	else 
 	{
-		tlog2 << "Warning: Cannot find info for player " << int(color) << std::endl;
+		if(verbose)
+			tlog2 << "Warning: Cannot find info for player " << int(color) << std::endl;
 		return NULL;
 	}
 }
 
-const PlayerState * CGameState::getPlayer( ui8 color ) const
+const PlayerState * CGameState::getPlayer( ui8 color, bool verbose ) const
 {
-	return (const_cast<CGameState *>(this))->getPlayer(color);
+	return (const_cast<CGameState *>(this))->getPlayer(color, verbose);
 }
 
 bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
@@ -2163,7 +2204,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 							node.accessible = CGPathNode::BLOCKVIS;
 							break;
 						}
-						else if(obj->ID != 26) //pathfinder should ignore placed events
+						else if(obj->ID != EVENTI_TYPE) //pathfinder should ignore placed events
 						{
 							node.accessible = CGPathNode::VISITABLE;
 						}

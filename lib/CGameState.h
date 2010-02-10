@@ -11,6 +11,7 @@
 #include <vector>
 #include <list>
 #include "StackFeature.h"
+#include "HeroBonus.h"
 #ifdef _WIN32
 #include <tchar.h>
 #else
@@ -117,6 +118,7 @@ public:
 	std::vector<CGTownInstance *> towns;
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	std::vector<CGDwelling *> dwellings; //used for town growth
+	BonusList bonuses; //player bonuses
 
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
 	ui8 daysWithoutCastle;
@@ -126,7 +128,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & serial & human & currentSelection & fogOfWarMap & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & status & daysWithoutCastle;
+		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
 
 // 		ui32 size;
 // 		if(h.saving) //write subids of available heroes
@@ -405,8 +407,8 @@ public:
 
 	boost::shared_mutex *mx;
 
-	PlayerState *getPlayer(ui8 color);
-	const PlayerState *getPlayer(ui8 color) const;
+	PlayerState *getPlayer(ui8 color, bool verbose = true);
+	const PlayerState *getPlayer(ui8 color, bool verbose = true) const;
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);

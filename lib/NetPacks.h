@@ -357,17 +357,24 @@ struct SetAvailableHeroes : public CPackForClient //113
 
 struct GiveBonus :  public CPackForClient //115
 {
-	GiveBonus(){type = 115;};
+	GiveBonus(ui8 Who = 0)
+	{
+		who = Who; 
+		type = 115;
+	}
+
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	ui32 hid;
+	enum {HERO, PLAYER};
+	ui8 who; //who receives bonus, uses enum above
+	ui32 id; //hero or player id
 	HeroBonus bonus;
 	MetaString bdescr;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bonus & hid & bdescr;
+		h & bonus & id & bdescr & who;
 	}
 };
 
@@ -407,6 +414,34 @@ struct PlayerEndsGame : public CPackForClient //117
 	}
 };
 
+
+struct RemoveBonus :  public CPackForClient //118
+{
+	RemoveBonus(ui8 Who = 0)
+	{
+		who = Who; 
+		type = 118;
+	}
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	enum {HERO, PLAYER};
+	ui8 who; //who receives bonus, uses enum above
+	ui32 whoID; //hero or player id
+
+	//vars to identify bonus: its source
+	ui8 source;
+	ui32 id; //source id
+
+	//used locally: copy of removed bonus
+	HeroBonus bonus;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & source & id & who & whoID;
+	}
+};
 
 struct RemoveObject : public CPackForClient //500
 {
@@ -573,7 +608,7 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP};
 	ui8 window;
 	ui32 id1, id2;
 

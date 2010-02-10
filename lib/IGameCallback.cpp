@@ -257,3 +257,8 @@ inline TerrainTile * IGameCallback::getTile( int3 pos )
 		return NULL;
 	return &gs->map->getTile(pos);
 }
+
+const PlayerState * IGameCallback::getPlayerState( int color )
+{
+	return gs->getPlayer(color, false);
+}

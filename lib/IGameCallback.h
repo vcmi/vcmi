@@ -34,6 +34,7 @@ class CArtHandler;
 class CArtifact;
 class CArmedInstance;
 struct TerrainTile;
+struct PlayerState;
 
 class DLL_EXPORT IGameCallback
 {
@@ -63,6 +64,7 @@ public:
 	virtual void getAllowedSpells(std::vector<ui16> &out, ui16 level);
 	virtual int3 getMapSize(); //returns size of the map
 	virtual TerrainTile * getTile(int3 pos);
+	virtual const PlayerState * getPlayerState(int color);
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;

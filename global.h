@@ -75,9 +75,10 @@ enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFE
 class CGameInfo;
 extern CGameInfo* CGI;
 
-#define HEROI_TYPE (34)
-#define TOWNI_TYPE (98)
-#define CREI_TYPE (54)
+const int HEROI_TYPE = 34, 
+	TOWNI_TYPE = 98,
+	CREI_TYPE = 54,
+	EVENTI_TYPE = 26;
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
@@ -265,6 +266,7 @@ t1 & amax(t1 &a, const t2 &b) //assigns greater of (a, b) to a and returns maxim
 		return a;
 	}
 }
+
 template <typename t1, typename t2>
 t1 & amin(t1 &a, const t2 &b) //assigns smaller of (a, b) to a and returns minimum of (a, b)
 {
@@ -276,6 +278,15 @@ t1 & amin(t1 &a, const t2 &b) //assigns smaller of (a, b) to a and returns minim
 		return a;
 	}
 }
+
+template <typename t1, typename t2, typename t3>
+t1 & abetw(t1 &a, const t2 &b, const t3 &c) //makes a to fit the range <b, c>
+{
+	amax(a,b);
+	amin(a,c);
+	return a;
+}
+
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;

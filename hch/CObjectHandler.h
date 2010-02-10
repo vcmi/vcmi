@@ -70,7 +70,7 @@ public:
 	}
 };
 
-class CQuest
+class DLL_EXPORT CQuest
 {
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
@@ -267,7 +267,7 @@ public:
 		}
 	} patrol;
 
-	std::list<HeroBonus> bonuses;
+	BonusList bonuses;
 	//////////////////////////////////////////////////////////////////////////
 
 
@@ -292,9 +292,7 @@ public:
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 
 	//////////////////////////////////////////////////////////////////////////
-	const HeroBonus *getBonus(int from, int id) const;
-	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
-	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const; //determines if hero has a bonus of given type (and optionally subtype)
+
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
@@ -304,6 +302,18 @@ public:
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
+
+	const BonusList *ownerBonuses() const;
+	const HeroBonus *getBonus(int from, int id) const;
+	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
+	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const; //determines if hero has a bonus of given type (and optionally subtype)
+	void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1) const; //out: pairs<modifier value, modifier description>
+	template<int N> void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, const HeroBonus::BonusType (&types)[N]) const //retreive array of types
+	{
+		for (int i = 0; i < N; i++)
+			getModifiersWDescr(out, types[i]);
+	}
+
 	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
 	std::vector<std::pair<int,std::string> > getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
@@ -1076,6 +1086,37 @@ public:
 class DLL_EXPORT CGDenOfthieves : public CGObjectInstance
 {
 	void onHeroVisit (const CGHeroInstance * h) const;
+};
+
+class DLL_EXPORT CGObelisk : public CPlayersVisited
+{
+public:
+	static ui8 obeliskCount; //how many obelisks are on map
+	static std::map<ui8, ui8> visited; //map: color_id => how many obelisks has been visited
+
+	void setPropertyDer (ui8 what, ui32 val);
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
+	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CPlayersVisited&>(*this);;
+	}
+};
+
+class DLL_EXPORT CGLighthouse : public CGObjectInstance
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
+	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);;
+	}
+	void giveBonusTo( ui8 player ) const;
 };
 
 struct BankConfig

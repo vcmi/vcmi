@@ -375,12 +375,13 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			objects.resize(hlp);
 		}
 
-		//static structures
+		//static members
 		h & CGTeleport::objs;
 		h & CGTeleport::gates;
 		h & CGKeys::playerKeyMap;
 		h & CGMagi::eyelist;
 		h & CGPyramid::pyramidConfig;
+		h & CGObelisk::obeliskCount & CGObelisk::visited;
 
 		for(unsigned int i=0; i<objects.size(); i++)
 		{

@@ -301,7 +301,7 @@ void CMapHandler::initObjectRects()
 }
 static void processDef (CGDefInfo* def)
 {
-	if(def->id == 26) //if it's event, return from function
+	if(def->id == EVENTI_TYPE)
 		return;
 
 	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten

@@ -4710,7 +4710,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 	printAtMiddle(CGI->generaltexth->jktexts[14], 164, 220, FONT_MEDIUM, zwykly, bg); //Resource cost:
 }
 
-CPuzzleWindow::CPuzzleWindow()
+CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 :animCount(0)
 {
 	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
@@ -4728,19 +4728,17 @@ CPuzzleWindow::CPuzzleWindow()
 	//printing necessary thinks to background
 	
 	CGI->mh->terrainRect
-		(int3(14, 15, 0), LOCPLINT->adventureInt->anim,
+		(grailPos, LOCPLINT->adventureInt->anim,
 		 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
 		 background, &genRect(544, 591, 8, 8), 0, 0, true);
 
-	
-	float discoveryRatio = 0.5f;
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos[LOCPLINT->serialID].castle;
 
 	std::vector<SPuzzleInfo> puzzlesToPrint;
 
 	for(int g=0; g<PUZZLES_PER_FACTION; ++g)
 	{
-		if(CGI->heroh->puzzleInfo[faction][g].whenUncovered >= PUZZLES_PER_FACTION * discoveryRatio)
+		if(CGI->heroh->puzzleInfo[faction][g].whenUncovered > PUZZLES_PER_FACTION * discoveredRatio)
 		{
 			puzzlesToPrint.push_back(CGI->heroh->puzzleInfo[faction][g]);
 		}

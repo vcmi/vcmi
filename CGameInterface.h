@@ -21,7 +21,7 @@ using namespace boost::logic;
 class CCallback;
 class ICallback;
 class CGlobalAI;
-class Component;
+struct Component;
 class CSelectableComponent;
 struct TryMoveHero;
 class CGHeroInstance;
@@ -91,6 +91,7 @@ public:
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) = 0; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) = 0; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	virtual void showPuzzleMap(){};
 	virtual void tileHidden(const std::set<int3> &pos){};
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
@@ -98,6 +99,7 @@ public:
 	virtual void centerView (int3 pos, int focusTime){};
 	virtual void availableCreaturesChanged(const CGDwelling *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void playerBonusChanged(const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged

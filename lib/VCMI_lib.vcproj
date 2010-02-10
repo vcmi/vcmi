@@ -271,6 +271,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CCampaignHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\CConsoleHandler.cpp"
 				>
 			</File>
@@ -315,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HeroBonus.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\IGameCallback.cpp"
 				>
 			</File>
@@ -354,6 +362,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CBuildingHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CCampaignHandler.h"
 				>
 			</File>
 			<File

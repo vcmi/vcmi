@@ -825,7 +825,7 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to);
 
-	CPuzzleWindow();
+	CPuzzleWindow(const int3 &grailPos, float discoveredRatio);
 	~CPuzzleWindow();
 };
 

@@ -317,7 +317,7 @@ std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibil
 bool CCallback::isVisible(int3 pos, int Player) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->isVisible(pos, Player);
+	return gs->map->isInTheMap(pos) && gs->isVisible(pos, Player);
 }
 
 std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur) const
@@ -903,6 +903,12 @@ void CCallback::recalculatePaths()
 void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/ )
 {
 	gs->calculatePaths(hero, out, src, movement);
+}
+
+int3 CCallback::getGrailPos( float &outKnownRatio )
+{
+	outKnownRatio = (float)CGObelisk::visited[player] / CGObelisk::obeliskCount;
+	return gs->map->grailPos;
 }
 
 InfoAboutTown::InfoAboutTown()

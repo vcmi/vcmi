@@ -856,6 +856,9 @@ void CGameHandler::newTurn()
 				for(std::list<HeroBonus>::iterator  j = h->bonuses.begin(); j != h->bonuses.end(); j++)
 					if(j->type == HeroBonus::GENERATE_RESOURCE)
 						n.res[i->first][j->subtype] += j->val;
+
+				//TODO player bonuses
+
 			}
 		}
 		//n.res.push_back(r);
@@ -1276,7 +1279,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 				{
 					GiveBonus gs;
 					gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::PRIMARY_SKILL, HeroBonus::OBJECT, val, -1, "", i);
-					gs.hid = hero2->id;
+					gs.id = hero2->id;
 					sendAndApply(&gs);
 				}
 			}
@@ -1334,7 +1337,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 				GiveBonus gs;
 				gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::MAGIC_SCHOOL_SKILL, HeroBonus::OBJECT, 3, -1, "", bonusSubtype);
-				gs.hid = cHero->id;
+				gs.id = cHero->id;
 
 				sendAndApply(&gs);
 			}
@@ -1393,7 +1396,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 				GiveBonus gs;
 				gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL, HeroBonus::OBJECT, 1, -1, "", bonusSubtype);
-				gs.hid = cHero->id;
+				gs.id = cHero->id;
 
 				sendAndApply(&gs);
 			}
@@ -1612,7 +1615,13 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			//call objects if they are visited
 
 			if(t.visitableObjects.size())
-				objectVisited(t.visitableObjects.back(), h);
+			{
+				//to prevent self-visiting heroes on space press
+				if(t.visitableObjects.back() != h)
+					objectVisited(t.visitableObjects.back(), h);
+				else if(t.visitableObjects.size() > 1)
+					objectVisited(*(t.visitableObjects.end()-2),h);
+			}
 // 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 // 			{
 // 				objectVisited(obj, h);

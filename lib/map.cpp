@@ -529,6 +529,7 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 	}
 }
 Mapa::Mapa(std::string filename)
+	:grailPos(-1, -1, -1)
 {
 	int mapsize = 0;
 
@@ -1318,7 +1319,7 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 			vinya->visitDir = 0xff;
 		}
 
-		if(vinya->id == 26)
+		if(vinya->id == EVENTI_TYPE)
 			std::memset(vinya->blockMap,255,6);
 
 		//calculating coverageMap
@@ -1353,7 +1354,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 		switch(defInfo->id)
 		{
-		case 26: //for event objects
+		case EVENTI_TYPE: //for event objects
 			{
 				CGEvent *evnt = new CGEvent();
 				nobj = evnt;
@@ -1648,7 +1649,6 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				i+=3;
 				break;
 			}
-		case 42: //lighthouse
 		case 220://mine (?)
 			{
 				nobj = new CGObjectInstance();
@@ -1911,11 +1911,23 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = new CGDenOfthieves();
 				break;
 			}
+		case 57: //Obelisk
+			{
+				nobj = new CGObelisk();
+				break;
+			}
+		case 42: //Lighthouse
+			{
+				nobj = new CGLighthouse();
+				nobj->tempOwner = readNormalNr(bufor,i); i+=4;
+				break;
+			}
 		default: //any other object
 			{
 				nobj = new CGObjectInstance();
 				break;
 			}
+
 		} //end of main switch
 
 		nobj->pos = pos;

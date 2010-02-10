@@ -1,6 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <string>
+#include <list>
 
 /*
  * HeroBonus.h, part of VCMI engine
@@ -75,6 +76,19 @@ struct DLL_EXPORT HeroBonus
 	{
 		subtype = -1;
 	}
+
+// 	//comparison
+// 	bool operator==(const HeroBonus &other)
+// 	{
+// 		return &other == this;
+// 		//TODO: what is best logic for that?
+// 	}
+// 	bool operator<(const HeroBonus &other)
+// 	{
+// 		return &other < this;
+// 		//TODO: what is best logic for that?
+// 	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & duration & type & subtype & source & val & id & description;
@@ -95,5 +109,24 @@ struct DLL_EXPORT HeroBonus
 	static bool IsFrom(const HeroBonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{
 		return hb.source==source && (id==0xffffff  ||  hb.id==id);
+	}
+
+};
+
+static const HeroBonus::BonusType MORALE_AFFECTING[] =  {HeroBonus::LUCK, HeroBonus::MORALE_AND_LUCK};
+static const HeroBonus::BonusType LUCK_AFFECTING[] =  {HeroBonus::MORALE, HeroBonus::MORALE_AND_LUCK};
+typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
+
+class BonusList : public std::list<HeroBonus>
+{
+public:
+	int DLL_EXPORT valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
+	bool DLL_EXPORT hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const;
+	const DLL_EXPORT HeroBonus * getBonus( int from, int id ) const;
+	void DLL_EXPORT getModifiersWDescr( std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1 ) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<std::list<HeroBonus>&>(*this);
 	}
 };

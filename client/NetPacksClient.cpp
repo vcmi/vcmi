@@ -109,9 +109,21 @@ void SetAvailableHeroes::applyCl( CClient *cl )
 
 void GiveBonus::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->getHero(hid);
-	if(vstd::contains(cl->playerint,h->tempOwner))
-		cl->playerint[h->tempOwner]->heroBonusChanged(h,h->bonuses.back(),true);
+	switch(who)
+	{
+	case HERO:
+		{
+			const CGHeroInstance *h = GS(cl)->getHero(id);
+			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, h->bonuses.back(),true);
+		}
+		break;
+	case PLAYER:
+		{
+			const PlayerState *p = GS(cl)->getPlayer(id);
+			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, p->bonuses.back(), true);
+		}
+		break;
+	}
 }
 
 void ChangeObjPos::applyFirstCl( CClient *cl )
@@ -131,6 +143,25 @@ void PlayerEndsGame::applyCl( CClient *cl )
 {
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 		i->second->gameOver(player,	victory);
+}
+
+void RemoveBonus::applyCl( CClient *cl )
+{
+	switch(who)
+	{
+	case HERO:
+		{
+			const CGHeroInstance *h = GS(cl)->getHero(id);
+			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, bonus,false);
+		}
+		break;
+	case PLAYER:
+		{
+			const PlayerState *p = GS(cl)->getPlayer(id);
+			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, bonus, false);
+		}
+		break;
+	}
 }
 
 void RemoveObject::applyFirstCl( CClient *cl )
@@ -633,6 +664,11 @@ void OpenWindow::applyCl(CClient *cl)
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl->getObj(id1);
 			GH.pushInt( new CThievesGuildWindow(obj) );
+		}
+		break;
+	case PUZZLE_MAP:
+		{
+			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);
 		}
 		break;
 	}

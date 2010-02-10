@@ -1,3 +1,42 @@
+0.75 -> 0.8
+GENERAL:
+* Victory and loss conditions are supported. It's now possible to win or lose the game.
+* Kingdom Overview screen is now available.
+* Replaced TTF fonts with original ones.
+
+ADVENTURE MAP:
+* Implemented rivers animations (thx to GrayFace).
+
+HERO:
+* Partial implementation of scholar skill (spell exchange works, but no message).
+
+TOWN:
+* New left-bottom info panel functionalities.
+TOWNS:
+* new town structures supported:
+- Ballista Yard
+- Blood Obelisk
+- Dwarven Treasury
+- Glyphs of Fear
+- Mystic Pond
+- Thieves Guild
+
+OBJECTS:
+New objects supported:
+- Border gate
+- Den of Thieves
+- Lighthouse
+- Obelisk
+- Quest Guard
+- Seer hut
+
+
+
+A lot of of various bugfixes and improvements:
+http://vcmi.antypika.aplus.pl/bugs/view_all_bug_page.php?filter=699
+
+
+
 0.74 -> 0.75 (Dec 01 2009)
 GENERAL:
 * Implemented "main menu" in-game option.

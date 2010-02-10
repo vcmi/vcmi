@@ -230,7 +230,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
-		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
+		if(details.result == TryMoveHero::TELEPORTATION/*	||  details.start == details.end*/)
 		{
 			adventureInt->eraseCurrentPathOf(ho);
 			return; //teleport - no fancy moving animation
@@ -1627,6 +1627,22 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 			showInfoDialog(txt,std::vector<SComponent*>(1, new SComponent(SComponent::flag, player, 0)));
 		}
 	}
+}
+
+void CPlayerInterface::playerBonusChanged( const HeroBonus &bonus, bool gain )
+{
+
+}
+
+void CPlayerInterface::showPuzzleMap()
+{
+	waitWhileDialog();
+
+	//TODO: interface should not know the real position of Grail...
+	float ratio = 0;
+	int3 grailPos = cb->getGrailPos(ratio);
+
+	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
 }
 
 void SystemOptions::setMusicVolume( int newVolume )

@@ -186,16 +186,32 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 
 DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 {
-	CGHeroInstance *h = gs->getHero(hid);
-	h->bonuses.push_back(bonus);
+	BonusList *bonuses = NULL;
+	switch(who)
+	{
+	case HERO:
+		{
+			CGHeroInstance *h = gs->getHero(id);
+			assert(h);
+			bonuses = &h->bonuses;
+		}
+		break;
+	case PLAYER:
+		{
+			PlayerState *p = gs->getPlayer(id);
+			assert(p);
+			bonuses = &p->bonuses;
+		}
+		break;
+	}
 
-
-	std::string &descr = h->bonuses.back().description;
+	bonuses->push_back(bonus);
+	std::string &descr = bonuses->back().description;
 
 	if(!bdescr.message.size() 
 		&& bonus.source == HeroBonus::OBJECT 
 		&& (bonus.type == HeroBonus::LUCK || bonus.type == HeroBonus::MORALE || bonus.type == HeroBonus::MORALE_AND_LUCK)
-		&& gs->map->objects[bonus.id]->ID == 26) //it's morale/luck bonus from an event without description
+		&& gs->map->objects[bonus.id]->ID == EVENTI_TYPE) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
@@ -223,6 +239,21 @@ DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
 {
 	PlayerState *p = gs->getPlayer(player);
 	p->status = victory ? 2 : 1;
+}
+
+DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
+{
+	std::list<HeroBonus> &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
+
+	for(std::list<HeroBonus>::iterator i = bonuses.begin(); i != bonuses.end(); i++)
+	{
+		if(i->source == source && i->id == id)
+		{
+			bonus = *i; //backup bonus (to show to interfaces later)
+			bonuses.erase(i);
+			break;
+		}
+	}
 }
 
 DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
@@ -588,6 +619,10 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 			i->second.daysWithoutCastle = 0;
 		else
 			i->second.daysWithoutCastle++;
+
+		i->second.bonuses.remove_if(HeroBonus::OneDay);
+		if(gs->getDate(1) == 7) //new week
+			i->second.bonuses.remove_if(HeroBonus::OneWeek);
 	}
 }
 

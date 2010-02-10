@@ -2060,7 +2060,7 @@ CAdventureOptions::CAdventureOptions()
 	//viewWorld = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
 	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");;
-	puzzle->callback += CAdventureOptions::showPuzzleMap;
+	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 }
 
 CAdventureOptions::~CAdventureOptions()
@@ -2070,9 +2070,4 @@ CAdventureOptions::~CAdventureOptions()
 void CAdventureOptions::showScenarioInfo()
 {
 	GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
-}
-
-void CAdventureOptions::showPuzzleMap()
-{
-	GH.pushInt(new CPuzzleWindow());
 }

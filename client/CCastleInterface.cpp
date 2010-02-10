@@ -1169,6 +1169,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 			ch = ci->town->visitingHero;
 		};
 
+		//TODO player bonuses
+
 		if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
 			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][26]->Name()+" %+d",descr,summ/2);
 

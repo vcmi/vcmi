@@ -60,6 +60,8 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGObjectInstance>();
 	s.template registerType<COPWBonus>();
 	s.template registerType<CGDenOfthieves>();
+	s.template registerType<CGObelisk>();
+	s.template registerType<CGLighthouse>();
 }
 
 template<typename Serializer> DLL_EXPORT 
@@ -82,6 +84,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<GiveBonus>();
 	s.template registerType<ChangeObjPos>();
 	s.template registerType<PlayerEndsGame>();
+	s.template registerType<RemoveBonus>();
 	s.template registerType<RemoveObject>();
 	s.template registerType<TryMoveHero>();
 	s.template registerType<SetGarrisons>();

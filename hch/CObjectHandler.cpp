@@ -44,6 +44,9 @@ extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
 BankConfig CGPyramid::pyramidConfig;
+ui8 CGObelisk::obeliskCount; //how many obelisks are on map
+std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
+
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -429,7 +432,7 @@ void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = HeroBonus::NONE;
-	gbonus.hid = heroID;
+	gbonus.id = heroID;
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = HeroBonus::OBJECT;
 	gbonus.bonus.id = ID;
@@ -563,10 +566,8 @@ bool CGHeroInstance::canWalkOnSea() const
 int CGHeroInstance::getPrimSkillLevel(int id) const
 {
 	int ret = primSkills[id];
-	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == HeroBonus::PRIMARY_SKILL && i->subtype==id)
-			ret += i->val;
-	amax(ret, id/2);//minimum value for attack and defense is 0 and for spell power and knowledge - 1
+	ret += valOfBonuses(HeroBonus::PRIMARY_SKILL, id);
+	amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	return ret;
 }
 ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
@@ -578,13 +579,21 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	static const int moveForSpeed[] = { 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 }; //first element for 3 and lower; last for 11 and more
-	int index = lowestSpeed(this) - 3;
-	amin(index, ARRAY_COUNT(moveForSpeed)-1);
-	amax(index, 0);
-
-	int ret = moveForSpeed[index],
-		bonus = valOfBonuses(HeroBonus::MOVEMENT) + (onLand ? valOfBonuses(HeroBonus::LAND_MOVEMENT) : valOfBonuses(HeroBonus::SEA_MOVEMENT));
+	int base = -1;
+	if(onLand)
+	{
+		static const int moveForSpeed[] = { 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 }; //first element for 3 and lower; last for 11 and more
+		int index = lowestSpeed(this) - 3;
+		amin(index, ARRAY_COUNT(moveForSpeed)-1);
+		amax(index, 0);
+		base = moveForSpeed[index];
+	}
+	else
+	{
+		base = 1500; //on water base movement is always 1500 (speed of army doesn't matter)
+	}
+	
+	int bonus = valOfBonuses(HeroBonus::MOVEMENT) + (onLand ? valOfBonuses(HeroBonus::LAND_MOVEMENT) : valOfBonuses(HeroBonus::SEA_MOVEMENT));
 
 	double modifier = 0;
 	if(onLand)
@@ -619,7 +628,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 			break;
 		}
 	}
-	return int(ret + ret*modifier) + bonus;
+	return int(base + base*modifier) + bonus;
 }
 
 ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
@@ -879,15 +888,7 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 {
 	//TODO: check if stack is undead/mechanic/elemental => always neutrl morale
 	std::vector<std::pair<int,std::string> > ret;
-
-	//various morale bonuses (from buildings, artifacts, etc)
-	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-	{
-		if(i->type == HeroBonus::MORALE   ||   i->type == HeroBonus::MORALE_AND_LUCK)
-		{
-			ret.push_back(std::make_pair(i->val, i->description));
-		}
-	}
+	getModifiersWDescr(ret, MORALE_AFFECTING);
 
 	//leadership
 	if(getSecSkillLevel(6)) 
@@ -961,42 +962,29 @@ int CGHeroInstance::getCurrentLuck( int stack/*=-1*/, bool town/*=false*/ ) cons
 	std::vector<std::pair<int,std::string> > mods = getCurrentLuckModifiers(stack,town);
 	for(int i=0; i < mods.size(); i++)
 		ret += mods[i].first;
-	if(ret > 3)
-		return 3;
-	if(ret < -3)
-		return -3;
+
+	abetw(ret, -3, 3);
 	return ret;
 }
 
 std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentLuckModifiers( int stack/*=-1*/, bool town/*=false*/ ) const
 {
 	std::vector<std::pair<int,std::string> > ret;
-
-	//various morale bonuses (from buildings, artifacts, etc)
-	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == HeroBonus::LUCK   ||   i->type == HeroBonus::MORALE_AND_LUCK)
-			ret.push_back(std::make_pair(i->val, i->description));
+	getModifiersWDescr(ret, LUCK_AFFECTING);
 
 	//luck skill
 	if(getSecSkillLevel(9)) 
 		ret.push_back(std::make_pair(getSecSkillLevel(9),VLC->generaltexth->arraytxt[73+getSecSkillLevel(9)]));
 
-	if(visitedTown)
-	{
-		if(visitedTown->subID == 1  &&  vstd::contains(visitedTown->builtBuildings,21)) //castle, brotherhood of sword built
-			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[1][21].first + " +2"));
-	}
-
-
+	if(visitedTown && visitedTown->subID == 1  &&  vstd::contains(visitedTown->builtBuildings,21)) //rampart, fountain of fortune
+		ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[1][21].first + " +2"));
+	
 	return ret;
 }
 
 const HeroBonus * CGHeroInstance::getBonus( int from, int id ) const
 {
-	for (std::list<HeroBonus>::const_iterator i=bonuses.begin(); i!=bonuses.end(); i++)
-		if(i->source == from  &&  i->id == id)
-			return &*i;
-	return NULL;
+	return bonuses.getBonus(from, id);
 }
 
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
@@ -1048,25 +1036,15 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	if(!getArt(17)) //if hero has no spellbook
 		return false;
 
-	if(vstd::contains(spells, spell->id) //hero does not have this spell in spellbook
+	if(vstd::contains(spells, spell->id) //hero has this spell in spellbook
 		|| (spell->air && hasBonusOfType(HeroBonus::AIR_SPELLS)) // this is air spell and hero can cast all air spells
 		|| (spell->fire && hasBonusOfType(HeroBonus::FIRE_SPELLS)) // this is fire spell and hero can cast all fire spells
 		|| (spell->water && hasBonusOfType(HeroBonus::WATER_SPELLS)) // this is water spell and hero can cast all water spells
 		|| (spell->earth && hasBonusOfType(HeroBonus::EARTH_SPELLS)) // this is earth spell and hero can cast all earth spells
+		|| hasBonusOfType(HeroBonus::SPELL, spell->id)
+		|| hasBonusOfType(HeroBonus::SPELLS_OF_LEVEL, spell->level)
 		)
 		return true;
-
-	for(std::list<HeroBonus>::const_iterator it = bonuses.begin(); it != bonuses.end(); ++it)
-	{
-		if(it->type == HeroBonus::SPELL && it->subtype == spell->id)
-		{
-			return true;
-		}
-		if(it->type == HeroBonus::SPELLS_OF_LEVEL && it->subtype == spell->level)
-		{
-			return true;
-		}
-	}
 
 	return false;
 }
@@ -1165,40 +1143,15 @@ si32 CGHeroInstance::manaRegain() const
 
 int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type, int subtype /*= -1*/ ) const
 {
-	int ret = 0;
-	if(subtype == -1)
-	{
-		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-			if(i->type == type)
-				ret += i->val;
-	}
-	else
-	{
-		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-			if(i->type == type && i->subtype == subtype)
-				ret += i->val;
-	}
-	return ret;
+	return bonuses.valOfBonuses(type, subtype) + ownerBonuses()->valOfBonuses(type, subtype);
 }
 
 bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -1*/) const
 {
 	if(!this) //to allow calls on NULL and avoid checking duplication
 		return false; //if hero doesn't exist then bonus neither can
-
-	if(subtype == -1) //any subtype
-	{
-		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-			if(i->type == type)
-				return true;
-	}
-	else //given subtype
-	{
-		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-			if(i->type == type && i->subtype == subtype)
-				return true;
-	}
-	return false;
+	else
+		return bonuses.hasBonusOfType(type, subtype) || ownerBonuses()->hasBonusOfType(type, subtype);
 }
 
 si32 CGHeroInstance::getArtPos(int aid) const
@@ -1250,6 +1203,21 @@ bool CGHeroInstance::hasArt( ui32 aid ) const
 			return true;
 
 	return false;
+}
+
+void CGHeroInstance::getModifiersWDescr( std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype /*= -1*/ ) const
+{
+	bonuses.getModifiersWDescr(out, type, subtype);
+	ownerBonuses()->getModifiersWDescr(out, type, subtype);
+}
+
+const BonusList * CGHeroInstance::ownerBonuses() const
+{
+	const PlayerState *p = cb->getPlayerState(tempOwner);
+	if(!p)
+		return NULL;
+	else
+		return &p->bonuses;
 }
 
 void CGDwelling::initObj()
@@ -2166,7 +2134,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				{
 					GiveBonus gb;
 					gb.bonus = HeroBonus(HeroBonus::ONE_WEEK, HeroBonus::LAND_MOVEMENT, HeroBonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
-					gb.hid = heroID;
+					gb.id = heroID;
 					cb->giveHeroBonus(&gb);
 					iw.text << VLC->generaltexth->allTexts[580];
 					cb->showInfoDialog(&iw);
@@ -3632,7 +3600,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			HeroBonus hb(HeroBonus::ONE_WEEK, (rewardType == 3 ? HeroBonus::MORALE : HeroBonus::LUCK),
 				HeroBonus::OBJECT, rVal, h->id, "", -1);
 			GiveBonus gb;
-			gb.hid = h->id;
+			gb.id = h->id;
 			gb.bonus = hb;
 			//gb.descr = "";
 			cb->giveHeroBonus(&gb);
@@ -3752,7 +3720,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.player = h->tempOwner;
 	GiveBonus gbonus;
-	gbonus.hid = h->id;
+	gbonus.id = h->id;
 	gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
 	gbonus.bonus.source = HeroBonus::OBJECT;
 	gbonus.bonus.id = ID;
@@ -4121,7 +4089,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,moraleDiff,id,"");
-		gb.hid = h->id;
+		gb.id = h->id;
 		cb->giveHeroBonus(&gb);
 	}
 
@@ -4132,7 +4100,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,luckDiff,id,"");
-		gb.hid = h->id;
+		gb.id = h->id;
 		cb->giveHeroBonus(&gb);
 	}
 
@@ -4688,7 +4656,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 		{
 			//ruin morale 
 			GiveBonus gb;
-			gb.hid = h->id;
+			gb.id = h->id;
 			gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,-3,id,"");
 			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
 			cb->giveHeroBonus(&gb);
@@ -4912,7 +4880,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				{
 					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
 					GiveBonus gbonus;
-					gbonus.hid = h->id;
+					gbonus.id = h->id;
 					gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
 					gbonus.bonus.source = HeroBonus::OBJECT;
 					gbonus.bonus.id = ID;
@@ -4931,7 +4899,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				{
 					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
 					GiveBonus gbonus;
-					gbonus.hid = h->id;
+					gbonus.id = h->id;
 					gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
 					gbonus.bonus.source = HeroBonus::OBJECT;
 					gbonus.bonus.id = ID;
@@ -5077,7 +5045,7 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 		iw.components.push_back (Component (Component::LUCK, 0 , -2, 0));
 		GiveBonus gb;
 		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,-2,id,VLC->generaltexth->arraytxt[70]);
-		gb.hid = h->id;
+		gb.id = h->id;
 		cb->giveHeroBonus(&gb);
 		cb->showInfoDialog(&iw);
 	}
@@ -5569,4 +5537,114 @@ void CGRefugeeCamp::reset(ui32 val)
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
 	cb->showThievesGuildWindow(id);
+}
+
+void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
+{
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	
+	if(!hasVisited(h->tempOwner))
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
+		cb->sendAndApply(&iw);
+
+		cb->setObjProperty(id,20,h->tempOwner); //increment general visited obelisks counter
+
+		OpenWindow ow;
+		ow.id1 = h->tempOwner;
+		ow.window = OpenWindow::PUZZLE_MAP;
+		cb->sendAndApply(&ow);
+
+		cb->setObjProperty(id,10,h->tempOwner); //mark that particular obelisk as visited
+	}
+	else
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT, 97);
+		cb->sendAndApply(&iw);
+	}
+
+}
+
+void CGObelisk::initObj()
+{
+	obeliskCount++;
+}
+
+const std::string & CGObelisk::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if(hasVisited(cb->getCurrentPlayer()))
+		hoverName += " " + VLC->generaltexth->allTexts[352]; //not visited
+	else
+		hoverName += " " + VLC->generaltexth->allTexts[353]; //visited
+	return hoverName;
+}
+
+void CGObelisk::setPropertyDer( ui8 what, ui32 val )
+{
+	CPlayersVisited::setPropertyDer(what, val);
+	switch(what)
+	{
+	case 20:
+		assert(val < PLAYER_LIMIT);
+		visited[val]++;
+		assert(visited[val] <= obeliskCount);
+		break;
+	}
+}
+
+void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(h->tempOwner != tempOwner)
+	{
+		ui8 oldOwner = tempOwner;
+		cb->setOwner(id,h->tempOwner); //not ours? flag it!
+
+
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text.addTxt(MetaString::ADVOB_TXT, 69);
+		iw.soundID = soundBase::LIGHTHOUSE;
+		cb->sendAndApply(&iw);
+
+		giveBonusTo(h->tempOwner);
+
+		if(oldOwner < PLAYER_LIMIT) //remove bonus from old owner
+		{
+			RemoveBonus rb(RemoveBonus::PLAYER);
+			rb.whoID = oldOwner;
+			rb.source = HeroBonus::OBJECT;
+			rb.id = id;
+			cb->sendAndApply(&rb);
+		}
+	}
+}
+
+void CGLighthouse::initObj()
+{
+	if(tempOwner < PLAYER_LIMIT)
+	{
+		giveBonusTo(tempOwner);
+	}
+}
+
+const std::string & CGLighthouse::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	//TODO: owned by %s player
+	return hoverName;
+}
+
+void CGLighthouse::giveBonusTo( ui8 player ) const
+{
+	GiveBonus gb(GiveBonus::PLAYER);
+	gb.bonus.type = HeroBonus::SEA_MOVEMENT;
+	gb.bonus.val = 500;
+	gb.id = player;
+	gb.bonus.duration = HeroBonus::PERMANENT;
+	gb.bonus.source = HeroBonus::OBJECT;
+	gb.bonus.id = id;
+	cb->sendAndApply(&gb);
+
 }
