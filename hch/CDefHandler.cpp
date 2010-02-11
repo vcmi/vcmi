@@ -97,7 +97,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		SDefEntryBlock &block = * reinterpret_cast<SDefEntryBlock *>(p);
 		unsigned int totalInBlock;
 
-		totalInBlock = SDL_SwapLE32(block.totalInBlock);
+		totalInBlock = SDL_SwapLE32(read_unaligned_u32(&block.totalInBlock));
 
 		for (unsigned int j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 			SEntries.push_back(SEntry());
@@ -113,8 +113,8 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		}
 		for (unsigned int j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = SDL_SwapLE32(* reinterpret_cast<Uint32 *>(p));
-            p += 4;
+			SEntries[totalEntries+j].offset = SDL_SwapLE32(read_unaligned_u32(p));
+			p += 4;
 		}
 		//totalEntries+=totalInBlock;
 		for(unsigned int hh=0; hh<totalInBlock; ++hh)
@@ -239,7 +239,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor+RWEntriesLoc[i];
+			BaseOffset=BaseOffsetor + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 
@@ -283,7 +283,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 
 	case 2:
 	{
-		BaseOffset = BaseOffsetor + *reinterpret_cast<const unsigned short*>( FDef + BaseOffsetor ); //was + RWEntries[0];
+		BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor));
+
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
@@ -326,7 +327,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	{
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset = BaseOffsetor + *(unsigned short*)( FDef + BaseOffsetor+i*2*(SpriteWidth/32) ); //was + RWEntries[i] before speedup
+			BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32)));
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 
