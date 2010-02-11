@@ -3138,72 +3138,72 @@ bool CGameState::checkForStandardLoss( ui8 player ) const
 	return !p.heroes.size() && !p.towns.size();
 }
 
+struct statsHLP
+{
+	typedef std::pair< ui8, si64 > TStat;
+	//converts [<player's color, value>] to vec[place] -> platers
+	static std::vector< std::list< ui8 > > getRank( std::vector<TStat> stats )
+	{
+		std::sort(stats.begin(), stats.end(), statsHLP());
+
+		//put first element
+		std::vector< std::list<ui8> > ret;
+		std::list<ui8> tmp;
+		tmp.push_back( stats[0].first );
+		ret.push_back( tmp );
+
+		//the rest of elements
+		for(int g=1; g<stats.size(); ++g)
+		{
+			if(stats[g].second == stats[g-1].second)
+			{
+				(ret.end()-1)->push_back( stats[g].first );
+			}
+			else
+			{
+				//create next occupied rank
+				std::list<ui8> tmp;
+				tmp.push_back(stats[g].first);
+				ret.push_back(tmp);
+			}
+		}
+
+		return ret;
+	}
+
+	bool operator()(const TStat & a, const TStat & b) const
+	{
+		return a.second > b.second;
+	}
+
+	static const CGHeroInstance * findBestHero(CGameState * gs, int color)
+	{
+		//best hero will be that with highest exp
+		int best = 0;
+		for(int b=1; b<gs->players[color].heroes.size(); ++b)
+		{
+			if(gs->players[color].heroes[b]->exp > gs->players[color].heroes[best]->exp)
+			{
+				best = b;
+			}
+		}
+		return gs->players[color].heroes[best];
+	}
+
+	//calculates total number of artifacts that belong to given player
+	static int getNumberOfArts(const PlayerState * ps)
+	{
+		int ret = 0;
+		for(int g=0; g<ps->heroes.size(); ++g)
+		{
+			ret += ps->heroes[g]->artifacts.size() + ps->heroes[g]->artifWorn.size();
+		}
+		return ret;
+	}
+};
+
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 {
-	struct HLP
-	{
-		typedef std::pair< ui8, si64 > TStat;
-		//converts [<player's color, value>] to vec[place] -> platers
-		static std::vector< std::list< ui8 > > getRank( std::vector<TStat> stats )
-		{
-			std::sort(stats.begin(), stats.end(), HLP());
-
-			//put first element
-			std::vector< std::list<ui8> > ret;
-			std::list<ui8> tmp;
-			tmp.push_back( stats[0].first );
-			ret.push_back( tmp );
-
-			//the rest of elements
-			for(int g=1; g<stats.size(); ++g)
-			{
-				if(stats[g].second == stats[g-1].second)
-				{
-					(ret.end()-1)->push_back( stats[g].first );
-				}
-				else
-				{
-					//create next occupied rank
-					std::list<ui8> tmp;
-					tmp.push_back(stats[g].first);
-					ret.push_back(tmp);
-				}
-			}
-
-			return ret;
-		}
-
-		bool operator()(const TStat & a, const TStat & b) const
-		{
-			return a.second > b.second;
-		}
-
-		static const CGHeroInstance * findBestHero(CGameState * gs, int color)
-		{
-			//best hero will be that with highest exp
-			int best = 0;
-			for(int b=1; b<gs->players[color].heroes.size(); ++b)
-			{
-				if(gs->players[color].heroes[b]->exp > gs->players[color].heroes[best]->exp)
-				{
-					best = b;
-				}
-			}
-			return gs->players[color].heroes[best];
-		}
-
-		//calculates total number of artifacts that belong to given player
-		static int getNumberOfArts(const PlayerState * ps)
-		{
-			int ret = 0;
-			for(int g=0; g<ps->heroes.size(); ++g)
-			{
-				ret += ps->heroes[g]->artifacts.size() + ps->heroes[g]->artifWorn.size();
-			}
-			return ret;
-		}
-	};
-
 #define FILL_FIELD(FIELD, VAL_GETTER) \
 	{ \
 		std::vector< std::pair< ui8, si64 > > stats; \
@@ -3216,7 +3216,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			stat.second = VAL_GETTER; \
 			stats.push_back(stat); \
 		} \
-		tgi.FIELD = HLP::getRank(stats); \
+		tgi.FIELD = statsHLP::getRank(stats); \
 	}
 
 	for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
@@ -3236,7 +3236,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			if(g->second.color == 255)
 				continue;
-			const CGHeroInstance * best = HLP::findBestHero(this, g->second.color);
+			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
 			iah.initFromHero(best, level >= 8);
 			iah.army.slots.clear();
@@ -3261,7 +3261,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 5) //artifacts
 	{
-		FILL_FIELD(artifacts, HLP::getNumberOfArts(&g->second))
+		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(&g->second))
 	}
 	if(level >= 6) //army strength
 	{
