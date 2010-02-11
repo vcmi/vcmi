@@ -106,7 +106,11 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[2] = new AdventureMapButton("", "", 0 /*cb*/, 486, 241, "ZSSARM.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", "", 0 /*cb*/, 550, 358, "ZSSCUS.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
-			(new CCampaignHandler())->getCampaignHeaders(); //just for testing
+
+			////just for testing
+			CCampaignHandler * ch = new CCampaignHandler();
+			ch->getCampaignHeaders(); 
+			//ch->getCampaign("./Maps/1 Test cmpgn.h3c");
 		}
 		break;
 	}

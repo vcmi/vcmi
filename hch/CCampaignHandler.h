@@ -30,12 +30,94 @@ public:
 	}
 };
 
+class DLL_EXPORT CScenarioTravel
+{
+public:
+	ui8 whatHeroKeeps; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
+	ui8 monstersKeptByHero[19];
+	ui8 artifsKeptByHero[18];
+
+	ui8 startOptions; //1 - start bonus, 2 - traveling hero, 3 - hero options
+
+	ui8 playerColor; //only for startOptions == 1
+
+	struct DLL_EXPORT STravelBonus
+	{
+		ui8 type;	//0 - spell, 1 - monster, 2 - building, 3 - artifact, 4 - spell scroll, 5 - prim skill, 6 - sec skill, 7 - resource,
+					//8 - player from previous scenario, 9 - hero [???]
+		si32 info1, info2, info3; //purpose depends on type
+
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & type & info1 & info2 & info3;
+		}
+	};
+
+	std::vector<STravelBonus> bonusesToChoose;
+
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & whatHeroKeeps & monstersKeptByHero & artifsKeptByHero & startOptions & playerColor & bonusesToChoose;
+	}
+
+};
+
+class DLL_EXPORT CCampaignScenario
+{
+public:
+	std::string mapName;
+	ui32 packedMapSize;
+	ui8 preconditionRegion;
+	ui8 regionColor;
+	ui8 difficulty;
+
+	std::string regionText;
+
+	struct DLL_EXPORT SScenarioPrologEpilog
+	{
+		ui8 hasPrologEpilog;
+		ui8 prologVideo; // from CmpMovie.txt
+		ui8 prologMusic; // from CmpMusic.txt
+		std::string prologText;
+
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & hasPrologEpilog & prologVideo & prologMusic & prologText;
+		}
+	};
+
+	SScenarioPrologEpilog prolog, epilog;
+
+	CScenarioTravel travelOptions;
+
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & regionText & prolog & epilog & travelOptions;
+	}
+};
+
+class DLL_EXPORT CCampaign
+{
+public:
+	CCampaignHeader header;
+	std::vector<CCampaignScenario> scenarios;
+
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & header & scenarios;
+	}
+};
 
 class DLL_EXPORT CCampaignHandler
 {
+	CCampaignHeader readHeaderFromMemory( const unsigned char *buffer, int & outIt );
+	CCampaignScenario readScenarioFromMemory( const unsigned char *buffer, int & outIt );
+	CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt );
 	CCampaignHeader getHeader( const std::string & name, int size );
 public:
 	std::vector<CCampaignHeader> getCampaignHeaders();
+
+	CCampaign * getCampaign(const std::string & name);
 };
 
 
