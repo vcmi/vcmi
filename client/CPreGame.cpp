@@ -1477,7 +1477,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		break;
 	case HERO: 
 		val = s.hero; 
-		if(val < 0)
+		if(val == -2) //none => we may have some preset info
 		{
 			int p9 = curMap->players[s.color].p9;
 			if(p9 != 255  &&  curOpts->playerInfos[player].heroPortrait >= 0)
@@ -1603,6 +1603,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		//print specialty
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[78], 166, 132, FONT_MEDIUM, tytulowy, bmp);
 		blitAt(graphics->un44->ourImages[val].bitmap, 140, 150, bmp);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->hTxts[val].bonusName, 166, 203, FONT_SMALL, zwykly, bmp);
 
 		GH.pushInt(new CInfoPopup(bmp, true));
 		return;
