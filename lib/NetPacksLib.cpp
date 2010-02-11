@@ -259,6 +259,12 @@ DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[id];
+	//unblock tiles
+	if(obj->defInfo)
+	{
+		gs->map->removeBlockVisTiles(obj);
+	}
+
 	if(obj->ID==HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
@@ -285,13 +291,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		CGCreature *cre = static_cast<CGCreature*>(obj);
 		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
 	}
-	gs->map->objects[id] = NULL;	
-
-	//unblock tiles
-	if(obj->defInfo)
-	{
-		gs->map->removeBlockVisTiles(obj);
-	}
+	gs->map->objects[id] = NULL;
 }
 
 static int getDir(int3 src, int3 dst)
