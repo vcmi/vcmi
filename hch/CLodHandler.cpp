@@ -276,7 +276,7 @@ std::string CLodHandler::getTextFile(std::string name)
 	unsigned char* data = giveFile(name,&length);
 
 	if (!data) {
-		tlog1<<"Fatal error. Missing game file. Aborting!"<<std::endl;
+		tlog1<<"Fatal error. Missing game file: " << name << ". Aborting!"<<std::endl;
 		exit(1);
 	}
 

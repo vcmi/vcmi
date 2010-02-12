@@ -2,9 +2,6 @@
 #define __VCMI_LIB_H__
 #include "../global.h"
 
-#include "../hch/CArtHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-
 /*
  * VCMI_Lib.h, part of VCMI engine
  *
@@ -49,15 +46,15 @@ public:
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
 	void makeNull(); //sets all handler (except of lodhs) pointers to null
+	
 
+	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh;
 		if(!h.saving)
 		{
-			generaltexth = new CGeneralTextHandler;
-			generaltexth->load();
-			arth->loadArtifacts(true);
+			callWhenDeserializing();
 		}
 	}
 };
@@ -65,8 +62,8 @@ public:
 extern DLL_EXPORT LibClasses * VLC;
 extern DLL_EXPORT CLodHandler * bitmaph, *spriteh;
 
-DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
-DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode);
+DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
+DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode);
 DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile);
 
 

@@ -18,7 +18,7 @@
  *
  */
 
-std::string readTo(std::string &in, int &it, char end)
+std::string readTo(const std::string &in, int &it, char end)
 {
 	int pom = it;
 	int last = in.find_first_of(end,it);
@@ -470,7 +470,7 @@ void CGeneralTextHandler::load()
 		quests[i].resize(5);
 		for (j = 0; j < 5; ++j)
 		{
-			loadToIt (dump, buf, it, 4); //front desciption
+			loadToIt (dump, buf, it, 4); //front description
 			quests[i][j].resize(6);
 			for (k = 0; k < 5; ++k)
 			{
@@ -500,10 +500,41 @@ void CGeneralTextHandler::load()
 	
 	for (i = 14; i < 48; ++i)
 		loadToIt(seerNames[i], buf, it, 3);
+
+	//campaigns
+	buf = bitmaph->getTextFile ("CAMPTEXT.TXT");
+	it = 0;
+	loadToIt (dump, buf, it, 3); //comment
+	std::string nameBuf;
+	do //map names
+	{
+		loadToIt(nameBuf, buf, it, 3);
+		if(nameBuf.size())
+		{
+			campaignMapNames.push_back(nameBuf);
+		}
+	} while (nameBuf.size());
+
+	campaignRegionNames.resize(campaignMapNames.size()); //allocating space
+	for(int g=0; g<campaignMapNames.size(); ++g) //region names
+	{
+		do //dump comments and empty lines
+		{
+			loadToIt(nameBuf, buf, it, 3);
+		} while (nameBuf[0] != '/');
+		do //actual names
+		{
+			loadToIt(nameBuf, buf, it, 3);
+			if(nameBuf.size())
+			{
+				campaignRegionNames[g].push_back(nameBuf);
+			}
+		} while (nameBuf.size());
+	}
 }
 
 
-std::string CGeneralTextHandler::getTitle(std::string text)
+std::string CGeneralTextHandler::getTitle(const std::string & text)
 {
 	std::string ret;
 	int i=0;
@@ -512,7 +543,8 @@ std::string CGeneralTextHandler::getTitle(std::string text)
 		ret+=text[i++];
 	return ret;
 }
-std::string CGeneralTextHandler::getDescr(std::string text)
+
+std::string CGeneralTextHandler::getDescr(const std::string & text)
 {
 	std::string ret;
 	int i=0;

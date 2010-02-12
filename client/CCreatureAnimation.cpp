@@ -45,11 +45,11 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	char Buffer[13];
 	defName=name;
 	i = 0;
-	DEFType = readNormalNr(i,4); i+=4;
-	fullWidth = readNormalNr(i,4); i+=4;
-	fullHeight = readNormalNr(i,4); i+=4;
+	DEFType = readNormalNr<4>(i,FDef); i+=4;
+	fullWidth = readNormalNr<4>(i,FDef); i+=4;
+	fullHeight = readNormalNr<4>(i,FDef); i+=4;
 	i=0xc;
-	totalBlocks = readNormalNr(i,4); i+=4;
+	totalBlocks = readNormalNr<4>(i,FDef); i+=4;
 
 	i=0x10;
 	for (int it=0;it<256;it++)
@@ -64,20 +64,20 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	for (int z=0; z<totalBlocks; z++)
 	{
 		std::vector<int> frameIDs;
-		int group = readNormalNr(i,4); i+=4; //block ID
-		totalInBlock = readNormalNr(i,4); i+=4;
+		int group = readNormalNr<4>(i,FDef); i+=4; //block ID
+		totalInBlock = readNormalNr<4>(i,FDef); i+=4;
 		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 		{
 			SEntries.push_back(SEntry());
 			SEntries[j].group = group;
 			frameIDs.push_back(j);
 		}
-		int unknown2 = readNormalNr(i,4); i+=4; //TODO use me
-		int unknown3 = readNormalNr(i,4); i+=4; //TODO use me
+		int unknown2 = readNormalNr<4>(i,FDef); i+=4; //TODO use me
+		int unknown3 = readNormalNr<4>(i,FDef); i+=4; //TODO use me
 		i+=13*totalInBlock; //ommiting names
 		for (j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = readNormalNr(i,4); i+=4;
+			SEntries[totalEntries+j].offset = readNormalNr<4>(i,FDef); i+=4;
 		}
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
@@ -93,32 +93,11 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	frames = totalEntries;
 }
 
-int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str) const
-{
-	int ret=0;
-	int amp=1;
-	if (str)
-	{
-		for (int i=0; i<bytCon; i++)
-		{
-			ret+=str[pos+i]*amp;
-			amp<<=8; //amp*=256;
-		}
-	}
-	else 
-	{
-		for (int i=0; i<bytCon; i++)
-		{
-			ret+=FDef[pos+i]*amp;
-			amp<<=8; //amp*=256;
-		}
-	}
-	return ret;
-}
 int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
 {
 	return nextFrame(dest, x-fullWidth/2, y-fullHeight/2, attacker, animCount, incrementFrame, yellowBorder, blueBorder, destRect);
 }
+
 void CCreatureAnimation::incrementFrame()
 {
 	if(type!=-1) //when a specific part of animation is played
@@ -190,14 +169,14 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	unsigned char SegmentType, SegmentLength;
 	
 	i=BaseOffset=SEntries[SIndex].offset;
-	int prSize=readNormalNr(i,4,FDef);i+=4;//TODO use me
-	int defType2 = readNormalNr(i,4,FDef);i+=4;
-	FullWidth = readNormalNr(i,4,FDef);i+=4;
-	FullHeight = readNormalNr(i,4,FDef);i+=4;
-	SpriteWidth = readNormalNr(i,4,FDef);i+=4;
-	SpriteHeight = readNormalNr(i,4,FDef);i+=4;
-	LeftMargin = readNormalNr(i,4,FDef);i+=4;
-	TopMargin = readNormalNr(i,4,FDef);i+=4;
+	int prSize=readNormalNr<4>(i,FDef);i+=4;//TODO use me
+	int defType2 = readNormalNr<4>(i,FDef);i+=4;
+	FullWidth = readNormalNr<4>(i,FDef);i+=4;
+	FullHeight = readNormalNr<4>(i,FDef);i+=4;
+	SpriteWidth = readNormalNr<4>(i,FDef);i+=4;
+	SpriteHeight = readNormalNr<4>(i,FDef);i+=4;
+	LeftMargin = readNormalNr<4>(i,FDef);i+=4;
+	TopMargin = readNormalNr<4>(i,FDef);i+=4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
@@ -205,7 +184,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 
 	int ftcp = 0;
 
-	if (defType2==1) //as it should be allways in creature animations
+	if (defType2==1) //as it should be always in creature animations
 	{
 		if (TopMargin>0)
 		{

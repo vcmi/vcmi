@@ -7,7 +7,7 @@
 #include <iomanip>
 
 extern CLodHandler * bitmaph;
-void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 
 /*
  * CHeroHandler.cpp, part of VCMI engine

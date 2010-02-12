@@ -5,6 +5,7 @@
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CondSh.h"

@@ -14,8 +14,8 @@
  *
  */
 
-DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
-std::string readTo(std::string &in, int &it, char end);
+DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
+std::string readTo(const std::string &in, int &it, char end);
 class DLL_EXPORT CGeneralTextHandler //Handles general texts
 {
 public:
@@ -73,8 +73,12 @@ public:
 	std::vector <std::vector <std::string> > skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
 	std::vector<std::string> levels;
 
-	std::string getTitle(std::string text);
-	std::string getDescr(std::string text);
+	//campaigns
+	std::vector <std::string> campaignMapNames;
+	std::vector < std::vector <std::string> > campaignRegionNames;
+
+	std::string getTitle(const std::string & text);
+	std::string getDescr(const std::string & text);
 
 	void load();
 	CGeneralTextHandler();

@@ -7,6 +7,7 @@
 #include <zlib.h>
 #include <boost/crc.hpp>
 #include "../hch/CLodHandler.h"
+#include "../hch/CArtHandler.h"
 #include <boost/bind.hpp>
 #include <assert.h>
 

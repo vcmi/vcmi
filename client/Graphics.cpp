@@ -17,6 +17,7 @@
 #include "../CCallback.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;

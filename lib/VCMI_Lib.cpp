@@ -48,7 +48,7 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	} HANDLE_EXCEPTION
 }
 
-DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)
+DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
 {
 	switch(mode)
 	{
@@ -156,7 +156,7 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 }
 
 
-DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode)
+DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode)
 {
 	std::string pom;
 	loadToIt(pom,src,iter,mode);
@@ -246,4 +246,11 @@ LibClasses::LibClasses()
 
 	//init pointers to handlers
 	makeNull();
+}
+
+void LibClasses::callWhenDeserializing()
+{
+	generaltexth = new CGeneralTextHandler;
+	generaltexth->load();
+	arth->loadArtifacts(true);
 }

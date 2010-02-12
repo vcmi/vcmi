@@ -101,10 +101,11 @@ class DLL_EXPORT CCampaign
 public:
 	CCampaignHeader header;
 	std::vector<CCampaignScenario> scenarios;
+	std::vector<std::string> mapPieces; //binary h3ms
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & header & scenarios;
+		h & header & scenarios & mapPieces;
 	}
 };
 
@@ -114,6 +115,8 @@ class DLL_EXPORT CCampaignHandler
 	CCampaignScenario readScenarioFromMemory( const unsigned char *buffer, int & outIt );
 	CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt );
 	CCampaignHeader getHeader( const std::string & name, int size );
+	std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
+	static bool startsAt( const unsigned char * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
 public:
 	std::vector<CCampaignHeader> getCampaignHeaders();
 

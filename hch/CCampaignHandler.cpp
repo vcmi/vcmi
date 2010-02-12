@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include "CLodHandler.h"
+#include "../lib/VCMI_Lib.h"
+#include "CGeneralTextHandler.h"
 
 namespace fs = boost::filesystem;
 
@@ -68,9 +70,34 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name )
 	int it = 0; //iterator for reading
 	ret->header = readHeaderFromMemory(cmpgn, it);
 
-	it += 112; //omitting rubbish
-	CCampaignScenario sc = readScenarioFromMemory(cmpgn, it);
-	CCampaignScenario sc2 = readScenarioFromMemory(cmpgn, it);
+	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
+	for(int g=0; g<howManyScenarios; ++g)
+	{
+		CCampaignScenario sc = readScenarioFromMemory(cmpgn, it);
+		ret->scenarios.push_back(sc);
+	}
+
+	std::vector<ui32> h3mStarts = locateH3mStarts(cmpgn, it, realSize);
+
+	if(h3mStarts.size() != howManyScenarios)
+	{
+		tlog1<<"Our heuristic for h3m start points gave wrong results for campaign " << name <<std::endl;
+		tlog1<<"Please send this campaign to VCMI Project team to help us fix this problem" << std::endl;
+		delete [] cmpgn;
+		return NULL;
+	}
+
+	for (int g=0; g<howManyScenarios; ++g)
+	{
+		if(g == howManyScenarios - 1)
+		{
+			ret->mapPieces.push_back(std::string( cmpgn + h3mStarts[g], cmpgn + realSize ));
+		}
+		else
+		{
+			ret->mapPieces.push_back(std::string( cmpgn + h3mStarts[g], cmpgn + h3mStarts[g+1] ));
+		}
+	}
 
 	delete [] cmpgn;
 
@@ -86,6 +113,10 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	ret.description = readString(buffer, outIt);
 	ret.difficultyChoosenByPlayer = readChar(buffer, outIt);
 	ret.music = readChar(buffer, outIt);
+	if(ret.version == 4)	//I saw one campaign with this version, without either difficulty or music - it's  
+	{						//not editable by any editor so I'll just go back by one byte.
+		outIt--;
+	}
 
 	return ret;
 }
@@ -162,7 +193,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 					}
 				case 2: //building
 					{
-						//TODO
+						bonus.info1 = buffer[outIt++]; //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
 						break;
 					}
 				case 3: //artifact
@@ -239,4 +270,89 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 	}
 
 	return ret;
+}
+
+std::vector<ui32> CCampaignHandler::locateH3mStarts( const unsigned char * buffer, int start, int size )
+{
+	std::vector<ui32> ret;
+	for(int g=start; g<size; ++g)
+	{
+		if(startsAt(buffer, size, g))
+		{
+			ret.push_back(g);
+		}
+	}
+
+	return ret;
+}
+
+bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos )
+{
+	struct HLP
+	{
+		static unsigned char at(const unsigned char * buffer, int size, int place)
+		{
+			if(place < size)
+				return buffer[place];
+
+			throw std::string("Out of bounds!");
+		}
+	};
+	try
+	{
+		//check minimal length of given region
+		HLP::at(buffer, size, 100);
+		//check version
+
+		unsigned char tmp = HLP::at(buffer, size, pos);
+		if(!(tmp == 0x0e || tmp == 0x15 || tmp == 0x1c || tmp == 0x33))
+		{
+			return false;
+		}
+		//3 bytes following version
+		if(HLP::at(buffer, size, pos+1) != 0 || HLP::at(buffer, size, pos+2) != 0 || HLP::at(buffer, size, pos+3) != 0)
+		{
+			return false;
+		}
+		//unknown strange byte
+		tmp = HLP::at(buffer, size, pos+4);
+		if(tmp != 0 && tmp != 1 )
+		{
+			return false;
+		}
+		//size of map
+		int mapsize = readNormalNr(buffer, pos+5);
+		if(mapsize < 10 || mapsize > 530) 
+		{
+			return false;
+		}
+
+		//underground or not
+		tmp = HLP::at(buffer, size, pos+9);
+		if( tmp != 0 && tmp != 1 )
+		{
+			return false;
+		}
+
+		//map name
+		int len = readNormalNr(buffer, pos+10);
+		if(len < 0 || len > 100)
+		{
+			return false;
+		}
+		for(int t=0; t<len; ++t)
+		{
+			tmp = HLP::at(buffer, size, pos+14+t);
+			if(tmp == 0 || (tmp > 15 && tmp < 32)) //not a valid character
+			{
+				return false;
+			}
+		}
+
+	}
+	catch (...)
+	{
+		return false;
+	}
+	return true;
 }
