@@ -1526,8 +1526,8 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			&& complain("Cannot move hero, destination tile is on water!")
 		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!")
-		|| (h->movement < cost  &&  dst != h->pos)
-			&& complain("Hero don't have any movement points left!")
+		|| (h->movement < cost  &&  dst != h->pos  &&  !instant)
+			&& complain("Hero doesn't have any movement points left!")
 		|| states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))
 	{
