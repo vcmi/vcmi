@@ -529,7 +529,7 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 	}
 }
 Mapa::Mapa(std::string filename)
-	:grailPos(-1, -1, -1)
+	:grailPos(-1, -1, -1), grailRadious(0)
 {
 	int mapsize = 0;
 

@@ -230,9 +230,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
-		if(details.result == TryMoveHero::TELEPORTATION/*	||  details.start == details.end*/)
+		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
 		{
-			adventureInt->eraseCurrentPathOf(ho);
+			if(adventureInt->terrain.currentPath)
+				adventureInt->eraseCurrentPathOf(ho);
 			return; //teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
