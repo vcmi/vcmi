@@ -504,7 +504,7 @@ public:
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	void removeCapitols (ui8 owner, bool me) const;
-	int defenceBonus(int type) const;//bonuses for defending hero, 0..3 - primary skills, 4 = morale, 5 = luck
+	int defenceBonus(int type) const;//primary skills bonuses for defending hero
 
 	CGTownInstance();
 	virtual ~CGTownInstance();

@@ -79,7 +79,7 @@ CKingdomInterface::CKingdomInterface()
 		boost::bind(&CKingdomInterface::close,this),748,99+size*116,"OVBUTN1.DEF", SDLK_RETURN);
 	exit->bitmapOffset = 3;
 
-	statusbar = new CStatusBar(pos.x+7,pos.y+91+size*116,"TSTATBAR.bmp",732);
+	statusbar = new CStatusBar(7, 91+size*116,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("KRESBAR.bmp",pos.x+3,pos.y+111+size*116,32,2,76,76);
 
 	for(size_t i=0;i<size;i++)//creating empty hero/town lists for input
@@ -228,12 +228,12 @@ void CKingdomInterface::close()
 void CKingdomInterface::updateAllGarrisons()
 {
 	for (int i = 0; i<towns.size(); i++)
-	{tlog1<<"Have "<<towns.size()<<" town elements, recreating "<<i<<"\n";
+	{
 		if (towns[i] && towns[i]->garr)
 			towns[i]->garr->recreateSlots();
 	}
 	for (int i = 0; i<heroes.size(); i++)
-	{tlog1<<"Have "<<heroes.size()<<" hero elements, recreating "<<i<<"\n";
+	{
 		if (heroes[i] && heroes[i]->garr)
 			heroes[i]->garr->recreateSlots();
 	}

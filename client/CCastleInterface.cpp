@@ -1150,9 +1150,11 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				CGI->creh->creatures[crid].hordeGrowth);
 
 		cnt = 0;
+		int creaLevel = (bid-30)%CREATURES_PER_TOWN;//dwellings have unupgraded units
+
 		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
 			it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
-				if (CGI->creh->creatures[crid].idNumber == (*it)->creatures[0].second[0])
+				if (CGI->creh->creatures[ci->town->town->basicCreatures[level]].idNumber == (*it)->creatures[0].second[0])
 					cnt++;//external dwellings count to summ
 		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
 

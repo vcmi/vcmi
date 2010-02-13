@@ -1132,8 +1132,8 @@ CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 	else
 		pos.w=bg->w;
 	pos.h=bg->h;
-	middlex=(pos.w/2)+x;
-	middley=(bg->h/2)+y;
+	middlex=(pos.w/2)+pos.x;
+	middley=(bg->h/2)+pos.y;
 }
 
 CStatusBar::~CStatusBar()
@@ -1589,7 +1589,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
-	if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
+	if ((ny>=SIZE || ny<0) || (from+ny>=items.size()))
 	{
 		LOCPLINT->statusbar->clear();
 		return;
@@ -1628,7 +1628,7 @@ void CTownList::clickLeft(tribool down, bool previousState)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
-		if (ny>SIZE || ny<0)
+		if (ny>=SIZE || ny<0)
 			return;
 		if(GH.topInt() == LOCPLINT->adventureInt
 		  && (ny+from)==selected 
@@ -1692,7 +1692,7 @@ void CTownList::clickRight(tribool down, bool previousState)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
-		if ((ny>5 || ny<0) || (from+ny>=items.size()))
+		if ((ny>=SIZE || ny<0) || (from+ny>=items.size()))
 		{
 			return;
 		}

@@ -149,10 +149,10 @@ static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int num
 		std::pair<ui32,si32> ins;
 		for(int ir=0;ir<number;ir++)
 		{
-			int rettt = readNormalNr(bufor,i+ir*4, 2);
+			int rettt = readNormalNr(bufor,i+ir*4, 2);tlog1<<"Creature has ID "<<rettt<<"\n";
 			if(rettt==0xffff) continue;
-			if(rettt>32768)
-				rettt = 65536-rettt+VLC->creh->creatures.size()-16;
+			if(rettt>65520)
+				rettt = 65536-rettt+VLC->creh->creatures.size();//this will happens when random object has random army
 			ins.first = rettt;
 			ins.second = readNormalNr(bufor,i+ir*4+2, 2);
 			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);
@@ -169,8 +169,8 @@ static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int num
 		{
 			int rettt = readNormalNr(bufor,i+ir*3, 1);
 			if(rettt==0xff) continue;
-			if(rettt>220)
-				rettt = 256-rettt+VLC->creh->creatures.size()-16;
+			if(rettt>240)
+				rettt = 256-rettt+VLC->creh->creatures.size();
 			ins.first = rettt;
 			ins.second = readNormalNr(bufor,i+ir*3+1, 2);
 			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);

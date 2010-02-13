@@ -1148,25 +1148,20 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	return std::pair<int,int>(-1,-1);
 }
 
-void convertHordes(CGTownInstance * town)//converting hordes from -36..-30 to 18 & 24
+void randomizeArmy(CArmedInstance * army, int type)
 {
-for (int i = 0; i<CREATURES_PER_TOWN; i++)
-	if (vstd::contains(town->builtBuildings,(-31-i))) //if we have horde for this level
+	int max = VLC->creh->creatures.size();
+	for (std::map<si32,std::pair<ui32,si32> >::iterator j=army->army.slots.begin(); j!=army->army.slots.end();j++)
 	{
-		town->builtBuildings.erase(-31-i);//remove old ID
-		if (town->town->hordeLvl[0] == i)//if town first horde is this one
+		if(j->second.first > max)
 		{
-			town->builtBuildings.insert(18);//add it
-			if (vstd::contains(town->builtBuildings,(37+i)))//if we have upgraded dwelling as well
-				town->builtBuildings.insert(19);//add it as well
-		}
-		if (town->town->hordeLvl[1] == i)//if town second horde is this one
-		{
-			town->builtBuildings.insert(24);//add it
-			if (vstd::contains(town->builtBuildings,(37+i)))//if we have upgraded dwelling as well
-				town->builtBuildings.insert(25);//add it as well
+			if(j->second.first % 2)
+				j->second.first = VLC->townh->towns[type].basicCreatures[ (j->second.first-197) / 2 -1];
+			else
+				j->second.first = VLC->townh->towns[type].upgradedCreatures[ (j->second.first-197) / 2 -1];
 		}
 	}
+	return;
 }
 
 void CGameState::randomizeObject(CGObjectInstance *cur)
@@ -1194,6 +1189,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		cur->ID = ran.first;
 		h->portrait = cur->subID = ran.second;
 		h->type = VLC->heroh->heroes[ran.second];
+		randomizeArmy(h, h->type->heroType/2);
 		map->heroes.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
 	}
@@ -1210,6 +1206,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			t->defInfo = forts[t->subID];
 		else
 			t->defInfo = villages[t->subID]; 
+		randomizeArmy(t, t->subID);
 		map->towns.push_back(t);
 		return;
 	}
@@ -1561,8 +1558,24 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vti->builtBuildings.insert(30);
 			if(ran()%2)
 				vti->builtBuildings.insert(31);
-		}
-		convertHordes(vti);
+		}//init hordes
+		for (int i = 0; i<CREATURES_PER_TOWN; i++)
+			if (vstd::contains(vti->builtBuildings,(-31-i))) //if we have horde for this level
+			{
+				vti->builtBuildings.erase(-31-i);//remove old ID
+				if (vti->town->hordeLvl[0] == i)//if town first horde is this one
+				{
+					vti->builtBuildings.insert(18);//add it
+					if (vstd::contains(vti->builtBuildings,(37+i)))//if we have upgraded dwelling as well
+						vti->builtBuildings.insert(19);//add it as well
+				}
+				if (vti->town->hordeLvl[1] == i)//if town second horde is this one
+				{
+					vti->builtBuildings.insert(24);
+					if (vstd::contains(vti->builtBuildings,(37+i)))
+						vti->builtBuildings.insert(25);
+				}
+			}
 		//init spells
 		vti->spells.resize(SPELL_LEVELS);
 		CSpell *s;
@@ -1593,18 +1606,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			CSpell *s = &VLC->spellh->spells[vti->possibleSpells[sel]];
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
-		}
-
-		//init garrisons
-		for (std::map<si32,std::pair<ui32,si32> >::iterator j=vti->army.slots.begin(); j!=vti->army.slots.end();j++)
-		{
-			if(j->second.first > 196 && j->second.first < 211)
-			{
-				if(j->second.first%2)
-					j->second.first = vti->town->basicCreatures[ (j->second.first-197) / 2 ];
-				else
-					j->second.first = vti->town->upgradedCreatures[ (j->second.first-197) / 2 ];
-			}
 		}
 		if(vti->getOwner() != 255)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
