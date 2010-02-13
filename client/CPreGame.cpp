@@ -570,6 +570,7 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files)
 			tlog1 << files[i].name << " is not a correct savefile!" << std::endl;
 			continue;
 		}
+		allItems[i].mapHeader = new CMapHeader();
 		lf >> *(allItems[i].mapHeader) >> allItems[i].seldiff;
 		allItems[i].filename = files[i].name;
 		allItems[i].countPlayers();

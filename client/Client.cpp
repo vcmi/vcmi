@@ -175,6 +175,7 @@ void CClient::stop()
 	LOCPLINT->terminate_cond.setn(true);
 	LOCPLINT->pim->lock();
 	endGame();
+	tlog0 << "Client stopped." << std::endl;
 }
 
 void CClient::save(const std::string & fname)
@@ -195,12 +196,14 @@ void CClient::endGame()
 		GH.topInt()->deactivate();
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
+	tlog0 << "Removed GUI." << std::endl;
 
 	delete CGI->mh;
 	CGI->mh = NULL;
 
 	delete CGI->state;
 	CGI->state = NULL;
+	tlog0 << "Deleted mapHandler and gameState." << std::endl;
 
 	LOCPLINT = NULL;
 	while (!playerint.empty())
@@ -213,13 +216,14 @@ void CClient::endGame()
 	{
 		delete cb;
 	}
+	tlog0 << "Deleted playerInts." << std::endl;
 
 	if (serv) 
 	{
-		tlog3 << "Connection has been requested to be closed.\n";
+		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		*serv << &CloseServer();
-		tlog3 << "Sent closing signal to the server\n";
+		tlog0 << "Sent closing signal to the server\n";
 
 		serv->close();
 		delete serv;
@@ -228,6 +232,8 @@ void CClient::endGame()
 	}
 
 	connectionHandler->join();
+	tlog0 << "Connection handler thread joined" << std::endl;
+
 	delete connectionHandler;
 	connectionHandler = NULL;
 }
