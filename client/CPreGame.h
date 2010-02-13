@@ -18,11 +18,24 @@
  */
 
 struct CMusicHandler;
-class CMapInfo;
 class CMapHeader;
+class CCampaignHeader;
 
-enum EState { //where are we?
-	mainMenu, newGame, loadGame, campaignMain, ScenarioList, saveGame, scenarioInfo
+class CMapInfo
+{
+public:
+	CMapHeader * mapHeader; //may be NULL if campaign
+	CCampaignHeader * campaignHeader; //may be NULL if scenario
+	ui8 seldiff; //selected difficulty (only in saved games)
+	std::string filename;
+	std::string date;
+	int playerAmnt, humenPlayers;
+	CMapInfo(bool map = true);
+	~CMapInfo();
+	//CMapInfo(const std::string &fname, const unsigned char *map);
+	void mapInit(const std::string &fname, const unsigned char *map);
+	void campaignInit();
+	void countPlayers();
 };
 
 enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
@@ -31,7 +44,7 @@ class mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(const CMapHeader *a, const CMapHeader *b);;
+	bool operator()(const CMapInfo *aaa, const CMapInfo *bbb);
 	mapSorter(ESortBy es):sortBy(es){};
 };
 
@@ -55,6 +68,10 @@ public:
 class CMenuScreen : public CIntObject
 {
 public:
+	enum EState { //where are we?
+		mainMenu, newGame, loadGame, campaignMain, ScenarioList, saveGame, scenarioInfo, campaignList
+	};
+
 	CPicture *bgAd;
 	AdventureMapButton *buttons[5];
 
@@ -76,7 +93,7 @@ class InfoCard : public CIntObject
 {
 public:
 	CPicture *bg; 
-	EState type;
+	CMenuScreen::EState type;
 
 	CHighlightableButtonsGroup *difficulty;
 	CDefHandler *sizes, *sFlags;;
@@ -85,12 +102,20 @@ public:
 	void showAll(SDL_Surface * to);
 	void clickRight(tribool down, bool previousState);
 	void showTeamsPopup();
-	InfoCard(EState Type);
+	InfoCard(CMenuScreen::EState Type);
 	~InfoCard();
 };
 
 class SelectionTab : public CIntObject
 {
+private:
+	CDefHandler *format; //map size
+
+	void parseMaps(std::vector<FileInfo> &files, int start = 0, int threads = 1);
+	void parseGames(std::vector<FileInfo> &files);
+	void parseCampaigns( std::vector<FileInfo> & files );
+	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
+	CMenuScreen::EState tabType; 
 public:
 	int positions; //how many entries (games/maps) can be shown
 	CPicture *bg; //general bg image
@@ -103,13 +128,9 @@ public:
 	ESortBy sortingBy;
 	bool ascending;
 
-	CDefHandler *format;
-
 	CTextInput *txt;
 
-	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
-	void parseMaps(std::vector<FileInfo> &files, int start = 0, int threads = 1);
-	void parseGames(std::vector<FileInfo> &files);
+	
 	void filter(int size, bool selectFirst = false); //0 - all
 	void select(int position); //position: <0 - positions>  position on the screen
 	void selectAbs(int position); //position: absolute position in curItems vector
@@ -126,7 +147,7 @@ public:
 	void wheelScrolled(bool down, bool in);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
-	SelectionTab(EState Type, const boost::function<void(CMapInfo *)> &OnSelect);
+	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect);
 	~SelectionTab();
 };
 
@@ -162,7 +183,7 @@ public:
 		void selectButtons(bool onlyHero = true); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
 	};
-	EState type;
+	CMenuScreen::EState type;
 	CPicture *bg;
 	CSlider *turnDuration;
 
@@ -177,7 +198,7 @@ public:
 	void flagPressed(int player);
 
 	void changeSelection(const CMapHeader *to);
-	OptionsTab(EState Type/*, StartInfo &Opts*/);
+	OptionsTab(CMenuScreen::EState Type/*, StartInfo &Opts*/);
 	~OptionsTab();
 	void showAll(SDL_Surface * to);
 
@@ -195,12 +216,12 @@ public:
 	SelectionTab *sel;
 	OptionsTab *opt;
 
-	EState type; //new/save/load#Game
+	CMenuScreen::EState type; //new/save/load#Game
 	const CMapInfo *current;
 	StartInfo sInfo;
 	CIntObject *curTab;
 
-	CSelectionScreen(EState Type);
+	CSelectionScreen(CMenuScreen::EState Type);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -216,7 +237,7 @@ public:
 	InfoCard *card;
 	OptionsTab *opt;
 
-	CScenarioInfo(const CMapHeader *mapInfo, const StartInfo *startInfo);
+	CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo, const CMapInfo * makeItCurrent=NULL);
 	~CScenarioInfo();
 };
 
@@ -234,7 +255,7 @@ public:
 	~CGPreGame();
 	void update();
 	void run();
-	void openSel(EState type);
+	void openSel(CMenuScreen::EState type);
 	void loadGraphics();
 	void disposeGraphics();
 };

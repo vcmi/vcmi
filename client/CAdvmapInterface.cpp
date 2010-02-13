@@ -1813,7 +1813,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_s: 
 		if(isActive())
-			GH.pushInt(new CSelectionScreen(saveGame));
+			GH.pushInt(new CSelectionScreen(CMenuScreen::saveGame));
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{

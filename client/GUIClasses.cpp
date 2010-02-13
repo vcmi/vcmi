@@ -2999,7 +2999,7 @@ void CSystemOptionsWindow::bmainmenuf()
 void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
-	GH.pushInt(new CSelectionScreen(saveGame));
+	GH.pushInt(new CSelectionScreen(CMenuScreen::saveGame));
 	/*using namespace boost::posix_time;
 	std::ostringstream fnameStream;
 	fnameStream << second_clock::local_time();

@@ -111,16 +111,16 @@ public:
 
 class DLL_EXPORT CCampaignHandler
 {
-	CCampaignHeader readHeaderFromMemory( const unsigned char *buffer, int & outIt );
-	CCampaignScenario readScenarioFromMemory( const unsigned char *buffer, int & outIt );
-	CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt );
-	CCampaignHeader getHeader( const std::string & name, int size );
-	std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
+	static CCampaignHeader readHeaderFromMemory( const unsigned char *buffer, int & outIt );
+	static CCampaignScenario readScenarioFromMemory( const unsigned char *buffer, int & outIt );
+	static CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt );
+	static std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
 	static bool startsAt( const unsigned char * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
 public:
-	std::vector<CCampaignHeader> getCampaignHeaders();
+	static std::vector<CCampaignHeader> getCampaignHeaders();
+	static CCampaignHeader getHeader( const std::string & name );
 
-	CCampaign * getCampaign(const std::string & name);
+	static CCampaign * getCampaign(const std::string & name);
 };
 
 

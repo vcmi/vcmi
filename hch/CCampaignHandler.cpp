@@ -40,14 +40,14 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders()
 		if(fs::is_regular_file(file->status())
 			&& boost::ends_with(file->path().filename(), ext))
 		{
-			ret.push_back( getHeader( file->path().string(), fs::file_size( file->path() ) ) );
+			ret.push_back( getHeader( file->path().string() ) );
 		}
 	}
 
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::getHeader( const std::string & name, int size )
+CCampaignHeader CCampaignHandler::getHeader( const std::string & name )
 {
 	int realSize;
 	unsigned char * cmpgn = CLodHandler::getUnpackedFile(name, &realSize);

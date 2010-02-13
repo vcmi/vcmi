@@ -2106,41 +2106,6 @@ void Mapa::checkForObjectives()
 	}
 }
 
-void CMapInfo::countPlayers()
-{
-	playerAmnt = humenPlayers = 0;
-	for(int i=0;i<PLAYER_LIMIT;i++)
-	{
-		if(players[i].canHumanPlay)
-		{
-			playerAmnt++;
-			humenPlayers++;
-		}
-		else if(players[i].canComputerPlay)
-		{
-			playerAmnt++;
-		}
-	}
-}
-
-CMapInfo::CMapInfo(const std::string &fname, const unsigned char *map )
-{
-	init(fname, map);
-}
-
-CMapInfo::CMapInfo()
-{
-	version = invalid;
-}
-
-void CMapInfo::init(const std::string &fname, const unsigned char *map )
-{
-	filename = fname;
-	int i = 0;
-	initFromMemory(map, i);
-	countPlayers();
-}
-
 LossCondition::LossCondition()
 {
 	obj = NULL;

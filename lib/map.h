@@ -247,19 +247,6 @@ public:
 	}
 };
 
-class DLL_EXPORT CMapInfo : public CMapHeader
-{
-public:
-	ui8 seldiff; //selected difficulty (only in saved games)
-	std::string filename;
-	std::string date;
-	int playerAmnt, humenPlayers;
-	CMapInfo();
-	CMapInfo(const std::string &fname, const unsigned char *map);
-	void init(const std::string &fname, const unsigned char *map);
-	void countPlayers();
-};
-
 struct DLL_EXPORT Mapa : public CMapHeader
 {
 	ui32 checksum;
