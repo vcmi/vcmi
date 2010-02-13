@@ -802,11 +802,12 @@ public:
 	AdventureMapButton *build, *quit;
 
 	unsigned char frame; //frame of the boat animation
+	int boat; //which boat graphic should be used
 
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CShipyardWindow(const std::vector<si32> &cost, int state, const boost::function<void()> &onBuy);
+	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy);
 	~CShipyardWindow();
 };
 

@@ -110,7 +110,7 @@ CMenuScreen::CMenuScreen( EState which )
 			////just for testing
 			CCampaignHandler * ch = new CCampaignHandler();
 			ch->getCampaignHeaders(); 
-			ch->getCampaign("./Maps/ALEXIS.h3c");
+			//ch->getCampaign("./Maps/ALEXIS.h3c");
 		}
 		break;
 	}

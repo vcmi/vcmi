@@ -121,7 +121,8 @@ public:
 	const CGObjectInstance *o;
 
 	IShipyard(const CGObjectInstance *O);
-	void getBoatCost(std::vector<si32> &cost) const;
+	virtual void getBoatCost(std::vector<si32> &cost) const;
+	virtual int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
 	//virtual bool validLocation() const; //returns true if there is a water tile near where boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
@@ -484,6 +485,7 @@ public:
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //returns sight distance
+	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	void setPropertyDer(ui8 what, ui32 val);
 	void newTurn() const;

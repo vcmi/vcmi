@@ -4652,7 +4652,7 @@ void CShipyardWindow::deactivate()
 void CShipyardWindow::show( SDL_Surface * to )
 {
 	blitAt(bg,pos,to);
-	CSDL_Ext::blit8bppAlphaTo24bpp(graphics->boatAnims[1]->ourImages[21 + frame++/8%8].bitmap, NULL, to, &genRect(64, 96, pos.x+110, pos.y+85));
+	CSDL_Ext::blit8bppAlphaTo24bpp(graphics->boatAnims[boat]->ourImages[21 + frame++/8%8].bitmap, NULL, to, &genRect(64, 96, pos.x+110, pos.y+85));
 	build->show(to);
 	quit->show(to);
 }
@@ -4663,8 +4663,9 @@ CShipyardWindow::~CShipyardWindow()
 	delete quit;
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const boost::function<void()> &onBuy)
+CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy)
 {
+	boat = boatType;
 	frame = 0;
 	SDL_Surface * bgtemp; //loaded as 8bpp surface
 	bgtemp = BitmapHandler::loadBitmap("TPSHIP.bmp");

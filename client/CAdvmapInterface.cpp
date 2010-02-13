@@ -521,14 +521,18 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		{
 			for(size_t i=0; i < bobjs.size(); ++i)
 			{
-				if(bobjs[i]->ID == TOWNI_TYPE && bobjs[i]->tempOwner == LOCPLINT->playerID) //town - switch selection to it
+				const CGObjectInstance *o = bobjs[i];
+				const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mp);
+				if(  ((o->ID == HEROI_TYPE && pn->turns == 255)  //inaccessible hero
+							|| o->ID == TOWNI_TYPE)										   //or town
+					&& o->tempOwner == LOCPLINT->playerID) //but must belong to us
 				{
-					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(o));
 					return;
 				}
-				else if(bobjs[i]->ID == HEROI_TYPE //it's a hero
-					&& bobjs[i]->tempOwner == LOCPLINT->playerID  //our hero (is this condition needed?)
-					&& currentHero == (bobjs[i]) ) //and selected one 
+				else if(o->ID == HEROI_TYPE //it's a hero
+					&& o->tempOwner == LOCPLINT->playerID  //our hero (is this condition needed?)
+					&& currentHero == (o) ) //and selected one 
 				{
 					LOCPLINT->openHeroWindow(currentHero);
 					return;
@@ -715,7 +719,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	{
 		if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
 		{
-			if(obj)
+			if(obj && obj->tempOwner == LOCPLINT->playerID)
 			{
 				if(obj->ID == TOWNI_TYPE)
 				{

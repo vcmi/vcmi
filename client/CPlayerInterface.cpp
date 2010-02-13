@@ -142,6 +142,8 @@ void CPlayerInterface::init(ICallback * CB)
 void CPlayerInterface::yourTurn()
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
+
 	LOCPLINT = this;
 	makingTurn = true;
 
@@ -1069,7 +1071,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	int state = obj->state();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
-	CShipyardWindow *csw = new CShipyardWindow(cost, state, boost::bind(&CCallback::buildBoat, cb, obj));
+	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), boost::bind(&CCallback::buildBoat, cb, obj));
 	GH.pushInt(csw);
 }
 
@@ -1119,7 +1121,11 @@ bool CPlayerInterface::ctrlPressed() const
 
 void CPlayerInterface::update()
 {
-	pim->lock();
+	while(!terminate_cond.get() && !pim->try_lock()) //try acquiring long until it succeeds or we are told to terminate
+		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+
+	if(terminate_cond.get())
+		return;
 
 	//if there are any waiting dialogs, show them
 	if(dialogs.size() && !showingDialog->get())

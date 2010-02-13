@@ -171,6 +171,8 @@ void CClient::stop()
 	// Game is ending
 	// Tell the network thread to reach a stable state
 	terminate = true;
+	GH.curInt = NULL;
+	LOCPLINT->terminate_cond.setn(true);
 	LOCPLINT->pim->lock();
 	endGame();
 }
@@ -189,7 +191,6 @@ void CClient::save(const std::string & fname)
 void CClient::endGame()
 {
 	tlog0 << "\n\nEnding current game!" << std::endl;
-	GH.curInt = NULL;
 	if(GH.topInt())
 		GH.topInt()->deactivate();
 	GH.listInt.clear();

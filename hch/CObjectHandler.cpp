@@ -1442,7 +1442,7 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	if (subID == 2) //tower
 	{
-		if ((builtBuildings.find(17)) != builtBuildings.end()) //skyship
+		if ((builtBuildings.find(26)) != builtBuildings.end()) //skyship
 			return -1; //entire map
 		else if ((builtBuildings.find(21)) != builtBuildings.end()) //lookout tower
 			return 20;
@@ -1732,6 +1732,11 @@ int3 CGTownInstance::getSightCenter() const
 	return pos - int3(2,0,0);
 }
 
+ui8 CGTownInstance::getPassableness() const
+{
+	return army ? 1<<tempOwner : ALL_PLAYERS; //if there is garrison, castle be entered only by owner //TODO: allies
+}
+
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 {
 	offsets += int3(-1,2,0), int3(-3,2,0);
@@ -1771,9 +1776,15 @@ void CGTownInstance::removeCapitols (ui8 owner, bool me) const
 	} 
 } 
 
-ui8 CGTownInstance::getPassableness() const
+int CGTownInstance::getBoatType() const
 {
-	return army ? 1<<tempOwner : ALL_PLAYERS; //if there is garrison, castle be entered only by owner //TODO: allies
+	const CCreature *c = &VLC->creh->creatures[town->basicCreatures.front()];
+	if (c->isGood())
+		return 1;
+	else if (c->isEvil())
+		return 0;
+	else //neutral
+		return 2;
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
@@ -5361,6 +5372,12 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
 {
 	return castFrom(const_cast<CGObjectInstance*>(obj));
+}
+
+int IShipyard::getBoatType() const
+{
+	//We make good ships by default
+	return 1;
 }
 
 CGShipyard::CGShipyard()
