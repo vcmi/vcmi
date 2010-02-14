@@ -2141,7 +2141,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (town->subID)
 		{
 			case 0: //Stables
-				if (!h->getBonus(HeroBonus::OBJECT, 94)) //no advMap Stables
+				if (!h->getBonus(HeroBonus::OBJECT, 94)) //does not stack with advMap Stables
 				{
 					GiveBonus gb;
 					gb.bonus = HeroBonus(HeroBonus::ONE_WEEK, HeroBonus::LAND_MOVEMENT, HeroBonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
@@ -3536,6 +3536,10 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						bd.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
 					}
 				}
+				case MISSION_PLAYER:
+					bd.components.push_back (Component (Component::FLAG, m13489val, 0, 0));
+					bd.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
+					break;
 			}
 			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
 			return;
@@ -3615,7 +3619,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 	switch (rewardType)
 	{
 		case 1: //experience
-			cb->changePrimSkill(h->id, 5, rVal, false);
+			cb->changePrimSkill(h->id, 4, rVal, false);
 			iw.components.push_back (Component (Component::EXPERIENCE, 0, rVal, 0));
 			break;
 		case 2: //mana points
@@ -3866,6 +3870,8 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		messageID = 137;
 		gbonus.bonus.type = HeroBonus::LAND_MOVEMENT;
 		gbonus.bonus.val = 600;
+		bonusMove = 600;
+		gbonus.bonus.duration = HeroBonus::ONE_WEEK;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6, 100);
 		break;
 	}
@@ -3883,7 +3889,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		if(gbonus.bonus.type == HeroBonus::LUCK   ||   gbonus.bonus.type == HeroBonus::MORALE_AND_LUCK)
 			iw.components.push_back(Component(9,0,gbonus.bonus.val,0));
 		cb->giveHeroBonus(&gbonus);
-		if(bonusMove) //swan pond - take all move points
+		if(bonusMove) //swan pond - take all move points, stables - give move point this day
 		{
 			SetMovePoints smp;
 			smp.hid = h->id;
