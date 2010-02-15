@@ -227,7 +227,7 @@ void CHeroHandler::loadPuzzleInfo()
 				suffix << std::setfill('0') << std::setw(2);
 				suffix << g << ".BMP";
 
-				static const std::string factionToInfix[F_NUMBER] = {"CAS", "TOW", "RAM", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
+				static const std::string factionToInfix[F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
 				spi.filename = "PUZ" + factionToInfix[fct] + suffix.str();
 
 				puzzleInfo[fct].push_back(spi);

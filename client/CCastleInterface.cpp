@@ -1125,7 +1125,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		int summ=0, cnt=0;
 		int level=(bid-30)%CREATURES_PER_TOWN;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
-		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].nameSing);
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(
 			ci->town->creatureGrowth(level)));
 

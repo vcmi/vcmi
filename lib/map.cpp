@@ -149,7 +149,7 @@ static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int num
 		std::pair<ui32,si32> ins;
 		for(int ir=0;ir<number;ir++)
 		{
-			int rettt = readNormalNr(bufor,i+ir*4, 2);tlog1<<"Creature has ID "<<rettt<<"\n";
+			int rettt = readNormalNr(bufor,i+ir*4, 2);
 			if(rettt==0xffff) continue;
 			if(rettt>65520)
 				rettt = 65536-rettt+VLC->creh->creatures.size();//this will happens when random object has random army
