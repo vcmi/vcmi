@@ -156,11 +156,11 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		LOCPLINT->statusbar->print(temp);
+		GH.statusbar->print(temp);
 	}
 	else
 	{
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 	}
 }
 
@@ -1571,17 +1571,17 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[306].first);
+			GH.statusbar->print(CGI->generaltexth->zelp[306].first);
 		else
-			LOCPLINT->statusbar->clear();
+			GH.statusbar->clear();
 		return;
 	}
 	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
-			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[307].first);
+			GH.statusbar->print(CGI->generaltexth->zelp[307].first);
 		else
-			LOCPLINT->statusbar->clear();
+			GH.statusbar->clear();
 		return;
 	}
 	//if not buttons then towns
@@ -1591,13 +1591,13 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	int ny = hy/32;
 	if ((ny>=SIZE || ny<0) || (from+ny>=items.size()))
 	{
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 		return;
 	};
 	std::string temp = CGI->generaltexth->tcommands[4];
 	boost::algorithm::replace_first(temp,"%s",items[from+ny]->name);
 	temp += ", "+items[from+ny]->town->Name();
-	LOCPLINT->statusbar->print(temp);
+	GH.statusbar->print(temp);
 }
 
 void CTownList::clickLeft(tribool down, bool previousState)
@@ -1891,7 +1891,7 @@ void CRecruitmentWindow::activate()
 	max->activate();
 	cancel->activate();
 	slider->activate();
-	LOCPLINT->statusbar = bar;
+	GH.statusbar = bar;
 }
 
 void CRecruitmentWindow::deactivate()
@@ -3140,7 +3140,7 @@ void CTavernWindow::activate()
 	if(h2.h)
 		h2.activate();
 	recruit->activate();
-	LOCPLINT->statusbar = bar;
+	GH.statusbar = bar;
 }
 
 void CTavernWindow::deactivate()
@@ -3254,9 +3254,9 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 {
 	//Hoverable::hover(on);
 	if(on)
-		LOCPLINT->statusbar->print(hoverName);
+		GH.statusbar->print(hoverName);
 	else
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 }
 
 void CInGameConsole::activate()
@@ -3431,7 +3431,7 @@ void CInGameConsole::startEnteringText()
 	enteredText = "_";
 	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
-		LOCPLINT->statusbar->print(enteredText);
+		GH.statusbar->print(enteredText);
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -3452,7 +3452,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	enteredText = "";
 	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -3465,7 +3465,7 @@ void CInGameConsole::refreshEnteredText()
 {
 	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
-		LOCPLINT->statusbar->print(enteredText);
+		GH.statusbar->print(enteredText);
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -3804,9 +3804,9 @@ CArtPlace::~CArtPlace()
 void HoverableArea::hover (bool on)
 {
 	if (on)
-		LOCPLINT->statusbar->print(hoverText);
-	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->print(hoverText);
+	else if (GH.statusbar->getCurrent()==hoverText)
+		GH.statusbar->clear();
 }
 
 void HoverableArea::activate()
@@ -4285,7 +4285,7 @@ void CExchangeWindow::activate()
 	for(int b=0; b<primSkillAreas.size(); ++b)
 		primSkillAreas[b]->activate();
 
-	LOCPLINT->statusbar = ourBar;
+	GH.statusbar = ourBar;
 
 	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
 		questlogButton[g]->activate();
@@ -4847,7 +4847,7 @@ void CArtMerchantWindow::Buy() {}
 void CThievesGuildWindow::activate()
 {
 	CIntObject::activate();
-	LOCPLINT->statusbar = statusBar;
+	GH.statusbar = statusBar;
 }
 
 void CThievesGuildWindow::show(SDL_Surface * to)
@@ -5066,3 +5066,153 @@ void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -
 				text += "\n" + mrl[it].second;
 	}
 }
+
+void CLabel::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+	if(!text.length())
+		return;
+
+	static void (*printer[3])(const std::string &, int, int, EFonts, SDL_Color, SDL_Surface *, bool) = {&CSDL_Ext::printAt, &CSDL_Ext::printAtMiddle, &CSDL_Ext::printTo}; //array of printing functions
+	printer[alignment](text, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to, false);
+}
+
+CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
+:font(Font), color(Color), text(Text), alignment(Align)
+{
+	autoRedraw = true;
+	pos.x += x;
+	pos.y += y;
+	pos.w = pos.h = 0;
+	bg = NULL;
+}
+
+void CLabel::setTxt(const std::string &Txt)
+{
+	text = Txt;
+	if(autoRedraw)
+	{
+		if(bg || !parent)
+			redraw();
+		else
+			parent->redraw();
+	}
+}
+
+void CGStatusBar::print(const std::string & Text)
+{
+	setTxt(Text);
+}
+
+void CGStatusBar::clear()
+{
+	setTxt("");
+}
+
+std::string CGStatusBar::getCurrent()
+{
+	return text;
+}
+
+CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
+	: CLabel(x, y, Font, Align, Color, Text)
+{
+	init();
+}
+
+CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
+	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
+{
+	init();
+	bg = BG;
+	moveChildren(bg, bg->parent, this);
+	pos = bg->pos;
+
+	switch(Align)
+	{
+	case CENTER:
+		textOffset = Point(pos.w/2, pos.h/2);
+		break;
+	case BOTTOMRIGHT:
+		textOffset = Point(pos.w, pos.h);
+		break;
+	}
+}
+
+CGStatusBar::~CGStatusBar()
+{
+	GH.statusbar = oldStatusBar;
+}
+
+void CGStatusBar::show(SDL_Surface * to)
+{
+
+}
+
+void CGStatusBar::init()
+{
+	oldStatusBar = GH.statusbar;
+	GH.statusbar = this;
+}
+
+CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
+:cb(CB)
+{
+	pos += Pos;
+	OBJ_CONSTRUCTION;
+	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
+	used = LCLICK | KEYBOARD;
+}
+
+CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
+{
+	pos += Pos;
+	OBJ_CONSTRUCTION;
+	bg = new CPicture(Pos, 0, true);
+	Rect hlp = Pos;
+	SDL_BlitSurface(srf, &hlp, *bg, NULL);
+	pos.w = bg->pos.w;
+	pos.h = bg->pos.h;
+	bg->pos = pos;
+	used = LCLICK | KEYBOARD;
+}
+
+void CTextInput::showAll( SDL_Surface * to )
+{
+	CIntObject::showAll(to);
+	CSDL_Ext::printAt(text + "_", pos.x, pos.y, FONT_SMALL, zwykly, to);
+}
+
+void CTextInput::clickLeft( tribool down, bool previousState )
+{
+	//TODO
+}
+
+void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+{
+	if(key.state != SDL_PRESSED) return;
+	switch(key.keysym.sym)
+	{
+	case SDLK_BACKSPACE:
+		if(text.size())
+			text.resize(text.size()-1);
+		break;
+	default:
+		char c = key.keysym.unicode; //TODO 16-/>8
+		static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
+		if(!vstd::contains(forbiddenChars,c) && std::isprint(c))
+			text += c;
+		break;
+	}
+	redraw();
+	cb(text);
+}
+
+void CTextInput::setText( const std::string &nText, bool callCb )
+{
+	text = nText;
+	redraw();
+	if(callCb)
+		cb(text);
+}
+

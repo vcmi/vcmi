@@ -64,6 +64,8 @@ class CArtifactsOfHero;
 class CResDataBar;
 struct SPuzzleInfo;
 
+extern SDL_Color tytulowy, tlo, zwykly ;
+
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
 public:
@@ -256,6 +258,57 @@ public:
 	void clear();//clears statusbar and refreshes
 	void show(SDL_Surface * to); //shows statusbar (with current text)
 	std::string getCurrent(); //getter for current
+};
+
+class CLabel
+	: public CIntObject
+{
+public:
+	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT} alignment;
+	EFonts font;
+	SDL_Color color;
+	std::string text;
+	CPicture *bg;
+	bool autoRedraw;
+	Point textOffset; //text will be blitted at pos + textOffset with appropriate alignment
+
+	void setTxt(const std::string &Txt);
+	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
+};
+
+class CGStatusBar
+	: public CLabel, public IStatusBar
+{
+	void init();
+public:
+	IStatusBar *oldStatusBar;
+
+	//statusbar interface overloads
+	void print(const std::string & Text); //prints text and refreshes statusbar
+	void clear();//clears statusbar and refreshes
+	std::string getCurrent(); //returns currently displayed text
+	void show(SDL_Surface * to); //shows statusbar (with current text)
+
+	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
+	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+
+	~CGStatusBar();
+};
+
+
+class CTextInput : public CLabel
+{
+public:
+	CFunctionList<void(const std::string &)> cb;
+
+	void setText(const std::string &nText, bool callCb = false);
+
+	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
+	CTextInput(const Rect &Pos, SDL_Surface *srf);
+	void showAll(SDL_Surface * to);
+	void clickLeft(tribool down, bool previousState);
+	void keyPressed(const SDL_KeyboardEvent & key);
 };
 
 class CList : public CIntObject

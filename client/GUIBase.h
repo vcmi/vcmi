@@ -61,7 +61,10 @@ struct Point
 	int x, y;
 
 	//constructors
-	Point(){};
+	Point()
+	{
+		x = y = 0;
+	};
 	Point(int X, int Y)
 		:x(X),y(Y)
 	{};
@@ -426,10 +429,15 @@ public:
 		return bg;
 	}
 
+	CPicture(const Rect &r, const SDL_Color &color, bool screenFormat = false);
+	CPicture(const Rect &r, ui32 color, bool screenFormat = false);
 	CPicture(SDL_Surface *BG, int x, int y, bool Free = true);
-	CPicture(const std::string &bmpname, int x, int y);
+	CPicture(const std::string &bmpname, int x=0, int y=0);
+
+	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
 	~CPicture();
 	void showAll(SDL_Surface * to);
+	void convertToScreenBPP();
 };
 
 class CGuiHandler
@@ -437,6 +445,7 @@ class CGuiHandler
 public:
 	timeHandler th;
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
+	IStatusBar * statusbar;
 
 	//active GUI elements (listening for events
 	std::list<CIntObject*> lclickable;
@@ -483,6 +492,12 @@ SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
 SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
 bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 bool isArrowKey(SDLKey key); 
+CIntObject *  moveChildren(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos = false);
+
+template <typename T> void pushIntT()
+{
+	GH.pushInt(new T());
+}
 
 extern CGuiHandler GH; //global gui handler
 

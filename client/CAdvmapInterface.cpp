@@ -1649,7 +1649,7 @@ void CAdvMapInt::activate()
 		return;
 	}
 	screenBuf = screen;
-	LOCPLINT->statusbar = &statusbar;
+	GH.statusbar = &statusbar;
 	activateMouseMove();
 
 	kingOverview.activate();

@@ -314,7 +314,7 @@ void CKingdomInterface::show(SDL_Surface * to)
 
 void CKingdomInterface::activate()
 {
-	LOCPLINT->statusbar = statusbar;
+	GH.statusbar = statusbar;
 	exit->activate();
 	toTowns->activate();
 	toHeroes->activate();

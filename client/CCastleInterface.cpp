@@ -129,7 +129,7 @@ void CBuildingRect::hover(bool on)
 		if(LOCPLINT->castleInt->hBuild == this)
 		{
 			LOCPLINT->castleInt->hBuild = NULL;
-			LOCPLINT->statusbar->clear();
+			GH.statusbar->clear();
 
 			//call mouseMoved in other buildings, cursor might have been moved while they were inactive (eg. because of r-click popup)
 			for(size_t i = 0; i < LOCPLINT->castleInt->buildings.size(); i++)
@@ -176,7 +176,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			if(LOCPLINT->castleInt->hBuild == this)
 			{
 				LOCPLINT->castleInt->hBuild = NULL;
-				LOCPLINT->statusbar->clear();
+				GH.statusbar->clear();
 			}
 		}
 		else //inside the area of this building
@@ -187,18 +187,18 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 				{
 					LOCPLINT->castleInt->hBuild = this;
 					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
-						LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
+						GH.statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
 					else
-						LOCPLINT->statusbar->print(str->name);
+						GH.statusbar->print(str->name);
 				}
 			}
 			else //no building hovered
 			{
 				LOCPLINT->castleInt->hBuild = this;
 				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
-					LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
+					GH.statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
 				else
-					LOCPLINT->statusbar->print(str->name);
+					GH.statusbar->print(str->name);
 			}
 		}
 	}
@@ -209,7 +209,7 @@ void CHeroGSlot::hover (bool on)
 {
 	if(!on) 
 	{
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 		return;
 	}
 	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
@@ -254,7 +254,7 @@ void CHeroGSlot::hover (bool on)
 		}
 	}
 	if(temp.size())
-		LOCPLINT->statusbar->print(temp);
+		GH.statusbar->print(temp);
 }
 
 void CHeroGSlot::clickRight(tribool down, bool previousState)
@@ -836,7 +836,7 @@ void CCastleInterface::activate()
 	showing = true;
 	townlist->activate();
 	garr->activate();
-	LOCPLINT->statusbar = statusbar;
+	GH.statusbar = statusbar;
 	exit->activate();
 	fort->activate();
 	hall->activate();
@@ -1094,10 +1094,10 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 	{
 		std::string descr=CGI->generaltexth->allTexts[588];
 		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
-		LOCPLINT->statusbar->print(descr);
+		GH.statusbar->print(descr);
 	}
 	else
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 }
 void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 {
@@ -1233,10 +1233,10 @@ void CCastleInterface::CTownInfo::hover(bool on)
 			descr = CGI->generaltexth->allTexts[255];
 		else
 			descr = CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name();
-		LOCPLINT->statusbar->print(descr);
+		GH.statusbar->print(descr);
 	}
 	else
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 }
 void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
 {
@@ -1368,10 +1368,10 @@ void CHallInterface::CBuildingBox::hover(bool on)
 			toPrint = CGI->generaltexth->hcommands[state];
 		std::vector<std::string> name;
 		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->Name());
-		LOCPLINT->statusbar->print(CSDL_Ext::processStr(toPrint,name));
+		GH.statusbar->print(CSDL_Ext::processStr(toPrint,name));
 	}
 	else
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 }
 void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
 {
@@ -1732,12 +1732,12 @@ void CFortScreen::show( SDL_Surface * to)
 	anim++;
 	exit->show(to);
 	resdatabar->show(to);
-	LOCPLINT->statusbar->show(to);
+	GH.statusbar->show(to);
 }
 
 void CFortScreen::activate()
 {
-	LOCPLINT->statusbar = LOCPLINT->castleInt->statusbar;
+	GH.statusbar = LOCPLINT->castleInt->statusbar;
 	exit->activate();
 	for (size_t i=0;i<recAreas.size(); ++i)
 	{
@@ -1929,7 +1929,7 @@ void CMageGuildScreen::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	resdatabar->show(to);
-	LOCPLINT->statusbar->show(to);
+	GH.statusbar->show(to);
 	exit->show(to);
 }
 
@@ -1982,9 +1982,9 @@ void CMageGuildScreen::Scroll::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		LOCPLINT->statusbar->print(spell->name);
+		GH.statusbar->print(spell->name);
 	else
-		LOCPLINT->statusbar->clear();
+		GH.statusbar->clear();
 
 }
 

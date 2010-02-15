@@ -27,7 +27,7 @@ CMediaHandler::CMediaHandler(std::string fname)
 	try //c-tor of mapped_file_source throws exception on failure
 	{
 		mfile = new boost::iostreams::mapped_file_source(fname);
-	} HANDLE_EXCEPTION
+	} HANDLE_EXCEPTIONC(tlog1 << "Cannot open " << fname << std::endl)
 	if (!mfile->is_open()) //just in case
 	{
 		tlog1 << "Cannot open " << fname << std::endl;

@@ -321,7 +321,7 @@ void CHeroWindow::activate()
 	luck->activate();
 
 	garr->activate();
-	LOCPLINT->statusbar = ourBar;
+	GH.statusbar = ourBar;
 
 	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{

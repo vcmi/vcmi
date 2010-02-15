@@ -123,7 +123,7 @@ CMenuScreen::CMenuScreen( EState which )
 		{
 			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[3].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[newGame])), 540, 10, "ZMENUNG.DEF", SDLK_n);
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[4].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0 /*cb*/, 524, 251, "ZMENUHS.DEF", SDLK_h);
+			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0, 524, 251, "ZMENUHS.DEF", SDLK_h);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c);
 			boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, confWindow, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE);
@@ -133,7 +133,7 @@ CMenuScreen::CMenuScreen( EState which )
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
 			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, 0 /*cb*/, 568, 120, "ZTMULTI.DEF", SDLK_m);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
@@ -1823,66 +1823,6 @@ CScenarioInfo::~CScenarioInfo()
 {
 }
 
-CTextInput::CTextInput()
-{
-	bg = NULL;
-	used = 0;
-}
-
-CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
-:cb(CB)
-{
-	pos += Pos;
-	OBJ_CONSTRUCTION;
-	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
-	used = LCLICK | KEYBOARD;
-}
-
-CTextInput::~CTextInput()
-{
-
-}
-
-void CTextInput::showAll( SDL_Surface * to )
-{
-	CIntObject::showAll(to);
-	CSDL_Ext::printAt(text + "_", pos.x, pos.y, FONT_SMALL, zwykly, to);
-}
-
-void CTextInput::clickLeft( tribool down, bool previousState )
-{
-	//TODO
-
-}
-
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
-{
-	if(key.state != SDL_PRESSED) return;
-	switch(key.keysym.sym)
-	{
-	case SDLK_BACKSPACE:
-		if(text.size())
-			text.resize(text.size()-1);
-		break;
-	default:
-		char c = key.keysym.unicode; //TODO 16-/>8
-		static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
-		if(!vstd::contains(forbiddenChars,c) && std::isprint(c))
-			text += c;
-		break;
-	}
-	redraw();
-	cb(text);
-}
-
-void CTextInput::setText( const std::string &nText, bool callCb )
-{
-	text = nText;
-	redraw();
-	if(callCb)
-		cb(text);
-}
-
 bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 {
 	const CMapHeader * a = aaa->mapHeader,
@@ -1930,4 +1870,38 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 	{
 		return aaa->campaignHeader->name < bbb->campaignHeader->name; //sort by names
 	}
+}
+
+CMultiMode::CMultiMode()
+{
+	OBJ_CONSTRUCTION;
+	bg = new CPicture("MUPOPUP.bmp");
+	bg->convertToScreenBPP(); //so we could draw without problems
+	blitAt(CPicture("MUMAP.bmp"), 16, 77, *bg); //blit img
+	pos = bg->center(); //center, window has size of bg graphic
+
+	CGStatusBar *bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0), FONT_SMALL, CLabel::CENTER);//226, 472
+	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
+	txt->setText(CGI->generaltexth->allTexts[434]); //Player
+
+	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
+	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popInt, ref(GH), this), 373, 424, "MUBCANC.DEF");
+}
+
+void CMultiMode::openHotseat()
+{
+	GH.pushInt(new CHotSeatPlayers(txt->text));
+}
+
+CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
+{
+	OBJ_CONSTRUCTION;
+	bg = new CPicture("MUHOTSEA.bmp");
+	bg->convertToScreenBPP(); //so we could draw without problems
+	bg->printAtMiddleWBLoc(CGI->generaltexth->allTexts[446], 185, 55, FONT_BIG, 50, zwykly, *bg); //HOTSEAT	Please enter names
+	pos = bg->center(); //center, window has size of bg graphic
+
+	for(int i = 0; i < ARRAY_COUNT(txt); i++)
+		txt[i] = new CTextInput(Rect(60, 85 + i*30, 280, 16), *bg);
+
 }

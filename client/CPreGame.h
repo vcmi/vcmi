@@ -20,6 +20,7 @@
 struct CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
+class CTextInput;
 
 class CMapInfo
 {
@@ -46,23 +47,6 @@ public:
 	ESortBy sortBy;
 	bool operator()(const CMapInfo *aaa, const CMapInfo *bbb);
 	mapSorter(ESortBy es):sortBy(es){};
-};
-
-class CTextInput : public CIntObject
-{
-public:
-	CPicture *bg;
-	std::string text;
-	CFunctionList<void(const std::string &)> cb;
-
-	void setText(const std::string &nText, bool callCb = false);
-
-	CTextInput();
-	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	~CTextInput();
-	void showAll(SDL_Surface * to);
-	void clickLeft(tribool down, bool previousState);
-	void keyPressed(const SDL_KeyboardEvent & key);
 };
 
 class CMenuScreen : public CIntObject
@@ -239,6 +223,27 @@ public:
 
 	CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo, const CMapInfo * makeItCurrent=NULL);
 	~CScenarioInfo();
+};
+
+class CMultiMode : public CIntObject
+{
+public:
+	CPicture *bg;
+	CTextInput *txt;
+	AdventureMapButton *btns[7]; //0 - hotseat, 6 - cancel
+
+	CMultiMode();
+	void openHotseat();
+};
+
+class CHotSeatPlayers : public CIntObject
+{
+public:
+	CPicture *bg;
+	CTextInput *txt[8];
+	AdventureMapButton *ok, *cancel;
+
+	CHotSeatPlayers(const std::string &firstPlayer);
 };
 
 class CGPreGame : public CIntObject, public IUpdateable

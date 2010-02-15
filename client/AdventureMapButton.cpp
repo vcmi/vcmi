@@ -178,9 +178,9 @@ void AdventureMapButton::hover (bool on)
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
-	if(LOCPLINT && name && name->size() && blocked!=1) //if there is no name, there is nohing to display also
+	if(name && name->size() && blocked!=1) //if there is no name, there is nohing to display also
 	{
-		if (LOCPLINT->battleInt) //for battle buttons
+		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
 		{
 			if(on && LOCPLINT->battleInt->console->alterTxt == "")
 			{
@@ -193,12 +193,12 @@ void AdventureMapButton::hover (bool on)
 				LOCPLINT->battleInt->console->whoSetAlter = 0;
 			}
 		}
-		else //for other buttons
+		else if(GH.statusbar) //for other buttons
 		{
 			if (on)
-				LOCPLINT->statusbar->print(*name);
-			else if ( LOCPLINT->statusbar->getCurrent()==(*name) )
-				LOCPLINT->statusbar->clear();
+				GH.statusbar->print(*name);
+			else if ( GH.statusbar->getCurrent()==(*name) )
+				GH.statusbar->clear();
 		}
 	}
 }

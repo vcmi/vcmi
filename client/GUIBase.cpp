@@ -350,6 +350,7 @@ CGuiHandler::CGuiHandler()
 	curInt = NULL;
 	current = NULL;
 	terminate = false;
+	statusbar = NULL;
 }
 
 CGuiHandler::~CGuiHandler()
@@ -577,6 +578,9 @@ CIntObject::~CIntObject()
 		for(size_t i = 0; i < children.size(); i++)
 			if(children[i]->recActions & DISPOSE)
 				delete children[i];
+
+	if(parent)
+		parent->children -= this;
 }
 
 void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
@@ -721,6 +725,16 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 	}
 }
 
+CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat /*= false*/)
+{
+	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
+}
+
+CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
+{
+	createSimpleRect(r, screenFormat, color);
+}
+
 CPicture::~CPicture()
 {
 	if(freeSurf)
@@ -731,6 +745,27 @@ void CPicture::showAll( SDL_Surface * to )
 {
 	if(bg)
 		blitAt(bg, pos, to);
+}
+
+void CPicture::convertToScreenBPP()
+{
+	SDL_Surface *hlp = bg;
+	bg = SDL_ConvertSurface(hlp,screen->format,0);
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	SDL_FreeSurface(hlp);
+}
+
+void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
+{
+	pos += r;
+	pos.w = r.w;
+	pos.h = r.h;
+	if(screenFormat)
+		bg = CSDL_Ext::newSurface(r.w, r.h);
+	else
+		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
+
+	SDL_FillRect(bg, NULL, color);
 }
 
 ObjectConstruction::ObjectConstruction( CIntObject *obj )
@@ -805,6 +840,18 @@ bool isArrowKey( SDLKey key )
 	return key >= SDLK_UP && key <= SDLK_LEFT;
 }
 
+CIntObject * moveChildren(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos)
+{
+	assert(vstd::contains(from->children, obj));
+	assert(obj->parent == from);
+	from->children -= obj;
+	to->children.push_back(obj);
+	obj->parent = to;
+	if(adjustPos)
+		obj->pos -= from->pos - to->pos;
+
+	return obj;
+}
 Rect Rect::createCentered( int w, int h )
 {
 	return Rect(screen->w/2 - w/2, screen->h/2 - h/2, w, h);
