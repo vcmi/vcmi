@@ -34,8 +34,11 @@ Tom Zielinski aka Warmonger, 	<Warmonger@vp.pl>
 Frank Zago aka ubuntux,				<>
    * GCC/Linux compatibility changes, sound/music support, video support on Linux
    
-Trevor Standley aka tstandley		<>
+Trevor Standley aka tstandley,		<>
    * adventure map part of Genius AI
 
 Rickard Westerlund aka Onion Knight, 	<onionknigh@gmail.com>
    * battle functionality and general support
+
+Ivan,							<>
+   * Kingdom overwiew window, a few town structures, general support
