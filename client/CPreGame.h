@@ -41,7 +41,7 @@ public:
 	void countPlayers();
 };
 
-enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
+enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps}; //_numOfMaps is for campaigns
 
 class mapSorter
 {

@@ -73,7 +73,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name )
 	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(cmpgn, it, ret->header.version);
+		CCampaignScenario sc = readScenarioFromMemory(cmpgn, it, ret->header.version, ret->header.mapVersion);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -122,7 +122,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char *buffer, int & outIt, int version )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char *buffer, int & outIt, int version, int mapVersion )
 {
 	struct HLP
 	{
@@ -143,6 +143,8 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char 
 	CCampaignScenario ret;
 	ret.mapName = readString(buffer, outIt);
 	ret.packedMapSize = readNormalNr(buffer, outIt); outIt += 4;
+	if(mapVersion == 18)//unholy alliance
+		outIt++;
 	ret.preconditionRegion = buffer[outIt++];
 	ret.regionColor = buffer[outIt++];
 	ret.difficulty = buffer[outIt++];

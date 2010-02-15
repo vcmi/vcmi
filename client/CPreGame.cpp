@@ -629,12 +629,23 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	txt = NULL;
 	tabType = Type;
 
-// 	if (Type != CMenuScreen::campaignList)
-	/*{*/
+ 	if (Type != CMenuScreen::campaignList)
+	{
 		bg = new CPicture(BitmapHandler::loadBitmap("SCSELBCK.bmp"), 0, 0, true);
 		pos.w = bg->pos.w;
 		pos.h = bg->pos.h;
-	/*}*/
+	}
+	else
+	{
+		SDL_Surface * tmp1 = BitmapHandler::loadBitmap("CAMCUST.bmp");
+		SDL_Surface * tmp = CSDL_Ext::newSurface(400, tmp1->h);
+		blitAt(tmp1, 0, 0, tmp);
+		SDL_FreeSurface(tmp1);
+		bg = new CPicture(tmp, 0, 0, true);
+		pos.w = bg->pos.w;
+		pos.h = bg->pos.h;
+		bg->pos.x = bg->pos.y = 0;
+	}
 
 	std::vector<FileInfo> toParse;
 	switch(tabType)
@@ -672,9 +683,10 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 
 
-	//size filter buttons
+	
 	if (tabType != CMenuScreen::campaignList)
 	{
+		//size filter buttons
 		{
 			int sizes[] = {36, 72, 108, 144, 0};
 			const char * names[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
@@ -682,12 +694,19 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				new AdventureMapButton("", CGI->generaltexth->zelp[54+i].second, bind(&SelectionTab::filter, this, sizes[i], true), 158 + 47*i, 46, names[i]);
 		}
 
+		//sort buttons buttons
 		{
 			int xpos[] = {23, 55, 88, 121, 306, 339};
 			const char * names[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 			for(int i = 0; i < 6; i++)
 				new AdventureMapButton("", CGI->generaltexth->zelp[107+i].second, bind(&SelectionTab::sortBy, this, i), xpos[i], 86, names[i]);
 		}
+	}
+	else
+	{
+		//sort by buttons
+		new AdventureMapButton("", "", bind(&SelectionTab::sortBy, this, _numOfMaps), 23, 86, "CamCusM.DEF"); //by num of maps
+		new AdventureMapButton("", "", bind(&SelectionTab::sortBy, this, _name), 55, 86, "CamCusL.DEF"); //by name
 	}
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
@@ -1914,7 +1933,19 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 	}
 	else //if we are sorting campaigns
 	{
-		return aaa->campaignHeader->name < bbb->campaignHeader->name; //sort by names
+		switch(sortBy)
+		{
+			case _numOfMaps: //by number of maps in campaign
+				return CGI->generaltexth->campaignRegionNames[ aaa->campaignHeader->mapVersion ].size() < 
+					CGI->generaltexth->campaignRegionNames[ bbb->campaignHeader->mapVersion ].size();
+				break;
+			case _name: //by name
+				return aaa->campaignHeader->name < bbb->campaignHeader->name;
+				break;
+			default:
+				return aaa->campaignHeader->name < bbb->campaignHeader->name;
+				break;
+		}
 	}
 }
 
