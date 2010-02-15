@@ -21,6 +21,7 @@ struct CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
 class CTextInput;
+class CCampaign;
 class CGStatusBar;
 
 class CMapInfo
@@ -212,6 +213,7 @@ public:
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
 	void updateStartInfo(const CMapInfo * to);
+	void startCampaign();
 	void startGame();
 	void difficultyChange(int to);
 };
@@ -249,6 +251,20 @@ public:
 
 	CHotSeatPlayers(const std::string &firstPlayer);
 	void enterSelectionScreen();
+};
+
+class CBonusSelection : public CIntObject
+{
+	SDL_Surface * background;
+	AdventureMapButton * startB, * backB;
+public:
+	CBonusSelection(const CCampaign * ourCampaign, int whichMap);
+	~CBonusSelection();
+
+	void showAll(SDL_Surface * to);
+
+	void goBack();
+	void startMap();
 };
 
 class CGPreGame : public CIntObject, public IUpdateable

@@ -73,7 +73,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name )
 	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(cmpgn, it);
+		CCampaignScenario sc = readScenarioFromMemory(cmpgn, it, ret->header.version);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -109,6 +109,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	CCampaignHeader ret;
 	ret.version = readNormalNr(buffer, outIt); outIt+=4;
 	ret.mapVersion = readChar(buffer, outIt);
+	ret.mapVersion -= 1; //change range of it from [1, 20] to [0, 19]
 	ret.name = readString(buffer, outIt);
 	ret.description = readString(buffer, outIt);
 	ret.difficultyChoosenByPlayer = readChar(buffer, outIt);
@@ -121,7 +122,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char *buffer, int & outIt )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char *buffer, int & outIt, int version )
 {
 	struct HLP
 	{
@@ -149,20 +150,30 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char 
 	ret.prolog = HLP::prologEpilogReader(buffer, outIt);
 	ret.epilog = HLP::prologEpilogReader(buffer, outIt);
 
-	ret.travelOptions = readScenarioTravelFromMemory(buffer, outIt);
+	ret.travelOptions = readScenarioTravelFromMemory(buffer, outIt, version);
 
 	return ret;
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt )
+CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt , int version )
 {
 	CScenarioTravel ret;
 
 	ret.whatHeroKeeps = buffer[outIt++];
 	memcpy(ret.monstersKeptByHero, buffer+outIt, ARRAY_COUNT(ret.monstersKeptByHero));
 	outIt += ARRAY_COUNT(ret.monstersKeptByHero);
-	memcpy(ret.artifsKeptByHero, buffer+outIt, ARRAY_COUNT(ret.artifsKeptByHero));
-	outIt += ARRAY_COUNT(ret.artifsKeptByHero);
+	int artifBytes;
+	if (version == 5) //AB
+	{
+		artifBytes = 17;
+		ret.artifsKeptByHero[17] = 0;
+	} 
+	else //SoD+
+	{
+		artifBytes = 18;
+	}
+	memcpy(ret.artifsKeptByHero, buffer+outIt, artifBytes);
+	outIt += artifBytes;
 
 	ret.startOptions = buffer[outIt++];
 	
@@ -205,7 +216,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 				case 4: //spell scroll
 					{
 						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
-						bonus.info2 = readNormalNr(buffer, outIt, 2); outIt += 2; //spell ID
+						bonus.info2 = buffer[outIt++]; //spell ID
 						break;
 					}
 				case 5: //prim skill
