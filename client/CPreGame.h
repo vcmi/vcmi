@@ -21,6 +21,7 @@ struct CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
 class CTextInput;
+class CGStatusBar;
 
 class CMapInfo
 {
@@ -204,8 +205,9 @@ public:
 	const CMapInfo *current;
 	StartInfo sInfo;
 	CIntObject *curTab;
+	std::vector<std::string> playerNames;
 
-	CSelectionScreen(CMenuScreen::EState Type);
+	CSelectionScreen(CMenuScreen::EState Type, const std::vector<std::string> &PlayerNames = std::vector<std::string>());
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -231,6 +233,7 @@ public:
 	CPicture *bg;
 	CTextInput *txt;
 	AdventureMapButton *btns[7]; //0 - hotseat, 6 - cancel
+	CGStatusBar *bar;
 
 	CMultiMode();
 	void openHotseat();
@@ -242,8 +245,10 @@ public:
 	CPicture *bg;
 	CTextInput *txt[8];
 	AdventureMapButton *ok, *cancel;
+	CGStatusBar *bar;
 
 	CHotSeatPlayers(const std::string &firstPlayer);
+	void enterSelectionScreen();
 };
 
 class CGPreGame : public CIntObject, public IUpdateable

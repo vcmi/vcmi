@@ -290,8 +290,8 @@ public:
 	std::string getCurrent(); //returns currently displayed text
 	void show(SDL_Surface * to); //shows statusbar (with current text)
 
-	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly, const std::string &Text =  "");
+	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
 
 	~CGStatusBar();
 };
@@ -301,14 +301,18 @@ class CTextInput : public CLabel
 {
 public:
 	CFunctionList<void(const std::string &)> cb;
+	bool focus; //only one text input may have focus at once
 
 	void setText(const std::string &nText, bool callCb = false);
 
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, SDL_Surface *srf);
+	~CTextInput();
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
 	void keyPressed(const SDL_KeyboardEvent & key);
+	void giveFocus();
+	static CTextInput *inputWithFocus;
 };
 
 class CList : public CIntObject

@@ -126,7 +126,6 @@ public:
 	CBattleInterface * battleInt; //NULL if no battle
 	FPSmanager * mainFPSmng; //to keep const framerate
 	CInGameConsole * cingconsole;
-	IStatusBar *statusbar; //current statusbar - will be used to show hover tooltips
 	
 	CCallback * cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or NULL)

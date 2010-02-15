@@ -211,7 +211,9 @@ CGPreGame::~CGPreGame()
 
 void CGPreGame::openSel( CMenuScreen::EState type )
 {
-	GH.pushInt(new CSelectionScreen(type));
+	std::vector<std::string> names;
+	names.push_back(CGI->generaltexth->allTexts[434]);
+	GH.pushInt(new CSelectionScreen(type, names));
 }
 
 void CGPreGame::loadGraphics()
@@ -255,7 +257,8 @@ void CGPreGame::update()
 	GH.handleEvents();
 }
 
-CSelectionScreen::CSelectionScreen( CMenuScreen::EState Type )
+CSelectionScreen::CSelectionScreen( CMenuScreen::EState Type, const std::vector<std::string> &PlayerNames )
+:playerNames(PlayerNames)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	IShowActivable::type = BLOCK_ADV_HOTKEYS;
@@ -384,6 +387,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 	sInfo.playerInfos.resize(to->playerAmnt);
 	sInfo.mapname = to->filename;
 	playerSerial = playerColor = -1;
+	int placedPlayers = 0;
 
 	int serialC=0;
 	for (int i = 0; i < PLAYER_LIMIT; i++)
@@ -398,12 +402,15 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 		pset.color = i;
 		pset.serial = serialC++;
 
-		if (pinfo.canHumanPlay && playerColor < 0)
+		if (pinfo.canHumanPlay && placedPlayers < playerNames.size())
 		{
-			pset.name = CGI->generaltexth->allTexts[434]; //Player
+			pset.name = playerNames[placedPlayers++];
 			pset.human = true;
-			playerColor = i;
-			playerSerial = pset.serial;
+			if(playerColor < 0)
+			{
+				playerColor = i;
+				playerSerial = pset.serial;
+			}
 		}
 		else
 		{
@@ -1880,12 +1887,12 @@ CMultiMode::CMultiMode()
 	blitAt(CPicture("MUMAP.bmp"), 16, 77, *bg); //blit img
 	pos = bg->center(); //center, window has size of bg graphic
 
-	CGStatusBar *bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0), FONT_SMALL, CLabel::CENTER);//226, 472
+	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
 	txt->setText(CGI->generaltexth->allTexts[434]); //Player
 
 	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
-	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popInt, ref(GH), this), 373, 424, "MUBCANC.DEF");
+	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popIntTotally, ref(GH), this), 373, 424, "MUBCANC.DEF");
 }
 
 void CMultiMode::openHotseat()
@@ -1904,4 +1911,21 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 	for(int i = 0; i < ARRAY_COUNT(txt); i++)
 		txt[i] = new CTextInput(Rect(60, 85 + i*30, 280, 16), *bg);
 
+	txt[0]->setText(firstPlayer);
+	txt[0]->giveFocus();
+
+	ok = new AdventureMapButton(CGI->generaltexth->zelp[560], bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF");
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF");
+	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
+}
+
+void CHotSeatPlayers::enterSelectionScreen()
+{
+	std::vector<std::string> playerNames;
+	for(int i = 0; i < ARRAY_COUNT(txt); i++)
+		if(txt[i]->text.length())
+			playerNames.push_back(txt[i]->text);
+
+	GH.popInts(2);
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, playerNames));
 }

@@ -579,7 +579,7 @@ CIntObject::~CIntObject()
 			if(children[i]->recActions & DISPOSE)
 				delete children[i];
 
-	if(parent)
+	if(parent && GH.createdObj.size()) //temporary object destroyed
 		parent->children -= this;
 }
 

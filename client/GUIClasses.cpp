@@ -61,6 +61,8 @@ using namespace CSDL_Ext;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
+CTextInput * CTextInput::inputWithFocus;
+
 #undef min
 #undef max
 
@@ -5120,7 +5122,7 @@ CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	init();
 }
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
+CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= zwykly*/)
 	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();
@@ -5156,15 +5158,17 @@ void CGStatusBar::init()
 }
 
 CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
-:cb(CB)
+:cb(CB), focus(false)
 {
 	pos += Pos;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
 	used = LCLICK | KEYBOARD;
+	giveFocus();
 }
 
 CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
+: focus(false)
 {
 	pos += Pos;
 	OBJ_CONSTRUCTION;
@@ -5175,22 +5179,25 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	pos.h = bg->pos.h;
 	bg->pos = pos;
 	used = LCLICK | KEYBOARD;
+	giveFocus();
 }
 
 void CTextInput::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
-	CSDL_Ext::printAt(text + "_", pos.x, pos.y, FONT_SMALL, zwykly, to);
+	const std::string toPrint = focus ? text + "_" : text;
+	CSDL_Ext::printAt(toPrint, pos.x, pos.y, FONT_SMALL, zwykly, to);
 }
 
 void CTextInput::clickLeft( tribool down, bool previousState )
 {
-	//TODO
+	if(down && !focus)
+		giveFocus();
 }
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
-	if(key.state != SDL_PRESSED) return;
+	if(!focus || key.state != SDL_PRESSED) return;
 	switch(key.keysym.sym)
 	{
 	case SDLK_BACKSPACE:
@@ -5216,3 +5223,21 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 		cb(text);
 }
 
+CTextInput::~CTextInput()
+{
+	if(inputWithFocus == this)
+		inputWithFocus = NULL;
+}
+
+void CTextInput::giveFocus()
+{
+	if(inputWithFocus)
+	{
+		inputWithFocus->focus = false;
+		inputWithFocus->redraw();
+	}
+
+	focus = true;
+	inputWithFocus = this;
+	redraw();
+}
