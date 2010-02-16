@@ -3,6 +3,7 @@
 
 #include "global.h"
 #include <vector>
+#include <string>
 
 /*
  * StartInfo.h, part of VCMI engine
@@ -53,7 +54,7 @@ struct StartInfo
 {
 	ui8 mode; //0 - new game; 1 - load game
 	ui8 difficulty; //0=easy; 4=impossible
-	std::vector<PlayerSettings> playerInfos;
+	std::vector<PlayerSettings> playerInfos; //serial indexed
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	PlayerSettings & getIthPlayersSettings(int no)
@@ -63,8 +64,17 @@ struct StartInfo
 				return playerInfos[i];
 		tlog1 << "Cannot find info about player " << no <<". Throwing...\n";
 		throw std::string("Cannot find info about player");
-
 	}
+
+	PlayerSettings *getPlayersSettings(const std::string &name)
+	{
+		for(unsigned int i=0; i<playerInfos.size(); ++i)
+			if(playerInfos[i].name == name)
+				return &playerInfos[i];
+
+		return NULL;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & mode;

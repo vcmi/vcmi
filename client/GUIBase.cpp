@@ -156,7 +156,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 
 		bool keysCaptured = false;
-		for(std::list<CIntObject*>::iterator i=keyinterested.begin(); i != keyinterested.end();i++)
+		for(std::list<CIntObject*>::iterator i=keyinterested.begin(); i != keyinterested.end() && current; i++)
 		{
 			if((*i)->captureAllKeys)
 			{
@@ -166,7 +166,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 
 		std::list<CIntObject*> miCopy = keyinterested;
-		for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
+		for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end() && current; i++)
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureAllKeys))
 				(**i).keyPressed(key);
 	}
@@ -183,7 +183,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			if(lastClick == sEvent->motion  &&  (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<CIntObject*> hlp = doubleClickInterested;
-				for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+				for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 				{
 					if(!vstd::contains(doubleClickInterested,*i)) continue;
 					if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
@@ -198,7 +198,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			lastClickTime = SDL_GetTicks();
 
 			std::list<CIntObject*> hlp = lclickable;
-			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 			{
 				if(!vstd::contains(lclickable,*i)) continue;
 				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
@@ -212,7 +212,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		else if (sEvent->button.button == SDL_BUTTON_RIGHT)
 		{
 			std::list<CIntObject*> hlp = rclickable;
-			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 			{
 				if(!vstd::contains(rclickable,*i)) continue;
 				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
@@ -226,7 +226,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
 		{
 			std::list<CIntObject*> hlp = wheelInterested;
-			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 			{
 				if(!vstd::contains(wheelInterested,*i)) continue;
 				(*i)->wheelScrolled(sEvent->button.button == SDL_BUTTON_WHEELDOWN, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
@@ -236,7 +236,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
-		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{
 			if(!vstd::contains(lclickable,*i)) continue;
 			prev = (*i)->pressedL;
@@ -252,7 +252,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
 		std::list<CIntObject*> hlp = rclickable;
-		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{
 			if(!vstd::contains(rclickable,*i)) continue;
 			prev = (*i)->pressedR;

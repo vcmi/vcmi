@@ -1069,44 +1069,6 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
 }
 
-int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
-{
-	int ret=-1;
-	if(a.x>=CGI->mh->map->width && a.y>=CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][CGI->mh->map->width-1][a.z].tileInfo->malle];
-	else if(a.x>=CGI->mh->map->width && a.y<CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][a.y][a.z].tileInfo->malle];
-	else if(a.x<CGI->mh->map->width && a.y>=CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->map->width-1][a.z].tileInfo->malle];
-	else
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].tileInfo->malle];
-	if(!(a.x==b.x || a.y==b.y))
-		ret*=1.41421;
-
-	//TODO: use hero's pathfinding skill during calculating cost
-	return ret;
-}
-
-//std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
-//{
-//	std::vector < CGObjectInstance * > ret;
-//	for(int h=0; h<ttiles[pos.x][pos.y][pos.z].objects.size(); ++h)
-//	{
-//		CGObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
-//		if(curi->visitableAt(- curi->pos.x + pos.x + curi->getWidth() - 1, -curi->pos.y + pos.y + curi->getHeight() - 1))
-//			ret.push_back(curi);
-//	}
-//	return ret;
-//}
-
-std::string CMapHandler::getDefName(int id, int subid)
-{
-	CGDefInfo* temp = CGI->dobjinfo->gobjs[id][subid];
-	if(temp)
-		return temp->name;
-	throw std::string("Def not found.");
-}
-
 bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
 	const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;

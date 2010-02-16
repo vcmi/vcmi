@@ -261,7 +261,7 @@ public:
 };
 
 class CLabel
-	: public CIntObject
+	: public virtual CIntObject
 {
 public:
 	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT} alignment;
@@ -296,12 +296,26 @@ public:
 	~CGStatusBar();
 };
 
+class CFocusable 
+	: public virtual CIntObject
+{
+public:
+	bool focus; //only one focusable control can have focus at one moment
 
-class CTextInput : public CLabel
+	void giveFocus(); //captures focus
+	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+
+	static std::list<CFocusable*> focusables; //all existing objs
+	static CFocusable *inputWithFocus; //who has focus now
+	CFocusable();
+	~CFocusable();
+};
+
+class CTextInput
+	: public CLabel, public CFocusable
 {
 public:
 	CFunctionList<void(const std::string &)> cb;
-	bool focus; //only one text input may have focus at once
 
 	void setText(const std::string &nText, bool callCb = false);
 
@@ -311,8 +325,6 @@ public:
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void giveFocus();
-	static CTextInput *inputWithFocus;
 };
 
 class CList : public CIntObject

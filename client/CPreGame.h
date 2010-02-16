@@ -206,9 +206,8 @@ public:
 	const CMapInfo *current;
 	StartInfo sInfo;
 	CIntObject *curTab;
-	std::vector<std::string> playerNames;
 
-	CSelectionScreen(CMenuScreen::EState Type, const std::vector<std::string> &PlayerNames = std::vector<std::string>());
+	CSelectionScreen(CMenuScreen::EState Type);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);

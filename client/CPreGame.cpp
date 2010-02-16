@@ -51,7 +51,8 @@ void startGame(StartInfo * options);
 CGPreGame * CGP;
 static const CMapInfo *curMap;
 static StartInfo *curOpts;
-static int playerColor, playerSerial;
+static int playerColor, playerSerial; //if more than one player - applies to the first
+static std::vector<std::string> playerNames; // serial id of name <-> player name
 
 static std::string selectedName; //set when game is started/loaded
 
@@ -211,9 +212,8 @@ CGPreGame::~CGPreGame()
 
 void CGPreGame::openSel( CMenuScreen::EState type )
 {
-	std::vector<std::string> names;
-	names.push_back(CGI->generaltexth->allTexts[434]);
-	GH.pushInt(new CSelectionScreen(type, names));
+	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
+	GH.pushInt(new CSelectionScreen(type));
 }
 
 void CGPreGame::loadGraphics()
@@ -257,8 +257,7 @@ void CGPreGame::update()
 	GH.handleEvents();
 }
 
-CSelectionScreen::CSelectionScreen( CMenuScreen::EState Type, const std::vector<std::string> &PlayerNames )
-:playerNames(PlayerNames)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	IShowActivable::type = BLOCK_ADV_HOTKEYS;
@@ -358,6 +357,7 @@ CSelectionScreen::~CSelectionScreen()
 	curMap = NULL;
 	curOpts = NULL;
 	playerSerial = playerColor = -1;
+	playerNames.clear();
 }
 
 void CSelectionScreen::toggleTab(CIntObject *tab)
@@ -396,6 +396,25 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 	}
 }
 
+void setPlayer(PlayerSettings &pset, unsigned player) 
+{
+	if(player < playerNames.size())
+	{
+		pset.name = playerNames[player];
+		pset.human = true;
+		if(playerColor < 0)
+		{
+			playerColor = pset.color;
+			playerSerial = pset.serial;
+		}
+	}
+	else
+	{
+		pset.name = CGI->generaltexth->allTexts[468];//Computer
+		pset.human = false;
+	}
+}
+
 void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 {
 	sInfo.playerInfos.clear();
@@ -405,7 +424,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 	sInfo.playerInfos.resize(to->playerAmnt);
 	sInfo.mapname = to->filename;
 	playerSerial = playerColor = -1;
-	int placedPlayers = 0;
+	ui8 placedPlayers = 0;
 
 	int serialC=0;
 	for (int i = 0; i < PLAYER_LIMIT; i++)
@@ -419,22 +438,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 		PlayerSettings &pset = sInfo.playerInfos[serialC];
 		pset.color = i;
 		pset.serial = serialC++;
-
-		if (pinfo.canHumanPlay && placedPlayers < playerNames.size())
-		{
-			pset.name = playerNames[placedPlayers++];
-			pset.human = true;
-			if(playerColor < 0)
-			{
-				playerColor = i;
-				playerSerial = pset.serial;
-			}
-		}
-		else
-		{
-			pset.name = CGI->generaltexth->allTexts[468];//Computer
-			pset.human = false;
-		}
+		setPlayer(pset, placedPlayers++);
 
 		for (int j = 0; j < F_NUMBER  &&  pset.castle != -1; j++) //we start with none and find matching faction. if more than one, then set to random
 		{
@@ -1479,22 +1483,77 @@ void OptionsTab::setTurnLength( int npos )
 
 void OptionsTab::flagPressed( int player )
 {
-	if(player == playerSerial) //that color is already selected, no action needed
-		return;
+	static std::pair<int, int> playerToRestore(-1, -1); //<color serial, player name serial> 
 
-	PlayerSettings &s =  curOpts->playerInfos[player],
-		&old = curOpts->playerInfos[playerSerial];
+	PlayerSettings &clicked =  curOpts->playerInfos[player];
+	PlayerSettings *old = NULL;
 
-	std::swap(old.human, s.human);
-	std::swap(old.name, s.name);
-	playerColor = s.color;
+	if(playerNames.size() == 1) //single player -> swap
+	{
+		if(player == playerSerial) //that color is already selected, no action needed
+			return;
 
-	if(!entries[playerSerial]->fixedHero)
-		old.hero = -1;
 
-	playerSerial = player;
-	entries[s.serial]->selectButtons();
-	entries[old.serial]->selectButtons();
+		old = &curOpts->playerInfos[playerSerial];
+		std::swap(old->human, clicked.human);
+		std::swap(old->name, clicked.name);
+		playerColor = clicked.color;
+		playerSerial = player;
+	}
+	else
+	{
+		//identify clicked player
+		int curNameID = clicked.human 
+						? vstd::findPos(playerNames, clicked.name) 
+						: -1;
+
+ 		if(curNameID >= 0  &&  playerToRestore.second == curNameID) //player to restore is about to being replaced -> put him back to the old place
+		{
+			PlayerSettings &restPos = curOpts->playerInfos[playerToRestore.first];
+ 			setPlayer(restPos, playerToRestore.second);
+			playerToRestore.first = playerToRestore.second = 0;
+		}
+
+ 		//who will be put here?
+ 		if(curNameID < 0) //if possible replace computer with unallocated player
+		{
+			for(int i = 0; i < playerNames.size(); i++)
+			{
+				if(!curOpts->getPlayersSettings(playerNames[i])) 
+				{
+					curNameID = i-1; //-1 because it'll incremented soon
+					break;
+				}
+			}
+		}
+
+ 		setPlayer(clicked, ++curNameID); //simply next player
+
+		//if that player was somewhere else, we need to replace him with computer
+		if(curNameID < playerNames.size())
+		{
+			for(std::vector<PlayerSettings>::iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
+			{
+				if(i->serial != player  &&  i->name == playerNames[curNameID])
+				{
+					assert(i->human);
+					playerToRestore.first = i->serial;
+					playerToRestore.second = vstd::findPos(playerNames, i->name);
+					setPlayer(*i, -1); //set computer
+					old = &*i;
+					break;
+				}
+			}
+		}
+	}
+
+	entries[clicked.serial]->selectButtons();
+	if(old)
+	{
+		entries[old->serial]->selectButtons();
+		if(!entries[playerSerial]->fixedHero)
+			old->hero = -1;
+	}
 	GH.totalRedraw();
 }
 
@@ -1991,13 +2050,12 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 
 void CHotSeatPlayers::enterSelectionScreen()
 {
-	std::vector<std::string> playerNames;
 	for(int i = 0; i < ARRAY_COUNT(txt); i++)
 		if(txt[i]->text.length())
 			playerNames.push_back(txt[i]->text);
 
 	GH.popInts(2);
-	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, playerNames));
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame));
 }
 
 CBonusSelection::CBonusSelection( const CCampaign * ourCampaign, int whichMap )

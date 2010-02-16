@@ -62,7 +62,8 @@ using namespace CSDL_Ext;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
-CTextInput * CTextInput::inputWithFocus;
+std::list<CFocusable*> CFocusable::focusables;
+CFocusable * CFocusable::inputWithFocus;
 
 #undef min
 #undef max
@@ -5174,8 +5175,9 @@ void CGStatusBar::init()
 }
 
 CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
-:cb(CB), focus(false)
+:cb(CB)
 {
+	focus = false;
 	pos += Pos;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
@@ -5184,8 +5186,8 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 }
 
 CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
-: focus(false)
 {
+	focus = false;
 	pos += Pos;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
@@ -5213,7 +5215,16 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
-	if(!focus || key.state != SDL_PRESSED) return;
+	if(!focus || key.state != SDL_PRESSED) 
+		return;
+
+	if(key.keysym.sym == SDLK_TAB)
+	{
+		moveFocus();
+		GH.current = NULL;
+		return;
+	}
+
 	switch(key.keysym.sym)
 	{
 	case SDLK_BACKSPACE:
@@ -5241,11 +5252,21 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 
 CTextInput::~CTextInput()
 {
-	if(inputWithFocus == this)
-		inputWithFocus = NULL;
 }
 
-void CTextInput::giveFocus()
+CFocusable::CFocusable()
+{
+	focusables.push_back(this);
+}
+
+CFocusable::~CFocusable()
+{
+	if(inputWithFocus == this)
+		inputWithFocus = NULL;
+
+	focusables -= this;
+}
+void CFocusable::giveFocus()
 {
 	if(inputWithFocus)
 	{
@@ -5256,4 +5277,21 @@ void CTextInput::giveFocus()
 	focus = true;
 	inputWithFocus = this;
 	redraw();
+}
+
+void CFocusable::moveFocus()
+{
+	std::list<CFocusable*>::iterator i = vstd::find(focusables, this),
+									ourIt = i;
+	for(i++; i != ourIt; i++)
+	{
+		if(i == focusables.end())
+			i = focusables.begin();
+
+		if((*i)->active)
+		{
+			(*i)->giveFocus();
+			break;;
+		}
+	}
 }

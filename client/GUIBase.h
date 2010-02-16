@@ -460,7 +460,7 @@ public:
 	//objs to blit
 	std::vector<IShowable*> objsToBlit;
 
-	SDL_Event * current; //current event
+	SDL_Event * current; //current event - can be set to NULL to stop handling event
 	IUpdateable *curInt;
 
 	Point lastClick;
