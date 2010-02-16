@@ -124,4 +124,4 @@ public:
 };
 
 
-#endif __CCAMPAIGNHANDLER_H__
+#endif /* __CCAMPAIGNHANDLER_H__ */
