@@ -66,10 +66,11 @@ class DLL_EXPORT CCampaignScenario
 {
 public:
 	std::string mapName;
-	ui32 packedMapSize;
-	ui8 preconditionRegion;
+	ui32 packedMapSize; //generally not used
+	ui16 preconditionRegion; //what we need to conquer to conquer this one (bitfield!)
 	ui8 regionColor;
 	ui8 difficulty;
+	ui8 conquered;
 
 	std::string regionText;
 
@@ -92,7 +93,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & regionText & prolog & epilog & travelOptions;
+		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & conquered & regionText & 
+			prolog & epilog & travelOptions;
 	}
 };
 
@@ -107,6 +109,8 @@ public:
 	{
 		h & header & scenarios & mapPieces;
 	}
+
+	bool conquerable(int whichScenario) const;
 };
 
 class DLL_EXPORT CCampaignHandler

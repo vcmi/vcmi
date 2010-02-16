@@ -2058,13 +2058,16 @@ void CHotSeatPlayers::enterSelectionScreen()
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame));
 }
 
-CBonusSelection::CBonusSelection( const CCampaign * ourCampaign, int whichMap )
+CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap )
+: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
 		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
 		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"};
 	
+	loadPositionsOfGraphics();
+
 	background = BitmapHandler::loadBitmap(bgNames[ourCampaign->header.mapVersion]);
 
 	SDL_Surface * panel = BitmapHandler::loadBitmap("CAMPBRF.BMP");
@@ -2145,6 +2148,29 @@ CBonusSelection::CBonusSelection( const CCampaign * ourCampaign, int whichMap )
 	}*/
 
 	SDL_FreeSurface(panel);
+
+	//bonus choosing
+	printAtLoc(CGI->generaltexth->allTexts[71], 510, 431, FONT_MEDIUM, zwykly, background); //Choose a bonus:
+
+	//difficulty
+	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
+
+	//set left part of window
+	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
+	{
+		if(ourCampaign->conquerable(g))
+		{
+			regions.push_back(new CRegion(this, true, true, g));
+			if (highlightedRegion == NULL)
+			{
+				highlightedRegion = regions.back();
+			}
+		}
+		else if (ourCampaign->scenarios[g].conquered) //display as striped
+		{
+			regions.push_back(new CRegion(this, false, false, g));
+		}
+	}
 	
 }
 
@@ -2162,4 +2188,104 @@ void CBonusSelection::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
 	blitAt(background, pos.x, pos.y, to);
+}
+
+void CBonusSelection::loadPositionsOfGraphics()
+{
+	std::ifstream is((GVCMIDirs.UserPath + "/config/campaign_regions.txt").c_str(), std::ios_base::binary | std::ios_base::in);
+
+	assert(is.is_open());
+
+	for (int g=0; g<CGI->generaltexth->campaignMapNames.size(); ++g)
+	{
+		SCampPositions sc;
+		is >> sc.campPrefix;
+		is >> sc.colorSuffixLength;
+		bool contReading = true;
+		while(contReading)
+		{
+			SCampPositions::SRegionDesc rd;
+			is >> rd.infix;
+			if(rd.infix == "END")
+			{
+				contReading = false;
+			}
+			else
+			{
+				is >> rd.xpos >> rd.ypos;
+				sc.regions.push_back(rd);
+			}
+		}
+
+		campDescriptions.push_back(sc);
+	}
+
+}
+
+CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )
+: owner(_owner), accessible(_accessible), selectable(_selectable), myNumber(_myNumber)
+{
+	OBJ_CONSTRUCTION;
+	static const std::string colors[2][8] = {
+		{"R", "B", "N", "G", "O", "V", "T", "P"},
+		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}};
+
+	const SCampPositions & campDsc = owner->campDescriptions[owner->ourCampaign->header.mapVersion];
+	const SCampPositions::SRegionDesc & desc = campDsc.regions[myNumber];
+	pos.x = desc.xpos;
+	pos.y = desc.ypos;
+
+	//loading of graphics
+
+	std::string prefix = campDsc.campPrefix + desc.infix + "_";
+	std::string suffix = colors[campDsc.colorSuffixLength - 1][owner->ourCampaign->scenarios[myNumber].regionColor];
+
+	static const std::string infix [] = {"En", "Se", "Co"};
+	for (int g = 0; g < ARRAY_COUNT(infix); g++)
+	{
+		graphics[g] = BitmapHandler::loadBitmap(prefix + infix[g] + suffix + ".BMP");
+	}
+
+}
+
+CBonusSelection::CRegion::~CRegion()
+{
+	for (int g=0; g<ARRAY_COUNT(graphics); ++g)
+	{
+		SDL_FreeSurface(graphics[g]);
+	}
+}
+
+void CBonusSelection::CRegion::clickLeft( tribool down, bool previousState )
+{
+	//select if selectable & clicked inside our graphic
+	if(!down && selectable)
+	{
+		//owner->highlightedRegion = this;
+	}
+}
+
+void CBonusSelection::CRegion::clickRight( tribool down, bool previousState )
+{
+	//show r-click text
+}
+
+void CBonusSelection::CRegion::show( SDL_Surface * to )
+{
+	const SCampPositions::SRegionDesc & desc = owner->campDescriptions[owner->ourCampaign->header.mapVersion].regions[myNumber];
+	if (!accessible)
+	{
+		//show as striped
+		blitAt(graphics[2], pos.x, pos.y, to);
+	}
+	else if (this == owner->highlightedRegion)
+	{
+		//show as selected
+		blitAt(graphics[1], pos.x, pos.y, to);
+	}
+	else
+	{
+		//show as not selected selected
+		blitAt(graphics[0], pos.x, pos.y, to);
+	}
 }

@@ -79,17 +79,20 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name )
 
 	std::vector<ui32> h3mStarts = locateH3mStarts(cmpgn, it, realSize);
 
-	if(h3mStarts.size() != howManyScenarios)
-	{
-		tlog1<<"Our heuristic for h3m start points gave wrong results for campaign " << name <<std::endl;
-		tlog1<<"Please send this campaign to VCMI Project team to help us fix this problem" << std::endl;
-		delete [] cmpgn;
-		return NULL;
-	}
+	assert(h3mStarts.size() <= howManyScenarios);
+	//it looks like we can have less scenarios than we should..
+	//if(h3mStarts.size() != howManyScenarios)
+	//{
+	//	tlog1<<"Our heuristic for h3m start points gave wrong results for campaign " << name <<std::endl;
+	//	tlog1<<"Please send this campaign to VCMI Project team to help us fix this problem" << std::endl;
+	//	delete [] cmpgn;
+	//	assert(0);
+	//	return NULL;
+	//}
 
-	for (int g=0; g<howManyScenarios; ++g)
+	for (int g=0; g<h3mStarts.size(); ++g)
 	{
-		if(g == howManyScenarios - 1)
+		if(g == h3mStarts.size() - 1)
 		{
 			ret->mapPieces.push_back(std::string( cmpgn + h3mStarts[g], cmpgn + realSize ));
 		}
@@ -141,11 +144,17 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char 
 		}
 	};
 	CCampaignScenario ret;
+	ret.conquered = false;
 	ret.mapName = readString(buffer, outIt);
 	ret.packedMapSize = readNormalNr(buffer, outIt); outIt += 4;
 	if(mapVersion == 18)//unholy alliance
-		outIt++;
-	ret.preconditionRegion = buffer[outIt++];
+	{
+		ret.preconditionRegion = readNormalNr(buffer, outIt, 2); outIt += 2;
+	}
+	else
+	{
+		ret.preconditionRegion = buffer[outIt++];
+	}
 	ret.regionColor = buffer[outIt++];
 	ret.difficulty = buffer[outIt++];
 	ret.regionText = readString(buffer, outIt);
@@ -181,6 +190,9 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 	
 	switch(ret.startOptions)
 	{
+	case 0:
+		//no bonuses. Seems to be OK
+		break;
 	case 1: //reading of bonuses player can choose
 		{
 			ret.playerColor = buffer[outIt++];
@@ -366,6 +378,22 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 	catch (...)
 	{
 		return false;
+	}
+	return true;
+}
+
+bool CCampaign::conquerable( int whichScenario ) const
+{
+	if (scenarios[whichScenario].conquered)
+	{
+		return false;
+	}
+	//check preconditioned regions
+	for (int g=0; g<scenarios.size(); ++g)
+	{
+		if(( (1 << g) & scenarios[whichScenario].preconditionRegion ) && !scenarios[g].conquered)
+			return false; //prerequisite does not met
+			
 	}
 	return true;
 }

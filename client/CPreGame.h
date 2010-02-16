@@ -256,8 +256,48 @@ class CBonusSelection : public CIntObject
 {
 	SDL_Surface * background;
 	AdventureMapButton * startB, * backB;
+
+	struct SCampPositions
+	{
+		std::string campPrefix;
+		int colorSuffixLength;
+
+		struct SRegionDesc
+		{
+			std::string infix;
+			int xpos, ypos;
+		};
+
+		std::vector<SRegionDesc> regions;
+
+	};
+
+	std::vector<SCampPositions> campDescriptions;
+
+	class CRegion : public CIntObject
+	{
+		CBonusSelection * owner;
+		SDL_Surface * graphics[3]; //[0] - not selected, [1] - selected, [2] - striped
+		bool accessible; //false if region should be striped
+		bool selectable; //true if region should be selectable
+		int myNumber; //number of region
+	public:
+		CRegion(CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber);
+		~CRegion();
+
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
+		void show(SDL_Surface * to);
+	};
+
+	std::vector<CRegion *> regions;
+	CRegion * highlightedRegion;
+
+	void loadPositionsOfGraphics();
+	const CCampaign * ourCampaign;
+	int whichMap;
 public:
-	CBonusSelection(const CCampaign * ourCampaign, int whichMap);
+	CBonusSelection(const CCampaign * _ourCampaign, int _whichMap);
 	~CBonusSelection();
 
 	void showAll(SDL_Surface * to);
