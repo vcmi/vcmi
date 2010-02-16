@@ -100,6 +100,29 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 	return true;
 }
 
+bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const
+{
+	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
+		return false;
+
+	const CArtifact &artifact = VLC->arth->artifacts[artifactID];
+	assert(artifact.constituents);
+
+	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+		bool found = false;
+		for (std::map<ui16, ui32>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) {
+			if (it->second == constituentID) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			return false;
+	}
+
+	return true;
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
@@ -108,6 +131,15 @@ CArtHandler::CArtHandler()
 	for (ui32 i = 3; i <= 6; i++)
 		bigArtifacts.insert(i);
 }
+
+CArtHandler::~CArtHandler()
+{
+	for (std::vector<CArtifact>::iterator it = artifacts.begin(); it != artifacts.end(); ++it) {
+		delete it->constituents;
+		delete it->constituentOf;
+	}
+}
+
 void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
@@ -145,6 +177,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			desc = desc.substr(1,desc.size()-2);
 
 		// Fill in information about combined artifacts. Should perhaps be moved to a config file?
+		nart.constituentOf = NULL;
 		switch (nart.id) {
 			case 129: // Angelic Alliance
 				nart.constituents = new std::vector<ui32>();
@@ -219,6 +252,17 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	sortArts();
 	if(!onlyTxt)
 		addBonuses();
+
+	// Populate reverse mappings of combinational artifacts.
+	BOOST_FOREACH(CArtifact artifact, artifacts) {
+		if (artifact.constituents != NULL) {
+			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+				if (artifacts[constituentID].constituentOf == NULL)
+					artifacts[constituentID].constituentOf = new std::vector<ui32>();
+				artifacts[constituentID].constituentOf->push_back(artifact.id);
+			}
+		}
+	}
 }
 
 int CArtHandler::convertMachineID(int id, bool creToArt )
@@ -507,6 +551,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(134, HeroBonus::LEVEL_SPELL_IMMUNITY, 4);
 
 	//Titan's Thunder
+	// should also add a permanent spell book, somehow.
 	ART_ATTACK_AND_DEFENSE(135, +9);
 	ART_POWER_AND_KNOWLEDGE(135, +8);
 	giveArtBonus(135, HeroBonus::SPELL, 3, 57);
@@ -612,7 +657,6 @@ void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
 					}
 				}
 			}
-
 		}
 	}
 }

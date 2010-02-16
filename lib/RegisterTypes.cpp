@@ -143,6 +143,7 @@ void registerTypes3(Serializer &s)
 	s.template registerType<UpgradeCreature>();
 	s.template registerType<GarrisonHeroSwap>();
 	s.template registerType<ExchangeArtifacts>();
+	s.template registerType<AssembleArtifacts>();
 	s.template registerType<BuyArtifact>();
 	s.template registerType<TradeOnMarketplace>();
 	s.template registerType<SetFormation>();

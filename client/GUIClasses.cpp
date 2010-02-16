@@ -27,6 +27,7 @@
 #include "../lib/map.h"
 #include "../mapHandler.h"
 #include "../timeHandler.h"
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -3689,8 +3690,23 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(!locked() && text.size()) //if there is no description or it's a lock, do nothing ;]
+	if(ourArt && !locked() && text.size()) { //if there is no description or it's a lock, do nothing ;]
 		LRClickableAreaWTextComp::clickRight(down, previousState);
+
+		/*if (ourArt->constituentOf != NULL) {
+			BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) {
+				if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) {
+					LOCPLINT->cb->assembleArtifacts(ourOwner->curHero, slotID, true, combination);
+					return;
+				}
+			}
+		}
+
+		if (ourArt->constituents != NULL) {
+			LOCPLINT->cb->assembleArtifacts(ourOwner->curHero, slotID, false, 0);
+			return;
+		}*/
+	}
 }
 
 /**

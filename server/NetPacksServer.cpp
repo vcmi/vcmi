@@ -98,6 +98,12 @@ bool ExchangeArtifacts::applyGh( CGameHandler *gh )
 	return gh->swapArtifacts(hid1,hid2,slot1,slot2);
 }
 
+bool AssembleArtifacts::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(heroID);
+	return gh->assembleArtifacts(heroID, artifactSlot, assemble, assembleTo);
+}
+
 bool BuyArtifact::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);

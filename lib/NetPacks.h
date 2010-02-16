@@ -1284,6 +1284,23 @@ struct ExchangeArtifacts : public CPackForServer
 	}
 };
 
+struct AssembleArtifacts : public CPackForServer
+{
+	AssembleArtifacts(){};
+	AssembleArtifacts(si32 _heroID, ui16 _artifactSlot, bool _assemble, ui32 _assembleTo)
+		: heroID(_heroID), artifactSlot(_artifactSlot), assemble(_assemble), assembleTo(_assembleTo){};
+	si32 heroID;
+	ui16 artifactSlot;
+	bool assemble; // True to assemble artifact, false to disassemble.
+	ui32 assembleTo; // Artifact to assemble into.
+
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroID & artifactSlot & assemble & assembleTo;
+	}
+};
+
 struct BuyArtifact : public CPackForServer
 {
 	BuyArtifact(){};

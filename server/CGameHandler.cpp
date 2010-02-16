@@ -2625,6 +2625,85 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	return true;
 }
 
+/**
+ * Assembles or disassembles a combination artifact.
+ * @param heroID ID of hero holding the artifact(s).
+ * @param artifactSlot The worn slot ID of the combination- or constituent artifact.
+ * @param assemble True for assembly operation, false for disassembly.
+ * @param assembleTo If assemble is true, this represents the artifact ID of the combination
+ * artifact to assemble to. Otherwise it's not used.
+ */
+bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo)
+{
+	if (artifactSlot < 0 || artifactSlot > 18) {
+		complain("Illegal artifact slot.");
+		return false;
+	}
+
+	CGHeroInstance *hero = gs->getHero(heroID);
+	const CArtifact *destArtifact = hero->getArt(artifactSlot);
+
+	SetHeroArtifacts sha;
+	sha.hid = heroID;
+	sha.artifacts = hero->artifacts;
+	sha.artifWorn = hero->artifWorn;
+
+	if (assemble) {
+		if (VLC->arth->artifacts.size() >= assembleTo) {
+			complain("Illegal artifact to assemble to.");
+			return false;
+		}
+
+		if (!destArtifact->canBeAssembledTo(hero->artifWorn, assembleTo)) {
+			complain("Artifact cannot be assembled.");
+			return false;
+		}
+
+		const CArtifact &artifact = VLC->arth->artifacts[assembleTo];
+
+		if (artifact.constituents == NULL) {
+			complain("Not a combinational artifact.");
+			return false;
+		}
+
+		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+			bool found = false;
+			for (std::map<ui16, ui32>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it) {
+				if (it->second == constituentID) {
+					if (!destConsumed && vstd::contains(artifact.possibleSlots, it->first)) {
+						it->second = assembleTo;
+						destConsumed = true;
+					} else {
+						it->second = 145;
+					}
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				complain("Constituent missing.");
+				return false;
+			}
+		}
+	} else {
+		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
+			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
+
+			BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
+				if (sha.artifWorn.find(slotID) != sha.artifWorn.end()) {
+					if (sha.artifWorn[slotID] == 145 || slotID == artifactSlot)
+						sha.artifWorn[slotID] = constituentID;
+				}
+			}
+		}
+	}
+
+	sendAndApply(&sha);
+
+	return true;
+}
+
 bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);

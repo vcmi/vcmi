@@ -433,6 +433,24 @@ bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGH
 	return true;
 }
 
+/**
+ * Assembles or disassembles a combination artifact.
+ * @param hero Hero holding the artifact(s).
+ * @param artifactSlot The worn slot ID of the combination- or constituent artifact.
+ * @param assemble True for assembly operation, false for disassembly.
+ * @param assembleTo If assemble is true, this represents the artifact ID of the combination
+ * artifact to assemble to. Otherwise it's not used.
+ */
+bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo)
+{
+	if (player != hero->tempOwner)
+		return false;
+
+	AssembleArtifacts aa(hero->id, artifactSlot, assemble, assembleTo);
+	sendRequest(&aa);
+	return true;
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 {
 	CGTownInstance * t = const_cast<CGTownInstance *>(town);

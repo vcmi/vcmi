@@ -163,6 +163,7 @@ public:
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
+	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, si32 aid );
 	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
 	bool garrisonSwap(si32 tid);

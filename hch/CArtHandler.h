@@ -27,17 +27,19 @@ public:
 	const std::string &Description() const; //getter
 	bool isBig () const;
 	bool fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slot) const;
+	bool canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const;
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
 	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<ui32> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
 	ui32 id;
 	std::list<HeroBonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & description & price & possibleSlots & constituents & aClass & id & bonuses;
+		h & name & description & price & possibleSlots & constituents & constituentOf & aClass & id & bonuses;
 	}
 };
 
@@ -58,6 +60,7 @@ public:
 	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
+	~CArtHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
