@@ -687,15 +687,19 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 			else 
 			{
 				//blitting Fog of War
-				if (pos.x >= 0 &&
-					pos.y >= 0 &&
-					pos.x < CGI->mh->map->width &&
-					pos.y < CGI->mh->map->height &&
-					!(*visibilityMap)[pos.x][pos.y][top_tile.z])
+				if (!puzzleMode)
 				{
-					SDL_Surface * hide = getVisBitmap(pos.x, pos.y, *visibilityMap, top_tile.z);
-					CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+					if (pos.x >= 0 &&
+						pos.y >= 0 &&
+						pos.x < CGI->mh->map->width &&
+						pos.y < CGI->mh->map->height &&
+						!(*visibilityMap)[pos.x][pos.y][top_tile.z])
+					{
+						SDL_Surface * hide = getVisBitmap(pos.x, pos.y, *visibilityMap, top_tile.z);
+						CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+					}
 				}
+				
 				//FoW blitted
 
 				// TODO: these should be activable by the console

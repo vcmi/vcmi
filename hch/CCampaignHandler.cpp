@@ -50,8 +50,8 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 	{
 		for(int g=0; g<bitmaph->entries.size(); ++g)
 		{
-			std::string rn = bitmaph->entries[g].nameStr;
-			if( boost::ends_with(bitmaph->entries[g].nameStr, ext) )
+			const std::string & nameS = bitmaph->entries[g].nameStr;
+			if( boost::ends_with(nameS, ext) && nameS != "TOSBLK1.H3C" )
 			{
 				ret.push_back( getHeader(bitmaph->entries[g].nameStr, true) );
 			}
@@ -66,12 +66,12 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name, bool fromLod )
 {
 	int realSize;
-	unsigned char * cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
+	unsigned char * cmpgn = getFile(name, fromLod, realSize);
 
 	int it = 0;//iterator for reading
 	CCampaignHeader ret = readHeaderFromMemory(cmpgn, it);
 	ret.filename = name;
-	ret.loadFromLod = false;
+	ret.loadFromLod = fromLod;
 
 	delete [] cmpgn;
 
@@ -83,15 +83,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLo
 	CCampaign * ret = new CCampaign();
 
 	int realSize;
-	unsigned char * cmpgn;
-	if (fromLod)
-	{
-		cmpgn = bitmaph->giveFile(name, &realSize);
-	} 
-	else
-	{
-		cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
-	}
+	unsigned char * cmpgn = getFile(name, fromLod, realSize);
 
 	int it = 0; //iterator for reading
 	ret->header = readHeaderFromMemory(cmpgn, it);
@@ -408,6 +400,25 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 		return false;
 	}
 	return true;
+}
+
+unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLod, int & outSize )
+{
+	unsigned char * cmpgn;
+	if(fromLod)
+	{
+		cmpgn = bitmaph->giveFile(name, &outSize);
+		FILE * tmp = fopen("tmp_cmpgn", "wb");
+		fwrite(cmpgn, 1, outSize, tmp);
+		fclose(tmp);
+		delete [] cmpgn;
+		cmpgn = CLodHandler::getUnpackedFile("tmp_cmpgn", &outSize);
+	}
+	else
+	{
+		cmpgn = CLodHandler::getUnpackedFile(name, &outSize);
+	}
+	return cmpgn;
 }
 
 bool CCampaign::conquerable( int whichScenario ) const

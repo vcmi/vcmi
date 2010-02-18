@@ -302,6 +302,7 @@ unsigned char * CLodHandler::getUnpackedFile( const std::string & path, int * si
 	int mapsize = 0;
 
 	gzFile map = gzopen(path.c_str(), "rb");
+	assert(map);
 	std::vector<unsigned char *> mapstr;
 
 	// Read a map by chunks

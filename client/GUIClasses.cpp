@@ -4733,6 +4733,9 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 :animCount(0)
 {
+	CDefHandler * arrows = CDefHandler::giveDef("ADAG.DEF");
+	alphaTransform(arrows->ourImages[0].bitmap);
+
 	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
 	graphics->blueToPlayersAdv(back, LOCPLINT->playerID);
 	//make transparency black
@@ -4745,12 +4748,27 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
 
-	//printing necessary thinks to background
-	
+	//printing necessary things to background
+	int3 moveInt = int3(8, 9, 0);
 	CGI->mh->terrainRect
-		(grailPos, LOCPLINT->adventureInt->anim,
+		(grailPos - moveInt, LOCPLINT->adventureInt->anim,
 		 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
 		 background, &genRect(544, 591, 8, 8), 0, 0, true);
+
+	//printing X sign
+	{
+		int x = 32*moveInt.x + 8,
+			y = 32*moveInt.y + 8;
+		if (x<0 || y<0 || x>pos.w || y>pos.h)
+		{
+		}
+		else
+		{
+			CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[0].bitmap, NULL, background, &genRect(32, 32, x, y));
+		}
+	}
+
+	delete arrows;
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos[LOCPLINT->serialID].castle;
 

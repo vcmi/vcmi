@@ -613,7 +613,7 @@ void SelectionTab::parseCampaigns( std::vector<FileInfo> & files )
 {
 	for(int i=0; i<files.size(); i++)
 	{
-		allItems[i].date = std::asctime(std::localtime(&files[i].date));
+		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		allItems[i].filename = files[i].name;
 		allItems[i].lodCmpgn = files[i].inLod;
 		allItems[i].campaignInit();
@@ -683,12 +683,13 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		cpm = CCampaignHandler::getCampaignHeaders(CCampaignHandler::ALL);
 		for (int g = 0; g < cpm.size(); g++)
 		{
+			FileInfo fi;
+			fi.inLod = cpm[g].loadFromLod;
+			fi.name = cpm[g].filename;
+			toParse.push_back(fi);
 			if (cpm[g].loadFromLod)
 			{
-				FileInfo fi;
-				fi.inLod = true;
-				fi.name = cpm[g].name;
-				toParse.push_back(fi);
+				allItems.push_back(CMapInfo(false));
 			}
 		}
 		parseCampaigns(toParse);

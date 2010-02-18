@@ -925,7 +925,14 @@ void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int
 
 int3 CCallback::getGrailPos( float &outKnownRatio )
 {
-	outKnownRatio = (float)CGObelisk::visited[player] / CGObelisk::obeliskCount;
+	if (CGObelisk::obeliskCount == 0)
+	{
+		outKnownRatio = 0.0f;
+	}
+	else
+	{
+		outKnownRatio = (float)CGObelisk::visited[player] / CGObelisk::obeliskCount;
+	}
 	return gs->map->grailPos;
 }
 

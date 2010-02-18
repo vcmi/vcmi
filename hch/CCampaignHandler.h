@@ -123,6 +123,7 @@ class DLL_EXPORT CCampaignHandler
 	static CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt , int version);
 	static std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
 	static bool startsAt( const unsigned char * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
+	static unsigned char * getFile(const std::string & name, bool fromLod, int & outSize);
 public:
 	enum GetMode {RoE, AB, SoD, WoG, Custom, ALL};
 	static std::vector<CCampaignHeader> getCampaignHeaders(GetMode mode);
