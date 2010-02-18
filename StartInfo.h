@@ -52,11 +52,12 @@ struct PlayerSettings
 
 struct StartInfo
 {
-	ui8 mode; //0 - new game; 1 - load game
+	ui8 mode; //0 - new game; 1 - load game; 2 - campaign
 	ui8 difficulty; //0=easy; 4=impossible
 	std::vector<PlayerSettings> playerInfos; //serial indexed
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
+	ui8 whichMapInCampaign; //used only for mode 2
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
 		for(unsigned int i=0; i<playerInfos.size(); ++i)
@@ -82,6 +83,7 @@ struct StartInfo
 		h & playerInfos;
 		h & turnTime;
 		h & mapname;
+		h & whichMapInCampaign;
 	}
 };
 

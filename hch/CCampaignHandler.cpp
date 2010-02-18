@@ -21,54 +21,82 @@ namespace fs = boost::filesystem;
  */
 
 
-std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders()
+std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 {
 	std::vector<CCampaignHeader> ret;
 
 	std::string dirname = DATA_DIR "/Maps";
-	std::string ext = ".h3c";
+	std::string ext = ".H3C";
 
 	if(!boost::filesystem::exists(dirname))
 	{
 		tlog1 << "Cannot find " << dirname << " directory!\n";
 	}
 
-	fs::path tie(dirname);
-	fs::directory_iterator end_iter;
-	for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
+	if (mode == Custom || mode == ALL) //add custom campaigns
 	{
-		if(fs::is_regular_file(file->status())
-			&& boost::ends_with(file->path().filename(), ext))
+		fs::path tie(dirname);
+		fs::directory_iterator end_iter;
+		for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
 		{
-			ret.push_back( getHeader( file->path().string() ) );
+			if(fs::is_regular_file(file->status())
+				&& boost::ends_with(file->path().filename(), ext))
+			{
+				ret.push_back( getHeader( file->path().string(), false ) );
+			}
 		}
 	}
+	if (mode == ALL) //add all lod campaigns
+	{
+		for(int g=0; g<bitmaph->entries.size(); ++g)
+		{
+			std::string rn = bitmaph->entries[g].nameStr;
+			if( boost::ends_with(bitmaph->entries[g].nameStr, ext) )
+			{
+				ret.push_back( getHeader(bitmaph->entries[g].nameStr, true) );
+			}
+		}
+
+	}
+
 
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::getHeader( const std::string & name )
+CCampaignHeader CCampaignHandler::getHeader( const std::string & name, bool fromLod )
 {
 	int realSize;
 	unsigned char * cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
 
 	int it = 0;//iterator for reading
 	CCampaignHeader ret = readHeaderFromMemory(cmpgn, it);
+	ret.filename = name;
+	ret.loadFromLod = false;
 
 	delete [] cmpgn;
 
 	return ret;
 }
 
-CCampaign * CCampaignHandler::getCampaign( const std::string & name )
+CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLod )
 {
 	CCampaign * ret = new CCampaign();
 
 	int realSize;
-	unsigned char * cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
+	unsigned char * cmpgn;
+	if (fromLod)
+	{
+		cmpgn = bitmaph->giveFile(name, &realSize);
+	} 
+	else
+	{
+		cmpgn = CLodHandler::getUnpackedFile(name, &realSize);
+	}
 
 	int it = 0; //iterator for reading
 	ret->header = readHeaderFromMemory(cmpgn, it);
+	ret->header.filename = name;
+	ret->header.loadFromLod = fromLod;
 
 	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
 	for(int g=0; g<howManyScenarios; ++g)

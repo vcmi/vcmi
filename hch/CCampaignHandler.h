@@ -24,9 +24,12 @@ public:
 	ui8 difficultyChoosenByPlayer;
 	ui8 music; //CmpMusic.txt, start from 0
 
+	std::string filename;
+	ui8 loadFromLod; //if true, this campaign must be loaded fro, .lod file
+
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music;
+		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music & filename & loadFromLod;
 	}
 };
 
@@ -121,10 +124,11 @@ class DLL_EXPORT CCampaignHandler
 	static std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
 	static bool startsAt( const unsigned char * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
 public:
-	static std::vector<CCampaignHeader> getCampaignHeaders();
-	static CCampaignHeader getHeader( const std::string & name ); //name - name of appropriate file
+	enum GetMode {RoE, AB, SoD, WoG, Custom, ALL};
+	static std::vector<CCampaignHeader> getCampaignHeaders(GetMode mode);
+	static CCampaignHeader getHeader( const std::string & name, bool fromLod ); //name - name of appropriate file
 
-	static CCampaign * getCampaign(const std::string & name); //name - name of appropriate file
+	static CCampaign * getCampaign(const std::string & name, bool fromLod); //name - name of appropriate file
 };
 
 

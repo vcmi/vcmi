@@ -31,6 +31,7 @@ public:
 	CCampaignHeader * campaignHeader; //may be NULL if scenario
 	ui8 seldiff; //selected difficulty (only in saved games)
 	std::string filename;
+	bool lodCmpgn; //tells if this campaign is located in Lod file
 	std::string date;
 	int playerAmnt, humenPlayers;
 	CMapInfo(bool map = true);
@@ -73,12 +74,13 @@ struct FileInfo
 {
 	std::string name; // file name with full path and extension
 	std::time_t date;
+	bool inLod; //tells if this file is located in Lod
 };
 
 class InfoCard : public CIntObject
 {
-public:
 	CPicture *bg; 
+public:
 	CMenuScreen::EState type;
 
 	CHighlightableButtonsGroup *difficulty;
@@ -139,6 +141,7 @@ public:
 
 class OptionsTab : public CIntObject
 {
+	CPicture *bg;
 public:
 	enum SelType {TOWN, HERO, BONUS};
 	struct SelectedBox : public CIntObject //img with current town/hero/bonus
@@ -170,7 +173,6 @@ public:
 		void showAll(SDL_Surface * to);
 	};
 	CMenuScreen::EState type;
-	CPicture *bg;
 	CSlider *turnDuration;
 
 	std::set<int> usedHeroes;
@@ -195,13 +197,13 @@ public:
 
 class CSelectionScreen : public CIntObject
 {
-public:
 	CPicture *bg; //general bg image
-	AdventureMapButton *start, *back;
 	InfoCard *card;
-	SelectionTab *sel;
 	OptionsTab *opt;
+public:
+	AdventureMapButton *start, *back;
 
+	SelectionTab *sel;
 	CMenuScreen::EState type; //new/save/load#Game
 	const CMapInfo *current;
 	StartInfo sInfo;
@@ -211,7 +213,7 @@ public:
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
-	void updateStartInfo(const CMapInfo * to);
+	static void updateStartInfo( const CMapInfo * to, StartInfo & sInfo, const CMapHeader * mapHeader );
 	void startCampaign();
 	void startGame();
 	void difficultyChange(int to);
@@ -282,6 +284,7 @@ class CBonusSelection : public CIntObject
 		bool selectable; //true if region should be selectable
 		int myNumber; //number of region
 	public:
+		std::string rclickText;
 		CRegion(CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber);
 		~CRegion();
 
@@ -295,12 +298,18 @@ class CBonusSelection : public CIntObject
 
 	void loadPositionsOfGraphics();
 	const CCampaign * ourCampaign;
+	CMapHeader *ourHeader;
+	CDefHandler *sizes; //icons of map sizes
 	int whichMap;
 public:
+	StartInfo sInfo;
+	void selectMap(int whichOne);
+
 	CBonusSelection(const CCampaign * _ourCampaign, int _whichMap);
 	~CBonusSelection();
 
 	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to);
 
 	void goBack();
 	void startMap();

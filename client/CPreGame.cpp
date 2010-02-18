@@ -110,7 +110,7 @@ CMapInfo::~CMapInfo()
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = new CCampaignHeader( CCampaignHandler::getHeader(filename) );
+	campaignHeader = new CCampaignHeader( CCampaignHandler::getHeader(filename, lodCmpgn) );
 }
 
 CMenuScreen::CMenuScreen( EState which )
@@ -158,10 +158,6 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList), 550, 358, "ZSSCUS.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
 
-			////just for testing
-			CCampaignHandler * ch = new CCampaignHandler();
-			ch->getCampaignHeaders(); 
-			//ch->getCampaign("./Maps/ALEXIS.h3c");
 		}
 		break;
 	}
@@ -387,7 +383,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 		curOpts->difficulty = to->seldiff;
 	if(type != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to);
+		updateStartInfo(to, sInfo, to->mapHeader);
 	}
 	card->changeSelection(to);
 	if(type != CMenuScreen::campaignList)
@@ -415,7 +411,7 @@ void setPlayer(PlayerSettings &pset, unsigned player)
 	}
 }
 
-void CSelectionScreen::updateStartInfo( const CMapInfo * to )
+void CSelectionScreen::updateStartInfo( const CMapInfo * to, StartInfo & sInfo, const CMapHeader * mapHeader )
 {
 	sInfo.playerInfos.clear();
 	if(!to) 
@@ -429,7 +425,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 	int serialC=0;
 	for (int i = 0; i < PLAYER_LIMIT; i++)
 	{
-		const PlayerInfo &pinfo = to->mapHeader->players[i];
+		const PlayerInfo &pinfo = mapHeader->players[i];
 
 		//neither computer nor human can play - no player
 		if (!(pinfo.canComputerPlay || pinfo.canComputerPlay))
@@ -452,7 +448,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 			}
 		}
 
-		if ((pinfo.generateHeroAtMainTown || to->mapHeader->version==CMapHeader::RoE)  &&  pinfo.hasMainTown  //we will generate hero in front of main town
+		if ((pinfo.generateHeroAtMainTown || mapHeader->version==CMapHeader::RoE)  &&  pinfo.hasMainTown  //we will generate hero in front of main town
 			|| pinfo.p8) //random hero
 			pset.hero = -1;
 		else
@@ -470,7 +466,7 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 
 void CSelectionScreen::startCampaign()
 {
-	CCampaign * ourCampaign = CCampaignHandler::getCampaign(curMap->filename);
+	CCampaign * ourCampaign = CCampaignHandler::getCampaign(curMap->filename, curMap->lodCmpgn);
 	GH.pushInt( new CBonusSelection(ourCampaign, 0) );
 }
 
@@ -619,6 +615,7 @@ void SelectionTab::parseCampaigns( std::vector<FileInfo> & files )
 	{
 		allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		allItems[i].filename = files[i].name;
+		allItems[i].lodCmpgn = files[i].inLod;
 		allItems[i].campaignInit();
 	}
 }
@@ -652,6 +649,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 
 	std::vector<FileInfo> toParse;
+	std::vector<CCampaignHeader> cpm;
 	switch(tabType)
 	{
 	case CMenuScreen::newGame:
@@ -677,6 +675,22 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		break;
 	case CMenuScreen::campaignList:
 		getFiles(toParse, DATA_DIR "/Maps", "h3c"); //get all campaigns
+		for (int g=0; g<toParse.size(); ++g)
+		{
+			toParse[g].inLod = false;
+		}
+		//add lod cmpgns
+		cpm = CCampaignHandler::getCampaignHeaders(CCampaignHandler::ALL);
+		for (int g = 0; g < cpm.size(); g++)
+		{
+			if (cpm[g].loadFromLod)
+			{
+				FileInfo fi;
+				fi.inLod = true;
+				fi.name = cpm[g].name;
+				toParse.push_back(fi);
+			}
+		}
 		parseCampaigns(toParse);
 		positions = 18;
 		break;
@@ -2059,7 +2073,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 }
 
 CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap )
-: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL)
+: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
@@ -2077,10 +2091,6 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	startB = new AdventureMapButton("", "", 0 /*cb*/, 475, 536, "SCNRBEG.DEF", SDLK_RETURN);
 	backB = new AdventureMapButton("", "", boost::bind(&CBonusSelection::goBack, this), 624, 536, "SCNRBACK.DEF", SDLK_ESCAPE);
 
-	CMapHeader ourHeader;
-	int _it=0;
-	ourHeader.initFromMemory((const unsigned char*)ourCampaign->mapPieces[whichMap].c_str(), _it);
-
 	//campaign name
 	if (ourCampaign->header.name.length())
 		printAtLoc(ourCampaign->header.name, 481, 28, FONT_BIG, tytulowy, background);
@@ -2088,28 +2098,8 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 		printAtLoc("Unnamed", 481, 28, FONT_BIG, tytulowy, background);
 
 	//map size icon
-	CDefHandler *sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
-	int temp;
-	switch (ourHeader.width)
-	{
-	case 36:
-		temp=0;
-		break;
-	case 72:
-		temp=1;
-		break;
-	case 108:
-		temp=2;
-		break;
-	case 144:
-		temp=3;
-		break;
-	default:
-		temp=4;
-		break;
-	}
-	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, background);
-	delete sizes;
+	sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
+
 
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
@@ -2119,27 +2109,31 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 		printAtLoc((*desc)[i], 481, 86 + i*16, FONT_SMALL, zwykly, background);
 	delete desc;
 
-	//map name
-	std::string mapDesc = ourHeader.description, mapName = ourHeader.name;
-
-	if (mapName.length())
-		printAtLoc(mapName, 481, 219, FONT_BIG, tytulowy, background);
-	else 
-		printAtLoc("Unnamed", 481, 219, FONT_BIG, tytulowy, background);
-
-	//map description
-	printAtLoc(CGI->generaltexth->allTexts[496], 481, 253, FONT_SMALL, tytulowy, background);
-
-	desc = CMessage::breakText(mapDesc, 45);
-	for (int i=0; i<desc->size(); i++)
-		printAtLoc((*desc)[i], 481, 281 + i*16, FONT_SMALL, zwykly, background);
-	delete desc;
+	//set left part of window
+	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
+	{
+		if(ourCampaign->conquerable(g))
+		{
+			regions.push_back(new CRegion(this, true, true, g));
+			regions[regions.size()-1]->rclickText = ourCampaign->scenarios[g].regionText;
+			if (highlightedRegion == NULL)
+			{
+				highlightedRegion = regions.back();
+				selectMap(g);
+			}
+		}
+		else if (ourCampaign->scenarios[g].conquered) //display as striped
+		{
+			regions.push_back(new CRegion(this, false, false, g));
+			regions[regions.size()-1]->rclickText = ourCampaign->scenarios[g].regionText;
+		}
+	}
 
 	//allies / enemies
 	printAtLoc(CGI->generaltexth->allTexts[390] + ":", 486, 407, FONT_SMALL, zwykly, background); //Allies
 	printAtLoc(CGI->generaltexth->allTexts[391] + ":", 619, 407, FONT_SMALL, zwykly, background); //Enemies
 	int fx=64, ex=244, myT;
-	myT = ourHeader.players[playerColor].team;
+	myT = ourHeader->players[playerColor].team;
 	/*for (std::vector<PlayerSettings>::const_iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
 	{
 		int *myx = ((i->color == playerColor  ||  ourHeader.players[i->color].team == myT) ? &fx : &ex);
@@ -2154,29 +2148,14 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	//difficulty
 	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
-
-	//set left part of window
-	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
-	{
-		if(ourCampaign->conquerable(g))
-		{
-			regions.push_back(new CRegion(this, true, true, g));
-			if (highlightedRegion == NULL)
-			{
-				highlightedRegion = regions.back();
-			}
-		}
-		else if (ourCampaign->scenarios[g].conquered) //display as striped
-		{
-			regions.push_back(new CRegion(this, false, false, g));
-		}
-	}
 	
 }
 
 CBonusSelection::~CBonusSelection()
 {
 	SDL_FreeSurface(background);
+	delete sizes;
+	delete ourHeader;
 }
 
 void CBonusSelection::goBack()
@@ -2222,10 +2201,76 @@ void CBonusSelection::loadPositionsOfGraphics()
 
 }
 
+void CBonusSelection::selectMap( int whichOne )
+{
+	sInfo.difficulty = ourCampaign->scenarios[whichOne].difficulty;
+	sInfo.mapname = ourCampaign->header.name;
+	sInfo.mode = 2;
+
+	//get header
+	int i = 0;
+	delete ourHeader;
+	ourHeader = new CMapHeader();
+	ourHeader->initFromMemory((const unsigned char*)ourCampaign->mapPieces[whichOne].c_str(), i);
+	const_cast<CMapInfo *>(curMap)->playerAmnt = ourHeader->players.size();
+	
+	CSelectionScreen::updateStartInfo(curMap, *curOpts, ourHeader);
+	sInfo.turnTime = 0;
+	sInfo.whichMapInCampaign = whichOne;
+}
+
+void CBonusSelection::show( SDL_Surface * to )
+{
+	blitAt(background, pos.x, pos.y, to);
+
+	//map name
+	std::string mapDesc = ourHeader->description,
+		mapName = ourHeader->name;
+
+	if (mapName.length())
+		printAtLoc(mapName, 481, 219, FONT_BIG, tytulowy, to);
+	else 
+		printAtLoc("Unnamed", 481, 219, FONT_BIG, tytulowy, to);
+
+	//map description
+	printAtLoc(CGI->generaltexth->allTexts[496], 481, 253, FONT_SMALL, tytulowy, to);
+
+	std::vector<std::string> *desc = CMessage::breakText(mapDesc, 45);
+	for (int i=0; i<desc->size(); i++)
+		printAtLoc((*desc)[i], 481, 281 + i*16, FONT_SMALL, zwykly, to);
+	delete desc;
+
+	//map size icon
+	int temp;
+	switch (ourHeader->width)
+	{
+	case 36:
+		temp=0;
+		break;
+	case 72:
+		temp=1;
+		break;
+	case 108:
+		temp=2;
+		break;
+	case 144:
+		temp=3;
+		break;
+	default:
+		temp=4;
+		break;
+	}
+	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
+
+	CIntObject::show(to);
+}
+
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )
 : owner(_owner), accessible(_accessible), selectable(_selectable), myNumber(_myNumber)
 {
 	OBJ_CONSTRUCTION;
+	used = LCLICK | RCLICK;
+
 	static const std::string colors[2][8] = {
 		{"R", "B", "N", "G", "O", "V", "T", "P"},
 		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}};
@@ -2245,6 +2290,8 @@ CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, b
 	{
 		graphics[g] = BitmapHandler::loadBitmap(prefix + infix[g] + suffix + ".BMP");
 	}
+	pos.w = graphics[0]->w;
+	pos.h = graphics[0]->h;
 
 }
 
@@ -2259,15 +2306,23 @@ CBonusSelection::CRegion::~CRegion()
 void CBonusSelection::CRegion::clickLeft( tribool down, bool previousState )
 {
 	//select if selectable & clicked inside our graphic
-	if(!down && selectable)
+	if( !down && selectable && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) )
 	{
-		//owner->highlightedRegion = this;
+		owner->selectMap(myNumber);
+		owner->highlightedRegion = this;
 	}
 }
 
 void CBonusSelection::CRegion::clickRight( tribool down, bool previousState )
 {
 	//show r-click text
+	if( down && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) &&
+		rclickText.size() )
+	{
+		CSimpleWindow * temp = CMessage::genWindow(rclickText, 0, true);
+		CRClickPopupInt *rcpi = new CRClickPopupInt(temp, true);
+		GH.pushInt(rcpi);
+	}
 }
 
 void CBonusSelection::CRegion::show( SDL_Surface * to )

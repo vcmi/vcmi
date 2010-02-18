@@ -139,7 +139,8 @@ void CBuildingRect::hover(bool on)
 }
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,GH.current->motion.x-pos.x,GH.current->motion.y-pos.y) != 0)) //na polu
+	if( area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) &&
+		!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
 		if(previousState && !down)
 			LOCPLINT->castleInt->buildingClicked(str->ID);
@@ -150,7 +151,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
 		return;
-	if((CSDL_Ext::SDL_GetPixel(area,GH.current->motion.x-pos.x,GH.current->motion.y-pos.y) != 0)) //na polu
+	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
 		CBuilding *bld = CGI->buildh->buildings[str->townID][str->ID];
 		assert(bld);
