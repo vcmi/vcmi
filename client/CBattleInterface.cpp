@@ -3756,8 +3756,9 @@ void CBattleResultWindow::show(SDL_Surface *to)
 
 void CBattleResultWindow::bExitf()
 {
+	CPlayerInterface * intTmp = owner->curInt;
 	GH.popInts(2); //first - we; second - battle interface
-	owner->curInt->showingDialog->setn(false);
+	intTmp->showingDialog->setn(false);
 	CGI->videoh->close();
 }
 
