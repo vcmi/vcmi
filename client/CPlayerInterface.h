@@ -123,7 +123,7 @@ public:
 
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
-	CBattleInterface * battleInt; //NULL if no battle
+	static CBattleInterface * battleInt; //NULL if no battle
 	FPSmanager * mainFPSmng; //to keep const framerate
 	CInGameConsole * cingconsole;
 	

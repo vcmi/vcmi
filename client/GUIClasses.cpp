@@ -3594,7 +3594,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	{
 		if(ourArt->id == 0)
 		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourOwner->curHero);
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourOwner->curHero, LOCPLINT);
 			GH.pushInt(spellWindow);
 		}
 	}

@@ -19,6 +19,9 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include "CConfigHandler.h"
+#include "SDL_Extensions.h"
+#include "CBattleInterface.h"
 
 //macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 	\
@@ -405,6 +408,20 @@ void GarrisonDialog::applyCl(CClient *cl)
 
 void BattleStart::applyCl( CClient *cl )
 {
+	CPlayerInterface * att, * def;
+	if(vstd::contains(cl->playerint, info->side1) && cl->playerint[info->side1]->human)
+		att = static_cast<CPlayerInterface*>( cl->playerint[info->side1] );
+	else
+		att = NULL;
+
+	if(vstd::contains(cl->playerint, info->side2) && cl->playerint[info->side2]->human)
+		def = static_cast<CPlayerInterface*>( cl->playerint[info->side2] );
+	else
+		def = NULL;
+
+
+	new CBattleInterface(&info->army1, &info->army2, info->heroes[0], info->heroes[1], genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2), att, def);
+
 	if(vstd::contains(cl->playerint,info->side1))
 		cl->playerint[info->side1]->battleStart(&info->army1, &info->army2, info->tile, info->heroes[0], info->heroes[1], 0);
 

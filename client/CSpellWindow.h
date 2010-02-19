@@ -29,6 +29,7 @@ private:
 	std::string textOnRclick;
 	boost::function<void()> onHoverOn;
 	boost::function<void()> onHoverOff;
+	CPlayerInterface * myInt;
 public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -36,7 +37,8 @@ public:
 	void activate();
 	void deactivate();
 
-	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff);//c-tor
+	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR,
+		boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
 };
 
 class CSpellWindow : public CIntObject
@@ -84,8 +86,11 @@ private:
 	void turnPageLeft();
 	void turnPageRight();
 
+	CPlayerInterface * myInt;
+
 public:
-	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, bool openOnBattleSpells = true); //c-tor
+
+	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 
 	void fexitb();

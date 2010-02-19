@@ -69,6 +69,9 @@ extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
 CPlayerInterface * LOCPLINT;
+
+CBattleInterface * CPlayerInterface::battleInt;
+
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero; //used during hero movement
 
@@ -530,11 +533,15 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 
 void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	while(showingDialog->get())
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	/*battleInt = */new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	CGI->musich->playMusicFromSet(CGI->musich->battleMusics, -1);
 	GH.pushInt(battleInt);
 }
@@ -545,6 +552,11 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 
 void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	for(int b=0; b<healedStacks.size(); ++b)
 	{
 		const CStack * healed = cb->battleGetStackByID(healedStacks[b].first);
@@ -558,12 +570,22 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 
 void CPlayerInterface::battleNewStackAppeared(int stackID)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	//changing necessary things in battle interface
 	battleInt->newStack(stackID);
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	for(std::set<si32>::const_iterator it = removedObstacles.begin(); it != removedObstacles.end(); ++it)
 	{
 		for(std::map< int, CDefHandler * >::iterator itBat = battleInt->idToObstacle.begin(); itBat != battleInt->idToObstacle.end(); ++itBat)
@@ -581,11 +603,21 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	battleInt->stackIsCatapulting(ca);
 }
 
 void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
 		battleInt->stackRemoved(*it);
@@ -594,12 +626,22 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->newRound(round);
 }
 
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = new BattleAction(*action);
 	battleInt->startAction(action);
@@ -607,6 +649,11 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	delete curAction;
 	curAction = NULL;
@@ -615,6 +662,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
+
 	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -646,27 +694,52 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 
 void CPlayerInterface::battleEnd(BattleResult *br)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleFinished(*br);
 }
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackMoved(ID, dest, end, distance);
 }
 void CPlayerInterface::battleSpellCast(SpellCast *sc)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->spellCast(sc);
 }
 void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleStacksEffectsSet(sse);
 }
 void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	tlog5 << "CPlayerInterface::battleStackAttacked - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	tlog5 << "done!\n";
@@ -694,6 +767,11 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
 	tlog5 << "CPlayerInterface::battleAttack - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	tlog5 << "done!\n";

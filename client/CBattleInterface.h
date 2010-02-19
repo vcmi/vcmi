@@ -300,8 +300,9 @@ class CBattleResultWindow : public CIntObject
 private:
 	SDL_Surface * background;
 	AdventureMapButton * exit;
+	CBattleInterface * owner;
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, const CBattleInterface * owner); //c-tor
+	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CBattleInterface * _owner); //c-tor
 	~CBattleResultWindow(); //d-tor
 
 	void bExitf(); //exit button callback
@@ -362,9 +363,10 @@ public:
 
 	SDL_Surface *box;
 	SDL_Surface *bg;
+	CBattleInterface * owner;
 
 	void showAll(SDL_Surface *to);
-	CStackQueue(bool Embedded);
+	CStackQueue(bool Embedded, CBattleInterface * _owner);
 	~CStackQueue();
 	void update();
 	void blitBg( SDL_Surface * to );
@@ -383,7 +385,7 @@ private:
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-	std::map< int, CDefHandler * > idToProjectile; //projectiles of creaures (creatureID, defhandler)
+	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
@@ -398,9 +400,9 @@ private:
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
-	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle,z -1 - no location
+	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle,z -1 - no location
 	BattleAction * spellToCast; //spell for which player is choosing destination
-	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or cancelled)
+	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to); //helper function for function show
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks); //helper function for show
@@ -410,7 +412,7 @@ private:
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
-	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
+	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool blockedByObstacle(int hex) const;
 	bool isCatapultAttackable(int hex) const; //returns true if given tile can be attacked by catapult
 
@@ -434,13 +436,16 @@ private:
 
 		friend class CBattleInterface;
 	} * siegeH;
+
+	CPlayerInterface * attackerInt, * defenderInt; //because LOCPLINT is not enough in hotSeat
 public:
+	CPlayerInterface * curInt; //current player interface
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
 	unsigned int animIDhelper; //for giving IDs for animations
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
-	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect); //c-tor
+	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
