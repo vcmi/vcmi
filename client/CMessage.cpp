@@ -127,7 +127,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 		unsigned int braces = 0;
 		bool opened = false;
 
-		while((text[z] != 0) && (text[z] != 0x0a) && (z < maxLineSize+braces))
+		while(z < text.length()  &&  (text[z] != 0x0a) && (z < maxLineSize+braces))
 		{
 			/* We don't count braces in string length. */
 			if (text[z] == '{')
@@ -144,7 +144,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 			z++;
 		}
 
-		if ((text[z] != 0) && (text[z] != 0x0a))
+		if (z < text.length()  &&  (text[z] != 0x0a))
 		{
 			/* We have a long line. Try to do a nice line break, if
 			 * possible. We backtrack on the line until we find a
@@ -185,7 +185,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 			ret->push_back(""); //add empty string, no extra actions needed
 		}
 
-		if (text[0] == 0x0a)
+		if (text.length() && text[0] == 0x0a)
 		{
 			/* Braces do not carry over lines. The map author forgot
 			 * to close it. */
@@ -292,14 +292,14 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 
 			/* Handle normal text. */
 			z = 0;
-			while((*brtext)[i][z]!= 0 && (*brtext)[i][z] != ('{'))
+			while(z < (*brtext)[i].length() && (*brtext)[i][z] != ('{'))
 				z++;
 
 			if (z)
 				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), zwykly));
 			(*brtext)[i].erase(0,z);
 
-			if ((*brtext)[i][0] == '{')
+			if ((*brtext)[i].length() && (*brtext)[i][0] == '{')
 				/* Remove '{' */
 				(*brtext)[i].erase(0,1);
 
@@ -309,14 +309,14 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 
 			/* This text will be highlighted. */
 			z = 0;
-			while((*brtext)[i][z]!= 0 && (*brtext)[i][z] != ('}'))
+			while(z < (*brtext)[i].length() && (*brtext)[i][z] != ('}'))
 				z++;
 
 			if (z)
 				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), tytulowy));
 			(*brtext)[i].erase(0,z);
 
-			if ((*brtext)[i][0] == '}')
+			if ((*brtext)[i].length() && (*brtext)[i][0] == '}')
 				/* Remove '}' */
 				(*brtext)[i].erase(0,1);
 

@@ -42,6 +42,7 @@
 #include <queue>
 #include <sstream>
 #include <boost/filesystem.hpp>
+#include "../StartInfo.h"
 
 #ifdef min
 #undef min
@@ -75,6 +76,9 @@ CBattleInterface * CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero; //used during hero movement
 
+int howManyPeople = 0;
+
+
 struct OCM_HLP_CGIN
 {
 	bool inline operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
@@ -87,6 +91,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
+	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	curAction = NULL;
@@ -94,7 +99,6 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	serialID=serial;
 	human=true;
 	castleInt = NULL;
-	adventureInt = NULL;
 	battleInt = NULL;
 	pim = new boost::recursive_mutex;
 	makingTurn = false;
@@ -112,6 +116,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 }
 CPlayerInterface::~CPlayerInterface()
 {
+	howManyPeople--;
 	delete pim;
 	delete showingDialog;
 	delete mainFPSmng;
@@ -133,7 +138,9 @@ CPlayerInterface::~CPlayerInterface()
 void CPlayerInterface::init(ICallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
-	adventureInt = new CAdvMapInt(playerID);
+	if(!adventureInt)
+		adventureInt = new CAdvMapInt();
+
 	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
 	for(int i=0;i<tt.size();i++)
 	{
@@ -144,61 +151,55 @@ void CPlayerInterface::init(ICallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
-
-	LOCPLINT = this;
-	makingTurn = true;
-
-	if(firstCall)
 	{
-		autosaveCount = getLastIndex("Autosave_");
-		GH.pushInt(adventureInt);
-		adventureInt->activateKeys();
-		if(firstCall > 0) //new game, not laoded
+		boost::unique_lock<boost::recursive_mutex> un(*pim);
+		boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
+
+		LOCPLINT = this;
+		makingTurn = true;
+		GH.curInt = this;
+
+		if(firstCall)
 		{
-			int index = getLastIndex("Newgame_Autosave_");
-			index %= SAVES_COUNT;
-			cb->save("Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
+			if(howManyPeople == 1)
+				adventureInt->setPlayer(playerID);
+
+			autosaveCount = getLastIndex("Autosave_");
+
+			if(!GH.listInt.size())
+			{
+				GH.pushInt(adventureInt);
+				adventureInt->activateKeys();
+			}
+
+			if(firstCall > 0) //new game, not loaded
+			{
+				int index = getLastIndex("Newgame_Autosave_");
+				index %= SAVES_COUNT;
+				cb->save("Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
+			}
+			firstCall = 0;
 		}
-		firstCall = 0;
+		else
+		{
+			LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+			autosaveCount %= 5;
+		}
+
+		if(howManyPeople > 1) //hot seat message
+		{
+			adventureInt->startHotSeatWait(playerID);
+			std::string msg = CGI->generaltexth->allTexts[13];
+			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos[serialID].name);
+			std::vector<SComponent*> cmp;
+			cmp.push_back(new SComponent(SComponent::flag, playerID, 0));
+			showInfoDialog(msg, cmp);
+		}
+		else
+			adventureInt->startTurn();
 	}
-	else
-	{
-		LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
-		autosaveCount %= 5;
-	}
 
-	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
-		SDL_FreeSurface(i->second);
-	graphics->heroWins.clear();
-	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
-	for(int i=0;i<hh.size();i++)
-	{
-		SDL_Surface * pom = infoWin(hh[i]);
-		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
-	}
-
-	/* TODO: This isn't quite right. First day in game should play
-	 * NEWDAY. And we don't play NEWMONTH. */
-	int day = cb->getDate(1);
-	if (day != 1)
-		CGI->soundh->playSound(soundBase::newDay);
-	else
-		CGI->soundh->playSound(soundBase::newWeek);
-
-	adventureInt->infoBar.newDay(day);
-
-	//select first hero if available.
-	//TODO: check if hero is slept
-	if(wanderingHeroes.size())
-		adventureInt->select(wanderingHeroes[0]);
-	else
-		adventureInt->select(adventureInt->townList.items[0]);
-
-	adventureInt->showAll(screen);
-
-	GH.curInt = this;
+	acceptTurn();
 }
 
 inline void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)
@@ -224,6 +225,8 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 }
 void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
+	if(LOCPLINT != this)
+		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	const CGHeroInstance * ho = cb->getHeroInfo(details.id); //object representing this hero
 	int3 hp = details.start;
@@ -238,21 +241,21 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
 		{
 			if(adventureInt->terrain.currentPath)
-				adventureInt->eraseCurrentPathOf(ho);
+				eraseCurrentPathOf(ho);
 			return; //teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
 
 		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
 		{
-			adventureInt->eraseCurrentPathOf(ho);
+			eraseCurrentPathOf(ho);
 		}
 		else if(adventureInt->terrain.currentPath  &&  details.result == TryMoveHero::SUCCESS) //&& hero is moving
 		{
 			//remove one node from the path (the one we went)
 			adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
 			if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
-				adventureInt->eraseCurrentPathOf(ho);
+				eraseCurrentPathOf(ho);
 		}
 	}
 
@@ -377,10 +380,10 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 		pos.x = -CGI->mh->frameW;
 	if(pos.y<-CGI->mh->frameH)
 		pos.y = -CGI->mh->frameH;
-	if(pos.x>CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frameW)
-		pos.x = CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frameW;
-	if(pos.y>CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frameH)
-		pos.y = CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frameH;
+	if(pos.x>CGI->mh->map->width - adventureInt->terrain.tilesw + CGI->mh->frameW)
+		pos.x = CGI->mh->map->width - adventureInt->terrain.tilesw + CGI->mh->frameW;
+	if(pos.y>CGI->mh->map->height - adventureInt->terrain.tilesh + CGI->mh->frameH)
+		pos.y = CGI->mh->map->height - adventureInt->terrain.tilesh + CGI->mh->frameH;
 	return pos;
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
@@ -733,7 +736,7 @@ void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleStacksEffectsSet(sse);
 }
-void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(std::vector<BattleStackAttacked> & bsa)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -746,7 +749,7 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 
 
 	std::vector<SStackAttackedInfo> arg;
-	for(std::set<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
+	for(std::vector<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
@@ -788,7 +791,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 
 	if(ba->shot())
 	{
-		for(std::set<BattleStackAttacked>::iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+		for(std::vector<BattleStackAttacked>::iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
 			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked), i->stackAttacked);
 	}
 	else
@@ -1169,7 +1172,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 
 void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
-	LOCPLINT->adventureInt->centerOn (pos);
+	adventureInt->centerOn (pos);
 	if(focusTime)
 	{
 		bool activeAdv = (GH.topInt() == adventureInt  &&  adventureInt->isActive());
@@ -1788,4 +1791,75 @@ SystemOptions::SystemOptions()
 	animSpeed = 2;
 	printMouseShadow = true;
 	showQueue = true;
+}
+
+void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho )
+{
+	assert(vstd::contains(paths, ho));
+	assert(ho == adventureInt->selection);
+
+	paths.erase(ho);
+	adventureInt->terrain.currentPath = NULL;
+}
+
+CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
+{
+	if(vstd::contains(paths,h)) //hero has assigned path
+	{
+		CGPath &path = paths[h];
+		if(!path.nodes.size())
+		{
+			tlog3 << "Warning: empty path found...\n";
+			paths.erase(h);
+		}
+		else
+		{
+			assert(h->getPosition(false) == path.startPos()); 
+			//update the hero path in case of something has changed on map
+			if(LOCPLINT->cb->getPath2(path.endPos(), path))
+				return &path;
+			else
+				paths.erase(h);
+		}
+	}
+
+	return NULL;
+}
+
+void CPlayerInterface::acceptTurn()
+{
+	waitWhileDialog();
+
+	if(howManyPeople > 1)
+		adventureInt->startTurn();
+
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
+		SDL_FreeSurface(i->second);
+	graphics->heroWins.clear();
+	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
+	for(int i=0;i<hh.size();i++)
+	{
+		SDL_Surface * pom = infoWin(hh[i]);
+		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+	}
+
+	/* TODO: This isn't quite right. First day in game should play
+	 * NEWDAY. And we don't play NEWMONTH. */
+	int day = cb->getDate(1);
+	if (day != 1)
+		CGI->soundh->playSound(soundBase::newDay);
+	else
+		CGI->soundh->playSound(soundBase::newWeek);
+
+	adventureInt->infoBar.newDay(day);
+
+	//select first hero if available.
+	//TODO: check if hero is slept
+	if(wanderingHeroes.size())
+		adventureInt->select(wanderingHeroes[0]);
+	else
+		adventureInt->select(adventureInt->townList.items[0]);
+
+	adventureInt->showAll(screen);
 }

@@ -358,7 +358,6 @@ public:
 	CDefHandler *mobile, *mana; //mana and movement indicators
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
-	std::vector<const CGHeroInstance *> &heroes; //points to LOCPLINT->wandering heroes 
 	CHeroList(int Size); //c-tor
 	int getPosOfHero(const CGHeroInstance* h); //hero's position on list
 	void genList();

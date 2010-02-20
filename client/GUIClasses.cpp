@@ -953,7 +953,7 @@ SDL_Surface * SComponent::getImg()
 void SComponent::clickRight(tribool down, bool previousState)
 {
 	if(description.size())
-		LOCPLINT->adventureInt->handleRightClick(description,down,this);
+		adventureInt->handleRightClick(description,down,this);
 }
 void SComponent::activate()
 {
@@ -1159,7 +1159,7 @@ void CStatusBar::print(const std::string & text)
 	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
 	{
 		current=text;
-		show(GH.topInt()==LOCPLINT->adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
+		show(GH.topInt()==adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
 	}
 }
 
@@ -1217,7 +1217,7 @@ void CList::fixPos()
 }
 
 CHeroList::CHeroList(int Size)
-:CList(Size), heroes(LOCPLINT->wanderingHeroes)
+:CList(Size)
 {
 	arrup = CDefHandler::giveDef(conf.go()->ac.hlistAU);
 	arrdo = CDefHandler::giveDef(conf.go()->ac.hlistAD);
@@ -1248,7 +1248,7 @@ void CHeroList::init()
 {
 	int w = pos.w+1, h = pos.h+4;
 	bg = CSDL_Ext::newSurface(w,h,screen);
-	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
+	SDL_BlitSurface(adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
 }
 
 void CHeroList::genList()
@@ -1267,16 +1267,16 @@ void CHeroList::select(int which)
 	if (which<0)
 	{
 		selected = which;
-		LOCPLINT->adventureInt->selection = NULL;
-		LOCPLINT->adventureInt->terrain.currentPath = NULL;
+		adventureInt->selection = NULL;
+		adventureInt->terrain.currentPath = NULL;
 		draw(screen);
-		LOCPLINT->adventureInt->infoBar.draw(screen);
+		adventureInt->infoBar.draw(screen);
 	}
-	if (which>=heroes.size())
+	if (which>=LOCPLINT->wanderingHeroes.size())
 		return;
 
 	selected = which;
-	LOCPLINT->adventureInt->select(heroes[which]);
+	adventureInt->select(LOCPLINT->wanderingHeroes[which]);
 }
 
 void CHeroList::clickLeft(tribool down, bool previousState)
@@ -1295,7 +1295,7 @@ void CHeroList::clickLeft(tribool down, bool previousState)
 		}
 		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 		{
-			if(heroes.size()-from>SIZE)
+			if(LOCPLINT->wanderingHeroes.size()-from>SIZE)
 			{
 				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
 				pressed = false;
@@ -1309,8 +1309,8 @@ void CHeroList::clickLeft(tribool down, bool previousState)
 		int ny = hy/32;
 		if (ny>=SIZE || ny<0)
 			return;
-		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
-			LOCPLINT->openHeroWindow(heroes[selected]);//print hero screen
+		if ( (ny+from)==selected && (adventureInt->selection->ID == HEROI_TYPE))
+			LOCPLINT->openHeroWindow(LOCPLINT->wanderingHeroes[selected]);//print hero screen
 		select(ny+from);
 	}
 	else
@@ -1353,17 +1353,17 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[303].first);
+			adventureInt->statusbar.print(CGI->generaltexth->zelp[303].first);
 		else
-			LOCPLINT->adventureInt->statusbar.clear();
+			adventureInt->statusbar.clear();
 		return;
 	}
 	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 	{
-		if ((heroes.size()-from)  >  SIZE)
-			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
+		if ((LOCPLINT->wanderingHeroes.size()-from)  >  SIZE)
+			adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
 		else
-			LOCPLINT->adventureInt->statusbar.clear();
+			adventureInt->statusbar.clear();
 		return;
 	}
 	//if not buttons then heroes
@@ -1371,15 +1371,15 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
-	if ((ny>SIZE || ny<0) || (from+ny>=heroes.size()))
+	if ((ny>SIZE || ny<0) || (from+ny>=LOCPLINT->wanderingHeroes.size()))
 	{
-		LOCPLINT->adventureInt->statusbar.clear();
+		adventureInt->statusbar.clear();
 		return;
 	}
 	std::vector<std::string> temp;
-	temp.push_back(heroes[from+ny]->name);
-	temp.push_back(heroes[from+ny]->type->heroClass->name);
-	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
+	temp.push_back(LOCPLINT->wanderingHeroes[from+ny]->name);
+	temp.push_back(LOCPLINT->wanderingHeroes[from+ny]->type->heroClass->name);
+	adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
 	//select(ny+from);
 }
 
@@ -1390,11 +1390,11 @@ void CHeroList::clickRight(tribool down, bool previousState)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
 		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (heroes.size()-from>5))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->wanderingHeroes.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 		}
 		else
 		{
@@ -1403,23 +1403,23 @@ void CHeroList::clickRight(tribool down, bool previousState)
 			hx-=pos.x;
 			hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 			int ny = hy/32;
-			if ((ny>SIZE || ny<0) || (from+ny>=heroes.size()))
+			if ((ny>SIZE || ny<0) || (from+ny>=LOCPLINT->wanderingHeroes.size()))
 			{
 				return;
 			}
 
 			//show popup
-			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[heroes[from+ny]->subID],
-				GH.current->motion.x-graphics->heroWins[heroes[from+ny]->subID]->w,
-				GH.current->motion.y-graphics->heroWins[heroes[from+ny]->subID]->h,
+			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID],
+				GH.current->motion.x-graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID]->w,
+				GH.current->motion.y-graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID]->h,
 				false);
 			GH.pushInt(ip);
 		}
 	}
 	else
 	{
-		LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
-		LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
+		adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
+		adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 	}
 }
 
@@ -1434,18 +1434,18 @@ void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
 void CHeroList::updateHList(const CGHeroInstance *toRemove)
 {
 	if(toRemove) //remove specific hero
-		heroes -= toRemove;
+		LOCPLINT->wanderingHeroes -= toRemove;
 	else
 		LOCPLINT->recreateWanderingHeroes();
 
 
-	if(selected >= heroes.size())
-		select(heroes.size()-1);
+	if(selected >= LOCPLINT->wanderingHeroes.size())
+		select(LOCPLINT->wanderingHeroes.size()-1);
 
 	if(toRemove)
 	{
-		if(heroes.size() == 0)
-			LOCPLINT->adventureInt->townList.select(0);
+		if(LOCPLINT->wanderingHeroes.size() == 0)
+			adventureInt->townList.select(0);
 		else
 			select(selected);
 	}
@@ -1454,8 +1454,8 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
 	int ser = -1;
-	for(int i=0; i<heroes.size() && ser<0; i++)
-		if(heroes[i]->subID == which->subID)
+	for(int i=0; i<LOCPLINT->wanderingHeroes.size() && ser<0; i++)
+		if(LOCPLINT->wanderingHeroes[i]->subID == which->subID)
 			ser = i;
 	ser -= from;
 	if(ser<0 || ser >= SIZE) return;
@@ -1468,14 +1468,14 @@ void CHeroList::draw(SDL_Surface * to)
 	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
-		if (iT>=heroes.size())
+		if (iT>=LOCPLINT->wanderingHeroes.size())
 		{
 			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32,to);
 			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32,to);
 			blitAt(empty,posporx,pospory+i*32,to);
 			continue;
 		}
-		const CGHeroInstance *cur = heroes[iT];
+		const CGHeroInstance *cur = LOCPLINT->wanderingHeroes[iT];
 		int pom = cur->movement / 100;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
@@ -1486,7 +1486,7 @@ void CHeroList::draw(SDL_Surface * to)
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32,to); //mana
 		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
 		blitAt(temp,posporx,pospory+i*32,to);
-		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
+		if ((selected == iT) && (adventureInt->selection->ID == HEROI_TYPE))
 		{
 			blitAt(selection,posporx,pospory+i*32,to);
 		}
@@ -1497,7 +1497,7 @@ void CHeroList::draw(SDL_Surface * to)
 	else
 		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
 
-	if (heroes.size()-from > SIZE)
+	if (LOCPLINT->wanderingHeroes.size()-from > SIZE)
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
@@ -1505,7 +1505,7 @@ void CHeroList::draw(SDL_Surface * to)
 
 int CHeroList::getPosOfHero(const CGHeroInstance* h)
 {
-	return vstd::findPos(heroes, h, std::equal_to<const CGHeroInstance*>());
+	return vstd::findPos(LOCPLINT->wanderingHeroes, h, std::equal_to<const CGHeroInstance*>());
 }
 
 void CHeroList::show( SDL_Surface * to )
@@ -1515,7 +1515,7 @@ void CHeroList::show( SDL_Surface * to )
 
 int CHeroList::size()
 {
-	return heroes.size();
+	return LOCPLINT->wanderingHeroes.size();
 }
 
 CTownList::~CTownList()
@@ -1634,9 +1634,9 @@ void CTownList::clickLeft(tribool down, bool previousState)
 		int ny = hy/32;
 		if (ny>=SIZE || ny<0)
 			return;
-		if(GH.topInt() == LOCPLINT->adventureInt
+		if(GH.topInt() == adventureInt
 		  && (ny+from)==selected 
-		  && LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE
+		  && adventureInt->selection->ID == TOWNI_TYPE
 		  )
 			LOCPLINT->openTownWindow(items[selected]);//print town screen
 		else
@@ -1685,11 +1685,11 @@ void CTownList::clickRight(tribool down, bool previousState)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
 		}
 		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (items.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 		}
 		//if not buttons then towns
 		int hx = GH.current->motion.x, hy = GH.current->motion.y;
@@ -1711,8 +1711,8 @@ void CTownList::clickRight(tribool down, bool previousState)
 	}
 	else
 	{
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
-			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 	}
 }
 
@@ -1737,7 +1737,7 @@ void CTownList::draw(SDL_Surface * to)
 
 		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32,to);
 
-		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE))
+		if ((selected == iT) && (adventureInt->selection->ID == TOWNI_TYPE))
 		{
 			blitAt(graphics->getPic(-2),posporx,pospory+i*32,to);
 		}
@@ -3220,8 +3220,8 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		LOCPLINT->adventureInt->heroWindow->setHero(h);
-		GH.pushInt(new CRClickPopupInt(LOCPLINT->adventureInt->heroWindow,false));
+		adventureInt->heroWindow->setHero(h);
+		GH.pushInt(new CRClickPopupInt(adventureInt->heroWindow,false));
 	}
 }
 
@@ -3433,7 +3433,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 void CInGameConsole::startEnteringText()
 {
 	enteredText = "_";
-	if(GH.topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == adventureInt)
 	{
 		GH.statusbar->print(enteredText);
 	}
@@ -3454,7 +3454,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		print(txt);
 	}
 	enteredText = "";
-	if(GH.topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == adventureInt)
 	{
 		GH.statusbar->clear();
 	}
@@ -3467,7 +3467,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 
 void CInGameConsole::refreshEnteredText()
 {
-	if(GH.topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == adventureInt)
 	{
 		GH.statusbar->print(enteredText);
 	}
@@ -3558,8 +3558,8 @@ CRClickPopupInt::~CRClickPopupInt()
 {
 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
-	if(LOCPLINT && inner == LOCPLINT->adventureInt->heroWindow)
-		LOCPLINT->adventureInt->heroWindow->dispose();
+	if(LOCPLINT && inner == adventureInt->heroWindow)
+		adventureInt->heroWindow->dispose();
 
 	if(delInner)
 		delete inner;
@@ -3880,7 +3880,7 @@ void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	LOCPLINT->adventureInt->handleRightClick(text, down, this);
+	adventureInt->handleRightClick(text, down, this);
 }
 void LRClickableAreaWText::activate()
 {
@@ -3918,7 +3918,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 {
-	LOCPLINT->adventureInt->handleRightClick(text, down, this);
+	adventureInt->handleRightClick(text, down, this);
 }
 void LRClickableAreaWTextComp::activate()
 {
@@ -4751,8 +4751,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	//printing necessary things to background
 	int3 moveInt = int3(8, 9, 0);
 	CGI->mh->terrainRect
-		(grailPos - moveInt, LOCPLINT->adventureInt->anim,
-		 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+		(grailPos - moveInt, adventureInt->anim,
+		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
 		 background, &genRect(544, 591, 8, 8), 0, 0, true);
 
 	//printing X sign

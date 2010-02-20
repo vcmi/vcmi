@@ -775,7 +775,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		}
 	}
 
-	for(std::set<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
+	for(std::vector<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
 	{
 		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
 

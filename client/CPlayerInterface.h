@@ -121,7 +121,6 @@ public:
 
 	SystemOptions sysOpts;
 
-	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	static CBattleInterface * battleInt; //NULL if no battle
 	FPSmanager * mainFPSmng; //to keep const framerate
@@ -134,6 +133,7 @@ public:
 
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
+	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 
 	void update();
 	void recreateWanderingHeroes();
@@ -186,7 +186,7 @@ public:
 	void battleStackMoved(int ID, int dest, int distance, bool end);
 	void battleSpellCast(SpellCast *sc);
 	void battleStacksEffectsSet(SetStackEffect & sse); //called when a specific effect is set to stacks
-	void battleStacksAttacked(std::set<BattleStackAttacked> & bsa);
+	void battleStacksAttacked(std::vector<BattleStackAttacked> & bsa);
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks); //called when stacks are healed / resurrected
@@ -209,10 +209,14 @@ public:
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+
 	bool moveHero(const CGHeroInstance *h, CGPath path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
 	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
+	void eraseCurrentPathOf( const CGHeroInstance * ho );
+	CGPath *getAndVerifyPath( const CGHeroInstance * h );
+	void acceptTurn(); //used during hot seat after your turn message is closed
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

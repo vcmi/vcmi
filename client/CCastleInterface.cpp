@@ -532,9 +532,9 @@ CCastleInterface::~CCastleInterface()
 void CCastleInterface::close()
 {
 	if(town->visitingHero)
-		LOCPLINT->adventureInt->select(town->visitingHero);
+		adventureInt->select(town->visitingHero);
 	else
-		LOCPLINT->adventureInt->select(town);
+		adventureInt->select(town);
 	LOCPLINT->castleInt = NULL;
 	GH.popIntTotally(this);
 	CGI->musich->stopMusic(5000);
@@ -761,7 +761,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 {
 	blitAt(cityBg,pos,to);
 	blitAt(townInt,pos.x,pos.y+374,to);
-	LOCPLINT->adventureInt->resdatabar.draw(to);
+	adventureInt->resdatabar.draw(to);
 	townlist->draw(to);
 	statusbar->show(to);
 	resdatabar->draw(to);
@@ -937,11 +937,7 @@ void CCastleInterface::recreateBuildings()
 								{
 									delete buildings[itpb];
 									buildings.erase(buildings.begin() + itpb);
-									#ifndef __GNUC__
-									obecny->second = st->ID; //XXX look closer!
-									#else
 									*(const_cast<int*>(&(obecny->second))) = st->ID;
-									#endif
 									buildings.push_back(new CBuildingRect(st));
 								}
 							}

@@ -588,13 +588,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
-	std::set<BattleStackAttacked>::iterator i = bat.bsa.insert(BattleStackAttacked()).first;
-	#ifdef __GNUC__
-		BattleStackAttacked *bsa = (BattleStackAttacked *)&*i;
-	#else
-		BattleStackAttacked *bsa = &*i;
-	#endif
-
+	bat.bsa.push_back(BattleStackAttacked());
+	BattleStackAttacked *bsa = &bat.bsa.back();
 	bsa->stackAttacked = def->ID;
 	bsa->attackerID = att->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance);//counting dealt damage
@@ -3403,7 +3398,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						bsa.stackAttacked = (*it)->ID;
 						bsa.attackerID = -1;
 						prepareAttacked(bsa,*it);
-						si.stacks.insert(bsa);
+						si.stacks.push_back(bsa);
 					}
 					if(!si.stacks.empty())
 						sendAndApply(&si);
@@ -3443,7 +3438,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					{
 						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
 							continue;
-						sse.stacks.insert((*it)->ID);
+						sse.stacks.push_back((*it)->ID);
 					}
 					sse.effect.id = ba.additionalInfo;
 					sse.effect.level = h->getSpellSchoolLevel(s);

@@ -164,7 +164,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 
 		str >> cname >> attack >> defend >> killed >> move >> shoot >> wince >> ext1 >> ext2;
 
-		if (cname[0] == '#')
+		if (!line.size() || cname[0] == '#')
 			// That's a comment. Discard.
 			continue;
 

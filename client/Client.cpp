@@ -91,6 +91,7 @@ public:
 
 void CClient::init()
 {
+	hotSeat = false;
 	connectionHandler = NULL;
 	pathInfo = NULL;
 	applier = new CCLApplier;
@@ -196,6 +197,7 @@ void CClient::endGame()
 		GH.topInt()->deactivate();
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
+	GH.statusbar = NULL;
 	tlog0 << "Removed GUI." << std::endl;
 
 	delete CGI->mh;
@@ -301,25 +303,6 @@ void CClient::loadGame( const std::string & fname )
 		CLoadFile lf(fname + ".vcgm1");
 		lf >> *this;
 	}
-	//for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
-	//{ 
-	//	ui8 color = gs->scenarioOps->playerInfos[i].color;
-	//	CCallback *cb = new CCallback(gs,color,this);
-	//	if(!gs->scenarioOps->playerInfos[i].human) {
-	//		playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
-	//	}
-	//	else {
-	//		playerint[color] = new CPlayerInterface(color,i);
-	//	}
-	//	gs->currentPlayer = color;
-	//	playerint[color]->init(cb);
-	//	tlog0 <<"Setting up interface for player "<< (int)color <<": "<<tmh.getDif()<<std::endl;
-	//}
-	//playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
-	//playerint[255]->init(new CCallback(gs,255,this));
-	//tlog0 <<"Setting up interface for neutral \"player\"" << tmh.getDif() << std::endl;
-
-
 }
 
 int CClient::getCurrentPlayer()
@@ -416,19 +399,26 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	pathInfo = new CPathsInfo(int3(mapa->width, mapa->height, mapa->twoLevel+1));
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
+	int humanPlayers = 0;
 	for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
 	{ 
 		ui8 color = gs->scenarioOps->playerInfos[i].color;
 		CCallback *cb = new CCallback(gs,color,this);
-		if(!gs->scenarioOps->playerInfos[i].human) {
+		if(!gs->scenarioOps->playerInfos[i].human) 
+		{
 			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
 		}
-		else {
+		else 
+		{
 			playerint[color] = new CPlayerInterface(color,i);
+			humanPlayers++;
 		}
 		gs->currentPlayer = color;
 		playerint[color]->init(cb);
 	}
+
+	hotSeat = (humanPlayers > 1);
+
 	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
 	playerint[255]->init(new CCallback(gs,255,this));
 }
@@ -451,6 +441,7 @@ void CClient::waitForServer()
 template <typename Handler>
 void CClient::serialize( Handler &h, const int version )
 {
+	h & hotSeat;
 	if(h.saving)
 	{
 		ui8 players = playerint.size();

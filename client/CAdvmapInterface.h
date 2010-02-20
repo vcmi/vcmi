@@ -133,7 +133,7 @@ public:
 class CAdvMapInt : public CIntObject //adventure map interface
 {
 public:
-	CAdvMapInt(int Player);
+	CAdvMapInt();
 	~CAdvMapInt();
 
 	int3 position; //top left corner of visible map part
@@ -142,6 +142,8 @@ public:
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
+
+	enum{NA, INGAME, WAITING} state;
 
 	bool updateScreen, updateMinimap ;
 	unsigned char anim, animValHitCount; //animation frame
@@ -174,7 +176,6 @@ public:
 	CHeroWindow * heroWindow;
 
 	const CArmedInstance *selection; //currently selected town/hero
-	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 
 	//functions bound to buttons
 	void fshowOverview();
@@ -202,6 +203,12 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	bool isActive();
-	void eraseCurrentPathOf( const CGHeroInstance * ho );
+
+	void setPlayer(int Player);
+	void startHotSeatWait(int Player);
+	void startTurn();
 };
+
+extern CAdvMapInt *adventureInt;
+
 #endif // __CADVMAPINTERFACE_H__

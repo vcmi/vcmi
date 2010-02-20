@@ -469,8 +469,8 @@ void BattleStackMoved::applyFirstCl( CClient *cl )
 
 void BattleStackAttacked::applyCl( CClient *cl )
 {
-	std::set<BattleStackAttacked> bsa;
-	bsa.insert(*this);
+	std::vector<BattleStackAttacked> bsa;
+	bsa.push_back(*this);
 
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,bsa);
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,bsa);

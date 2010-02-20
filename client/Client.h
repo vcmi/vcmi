@@ -36,6 +36,7 @@ public:
 	CCallback *cb;
 	std::set<CCallback*> callbacks; //callbacks given to player interfaces
 	std::map<ui8,CGameInterface *> playerint;
+	bool hotSeat;
 	CConnection *serv;
 	SharedMem *shared;
 	BattleAction *curbaction;

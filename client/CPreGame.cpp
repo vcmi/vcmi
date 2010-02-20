@@ -46,6 +46,12 @@
 namespace fs = boost::filesystem;
 using boost::bind;
 using boost::ref;
+
+#if _MSC_VER >= 1600
+	#define bind boost::bind
+	#define ref boost::ref
+#endif
+
 void startGame(StartInfo * options);
 
 CGPreGame * CGP;
@@ -2090,7 +2096,7 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	blitAt(panel, 456, 6, background);
 
 	startB = new AdventureMapButton("", "", 0 /*cb*/, 475, 536, "SCNRBEG.DEF", SDLK_RETURN);
-	backB = new AdventureMapButton("", "", boost::bind(&CBonusSelection::goBack, this), 624, 536, "SCNRBACK.DEF", SDLK_ESCAPE);
+	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "SCNRBACK.DEF", SDLK_ESCAPE);
 
 	//campaign name
 	if (ourCampaign->header.name.length())

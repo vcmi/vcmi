@@ -51,7 +51,7 @@ void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
 
 void SpellbookInteractiveArea::clickRight(tribool down, bool previousState)
 {
-	myInt->adventureInt->handleRightClick(textOnRclick, down, this);
+	adventureInt->handleRightClick(textOnRclick, down, this);
 }
 
 void SpellbookInteractiveArea::hover(bool on)

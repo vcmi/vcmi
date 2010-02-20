@@ -164,7 +164,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		for(int j=0;j<slots.size();j++)
 		{
 			loadToIt(pom,buf,it,4);
-			if(pom[0]=='x')
+			if(pom.size() && pom[0]=='x')
 				nart.possibleSlots.push_back(slots[j]);
 		}
 		loadToIt(pom,buf,it,4);

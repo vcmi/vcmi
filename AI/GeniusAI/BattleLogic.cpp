@@ -16,6 +16,10 @@ using namespace geniusai::BattleAI;
 using namespace boost::lambda;
 using namespace std;
 
+#if _MSC_VER >= 1600
+#define bind boost::lambda::bind
+#endif
+
 /*
 ui8 side; //who made this action: false - left, true - right player
 	ui32 stackNumber;//stack ID, -1 left hero, -2 right hero,

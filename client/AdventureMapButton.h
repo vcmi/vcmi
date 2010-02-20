@@ -78,6 +78,7 @@ public:
 
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
 	void setDef(const std::string & defName, bool playerColoredButton);
+	void setPlayerColor(int player);
 };
 
 class CHighlightableButton 

@@ -930,7 +930,7 @@ struct BattleAttack : public CPackForClient//3006
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	std::set<BattleStackAttacked> bsa;
+	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui8 flags;
 
@@ -1010,7 +1010,7 @@ struct SetStackEffect : public CPackForClient //3010
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	std::set<ui32> stacks; //affected stacks (IDs)
+	std::vector<ui32> stacks; //affected stacks (IDs)
 	CStack::StackEffect effect; //type of effect
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1024,7 +1024,7 @@ struct StacksInjured : public CPackForClient //3011
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	std::set<BattleStackAttacked> stacks;
+	std::vector<BattleStackAttacked> stacks;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks;

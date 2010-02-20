@@ -193,7 +193,6 @@ int main(int argc, char** argv)
 	playIntro();
 	SDL_FillRect(screen,NULL,0);
 	SDL_Flip(screen);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
@@ -232,7 +231,7 @@ void processCommand(const std::string &message)
 			GH.topInt()->activate();
 			break;
 		case 1:
-			LOCPLINT->adventureInt->activate();
+			adventureInt->activate();
 			break;
 		case 2:
 			LOCPLINT->castleInt->activate();
@@ -416,6 +415,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	SDL_EnableUNICODE(1);
 	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 	SDL_ShowCursor(SDL_DISABLE);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 #ifdef _WIN32
 	SDL_SysWMinfo wm;

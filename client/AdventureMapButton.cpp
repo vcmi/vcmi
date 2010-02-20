@@ -151,7 +151,7 @@ void AdventureMapButton::clickRight(tribool down, bool previousState)
 {
 	if(down && helpBox.size()) //there is no point to show window with nothing inside...
 		if(LOCPLINT)
-			LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
+			adventureInt->handleRightClick(helpBox,down,this);
 		else
 			GH.pushInt(new CRClickPopupInt(CMessage::genWindow(helpBox, 0),true));
 }
@@ -268,6 +268,14 @@ void AdventureMapButton::setDef(const std::string & defName, bool playerColoredB
 	}
 	delete temp;
 }
+
+void AdventureMapButton::setPlayerColor(int player)
+{
+	for(int i =0; i<imgs.size();i++)
+		for(int j=0;j<imgs[i].size();j++)
+			graphics->blueToPlayersAdv(imgs[i][j],player);
+}
+
 void CHighlightableButton::select(bool on)
 {
 	selected = on;

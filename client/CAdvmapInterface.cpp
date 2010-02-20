@@ -47,6 +47,8 @@ using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
+CAdvMapInt *adventureInt;
+
 CMinimap::CMinimap(bool draw)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -123,7 +125,7 @@ void CMinimap::draw(SDL_Surface * to)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	//draw terrain
-	blitAt(map[LOCPLINT->adventureInt->position.z],0,0,temps);
+	blitAt(map[adventureInt->position.z],0,0,temps);
 
 	//draw heroes
 	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
@@ -133,7 +135,7 @@ void CMinimap::draw(SDL_Surface * to)
 	for (size_t i=0; i < hh.size(); ++i)
 	{
 		int3 hpos = hh[i]->getPosition(false);
-		if(hpos.z!=LOCPLINT->adventureInt->position.z)
+		if(hpos.z!=adventureInt->position.z)
 			continue;
 		//float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
 		int3 maplgp ( (hpos.x*mw)/mapSizes.x, (hpos.y*mh)/mapSizes.y, hpos.z );
@@ -147,13 +149,13 @@ void CMinimap::draw(SDL_Surface * to)
 		}
 	}
 
-	blitAt(flObjs[LOCPLINT->adventureInt->position.z],0,0,temps);
+	blitAt(flObjs[adventureInt->position.z],0,0,temps);
 
-	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
+	blitAt(FoW[adventureInt->position.z],0,0,temps);
 
 	//draw radar
-	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
-		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)mapSizes.y)))*pos.h;
+	int bx = (((float)adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
+		by = (((float)adventureInt->position.y)/(((float)mapSizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y,to);
 }
@@ -270,7 +272,7 @@ void CMinimap::updateRadar()
 
 void CMinimap::clickRight(tribool down, bool previousState)
 {
-	LOCPLINT->adventureInt->handleRightClick(rcText,down,this);
+	adventureInt->handleRightClick(rcText,down,this);
 }
 
 void CMinimap::clickLeft(tribool down, bool previousState)
@@ -292,17 +294,17 @@ void CMinimap::clickLeft(tribool down, bool previousState)
 	int3 newCPos;
 	newCPos.x = (CGI->mh->sizes.x*dx);
 	newCPos.y = (CGI->mh->sizes.y*dy);
-	newCPos.z = LOCPLINT->adventureInt->position.z;
-	LOCPLINT->adventureInt->centerOn(newCPos);
+	newCPos.z = adventureInt->position.z;
+	adventureInt->centerOn(newCPos);
 }
 
 void CMinimap::hover (bool on)
 {
 	//Hoverable::hover(on);
 	if (on)
-		LOCPLINT->adventureInt->statusbar.print(statusbarTxt);
-	else if (LOCPLINT->adventureInt->statusbar.current==statusbarTxt)
-		LOCPLINT->adventureInt->statusbar.clear();
+		adventureInt->statusbar.print(statusbarTxt);
+	else if (adventureInt->statusbar.current==statusbarTxt)
+		adventureInt->statusbar.clear();
 }
 
 void CMinimap::mouseMoved (const SDL_MouseMotionEvent & sEvent)
@@ -478,7 +480,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
 		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
 
-	if (LOCPLINT->adventureInt->selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
+	if (adventureInt->selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
 	{
 		if(currentPath)
 		{
@@ -491,16 +493,16 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		{
 			if(bobjs[i]->ID == TOWNI_TYPE && bobjs[i]->getOwner() == LOCPLINT->playerID) //our town clicked
 			{
-				if(LOCPLINT->adventureInt->selection == (bobjs[i])) //selected town clicked
+				if(adventureInt->selection == (bobjs[i])) //selected town clicked
 					LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(bobjs[i]));
 				else
-					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+					adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
 
 				return;
 			}
 			else if(bobjs[i]->ID == HEROI_TYPE && bobjs[i]->tempOwner == LOCPLINT->playerID) //hero clicked - select him
 			{
-				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+				adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
 				return;
 			}
 		}
@@ -509,7 +511,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	else //hero is selected
 	{
 		bool townEntrance = false; //town entrance tile has been clicked?
-		const CGHeroInstance * currentHero = static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection);
+		const CGHeroInstance * currentHero = static_cast<const CGHeroInstance*>(adventureInt->selection);
 
 		for(size_t i=0; i < vobjs.size(); ++i)
 		{
@@ -527,7 +529,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 							|| o->ID == TOWNI_TYPE)										   //or town
 					&& o->tempOwner == LOCPLINT->playerID) //but must belong to us
 				{
-					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(o));
+					adventureInt->select(static_cast<const CArmedInstance*>(o));
 					return;
 				}
 				else if(o->ID == HEROI_TYPE //it's a hero
@@ -555,10 +557,10 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
 		{
 			int3 bufpos = currentHero->getPosition(false);
-			CGPath &path = LOCPLINT->adventureInt->paths[currentHero];
+			CGPath &path = LOCPLINT->paths[currentHero];
 			currentPath = &path;
 			if(!LOCPLINT->cb->getPath2(mp, path))
-				LOCPLINT->adventureInt->eraseCurrentPathOf(currentHero);
+				LOCPLINT->eraseCurrentPathOf(currentHero);
 		}
 	} //end of hero is selected "case"
 }
@@ -675,7 +677,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		}
 	default:
 		{
-			LOCPLINT->adventureInt->handleRightClick(obj->getHoverText(),down,this);
+			adventureInt->handleRightClick(obj->getHoverText(),down,this);
 			break;
 		}
 	}
@@ -683,7 +685,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	int3 tHovered = whichTileIsIt(sEvent.x,sEvent.y);
-	int3 pom = LOCPLINT->adventureInt->verifyPos(tHovered);
+	int3 pom = adventureInt->verifyPos(tHovered);
 
 	if(tHovered != pom) //tile outside the map
 	{
@@ -700,11 +702,11 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if (temp.size())
 	{
 		boost::replace_all(temp.back(),"\n"," ");
-		LOCPLINT->adventureInt->statusbar.print(temp.back());
+		adventureInt->statusbar.print(temp.back());
 	}
 	else
 	{
-		LOCPLINT->adventureInt->statusbar.clear();
+		adventureInt->statusbar.clear();
 	}
 
 	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(pom);
@@ -715,9 +717,9 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	int turns = pnode->turns;
 	amin(turns, 3);
 
-	if(LOCPLINT->adventureInt->selection)
+	if(adventureInt->selection)
 	{
-		if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
+		if(adventureInt->selection->ID == TOWNI_TYPE)
 		{
 			if(obj && obj->tempOwner == LOCPLINT->playerID)
 			{
@@ -735,9 +737,9 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 				CGI->curh->changeGraphic(0, 0);
 			}
 		}
-		else if(LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
+		else if(adventureInt->selection->ID == HEROI_TYPE)
 		{
-			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(LOCPLINT->adventureInt->selection);
+			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(adventureInt->selection);
 			if(obj)
 			{
 				if(obj->ID == HEROI_TYPE)
@@ -751,7 +753,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 					}
 					else //our hero
 					{
-						if(LOCPLINT->adventureInt->selection == obj)
+						if(adventureInt->selection == obj)
 							CGI->curh->changeGraphic(0, 2);
 						else if(accessible)
 							CGI->curh->changeGraphic(0, 8 + turns*6);
@@ -855,7 +857,7 @@ void CTerrainRect::hover(bool on)
 {
 	if (!on)
 	{
-		LOCPLINT->adventureInt->statusbar.clear();
+		adventureInt->statusbar.clear();
 		CGI->curh->changeGraphic(0,0);
 	}
 	//Hoverable::hover(on);
@@ -867,8 +869,8 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 		int pn=-1;//number of picture
 		if (i==0) //last tile
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + pos.y;
+			int x = 32*(currentPath->nodes[i].coord.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(currentPath->nodes[i].coord.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			pn=0;
@@ -1129,8 +1131,8 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			pn+=25;
 		if (pn>=0)
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + pos.y;
+			int x = 32*(currentPath->nodes[i].coord.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(currentPath->nodes[i].coord.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
@@ -1199,18 +1201,18 @@ void CTerrainRect::show(SDL_Surface * to)
 {
 	if(ADVOPT.smoothMove)
 		CGI->mh->terrainRect
-			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+			(adventureInt->position, adventureInt->anim,
+			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
 			 to, &pos, moveX, moveY, false);
 	else
 		CGI->mh->terrainRect
-			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+			(adventureInt->position, adventureInt->anim,
+			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
 			 to, &pos, 0, 0, false);
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
-	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
+	if (currentPath && adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
 		showPath(&pos, to);
 	}
@@ -1219,9 +1221,9 @@ void CTerrainRect::show(SDL_Surface * to)
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
 {
 	int3 ret;
-	ret.x = LOCPLINT->adventureInt->position.x + ((GH.current->motion.x-CGI->mh->offsetX-pos.x)/32);
-	ret.y = LOCPLINT->adventureInt->position.y + ((GH.current->motion.y-CGI->mh->offsetY-pos.y)/32);
-	ret.z = LOCPLINT->adventureInt->position.z;
+	ret.x = adventureInt->position.x + ((GH.current->motion.x-CGI->mh->offsetX-pos.x)/32);
+	ret.y = adventureInt->position.y + ((GH.current->motion.y-CGI->mh->offsetY-pos.y)/32);
+	ret.z = adventureInt->position.z;
 	return ret;
 }
 int3 CTerrainRect::whichTileIsIt()
@@ -1333,10 +1335,10 @@ void CInfoBar::draw(SDL_Surface * to, const CGObjectInstance * specific)
 	else if (mode==5)
 	{
 		mode = -1;
-		draw(to,LOCPLINT->adventureInt->selection);
+		draw(to,adventureInt->selection);
 	}
 	if (!specific)
-		specific = LOCPLINT->adventureInt->selection;
+		specific = adventureInt->selection;
 
 	if(!specific)
 		return;
@@ -1483,9 +1485,8 @@ void CInfoBar::deactivate()
 		deactivateTimer();
 }
 
-CAdvMapInt::CAdvMapInt(int Player)
-:player(Player),
-statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
+CAdvMapInt::CAdvMapInt()
+:statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 kingOverview(CGI->generaltexth->zelp[293].first,CGI->generaltexth->zelp[293].second,
 			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
@@ -1519,14 +1520,14 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	player = 0;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
-	LOCPLINT->adventureInt=this;
+	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
-	graphics->blueToPlayersAdv(bg,player);
 	scrollingDir = 0;
 	updateScreen  = false;
 	anim=0;
@@ -1593,7 +1594,7 @@ void CAdvMapInt::fmoveHero()
 		return;
 
 	LOCPLINT->pim->unlock();
-	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),*terrain.currentPath);
+	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(adventureInt->selection),*terrain.currentPath);
 	LOCPLINT->pim->lock();
 }
 
@@ -1603,7 +1604,7 @@ void CAdvMapInt::fshowSpellbok()
 		return;
 
 
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)), false);
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(adventureInt->selection)), false);
 	GH.pushInt(spellWindow);
 }
 
@@ -1637,6 +1638,7 @@ void CAdvMapInt::fnextHero()
 
 void CAdvMapInt::fendTurn()
 {
+	LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;
 	LOCPLINT->cb->endTurn();
 }
@@ -1694,12 +1696,13 @@ void CAdvMapInt::deactivate()
 	terrain.deactivate();
 	infoBar.deactivate();
 	infoBar.mode=-1;
-
-	LOCPLINT->cingconsole->deactivate();
 }
 void CAdvMapInt::showAll(SDL_Surface *to)
 {
 	blitAt(bg,0,0,to);
+
+	if(state != INGAME)
+		return;
 
 	kingOverview.show(to);
 	underground.show(to);
@@ -1727,6 +1730,9 @@ void CAdvMapInt::showAll(SDL_Surface *to)
 }
 void CAdvMapInt::show(SDL_Surface *to)
 {
+	if(state != INGAME)
+		return;
+
 	++animValHitCount; //for animations
 	if(animValHitCount == 8)
 	{
@@ -1794,8 +1800,8 @@ void CAdvMapInt::centerOn(int3 on)
 	
 	on = LOCPLINT->repairScreenPos(on);
 
-	LOCPLINT->adventureInt->position = on;
-	LOCPLINT->adventureInt->updateScreen=true;
+	adventureInt->position = on;
+	adventureInt->updateScreen=true;
 	updateMinimap=true;
 	underground.curimg = on.z; //change underground switch button image 
 	if(GH.topInt() == this)
@@ -1902,7 +1908,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			int3 dir = directions[k];
 
-			CGPath &path = paths[h];
+			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
 			if(!LOCPLINT->cb->getPath2(h->getPosition(false) + dir, path))
 			{
@@ -1977,24 +1983,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 			heroList.fixPos();
 		}
 
-		if(vstd::contains(paths,h)) //hero has assigned path
-		{
-			CGPath &path = paths[h];
-			if(!path.nodes.size())
-			{
-				tlog3 << "Warning: empty path found...\n";
-				paths.erase(h);
-			}
-			else
-			{
-				assert(h->getPosition(false) == path.startPos()); 
-				//update the hero path in case of something has changed on map
-				if(LOCPLINT->cb->getPath2(path.endPos(), path))
-					terrain.currentPath = &path;
-				else
-					paths.erase(h);
-			}
-		}
+		terrain.currentPath = LOCPLINT->getAndVerifyPath(h);
 	}
 	townList.draw(screen);
 	heroList.draw(screen);
@@ -2046,13 +2035,36 @@ bool CAdvMapInt::isActive()
 	return active & ~CIntObject::KEYBOARD;
 }
 
-void CAdvMapInt::eraseCurrentPathOf( const CGHeroInstance * ho )
+void CAdvMapInt::startHotSeatWait(int Player)
 {
-	assert(vstd::contains(paths, ho));
-	assert(ho == selection);
+	setPlayer(Player);
+	state = WAITING;
+}
 
-	paths.erase(ho);
-	terrain.currentPath = NULL;
+void CAdvMapInt::setPlayer(int Player)
+{
+	player = Player;
+	graphics->blueToPlayersAdv(bg,player);
+
+	kingOverview.setPlayerColor(player);
+	underground.setPlayerColor(player);
+	questlog.setPlayerColor(player);
+	sleepWake.setPlayerColor(player);
+	moveHero.setPlayerColor(player);
+	spellbook.setPlayerColor(player);
+	sysOptions.setPlayerColor(player);
+	advOptions.setPlayerColor(player);
+	nextHero.setPlayerColor(player);
+	endTurn.setPlayerColor(player);
+	graphics->blueToPlayersAdv(resdatabar.bg,player);
+
+	heroList.updateHList();
+	townList.genList();
+}
+
+void CAdvMapInt::startTurn()
+{
+	state = INGAME;
 }
 
 CAdventureOptions::CAdventureOptions()

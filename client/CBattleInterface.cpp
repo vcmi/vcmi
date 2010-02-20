@@ -2671,7 +2671,7 @@ void CBattleInterface::spellCast(SpellCast * sc)
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	for(std::set<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
+	for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
 	{
 		displayEffect(CGI->spellh->spells[sse.effect.id].mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
 	}

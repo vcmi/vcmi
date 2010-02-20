@@ -189,6 +189,11 @@ std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) con
 	return ret;
 }
 
+static bool startsWithX(const std::string &s)
+{
+	return s.size() && s[0] == 'x';
+}
+
 void CSpellHandler::loadSpells()
 {
 	std::string buf = bitmaph->getTextFile("SPTRAITS.TXT"), pom;
@@ -224,15 +229,14 @@ void CSpellHandler::loadSpells()
 
 		loadToIt(nsp.abbName,buf,i,4);
 		loadToIt(nsp.level,buf,i,4);
-
 		loadToIt(pom,buf,i,4);
-		nsp.earth = pom[0]=='x' ? true : false;
+		nsp.earth = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.water = pom[0]=='x' ? true : false;
+		nsp.water = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.fire = pom[0]=='x' ? true : false;
+		nsp.fire = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.air = pom[0]=='x' ? true : false;
+		nsp.air = startsWithX(pom);
 
 		nsp.costs.resize(4);
 		for (int z = 0; z < 4 ; z++)

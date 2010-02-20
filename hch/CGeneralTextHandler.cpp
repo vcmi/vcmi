@@ -28,7 +28,7 @@ std::string readTo(const std::string &in, int &it, char end)
 
 void trimQuotation(std::string &op)
 {
-	if(op[0] == '\"' && op[op.size()-1] == '\"')
+	if(op.length() && op[0] == '\"' && op[op.size()-1] == '\"')
 		op = op.substr(1,op.size()-2);
 }
 
@@ -175,8 +175,7 @@ void CGeneralTextHandler::load()
 		{
 			std::string &str = j->second.second;
 			boost::algorithm::trim(str);
-			if(str[0] == '"' && str[str.size()-1] == '"')
-				str = str.substr(1,str.size()-2);
+			trimQuotation(str);
 		}
 	}
 
@@ -521,7 +520,7 @@ void CGeneralTextHandler::load()
 		do //dump comments and empty lines
 		{
 			loadToIt(nameBuf, buf, it, 3);
-		} while (nameBuf[0] != '/');
+		} while (!nameBuf.size() || nameBuf[0] != '/');
 		do //actual names
 		{
 			loadToIt(nameBuf, buf, it, 3);

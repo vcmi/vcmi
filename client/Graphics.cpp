@@ -525,8 +525,8 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 {
-	if(player==1) //it is actually blue...
-		return;
+// 	if(player==1) //it is actually blue...
+// 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
 		SDL_Color *palette = NULL;

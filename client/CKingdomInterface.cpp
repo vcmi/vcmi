@@ -241,7 +241,7 @@ void CKingdomInterface::updateAllGarrisons()
 
 void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 {
-	LOCPLINT->adventureInt->resdatabar.draw(to);
+	adventureInt->resdatabar.draw(to);
 	blitAt(bg,pos,to);
 	resdatabar->draw(to);
 	toTowns->show(to);
