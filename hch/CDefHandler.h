@@ -88,14 +88,13 @@ public:
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	SDL_Surface * getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const; //zapisuje klatke o zadanym numerze do "testtt.bmp"
-	void openDef(std::string name);
+	SDL_Surface * getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const; //saves picture with given number to "testtt.bmp"
 	static void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
-	void openFromMemory(unsigned char * table, std::string name);
+	void openFromMemory(unsigned char * table, const std::string & name);
 	CDefEssential * essentialize();
 
-	static CDefHandler * giveDef(std::string defName);
-	static CDefEssential * giveDefEss(std::string defName);
+	static CDefHandler * giveDef(const std::string & defName);
+	static CDefEssential * giveDefEss(const std::string & defName);
 };
 
 class CDefEssential //DefHandler with images only

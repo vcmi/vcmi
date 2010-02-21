@@ -234,7 +234,6 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 	//state = new CLuaObjectScript();
 	ID = subID = id = -1;
 	defInfo = NULL;
-	info = NULL;
 	tempOwner = 254;
 	blockVisit = false;
 }
@@ -446,6 +445,13 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 ui8 CGObjectInstance::getPassableness() const
 {
 	return 0;
+}
+
+bool CGObjectInstance::hasShadowAt( int x, int y ) const
+{
+	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
+		return true;
+	return false;
 }
 
 static int lowestSpeed(const CGHeroInstance * chi)

@@ -438,7 +438,7 @@ void CMapHandler::init()
 	for (int i = 0; i < 8 ; i++)
 	{
 		TerrainTile2 &t = ttiles[24+i][0][0];
-		tlog0 << t.objects.front().first->defInfo->name << ' ';
+		//tlog0 << t.objects.front().first->defInfo->name << ' ';
 
 	}
 }
@@ -665,7 +665,10 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					if(color < 8 || color==255)
 						CSDL_Ext::setPlayerColor(bitmap, color);
 
-					CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
+					if( obj->hasShadowAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5) )
+						CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
+					else
+						SDL_BlitSurface(bitmap,&pp,extSurf,&sr2);
 				}
 			}
 			//objects blitted
@@ -1150,51 +1153,55 @@ unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) con
 {
 	if(isMoving)
 	{
-		switch(dir)
+		static const unsigned char frame [] = {-1, 10, 5, 6, 7, 8, 9, 12, 11};
+		return frame[dir];
+		/*switch(dir)
 		{
 		case 1:
-			return 10;
+		return 10;
 		case 2:
-			return 5;
+		return 5;
 		case 3:
-			return 6;
+		return 6;
 		case 4:
-			return 7;
+		return 7;
 		case 5:
-			return 8;
+		return 8;
 		case 6:
-			return 9;
+		return 9;
 		case 7:
-			return 12;
+		return 12;
 		case 8:
-			return 11;
+		return 11;
 		default:
-			throw std::string("Something very wrong1.");
-		}
+		throw std::string("Something very wrong1.");
+		}*/
 	}
 	else //if(isMoving)
 	{
-		switch(dir)
+		static const unsigned char frame [] = {-1, 13, 0, 1, 2, 3, 4, 15, 14};
+		return frame[dir];
+		/*switch(dir)
 		{
 		case 1:
-			return 13;
+		return 13;
 		case 2:
-			return 0;
+		return 0;
 		case 3:
-			return 1;
+		return 1;
 		case 4:
-			return 2;
+		return 2;
 		case 5:
-			return 3;
+		return 3;
 		case 6:
-			return 4;
+		return 4;
 		case 7:
-			return 15;
+		return 15;
 		case 8:
-			return 14;
+		return 14;
 		default:
-			throw std::string("Something very wrong2.");
-		}
+		throw std::string("Something very wrong2.");
+		}*/
 	}
 }
 

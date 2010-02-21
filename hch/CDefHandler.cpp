@@ -48,26 +48,8 @@ CDefEssential::~CDefEssential()
 	for(size_t i=0; i < ourImages.size(); ++i)
 		SDL_FreeSurface(ourImages[i].bitmap);
 }
-// Note: this function is unused
-void CDefHandler::openDef(std::string name)
-{
-	int andame;
-	std::ifstream * is = new std::ifstream();
-	is -> open(name.c_str(),std::ios::binary);
-	is->seekg(0,std::ios::end); // na koniec
-	andame = is->tellg();  // read length
-	is->seekg(0,std::ios::beg); // wracamy na poczatek
-	unsigned char * FDef = new unsigned char[andame]; // allocate memory
-	is->read((char*)FDef, andame); // read map file to buffer
-	is->close();
-	delete is;
 
-	openFromMemory(FDef, name);
-
-	delete [] FDef;
-}
-
-void CDefHandler::openFromMemory(unsigned char *table, std::string name)
+void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 {
 	BMPPalette palette[256];
 	SDefEntry &de = * reinterpret_cast<SDefEntry *>(table);
@@ -150,8 +132,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	SDL_Surface * ret=NULL;
 
 	unsigned int BaseOffset, 
-		SpriteWidth, SpriteHeight, //format sprite'a
-		TotalRowLength,			// dlugosc przeczytanego segmentu
+		SpriteWidth, SpriteHeight, //format of sprite
+		TotalRowLength,			// length of read segment
 		add, FullHeight,FullWidth,
 		RowAdd,					//, NextSpriteOffset; //TODO use me
 		prSize,
@@ -393,7 +375,7 @@ CDefEssential * CDefHandler::essentialize()
 	return ret;
 }
 
-CDefHandler * CDefHandler::giveDef(std::string defName)
+CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
 	unsigned char * data = spriteh->giveFile(defName);
 	if(!data)
@@ -404,7 +386,7 @@ CDefHandler * CDefHandler::giveDef(std::string defName)
 	delete [] data;
 	return nh;
 }
-CDefEssential * CDefHandler::giveDefEss(std::string defName)
+CDefEssential * CDefHandler::giveDefEss(const std::string & defName)
 {
 	CDefEssential * ret;
 	CDefHandler * temp = giveDef(defName);

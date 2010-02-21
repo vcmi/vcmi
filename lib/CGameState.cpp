@@ -347,7 +347,6 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->pos = pos;
 	//nobj->state = NULL;//new CLuaObjectScript();
 	nobj->tempOwner = owner;
-	nobj->info = NULL;
 	nobj->defInfo->id = id;
 	nobj->defInfo->subid = subid;
 
@@ -1061,7 +1060,8 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	case 216: //random dwelling
 		{
 			int faction = ran()%F_NUMBER;
-			CCreGen2ObjInfo* info = static_cast<CCreGen2ObjInfo*>(obj->info);
+			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
+			CCreGen2ObjInfo* info = static_cast<CCreGen2ObjInfo*>(dwl->info);
 			if (info->asCastle)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
@@ -1094,12 +1094,15 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<< cid << std::endl;
-			return std::pair<int,int>(17,0); 
+			return std::pair<int,int>(17,0);
+			delete dwl->info;
+			dwl->info = NULL;
 		}
 	case 217:
 		{
 			int faction = ran()%F_NUMBER;
-			CCreGenObjInfo* info = static_cast<CCreGenObjInfo*>(obj->info);
+			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
+			CCreGenObjInfo* info = static_cast<CCreGenObjInfo*>(dwl->info);
 			if (info->asCastle)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
@@ -1131,11 +1134,14 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
+			return std::pair<int,int>(17,0);
+			delete dwl->info;
+			dwl->info = NULL;
 		}
 	case 218:
 		{
-			CCreGen3ObjInfo* info = static_cast<CCreGen3ObjInfo*>(obj->info);
+			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
+			CCreGen3ObjInfo* info = static_cast<CCreGen3ObjInfo*>(dwl->info);
 			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
 			int cid = VLC->townh->towns[obj->subID].basicCreatures[level];
 			for(unsigned int i=0;i<VLC->objh->cregens.size();i++)
@@ -1143,6 +1149,8 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
 			return std::pair<int,int>(17,0); 
+			delete dwl->info;
+			dwl->info = NULL;
 		}
 	}
 	return std::pair<int,int>(-1,-1);

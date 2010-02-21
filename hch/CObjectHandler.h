@@ -143,7 +143,6 @@ public:
 	si32 ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
 	si32 id;//number of object in CObjectHandler's vector		
 	CGDefInfo * defInfo;
-	CSpecObjInfo * info;
 	ui8 animPhaseShift;
 
 	ui8 tempOwner;
@@ -161,6 +160,7 @@ public:
 	int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
+	bool hasShadowAt(int x, int y) const;//returns true if object covers with shadow location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	CGObjectInstance();
@@ -357,6 +357,7 @@ public:
 class DLL_EXPORT CGDwelling : public CArmedInstance
 {
 public:
+	CSpecObjInfo * info; //h3m info about dewlling
 	std::vector<std::pair<ui32, std::vector<ui32> > > creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -1756,7 +1756,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					spec->asCastle = true;
 				}
 				nobj->setOwner(spec->player);
-				nobj->info = spec;
+				static_cast<CGDwelling*>(nobj)->info = spec;
 				break;
 			}
 		case 216:
@@ -1778,7 +1778,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				spec->minLevel = bufor[i]; ++i;
 				spec->maxLevel = bufor[i]; ++i;
 				nobj->setOwner(spec->player);
-				nobj->info = spec;
+				static_cast<CGDwelling*>(nobj)->info = spec;
 				break;
 			}
 		case 218:
@@ -1794,7 +1794,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				if(spec->minLevel<1)
 					spec->minLevel = 1;
 				nobj->setOwner(spec->player);
-				nobj->info = spec;
+				static_cast<CGDwelling*>(nobj)->info = spec;
 				break;
 			}
 		case 215:
