@@ -578,7 +578,9 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
 		if (tile) 
 		{
-			CSimpleWindow * temp = CMessage::genWindow(VLC->generaltexth->terrainNames[tile->tertype], LOCPLINT->playerID, true);
+			std::string hlp;
+			CGI->mh->getTerrainDescr(mp, hlp, true);
+			CSimpleWindow * temp = CMessage::genWindow(hlp, LOCPLINT->playerID, true);
 			CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 			GH.pushInt(rcpi);
 		}
@@ -706,7 +708,10 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else
 	{
-		adventureInt->statusbar.clear();
+		std::string hlp;
+		CGI->mh->getTerrainDescr(pom, hlp, false);
+		adventureInt->statusbar.print(hlp);
+		//adventureInt->statusbar.clear();
 	}
 
 	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(pom);

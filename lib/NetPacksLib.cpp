@@ -574,6 +574,13 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	id = o->id = gs->map->objects.size();
 	o->hoverName = VLC->generaltexth->names[ID];
 
+	if(ID == 124) // hole
+	{
+		const TerrainTile &t = gs->map->getTile(pos);
+		o->defInfo = VLC->dobjinfo->gobjs[ID][t.tertype];
+		assert(o->defInfo);
+	}
+
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj();

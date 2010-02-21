@@ -936,6 +936,13 @@ int3 CCallback::getGrailPos( float &outKnownRatio )
 	return gs->map->grailPos;
 }
 
+void CCallback::dig( const CGObjectInstance *hero )
+{
+	DigWithHero dwh;
+	dwh.id = hero->id;
+	sendRequest(&dwh);
+}
+
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

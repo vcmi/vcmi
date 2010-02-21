@@ -1264,7 +1264,7 @@ void Mapa::readTerrain( const unsigned char * bufor, int &i)
 void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 {
 	int defAmount = readNormalNr(bufor,i); i+=4;
-	defy.reserve(defAmount);
+	defy.reserve(defAmount+8);
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
 		CGDefInfo * vinya = new CGDefInfo(); // info about new def 
@@ -1333,6 +1333,12 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 		}
 
 		defy.push_back(vinya); // add this def to the vector
+	}
+
+	//add holes - they always can appear 
+	for (int i = 0; i < 8 ; i++)
+	{
+		defy.push_back(VLC->dobjinfo->gobjs[124][i]);
 	}
 }
 

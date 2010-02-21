@@ -2064,8 +2064,8 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 	txt[0]->setText(firstPlayer);
 	txt[0]->giveFocus();
 
-	ok = new AdventureMapButton(CGI->generaltexth->zelp[560], bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF");
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF");
+	ok = new AdventureMapButton(CGI->generaltexth->zelp[560], bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF", SDLK_RETURN);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
 }
 
@@ -2313,6 +2313,10 @@ CBonusSelection::CRegion::~CRegion()
 void CBonusSelection::CRegion::clickLeft( tribool down, bool previousState )
 {
 	//select if selectable & clicked inside our graphic
+	if ( indeterminate(down) )
+	{
+		return;
+	}
 	if( !down && selectable && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) )
 	{
 		owner->selectMap(myNumber);

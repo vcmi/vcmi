@@ -1411,6 +1411,18 @@ struct MakeCustomAction : public CPackForServer
 	}
 };
 
+struct DigWithHero : public CPackForServer
+{
+	DigWithHero(){}
+	si32 id; //digging hero id
+
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id;
+	}
+};
+
 /***********************************************************************************************************/
 
 struct SaveGame : public CPackForClient, public CPackForServer

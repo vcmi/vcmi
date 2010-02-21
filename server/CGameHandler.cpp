@@ -3886,3 +3886,22 @@ void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, In
 		}
 	}
 }
+
+bool CGameHandler::dig( const CGHeroInstance *h )
+{
+	for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
+	{
+		if((*i)->ID == 124  &&  (*i)->pos == h->getPosition(false))
+		{
+			complain("Cannot dig - there is already a hole under the hero!");
+			return false;
+		}
+	}
+
+	NewObject no;
+	no.ID = 124;
+	no.pos = h->getPosition(false);
+	no.subID = 0;
+	sendAndApply(&no);
+	return true;
+}

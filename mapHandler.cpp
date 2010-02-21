@@ -17,6 +17,7 @@
 #include "hch/CDefHandler.h"
 #include "client/CConfigHandler.h"
 #include <boost/assign/list_of.hpp>
+#include "hch/CGeneralTextHandler.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -308,7 +309,14 @@ static void processDef (CGDefInfo* def)
 	{
 		if(def->name.size())
 		{
-			def->handler = CDefHandler::giveDefEss(def->name);
+			if(vstd::contains(CGI->mh->loadedDefs, def->name))
+			{
+				def->handler = CGI->mh->loadedDefs[def->name];
+			}
+			else
+			{
+				CGI->mh->loadedDefs[def->name] = def->handler = CDefHandler::giveDefEss(def->name);
+			}
 		}
 		else
 		{
@@ -316,9 +324,11 @@ static void processDef (CGDefInfo* def)
 			def->handler = NULL;
 			return;
 		}
+
 		def->width = def->handler->ourImages[0].bitmap->w/32;
 		def->height = def->handler->ourImages[0].bitmap->h/32;
 	}
+
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
 	if(pom && def->id!=TOWNI_TYPE)
 	{
@@ -417,16 +427,20 @@ void CMapHandler::init()
 
 
 
-	for(size_t h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info	{
-		CGI->mh->loadedDefs.insert(std::make_pair(map->defy[h]->name, map->defy[h]->handler));
-	tlog0<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
-
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
 	tlog0<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 	initObjectRects();
 	tlog0<<"\tMaking object rects: "<<th.getDif()<<std::endl;
+
+
+	for (int i = 0; i < 8 ; i++)
+	{
+		TerrainTile2 &t = ttiles[24+i][0][0];
+		tlog0 << t.objects.front().first->defInfo->name << ' ';
+
+	}
 }
 
 // Update map window screen
@@ -1322,6 +1336,23 @@ CMapHandler::CMapHandler()
 	frameW = frameH = 0;
 	fullHide = NULL;
 	partialHide = NULL;
+}
+
+void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
+{
+	out.clear();
+	TerrainTile2 &t = ttiles[pos.x][pos.y][pos.z];
+	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = t.objects.begin(); i != t.objects.end(); i++)
+	{
+		if(i->first->ID == 124)
+		{
+			out = i->first->hoverName;
+			return;
+		}
+	}
+
+	if(terName)
+		out = CGI->generaltexth->terrainNames[t.tileInfo->tertype];
 }
 
 TerrainTile2::TerrainTile2()

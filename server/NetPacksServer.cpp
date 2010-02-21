@@ -154,6 +154,12 @@ bool MakeCustomAction::applyGh( CGameHandler *gh )
 	return gh->makeCustomAction(ba);
 }
 
+bool DigWithHero::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(id);
+	return gh->dig(gh->getHero(id));
+}
+
 bool PlayerMessage::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
