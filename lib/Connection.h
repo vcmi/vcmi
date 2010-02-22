@@ -694,7 +694,7 @@ class DLL_EXPORT CLoadFile
 	}
 public:
 	std::ifstream *sfile;
-	CLoadFile(const std::string &fname);
+	CLoadFile(const std::string &fname, bool requireLatest = true);
 	~CLoadFile();
 	int read(const void * data, unsigned size);
 };

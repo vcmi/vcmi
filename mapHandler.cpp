@@ -434,13 +434,6 @@ void CMapHandler::init()
 	initObjectRects();
 	tlog0<<"\tMaking object rects: "<<th.getDif()<<std::endl;
 
-
-	for (int i = 0; i < 8 ; i++)
-	{
-		TerrainTile2 &t = ttiles[24+i][0][0];
-		//tlog0 << t.objects.front().first->defInfo->name << ' ';
-
-	}
 }
 
 // Update map window screen

@@ -255,7 +255,7 @@ int CSaveFile::write( const void * data, unsigned size )
 	return size;
 }
 
-CLoadFile::CLoadFile( const std::string &fname )
+CLoadFile::CLoadFile( const std::string &fname, bool requireLatest )
 :sfile(new std::ifstream(fname.c_str(),std::ios::binary))
 {
 	registerTypes(*this);
@@ -278,7 +278,7 @@ CLoadFile::CLoadFile( const std::string &fname )
 		}
 
 		*this >> myVersion;	
-		if(myVersion != version)
+		if(myVersion != version && requireLatest)
 		{
 			tlog1 << "Error: Not supported save format! (file " << fname << " )\n";
 			delete sfile;

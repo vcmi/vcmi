@@ -2543,9 +2543,9 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
-	curInt->pim->unlock();
+	LOCPLINT->pim->unlock();
 	animsAreDisplayed.waitUntil(false);
-	curInt->pim->lock();
+	LOCPLINT->pim->lock();
 	displayBattleFinished();
 }
 

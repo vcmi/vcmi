@@ -120,9 +120,16 @@ CPlayerInterface::~CPlayerInterface()
 	delete pim;
 	delete showingDialog;
 	delete mainFPSmng;
-	if(adventureInt->active & CIntObject::KEYBOARD)
-		adventureInt->deactivateKeys();
-	delete adventureInt;
+	if(adventureInt)
+	{
+		if(adventureInt->active & CIntObject::KEYBOARD)
+			adventureInt->deactivateKeys();
+		delete adventureInt;
+		adventureInt = NULL;
+	}
+
+	if(cingconsole->active) //TODO
+		cingconsole->deactivate();
 	delete cingconsole;
 
 	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!= graphics->heroWins.end(); i++)
@@ -838,7 +845,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,false);
 
-	if(/*makingTurn && */GH.listInt.size())
+	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
 		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
@@ -1691,6 +1698,9 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 
 void CPlayerInterface::gameOver(ui8 player, bool victory )
 {
+	if(LOCPLINT != this)
+		return;
+
 	if(player == playerID)
 	{
 		if(!victory)
