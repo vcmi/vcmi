@@ -21,7 +21,7 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
 	VCMI_CREATURE_ABILITY_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
 	VCMI_CREATURE_ABILITY_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
-	VCMI_CREATURE_ABILITY_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - spell level, (aditional info)%100 - chance in %; eg. dendroids, (additional info)/100 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
+	VCMI_CREATURE_ABILITY_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - spell level, (additional info)%1000 - chance in %; eg. dendroids, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
 	VCMI_CREATURE_ABILITY_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	VCMI_CREATURE_ABILITY_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
 	VCMI_CREATURE_ABILITY_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\

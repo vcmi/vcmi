@@ -2926,6 +2926,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleAttack bat;
 			prepareAttack(bat, curStack, stackAtEnd, distance);
 			sendAndApply(&bat);
+			handleAfterAttackCasting(bat);
 
 			//counterattack
 			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETALIATION)
@@ -2937,6 +2938,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				prepareAttack(bat, stackAtEnd, curStack, 0);
 				bat.flags |= 2;
 				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
 			}
 
 			//second attack
@@ -2948,6 +2950,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				bat.flags = 0;
 				prepareAttack(bat, curStack, stackAtEnd, 0);
 				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
 			}
 
 			//return
@@ -2981,6 +2984,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				prepareAttack(bat, curStack, destStack, 0);
 				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
 			}
 
 			sendAndApply(&EndAction());
@@ -3246,7 +3250,8 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
 		if ((*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-			|| ((*it)->valOfFeatures(StackFeature::LEVEL_SPELL_IMMUNITY) >= sp->level))
+			|| ( (*it)->hasFeatureOfType(StackFeature::LEVEL_SPELL_IMMUNITY) &&
+				(*it)->valOfFeatures(StackFeature::LEVEL_SPELL_IMMUNITY) >= sp->level) ) //some creature abilities have level 0
 		{
 			ret.push_back((*it)->ID);
 			continue;
@@ -3257,7 +3262,7 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 			continue;
 
 		const CGHeroInstance * bonusHero; //hero we should take bonuses from
-		if((*it)->owner == caster->tempOwner)
+		if(caster && (*it)->owner == caster->tempOwner)
 			bonusHero = caster;
 		else
 			bonusHero = hero2;
@@ -3307,6 +3312,159 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	return ret;
 }
 
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor,
+	const CGHeroInstance * caster, const CGHeroInstance * secHero )
+{
+	CSpell *spell = &VLC->spellh->spells[spellID];
+
+	SpellCast sc;
+	sc.side = casterSide;
+	sc.id = spellID;
+	sc.skill = spellLvl;
+	sc.tile = destination;
+	sc.dmgToDisplay = 0;
+	sc.castedByHero = (bool)caster;
+
+	//calculating affected creatures for all spells
+	std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
+	for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+	{
+		sc.affectedCres.insert((*it)->ID);
+	}
+
+	//checking if creatures resist
+	sc.resisted = calculateResistedStacks(spell, caster, secHero, attackedCres);
+
+	//calculating dmg to display
+	for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+	{
+		if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+			continue;
+		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl);
+	}
+
+	sendAndApply(&sc);
+
+	//applying effects
+	switch(spellID)
+	{
+	case 15: //magic arrow
+	case 16: //ice bolt
+	case 17: //lightning bolt
+	case 18: //implosion
+	case 20: //frost ring
+	case 21: //fireball
+	case 22: //inferno
+	case 23: //meteor shower
+	case 24: //death ripple
+	case 25: //destroy undead
+	case 26: //armageddon
+	case 77: //Thunderbolt (thunderbirds)
+		{
+			StacksInjured si;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+					continue;
+
+				BattleStackAttacked bsa;
+				bsa.flags |= 2;
+				bsa.effect = spell->mainEffectAnim;
+				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl);
+				bsa.stackAttacked = (*it)->ID;
+				bsa.attackerID = -1;
+				prepareAttacked(bsa,*it);
+				si.stacks.push_back(bsa);
+			}
+			if(!si.stacks.empty())
+				sendAndApply(&si);
+			break;
+		}
+	case 27: //shield 
+	case 28: //air shield
+	case 30: //protection from air
+	case 31: //protection from fire
+	case 32: //protection from water
+	case 33: //protection from earth
+	case 34: //anti-magic
+	case 41: //bless
+	case 42: //curse
+	case 43: //bloodlust
+	case 44: //precision
+	case 45: //weakness
+	case 46: //stone skin
+	case 47: //disrupting ray
+	case 48: //prayer
+	case 49: //mirth
+	case 50: //sorrow
+	case 51: //fortune
+	case 52: //misfortune
+	case 53: //haste
+	case 54: //slow
+	case 55: //slayer
+	case 56: //frenzy
+	case 58: //counterstrike
+	case 59: //berserk
+	case 60: //hypnotize
+	case 61: //forgetfulness
+	case 62: //blind
+		{
+			SetStackEffect sse;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+					continue;
+				sse.stacks.push_back((*it)->ID);
+			}
+			sse.effect.id = spellID;
+			sse.effect.level = spellLvl;
+			sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(spell, caster);
+			if(!sse.stacks.empty())
+				sendAndApply(&sse);
+			break;
+		}
+	case 37: //cure
+	case 38: //resurrection
+	case 39: //animate dead
+		{
+			StacksHealedOrResurrected shr;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
+					|| (spellID == 39 && !(*it)->hasFeatureOfType(StackFeature::UNDEAD)) //we try to cast animate dead on living stack
+					) 
+					continue;
+				StacksHealedOrResurrected::HealInfo hi;
+				hi.stackID = (*it)->ID;
+				hi.healedHP = calculateHealedHP(caster, spell, *it);
+				hi.lowLevelResurrection = spellLvl <= 1;
+				shr.healedStacks.push_back(hi);
+			}
+			if(!shr.healedStacks.empty())
+				sendAndApply(&shr);
+			break;
+		}
+	case 64: //remove obstacle
+		{
+			ObstaclesRemoved obr;
+			for(int g=0; g<gs->curB->obstacles.size(); ++g)
+			{
+				std::vector<int> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
+
+				if(vstd::contains(blockedHexes, destination)) //this obstacle covers given hex
+				{
+					obr.obstacles.insert(gs->curB->obstacles[g].uniqueID);
+				}
+			}
+			if(!obr.obstacles.empty())
+				sendAndApply(&obr);
+
+			break;
+		}
+	}
+
+}
+
 bool CGameHandler::makeCustomAction( BattleAction &ba )
 {
 	switch(ba.actionType)
@@ -3343,149 +3501,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			SpellCast sc;
-			sc.side = ba.side;
-			sc.id = ba.additionalInfo;
-			sc.skill = skill;
-			sc.tile = ba.destinationTile;
-			sc.dmgToDisplay = 0;
+			handleSpellCasting(ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero);
 
-			//calculating affected creatures for all spells
-			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
-			for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-			{
-				sc.affectedCres.insert((*it)->ID);
-			}
-
-			//checking if creatures resist
-			sc.resisted = calculateResistedStacks(s, h, secondHero, attackedCres);
-
-			//calculating dmg to display
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-			{
-				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
-					continue;
-				sc.dmgToDisplay += gs->curB->calculateSpellDmg(s, h, *it);
-			}
-			
-			sendAndApply(&sc);
-
-			//applying effects
-			switch(ba.additionalInfo) //spell id
-			{
-			case 15: //magic arrow
-			case 16: //ice bolt
-			case 17: //lightning bolt
-			case 18: //implosion
-			case 20: //frost ring
-			case 21: //fireball
-			case 22: //inferno
-			case 23: //meteor shower
-			case 24: //death ripple
-			case 25: //destroy undead
-			case 26: //armageddon
-				{
-					StacksInjured si;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
-							continue;
-
-						BattleStackAttacked bsa;
-						bsa.flags |= 2;
-						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
-						bsa.damageAmount = gs->curB->calculateSpellDmg(s, h, *it);
-						bsa.stackAttacked = (*it)->ID;
-						bsa.attackerID = -1;
-						prepareAttacked(bsa,*it);
-						si.stacks.push_back(bsa);
-					}
-					if(!si.stacks.empty())
-						sendAndApply(&si);
-					break;
-				}
-			case 27: //shield 
-			case 28: //air shield
-			case 30: //protection from air
-			case 31: //protection from fire
-			case 32: //protection from water
-			case 33: //protection from earth
-			case 34: //anti-magic
-			case 41: //bless
-			case 42: //curse
-			case 43: //bloodlust
-			case 44: //precision
-			case 45: //weakness
-			case 46: //stone skin
-			case 47: //disrupting ray
-			case 48: //prayer
-			case 49: //mirth
-			case 50: //sorrow
-			case 51: //fortune
-			case 52: //misfortune
-			case 53: //haste
-			case 54: //slow
-			case 55: //slayer
-			case 56: //frenzy
-			case 58: //counterstrike
-			case 59: //berserk
-			case 60: //hypnotize
-			case 61: //forgetfulness
-			case 62: //blind
-				{
-					SetStackEffect sse;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
-							continue;
-						sse.stacks.push_back((*it)->ID);
-					}
-					sse.effect.id = ba.additionalInfo;
-					sse.effect.level = h->getSpellSchoolLevel(s);
-					sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(s, h);
-					if(!sse.stacks.empty())
-						sendAndApply(&sse);
-					break;
-				}
-			case 37: //cure
-			case 38: //resurrection
-			case 39: //animate dead
-				{
-					StacksHealedOrResurrected shr;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
-							|| (s->id == 39 && !(*it)->hasFeatureOfType(StackFeature::UNDEAD)) //we try to cast animate dead on living stack
-							) 
-							continue;
-						StacksHealedOrResurrected::HealInfo hi;
-						hi.stackID = (*it)->ID;
-						hi.healedHP = calculateHealedHP(h, s, *it);
-						hi.lowLevelResurrection = h->getSpellSchoolLevel(s) <= 1;
-						shr.healedStacks.push_back(hi);
-					}
-					if(!shr.healedStacks.empty())
-						sendAndApply(&shr);
-					break;
-				}
-			case 64: //remove obstacle
-				{
-					ObstaclesRemoved obr;
-					for(int g=0; g<gs->curB->obstacles.size(); ++g)
-					{
-						std::vector<int> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
-
-						if(vstd::contains(blockedHexes, ba.destinationTile)) //this obstacle covers given hex
-						{
-							obr.obstacles.insert(gs->curB->obstacles[g].uniqueID);
-						}
-					}
-					if(!obr.obstacles.empty())
-						sendAndApply(&obr);
-
-					break;
-				}
-			}
 			sendAndApply(&EndAction());
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
 			{
@@ -3496,6 +3513,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			{
 				endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
 			}
+
 			return true;
 		}
 	}
@@ -3904,4 +3922,42 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	no.subID = 0;
 	sendAndApply(&no);
 	return true;
+}
+
+void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
+{
+	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	if( attacker->hasFeatureOfType(StackFeature::SPELL_AFTER_ATTACK) )
+	{
+		for (int it=0; it<attacker->features.size(); ++it)
+		{
+			const StackFeature & sf = attacker->features[it];
+			if (sf.type == StackFeature::SPELL_AFTER_ATTACK)
+			{
+				const CStack * oneOfAttacked = NULL;
+				for(int g=0; g<bat.bsa.size(); ++g)
+				{
+					if (bat.bsa[g].newAmount > 0)
+					{
+						oneOfAttacked = gs->curB->getStack(bat.bsa[g].stackAttacked);
+						break;
+					}
+				}
+				if(oneOfAttacked == NULL) //all attacked creatures have been killed
+					return;
+
+				int spellID = sf.subtype;
+				int spellLevel = sf.value;
+				int chance = sf.additionalInfo % 1000;
+				int meleeRanged = sf.additionalInfo / 1000;
+				int destination = oneOfAttacked->position;
+				//check if spell should be casted (probability handling)
+				if( rand()%100 >= chance )
+					continue;
+
+				//casting
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL);
+			}
+		}
+	}
 }

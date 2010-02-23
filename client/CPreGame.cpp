@@ -2272,6 +2272,34 @@ void CBonusSelection::show( SDL_Surface * to )
 	CIntObject::show(to);
 }
 
+void CBonusSelection::updateBonusSelection()
+{
+	//graphics:
+	//spell - SPELLBON.DEF
+	//monster - TWCRPORT.DEF
+	//building - ?
+	//artifact - ARTIFBON.DEF
+	//spell scroll - SPELLBON.DEF
+	//prim skill - PSKILBON.DEF
+	//sec skill - SSKILBON.DEF
+	//resource - BORES.DEF
+	//player - ?
+	//hero -?
+
+	bonuses = new CHighlightableButtonsGroup(0);
+	{
+		static const char *bonDefs[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "GSPBUT5.DEF", "ARTIFBON.DEF", "SPELLBON.DEF",
+			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "GSPBUT5.DEF", "GSPBUT5.DEF"};
+
+		for(int i = 0; i < 5; i++)
+		{
+			bonuses->addButton(new CHighlightableButton("", "", 0, 110 + i*32, 450, bonDefs[i], i));
+			bonuses->buttons.back()->pos += Point(68, 0);
+		}
+	}
+
+}
+
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )
 : owner(_owner), accessible(_accessible), selectable(_selectable), myNumber(_myNumber)
 {

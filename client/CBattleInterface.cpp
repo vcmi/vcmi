@@ -2563,7 +2563,8 @@ void CBattleInterface::spellCast(SpellCast * sc)
 {
 	CSpell &spell = CGI->spellh->spells[sc->id];
 
-	if(sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned)
+
+	if(sc->castedByHero && sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned)
 		bSpell->block(true);
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
@@ -2621,6 +2622,7 @@ void CBattleInterface::spellCast(SpellCast * sc)
 			break; //for 15 and 16 cases
 		}
 	case 17: //lightning bolt
+	case 77: //thunderbolt
 		displayEffect(1, sc->tile);
 		displayEffect(spell.mainEffectAnim, sc->tile);
 		break;

@@ -132,7 +132,7 @@ int CCallback::estimateSpellDamage(const CSpell * sp) const
 		return 0;
 
 	const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
-	return gs->curB->calculateSpellDmg(sp, ourHero, NULL);
+	return gs->curB->calculateSpellDmg(sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp));
 }
 
 void CCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)

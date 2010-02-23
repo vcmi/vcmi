@@ -301,6 +301,12 @@ class CBonusSelection : public CIntObject
 	CMapHeader *ourHeader;
 	CDefHandler *sizes; //icons of map sizes
 	int whichMap;
+
+	//bonus selection
+	void updateBonusSelection();
+	void selectBonus(int id);
+	CHighlightableButtonsGroup * bonuses;
+
 public:
 	StartInfo sInfo;
 	void selectMap(int whichOne);

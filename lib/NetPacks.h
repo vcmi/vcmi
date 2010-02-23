@@ -998,9 +998,10 @@ struct SpellCast : public CPackForClient//3009
 	ui16 tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
+	ui8 castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres;
+		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres & castedByHero;
 	}
 };
 

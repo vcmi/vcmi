@@ -95,8 +95,8 @@
 +  72 RETURN_AFTER_STRIKE 0 0 0	   	//Harpies return after attack
 +  73 BLOCKS_RETALIATION 0 0 0	   	//Harpy Hags
 +  73 RETURN_AFTER_STRIKE 0 0 0	   	//Harpy Hags return after attack
-+  76 SPELL_AFTER_ATTACK 0 70 220  	//medusas
-+  77 SPELL_AFTER_ATTACK 0 70 220  	//medusa queens
++  76 SPELL_AFTER_ATTACK 0 70 2020  	//medusas
++  77 SPELL_AFTER_ATTACK 0 70 2020  	//medusa queens
 +  78 SELF_MORALE 0 0 0	   	  	   	//minotaurs
 +  79 SELF_MORALE 0 0 0			   	//minotaur kings
 +  81 SPELL_AFTER_ATTACK 0 74 20   	//scorpicore

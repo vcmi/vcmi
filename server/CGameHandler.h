@@ -157,6 +157,7 @@ public:
 
 	void playerMessage( ui8 player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
+	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero);
 	bool makeCustomAction(BattleAction &ba);
 	bool queryReply( ui32 qid, ui32 answer );
 	bool hireHero( ui32 tid, ui8 hid );
@@ -200,6 +201,7 @@ public:
 
 	void run(bool resume);
 	void newTurn();
+	void handleAfterAttackCasting( const BattleAttack & bat );
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

@@ -2668,9 +2668,9 @@ si8 CGameState::battleMaxSpellLevel()
 	return levelLimit;
 }
 
-std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile)
+std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile )
 {
-	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, caster->getSpellSchoolLevel(s));
+	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, skillLevel);
 	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
 
 	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
@@ -2692,7 +2692,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_1") != std::string::npos
 		|| VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
-		if(caster->getSpellSchoolLevel(s) < 3)  /*not expert */
+		if(skillLevel < 3)  /*not expert */
 		{
 			CStack * st = getStackT(destinationTile, onlyAlive);
 			if(st)
@@ -2703,8 +2703,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 			for(int it=0; it<stacks.size(); ++it)
 			{
 				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((VLC->spellh->spells[s->id].positiveness >= 0 && stacks[it]->owner == caster->tempOwner)
-					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != caster->tempOwner )
+				if((VLC->spellh->spells[s->id].positiveness >= 0 && stacks[it]->owner == attackerOwner)
+					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != attackerOwner )
 					)
 				{
 					if(!onlyAlive || stacks[it]->alive())
@@ -2794,17 +2794,23 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) 
 {
 	ui32 ret = VLC->spellh->spells[sp->id].costs[caster->getSpellSchoolLevel(sp)];
 
-	//checking for friendly stacks reducing cost of the spell
+	//checking for friendly stacks reducing cost of the spell and
+	//enemy stacks increasing it
 	si32 manaReduction = 0;
+	si32 manaIncrease = 0;
 	for(int g=0; g<stacks.size(); ++g)
 	{
 		if( stacks[g]->owner == caster->tempOwner && stacks[g]->hasFeatureOfType(StackFeature::CHANGES_SPELL_COST_FOR_ALLY) )
 		{
 			amin(manaReduction, stacks[g]->valOfFeatures(StackFeature::CHANGES_SPELL_COST_FOR_ALLY));
 		}
+		if( stacks[g]->owner != caster->tempOwner && stacks[g]->hasFeatureOfType(StackFeature::CHANGES_SPELL_COST_FOR_ENEMY) )
+		{
+			amax(manaIncrease, stacks[g]->valOfFeatures(StackFeature::CHANGES_SPELL_COST_FOR_ENEMY));
+		}
 	}
 
-	return ret + manaReduction;
+	return ret + manaReduction + manaIncrease;
 }
 
 int BattleInfo::hexToWallPart(int hex) const
@@ -2875,47 +2881,54 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 	return std::make_pair<const CStack * , int>(NULL, -1);
 }
 
-ui32 BattleInfo::calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
+ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel ) const
 {
 	ui32 ret = 0; //value to return
 
 	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
-	//24 - death ripple, 25 - destroy undead, 26 - armageddon
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
+	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
+	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50)(77, 10);
 
 	//check if spell really does damage - if not, return 0
 	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
 		return 0;
 
-	ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id]  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+	if (caster)
+	{
+		ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id];
+	} 
+	ret += sp->powers[spellSchoolLevel];
 	
 	//applying sorcerery secondary skill
-	switch(caster->getSecSkillLevel(25))
+	if(caster)
 	{
-	case 1: //basic
-		ret *= 1.05f;
-		break;
-	case 2: //advanced
-		ret *= 1.1f;
-		break;
-	case 3: //expert
-		ret *= 1.15f;
-		break;
+		switch(caster->getSecSkillLevel(25))
+		{
+		case 1: //basic
+			ret *= 1.05f;
+			break;
+		case 2: //advanced
+			ret *= 1.1f;
+			break;
+		case 3: //expert
+			ret *= 1.15f;
+			break;
+		}
 	}
 	//applying hero bonuses
-	if(sp->air && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
+	if(sp->air && caster && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
 	{
 		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY)) / 100.0f;
 	}
-	else if(sp->fire && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
+	else if(sp->fire && caster && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
 	{
 		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY)) / 100.0f;
 	}
-	else if(sp->water && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
+	else if(sp->water && caster && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
 	{
 		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
 	}
-	else if(sp->earth && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
+	else if(sp->earth && caster && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
 	{
 		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
 	}
