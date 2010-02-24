@@ -132,7 +132,7 @@ int CCallback::estimateSpellDamage(const CSpell * sp) const
 		return 0;
 
 	const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
-	return gs->curB->calculateSpellDmg(sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp));
+	return gs->curB->calculateSpellDmg(sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(2));
 }
 
 void CCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)
@@ -941,6 +941,16 @@ void CCallback::dig( const CGObjectInstance *hero )
 	DigWithHero dwh;
 	dwh.id = hero->id;
 	sendRequest(&dwh);
+}
+
+si8 CCallback::battleGetStackMorale( int stackID )
+{
+	return gs->curB->Morale( gs->curB->getStack(stackID) );
+}
+
+si8 CCallback::battleGetStackLuck( int stackID )
+{
+	return gs->curB->Luck( gs->curB->getStack(stackID) );
 }
 
 InfoAboutTown::InfoAboutTown()

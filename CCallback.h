@@ -175,6 +175,8 @@ public:
 	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
+	virtual si8 battleGetStackMorale(int stackID) =0; //returns morale of given stack
+	virtual si8 battleGetStackLuck(int stackID) =0; //returns luck of given stack
 };
 
 struct HeroMoveDetails
@@ -293,6 +295,8 @@ public:
 	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
+	si8 battleGetStackMorale(int stackID); //returns morale of given stack
+	si8 battleGetStackLuck(int stackID); //returns luck of given stack
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

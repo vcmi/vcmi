@@ -359,11 +359,11 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 		{
 
 			//check for bad morale => freeze
-			if(next->Morale() < 0 &&
+			if( curB.Morale(next) < 0 &&
 				!((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE))) //checking if heroes have (or don't have) morale blocking bonuses)
 				)
 			{
-				if( rand()%24   <   (-next->Morale())*2 )
+				if( rand()%24   <   (-curB.Morale(next))*2 )
 				{
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
@@ -462,10 +462,10 @@ askInterfaceForMove:
 				&& !vstd::contains(next->state,DEFENDING)
 				&& !vstd::contains(next->state,WAITING)
 				&&  next->alive()
-				&&  next->Morale() > 0
+				&&  curB.Morale(next) > 0
 				&& !((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE)) ) //checking if heroes have (or don't have) morale blocking bonuses
 			)
-				if(rand()%24 < next->Morale()) //this stack hasn't got morale this turn
+				if(rand()%24 < curB.Morale(next)) //this stack hasn't got morale this turn
 					goto askInterfaceForMove; //move this stack once more
 		}
 	}
@@ -593,7 +593,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	bsa->stackAttacked = def->ID;
 	bsa->attackerID = att->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance);//counting dealt damage
-	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
+	
+	if(gs->curB->Luck(att) > 0  &&  rand()%24 < gs->curB->Luck(att))
 	{
 		bsa->damageAmount *= 2;
 		bat.flags |= 4;
@@ -3324,7 +3325,7 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 }
 
 void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor,
-	const CGHeroInstance * caster, const CGHeroInstance * secHero )
+	const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower )
 {
 	CSpell *spell = &VLC->spellh->spells[spellID];
 
@@ -3351,7 +3352,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	{
 		if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
 			continue;
-		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl);
+		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
 
 	sendAndApply(&sc);
@@ -3381,7 +3382,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				BattleStackAttacked bsa;
 				bsa.flags |= 2;
 				bsa.effect = spell->mainEffectAnim;
-				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl);
+				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
 				prepareAttacked(bsa,*it);
@@ -3512,7 +3513,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			handleSpellCasting(ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero);
+			handleSpellCasting(ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2));
 
 			sendAndApply(&EndAction());
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
@@ -3994,7 +3995,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 					continue;
 
 				//casting
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL);
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->amount);
 			}
 		}
 	}

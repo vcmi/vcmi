@@ -69,11 +69,11 @@
 +  53 HATE 0 36 0					//efreet sultans hate genies
 +  53 HATE 0 37 0					//efreet sultans hate master genies
 +  54 BLOCKS_RETALIATION 0 0 0 	 	//devils
-+  54 ENEMY_LUCK_DECREASING -1 0 0	//devils
++  54 ENEMY_LUCK_DECREASING 1 0 0	//devils
 +  54 HATE 0 12 0		   	 		//devils hate angels
 +  54 HATE 0 13 0					//devils hate archangles
 +  55 BLOCKS_RETALIATION 0 0 0 	 	//archdevils
-+  55 ENEMY_LUCK_DECREASING -1 0 0 	//archdevils
++  55 ENEMY_LUCK_DECREASING 1 0 0 	//archdevils
 +  55 HATE 0 12 0		   	 		//archdevils hate angels
 +  55 HATE 0 13 0					//archdevils hate archangles
 +  60 FULL_HP_REGENERATION 0 1 0			//wight

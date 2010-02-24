@@ -3467,8 +3467,8 @@ void CBattleHex::clickRight(tribool down, bool previousState)
 
 			pom->attackBonus = myst.Attack() - myst.creature->attack;
 			pom->defenseBonus = myst.Defense() - myst.creature->defence;
-			pom->luck = myst.Luck();
-			pom->morale = myst.Morale();
+			pom->luck = myInterface->curInt->cb->battleGetStackLuck(myst.ID);
+			pom->morale = myInterface->curInt->cb->battleGetStackMorale(myst.ID);
 			pom->speedBonus = myst.Speed() - myst.creature->speed;
 			pom->healthBonus = myst.MaxHealth() - myst.creature->hitPoints;
 			if(myst.hasFeatureOfType(StackFeature::SIEGE_WEAPON))

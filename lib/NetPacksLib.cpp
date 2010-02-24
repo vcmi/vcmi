@@ -990,7 +990,7 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
 	case 56: //frenzy
-		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(StackFeature::IN_FRENZY, 0, sse.level, sse.turnsRemain));
 		break;
 	case 58: //counterstrike
 		sf.push_back(featureGenerator(StackFeature::ADDITIONAL_RETALIATION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
@@ -1002,7 +1002,7 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		sf.push_back(featureGenerator(StackFeature::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
 		break;
 	case 61: //forgetfulness
-		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(StackFeature::FORGETFULL, 0, sse.level, sse.turnsRemain));
 		break;
 	case 62: //blind
 		sf.push_back(makeFeature(StackFeature::NOT_ACTIVE, StackFeature::UNITL_BEING_ATTACKED | StackFeature::N_TURNS, 0, 0, StackFeature::SPELL_EFFECT, sse.turnsRemain, 0));

@@ -157,7 +157,7 @@ public:
 
 	void playerMessage( ui8 player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
-	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero);
+	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower);
 	bool makeCustomAction(BattleAction &ba);
 	bool queryReply( ui32 qid, ui32 answer );
 	bool hireHero( ui32 tid, ui8 hid );

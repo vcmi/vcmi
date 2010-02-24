@@ -772,44 +772,6 @@ ui8 CStack::howManyEffectsSet(ui16 id) const
 	return ret;
 }
 
-si8 CStack::Morale() const
-{
-	si8 ret = morale;
-
-	if(hasFeatureOfType(StackFeature::NON_LIVING) || hasFeatureOfType(StackFeature::UNDEAD) || hasFeatureOfType(StackFeature::NO_MORALE))
-		return 0;
-	
-	ret += valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other
-
-	if(hasFeatureOfType(StackFeature::SELF_MORALE)) //eg. minotaur
-	{
-		ret = std::max<si8>(ret, +1);
-	}
-
-	if(ret > 3) ret = 3;
-	if(ret < -3) ret = -3;
-	return ret;
-}
-
-si8 CStack::Luck() const
-{
-	si8 ret = luck;
-
-	if(hasFeatureOfType(StackFeature::NO_LUCK))
-		return 0;
-	
-	ret += valOfFeatures(StackFeature::LUCK_BONUS); //fortune & misfortune & other
-
-	if(hasFeatureOfType(StackFeature::SELF_LUCK)) //eg. halfling
-	{
-		ret = std::max<si8>(ret, +1);
-	}
-
-	if(ret > 3) ret = 3;
-	if(ret < -3) ret = -3;
-	return ret;
-}
-
 si32 CStack::Attack() const
 {
 	si32 ret = creature->attack; //value to be returned
@@ -2884,7 +2846,7 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 	return std::make_pair<const CStack * , int>(NULL, -1);
 }
 
-ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel ) const
+ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
 {
 	ui32 ret = 0; //value to return
 
@@ -2896,10 +2858,8 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
 		return 0;
 
-	if (caster)
-	{
-		ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id];
-	} 
+
+	ret = usedSpellPower * dmgMultipliers[sp->id];
 	ret += sp->powers[spellSchoolLevel];
 	
 	//applying sorcerery secondary skill
@@ -3537,6 +3497,76 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 			out.push_back(hlp);
 		}
 	}
+}
+
+si8 BattleInfo::Morale( const CStack * st ) const
+{
+	si8 ret = st->morale;
+
+	if(st->hasFeatureOfType(StackFeature::NON_LIVING) || st->hasFeatureOfType(StackFeature::UNDEAD) || st->hasFeatureOfType(StackFeature::NO_MORALE))
+		return 0;
+
+	ret += st->valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other
+
+	//decreasing / increasing morale from  other stacks
+	for (int g=0; g<stacks.size(); ++g)
+	{
+		if (stacks[g]->owner == st->owner) //ally
+		{
+			if (stacks[g]->hasFeatureOfType(StackFeature::RAISING_MORALE))
+			{
+				ret += stacks[g]->valOfFeatures(StackFeature::RAISING_MORALE);
+			}
+		}
+		else //enemy
+		{
+			if (stacks[g]->hasFeatureOfType(StackFeature::ENEMY_MORALE_DECREASING))
+			{
+				ret -= stacks[g]->valOfFeatures(StackFeature::ENEMY_MORALE_DECREASING);
+			}
+		}
+	}
+
+	if(st->hasFeatureOfType(StackFeature::SELF_MORALE)) //eg. minotaur
+	{
+		ret = std::max<si8>(ret, +1);
+	}
+
+	if(ret > 3) ret = 3;
+	if(ret < -3) ret = -3;
+	return ret;
+}
+
+si8 BattleInfo::Luck( const CStack * st ) const
+{
+	si8 ret = st->luck;
+
+	if(st->hasFeatureOfType(StackFeature::NO_LUCK))
+		return 0;
+
+	ret += st->valOfFeatures(StackFeature::LUCK_BONUS); //fortune & misfortune & other
+
+	//decreasing / increasing morale from  other stacks
+	for (int g=0; g<stacks.size(); ++g)
+	{
+		if (stacks[g]->owner == st->owner) //ally
+		{
+			//no such feature (yet)
+		}
+		else //enemy
+		{
+			ret -= stacks[g]->valOfFeatures(StackFeature::ENEMY_LUCK_DECREASING);
+		}
+	}
+
+	if(st->hasFeatureOfType(StackFeature::SELF_LUCK)) //eg. halfling
+	{
+		ret = std::max<si8>(ret, +1);
+	}
+
+	if(ret > 3) ret = 3;
+	if(ret < -3) ret = -3;
+	return ret;
 }
 
 int3 CPath::startPos() const

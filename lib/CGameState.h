@@ -217,6 +217,9 @@ struct DLL_EXPORT BattleInfo
 	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<int> getAccessibility(int stackID, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
 
+	si8 Morale(const CStack * st) const; //get morale of stack with all modificators
+	si8 Luck(const CStack * st) const; //get luck of stack with all modificators
+
 	bool isStackBlocked(int ID); //returns true if there is neighbouring enemy stack
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
@@ -229,7 +232,7 @@ struct DLL_EXPORT BattleInfo
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel) const; //calculates damage inflicted by spell
+	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 };
 
 class DLL_EXPORT CStack
@@ -271,8 +274,6 @@ public:
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
-	si8 Morale() const; //get morale of stack with all modificators
-	si8 Luck() const; //get luck of stack with all modificators
 	si32 Attack() const; //get attack of stack with all modificators
 	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
 	ui16 MaxHealth() const; //get max HP of stack with all modifiers
