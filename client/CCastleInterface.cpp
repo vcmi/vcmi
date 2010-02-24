@@ -555,6 +555,7 @@ void CCastleInterface::buildingClicked(int building)
 	{
 		building = town->town->hordeLvl[1] + 30;
 	}
+
 	if(building >= 30)
 	{
 		showRecruitmentWindow(building);
@@ -613,7 +614,23 @@ void CCastleInterface::buildingClicked(int building)
 				break;
 			}
 		case 10: case 11: case 12: case 13: //hall
-			enterHall();
+			if(town->visitingHero && town->visitingHero->hasArt(2)) //hero has grail
+			{
+				if(!vstd::contains(town->forbiddenBuildings, 26))
+				{
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
+												std::vector<SComponent*>(), 
+												boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, 26), 
+												boost::bind(&CCastleInterface::enterHall, this), true);
+				}
+				else
+				{
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
+					(dynamic_cast<CInfoWindow*>(GH.topInt()))->buttons[0]->callback += boost::bind(&CCastleInterface::enterHall, this);
+				}
+			}
+			else
+				enterHall();
 			break;
 		case 14:  //marketplace
 			{

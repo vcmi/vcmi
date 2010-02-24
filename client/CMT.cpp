@@ -96,7 +96,7 @@ void init()
 	tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
 	{
 		//read system options
-		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin");
+		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin", false);
 		if(settings.sfile)
 		{
 			settings >> GDefaultOptions;

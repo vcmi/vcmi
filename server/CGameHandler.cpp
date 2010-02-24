@@ -2086,7 +2086,7 @@ void CGameHandler::save( const std::string &fname )
 		tlog0 << "Serializing game info...\n";
 		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vlgm1");
 		char hlp[8] = "VCMISVG";
-		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
+		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps << *VLC << gs;
 	}
 
 	{
@@ -2241,8 +2241,19 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 
 	if(gs->canBuildStructure(t,bid) != 7)
 	{
-		complain("Cannot raze that building!");
+		complain("Cannot build that building!");
 		return false;
+	}
+	
+	if(bid == 26) //grail
+	{
+		if(!t->visitingHero || !t->visitingHero->hasArt(2))
+		{
+			complain("Cannot build grail - hero doesn't have it");
+			return false;
+		}
+
+		removeArtifact(2, t->visitingHero->id);
 	}
 
 	NewStructures ns;
@@ -3909,7 +3920,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 {
 	for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 	{
-		if((*i)->ID == 124  &&  (*i)->pos == h->getPosition(false))
+		if((*i)->ID == 124  &&  (*i)->pos == h->getPosition())
 		{
 			complain("Cannot dig - there is already a hole under the hero!");
 			return false;
@@ -3918,9 +3929,36 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 
 	NewObject no;
 	no.ID = 124;
-	no.pos = h->getPosition(false);
-	no.subID = 0;
+	no.pos = h->getPosition();
+	no.subID = getTile(no.pos)->tertype;
+
+	if(no.subID >= 8) //no digging on water / rock
+	{
+		complain("Cannot dig - wrong terrain type!");
+		return false;
+	}
 	sendAndApply(&no);
+
+	SetMovePoints smp;
+	smp.hid = h->id;
+	smp.val = 0;
+	sendAndApply(&smp);
+
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	if(gs->map->grailPos == h->getPosition())
+	{
+		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
+		iw.soundID = soundBase::ULTIMATEARTIFACT;
+		giveHeroArtifact(2, h->id, -1); //give grail
+	}
+	else
+	{
+		iw.text.addTxt(MetaString::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
+		iw.soundID = soundBase::Dig;
+	}
+	sendAndApply(&iw);
+
 	return true;
 }
 

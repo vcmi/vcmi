@@ -163,7 +163,6 @@ void CPlayerInterface::yourTurn()
 		boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
 
 		LOCPLINT = this;
-		makingTurn = true;
 		GH.curInt = this;
 
 		if(firstCall)
@@ -196,6 +195,8 @@ void CPlayerInterface::yourTurn()
 		if(howManyPeople > 1) //hot seat message
 		{
 			adventureInt->startHotSeatWait(playerID);
+
+			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos[serialID].name);
 			std::vector<SComponent*> cmp;
@@ -203,7 +204,10 @@ void CPlayerInterface::yourTurn()
 			showInfoDialog(msg, cmp);
 		}
 		else
+		{
+			makingTurn = true;
 			adventureInt->startTurn();
+		}
 	}
 
 	acceptTurn();
@@ -1708,7 +1712,9 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 // 		else
 // 			showInfoDialog("Placeholder message: you won!");
 
-		waitWhileDialog();
+		makingTurn = true;
+		while(showingDialog->get() || dialogs.size()); //wait till all dialogs are displayed and closed
+		makingTurn = false;
 
  		//return to main menu
  		SDL_Event event;
@@ -1872,4 +1878,21 @@ void CPlayerInterface::acceptTurn()
 		adventureInt->select(adventureInt->townList.items[0]);
 
 	adventureInt->showAll(screen);
+}
+
+void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
+{
+	std::string hlp;
+	if(h->movement < h->maxMovePoints(true))
+		showInfoDialog(CGI->generaltexth->allTexts[56]); //"Digging for artifacts requires a whole day, try again tomorrow."
+	else if(cb->getTileInfo(h->getPosition(false))->tertype == TerrainTile::water)
+		showInfoDialog(CGI->generaltexth->allTexts[60]); //Try looking on land!
+	else
+	{
+		CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
+		if(hlp.length())
+			showInfoDialog(CGI->generaltexth->allTexts[97]); //Try searching on clear ground.
+		else
+			cb->dig(h);
+	}
 }

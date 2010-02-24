@@ -187,9 +187,10 @@ void CVCMIServer::loadGame( CConnection *c )
 		ui32 ver;
 		char sig[8];
 		CMapHeader dum;
+		StartInfo *si;
 
 		CLoadFile lf(fname + ".vlgm1");
-		lf >> sig >> dum >> *sig;
+		lf >> sig >> dum >> si;
 		tlog0 <<"Reading save signature"<<std::endl;
 
 		lf >> *VLC;

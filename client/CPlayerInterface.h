@@ -216,7 +216,8 @@ public:
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
 	void eraseCurrentPathOf( const CGHeroInstance * ho );
 	CGPath *getAndVerifyPath( const CGHeroInstance * h );
-	void acceptTurn(); //used during hot seat after your turn message is closed
+	void acceptTurn(); //used during hot seat after your turn message is close
+	void tryDiggging(const CGHeroInstance *h);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

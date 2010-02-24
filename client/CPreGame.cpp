@@ -71,7 +71,7 @@ static void do_quit()
 
 void CMapInfo::countPlayers()
 {
-	playerAmnt = humenPlayers = 0;
+	actualHumanPlayers = playerAmnt = humenPlayers = 0;
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)
@@ -84,6 +84,11 @@ void CMapInfo::countPlayers()
 			playerAmnt++;
 		}
 	}
+
+	if(scenarioOpts)
+		for (std::vector<PlayerSettings>::const_iterator i = scenarioOpts->playerInfos.begin(); i != scenarioOpts->playerInfos.end(); i++)
+			if(i->human)
+				actualHumanPlayers++;
 }
 
 //CMapInfo::CMapInfo(const std::string &fname, const unsigned char *map )
@@ -93,7 +98,7 @@ void CMapInfo::countPlayers()
 //}
 
 CMapInfo::CMapInfo(bool map)
-: mapHeader(NULL), campaignHeader(NULL)
+: mapHeader(NULL), campaignHeader(NULL), scenarioOpts(NULL)
 {
 }
 
@@ -139,7 +144,7 @@ CMenuScreen::CMenuScreen( EState which )
 	case newGame:
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame), 545, 4, "ZTSINGL.DEF", SDLK_s);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame, false), 545, 4, "ZTSINGL.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
@@ -149,8 +154,8 @@ CMenuScreen::CMenuScreen( EState which )
 	case loadGame:
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZLOADGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, 0 /*cb*/, 568, 120, "ZTMULTI.DEF", SDLK_m);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame, false), 545, 4, "ZTSINGL.DEF", SDLK_s);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CGPreGame::openSel, CGP, loadGame, true), 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
@@ -161,7 +166,7 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[0] = new AdventureMapButton("", "", 0 /*cb*/, 535, 8, "ZSSSOD.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", "", 0 /*cb*/, 494, 117, "ZSSROE.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", "", 0 /*cb*/, 486, 241, "ZSSARM.DEF", SDLK_c);
-			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList), 550, 358, "ZSSCUS.DEF", SDLK_t);
+			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, false), 550, 358, "ZSSCUS.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
 
 		}
@@ -212,10 +217,10 @@ CGPreGame::~CGPreGame()
 		delete scrs[i];
 }
 
-void CGPreGame::openSel( CMenuScreen::EState type )
+void CGPreGame::openSel( CMenuScreen::EState type, bool multi )
 {
 	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
-	GH.pushInt(new CSelectionScreen(type));
+	GH.pushInt(new CSelectionScreen(type, multi));
 }
 
 void CGPreGame::loadGraphics()
@@ -259,7 +264,8 @@ void CGPreGame::update()
 	GH.handleEvents();
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
+	:multiPlayer(MultiPlayer)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	IShowActivable::type = BLOCK_ADV_HOTKEYS;
@@ -303,7 +309,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type)
 		opt = new OptionsTab(type/*, sInfo*/); //scenario options tab
 		opt->recActions = DISPOSE;
 	}
-	sel = new SelectionTab(type, bind(&CSelectionScreen::changeSelection, this, _1)); //scenario selection tab
+	sel = new SelectionTab(type, bind(&CSelectionScreen::changeSelection, this, _1), multiPlayer); //scenario selection tab
 	sel->recActions = DISPOSE;
 
 	switch(type)
@@ -386,7 +392,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 {
 	curMap = current = to;;
 	if(to && type == CMenuScreen::loadGame)
-		curOpts->difficulty = to->seldiff;
+		curOpts->difficulty = to->scenarioOpts->difficulty;
 	if(type != CMenuScreen::campaignList)
 	{
 		updateStartInfo(to, sInfo, to->mapHeader);
@@ -592,7 +598,7 @@ void SelectionTab::parseMaps(std::vector<FileInfo> &files, int start, int thread
 	}
 }
 
-void SelectionTab::parseGames(std::vector<FileInfo> &files)
+void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
 {
 	for(int i=0; i<files.size(); i++)
 	{
@@ -608,10 +614,16 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files)
 			continue;
 		}
 		allItems[i].mapHeader = new CMapHeader();
-		lf >> *(allItems[i].mapHeader) >> allItems[i].seldiff;
+		lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
 		allItems[i].filename = files[i].name;
 		allItems[i].countPlayers();
 		allItems[i].date = std::asctime(std::localtime(&files[i].date));
+
+		if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
+		{
+			delete allItems[i].mapHeader;
+			allItems[i].mapHeader = NULL;
+		}
 	}
 }
 
@@ -626,7 +638,7 @@ void SelectionTab::parseCampaigns( std::vector<FileInfo> & files )
 	}
 }
 
-SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect)
+SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, bool MultiPlayer)
 	:onSelect(OnSelect), bg(NULL)
 {
 	OBJ_CONSTRUCTION;
@@ -667,7 +679,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	case CMenuScreen::loadGame:
 	case CMenuScreen::saveGame:
 		getFiles(toParse, GVCMIDirs.UserPath + "/Games", "vlgm1"); //get all saves
-		parseGames(toParse);
+		parseGames(toParse, MultiPlayer);
 		if(tabType == CMenuScreen::loadGame)
 		{
 			positions = 18;

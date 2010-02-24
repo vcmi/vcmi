@@ -1676,7 +1676,8 @@ void CAdvMapInt::activate()
 	terrain.activate();
 	infoBar.activate();
 
-	LOCPLINT->cingconsole->activate();
+	if(!LOCPLINT->cingconsole->active)
+		LOCPLINT->cingconsole->activate();
 	GH.fakeMouseMove(); //to restore the cursor
 }
 void CAdvMapInt::deactivate()
@@ -1701,6 +1702,9 @@ void CAdvMapInt::deactivate()
 	terrain.deactivate();
 	infoBar.deactivate();
 	infoBar.mode=-1;
+
+	if(LOCPLINT->cingconsole->active) //TODO
+		LOCPLINT->cingconsole->deactivate();
 }
 void CAdvMapInt::showAll(SDL_Surface *to)
 {
@@ -2085,8 +2089,16 @@ CAdventureOptions::CAdventureOptions()
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
 	//viewWorld = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
-	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");;
+	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");
 	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
+
+	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
+	dig = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 139, "ADVDIG.DEF");
+	if(h)
+		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
+	else
+		dig->block(true);
+
 }
 
 CAdventureOptions::~CAdventureOptions()

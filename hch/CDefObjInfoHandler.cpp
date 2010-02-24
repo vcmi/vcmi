@@ -123,9 +123,13 @@ void CDefObjInfoHandler::load()
 		static const char *holeDefs[] = {"AVLHOLD0.DEF", "AVLHLDS0.DEF", "AVLHOLG0.DEF", "AVLHLSN0.DEF",
 			"AVLHOLS0.DEF", "AVLHOLR0.DEF", "AVLHOLX0.DEF", "AVLHOLL0.DEF"};
 
-		CGDefInfo * tmp = gobjs[124][0];
-		gobjs[124][i] = gobjs[124][0];
-		gobjs[124][i]->name = holeDefs[i];
+		CGDefInfo *& tmp = gobjs[124][i];
+		if(i)
+		{
+			tmp = new CGDefInfo;
+			*tmp = *gobjs[124][0];
+		}
+		tmp->name = holeDefs[i];
 	}
 }
  

@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)_VC9"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -90,7 +90,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)_VC9"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -172,7 +172,7 @@
 		<Configuration
 			Name="RD|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)_VC9"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"

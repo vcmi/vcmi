@@ -152,6 +152,7 @@ void registerTypes3(Serializer &s)
 	s.template registerType<QueryReply>();
 	s.template registerType<MakeAction>();
 	s.template registerType<MakeCustomAction>();
+	s.template registerType<DigWithHero>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();

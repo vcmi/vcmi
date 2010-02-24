@@ -29,11 +29,13 @@ class CMapInfo
 public:
 	CMapHeader * mapHeader; //may be NULL if campaign
 	CCampaignHeader * campaignHeader; //may be NULL if scenario
-	ui8 seldiff; //selected difficulty (only in saved games)
+	StartInfo *scenarioOpts; //options with which scenario has been started (used only with saved games)
 	std::string filename;
 	bool lodCmpgn; //tells if this campaign is located in Lod file
 	std::string date;
-	int playerAmnt, humenPlayers;
+	int playerAmnt, //players in map
+		humenPlayers; //players ALLOWED to be controlled by human
+	int actualHumanPlayers; // >1 if multiplayer game
 	CMapInfo(bool map = true);
 	~CMapInfo();
 	//CMapInfo(const std::string &fname, const unsigned char *map);
@@ -56,7 +58,7 @@ class CMenuScreen : public CIntObject
 {
 public:
 	enum EState { //where are we?
-		mainMenu, newGame, loadGame, campaignMain, ScenarioList, saveGame, scenarioInfo, campaignList
+		mainMenu, newGame, loadGame, campaignMain, saveGame, scenarioInfo, campaignList
 	};
 
 	CPicture *bgAd;
@@ -100,7 +102,7 @@ private:
 	CDefHandler *format; //map size
 
 	void parseMaps(std::vector<FileInfo> &files, int start = 0, int threads = 1);
-	void parseGames(std::vector<FileInfo> &files);
+	void parseGames(std::vector<FileInfo> &files, bool multi);
 	void parseCampaigns( std::vector<FileInfo> & files );
 	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
 	CMenuScreen::EState tabType; 
@@ -135,7 +137,7 @@ public:
 	void wheelScrolled(bool down, bool in);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
-	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect);
+	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, bool MultiPlayer=false);
 	~SelectionTab();
 };
 
@@ -208,8 +210,9 @@ public:
 	const CMapInfo *current;
 	StartInfo sInfo;
 	CIntObject *curTab;
+	bool multiPlayer;
 
-	CSelectionScreen(CMenuScreen::EState Type);
+	CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer = false);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -335,7 +338,7 @@ public:
 	~CGPreGame();
 	void update();
 	void run();
-	void openSel(CMenuScreen::EState type);
+	void openSel(CMenuScreen::EState type, bool multi = false);
 	void loadGraphics();
 	void disposeGraphics();
 };

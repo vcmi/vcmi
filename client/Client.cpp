@@ -256,11 +256,12 @@ void CClient::loadGame( const std::string & fname )
 		char sig[8];
 		CMapHeader dum;
 		CGI->mh = new CMapHandler();
+		StartInfo *si;
 
 		CLoadFile lf(fname + ".vlgm1");
-		lf >> sig >> dum >> *sig;
+		lf >> sig >> dum >> si;
 		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
-			
+		
 		lf >> *VLC;
 		CGI->setFromLib();
 		tlog0 <<"Reading handlers: "<<tmh.getDif()<<std::endl;
