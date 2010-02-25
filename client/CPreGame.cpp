@@ -493,7 +493,7 @@ void CSelectionScreen::startGame()
 		StartInfo *si = new StartInfo(sInfo);
 		GH.popInt(this);
 		GH.popInt(GH.topInt());
-		curMap = NULL;
+		//curMap = NULL;
 		curOpts = NULL;
 		::startGame(si);
 	}
