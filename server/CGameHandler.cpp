@@ -2566,14 +2566,19 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	const CArtifact *srcArtifact = srcHero->getArt(srcSlot);
 	const CArtifact *destArtifact = destHero->getArt(destSlot);
 
+	if (srcArtifact == NULL) {
+		complain("No artifact to swap!");
+		return false;
+	}
+
 	SetHeroArtifacts sha;
 	sha.hid = srcHeroID;
 	sha.artifacts = srcHero->artifacts;
 	sha.artifWorn = srcHero->artifWorn;
 
 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
-	if (srcHeroID == destHeroID && srcSlot < 19) {
-		VLC->arth->unequipArtifact(sha.artifWorn, srcSlot);
+	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) {
+		sha.setArtAtPos(srcSlot, -1);
 		if (sha.artifWorn.find(destSlot) == sha.artifWorn.end())
 			destArtifact = NULL;
 	}
@@ -2603,11 +2608,15 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	}
 
 	// If dest does not fit in src, put it in dest's backpack instead.
+	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
+		sha.setArtAtPos(destSlot, -1);
 	bool destFits = !destArtifact || srcSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
+	if (srcHeroID == destHeroID && destArtifact)
+		sha.setArtAtPos(destSlot, destArtifact->id);
 
 	sha.setArtAtPos(srcSlot, -1);
 	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
-		sha.setArtAtPos(srcSlot, destHero->getArtAtPos(destSlot));
+		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact->id : -1);
 
 	// Internal hero artifact arrangement.
 	if(srcHero == destHero) {

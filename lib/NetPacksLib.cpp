@@ -496,7 +496,7 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 	{
 		if(pos<19)
 			VLC->arth->unequipArtifact(artifWorn, pos);
-		else
+		else if (pos - 19 < artifacts.size())
 			artifacts.erase(artifacts.begin() + (pos - 19));
 	}
 	else
