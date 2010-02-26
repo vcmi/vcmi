@@ -927,6 +927,9 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 	case 28: //air shield
 		sf.push_back(featureGenerator(StackFeature::GENERAL_DAMAGE_REDUCTION, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;
+	case 29: //fire shield
+		sf.push_back(featureGenerator(StackFeature::FIRE_SHIELD, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
 	case 30: //protection from air
 		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;

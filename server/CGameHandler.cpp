@@ -599,7 +599,22 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bsa->damageAmount *= 2;
 		bat.flags |= 4;
 	}
+	int dmg = bsa->damageAmount;
 	prepareAttacked(*bsa, def);
+
+	//fire shield handling
+	if ( !bat.shot() && def->hasFeatureOfType(StackFeature::FIRE_SHIELD) && !bsa->killed() )
+	{
+		bat.bsa.push_back(BattleStackAttacked());
+		BattleStackAttacked *bsa = &bat.bsa.back();
+		bsa->stackAttacked = att->ID;
+		bsa->attackerID = def->ID;
+		bsa->flags |= 2;
+		bsa->effect = 11;
+
+		bsa->damageAmount = (dmg * def->valOfFeatures(StackFeature::FIRE_SHIELD)) / 100;
+		prepareAttacked(*bsa, att);
+	}
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
@@ -3403,6 +3418,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 		}
 	case 27: //shield 
 	case 28: //air shield
+	case 29: //fire shield
 	case 30: //protection from air
 	case 31: //protection from fire
 	case 32: //protection from water
