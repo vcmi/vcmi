@@ -444,12 +444,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
 
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
-	townlist->genList();
-	townlist->selected = vstd::findPos(townlist->items,Town);
+	//townlist->genList();
+	townlist->selected = vstd::findPos(LOCPLINT->towns,Town);
 
 	townlist->from = townlist->selected - listPos;
 	amax(townlist->from, 0);
-	amin(townlist->from, townlist->items.size() - townlist->SIZE);
+	amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
 
 	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
@@ -813,7 +813,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 
 void CCastleInterface::townChange()
 {
-	const CGTownInstance * nt = townlist->items[townlist->selected];
+	const CGTownInstance * nt = LOCPLINT->towns[townlist->selected];
 	int tpos = townlist->selected - townlist->from;
 	GH.popIntTotally(this);
 	GH.pushInt(new CCastleInterface(nt, tpos));
@@ -1342,7 +1342,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		}
 		break;
 	case SDLK_DOWN:
-		if(townlist->selected < townlist->items.size() - 1)
+		if(townlist->selected < LOCPLINT->towns.size() - 1)
 		{
 			townlist->selected++;
 			townlist->from++;

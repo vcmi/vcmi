@@ -69,6 +69,7 @@ public:
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
 	void switchHero(); //changes displayed hero
+	void setPlayer(int Player);
 
 	//friends
 	friend void CArtPlace::clickLeft(tribool down, bool previousState);

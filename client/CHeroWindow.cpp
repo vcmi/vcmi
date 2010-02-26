@@ -520,3 +520,9 @@ void CHeroWindow::dispose()
 	artifs->dispose();
 }
 
+void CHeroWindow::setPlayer(int Player)
+{
+	player = Player;
+
+	graphics->blueToPlayersAdv(background,player);
+}

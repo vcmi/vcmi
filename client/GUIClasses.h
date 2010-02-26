@@ -380,7 +380,6 @@ class CTownList
 {
 public:
 	boost::function<void()> fun; //function called on selection change
-	std::vector<const CGTownInstance*> items; //towns on list
 	int posporx,pospory;
 
 	CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog); //c-tor

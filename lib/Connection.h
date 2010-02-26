@@ -21,7 +21,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 
-const ui32 version = 718;
+const ui32 version = 719;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
@@ -682,6 +682,9 @@ public:
 	CSaveFile(const std::string &fname);
 	~CSaveFile();
 	int write(const void * data, unsigned size);
+
+	void close();
+	void openNextFile(const std::string &fname);
 };
 
 class DLL_EXPORT CLoadFile
@@ -697,6 +700,9 @@ public:
 	CLoadFile(const std::string &fname, bool requireLatest = true);
 	~CLoadFile();
 	int read(const void * data, unsigned size);
+
+	void close();
+	void openNextFile(const std::string &fname, bool requireLatest);
 };
 
 class DLL_EXPORT CConnection

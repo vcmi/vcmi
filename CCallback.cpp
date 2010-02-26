@@ -328,7 +328,8 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur) cons
 	{
 		for (size_t j=0; j < (*i).second.towns.size(); ++j)
 		{
-			if ( ( isVisible((*i).second.towns[j],player) ) || (*i).first==player)
+			if ((*i).first==player  
+				|| (isVisible((*i).second.towns[j],player) && !onlyOur))
 			{
 				ret.push_back((*i).second.towns[j]);
 			}

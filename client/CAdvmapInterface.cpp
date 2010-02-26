@@ -1442,7 +1442,8 @@ void CInfoBar::showComp(SComponent * comp, int time)
 	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,zwykly);
 	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,zwykly);
 	SDL_FreeSurface(b);
-	activateTimer();
+	if(!(active & TIME))
+		activateTimer();
 	mode = 6;
 	toNextTick = time;
 }
@@ -1543,7 +1544,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	heroList.init();
 	heroList.genList();
 	//townList.init();
-	townList.genList();
+	//townList.genList();
 
 	heroWindow = new CHeroWindow(this->player);
 
@@ -1643,7 +1644,8 @@ void CAdvMapInt::fnextHero()
 
 void CAdvMapInt::fendTurn()
 {
-	LOCPLINT->cingconsole->deactivate();
+	if(LOCPLINT->cingconsole->active)
+		LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;
 	LOCPLINT->cb->endTurn();
 }
@@ -1795,7 +1797,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 
 void CAdvMapInt::selectionChanged()
 {
-	const CGTownInstance *to = townList.items[townList.selected];
+	const CGTownInstance *to = LOCPLINT->towns[townList.selected];
 	select(to);
 }
 void CAdvMapInt::centerOn(int3 on)
@@ -1978,7 +1980,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	terrain.currentPath = NULL;
 	if(sel->ID==TOWNI_TYPE)
 	{
-		int pos = vstd::findPos(townList.items,sel);
+		int pos = vstd::findPos(LOCPLINT->towns,sel);
 		townList.selected = pos;
 		townList.fixPos();
 	}
@@ -2066,9 +2068,10 @@ void CAdvMapInt::setPlayer(int Player)
 	nextHero.setPlayerColor(player);
 	endTurn.setPlayerColor(player);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
+	heroWindow->setPlayer(player);
 
-	heroList.updateHList();
-	townList.genList();
+	//heroList.updateHList();
+	//townList.genList();
 }
 
 void CAdvMapInt::startTurn()

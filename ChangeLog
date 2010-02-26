@@ -3,6 +3,7 @@ GENERAL:
 * Victory and loss conditions are supported. It's now possible to win or lose the game.
 * Kingdom Overview screen is now available.
 * Replaced TTF fonts with original ones.
+* Implemented Grail (puzzle map, digging, constructing ultimate building)
 
 ADVENTURE MAP:
 * Implemented rivers animations (thx to GrayFace).
@@ -12,6 +13,7 @@ HERO:
 
 TOWN:
 * New left-bottom info panel functionalities.
+
 TOWNS:
 * new town structures supported:
 - Ballista Yard

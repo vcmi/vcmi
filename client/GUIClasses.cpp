@@ -1436,7 +1436,7 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 	if(toRemove) //remove specific hero
 		LOCPLINT->wanderingHeroes -= toRemove;
 	else
-		LOCPLINT->recreateWanderingHeroes();
+		LOCPLINT->recreateHeroTownList();
 
 
 	if(selected >= LOCPLINT->wanderingHeroes.size())
@@ -1553,17 +1553,17 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 
 void CTownList::genList()
 {
-	items.clear();
-	int howMany = LOCPLINT->cb->howManyTowns();
-	for (int i=0;i<howMany;i++)
-	{
-		items.push_back(LOCPLINT->cb->getTownInfo(i,0));
-	}
+// 	LOCPLINT->towns.clear();
+// 	int howMany = LOCPLINT->cb->howManyTowns();
+// 	for (int i=0;i<howMany;i++)
+// 	{
+// 		LOCPLINT->towns.push_back(LOCPLINT->cb->getTownInfo(i,0));
+// 	}
 }
 
 void CTownList::select(int which)
 {
-	if (which>=items.size())
+	if (which>=LOCPLINT->towns.size())
 		return;
 	selected = which;
 	if(!fun.empty())
@@ -1582,7 +1582,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 	{
-		if ((items.size()-from)  >  SIZE)
+		if ((LOCPLINT->towns.size()-from)  >  SIZE)
 			GH.statusbar->print(CGI->generaltexth->zelp[307].first);
 		else
 			GH.statusbar->clear();
@@ -1593,14 +1593,14 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
-	if ((ny>=SIZE || ny<0) || (from+ny>=items.size()))
+	if ((ny>=SIZE || ny<0) || (from+ny>=LOCPLINT->towns.size()))
 	{
 		GH.statusbar->clear();
 		return;
 	};
 	std::string temp = CGI->generaltexth->tcommands[4];
-	boost::algorithm::replace_first(temp,"%s",items[from+ny]->name);
-	temp += ", "+items[from+ny]->town->Name();
+	boost::algorithm::replace_first(temp,"%s",LOCPLINT->towns[from+ny]->name);
+	temp += ", "+LOCPLINT->towns[from+ny]->town->Name();
 	GH.statusbar->print(temp);
 }
 
@@ -1620,7 +1620,7 @@ void CTownList::clickLeft(tribool down, bool previousState)
 		}
 		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 		{
-			if(items.size()-from > SIZE)
+			if(LOCPLINT->towns.size()-from > SIZE)
 			{
 				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y,screenBuf);
 				pressed = false;
@@ -1638,7 +1638,7 @@ void CTownList::clickLeft(tribool down, bool previousState)
 		  && (ny+from)==selected 
 		  && adventureInt->selection->ID == TOWNI_TYPE
 		  )
-			LOCPLINT->openTownWindow(items[selected]);//print town screen
+			LOCPLINT->openTownWindow(LOCPLINT->towns[selected]);//print town screen
 		else
 			select(ny+from);
 	}
@@ -1666,8 +1666,8 @@ void CTownList::clickLeft(tribool down, bool previousState)
 			if (!down)
 			{
 				from++;
-				//if (from<items.size()-5)
-				//	from=items.size()-5;
+				//if (from<LOCPLINT->towns.size()-5)
+				//	from=LOCPLINT->towns.size()-5;
 
 				draw(screenBuf);
 			}
@@ -1687,7 +1687,7 @@ void CTownList::clickRight(tribool down, bool previousState)
 		{
 			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
 		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (items.size()-from>5))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->towns.size()-from>5))
 		{
 			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 		}
@@ -1696,16 +1696,16 @@ void CTownList::clickRight(tribool down, bool previousState)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
-		if ((ny>=SIZE || ny<0) || (from+ny>=items.size()))
+		if ((ny>=SIZE || ny<0) || (from+ny>=LOCPLINT->towns.size()))
 		{
 			return;
 		}
 
 		//show popup
 		CInfoPopup * ip = new CInfoPopup(
-			graphics->townWins[items[from+ny]->id],
-			GH.current->motion.x-graphics->townWins[items[from+ny]->id]->w,
-			GH.current->motion.y-graphics->townWins[items[from+ny]->id]->h,
+			graphics->townWins[LOCPLINT->towns[from+ny]->id],
+			GH.current->motion.x-graphics->townWins[LOCPLINT->towns[from+ny]->id]->w,
+			GH.current->motion.y-graphics->townWins[LOCPLINT->towns[from+ny]->id]->h,
 			false);
 		GH.pushInt(ip);
 	}
@@ -1729,13 +1729,13 @@ void CTownList::draw(SDL_Surface * to)
 	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
-		if (iT>=items.size())
+		if (iT>=LOCPLINT->towns.size())
 		{
 			blitAt(graphics->getPic(-1),posporx,pospory+i*32,to);
 			continue;
 		}
 
-		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32,to);
+		blitAt(graphics->getPic(LOCPLINT->towns[iT]->subID,LOCPLINT->towns[iT]->hasFort(),LOCPLINT->towns[iT]->builded),posporx,pospory+i*32,to);
 
 		if ((selected == iT) && (adventureInt->selection->ID == TOWNI_TYPE))
 		{
@@ -1747,7 +1747,7 @@ void CTownList::draw(SDL_Surface * to)
 	else
 		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
 
-	if (items.size()-from>SIZE)
+	if (LOCPLINT->towns.size()-from>SIZE)
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
@@ -1760,7 +1760,7 @@ void CTownList::show( SDL_Surface * to )
 
 int CTownList::size()
 {
-	return items.size();
+	return LOCPLINT->towns.size();
 }
 
 CCreaturePic::CCreaturePic(const CCreature *cre, bool Big)

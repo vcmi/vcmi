@@ -219,6 +219,7 @@ CGPreGame::~CGPreGame()
 
 void CGPreGame::openSel( CMenuScreen::EState type, bool multi )
 {
+	playerNames.clear();
 	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
 	GH.pushInt(new CSelectionScreen(type, multi));
 }
@@ -2054,7 +2055,7 @@ CMultiMode::CMultiMode()
 	txt->setText(CGI->generaltexth->allTexts[434]); //Player
 
 	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
-	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popIntTotally, ref(GH), this), 373, 424, "MUBCANC.DEF");
+	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popIntTotally, ref(GH), this), 373, 424, "MUBCANC.DEF", SDLK_ESCAPE);
 }
 
 void CMultiMode::openHotseat()
@@ -2083,6 +2084,7 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 
 void CHotSeatPlayers::enterSelectionScreen()
 {
+	playerNames.clear();
 	for(int i = 0; i < ARRAY_COUNT(txt); i++)
 		if(txt[i]->text.length())
 			playerNames.push_back(txt[i]->text);

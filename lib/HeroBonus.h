@@ -113,8 +113,8 @@ struct DLL_EXPORT HeroBonus
 
 };
 
-static const HeroBonus::BonusType MORALE_AFFECTING[] =  {HeroBonus::LUCK, HeroBonus::MORALE_AND_LUCK};
-static const HeroBonus::BonusType LUCK_AFFECTING[] =  {HeroBonus::MORALE, HeroBonus::MORALE_AND_LUCK};
+static const HeroBonus::BonusType MORALE_AFFECTING[] =  {HeroBonus::MORALE, HeroBonus::MORALE_AND_LUCK};
+static const HeroBonus::BonusType LUCK_AFFECTING[] =  {HeroBonus::LUCK, HeroBonus::MORALE_AND_LUCK};
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 
 class BonusList : public std::list<HeroBonus>

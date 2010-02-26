@@ -154,7 +154,11 @@ void CPlayerInterface::init(ICallback * CB)
 		SDL_Surface * pom = infoWin(tt[i]);
 		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->id,pom));
 	}
-	recreateWanderingHeroes();
+
+	if(!towns.size() && !wanderingHeroes.size())
+	{
+		recreateHeroTownList();
+	}
 }
 void CPlayerInterface::yourTurn()
 {
@@ -1121,18 +1125,28 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		}
 
 		if(obj->ID == TOWNI_TYPE)
-			adventureInt->townList.genList();
+			if(obj->tempOwner == playerID)
+				towns.push_back(static_cast<const CGTownInstance *>(obj));
+			else
+				towns -= obj;
+
+		assert(cb->getTownsInfo().size() == towns.size());
 	}
 
 }
 
-void CPlayerInterface::recreateWanderingHeroes()
+void CPlayerInterface::recreateHeroTownList()
 {
 	wanderingHeroes.clear();
 	std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
 	for(size_t i = 0; i < heroes.size(); i++)
 		if(!heroes[i]->inTownGarrison)
 			wanderingHeroes.push_back(heroes[i]);
+
+	towns.clear();
+	std::vector<const CGTownInstance*> townInfo = cb->getTownsInfo();
+	for(size_t i = 0; i < townInfo.size(); i++)
+		towns.push_back(townInfo[i]);
 }
 
 const CGHeroInstance * CPlayerInterface::getWHero( int pos )
@@ -1873,9 +1887,9 @@ void CPlayerInterface::acceptTurn()
 	//select first hero if available.
 	//TODO: check if hero is slept
 	if(wanderingHeroes.size())
-		adventureInt->select(wanderingHeroes[0]);
+		adventureInt->select(wanderingHeroes.front());
 	else
-		adventureInt->select(adventureInt->townList.items[0]);
+		adventureInt->select(towns.front());
 
 	adventureInt->showAll(screen);
 }

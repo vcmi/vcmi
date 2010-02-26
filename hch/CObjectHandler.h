@@ -279,12 +279,7 @@ public:
 			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
 			& moveDir;
 
-		ui8 standardType = (VLC->heroh->heroes[subID] == type);
-		h & standardType;
-		if(!standardType)
-			h & type;
-		else if(!h.saving)
-			type = VLC->heroh->heroes[subID];
+		h & type;
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
@@ -470,14 +465,7 @@ public:
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 			(*i)->town = this;
 
-
-		ui8 standardType = (&VLC->townh->towns[subID] == town);
-		h & standardType;
-		if(!standardType)
-			h & town;
-		else if(!h.saving)
-			town = &VLC->townh->towns[subID];
-
+		h & town;
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 
