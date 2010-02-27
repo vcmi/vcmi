@@ -1123,7 +1123,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 
 		// Picture of assembled artifact at bottom.
 		SComponent* sc = new SComponent;
-		sc->type = SComponent::Etype::artifact;
+		sc->type = SComponent::artifact;
 		sc->subtype = assembledArtifact.id;
 		sc->description = assembledArtifact.Description();
 		sc->subtitle = assembledArtifact.Name();
