@@ -2680,7 +2680,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 	sha.artifWorn = hero->artifWorn;
 
 	if (assemble) {
-		if (VLC->arth->artifacts.size() >= assembleTo) {
+		if (VLC->arth->artifacts.size() < assembleTo) {
 			complain("Illegal artifact to assemble to.");
 			return false;
 		}
@@ -2718,13 +2718,18 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			}
 		}
 	} else {
+		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
 			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
 
 			BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
 				if (sha.artifWorn.find(slotID) != sha.artifWorn.end()) {
-					if (sha.artifWorn[slotID] == 145 || slotID == artifactSlot)
+					if (sha.artifWorn[slotID] == 145 || (!destConsumed && slotID == artifactSlot)) {
+						if (slotID == artifactSlot)
+							destConsumed = true;
 						sha.artifWorn[slotID] = constituentID;
+						break;
+					}
 				}
 			}
 		}

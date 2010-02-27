@@ -32,6 +32,7 @@
 #include "../mapHandler.h"
 #include "../timeHandler.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -1096,6 +1097,43 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down,removableUnits);
 	cgw->quit->callback += onEnd;
 	GH.pushInt(cgw);
+}
+
+/**
+ * Shows the dialog that appears when right-clicking an artifact that can be assembled
+ * into a combinational one on an artifact screen. Does not require the combination of
+ * artifacts to be legal.
+ * @param artifactID ID of a constituent artifact.
+ * @param assembleTo ID of artifact to assemble a constituent into, not used when assemble
+ * is false.
+ * @param assemble True if the artifact is to be assembled, false if it is to be disassembled.
+ */
+void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo)
+{
+	const CArtifact &artifact = CGI->arth->artifacts[artifactID];
+	std::string text = artifact.Description();
+	text += "\n\n";
+	std::vector<SComponent*> scs;
+
+	if (assemble) {
+		const CArtifact &assembledArtifact = CGI->arth->artifacts[assembleTo];
+
+		// You possess all of the components to...
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
+
+		// Picture of assembled artifact at bottom.
+		SComponent* sc = new SComponent;
+		sc->type = SComponent::Etype::artifact;
+		sc->subtype = assembledArtifact.id;
+		sc->description = assembledArtifact.Description();
+		sc->subtitle = assembledArtifact.Name();
+		scs.push_back(sc);
+	} else {
+		// Do you wish to disassemble this artifact?
+		text += CGI->generaltexth->allTexts[733];
+	}
+
+	showYesNoDialog(text, scs, onYes, onNo, true); 
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )

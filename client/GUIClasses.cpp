@@ -3692,22 +3692,49 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && !locked() && text.size()) { //if there is no description or it's a lock, do nothing ;]
-		LRClickableAreaWTextComp::clickRight(down, previousState);
+		if (slotID < 19) {
+			selectedNo = false;
 
-		/*if (ourArt->constituentOf != NULL) {
-			BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) {
-				if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) {
-					LOCPLINT->cb->assembleArtifacts(ourOwner->curHero, slotID, true, combination);
-					return;
+			// If the artifact can be assembled, display dialog.
+			if (ourArt->constituentOf != NULL) {
+				BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) {
+					if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) {
+						LOCPLINT->showArtifactAssemblyDialog(
+							ourArt->id,
+							combination,
+							true,
+							boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination),
+							boost::bind(&CArtPlace::userSelectedNo, this));
+						if (!selectedNo)
+							return;
+					}
 				}
+			}
+
+			// Otherwise if the artifact can be diasassembled, display dialog.
+			if (ourArt->constituents != NULL) {
+				LOCPLINT->showArtifactAssemblyDialog(
+					ourArt->id,
+					0,
+					false,
+					boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
+					boost::bind(&CArtPlace::userSelectedNo, this));
+				if (!selectedNo)
+					return;
 			}
 		}
 
-		if (ourArt->constituents != NULL) {
-			LOCPLINT->cb->assembleArtifacts(ourOwner->curHero, slotID, false, 0);
-			return;
-		}*/
+		// Lastly just show the artifact description.
+		LRClickableAreaWTextComp::clickRight(down, previousState);
 	}
+}
+
+/**
+ * Helper function to catch when a user selects no in an artifact assembly dialog.
+ */
+void CArtPlace::userSelectedNo ()
+{
+	selectedNo = true;
 }
 
 /**
