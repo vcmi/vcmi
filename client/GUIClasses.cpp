@@ -1204,7 +1204,6 @@ CList::CList(int Size)
 
 void CList::fixPos()
 {
-	int oldFrom = from;
 	if(selected < 0) //no selection, do nothing
 		return;
 	if(selected < from) //scroll up
@@ -3691,7 +3690,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(ourArt && !locked() && text.size()) { //if there is no description or it's a lock, do nothing ;]
+	if(down && ourArt && !locked() && text.size()) { //if there is no description or it's a lock, do nothing ;]
 		if (slotID < 19) {
 			selectedNo = false;
 
@@ -3975,13 +3974,20 @@ void LRClickableAreaOpenHero::clickRight(tribool down, bool previousState)
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState && town)
+		{
 		LOCPLINT->openTownWindow(town);
+		LOCPLINT->castleInt->winMode = type;
+		if ( type == 2 )
+			LOCPLINT->castleInt->buildingClicked(10);
+		else if ( type == 3 && town->fortLevel() )
+			LOCPLINT->castleInt->buildingClicked(7);
+		}
 }
 
 void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 {
 	if((!down) && previousState && town)
-		LOCPLINT->openTownWindow(town);
+		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
 void CArtifactsOfHero::activate()
@@ -4577,40 +4583,13 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
-		morale[b] = new LRClickableAreaWTextComp();
+		morale[b] = new MoraleLuckBox();
 		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
-
-		std::vector<std::pair<int,std::string> > mrl = heroInst[b]->getCurrentMoraleModifiers();
-		int mrlv = heroInst[b]->getCurrentMorale();
-		int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale[b], 0 - neutral, 1 - good
-		morale[b]->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
-		morale[b]->baseType = SComponent::morale;
-		morale[b]->bonus = mrlv;
-		morale[b]->text = CGI->generaltexth->arraytxt[88];
-		boost::algorithm::replace_first(morale[b]->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-		if (!mrl.size())
-			morale[b]->text += CGI->generaltexth->arraytxt[108];
-		else
-			for(int it=0; it < mrl.size(); it++)
-				morale[b]->text += "\n" + mrl[it].second;
-
+		morale[b]->set(true,heroInst[b]);
 		//setting luck
-		luck[b] = new LRClickableAreaWTextComp();
+		luck[b] = new MoraleLuckBox();
 		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
-
-		mrl = heroInst[b]->getCurrentLuckModifiers();
-		mrlv = heroInst[b]->getCurrentLuck();
-		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck[b], 0 - neutral, 1 - good
-		luck[b]->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
-		luck[b]->baseType = SComponent::luck;
-		luck[b]->bonus = mrlv;
-		luck[b]->text = CGI->generaltexth->arraytxt[62];
-		boost::algorithm::replace_first(luck[b]->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-		if (!mrl.size())
-			luck[b]->text += CGI->generaltexth->arraytxt[77];
-		else
-			for(int it=0; it < mrl.size(); it++)
-				luck[b]->text += "\n" + mrl[it].second;
+		luck[b]->set(false,heroInst[b]);
 	}
 
 	//buttons
@@ -5098,8 +5077,8 @@ void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -
 	if(morale)
 	{
 		//setting morale
-		mrl = hero->getCurrentMoraleModifiers();
-		mrlv = hero->getCurrentMorale();
+		mrl = hero->getCurrentMoraleModifiers(slot);
+		mrlv = hero->getCurrentMorale(slot);
 		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
 		hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
 		baseType = SComponent::morale;
@@ -5115,8 +5094,8 @@ void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -
 	else
 	{
 		//setting luck
-		mrl = hero->getCurrentLuckModifiers();
-		mrlv = hero->getCurrentLuck();
+		mrl = hero->getCurrentLuckModifiers(slot);
+		mrlv = hero->getCurrentLuck(slot);
 		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
 		hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
 		baseType = SComponent::luck;

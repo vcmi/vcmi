@@ -13,8 +13,7 @@ class CStatusBar;
 class CSlider;
 class CMinorResDataBar;
 class HoverableArea;
-/*class LRClickableAreaWText
-class LRClickableAreaWTextComp*/
+class MoraleLuckBox;
 
 /*
  * CKingdomInterface.h, part of VCMI engine
@@ -44,9 +43,9 @@ class CKingdomInterface : public CIntObject
 		const CGTownInstance * town;
 		CKingdomInterface * owner;
 		int numb;//position on screen (1..size)
-		HoverableArea *hallArea, *fortArea, *incomeArea;//hoverable text for town hall, fort, income
+		HoverableArea *incomeArea;//hoverable text for town hall, fort, income
 		LRClickableAreaOpenHero * garrHero, *visitHero;//portraits of heroes
-		LRClickableAreaOpenTown * townImage;//town image
+		LRClickableAreaOpenTown *hallArea, *fortArea,  * townImage;//town image
 		std::vector < HoverableArea * > creaGrowth;
 		std::vector < CCreaPlace * > creaCount;
 		void setTown(const CGTownInstance * newTown);//change town and update info
@@ -77,7 +76,7 @@ class CKingdomInterface : public CIntObject
 		AdventureMapButton * artLeft, * artRight;//buttons for backpack
 		LRClickableAreaOpenHero * portrait;
 		LRClickableAreaWText * experience;
-		LRClickableAreaWTextComp * morale, * luck;
+		MoraleLuckBox * morale, * luck;
 		LRClickableAreaWText * spellPoints;
 		LRClickableAreaWText * speciality;
 		std::vector<LRClickableAreaWTextComp *> primarySkills;

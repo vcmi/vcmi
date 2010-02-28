@@ -838,7 +838,7 @@ class CExchangeWindow : public CWindowWithGarrison
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
-	LRClickableAreaWTextComp *morale[2], *luck[2];
+	MoraleLuckBox *morale[2], *luck[2];
 
 	LRClickableAreaWText *speciality[2];
 	LRClickableAreaWText *experience[2];

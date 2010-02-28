@@ -488,14 +488,17 @@ CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 		creaCount[i]->pos = genRect(32, 32, pos.x+409+i*37, pos.y + 78);
 		creaCount[i]->type = i;
 	}
-	hallArea = new HoverableArea();
+	hallArea = new LRClickableAreaOpenTown();
 	hallArea->pos = genRect(38, 38, pos.x+69, pos.y + 31);
+	hallArea->type = 2;
 
-	fortArea = new HoverableArea();
+	fortArea = new LRClickableAreaOpenTown();
 	fortArea->pos = genRect(38, 38, pos.x+111, pos.y + 31);
+	fortArea->type = 3;
 
 	townImage = new LRClickableAreaOpenTown();
 	townImage->pos = genRect(64, 58, pos.x+5, pos.y + 6);
+	townImage->type = 1;
 
 	incomeArea = new HoverableArea();
 	incomeArea->pos = genRect(42, 64, pos.x+154, pos.y + 31);
@@ -560,10 +563,14 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 
 	townImage->hoverText = town->name;
 	townImage->town = town;
+	hallArea->town = town;
 
 	hallArea->hoverText = CGI->buildh->buildings[town->subID][10+town->hallLevel()]->Name();
 	if (town->hasFort())
+	{
 		fortArea->hoverText = CGI->buildh->buildings[town->subID][6+town->fortLevel()]->Name();
+		fortArea->town = town;
+	}
 	else
 		fortArea->hoverText = "";
 }
@@ -609,11 +616,12 @@ void CKingdomInterface::CTownItem::deactivate()
 		visitHero->deactivate();
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
-		if (vstd::contains(town->builtBuildings,30+i))
+		if (creaCount[i]->active)
 		{
 			creaGrowth[i]->deactivate();
 			creaCount [i]->deactivate();
-		}	garr->deactivate();
+		}
+	garr->deactivate();
 }
 
 void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
@@ -741,10 +749,10 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	experience->pos = genRect(33, 49, pos.x+322, pos.y+5);
 	experience->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new LRClickableAreaWTextComp();
+	morale = new MoraleLuckBox();
 	morale->pos = genRect(20,32,pos.x+221,pos.y+52);
 
-	luck = new LRClickableAreaWTextComp();
+	luck = new MoraleLuckBox();
 	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
 
 	spellPoints = new LRClickableAreaWText();
@@ -807,7 +815,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	for (int i=0; i<artifacts.size(); i++)
 	{
 		artifacts[i]->type = hero->getArtAtPos(i);
-		if (artifacts[i]->type<0)
+		if (artifacts[i]->type<0 || artifacts[i]->type == 145 )
 			artifacts[i]->hoverText = CGI->generaltexth->heroscrn[11];
 		else
 		{
@@ -841,7 +849,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	//secondary skills
 	for(size_t g=0; g<std::min(secondarySkills.size(),hero->secSkills.size()); ++g)
 	{
-		int skill = hero->secSkills[g].first, 
+		int skill = hero->secSkills[g].first,
 		    level = hero->secSkills[g].second;
 		secondarySkills[g]->type = skill;
 		secondarySkills[g]->bonus = level;
@@ -859,35 +867,9 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPoints->text = std::string(bufor);
 
-	//setting morale
-	std::vector<std::pair<int,std::string> > mrl = hero->getCurrentMoraleModifiers();
-	int mrlv = hero->getCurrentMorale();
-	int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
-	morale->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
-	morale->baseType = SComponent::morale;
-	morale->bonus = mrlv;
-	morale->text = CGI->generaltexth->arraytxt[88];
-	boost::algorithm::replace_first(morale->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-	if (!mrl.size())
-		morale->text += CGI->generaltexth->arraytxt[108];
-	else
-		for(int it=0; it < mrl.size(); it++)
-			morale->text += "\n" + mrl[it].second;
-
-	//setting luck
-	mrl = hero->getCurrentLuckModifiers();
-	mrlv = hero->getCurrentLuck();
-	mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
-	luck->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
-	luck->baseType = SComponent::luck;
-	luck->bonus = mrlv;
-	luck->text = CGI->generaltexth->arraytxt[62];
-	boost::algorithm::replace_first(luck->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-	if (!mrl.size())
-		luck->text += CGI->generaltexth->arraytxt[77];
-	else
-		for(int it=0; it < mrl.size(); it++)
-			luck->text += "\n" + mrl[it].second;
+	//setting morale and luck
+	morale->set(true,hero);
+	luck->set(false,hero);
 }
 
 void CKingdomInterface::CHeroItem::scrollArts(int move)
@@ -1065,8 +1047,8 @@ void CKingdomInterface::CHeroItem::CArtPlace::activate()
 
 void CKingdomInterface::CHeroItem::CArtPlace::clickLeft(tribool down, bool previousState)
 {
-	if (!down && previousState && type>=0)
-	{
+	if (!down && previousState && type>=0 && type < 145)
+	{tlog1<<type;
 		if(type == 0)
 		{
 			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), hero->hero, LOCPLINT);
@@ -1079,7 +1061,7 @@ void CKingdomInterface::CHeroItem::CArtPlace::clickLeft(tribool down, bool previ
 
 void CKingdomInterface::CHeroItem::CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if (type>=0)
+	if (type>=0 && type < 145)
 		LRClickableAreaWTextComp::clickRight(down, previousState);
 }
 

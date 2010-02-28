@@ -1976,36 +1976,92 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 }
 
 void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
-{//TODO: dialog window;
+{
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
 
-	int ScholarLevel = std::max( h1->getSecSkillLevel(18), h2->getSecSkillLevel(18));//heroes can trade with this levels
-	if ( ScholarLevel == 0 )
-		return;
+	if ( h1->getSecSkillLevel(18) < h2->getSecSkillLevel(18) )
+	{
+		std::swap (h1,h2);//1st hero need to have higher scholar level for correct message
+		std::swap(fromHero, toHero);
+	}
 
-	ScholarLevel++;
-	int h1Lvl = std::min(ScholarLevel, h1->getSecSkillLevel(7)+2),
-	    h2Lvl = std::min(ScholarLevel, h2->getSecSkillLevel(7)+2);//heroes can receive this levels
-	ChangeSpells cs;
-	cs.learn = true;
-	cs.hid = toHero;//giving spells to first hero
+	int ScholarLevel = h1->getSecSkillLevel(18);//heroes can trade up to this level
+	if (!ScholarLevel || !vstd::contains(h1->artifWorn,17) || !vstd::contains(h2->artifWorn,17) )
+		return;//no scholar skill or no spellbook
 
-	for(std::set<ui32>::const_iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
-		if ( h2Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
-			cs.spells.insert(*it);//spell to learn
+	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(7)+2),
+	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(7)+2);//heroes can receive this levels
 
-	if (cs.spells.size())//if found new spell - apply
-		sendAndApply(&cs);
+	ChangeSpells cs1;
+	cs1.learn = true;
+	cs1.hid = toHero;//giving spells to first hero
+		for(std::set<ui32>::const_iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
+			if ( h2Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
+				cs1.spells.insert(*it);//spell to learn
 
-	cs.hid = fromHero;
-	cs.spells.clear();
+	ChangeSpells cs2;
+	cs2.learn = true;
+	cs2.hid = fromHero;
 
 	for(std::set<ui32>::const_iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
 		if ( h1Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h1->spells, *it))
-			cs.spells.insert(*it);
-	if (cs.spells.size())
-		sendAndApply(&cs);
+			cs2.spells.insert(*it);
+			
+	if (cs1.spells.size() || cs2.spells.size())//create a message
+	{		
+		InfoWindow iw;
+		iw.player = h1->tempOwner;
+		iw.components.push_back(Component(Component::SEC_SKILL, 18, ScholarLevel, 0));
+
+		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
+		iw.text.addReplacement(h1->name);
+		
+		if (cs2.spells.size())//if found new spell - apply
+		{
+			iw.text.addTxt(MetaString::GENERAL_TXT, 140);//learns
+			int size = cs2.spells.size();
+			for(std::set<ui32>::const_iterator it=cs2.spells.begin(); it!=cs2.spells.end();it++)
+			{
+				iw.components.push_back(Component(Component::SPELL, (*it), 1, 0));
+				iw.text.addTxt(MetaString::SPELL_NAME, (*it));
+				switch (size--)
+				{
+					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+					case 1:	break;
+					default:	iw.text << ", ";
+				}
+			}
+			iw.text.addTxt(MetaString::GENERAL_TXT, 142);//from %s
+			iw.text.addReplacement(h2->name);
+			sendAndApply(&cs2);
+		}
+
+		if (cs1.spells.size() && cs2.spells.size() )
+		{
+			iw.text.addTxt(MetaString::GENERAL_TXT, 141);//and
+		}
+
+		if (cs1.spells.size())
+		{
+			iw.text.addTxt(MetaString::GENERAL_TXT, 147);//teaches
+			int size = cs1.spells.size();
+			for(std::set<ui32>::const_iterator it=cs1.spells.begin(); it!=cs1.spells.end();it++)
+			{
+				iw.components.push_back(Component(Component::SPELL, (*it), 1, 0));
+				iw.text.addTxt(MetaString::SPELL_NAME, (*it));
+				switch (size--)
+				{
+					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+					case 1:	break;
+					default:	iw.text << ", ";
+				}			}
+			iw.text.addTxt(MetaString::GENERAL_TXT, 148);//from %s
+			iw.text.addReplacement(h2->name);
+			sendAndApply(&cs1);
+		}
+		sendAndApply(&iw);
+	}
 }
 
 void CGameHandler::heroExchange(si32 hero1, si32 hero2)
@@ -2015,12 +2071,12 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 
 	if(player1 == player2)//TODO: allies
 	{
-		useScholarSkill(hero1,hero2);
 		OpenWindow hex;
 		hex.window = OpenWindow::EXCHANGE_WINDOW;
 		hex.id1 = hero1;
 		hex.id2 = hero2;
 		sendAndApply(&hex);
+		useScholarSkill(hero1,hero2);
 	}
 }
 

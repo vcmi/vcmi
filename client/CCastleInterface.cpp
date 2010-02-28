@@ -429,6 +429,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	count=0;
 	town = Town;
 	animval = 0;
+	winMode = 1;
 
 	//garrison
 	garr = new CGarrisonInt(pos.x+305,pos.y+387,4,Point(0,96),townInt,Point(62,374),town,town->visitingHero);
@@ -789,7 +790,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 		creainfo[i]->show(to);
 
 	//print name
-	CSDL_Ext::printAt(town->name,pos.x+85,pos.y+389,FONT_SMALL,zwykly,to);
+	CSDL_Ext::printAt(town->name,pos.x+85,pos.y+387,FONT_MEDIUM,zwykly,to);
 	//blit town icon
 	int pom = town->subID*2;
 	if (!town->hasFort())
@@ -895,6 +896,8 @@ void CCastleInterface::deactivate()
 void CCastleInterface::addBuilding(int bid)
 {
 	//TODO: lepiej by bylo tylko dodawac co trzeba pamietajac o grupach
+	if ( winMode == 2 )//we will only build buildings, no need to update interface - it will be closed in a moment
+		return;
 	deactivate();
 	recreateBuildings();
 	recreateIcons();
@@ -1537,7 +1540,7 @@ CHallInterface::~CHallInterface()
 }
 void CHallInterface::close()
 {
-	GH.popIntTotally(this);
+	GH.popInts(LOCPLINT->castleInt->winMode == 2? 2 : 1 );
 }
 void CHallInterface::show(SDL_Surface * to)
 {
@@ -1598,8 +1601,8 @@ void CHallInterface::CBuildWindow::deactivate()
 void CHallInterface::CBuildWindow::Buy()
 {
 	int building = bid;
-	GH.popInts(2); //we - build window and hall screen
 	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,building);
+	GH.popInts(LOCPLINT->castleInt->winMode == 2? 3 : 2 ); //we - build window and hall screen
 }
 
 void CHallInterface::CBuildWindow::close()
@@ -1770,7 +1773,7 @@ void CFortScreen::deactivate()
 
 void CFortScreen::close()
 {
-	GH.popIntTotally(this);
+	GH.popInts(LOCPLINT->castleInt->winMode == 3? 2 : 1 );
 }
 
 CFortScreen::CFortScreen( CCastleInterface * owner )

@@ -106,6 +106,7 @@ public:
 	CStatusBar * statusbar;
 	CResDataBar *resdatabar;
 	unsigned char animval, count;
+	int winMode;//0=right-click popup, 1 = normal, 2 = town hall only, 3 = fort only;
 
 	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
 		*status; //0 - already, 1 - can't, 2 - lack of resources
@@ -231,7 +232,7 @@ public:
 
 class CMageGuildScreen : public CIntObject
 {
-public:	
+public:
 	class Scroll : public CIntObject
 	{
 	public:
