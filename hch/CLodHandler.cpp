@@ -51,6 +51,7 @@ char readChar(const unsigned char * bufor, int &i)
 std::string readString(const unsigned char * bufor, int &i)
 {					
 	int len = readNormalNr(bufor,i); i+=4;
+	assert(len >= 0 && len <= 500000); //not too long
 	std::string ret; ret.reserve(len);
 	for(int gg=0; gg<len; ++gg)
 	{

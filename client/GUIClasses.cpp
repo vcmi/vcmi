@@ -5010,7 +5010,8 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	int counter = 0;
 	for(std::map<ui8, InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
 	{
-		blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
+		if(it->second.portrait >= 0)
+			blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
 		counter++;
 
 		//printing stats
@@ -5031,7 +5032,8 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	counter = 0;
 	for(std::map<ui8, si32>::const_iterator it = tgi.bestCreature.begin(); it !=  tgi.bestCreature.end(); ++it)
 	{
-		blitAt(graphics->bigImgs[it->second], 255 + 66 * counter, 479, background);
+		if(it->second >= 0)
+			blitAt(graphics->bigImgs[it->second], 255 + 66 * counter, 479, background);
 		counter++;
 	}
 

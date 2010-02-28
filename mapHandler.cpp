@@ -1101,16 +1101,21 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frameW && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frameH)
 			{
 				TerrainTile2 & curt = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z];
-				for(std::vector< std::pair<const CGObjectInstance*,SDL_Rect> >::iterator i = curt.objects.begin(); i != curt.objects.end(); i++)
+
+				std::vector< std::pair<const CGObjectInstance*,SDL_Rect> >::iterator i = curt.objects.begin();
+				for(; i != curt.objects.end(); i++)
 				{
 					OCM_HLP cmp;
 					if(cmp(toAdd, *i))
 					{
 						curt.objects.insert(i, toAdd);
-						//curt.objects.push_back(toAdd)
+						i = curt.objects.begin(); //to validate and avoid adding it second time
 						break;
 					}
 				}
+
+				if(i == curt.objects.end())
+					curt.objects.insert(i, toAdd);
 			}
 
 		} // for(int fy=0; fy<bitmap->h/32; ++fy)

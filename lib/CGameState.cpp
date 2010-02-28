@@ -3163,16 +3163,19 @@ struct statsHLP
 
 	static const CGHeroInstance * findBestHero(CGameState * gs, int color)
 	{
+		std::vector<CGHeroInstance *> &h = gs->players[color].heroes;
+		if(!h.size())
+			return NULL;
 		//best hero will be that with highest exp
 		int best = 0;
-		for(int b=1; b<gs->players[color].heroes.size(); ++b)
+		for(int b=1; b<h.size(); ++b)
 		{
-			if(gs->players[color].heroes[b]->exp > gs->players[color].heroes[best]->exp)
+			if(h[b]->exp > h[best]->exp)
 			{
 				best = b;
 			}
 		}
-		return gs->players[color].heroes[best];
+		return h[best];
 	}
 
 	//calculates total number of artifacts that belong to given player
@@ -3726,6 +3729,8 @@ InfoAboutHero::~InfoAboutHero()
 
 void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 {
+	if(!h) return;
+
 	owner = h->tempOwner;
 	hclass = h->type->heroClass;
 	name = h->name;

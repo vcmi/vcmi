@@ -123,17 +123,15 @@ void CGuiHandler::handleEvents()
 	while(true)
 	{
 		SDL_Event *ev = NULL;
+		boost::unique_lock<boost::mutex> lock(eventsM);
+		if(!events.size())
 		{
-			boost::unique_lock<boost::mutex> lock(eventsM);
-			if(!events.size())
-			{
-				return;
-			}
-			else
-			{
-				ev = events.front();
-				events.pop();
-			}
+			return;
+		}
+		else
+		{
+			ev = events.front();
+			events.pop();
 		}
 		handleEvent(ev);
 		delete ev;

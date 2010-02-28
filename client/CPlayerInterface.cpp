@@ -169,6 +169,7 @@ void CPlayerInterface::yourTurn()
 
 		LOCPLINT = this;
 		GH.curInt = this;
+		adventureInt->selection = NULL;
 
 		if(firstCall)
 		{
@@ -1060,8 +1061,11 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 		int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
 		cb->moveHero(h,endpos);
+
+		eventsM.unlock();
 		while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 			stillMoveHero.cond.wait(un);
+		eventsM.lock();
 	}
 
 	CGI->soundh->stopSound(sh);
