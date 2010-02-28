@@ -3745,6 +3745,8 @@ void CArtPlace::select ()
 	if (locked())
 		return;
 
+	int backpackCorrection = -(slotID - 19 < ourOwner->backpackPos);
+
 	CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->id].bitmap);
 
 	ourOwner->commonInfo->srcArtifact = ourArt;
@@ -3781,16 +3783,14 @@ void CArtPlace::select ()
 		cew->activate();
 	}
 
-	if (slotID >= 19) {
-		// Correcting position in backpack.
-		ourOwner->scrollBackpack(-(slotID - 19 < ourOwner->backpackPos));
-	} else {
+	if (slotID >= 19)
+		ourOwner->scrollBackpack(backpackCorrection);
+	else
 		ourOwner->eraseSlotData(this, slotID);
-	}
 }
 
 /**
- * Deselects the artifact slot.
+ * Deselects the artifact slot. FIXME: Not used. Maybe it should?
  */
 void CArtPlace::deselect ()
 {

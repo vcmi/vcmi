@@ -2625,7 +2625,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	// If dest does not fit in src, put it in dest's backpack instead.
 	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
 		sha.setArtAtPos(destSlot, -1);
-	bool destFits = !destArtifact || srcSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
+	bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
 	if (srcHeroID == destHeroID && destArtifact)
 		sha.setArtAtPos(destSlot, destArtifact->id);
 
@@ -2697,19 +2697,41 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			return false;
 		}
 
+		// Perform assembly.
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
+		const bool destSpecific = vstd::contains(artifact.possibleSlots, artifactSlot); // Prefer the chosen slot as the location for the assembled artifact.
+
 		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+			if (destSpecific && constituentID == destArtifact->id) {
+				sha.artifWorn[artifactSlot] = assembleTo;
+				destConsumed = true;
+				continue;
+			}
+
 			bool found = false;
 			for (std::map<ui16, ui32>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it) {
-				if (it->second == constituentID) {
-					if (!destConsumed && vstd::contains(artifact.possibleSlots, it->first)) {
-						it->second = assembleTo;
-						destConsumed = true;
+				if (it->second == constituentID) { // Found possible constituent to substitute.
+					if (destSpecific && !destConsumed && it->second == destArtifact->id) {
+						// Find the specified destination for assembled artifact.
+						if (it->first == artifactSlot) {
+							it->second = assembleTo;
+							destConsumed = true;
+
+							found = true;
+							break;
+						}
 					} else {
-						it->second = 145;
+						// Either put the assembled artifact in a fitting spot, or put a lock.
+						if (!destSpecific && !destConsumed && vstd::contains(artifact.possibleSlots, it->first)) {
+							it->second = assembleTo;
+							destConsumed = true;
+						} else {
+							it->second = 145;
+						}
+
+						found = true;
+						break;
 					}
-					found = true;
-					break;
 				}
 			}
 			if (!found) {
@@ -2718,6 +2740,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			}
 		}
 	} else {
+		// Perform disassembly.
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
 			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
