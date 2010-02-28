@@ -492,7 +492,7 @@ public:
 	bool hasCapitol() const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
-	void removeCapitols (ui8 owner, bool me) const;
+	void removeCapitols (ui8 owner) const;
 	int defenceBonus(int type) const;//primary skills bonuses for defending hero
 
 	CGTownInstance();

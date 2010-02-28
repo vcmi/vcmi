@@ -1666,7 +1666,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			cb->setOwner(id, h->tempOwner);
-			removeCapitols (h->getOwner(), true);
+			removeCapitols (h->getOwner());
 			cb->heroVisitCastle(id, h->id);
 		}
 	}
@@ -1706,8 +1706,6 @@ void CGTownInstance::initObj()
 			bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
 	}
-	if (getOwner() != 255)
-		removeCapitols (getOwner(), false); // destroy other capitols
 }
 
 void CGTownInstance::newTurn() const
@@ -1752,31 +1750,26 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
-		removeCapitols (h->getOwner(), true);
+		removeCapitols (h->getOwner());
 		cb->setOwner (id, h->tempOwner); //give control after checkout is done
 	}
 }
 
-void CGTownInstance::removeCapitols (ui8 owner, bool me) const
+void CGTownInstance::removeCapitols (ui8 owner) const
 { 
-	if (hasCapitol()) // search for older capitol
+	if (hasCapitol()) // search if there's an older capitol
 	{ 
 		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
 		for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
 		{ 
 			if (*i != this && (*i)->hasCapitol()) 
 			{ 
-				if (me) 
-				{ 
-					RazeStructures rs; 
-					rs.tid = id; 
-					rs.bid.insert(13); 
-					rs.destroyed = destroyed;  
-					cb->sendAndApply(&rs); 
-					return; 
-				} 
-				else 
-					(*i)->builtBuildings.erase(13); //destroy all other capitols at the beginning of game 
+				RazeStructures rs; 
+				rs.tid = id; 
+				rs.bid.insert(13); 
+				rs.destroyed = destroyed;  
+				cb->sendAndApply(&rs); 
+				return; 
 			} 
 		} 
 	} 
