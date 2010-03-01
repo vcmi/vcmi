@@ -9,6 +9,10 @@ GENERAL:
 ADVENTURE MAP:
 * Implemented rivers animations (thx to GrayFace).
 
+BATTLES:
+* Fire Shield spell (and creature ability) supported
+* affecting morale/luck and casting spell after attack creature abilities supported
+
 HERO:
 * Implementation of Scholar secondary skill
 
