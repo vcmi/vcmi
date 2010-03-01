@@ -4763,8 +4763,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 
 	//printing X sign
 	{
-		int x = 32*moveInt.x + 8,
-			y = 32*moveInt.y + 8;
+		int x = 32*moveInt.x - 16,
+			y = 32*moveInt.y + 1;
 		if (x<0 || y<0 || x>pos.w || y>pos.h)
 		{
 		}
