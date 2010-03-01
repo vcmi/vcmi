@@ -418,7 +418,8 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	//adventureInt->heroList.draw();
+	if(makingTurn && hero->tempOwner == playerID)
+		adventureInt->heroList.redraw();
 }
 void CPlayerInterface::receivedResource(int type, int val)
 {
@@ -1797,6 +1798,7 @@ void CPlayerInterface::playerBonusChanged( const HeroBonus &bonus, bool gain )
 void CPlayerInterface::showPuzzleMap()
 {
 	waitWhileDialog();
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	//TODO: interface should not know the real position of Grail...
 	float ratio = 0;

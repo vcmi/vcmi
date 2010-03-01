@@ -195,6 +195,10 @@ CMapHeader::CMapHeader()
 void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 {
 	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
+	if(version != RoE && version != AB && version != SoD && version != WoG)
+	{
+		throw std::string("Invalid map format!");
+	}
 	areAnyPLayers = readChar(bufor,i); //invalid on some maps
 	height = width = (readNormalNr(bufor,i)); i+=4; // dimensions of map
 	twoLevel = readChar(bufor,i); //if there is underground

@@ -182,6 +182,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		dst = VLC->creh->creatures[ser].nameSing;
 	}
+	else if(type == ART_DESCR)
+	{
+		dst = VLC->arth->artifacts[ser].Description();
+	}
 	else
 	{
 		std::vector<std::string> *vec;

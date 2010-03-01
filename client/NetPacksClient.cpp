@@ -87,6 +87,12 @@ void SetMana::applyCl( CClient *cl )
 void SetMovePoints::applyCl( CClient *cl )
 {
 	CGHeroInstance *h = GS(cl)->getHero(hid);
+
+	if (cl->IGameCallback::getSelectedHero(LOCPLINT->playerID) == h)//if we have selected that hero
+	{
+		GS(cl)->calculatePaths(h, *cl->pathInfo);
+	}
+
 	if(vstd::contains(cl->playerint,h->tempOwner))
 		cl->playerint[h->tempOwner]->heroMovePointsChanged(h);
 }

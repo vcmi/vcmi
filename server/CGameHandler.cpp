@@ -4059,15 +4059,21 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	if(gs->map->grailPos == h->getPosition())
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
+		iw.text.addTxt(MetaString::ART_NAMES, 2);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
 		giveHeroArtifact(2, h->id, -1); //give grail
+		sendAndApply(&iw);
+
+		iw.text.clear();
+		iw.text.addTxt(MetaString::ART_DESCR, 2);
+		sendAndApply(&iw);
 	}
 	else
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
 		iw.soundID = soundBase::Dig;
+		sendAndApply(&iw);
 	}
-	sendAndApply(&iw);
 
 	return true;
 }

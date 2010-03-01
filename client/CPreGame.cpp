@@ -109,8 +109,17 @@ void CMapInfo::mapInit(const std::string &fname, const unsigned char *map )
 	mapHeader = new CMapHeader();
 	mapHeader->version = CMapHeader::invalid;
 
-	mapHeader->initFromMemory(map, i);
-	countPlayers();
+	try
+	{
+		mapHeader->initFromMemory(map, i);
+		countPlayers();
+	}
+	catch (const std::string &e)
+	{
+		tlog1 << "\t\tWarning: evil map file: " << fname << ": " << e << std::endl; 
+		delete mapHeader;
+		mapHeader = NULL;
+	}
 }
 
 CMapInfo::~CMapInfo()
@@ -567,9 +576,20 @@ void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirna
 		if(fs::is_regular_file(file->status())
 			&& boost::ends_with(file->path().filename(), ext))
 		{
-			out.resize(out.size()+1);
-			out.back().date = fs::last_write_time(file->path());
-			out.back().name = file->path().string();
+			std::time_t date = 0;
+			try
+			{
+				date = fs::last_write_time(file->path());
+
+				out.resize(out.size()+1);
+				out.back().date = date;
+				out.back().name = file->path().string();
+			}
+			catch(...)
+			{
+				tlog2 << "\t\tWarning: very corrupted map file: " << file->path().string() << std::endl; 
+			}
+
 		}
 	}
 
