@@ -1,15 +1,16 @@
-0.75 -> 0.8
+0.75 -> 0.8 (Mar 01 2010)
 GENERAL:
 * Victory and loss conditions are supported. It's now possible to win or lose the game.
+* Implemented assembling and disassembling of combination artifacts.
 * Kingdom Overview screen is now available.
-* Replaced TTF fonts with original ones.
 * Implemented Grail (puzzle map, digging, constructing ultimate building)
+* Replaced TTF fonts with original ones.
 
 ADVENTURE MAP:
 * Implemented rivers animations (thx to GrayFace).
 
 HERO:
-* Partial implementation of scholar skill (spell exchange works, but no message).
+* Implementation of Scholar secondary skill
 
 TOWN:
 * New left-bottom info panel functionalities.
@@ -18,10 +19,13 @@ TOWNS:
 * new town structures supported:
 - Ballista Yard
 - Blood Obelisk
+- Brimstone Clouds
 - Dwarven Treasury
+- Fountain of Fortune
 - Glyphs of Fear
 - Mystic Pond
 - Thieves Guild
+- Special Grail functionalities for Dungeon, Stronghold and Fortress
 
 OBJECTS:
 New objects supported:
@@ -35,7 +39,7 @@ New objects supported:
 
 
 A lot of of various bugfixes and improvements:
-http://vcmi.antypika.aplus.pl/bugs/search.php?project_id=1&sticky_issues=off&fixed_in_version=0.next&sortby=last_updated&dir=DESC&hide_status_id=-2
+http://bugs.vcmi.eu/changelog_page.php?version_id=14
 
 
 
@@ -68,7 +72,7 @@ OBJECTS:
 * Scholar won't give unavaliable spells anymore.
 
 A lot of of various bugfixes and improvements:
-http://vcmi.antypika.aplus.pl/bugs/search.php?project_id=1&sticky_issues=off&fixed_in_version=0.75&sortby=id&dir=DESC&per_page=100&hide_status_id=-2
+http://bugs.vcmi.eu/changelog_page.php?version_id=2
 
 
 0.73 -> 0.74 (Oct 01 2009)
