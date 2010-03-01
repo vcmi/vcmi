@@ -1832,6 +1832,17 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			GH.pushInt(new CSelectionScreen(CMenuScreen::saveGame));
 		return;
+	case SDLK_d: 
+		{
+			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
+			if(h && isActive())
+				LOCPLINT->tryDiggging(h);
+			return;
+		}
+	case SDLK_p: 
+		if(isActive())
+			LOCPLINT->showPuzzleMap();
+		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
 			if(!isActive()) 
