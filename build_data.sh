@@ -18,7 +18,7 @@
 # Data files needed:
 #   data1.cab and data1.hdr from the original CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_075.zip
+#   the VCMI distribution: vcmi_08.zip
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -101,13 +101,13 @@ cd ../../..
 
 
 # Extract Data from VCMI release
-# 3516139 2009-10-03 23:03 vcmi_075.zip
+# 4060120 .... vcmi_08.zip
 
 rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_075.zip
+unzip ../vcmi_08.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
