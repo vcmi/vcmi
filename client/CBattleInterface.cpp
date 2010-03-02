@@ -2651,7 +2651,14 @@ void CBattleInterface::spellCast(SpellCast * sc)
 	if(sc->affectedCres.size() == 1)
 	{
 		std::string text = CGI->generaltexth->allTexts[195];
-		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+		if(sc->castedByHero)
+		{
+			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+		}
+		else
+		{
+			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
+		}
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
 		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->creature->namePl );
 		console->addText(text);
@@ -2659,7 +2666,14 @@ void CBattleInterface::spellCast(SpellCast * sc)
 	else
 	{
 		std::string text = CGI->generaltexth->allTexts[196];
-		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+		if(sc->castedByHero)
+		{
+			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+		}
+		else
+		{
+			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
+		}
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
 		console->addText(text);
 	}
@@ -2677,7 +2691,10 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	{
 		displayEffect(CGI->spellh->spells[sse.effect.id].mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
 	}
-	redrawBackgroundWithHexes(activeStack);
+	if (activeStack != -1) //it can be -1 when a creature casts effect
+	{
+		redrawBackgroundWithHexes(activeStack);
+	}
 }
 
 void CBattleInterface::castThisSpell(int spellID)

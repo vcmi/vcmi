@@ -2702,6 +2702,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 
 int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster)
 {
+	if(!caster) //TODO: something better
+		return 1;
 	switch(spell->id)
 	{
 	case 56: //frenzy
