@@ -1835,7 +1835,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_d: 
 		{
 			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
-			if(h && isActive())
+			if(h && isActive() && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}

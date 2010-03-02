@@ -4030,7 +4030,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 {
 	for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 	{
-		if((*i)->ID == 124  &&  (*i)->pos == h->getPosition())
+		if(*i && (*i)->ID == 124  &&  (*i)->pos == h->getPosition())
 		{
 			complain("Cannot dig - there is already a hole under the hero!");
 			return false;

@@ -1085,6 +1085,9 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 
 bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
+	if(!obj->defInfo->handler)
+		processDef(obj->defInfo);
+
 	const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
 	int tilesW = bitmap->w/32,
 		tilesH = bitmap->h/32;

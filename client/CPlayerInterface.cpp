@@ -1947,8 +1947,9 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 		showInfoDialog(CGI->generaltexth->allTexts[60]); //Try looking on land!
 	else
 	{
+		const TerrainTile *t = cb->getTileInfo(h->getPosition());
 		CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
-		if(hlp.length())
+		if(hlp.length() || t->blockingObjects.size() > 1)
 			showInfoDialog(CGI->generaltexth->allTexts[97]); //Try searching on clear ground.
 		else
 			cb->dig(h);

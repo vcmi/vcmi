@@ -42,7 +42,7 @@ Graphics * graphics = NULL;
 
 SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 {
-	char buf[10];
+	char buf[15];
 	blueToPlayersAdv(hInfo,curh.owner);
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
