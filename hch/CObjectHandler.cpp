@@ -4799,15 +4799,16 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 				switch (bc->guards.size())
 				{
 					case 1:
-						for	(int i = 0; i <= 4; i++)
-							army.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
+						for	(int i = 0; i < 4; ++i)
+							army.setCreature (i, bc->guards[0].first, bc->guards[0].second  / 5 );
+						army.setCreature (4, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
 						break;
 					case 4:
 					{
 						std::vector< std::pair <ui16, ui32> >::const_iterator it;
 						for (it = bc->guards.begin(); it != bc->guards.end(); it++)
 						{
-							int n = army.slots.size(); //debug
+							int n = army.slots.size();
 							army.setCreature (n, it->first, it->second);
 						}
 					}
