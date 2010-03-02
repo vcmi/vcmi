@@ -1178,7 +1178,7 @@ void CGHeroInstance::giveArtifact (ui32 aid)
 
 	if (artifact.isBig()) {
 		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) {
-			if (artifWorn.find(*it) == artifWorn.end()) {
+			if (!vstd::contains(artifWorn, *it)) {
 				VLC->arth->equipArtifact(artifWorn, *it, aid);
 				break;
 			}

@@ -615,7 +615,7 @@ void CArtHandler::equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, u
 				destConsumed = true;
 			} else {
 				BOOST_FOREACH(ui16 slot, constituent.possibleSlots) {
-					if (artifWorn.find(slot) == artifWorn.end()) {
+					if (!vstd::contains(artifWorn, slot)) {
 						artifWorn[slot] = 145;
 						break;
 					}
@@ -632,7 +632,7 @@ void CArtHandler::equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, u
  */
 void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
 {
-	if (artifWorn.find(slotID) == artifWorn.end())
+	if (!vstd::contains(artifWorn, slotID))
 		return;
 
 	const CArtifact &artifact = artifacts[artifWorn[slotID]];
@@ -651,7 +651,7 @@ void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
 				destConsumed = true;
 			} else {
 				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) {
-					if (artifWorn.find(slot) != artifWorn.end() && artifWorn[slot] == 145) {
+					if (vstd::contains(artifWorn, slot) && artifWorn[slot] == 145) {
 						artifWorn.erase(slot);
 						break;
 					}

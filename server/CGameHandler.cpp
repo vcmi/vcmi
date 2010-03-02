@@ -2650,7 +2650,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
 	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) {
 		sha.setArtAtPos(srcSlot, -1);
-		if (sha.artifWorn.find(destSlot) == sha.artifWorn.end())
+		if (!vstd::contains(sha.artifWorn, destSlot))
 			destArtifact = NULL;
 	}
 
@@ -2681,7 +2681,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	// If dest does not fit in src, put it in dest's backpack instead.
 	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
 		sha.setArtAtPos(destSlot, -1);
-	bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
+	const bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
 	if (srcHeroID == destHeroID && destArtifact)
 		sha.setArtAtPos(destSlot, destArtifact->id);
 
@@ -2802,7 +2802,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
 
 			BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
-				if (sha.artifWorn.find(slotID) != sha.artifWorn.end()) {
+				if (vstd::contains(sha.artifWorn, slotID)) {
 					if (sha.artifWorn[slotID] == 145 || (!destConsumed && slotID == artifactSlot)) {
 						if (slotID == artifactSlot)
 							destConsumed = true;

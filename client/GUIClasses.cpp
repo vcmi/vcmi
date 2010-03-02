@@ -3661,8 +3661,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				ourOwner->commonInfo->destArtifact = ourArt;
 
 				// Special case when the dest artifact can't be fit into the src slot.
-				CGHeroInstance *destHero = const_cast<CGHeroInstance *>(ourOwner->curHero);
-				CGI->arth->unequipArtifact(destHero->artifWorn, slotID);
+				CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->srcAOH;
 				ui16 srcSlotID = ourOwner->commonInfo->srcSlotID;
 				if (ourArt && srcSlotID < 19 && !ourArt->fitsAt(srcAOH->curHero->artifWorn, srcSlotID)) {
@@ -3753,19 +3752,18 @@ void CArtPlace::select ()
 	ourOwner->commonInfo->srcAOH = ourOwner;
 
 	// Temporarily remove artifact from hero.
-	CGHeroInstance* hero = const_cast<CGHeroInstance*>(ourOwner->curHero);
 	if (slotID < 19)
-		CGI->arth->unequipArtifact(hero->artifWorn, slotID);
+		CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
 	else
-		hero->artifacts.erase(hero->artifacts.begin() + (slotID - 19));
+		ourOwner->curHero->artifacts.erase(ourOwner->curHero->artifacts.begin() + (slotID - 19));
 	ourOwner->markPossibleSlots(ourArt);
-	hero->recreateArtBonuses();
+	ourOwner->curHero->recreateArtBonuses();
 
 	// Update the hero bonuses.
 	CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt());
 	if (chw != NULL) {
 		chw->deactivate();
-		chw->setHero(hero);
+		chw->setHero(ourOwner->curHero);
 		chw->activate();
 	} else {
 		CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt());
@@ -3773,9 +3771,9 @@ void CArtPlace::select ()
 		cew->deactivate();
 		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
 		{
-			if(cew->heroInst[g] == hero)
+			if(cew->heroInst[g] == ourOwner->curHero)
 			{
-				cew->artifs[g]->setHero(hero);
+				cew->artifs[g]->setHero(ourOwner->curHero);
 			}
 		}
 		cew->prepareBackground();
@@ -4043,6 +4041,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
 	// An update is made, rather than initialization.
 	if (curHero == hero) {
+		curHero = const_cast<CGHeroInstance *>(hero);
+
 		// Compensate backpack pos if an artifact was insertad before it.
 		if (commonInfo->destSlotID >= 19 && commonInfo->destAOH == this
 			&& commonInfo->destSlotID - 19 < backpackPos)
@@ -4051,16 +4051,14 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		}
 
 		if (updateState && commonInfo->srcAOH == this) {
-			curHero = hero;
 			// A swap was made, make the replaced artifact the current selected.
 			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) {
 				// Temporarily remove artifact from hero.
-				CGHeroInstance * nonconstCurHero = const_cast<CGHeroInstance *>(curHero);
 				if (commonInfo->srcSlotID < 19)
-					CGI->arth->unequipArtifact(nonconstCurHero->artifWorn, commonInfo->srcSlotID);
+					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
 				else
-					nonconstCurHero->artifacts.erase(nonconstCurHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-				nonconstCurHero->recreateArtBonuses();
+					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
+				curHero->recreateArtBonuses();
 
 				// Source <- Dest
 				commonInfo->srcArtifact = commonInfo->destArtifact;
@@ -4090,7 +4088,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		rollback();
 	}
 
-	curHero = hero;
+	curHero = const_cast<CGHeroInstance *>(hero);
 
 	if (curHero->artifacts.size() > 0)
 		backpackPos %= curHero->artifacts.size();
@@ -4115,32 +4113,28 @@ void CArtifactsOfHero::rollback()
 	if (curHero != NULL) {
 		// Restore any held artifact to it's original position.
 		if (commonInfo->srcArtifact && commonInfo->srcAOH == this) {
-			CGHeroInstance * hero = const_cast<CGHeroInstance *>(curHero);
-
 			if (commonInfo->srcSlotID != -1) {
 				// Put a held artifact back to it's spot.
 				if (commonInfo->srcSlotID < 19)
-					CGI->arth->equipArtifact(hero->artifWorn, commonInfo->srcSlotID, commonInfo->srcArtifact->id);
+					CGI->arth->equipArtifact(curHero->artifWorn, commonInfo->srcSlotID, commonInfo->srcArtifact->id);
 				else
-					hero->artifacts.insert(hero->artifacts.begin() + (commonInfo->srcSlotID - 19), commonInfo->srcArtifact->id);
+					curHero->artifacts.insert(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19), commonInfo->srcArtifact->id);
 			} else { // Held swapped artifact.
 				// Wear the artifact in a suitable spot.
 				ui16 i = 0;
 				for (; i < 19; i++) {
-					if (artWorn[i]->fitsHere(commonInfo->srcArtifact)
-						&& curHero->artifWorn.find(i) == curHero->artifWorn.end())
-					{
-						CGI->arth->equipArtifact(hero->artifWorn, i, commonInfo->srcArtifact->id);
+					if (artWorn[i]->fitsHere(commonInfo->srcArtifact) && !vstd::contains(curHero->artifWorn, i)) {
+						CGI->arth->equipArtifact(curHero->artifWorn, i, commonInfo->srcArtifact->id);
 						break;
 					}
 				}
 
 				// If it can't be worn, put it in the backpack.
 				if (i == 19)
-					hero->artifacts.push_back(commonInfo->srcArtifact->id);
+					curHero->artifacts.push_back(commonInfo->srcArtifact->id);
 			}
 
-			hero->recreateArtBonuses();
+			curHero->recreateArtBonuses();
 		}
 	}
 

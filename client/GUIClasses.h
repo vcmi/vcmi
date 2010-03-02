@@ -773,7 +773,7 @@ inline bool CArtPlace::locked () const
 
 class CArtifactsOfHero : public CIntObject
 {
-	const CGHeroInstance * curHero;
+	CGHeroInstance * curHero;
 
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
