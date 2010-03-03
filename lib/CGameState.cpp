@@ -2410,45 +2410,22 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	if(attacker->getEffect(55)) //slayer handling
 	{
 		std::vector<int> affectedIds;
-		switch(attacker->getEffect(55)->level)
+		int spLevel = attacker->getEffect(55)->level;
+
+		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
-		case 3: //expert
+			for (int d=0; d<VLC->creh->creatures[g].abilities.size(); ++d)
 			{
-				affectedIds.push_back(40); //giant
-				affectedIds.push_back(41); //titan
-				affectedIds.push_back(152); //lord of thunder
-			} //continue adding ...
-		case 2: //advanced
-			{
-				affectedIds.push_back(12); //angel
-				affectedIds.push_back(13); //archangel
-				affectedIds.push_back(54); //devil
-				affectedIds.push_back(55); //arch devil
-				affectedIds.push_back(150); //supreme archangel
-				affectedIds.push_back(153); //antichrist
-			} //continue adding ...
-		case 0: case 1: //none and basic
-			{
-				affectedIds.push_back(26); //green dragon
-				affectedIds.push_back(27); //gold dragon
-				affectedIds.push_back(82); //red dragon
-				affectedIds.push_back(83); //black dragon
-				affectedIds.push_back(96); //behemot
-				affectedIds.push_back(97); //ancient behemot
-				affectedIds.push_back(110); //hydra
-				affectedIds.push_back(111); //chaos hydra
-				affectedIds.push_back(132); //azure dragon
-				affectedIds.push_back(133); //crystal dragon
-				affectedIds.push_back(134); //faerie dragon
-				affectedIds.push_back(135); //rust dragon
-				affectedIds.push_back(151); //diamond dragon
-				affectedIds.push_back(154); //blood dragon
-				affectedIds.push_back(155); //darkness dragon
-				affectedIds.push_back(156); //ghost behemoth
-				affectedIds.push_back(157); //hell hydra
-				break;
+				if ( (VLC->creh->creatures[g].abilities[d].type == StackFeature::KING3 && spLevel >= 3) || //expert
+					(VLC->creh->creatures[g].abilities[d].type == StackFeature::KING2 && spLevel >= 2) || //adv +
+					(VLC->creh->creatures[g].abilities[d].type == StackFeature::KING1 && spLevel >= 0) ) //none or basic +
+				{
+					affectedIds.push_back(g);
+					break;
+				}
 			}
 		}
+
 		for(unsigned int g=0; g<affectedIds.size(); ++g)
 		{
 			if(defender->creature->idNumber == affectedIds[g])
@@ -2703,7 +2680,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster)
 {
 	if(!caster) //TODO: something better
-		return 1;
+		return 5;
 	switch(spell->id)
 	{
 	case 56: //frenzy

@@ -844,20 +844,32 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 	}
 
 
-	if(gs->curB && id == 35) //dispel
+	if(gs->curB && (id == 35 || id == 78)) //dispel and dispel helpful spells
 	{
+		bool onlyHelpful = id == 78;
 		for(std::set<ui32>::const_iterator it = affectedCres.begin(); it != affectedCres.end(); ++it)
 		{
 			CStack *s = gs->curB->getStack(*it);
 			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 			{
+				std::vector<CStack::StackEffect> remainingEff;
+				for(int g=0; g< s->effects.size(); ++g)
+				{
+					if (onlyHelpful && VLC->spellh->spells[ s->effects[g].id ].positiveness != 1)
+					{
+						remainingEff.push_back(s->effects[g]);
+					}
+					
+				}
 				s->effects.clear(); //removing all effects
+				s->effects = remainingEff; //assigning effects that should remain
+
 				//removing all features from spells
 				std::vector<StackFeature> tmpFeatures = s->features;
 				s->features.clear();
 				for(int i=0; i < tmpFeatures.size(); i++)
 				{
-					if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT)
+					if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT || tmpFeatures[i].positiveness != 1)
 					{
 						s->features.push_back(tmpFeatures[i]);
 					}
