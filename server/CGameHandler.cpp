@@ -2801,11 +2801,12 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
 			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
 
-			BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
-				if (vstd::contains(sha.artifWorn, slotID)) {
-					if (sha.artifWorn[slotID] == 145 || (!destConsumed && slotID == artifactSlot)) {
-						if (slotID == artifactSlot)
-							destConsumed = true;
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, artifactSlot)) {
+				sha.artifWorn[artifactSlot] = constituentID;
+				destConsumed = true;
+			} else {
+				BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
+					if (vstd::contains(sha.artifWorn, slotID) && sha.artifWorn[slotID] == 145) {
 						sha.artifWorn[slotID] = constituentID;
 						break;
 					}
