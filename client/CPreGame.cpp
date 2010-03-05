@@ -401,16 +401,17 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 void CSelectionScreen::changeSelection( const CMapInfo *to )
 {
 	curMap = current = to;;
+
 	if(to && type == CMenuScreen::loadGame)
 		curOpts->difficulty = to->scenarioOpts->difficulty;
 	if(type != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to, sInfo, to->mapHeader);
+		updateStartInfo(to, sInfo, to ? to->mapHeader : NULL);
 	}
 	card->changeSelection(to);
 	if(type != CMenuScreen::campaignList)
 	{
-		opt->changeSelection(to->mapHeader);
+		opt->changeSelection(to ? to->mapHeader : NULL);
 	}
 }
 
@@ -1516,7 +1517,7 @@ void OptionsTab::changeSelection( const CMapHeader *to )
 	entries.clear();
 	usedHeroes.clear();
 
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	for(int i = 0; i < curOpts->playerInfos.size(); i++)
 	{
 		entries.push_back(new PlayerOptionsEntry(this, curOpts->playerInfos[i]));

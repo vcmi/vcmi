@@ -495,6 +495,7 @@ static void listenForEvents()
 			delete ev;
 
 			GH.curInt = CGP;
+			GH.defActionsDef = 63;
 			continue;
 		}
 

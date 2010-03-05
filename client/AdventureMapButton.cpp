@@ -296,11 +296,14 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
-	if (down) {
+	if (down) 
+	{
 		CGI->soundh->playSound(soundBase::button);
 		state = 1;
-	} else
+	} 
+	else
 		state = selected ? 3 : 0;
+
 	show(screenBuf);
 	if(previousState  &&  down == false)
 	{
@@ -336,6 +339,7 @@ CHighlightableButton::CHighlightableButton( const std::string &Name, const std::
 void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 {
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->onlyOn = true;
 	buttons.push_back(bt);
 }
 
