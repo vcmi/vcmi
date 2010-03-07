@@ -437,6 +437,49 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
+			if(next->creature->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(27) == 0)) //first aid tent, hero has no first aid
+			{
+				BattleAction heal;
+
+				std::vector< const CStack * > possibleStacks;
+				for (int v=0; v<gs->curB->stacks.size(); ++v)
+				{
+					const CStack * cstack = gs->curB->stacks[v];
+					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->alive()) //it's friendly and not fully healthy
+					{
+						possibleStacks.push_back(cstack);
+					}
+				}
+
+				if(possibleStacks.size() == 0)
+				{
+					//nothing to heal
+					BattleAction doNothing;
+					doNothing.actionType = 0;
+					doNothing.additionalInfo = 0;
+					doNothing.destinationTile = -1;
+					doNothing.side = !next->attackerOwned;
+					doNothing.stackNumber = next->ID;
+					sendAndApply(&StartAction(doNothing));
+					sendAndApply(&EndAction());
+					continue;
+				}
+				else
+				{
+					//heal random creature
+					const CStack * toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
+					heal.actionType = 12;
+					heal.additionalInfo = 0;
+					heal.destinationTile = toBeHealed->position;
+					heal.side = !next->attackerOwned;
+					heal.stackNumber = next->ID;
+
+					makeBattleAction(heal);
+
+				}
+				continue;
+			}
+
 askInterfaceForMove:
 			//ask interface and wait for answer
 			if(!battleResult.get())
@@ -3210,6 +3253,44 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				sendAndApply(&ca);
 			}
+			sendAndApply(&EndAction());
+			break;
+		}
+	case 12: //healing
+		{
+			static const int healingPerLevel[] = {50, 50, 75, 100};
+			sendAndApply(&StartAction(ba));
+			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
+			CStack *healer = gs->curB->getStack(ba.stackNumber),
+				*destStack = gs->curB->getStackT(ba.destinationTile);
+
+			if(healer == NULL || destStack == NULL || !healer->hasFeatureOfType(StackFeature::HEALER))
+			{
+				complain("There is either no healer, no destination, or healer cannot heal :P");
+			}
+			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
+			int maxiumHeal = healingPerLevel[ attackingHero->getSecSkillLevel(27) ];
+
+			int healed = std::min(maxHealable, maxiumHeal);
+
+			if(healed == 0)
+			{
+				//nothing to heal.. should we complain?
+			}
+			else
+			{
+				StacksHealedOrResurrected shr;
+				StacksHealedOrResurrected::HealInfo hi;
+
+				hi.healedHP = healed;
+				hi.lowLevelResurrection = 0;
+				hi.stackID = destStack->ID;
+
+				shr.healedStacks.push_back(hi);
+				sendAndApply(&shr);
+			}
+
+
 			sendAndApply(&EndAction());
 			break;
 		}

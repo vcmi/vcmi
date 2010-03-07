@@ -3489,7 +3489,8 @@ si8 BattleInfo::Morale( const CStack * st ) const
 {
 	si8 ret = st->morale;
 
-	if(st->hasFeatureOfType(StackFeature::NON_LIVING) || st->hasFeatureOfType(StackFeature::UNDEAD) || st->hasFeatureOfType(StackFeature::NO_MORALE))
+	if(st->hasFeatureOfType(StackFeature::NON_LIVING) || st->hasFeatureOfType(StackFeature::UNDEAD) ||
+		st->hasFeatureOfType(StackFeature::NO_MORALE) || st->hasFeatureOfType(StackFeature::SIEGE_WEAPON))
 		return 0;
 
 	ret += st->valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other

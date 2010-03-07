@@ -1728,7 +1728,16 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				{
 					if(shere->owner == curInt->playerID) //our stack
 					{
-						CGI->curh->changeGraphic(1,5);
+						if(sactive->hasFeatureOfType(StackFeature::HEALER))
+						{
+							//display the possibility to heal this creature
+							CGI->curh->changeGraphic(1,17);
+						}
+						else
+						{
+							//info about creature
+							CGI->curh->changeGraphic(1,5);
+						}
 						//setting console text
 						char buf[500];
 						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str());
@@ -1739,6 +1748,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						{
 							creAnims[shere->ID]->playOnce(1);
 						}
+						
 					}
 					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
@@ -2336,7 +2346,6 @@ void CBattleInterface::hexLclicked(int whichOne)
 			const CStack* dest = curInt->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
-				const CStack * sactive = curInt->cb->battleGetStackByID(activeStack);
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				{
 					CGI->curh->changeGraphic(1, 6); //cursor should be changed
@@ -2354,7 +2363,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						giveCommand(2,whichOne,activeStack);
 					}
 				}
-				else if(sactive->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(whichOne)) //attacking (catapult)
+				else if(actSt->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(whichOne)) //attacking (catapult)
 				{
 					giveCommand(9,whichOne,activeStack);
 				}
@@ -2518,6 +2527,12 @@ void CBattleInterface::hexLclicked(int whichOne)
 					CGI->curh->changeGraphic(1, 6); //cursor should be changed
 				}
 
+			}
+			else if (actSt->hasFeatureOfType(StackFeature::HEALER) && actSt->owner == dest->owner) //friendly creature we can heal
+			{
+				giveCommand(12, whichOne, activeStack); //command healing
+
+				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}
 	}
@@ -3162,7 +3177,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	char txt[400];
 
-	if(action->actionType == 1)
+	if(action->actionType == 1) //when hero casts spell
 	{
 		if(action->side)
 			defendingHero->setPhase(4);
@@ -3200,6 +3215,12 @@ void CBattleInterface::startAction(const BattleAction* action)
 	{
 		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str(), 0);
 		console->addText(txt);
+	}
+
+	//displaying heal animation
+	if (action->actionType == 12)
+	{
+		displayEffect(50, action->destinationTile);
 	}
 }
 

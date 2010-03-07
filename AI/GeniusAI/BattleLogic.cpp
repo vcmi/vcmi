@@ -258,7 +258,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
 	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
-	if(currentStack->position < 0) //turret
+	if(currentStack->position < 0 || currentStack->creature->idNumber == 147) //turret or first aid kit
 	{
 		return MakeDefend(stackID);
 	}

@@ -812,7 +812,7 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 	case 8:
 		st->state.insert(WAITING);
 		return;
-	case 2: case 6: case 7: case 9: case 10: case 11:
+	case 0: case 2: case 6: case 7: case 9: case 10: case 11: case 12:
 		st->state.insert(MOVED);
 		break;
 	}
