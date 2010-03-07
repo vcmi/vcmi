@@ -39,6 +39,7 @@ public:
 	CMapInfo(bool map = true);
 	~CMapInfo();
 	//CMapInfo(const std::string &fname, const unsigned char *map);
+	void setHeader(CMapHeader *header);
 	void mapInit(const std::string &fname, const unsigned char *map);
 	void campaignInit();
 	void countPlayers();
@@ -169,6 +170,7 @@ public:
 		SelectedBox *hero;
 		SelectedBox *bonus;
 		bool fixedHero;
+		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 		
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(bool onlyHero = true); //hides unavailable buttons
@@ -222,6 +224,16 @@ public:
 	void difficultyChange(int to);
 };
 
+class CSavingScreen : public CSelectionScreen
+{
+public:
+	const CMapInfo *ourGame; 
+
+
+	CSavingScreen();
+	~CSavingScreen();
+};
+
 class CScenarioInfo : public CIntObject
 {
 public:
@@ -229,7 +241,7 @@ public:
 	InfoCard *card;
 	OptionsTab *opt;
 
-	CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo, const CMapInfo * makeItCurrent=NULL);
+	CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo);
 	~CScenarioInfo();
 };
 

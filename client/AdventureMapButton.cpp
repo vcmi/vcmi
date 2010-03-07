@@ -131,10 +131,12 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 	if (down) 
 	{
 		CGI->soundh->playSound(soundBase::button);
-		state=1;
+		state = 1;
 	} 
+	else if(hoverable && hovered)
+		state = 3;
 	else
-		state=0;
+		state = 0;
 
 	show(screenBuf);
 	if (actOnDown && down)

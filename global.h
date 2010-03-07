@@ -288,6 +288,13 @@ t1 & abetw(t1 &a, const t2 &b, const t3 &c) //makes a to fit the range <b, c>
 	return a;
 }
 
+template <typename T> 
+void delNull(T* &ptr) //deleted pointer and sets it to NULL
+{
+	delete ptr;
+	ptr = NULL;
+}
+
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;

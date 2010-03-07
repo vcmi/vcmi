@@ -1830,7 +1830,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_s: 
 		if(isActive())
-			GH.pushInt(new CSelectionScreen(CMenuScreen::saveGame));
+			GH.pushInt(new CSavingScreen);
 		return;
 	case SDLK_d: 
 		{

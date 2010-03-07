@@ -83,7 +83,8 @@ public:
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 
-	static void showYesNoDialog( const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
+	static void showYesNoDialog( const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
+	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<SComponent*> *components = NULL);
 };
 class CSelWindow : public CInfoWindow //component selection window
 { //warning - this window deletes its components by closing!

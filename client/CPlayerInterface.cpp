@@ -852,10 +852,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
 		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
 
-	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,false);
-
+	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
 		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));

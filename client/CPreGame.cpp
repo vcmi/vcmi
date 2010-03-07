@@ -69,6 +69,28 @@ static void do_quit()
 	SDL_PushEvent(&event);
 }
 
+static CMapInfo *mapInfoFromGame()
+{
+	CMapInfo *ret = new CMapInfo();
+	CMapHeader *headerCopy = new CMapHeader(*LOCPLINT->cb->getMapHeader()); //will be deleted by CMapInfo d-tor
+	ret->setHeader(headerCopy);
+	return ret;
+}
+
+static void setPlayersFromGame()
+{
+	playerColor = LOCPLINT->playerID;
+	playerSerial = LOCPLINT->serialID;
+}
+
+static void clearInfo()
+{
+	delNull(curMap);
+	delNull(curOpts);
+	playerColor = playerSerial = -1;
+	playerNames.clear();
+}
+
 void CMapInfo::countPlayers()
 {
 	actualHumanPlayers = playerAmnt = humenPlayers = 0;
@@ -131,6 +153,11 @@ CMapInfo::~CMapInfo()
 void CMapInfo::campaignInit()
 {
 	campaignHeader = new CCampaignHeader( CCampaignHandler::getHeader(filename, lodCmpgn) );
+}
+
+void CMapInfo::setHeader(CMapHeader *header)
+{
+	mapHeader = header;
 }
 
 CMenuScreen::CMenuScreen( EState which )
@@ -404,7 +431,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 
 	if(to && type == CMenuScreen::loadGame)
 		curOpts->difficulty = to->scenarioOpts->difficulty;
-	if(type != CMenuScreen::campaignList)
+	if(type != CMenuScreen::campaignList && type != CMenuScreen::saveGame)
 	{
 		updateStartInfo(to, sInfo, to ? to->mapHeader : NULL);
 	}
@@ -457,7 +484,10 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to, StartInfo & sInfo, 
 		PlayerSettings &pset = sInfo.playerInfos[serialC];
 		pset.color = i;
 		pset.serial = serialC++;
-		setPlayer(pset, placedPlayers++);
+		if(pinfo.canHumanPlay)
+			setPlayer(pset, placedPlayers++);
+		else
+			setPlayer(pset, -1);
 
 		for (int j = 0; j < F_NUMBER  &&  pset.castle != -1; j++) //we start with none and find matching faction. if more than one, then set to random
 		{
@@ -495,6 +525,21 @@ void CSelectionScreen::startCampaign()
 
 void CSelectionScreen::startGame()
 {
+	if(type == CMenuScreen::newGame)
+	{
+		//there must be at least one human player before game can be started
+		std::vector<PlayerSettings>::const_iterator i;
+		for(i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
+			if(i->human)
+				break;
+
+		if(i == curOpts->playerInfos.end())
+		{
+			GH.pushInt(CInfoWindow::create(CGI->generaltexth->allTexts[530])); //You must position yourself prior to starting the game.
+			return;
+		}
+	}
+
 	if(type != CMenuScreen::saveGame)
 	{
 		if(!current)
@@ -502,8 +547,8 @@ void CSelectionScreen::startGame()
 
 		selectedName = sInfo.mapname;
 		StartInfo *si = new StartInfo(sInfo);
-		GH.popInt(this);
-		GH.popInt(GH.topInt());
+		GH.popIntTotally(this); //delete me
+		GH.popInt(GH.topInt()); //only deactivate main menu screen
 		//curMap = NULL;
 		curOpts = NULL;
 		::startGame(si);
@@ -514,8 +559,22 @@ void CSelectionScreen::startGame()
 			return;
 
 		selectedName = GVCMIDirs.UserPath + "/Games/" + sel->txt->text + ".vlgm1";
-		LOCPLINT->cb->save(sel->txt->text);
-		GH.popInt(this);
+
+		CFunctionList<void()> overWrite;
+		overWrite += bind(&CCallback::save, LOCPLINT->cb, sel->txt->text);
+		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
+
+		if(fs::exists(selectedName))
+		{
+			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
+			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
+			LOCPLINT->showYesNoDialog(hlp, std::vector<SComponent*>(), overWrite, 0, false);
+		}
+		else
+			overWrite();
+
+// 		LOCPLINT->cb->save(sel->txt->text);
+// 		GH.popIntTotally(this);
 	}
 }
 
@@ -787,7 +846,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	case CMenuScreen::saveGame:;
 		if(selectedName.size())
 		{
-			if(selectedName[0] == 'M')
+			if(selectedName[2] == 'M') //name starts with ./Maps instead of ./Games => there was nothing to select
 				txt->setText("NEWGAME");
 			else
 				selectFName(selectedName);
@@ -843,6 +902,9 @@ void SelectionTab::select( int position )
 		slider->moveTo(slider->value + position);
 	else if(position >= positions)
 		slider->moveTo(slider->value + position - positions + 1);
+
+	if(txt)
+		txt->setText(fs::basename(curItems[py]->filename));
 
 	onSelect(curItems[py]);
 }
@@ -1641,6 +1703,15 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	fixedHero = s.hero != -1; //if we doesn't start with "random hero" it must be fixed or none
 	selectButtons(false);
 
+	assert(curMap && curMap->mapHeader);
+	const PlayerInfo &p = curMap->mapHeader->players[s.color];
+	assert(p.canComputerPlay || p.canHumanPlay); //someone must be able to control this player
+	if(p.canHumanPlay && p.canComputerPlay)
+		whoCanPlay = HUMAN_OR_CPU;
+	else if(p.canComputerPlay)
+		whoCanPlay = CPU;
+	else
+		whoCanPlay = HUMAN;
 
 	if(owner->type != CMenuScreen::scenarioInfo  &&  curMap->mapHeader->players[s.color].canHumanPlay)
 	{
@@ -1663,6 +1734,7 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
 	printAtMiddleLoc(s.name, 55, 10, FONT_SMALL, zwykly, to);
+	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 6, zwykly, to);
 }
 
 void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
@@ -1967,7 +2039,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	GH.pushInt(new CInfoPopup(bmp, true));
 }
 
-CScenarioInfo::CScenarioInfo( const CMapHeader *mapHeader, const StartInfo *startInfo, const CMapInfo * makeItCurrent )
+CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -1984,11 +2056,12 @@ CScenarioInfo::CScenarioInfo( const CMapHeader *mapHeader, const StartInfo *star
 	pos.h = 584;
 	center(pos);
 
-	if(makeItCurrent)
-	{
-		curMap = makeItCurrent;
-	}
-	curOpts = const_cast<StartInfo*>(startInfo); //I hope it's safe
+	assert(LOCPLINT);
+	assert(!curOpts);
+	curOpts = new StartInfo(*LOCPLINT->cb->getStartInfo()); //deleted by clearInfo
+	assert(!curMap);
+	curMap = mapInfoFromGame(); //deleted by clearInfo
+	setPlayersFromGame();
 
 	card = new InfoCard(CMenuScreen::scenarioInfo);
 	opt = new OptionsTab(CMenuScreen::scenarioInfo);
@@ -2000,6 +2073,7 @@ CScenarioInfo::CScenarioInfo( const CMapHeader *mapHeader, const StartInfo *star
 
 CScenarioInfo::~CScenarioInfo()
 {
+	clearInfo();
 }
 
 bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
@@ -2417,4 +2491,17 @@ void CBonusSelection::CRegion::show( SDL_Surface * to )
 		//show as not selected selected
 		blitAt(graphics[0], pos.x, pos.y, to);
 	}
+}
+
+CSavingScreen::CSavingScreen()
+ : CSelectionScreen(CMenuScreen::saveGame)
+{
+	ourGame = mapInfoFromGame();
+	sInfo = *LOCPLINT->cb->getStartInfo();
+	setPlayersFromGame();
+}
+
+CSavingScreen::~CSavingScreen()
+{
+
 }

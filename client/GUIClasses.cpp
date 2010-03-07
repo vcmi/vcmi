@@ -740,6 +740,14 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	GH.pushInt(temp);
 }
 
+CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<SComponent*> *components /*= NULL*/)
+{
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	CInfoWindow * ret = new CInfoWindow(text, playerID, 0, components ? *components : std::vector<SComponent*>(), pom, false);
+	return ret;
+}
+
 void CRClickPopup::clickRight(tribool down, bool previousState)
 {
 	if(down)
@@ -3002,7 +3010,7 @@ void CSystemOptionsWindow::bmainmenuf()
 void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
-	GH.pushInt(new CSelectionScreen(CMenuScreen::saveGame));
+	GH.pushInt(new CSavingScreen);
 	/*using namespace boost::posix_time;
 	std::ostringstream fnameStream;
 	fnameStream << second_clock::local_time();
