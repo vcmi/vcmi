@@ -559,6 +559,11 @@ bool CBattleStackMoved::init()
 
 	//a few useful variables
 	steps = owner->creAnims[stackID]->framesInGroup(0)*owner->getAnimSpeedMultiplier()-1;
+	if(steps == 0) //this creature seems to have no move animation so we can end it immediately
+	{
+		endAnim();
+		return false;
+	}
 	whichStep = 0;
 	int hexWbase = 44, hexHbase = 42;
 	const CStack * movedStack = owner->curInt->cb->battleGetStackByID(stackID, false);
