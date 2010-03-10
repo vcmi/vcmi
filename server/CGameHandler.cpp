@@ -46,6 +46,8 @@ extern bool end2;
 #ifdef max
 #undef max
 #endif
+
+#define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define NEW_ROUND 		BattleNextRound bnr;\
 		bnr.round = gs->curB->round + 1;\
 		sendAndApply(&bnr);
@@ -4196,4 +4198,102 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 			}
 		}
 	}
+}
+
+bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &pos)
+{
+	const CSpell *s = &VLC->spellh->spells[spellID];
+	int cost = h->getSpellCost(s);
+	int schoolLevel = h->getSpellSchoolLevel(s);
+
+	if(!h->canCastThisSpell(s))
+		COMPLAIN_RET("Hero cannot cast this spell!");
+	if(h->mana < cost) 
+		COMPLAIN_RET("Hero doesn't have enough spell points to cast this spell!");
+	if(s->combatSpell)
+		COMPLAIN_RET("This function can be used only for adventure map spells!");
+
+	switch(spellID)
+	{
+	case 0: //Summon Boat 
+		{
+			//check if spell works at all
+			if(rand() % 100 >= s->powers[schoolLevel]) //power is % chance of success
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
+				iw.text.addReplacement(h->name);
+				sendAndApply(&iw);
+				return true; //TODO? or should it be false? request was correct and realized, but spell failed...
+			}
+
+			//try to find unoccupied boat to summon
+			const CGBoat *nearest = NULL;
+			double dist = 0;
+			int3 summonPos = h->bestLocation();
+			if(summonPos.x < 0)
+				COMPLAIN_RET("There is no water tile available!");
+
+			BOOST_FOREACH(const CGObjectInstance *obj, gs->map->objects)
+			{
+				if(obj && obj->ID == 8)
+				{
+					const CGBoat *b = static_cast<const CGBoat*>(obj);
+					if(b->hero) continue; //we're looking for unoccupied boat
+
+					double nDist = distance(b->pos, h->getPosition());
+					if(!nearest || nDist < dist) //it's first boat or closer than previous
+					{
+						nearest = b;
+						dist = nDist;
+					}
+				}
+			}
+
+			if(nearest) //we found boat to summon
+			{
+				ChangeObjPos cop;
+				cop.objid = nearest->id;
+				cop.nPos = summonPos + int3(1,0,0);;
+				cop.flags = 1;
+				sendAndApply(&cop);
+			}
+			else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
+				sendAndApply(&iw);
+			}
+			else //create boat
+			{
+				NewObject no;
+				no.ID = 8;
+				no.subID = h->getBoatType();
+				no.pos = summonPos + int3(1,0,0);;
+				sendAndApply(&no);
+			}
+			break;
+		}
+
+	case 1: //Scuttle Boat 
+	case 2: //Visions 
+	case 3: //View Earth 
+	case 4: //Disguise 
+	case 5: //View Air 
+	case 6: //Fly 
+	case 7: //Water Walk 
+	case 8: //Dimension Door
+	case 9: //Town Portal 
+	default:
+		COMPLAIN_RET("This spell is not implemented yet!");
+	}
+
+	SetMana sm;
+	sm.hid = h->id;
+	sm.val = h->mana - cost;
+	sendAndApply(&sm);
+
+	return true;
 }

@@ -2740,7 +2740,7 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 
 ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
-	ui32 ret = VLC->spellh->spells[sp->id].costs[caster->getSpellSchoolLevel(sp)];
+	ui32 ret = caster->getSpellCost(sp);
 
 	//checking for friendly stacks reducing cost of the spell and
 	//enemy stacks increasing it

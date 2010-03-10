@@ -380,7 +380,11 @@ struct GiveBonus :  public CPackForClient //115
 
 struct ChangeObjPos : public CPackForClient //116
 {
-	ChangeObjPos(){type = 116;};
+	ChangeObjPos()
+	{
+		type = 116; 
+		flags = 0;
+	}
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
@@ -692,10 +696,11 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 	{
 		h & text & components & player & soundID;
 	}
-	InfoWindow() { 
+	InfoWindow() 
+	{ 
 		type = 103;
 		soundID = 0; 
-	};
+	}
 };
 
 struct SetObjectProperty : public CPackForClient//1001
@@ -1421,6 +1426,20 @@ struct DigWithHero : public CPackForServer
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id;
+	}
+};
+
+struct CastAdvSpell : public CPackForServer
+{
+	CastAdvSpell(){}
+	si32 hid; //hero id
+	ui32 sid; //spell id
+	int3 pos; //selected tile (not always used)
+
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & sid & pos;
 	}
 };
 

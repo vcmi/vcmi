@@ -107,8 +107,7 @@ void FoWChange::applyCl( CClient *cl )
 	else
 		cl->playerint[player]->tileHidden(tiles);
 
-	if (cl->IGameCallback::getSelectedHero(player))//if we have selected hero...
-		GS(cl)->calculatePaths(cl->IGameCallback::getSelectedHero(player), *cl->pathInfo);
+	cl->updatePaths();
 }
 
 void SetAvailableHeroes::applyCl( CClient *cl )
@@ -146,6 +145,8 @@ void ChangeObjPos::applyCl( CClient *cl )
 	CGObjectInstance *obj = GS(cl)->map->objects[objid];
 	if(flags & 1)
 		CGI->mh->printObject(obj);
+
+	cl->updatePaths();
 }
 
 void PlayerEndsGame::applyCl( CClient *cl )

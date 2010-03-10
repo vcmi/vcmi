@@ -121,7 +121,7 @@ int CCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) co
 		return gs->curB->getSpellCost(sp, caster);
 
 	//if there is no battle
-	return sp->costs[caster->getSpellSchoolLevel(sp)];
+	return caster->getSpellCost(sp);
 }
 
 int CCallback::estimateSpellDamage(const CSpell * sp) const
@@ -952,6 +952,15 @@ si8 CCallback::battleGetStackMorale( int stackID )
 si8 CCallback::battleGetStackLuck( int stackID )
 {
 	return gs->curB->Luck( gs->curB->getStack(stackID) );
+}
+
+void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos)
+{
+	CastAdvSpell cas;
+	cas.hid = hero->id;
+	cas.sid = spellID;
+	cas.pos = pos;
+	sendRequest(&cas);
 }
 
 InfoAboutTown::InfoAboutTown()

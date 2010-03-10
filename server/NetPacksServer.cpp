@@ -160,6 +160,12 @@ bool DigWithHero::applyGh( CGameHandler *gh )
 	return gh->dig(gh->getHero(id));
 }
 
+bool CastAdvSpell::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(hid);
+	return gh->castSpell(gh->getHero(hid), sid, pos);
+}
+
 bool PlayerMessage::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;

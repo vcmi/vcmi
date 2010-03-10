@@ -113,6 +113,7 @@ public:
 	void waitForServer();
 	CPack * retreivePack(); //gets from server next pack (allocates it with new)
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
+	void updatePaths();
 
 	//////////////////////////////////////////////////////////////////////////
 

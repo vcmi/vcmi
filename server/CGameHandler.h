@@ -181,6 +181,7 @@ public:
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void engageIntoBattle( ui8 player );
 	bool dig(const CGHeroInstance *h);
+	bool castSpell(const CGHeroInstance *h, int spellID, const int3 &pos);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -128,6 +128,7 @@ public:
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1) =0;
 	virtual void recalculatePaths()=0; //updates main, client pathfinder info (should be called when moving hero is over)
 	virtual void dig(const CGObjectInstance *hero)=0; 
+	virtual void castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 	
 	//map
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
@@ -227,6 +228,7 @@ public:
 	void sendMessage(const std::string &mess);
 	void buildBoat(const IShipyard *obj);
 	void dig(const CGObjectInstance *hero); 
+	void castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos = int3(-1, -1, -1));
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea) const;

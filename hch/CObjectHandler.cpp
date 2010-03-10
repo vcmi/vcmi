@@ -47,7 +47,6 @@ BankConfig CGPyramid::pyramidConfig;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
 
-
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
 
@@ -687,6 +686,7 @@ int CGHeroInstance::getSpellSecLevel(int spell) const
 }
 
 CGHeroInstance::CGHeroInstance()
+ : IBoatGenerator(this)
 {
 	ID = HEROI_TYPE;
 	tacticFormationEnabled = inTownGarrison = false;
@@ -1224,6 +1224,34 @@ const BonusList * CGHeroInstance::ownerBonuses() const
 		return NULL;
 	else
 		return &p->bonuses;
+}
+
+int CGHeroInstance::getBoatType() const
+{
+	int alignment = type->heroType / 6; 
+	switch(alignment)
+	{
+	case 0:
+		return 1; //good
+	case 1:
+		return 0; //evil
+	case 2:
+		return 2;
+	default:
+		assert(0);
+	}
+}
+
+void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
+{
+	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0), int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+	for (size_t i = 0; i < ARRAY_COUNT(dirs); i++)
+		offsets += dirs[i];
+}
+
+int CGHeroInstance::getSpellCost(const CSpell *sp) const
+{
+	return sp->costs[getSpellSchoolLevel(sp)];
 }
 
 void CGDwelling::initObj()
@@ -5308,13 +5336,6 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showInfoDialog(&iw);
 }
 
-void IShipyard::getBoatCost( std::vector<si32> &cost ) const
-{
-	cost.resize(RESOURCE_QUANTITY);
-	cost[0] = 10;
-	cost[6] = 1000;
-}
-
 //bool IShipyard::validLocation() const
 //{
 //	std::vector<int3> offsets;
@@ -5327,7 +5348,7 @@ void IShipyard::getBoatCost( std::vector<si32> &cost ) const
 //	return false;
 //}
 
-int3 IShipyard::bestLocation() const
+int3 IBoatGenerator::bestLocation() const
 {
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
@@ -5339,12 +5360,7 @@ int3 IShipyard::bestLocation() const
 	return int3(-1,-1,-1);
 }
 
-IShipyard::IShipyard(const CGObjectInstance *O) 
-	: o(O)
-{
-}
-
-int IShipyard::state() const
+int IBoatGenerator::state() const
 {
 	int3 tile = bestLocation();
 	TerrainTile *t = IObjectInterface::cb->getTile(tile);
@@ -5356,6 +5372,30 @@ int IShipyard::state() const
 		return 1; //blocked with boat
 	else
 		return 2; //blocked
+}
+
+int IBoatGenerator::getBoatType() const
+{
+	//We make good ships by default
+	return 1;
+}
+
+
+IBoatGenerator::IBoatGenerator(const CGObjectInstance *O) 
+: o(O)
+{
+}
+
+void IShipyard::getBoatCost( std::vector<si32> &cost ) const
+{
+	cost.resize(RESOURCE_QUANTITY);
+	cost[0] = 10;
+	cost[6] = 1000;
+}
+
+IShipyard::IShipyard(const CGObjectInstance *O) 
+	: IBoatGenerator(O)
+{
 }
 
 IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
@@ -5378,12 +5418,6 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
 {
 	return castFrom(const_cast<CGObjectInstance*>(obj));
-}
-
-int IShipyard::getBoatType() const
-{
-	//We make good ships by default
-	return 1;
 }
 
 CGShipyard::CGShipyard()

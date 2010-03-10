@@ -511,5 +511,11 @@ void CClient::handlePack( CPack * pack )
 	delete pack;
 }
 
+void CClient::updatePaths()
+{	
+	const CGHeroInstance *h = getHero(getSelectedHero());
+	if (h)//if we have selected hero...
+		gs->calculatePaths(h, *pathInfo);
+}
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );

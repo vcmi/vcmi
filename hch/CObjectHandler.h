@@ -115,18 +115,23 @@ public:
 	static void postInit();//caleed after objs receive their initObj
 };
 
-class DLL_EXPORT IShipyard
+class DLL_EXPORT IBoatGenerator
 {
 public:
 	const CGObjectInstance *o;
 
-	IShipyard(const CGObjectInstance *O);
-	virtual void getBoatCost(std::vector<si32> &cost) const;
+	IBoatGenerator(const CGObjectInstance *O);
 	virtual int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
-	//virtual bool validLocation() const; //returns true if there is a water tile near where boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
 	int state() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
+};
+
+class DLL_EXPORT IShipyard : public IBoatGenerator
+{
+public:
+	IShipyard(const CGObjectInstance *O);
+	virtual void getBoatCost(std::vector<si32> &cost) const;
 
 	static const IShipyard *castFrom(const CGObjectInstance *obj);
 	static IShipyard *castFrom(CGObjectInstance *obj);
@@ -227,7 +232,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGHeroInstance : public CArmedInstance
+class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator
 {
 public:
 	//////////////////////////////////////////////////////////////////////////
@@ -287,6 +292,12 @@ public:
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 
+
+	//////////////////////////////////////////////////////////////////////////
+
+	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+
 	//////////////////////////////////////////////////////////////////////////
 
 	const std::string &getBiography() const;
@@ -298,6 +309,7 @@ public:
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
+	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
 	const BonusList *ownerBonuses() const;
 	const HeroBonus *getBonus(int from, int id) const;

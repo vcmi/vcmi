@@ -668,7 +668,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && mySpell!=-1)
 	{
-		int spellCost = owner->myInt->cb->getSpellCost(&CGI->spellh->spells[mySpell], owner->myHero);
+		const CSpell *sp = &CGI->spellh->spells[mySpell];
+		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
 		//we will cast a spell
 		if(owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell() && spellCost <= owner->myHero->mana) //if battle window is open
 		{
@@ -676,15 +677,35 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			owner->fexitb();
 			owner->myInt->battleInt->castThisSpell(spell);
 		}
-		else
+		else //adventure spell
 		{
 			//insufficient mana
 			if(spellCost > owner->myHero->mana)
 			{
-				std::vector<SComponent*> comps;
 				char msgBuf[500];
 				sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
-				owner->myInt->showInfoDialog(std::string(msgBuf), comps);
+				owner->myInt->showInfoDialog(std::string(msgBuf));
+			}
+			else
+			{
+				int spell = mySpell;
+				const CGHeroInstance *h = owner->myHero;
+				owner->fexitb();
+
+				switch(spell)
+				{
+				case 0: //summon boat
+					{
+						int3 pos = h->bestLocation();
+						if(pos.x < 0)
+						{
+							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
+							return;
+						}
+					}
+				}
+
+				LOCPLINT->cb->castSpell(h, spell);
 			}
 		}
 	}
