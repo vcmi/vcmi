@@ -2387,11 +2387,22 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 
 	if(attacker->hasFeatureOfType(StackFeature::GENERAL_ATTACK_REDUCTION))
 	{
-		attackDefenseBonus = attacker->Attack() * (attacker->valOfFeatures(StackFeature::GENERAL_ATTACK_REDUCTION, -1024) / 100.0f) - defender->Defense();
+		float multAttackReduction = attacker->valOfFeatures(StackFeature::GENERAL_ATTACK_REDUCTION, -1024) / 100.0f;
+		attackDefenseBonus = attacker->Attack() * multAttackReduction;
 	}
 	else
 	{
-		attackDefenseBonus = attacker->Attack() - defender->Defense();
+		attackDefenseBonus = attacker->Attack();
+	}
+
+	if(attacker->hasFeatureOfType(StackFeature::ENEMY_DEFENCE_REDUCTION))
+	{
+		float multDefenceReduction = (100.0f - attacker->valOfFeatures(StackFeature::ENEMY_DEFENCE_REDUCTION, -1024)) / 100.0f;
+		attackDefenseBonus -= defender->Defense() * multDefenceReduction;
+	}
+	else
+	{
+		attackDefenseBonus -= defender->Defense();
 	}
 
 	//calculating total attack/defense skills modifier
@@ -2405,7 +2416,6 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	{
 		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 1);
 	}
-
 
 	if(attacker->getEffect(55)) //slayer handling
 	{
