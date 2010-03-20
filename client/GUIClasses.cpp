@@ -770,21 +770,55 @@ void CRClickPopup::close()
 	GH.popIntTotally(this);
 }
 
+void CRClickPopup::createAndPush(const std::string &txt)
+{
+	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
+	CSimpleWindow * temp = CMessage::genWindow(txt,player,true);
+	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
+	GH.pushInt(rcpi);
+}
+
+void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
+{
+	SDL_Surface *iWin = LOCPLINT->infoWin(obj); //try get custom infowindow for this obj
+	if(iWin)
+		GH.pushInt(new CInfoPopup(iWin, p, alignment, true));
+	else
+		CRClickPopup::createAndPush(obj->getHoverText());
+}
+
+CRClickPopup::CRClickPopup()
+{
+}
+
+CRClickPopup::~CRClickPopup()
+{
+}
+
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
  :free(Free),bitmap(Bitmap)
 {
-	CGI->curh->hide();
+	init(x, y);
+}
 
-	pos.x = x;
-	pos.y = y;
-	pos.h = bitmap->h;
-	pos.w = bitmap->w;
 
-	// Put the window back on screen if necessary
-	amax(pos.x, 0);
-	amax(pos.y, 0);
-	amin(pos.x, conf.cc.resx - bitmap->w);
-	amin(pos.y, conf.cc.resy - bitmap->h);
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free/*=false*/)
+ : free(Free),bitmap(Bitmap)
+{
+	switch(alignment)
+	{
+	case BOTTOMRIGHT:
+		init(p.x - Bitmap->w, p.y - Bitmap->h);
+		break;
+	case CENTER:
+		init(p.x - Bitmap->w/2, p.y - Bitmap->h/2);
+		break;
+	case TOPLEFT:
+		init(p.x, p.y);
+		break;
+	default:
+		assert(0); //not implemented
+	}
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
@@ -816,6 +850,22 @@ void CInfoPopup::show(SDL_Surface * to)
 CInfoPopup::~CInfoPopup()
 {
 	CGI->curh->show();
+}
+
+void CInfoPopup::init(int x, int y)
+{
+	CGI->curh->hide();
+
+	pos.x = x;
+	pos.y = y;
+	pos.h = bitmap->h;
+	pos.w = bitmap->w;
+
+	// Put the window back on screen if necessary
+	amax(pos.x, 0);
+	amax(pos.y, 0);
+	amin(pos.x, conf.cc.resx - bitmap->w);
+	amin(pos.y, conf.cc.resy - bitmap->h);
 }
 
 void SComponent::init(Etype Type, int Subtype, int Val)
@@ -961,7 +1011,7 @@ SDL_Surface * SComponent::getImg()
 void SComponent::clickRight(tribool down, bool previousState)
 {
 	if(description.size())
-		adventureInt->handleRightClick(description,down,this);
+		adventureInt->handleRightClick(description,down);
 }
 void SComponent::activate()
 {
@@ -1277,7 +1327,7 @@ void CHeroList::select(int which)
 		adventureInt->selection = NULL;
 		adventureInt->terrain.currentPath = NULL;
 		draw(screen);
-		adventureInt->infoBar.draw(screen);
+		adventureInt->infoBar.showAll(screen);
 	}
 	if (which>=LOCPLINT->wanderingHeroes.size())
 		return;
@@ -1397,11 +1447,11 @@ void CHeroList::clickRight(tribool down, bool previousState)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down);
 		}
 		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->wanderingHeroes.size()-from>5))
 		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down);
 		}
 		else
 		{
@@ -1413,20 +1463,10 @@ void CHeroList::clickRight(tribool down, bool previousState)
 			if ((ny>SIZE || ny<0) || (from+ny>=LOCPLINT->wanderingHeroes.size()))
 			{
 				return;
-			}
+			}			//show popup
 
-			//show popup
-			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID],
-				GH.current->motion.x-graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID]->w,
-				GH.current->motion.y-graphics->heroWins[LOCPLINT->wanderingHeroes[from+ny]->subID]->h,
-				false);
-			GH.pushInt(ip);
+			CRClickPopup::createAndPush(LOCPLINT->wanderingHeroes[from+ny], GH.current->motion);
 		}
-	}
-	else
-	{
-		adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
-		adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 	}
 }
 
@@ -1692,11 +1732,11 @@ void CTownList::clickRight(tribool down, bool previousState)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down);
 		}
 		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->towns.size()-from>5))
 		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
+			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down);
 		}
 		//if not buttons then towns
 		int hx = GH.current->motion.x, hy = GH.current->motion.y;
@@ -1709,17 +1749,7 @@ void CTownList::clickRight(tribool down, bool previousState)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(
-			graphics->townWins[LOCPLINT->towns[from+ny]->id],
-			GH.current->motion.x-graphics->townWins[LOCPLINT->towns[from+ny]->id]->w,
-			GH.current->motion.y-graphics->townWins[LOCPLINT->towns[from+ny]->id]->h,
-			false);
-		GH.pushInt(ip);
-	}
-	else
-	{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
+		CRClickPopup::createAndPush(LOCPLINT->towns[from+ny], GH.current->motion);
 	}
 }
 
@@ -3912,7 +3942,7 @@ void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(text, down, this);
+	adventureInt->handleRightClick(text, down);
 }
 void LRClickableAreaWText::activate()
 {
@@ -3950,7 +3980,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(text, down, this);
+	adventureInt->handleRightClick(text, down);
 }
 void LRClickableAreaWTextComp::activate()
 {

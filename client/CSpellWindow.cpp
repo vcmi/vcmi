@@ -51,7 +51,7 @@ void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
 
 void SpellbookInteractiveArea::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(textOnRclick, down, this);
+	adventureInt->handleRightClick(textOnRclick, down);
 }
 
 void SpellbookInteractiveArea::hover(bool on)
@@ -688,13 +688,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			}
 			else
 			{
+				using namespace Spells;
 				int spell = mySpell;
 				const CGHeroInstance *h = owner->myHero;
 				owner->fexitb();
 
 				switch(spell)
 				{
-				case 0: //summon boat
+				case SUMMON_BOAT:
 					{
 						int3 pos = h->bestLocation();
 						if(pos.x < 0)
@@ -703,6 +704,21 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							return;
 						}
 					}
+					break;
+				case SCUTTLE_BOAT:
+				case DIMENSION_DOOR:
+					adventureInt->enterCastingMode(sp);
+					return;
+				case VISIONS:
+				case VIEW_EARTH:
+				case DISGUISE:
+				case VIEW_AIR:
+				case FLY:
+				case WATER_WALK:
+				case TOWN_PORTAL:
+					break;
+				default:
+					assert(0);
 				}
 
 				LOCPLINT->cb->castSpell(h, spell);

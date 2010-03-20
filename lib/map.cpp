@@ -2129,3 +2129,19 @@ CVictoryCondition::CVictoryCondition()
 	obj = NULL;
 	ID = allowNormalVictory = appliesToAI = count = 0;
 }
+
+bool TerrainTile::entrableTerrain(const TerrainTile *from /*= NULL*/) const
+{
+	return entrableTerrain(from ? from->tertype != water : true, from ? from->tertype == water : true);
+}
+
+bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
+{
+	return tertype != rock 
+		&& (allowSea && tertype == water   ||   allowLand && tertype != water);
+}
+
+bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
+{
+	return entrableTerrain(from) && !blocked;
+}

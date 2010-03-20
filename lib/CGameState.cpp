@@ -1988,12 +1988,16 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		return false;
 
 	int3 hpos = hero->getPosition(false);
-	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
 
-	if (!hero->canWalkOnSea())
-		blockLandSea = (map->getTile(hpos).tertype != TerrainTile::water); //block land if hero is on water and vice versa
-	else
-		blockLandSea = boost::logic::indeterminate;
+	bool flying = false; //hero is under flying effect	TODO
+	bool waterWalking = false; //hero is on land and can walk on water TODO
+	bool onLand = map->getTile(hpos).tertype != TerrainTile::water;
+// 	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
+// 
+// 	if (!hero->canWalkOnSea())
+// 		blockLandSea = (map->getTile(hpos).tertype != TerrainTile::water); //block land if hero is on water and vice versa
+// 	else
+// 		blockLandSea = boost::logic::indeterminate;
 
 	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
 
@@ -2016,9 +2020,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 			node.coord.y = j;
 			node.coord.z = dest.z;
 
-			if ((tinfo->tertype == TerrainTile::rock) //it's rock
-				|| ((blockLandSea) && (tinfo->tertype == TerrainTile::water)) //it's sea and we cannot walk on sea
-				|| ((!blockLandSea) && (tinfo->tertype != TerrainTile::water)) //it's land and we cannot walk on land
+			if(!tinfo->entrableTerrain(onLand, flying || waterWalking)
 				|| !FoW[i][j][src.z] //tile is covered by the FoW
 			)
 			{
@@ -2039,7 +2041,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 			d.accessible = true; //for allowing visiting objects
 		}
 
-		if(blockLandSea && t->tertype == TerrainTile::water) //hero can walk only on land and dst lays on the water
+		if(onLand && t->tertype == TerrainTile::water) //hero can walk only on land and dst lays on the water
 		{
 			size_t i = 0;
 			for(; i < t->visitableObjects.size(); i++)
@@ -2048,7 +2050,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 
 			d.accessible = (i < t->visitableObjects.size()); //dest is accessible only if there is boat/hero
 		}
-		else if(!blockLandSea && t->tertype != TerrainTile::water) //hero is moving by water
+		else if(!onLand && t->tertype != TerrainTile::water) //hero is moving by water
 		{
 			d.accessible = (t->siodmyTajemniczyBajt & 64) && !t->blocked; //tile is accessible if it's coastal and not blocked
 		}

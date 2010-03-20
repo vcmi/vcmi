@@ -13,6 +13,7 @@ class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
 class CHeroWindow;
+class CSpell;
 /*****************************/
 
 /*
@@ -116,18 +117,20 @@ public:
 	SComponent * current;
 	int mode;
 	int pom;
+	SDL_Surface *selInfoWin; //info box for selection
 
 	CInfoBar();
 	~CInfoBar();
 	void newDay(int Day); //start showing new day/week animation
 	void showComp(SComponent * comp, int time=5000);
 	void tick();
-	void draw(SDL_Surface * to, const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
+	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town
 	void blitAnim(int mode);//0 - day, 1 - week
 	CDefHandler * getAnim(int mode);
 	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
+	void updateSelection(const CGObjectInstance *obj);
 };
 /*****************************/
 class CAdvMapInt : public CIntObject //adventure map interface
@@ -166,12 +169,12 @@ public:
 		endTurn;//- end turn
 
 	CTerrainRect terrain; //visible terrain
-
 	CResDataBar resdatabar;
-
 	CHeroList heroList;
 	CTownList townList;
 	CInfoBar infoBar;
+
+	const CSpell *spellBeingCasted; //NULL if none
 
 	CHeroWindow * heroWindow;
 
@@ -195,11 +198,12 @@ public:
 	void show(SDL_Surface * to); //redraws terrain
 	void showAll(SDL_Surface * to); //shows and activates adv. map interface
 
-	void select(const CArmedInstance *sel);
+	void select(const CArmedInstance *sel, bool centerView = true);
 	void selectionChanged();
 	void centerOn(int3 on);
+	void centerOn(const CGObjectInstance *obj);
 	int3 verifyPos(int3 ver);
-	void handleRightClick(std::string text, tribool down, CIntObject * client);
+	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	bool isActive();
@@ -207,6 +211,13 @@ public:
 	void setPlayer(int Player);
 	void startHotSeatWait(int Player);
 	void startTurn();
+	void tileLClicked(const int3 &mp);
+	void tileHovered(const int3 &tile);
+	void tileRClicked(const int3 &mp);
+	void enterCastingMode(const CSpell * sp);
+	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
+	const CGHeroInstance * curHero() const;
+	const CGTownInstance * curTown() const;
 };
 
 extern CAdvMapInt *adventureInt;

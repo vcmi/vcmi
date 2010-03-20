@@ -95,6 +95,10 @@ struct DLL_EXPORT TerrainTile
 			//these flags (and obj vectors) will be restored in map serialization
 		}
 	}
+
+	bool entrableTerrain(const TerrainTile *from = NULL) const; //checks if terrain is not a rock. If from is water/land, same type is also required. 
+	bool entrableTerrain(bool allowLand, bool allowSea) const; //checks if terrain is not a rock. If from is water/land, same type is also required. 
+	bool isClear(const TerrainTile *from = NULL) const; //checks for blocking objs and terraint type (water / land)
 };
 struct DLL_EXPORT SheroName //name of starting hero
 {

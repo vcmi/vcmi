@@ -1013,11 +1013,13 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		if(player != 255)
-			*(sur->format->palette->colors+5) = graphics->playerColors[player];
-		else
-			*(sur->format->palette->colors+5) = *graphics->neutralColor;
+		SDL_Color *color = (player == 255 
+							? graphics->neutralColor
+							: &graphics->playerColors[player]);
+		SDL_SetColors(sur, color, 5, 1);
 	}
+	else
+		tlog3 << "Warning, setPlayerColor called on not 8bpp surface!\n";
 }
 int readNormalNr (std::istream &in, int bytCon)
 {

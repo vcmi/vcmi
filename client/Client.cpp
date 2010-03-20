@@ -313,7 +313,10 @@ int CClient::getCurrentPlayer()
 
 int CClient::getSelectedHero()
 {
-	return IGameCallback::getSelectedHero(getCurrentPlayer())->id;
+	if(const CGHeroInstance *selHero = IGameCallback::getSelectedHero(getCurrentPlayer()))
+		return selHero->id;
+	else
+		return -1;
 }
 
 void CClient::newGame( CConnection *con, StartInfo *si )

@@ -4213,9 +4213,10 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 	if(s->combatSpell)
 		COMPLAIN_RET("This function can be used only for adventure map spells!");
 
+	using namespace Spells;
 	switch(spellID)
 	{
-	case 0: //Summon Boat 
+	case SUMMON_BOAT: //Summon Boat 
 		{
 			//check if spell works at all
 			if(rand() % 100 >= s->powers[schoolLevel]) //power is % chance of success
@@ -4277,15 +4278,79 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			break;
 		}
 
-	case 1: //Scuttle Boat 
-	case 2: //Visions 
-	case 3: //View Earth 
-	case 4: //Disguise 
-	case 5: //View Air 
-	case 6: //Fly 
-	case 7: //Water Walk 
-	case 8: //Dimension Door
-	case 9: //Town Portal 
+	case SCUTTLE_BOAT: //Scuttle Boat 
+		{
+			//check if spell works at all
+			if(rand() % 100 >= s->powers[schoolLevel]) //power is % chance of success
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
+				iw.text.addReplacement(h->name);
+				sendAndApply(&iw);
+				return true; //TODO? or should it be false? request was correct and realized, but spell failed...
+			}
+
+			//TODO: test range, visibility
+			const TerrainTile *t = &gs->map->getTile(pos);
+			if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != 8)
+				COMPLAIN_RET("There is no boat to scuttle!");
+
+			RemoveObject ro;
+			ro.id = t->visitableObjects.back()->id;
+			sendAndApply(&ro);
+			break;
+		}
+	case DIMENSION_DOOR: //Dimension Door
+		{
+			const TerrainTile *dest = getTile(pos);
+			const TerrainTile *curr = getTile(h->getSightCenter());
+
+			if(!dest)
+				COMPLAIN_RET("Destination tile doesn't exist!");
+			if(!h->movement)
+				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
+			if(h->getBonusesCount(HeroBonus::CASTED_SPELL, Spells::DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
+				iw.text.addReplacement(h->name);
+				sendAndApply(&iw);
+				break;
+			}
+
+			GiveBonus gb;
+			gb.id = h->id;
+			gb.bonus = HeroBonus(HeroBonus::ONE_DAY, HeroBonus::NONE, HeroBonus::CASTED_SPELL, 0, Spells::DIMENSION_DOOR);
+			sendAndApply(&gb);
+			
+			if(!dest->isClear(curr)) //wrong dest tile
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
+				sendAndApply(&iw);
+				break;
+			}
+
+			TryMoveHero tmh;
+			tmh.id = h->id;
+			tmh.movePoints = std::max<int>(0, h->movement - 300);
+			tmh.result = TryMoveHero::TELEPORTATION;
+			tmh.start = h->pos;
+			tmh.end = pos;
+			getTilesInRange(tmh.fowRevealed, pos, h->getSightRadious(), h->tempOwner,1);
+			sendAndApply(&tmh);
+		}
+		break;
+	case VISIONS: //Visions 
+	case VIEW_EARTH: //View Earth 
+	case DISGUISE: //Disguise 
+	case VIEW_AIR: //View Air 
+	case FLY: //Fly 
+	case WATER_WALK: //Water Walk 
+	case TOWN_PORTAL: //Town Portal 
 	default:
 		COMPLAIN_RET("This spell is not implemented yet!");
 	}

@@ -2467,9 +2467,7 @@ void CBonusSelection::CRegion::clickRight( tribool down, bool previousState )
 	if( down && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) &&
 		rclickText.size() )
 	{
-		CSimpleWindow * temp = CMessage::genWindow(rclickText, 0, true);
-		CRClickPopupInt *rcpi = new CRClickPopupInt(temp, true);
-		GH.pushInt(rcpi);
+		CRClickPopup::createAndPush(rclickText);
 	}
 }
 

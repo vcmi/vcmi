@@ -207,6 +207,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
+	void updateInfo(const CGObjectInstance * specific);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);

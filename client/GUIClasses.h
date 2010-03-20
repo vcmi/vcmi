@@ -63,6 +63,7 @@ class CArtifact;
 class CArtifactsOfHero;
 class CResDataBar;
 struct SPuzzleInfo;
+class CGGarrison;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -103,7 +104,12 @@ public:
 	virtual void deactivate();
 	virtual void close();
 	void clickRight(tribool down, bool previousState);
-	virtual ~CRClickPopup(){}; //d-tor
+
+	CRClickPopup();
+	virtual ~CRClickPopup(); //d-tor
+
+	static void createAndPush(const std::string &txt);
+	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
 };
 
 class CRClickPopupInt : public CRClickPopup //popup displayed on R-click
@@ -125,7 +131,10 @@ public:
 	void close();
 	void show(SDL_Surface * to);
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
+	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface *Bitmap = NULL, bool Free = false); //default c-tor
+
+	void init(int x, int y);
 	~CInfoPopup(); //d-tor
 };
 
@@ -265,7 +274,7 @@ class CLabel
 	: public virtual CIntObject
 {
 public:
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT} alignment;
+	EAlignment alignment;
 	EFonts font;
 	SDL_Color color;
 	std::string text;

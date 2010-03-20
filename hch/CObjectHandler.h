@@ -313,6 +313,7 @@ public:
 
 	const BonusList *ownerBonuses() const;
 	const HeroBonus *getBonus(int from, int id) const;
+	int getBonusesCount(int from, int id) const;
 	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
 	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const; //determines if hero has a bonus of given type (and optionally subtype)
 	void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1) const; //out: pairs<modifier value, modifier description>

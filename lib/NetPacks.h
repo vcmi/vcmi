@@ -476,7 +476,7 @@ struct TryMoveHero : public CPackForClient //501
 
 	ui32 id, movePoints;
 	ui8 result; //uses EResult
-	int3 start, end;
+	int3 start, end; //h3m format
 	std::set<int3> fowRevealed; //revealed tiles
 
 	bool humanKnows; //used locally during applying to client

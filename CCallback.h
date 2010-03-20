@@ -42,6 +42,7 @@ struct CPackForServer;
 class CMapHeader;
 struct CGPathNode;
 struct CGPath;
+class CGGarrison;
 
 struct InfoAboutTown
 {
@@ -65,6 +66,7 @@ struct InfoAboutTown
 	InfoAboutTown();
 	~InfoAboutTown();
 	void initFromTown(const CGTownInstance *t, bool detailed);
+	void initFromGarrison(const CGGarrison *garr, bool detailed);
 };
 
 class ICallback
@@ -201,6 +203,7 @@ private:
 	template <typename T> void sendRequest(const T*request);
 
 protected:
+	bool hasAccess(int playerId) const;
 	int player;
 
 public:

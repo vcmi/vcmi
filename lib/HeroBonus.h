@@ -56,7 +56,7 @@ struct DLL_EXPORT HeroBonus
 		FREE_SHIP_BOARDING //movement points preserved with ship boarding and landing
 	};
 	enum BonusDuration{PERMANENT, ONE_BATTLE, ONE_DAY, ONE_WEEK};
-	enum BonusSource{ARTIFACT, OBJECT};
+	enum BonusSource{ARTIFACT, OBJECT, CASTED_SPELL};
 
 	ui8 duration; //uses BonusDuration values
 	ui8 type; //uses BonusType values - says to what is this bonus

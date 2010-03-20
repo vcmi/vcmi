@@ -77,6 +77,7 @@ std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
 static bool gOnlyAI = false;
+static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
 void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
@@ -483,6 +484,7 @@ static void listenForEvents()
 		else if(ev->type == SDL_USEREVENT && ev->user.code == 1)
 		{
 			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+			setResolution = true;
 			delete ev;
 			continue;
 		}
@@ -540,5 +542,11 @@ void startGame(StartInfo * options)
 	}
 
 	CGI->musich->stopMusic();
+
+	//allow event handling thread change resolution
+	eventsM.unlock();
+	while(!setResolution) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	eventsM.lock();
+
 	client->connectionHandler = new boost::thread(&CClient::run, client);
 }

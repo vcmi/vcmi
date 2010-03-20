@@ -133,14 +133,6 @@ CPlayerInterface::~CPlayerInterface()
 		cingconsole->deactivate();
 	delete cingconsole;
 
-	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!= graphics->heroWins.end(); i++)
-		SDL_FreeSurface(i->second);
-	graphics->heroWins.clear();
-
-	for(std::map<int,SDL_Surface*>::iterator i=graphics->townWins.begin(); i!= graphics->townWins.end(); i++)
-		SDL_FreeSurface(i->second);
-	graphics->townWins.clear();
-
 	LOCPLINT = NULL;
 }
 void CPlayerInterface::init(ICallback * CB)
@@ -148,13 +140,6 @@ void CPlayerInterface::init(ICallback * CB)
 	cb = dynamic_cast<CCallback*>(CB);
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
-
-	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
-	for(int i=0;i<tt.size();i++)
-	{
-		SDL_Surface * pom = infoWin(tt[i]);
-		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->id,pom));
-	}
 
 	if(!towns.size() && !wanderingHeroes.size())
 	{
@@ -248,7 +233,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	const CGHeroInstance * ho = cb->getHeroInfo(details.id); //object representing this hero
 	int3 hp = details.start;
 
-	adventureInt->centerOn(ho->pos); //actualizing screen pos
+	adventureInt->centerOn(ho); //actualizing screen pos
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.draw(screen2);
 
@@ -336,15 +321,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	graphics->heroWins.erase(hero->ID);
 	wanderingHeroes -= hero;
 	adventureInt->heroList.updateHList(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(graphics->heroWins.find(hero->subID)==graphics->heroWins.end())
-		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
 	wanderingHeroes.push_back(hero);
 	adventureInt->heroList.updateHList();
 }
@@ -356,38 +338,31 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 
 SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
-	if (specific)
+	if(!specific)
+		specific = adventureInt->selection;
+
+	assert(specific);
+
+	switch(specific->ID)
 	{
-		switch (specific->ID)
+	case HEROI_TYPE: 				
 		{
-		case HEROI_TYPE:
-			return graphics->drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
-			break;
-		case TOWNI_TYPE:
-			return graphics->drawTownInfoWin(dynamic_cast<const CGTownInstance*>(specific));
-			break;
-		default:
-			return NULL;
-			break;
+			InfoAboutHero iah;
+			bool gotInfo = LOCPLINT->cb->getHeroInfo(specific, iah);
+			assert(gotInfo);
+			return graphics->drawHeroInfoWin(iah);
 		}
-	}
-	else
-	{
-		switch (adventureInt->selection->ID)
+	case TOWNI_TYPE:
+	case 33: // Garrison
+	case 219:
 		{
-		case HEROI_TYPE:
-			{
-				const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection;
-				return graphics->drawHeroInfoWin(curh);
-			}
-		case TOWNI_TYPE:
-			{
-				return graphics->drawTownInfoWin((const CGTownInstance *)adventureInt->selection);
-			}
-		default:
-			tlog1 << "Strange... selection is neither hero nor town\n";
-			return NULL;
+			InfoAboutTown iah;
+			bool gotInfo = LOCPLINT->cb->getTownInfo(specific, iah);
+			assert(gotInfo);
+			return graphics->drawTownInfoWin(iah);
 		}
+	default:
+		return NULL;
 	}
 }
 
@@ -408,12 +383,12 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	if(which >= PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
 		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	redrawHeroWin(hero);
+	updateInfo(hero);
 }
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	redrawHeroWin(hero);
+	updateInfo(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
@@ -439,10 +414,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	//redraw infowindow
-	SDL_FreeSurface(graphics->townWins[town->id]);
-	graphics->townWins[town->id] = infoWin(town);
-
+	updateInfo(town);
 
 	if(town->garrisonHero && vstd::contains(wanderingHeroes,town->garrisonHero)) //wandering hero moved to the garrison
 	{
@@ -479,30 +451,7 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(obj->ID == HEROI_TYPE) //hero
-	{
-		const CGHeroInstance * hh;
-		if(hh = dynamic_cast<const CGHeroInstance*>(obj))
-		{
-			SDL_FreeSurface(graphics->heroWins[hh->subID]);
-			graphics->heroWins[hh->subID] = infoWin(hh);
-		}
-	}
-	else if (obj->ID == TOWNI_TYPE) //town
-	{
-		const CGTownInstance * tt;
-		if(tt = static_cast<const CGTownInstance*>(obj))
-		{
-			SDL_FreeSurface(graphics->townWins[tt->id]);
-			graphics->townWins[tt->id] = infoWin(tt);
-		}
-		if(tt->visitingHero)
-		{
-			SDL_FreeSurface(graphics->heroWins[tt->visitingHero->subID]);
-			graphics->heroWins[tt->visitingHero->subID] = infoWin(tt->visitingHero);
-		}
-
-	}
+	updateInfo(obj);
 
 	bool wasGarrison = false;
 	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
@@ -530,12 +479,10 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	switch (buildingID)
 	{
 	case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 15:
-		{
-			SDL_FreeSurface(graphics->townWins[town->id]);
-			graphics->townWins[town->id] = infoWin(town);
-			break;
-		}
+		updateInfo(town);
+		break;
 	}
+
 	if(!castleInt)
 		return;
 	if(castleInt->town!=town)
@@ -983,7 +930,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroB
 {
 	if(bonus.type == HeroBonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	redrawHeroWin(hero);
+	updateInfo(hero);
 }
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
@@ -1004,72 +951,63 @@ void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 	firstCall = -1;
 }
 
-void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
-{
-	if(!vstd::contains(graphics->heroWins,hero->subID))
-	{
-		tlog1 << "Cannot redraw infowindow for hero with subID=" << hero->subID << " - not present in our map\n";
-		return;
-	}
-	SDL_FreeSurface(graphics->heroWins[hero->subID]);
-	graphics->heroWins[hero->subID] = infoWin(hero);
-	if (adventureInt->selection == hero)
-		adventureInt->infoBar.draw(screen);
-}
-
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
 	if (!h)
 		return false; //can't find hero
 
+	pim->unlock();
 	bool result = false;
-	path.convert(0);
-	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
-	stillMoveHero.data = CONTINUE_MOVE;
 
-	enum TerrainTile::EterrainType currentTerrain = TerrainTile::border; // not init yet
-	enum TerrainTile::EterrainType newTerrain;
-	int sh = -1;
-
-	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
 	{
-		//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-		if(path.nodes[i-1].turns)
-		{
-			stillMoveHero.data = STOP_MOVE;
-			break;
-		}
-		// Start a new sound for the hero movement or let the existing one carry on.
-#if 0
-		// TODO
-		if (hero is flying && sh == -1)
-			sh = CGI->soundh->playSound(soundBase::horseFlying, -1);
-#endif
-		{
-			newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
+		path.convert(0);
+		boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+		stillMoveHero.data = CONTINUE_MOVE;
 
-			if (newTerrain != currentTerrain) {
-				CGI->soundh->stopSound(sh);
-				sh = CGI->soundh->playSound(CGI->soundh->horseSounds[newTerrain], -1);
-				currentTerrain = newTerrain;
+		enum TerrainTile::EterrainType currentTerrain = TerrainTile::border; // not init yet
+		enum TerrainTile::EterrainType newTerrain;
+		int sh = -1;
+
+		for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
+		{
+			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
+			if(path.nodes[i-1].turns)
+			{
+				stillMoveHero.data = STOP_MOVE;
+				break;
 			}
+			// Start a new sound for the hero movement or let the existing one carry on.
+#if 0
+			// TODO
+			if (hero is flying && sh == -1)
+				sh = CGI->soundh->playSound(soundBase::horseFlying, -1);
+#endif
+			{
+				newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
+
+				if (newTerrain != currentTerrain) {
+					CGI->soundh->stopSound(sh);
+					sh = CGI->soundh->playSound(CGI->soundh->horseSounds[newTerrain], -1);
+					currentTerrain = newTerrain;
+				}
+			}
+
+			stillMoveHero.data = WAITING_MOVE;
+
+			int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
+			cb->moveHero(h,endpos);
+
+			eventsM.unlock();
+			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
+				stillMoveHero.cond.wait(un);
+			eventsM.lock();
 		}
 
-		stillMoveHero.data = WAITING_MOVE;
-
-		int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
-		cb->moveHero(h,endpos);
-
-		eventsM.unlock();
-		while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
-			stillMoveHero.cond.wait(un);
-		eventsM.lock();
+		CGI->soundh->stopSound(sh);
+		cb->recalculatePaths();
 	}
 
-	CGI->soundh->stopSound(sh);
-
-	//stillMoveHero = false;
-	cb->recalculatePaths();
+	pim->lock();
 	return result;
 }
 
@@ -1905,15 +1843,6 @@ void CPlayerInterface::acceptTurn()
 		adventureInt->startTurn();
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
-		SDL_FreeSurface(i->second);
-	graphics->heroWins.clear();
-	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
-	for(int i=0;i<hh.size();i++)
-	{
-		SDL_Surface * pom = infoWin(hh[i]);
-		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
-	}
 
 	/* TODO: This isn't quite right. First day in game should play
 	 * NEWDAY. And we don't play NEWMONTH. */
@@ -1951,4 +1880,11 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 		else
 			cb->dig(h);
 	}
+}
+
+void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
+{
+	adventureInt->infoBar.updateSelection(specific);
+// 	if (adventureInt->selection == specific)
+// 		adventureInt->infoBar.showAll(screen);
 }

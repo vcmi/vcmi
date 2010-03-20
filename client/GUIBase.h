@@ -71,6 +71,9 @@ struct Point
 	Point(const int3 &a)
 		:x(a.x),y(a.y)
 	{}
+	Point(const SDL_MouseMotionEvent &a)
+		:x(a.x),y(a.y)
+	{}
 	
 	template<typename T>
 	Point operator+(const T &b) const
@@ -364,6 +367,8 @@ public:
 	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
 	ui8 defActions; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow te receive from parent
+
+	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 
 	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
 	void enable(bool activation = true); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)

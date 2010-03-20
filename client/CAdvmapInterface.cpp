@@ -27,6 +27,7 @@
 #include <sstream>
 #include "CPreGame.h"
 #include "../lib/VCMI_Lib.h"
+#include "../hch/CSpellHandler.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -272,7 +273,7 @@ void CMinimap::updateRadar()
 
 void CMinimap::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(rcText,down,this);
+	adventureInt->handleRightClick(rcText,down);
 }
 
 void CMinimap::clickLeft(tribool down, bool previousState)
@@ -473,96 +474,12 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
 	if ((down==false) || indeterminate(down))
 		return;
+
 	int3 mp = whichTileIsIt();
 	if (mp.x<0 || mp.y<0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
 		return;
 
-	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
-		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
-
-	if (adventureInt->selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
-	{
-		if(currentPath)
-		{
-			tlog2<<"Warning: Lost path?" << std::endl;
-			//delete currentPath;
-			currentPath = NULL;
-		}
-
-		for(size_t i=0; i < bobjs.size(); ++i)
-		{
-			if(bobjs[i]->ID == TOWNI_TYPE && bobjs[i]->getOwner() == LOCPLINT->playerID) //our town clicked
-			{
-				if(adventureInt->selection == (bobjs[i])) //selected town clicked
-					LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(bobjs[i]));
-				else
-					adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
-
-				return;
-			}
-			else if(bobjs[i]->ID == HEROI_TYPE && bobjs[i]->tempOwner == LOCPLINT->playerID) //hero clicked - select him
-			{
-				adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
-				return;
-			}
-		}
-	}
-
-	else //hero is selected
-	{
-		bool townEntrance = false; //town entrance tile has been clicked?
-		const CGHeroInstance * currentHero = static_cast<const CGHeroInstance*>(adventureInt->selection);
-
-		for(size_t i=0; i < vobjs.size(); ++i)
-		{
-			if(vobjs[i]->ID == TOWNI_TYPE)
-				townEntrance = true;
-		}
-
-		if(!townEntrance) //not entrance - select town or open hero window
-		{
-			for(size_t i=0; i < bobjs.size(); ++i)
-			{
-				const CGObjectInstance *o = bobjs[i];
-				const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mp);
-				if(  ((o->ID == HEROI_TYPE && pn->turns == 255)  //inaccessible hero
-							|| o->ID == TOWNI_TYPE)										   //or town
-					&& o->tempOwner == LOCPLINT->playerID) //but must belong to us
-				{
-					adventureInt->select(static_cast<const CArmedInstance*>(o));
-					return;
-				}
-				else if(o->ID == HEROI_TYPE //it's a hero
-					&& o->tempOwner == LOCPLINT->playerID  //our hero (is this condition needed?)
-					&& currentHero == (o) ) //and selected one 
-				{
-					LOCPLINT->openHeroWindow(currentHero);
-					return;
-				}
-			}
-		}
-		else if(currentHero == vobjs.back()) //selected hero is standing at the town entrance
-		{
-			LOCPLINT->openHeroWindow(currentHero);
-			return;
-		}
-
-		//still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
-		if (currentPath  &&  currentPath->endPos() == mp)//we'll be moving
-		{
-			LOCPLINT->pim->unlock();
-			LOCPLINT->moveHero(currentHero,*currentPath);
-			LOCPLINT->pim->lock();
-		}
-		else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
-		{
-			int3 bufpos = currentHero->getPosition(false);
-			CGPath &path = LOCPLINT->paths[currentHero];
-			currentPath = &path;
-			if(!LOCPLINT->cb->getPath2(mp, path))
-				LOCPLINT->eraseCurrentPathOf(currentHero);
-		}
-	} //end of hero is selected "case"
+	adventureInt->tileLClicked(mp);
 }
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
@@ -571,118 +488,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 	if (!CGI->mh->map->isInTheMap(mp) || down != true)
 		return;
 
-	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
-	if(!objs.size()) 
-	{
-		// Bare or undiscovered terrain
-		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
-		if (tile) 
-		{
-			std::string hlp;
-			CGI->mh->getTerrainDescr(mp, hlp, true);
-			CSimpleWindow * temp = CMessage::genWindow(hlp, LOCPLINT->playerID, true);
-			CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
-			GH.pushInt(rcpi);
-		}
-		return;
-	}
-
-	const CGObjectInstance * obj = objs.back();
-	switch(obj->ID)
-	{
-	case HEROI_TYPE:
-		{
-			if(!vstd::contains(graphics->heroWins,obj->subID) || obj->tempOwner != LOCPLINT->playerID)
-			{
-				InfoAboutHero iah;
-				if(LOCPLINT->cb->getHeroInfo(obj, iah))
-				{
-					SDL_Surface *iwin = graphics->drawHeroInfoWin(iah);
-					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x-iwin->w,
-													  GH.current->motion.y-iwin->h, true);
-					GH.pushInt(ip);
-				}
-				else
-				{
-					tlog3 << "Warning - no infowin for hero " << obj->id << std::endl;
-				}
-			}
-			else
-			{
-				CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
-					GH.current->motion.x-graphics->heroWins[obj->subID]->w,
-					GH.current->motion.y-graphics->heroWins[obj->subID]->h,false
-					);
-				GH.pushInt(ip);
-			}
-			break;
-		}
-	case TOWNI_TYPE:
-		{
-			if(!vstd::contains(graphics->townWins,obj->id) || obj->tempOwner != LOCPLINT->playerID)
-			{
-				InfoAboutTown iah;
-				if(LOCPLINT->cb->getTownInfo(obj, iah))
-				{
-					SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
-					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x - iwin->w/2,
-						GH.current->motion.y - iwin->h/2, true);
-					GH.pushInt(ip);
-				}
-				else
-				{
-					tlog3 << "Warning - no infowin for town " << obj->id << std::endl;
-				}
-			}
-			else
-			{
-				CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
-					GH.current->motion.x - graphics->townWins[obj->id]->w/2,
-					GH.current->motion.y - graphics->townWins[obj->id]->h/2,false
-					);
-				GH.pushInt(ip);
-			}
-			break;
-		}
-	case 33: // Garrison
-	case 219:
-		{
-			const CGGarrison *garr = dynamic_cast<const CGGarrison *>(obj);
-
-			if (garr != NULL) {
-				InfoAboutTown iah;
-
-				iah.obj = garr;
-				iah.fortLevel = 0;
-				iah.army = garr->army;
-				iah.name = VLC->generaltexth->names[33]; // "Garrison"
-				iah.owner = garr->tempOwner;
-				iah.built = false;
-				iah.tType = NULL;
-
-				// Show detailed info only to owning player.
-				if (garr->tempOwner == LOCPLINT->playerID) {
-					iah.details = new InfoAboutTown::Details;
-					iah.details->customRes = false;
-					iah.details->garrisonedHero = false;
-					iah.details->goldIncome = -1;
-					iah.details->hallLevel = -1;
-				}
-
-				SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
-				CInfoPopup * ip = new CInfoPopup(iwin,
-					GH.current->motion.x - iwin->w/2,
-					GH.current->motion.y - iwin->h/2, true);
-				GH.pushInt(ip);
-			}
-			break;
-		}
-	default:
-		{
-			adventureInt->handleRightClick(obj->getHoverText(),down,this);
-			break;
-		}
-	}
+	adventureInt->tileRClicked(mp);
 }
 void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
@@ -700,163 +506,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	else
 		return;
 
-	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
-	if (temp.size())
-	{
-		boost::replace_all(temp.back(),"\n"," ");
-		adventureInt->statusbar.print(temp.back());
-	}
-	else
-	{
-		std::string hlp;
-		CGI->mh->getTerrainDescr(pom, hlp, false);
-		adventureInt->statusbar.print(hlp);
-		//adventureInt->statusbar.clear();
-	}
-
-	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(pom);
-	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(pom); 
-	const CGObjectInstance *obj = objs.size() ? objs.back() : NULL;
-	bool accessible  =  pnode->turns < 255;
-
-	int turns = pnode->turns;
-	amin(turns, 3);
-
-	if(adventureInt->selection)
-	{
-		if(adventureInt->selection->ID == TOWNI_TYPE)
-		{
-			if(obj && obj->tempOwner == LOCPLINT->playerID)
-			{
-				if(obj->ID == TOWNI_TYPE)
-				{
-					CGI->curh->changeGraphic(0, 3);
-				}
-				else if(obj->ID == HEROI_TYPE)
-				{
-					CGI->curh->changeGraphic(0, 2);
-				}
-			}
-			else
-			{
-				CGI->curh->changeGraphic(0, 0);
-			}
-		}
-		else if(adventureInt->selection->ID == HEROI_TYPE)
-		{
-			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(adventureInt->selection);
-			if(obj)
-			{
-				if(obj->ID == HEROI_TYPE)
-				{
-					if(obj->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
-					{
-						if(accessible)
-							CGI->curh->changeGraphic(0, 5 + turns*6);
-						else
-							CGI->curh->changeGraphic(0, 0);
-					}
-					else //our hero
-					{
-						if(adventureInt->selection == obj)
-							CGI->curh->changeGraphic(0, 2);
-						else if(accessible)
-							CGI->curh->changeGraphic(0, 8 + turns*6);
-						else
-							CGI->curh->changeGraphic(0, 2);
-					}
-				}
-				else if(obj->ID == TOWNI_TYPE)
-				{
-					if(obj->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
-					{
-						if(accessible) {
-							const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(obj);
-
-							// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
-							if (townObj && townObj->army.slots.empty())
-								CGI->curh->changeGraphic(0, 9 + turns*6);
-							else
-								CGI->curh->changeGraphic(0, 5 + turns*6);
-								
-						} else {
-							CGI->curh->changeGraphic(0, 0);
-						}
-					}
-					else //our town
-					{
-						if(accessible)
-							CGI->curh->changeGraphic(0, 9 + turns*6);
-						else
-							CGI->curh->changeGraphic(0, 3);
-					}
-				}
-				else if(obj->ID == 54) //monster
-				{
-					if(accessible)
-						CGI->curh->changeGraphic(0, 5 + turns*6);
-					else
-						CGI->curh->changeGraphic(0, 0);
-				}
-				else if(obj->ID == 8) //boat
-				{
-					if(accessible)
-						CGI->curh->changeGraphic(0, 6 + turns*6);
-					else
-						CGI->curh->changeGraphic(0, 0);
-				}
-				else if (obj->ID == 33 || obj->ID == 219) // Garrison
-				{
-					if (accessible) {
-						const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(obj);
-
-						// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-						if (garrObj && garrObj->tempOwner != LOCPLINT->playerID
-							&& !garrObj->army.slots.empty())
-						{
-							CGI->curh->changeGraphic(0, 5 + turns*6);
-						}
-						else
-						{
-							CGI->curh->changeGraphic(0, 9 + turns*6);
-						}
-					} else {
-						CGI->curh->changeGraphic(0, 0);
-					}
-				}
-				else
-				{
-					if(accessible)
-					{
-						if(pnode->land)
-							CGI->curh->changeGraphic(0, 9 + turns*6);
-						else
-							CGI->curh->changeGraphic(0, 28 + turns);
-					}
-					else
-						CGI->curh->changeGraphic(0, 0);
-				}
-			} 
-			else //no objs 
-			{
-				if(accessible)
-				{
-					if(pnode->land)
-					{
-						if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
-							CGI->curh->changeGraphic(0, 4 + turns*6);
-						else
-							CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
-					}
-					else
-						CGI->curh->changeGraphic(0, 6 + turns*6);
-				}
-				else
-					CGI->curh->changeGraphic(0, 0);
-			}
-		}
-	}
-	//tlog1 << "Tile " << pom << ": Turns=" << (int)pnode->turns <<"  Move:=" << pnode->moveRemains <</* " (from  "  << ")" << */std::endl;
+	adventureInt->tileHovered(curHoveredTile);
 }
 void CTerrainRect::hover(bool on)
 {
@@ -1321,6 +971,7 @@ CInfoBar::CInfoBar()
 	week2 = CDefHandler::giveDef("NEWWEEK2.DEF");
 	week3 = CDefHandler::giveDef("NEWWEEK3.DEF");
 	week4 = CDefHandler::giveDef("NEWWEEK4.DEF");
+	selInfoWin = NULL;
 }
 CInfoBar::~CInfoBar()
 {
@@ -1329,8 +980,12 @@ CInfoBar::~CInfoBar()
 	delete week2;
 	delete week3;
 	delete week4;
+
+	if(selInfoWin)
+		SDL_FreeSurface(selInfoWin);
 }
-void CInfoBar::draw(SDL_Surface * to, const CGObjectInstance * specific)
+
+void CInfoBar::showAll(SDL_Surface * to)
 {
 	if ((mode>=0) && mode<5)
 	{
@@ -1340,24 +995,11 @@ void CInfoBar::draw(SDL_Surface * to, const CGObjectInstance * specific)
 	else if (mode==5)
 	{
 		mode = -1;
-		draw(to,adventureInt->selection);
 	}
-	if (!specific)
-		specific = adventureInt->selection;
 
-	if(!specific)
-		return;
-
-	if(specific->ID == HEROI_TYPE) //hero
+	if(selInfoWin)
 	{
-		if(graphics->heroWins.find(specific->subID)!=graphics->heroWins.end())
-			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y,to);
-	}
-	else if (specific->ID == TOWNI_TYPE)
-	{
-		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
-		if(graphics->townWins.find(t->id)!=graphics->townWins.end())
-			blitAt(graphics->townWins[t->id],pos.x,pos.y,to);
+		blitAt(selInfoWin, pos.x, pos.y, to);
 	}
 }
 
@@ -1450,7 +1092,7 @@ void CInfoBar::showComp(SComponent * comp, int time)
 
 void CInfoBar::tick()
 {
-	if((mode >= 0) && (mode < 5))
+	if(mode >= 0  &&  mode < 5)
 	{
 		pom++;
 		if (pom >= getAnim(mode)->ourImages.size())
@@ -1458,20 +1100,19 @@ void CInfoBar::tick()
 			deactivateTimer();
 			toNextTick = -1;
 			mode = 5;
-			draw(screen2);
+			showAll(screen2);
 			return;
 		}
 		toNextTick = 150;
 		blitAnim(mode);
 	}
-	else if (mode == 6)
+	else if(mode == 6)
 	{
 		deactivateTimer();
 		toNextTick = -1;
 		mode = 5;
-		draw(screen2);
+		showAll(screen2);
 	}
-
 }
 
 void CInfoBar::show( SDL_Surface * to )
@@ -1489,6 +1130,13 @@ void CInfoBar::deactivate()
 	//CIntObject::deactivate();
 	if(active & TIME)
 		deactivateTimer();
+}
+
+void CInfoBar::updateSelection(const CGObjectInstance *obj)
+{
+	if(selInfoWin)
+		SDL_FreeSurface(selInfoWin);
+	selInfoWin = LOCPLINT->infoWin(obj);
 }
 
 CAdvMapInt::CAdvMapInt()
@@ -1526,6 +1174,7 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	spellBeingCasted = NULL;
 	player = 0;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
@@ -1593,24 +1242,21 @@ void CAdvMapInt::fsleepWake()
 {
 }
 void CAdvMapInt::fmoveHero()
-{
-	if (selection->ID!=HEROI_TYPE)
-		return;
-	if (!terrain.currentPath)
+{	
+	const CGHeroInstance *h = curHero();
+	if (!h || !terrain.currentPath)
 		return;
 
-	LOCPLINT->pim->unlock();
-	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(adventureInt->selection),*terrain.currentPath);
-	LOCPLINT->pim->lock();
+	LOCPLINT->moveHero(h, *terrain.currentPath);
 }
 
 void CAdvMapInt::fshowSpellbok()
 {
-	if (selection->ID!=HEROI_TYPE) //checking necessary values
+	if (!curHero()) //checking necessary values
 		return;
 
-
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(adventureInt->selection)), LOCPLINT, false);
+	centerOn(selection);
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), curHero(), LOCPLINT, false);
 	GH.pushInt(spellWindow);
 }
 
@@ -1736,7 +1382,7 @@ void CAdvMapInt::showAll(SDL_Surface *to)
 
 	statusbar.show(to);
 
-	infoBar.draw(to);
+	infoBar.showAll(to);
 	LOCPLINT->cingconsole->show(to);
 }
 void CAdvMapInt::show(SDL_Surface *to)
@@ -1802,10 +1448,6 @@ void CAdvMapInt::selectionChanged()
 }
 void CAdvMapInt::centerOn(int3 on)
 {
-	// TODO:convertPosition should not belong to CGHeroInstance, and it
-	// should be split in 2 methods.
-	on = CGHeroInstance::convertPosition(on, false);
-
 	on.x -= CGI->mh->frameW;
 	on.y -= CGI->mh->frameH;
 	
@@ -1818,10 +1460,20 @@ void CAdvMapInt::centerOn(int3 on)
 	if(GH.topInt() == this)
 		underground.redraw();
 }
+
+void CAdvMapInt::centerOn(const CGObjectInstance *obj)
+{
+	centerOn(obj->getSightCenter());
+}
+
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {
 	ui8 Dir = 0;
 	int k = key.keysym.sym;
+	const CGHeroInstance *h = curHero(); //selected hero
+	const CGTownInstance *t = curTown(); //selected town
+
+
 	switch(k)
 	{
 	case SDLK_i: 
@@ -1834,7 +1486,6 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_d: 
 		{
-			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
 			if(h && isActive() && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
@@ -1847,7 +1498,6 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		{
 			if(!isActive()) 
 				return;
-			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
 			if(h && key.state == SDL_PRESSED)
 			{
 				LOCPLINT->pim->unlock();
@@ -1860,10 +1510,10 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		{
 			if(!isActive() || !selection || key.state != SDL_PRESSED) 
 				return;
-			if(selection->ID == HEROI_TYPE)
-				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(selection));
-			else if(selection->ID == TOWNI_TYPE)
-				LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(selection));
+			if(h)
+				LOCPLINT->openHeroWindow(h);
+			else if(t)
+				LOCPLINT->openTownWindow(t);
 			return;
 		}
 	case SDLK_t:
@@ -1919,12 +1569,12 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
 				return;
 
+			if(!h) 
+				break;
 
-			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(selection);
-			if(!h) break;
 			if(k == 4)
 			{
-				centerOn(h->getPosition(false));
+				centerOn(h);
 				return;
 			}
 
@@ -1940,9 +1590,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			if(!path.nodes[0].turns)
 			{
-				LOCPLINT->pim->unlock();
 				LOCPLINT->moveHero(h, path);
-				LOCPLINT->pim->lock();
 			}
 		}
 
@@ -1955,13 +1603,11 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	else
 		scrollingDir &= ~Dir;
 }
-void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
+void CAdvMapInt::handleRightClick(std::string text, tribool down)
 {
-	if (down)
+	if(down)
 	{
-		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID,true);
-		CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
-		GH.pushInt(rcpi);
+		CRClickPopup::createAndPush(text);
 	}
 }
 int3 CAdvMapInt::verifyPos(int3 ver)
@@ -1981,12 +1627,12 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 	return ver;
 }
 
-void CAdvMapInt::select(const CArmedInstance *sel )
+void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 {
 	LOCPLINT->cb->setSelection(sel);
-
-	centerOn(sel->pos);
 	selection = sel;
+	if(centerView)
+		centerOn(sel);
 
 	terrain.currentPath = NULL;
 	if(sel->ID==TOWNI_TYPE)
@@ -2009,7 +1655,8 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	}
 	townList.draw(screen);
 	heroList.draw(screen);
-	infoBar.draw(screen);
+	infoBar.updateSelection(sel);
+	infoBar.showAll(screen);
 }
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
@@ -2090,10 +1737,317 @@ void CAdvMapInt::startTurn()
 	state = INGAME;
 }
 
+void CAdvMapInt::tileLClicked(const int3 &mp)
+{
+	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
+		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
+	const TerrainTile *tile = LOCPLINT->cb->getTileInfo(mp);
+	const CGObjectInstance *topBlocking = bobjs.size() ? bobjs.back() : NULL;
+
+
+	int3 selPos = selection->getSightCenter();
+	if(spellBeingCasted && isInScreenRange(selPos, mp))
+	{
+		const TerrainTile *heroTile = LOCPLINT->cb->getTileInfo(selPos);
+
+		switch(spellBeingCasted->id)
+		{
+		case Spells::SCUTTLE_BOAT: //Scuttle Boat 
+			if(topBlocking && topBlocking->ID == 8)
+				leaveCastingMode(true, mp);
+			break;
+		case Spells::DIMENSION_DOOR:
+			if(!tile || tile->isClear(heroTile))
+				leaveCastingMode(true, mp);
+			break;
+		}
+		return;
+	}
+
+	if (selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
+	{
+		assert(!terrain.currentPath); //path can be active only when hero is selected
+		if(selection == topBlocking) //selected town clicked
+			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
+		else if(topBlocking && (topBlocking->ID == TOWNI_TYPE || topBlocking->ID == HEROI_TYPE) && topBlocking->tempOwner == LOCPLINT->playerID) //our town/hero clicked
+			select(static_cast<const CArmedInstance*>(topBlocking), false);
+	}
+	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
+	{
+		const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mp);
+		if(currentHero == topBlocking) //clicked selected hero
+		{
+			LOCPLINT->openHeroWindow(currentHero);
+		}
+		else if(topBlocking && (topBlocking->ID == HEROI_TYPE || topBlocking->ID == TOWNI_TYPE) //clicked our town or hero
+			&& pn->turns == 255 && topBlocking->tempOwner == LOCPLINT->playerID) //at inaccessible tile
+		{
+			select(static_cast<const CArmedInstance*>(topBlocking), false);
+		}
+		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
+		{
+			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mp)//we'll be moving
+			{
+				LOCPLINT->moveHero(currentHero,*terrain.currentPath);
+			}
+			else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
+			{
+				CGPath &path = LOCPLINT->paths[currentHero];
+				terrain.currentPath = &path;
+				if(!LOCPLINT->cb->getPath2(mp, path)) //try getting path, erase if failed
+					LOCPLINT->eraseCurrentPathOf(currentHero);
+			}
+		}
+	} //end of hero is selected "case"
+	else
+	{
+		throw std::string("Nothing is selected...");
+	}
+}
+
+void CAdvMapInt::tileHovered(const int3 &tile)
+{
+	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(tile);
+	if (temp.size())
+	{
+		boost::replace_all(temp.back(),"\n"," ");
+		statusbar.print(temp.back());
+	}
+	else
+	{
+		std::string hlp;
+		CGI->mh->getTerrainDescr(tile, hlp, false);
+		statusbar.print(hlp);
+	}
+
+	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(tile);
+	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(tile); 
+	const CGObjectInstance *objAtTile = objs.size() ? objs.back() : NULL;
+	bool accessible  =  pnode->turns < 255;
+
+	int turns = pnode->turns;
+	amin(turns, 3);
+
+	if(!selection) //may occur just at the start of game (fake move before full intiialization)
+		return;
+
+	if(spellBeingCasted)
+	{
+		switch(spellBeingCasted->id)
+		{
+		case Spells::SCUTTLE_BOAT:
+			if(objAtTile && objAtTile->ID == 8)
+				CGI->curh->changeGraphic(0, 42);
+			else
+				CGI->curh->changeGraphic(0, 0);
+			return;
+		case Spells::DIMENSION_DOOR:
+			{
+				const TerrainTile *t = LOCPLINT->cb->getTileInfo(tile);
+				int3 hpos = selection->getSightCenter();
+				if((!t  ||  t->isClear(LOCPLINT->cb->getTileInfo(hpos)))   &&   isInScreenRange(hpos, tile))
+					CGI->curh->changeGraphic(0, 41);
+				else
+					CGI->curh->changeGraphic(0, 0);
+				return;
+			}
+		}
+	}
+
+	if(selection->ID == TOWNI_TYPE)
+	{
+		if(objAtTile && objAtTile->tempOwner == LOCPLINT->playerID)
+		{
+			if(objAtTile->ID == TOWNI_TYPE)
+				CGI->curh->changeGraphic(0, 3);
+			else if(objAtTile->ID == HEROI_TYPE)
+				CGI->curh->changeGraphic(0, 2);
+		}
+		else
+			CGI->curh->changeGraphic(0, 0);
+	}
+	else if(const CGHeroInstance *h = curHero())
+	{
+		if(objAtTile)
+		{
+			if(objAtTile->ID == HEROI_TYPE)
+			{
+				if(objAtTile->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
+				{
+					if(accessible)
+						CGI->curh->changeGraphic(0, 5 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 0);
+				}
+				else //our hero
+				{
+					if(selection == objAtTile)
+						CGI->curh->changeGraphic(0, 2);
+					else if(accessible)
+						CGI->curh->changeGraphic(0, 8 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 2);
+				}
+			}
+			else if(objAtTile->ID == TOWNI_TYPE)
+			{
+				if(objAtTile->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
+				{
+					if(accessible) 
+					{
+						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(objAtTile);
+
+						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
+						if (townObj && townObj->army.slots.empty())
+							CGI->curh->changeGraphic(0, 9 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 5 + turns*6);
+
+					} 
+					else 
+					{
+						CGI->curh->changeGraphic(0, 0);
+					}
+				}
+				else //our town
+				{
+					if(accessible)
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 3);
+				}
+			}
+			else if(objAtTile->ID == 54) //monster
+			{
+				if(accessible)
+					CGI->curh->changeGraphic(0, 5 + turns*6);
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+			else if(objAtTile->ID == 8) //boat
+			{
+				if(accessible)
+					CGI->curh->changeGraphic(0, 6 + turns*6);
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+			else if (objAtTile->ID == 33 || objAtTile->ID == 219) // Garrison
+			{
+				if (accessible) 
+				{
+					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
+
+					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
+					if (garrObj  &&  garrObj->tempOwner != LOCPLINT->playerID  &&  !garrObj->army.slots.empty())
+						CGI->curh->changeGraphic(0, 5 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+				} 
+				else 
+					CGI->curh->changeGraphic(0, 0);
+			}
+			else
+			{
+				if(accessible)
+				{
+					if(pnode->land)
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 28 + turns);
+				}
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+		} 
+		else //no objs 
+		{
+			if(accessible)
+			{
+				if(pnode->land)
+				{
+					if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
+						CGI->curh->changeGraphic(0, 4 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
+				}
+				else
+					CGI->curh->changeGraphic(0, 6 + turns*6);
+			}
+			else
+				CGI->curh->changeGraphic(0, 0);
+		}
+	}
+}
+
+void CAdvMapInt::tileRClicked(const int3 &mp)
+{
+	if(spellBeingCasted)
+	{
+		leaveCastingMode();
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
+		return;
+	}
+
+	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
+	if(!objs.size()) 
+	{
+		// Bare or undiscovered terrain
+		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
+		if (tile) 
+		{
+			std::string hlp;
+			CGI->mh->getTerrainDescr(mp, hlp, true);
+			CRClickPopup::createAndPush(hlp);
+		}
+		return;
+	}
+
+	const CGObjectInstance * obj = objs.back();
+	CRClickPopup::createAndPush(obj, GH.current->motion, CENTER);
+}
+
+void CAdvMapInt::enterCastingMode(const CSpell * sp)
+{
+	using namespace Spells;
+	assert(sp->id == SCUTTLE_BOAT  ||  sp->id == DIMENSION_DOOR);
+	spellBeingCasted = sp;
+
+	deactivate();
+	terrain.activate();
+	GH.fakeMouseMove();
+}
+
+void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, -1, -1)*/)
+{
+	assert(spellBeingCasted);
+	int id = spellBeingCasted->id;
+	spellBeingCasted = NULL;
+	terrain.deactivate();
+	activate();
+
+	LOCPLINT->cb->castSpell(curHero(), id, dest);
+}
+
+const CGHeroInstance * CAdvMapInt::curHero() const
+{
+	if(selection && selection->ID == HEROI_TYPE)
+		return static_cast<const CGHeroInstance *>(selection);
+	else
+		return NULL;
+}
+
+const CGTownInstance * CAdvMapInt::curTown() const
+{
+	if(selection && selection->ID == TOWNI_TYPE)
+		return static_cast<const CGTownInstance *>(selection);
+	else
+		return NULL;
+}
+
 CAdventureOptions::CAdventureOptions()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTS.bmp"), 0, 0);
+	bg = new CPicture("ADVOPTS.bmp");
 	graphics->blueToPlayersAdv(bg->bg, LOCPLINT->playerID);
 	pos = bg->center();
 	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
@@ -2106,13 +2060,11 @@ CAdventureOptions::CAdventureOptions()
 	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");
 	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 
-	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
 	dig = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 139, "ADVDIG.DEF");
-	if(h)
+	if(const CGHeroInstance *h = adventureInt->curHero())
 		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
 	else
 		dig->block(true);
-
 }
 
 CAdventureOptions::~CAdventureOptions()

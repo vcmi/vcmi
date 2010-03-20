@@ -164,7 +164,12 @@ void CCursorHandler::shiftPos( int &x, int &y )
 				y -= 16;
 			}
 		}
-		else if(number < 31)
+		else if(number == 41)
+		{
+			x -= 14;
+			y -= 16;
+		}
+		else if(number < 31 || number == 42)
 		{
 			x -= 20;
 			y -= 20;

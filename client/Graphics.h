@@ -64,8 +64,6 @@ public:
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
 		*morale22, *morale30, *morale42, *morale82,
 		*halls, *forts, *bigTownPic;
-	std::map<int,SDL_Surface*> heroWins; //hero_ID => infobox
-	std::map<int,SDL_Surface*> townWins; //town_ID => infobox
 	CDefEssential * artDefs; //artifacts
 	std::vector<SDL_Surface *> portraitSmall; //48x32 px portraits of heroes
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes

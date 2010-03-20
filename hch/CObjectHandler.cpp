@@ -23,6 +23,7 @@
 #include "../lib/map.h"
 #include <sstream>
 #include <SDL_stdinc.h>
+#include <boost/foreach.hpp>
 using namespace boost::assign;
 
 /*
@@ -1238,7 +1239,7 @@ int CGHeroInstance::getBoatType() const
 	case 2:
 		return 2;
 	default:
-		assert(0);
+		throw std::string("Wrong alignment!");
 	}
 }
 
@@ -1252,6 +1253,17 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 int CGHeroInstance::getSpellCost(const CSpell *sp) const
 {
 	return sp->costs[getSpellSchoolLevel(sp)];
+}
+
+int CGHeroInstance::getBonusesCount(int from, int id) const
+{
+	int ret = 0;
+
+	BOOST_FOREACH(const HeroBonus &hb, bonuses)
+		if(hb.source == from  &&  hb.id == id)
+			ret++;
+
+	return ret;
 }
 
 void CGDwelling::initObj()

@@ -7,6 +7,7 @@
 #include "lib/map.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CDefObjInfoHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CObjectHandler.h"
 #include "lib/Connection.h"
@@ -33,21 +34,7 @@
  *
  */
 
-static int gcd(int x, int y)
-{
-	int temp;
-	if (y > x)
-		std::swap(x,y);
-	while (y != 0)
-	{
-		temp = y;
-		y = x-y;
-		x = temp;
-		if (y > x)
-			std::swap(x,y);
-	}
-	return x;
-}
+
 HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
 	:src(Src),dst(Dst),ho(Ho)
 {
@@ -186,12 +173,18 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode =
 
 bool CCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest ) const
 {
-	const CGTownInstance *t = dynamic_cast<const CGTownInstance *>(town);
-	if(!t || !isVisible(t, player)) //it's not a town or it's not visible for layer
+	if(!isVisible(town, player)) //it's not a town or it's not visible for layer
 		return false;
 
+	bool detailed = hasAccess(town->tempOwner);
+
 	//TODO vision support, info about allies
-	dest.initFromTown(t, false);
+	if(town->ID == TOWNI_TYPE)
+		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
+	else if(town->ID == 33 || town->ID == 219)
+		dest.initFromGarrison(static_cast<const CGGarrison *>(town), detailed);
+	else
+		return false;
 	return true;
 }
 
@@ -245,7 +238,7 @@ bool CCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest )
 		return false;
 	
 	//TODO vision support, info about allies
-	dest.initFromHero(h, false);
+	dest.initFromHero(h, hasAccess(h->tempOwner));
 	return true;
 }
 
@@ -963,6 +956,11 @@ void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &p
 	sendRequest(&cas);
 }
 
+bool CCallback::hasAccess(int playerId) const
+{
+	return playerId == player  ||  player < 0;
+}
+
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;
@@ -1003,4 +1001,25 @@ void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 			i->second.second = 0;
 		}
 	}*/
+}
+
+void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
+{
+	obj = garr;
+	fortLevel = 0;
+	army = garr->army;
+	name = CGI->generaltexth->names[33]; // "Garrison"
+	owner = garr->tempOwner;
+	built = false;
+	tType = NULL;
+
+	// Show detailed info only to owning player.
+	if(detailed)
+	{
+		details = new InfoAboutTown::Details;
+		details->customRes = false;
+		details->garrisonedHero = false;
+		details->goldIncome = -1;
+		details->hallLevel = -1;
+	}
 }

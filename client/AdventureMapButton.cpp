@@ -152,10 +152,7 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 void AdventureMapButton::clickRight(tribool down, bool previousState)
 {
 	if(down && helpBox.size()) //there is no point to show window with nothing inside...
-		if(LOCPLINT)
-			adventureInt->handleRightClick(helpBox,down,this);
-		else
-			GH.pushInt(new CRClickPopupInt(CMessage::genWindow(helpBox, 0),true));
+		CRClickPopup::createAndPush(helpBox);
 }
 
 void AdventureMapButton::hover (bool on)

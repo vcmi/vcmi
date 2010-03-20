@@ -51,6 +51,13 @@ public:
 	}
 };
 
+namespace Spells
+{
+	enum {SUMMON_BOAT=0, SCUTTLE_BOAT, VISIONS, VIEW_EARTH, DISGUISE, VIEW_AIR, FLY, WATER_WALK, DIMENSION_DOOR, TOWN_PORTAL};
+}
+
+bool DLL_EXPORT isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
+
 class DLL_EXPORT CSpellHandler
 {
 public:
