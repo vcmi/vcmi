@@ -4828,7 +4828,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 		case 15:
 			bc = NULL;
 			break;
-		case 16:
+		case 16: //remove rewards from Derelict Ship
 			artifacts.clear();
 			break;
 		case 17: //set ArmedInstance army
@@ -4846,10 +4846,19 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					case 4:
 					{
 						std::vector< std::pair <ui16, ui32> >::const_iterator it;
-						for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+						if (bc->guards.back().second) //all stacks are present
 						{
-							int n = army.slots.size();
-							army.setCreature (n, it->first, it->second);
+							for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+							{
+								army.setCreature (army.slots.size(), it->first, it->second);
+							}
+						}
+						else //split first stack, as in Crypt
+						{
+							army.setCreature (0, bc->guards[0].first, bc->guards[0].second  / 2 );
+							army.setCreature (1, bc->guards[0].first, bc->guards[0].second - (bc->guards[0].second  / 2) );
+							army.setCreature (2, bc->guards[1].first, bc->guards[1].second);
+							army.setCreature (3, bc->guards[2].first + upgraded, bc->guards[2].second);
 						}
 					}
 						break;
@@ -4876,7 +4885,10 @@ void CBank::newTurn() const
 			initialize();
 			cb->setObjProperty (id, 11, 0); //daycounter 0
 			if (ID == 24 && cb->getDate(0) > 1)
-				cb->setObjProperty (id, 16, 0); //derelict ships are usable only once
+			{
+				cb->setObjProperty (id, 12, 0);//ugly hack to make derelict ships usable only once
+				cb->setObjProperty (id, 16, 0);
+			}
 		}
 		else
 			cb->setObjProperty (id, 11, 1); //daycounter++
@@ -4884,7 +4896,7 @@ void CBank::newTurn() const
 }
 void CBank::onHeroVisit (const CGHeroInstance * h) const
 {
-	if (bc != NULL)
+	if (bc)
 	{
 		int banktext = 0;
 		switch (ID)
@@ -4918,9 +4930,25 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		InfoWindow iw;
 		iw.soundID = soundBase::GRAVEYARD;
 		iw.player = h->getOwner();
-		//if (ID == 16 || ID == 24 || ID == 25 || ID == 84)
-		iw.text << VLC->generaltexth->advobtxt[33];
-		iw.text.addReplacement (VLC->objh->creBanksNames[index]);
+		if (ID == 84) //morale penalty for empty Crypt
+		{
+			GiveBonus gbonus;
+			gbonus.id = h->id;
+			gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
+			gbonus.bonus.source = HeroBonus::OBJECT;
+			gbonus.bonus.id = ID;
+			gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[98];
+			gbonus.bonus.type = HeroBonus::MORALE;
+			gbonus.bonus.val = -1;
+			cb->giveHeroBonus(&gbonus);
+			iw.text << VLC->generaltexth->advobtxt[120];
+			iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+		}
+		else
+		{
+			iw.text << VLC->generaltexth->advobtxt[33];
+			iw.text.addReplacement (VLC->objh->creBanksNames[index]);
+		}
 		cb->showInfoDialog(&iw);
 	}
 }
@@ -4947,22 +4975,21 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				textID = 34;
 				break;
 			case 24: //derelict ship
-				if (bc->resources.size() != 0)
+				if (multiplier)
 					textID = 43;
 				else
 				{
-					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
 					GiveBonus gbonus;
 					gbonus.id = h->id;
 					gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
 					gbonus.bonus.source = HeroBonus::OBJECT;
 					gbonus.bonus.id = ID;
-					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
+					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[101];
 					gbonus.bonus.type = HeroBonus::MORALE;
-					gbonus.bonus.val = -2;
+					gbonus.bonus.val = -1;
 					cb->giveHeroBonus(&gbonus);
 					textID = 42;
-					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
 				}
 				break;
 			case 84: //Crypt
@@ -4985,27 +5012,27 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				}
 				break;
 			case 85: //shipwreck
-				if (bc->resources.size() != 0)
+				if (bc->resources.size())
 					textID = 124;
 				else
-				{
-					textID = 123;
-					
-				}
+					textID = 123;	
 				break;
 		}
 
 		//grant resources
-		for (int it = 0; it < bc->resources.size(); it++)
-		{	
-			if (bc->resources[it] != 0)
-			{
-				iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
-				loot << "%d %s";
-				loot.addReplacement (iw.components.back().val);
-				loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
-				cb->giveResource (h->getOwner(), it, bc->resources[it]);
-			}		
+		if (textID != 42) //empty derelict ship gives no cash
+		{
+			for (int it = 0; it < bc->resources.size(); it++)
+			{	
+				if (bc->resources[it] != 0)
+				{
+					iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
+					loot << "%d %s";
+					loot.addReplacement (iw.components.back().val);
+					loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+					cb->giveResource (h->getOwner(), it, bc->resources[it]);
+				}		
+			}
 		}
 		//grant artifacts
 		for (std::vector<ui32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
@@ -5016,7 +5043,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
 		//display loot
-		if (!loot.message.empty())
+		if (!iw.components.empty())
 		{
 			if (textID == 34)
 			{
