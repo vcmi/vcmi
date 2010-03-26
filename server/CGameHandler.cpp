@@ -402,7 +402,8 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
 
-			if(next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
+			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
+				|| (next->creature->idNumber == 146 && curOwner->getSecSkillLevel(20) == 0)) //ballista, hero has no artillery
 			{
 				BattleAction attack;
 				attack.actionType = 7;
@@ -411,7 +412,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 				for(int g=0; g<gs->curB->stacks.size(); ++g)
 				{
-					if(gs->curB->stacks[g]->attackerOwned && gs->curB->stacks[g]->alive())
+					if(gs->curB->stacks[g]->owner != curOwner->tempOwner && gs->curB->stacks[g]->alive())
 					{
 						attack.destinationTile = gs->curB->stacks[g]->position;
 						break;
