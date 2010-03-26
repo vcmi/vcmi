@@ -2556,23 +2556,28 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	minDmg *= dmgBonusMultiplier;
 	maxDmg *= dmgBonusMultiplier;
 
+	std::pair<ui32, ui32> returnedVal;
+
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
 		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->level];
-		return std::make_pair(int(minDmg), int(minDmg));
+		returnedVal = std::make_pair(int(minDmg), int(minDmg));
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
 		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->level];
-		return std::make_pair(int(maxDmg), int(maxDmg));
+		returnedVal =  std::make_pair(int(maxDmg), int(maxDmg));
 	}
 	else
 	{
-		return std::make_pair(int(minDmg), int(maxDmg));
+		returnedVal =  std::make_pair(int(minDmg), int(maxDmg));
 	}
 
-	tlog1 << "We are too far in calculateDmg...\n";
-	return std::make_pair(0, 0);
+	//damage cannot be less than 1
+	amin(returnedVal.first, 1);
+	amin(returnedVal.second, 1);
+
+	return returnedVal;
 }
 
 ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
