@@ -29,7 +29,8 @@ void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 		{
 			pressedL = true;
 			clickLeft(true, prev);
-		} else 
+		} 
+		else 
 		{
 			pressedL = false;
 			clickLeft(false, prev);
