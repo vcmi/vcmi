@@ -377,6 +377,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CCreatureSet.h"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CDefObjInfoHandler.h"
 				>
 			</File>
@@ -453,6 +457,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\CCreatureSet.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
