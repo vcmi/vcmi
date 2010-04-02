@@ -322,6 +322,17 @@ DLL_EXPORT std::string MetaString::buildList () const
 	return lista;
 }
 
+void MetaString::addReplacement(const CStackInstance &stack)
+{
+	assert(stack.count); //valid count
+	assert(stack.type); //valid type
+
+	if (stack.count == 1)
+		addReplacement (CRE_SING_NAMES, stack.type->idNumber);
+	else
+		addReplacement (CRE_PL_NAMES, stack.type->idNumber);
+}
+
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
@@ -1125,14 +1136,16 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 void randomizeArmy(CArmedInstance * army, int type)
 {
 	int max = VLC->creh->creatures.size();
-	for (std::map<si32,std::pair<ui32,si32> >::iterator j=army->army.slots.begin(); j!=army->army.slots.end();j++)
+	for (TSlots::iterator j=army->army.slots.begin(); j!=army->army.slots.end();j++)
 	{
-		if(j->second.first > max)
+		if(j->second.idRand > max)
 		{
-			if(j->second.first % 2)
-				j->second.first = VLC->townh->towns[type].basicCreatures[ (j->second.first-197) / 2 -1];
+			if(j->second.idRand % 2)
+				j->second.setType(VLC->townh->towns[type].basicCreatures[(j->second.idRand-197) / 2 -1]);
 			else
-				j->second.first = VLC->townh->towns[type].upgradedCreatures[ (j->second.first-197) / 2 -1];
+				j->second.setType(VLC->townh->towns[type].upgradedCreatures[(j->second.idRand-197) / 2 -1]);
+
+			j->second.idRand = -1;
 		}
 	}
 	return;
@@ -1743,7 +1756,7 @@ const CGHeroInstance * CGameState::battleGetOwner(int stackID)
 UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
-	const CCreature *base = &VLC->creh->creatures[obj->army.slots.find(stackPos)->second.first];
+	const CCreature *base = obj->army.slots.find(stackPos)->second.type;
 	if((obj->ID == TOWNI_TYPE)  ||  ((obj->ID == HEROI_TYPE) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
 	{
 		const CGTownInstance * t;
@@ -2574,8 +2587,8 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	}
 
 	//damage cannot be less than 1
-	amin(returnedVal.first, 1);
-	amin(returnedVal.second, 1);
+	amax(returnedVal.first, 1);
+	amax(returnedVal.second, 1);
 
 	return returnedVal;
 }
@@ -2999,8 +3012,8 @@ int CGameState::victoryCheck( ui8 player ) const
 						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->army.slots.begin(); i!=ai->army.slots.end(); ++i) //iterate through army
-							if(i->second.first == map->victoryCondition.ID) //it's searched creature
-								total += i->second.second;
+							if(i->second.type->idNumber == map->victoryCondition.ID) //it's searched creature
+								total += i->second.count;
 					}
 				}
 
@@ -3292,7 +3305,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(TSlots::const_iterator it = g->second.heroes[b]->army.slots.begin(); it != g->second.heroes[b]->army.slots.end(); ++it)
 				{
-					int toCmp = it->second.first; //ID of creature we should compare with the best one
+					int toCmp = it->second.type->idNumber; //ID of creature we should compare with the best one
 					if(bestCre == -1 || VLC->creh->creatures[bestCre].AIValue < VLC->creh->creatures[toCmp].AIValue)
 					{
 						bestCre = toCmp;
@@ -3755,9 +3768,9 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 	else
 	{
 		//hide info about hero stacks counts using descriptives names ids
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
+		for(TSlots::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
 		{
-			i->second.second = CCreature::getQuantityID(i->second.second);
+			i->second.count = i->second.getQuantityID();
 		}
 	}
 }

@@ -3652,12 +3652,12 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(std::map<si32,std::pair<ui32,si32> >::const_iterator it = owner->army1->slots.begin(); it!=owner->army1->slots.end(); ++it)
+		for(TSlots::const_iterator it = owner->army1->slots.begin(); it!=owner->army1->slots.end(); ++it)
 		{
-			if( CGI->creh->creatures[it->first].AIValue > bestPower)
+			if( it->second.type->AIValue > bestPower)
 			{
-				bestPower = CGI->creh->creatures[it->first].AIValue;
-				bestMonsterID = it->first;
+				bestPower = it->second.type->AIValue;
+				bestMonsterID = it->second.type->idNumber;
 			}
 		}
 		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 21, 38));
@@ -3674,12 +3674,12 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(std::map<si32,std::pair<ui32,si32> >::const_iterator it = owner->army2->slots.begin(); it!=owner->army2->slots.end(); ++it)
+		for(TSlots::const_iterator it = owner->army2->slots.begin(); it!=owner->army2->slots.end(); ++it)
 		{
-			if( CGI->creh->creatures[it->second.first].AIValue > bestPower)
+			if( it->second.type->AIValue > bestPower)
 			{
-				bestPower = CGI->creh->creatures[it->second.first].AIValue;
-				bestMonsterID = it->second.first;
+				bestPower = it->second.type->AIValue;
+				bestMonsterID = it->second.type->idNumber;
 			}
 		}
 		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 391, 38));

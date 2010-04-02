@@ -528,6 +528,8 @@ void startGame(StartInfo * options)
 		ev.user.code = 1;
 		SDL_PushEvent(&ev);
 	}
+	else
+		setResolution = true;
 
 	client = new CClient;
 	if(options->mode == 0) //new game

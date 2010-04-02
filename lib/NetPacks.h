@@ -123,6 +123,7 @@ public:
 		message.push_back(TREPLACE_NUMBER);
 		numbers.push_back(txt);
 	}
+	DLL_EXPORT void addReplacement(const CStackInstance &stack); //adds sing or plural name;
 	DLL_EXPORT std::string buildList () const;
 	void clear()
 	{
@@ -679,8 +680,16 @@ struct Component : public CPack //2002 helper for object scrips informations
 	{
 		h & id & subtype & val & when;
 	}
-	Component(){type = 2002;};
-	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When):id(Type),subtype(Subtype),val(Val),when(When){type = 2002;};
+	Component()
+	{
+		type = 2002;
+	}
+	DLL_EXPORT explicit Component(const CStackInstance &stack);
+	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When)
+		:id(Type),subtype(Subtype),val(Val),when(When)
+	{
+		type = 2002;
+	}
 };
 
 struct InfoWindow : public CPackForClient //103  - displays simple info window

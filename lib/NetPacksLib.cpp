@@ -172,7 +172,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	if(h  &&  flags & 1)
 	{
 		h->army.slots.clear();
-		h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
+		h->army.slots[0] = CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
 	}
 
 	h = (hid2>=0 ?  gs->hpool.heroesPool[hid2] : NULL);
@@ -180,7 +180,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	if(flags & 2)
 	{
 		h->army.slots.clear();
-		h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
+		h->army.slots[0] = CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
 	}
 }
 
@@ -1221,4 +1221,10 @@ DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
 {
 	gs->getPlayer(player)->currentSelection = id;
+}
+
+DLL_EXPORT Component::Component(const CStackInstance &stack)
+	:id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
+{
+
 }

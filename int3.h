@@ -1,8 +1,6 @@
 #ifndef __INT3_H__
 #define __INT3_H__
-#include <map>
-#include <vector>
-#include <cmath>
+
 
 /*
  * int3.h, part of VCMI engine
@@ -14,122 +12,6 @@
  *
  */
 
-class CCreature;
-
-//a few typedefs for CCreatureSet
-typedef si32 TSlot, TQuantity;
-typedef ui32 TCreature;
-typedef std::pair<TCreature, TQuantity> TStack;
-typedef std::map<TSlot, TStack> TSlots;
-
-class CCreatureSet //seven combined creatures
-{
-public:
-	TSlots slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
-	ui8 formation; //false - wide, true - tight
-
-	int getCreature (TSlot slot) const //workaround of map issue
-	{
-		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
-		if (i != slots.end())
-			return i->second.first;
-		else
-			return -1;
-	}
-	int getAmount (TSlot slot) const
-	{
-		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
-		if (i != slots.end())
-			return i->second.second;
-		else
-			return -1;
-	}
-	const TStack* getStack (TSlot slot) const
-	{
-		std::map<TSlot, TStack>::const_iterator i = slots.find(slot);
-		if (i != slots.end())
-			return &(i->second);
-		else
-			return NULL;
-	}
-	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) //slots 0 to 6
-	{
-		slots[slot] = TStack(type, quantity);  //brutal force
-		if (quantity == 0)
-			slots.erase(slot);
-		if (slots.size() > 7) return false;
-		else return true;
-	}
-	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=7) const //returns -1 if no slot available
-	{	
-		for(TSlots::const_iterator i=slots.begin(); i!=slots.end(); ++i)
-		{
-			if(i->second.first == creature)
-			{
-				return i->first; //if there is already such creature we return its slot id
-			}
-		}
-		for(ui32 i=0; i<slotsAmount; i++)
-		{
-			if(slots.find(i) == slots.end())
-			{
-				return i; //return first free slot
-			}
-		}
-		return -1; //no slot available
-	}
-	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) //looks for two same stacks, returns slot positions
-	{
-		//try to match creature to our preferred stack
-		if(preferable >= 0  &&  slots.find(preferable) != slots.end())
-		{
-			TCreature id = slots[preferable].first;
-			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
-			{
-				if(id == j->second.first && j->first != preferable)
-				{
-					out.first = preferable;
-					out.second = j->first;
-					return true;
-				}
-			}
-		}
-
-		for(TSlots::const_iterator i=slots.begin(); i!=slots.end(); ++i)
-		{
-			for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
-			{
-				if(i->second.first == j->second.first  &&  i->first != j->first)
-				{
-					out.first = i->first;
-					out.second = j->first;
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & slots & formation;
-	}
-	operator bool() const
-	{
-		return slots.size() > 0;
-	}
-	void sweep()
-	{
-		for(TSlots::iterator i=slots.begin(); i!=slots.end(); ++i)
-		{
-			if(!i->second.second)
-			{
-				slots.erase(i);
-				sweep();
-				break;
-			}
-		}
-	}
-};
 
 class int3
 {

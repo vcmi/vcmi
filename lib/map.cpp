@@ -143,42 +143,32 @@ static EDefType getDefType(CGDefInfo * a)
 
 static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
-	if(version)
+	const int bytesPerCre = version ? 4 : 3,
+		idBytes = version ? 2 : 1,
+		maxID = version ? 0xffff : 0xff;
+
+	CCreatureSet ret;
+	for(int ir=0;ir < number; ir++)
 	{
-		CCreatureSet ret;
-		std::pair<ui32,si32> ins;
-		for(int ir=0;ir<number;ir++)
+		int creID = readNormalNr(bufor,i+ir*bytesPerCre, idBytes);
+		int count = readNormalNr(bufor,i+ir*bytesPerCre+idBytes, 2);
+
+		if(creID == maxID) //empty slot
+			continue;
+		if(creID > maxID - 0xf)
 		{
-			int rettt = readNormalNr(bufor,i+ir*4, 2);
-			if(rettt==0xffff) continue;
-			if(rettt>65520)
-				rettt = 65536-rettt+VLC->creh->creatures.size();//this will happens when random object has random army
-			ins.first = rettt;
-			ins.second = readNormalNr(bufor,i+ir*4+2, 2);
-			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);
-			ret.slots.insert(tt);
+			creID = maxID + 1 - creID + VLC->creh->creatures.size();//this will happen when random object has random army
+			ret.slots[ir].idRand = creID;
 		}
-		i+=number*4;
-		return ret;
+		else
+			ret.slots[ir].setType(creID);
+
+		ret.slots[ir].count = count;
 	}
-	else
-	{
-		CCreatureSet ret;
-		std::pair<ui32,si32> ins;
-		for(int ir=0;ir<number;ir++)
-		{
-			int rettt = readNormalNr(bufor,i+ir*3, 1);
-			if(rettt==0xff) continue;
-			if(rettt>240)
-				rettt = 256-rettt+VLC->creh->creatures.size();
-			ins.first = rettt;
-			ins.second = readNormalNr(bufor,i+ir*3+1, 2);
-			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);
-			ret.slots.insert(tt);
-		}
-		i+=number*3;
-		return ret;
-	}
+	i+=number*bytesPerCre;
+	
+	ret.validTypes(true);
+	return ret;
 }
 CMapHeader::CMapHeader(const unsigned char *map)
 {
@@ -900,6 +890,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
 		nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
+
 	nhi->army.formation =bufor[i]; ++i; //formation
 	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 	int artmask = version == RoE ? 0xff : 0xffff;
@@ -1494,7 +1485,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					cre->identifier = readNormalNr(bufor,i); i+=4;
 					monsters[cre->identifier] = cre;
 				}
-				cre->army.slots[0].second = readNormalNr(bufor,i, 2); i+=2;
+				cre->army.slots[0].count = readNormalNr(bufor,i, 2); i+=2;
 				cre->character = bufor[i]; ++i;
 				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
 				if(isMesTre)
@@ -2046,7 +2037,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			{
 				ui32 creType = readNormalNr(bufor,i, 2); i+=2;
 				ui32 creNumb = readNormalNr(bufor,i, 2); i+=2;
-				guard->m6creatures[hh] = std::make_pair(creType,creNumb);
+				guard->m6creatures[hh] = CStackInstance(creType,creNumb);
 			}
 			break;
 		}
