@@ -113,9 +113,13 @@ struct DLL_EXPORT HeroBonus
 
 };
 
+class CBonusSystemNode;
+
 static const HeroBonus::BonusType MORALE_AFFECTING[] =  {HeroBonus::MORALE, HeroBonus::MORALE_AND_LUCK};
 static const HeroBonus::BonusType LUCK_AFFECTING[] =  {HeroBonus::LUCK, HeroBonus::MORALE_AND_LUCK};
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
+typedef std::list<CBonusSystemNode*> TNodes;
+typedef std::list<const CBonusSystemNode*> TCNodes;
 
 class BonusList : public std::list<HeroBonus>
 {
@@ -129,4 +133,39 @@ public:
 	{
 		h & static_cast<std::list<HeroBonus>&>(*this);
 	}
+};
+
+class DLL_EXPORT CBonusSystemNode
+{
+public:
+	BonusList bonuses;
+
+	virtual void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;  //retreives list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+
+	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
+	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
+	const HeroBonus * getBonus( int from, int id ) const;
+	void getModifiersWDescr( std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(int from, int id) const;
+
+	template<int N> void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, const HeroBonus::BonusType (&types)[N]) const //retreive array of types
+	{
+		for (int i = 0; i < N; i++)
+			getModifiersWDescr(out, types[i]);
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & bonuses;
+	}
+};
+
+namespace NBonus
+{
+	//set of methods that may be safely called with NULL objs
+	DLL_EXPORT int valOf(const CBonusSystemNode *obj, HeroBonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
+	DLL_EXPORT bool hasOfType(const CBonusSystemNode *obj, HeroBonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
+	DLL_EXPORT const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
+	DLL_EXPORT void getModifiersWDescr(const CBonusSystemNode *obj, std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
+	DLL_EXPORT int getCount(const CBonusSystemNode *obj, int from, int id);
 };

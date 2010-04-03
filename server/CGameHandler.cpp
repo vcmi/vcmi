@@ -337,7 +337,6 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
 
-
 	//tactic round
 	{
 		NEW_ROUND;
@@ -362,7 +361,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 			//check for bad morale => freeze
 			if( curB.Morale(next) < 0 &&
-				!((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE))) //checking if heroes have (or don't have) morale blocking bonuses)
+				!(NBonus::hasOfType(hero1, HeroBonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, HeroBonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses)
 				)
 			{
 				if( rand()%24   <   (-curB.Morale(next))*2 )
@@ -509,7 +508,7 @@ askInterfaceForMove:
 				&& !vstd::contains(next->state,WAITING)
 				&&  next->alive()
 				&&  curB.Morale(next) > 0
-				&& !((hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE)) ) //checking if heroes have (or don't have) morale blocking bonuses
+				&& !(NBonus::hasOfType(hero1, HeroBonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, HeroBonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses
 			)
 				if(rand()%24 < curB.Morale(next)) //this stack hasn't got morale this turn
 					goto askInterfaceForMove; //move this stack once more
@@ -3689,7 +3688,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				|| (h->mana < gs->curB->getSpellCost(s, h)) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 				|| (gs->curB->castSpells[ba.side]) //spell has been cast
-				|| (secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
+				|| (NBonus::hasOfType(secondHero, HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
 				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{

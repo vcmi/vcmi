@@ -232,7 +232,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator
+class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CBonusSystemNode
 {
 public:
 	//////////////////////////////////////////////////////////////////////////
@@ -273,7 +273,7 @@ public:
 		}
 	} patrol;
 
-	BonusList bonuses;
+	//BonusList bonuses;
 	//////////////////////////////////////////////////////////////////////////
 
 
@@ -311,17 +311,8 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	const BonusList *ownerBonuses() const;
-	const HeroBonus *getBonus(int from, int id) const;
-	int getBonusesCount(int from, int id) const;
-	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
-	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const; //determines if hero has a bonus of given type (and optionally subtype)
-	void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype = -1) const; //out: pairs<modifier value, modifier description>
-	template<int N> void getModifiersWDescr(std::vector<std::pair<int,std::string> > &out, const HeroBonus::BonusType (&types)[N]) const //retreive array of types
-	{
-		for (int i = 0; i < N; i++)
-			getModifiersWDescr(out, types[i]);
-	}
+
+	void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;
 
 	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered

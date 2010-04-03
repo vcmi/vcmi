@@ -993,11 +993,6 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentLuckModifiers
 	return ret;
 }
 
-const HeroBonus * CGHeroInstance::getBonus( int from, int id ) const
-{
-	return bonuses.getBonus(from, id);
-}
-
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 3)
@@ -1154,19 +1149,6 @@ si32 CGHeroInstance::manaRegain() const
 	return 1 + getSecSkillLevel(8) + valOfBonuses(HeroBonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 
-int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type, int subtype /*= -1*/ ) const
-{
-	return bonuses.valOfBonuses(type, subtype) + ownerBonuses()->valOfBonuses(type, subtype);
-}
-
-bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -1*/) const
-{
-	if(!this) //to allow calls on NULL and avoid checking duplication
-		return false; //if hero doesn't exist then bonus neither can
-	else
-		return bonuses.hasBonusOfType(type, subtype) || ownerBonuses()->hasBonusOfType(type, subtype);
-}
-
 si32 CGHeroInstance::getArtPos(int aid) const
 {
 	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
@@ -1218,21 +1200,6 @@ bool CGHeroInstance::hasArt( ui32 aid ) const
 	return false;
 }
 
-void CGHeroInstance::getModifiersWDescr( std::vector<std::pair<int,std::string> > &out, HeroBonus::BonusType type, int subtype /*= -1*/ ) const
-{
-	bonuses.getModifiersWDescr(out, type, subtype);
-	ownerBonuses()->getModifiersWDescr(out, type, subtype);
-}
-
-const BonusList * CGHeroInstance::ownerBonuses() const
-{
-	const PlayerState *p = cb->getPlayerState(tempOwner);
-	if(!p)
-		return NULL;
-	else
-		return &p->bonuses;
-}
-
 int CGHeroInstance::getBoatType() const
 {
 	int alignment = type->heroType / 6; 
@@ -1261,15 +1228,16 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 	return sp->costs[getSpellSchoolLevel(sp)];
 }
 
-int CGHeroInstance::getBonusesCount(int from, int id) const
+void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *source) const
 {
-	int ret = 0;
+	const PlayerState *p = cb->getPlayerState(tempOwner);
+	if(!p)
+	{
+		//occurs when initializing starting hero and heroes from the pool
+		return;
+	}
 
-	BOOST_FOREACH(const HeroBonus &hb, bonuses)
-		if(hb.source == from  &&  hb.id == id)
-			ret++;
-
-	return ret;
+	out.push_back(p);
 }
 
 void CGDwelling::initObj()

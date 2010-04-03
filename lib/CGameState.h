@@ -105,7 +105,7 @@ struct DLL_EXPORT SThievesGuildInfo
 
 };
 
-struct DLL_EXPORT PlayerState
+struct DLL_EXPORT PlayerState : public CBonusSystemNode
 {
 public:
 	enum EStatus {INGAME, LOSER, WINNER};
@@ -118,7 +118,6 @@ public:
 	std::vector<CGTownInstance *> towns;
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	std::vector<CGDwelling *> dwellings; //used for town growth
-	BonusList bonuses; //player bonuses
 
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
 	ui8 daysWithoutCastle;
@@ -129,37 +128,6 @@ public:
 	{
 		h & color & serial & human & currentSelection & fogOfWarMap & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
-
-// 		ui32 size;
-// 		if(h.saving) //write subids of available heroes
-// 		{
-// 			size = availableHeroes.size();
-// 			h & size;
-// 			for(size_t i=0; i < size; i++)
-// 			{
-// 				if(availableHeroes[i])
-// 				{
-// 					h & availableHeroes[i]->subID;
-// 				}
-// 				else
-// 				{
-// 					ui32 none = 0xffffffff;
-// 					h & none;
-// 				}
-// 			}
-// 		}
-// 		else
-// 		{
-// 			ui32 hid; 
-// 			h & size;
-// 			for(size_t i=0; i < size; i++)
-// 			{
-// 				//fill availableHeroes with dummy hero instances, holding subids
-// 				h & hid;
-// 				availableHeroes.push_back(new CGHeroInstance);
-// 				availableHeroes[availableHeroes.size()-1]->subID = hid;
-// 			}
-// 		}
 	}
 };
 

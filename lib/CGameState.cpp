@@ -2973,8 +2973,7 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
-		&& (!curB->isStackBlocked(ID) 
-			|| ourHero->hasBonusOfType(HeroBonus::FREE_SHOOTING))
+		&& (!curB->isStackBlocked(ID)  ||  NBonus::hasOfType(ourHero, HeroBonus::FREE_SHOOTING))
 		&& our->shots
 		)
 		return true;
