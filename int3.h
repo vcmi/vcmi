@@ -1,7 +1,6 @@
 #ifndef __INT3_H__
 #define __INT3_H__
 
-
 /*
  * int3.h, part of VCMI engine
  *
@@ -12,6 +11,7 @@
  *
  */
 
+#include <cmath>
 
 class int3
 {
