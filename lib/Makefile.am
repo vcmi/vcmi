@@ -26,6 +26,8 @@ libvcmi_la_SOURCES = \
 	../hch/CTownHandler.h \
 	../stdafx.cpp \
 	BattleAction.h \
+	CCreatureSet.cpp \
+	CCreatureSet.h \
 	CGameState.cpp \
 	CGameState.h \
 	CondSh.h \

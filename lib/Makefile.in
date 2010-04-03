@@ -84,11 +84,11 @@ am_libvcmi_la_OBJECTS = libvcmi_la-CConsoleHandler.lo \
 	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
 	libvcmi_la-CLodHandler.lo libvcmi_la-CObjectHandler.lo \
 	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
-	libvcmi_la-stdafx.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-NetPacksLib.lo \
-	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo \
-	libvcmi_la-map.lo
+	libvcmi_la-stdafx.lo libvcmi_la-CCreatureSet.lo \
+	libvcmi_la-CGameState.lo libvcmi_la-Connection.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-NetPacksLib.lo libvcmi_la-RegisterTypes.lo \
+	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 libvcmi_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libvcmi_la_CXXFLAGS) \
@@ -275,6 +275,8 @@ libvcmi_la_SOURCES = \
 	../hch/CTownHandler.h \
 	../stdafx.cpp \
 	BattleAction.h \
+	CCreatureSet.cpp \
+	CCreatureSet.h \
 	CGameState.cpp \
 	CGameState.h \
 	CondSh.h \
@@ -373,6 +375,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBuildingHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CConsoleHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CDefObjInfoHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGameState.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGeneralTextHandler.Plo@am__quote@
@@ -494,6 +497,13 @@ libvcmi_la-stdafx.lo: ../stdafx.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../stdafx.cpp' object='libvcmi_la-stdafx.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-stdafx.lo `test -f '../stdafx.cpp' || echo '$(srcdir)/'`../stdafx.cpp
+
+libvcmi_la-CCreatureSet.lo: CCreatureSet.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CCreatureSet.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CCreatureSet.Tpo -c -o libvcmi_la-CCreatureSet.lo `test -f 'CCreatureSet.cpp' || echo '$(srcdir)/'`CCreatureSet.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libvcmi_la-CCreatureSet.Tpo $(DEPDIR)/libvcmi_la-CCreatureSet.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureSet.cpp' object='libvcmi_la-CCreatureSet.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CCreatureSet.lo `test -f 'CCreatureSet.cpp' || echo '$(srcdir)/'`CCreatureSet.cpp
 
 libvcmi_la-CGameState.lo: CGameState.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CGameState.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CGameState.Tpo -c -o libvcmi_la-CGameState.lo `test -f 'CGameState.cpp' || echo '$(srcdir)/'`CGameState.cpp
