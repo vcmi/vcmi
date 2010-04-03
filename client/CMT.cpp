@@ -85,6 +85,13 @@ void dispose();
 void playIntro();
 static void listenForEvents();
 
+#ifndef _WIN32
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <getopt.h>
+#endif
+
 void init()
 {
 	timeHandler tmh, pomtime;
@@ -148,12 +155,74 @@ void init()
 	//tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 }
 
-#ifndef __GNUC__
+#ifndef _WIN32
+static void prog_version(void)
+{
+	printf("%s\n", NAME_VER);
+	printf("  data directory:    %s\n", DATA_DIR);
+	printf("  library directory: %s\n", LIB_DIR);
+	printf("  binary directory:  %s\n", BIN_DIR);
+}
+
+static void prog_help(const char *progname)
+{
+	printf("%s - A Heroes of Might and Magic 3 clone\n", NAME_VER);
+    printf("Copyright (C) 2007-2010 VCMI dev team - see AUTHORS file\n");
+    printf("This is free software; see the source for copying conditions. There is NO\n");
+    printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	printf("\n");
+	printf("Usage:\n");
+	printf("  -h, --help        display this help and exit\n");
+	printf("  -v, --version     display version information and exit\n");
+}
+#endif
+
+
+#ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char** argv)
 #endif
 {
+
+#ifndef _WIN32
+	struct option long_options[] = {
+		{ "help", 0, NULL, 'h' },
+		{ "version", 0, NULL, 'v' },
+		{ NULL, 0, NULL, 0 }
+	};
+
+	while(1) {
+		int c;
+        int option_index;
+
+        c = getopt_long (argc, argv, "hv",
+                         long_options, &option_index);
+
+		if (c == EOF)
+            break;
+        else if (c == '?')
+            return -1;
+
+		switch(c) {
+		case 'h':
+			prog_help(argv[0]);
+			return 0;
+			break;
+
+		case 'v':
+			prog_version();
+			return 0;
+			break;
+		}
+	}
+
+	if (optind < argc) {
+		printf ("Extra arguments: %s\n", argv[optind++]);
+		return 1;
+	}
+#endif
+
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv("SDL_VIDEO_WINDOW_POS");
 	putenv("SDL_VIDEO_CENTERED=1");
