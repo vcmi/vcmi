@@ -200,44 +200,70 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				ftcp+=LeftMargin;
 			}
 			TotalRowLength=0;
+
+			int yB = ftcp/FullWidth + y;
+
+			bool omitIteration = false; //if true, we shouldn't try to blit this line to screen
+
+			if(yB < 0 || yB >= dest->h || (destRect && (destRect->y > yB || destRect->y + destRect->h <= yB ) ) )
+			{
+				//update variables
+				omitIteration = true;
+				continue;
+			}
+
 			do
 			{
 				SegmentType=FDef[BaseOffset++];
 				SegmentLength=FDef[BaseOffset++];
+
+
+				if(omitIteration)
+				{
+					ftcp += SegmentLength+1;
+					if(SegmentType == 0xFF)
+					{
+						BaseOffset += SegmentLength+1;
+					}
+					continue;
+				}
+
+				int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
+				
+
 				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e)>>1)<<4 : 0x0f - ((animCount & 0x1e)>>1)<<4;
-				if (SegmentType==0xFF)
+
+				for (int k=0; k<=SegmentLength; k++)
 				{
-					for (int k=0;k<=SegmentLength;k++)
+					if(xB>=0 && xB<dest->w)
 					{
-						int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
-						int yB = ftcp/FullWidth + y;
-						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
+						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB ))
 						{
-							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
+							if (SegmentType == 0xFF)
+							{
 								putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder, blueBorder, aCountMod);
-						}
-						ftcp++; //increment pos
-						if ((TotalRowLength+k+1)>=SpriteWidth)
-							break;
-					}
-					BaseOffset+=SegmentLength+1;////
-					TotalRowLength+=SegmentLength+1;
-				}
-				else
-				{
-					for (int k=0;k<SegmentLength+1;k++)
-					{
-						int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
-						int yB = ftcp/FullWidth + y;
-						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
-						{
-							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
+							}
+							else
+							{
 								putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder, blueBorder, aCountMod);
+							}
+
 						}
-						ftcp++; //increment pos
 					}
-					TotalRowLength+=SegmentLength+1;
+					ftcp++; //increment pos
+					if(attacker)
+						xB++;
+					else
+						xB--;
+					if ( SegmentType == 0xFF && TotalRowLength+k+1 >= SpriteWidth )
+						break;
 				}
+				if (SegmentType == 0xFF)
+				{
+					BaseOffset += SegmentLength+1;
+				}
+
+				TotalRowLength+=SegmentLength+1;
 			}while(TotalRowLength<SpriteWidth);
 			if (RightMargin>0)
 			{
