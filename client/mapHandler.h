@@ -1,6 +1,6 @@
 #ifndef __MAPHANDLER_H__
 #define __MAPHANDLER_H__
-#include "global.h"
+#include "../global.h"
 #include <list>
 #include <set>
 

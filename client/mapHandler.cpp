@@ -1,23 +1,23 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "mapHandler.h"
-#include "client/SDL_Extensions.h"
-#include "client/CGameInfo.h"
+#include "SDL_Extensions.h"
+#include "CGameInfo.h"
 #include <cstdlib>
-#include "hch/CLodHandler.h"
-#include "hch/CDefObjInfoHandler.h"
+#include "../hch/CLodHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
 #include <algorithm>
-#include "lib/CGameState.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CTownHandler.h"
-#include "client/Graphics.h"
+#include "../lib/CGameState.h"
+#include "../hch/CHeroHandler.h"
+#include "../hch/CTownHandler.h"
+#include "Graphics.h"
 #include <iomanip>
 #include <sstream>
-#include "hch/CObjectHandler.h"
-#include "lib/map.h"
-#include "hch/CDefHandler.h"
-#include "client/CConfigHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../lib/map.h"
+#include "../hch/CDefHandler.h"
+#include "CConfigHandler.h"
 #include <boost/assign/list_of.hpp>
-#include "hch/CGeneralTextHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine

@@ -25,7 +25,7 @@
 #include "../hch/CTownHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/map.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "../timeHandler.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>

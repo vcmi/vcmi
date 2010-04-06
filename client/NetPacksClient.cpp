@@ -13,7 +13,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CSoundBase.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "GUIClasses.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>

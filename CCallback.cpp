@@ -12,7 +12,7 @@
 #include "hch/CObjectHandler.h"
 #include "lib/Connection.h"
 #include "lib/NetPacks.h"
-#include "mapHandler.h"
+#include "client/mapHandler.h"
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>

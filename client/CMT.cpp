@@ -13,7 +13,7 @@
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include "CGameInfo.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "../global.h"
 #include "CPreGame.h"
 #include "CCastleInterface.h"
