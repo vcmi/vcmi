@@ -29,7 +29,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/map.h"
 #include "../lib/VCMIDirs.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "../timeHandler.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

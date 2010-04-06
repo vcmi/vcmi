@@ -1757,7 +1757,15 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					}
 					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
-						CGI->curh->changeGraphic(1,3);
+						if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
+							curInt->cb->battleHasWallPenalty(activeStack, myNumber))
+						{
+							CGI->curh->changeGraphic(1,15);
+						}
+						else
+						{
+							CGI->curh->changeGraphic(1,3);
+						}
 						//setting console text
 						char buf[500];
 						//calculating estimated dmg

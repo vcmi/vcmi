@@ -669,7 +669,7 @@ std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defend
 	const CStack * attacker = gs->curB->getStack(attackerID, false),
 		* defender = gs->curB->getStack(defenderID);
 
-	return BattleInfo::calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0);
+	return gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0, false);
 }
 
 ui8 CCallback::battleGetSiegeLevel()
@@ -959,6 +959,16 @@ void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &p
 bool CCallback::hasAccess(int playerId) const
 {
 	return playerId == player  ||  player < 0;
+}
+
+si8 CCallback::battleHasDistancePenalty( int stackID, int destHex )
+{
+	return gs->curB->hasDistancePenalty(stackID, destHex);
+}
+
+si8 CCallback::battleHasWallPenalty( int stackID, int destHex )
+{
+	return gs->curB->hasWallPenalty(stackID, destHex);
 }
 
 InfoAboutTown::InfoAboutTown()

@@ -637,13 +637,15 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	BattleStackAttacked *bsa = &bat.bsa.back();
 	bsa->stackAttacked = def->ID;
 	bsa->attackerID = att->ID;
-	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance);//counting dealt damage
-	
 	if(gs->curB->Luck(att) > 0  &&  rand()%24 < gs->curB->Luck(att))
 	{
 		bsa->damageAmount *= 2;
 		bat.flags |= 4;
 	}
+
+	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance, bat.lucky());//counting dealt damage
+	
+	
 	int dmg = bsa->damageAmount;
 	prepareAttacked(*bsa, def);
 

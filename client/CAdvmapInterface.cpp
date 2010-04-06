@@ -18,7 +18,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../lib/map.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "../stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>

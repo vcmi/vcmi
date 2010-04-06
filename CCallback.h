@@ -167,7 +167,7 @@ public:
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
-	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //reutrns numbers of hexes reachable by creature with id ID
+	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
@@ -177,9 +177,11 @@ public:
 	virtual int battleGetWallUnderHex(int hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
-	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
+	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding to given side (0 - attacker, 1 - defender)
 	virtual si8 battleGetStackMorale(int stackID) =0; //returns morale of given stack
 	virtual si8 battleGetStackLuck(int stackID) =0; //returns luck of given stack
+	virtual si8 battleHasDistancePenalty(int stackID, int destHex) =0; //checks if given stack has distance penalty
+	virtual si8 battleHasWallPenalty(int stackID, int destHex) =0; //checks if given stack has wall penalty
 };
 
 struct HeroMoveDetails
@@ -302,6 +304,8 @@ public:
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
 	si8 battleGetStackMorale(int stackID); //returns morale of given stack
 	si8 battleGetStackLuck(int stackID); //returns luck of given stack
+	si8 battleHasDistancePenalty(int stackID, int destHex); //checks if given stack has distance penalty
+	si8 battleHasWallPenalty(int stackID, int destHex); //checks if given stack has wall penalty
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

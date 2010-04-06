@@ -24,6 +24,8 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/assign/list_of.hpp>
 #include "RegisterTypes.cpp"
+#include <algorithm>
+#include <numeric>
 
 boost::rand48 ran;
 
@@ -2373,9 +2375,9 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 	}
 	return true;
 }
-std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
+std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
 {
-	float attackDefenseBonus,
+	float additiveBonus=1.0f, multBonus=1.0f,
 		minDmg = attacker->creature->damageMin * attacker->amount, 
 		maxDmg = attacker->creature->damageMax * attacker->amount;
 
@@ -2400,36 +2402,37 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
 	}
 
+	int attackDefenceDifference = 0;
 	if(attacker->hasFeatureOfType(StackFeature::GENERAL_ATTACK_REDUCTION))
 	{
 		float multAttackReduction = attacker->valOfFeatures(StackFeature::GENERAL_ATTACK_REDUCTION, -1024) / 100.0f;
-		attackDefenseBonus = attacker->Attack() * multAttackReduction;
+		attackDefenceDifference = attacker->Attack() * multAttackReduction;
 	}
 	else
 	{
-		attackDefenseBonus = attacker->Attack();
+		attackDefenceDifference = attacker->Attack();
 	}
 
 	if(attacker->hasFeatureOfType(StackFeature::ENEMY_DEFENCE_REDUCTION))
 	{
 		float multDefenceReduction = (100.0f - attacker->valOfFeatures(StackFeature::ENEMY_DEFENCE_REDUCTION, -1024)) / 100.0f;
-		attackDefenseBonus -= defender->Defense() * multDefenceReduction;
+		attackDefenceDifference -= defender->Defense() * multDefenceReduction;
 	}
 	else
 	{
-		attackDefenseBonus -= defender->Defense();
+		attackDefenceDifference -= defender->Defense();
 	}
 
 	//calculating total attack/defense skills modifier
 
 	if(!shooting && attacker->hasFeatureOfType(StackFeature::ATTACK_BONUS, 0)) //bloodlust handling (etc.)
 	{
-		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 0);
+		attackDefenceDifference += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 0);
 	}
 
 	if(shooting && attacker->hasFeatureOfType(StackFeature::ATTACK_BONUS, 1)) //precision handling (etc.)
 	{
-		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 1);
+		attackDefenceDifference += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 1);
 	}
 
 	if(attacker->getEffect(55)) //slayer handling
@@ -2455,42 +2458,44 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 		{
 			if(defender->creature->idNumber == affectedIds[g])
 			{
-				attackDefenseBonus += VLC->spellh->spells[55].powers[attacker->getEffect(55)->level];
+				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->level];
 				break;
 			}
 		}
 	}
 
-	float dmgBonusMultiplier = 1.0f;
-
-	//applying jousting bonus
-	if( attacker->hasFeatureOfType(StackFeature::JOUSTING) && !defender->hasFeatureOfType(StackFeature::CHARGE_IMMUNITY) )
-		dmgBonusMultiplier += charge * 0.05f;
-
 	//bonus from attack/defense skills
-	if(attackDefenseBonus < 0) //decreasing dmg
+	if(attackDefenceDifference < 0) //decreasing dmg
 	{
-		if(0.02f * (-attackDefenseBonus) > 0.3f)
+		float dec = 0.025f * (-attackDefenceDifference);
+		if(dec > 0.7f)
 		{
-			dmgBonusMultiplier += -0.3f;
+			multBonus *= 1.0f - dec;
 		}
 		else
 		{
-			dmgBonusMultiplier += 0.02f * attackDefenseBonus;
+			multBonus *= dec;
 		}
 	}
 	else //increasing dmg
 	{
-		if(0.05f * attackDefenseBonus > 4.0f)
+		float inc = 0.05f * attackDefenceDifference;
+		if(inc > 4.0f)
 		{
-			dmgBonusMultiplier += 4.0f;
+			additiveBonus += 4.0f;
 		}
 		else
 		{
-			dmgBonusMultiplier += 0.05f * attackDefenseBonus;
+			additiveBonus += inc;
 		}
 	}
+	
 
+	//applying jousting bonus
+	if( attacker->hasFeatureOfType(StackFeature::JOUSTING) && !defender->hasFeatureOfType(StackFeature::CHARGE_IMMUNITY) )
+		additiveBonus += charge * 0.05f;
+
+	
 	//handling secondary abilities and artifacts giving premies to them
 	if(attackerHero)
 	{
@@ -2499,20 +2504,20 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 			switch(attackerHero->getSecSkillLevel(1)) //archery
 			{
 			case 1: //basic
-				dmgBonusMultiplier += 0.1f;
+				additiveBonus += 0.1f;
 				break;
 			case 2: //advanced
-				dmgBonusMultiplier += 0.25f;
+				additiveBonus += 0.25f;
 				break;
 			case 3: //expert
-				dmgBonusMultiplier += 0.5f;
+				additiveBonus += 0.5f;
 				break;
 			}
 
 			if(attackerHero->getSecSkillLevel(1) > 0) //non-none level
 			{
 				//apply artifact premy to archery
-				dmgBonusMultiplier += attackerHero->valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
+				additiveBonus += attackerHero->valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
 			}
 		}
 		else
@@ -2520,54 +2525,85 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 			switch(attackerHero->getSecSkillLevel(22)) //offense
 			{
 			case 1: //basic
-				dmgBonusMultiplier += 0.1f;
+				additiveBonus += 0.1f;
 				break;
 			case 2: //advanced
-				dmgBonusMultiplier += 0.2f;
+				additiveBonus += 0.2f;
 				break;
 			case 3: //expert
-				dmgBonusMultiplier += 0.3f;
+				additiveBonus += 0.3f;
 				break;
 			}
 		}
 	}
+
 	if(defendingHero)
 	{
 		switch(defendingHero->getSecSkillLevel(23)) //armorer
 		{
 		case 1: //basic
-			dmgBonusMultiplier *= 0.95f;
+			multBonus *= 0.95f;
 			break;
 		case 2: //advanced
-			dmgBonusMultiplier *= 0.9f;
+			multBonus *= 0.9f;
 			break;
 		case 3: //expert
-			dmgBonusMultiplier *= 0.85f;
+			multBonus *= 0.85f;
 			break;
 		}
 	}
 
 	//handling hate effect
 	if( attacker->hasFeatureOfType(StackFeature::HATE, defender->creature->idNumber) )
-		dmgBonusMultiplier += 0.5f;
+		additiveBonus += 0.5f;
+
+	//luck bonus
+	if (lucky)
+	{
+		additiveBonus += 1.0f;
+	}
 
 	//handling spell effects
 	if(!shooting && defender->hasFeatureOfType(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
 	{
-		dmgBonusMultiplier *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) / 100.0f;
+		multBonus *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) / 100.0f;
 	}
 	else if(shooting && defender->hasFeatureOfType(StackFeature::GENERAL_DAMAGE_REDUCTION, 1)) //eg. air shield
 	{
-		dmgBonusMultiplier *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0f;
+		multBonus *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0f;
 	}
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
-		dmgBonusMultiplier *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->level]); //the second factor is 1 or 0
+		multBonus *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->level]); //the second factor is 1 or 0
 	}
 
+	class HLP
+	{
+	public:
+		static bool hasAdvancedAirShield(const CStack * stack)
+		{
+			for(int g=0; g<stack->effects.size(); ++g)
+			{
+				if (stack->effects[g].id == 28 && stack->effects[g].level >= 2)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	};
 
-	minDmg *= dmgBonusMultiplier;
-	maxDmg *= dmgBonusMultiplier;
+	//wall / distance penalty + advanced air shield
+	if (shooting && (
+		hasDistancePenalty(attacker->ID, defender->position) || hasWallPenalty(attacker->ID, defender->position) ||
+		HLP::hasAdvancedAirShield(defender) )
+		)
+	{
+		multBonus *= 0.5;
+	}
+
+	minDmg *= additiveBonus * multBonus;
+	maxDmg *= additiveBonus * multBonus;
 
 	std::pair<ui32, ui32> returnedVal;
 
@@ -2593,12 +2629,21 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	return returnedVal;
 }
 
-ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
+ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
 {
-	std::pair<ui32, ui32> range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge);
+	std::pair<ui32, ui32> range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky);
 
 	if(range.first != range.second)
-		return range.first  +  rand() % (range.second - range.first + 1);
+	{
+		int valuesToAverage[10];
+		int howManyToAv = std::min<ui32>(10, attacker->amount);
+		for (int g=0; g<howManyToAv; ++g)
+		{
+			valuesToAverage[g] = range.first  +  rand() % (range.second - range.first + 1);
+		}
+
+		return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
+	}
 	else
 		return range.first;
 }
@@ -2807,6 +2852,13 @@ int BattleInfo::hexToWallPart(int hex) const
 	}
 
 	return -1; //not found!
+}
+
+int BattleInfo::lineToWallHex( int line ) const
+{
+	static const int lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
+
+	return lineToHex[line];
 }
 
 std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
@@ -3583,6 +3635,36 @@ si8 BattleInfo::Luck( const CStack * st ) const
 	if(ret > 3) ret = 3;
 	if(ret < -3) ret = -3;
 	return ret;
+}
+
+si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
+{
+	const CStack * stack = getStack(stackID);
+
+	int distance = std::abs(destHex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH);
+
+	//I hope it's approximately correct
+	return distance > 8 && !stack->hasFeatureOfType(StackFeature::NO_DISTANCE_PENALTY);
+}
+
+si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
+{
+	if (siege == 0)
+	{
+		return false;
+	}
+	const CStack * stack = getStack(stackID);
+	if (stack->hasFeatureOfType(StackFeature::NO_WALL_PENALTY));
+	{
+		return false;
+	}
+	int wallInStackLine = lineToWallHex(stack->position/BFIELD_WIDTH);
+	int wallInDestLine = lineToWallHex(destHex/BFIELD_WIDTH);
+
+	bool stackLeft = stack->position < wallInStackLine;
+	bool destLeft = destHex < wallInDestLine;
+
+	return stackLeft != destLeft;
 }
 
 int3 CPath::startPos() const

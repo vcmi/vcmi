@@ -188,19 +188,22 @@ struct DLL_EXPORT BattleInfo
 	si8 Morale(const CStack * st) const; //get morale of stack with all modificators
 	si8 Luck(const CStack * st) const; //get luck of stack with all modificators
 
-	bool isStackBlocked(int ID); //returns true if there is neighbouring enemy stack
+	bool isStackBlocked(int ID); //returns true if there is neighboring enemy stack
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
-	static ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting)
-	static std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
+	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting)
+	std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
 	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	int lineToWallHex(int line) const; //returns hex with wall in given line
 	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
+	si8 hasDistancePenalty(int stackID, int destHex); //determines if given stack has distance penalty shooting given pos
+	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos
 };
 
 class DLL_EXPORT CStack

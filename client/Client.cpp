@@ -17,7 +17,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
-#include "../mapHandler.h"
+#include "mapHandler.h"
 #include "CConfigHandler.h"
 #include "Client.h"
 #include "GUIBase.h"
