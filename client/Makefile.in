@@ -64,7 +64,6 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CSndHandler.$(OBJEXT) \
 	vcmiclient-CVideoHandler.$(OBJEXT) \
-	vcmiclient-mapHandler.$(OBJEXT) \
 	vcmiclient-AdventureMapButton.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
 	vcmiclient-CBattleInterface.$(OBJEXT) \
@@ -84,7 +83,8 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-Graphics.$(OBJEXT) \
 	vcmiclient-NetPacksClient.$(OBJEXT) \
 	vcmiclient-SDL_Extensions.$(OBJEXT) \
-	vcmiclient-SDL_framerate.$(OBJEXT)
+	vcmiclient-SDL_framerate.$(OBJEXT) \
+	vcmiclient-mapHandler.$(OBJEXT)
 vcmiclient_OBJECTS = $(am_vcmiclient_OBJECTS)
 vcmiclient_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
 vcmiclient_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -258,9 +258,9 @@ vcmiclient_SOURCES = \
 	../StartInfo.h \
 	../global.h \
 	../hch/CAmbarCendamo.h \
+	../hch/CBuildingHandler.h \
 	../hch/CCampaignHandler.cpp \
 	../hch/CCampaignHandler.h \
-	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
 	../hch/CHeroHandler.h \
@@ -274,8 +274,6 @@ vcmiclient_SOURCES = \
 	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
 	../int3.h \
-	../mapHandler.cpp \
-	../mapHandler.h \
 	../nodrze.h \
 	../stdafx.h \
 	../tchar_amigaos4.h \
@@ -325,7 +323,9 @@ vcmiclient_SOURCES = \
 	SDL_Extensions.cpp \
 	SDL_Extensions.h \
 	SDL_framerate.cpp \
-	SDL_framerate.h
+	SDL_framerate.h \
+	mapHandler.cpp \
+	mapHandler.h
 
 all: all-am
 
@@ -579,20 +579,6 @@ vcmiclient-CVideoHandler.obj: ../hch/CVideoHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
-
-vcmiclient-mapHandler.o: ../mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.o `test -f '../mapHandler.cpp' || echo '$(srcdir)/'`../mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../mapHandler.cpp' object='vcmiclient-mapHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.o `test -f '../mapHandler.cpp' || echo '$(srcdir)/'`../mapHandler.cpp
-
-vcmiclient-mapHandler.obj: ../mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.obj `if test -f '../mapHandler.cpp'; then $(CYGPATH_W) '../mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../mapHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../mapHandler.cpp' object='vcmiclient-mapHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.obj `if test -f '../mapHandler.cpp'; then $(CYGPATH_W) '../mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../mapHandler.cpp'; fi`
 
 vcmiclient-AdventureMapButton.o: AdventureMapButton.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapButton.o -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo -c -o vcmiclient-AdventureMapButton.o `test -f 'AdventureMapButton.cpp' || echo '$(srcdir)/'`AdventureMapButton.cpp
@@ -915,6 +901,20 @@ vcmiclient-SDL_framerate.obj: SDL_framerate.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_framerate.cpp' object='vcmiclient-SDL_framerate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_framerate.obj `if test -f 'SDL_framerate.cpp'; then $(CYGPATH_W) 'SDL_framerate.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_framerate.cpp'; fi`
+
+vcmiclient-mapHandler.o: mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
+
+vcmiclient-mapHandler.obj: mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

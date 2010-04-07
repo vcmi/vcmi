@@ -14,9 +14,9 @@ vcmiclient_SOURCES =  \
 	../StartInfo.h \
 	../global.h \
 	../hch/CAmbarCendamo.h \
+	../hch/CBuildingHandler.h \
 	../hch/CCampaignHandler.cpp \
 	../hch/CCampaignHandler.h \
-	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
 	../hch/CHeroHandler.h \
@@ -30,8 +30,6 @@ vcmiclient_SOURCES =  \
 	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
 	../int3.h \
-	../mapHandler.cpp \
-	../mapHandler.h \
 	../nodrze.h \
 	../stdafx.h \
 	../tchar_amigaos4.h \
@@ -81,4 +79,6 @@ vcmiclient_SOURCES =  \
 	SDL_Extensions.cpp \
 	SDL_Extensions.h \
 	SDL_framerate.cpp \
-	SDL_framerate.h
+	SDL_framerate.h \
+	mapHandler.cpp \
+	mapHandler.h
