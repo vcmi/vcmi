@@ -1,18 +1,31 @@
 Source: vcmi
-Section: x11
+Section: games
 Priority: extra
 Maintainer: frank zago <frank@zago.net>
-Build-Depends: debhelper (>= 7), autotools-dev, g++, libsdl1.2debian-all, libsdl-image1.2-dev, libsdl-ttf2.0-dev, libsdl-mixer1.2-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost-thread1.37-dev, libboost-system1.37-dev, libboost-filesystem1.37-dev
+Build-Depends: debhelper (>= 7), cdbs (>= 0.4.49), autotools-dev, libsdl-image1.2-dev, libsdl-ttf2.0-dev, libsdl-mixer1.2-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost1.37-dev | libboost1.38-dev | libboost1.42-dev, libboost-thread1.37-dev | libboost-thread1.38-dev | libboost-thread1.42-dev, libboost-system1.37-dev | libboost-system1.38-dev | libboost-system1.42-dev, libboost-filesystem1.37-dev | libboost-filesystem1.38-dev | libboost-filesystem1.42-dev, libboost-iostreams1.37-dev | libboost-iostreams1.38-dev | libboost-iostreams1.42-dev
 Standards-Version: 3.8.0
-Homepage: <http://vcmi.antypika.aplus.pl/forum/portal.php>
+Homepage: http://vcmi.eu
 
 Package: vcmi
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <A rewrite the Heroes of Might and Magic 3 engine>
- <A rewrite the Heroes of Might and Magic 3 engine>
+Description: A rewrite the Heroes of Might and Magic 3 engine
+ The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
+ scratch, giving it new and extended possibilities. It will help to support
+ mods and new towns already made by fans but abandoned because of game code
+ limitations.
+ .
+ In its current state it already supports maps of any sizes, higher
+ resolutions and extended engine limits.
 
 Package: vcmi-doc
 Architecture: all
+Section: doc
 Description: documentation for vcmi
- <A rewrite the Heroes of Might and Magic 3 engine>
+ The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
+ scratch, giving it new and extended possibilities. It will help to support
+ mods and new towns already made by fans but abandoned because of game code
+ limitations.
+ .
+ In its current state it already supports maps of any sizes, higher
+ resolutions and extended engine limits.
