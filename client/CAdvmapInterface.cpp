@@ -1898,7 +1898,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(objAtTile);
 
 						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
-						if (townObj && townObj->army.slots.empty())
+						if (townObj && !townObj->stacksCount())
 							CGI->curh->changeGraphic(0, 9 + turns*6);
 						else
 							CGI->curh->changeGraphic(0, 5 + turns*6);
@@ -1938,7 +1938,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
 
 					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-					if (garrObj  &&  garrObj->tempOwner != LOCPLINT->playerID  &&  !garrObj->army.slots.empty())
+					if (garrObj  &&  garrObj->tempOwner != LOCPLINT->playerID  &&  garrObj->stacksCount())
 						CGI->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CGI->curh->changeGraphic(0, 9 + turns*6);

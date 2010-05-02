@@ -2,21 +2,25 @@
 #define __CGAMESTATE_H__
 #include "../global.h"
 #include <cassert>
+
 #ifndef _MSC_VER
 #include "../hch/CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "map.h"
 #endif
+
 #include <set>
 #include <vector>
 #include <list>
-#include "StackFeature.h"
 #include "HeroBonus.h"
+#include "CCreatureSet.h"
+
 #ifdef _WIN32
 #include <tchar.h>
 #else
 #include "../tchar_amigaos4.h"
 #endif
+
 
 /*
  * CGameState.h, part of VCMI engine
@@ -123,11 +127,13 @@ public:
 	ui8 daysWithoutCastle;
 
 	PlayerState();
+	virtual void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & serial & human & currentSelection & fogOfWarMap & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
+		h & static_cast<CBonusSystemNode&>(*this);
 	}
 };
 
@@ -153,7 +159,7 @@ struct DLL_EXPORT SiegeInfo
 	}
 };
 
-struct DLL_EXPORT BattleInfo
+struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 {
 	ui8 side1, side2; //side1 - attacker, side2 - defender
 	si32 round, activeStack;
@@ -161,7 +167,7 @@ struct DLL_EXPORT BattleInfo
 	si32 tid; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
 	CGHeroInstance *heroes[2];
-	CCreatureSet army1, army2;
+	CArmedInstance *belligerents[2]; //may be same as heroes
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
 	ui8 castSpells[2]; //[0] - attacker, [1] - defender
@@ -169,10 +175,16 @@ struct DLL_EXPORT BattleInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & obstacles
+		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & belligerents & obstacles
 			& castSpells & si;
 		h & heroes;
+		h & static_cast<CBonusSystemNode&>(*this);
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//////////////////////////////////////////////////////////////////////////
+
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
@@ -185,9 +197,6 @@ struct DLL_EXPORT BattleInfo
 	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<int> getAccessibility(int stackID, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
 
-	si8 Morale(const CStack * st) const; //get morale of stack with all modificators
-	si8 Luck(const CStack * st) const; //get luck of stack with all modificators
-
 	bool isStackBlocked(int ID); //returns true if there is neighboring enemy stack
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
@@ -196,7 +205,7 @@ struct DLL_EXPORT BattleInfo
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
-	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	int lineToWallHex(int line) const; //returns hex with wall in given line
@@ -206,27 +215,24 @@ struct DLL_EXPORT BattleInfo
 	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos
 };
 
-class DLL_EXPORT CStack
+class DLL_EXPORT CStack : public CStackInstance
 { 
 public:
 	ui32 ID; //unique ID of stack
-	CCreature * creature;
-	ui32 amount, baseAmount;
+	ui32 baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	si16 position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
-	si8 morale, luck; //base stack luck/morale
 
-	std::vector<StackFeature> features;
 	std::set<ECombatInfo> state;
 	struct StackEffect
 	{
 		ui16 id; //spell id
 		ui8 level; //skill level
-		ui16 turnsRemain; 
+		si16 turnsRemain; 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & id & level & turnsRemain;
@@ -234,39 +240,25 @@ public:
 	};
 	std::vector<StackEffect> effects;
 
-	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1024, int turn = 0) const;//subtype -> subtype of bonus, if -1024 then any
-	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1024, int turn = 0) const; //determines if stack has a bonus of given type (and optionally subtype)
+	//overrides
+	const CCreature* getCreature() const {return type;}
 
-	CStack(CCreature * C, int A, int O, int I, bool AO, int S); //c-tor
-	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
+	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
+	CStack() : ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
 	const StackEffect * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
-	si32 Attack() const; //get attack of stack with all modificators
-	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
-	ui16 MaxHealth() const; //get max HP of stack with all modifiers
-	template <typename Handler> void save(Handler &h, const int version)
-	{
-		h & creature->idNumber;
-	}
-	template <typename Handler> void load(Handler &h, const int version)
-	{
-		ui32 id;
-		h & id;
-		creature = &VLC->creh->creatures[id];
-		//features = creature->abilities;
-	}
+
+	bool doubleWide() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & morale & luck & features;
-		if(h.saving)
-			save(h,version);
-		else
-			load(h,version);
+		h & static_cast<CStackInstance&>(*this);
+		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
+			& shots;
 	}
 	bool alive() const //determines if stack is alive
 	{
@@ -363,6 +355,7 @@ public:
 	std::map<ui8, PlayerState> players; //ID <-> player state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals; //default values of resources in gold
+	CBonusSystemNode globalEffects;
 
 	struct DLL_EXPORT HeroesPool
 	{
@@ -378,7 +371,6 @@ public:
 	} hpool; //we have here all heroes available on this map that are not hired
 
 	boost::shared_mutex *mx;
-
 	PlayerState *getPlayer(ui8 color, bool verbose = true);
 	const PlayerState *getPlayer(ui8 color, bool verbose = true) const;
 	void init(StartInfo * si, Mapa * map, int Seed);
@@ -424,7 +416,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool;
+		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool & globalEffects;
 		if(!h.saving)
 		{
 			loadTownDInfos();

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <boost/assign/std/set.hpp>
 #include <boost/assign/std/vector.hpp>
+#include <boost/assign/std/list.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
@@ -70,22 +71,22 @@ int CCreature::getQuantityID(const int & quantity)
 
 bool CCreature::isDoubleWide() const
 {
-	return vstd::contains(abilities, StackFeature::DOUBLE_WIDE);
+	return doubleWide;
 }
 
 bool CCreature::isFlying() const
 {
-	return vstd::contains(abilities, StackFeature::FLYING);
+	return vstd::contains(bonuses, Bonus::FLYING);
 }
 
 bool CCreature::isShooting() const
 {
-	return vstd::contains(abilities, StackFeature::SHOOTER);
+	return vstd::contains(bonuses, Bonus::SHOOTER);
 }
 
 bool CCreature::isUndead() const
 {
-	return vstd::contains(abilities, StackFeature::UNDEAD);
+	return vstd::contains(bonuses, Bonus::UNDEAD);
 }
 
 /**
@@ -114,6 +115,17 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 		if(cost[i])
 			ret = std::min(ret,(int)(res[i]/cost[i]));
 	return ret;
+}
+
+CCreature::CCreature()
+{
+	doubleWide = false;
+}
+
+void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
+{
+	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	bonuses.push_back(added);
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
@@ -199,7 +211,8 @@ void CCreatureHandler::loadCreatures()
 
 	while(i<buf.size())
 	{
-		CCreature ncre;
+		CCreature &ncre = *new CCreature;
+		ncre.idNumber = creatures.size();
 		ncre.cost.resize(RESOURCE_QUANTITY);
 		ncre.level=0;
 
@@ -229,12 +242,18 @@ void CCreatureHandler::loadCreatures()
 		ncre.AIValue = readNumber(befi, i, andame, buf);
 		ncre.growth = readNumber(befi, i, andame, buf);
 		ncre.hordeGrowth = readNumber(befi, i, andame, buf);
+
 		ncre.hitPoints = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.hitPoints, Bonus::STACK_HEALTH);
 		ncre.speed = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.speed, Bonus::STACKS_SPEED);
 		ncre.attack = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.attack, Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 		ncre.defence = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.defence, Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 		ncre.damageMin = readNumber(befi, i, andame, buf);
 		ncre.damageMax = readNumber(befi, i, andame, buf);
+
 		ncre.shots = readNumber(befi, i, andame, buf);
 		ncre.spells = readNumber(befi, i, andame, buf);
 		ncre.ammMin = readNumber(befi, i, andame, buf);
@@ -260,64 +279,69 @@ void CCreatureHandler::loadCreatures()
 		if(useCreAbilsFromZCRTRAIT)
 		{ //adding abilities from ZCRTRAIT.TXT
 			if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));
+				ncre.doubleWide = true;
 			if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::FLYING, 0));
+				ncre.addBonus(0, Bonus::FLYING);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::SHOOTER, 0));
+				ncre.addBonus(0, Bonus::SHOOTER);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::SIEGE_WEAPON, 0));
+				ncre.addBonus(0, Bonus::SIEGE_WEAPON);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ADDITIONAL_ATTACK, 1));
+				ncre.addBonus(1, Bonus::ADDITIONAL_ATTACK);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0));
+				ncre.addBonus(0, Bonus::BLOCKS_RETALIATION);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::UNDEAD, 0));
+				ncre.addBonus(0, Bonus::UNDEAD);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_melee_penalty"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_MELEE_PENALTY, 0));
+				ncre.addBonus(0, Bonus::NO_MELEE_PENALTY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_jousting"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::JOUSTING, 0));
+				ncre.addBonus(0, Bonus::JOUSTING);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::RAISING_MORALE, 1));
+			{
+				ncre.addBonus(+1, Bonus::MORALE);;
+				ncre.bonuses.back().effectRange = Bonus::ONLY_ALLIED_ARMY;
+			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, 1));
+			{
+				ncre.addBonus(-1, Bonus::MORALE);;
+				ncre.bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING1, 0));
+				ncre.addBonus(0, Bonus::KING1);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_2"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING2, 0));
+				ncre.addBonus(0, Bonus::KING2);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_3"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING3, 0));
+				ncre.addBonus(0, Bonus::KING3);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_wall_penalty"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_WALL_PENALTY, 0));
+				ncre.addBonus(0, Bonus::NO_WALL_PENALTY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "CATAPULT"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::CATAPULT, 0));
+				ncre.addBonus(0, Bonus::CATAPULT);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "MULTI_HEADED"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ATTACKS_ALL_ADJACENT, 0));
+				ncre.addBonus(0, Bonus::ATTACKS_ALL_ADJACENT);
+
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
 			{
 				std::vector<int> mindSpells = getMindSpells();
 				for(int g=0; g<mindSpells.size(); ++g)
-				{
-					creatures[40].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //giants are immune to mind spells
-				}
+					ncre.addBonus(0, Bonus::SPELL_IMMUNITY, mindSpells[g]); //giants are immune to mind spells
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0));
+				ncre.addBonus(0, Bonus::FIRE_IMMUNITY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
-				ncre.abilities.push_back(makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0));
+				ncre.addBonus(0, Bonus::TWO_HEX_ATTACK_BREATH);;
 		}
 
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
-			creatures.push_back(ncre);
+			creatures.push_back(&ncre);
 		}
 	}
 
 	// Map types names
-#define VCMI_CREATURE_ABILITY_NAME(x) ( #x, StackFeature::x )
-	static const std::map<std::string, int> type_list = map_list_of VCMI_CREATURE_ABILITY_LIST;
-#undef VCMI_CREATURE_ABILITY_NAME
+#define BONUS_NAME(x) ( #x, Bonus::x )
+	static const std::map<std::string, int> type_list = map_list_of BONUS_LIST;
+#undef BONUS_NAME
 
 	////second part of reading cr_abils.txt////
 	bool contReading = true;
@@ -332,28 +356,45 @@ void CCreatureHandler::loadCreatures()
 		case '+': //add new ability
 			{
 				int creatureID;
-				StackFeature nsf;
+				Bonus nsf;
 				si32 buf;
 				std::string type;
 
 				reader >> creatureID;
-
 				reader >> type;
+
 				std::map<std::string, int>::const_iterator it = type_list.find(type);
-				if (it == type_list.end()) {
-					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
+				CCreature *cre = creatures[creatureID];
+
+				if (it == type_list.end()) 
+				{
+					if(type == "DOUBLE_WIDE")
+						cre->doubleWide = true;
+					else if(type == "ENEMY_MORALE_DECREASING")
+					{
+						cre->addBonus(-1, Bonus::MORALE);;
+						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+					}
+					else if(type == "ENEMY_LUCK_DECREASING")
+					{
+						cre->addBonus(-1, Bonus::LUCK);;
+						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+					}
+					else
+						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
 					break;
 				}
 				nsf.type = it->second;
 
-				reader >> buf; nsf.value = buf;
+				reader >> buf; nsf.val = buf;
 				reader >> buf; nsf.subtype = buf;
 				reader >> buf; nsf.additionalInfo = buf;
-				nsf.source = StackFeature::CREATURE_ABILITY;
-				nsf.duration = StackFeature::WHOLE_BATTLE;
+				nsf.source = Bonus::CREATURE_ABILITY;
+				nsf.id = cre->idNumber;
+				nsf.duration = Bonus::ONE_BATTLE;
 				nsf.turnsRemain = 0;
 
-				creatures[creatureID].abilities += nsf;
+				cre->bonuses += nsf;
 				break;
 			}
 		case '-': //remove ability
@@ -365,14 +406,17 @@ void CCreatureHandler::loadCreatures()
 				std::map<std::string, int>::const_iterator it = type_list.find(type);
 				if (it == type_list.end())
 				{
-					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
+					if(type == "DOUBLE_WIDE")
+						creatures[creatureID]->doubleWide = false;
+					else
+						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
 					break;
 				}
 				int typeNo = it->second;
 
-				StackFeature::ECombatFeatures ecf = static_cast<StackFeature::ECombatFeatures>(typeNo);
+				Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
 
-				creatures[creatureID].abilities -= ecf;
+				creatures[creatureID]->bonuses -= ecf;
 				break;
 			}
 		case '0': //end reading
@@ -401,7 +445,7 @@ void CCreatureHandler::loadCreatures()
 		if (tempi>=creatures.size())
 			break;
 		boost::assign::insert(nameToID)(temps,tempi);
-		creatures[tempi].nameRef=temps;
+		creatures[tempi]->nameRef=temps;
 	}
 	ifs.close();
 	ifs.clear();
@@ -417,8 +461,8 @@ void CCreatureHandler::loadCreatures()
 			ifs >> id >> lvl;
 			if(lvl>0)
 			{
-				creatures[id].level = lvl;
-				levelCreatures[lvl].push_back(&(creatures[id]));
+				creatures[id]->level = lvl;
+				levelCreatures[lvl].push_back(creatures[id]);
 			}
 		}
 	}
@@ -431,7 +475,7 @@ void CCreatureHandler::loadCreatures()
 	{
 		int id, fact;
 		ifs >> id >> fact;
-		creatures[id].faction = fact;
+		creatures[id]->faction = fact;
 	}
 	ifs.close();
 	ifs.clear();
@@ -442,7 +486,7 @@ void CCreatureHandler::loadCreatures()
 	{
 		int id, up;
 		ifs >> id >> up;
-		creatures[id].upgrades.insert(up);
+		creatures[id]->upgrades.insert(up);
 	}
 	ifs.close();
 	ifs.clear();
@@ -489,7 +533,7 @@ void CCreatureHandler::loadCreatures()
 				break;
 		}
 		std::string defName = buf.substr(befi, i-befi);
-		creatures[s].animDefName = defName;
+		creatures[s]->animDefName = defName;
 	}
 	tlog5 << "\t\tReading CRANIM.TXT.txt" << std::endl;
 	loadAnimationInfo();
@@ -546,7 +590,7 @@ void CCreatureHandler::loadAnimationInfo()
 	for(int dd=0; dd<creatures.size(); ++dd)
 	{
 		//tlog5 << "\t\t\tReading animation info for creature " << dd << std::endl;
-		loadUnitAnimInfo(creatures[dd], buf, i);
+		loadUnitAnimInfo(*creatures[dd], buf, i);
 	}
 	return;
 }

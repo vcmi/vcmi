@@ -61,7 +61,7 @@ CGeniusAI::HypotheticalGameState::TownModel::TownModel(
 {
 	hasBuilt = static_cast<bool>(t->builded);
 	creaturesToRecruit = t->creatures;
-	creaturesInGarrison = t->army;
+	creaturesInGarrison = t->getArmy();
 }
 
 CGeniusAI::HypotheticalGameState::HypotheticalGameState(CGeniusAI& ai)
@@ -295,7 +295,7 @@ float CGeniusAI::TownObjective::getValue() const
 	  case recruitCreatures:
       // Buy upgraded if possible.
 		  ID = whichTown->creaturesToRecruit[which].second.back();
-		  creature = &VLC->creh->creatures[ID];
+		  creature = VLC->creh->creatures[ID];
 		  howMany = whichTown->creaturesToRecruit[which].first;
       creatures_max = 0; // Max creatures you can recruit of this type.
       
@@ -316,8 +316,8 @@ float CGeniusAI::TownObjective::getValue() const
 
 	  case upgradeCreatures:
 		  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
-		  ID = whichTown->creaturesInGarrison.slots[which].type->idNumber;
-		  howMany = whichTown->creaturesInGarrison.slots[which].count;
+		  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+		  howMany = whichTown->creaturesInGarrison.getAmount(which);
 
 		  newID = ui.newID.back();
 		  int upgrade_serial = ui.newID.size() - 1;
@@ -388,7 +388,7 @@ void CGeniusAI::TownObjective::print() const
 	  case recruitCreatures:
       // Buy upgraded if possible.
 		  ID = whichTown->creaturesToRecruit[which].second.back();
-		  creature = &VLC->creh->creatures[ID];
+		  creature = VLC->creh->creatures[ID];
 		  howMany = whichTown->creaturesToRecruit[which].first;
       creatures_max = 0;
 
@@ -424,8 +424,8 @@ void CGeniusAI::TownObjective::print() const
 
 		  case upgradeCreatures:
 			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
-			  ID = whichTown->creaturesInGarrison.slots[which].type->idNumber;
-			  cout << "upgrade " << VLC->creh->creatures[ID].namePl;
+			  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+			  cout << "upgrade " << VLC->creh->creatures[ID]->namePl;
 			  //ui.cost	
 		  break;
 	} // switch(type)
@@ -734,10 +734,10 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
   if (town && object->getOwner() == cg.m_cb->getMyColor()) {
 	  //upgrade hero's units
 	  cout << "visiting town" << endl;
-	  CCreatureSet hcreatures = h->h->army;
+	  CCreatureSet hcreatures = h->h->getArmy();
 	  for (TSlots::const_iterator
-         i = hcreatures.slots.begin();
-         i != hcreatures.slots.end();
+         i = hcreatures.Slots().begin();
+         i != hcreatures.Slots().end();
          i++) { // For each hero slot.
 		  UpgradeInfo ui = cg.m_cb->getUpgradeInfo(h->h,i->first);
 
@@ -763,13 +763,13 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
 	  }
 
 	  // Give town's units to hero.
-	  CCreatureSet tcreatures = town->army;
+	  CCreatureSet tcreatures = town->getArmy();
 	  int weakestCreatureStack;
 	  int weakestCreatureAIValue = 99999; // TODO: Wtf??
 
 	  for (TSlots::const_iterator
-         i = tcreatures.slots.begin();
-         i != tcreatures.slots.end();
+         i = tcreatures.Slots().begin();
+         i != tcreatures.Slots().end();
          i++) {
 		  if (i->second.type->AIValue < 
           weakestCreatureAIValue) {
@@ -778,10 +778,10 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
 		  }
     }
 	  for (TSlots::const_iterator
-        i = tcreatures.slots.begin();
-        i != tcreatures.slots.end();
+        i = tcreatures.Slots().begin();
+        i != tcreatures.Slots().end();
         i++) { // For each town slot.
-		  hcreatures = h->h->army;
+		  hcreatures = h->h->getArmy();
 		  int hSlot = hcreatures.getSlotFor(i->second.type->idNumber);
 
 		  if (hSlot == -1)
@@ -789,7 +789,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
 		  cout << "giving hero "
            << i->second.type->namePl
            << endl;
-		  if (hcreatures.slots.find(hSlot) != hcreatures.slots.end()) {
+		  if (!hcreatures.slotEmpty(hSlot)) {
         // Can't take garrisonHero's last unit.
 			  if ( (i->first == weakestCreatureStack)
             && (town->garrisonHero != NULL) )
@@ -855,22 +855,22 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel& t,
 		
     int ID = t.creaturesToRecruit[i].second.back();
     // m_cb->getCCreatureByID(ID);
-		const CCreature *creature = &VLC->creh->creatures[ID];
+		const CCreature *creature = VLC->creh->creatures[ID];
 		bool canAfford = true;
 		for (int ii = 0; ii < creature->cost.size(); ii++)
 			if (creature->cost[ii] > hgs.resourceAmounts[ii])
 				canAfford = false; // Can we afford at least one creature?
 		if (!canAfford) continue;
 				
-		//cout << "town has " << t.t->creatures[i].first  << " "<< creature->namePl << " (AI Strength " << creature->AIValue << ")." << endl;
+		//cout << "town has " << t.t->creatures[i]->first  << " "<< creature->namePl << " (AI Strength " << creature->AIValue << ")." << endl;
 		TownObjective to(hgs, AIObjective::recruitCreatures, &t, i, this);
 		currentTownObjectives.insert(to);
 	}
 
   // Upgrade creatures.
-	for (TSlots::iterator
-      i = t.creaturesInGarrison.slots.begin();
-      i != t.creaturesInGarrison.slots.end();
+	for (TSlots::const_iterator
+      i = t.creaturesInGarrison.Slots().begin();
+      i != t.creaturesInGarrison.Slots().end();
       i++) {
 		UpgradeInfo ui = m_cb->getUpgradeInfo(t.t, i->first);
 		if (ui.newID.size() != 0) {
@@ -927,7 +927,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 	case recruitCreatures:
     // Buy upgraded if possible.
 		ID = whichTown->creaturesToRecruit[which].second.back();
-		creature = &VLC->creh->creatures[ID];
+		creature = VLC->creh->creatures[ID];
 		howMany = whichTown->creaturesToRecruit[which].first;
 		for (int i = 0; i < creature->cost.size(); i++)
       // TODO: rewrite.
@@ -942,11 +942,11 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 
 	case upgradeCreatures:
 		UpgradeInfo ui = cg.m_cb->getUpgradeInfo(whichTown->t, which);
-		ID = whichTown->creaturesInGarrison.slots[which].type->idNumber;
+		ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
 		newID = ui.newID.back();
     // TODO: reduce resources in hgs
 		cg.m_cb->upgradeCreature(whichTown->t, which, newID);
-		cout << "upgrading " << VLC->creh->creatures[ID].namePl << endl;
+		cout << "upgrading " << VLC->creh->creatures[ID]->namePl << endl;
 		break;
 	}
 }
@@ -1077,7 +1077,7 @@ void CGeniusAI::startFirstTurn()
 		if (hgs.townModels.front().creaturesToRecruit[i].first == 0)
       continue;
 		int ID = hgs.townModels.front().creaturesToRecruit[i].second.back();
-		const CCreature *creature = &VLC->creh->creatures[ID];
+		const CCreature *creature = VLC->creh->creatures[ID];
 		bool canAfford = true;
     for (int ii = 0; ii < creature->cost.size(); ii++) {
 			if (creature->cost[ii] > hgs.resourceAmounts[ii])
@@ -1246,7 +1246,7 @@ void CGeniusAI::battleStacksAttacked(std::set<BattleStackAttacked>& bsa)
 /**
  * called by engine when battle starts; side=0 - left, side=1 - right
  */
-void CGeniusAI::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
+void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
 {
   // TODO: Battle logic what...
 	assert(!m_battleLogic);
@@ -1275,7 +1275,7 @@ void CGeniusAI::battleEnd(BattleResult* br)
 	for (std::map<ui32,si32>::iterator i = br->casualties[0].begin();\
        i != br->casualties[0].end();
        i++)
-		cout << i->second << " " << VLC->creh->creatures[i->first].namePl << endl;
+		cout << i->second << " " << VLC->creh->creatures[i->first]->namePl << endl;
 				
 	delete m_battleLogic;
 	m_battleLogic = NULL;

@@ -64,6 +64,7 @@ class CArtifactsOfHero;
 class CResDataBar;
 struct SPuzzleInfo;
 class CGGarrison;
+class CStackInstance;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -199,7 +200,8 @@ class CGarrisonSlot : public CIntObject
 {
 public:
 	CGarrisonInt *owner;
-	const CCreature * creature; //creature in slot
+	const CStackInstance *myStack; //NULL if slot is empty
+	const CCreature *creature;
 	int count; //number of creatures
 	int upg; //0 - up garrison, 1 - down garrison
 	bool active; //TODO: comment me
@@ -211,7 +213,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CCreature * Creature=NULL, int Count=0);
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
 	~CGarrisonSlot(); //d-tor
 };
 
@@ -700,7 +702,7 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 public:
 	
-	void set(bool morale, const CGHeroInstance *hero, int slot = -1); //slot -1 means only hero modifiers
+	void set(bool morale, const CGHeroInstance *hero);
 };
 
 class LRClickableAreaOpenHero: public LRClickableAreaWTextComp
@@ -725,19 +727,22 @@ class CCreInfoWindow : public CIntObject
 public:
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
-	SDL_Surface *bitmap; //background
+	CPicture *bitmap; //background
 	char anf; //animation counter
 	std::string count; //creature count in text format
 
 	boost::function<void()> dsm; //dismiss button callback
 	CCreaturePic *anim; //related creature's animation
-	CCreature *c; //related creature
+	const CCreature *c; //related creature
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 
 	//MoraleLuckBox *luck, *morale;
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //c-tor
+	CCreInfoWindow(const CStackInstance &st, int Type = 0, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
+	CCreInfoWindow(int Cid, int Type, int creatureCount); //c-tor
+	void init(const CCreature *cre, const CStackInstance *stack, int creatureCount);
+	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	~CCreInfoWindow(); //d-tor
 	void activate();
 	void close();

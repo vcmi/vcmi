@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include "../client/FunctionList.h"
+#include "CCreatureSet.h"
 
 /*
  * IGameCallback.h, part of VCMI engine

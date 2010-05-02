@@ -52,12 +52,17 @@ DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
+	assert(hero);
+
 	if(which <4)
 	{
+		Bonus *skill = hero->getBonus(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
+		assert(skill);
+		
 		if(abs)
-			hero->primSkills[which] = val;
+			skill->val = val;
 		else
-			hero->primSkills[which] += val;
+			skill->val += val;
 	}
 	else if(which == 4) //XP
 	{
@@ -171,16 +176,16 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	gs->getPlayer(player)->availableHeroes.push_back(h);
 	if(h  &&  flags & 1)
 	{
-		h->army.slots.clear();
-		h->army.slots[0] = CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
+		h->clear();
+		h->addStack(0, CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1));
 	}
 
 	h = (hid2>=0 ?  gs->hpool.heroesPool[hid2] : NULL);
 	gs->getPlayer(player)->availableHeroes.push_back(h);
 	if(flags & 2)
 	{
-		h->army.slots.clear();
-		h->army.slots[0] = CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
+		h->clear();
+		h->addStack(0, CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1));
 	}
 }
 
@@ -209,8 +214,8 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 	std::string &descr = bonuses->back().description;
 
 	if(!bdescr.message.size() 
-		&& bonus.source == HeroBonus::OBJECT 
-		&& (bonus.type == HeroBonus::LUCK || bonus.type == HeroBonus::MORALE || bonus.type == HeroBonus::MORALE_AND_LUCK)
+		&& bonus.source == Bonus::OBJECT 
+		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
 		&& gs->map->objects[bonus.id]->ID == EVENTI_TYPE) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
@@ -243,9 +248,9 @@ DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
 
 DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 {
-	std::list<HeroBonus> &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
+	std::list<Bonus> &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
 
-	for(std::list<HeroBonus>::iterator i = bonuses.begin(); i != bonuses.end(); i++)
+	for(std::list<Bonus>::iterator i = bonuses.begin(); i != bonuses.end(); i++)
 	{
 		if(i->source == source && i->id == id)
 		{
@@ -377,14 +382,14 @@ DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
 	{
 		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
-		ai->army = i->second;
+		ai->setArmy(i->second);
 		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->army = i->second;
+			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setArmy(i->second);
 		else if(ai->ID==HEROI_TYPE)
 		{
 			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
 			if(h->visitedTown && h->inTownGarrison)
-				h->visitedTown->army = i->second;
+				h->visitedTown->setArmy(i->second);
 		}
 	}
 }
@@ -456,7 +461,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 			continue;
 
 		CArtifact &art = VLC->arth->artifacts[id];
-		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
+		for(std::list<Bonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
 		{
 			gained.push_back(&*i);
 			h->bonuses.push_back(*i);
@@ -476,7 +481,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 
 		while(1)
 		{
-			std::list<HeroBonus>::iterator hlp = std::find_if(h->bonuses.begin(),h->bonuses.end(),boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,id));
+			std::list<Bonus>::iterator hlp = std::find_if(h->bonuses.begin(),h->bonuses.end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
 			if(hlp != h->bonuses.end())
 			{
 				lost.push_back(&*hlp);
@@ -613,11 +618,11 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		t->builded = 0;
 
 	BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-		h->bonuses.remove_if(HeroBonus::OneDay);
+		h->bonuses.remove_if(Bonus::OneDay);
 
 	if(gs->getDate(1) == 7) //new week
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-			h->bonuses.remove_if(HeroBonus::OneWeek);
+			h->bonuses.remove_if(Bonus::OneWeek);
 
 	//count days without town
 	for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
@@ -627,9 +632,9 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		else
 			i->second.daysWithoutCastle++;
 
-		i->second.bonuses.remove_if(HeroBonus::OneDay);
+		i->second.bonuses.remove_if(Bonus::OneDay);
 		if(gs->getDate(1) == 7) //new week
-			i->second.bonuses.remove_if(HeroBonus::OneWeek);
+			i->second.bonuses.remove_if(Bonus::OneWeek);
 	}
 }
 
@@ -642,7 +647,7 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 		return;
 	}
 
-	if(what == 1)
+	if(what == ObjProperty::OWNER)
 	{
 		if(obj->ID == TOWNI_TYPE)
 		{
@@ -672,6 +677,7 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;
+	info->belligerents[0]->battle = info->belligerents[1]->battle = info;
 }
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
@@ -685,12 +691,12 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= WAITING;
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
-		s->counterAttacks = 1 + s->valOfFeatures(StackFeature::ADDITIONAL_RETALIATION);
+		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 
 		//regeneration
-		if( s->hasFeatureOfType(StackFeature::HP_REGENERATION) && s->alive() )
-			s->firstHPleft = std::min<ui32>( s->MaxHealth(), s->valOfFeatures(StackFeature::HP_REGENERATION) );
-		if( s->hasFeatureOfType(StackFeature::FULL_HP_REGENERATION) && s->alive() )
+		if( s->hasBonusOfType(Bonus::HP_REGENERATION) && s->alive() )
+			s->firstHPleft = std::min<ui32>( s->MaxHealth(), s->valOfBonuses(Bonus::HP_REGENERATION) );
+		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION) && s->alive() )
 			s->firstHPleft = s->MaxHealth();
 
 		//remove effects and restore only those with remaining turns in duration
@@ -704,19 +710,20 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		}
 
 		//the same as above for features
-		std::vector<StackFeature> tmpFeatures = s->features;
-		s->features.clear();
-		for(int i=0; i < tmpFeatures.size(); i++)
+		BonusList tmpFeatures = s->bonuses;
+		s->bonuses.clear();
+
+		BOOST_FOREACH(Bonus &b, tmpFeatures)
 		{
-			if((tmpFeatures[i].duration & StackFeature::N_TURNS) != 0)
+			if((b.duration & Bonus::N_TURNS) != 0)
 			{
-				tmpFeatures[i].turnsRemain--;
-				if(tmpFeatures[i].turnsRemain > 0)
-					s->features.push_back(tmpFeatures[i]);
+				b.turnsRemain--;
+				if(b.turnsRemain > 0)
+					s->bonuses.push_back(b);
 			}
 			else
 			{
-				s->features.push_back(tmpFeatures[i]);
+				s->bonuses.push_back(b);
 			}
 		}
 	}
@@ -739,12 +746,13 @@ void BattleResult::applyGs( CGameState *gs )
 	CGHeroInstance *h;
 	h = gs->curB->heroes[0];
 	if(h)
-		h->bonuses.remove_if(HeroBonus::OneBattle);
+		h->bonuses.remove_if(Bonus::OneBattle);
 
 	h = gs->curB->heroes[1];
 	if(h) 
-		h->bonuses.remove_if(HeroBonus::OneBattle);
+		h->bonuses.remove_if(Bonus::OneBattle);
 
+	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;
 	delete gs->curB;
 	gs->curB = NULL;
 }
@@ -757,7 +765,7 @@ void BattleStackMoved::applyGs( CGameState *gs )
 DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
 {
 	CStack * at = gs->curB->getStack(stackAttacked);
-	at->amount = newAmount;
+	at->count = newAmount;
 	at->firstHPleft = newHP;
 	if(killed())
 		at->state -= ALIVE;
@@ -773,27 +781,12 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
 		stackAttacked.applyGs(gs);
 
-	for(int g=0; g<attacker->features.size(); ++g)
-	{
-		if((attacker->features[g].duration & StackFeature::UNTIL_ATTACK) != 0)
-		{
-			attacker->features.erase(attacker->features.begin() + g);
-			g = 0;
-		}
-	}
+	attacker->bonuses.remove_if(Bonus::UntilAttack);
 
 	for(std::vector<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
 	{
 		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
-
-		for(int g=0; g<stack->features.size(); ++g)
-		{
-			if((stack->features[g].duration & StackFeature::UNITL_BEING_ATTACKED) != 0)
-			{
-				stack->features.erase(stack->features.begin() + g);
-				g = 0;
-			}
-		}
+		stack->bonuses.remove_if(Bonus::UntilBeingAttacked);
 	}
 }
 
@@ -823,6 +816,7 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 
 DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 {
+	assert(gs->curB);
 	CGHeroInstance *h = (side) ? gs->curB->heroes[1] : gs->curB->heroes[0];
 	if(h)
 	{
@@ -844,7 +838,7 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 	}
 
 
-	if(gs->curB && (id == 35 || id == 78)) //dispel and dispel helpful spells
+	if(id == 35 || id == 78) //dispel and dispel helpful spells
 	{
 		bool onlyHelpful = id == 78;
 		for(std::set<ui32>::const_iterator it = affectedCres.begin(); it != affectedCres.end(); ++it)
@@ -865,14 +859,13 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 				s->effects = remainingEff; //assigning effects that should remain
 
 				//removing all features from spells
-				std::vector<StackFeature> tmpFeatures = s->features;
-				s->features.clear();
-				for(int i=0; i < tmpFeatures.size(); i++)
+				BonusList tmpFeatures = s->bonuses;
+				s->bonuses.clear();
+				BOOST_FOREACH(Bonus &b, tmpFeatures)
 				{
-					if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT || tmpFeatures[i].positiveness != 1)
-					{
-						s->features.push_back(tmpFeatures[i]);
-					}
+					const CSpell *sp = b.sourceSpell();
+					if(sp && sp->positiveness != 1) //if(b.source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
+						s->bonuses.push_back(b);
 				}
 			}
 		}
@@ -904,8 +897,8 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 
 		bool ac[BFIELD_SIZE];
 		std::set<int> occupyable;
-		bool twoHex = vstd::contains(VLC->creh->creatures[creID].abilities, StackFeature::DOUBLE_WIDE);
-		bool flying = vstd::contains(VLC->creh->creatures[creID].abilities, StackFeature::FLYING);
+		bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
+		bool flying = vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
 		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
 		for(int g=0; g<BFIELD_SIZE; ++g)
 		{
@@ -916,119 +909,124 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStack * summonedStack = gs->curB->generateNewStack(h, creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], gs->curB->stacks.size(), !side, 255, ter, pos);
-		summonedStack->features.push_back( makeFeature(StackFeature::SUMMONED, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::BONUS_FROM_HERO) );
+		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, ter, pos);
+		summonedStack->state.insert(SUMMONED);
+		//summonedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 
 		gs->curB->stacks.push_back(summonedStack);
 	}
 }
 
-static inline StackFeature featureGenerator(StackFeature::ECombatFeatures type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0)
+static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 {
-	return makeFeature(type, StackFeature::N_TURNS, subtype, value, StackFeature::SPELL_EFFECT, turnsRemain, additionalInfo);
+	Bonus hb(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo));
+	hb.effectRange = limit;
+	return hb;
 }
 
-static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect & sse)
+static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
 {
-	std::vector<StackFeature> sf;
+	Bonus ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
+	ret.valType = valType;
+	return ret;
+}
+
+static BonusList stackEffectToFeature(const CStack::StackEffect & sse)
+{
+	BonusList sf;
+	si32 power = VLC->spellh->spells[sse.id].powers[sse.level];
 	switch(sse.id)
 	{
 	case 27: //shield 
-		sf.push_back(featureGenerator(StackFeature::GENERAL_DAMAGE_REDUCTION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
 		break;
 	case 28: //air shield
-		sf.push_back(featureGenerator(StackFeature::GENERAL_DAMAGE_REDUCTION, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
 		break;
 	case 29: //fire shield
-		sf.push_back(featureGenerator(StackFeature::FIRE_SHIELD, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
 		break;
 	case 30: //protection from air
-		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
 		break;
 	case 31: //protection from fire
-		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
 		break;
 	case 32: //protection from water
-		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 2, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
 		break;
 	case 33: //protection from earth
-		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 3, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
 		break;
 	case 34: //anti-magic
-		sf.push_back(featureGenerator(StackFeature::LEVEL_SPELL_IMMUNITY, 0, VLC->spellh->spells[sse.id].powers[sse.level] - 1, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
 		break;
 	case 41: //bless
-		sf.push_back(featureGenerator(StackFeature::ALWAYS_MAXIMUM_DAMAGE, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
 		break;
 	case 42: //curse
-		sf.push_back(featureGenerator(StackFeature::ALWAYS_MINIMUM_DAMAGE, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain, sse.level >= 2 ? 20 : 0));
+		sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.level >= 2 ? 20 : 0));
 		break;
 	case 43: //bloodlust
-		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
 		break;
 	case 44: //precision
-		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
 		break;
 	case 45: //weakness
-		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
 		break;
 	case 46: //stone skin
-		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
 		break;
 	case 47: //disrupting ray
-		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
 		break;
 	case 48: //prayer
-		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
-		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
-		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
 		break;
 	case 49: //mirth
-		sf.push_back(featureGenerator(StackFeature::MORALE_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
 		break;
 	case 50: //sorrow
-		sf.push_back(featureGenerator(StackFeature::MORALE_BONUS, 0, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
 		break;
 	case 51: //fortune
-		sf.push_back(featureGenerator(StackFeature::LUCK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
 		break;
 	case 52: //misfortune
-		sf.push_back(featureGenerator(StackFeature::LUCK_BONUS, 0, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
 		break;
 	case 53: //haste
-		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
 		break;
 	case 54: //slow
-		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, 0, sse.turnsRemain, -1 * ( 100 - VLC->spellh->spells[sse.id].powers[sse.level] ) ));
+		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
 		break;
 	case 55: //slayer
-		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
 	case 56: //frenzy
-		sf.push_back(featureGenerator(StackFeature::IN_FRENZY, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56].powers[sse.level]/100.0, sse.turnsRemain));
 		break;
 	case 58: //counterstrike
-		sf.push_back(featureGenerator(StackFeature::ADDITIONAL_RETALIATION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
 		break;
 	case 59: //bersek
-		sf.push_back(featureGenerator(StackFeature::ATTACKS_NEAREST_CREATURE, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.level, sse.turnsRemain));
 		break;
 	case 60: //hypnotize
-		sf.push_back(featureGenerator(StackFeature::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
 		break;
 	case 61: //forgetfulness
-		sf.push_back(featureGenerator(StackFeature::FORGETFULL, 0, sse.level, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.level, sse.turnsRemain));
 		break;
 	case 62: //blind
-		sf.push_back(makeFeature(StackFeature::NOT_ACTIVE, StackFeature::UNITL_BEING_ATTACKED | StackFeature::N_TURNS, 0, 0, StackFeature::SPELL_EFFECT, sse.turnsRemain, 0));
-		sf.push_back(makeFeature(StackFeature::GENERAL_ATTACK_REDUCTION, StackFeature::UNTIL_ATTACK | StackFeature::N_TURNS, 0, VLC->spellh->spells[sse.id].powers[sse.level], StackFeature::SPELL_EFFECT, sse.turnsRemain, 0));
+		sf.push_back(makeFeature(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.push_back(makeFeature(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		break;
-	}
-
-	//setting positiveness
-	for(int g=0; g<sf.size(); ++g)
-	{
-		sf[g].positiveness = VLC->spellh->spells[sse.id].positiveness;
 	}
 
 	return sf;
@@ -1045,14 +1043,15 @@ void actualizeEffect(CStack * s, CStack::StackEffect & ef)
 		}
 	}
 	//actualizing features vector
-	std::vector<StackFeature> sf = stackEffectToFeature(ef);
-	for(int b=0; b<sf.size(); ++b)
+	BonusList sf = stackEffectToFeature(ef);
+
+	BOOST_FOREACH(const Bonus &fromEffect, sf)
 	{
-		for(int g=0; g<s->features.size(); ++g)
+		BOOST_FOREACH(Bonus &stackBonus, s->bonuses)
 		{
-			if(s->features[g].source == StackFeature::SPELL_EFFECT && s->features[g].type == sf[b].type && s->features[g].subtype == sf[b].subtype)
+			if(stackBonus.source == Bonus::SPELL_EFFECT && stackBonus.type == fromEffect.type && stackBonus.subtype == fromEffect.subtype)
 			{
-				s->features[g].turnsRemain = std::max(s->features[g].turnsRemain, ef.turnsRemain);
+				stackBonus.turnsRemain = std::max(stackBonus.turnsRemain, ef.turnsRemain);
 			}
 		}
 	}
@@ -1079,10 +1078,10 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 			if(effect.id == 42 || !containsEff(s->effects, effect.id))//disrupting ray or not on the list - just add
 			{
 				s->effects.push_back(effect);
-				std::vector<StackFeature> sf = stackEffectToFeature(effect);
-				for(int n=0; n<sf.size(); ++n)
+				BonusList sf = stackEffectToFeature(effect);
+				BOOST_FOREACH(const Bonus &fromEffect, sf)
 				{
-					s->features.push_back(sf[n]);
+					s->bonuses.push_back(fromEffect);
 				}
 			}
 			else //just actualize
@@ -1115,8 +1114,8 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		for(int h=0; h<access.size(); ++h)
 			acc[access[h]] = true;
 		if(!changedStack->alive() && !gs->curB->isAccessible(changedStack->position, acc,
-			changedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), changedStack->attackerOwned,
-			changedStack->hasFeatureOfType(StackFeature::FLYING), true))
+			changedStack->doubleWide(), changedStack->attackerOwned,
+			changedStack->hasBonusOfType(Bonus::FLYING), true))
 			return; //position is already occupied
 
 		//applying changes
@@ -1125,18 +1124,19 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		{
 			changedStack->state.insert(ALIVE);
 			if(healedStacks[g].lowLevelResurrection)
-				changedStack->features.push_back( makeFeature(StackFeature::SUMMONED, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::BONUS_FROM_HERO) );
+				changedStack->state.insert(SUMMONED);
+				//changedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		}
 		int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
-		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->amount );
-		changedStack->amount += res;
+		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
+		changedStack->count += res;
 		changedStack->firstHPleft += healedStacks[g].healedHP - res * changedStack->MaxHealth();
 		if(changedStack->firstHPleft > changedStack->MaxHealth())
 		{
 			changedStack->firstHPleft -= changedStack->MaxHealth();
-			if(changedStack->baseAmount > changedStack->amount)
+			if(changedStack->baseAmount > changedStack->count)
 			{
-				changedStack->amount += 1;
+				changedStack->count += 1;
 			}
 		}
 		amin(changedStack->firstHPleft, changedStack->MaxHealth());
@@ -1152,13 +1152,15 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			}
 			
 			//removing all features from negative spells
-			std::vector<StackFeature> tmpFeatures = changedStack->features;
-			changedStack->features.clear();
-			for(int i=0; i < tmpFeatures.size(); i++)
+			BonusList tmpFeatures = changedStack->bonuses;
+			changedStack->bonuses.clear();
+
+			BOOST_FOREACH(Bonus &b, tmpFeatures)
 			{
-				if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT || tmpFeatures[i].positiveness >= 0)
+				const CSpell *s = b.sourceSpell();
+				if(s && s->positiveness >= 0)
 				{
-					changedStack->features.push_back(tmpFeatures[i]);
+					changedStack->bonuses.push_back(b);
 				}
 			}
 		}

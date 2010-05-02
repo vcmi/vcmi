@@ -314,11 +314,11 @@ void SetHeroArtifacts::applyCl( CClient *cl )
 
 	player->heroArtifactSetChanged(h);
 
-	BOOST_FOREACH(HeroBonus *bonus, gained)
+	BOOST_FOREACH(Bonus *bonus, gained)
 	{
 		player->heroBonusChanged(h,*bonus,true);
 	}
-	BOOST_FOREACH(HeroBonus *bonus, lost)
+	BOOST_FOREACH(Bonus *bonus, lost)
 	{
 		player->heroBonusChanged(h,*bonus,false);
 	}
@@ -427,13 +427,13 @@ void BattleStart::applyCl( CClient *cl )
 		def = NULL;
 
 
-	new CBattleInterface(&info->army1, &info->army2, info->heroes[0], info->heroes[1], genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2), att, def);
+	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2), att, def);
 
 	if(vstd::contains(cl->playerint,info->side1))
-		cl->playerint[info->side1]->battleStart(&info->army1, &info->army2, info->tile, info->heroes[0], info->heroes[1], 0);
+		cl->playerint[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
 
 	if(vstd::contains(cl->playerint,info->side2))
-		cl->playerint[info->side2]->battleStart(&info->army1, &info->army2, info->tile, info->heroes[0], info->heroes[1], 1);
+		cl->playerint[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
 void BattleNextRound::applyCl( CClient *cl )
@@ -448,7 +448,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 {
 	CStack * activated = GS(cl)->curB->getStack(stack);
 	int playerToCall = -1; //player that will move activated stack
-	if( activated->hasFeatureOfType(StackFeature::HYPNOTIZED) )
+	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
 		playerToCall = ( GS(cl)->curB->side1 == activated->owner ? GS(cl)->curB->side2 : GS(cl)->curB->side1 );
 	}

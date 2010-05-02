@@ -101,7 +101,7 @@ public:
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance); //distance - number of hexes travelled before attacking
 	void prepareAttacked(BattleStackAttacked &bsa, const CStack *def);
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
-	void setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town);
+	void setupBattle( BattleInfo * curB, int3 tile, const CArmedInstance *army1, const CArmedInstance *army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town);
 
 	CGameHandler(void);
 	~CGameHandler(void);

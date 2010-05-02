@@ -436,7 +436,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->highlighted = NULL;
 		c->hslotup.hero = town->garrisonHero;
 		c->garr->odown = c->hslotdown.hero = town->visitingHero;
-		c->garr->set2 = town->visitingHero ? &town->visitingHero->army : NULL;
+		c->garr->set2 = town->visitingHero;
 		c->garr->recreateSlots();
 	}
 	GH.totalRedraw();
@@ -499,7 +499,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	}
 }
 
-void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
+void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -639,7 +639,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->amount != 1) ? stack->creature->namePl : stack->creature->nameSing);
+			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl : stack->type->nameSing);
 			battleInt->displayEffect(20,stack->position);
 			battleInt->console->addText(hlp);
 		}
@@ -748,7 +748,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
-		boost::algorithm::replace_first(hlp,"%s",(stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str());
+		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl.c_str() : stack->type->nameSing.c_str());
 		battleInt->console->addText(hlp);
 		battleInt->displayEffect(18,stack->position);
 	}
@@ -926,9 +926,9 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	}
 }
 
-void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroBonus &bonus, bool gain )
+void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus &bonus, bool gain )
 {
-	if(bonus.type == HeroBonus::NONE)	return;
+	if(bonus.type == Bonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	updateInfo(hero);
 }
@@ -1092,7 +1092,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	//redraw minimap if owner changed
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(sop->what == 1)
+	if(sop->what == ObjProperty::OWNER)
 	{
 		const CGObjectInstance * obj = cb->getObjectInfo(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
@@ -1725,7 +1725,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 	}
 }
 
-void CPlayerInterface::playerBonusChanged( const HeroBonus &bonus, bool gain )
+void CPlayerInterface::playerBonusChanged( const Bonus &bonus, bool gain )
 {
 
 }

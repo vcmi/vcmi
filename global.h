@@ -297,7 +297,6 @@ void delNull(T* &ptr) //deleted pointer and sets it to NULL
 	ptr = NULL;
 }
 
-#include "lib/CCreatureSet.h"
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;

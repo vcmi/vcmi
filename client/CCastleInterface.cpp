@@ -287,7 +287,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 					LOCPLINT->showInfoDialog(tmp,std::vector<SComponent*>(), soundBase::sound_todo);
 					allow = false;
 				}
-				else if(!other->hero->army.slots.size()) //hero has no creatures - strange, but if we have appropriate error message...
+				else if(!other->hero->stacksCount()) //hero has no creatures - strange, but if we have appropriate error message...
 				{
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<SComponent*>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
 					allow = false;
@@ -986,7 +986,7 @@ void CCastleInterface::recreateBuildings()
 			Structure * st = CGI->townh->structures[town->subID][20];
 			buildings.push_back(new CBuildingRect(st));
 			s.insert(std::pair<int,int>(st->group,st->ID));
-			isThereShip = true;
+			isThereShip = true; 
 		}
 	}
 
@@ -1110,7 +1110,7 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 	if(on)
 	{
 		std::string descr=CGI->generaltexth->allTexts[588];
-		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->namePl);
 		GH.statusbar->print(descr);
 	}
 	else
@@ -1142,12 +1142,12 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		int summ=0, cnt=0;
 		int level=(bid-30)%CREATURES_PER_TOWN;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
-		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].nameSing);
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->nameSing);
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(
 			ci->town->creatureGrowth(level)));
 
 		descr +="\n"+CGI->generaltexth->allTexts[590];
-		summ = CGI->creh->creatures[crid].growth;
+		summ = CGI->creh->creatures[crid]->growth;
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
 		
 
@@ -1159,19 +1159,19 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
 		if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
 			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][18]->Name()+" %+d",descr,
-				CGI->creh->creatures[crid].hordeGrowth);
+				CGI->creh->creatures[crid]->hordeGrowth);
 
 		if(ci->town->town->hordeLvl[1]==level)//horde, x to summ
 		if((bld.find(24)!=bld.end()) || (bld.find(25)!=bld.end()))
 			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][24]->Name()+" %+d",descr,
-				CGI->creh->creatures[crid].hordeGrowth);
+				CGI->creh->creatures[crid]->hordeGrowth);
 
 		cnt = 0;
 		int creaLevel = (bid-30)%CREATURES_PER_TOWN;//dwellings have unupgraded units
 
 		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
 			it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
-				if (CGI->creh->creatures[ci->town->town->basicCreatures[level]].idNumber == (*it)->creatures[0].second[0])
+				if (CGI->creh->creatures[ci->town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
 					cnt++;//external dwellings count to summ
 		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
 
@@ -1180,9 +1180,9 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		{
 			if(ch)
 			{
-				for(std::list<HeroBonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
-					if(i->type == HeroBonus::CREATURE_GROWTH && i->subtype == level)
-						if (i->source == HeroBonus::ARTIFACT)
+				for(std::list<Bonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
+					if(i->type == Bonus::CREATURE_GROWTH && i->subtype == level)
+						if (i->source == Bonus::ARTIFACT)
 							summ+=AddToString(CGI->arth->artifacts[i->id].Name()+" %+d",descr,i->val);
 			};
 			ch = ci->town->visitingHero;
@@ -1810,7 +1810,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	{
 		bool upgraded = owner->town->creatureDwelling(i,true);
 		bool present = owner->town->creatureDwelling(i,false);
-		CCreature *c = &CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
+		CCreature *c = CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
 		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,FONT_SMALL,zwykly,bg); //cr. name
 		blitAt(owner->bicons->ourImages[30+i+upgraded*7].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
 		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
@@ -1823,12 +1823,12 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 
 		//attack
 		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,FONT_SMALL,zwykly,bg);
-		SDL_itoa(c->attack,buf,10);
+		SDL_itoa(c->Attack(),buf,10);
 		printTo(buf,positions[i].x+381,positions[i].y+21,FONT_SMALL,zwykly,bg);
 
 		//defense
 		printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,FONT_SMALL,zwykly,bg);
-		SDL_itoa(c->defence,buf,10);
+		SDL_itoa(c->Defense(),buf,10);
 		printTo(buf,positions[i].x+381,positions[i].y+41,FONT_SMALL,zwykly,bg);
 
 		//damage
@@ -1845,12 +1845,12 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 
 		//health
 		printAt(CGI->generaltexth->zelp[439].first,positions[i].x+288,positions[i].y+66,FONT_SMALL,zwykly,bg);
-		SDL_itoa(c->hitPoints,buf,10);
+		SDL_itoa(c->MaxHealth(),buf,10);
 		printTo(buf,positions[i].x+381,positions[i].y+82,FONT_SMALL,zwykly,bg);
 
 		//speed
 		printAt(CGI->generaltexth->zelp[441].first,positions[i].x+288,positions[i].y+87,FONT_SMALL,zwykly,bg);
-		SDL_itoa(c->speed,buf,10);
+		SDL_itoa(c->valOfBonuses(Bonus::STACKS_SPEED), buf,10);
 		printTo(buf,positions[i].x+381,positions[i].y+103,FONT_SMALL,zwykly,bg);
 
 		if(present)//growth
@@ -2016,10 +2016,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	blitAt(bg2,64,50,bmp);
 	SDL_FreeSurface(bg2);
 
-	CCreatureAnimation cra(CGI->creh->creatures[creMachineID].animDefName);
+	CCreatureAnimation cra(CGI->creh->creatures[creMachineID]->animDefName);
 	cra.nextFrameMiddle(bmp,170,120,true,0,false);
 	char pom[75];
-	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID].nameSing.c_str()); //build a new ...
+	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID]->nameSing.c_str()); //build a new ...
 	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,bmp);
 	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid].price,pom,10);

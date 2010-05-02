@@ -45,6 +45,7 @@
 #include "../hch/CVideoHandler.h"
 #include "../StartInfo.h"
 #include "CPreGame.h"
+#include "../lib/HeroBonus.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -67,25 +68,6 @@ CFocusable * CFocusable::inputWithFocus;
 
 #undef min
 #undef max
-
-static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
-{
-	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(obj);
-	if(!h) return NULL;
-
-	StackState *pom = new StackState();
-	pom->shotsLeft = -1;
-	pom->healthBonus = h->valOfBonuses(HeroBonus::STACK_HEALTH);
-	pom->currentHealth = 0;
-	pom->attackBonus = h->getPrimSkillLevel(0);
-	pom->defenseBonus = h->getPrimSkillLevel(1);
-	pom->luck = h->getCurrentLuck();
-	pom->morale = h->getCurrentMorale(pos,town);
-	pom->speedBonus = h->valOfBonuses(HeroBonus::STACKS_SPEED);
-	pom->dmgMultiplier = 1;
-	return pom;
-}
-
 
 void CGarrisonSlot::hover (bool on)
 {
@@ -143,7 +125,7 @@ void CGarrisonSlot::hover (bool on)
 			{
 				const CArmedInstance *highl = owner->highlighted->getObj(); 
 				if(  highl->needsLastStack()		//we are moving stack from hero's
-				  && highl->army.slots.size() == 1	//it's only stack
+				  && highl->stacksCount() == 1	//it's only stack
 				  && owner->highlighted->upg != upg	//we're moving it to the other garrison
 				  )
 				{
@@ -175,12 +157,8 @@ const CArmedInstance * CGarrisonSlot::getObj()
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
-	StackState *pom = getStackState(getObj(),ID, GH.topInt() == LOCPLINT->castleInt);
 	if(down && creature)
-	{
-		GH.pushInt(new CCreInfoWindow(creature->idNumber, 0, count, pom, 0, 0, NULL));
-	}
-	delete pom;
+		GH.pushInt(new CCreInfoWindow(*myStack));
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
@@ -196,7 +174,6 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		{
 			if(owner->highlighted == this) //view info
 			{
-				StackState *pom2 = getStackState(getObj(), ID, GH.topInt() == LOCPLINT->castleInt);
 				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(), ID);
 
 				CCreInfoWindow *creWindow = NULL;
@@ -204,14 +181,14 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				{
 
 					creWindow = new CCreInfoWindow(
-						creature->idNumber, 1, count, pom2,
+						*myStack, 1, 
 						boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]), //bind upgrade function
 						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), &pom);
 				}
 				else
 				{
 					creWindow = new CCreInfoWindow(
-						creature->idNumber, 1, count, pom2, 0, 
+						*myStack, 1, 0, 
 						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), NULL);
 				}
 
@@ -225,7 +202,6 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 				show(screen2);
 				refr = true;
-				delete pom2;
 			}
 			else 
 			{
@@ -250,12 +226,12 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 						int last = -1;
 						if(upg != owner->highlighted->upg) //not splitting within same army
 						{
-							if(owner->highlighted->getObj()->army.slots.size() == 1 //we're splitting away the last stack
+							if(owner->highlighted->getObj()->stacksCount() == 1 //we're splitting away the last stack
 								&& owner->highlighted->getObj()->needsLastStack() )
 							{
 								last = 0;
 							}
-							if(getObj()->army.slots.size() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
+							if(getObj()->stacksCount() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
 								&& owner->highlighted->creature == creature
 								&& getObj()->needsLastStack() )
 							{
@@ -323,13 +299,15 @@ void CGarrisonSlot::deactivate()
 	deactivateRClick();
 	deactivateHover();
 }
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CCreature * Creature, int Count)
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature)
 {
+	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
 	active = false;
 	upg = Upg;
-	count = Count;
 	ID = IID;
-	creature = Creature;
+	myStack = Creature;
+	creature = Creature ? Creature->type : NULL;
+	count = Creature ? Creature->count : 0;
 	pos.x = x;
 	pos.y = y;
 	if(Owner->smallIcons)
@@ -487,12 +465,12 @@ void CGarrisonInt::createSlots()
 	if(set1)
 	{
 		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
-		for(TSlots::const_iterator i=set1->slots.begin(); i!=set1->slots.end(); i++)
-			(*sup)[i->first] =	new CGarrisonSlot(this, pos.x + (i->first*(w+interx)), pos.y, i->first, 0, i->second.type,i->second.count);
+		for(TSlots::const_iterator i=set1->Slots().begin(); i!=set1->Slots().end(); i++)
+			(*sup)[i->first] =	new CGarrisonSlot(this, pos.x + (i->first*(w+interx)), pos.y, i->first, 0, &i->second);
 
 		for(int i=0; i<sup->size(); i++)
 			if((*sup)[i] == NULL)
-				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL, 0);
+				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL);
 
 		if (shiftPos)
 			for (int i=shiftPos; i<sup->size(); i++)
@@ -504,14 +482,14 @@ void CGarrisonInt::createSlots()
 	if(set2)
 	{
 		sdown = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
-		for(TSlots::const_iterator i=set2->slots.begin(); i!=set2->slots.end(); i++)
+		for(TSlots::const_iterator i=set2->Slots().begin(); i!=set2->Slots().end(); i++)
 		{
 			(*sdown)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(w+interx)) + garOffset.x, pos.y + garOffset.y,i->first,1, i->second.type,i->second.count);
+				new CGarrisonSlot(this, pos.x + (i->first*(w+interx)) + garOffset.x, pos.y + garOffset.y,i->first,1, &i->second);
 		}
 		for(int i=0; i<sdown->size(); i++)
 			if((*sdown)[i] == NULL)
-				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL, 0);
+				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL);
 		if (shiftPos)
 			for (int i=shiftPos; i<sup->size(); i++)
 			{
@@ -906,7 +884,7 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->spellh->spells[Subtype].name;
 		break;
 	case creature:
-		subtitle = boost::lexical_cast<std::string>(Val) + " " + CGI->creh->creatures[Subtype].*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
+		subtitle = boost::lexical_cast<std::string>(Val) + " " + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 		break;
 	case experience:
 		description = CGI->generaltexth->allTexts[241];
@@ -1835,7 +1813,7 @@ void CRecruitmentWindow::Max()
 void CRecruitmentWindow::Buy()
 {
 	int crid = creatures[which].ID,
-		dstslot = dst->army.getSlotFor(crid);
+		dstslot = dst-> getSlotFor(crid);
 
 	if(dstslot < 0) //no available slot
 	{
@@ -1843,7 +1821,7 @@ void CRecruitmentWindow::Buy()
 		if(dst->ID == HEROI_TYPE)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->value > 1 ? CGI->creh->creatures[crid].namePl : CGI->creh->creatures[crid].nameSing);
+			boost::algorithm::replace_first(txt, "%s", slider->value > 1 ? CGI->creh->creatures[crid]->namePl : CGI->creh->creatures[crid]->nameSing);
 		}
 		else
 		{
@@ -1908,7 +1886,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 			const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
 			if(isItIn(&genRect(132,sCREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
 			{
-				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0, NULL, NULL, NULL, NULL);
+				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0);
 				GH.pushInt(popup);
 				break;
 			}
@@ -1952,7 +1930,7 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 	printAtMiddle(pom,pos.x+205,pos.y+254,FONT_SMALL,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
 	printAtMiddle(pom,pos.x+279,pos.y+254,FONT_SMALL,zwykly,to);
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,pos.x+243,pos.y+32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
 
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
@@ -2059,7 +2037,7 @@ void CRecruitmentWindow::initCres()
 
 			cur.amount = dwelling->creatures[i].first;
 			cur.ID = dwelling->creatures[i].second[j];
-			const CCreature *cre = &CGI->creh->creatures[cur.ID];
+			const CCreature *cre = CGI->creh->creatures[cur.ID];
 			cur.pic = new CCreaturePic(cre);
 
 			for(int k=0; k<cre->cost.size(); k++)
@@ -2105,11 +2083,11 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),0,sliderPositions,val,true);
 	a1 = max-val;
 	a2 = val;
-	anim = new CCreaturePic(&CGI->creh->creatures[cid]);
+	anim = new CCreaturePic(CGI->creh->creatures[cid]);
 	anim->anim->setType(1);
 
 	std::string title = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid].namePl);
+	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid]->namePl);
 	printAtMiddle(title,150,34,FONT_BIG,tytulowy,bitmap);
 }
 
@@ -2226,7 +2204,7 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 void CCreInfoWindow::show(SDL_Surface * to)
 {
 	char pom[15];
-	blitAt(bitmap,pos.x,pos.y,to);
+	blitAt(*bitmap,pos.x,pos.y,to);
 	anim->blitPic(to,pos.x+21,pos.y+48,(type) && !(anf%4));
 	if(++anf==4) 
 		anf=0;
@@ -2240,130 +2218,11 @@ void CCreInfoWindow::show(SDL_Surface * to)
 		ok->show(to);
 }
 
-CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
+CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
 	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
 {
-	//active = false;
-	anf = 0;
-	c = &CGI->creh->creatures[Cid];
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("CRSTKPU.bmp");
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
-	SDL_FreeSurface(hhlp);
-	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2;
-	pos.w = bitmap->w;
-	pos.h = bitmap->h;
-	anim = new CCreaturePic(c);
-	if(!type) anim->anim->setType(2);
-
-	char pom[75];int hlp=0;
-
-	if(creatureCount)
-	{
-		SDL_itoa(creatureCount,pom,10);
-		count = pom;
-	}
-
-	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,bitmap); //creature name
-
-	//atttack
-	printAt(CGI->generaltexth->primarySkillNames[0],155,48,FONT_SMALL,zwykly,bitmap);
-	SDL_itoa(c->attack,pom,10);
-	if(State && State->attackBonus)
-	{
-		int hlp;
-		if(c->attack > 0)
-			hlp = log10f(c->attack)+2;
-		else
-			hlp = 2;
-		pom[hlp-1] = ' '; pom[hlp] = '(';
-		SDL_itoa(c->attack+State->attackBonus,pom+hlp+1,10);
-		hlp += 2+(int)log10f(State->attackBonus+c->attack);
-		pom[hlp] = ')'; pom[hlp+1] = '\0';
-	}
-	printTo(pom,276,61,FONT_SMALL,zwykly,bitmap);
-
-	//defense
-	printAt(CGI->generaltexth->primarySkillNames[1],155,67,FONT_SMALL,zwykly,bitmap);
-	SDL_itoa(c->defence,pom,10);
-	if(State && State->defenseBonus)
-	{
-		int hlp;
-		if(c->defence > 0)
-			hlp = log10f(c->defence)+2;
-		else
-			hlp = 2;
-		pom[hlp-1] = ' '; pom[hlp] = '(';
-		SDL_itoa(c->defence+State->defenseBonus,pom+hlp+1,10);
-		hlp += 2+(int)log10f(State->defenseBonus+c->defence);
-		pom[hlp] = ')'; pom[hlp+1] = '\0';
-	}
-	printTo(pom,276,80,FONT_SMALL,zwykly,bitmap);
-
-	//shots
-	if(c->shots)
-	{
-		printAt(CGI->generaltexth->allTexts[198], 155, 86, FONT_SMALL, zwykly, bitmap);
-		if(State  &&  State->shotsLeft >= 0)
-			sprintf(pom,"%d (%d)", c->shots, State->shotsLeft);
-		else
-			SDL_itoa(c->shots, pom, 10);
-		printTo(pom, 276, 99, FONT_SMALL, zwykly, bitmap);
-	}
-
-	//damage
-	int dmgMin = c->damageMin * (State ? State->dmgMultiplier : 1);
-	int dmgMax = c->damageMax * (State ? State->dmgMultiplier : 1);
-
-	printAt(CGI->generaltexth->allTexts[199], 155, 105, FONT_SMALL, zwykly, bitmap);
-	SDL_itoa(dmgMin, pom, 10);
-	if(dmgMin > 0)
-		hlp = log10f(dmgMin) + 2;
-	else
-		hlp = 2;
-	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
-	SDL_itoa(dmgMax, pom+hlp+2, 10);
-	printTo(pom, 276, 118, FONT_SMALL, zwykly, bitmap);
-
-	//health
-	printAt(CGI->generaltexth->allTexts[388],155,124,FONT_SMALL,zwykly,bitmap);
-	if(State  &&  State->healthBonus)
-		sprintf(pom,"%d (%d)",c->hitPoints, c->hitPoints + State->healthBonus);
-	else
-		SDL_itoa(c->hitPoints,pom,10);
-	printTo(pom,276,137,FONT_SMALL,zwykly,bitmap);
-
-	//remaining health
-	if(State && State->currentHealth)
-	{
-		printAt(CGI->generaltexth->allTexts[200],155,143,FONT_SMALL,zwykly,bitmap);
-		SDL_itoa(State->currentHealth,pom,10);
-		printTo(pom,276,156,FONT_SMALL,zwykly,bitmap);
-	}
-
-	//speed
-	printAt(CGI->generaltexth->zelp[441].first,155,162,FONT_SMALL,zwykly,bitmap);
-	SDL_itoa(c->speed,pom,10);
-	if(State && State->speedBonus)
-	{
-		int hlp;
-		if(c->speed > 0)
-			hlp = log10f(c->speed)+2;
-		else
-			hlp = 2;
-		pom[hlp-1] = ' '; pom[hlp] = '(';
-		SDL_itoa(c->speed + State->speedBonus, pom+hlp+1, 10);
-		hlp += 2+(int)log10f(c->speed + State->speedBonus);
-		pom[hlp] = ')'; pom[hlp+1] = '\0';
-	}
-	printTo(pom,276,175,FONT_SMALL,zwykly,bitmap);
-
-
-	//luck and morale
-	blitAt(graphics->morale42->ourImages[(State)?(State->morale+3):(3)].bitmap,24,189,bitmap);
-	blitAt(graphics->luck42->ourImages[(State)?(State->luck+3):(3)].bitmap,77,189,bitmap);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init(st.type, &st, st.count);
 
 	//print abilities text - if r-click popup
 	if(type)
@@ -2373,9 +2232,9 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			bool enough = true;
 			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++) //calculate upgrade cost
 			{
-				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*creatureCount)
+				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*st.count)
 					enough = false;
-				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*creatureCount)); 
+				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*st.count)); 
 			}
 
 			if(enough)
@@ -2385,11 +2244,11 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				fs[0] += boost::bind(&CCreInfoWindow::close,this);
 				CFunctionList<void()> cfl;
 				cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false);
-				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF",SDLK_u);
+				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,76,237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
 			{
-				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,boost::function<void()>(),pos.x+76,pos.y+237,"IVIEWCR.DEF");
+				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,boost::function<void()>(),76,237,"IVIEWCR.DEF");
 				upgrade->callback.funcs.clear();
 				upgrade->bitmapOffset = 2;
 			}
@@ -2403,53 +2262,124 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			fs[0] += boost::bind(&CCreInfoWindow::close,this);//close this window
 			CFunctionList<void()> cfl;
 			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false);
-			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF",SDLK_d);
+			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,21,237,"IVIEWCR2.DEF",SDLK_d);
 		}
-		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF",SDLK_RETURN);
+		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),216,237,"IOKAY.DEF",SDLK_RETURN);
 	}
 	else
 	{
-		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,bitmap);
+		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
 	}
 
-	//spell effects
-	if(State)
+	//if we are displying window fo r stack in battle, there are several more things that we need to display
+	if(const CStack *battleStack = dynamic_cast<const CStack*>(&st))
 	{
+		//spell effects
 		int printed=0; //how many effect pics have been printed
-		for(std::set<int>::const_iterator it = State->effects.begin(); it!=State->effects.end(); ++it)
+		BOOST_FOREACH(const CStack::StackEffect &effect, battleStack->effects)
 		{
-			blitAt(graphics->spellEffectsPics->ourImages[*it + 1].bitmap, 127 + 52 * printed, 186, bitmap); 
+			blitAt(graphics->spellEffectsPics->ourImages[effect.id + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
 			++printed;
-			if(printed >= 3)
-			{
+			if(printed >= 3) //we can fit only 3 effects
 				break;
-			}
 		}
+
+		//print current health
+		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
 	}
 }
+
+
+
+void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
+{
+	printAt(text, 155, 48 + nr*19, FONT_SMALL, zwykly, *bitmap);
+
+	std::string hlp;
+	if(range && baseVal != val)
+		hlp = boost::str(boost::format("%d - %d") % baseVal % val);
+	else if(baseVal != val && val>=0)
+		hlp = boost::str(boost::format("%d (%d)") % baseVal % val);
+	else
+		hlp = boost::lexical_cast<std::string>(baseVal);
+
+	printTo(hlp, 276, 61 + nr*19, FONT_SMALL, zwykly, *bitmap);
+}
+
+void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
+{
+	const CBonusSystemNode *finalNode = NULL;
+	if(stack)
+		finalNode = stack;
+	else
+		finalNode = cre;
+
+	anf = 0;
+	c = cre;
+
+	bitmap = new CPicture("CRSTKPU.bmp");
+	graphics->blueToPlayersAdv(*bitmap, LOCPLINT->playerID);
+	bitmap->convertToScreenBPP();
+	pos = bitmap->center();
+
+	{
+		BLOCK_CAPTURING;
+		anim = new CCreaturePic(c);
+	}
+
+	if(!type) anim->anim->setType(2);
+
+	count = boost::lexical_cast<std::string>(creatureCount);
+
+
+	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,*bitmap); //creature name
+	
+	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
+	printLine(1, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	if(c->shots)
+		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+
+	//TODO
+	int dmgMultiply = 1;
+	if(stack && stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		dmgMultiply += stack->armyObj->Attack(); 
+
+	printLine(3, CGI->generaltexth->allTexts[199], c->damageMin * dmgMultiply, c->damageMax * dmgMultiply, true);
+	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
+	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
+
+	//luck and morale
+	int luck = 3, morale = 3;
+	if(stack)
+	{
+		//add modifiers
+		luck += stack->LuckVal();
+		morale += stack->MoraleVal();
+	}
+
+	blitAt(graphics->morale42->ourImages[morale].bitmap, 24, 189, *bitmap);
+	blitAt(graphics->luck42->ourImages[luck].bitmap, 77, 189, *bitmap);
+}
+
+CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	const CCreature *cre = CGI->creh->creatures[Cid];
+	init(cre, NULL, creatureCount);
+}
+
 CCreInfoWindow::~CCreInfoWindow()
 {
-	SDL_FreeSurface(bitmap);
 	delete anim;
-	delete upgrade;
-	delete ok;
-	delete dismiss;
 	for(int i=0; i<upgResCost.size();i++)
 		delete upgResCost[i];
 }
 
 void CCreInfoWindow::activate()
 {
-	//if(active) return;
-	//active = true;
+	CIntObject::activate();
 	if(!type)
 		activateRClick();
-	if(ok)
-		ok->activate();
-	if(dismiss)
-		dismiss->activate();
-	if(upgrade)
-		upgrade->activate();
 }
 
 void CCreInfoWindow::close()
@@ -2475,16 +2405,9 @@ void CCreInfoWindow::keyPressed (const SDL_KeyboardEvent & key)
 
 void CCreInfoWindow::deactivate()
 {
-	//if(!active) return;
-	//active = false;
 	if(!type)
 		deactivateRClick();
-	if(ok)
-		ok->deactivate();
-	if(dismiss)
-		dismiss->deactivate();
-	if(upgrade)
-		upgrade->deactivate();
+	CIntObject::deactivate();
 }
 
 void CLevelWindow::close()
@@ -4511,10 +4434,10 @@ void CExchangeWindow::prepareBackground()
 		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, zwykly, bg );
 
 		//setting morale
-		blitAt(graphics->morale30->ourImages[heroInst[b]->getCurrentMorale()+3].bitmap, 177 + 490*b, 45, bg);
+		blitAt(graphics->morale30->ourImages[heroInst[b]->MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
 
 		//setting luck
-		blitAt(graphics->luck30->ourImages[heroInst[b]->getCurrentLuck()+3].bitmap, 213 + 490*b, 45, bg);
+		blitAt(graphics->luck30->ourImages[heroInst[b]->LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
 	}
 
 	//printing portraits
@@ -5096,16 +5019,16 @@ CThievesGuildWindow::~CThievesGuildWindow()
 
 
 
-void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -1*/ )
+void MoraleLuckBox::set(bool morale, const CGHeroInstance *hero)
 {
 	int mrlv = -9, mrlt = -9;
-	std::vector<std::pair<int,std::string> > mrl;
+	TModDescr mrl;
 
 	if(morale)
 	{
 		//setting morale
-		mrl = hero->getCurrentMoraleModifiers(slot);
-		mrlv = hero->getCurrentMorale(slot);
+		hero->getModifiersWDescr(mrl, Bonus::MORALE);
+		mrlv = hero->MoraleVal();
 		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
 		hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
 		baseType = SComponent::morale;
@@ -5121,8 +5044,8 @@ void MoraleLuckBox::set( bool morale, const CGHeroInstance *hero, int slot /*= -
 	else
 	{
 		//setting luck
-		mrl = hero->getCurrentLuckModifiers(slot);
-		mrlv = hero->getCurrentLuck(slot);
+		hero->getModifiersWDescr(mrl, Bonus::LUCK);
+		mrlv = hero->LuckVal();
 		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
 		hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
 		baseType = SComponent::luck;

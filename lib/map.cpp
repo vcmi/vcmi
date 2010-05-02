@@ -152,18 +152,21 @@ static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int num
 	{
 		int creID = readNormalNr(bufor,i+ir*bytesPerCre, idBytes);
 		int count = readNormalNr(bufor,i+ir*bytesPerCre+idBytes, 2);
-
 		if(creID == maxID) //empty slot
 			continue;
+
+		CStackInstance hlp;
+		hlp.count = count;
+
 		if(creID > maxID - 0xf)
 		{
 			creID = maxID + 1 - creID + VLC->creh->creatures.size();//this will happen when random object has random army
-			ret.slots[ir].idRand = creID;
+			hlp.idRand = creID;
 		}
 		else
-			ret.slots[ir].setType(creID);
+			hlp.setType(creID);
 
-		ret.slots[ir].count = count;
+		ret.slots[ir] = hlp;
 	}
 	i+=number*bytesPerCre;
 	
@@ -704,8 +707,8 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	if(readChar(bufor,i)) //has name
 		nt->name = readString(bufor,i);
 	if(readChar(bufor,i))//true if garrison isn't empty
-		nt->army = readCreatureSet(bufor,i,7,(version>RoE));
-	nt->army.formation = bufor[i]; ++i;
+		nt->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+	nt->formation = bufor[i]; ++i;
 	if(readChar(bufor,i)) //custom buildings info
 	{
 		//built buildings
@@ -889,9 +892,9 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		}
 	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
-		nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
+		nhi->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
 
-	nhi->army.formation =bufor[i]; ++i; //formation
+	nhi->formation =bufor[i]; ++i; //formation
 	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 	int artmask = version == RoE ? 0xff : 0xffff;
 	int artidlen = version == RoE ? 1 : 2;
@@ -988,9 +991,8 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	{
 		if(readChar(bufor,i))//customPrimSkills
 		{
-			nhi->primSkills.resize(4);
 			for(int xx=0;xx<4;xx++)
-				nhi->primSkills[xx] = bufor[i++];
+				nhi->pushPrimSkill(xx, bufor[i++]);
 		}
 	}
 	i+=16;
@@ -1197,9 +1199,8 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 				}
 				if(readChar(bufor,i))//customPrimSkills
 				{
-					cgh->primSkills.resize(4);
 					for(int xx=0;xx<4;xx++)
-						cgh->primSkills[xx] = bufor[i++];
+						cgh->pushPrimSkill(xx, bufor[i++]);
 				}
 				predefinedHeroes.push_back(cgh);
 			}
@@ -1375,7 +1376,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					}
 					if(bufor[i++])
 					{
-						evnt->army = readCreatureSet(bufor,i,7,(version>RoE)); 
+						evnt->setArmy(readCreatureSet(bufor, i, 7, version > RoE)); 
 					}
 					i+=4;
 				}
@@ -1485,7 +1486,12 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					cre->identifier = readNormalNr(bufor,i); i+=4;
 					monsters[cre->identifier] = cre;
 				}
-				cre->army.slots[0].count = readNormalNr(bufor,i, 2); i+=2;
+
+				CStackInstance hlp;
+				hlp.count =  readNormalNr(bufor,i, 2); i+=2;
+				//type will be set during initialization
+				cre->slots[0] = hlp;
+
 				cre->character = bufor[i]; ++i;
 				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
 				if(isMesTre)
@@ -1575,7 +1581,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = gar;
 				nobj->setOwner(bufor[i++]);
 				i+=3;
-				gar->army = readCreatureSet(bufor,i,7,(version>RoE));
+				gar->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
 				if(version > RoE)
 				{
 					gar->removableUnits = bufor[i]; ++i;
@@ -1599,7 +1605,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					bool areGuards = bufor[i]; ++i;
 					if(areGuards)
 					{
-						art->army = readCreatureSet(bufor,i,7,(version>RoE));
+						art->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
 					}
 					i+=4;
 				}
@@ -1621,7 +1627,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					res->message = readString(bufor,i);
 					if(bufor[i++])
 					{
-						res->army = readCreatureSet(bufor,i,7,(version>RoE));
+						res->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
 					}
 					i+=4;
 				}
@@ -1675,7 +1681,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					box->message = readString(bufor,i);
 					if(bufor[i++])
 					{
-						box->army = readCreatureSet(bufor,i,7,(version>RoE));
+						box->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
 					}
 					i+=4;
 				}

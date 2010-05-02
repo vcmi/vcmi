@@ -14,6 +14,8 @@
 #include "CGameState.h"
 #include "map.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CCreatureHandler.h"
+#include "VCMI_Lib.h"
 
 
 /*
@@ -202,6 +204,7 @@ void CConnection::close()
 	}
 }
 
+
 CGObjectInstance *CConnection::loadObject()
 {
 	assert(gs);
@@ -216,6 +219,20 @@ void CConnection::saveObject( const CGObjectInstance *data )
 	assert(gs);
 	assert(data);
 	*this << data->id;
+}
+
+CCreature * CConnection::loadCreature()
+{
+	si32 id;
+	*this >> id;
+	assert(id >= 0 && id < VLC->creh->creatures.size());
+	return VLC->creh->creatures[id];
+}
+
+void CConnection::saveCreature(const CCreature *data)
+{
+	assert(data);
+	*this << data->idNumber;
 }
 
 void CConnection::setGS( CGameState *state )

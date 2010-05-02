@@ -286,7 +286,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 
 	//setting formations
 	formations->onChange = 0;
-	formations->select(hero->army.formation,true);
+	formations->select(hero->formation,true);
 	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, hero, _1);
 
 	morale->set(true, hero);
@@ -451,8 +451,8 @@ void CHeroWindow::redrawCurBack()
 	}
 
 	//morale and luck printing
-	blitAt(graphics->luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
-	blitAt(graphics->morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
+	blitAt(graphics->luck42->ourImages[curHero->LuckVal()+3].bitmap, 239, 182, curBack);
+	blitAt(graphics->morale42->ourImages[curHero->MoraleVal()+3].bitmap, 181, 182, curBack);
 
 	blitAt(flags->ourImages[player].bitmap, 606, 8, curBack);
 

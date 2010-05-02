@@ -3,6 +3,10 @@
 #include "../hch/CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include <assert.h>
+#include "../hch/CObjectHandler.h"
+#include "IGameCallback.h"
+#include "CGameState.h"
+#include "../hch/CGeneralTextHandler.h"
 
 const CStackInstance CCreatureSet::operator[](TSlot slot) const
 {
@@ -28,7 +32,7 @@ bool CCreatureSet::setCreature(TSlot slot, TCreature type, TQuantity quantity) /
 	if (quantity == 0)
 		slots.erase(slot);
 
-	if (slots.size() > 7) 
+	if (slots.size() > ARMY_SIZE) 
 		return false;
 	else 
 		return true;
@@ -62,12 +66,12 @@ int CCreatureSet::getAmount(TSlot slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
-bool CCreatureSet::mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable /*= -1*/) /*looks for two same stacks, returns slot positions */
+bool CCreatureSet::mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable /*= -1*/) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
 	if(preferable >= 0  &&  vstd::contains(slots, preferable))
 	{
-		const CCreature *cr = slots[preferable].type;
+		const CCreature *cr = slots.find(preferable)->second.type;
 		for(TSlots::const_iterator j=slots.begin(); j!=slots.end(); ++j)
 		{
 			if(cr == j->second.type && j->first != preferable)
@@ -107,18 +111,24 @@ void CCreatureSet::sweep()
 	}
 }
 
-void CCreatureSet::addToSlot(TSlot slot, TCreature cre, TQuantity count)
+void CCreatureSet::addToSlot(TSlot slot, TCreature cre, TQuantity count, bool allowMerging/* = true*/)
 {
 	assert(slot >= 0);
-	const CCreature *c = &VLC->creh->creatures[cre];
-	assert(!vstd::contains(slots, slot) || slots[slot].type == c); //that slot was empty or contained same type creature
+	const CCreature *c = VLC->creh->creatures[cre];
+	assert(!vstd::contains(slots, slot) || slots[slot].type == c && allowMerging); //that slot was empty or contained same type creature
 	slots[slot].type = c;
 	slots[slot].count += count;
+
+	//TODO
+	const CArmedInstance *armedObj = dynamic_cast<const CArmedInstance *>(this);
+	if(armedObj && !slots[slot].armyObj)
+		slots[slot].armyObj = armedObj;
 }
 
-void CCreatureSet::addToSlot(TSlot slot, const CStackInstance &stack)
+void CCreatureSet::addToSlot(TSlot slot, const CStackInstance &stack, bool allowMerging/* = true*/)
 {
-	addToSlot(slot, stack.type->idNumber, stack.count);
+	assert(stack.type == VLC->creh->creatures[stack.type->idNumber]);
+	addToSlot(slot, stack.type->idNumber, stack.count, allowMerging	);
 }
 
 bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
@@ -129,7 +139,7 @@ bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
 		if(!isRand)
 		{
 			assert(i->second.type);
-			assert(i->second.type == &VLC->creh->creatures[i->second.type->idNumber]);
+			assert(i->second.type == VLC->creh->creatures[i->second.type->idNumber]);
 		}
 		else
 			assert(allowUnrandomized);
@@ -137,16 +147,94 @@ bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
 	return true;
 }
 
+bool CCreatureSet::slotEmpty(TSlot slot) const
+{
+	return !vstd::contains(slots, slot);
+}
+
+bool CCreatureSet::needsLastStack() const
+{
+	return false;
+}
+
+int CCreatureSet::getArmyStrength() const
+{
+	int ret = 0;
+	for(TSlots::const_iterator i = slots.begin(); i != slots.end(); i++)
+		ret += i->second.type->AIValue * i->second.count;
+	return ret;
+}
+
+ui64 CCreatureSet::getPower (TSlot slot) const
+{
+	return getCreature(slot)->AIValue * getAmount(slot);
+}
+std::string CCreatureSet::getRoughAmount (TSlot slot) const
+{
+	return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(getAmount(slot))];
+}
+
+int CCreatureSet::stacksCount() const
+{
+	return slots.size();
+}
+
+void CCreatureSet::addStack(TSlot slot, const CStackInstance &stack)
+{
+	addToSlot(slot, stack, false);
+}
+
+void CCreatureSet::setFormation(bool tight)
+{
+	formation = tight;
+}
+
+void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
+{
+	assert(vstd::contains(slots, slot));
+	slots[slot].count = count;
+}
+
+void CCreatureSet::clear()
+{
+	slots.clear();
+}
+
+const CStackInstance& CCreatureSet::getStack(TSlot slot) const
+{
+	assert(vstd::contains(slots, slot));
+	return slots.find(slot)->second;
+}
+
+void CCreatureSet::eraseStack(TSlot slot)
+{
+	assert(vstd::contains(slots, slot));
+	slots.erase(slot);
+}
+
+bool CCreatureSet::contains(const CStackInstance *stack) const
+{
+	if(!stack) 
+		return false;
+
+	for(TSlots::const_iterator i = slots.begin(); i != slots.end(); ++i)
+		if(&i->second == stack)
+			return true;
+
+	return false;
+}
+
 CStackInstance::CStackInstance()
 {
 	init();
 }
 
-CStackInstance::CStackInstance(TCreature id, TQuantity Count)
+CStackInstance::CStackInstance(TCreature id, TQuantity Count, const CArmedInstance *ArmyObj)
 {
 	init();
 	setType(id);
 	count = Count;
+	armyObj = ArmyObj;
 }
 
 CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count)
@@ -162,6 +250,7 @@ void CStackInstance::init()
 	count = 0;
 	type = NULL;
 	idRand = -1;
+	armyObj = NULL;
 }
 
 int CStackInstance::getQuantityID() const 
@@ -171,5 +260,18 @@ int CStackInstance::getQuantityID() const
 
 void CStackInstance::setType(int creID)
 {
-	type = &VLC->creh->creatures[creID];
+	type = VLC->creh->creatures[creID];
+}
+
+void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*= NULL*/) const
+{
+	out.insert(type);
+
+	if(source && source != this) //we should be root, if not - do not inherit anything
+		return;
+
+	if(armyObj)
+		out.insert(armyObj);
+	else
+		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
 }

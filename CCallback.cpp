@@ -68,7 +68,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amou
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 {
-	if(((player>=0)  &&  obj->tempOwner != player) || (obj->army.slots.size()<2  && obj->needsLastStack()))
+	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);
@@ -379,7 +379,7 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 	if(!armi)
 		return NULL;
 	else 
-		return &armi->army;
+		return armi;
 }
 
 int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
@@ -560,7 +560,7 @@ CCreature CCallback::battleGetCreature(int number)
 	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == number) //creature found
-			return *(gs->curB->stacks[h]->creature);
+			return *(gs->curB->stacks[h]->type);
 	}
 #ifndef __GNUC__
 	throw new std::exception("Cannot find the creature");
@@ -776,7 +776,7 @@ void CCallback::trade( int mode, int id1, int id2, int val1 )
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
-	const_cast<CGHeroInstance*>(hero)->army.formation = tight;
+	const_cast<CGHeroInstance*>(hero)-> formation = tight;
 	SetFormation pack(hero->id,tight);
 	sendRequest(&pack);
 }
@@ -939,12 +939,12 @@ void CCallback::dig( const CGObjectInstance *hero )
 
 si8 CCallback::battleGetStackMorale( int stackID )
 {
-	return gs->curB->Morale( gs->curB->getStack(stackID) );
+	return gs->curB->getStack(stackID)->MoraleVal();
 }
 
 si8 CCallback::battleGetStackLuck( int stackID )
 {
-	return gs->curB->Luck( gs->curB->getStack(stackID) );
+	return gs->curB->getStack(stackID)->LuckVal();
 }
 
 void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos)
@@ -987,7 +987,7 @@ InfoAboutTown::~InfoAboutTown()
 void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 {
 	obj = t;
-	army = t->army;
+	army = t->getArmy();
 	built = t->builded;
 	fortLevel = t->fortLevel();
 	name = t->name;
@@ -1006,7 +1006,7 @@ void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 	/*else
 	{
 		//hide info about hero stacks counts
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = slots.begin(); i != slots.end(); ++i)
 		{
 			i->second.second = 0;
 		}
@@ -1017,7 +1017,7 @@ void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
 {
 	obj = garr;
 	fortLevel = 0;
-	army = garr->army;
+	army = garr->getArmy();
 	name = CGI->generaltexth->names[33]; // "Garrison"
 	owner = garr->tempOwner;
 	built = false;

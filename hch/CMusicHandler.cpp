@@ -148,7 +148,7 @@ soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 		return it->second;
 }
 
-void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
+void CSoundHandler::initCreaturesSounds(std::vector<CCreature*> &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
 	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");

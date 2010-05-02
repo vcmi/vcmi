@@ -5,6 +5,7 @@
 
 #include "CSoundBase.h"
 #include "CMusicBase.h"
+#include "CCreatureHandler.h"
 
 
 /*
@@ -79,7 +80,7 @@ public:
 	void init();
 	void release();
 
-	void initCreaturesSounds(std::vector<CCreature> &creatures);
+	void initCreaturesSounds(std::vector<CCreature*> &creatures);
 	void initSpellsSounds(std::vector<CSpell> &spells);
 	void setVolume(unsigned int percent);
 

@@ -318,21 +318,21 @@ void CArtHandler::sortArts()
 	}
 }
 
-void CArtHandler::giveArtBonus( int aid, HeroBonus::BonusType type, int val, int subtype )
+void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType )
 {
-	artifacts[aid].bonuses.push_back(HeroBonus(HeroBonus::PERMANENT,type,HeroBonus::ARTIFACT,val,aid,subtype));
-
-	if(type == HeroBonus::MORALE || HeroBonus::LUCK || HeroBonus::MORALE_AND_LUCK)
-		artifacts[aid].bonuses.back().description = "\n" + artifacts[aid].Name()  + (val > 0 ? " +" : " ") 	
-													+ boost::lexical_cast<std::string>(val);
+	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added.valType = valType;
+	if(type == Bonus::MORALE || Bonus::LUCK)
+		added.description = "\n" + artifacts[aid].Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+	artifacts[aid].bonuses.push_back(added);
 }
 
 void CArtHandler::addBonuses()
 {
-	#define ART_PRIM_SKILL(ID, whichSkill, val) giveArtBonus(ID,HeroBonus::PRIMARY_SKILL,val,whichSkill)
-	#define ART_MORALE(ID, val) giveArtBonus(ID,HeroBonus::MORALE,val)
-	#define ART_LUCK(ID, val) giveArtBonus(ID,HeroBonus::LUCK,val)
-	#define ART_MORALE_AND_LUCK(ID, val) giveArtBonus(ID,HeroBonus::MORALE_AND_LUCK,val)
+	#define ART_PRIM_SKILL(ID, whichSkill, val) giveArtBonus(ID,Bonus::PRIMARY_SKILL,val,whichSkill)
+	#define ART_MORALE(ID, val) giveArtBonus(ID,Bonus::MORALE,val)
+	#define ART_LUCK(ID, val) giveArtBonus(ID,Bonus::LUCK,val)
+	#define ART_MORALE_AND_LUCK(ID, val) giveArtBonus(ID,Bonus::MORALE_AND_LUCK,val)
 	#define ART_ALL_PRIM_SKILLS(ID, val) ART_PRIM_SKILL(ID,0,val); ART_PRIM_SKILL(ID,1,val); ART_PRIM_SKILL(ID,2,val); ART_PRIM_SKILL(ID,3,val)
 	#define ART_ATTACK_AND_DEFENSE(ID, val) ART_PRIM_SKILL(ID,0,val); ART_PRIM_SKILL(ID,1,val)
 	#define ART_POWER_AND_KNOWLEDGE(ID, val) ART_PRIM_SKILL(ID,2,val); ART_PRIM_SKILL(ID,3,val)
@@ -400,185 +400,187 @@ void CArtHandler::addBonuses()
 	ART_LUCK(47,+1); //Cards of Prophecy
 	ART_LUCK(48,+1); //Ladybird of Luck
 	ART_MORALE(49,+1); //Badge of Courage -> +1 morale and immunity to hostile mind spells:
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,50);//sorrow
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,59);//berserk
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,60);//hypnotize
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,61);//forgetfulness
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,62);//blind
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,50);//sorrow
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,59);//berserk
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,60);//hypnotize
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,61);//forgetfulness
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,62);//blind
 	ART_MORALE(50,+1); //Crest of Valor
 	ART_MORALE(51,+1); //Glyph of Gallantry
 
-	giveArtBonus(52,HeroBonus::SIGHT_RADIOUS,+1);//Speculum
-	giveArtBonus(53,HeroBonus::SIGHT_RADIOUS,+1);//Spyglass
+	giveArtBonus(52,Bonus::SIGHT_RADIOUS,+1);//Speculum
+	giveArtBonus(53,Bonus::SIGHT_RADIOUS,+1);//Spyglass
 
 	//necromancy bonus
-	giveArtBonus(54,HeroBonus::SECONDARY_SKILL_PREMY,+5,12);//Amulet of the Undertaker
-	giveArtBonus(55,HeroBonus::SECONDARY_SKILL_PREMY,+10,12);//Vampire's Cowl
-	giveArtBonus(56,HeroBonus::SECONDARY_SKILL_PREMY,+15,12);//Dead Man's Boots
+	giveArtBonus(54,Bonus::SECONDARY_SKILL_PREMY,+5,12);//Amulet of the Undertaker
+	giveArtBonus(55,Bonus::SECONDARY_SKILL_PREMY,+10,12);//Vampire's Cowl
+	giveArtBonus(56,Bonus::SECONDARY_SKILL_PREMY,+15,12);//Dead Man's Boots
 
-	giveArtBonus(57,HeroBonus::MAGIC_RESISTANCE,+5);//Garniture of Interference
-	giveArtBonus(58,HeroBonus::MAGIC_RESISTANCE,+10);//Surcoat of Counterpoise
-	giveArtBonus(59,HeroBonus::MAGIC_RESISTANCE,+15);//Boots of Polarity
+	giveArtBonus(57,Bonus::MAGIC_RESISTANCE,+5);//Garniture of Interference
+	giveArtBonus(58,Bonus::MAGIC_RESISTANCE,+10);//Surcoat of Counterpoise
+	giveArtBonus(59,Bonus::MAGIC_RESISTANCE,+15);//Boots of Polarity
 
 	//archery bonus
-	giveArtBonus(60,HeroBonus::SECONDARY_SKILL_PREMY,+5,1);//Bow of Elven Cherrywood
-	giveArtBonus(61,HeroBonus::SECONDARY_SKILL_PREMY,+10,1);//Bowstring of the Unicorn's Mane
-	giveArtBonus(62,HeroBonus::SECONDARY_SKILL_PREMY,+15,1);//Angel Feather Arrows
+	giveArtBonus(60,Bonus::SECONDARY_SKILL_PREMY,+5,1);//Bow of Elven Cherrywood
+	giveArtBonus(61,Bonus::SECONDARY_SKILL_PREMY,+10,1);//Bowstring of the Unicorn's Mane
+	giveArtBonus(62,Bonus::SECONDARY_SKILL_PREMY,+15,1);//Angel Feather Arrows
 
 	//eagle eye bonus
-	giveArtBonus(63,HeroBonus::SECONDARY_SKILL_PREMY,+5,11);//Bird of Perception
-	giveArtBonus(64,HeroBonus::SECONDARY_SKILL_PREMY,+10,11);//Stoic Watchman
-	giveArtBonus(65,HeroBonus::SECONDARY_SKILL_PREMY,+15,11);//Emblem of Cognizance
+	giveArtBonus(63,Bonus::SECONDARY_SKILL_PREMY,+5,11);//Bird of Perception
+	giveArtBonus(64,Bonus::SECONDARY_SKILL_PREMY,+10,11);//Stoic Watchman
+	giveArtBonus(65,Bonus::SECONDARY_SKILL_PREMY,+15,11);//Emblem of Cognizance
 
 	//reducing cost of surrendering
-	giveArtBonus(66,HeroBonus::SURRENDER_DISCOUNT,+10);//Statesman's Medal
-	giveArtBonus(67,HeroBonus::SURRENDER_DISCOUNT,+10);//Diplomat's Ring
-	giveArtBonus(68,HeroBonus::SURRENDER_DISCOUNT,+10);//Ambassador's Sash
+	giveArtBonus(66,Bonus::SURRENDER_DISCOUNT,+10);//Statesman's Medal
+	giveArtBonus(67,Bonus::SURRENDER_DISCOUNT,+10);//Diplomat's Ring
+	giveArtBonus(68,Bonus::SURRENDER_DISCOUNT,+10);//Ambassador's Sash
 
-	giveArtBonus(69,HeroBonus::STACKS_SPEED,+1);//Ring of the Wayfarer
+	giveArtBonus(69,Bonus::STACKS_SPEED,+1);//Ring of the Wayfarer
 
-	giveArtBonus(70,HeroBonus::LAND_MOVEMENT,+300);//Equestrian's Gloves
-	giveArtBonus(71,HeroBonus::SEA_MOVEMENT,+1000);//Necklace of Ocean Guidance
-	giveArtBonus(72,HeroBonus::FLYING_MOVEMENT,+1);//Angel Wings
+	giveArtBonus(70,Bonus::LAND_MOVEMENT,+300);//Equestrian's Gloves
+	giveArtBonus(71,Bonus::SEA_MOVEMENT,+1000);//Necklace of Ocean Guidance
+	giveArtBonus(72,Bonus::FLYING_MOVEMENT,+1);//Angel Wings
 
-	giveArtBonus(73,HeroBonus::MANA_REGENERATION,+1);//Charm of Mana
-	giveArtBonus(74,HeroBonus::MANA_REGENERATION,+2);//Talisman of Mana
-	giveArtBonus(75,HeroBonus::MANA_REGENERATION,+3);//Mystic Orb of Mana
+	giveArtBonus(73,Bonus::MANA_REGENERATION,+1);//Charm of Mana
+	giveArtBonus(74,Bonus::MANA_REGENERATION,+2);//Talisman of Mana
+	giveArtBonus(75,Bonus::MANA_REGENERATION,+3);//Mystic Orb of Mana
 
-	giveArtBonus(76,HeroBonus::SPELL_DURATION,+1);//Collar of Conjuring
-	giveArtBonus(77,HeroBonus::SPELL_DURATION,+2);//Ring of Conjuring
-	giveArtBonus(78,HeroBonus::SPELL_DURATION,+3);//Cape of Conjuring
+	giveArtBonus(76,Bonus::SPELL_DURATION,+1);//Collar of Conjuring
+	giveArtBonus(77,Bonus::SPELL_DURATION,+2);//Ring of Conjuring
+	giveArtBonus(78,Bonus::SPELL_DURATION,+3);//Cape of Conjuring
 
-	giveArtBonus(79,HeroBonus::AIR_SPELL_DMG_PREMY,+50);//Orb of the Firmament
-	giveArtBonus(80,HeroBonus::EARTH_SPELL_DMG_PREMY,+50);//Orb of Silt
-	giveArtBonus(81,HeroBonus::FIRE_SPELL_DMG_PREMY,+50);//Orb of Tempestuous Fire
-	giveArtBonus(82,HeroBonus::WATER_SPELL_DMG_PREMY,+50);//Orb of Driving Rain
+	giveArtBonus(79,Bonus::AIR_SPELL_DMG_PREMY,+50);//Orb of the Firmament
+	giveArtBonus(80,Bonus::EARTH_SPELL_DMG_PREMY,+50);//Orb of Silt
+	giveArtBonus(81,Bonus::FIRE_SPELL_DMG_PREMY,+50);//Orb of Tempestuous Fire
+	giveArtBonus(82,Bonus::WATER_SPELL_DMG_PREMY,+50);//Orb of Driving Rain
 
-	giveArtBonus(83,HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL,3);//Recanter's Cloak
-	giveArtBonus(84,HeroBonus::BLOCK_MORALE,0);//Spirit of Oppression
-	giveArtBonus(85,HeroBonus::BLOCK_LUCK,0);//Hourglass of the Evil Hour
+	giveArtBonus(83,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,3);//Recanter's Cloak
+	giveArtBonus(84,Bonus::BLOCK_MORALE,0);//Spirit of Oppression
+	giveArtBonus(85,Bonus::BLOCK_LUCK,0);//Hourglass of the Evil Hour
 
-	giveArtBonus(86,HeroBonus::FIRE_SPELLS,0);//Tome of Fire Magic
-	giveArtBonus(87,HeroBonus::AIR_SPELLS,0);//Tome of Air Magic
-	giveArtBonus(88,HeroBonus::WATER_SPELLS,0);//Tome of Water Magic
-	giveArtBonus(89,HeroBonus::EARTH_SPELLS,0);//Tome of Earth Magic
+	giveArtBonus(86,Bonus::FIRE_SPELLS,0);//Tome of Fire Magic
+	giveArtBonus(87,Bonus::AIR_SPELLS,0);//Tome of Air Magic
+	giveArtBonus(88,Bonus::WATER_SPELLS,0);//Tome of Water Magic
+	giveArtBonus(89,Bonus::EARTH_SPELLS,0);//Tome of Earth Magic
 
-	giveArtBonus(90,HeroBonus::WATER_WALKING,0);//Boots of Levitation
-	giveArtBonus(91,HeroBonus::NO_SHOTING_PENALTY,0);//Golden Bow
-	giveArtBonus(92,HeroBonus::SPELL_IMMUNITY,35);//Sphere of Permanence
-	giveArtBonus(93,HeroBonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
+	giveArtBonus(90,Bonus::WATER_WALKING,0);//Boots of Levitation
+	giveArtBonus(91,Bonus::NO_SHOTING_PENALTY,0);//Golden Bow
+	giveArtBonus(92,Bonus::SPELL_IMMUNITY,35);//Sphere of Permanence
+	giveArtBonus(93,Bonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
 
-	giveArtBonus(94,HeroBonus::STACK_HEALTH,+1);//Ring of Vitality
-	giveArtBonus(95,HeroBonus::STACK_HEALTH,+1);//Ring of Life
-	giveArtBonus(96,HeroBonus::STACK_HEALTH,+2);//Vial of Lifeblood
+	giveArtBonus(94,Bonus::STACK_HEALTH,+1);//Ring of Vitality
+	giveArtBonus(95,Bonus::STACK_HEALTH,+1);//Ring of Life
+	giveArtBonus(96,Bonus::STACK_HEALTH,+2);//Vial of Lifeblood
 
-	giveArtBonus(97,HeroBonus::STACKS_SPEED,+1);//Necklace of Swiftness
-	giveArtBonus(98,HeroBonus::LAND_MOVEMENT,+600);//Boots of Speed
-	giveArtBonus(99,HeroBonus::STACKS_SPEED,+2);//Cape of Velocity
+	giveArtBonus(97,Bonus::STACKS_SPEED,+1);//Necklace of Swiftness
+	giveArtBonus(98,Bonus::LAND_MOVEMENT,+600);//Boots of Speed
+	giveArtBonus(99,Bonus::STACKS_SPEED,+2);//Cape of Velocity
 
-	giveArtBonus(100,HeroBonus::SPELL_IMMUNITY,59);//Pendant of Dispassion
-	giveArtBonus(101,HeroBonus::SPELL_IMMUNITY,62);//Pendant of Second Sight
-	giveArtBonus(102,HeroBonus::SPELL_IMMUNITY,42);//Pendant of Holiness
-	giveArtBonus(103,HeroBonus::SPELL_IMMUNITY,24);//Pendant of Life
-	giveArtBonus(104,HeroBonus::SPELL_IMMUNITY,25);//Pendant of Death
-	giveArtBonus(105,HeroBonus::SPELL_IMMUNITY,60);//Pendant of Free Will
-	giveArtBonus(106,HeroBonus::SPELL_IMMUNITY,17);//Pendant of Negativity
-	giveArtBonus(107,HeroBonus::SPELL_IMMUNITY,61);//Pendant of Total Recall
-	giveArtBonus(108,HeroBonus::MORALE_AND_LUCK,+3);//Pendant of Courage
+	giveArtBonus(100,Bonus::SPELL_IMMUNITY,59);//Pendant of Dispassion
+	giveArtBonus(101,Bonus::SPELL_IMMUNITY,62);//Pendant of Second Sight
+	giveArtBonus(102,Bonus::SPELL_IMMUNITY,42);//Pendant of Holiness
+	giveArtBonus(103,Bonus::SPELL_IMMUNITY,24);//Pendant of Life
+	giveArtBonus(104,Bonus::SPELL_IMMUNITY,25);//Pendant of Death
+	giveArtBonus(105,Bonus::SPELL_IMMUNITY,60);//Pendant of Free Will
+	giveArtBonus(106,Bonus::SPELL_IMMUNITY,17);//Pendant of Negativity
+	giveArtBonus(107,Bonus::SPELL_IMMUNITY,61);//Pendant of Total Recall
+	giveArtBonus(108,Bonus::MORALE,+3);//Pendant of Courage
+	giveArtBonus(108,Bonus::LUCK,+3);//Pendant of Courage
 
-	giveArtBonus(109,HeroBonus::GENERATE_RESOURCE,+1,4); //Everflowing Crystal Cloak
-	giveArtBonus(110,HeroBonus::GENERATE_RESOURCE,+1,5); //Ring of Infinite Gems
-	giveArtBonus(111,HeroBonus::GENERATE_RESOURCE,+1,1); //Everpouring Vial of Mercury
-	giveArtBonus(112,HeroBonus::GENERATE_RESOURCE,+1,2); //Inexhaustible Cart of Ore
-	giveArtBonus(113,HeroBonus::GENERATE_RESOURCE,+1,3); //Eversmoking Ring of Sulfur
-	giveArtBonus(114,HeroBonus::GENERATE_RESOURCE,+1,0); //Inexhaustible Cart of Lumber
-	giveArtBonus(115,HeroBonus::GENERATE_RESOURCE,+1000,6); //Endless Sack of Gold
-	giveArtBonus(116,HeroBonus::GENERATE_RESOURCE,+750,6); //Endless Bag of Gold
-	giveArtBonus(117,HeroBonus::GENERATE_RESOURCE,+500,6); //Endless Purse of Gold
+	giveArtBonus(109,Bonus::GENERATE_RESOURCE,+1,4); //Everflowing Crystal Cloak
+	giveArtBonus(110,Bonus::GENERATE_RESOURCE,+1,5); //Ring of Infinite Gems
+	giveArtBonus(111,Bonus::GENERATE_RESOURCE,+1,1); //Everpouring Vial of Mercury
+	giveArtBonus(112,Bonus::GENERATE_RESOURCE,+1,2); //Inexhaustible Cart of Ore
+	giveArtBonus(113,Bonus::GENERATE_RESOURCE,+1,3); //Eversmoking Ring of Sulfur
+	giveArtBonus(114,Bonus::GENERATE_RESOURCE,+1,0); //Inexhaustible Cart of Lumber
+	giveArtBonus(115,Bonus::GENERATE_RESOURCE,+1000,6); //Endless Sack of Gold
+	giveArtBonus(116,Bonus::GENERATE_RESOURCE,+750,6); //Endless Bag of Gold
+	giveArtBonus(117,Bonus::GENERATE_RESOURCE,+500,6); //Endless Purse of Gold
 
-	giveArtBonus(118,HeroBonus::CREATURE_GROWTH,+5,1); //Legs of Legion
-	giveArtBonus(119,HeroBonus::CREATURE_GROWTH,+4,2); //Loins of Legion
-	giveArtBonus(120,HeroBonus::CREATURE_GROWTH,+3,3); //Torso of Legion
-	giveArtBonus(121,HeroBonus::CREATURE_GROWTH,+2,4); //Arms of Legion
-	giveArtBonus(122,HeroBonus::CREATURE_GROWTH,+1,5); //Head of Legion
+	giveArtBonus(118,Bonus::CREATURE_GROWTH,+5,1); //Legs of Legion
+	giveArtBonus(119,Bonus::CREATURE_GROWTH,+4,2); //Loins of Legion
+	giveArtBonus(120,Bonus::CREATURE_GROWTH,+3,3); //Torso of Legion
+	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4); //Arms of Legion
+	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5); //Head of Legion
 
 	//Sea Captain's Hat 
-	giveArtBonus(123,HeroBonus::WHIRLPOOL_PROTECTION,0); 
-	giveArtBonus(123,HeroBonus::SEA_MOVEMENT,+500); 
-	giveArtBonus(123,HeroBonus::SPELL,3,0); 
-	giveArtBonus(123,HeroBonus::SPELL,3,1); 
+	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0); 
+	giveArtBonus(123,Bonus::SEA_MOVEMENT,+500); 
+	giveArtBonus(123,Bonus::SPELL,3,0); 
+	giveArtBonus(123,Bonus::SPELL,3,1); 
 
-	giveArtBonus(124,HeroBonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
-	giveArtBonus(125,HeroBonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
-	giveArtBonus(126,HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
+	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
+	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
+	giveArtBonus(126,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
 
 	//Armageddon's Blade
-	giveArtBonus(128, HeroBonus::SPELL, 3, 26);
-	giveArtBonus(128, HeroBonus::SPELL_IMMUNITY, 26);
+	giveArtBonus(128, Bonus::SPELL, 3, 26);
+	giveArtBonus(128, Bonus::SPELL_IMMUNITY, 26);
 	ART_ATTACK_AND_DEFENSE(128, +3);
 	ART_PRIM_SKILL(128, 2, +3);
 	ART_PRIM_SKILL(128, 3, +6);
 
 	//Angelic Alliance
 	ART_ALL_PRIM_SKILLS(129, +21);
-	giveArtBonus(129, HeroBonus::NONEVIL_ALIGNMENT_MIX, 0);
-	giveArtBonus(129, HeroBonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
+	giveArtBonus(129, Bonus::NONEVIL_ALIGNMENT_MIX, 0);
+	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
 
 	//Cloak of the Undead King
-	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
-	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
-	giveArtBonus(130, HeroBonus::IMPROVED_NECROMANCY, 0);
+	giveArtBonus(130, Bonus::SECONDARY_SKILL_PREMY, +30, 12);
+	giveArtBonus(130, Bonus::SECONDARY_SKILL_PREMY, +30, 12);
+	giveArtBonus(130, Bonus::IMPROVED_NECROMANCY, 0);
 
 	//Elixir of Life
-	giveArtBonus(131, HeroBonus::STACK_HEALTH, +4);
-	giveArtBonus(131, HeroBonus::STACK_HEALTH_PERCENT, +25);
-	giveArtBonus(131, HeroBonus::HP_REGENERATION, +50);
+	giveArtBonus(131, Bonus::STACK_HEALTH, +4);
+	giveArtBonus(131, Bonus::STACK_HEALTH, +25, -1, Bonus::PERCENT_TO_BASE);
+	giveArtBonus(131, Bonus::HP_REGENERATION, +50);
 
 	//Armor of the Damned
 	ART_ATTACK_AND_DEFENSE(132, +3);
 	ART_POWER_AND_KNOWLEDGE(132, +2);
-	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 54); // Slow
-	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 47); // Disrupting Ray
-	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 45); // Weakness
-	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
+	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 54); // Slow
+	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 47); // Disrupting Ray
+	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 45); // Weakness
+	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
 
 	// Statue of Legion - gives only 50% growth
-	giveArtBonus(133, HeroBonus::CREATURE_GROWTH_PERCENT, 50);
+	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50);
 
 	//Power of the Dragon Father
 	ART_ALL_PRIM_SKILLS(134, +16);
-	giveArtBonus(134, HeroBonus::MORALE_AND_LUCK, +1);
-	giveArtBonus(134, HeroBonus::LEVEL_SPELL_IMMUNITY, 4);
+	giveArtBonus(134, Bonus::MORALE, +1);
+	giveArtBonus(134, Bonus::LUCK, +1);
+	giveArtBonus(134, Bonus::LEVEL_SPELL_IMMUNITY, 4);
 
 	//Titan's Thunder
 	// should also add a permanent spell book, somehow.
 	ART_ATTACK_AND_DEFENSE(135, +9);
 	ART_POWER_AND_KNOWLEDGE(135, +8);
-	giveArtBonus(135, HeroBonus::SPELL, 3, 57);
+	giveArtBonus(135, Bonus::SPELL, 3, 57);
 
 	//Admiral's Hat
-	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +1500);
-	giveArtBonus(136, HeroBonus::WHIRLPOOL_PROTECTION, 0);
-	giveArtBonus(136, HeroBonus::SPELL, 3, 0);
-	giveArtBonus(136, HeroBonus::SPELL, 3, 1);
-	giveArtBonus(136, HeroBonus::FREE_SHIP_BOARDING, 0);
+	giveArtBonus(136, Bonus::SEA_MOVEMENT, +1500);
+	giveArtBonus(136, Bonus::WHIRLPOOL_PROTECTION, 0);
+	giveArtBonus(136, Bonus::SPELL, 3, 0);
+	giveArtBonus(136, Bonus::SPELL, 3, 1);
+	giveArtBonus(136, Bonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
-	giveArtBonus(137, HeroBonus::SECONDARY_SKILL_PREMY, +30, 1);
-	giveArtBonus(137, HeroBonus::NO_SHOTING_PENALTY, 0);
-	giveArtBonus(137, HeroBonus::FREE_SHOOTING, 0);
+	giveArtBonus(137, Bonus::SECONDARY_SKILL_PREMY, +30, 1);
+	giveArtBonus(137, Bonus::NO_SHOTING_PENALTY, 0);
+	giveArtBonus(137, Bonus::FREE_SHOOTING, 0);
 
 	//Wizard's Well
-	giveArtBonus(138, HeroBonus::FULL_MANA_REGENERATION, 0);
+	giveArtBonus(138, Bonus::FULL_MANA_REGENERATION, 0);
 
 	//Ring of the Magi
-	giveArtBonus(139, HeroBonus::SPELL_DURATION, +56);
+	giveArtBonus(139, Bonus::SPELL_DURATION, +56);
 
 	//Cornucopia
-	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 1);
-	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 3);
-	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 4);
-	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 5);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 1);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 3);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 4);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 5);
 }
 
 void CArtHandler::clear()

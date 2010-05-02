@@ -35,7 +35,7 @@ public:
 	std::vector<ui32> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
 	ui32 id;
-	std::list<HeroBonus> bonuses; //bonuses given by artifact
+	std::list<Bonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -45,7 +45,7 @@ public:
 
 class DLL_EXPORT CArtHandler //handles artifacts
 {
-	void giveArtBonus(int aid, HeroBonus::BonusType type, int val, int subtype = -1);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;

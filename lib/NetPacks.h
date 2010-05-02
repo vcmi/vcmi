@@ -5,6 +5,7 @@
 #include "BattleAction.h"
 #include "HeroBonus.h"
 #include <set>
+#include "CCreatureSet.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -77,7 +78,7 @@ public:
 
 	std::vector<ui8> message; //vector of EMessage
 
-	std::vector<std::pair<ui8,ui32> > localStrings; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
+	std::vector<std::pair<ui8,ui32> > localStrings; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID]->first; 10 - objh->mines[ID]->second; 11 - objh->advobtxt
 	std::vector<std::string> exactStrings;
 	std::vector<si32> numbers;
 
@@ -370,7 +371,7 @@ struct GiveBonus :  public CPackForClient //115
 	enum {HERO, PLAYER};
 	ui8 who; //who receives bonus, uses enum above
 	ui32 id; //hero or player id
-	HeroBonus bonus;
+	Bonus bonus;
 	MetaString bdescr;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -440,7 +441,7 @@ struct RemoveBonus :  public CPackForClient //118
 	ui32 id; //source id
 
 	//used locally: copy of removed bonus
-	HeroBonus bonus;
+	Bonus bonus;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -573,7 +574,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 		h & hid & artifacts & artifWorn;
 	}
 
-	std::vector<HeroBonus*> gained, lost; //used locally as hlp when applying
+	std::vector<Bonus*> gained, lost; //used locally as hlp when applying
 };   
 
 struct HeroRecruited : public CPackForClient //515
@@ -711,6 +712,12 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 		soundID = 0; 
 	}
 };
+
+namespace ObjProperty
+{
+	//TODO: move non general properties out to the appropriate objs classes
+	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6};
+}
 
 struct SetObjectProperty : public CPackForClient//1001
 {

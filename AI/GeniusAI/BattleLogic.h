@@ -63,7 +63,7 @@ private:
 		int leftHitPoint_for_min; // scenario
 	};
 public:
-	CBattleLogic(ICallback *cb, CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side);
+	CBattleLogic(ICallback *cb, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side);
 	~CBattleLogic();
 
 	void SetCurrentTurn(int turn);
@@ -77,8 +77,8 @@ private:
 	int m_iCurrentTurn;
 	bool m_bIsAttacker;
 	ICallback *m_cb;
-	CCreatureSet *m_army1;
-	CCreatureSet *m_army2;
+	const CCreatureSet *m_army1;
+	const CCreatureSet *m_army2;
 	int3 m_tile;
 	CGHeroInstance *m_hero1;
 	CGHeroInstance *m_hero2;

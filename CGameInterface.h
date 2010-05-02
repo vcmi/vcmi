@@ -36,7 +36,7 @@ struct BattleAttack;
 struct BattleStackAttacked;
 struct SpellCast;
 struct SetStackEffect;
-struct HeroBonus;
+struct Bonus;
 struct PackageApplied;
 struct SetObjectProperty;
 struct CatapultAttack;
@@ -51,17 +51,6 @@ class CObstacle
 	int ID;
 	int position;
 	//TODO: add some kind of the blockmap
-};
-
-struct StackState
-{
-	StackState(){attackBonus=defenseBonus=healthBonus=speedBonus=morale=luck=shotsLeft=currentHealth=0;};
-	int attackBonus, defenseBonus, healthBonus, speedBonus;
-	int currentHealth;
-	int shotsLeft;
-	std::set<int> effects; //IDs of spells affecting stack
-	int morale, luck;
-	int dmgMultiplier; //for ballista dmg bonus handling
 };
 
 class CGameInterface
@@ -98,8 +87,8 @@ public:
 	virtual void yourTurn(){};
 	virtual void centerView (int3 pos, int focusTime){};
 	virtual void availableCreaturesChanged(const CGDwelling *town){};
-	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
-	virtual void playerBonusChanged(const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
@@ -121,7 +110,7 @@ public:
 	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
 	virtual void battleSpellCast(SpellCast *sc){};
 	virtual void battleStacksEffectsSet(SetStackEffect & sse){};//called when a specific effect is set to stacks
-	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
 	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
 	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned

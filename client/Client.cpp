@@ -157,7 +157,7 @@ void CClient::run()
 	} 
 	catch (const std::exception& e)
 	{	
-		tlog3 << "Lost connection to server, ending listening thread!\n";					
+		tlog3 << "Lost connection to server, ending listening thread!\n";
 		tlog1 << e.what() << std::endl;
 		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
 		{

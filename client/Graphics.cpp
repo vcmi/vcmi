@@ -51,7 +51,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
 
 	//army
-	for (TSlots::const_iterator i = curh.army.slots.begin(); i!=curh.army.slots.end();i++)
+	for (TSlots::const_iterator i = curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
 	{
 		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
@@ -108,7 +108,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
 
-	for (TSlots::const_iterator i=curh.army.slots.begin(); i!=curh.army.slots.end();i++)
+	for (TSlots::const_iterator i=curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
 	{
 		//if(!i->second.second)
 		//	continue;

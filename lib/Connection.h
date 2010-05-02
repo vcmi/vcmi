@@ -25,6 +25,7 @@ const ui32 version = 719;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
+class CCreature;
 namespace mpl = boost::mpl;
 
 /*
@@ -740,6 +741,8 @@ public:
 
 	CGObjectInstance *loadObject(); //reads id from net and returns that obj
 	void saveObject(const CGObjectInstance *data);
+	CCreature *loadCreature(); //reads id from net and returns that obj
+	void saveCreature(const CCreature *data);
 
 
 	template<typename T>
@@ -748,6 +751,14 @@ public:
 		static void invoke(CConnection &s, T &data, ui16 tid)
 		{
 			data = static_cast<T>(s.loadObject());
+		}
+	};
+	template<typename T>
+	struct loadCreatureHelper
+	{
+		static void invoke(CConnection &s, T &data, ui16 tid)
+		{
+			data = static_cast<T>(s.loadCreature());
 		}
 	};
 	template<typename T>
@@ -768,6 +779,15 @@ public:
 		}
 	};
 	template<typename T>
+	struct saveCreatureHelper
+	{
+		static void invoke(CConnection &s, const T &data, ui16 tid)
+		{
+			//CGObjectInstance *&hlp = const_cast<CGObjectInstance*&>(data); //for loading pointer to const obj we must remove the qualifier
+			s.saveCreature(data);
+		}
+	};
+	template<typename T>
 	struct saveRestHelper
 	{
 		static void invoke(CConnection &s, const T &data, ui16 tid)
@@ -785,9 +805,12 @@ public:
 			//if
 			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
 			mpl::identity<loadObjectHelper<T> >,
+			//else if
+			mpl::eval_if< boost::is_base_of<CCreature, typename boost::remove_pointer<T>::type>,
+			mpl::identity<loadCreatureHelper<T> >,
 			//else
 			mpl::identity<loadRestHelper<T> >
-			>::type typex;
+			> >::type typex;
 		typex::invoke(*this, data, tid);
 	}
 
@@ -799,9 +822,12 @@ public:
 			//if
 			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
 				mpl::identity<saveObjectHelper<T> >,
+			//else if
+			mpl::eval_if< boost::is_base_of<CCreature, typename boost::remove_pointer<T>::type>,
+			mpl::identity<saveCreatureHelper<T> >,
 			//else
 				mpl::identity<saveRestHelper<T> >
-			>::type typex;
+			> >::type typex;
 		typex::invoke(*this, data, tid);
 	}
 };

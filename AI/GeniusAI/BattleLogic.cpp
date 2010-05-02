@@ -41,7 +41,7 @@ ui8 side; //who made this action: false - left, true - right player
 /**
  *	Implementation of CBattleLogic class.
  */
-CBattleLogic::CBattleLogic(ICallback *cb,  CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
+CBattleLogic::CBattleLogic(ICallback *cb,  const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
 	m_iCurrentTurn(-2),
 	m_bIsAttacker(!side),
 	m_cb(cb),
@@ -121,23 +121,24 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	for (map_stacks::const_iterator it = allStacks.begin(); it != allStacks.end(); ++it)
 	{
 		const CStack *st = &it->second;
+		const int stackHP = st->valOfBonuses(Bonus::STACK_HEALTH);
 
 		if ((it->second.attackerOwned != 0) != m_bIsAttacker)
 		{
 			int id = it->first;
-			if (st->amount < 1)
+			if (st->count < 1)
 			{
 				continue;
 			}
 			// make stats
-			int hitPoints = st->amount * st->creature->hitPoints - (st->creature->hitPoints - st->firstHPleft);
+			int hitPoints = st->count * stackHP - (stackHP - st->firstHPleft);
 
-			m_statMaxDamage.push_back(std::pair<int, int>(id, st->creature->damageMax * st->amount));
-			m_statMinDamage.push_back(std::pair<int, int>(id, st->creature->damageMin * st->amount));
+			m_statMaxDamage.push_back(std::pair<int, int>(id, st->type->damageMax * st->count));
+			m_statMinDamage.push_back(std::pair<int, int>(id, st->type->damageMin * st->count));
 			m_statHitPoints.push_back(std::pair<int, int>(id, hitPoints));
-			m_statMaxSpeed.push_back(std::pair<int, int>(id, st->creature->speed));
+			m_statMaxSpeed.push_back(std::pair<int, int>(id, stackHP));
 
-			totalEnemyDamage += (st->creature->damageMax + st->creature->damageMin) * st->amount / 2;
+			totalEnemyDamage += (st->type->damageMax + st->type->damageMin) * st->count / 2;
 			totalEnemyHitPoints += hitPoints;
 
 			// calculate casualties
@@ -174,32 +175,32 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 				}
 			}
 
-			cs.damage_max = (int)(currentStack->creature->damageMax * currentStack->amount * damageFactor);
+			cs.damage_max = (int)(currentStack->type->damageMax * currentStack->count * damageFactor);
 			if (cs.damage_max > hitPoints)
 			{
 				cs.damage_max = hitPoints;
 			}
 
-			cs.damage_min = (int)(currentStack->creature->damageMin * currentStack->amount * damageFactor);
+			cs.damage_min = (int)(currentStack->type->damageMin * currentStack->count * damageFactor);
 			if (cs.damage_min > hitPoints)
 			{
 				cs.damage_min = hitPoints;
 			}
 
-			cs.amount_max = cs.damage_max / st->creature->hitPoints;
-			cs.amount_min = cs.damage_min / st->creature->hitPoints;
+			cs.amount_max = cs.damage_max / stackHP;
+			cs.amount_min = cs.damage_min / stackHP;
 
-			cs.leftHitPoints_for_max = (hitPoints - cs.damage_max) % st->creature->hitPoints;
-			cs.leftHitPoint_for_min = (hitPoints - cs.damage_min) % st->creature->hitPoints;
+			cs.leftHitPoints_for_max = (hitPoints - cs.damage_max) % stackHP;
+			cs.leftHitPoint_for_min = (hitPoints - cs.damage_min) % stackHP;
 
 			m_statCasualties.push_back(std::pair<int, SCreatureCasualties>(id, cs));
 
-			if (st->creature->isShooting() && st->shots > 0)
+			if (st->type->isShooting() && st->shots > 0)
 			{
 				m_statDistanceFromShooters.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
 
-			if (currentStack->hasFeatureOfType(StackFeature::FLYING) || (currentStack->creature->isShooting() && currentStack->shots > 0))
+			if (currentStack->hasBonusOfType(Bonus::FLYING) || (currentStack->type->isShooting() && currentStack->shots > 0))
 			{
 				m_statDistance.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
@@ -210,13 +211,13 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 		}
 		else
 		{
-			if (st->amount < 1)
+			if (st->count < 1)
 			{
 				continue;
 			}
-			int hitPoints = st->amount * st->creature->hitPoints - (st->creature->hitPoints - st->firstHPleft);
+			int hitPoints = st->count * stackHP - (stackHP - st->firstHPleft);
 
-			totalDamage += (st->creature->damageMax + st->creature->damageMin) * st->amount / 2;
+			totalDamage += (st->type->damageMax + st->type->damageMin) * st->count / 2;
 			totalHitPoints += hitPoints;
 		}
 	}
@@ -258,7 +259,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
 	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
-	if(currentStack->position < 0 || currentStack->creature->idNumber == 147) //turret or first aid kit
+	if(currentStack->position < 0 || currentStack->type->idNumber == 147) //turret or first aid kit
 	{
 		return MakeDefend(stackID);
 	}
@@ -318,8 +319,8 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 {
 	int x = m_battleHelper.DecodeXPosition(defender->position);
 	int y = m_battleHelper.DecodeYPosition(defender->position);
-	bool defenderIsDW = defender->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
-	bool attackerIsDW = attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+	bool defenderIsDW = defender->doubleWide();
+	bool attackerIsDW = attacker->doubleWide();
 	// TOTO: should be std::vector<int> but for debug purpose std::pair is used
 	typedef std::pair<int, int> hexPoint;
 	std::list<hexPoint> candidates;
@@ -424,7 +425,7 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 		int new_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
 		const CStack *st = m_cb->battleGetStackByPos(new_pos);
 
-		if (st == NULL || st->amount < 1)
+		if (st == NULL || st->count < 1)
 		{
 			if (attackerIsDW)
 			{
@@ -449,7 +450,7 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 				}
 				assert(tail_pos >= 0 && "Error during calculation position of double wide creature");
 				//CStack *tailStack = m_cb->battleGetStackByPos(tail_pos);
-				if (st != NULL && st->amount >= 1)
+				if (st != NULL && st->count >= 1)
 				{
 					continue;
 				}
@@ -572,7 +573,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 
 		// if double wide calculate tail
 		int tail_pos = -1;
-		if (attackerStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+		if (attackerStack->doubleWide())
 		{
 			int x_pos = m_battleHelper.DecodeXPosition(attackerStack->position);
 			int y_pos = m_battleHelper.DecodeYPosition(attackerStack->position);
@@ -657,7 +658,7 @@ list<int> CBattleLogic::PerformBerserkAttack(int stackID, int &additionalInfo)
 			}
 			for (creature_stat::const_iterator it2 = m_statDistance.begin(); it2 != m_statDistance.end(); ++it2)
 			{
-				if (it2->first == it->first && it2->second - 1 <= c.speed)
+				if (it2->first == it->first && it2->second - 1 <= c.valOfBonuses(Bonus::STACKS_SPEED))
 				{
 					creatures.push_front(it->first);
 				}
@@ -761,9 +762,9 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));
 		message += ", creature - ";
 		const CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
-		if (c && c->creature)
+		if (c && c->type)
 		{
-			message += c->creature->nameRef;
+			message += c->type->nameRef;
 		}
 		else
 		{

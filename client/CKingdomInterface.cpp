@@ -142,7 +142,7 @@ CKingdomInterface::CKingdomInterface()
 				if ( obj->ID == 17 )//dwelling, text is a plural name of a creature
 				{
 					objList[obj->subID].first += 1;
-					objList[obj->subID].second = & CGI->creh->creatures[CGI->objh->cregens[obj->subID]].namePl;
+					objList[obj->subID].second = & CGI->creh->creatures[CGI->objh->cregens[obj->subID]]->namePl;
 				}
 				else if (addObjects.find(curElm) != addObjects.end())
 				{//object from addObjects map, text is name of the object
@@ -552,11 +552,11 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 			crid = town->town->basicCreatures[i];
 
 		std::string descr=CGI->generaltexth->allTexts[588];
-		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->namePl);
 		creaGrowth[i]->hoverText = descr;
 
 		descr=CGI->generaltexth->heroscrn[1];
-		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid].namePl);
+		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->namePl);
 		creaCount[i]->hoverText = descr;
 		creaCount[i]->town = town;
 	}
@@ -910,12 +910,12 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 								(i<4)?(pos.y+26):(pos.y+6),to);
 		if (i>3) continue;//primary skills text
 		std::ostringstream str;
-		str << (hero->primSkills[i]);
+		str << (hero->getPrimSkillLevel(i));
 		CSDL_Ext::printAtMiddle(str.str(),pos.x+94+36*i,pos.y+66,FONT_SMALL,zwykly,to);
 	}
 	{//luck and morale pics, experience and mana text
-		blitAt(graphics->luck30->ourImages[hero->getCurrentLuck()+3].bitmap,pos.x+222,pos.y+30,to);
-		blitAt(graphics->morale30->ourImages[hero->getCurrentMorale()+3].bitmap,pos.x+222,pos.y+54,to);
+		blitAt(graphics->luck30->ourImages[hero->LuckVal()+3].bitmap,pos.x+222,pos.y+30,to);
+		blitAt(graphics->morale30->ourImages[hero->MoraleVal()+3].bitmap,pos.x+222,pos.y+54,to);
 		std::ostringstream str;
 		str << (hero->exp);
 		CSDL_Ext::printAtMiddle(str.str(),(pos.x+348),(pos.y+31),FONT_TINY,zwykly,to);
@@ -1100,7 +1100,7 @@ void CKingdomInterface::CTownItem::CCreaPlace::clickRight(tribool down, bool pre
 			crid = town->town->upgradedCreatures[type];
 		else
 			crid = town->town->basicCreatures[type];
-		GH.pushInt(new CCreInfoWindow(crid, 0, town->creatures[type].first, NULL, 0, 0, NULL));
+		GH.pushInt(new CCreInfoWindow(crid, 0, town->creatures[type].first));
 	}
 }
 

@@ -13,6 +13,7 @@
 #include "CTownHandler.h"
 #include "../lib/VCMI_Lib.h"
 #endif
+#include "../lib/CCreatureSet.h"
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -24,6 +25,7 @@
  *
  */
 
+class BattleInfo;
 class IGameCallback;
 struct BattleResult;
 class CCPPObjectScript;
@@ -45,6 +47,7 @@ struct InfoWindow;
 struct Component;
 struct BankConfig;
 class CGBoat;
+
 
 class DLL_EXPORT CCastleEvent
 {
@@ -141,7 +144,7 @@ class DLL_EXPORT CGObjectInstance : public IObjectInterface
 {
 protected:
 	void getNameVis(std::string &hname) const;
-	void giveDummyBonus(int heroID, ui8 duration = HeroBonus::ONE_DAY) const;
+	void giveDummyBonus(int heroID, ui8 duration = Bonus::ONE_DAY) const;
 public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
@@ -216,23 +219,31 @@ public:
 	}
 };
 
-class DLL_EXPORT CArmedInstance: public CGObjectInstance
+class DLL_EXPORT CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
 {
 public:
-	CCreatureSet army; //army
-	virtual bool needsLastStack() const; //true if last stack cannot be taken
-	int getArmyStrength() const; //sum of AI values of creatures
-	ui64 getPower (TSlot slot) const; //value of specific stack
-	std::string getRoughAmount (TSlot slot) const; //rought size of specific stack
+	BattleInfo *battle; //set to the current battle, if engaged
+
+	void setArmy(const CCreatureSet &src);
+	CCreatureSet getArmy() const;
+	void randomizeArmy(int type);
+
+	//////////////////////////////////////////////////////////////////////////
+	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//////////////////////////////////////////////////////////////////////////
+
+	CArmedInstance();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & army;
+		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CCreatureSet&>(*this);
 	}
 };
 
-class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CBonusSystemNode
+class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator
 {
 public:
 	//////////////////////////////////////////////////////////////////////////
@@ -251,7 +262,6 @@ public:
 	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
-	std::vector<si32> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	si32 movement; //remaining movement points
 	ui8 sex;
@@ -280,7 +290,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
+		h & exp & level & name & biography & portrait & mana & secSkills & movement
 			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
 			& moveDir;
 
@@ -288,11 +298,11 @@ public:
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
-
+	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//////////////////////////////////////////////////////////////////////////
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
-
-
 	//////////////////////////////////////////////////////////////////////////
 
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
@@ -311,12 +321,9 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
-
-	void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;
-
-	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
+	TModDescr getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
-	std::vector<std::pair<int,std::string> > getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
+	TModDescr getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
@@ -342,6 +349,7 @@ public:
 	void recreateArtBonuses();
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
+	void pushPrimSkill(int which, int val);
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
@@ -472,7 +480,9 @@ public:
 		h & town;
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
-
+	//////////////////////////////////////////////////////////////////////////
+	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
@@ -541,7 +551,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
-			& abilities & abilityLevels & artifacts & spells & creatures & army;
+			& abilities & abilityLevels & artifacts & spells & creatures;
 	}
 };
 
@@ -558,7 +568,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
 			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
-			& computerActivate & humanActivate & army;
+			& computerActivate & humanActivate;
 	}
 	
 	void onHeroVisit(const CGHeroInstance * h) const;
