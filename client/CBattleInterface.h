@@ -4,6 +4,7 @@
 #include "../global.h"
 #include <list>
 #include "GUIBase.h"
+#include "../lib/CCreatureSet.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine
@@ -382,7 +383,7 @@ private:
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
 	CStackQueue *queue;
-	const CCreatureSet * army1, * army2; //fighting armies
+	CCreatureSet army1, army2; //copy of initial armies (for result window)
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)

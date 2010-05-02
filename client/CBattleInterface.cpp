@@ -1101,8 +1101,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	curInt->battleInt = this;
 
 	//initializing armies
-	this->army1 = army1;
-	this->army2 = army2;
+	this->army1 = *army1;
+	this->army2 = *army2;
 	std::map<int, CStack> stacks = curInt->cb->battleGetStacks();
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
@@ -3638,7 +3638,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(TSlots::const_iterator it = owner->army1->Slots().begin(); it!=owner->army1->Slots().end(); ++it)
+		for(TSlots::const_iterator it = owner->army1.Slots().begin(); it!=owner->army1.Slots().end(); ++it)
 		{
 			if( it->second.type->AIValue > bestPower)
 			{
@@ -3660,7 +3660,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(TSlots::const_iterator it = owner->army2->Slots().begin(); it!=owner->army2->Slots().end(); ++it)
+		for(TSlots::const_iterator it = owner->army2.Slots().begin(); it!=owner->army2.Slots().end(); ++it)
 		{
 			if( it->second.type->AIValue > bestPower)
 			{
