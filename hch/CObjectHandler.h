@@ -89,6 +89,7 @@ public:
 	std::vector<ui32> m7resources;
 
 	std::string firstVisitText, nextVisitText, completedText;
+	bool isCustom;
 
 	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void completeQuest (const CGHeroInstance * h) const {};
@@ -96,7 +97,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
-			& firstVisitText & nextVisitText & completedText;
+			& firstVisitText & nextVisitText & completedText & isCustom;
 	}
 };
 

@@ -3145,7 +3145,7 @@ void CGSeerHut::initObj()
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
 	textOption = ran()%3;
 	progress = 0;
-	if (missionType)
+	if (missionType && !isCustom)
 	{
 		firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
 		nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
@@ -3217,7 +3217,31 @@ const std::string & CGSeerHut::getHoverText() const
 				}
 				break;
 			case MISSION_ARMY:
+				{
+					MetaString loot;
+					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+					{
+						loot << "%s";
+						loot.addReplacement(it->second);
+					}
+					ms.addReplacement	(loot.buildList());
+				}
+				break;
 			case MISSION_RESOURCES:
+				{
+					MetaString loot;
+					for (int i = 0; i < 7; ++i)
+					{
+						if (m7resources[i])
+						{
+							loot << "%d %s";
+							loot.addReplacement (m7resources[i]);
+							loot.addReplacement (MetaString::RES_NAMES, i);
+						}
+					}
+					ms.addReplacement (loot.buildList());
+				}
+				break;
 			case MISSION_PLAYER:
 				ms.addReplacement (VLC->generaltexth->colors[m13489val]);
 				break;
@@ -3264,7 +3288,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			{
 				case MISSION_LEVEL:
 					iw.components.push_back (Component (Component::EXPERIENCE, 1, m13489val, 0));
-					iw.text.addReplacement(m13489val);
+					if (!isCustom)
+						iw.text.addReplacement(m13489val);
 					break;
 				case MISSION_PRIMARY_STAT:
 				{
@@ -3279,26 +3304,32 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 							loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
 						}		
 					}
-					iw.text.addReplacement (loot.buildList());
+					if (!isCustom)
+						iw.text.addReplacement (loot.buildList());
 				}
 					break;
 				case MISSION_KILL_HERO:
 					iw.components.push_back (Component (Component::HERO,
 						cb->gameState()->map->heroesToBeat[m13489val]->type->ID, 0, 0));
-					iw.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+					if (!isCustom)
+						iw.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
 					break;
 				case MISSION_HERO:
 					iw.components.push_back (Component (Component::HERO, m13489val, 0, 0));
-					iw.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
+					if (!isCustom)
+						iw.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
 				case MISSION_KILL_CREATURE:
 					{
 						CStackInstance stack = cb->gameState()->map->monsters[m13489val]->getStack(0);
 						iw.components.push_back (Component(stack));
-						iw.text.addReplacement(stack);
-						if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
+						if (!isCustom)
 						{
-							iw.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+							iw.text.addReplacement(stack);
+							if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
+							{
+								iw.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+							}
 						}
 					}
 					break;
@@ -3311,7 +3342,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement (MetaString::ART_NAMES, *it);
 					}
-					iw.text.addReplacement	(loot.buildList());
+					if (!isCustom)
+						iw.text.addReplacement	(loot.buildList());
 				}
 					break;
 				case MISSION_ARMY:
@@ -3323,7 +3355,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement(it->second);
 					}
-					iw.text.addReplacement	(loot.buildList());
+					if (!isCustom)
+						iw.text.addReplacement	(loot.buildList());
 				}
 					break;
 				case MISSION_RESOURCES:
@@ -3335,16 +3368,18 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						{
 							iw.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
 							loot << "%d %s";
-							loot.addReplacement (iw.components.back().val);
-							loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+							loot.addReplacement (m7resources[i]);
+							loot.addReplacement (MetaString::RES_NAMES, i);
 						}
 					}
-					iw.text.addReplacement	(loot.buildList());
+					if (!isCustom)
+						iw.text.addReplacement	(loot.buildList());
 				}
 					break;
 				case MISSION_PLAYER:
 					iw.components.push_back (Component (Component::FLAG, m13489val, 0, 0));
-					iw.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
+					if (!isCustom)
+						iw.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
 			cb->setObjProperty (id,10,1);
@@ -3364,7 +3399,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			switch (missionType)
 			{
 				case CQuest::MISSION_LEVEL:
-					bd.text.addReplacement(m13489val);
+					if (!isCustom)
+						bd.text.addReplacement(m13489val);
 					break;
 				case CQuest::MISSION_PRIMARY_STAT:
 					if (vstd::contains (completedText,'%')) //there's one case when there's nothing to replace
@@ -3379,7 +3415,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 								loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
 							}
 						}
-						bd.text.addReplacement (loot.buildList());
+						if (!isCustom)
+							bd.text.addReplacement (loot.buildList());
 					}
 					break;
 				case CQuest::MISSION_ART:
@@ -3391,7 +3428,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement (MetaString::ART_NAMES, *it);
 					}
-					bd.text.addReplacement (loot.buildList());
+					if (!isCustom)
+						bd.text.addReplacement (loot.buildList());
 				}
 					break;
 				case CQuest::MISSION_ARMY:
@@ -3403,7 +3441,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement(it->second);
 					}
-					bd.text.addReplacement	(loot.buildList());
+					if (!isCustom)
+						bd.text.addReplacement	(loot.buildList());
 				}
 					break;
 				case CQuest::MISSION_RESOURCES:
@@ -3415,30 +3454,36 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						{
 							bd.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
 							loot << "%d %s";
-							loot.addReplacement (iw.components.back().val);
-							loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+							loot.addReplacement (m7resources[i]);
+							loot.addReplacement (MetaString::RES_NAMES, i);
 						}
 					}
-					bd.text.addReplacement (loot.buildList());
+					if (!isCustom)
+						bd.text.addReplacement (loot.buildList());
 				}
 					break;
 				case MISSION_KILL_HERO:
-					bd.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+					if (!isCustom)
+						bd.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
 					break;
 				case MISSION_HERO:
-					bd.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
+					if (!isCustom)
+						bd.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
 				case MISSION_KILL_CREATURE:
 				{
-					bd.text.addReplacement(cb->gameState()->map->monsters[m13489val]->getStack(0));
-					if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
 					{
-						bd.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+						bd.text.addReplacement(cb->gameState()->map->monsters[m13489val]->getArmy()[0]);
+						if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
+						{
+							bd.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+						}
 					}
 				}
 				case MISSION_PLAYER:
 					bd.components.push_back (Component (Component::FLAG, m13489val, 0, 0));
-					bd.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
+					if (!isCustom)
+						bd.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
 			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
@@ -3582,7 +3627,7 @@ void CGQuestGuard::initObj()
 	blockVisit = true;
 	progress = 0;
 	textOption = ran()%3 + 3; //3-5
-	if (missionType)
+	if (missionType && !isCustom)
 	{
 		firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
 		nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];

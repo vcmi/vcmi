@@ -2006,7 +2006,7 @@ bool Mapa::isInTheMap(const int3 &pos) const
 void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 {
 	guard->missionType = bufor[i]; ++i;
-	int len1, len2, len3;
+	//int len1, len2, len3;
 	switch(guard->missionType)
 	{
 	case 0:
@@ -2075,10 +2075,13 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	{
 		guard->lastDay = limit;
 	}
-
 	guard->firstVisitText = readString(bufor,i);
 	guard->nextVisitText = readString(bufor,i);
 	guard->completedText = readString(bufor,i);
+	if (guard->firstVisitText.size() && guard->nextVisitText.size() && guard->completedText.size())
+		guard->isCustom = false; //randomize all if any text is missing
+	else
+		guard->isCustom = true;
 }
 
 TerrainTile & Mapa::getTile( int3 tile )
