@@ -466,7 +466,7 @@ struct RemoveObject : public CPackForClient //500
 }; 
 struct TryMoveHero : public CPackForClient //501
 {
-	TryMoveHero(){type = 501;humanKnows=false;};
+	TryMoveHero(){type = 501;humanKnows=false; attackedFrom = int3(-1, -1, -1);};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs);
@@ -480,12 +480,13 @@ struct TryMoveHero : public CPackForClient //501
 	ui8 result; //uses EResult
 	int3 start, end; //h3m format
 	std::set<int3> fowRevealed; //revealed tiles
+	int3 attackedFrom; // Set when stepping into endangered tile.
 
 	bool humanKnows; //used locally during applying to client
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & result & start & end & movePoints & fowRevealed;
+		h & id & result & start & end & movePoints & fowRevealed & attackedFrom;
 	}
 }; 
 struct SetGarrisons : public CPackForClient //502

@@ -278,6 +278,7 @@ public:
 	void recalculatePaths(); //updates pathfinder info (should be called when moving hero is over)
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
+	int3 guardingCreaturePosition (int3 pos) const;
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

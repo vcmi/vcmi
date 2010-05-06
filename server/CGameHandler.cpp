@@ -1562,7 +1562,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	if(!gs->map->isInTheMap(hmpos))
 	{
-		tlog1 << "Destination tile os out of the map!\n";
+		tlog1 << "Destination tile is outside the map!\n";
 		return false;
 	}
 
@@ -1663,13 +1663,16 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		}
 		else //normal move
 		{
-			tmh.result = TryMoveHero::SUCCESS;
-
 			BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[h->pos.x-1][h->pos.y][h->pos.z].visitableObjects)
 			{
 				obj->onHeroLeave(h);
 			}
 			getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
+
+			int3 guardPos = gs->guardingCreaturePosition(int3(hmpos.x, hmpos.y, hmpos.z));
+			
+			tmh.result = TryMoveHero::SUCCESS;
+			tmh.attackedFrom = guardPos;
 			sendAndApply(&tmh);
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
@@ -1687,9 +1690,16 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 // 			{
 // 				objectVisited(obj, h);
 // 			}
+
+			// If a creature guards the tile, block visit.
+			if (gs->map->isInTheMap(guardPos)) {
+				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
+				objectVisited(guardTile.visitableObjects.back(), h);
+			}
+
+			tlog5 << "Movement end!\n";
+			return true;
 		}
-		tlog5 << "Movement end!\n";
-		return true;
 	}
 	else //instant move - teleportation
 	{

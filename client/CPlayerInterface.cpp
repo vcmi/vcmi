@@ -237,6 +237,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.draw(screen2);
 
+	bool directlyAttackingCreature =
+		CGI->mh->map->isInTheMap(details.attackedFrom)
+		&& adventureInt->terrain.currentPath->nodes.size() == 3;
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
@@ -248,7 +251,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 					//TODO: smooth disappear / appear effect
 		}
 
-		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
+		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED //hero didn't change tile but visit succeeded
+			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
 			eraseCurrentPathOf(ho);
 		}
@@ -317,6 +321,18 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(stillMoveHero.get() == WAITING_MOVE)
 		stillMoveHero.setn(DURING_MOVE);
 
+	// Hero attacked creature directly, set direction to face it.
+	if (directlyAttackingCreature) {
+		// Get direction to attacker.
+		int3 posOffset = details.attackedFrom - details.end + int3(2, 1, 0);
+		const ui8 dirLookup[3][3] = {
+			1, 2, 3,
+			8, 0, 4,
+			7, 6, 5
+		};
+		// FIXME: Avoid const_cast, make moveDir mutable in some other way?
+		const_cast<CGHeroInstance *>(ho)->moveDir = dirLookup[posOffset.y][posOffset.x];
+	}
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
@@ -976,6 +992,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				stillMoveHero.data = STOP_MOVE;
 				break;
 			}
+
 			// Start a new sound for the hero movement or let the existing one carry on.
 #if 0
 			// TODO
@@ -995,12 +1012,17 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			stillMoveHero.data = WAITING_MOVE;
 
 			int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
+			bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
+
 			cb->moveHero(h,endpos);
 
 			eventsM.unlock();
 			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 				stillMoveHero.cond.wait(un);
 			eventsM.lock();
+
+			if (guarded) // Abort movement if a guard was fought.
+				break;
 		}
 
 		CGI->soundh->stopSound(sh);

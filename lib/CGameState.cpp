@@ -2124,6 +2124,12 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 						}
 					}
 				}
+				else if (map->isInTheMap(guardingCreaturePosition(int3(i, j, k)))
+					&& tinfo->blockingObjects.size() == 0)
+				{
+					// Monster close by; blocked visit for battle.
+					node.accessible = CGPathNode::BLOCKVIS;
+				}
 
 				if(onLand && !node.land) //hero can walk only on land and tile lays on the water
 				{
@@ -2197,21 +2203,76 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				remains = moveAtNextTile - cost;
 			}
 
-			if(dp.turns==0xff		//we haven't been here before
+			const bool guardedPosition = guardingCreaturePosition(cp->coord) != int3(-1, -1, -1);
+			const bool neighborIsGuard = guardingCreaturePosition(cp->coord) == dp.coord;
+
+			if((dp.turns==0xff		//we haven't been here before
 				|| dp.turns > turnAtNextTile
 				|| (dp.turns >= turnAtNextTile  &&  dp.moveRemains < remains)) //this route is faster
+				&& (!guardedPosition || neighborIsGuard)) // Can step into tile of guard
 			{
+				
 				assert(&dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp.moveRemains = remains;
 				dp.turns = turnAtNextTile;
 				dp.theNodeBefore = cp;
-				if(dp.accessible == CGPathNode::ACCESSIBLE)
+
+				const bool guardedNeighbor = guardingCreaturePosition(dp.coord) != int3(-1, -1, -1);
+				const bool positionIsGuard = guardingCreaturePosition(cp->coord) == cp->coord;
+
+				if (dp.accessible == CGPathNode::ACCESSIBLE
+					|| (guardedNeighbor && !positionIsGuard)) // Can step into a hostile tile once.
 				{
 					mq.push(&dp);
 				}
 			}
 		} //neighbours loop
 	} //queue loop
+}
+
+/**
+ * Tells if the tile is guarded by a monster as well as the position
+ * of the monster that will attack on it.
+ *
+ * @return int3(-1, -1, -1) if the tile is unguarded, or the position of
+ * the monster guarding the tile.
+ */
+int3 CGameState::guardingCreaturePosition (int3 pos) const
+{
+	// Give monster at position priority.
+	if (!map->isInTheMap(pos))
+		return int3(-1, -1, -1);
+	const TerrainTile &posTile = map->terrain[pos.x][pos.y][pos.z];
+	if (posTile.visitable) {
+		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects) {
+			if (obj->ID == 54) { // Monster
+				return pos;
+			}
+		}
+	}
+
+	// See if there are any monsters adjacent.
+	pos -= int3(1, 1, 0); // Start with top left.
+	for (int dx = 0; dx < 3; dx++) {
+		for (int dy = 0; dy < 3; dy++) {
+			if (map->isInTheMap(pos)) {
+				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
+				if (tile.visitable) {
+					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects) {
+						if (obj->ID == 54) { // Monster
+							return pos;
+						}
+					}
+				}
+			}
+
+			pos.y++;
+		}
+		pos.y -= 3;
+		pos.x++;
+	}
+
+	return int3(-1, -1, -1);
 }
 
 bool CGameState::isVisible(int3 pos, int player)

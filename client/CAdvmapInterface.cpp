@@ -1854,6 +1854,8 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		}
 	}
 
+	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->guardingCreaturePosition(tile));
+
 	if(selection->ID == TOWNI_TYPE)
 	{
 		if(objAtTile && objAtTile->tempOwner == LOCPLINT->playerID)
@@ -1917,13 +1919,6 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 						CGI->curh->changeGraphic(0, 3);
 				}
 			}
-			else if(objAtTile->ID == 54) //monster
-			{
-				if(accessible)
-					CGI->curh->changeGraphic(0, 5 + turns*6);
-				else
-					CGI->curh->changeGraphic(0, 0);
-			}
 			else if(objAtTile->ID == 8) //boat
 			{
 				if(accessible)
@@ -1946,6 +1941,10 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 				else 
 					CGI->curh->changeGraphic(0, 0);
 			}
+			else if (guardingCreature && accessible) //(objAtTile->ID == 54) //monster
+			{
+				CGI->curh->changeGraphic(0, 5 + turns*6);
+			}
 			else
 			{
 				if(accessible)
@@ -1963,15 +1962,19 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		{
 			if(accessible)
 			{
-				if(pnode->land)
-				{
-					if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
-						CGI->curh->changeGraphic(0, 4 + turns*6);
+				if (guardingCreature) {
+					CGI->curh->changeGraphic(0, 5 + turns*6);
+				} else {
+					if(pnode->land)
+					{
+						if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
+							CGI->curh->changeGraphic(0, 4 + turns*6);
+						else
+							CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
+					}
 					else
-						CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
+						CGI->curh->changeGraphic(0, 6 + turns*6);
 				}
-				else
-					CGI->curh->changeGraphic(0, 6 + turns*6);
 			}
 			else
 				CGI->curh->changeGraphic(0, 0);

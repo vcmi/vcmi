@@ -188,6 +188,11 @@ bool CCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest )
 	return true;
 }
 
+int3 CCallback::guardingCreaturePosition (int3 pos) const
+{
+	return gs->guardingCreaturePosition(pos);
+}
+
 int CCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
