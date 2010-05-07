@@ -812,6 +812,7 @@ int CGameHandler::moveStack(int stack, int dest)
 			sm.tile = path.first[0];
 			sm.distance = path.second;
 			sm.ending = true;
+			sm.teleporting = false;
 			sendAndApply(&sm);
 		}
 	}
@@ -826,6 +827,7 @@ int CGameHandler::moveStack(int stack, int dest)
 			sm.tile = path.first[v];
 			sm.distance = path.second;
 			sm.ending = v==tilesToMove;
+			sm.teleporting = false;
 			sendAndApply(&sm);
 		}
 	}
@@ -3666,6 +3668,18 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				sendAndApply(&sse);
 			break;
 		}
+	case 63: //teleport
+		{
+			BattleStackMoved bsm;
+			bsm.distance = -1;
+			bsm.stack = gs->curB->activeStack;
+			bsm.ending = true;
+			bsm.tile = destination;
+			bsm.teleporting = true;
+			sendAndApply(&bsm);
+
+			break;
+		}
 	case 37: //cure
 	case 38: //resurrection
 	case 39: //animate dead
@@ -3728,7 +3742,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				return false;
 			}
 
-			CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
+			const CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
 			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all

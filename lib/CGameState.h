@@ -212,7 +212,9 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	si8 hasDistancePenalty(int stackID, int destHex); //determines if given stack has distance penalty shooting given pos
+	si8 sameSideOfWall(int pos1, int pos2); //determines if given positions are on the same side of wall
 	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos
+	si8 canTeleportTo(int stackID, int destHex, int telportLevel); //determines if given stack can teleport to given place
 };
 
 class DLL_EXPORT CStack : public CStackInstance

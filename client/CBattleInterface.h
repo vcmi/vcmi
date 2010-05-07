@@ -401,7 +401,8 @@ private:
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
-	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle,z -1 - no location
+	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature,
+		//4 - obstacle, 5 - teleport -1 - no location
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
@@ -439,6 +440,7 @@ private:
 	} * siegeH;
 
 	CPlayerInterface * attackerInt, * defenderInt; //because LOCPLINT is not enough in hotSeat
+	const CGHeroInstance * getActiveHero(); //returns hero that can currently cast a spell
 public:
 	CPlayerInterface * curInt; //current player interface
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>

@@ -976,6 +976,11 @@ si8 CCallback::battleHasWallPenalty( int stackID, int destHex )
 	return gs->curB->hasWallPenalty(stackID, destHex);
 }
 
+si8 CCallback::battleCanTeleportTo(int stackID, int destHex, int telportLevel)
+{
+	return gs->curB->canTeleportTo(stackID, destHex, telportLevel);
+}
+
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

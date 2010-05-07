@@ -307,6 +307,7 @@ public:
 	si8 battleGetStackLuck(int stackID); //returns luck of given stack
 	si8 battleHasDistancePenalty(int stackID, int destHex); //checks if given stack has distance penalty
 	si8 battleHasWallPenalty(int stackID, int destHex); //checks if given stack has wall penalty
+	si8 battleCanTeleportTo(int stackID, int destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

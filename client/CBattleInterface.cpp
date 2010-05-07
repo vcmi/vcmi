@@ -2324,6 +2324,22 @@ bool CBattleInterface::isCatapultAttackable(int hex) const
 	return curInt->cb->battleGetWallState(wallUnder) < 3;
 }
 
+const CGHeroInstance * CBattleInterface::getActiveHero()
+{
+	const CStack * attacker = curInt->cb->battleGetStackByID(activeStack);
+	if (!attacker)
+	{
+		return NULL;
+	}
+
+	if (attacker->attackerOwned)
+	{
+		return attackingHeroInstance;
+	}
+	
+	return defendingHeroInstance;
+}
+
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	const CStack * actSt = curInt->cb->battleGetStackByID(activeStack);
@@ -2355,6 +2371,13 @@ void CBattleInterface::hexLclicked(int whichOne)
 			case 4:
 				if(!blockedByObstacle(whichOne))
 					allowCasting = false;
+			case 5: //teleport
+				const CSpell *s = &CGI->spellh->spells[spellToCast->additionalInfo];
+				ui8 skill = getActiveHero()->getSpellSchoolLevel(s); //skill level
+				if (!curInt->cb->battleCanTeleportTo(activeStack, whichOne, skill))
+				{
+					allowCasting = false;
+				}
 				break;
 			}
 			//destination checked
@@ -2750,10 +2773,11 @@ void CBattleInterface::castThisSpell(int spellID)
 
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : attackingHeroInstance;
+	const CSpell & spell = CGI->spellh->spells[spellID];
 	spellSelMode = 0;
-	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+	if(spell.attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
 	{
-		switch(CGI->spellh->spells[spellID].positiveness)
+		switch(spell.positiveness)
 		{
 		case -1 :
 			spellSelMode = 2;
@@ -2766,12 +2790,12 @@ void CBattleInterface::castThisSpell(int spellID)
 			break;
 		}
 	}
-	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_1") != std::string::npos ||
-		CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	if(spell.attributes.find("CREATURE_TARGET_1") != std::string::npos ||
+		spell.attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
 		if(castingHero && castingHero->getSpellSecLevel(spellID) < 3)
 		{
-			switch(CGI->spellh->spells[spellID].positiveness)
+			switch(spell.positiveness)
 			{
 			case -1 :
 				spellSelMode = 2;
@@ -2789,14 +2813,20 @@ void CBattleInterface::castThisSpell(int spellID)
 			spellSelMode = -1;
 		}
 	}
-	if(CGI->spellh->spells[spellID].attributes.find("OBSTACLE_TARGET") != std::string::npos) //spell to be cast on an obstacle
+	if(spell.attributes.find("OBSTACLE_TARGET") != std::string::npos) //spell to be cast on an obstacle
 	{
 		spellSelMode = 4;
 	}
-	if(CGI->spellh->spells[spellID].range[ castingHero->getSpellSchoolLevel(&CGI->spellh->spells[spellID]) ] == "X") //spell has no range
+	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ] == "X") //spell has no range
 	{
 		spellSelMode = -1;
 	}
+
+	if(spell.id == 63) //teleport
+	{
+		spellSelMode = 5;
+	}
+
 	if(spellSelMode == -1) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;

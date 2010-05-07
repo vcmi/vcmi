@@ -3521,6 +3521,17 @@ si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
 	return distance > 8 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
 }
 
+si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
+{
+	int wallInStackLine = lineToWallHex(pos1/BFIELD_WIDTH);
+	int wallInDestLine = lineToWallHex(pos2/BFIELD_WIDTH);
+
+	bool stackLeft = pos1 < wallInStackLine;
+	bool destLeft = pos2 < wallInDestLine;
+
+	return stackLeft != destLeft;
+}
+
 si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
 {
 	if (siege == 0)
@@ -3532,13 +3543,28 @@ si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
 	{
 		return false;
 	}
-	int wallInStackLine = lineToWallHex(stack->position/BFIELD_WIDTH);
-	int wallInDestLine = lineToWallHex(destHex/BFIELD_WIDTH);
 
-	bool stackLeft = stack->position < wallInStackLine;
-	bool destLeft = destHex < wallInDestLine;
+	return !sameSideOfWall(stack->position, destHex);
+}
 
-	return stackLeft != destLeft;
+si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
+{
+	bool ac[BFIELD_SIZE];
+	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
+
+	std::set<int> occupyable;
+
+	getAccessibilityMap(ac, s->doubleWide(), s->attackerOwned, false, occupyable, s->hasBonusOfType(Bonus::FLYING), stackID);
+
+	if (siege && telportLevel < 2) //check for wall
+	{
+		return ac[destHex] && sameSideOfWall(s->position, destHex);
+	}
+	else
+	{
+		return ac[destHex];
+	}
+
 }
 
 void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
