@@ -860,9 +860,9 @@ struct BattleStart : public CPackForClient//3000
 struct BattleNextRound : public CPackForClient//3001
 {	
 	BattleNextRound(){type = 3001;};
+	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
-
+	DLL_EXPORT void applyGs( CGameState *gs );
 	si32 round;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -916,6 +916,34 @@ struct BattleStackMoved : public CPackForClient//3004
 	}
 };
 
+struct StacksHealedOrResurrected : public CPackForClient //3013
+{
+	StacksHealedOrResurrected(){type = 3013;}
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	struct HealInfo
+	{
+		ui32 stackID;
+		ui32 healedHP;
+		ui8 lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & stackID & healedHP & lowLevelResurrection;
+		}
+	};
+
+	std::vector<HealInfo> healedStacks;
+	ui8 lifeDrain; //if true, this heal is an effect of life drain
+	si32 drainedFrom; //if life drain - then stack life was drain from
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & healedStacks & lifeDrain & drainedFrom;
+	}
+};
+
 struct BattleStackAttacked : public CPackForClient//3005
 {
 	BattleStackAttacked(){flags = 0; type = 3005;};
@@ -926,18 +954,24 @@ struct BattleStackAttacked : public CPackForClient//3005
 	ui32 newAmount, newHP, killedAmount, damageAmount;
 	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown;
 	ui32 effect; //set only if flag 2 is present
+	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
 
 	bool killed() const//if target stack was killed
 	{
 		return flags & 1;
 	}
-	bool isEffect() const//if target stack was killed
+	bool isEffect() const//if stack has been attacked by a spell
 	{
 		return flags & 2;
 	}
+	bool lifeDrain() const //if this attack involves life drain effect
+	{
+		return healedStacks.size() > 0;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackAttacked & attackerID & newAmount & newHP & flags & killedAmount & damageAmount & effect;
+		h & stackAttacked & attackerID & newAmount & newHP & flags & killedAmount & damageAmount & effect
+			& healedStacks;
 	}
 	bool operator<(const BattleStackAttacked &b) const
 	{
@@ -1064,32 +1098,6 @@ struct BattleResultsApplied : public CPackForClient //3012
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player1 & player2;
-	}
-};
-
-struct StacksHealedOrResurrected : public CPackForClient //3013
-{
-	StacksHealedOrResurrected(){type = 3013;}
-
-	DLL_EXPORT void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
-
-	struct HealInfo
-	{
-		ui32 stackID;
-		ui32 healedHP;
-		ui8 lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & stackID & healedHP & lowLevelResurrection;
-		}
-	};
-
-	std::vector<HealInfo> healedStacks;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & healedStacks;
 	}
 };
 

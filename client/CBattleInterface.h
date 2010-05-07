@@ -495,6 +495,7 @@ public:
 	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(int ID, int dest, int attackedID); //called when stack with id ID is attacking something on hex dest
+	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest, int attackedID); //called when stack with id ID is shooting to hex dest

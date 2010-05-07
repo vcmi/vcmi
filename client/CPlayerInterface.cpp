@@ -534,7 +534,7 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 {
 }
 
-void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks)
+void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -549,6 +549,26 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 			//stack has been resurrected
 			battleInt->creAnims[healed->ID]->setType(2);
 		}
+	}
+
+	if (lifeDrain)
+	{
+		const CStack *attacker = cb->battleGetStackByID(healedStacks[0].first, false);
+		const CStack *defender = cb->battleGetStackByID(lifeDrainFrom, false);
+		if (attacker)
+		{
+			battleInt->displayEffect(50, attacker->position);
+		}
+		//print info about life drain
+		int textOff = 0;
+		if (attacker->count > 1)
+		{
+			textOff += 1;
+		}
+		char textBuf[1000];
+		sprintf(textBuf, CGI->generaltexth->allTexts[361 + textOff].c_str(), attacker->getCreature()->nameSing.c_str(),
+			healedStacks[0].second, defender->getCreature()->namePl.c_str());
+		battleInt->console->addText(textBuf);
 	}
 }
 
@@ -740,6 +760,7 @@ void CPlayerInterface::battleStacksAttacked(std::vector<BattleStackAttacked> & b
 		}
 		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, i->attackerID, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
+
 	}
 
 	if(bsa.begin()->isEffect() && bsa.begin()->effect == 12) //for armageddon - I hope this condition is enough
@@ -1909,4 +1930,15 @@ void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 	adventureInt->infoBar.updateSelection(specific);
 // 	if (adventureInt->selection == specific)
 // 		adventureInt->infoBar.showAll(screen);
+}
+
+void CPlayerInterface::battleNewRoundFirst( int round )
+{
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	battleInt->newRoundFirst(round);
 }

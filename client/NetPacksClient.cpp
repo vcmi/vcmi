@@ -436,6 +436,14 @@ void BattleStart::applyCl( CClient *cl )
 		cl->playerint[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
+void BattleNextRound::applyFirstCl(CClient *cl)
+{
+	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
+		cl->playerint[GS(cl)->curB->side1]->battleNewRoundFirst(round);
+	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
+		cl->playerint[GS(cl)->curB->side2]->battleNewRoundFirst(round);
+}
+
 void BattleNextRound::applyCl( CClient *cl )
 {
 	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
@@ -489,6 +497,13 @@ void BattleAttack::applyFirstCl( CClient *cl )
 		cl->playerint[GS(cl)->curB->side1]->battleAttack(this);
 	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
 		cl->playerint[GS(cl)->curB->side2]->battleAttack(this);
+	for (int g=0; g<bsa.size(); ++g)
+	{
+		for (int z=0; z<bsa[g].healedStacks.size(); ++z)
+		{
+			bsa[g].healedStacks[z].applyCl(cl);
+		}
+	}
 }
 
 void BattleAttack::applyCl( CClient *cl )
@@ -555,8 +570,8 @@ void StacksHealedOrResurrected::applyCl( CClient *cl )
 	{
 		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
 	}
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksHealedRes, shiftedHealed);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksHealedRes, shiftedHealed);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
 }
 
 void ObstaclesRemoved::applyCl( CClient *cl )

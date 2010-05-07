@@ -106,13 +106,14 @@ public:
 	virtual void battleStacksAttacked(std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
+	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
 	virtual void battleSpellCast(SpellCast *sc){};
 	virtual void battleStacksEffectsSet(SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
-	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
+	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
 	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack

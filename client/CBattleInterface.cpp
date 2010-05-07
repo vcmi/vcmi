@@ -2227,18 +2227,18 @@ void CBattleInterface::stackAttacking(int ID, int dest, int attackedID)
 	addNewAnim(new CMeleeAttack(this, ID, dest, attackedID));
 }
 
-void CBattleInterface::newRound(int number)
+void CBattleInterface::newRoundFirst( int round )
 {
-	console->addText(CGI->generaltexth->allTexts[412]);
-
-	//unlock spellbook
-	//bSpell->block(!curInt->cb->battleCanCastSpell());
-	//don't unlock spellbook - this should be done when we have axctive creature
-
 	//handle regeneration
 	std::map<int, CStack> stacks = curInt->cb->battleGetStacks();
 	for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
 	{
+		//don't show animation when no HP is regenerated
+		if (it->second.firstHPleft == it->second.MaxHealth())
+		{
+			continue;
+		}
+
 		if( it->second.hasBonusOfType(Bonus::HP_REGENERATION) && it->second.alive() )
 			displayEffect(74, it->second.position);
 
@@ -2248,6 +2248,17 @@ void CBattleInterface::newRound(int number)
 		if( it->second.hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1) && it->second.alive() )
 			displayEffect(74, it->second.position);
 	}
+}
+
+void CBattleInterface::newRound(int number)
+{
+	console->addText(CGI->generaltexth->allTexts[412]);
+
+	//unlock spellbook
+	//bSpell->block(!curInt->cb->battleCanCastSpell());
+	//don't unlock spellbook - this should be done when we have axctive creature
+
+	
 }
 
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
@@ -3236,6 +3247,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 		displayEffect(50, action->destinationTile);
 	}
 }
+
 
 void CBattleHero::show(SDL_Surface *to)
 {

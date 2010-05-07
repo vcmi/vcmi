@@ -2441,11 +2441,11 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		float dec = 0.025f * (-attackDefenceDifference);
 		if(dec > 0.7f)
 		{
-			multBonus *= 1.0f - dec;
+			multBonus *= 0.3f; //1.0 - 0.7
 		}
 		else
 		{
-			multBonus *= dec;
+			multBonus *= 1.0f - dec;
 		}
 	}
 	else //increasing dmg

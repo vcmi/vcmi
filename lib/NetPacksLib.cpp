@@ -770,6 +770,12 @@ DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
 	at->firstHPleft = newHP;
 	if(killed())
 		at->state -= ALIVE;
+
+	//life drain handling
+	for (int g=0; g<healedStacks.size(); ++g)
+	{
+		healedStacks[g].applyGs(gs);
+	}
 }
 
 DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
@@ -1121,7 +1127,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 
 		//applying changes
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
-		if(!changedStack->alive())
+		if(resurrected)
 		{
 			changedStack->state.insert(ALIVE);
 			if(healedStacks[g].lowLevelResurrection)
