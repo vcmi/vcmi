@@ -2572,6 +2572,10 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	{
 		multBonus *= 0.5;
 	}
+	if (!shooting && attacker->hasBonusOfType(Bonus::SHOOTER) && !attacker->hasBonusOfType(Bonus::NO_MELEE_PENALTY))
+	{
+		multBonus *= 0.5;
+	}
 
 	minDmg *= additiveBonus * multBonus;
 	maxDmg *= additiveBonus * multBonus;
