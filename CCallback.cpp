@@ -981,6 +981,13 @@ si8 CCallback::battleCanTeleportTo(int stackID, int destHex, int telportLevel)
 	return gs->curB->canTeleportTo(stackID, destHex, telportLevel);
 }
 
+int CCallback::getPlayerStatus(int player) const
+{
+	const PlayerState *ps = gs->getPlayer(player, false);
+	if(!ps)
+		return -1;
+	return ps->status;
+}
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

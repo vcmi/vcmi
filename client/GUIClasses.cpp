@@ -2318,8 +2318,7 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	c = cre;
 
 	bitmap = new CPicture("CRSTKPU.bmp");
-	graphics->blueToPlayersAdv(*bitmap, LOCPLINT->playerID);
-	bitmap->convertToScreenBPP();
+	bitmap->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bitmap->center();
 
 	{
@@ -2583,12 +2582,23 @@ CMarketplaceWindow::CTradeableItem::CTradeableItem( int Type, int ID, bool Left)
 	left = Left;
 	type = Type;
 	id = ID;
+	used = LCLICK;
 }
 
 void CMarketplaceWindow::CTradeableItem::show(SDL_Surface * to)
 {
 	SDL_Surface *hlp = getSurface();
-	blitAt(hlp,pos.x+19,pos.y+9,to);
+	Rect dest = pos;
+
+	switch(type)
+	{
+	case RESOURCE:
+		dest.x += 19;
+		dest.y += 9;
+		break;
+	}
+
+	blitAt(hlp, dest, to);
 }
 
 void CMarketplaceWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
@@ -2615,96 +2625,102 @@ void CMarketplaceWindow::CTradeableItem::clickLeft(tribool down, bool previousSt
 	}
 }
 
-void CMarketplaceWindow::CTradeableItem::activate()
-{
-	activateLClick();
-}
-
-void CMarketplaceWindow::CTradeableItem::deactivate()
-{
-	deactivateLClick();
-}
-
 SDL_Surface * CMarketplaceWindow::CTradeableItem::getSurface()
 {
 	switch(type)
 	{
-	case 0:
+	case RESOURCE:
 		return graphics->resources32->ourImages[id].bitmap;
-	case 1:
+	case PLAYER:
+		return graphics->flags->ourImages[id].bitmap;
+	case ARTIFACT:
 		return graphics->artDefs->ourImages[id].bitmap;
 	default:
 		return NULL;
 	}
 }
-static void initItems( std::vector<CMarketplaceWindow::CTradeableItem*> &i, std::vector<SDL_Rect> &p, int type, int amount, bool left, std::vector<int> *ids/*=NULL*/ )
+static void initItems( std::vector<CMarketplaceWindow::CTradeableItem*> &i, std::vector<Rect> &p, int type, int amount, bool left, std::vector<int> *ids/*=NULL*/ )
 {
+	if(ids)
+		amin(amount, ids->size());
+
 	i.resize(amount);
 	for(int j=0;j<amount;j++)
 	{
 		i[j] = new CMarketplaceWindow::CTradeableItem(type,(ids && ids->size()>j) ? (*ids)[j] : j, left);
-		i[j]->pos = p[j];
+		i[j]->pos = p[j] + i[j]->pos;
 	}
 }
-
-void CMarketplaceWindow::setMode( int mode )
-{
-	std::vector<SDL_Rect> lpos, rpos;
-	clear();
-	switch(mode)
-	{
-	case 0:
-		{
-			SDL_Surface *bg2 = BitmapHandler::loadBitmap("TPMRKRES.bmp");
-			SDL_SetColorKey(bg2,SDL_SRCCOLORKEY,SDL_MapRGB(bg2->format,0,255,255));
-			graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
-			bg = SDL_ConvertSurface(bg2,screen->format,0); 
-			SDL_FreeSurface(bg2);
-			lpos += genRect(66,74,39,180), genRect(66,74,122,180), genRect(66,74,204,180),
-				genRect(66,74,39,259), genRect(66,74,122,259), genRect(66,74,204,259),
-				genRect(66,74,122,338);
-			for(int i=0;i<lpos.size();i++)
-			{
-				lpos[i].x += pos.x;
-				lpos[i].y += pos.y;
-				rpos.push_back(lpos[i]);
-				rpos[rpos.size()-1].x += 288;
-			}
-			initItems(left,lpos,0,7,true,NULL);
-			initItems(right,rpos,0,7,false,NULL);
-			printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,bg); //title
-			printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,zwykly,bg); //kingdom res.
-			printAtMiddle(CGI->generaltexth->allTexts[168],445,147,FONT_SMALL,zwykly,bg); //available for trade
-		}
-	}
-}
-
-void CMarketplaceWindow::clear()
-{
-	for(int i=0;i<left.size();i++)
-		delete left[i];
-	for(int i=0;i<right.size();i++)
-		delete right[i];
-	left.clear();
-	right.clear();
-	SDL_FreeSurface(bg);
-}
-
 CMarketplaceWindow::CMarketplaceWindow(int Mode)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	type = BLOCK_ADV_HOTKEYS;
 	mode = Mode;
-	bg = NULL;
-	ok = max = deal = NULL;
+
 	pos.x = screen->w/2 - 300;
 	pos.y = screen->h/2 - 296;
-	slider = new CSlider(pos.x+231,pos.y+490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
-	setMode(mode);
+
+	std::string bgName;
+	std::vector<int> *rIds = NULL, *lIds = NULL;
+
+	switch(Mode)
+	{
+	case RESOURCE_RESOURCE:
+		bgName = "TPMRKRES.bmp";
+		ltype = RESOURCE;
+		rtype = RESOURCE;
+		break;
+	case RESOURCE_PLAYER:
+		bgName = "TPMRKPTS.bmp";
+		ltype = RESOURCE;
+		rtype = PLAYER;
+
+		rIds = new std::vector<int>;
+		for(int i = 0, found = 0; i < PLAYER_LIMIT; i++)
+			if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == PlayerState::INGAME)
+				rIds->push_back(i);
+		break;
+	}
+
+	bg = new CPicture(bgName);
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+
+	printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,*bg); //title
+	printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,zwykly,*bg); //kingdom res.
+
+	std::vector<Rect> lpos, rpos;
+	getPositionsFor(lpos, false, ltype);
+	getPositionsFor(rpos, true, rtype);
+	initItems(left, lpos, ltype, 7, true, lIds);
+	initItems(right, rpos, rtype, rIds ? rIds->size() : 7, false, rIds);
+
+	delNull(rIds);
+	delNull(lIds);
+
+	//slider and buttons must be created after bg
+	slider = new CSlider(231,490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
+
 	hLeft = hRight = NULL;
-	ok = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
-	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),pos.x+307,pos.y+520,"TPMRKB.DEF");
-	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),pos.x+229,pos.y+520,"IRCBTNS.DEF");
+	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
+	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+
+	switch(Mode)
+	{
+	case RESOURCE_RESOURCE:
+		{
+			new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
+			printAtMiddle(CGI->generaltexth->allTexts[168],445,147,FONT_SMALL,zwykly,*bg); //available for trade
+		}
+		break;
+	case RESOURCE_PLAYER:
+		{
+			new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450,"TPMRKBU5.DEF");
+			printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,zwykly,*bg); //players
+		}
+		break;
+	}
 
 	max->block(true);
 	deal->block(true);
@@ -2712,33 +2728,45 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 
 CMarketplaceWindow::~CMarketplaceWindow()
 {
-	clear();
-	delete slider;
+	hLeft = hRight = NULL;
+	for(int i=0;i<left.size();i++)
+		delChild(left[i]);
+	for(int i=0;i<right.size();i++)
+		delChild(right[i]);
+
+	left.clear();
+	right.clear();
+	delChild(bg);
+	bg = NULL;
 }
 
 void CMarketplaceWindow::show(SDL_Surface * to)
 {
-	blitAt(bg,pos,to);
+	CIntObject::show(to);
+
+
 	if(hRight)
 		CSDL_Ext::drawBorder(to,hRight->pos.x-1,hRight->pos.y-1,hRight->pos.w+2,hRight->pos.h+2,int3(255,231,148));
 	if(hLeft)
 		CSDL_Ext::drawBorder(to,hLeft->pos.x-1,hLeft->pos.y-1,hLeft->pos.w+2,hLeft->pos.h+2,int3(255,231,148));
-	ok->show(to);
-	deal->show(to);
-	max->show(to);
-	slider->show(to);
-	for(int i=0;i<left.size();i++)
-		left[i]->show(to);
-	for(int i=0;i<right.size();i++)
-		right[i]->show(to);
-	if(mode==0)
+
+	//left side
+	if(mode == RESOURCE_RESOURCE || mode == RESOURCE_PLAYER)
 	{
-		char buf[15];
 		for(int i=0;i<left.size();i++)
+			printAtMiddle(boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i)),
+						  left[i]->pos.x+36,left[i]->pos.y+57,FONT_SMALL,zwykly,to);
+
+
+		if(hLeft && hRight && (hLeft->id != hRight->id || mode != RESOURCE_RESOURCE))
 		{
-			SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-			printAtMiddle(buf,left[i]->pos.x+36,left[i]->pos.y+57,FONT_SMALL,zwykly,to);
+			blitAt(hLeft->getSurface(),pos.x+141,pos.y+457,to);
+			printAtMiddle(boost::lexical_cast<std::string>( slider->value * r1 ),pos.x+156,pos.y+505,FONT_SMALL,zwykly,to);
 		}
+	}
+
+	if(mode == RESOURCE_RESOURCE)
+	{
 		if(hLeft) //print prices
 		{
 			for(int i=0; i<right.size();i++)
@@ -2749,40 +2777,24 @@ void CMarketplaceWindow::show(SDL_Surface * to)
 					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+36,right[i]->pos.y+57,FONT_SMALL,zwykly,to);
 			}
 		}
-		if(hLeft && hRight && hLeft->id!= hRight->id)
+		if(hLeft && hRight && (hLeft->id != hRight->id))
 		{
-			blitAt(hLeft->getSurface(),pos.x+141,pos.y+457,to);
 			blitAt(hRight->getSurface(),pos.x+429,pos.y+457,to);
-			SDL_itoa(slider->value * r1,buf,10);
-			printAtMiddle(buf,pos.x+156,pos.y+505,FONT_SMALL,zwykly,to);
-			SDL_itoa(slider->value * r2,buf,10);
-			printAtMiddle(buf,pos.x+443,pos.y+505,FONT_SMALL,zwykly,to);
+			printAtMiddle(boost::lexical_cast<std::string>( slider->value * r2 ),pos.x+443,pos.y+505,FONT_SMALL,zwykly,to);
 		}
 	}
-}
+	else if(mode == RESOURCE_PLAYER)
+	{
+		BOOST_FOREACH(CTradeableItem *i, right)
+			printAtMiddle(CGI->generaltexth->capColors[i->id], i->pos.x + 31, i->pos.y + 76, FONT_SMALL, zwykly, to);
 
-void CMarketplaceWindow::activate()
-{
-	for(int i=0;i<left.size();i++)
-		left[i]->activate();
-	for(int i=0;i<right.size();i++)
-		right[i]->activate();
-	ok->activate();
-	max->activate();
-	deal->activate();
-	slider->activate();
-}
 
-void CMarketplaceWindow::deactivate()
-{
-	for(int i=0;i<left.size();i++)
-		left[i]->deactivate();
-	for(int i=0;i<right.size();i++)
-		right[i]->deactivate();
-	ok->deactivate();
-	max->deactivate();
-	deal->deactivate();
-	slider->deactivate();
+		if(hLeft && hRight)
+		{
+			blitAt(hRight->getSurface(),pos.x+417,pos.y+451,to);
+			printAtMiddle(CGI->generaltexth->capColors[hRight->id], pos.x+417 + 31, pos.y+451 + 76, FONT_SMALL, zwykly, to);
+		}
+	}
 }
 
 void CMarketplaceWindow::setMax()
@@ -2800,15 +2812,22 @@ void CMarketplaceWindow::makeDeal()
 
 void CMarketplaceWindow::sliderMoved( int to )
 {
-
 }
 
 void CMarketplaceWindow::selectionChanged(bool side)
 {
-	if(hLeft && hRight && hLeft->id!= hRight->id)
+	if(hLeft && hRight && (hLeft->id!= hRight->id || mode != RESOURCE_RESOURCE))
 	{
-		LOCPLINT->cb->getMarketOffer(hLeft->id,hRight->id,r1,r2,0);
-		slider->setAmount(LOCPLINT->cb->getResourceAmount(hLeft->id) / r1);
+		if(mode == RESOURCE_RESOURCE)
+		{
+			LOCPLINT->cb->getMarketOffer(hLeft->id,hRight->id,r1,r2,0);
+			slider->setAmount(LOCPLINT->cb->getResourceAmount(hLeft->id) / r1);
+		}
+		else if(mode == RESOURCE_PLAYER)
+		{
+			r1 = 1;
+			slider->setAmount(LOCPLINT->cb->getResourceAmount(hLeft->id));
+		}
 		slider->moveTo(0);
 		max->block(false);
 		deal->block(false);
@@ -2835,6 +2854,32 @@ void CMarketplaceWindow::selectionChanged(bool side)
 			rSubs[i] = oss.str();
 		}
 	}
+}
+
+void CMarketplaceWindow::getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const
+{
+	if(type == RESOURCE)
+	{
+		poss += genRect(66,74,39 ,180), genRect(66,74,122,180), genRect(66,74,204,180),
+				genRect(66,74,39,259), genRect(66,74,122,259), genRect(66,74,204,259),
+				genRect(66,74,122,338);
+		if(Right)
+			BOOST_FOREACH(Rect &r, poss)
+				r.x += 288;
+	}
+	else if(type == PLAYER)
+	{
+		assert(Right);
+		poss += genRect(64, 58, 333, 84), genRect(64, 58, 333 + 83, 84), genRect(64, 58, 333 + 2 * 83, 84),
+			genRect(64, 58, 333, 84 + 118), genRect(64, 58, 333 + 83, 84 + 118), genRect(64, 58, 333 + 2 * 83, 84 + 118),
+			genRect(64, 58, 333 + 83, 84 + 2*118);
+	}
+}
+
+void CMarketplaceWindow::setMode(int Mode)
+{
+	GH.popIntTotally(this);
+	GH.pushInt(new CMarketplaceWindow(Mode));
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)

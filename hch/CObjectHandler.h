@@ -141,6 +141,19 @@ public:
 	static IShipyard *castFrom(CGObjectInstance *obj);
 };
 
+ /*class DLL_EXPORT IMarket
+ {
+ public:
+ 	const CGObjectInstance *o;
+ 
+ 	IMarket(const CGObjectInstance *O);
+ 	virtual bool allowsMode(EMarketMode mode);
+ 	virtual float getEfficiency(EMarketMode mode);
+ 
+ 	static const IMarket *castFrom(const CGObjectInstance *obj);
+ 	static IMarket castFrom(CGObjectInstance *obj);
+ };*/
+
 class DLL_EXPORT CGObjectInstance : public IObjectInterface
 {
 protected:

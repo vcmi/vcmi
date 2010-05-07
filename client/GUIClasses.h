@@ -518,6 +518,10 @@ public:
 class CMarketplaceWindow : public CIntObject
 {
 public:
+	enum EType
+	{
+		RESOURCE, PLAYER, ARTIFACT
+	};
 	class CTradeableItem : public CIntObject
 	{
 	public:
@@ -526,35 +530,33 @@ public:
 		bool left;
 		CFunctionList<void()> callback;
 
-		void activate();
-		void deactivate();
 		void show(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		SDL_Surface *getSurface();
 		CTradeableItem(int Type, int ID, bool Left);
 	};
 
-	SDL_Surface *bg; //background
+	CPicture *bg; //background
 	std::vector<CTradeableItem*> left, right;
 	std::vector<std::string> rSubs; //offer caption
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 
+	EType ltype, rtype;
 	int mode,//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
 		r1, r2; //suggested amounts of traded resources
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 
-	void activate();
-	void deactivate();
 	void show(SDL_Surface * to);
 	void setMax();
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(int Mode=0); //c-tor
+	CMarketplaceWindow(int Mode = RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
-	void setMode(int mode); //mode setter
-	void clear();
+	void setMode(int Mode); //mode setter
+
+	void getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const;
 };
 
 class CSystemOptionsWindow : public CIntObject

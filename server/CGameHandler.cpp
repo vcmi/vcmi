@@ -2952,6 +2952,31 @@ bool CGameHandler::tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 )
 	return true;
 }
 
+bool CGameHandler::sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2)
+{
+	const PlayerState *p2 = gs->getPlayer(r2, false);
+	if(!p2  ||  p2->status != PlayerState::INGAME)
+	{
+		complain("Dest player must be in game!");
+		return false;
+	}
+
+	si32 curRes1 = gs->getPlayer(player)->resources[r1], curRes2 = gs->getPlayer(r2)->resources[r1];
+	val = std::min(si32(val),curRes1);
+
+	SetResource sr;
+	sr.player = player;
+	sr.resid = r1;
+	sr.val = curRes1 - val;
+	sendAndApply(&sr);
+
+	sr.player = r2;
+	sr.val = curRes2 + val;
+	sendAndApply(&sr);
+
+	return true;
+}
+
 bool CGameHandler::setFormation( si32 hid, ui8 formation )
 {
 	gs->getHero(hid)-> formation = formation;
@@ -3171,8 +3196,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&StartAction(ba)); //start shooting
 
 			BattleAttack bat;
-			prepareAttack(bat, curStack, destStack, 0);
 			bat.flags |= 1;
+			prepareAttack(bat, curStack, destStack, 0);
 			sendAndApply(&bat);
 
 			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot

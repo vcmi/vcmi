@@ -113,7 +113,16 @@ bool BuyArtifact::applyGh( CGameHandler *gh )
 bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
-	return gh->tradeResources(val,player,r1,r2);
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+		return gh->tradeResources(val,player,r1,r2);
+	case RESOURCE_PLAYER:
+		return gh->sendResources(val, player, r1, r2);
+	default:
+		gh->complain("Unknown exchange mode!");
+		ERROR_AND_RETURN;
+	}
 }
 
 bool SetFormation::applyGh( CGameHandler *gh )

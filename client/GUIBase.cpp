@@ -7,6 +7,7 @@
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
 #include "CBitmapHandler.h"
+#include "Graphics.h"
 /*
  * GUIBase.cpp, part of VCMI engine
  *
@@ -697,6 +698,12 @@ void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )
 	moveBy(Point(p.x - pos.x, p.y - pos.y), propagate);
 }
 
+void CIntObject::delChild(CIntObject *child)
+{
+	children -= child;
+	delete child;
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	bg = BG; 
@@ -765,6 +772,14 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
 
 	SDL_FillRect(bg, NULL, color);
+}
+
+void CPicture::colorizeAndConvert(int player)
+{
+	assert(bg);
+	assert(bg->format->BitsPerPixel == 8);
+	graphics->blueToPlayersAdv(bg, player);
+	convertToScreenBPP();
 }
 
 ObjectConstruction::ObjectConstruction( CIntObject *obj )

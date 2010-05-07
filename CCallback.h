@@ -118,6 +118,7 @@ public:
 	virtual int estimateSpellDamage(const CSpell * sp) const =0; //estimates damage of given spell; returns 0 if spell causes no dmg
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)=0; //get thieves' guild info obtainable while visiting given object
 	virtual int3 getGrailPos(float &outKnownRatio)=0;
+	virtual int getPlayerStatus(int player) const = 0; //-1 if no such player
 
 	//hero
 	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
@@ -279,6 +280,7 @@ public:
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 	int3 guardingCreaturePosition (int3 pos) const;
+	int getPlayerStatus(int player) const;
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

@@ -390,6 +390,8 @@ public:
 	const Rect & center(); //centers when pos.w and pos.h are set, returns new position
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);
+
+	void delChild(CIntObject *child); //removes from chidlren list, deletes
 };
 
 //class for binding keys to left mouse button clicks
@@ -443,6 +445,7 @@ public:
 	~CPicture();
 	void showAll(SDL_Surface * to);
 	void convertToScreenBPP();
+	void colorizeAndConvert(int player);
 };
 
 class CGuiHandler

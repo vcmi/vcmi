@@ -468,7 +468,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CSlider::redrawSlider()
 {
-	slider->show(screenBuf);
+	//slider->show(screenBuf);
 }
 
 void CSlider::moveLeft()
