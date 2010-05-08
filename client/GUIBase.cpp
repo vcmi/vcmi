@@ -75,7 +75,7 @@ void CGuiHandler::popInts( int howMany )
 {
 	if(!howMany) return; //senseless but who knows...
 
-	assert(listInt.size() > howMany);
+	assert(listInt.size() >= howMany);
 	listInt.front()->deactivate();
 	for(int i=0; i < howMany; i++)
 	{
@@ -83,8 +83,12 @@ void CGuiHandler::popInts( int howMany )
 		delete listInt.front();
 		listInt.pop_front();
 	}
-	listInt.front()->activate();
-	totalRedraw();
+
+	if(listInt.size())
+	{
+		listInt.front()->activate();
+		totalRedraw();
+	}
 }
 
 IShowActivable * CGuiHandler::topInt()

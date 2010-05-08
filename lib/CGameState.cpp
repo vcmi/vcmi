@@ -1,4 +1,5 @@
 #define VCMI_DLL
+#include "../hch/CCampaignHandler.h"
 #include <algorithm>
 #include <queue>
 #include <fstream>
@@ -1162,6 +1163,7 @@ CGameState::CGameState()
 	scenarioOps = NULL;
 	applierGs = new CGSApplier;
 	objCaller = new CObjectCallersHandler;
+	campaign = NULL;
 }
 CGameState::~CGameState()
 {
@@ -1172,13 +1174,40 @@ CGameState::~CGameState()
 	delete applierGs;
 	delete objCaller;
 }
-void CGameState::init(StartInfo * si, Mapa * map, int Seed)
+void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
+
+	switch(si->mode)
+	{
+	case 0:
+		map = new Mapa(si->mapname);
+		break;
+	case 2:
+		campaign = new CCampaignState();
+		campaign->initNewCampaign(*si);
+		std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
+		map = new Mapa();
+		map->initFromBytes((const unsigned char*)mapContent.c_str());
+		break;
+	}
+	tlog0 << "Map loaded!" << std::endl;
+
+	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
+	if(checksum)
+	{
+		tlog0 << "\tServer checksum for " << si->mapname <<": "<< checksum << std::endl;
+		tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
+		if(map->checksum != checksum)
+		{
+			tlog1 << "Wrong map checksum!!!" << std::endl;
+			throw std::string("Wrong checksum");
+		}
+	}
+
 	day = 0;
 	seed = Seed;
 	ran.seed((boost::int32_t)seed);
 	scenarioOps = si;
-	this->map = map;
 	loadTownDInfos();
 
  	//pick grail location
@@ -3797,4 +3826,15 @@ InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
 {
 	assign(iah);
 	return *this;
+}
+
+void CCampaignState::initNewCampaign( const StartInfo &si )
+{
+	assert(si.mode == 2);
+	campaignName = si.mapname;
+	currentMap = si.whichMapInCampaign;
+	
+	camp = CCampaignHandler::getCampaign(campaignName, true); //TODO lod???
+	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
+		mapsRemaining.push_back(i);
 }

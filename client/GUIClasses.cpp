@@ -1504,7 +1504,7 @@ void CHeroList::draw(SDL_Surface * to)
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32,to); //mana
 		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
 		blitAt(temp,posporx,pospory+i*32,to);
-		if ((selected == iT) && (adventureInt->selection->ID == HEROI_TYPE))
+		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == HEROI_TYPE))
 		{
 			blitAt(selection,posporx,pospory+i*32,to);
 		}
@@ -1745,7 +1745,7 @@ void CTownList::draw(SDL_Surface * to)
 
 		blitAt(graphics->getPic(LOCPLINT->towns[iT]->subID,LOCPLINT->towns[iT]->hasFort(),LOCPLINT->towns[iT]->builded),posporx,pospory+i*32,to);
 
-		if ((selected == iT) && (adventureInt->selection->ID == TOWNI_TYPE))
+		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == TOWNI_TYPE))
 		{
 			blitAt(graphics->getPic(-2),posporx,pospory+i*32,to);
 		}

@@ -114,6 +114,8 @@ public:
 	}
 
 	bool conquerable(int whichScenario) const;
+
+	CCampaign();
 };
 
 class DLL_EXPORT CCampaignHandler

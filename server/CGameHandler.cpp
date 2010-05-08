@@ -1,3 +1,4 @@
+#include "../hch/CCampaignHandler.h"
 #include "../StartInfo.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
@@ -851,11 +852,9 @@ CGameHandler::~CGameHandler(void)
 
 void CGameHandler::init(StartInfo *si, int Seed)
 {
-	Mapa *map = new Mapa(si->mapname);
-	tlog0 << "Map loaded!" << std::endl;
 	gs = new CGameState();
 	tlog0 << "Gamestate created!" << std::endl;
-	gs->init(si,map,Seed);
+	gs->init(si, 0, Seed);
 	tlog0 << "Gamestate initialized!" << std::endl;
 
 	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
@@ -1044,7 +1043,7 @@ void CGameHandler::run(bool resume)
 		ui8 quantity, pom;
 		//ui32 seed;
 		if(!resume)
-			(*cc) << gs->scenarioOps->mapname << gs->map->checksum << gs->seed;
+			(*cc) << gs->scenarioOps << gs->map->checksum << gs->seed;
 
 		(*cc) >> quantity; //how many players will be handled at that client
 		for(int i=0;i<quantity;i++)

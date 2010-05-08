@@ -2204,7 +2204,7 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	blitAt(panel, 456, 6, background);
 
-	startB = new AdventureMapButton("", "", 0 /*cb*/, 475, 536, "SCNRBEG.DEF", SDLK_RETURN);
+	startB = new AdventureMapButton("", "", bind(&CBonusSelection::startMap, this), 475, 536, "SCNRBEG.DEF", SDLK_RETURN);
 	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "SCNRBACK.DEF", SDLK_ESCAPE);
 
 	//campaign name
@@ -2320,7 +2320,7 @@ void CBonusSelection::loadPositionsOfGraphics()
 void CBonusSelection::selectMap( int whichOne )
 {
 	sInfo.difficulty = ourCampaign->scenarios[whichOne].difficulty;
-	sInfo.mapname = ourCampaign->header.name;
+	sInfo.mapname = ourCampaign->header.filename;
 	sInfo.mode = 2;
 
 	//get header
@@ -2328,9 +2328,12 @@ void CBonusSelection::selectMap( int whichOne )
 	delete ourHeader;
 	ourHeader = new CMapHeader();
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->mapPieces[whichOne].c_str(), i);
-	const_cast<CMapInfo *>(curMap)->playerAmnt = ourHeader->players.size();
+	CMapInfo *mapInfo = const_cast<CMapInfo *>(curMap);
+	mapInfo->mapHeader = ourHeader;
+	mapInfo->countPlayers();
+	mapInfo->mapHeader = NULL;
 	
-	CSelectionScreen::updateStartInfo(curMap, *curOpts, ourHeader);
+	CSelectionScreen::updateStartInfo(curMap, sInfo, ourHeader);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
 }
@@ -2407,6 +2410,14 @@ void CBonusSelection::updateBonusSelection()
 		}
 	}
 
+}
+
+void CBonusSelection::startMap()
+{
+	StartInfo *si = new StartInfo(sInfo);
+	GH.popInts(3);
+	curOpts = NULL;
+	::startGame(si);
 }
 
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )

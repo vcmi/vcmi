@@ -1,3 +1,4 @@
+#include "../hch/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "../CConsoleHandler.h"
 #include "CGameInfo.h"
@@ -375,32 +376,21 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 
 	ui32 seed, sum;
-	std::string mapname;
-	c >> mapname >> sum >> seed;
+	delete si;
+	c >> si	>> sum >> seed;
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
-
-	Mapa * mapa = new Mapa(mapname);
-	tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-	tlog0 << "\tServer checksum for "<<mapname <<": "<<sum << std::endl;
-	tlog0 << "\tOur checksum for the map: "<< mapa->checksum << std::endl;
-
-	if(mapa->checksum != sum)
-	{
-		tlog1 << "Wrong map checksum!!!" << std::endl;
-		throw std::string("Wrong checksum");
-	}
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
 	gs = CGI->state;
 	gs->scenarioOps = si;
-	gs->init(si,mapa,seed);
+	gs->init(si, sum, seed);
 
 	CGI->mh = new CMapHandler();
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-	CGI->mh->map = mapa;
+	CGI->mh->map = gs->map;
 	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 	CGI->mh->init();
-	pathInfo = new CPathsInfo(int3(mapa->width, mapa->height, mapa->twoLevel+1));
+	pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 	int humanPlayers = 0;

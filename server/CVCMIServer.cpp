@@ -1,3 +1,4 @@
+#include "../hch/CCampaignHandler.h"
 #include <iostream>
 #include <string>
 #include <boost/asio.hpp>
@@ -71,6 +72,7 @@ void CVCMIServer::newGame(CConnection *c)
 	*c >> clients; //how many clients should be connected - TODO: support more than one
 	*c >> *si; //get start options
 	int problem;
+
 #ifdef _MSC_VER
 	FILE *f;
 	problem = fopen_s(&f,si->mapname.c_str(),"r");
@@ -78,14 +80,15 @@ void CVCMIServer::newGame(CConnection *c)
 	FILE * f = fopen(si->mapname.c_str(),"r");
 	problem = !f;
 #endif
-	if(problem)
+	if(problem && si->mode == 0) //TODO some checking for campaigns
 	{
 		*c << ui8(problem); //WRONG!
 		return;
 	}
 	else
 	{
-		fclose(f);
+		if(f)	
+			fclose(f);
 		*c << ui8(0); //OK!
 	}
 

@@ -436,3 +436,8 @@ bool CCampaign::conquerable( int whichScenario ) const
 	}
 	return true;
 }
+
+CCampaign::CCampaign()
+{
+
+}

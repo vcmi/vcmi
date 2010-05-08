@@ -1629,6 +1629,7 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 {
+	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
 	if(centerView)

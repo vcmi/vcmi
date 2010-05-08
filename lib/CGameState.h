@@ -58,6 +58,7 @@ struct CPack;
 class CSpell;
 struct TerrainTile;
 class CHeroClass;
+class CCampaign;
 
 namespace boost
 {
@@ -345,10 +346,27 @@ struct DLL_EXPORT CPathsInfo
 	~CPathsInfo();
 };
 
+class DLL_EXPORT CCampaignState
+{
+public:
+	CCampaign *camp;
+	std::string campaignName; 
+	std::vector<ui8> mapsConquered, mapsRemaining;
+	ui8 currentMap; 
+
+	void initNewCampaign(const StartInfo &si);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
+	}
+};
+
 class DLL_EXPORT CGameState
 {
 public:
 	StartInfo* scenarioOps;
+	CCampaignState *campaign;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
 	BattleInfo *curB; //current battle
@@ -375,7 +393,7 @@ public:
 	boost::shared_mutex *mx;
 	PlayerState *getPlayer(ui8 color, bool verbose = true);
 	const PlayerState *getPlayer(ui8 color, bool verbose = true) const;
-	void init(StartInfo * si, Mapa * map, int Seed);
+	void init(StartInfo * si, ui32 checksum, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
@@ -419,7 +437,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool & globalEffects;
+		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool & globalEffects & campaign;
 		if(!h.saving)
 		{
 			loadTownDInfos();

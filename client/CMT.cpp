@@ -601,15 +601,17 @@ void startGame(StartInfo * options)
 		setResolution = true;
 
 	client = new CClient;
-	if(options->mode == 0) //new game
+	switch(options->mode) //new game
 	{
+	case 0:
+	case 2:
 		client->newGame(NULL, options);
-	}
-	else //load game
-	{
+		break;
+	case 1:
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
 		client->loadGame(fname);
+		break;
 	}
 
 	CGI->musich->stopMusic();
