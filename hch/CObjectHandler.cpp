@@ -722,9 +722,9 @@ void CGHeroInstance::initHero()
 
 	if(!vstd::contains(artifWorn, 16) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set
 	{
-		VLC->arth->equipArtifact(artifWorn, 17, 0); //give spellbook
+		VLC->arth->equipArtifact(artifWorn, 17, 0, &bonuses); //give spellbook
 	}
-	VLC->arth->equipArtifact(artifWorn, 16, 3); //everyone has a catapult
+	VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
@@ -775,10 +775,14 @@ void CGHeroInstance::initHero()
 				switch (creID)
 				{
 				case 145: //catapult
-					VLC->arth->equipArtifact(artifWorn, 16, 3);
+					VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses);
 					break;
 				default:
-					VLC->arth->equipArtifact(artifWorn, 9+CArtHandler::convertMachineID(creID,true), CArtHandler::convertMachineID(creID,true));
+					VLC->arth->equipArtifact(
+						artifWorn,
+						9+CArtHandler::convertMachineID(creID,true),
+						CArtHandler::convertMachineID(creID,true),
+						&bonuses);
 					break;
 				}
 			}
@@ -1057,7 +1061,7 @@ void CGHeroInstance::giveArtifact (ui32 aid)
 	if (artifact.isBig()) {
 		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) {
 			if (!vstd::contains(artifWorn, *it)) {
-				VLC->arth->equipArtifact(artifWorn, *it, aid);
+				VLC->arth->equipArtifact(artifWorn, *it, aid, &bonuses);
 				break;
 			}
 		}
@@ -1073,8 +1077,7 @@ void CGHeroInstance::recreateArtBonuses()
 	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
 	{
 		CArtifact &art = VLC->arth->artifacts[ari->second];
-		for(std::list<Bonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
-			bonuses.push_back(*i);
+		art.addBonusesTo(&bonuses);
 	}
 }
 

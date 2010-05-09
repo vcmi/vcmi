@@ -575,7 +575,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 		h & hid & artifacts & artifWorn;
 	}
 
-	std::vector<Bonus*> gained, lost; //used locally as hlp when applying
+	BonusList gained, lost; //used locally as hlp when applying
 };   
 
 struct HeroRecruited : public CPackForClient //515

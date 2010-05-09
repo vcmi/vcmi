@@ -1700,6 +1700,18 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			sendAndApply(&tmh);
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
+			// If a creature guards the tile, block visit.
+			if (gs->map->isInTheMap(guardPos)) {
+				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
+				objectVisited(guardTile.visitableObjects.back(), h);
+
+				// TODO: Need to wait until battle is over.
+
+				// Do not visit anything else if hero died.
+				if (h->getArmy().stacksCount() == 0)
+					return true;
+			}
+
 			//call objects if they are visited
 
 			if(t.visitableObjects.size())
@@ -1714,12 +1726,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 // 			{
 // 				objectVisited(obj, h);
 // 			}
-
-			// If a creature guards the tile, block visit.
-			if (gs->map->isInTheMap(guardPos)) {
-				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
-				objectVisited(guardTile.visitableObjects.back(), h);
-			}
 
 			tlog5 << "Movement end!\n";
 			return true;

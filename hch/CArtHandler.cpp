@@ -3,6 +3,8 @@
 #include "CArtHandler.h"
 #include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
@@ -121,6 +123,44 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 ar
 	}
 
 	return true;
+}
+
+/**
+ * Adds all the bonuses of this artifact, including possible constituents, to
+ * a bonus list.
+ */
+void CArtifact::addBonusesTo (BonusList *otherBonuses) const
+{
+	for(std::list<Bonus>::const_iterator i = bonuses.begin(); i != bonuses.end(); i++)
+		otherBonuses->push_back(*i);
+
+	if (constituents != NULL) {
+		BOOST_FOREACH(ui32 artifactID, *constituents) {
+			VLC->arth->artifacts[artifactID].addBonusesTo(otherBonuses);
+		}
+	}
+}
+
+/**
+ * Removes all the bonuses of this artifact, including possible constituents, from
+ * a bonus list.
+ */
+void CArtifact::removeBonusesFrom (BonusList *otherBonuses) const
+{
+	if (constituents != NULL) {
+		BOOST_FOREACH(ui32 artifactID, *constituents) {
+			VLC->arth->artifacts[artifactID].removeBonusesFrom(otherBonuses);
+		}
+	}
+
+	while (1) {
+		std::list<Bonus>::const_iterator it = std::find_if(otherBonuses->begin(), otherBonuses->end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
+
+		if (it != otherBonuses->end())
+			otherBonuses->erase(it);
+		else
+			break;
+	}
 }
 
 CArtHandler::CArtHandler()
@@ -521,23 +561,17 @@ void CArtHandler::addBonuses()
 	ART_PRIM_SKILL(128, 3, +6);
 
 	//Angelic Alliance
-	ART_ALL_PRIM_SKILLS(129, +21);
 	giveArtBonus(129, Bonus::NONEVIL_ALIGNMENT_MIX, 0);
 	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
 
 	//Cloak of the Undead King
-	giveArtBonus(130, Bonus::SECONDARY_SKILL_PREMY, +30, 12);
-	giveArtBonus(130, Bonus::SECONDARY_SKILL_PREMY, +30, 12);
 	giveArtBonus(130, Bonus::IMPROVED_NECROMANCY, 0);
 
 	//Elixir of Life
-	giveArtBonus(131, Bonus::STACK_HEALTH, +4);
 	giveArtBonus(131, Bonus::STACK_HEALTH, +25, -1, Bonus::PERCENT_TO_BASE);
 	giveArtBonus(131, Bonus::HP_REGENERATION, +50);
 
 	//Armor of the Damned
-	ART_ATTACK_AND_DEFENSE(132, +3);
-	ART_POWER_AND_KNOWLEDGE(132, +2);
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 54); // Slow
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 47); // Disrupting Ray
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 45); // Weakness
@@ -547,26 +581,16 @@ void CArtHandler::addBonuses()
 	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50);
 
 	//Power of the Dragon Father
-	ART_ALL_PRIM_SKILLS(134, +16);
-	giveArtBonus(134, Bonus::MORALE, +1);
-	giveArtBonus(134, Bonus::LUCK, +1);
 	giveArtBonus(134, Bonus::LEVEL_SPELL_IMMUNITY, 4);
 
 	//Titan's Thunder
-	// should also add a permanent spell book, somehow.
-	ART_ATTACK_AND_DEFENSE(135, +9);
-	ART_POWER_AND_KNOWLEDGE(135, +8);
+	// FIXME: should also add a permanent spell book, somehow.
 	giveArtBonus(135, Bonus::SPELL, 3, 57);
 
 	//Admiral's Hat
-	giveArtBonus(136, Bonus::SEA_MOVEMENT, +1500);
-	giveArtBonus(136, Bonus::WHIRLPOOL_PROTECTION, 0);
-	giveArtBonus(136, Bonus::SPELL, 3, 0);
-	giveArtBonus(136, Bonus::SPELL, 3, 1);
 	giveArtBonus(136, Bonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
-	giveArtBonus(137, Bonus::SECONDARY_SKILL_PREMY, +30, 1);
 	giveArtBonus(137, Bonus::NO_SHOTING_PENALTY, 0);
 	giveArtBonus(137, Bonus::FREE_SHOOTING, 0);
 
@@ -574,13 +598,13 @@ void CArtHandler::addBonuses()
 	giveArtBonus(138, Bonus::FULL_MANA_REGENERATION, 0);
 
 	//Ring of the Magi
-	giveArtBonus(139, Bonus::SPELL_DURATION, +56);
+	giveArtBonus(139, Bonus::SPELL_DURATION, +50);
 
 	//Cornucopia
-	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 1);
-	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 3);
-	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 4);
-	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +5, 5);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, 1);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, 3);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, 4);
+	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, 5);
 }
 
 void CArtHandler::clear()
@@ -596,10 +620,12 @@ void CArtHandler::clear()
  * Locally equips an artifact to a hero's worn slots. Unequips an already present artifact.
  * Does not test if the operation is legal.
  * @param artifWorn A hero's set of worn artifacts.
+ * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID)
+void CArtHandler::equipArtifact
+	(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID, BonusList *bonuses)
 {
-	unequipArtifact(artifWorn, slotID);
+	unequipArtifact(artifWorn, slotID, bonuses);
 
 	const CArtifact &artifact = artifacts[artifactID];
 
@@ -625,14 +651,19 @@ void CArtHandler::equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, u
 			}
 		}
 	}
+
+	if (bonuses != NULL)
+		artifact.addBonusesTo(bonuses);
 }
 
 /**
  * Locally unequips an artifact from a hero's worn slots.
  * Does not test if the operation is legal.
  * @param artifWorn A hero's set of worn artifacts.
+ * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
+void CArtHandler::unequipArtifact
+	(std::map<ui16, ui32> &artifWorn, ui16 slotID, BonusList *bonuses)
 {
 	if (!vstd::contains(artifWorn, slotID))
 		return;
@@ -661,4 +692,7 @@ void CArtHandler::unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID)
 			}
 		}
 	}
+
+	if (bonuses != NULL)
+		artifact.removeBonusesFrom(bonuses);
 }

@@ -462,11 +462,8 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 			continue;
 
 		CArtifact &art = VLC->arth->artifacts[id];
-		for(std::list<Bonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
-		{
-			gained.push_back(&*i);
-			h->bonuses.push_back(*i);
-		}
+		art.addBonusesTo(&h->bonuses);
+		art.addBonusesTo(&gained);
 	}
 
 	//update hero data
@@ -480,19 +477,9 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(h->getArtPos(id) >= 0)
 			continue;
 
-		while(1)
-		{
-			std::list<Bonus>::iterator hlp = std::find_if(h->bonuses.begin(),h->bonuses.end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
-			if(hlp != h->bonuses.end())
-			{
-				lost.push_back(&*hlp);
-				h->bonuses.erase(hlp);
-			}
-			else
-			{
-				break;
-			}
-		}
+		CArtifact &art = VLC->arth->artifacts[id];
+		art.removeBonusesFrom(&h->bonuses);
+		art.addBonusesTo(&lost);
 	}
 }
 
