@@ -4250,8 +4250,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
 	if( attacker->hasBonusOfType(Bonus::SPELL_AFTER_ATTACK) )
 	{
-
-		BOOST_FOREACH(const Bonus & sf, attacker->bonuses)
+		BOOST_FOREACH(const Bonus & sf, attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK)))
 		{
 			if (sf.type == Bonus::SPELL_AFTER_ATTACK)
 			{

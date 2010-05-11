@@ -812,7 +812,7 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 {
 	assert(gs->curB);
 	CGHeroInstance *h = (side) ? gs->curB->heroes[1] : gs->curB->heroes[0];
-	if(h)
+	if(h && castedByHero)
 	{
 		int spellCost = 0;
 		if(gs->curB)
@@ -826,7 +826,7 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 		h->mana -= spellCost;
 		if(h->mana < 0) h->mana = 0;
 	}
-	if(side >= 0 && side < 2)
+	if(side >= 0 && side < 2 && castedByHero)
 	{
 		gs->curB->castSpells[side]++;
 	}
@@ -933,93 +933,125 @@ static BonusList stackEffectToFeature(const CStack::StackEffect & sse)
 	{
 	case 27: //shield 
 		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 28: //air shield
 		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 29: //fire shield
 		sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 30: //protection from air
 		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 31: //protection from fire
 		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 32: //protection from water
 		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 33: //protection from earth
 		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 34: //anti-magic
 		sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 41: //bless
 		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 42: //curse
 		sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.level >= 2 ? 20 : 0));
+		sf.back().id = sse.id;
 		break;
 	case 43: //bloodlust
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
+		sf.back().id = sse.id;
 		break;
 	case 44: //precision
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
+		sf.back().id = sse.id;
 		break;
 	case 45: //weakness
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 46: //stone skin
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 47: //disrupting ray
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 48: //prayer
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 49: //mirth
 		sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 50: //sorrow
 		sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 51: //fortune
 		sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 52: //misfortune
 		sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 53: //haste
 		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 54: //slow
 		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
+		sf.back().id = sse.id;
 		break;
 	case 55: //slayer
 		sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.level, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 56: //frenzy
 		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56].powers[sse.level]/100.0, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 58: //counterstrike
 		sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 59: //bersek
 		sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.level, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 60: //hypnotize
 		sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 61: //forgetfulness
 		sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.level, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	case 62: //blind
 		sf.push_back(makeFeature(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().id = sse.id;
 		sf.push_back(makeFeature(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().id = sse.id;
 		break;
 	}
 
