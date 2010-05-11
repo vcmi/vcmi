@@ -158,8 +158,14 @@
 + 116 SPELL_DAMAGE_REDUCTION 85 -1 0		//gold golems reduce dmg from spells
 + 117 NON_LIVING 0 0 0				//diamond golems are non-living
 + 117 SPELL_DAMAGE_REDUCTION 95 -1 0		//diamond golems reduce dmg from spells
++ 120 NON_LIVING 0 0 0				//psychic elementals shouldn't get morale
 + 121 LEVEL_SPELL_IMMUNITY 5 0 0	//magic elementals are immune to all spells
++ 121 NON_LIVING 0 0 0				//magic elementals shouldn't get morale
 + 123 DOUBLE_WIDE 0 0 0 			//ice elemental should be treated as double-wide
++ 123 NON_LIVING 0 0 0				//ice elementals shouldn't get morale
++ 125 NON_LIVING 0 0 0				//magma elementals shouldn't get morale
++ 127 NON_LIVING 0 0 0				//storm elementals shouldn't get morale
++ 129 NON_LIVING 0 0 0				//energy elementals shouldn't get morale
 - 133 FLYING						//Crystal Dragons do not fly
 + 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide
 + 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide
