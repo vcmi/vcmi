@@ -204,10 +204,10 @@ struct DLL_EXPORT Bonus
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
 
 	ui8 source;//source type" uses BonusSource values - what gave that bonus
-	ui32 id; //source id: id of object/artifact/spell
-
-	ui8 valType; 
 	si32 val;
+	ui32 id; //source id: id of object/artifact/spell
+	ui8 valType; 
+
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
 
@@ -420,7 +420,7 @@ public:
 	bool operator()(const Bonus &bonus) const
 	{
 		return !turnsRequested 
-				||   bonus.turnsRemain > turnsRequested  &&  bonus.duration == Bonus::N_TURNS;
+			|| ( bonus.turnsRemain > turnsRequested && bonus.duration == Bonus::N_TURNS);
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{

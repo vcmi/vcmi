@@ -8,6 +8,8 @@ libvcmi_la_SOURCES = \
 	../hch/CArtHandler.h \
 	../hch/CBuildingHandler.cpp \
 	../hch/CBuildingHandler.h \
+	../hch/CCampaignHandler.cpp \
+	../hch/CCampaignHandler.h \
 	../hch/CCreatureHandler.cpp \
 	../hch/CCreatureHandler.h \
 	../hch/CDefObjInfoHandler.cpp \

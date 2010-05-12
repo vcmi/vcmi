@@ -154,7 +154,7 @@ void CArtifact::removeBonusesFrom (BonusList *otherBonuses) const
 	}
 
 	while (1) {
-		std::list<Bonus>::const_iterator it = std::find_if(otherBonuses->begin(), otherBonuses->end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
+		std::list<Bonus>::iterator it = std::find_if(otherBonuses->begin(), otherBonuses->end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
 
 		if (it != otherBonuses->end())
 			otherBonuses->erase(it);

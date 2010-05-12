@@ -24,11 +24,11 @@ class CCreatureHandler;
 
 class DLL_EXPORT CCreature : public CBonusSystemNode
 {
-	ui32 hitPoints, speed, attack, defence;
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	std::vector<ui32> cost; //cost[res_id] - amount of that resource
 	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
+	ui32 hitPoints, speed, attack, defence;
 	ui32 fightValue, AIValue, growth, hordeGrowth, shots, spells;
 	ui32 damageMin, damageMax;
 	ui32 ammMin, ammMax;
@@ -90,7 +90,7 @@ public:
 
 
 	CCreature();
-	friend CCreatureHandler;
+	friend class CCreatureHandler;
 };
 
 
