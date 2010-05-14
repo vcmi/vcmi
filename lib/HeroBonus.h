@@ -186,7 +186,8 @@ struct DLL_EXPORT Bonus
 	{
 		NO_LIMIT = 0, 
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
-		ONLY_ALLIED_ARMY, ONLY_ENEMY_ARMY
+		ONLY_ALLIED_ARMY, ONLY_ENEMY_ARMY,
+		PLAYR_HEROES
 	};
 
 	enum ValueType
@@ -443,4 +444,5 @@ namespace Selector
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID);
 
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);
+	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
 }

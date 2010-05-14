@@ -332,10 +332,18 @@ namespace Selector
 		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::id, sourceID);
 	}
 
-	bool matchesType(const CSelector &sel, TBonusType type)
+	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type)
 	{
 		Bonus dummy;
 		dummy.type = type;
+		return sel(dummy);
+	}
+
+	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype)
+	{
+		Bonus dummy;
+		dummy.type = type;
+		dummy.subtype = subtype;
 		return sel(dummy);
 	}
 }

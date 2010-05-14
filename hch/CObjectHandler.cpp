@@ -960,23 +960,27 @@ CStackInstance CGHeroInstance::calculateNecromancy (const BattleResult &battleRe
 	const ui8 necromancyLevel = getSecSkillLevel(12);
 
 	// Hero knows necromancy.
-	if (necromancyLevel > 0) {
+	if (necromancyLevel > 0) 
+	{
 		double necromancySkill = necromancyLevel*0.1
 			+ valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 12)/100.0;
+		amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
-
-		// Get lost enemy hit points convertible to units.
-		for (std::map<ui32,si32>::const_iterator it = casualties.begin(); it != casualties.end(); it++)
-			raisedUnits += VLC->creh->creatures[it->first]->valOfBonuses(Bonus::STACK_HEALTH) * it->second;
-		raisedUnits *= necromancySkill;
 
 		// Figure out what to raise and how many.
 		const ui32 creatureTypes[] = {56, 58, 60, 64}; // IDs for Skeletons, Walking Dead, Wights and Liches respectively.
 		const bool improvedNecromancy = hasBonusOfType(Bonus::IMPROVED_NECROMANCY);
-		CCreature *raisedUnitType = VLC->creh->creatures[creatureTypes[improvedNecromancy ? necromancyLevel : 0]];
+		const CCreature *raisedUnitType = VLC->creh->creatures[creatureTypes[improvedNecromancy ? necromancyLevel : 0]];
+		const ui32 raisedUnitHP = raisedUnitType->valOfBonuses(Bonus::STACK_HEALTH);
 
-		raisedUnits /= raisedUnitType->valOfBonuses(Bonus::STACK_HEALTH);
+		//calculate creatures raised from each defeated stack
+		for (std::map<ui32,si32>::const_iterator it = casualties.begin(); it != casualties.end(); it++)
+		{
+			// Get lost enemy hit points convertible to units.
+			const ui32 raisedHP = VLC->creh->creatures[it->first]->valOfBonuses(Bonus::STACK_HEALTH) * it->second * necromancySkill;
+			raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, it->second * necromancySkill); //limit to % of HP and % of original stack count
+		}
 
 		// Make room for new units.
 		int slot = getSlotFor(raisedUnitType->idNumber);
@@ -1144,6 +1148,19 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 		//luck skill
 		if(int luckSkill = getSecSkillLevel(9)) 
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::SECONDARY_SKILL, luckSkill, 9, VLC->generaltexth->arraytxt[73+luckSkill]));
+
+		//guardian spirit
+		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+			if(t->subID ==1 && vstd::contains(t->builtBuildings,26)) //rampart with grail
+				out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[1][26].first + " +2"));
+	}
+
+	if(Selector::matchesType(selector, Bonus::SEA_MOVEMENT))
+	{
+		//lighthouses
+		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+			if(t->subID == 0 && vstd::contains(t->builtBuildings,17)) //castle
+				out.push_back(Bonus(Bonus::PERMANENT, Bonus::SEA_MOVEMENT, Bonus::TOWN_STRUCTURE, +500, 17, VLC->generaltexth->buildings[0][17].first + " +500"));
 	}
 
 	if(Selector::matchesType(selector, Bonus::MORALE))
@@ -1151,6 +1168,25 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 		//leadership
 		if(int moraleSkill = getSecSkillLevel(6)) 
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::SECONDARY_SKILL, moraleSkill, 6, VLC->generaltexth->arraytxt[104+moraleSkill]));
+
+		//colossus
+		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+			if(t->subID == 0 && vstd::contains(t->builtBuildings,26)) //castle
+				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[0][26].first + " +2"));
+	}
+
+	if(Selector::matchesTypeSubtype(selector, Bonus::SECONDARY_SKILL_PREMY, 12)) //necromancy
+	{
+		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+		{
+			if(t->subID == 4) //necropolis
+			{
+				if(vstd::contains(t->builtBuildings,21)) //necromancy amplifier
+					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +10, 21, VLC->generaltexth->buildings[4][21].first + " +10%", 12));
+				if(vstd::contains(t->builtBuildings,26)) //grail - Soul prison
+					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +20, 26, VLC->generaltexth->buildings[4][26].first + " +20%", 12));
+			}
+		}
 	}
 }
 

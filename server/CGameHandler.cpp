@@ -2482,7 +2482,8 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		vistiCastleObjects (t, t->visitingHero);
 	if(t->garrisonHero)
 		vistiCastleObjects (t, t->garrisonHero);
-	
+
+	checkLossVictory(t->tempOwner);
 	return true;
 }
 bool CGameHandler::razeStructure (si32 tid, si32 bid)

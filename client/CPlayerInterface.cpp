@@ -832,10 +832,8 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
-	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
-		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
-
+	
+	stopMovement();
 	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
@@ -852,6 +850,8 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+	stopMovement();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
 }
@@ -860,7 +860,8 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
+	
+	stopMovement();
 	CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if(!selection && cancel) //simple yes/no dialog
@@ -1941,4 +1942,10 @@ void CPlayerInterface::battleNewRoundFirst( int round )
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->newRoundFirst(round);
+}
+
+void CPlayerInterface::stopMovement()
+{
+	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
+		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
 }

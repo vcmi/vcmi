@@ -3061,10 +3061,10 @@ int CGameState::victoryCheck( ui8 player ) const
 			break;
 
 		case buildGrail:
-			for(size_t i = 0; i < map->towns.size(); i++)
-				if(map->towns[i]->pos == map->victoryCondition.pos
-					&& map->towns[i]->tempOwner == player 
-					&& vstd::contains(map->towns[i]->builtBuildings, 26))
+			BOOST_FOREACH(const CGTownInstance *t, map->towns)
+				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
+					&& t->tempOwner == player 
+					&& vstd::contains(t->builtBuildings, 26))
 					return 1;
 			break;
 
@@ -3758,6 +3758,10 @@ PlayerState::PlayerState()
 void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
 	//TODO: global effects
+}
+
+void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+{
 }
 
 InfoAboutHero::InfoAboutHero()

@@ -128,7 +128,10 @@ public:
 	ui8 daysWithoutCastle;
 
 	PlayerState();
-	virtual void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+
+	//override
+	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
