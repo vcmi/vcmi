@@ -1,3 +1,39 @@
+0.8 -> 0.81 (Jun?)
+GENERAL:
+* It's possible to start campaign
+* Support for build grail victory condition
+
+ADVENTURE MAP:
+* Creatures now guard surrounding tiles
+* New adventura map spells supported:
+- Summon Boat
+- Scuttle Boat 
+- Dimension Door
+
+BATTLES:
+* A number of new creature abilities supported
+* First Aid Tent is functional
+* Support for distance/wall/melee penalties & no * penalty abilities
+* Reworked damage calculation to fit OH3 formula better
+* Luck support
+* Teleportation spell
+
+HERO:
+* First Aid secondary skill
+* Improved formula for necromancy to match better OH3
+
+TOWNS:
+* Sending resources to other players by marketplace
+* Support for new town structures:
+- Lighthouse
+- Colossus
+- Guardian Spirit
+- Necromancy Amplifier
+- Soul Prison
+
+OBJECTS:
+
+
 0.75 -> 0.8 (Mar 01 2010)
 GENERAL:
 * Victory and loss conditions are supported. It's now possible to win or lose the game.
