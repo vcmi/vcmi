@@ -1961,7 +1961,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		} 
 		else //no objs 
 		{
-			if(accessible)
+			if(accessible && pnode->accessible != CGPathNode::FLYABLE)
 			{
 				if (guardingCreature) {
 					CGI->curh->changeGraphic(0, 5 + turns*6);

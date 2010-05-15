@@ -573,15 +573,16 @@ si32 CGHeroInstance::manaLimit() const
 
 bool CGHeroInstance::canWalkOnSea() const
 {
-	//TODO: write it - it should check if hero is flying, or something similar
-	return false;
+	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
 }
+
 int CGHeroInstance::getPrimSkillLevel(int id) const
 {
 	int ret = valOfBonuses(Bonus::PRIMARY_SKILL, id);
 	amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	return ret;
 }
+
 ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)

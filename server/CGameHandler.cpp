@@ -1591,7 +1591,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	}
 
 	TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
-	int cost = gs->getMovementCost(h,h->getPosition(false),CGHeroInstance::convertPosition(dst,false),h->movement);
+	int cost = gs->getMovementCost(h, h->getPosition(false), CGHeroInstance::convertPosition(dst,false),h->movement);
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -1605,7 +1605,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	//it's a rock or blocked and not visitable tile 
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable)) 
+	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) )) 
 			&& complain("Cannot move hero, destination tile is blocked!") 
 		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() != 1 ||  (t.visitableObjects.front()->ID != 8 && t.visitableObjects.front()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land)
 			&& complain("Cannot move hero, destination tile is on water!")
@@ -1647,7 +1647,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//checks for standard movement
 	if(!instant)
 	{
-		if( distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighbouring!")
+		if( distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighboring!")
 			|| h->movement < cost  &&  h->movement < 100  &&  complain("Not enough move points!")) 
 		{
 			sendAndApply(&tmh);
@@ -4455,12 +4455,30 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			sendAndApply(&tmh);
 		}
 		break;
+	case FLY: //Fly 
+		{
+			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
+
+			GiveBonus gb;
+			gb.id = h->id;
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::CASTED_SPELL, 0, Spells::FLY, subtype);
+			sendAndApply(&gb);
+		}
+		break;
+	case WATER_WALK: //Water Walk 
+		{
+			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
+
+			GiveBonus gb;
+			gb.id = h->id;
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::CASTED_SPELL, 0, Spells::FLY, subtype);
+			sendAndApply(&gb);
+		}
+		break;
 	case VISIONS: //Visions 
 	case VIEW_EARTH: //View Earth 
 	case DISGUISE: //Disguise 
 	case VIEW_AIR: //View Air 
-	case FLY: //Fly 
-	case WATER_WALK: //Water Walk 
 	case TOWN_PORTAL: //Town Portal 
 	default:
 		COMPLAIN_RET("This spell is not implemented yet!");

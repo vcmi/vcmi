@@ -969,6 +969,11 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if(bonus.type == Bonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	updateInfo(hero);
+	if (bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING && !gain)
+	{
+		//recalculate paths because hero has lost bonus influencing pathfinding
+		cb->recalculatePaths();
+	}
 }
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )

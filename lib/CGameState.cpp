@@ -1771,8 +1771,8 @@ void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<
 
 		const TerrainTile &hlpt = map->getTile(hlp);
 
-		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=8) ) 
-			&& hlpt.tertype!=9) 
+		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=TerrainTile::water) ) 
+			&& hlpt.tertype != TerrainTile::rock) 
 		{
 			vec.push_back(hlp);
 		}
@@ -1789,6 +1789,23 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 
 	//get basic cost
 	int ret = h->getTileCost(d,s);
+
+	if(d.blocked)
+	{
+		bool freeFlying = h->getBonusesCount(Selector::typeSybtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
+
+		if(!freeFlying)
+		{
+			ret *= 1.4f; //40% penalty for movement over blocked tile
+		}
+	}
+	else if (d.tertype == TerrainTile::water)
+	{
+		if (!h->boat && h->getBonusesCount(Selector::typeSybtype(Bonus::WATER_WALKING, 1)) > 0)
+		{
+			ret *= 1.4f; //40% penalty for water walking
+		}
+	}
 
 	if(src.x != dest.x  &&  src.y != dest.y) //it's diagonal move
 	{
@@ -2104,6 +2121,9 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 
 	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
 
+	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	bool waterWalk = hero->hasBonusOfType(Bonus::WATER_WALKING);
+
 	//graph initialization
 	CGPathNode ***graph = out.nodes;
 	for(size_t i=0; i < out.sizes.x; ++i)
@@ -2115,7 +2135,11 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				const TerrainTile *tinfo = &map->terrain[i][j][k];
 				CGPathNode &node = graph[i][j][k];
 
-				node.accessible = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
+				node.accessible = (tinfo->blocked ? CGPathNode::FLYABLE : CGPathNode::ACCESSIBLE);
+				if(!flying && node.accessible == CGPathNode::FLYABLE)
+				{
+					node.accessible = CGPathNode::BLOCKED;
+				}
 				node.turns = 0xff;
 				node.moveRemains = 0;
 				node.coord.x = i;
@@ -2124,9 +2148,20 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				node.land = tinfo->tertype != TerrainTile::water;
 				node.theNodeBefore = NULL;
 
+				if((onLand || indeterminate(onLand)) && !node.land)//it's sea and we cannot walk on sea
+				{
+					if (waterWalk || flying)
+					{
+						node.accessible = CGPathNode::FLYABLE;
+					}
+					else
+					{
+						node.accessible = CGPathNode::BLOCKED;
+					}
+				}
+
 				if ( tinfo->tertype == TerrainTile::rock//it's rock
-					|| onLand  && !node.land		//it's sea and we cannot walk on sea
-					|| !onLand && node.land		//it's land and we cannot walk on land
+					|| !onLand && node.land		//it's land and we cannot walk on land (complementary condition is handled above)
 					|| !FoW[i][j][k]					//tile is covered by the FoW
 				)
 				{
@@ -2185,7 +2220,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 	std::queue<CGPathNode*> mq;
 	mq.push(&graph[src.x][src.y][src.z]);
 
-	ui32 curDist = 0xffffffff; //total cost of path - init with max possible val
+	//ui32 curDist = 0xffffffff; //total cost of path - init with max possible val
 
 	std::vector<int3> neighbours;
 	neighbours.reserve(8);
@@ -2248,7 +2283,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				const bool guardedNeighbor = guardingCreaturePosition(dp.coord) != int3(-1, -1, -1);
 				const bool positionIsGuard = guardingCreaturePosition(cp->coord) == cp->coord;
 
-				if (dp.accessible == CGPathNode::ACCESSIBLE
+				if (dp.accessible == CGPathNode::ACCESSIBLE || dp.accessible == CGPathNode::FLYABLE
 					|| (guardedNeighbor && !positionIsGuard)) // Can step into a hostile tile once.
 				{
 					mq.push(&dp);
@@ -3651,13 +3686,33 @@ bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 {
 	out.nodes.clear();
 	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
-	if(!curnode->theNodeBefore)
+	if(!curnode->theNodeBefore || curnode->accessible == CGPathNode::FLYABLE)
 		return false;
 
+
+	//we'll transform number of turns to conform the rule that hero cannot stop on blocked tile
+	bool transition01 = false;
 	while(curnode)
 	{
-		out.nodes.push_back(*curnode);
+		CGPathNode cpn = *curnode;
+		if(transition01)
+		{
+			if (curnode->accessible == CGPathNode::ACCESSIBLE)
+			{
+				transition01 = false;
+			}
+			else if (curnode->accessible == CGPathNode::FLYABLE)
+			{
+				cpn.turns = 1;
+			}
+		}
+		if(curnode->turns == 1 && curnode->theNodeBefore->turns == 0)
+		{
+			transition01 = true;
+		}
 		curnode = curnode->theNodeBefore;
+
+		out.nodes.push_back(cpn);
 	}
 	return true;
 }

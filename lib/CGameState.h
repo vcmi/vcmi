@@ -306,7 +306,8 @@ struct CGPathNode
 		ACCESSIBLE=1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighbouring tile but not passable
-		BLOCKED //tile can't be entered nor visited
+		BLOCKED, //tile can't be entered nor visited
+		FLYABLE //if hero flies, he can pass this tile
 	};
 
 	ui8 accessible; //the enum above

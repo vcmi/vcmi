@@ -479,7 +479,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(70,Bonus::LAND_MOVEMENT,+300);//Equestrian's Gloves
 	giveArtBonus(71,Bonus::SEA_MOVEMENT,+1000);//Necklace of Ocean Guidance
-	giveArtBonus(72,Bonus::FLYING_MOVEMENT,+1);//Angel Wings
+	giveArtBonus(72,Bonus::FLYING_MOVEMENT, 0, 1);//Angel Wings
 
 	giveArtBonus(73,Bonus::MANA_REGENERATION,+1);//Charm of Mana
 	giveArtBonus(74,Bonus::MANA_REGENERATION,+2);//Talisman of Mana
@@ -503,7 +503,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(88,Bonus::WATER_SPELLS,0);//Tome of Water Magic
 	giveArtBonus(89,Bonus::EARTH_SPELLS,0);//Tome of Earth Magic
 
-	giveArtBonus(90,Bonus::WATER_WALKING,0);//Boots of Levitation
+	giveArtBonus(90,Bonus::WATER_WALKING, 0, 1);//Boots of Levitation
 	giveArtBonus(91,Bonus::NO_SHOTING_PENALTY,0);//Golden Bow
 	giveArtBonus(92,Bonus::SPELL_IMMUNITY,35);//Sphere of Permanence
 	giveArtBonus(93,Bonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
