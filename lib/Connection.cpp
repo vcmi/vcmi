@@ -124,15 +124,12 @@ connerror1:
 	//delete socket;	
 	throw std::string("Can't establish connection :(");
 }
-CConnection::CConnection(
-			boost::asio::basic_stream_socket<boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 
-			std::string Name )
-			:socket(Socket),io_service(&Socket->io_service()), name(Name)//, send(this), rec(this)
+CConnection::CConnection(TSocket * Socket, std::string Name )
+	:socket(Socket),io_service(&Socket->io_service()), name(Name)//, send(this), rec(this)
 {
 	init();
 }
-CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp,boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, 
-						 boost::asio::io_service *Io_service, std::string Name)
+CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name)
 : name(Name)//, send(this), rec(this)
 {
 	boost::system::error_code error = asio::error::host_not_found;

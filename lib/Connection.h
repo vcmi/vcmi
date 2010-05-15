@@ -223,12 +223,7 @@ struct SerializationLevel
 	static const int value = SerializationLevel::type::value;
 };
 
-class DLL_EXPORT CSerializerBase
-{
-public:
-};
-
-class DLL_EXPORT CSaverBase : public virtual CSerializerBase
+class DLL_EXPORT CSaverBase
 {
 };
 
@@ -434,20 +429,20 @@ public:
 
 
 
-class DLL_EXPORT CLoaderBase : public virtual CSerializerBase
+class DLL_EXPORT CLoaderBase
 {};
 
 class CBasicPointerLoader
 {
 public:
-	virtual void loadPtr(CLoaderBase &ar, void *data) const =0; //data is pointer to the ACTUAL POINTER
+	virtual void loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 	virtual ~CBasicPointerLoader(){}
 };
 
 template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader
 {
 public:
-	void loadPtr(CLoaderBase &ar, void *data) const //data is pointer to the ACTUAL POINTER
+	void loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
 	{
 		Serializer &s = static_cast<Serializer&>(ar);
 		T *&ptr = *static_cast<T**>(data);
@@ -455,7 +450,7 @@ public:
 		//create new object under pointer
 		typedef typename boost::remove_pointer<T>::type npT;
 		ptr = new npT;
-
+		s.ptrAllocated(ptr, pid);
 		//T is most derived known type, it's time to call actual serialize
 		ptr->serialize(s,version);
 	}
@@ -569,11 +564,10 @@ public:
 		}
 
 		ui32 pid = -1; //pointer id (or maybe rather pointee id) 
-		std::map<ui32, void*>::iterator i = loadedPointers.end();
 		if(smartPointerSerialization)
 		{
 			*this >> pid; //get the id
-			i = loadedPointers.find(pid); //lookup
+			std::map<ui32, void*>::iterator i = loadedPointers.find(pid); //lookup
 
 			if(i != loadedPointers.end())
 			{
@@ -586,27 +580,32 @@ public:
 		//get type id
 		ui16 tid;
 		*this >> tid;
-		This()->loadPointerHlp(tid, data);
-
-		if(smartPointerSerialization && i == loadedPointers.end())
-			loadedPointers[pid] = (void*)data; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
+		This()->loadPointerHlp(tid, data, pid);
 	}
 
 	//that part of ptr deserialization was extracted to allow customization of its behavior in derived classes
 	template <typename T>
-	void loadPointerHlp( ui16 tid, T & data )
+	void loadPointerHlp( ui16 tid, T & data, ui32 pid )
 	{
 		if(!tid)
 		{
 			typedef typename boost::remove_pointer<T>::type npT;
 			typedef typename boost::remove_const<npT>::type ncpT;
 			data = new ncpT;
+			ptrAllocated(data, pid);
 			*this >> *data;
 		}
 		else
 		{
-			loaders[tid]->loadPtr(*this,&data);
+			loaders[tid]->loadPtr(*this,&data, pid);
 		}
+	}
+
+	template <typename T>
+	void ptrAllocated(const T *ptr, ui32 pid)
+	{
+		if(smartPointerSerialization && pid != -1)
+			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
 	template <typename T>
@@ -706,6 +705,9 @@ public:
 	void openNextFile(const std::string &fname, bool requireLatest);
 };
 
+typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
+typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
+
 class DLL_EXPORT CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
@@ -715,21 +717,17 @@ class DLL_EXPORT CConnection
 	void init();
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
-	boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * socket;
+	TSocket * socket;
 	bool logging;
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if ednianess is different we'll have to revert recieved multi-byte vars
     boost::asio::io_service *io_service;
 	std::string name; //who uses this connection
 
-	CConnection
-		(std::string host, std::string port, std::string Name);
-	CConnection
-		(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, 
-		boost::asio::io_service *Io_service, std::string Name);
-	CConnection
-		(boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 
-		std::string Name); //use immediately after accepting connection into socket
+	CConnection(std::string host, std::string port, std::string Name);
+	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
+	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
+
 	int write(const void * data, unsigned size);
 	int read(void * data, unsigned size);
 	void close();
@@ -766,7 +764,7 @@ public:
 	{
 		static void invoke(CConnection &s, T &data, ui16 tid)
 		{
-			s.CISer<CConnection>::loadPointerHlp(tid, data);
+			s.CISer<CConnection>::loadPointerHlp(tid, data, -1);
 		}
 	};
 	template<typename T>
@@ -799,7 +797,7 @@ public:
 
 	//"overload" loading pointer procedure
 	template <typename T>
-	void loadPointerHlp( ui16 tid, T & data )
+	void loadPointerHlp( ui16 tid, T & data, ui32 pid )
 	{
 		typedef typename 
 			//if
