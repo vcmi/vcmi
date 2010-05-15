@@ -179,7 +179,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 	const CGObjectInstance *o = cl->getObj(id);
 	CGI->mh->hideObject(o);
 
-	int3 pos = o->pos - o->getVisitableOffset();
+	int3 pos = o->visitablePos();
 	//notify interfaces about removal
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
@@ -294,8 +294,16 @@ void RazeStructures::applyCl (CClient *cl)
 void SetAvailableCreatures::applyCl( CClient *cl )
 {
 	const CGDwelling *dw = static_cast<const CGDwelling*>(cl->getObj(tid));
-	if(vstd::contains(cl->playerint,dw->tempOwner))
-		cl->playerint[dw->tempOwner]->availableCreaturesChanged(dw);
+
+	//inform order about the change
+
+	int p = -1;
+	if(dw->ID == 106) //War Machines Factory is not flaggable, it's "owned" by visitor
+		p = cl->getTile(dw->visitablePos())->visitableObjects.back()->tempOwner;
+	else
+		p = dw->tempOwner;
+
+	INTERFACE_CALL_IF_PRESENT(p, availableCreaturesChanged, dw);
 }
 
 void SetHeroesInTown::applyCl( CClient *cl )
@@ -690,7 +698,7 @@ void OpenWindow::applyCl(CClient *cl)
 		{
 			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(id1));
 			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl->getObj(id2));
-			INTERFACE_CALL_IF_PRESENT(dw->tempOwner,showRecruitmentDialog, dw, dst, window == RECRUITMENT_FIRST ? 0 : -1);
+			INTERFACE_CALL_IF_PRESENT(dst->tempOwner,showRecruitmentDialog, dw, dst, window == RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
 	case SHIPYARD_WINDOW:

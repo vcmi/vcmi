@@ -75,7 +75,6 @@ bool BuildStructure::applyGh( CGameHandler *gh )
 
 bool RecruitCreatures::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT_OWNS(tid);
 	return gh->recruitCreatures(tid,crid,amount);
 }
 

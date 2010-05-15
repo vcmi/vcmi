@@ -956,7 +956,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		if(fs)
 			fs->draw(castleInt,false);
 	}
-	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20)) //external dwelling
+	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20  ||  town->ID == 106)) //external dwelling
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt());
 		if(crw)

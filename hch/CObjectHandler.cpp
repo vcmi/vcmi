@@ -455,6 +455,11 @@ bool CGObjectInstance::hasShadowAt( int x, int y ) const
 	return false;
 }
 
+int3 CGObjectInstance::visitablePos() const
+{
+	return pos - getVisitableOffset();
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->Slots().size())
@@ -1237,6 +1242,13 @@ void CGDwelling::initObj()
 		hoverName = VLC->generaltexth->creGens4[subID];
 		break;
 
+	case 106: //War Machine Factory
+		creatures.resize(3);
+		creatures[0].second.push_back(146); //Ballista 
+		creatures[1].second.push_back(147); //First Aid Tent
+		creatures[2].second.push_back(148); //Ammo Cart
+		break;
+
 	default:
 		assert(0);
 		break;
@@ -1277,7 +1289,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	if(h->tempOwner != tempOwner)
+	if(h->tempOwner != tempOwner  &&  ID != 106)
 	{
 		cb->setOwner(id, h->tempOwner);
 	}
@@ -1285,10 +1297,17 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	BlockingDialog bd;
 	bd.player = h->tempOwner;
 	bd.flags = BlockingDialog::ALLOW_CANCEL;
-	bd.text.addTxt(MetaString::ADVOB_TXT, ID == 17 ? 35 : 36); //{%s} Would you like to recruit %s?
-	bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
-	for(size_t i = 0; i < creatures.size(); i++)
-		bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+	if(ID == 17 || ID == 20)
+	{
+		bd.text.addTxt(MetaString::ADVOB_TXT, ID == 17 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
+		bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
+		for(size_t i = 0; i < creatures.size(); i++)
+			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+	}
+	else if(ID == 106)
+		bd.text.addTxt(MetaString::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
+	else
+		throw std::string("Illegal dwelling!");
 
 	cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::heroAcceptsCreatures, this, h, _1));
 }
@@ -1298,8 +1317,8 @@ void CGDwelling::newTurn() const
 	if(cb->getDate(1) != 1) //not first day of week
 		return;
 
-	//town growths are handled separately
-	if(ID == TOWNI_TYPE)
+	//town growths and War Machines Factories are handled separately
+	if(ID == TOWNI_TYPE  ||  ID == 106)
 		return;
 
 	bool change = false;
@@ -1377,6 +1396,18 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	}
 	else
 	{
+		if(ID == 106) //pick available War Machines
+		{
+			//there is 1 war machine available to recruit if hero doesn't have one
+			SetAvailableCreatures sac;
+			sac.tid = id;
+			sac.creatures = creatures;
+			sac.creatures[0].first = !h->getArt(13); //ballista
+			sac.creatures[1].first = !h->getArt(15); //first aid tent
+			sac.creatures[2].first = !h->getArt(14); //ammo cart
+			cb->sendAndApply(&sac);
+		}
+
 		OpenWindow ow;
 		ow.id1 = id;
 		ow.id2 = h->id;

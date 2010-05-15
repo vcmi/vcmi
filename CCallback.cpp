@@ -59,7 +59,8 @@ void CCallback::selectionMade(int selection, int asker)
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)
 {
-	if(player!=obj->tempOwner) return;
+	if(player!=obj->tempOwner  &&  obj->ID != 106)
+		return;
 
 	RecruitCreatures pack(obj->id,ID,amount);
 	sendRequest(&pack);

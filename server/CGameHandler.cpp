@@ -1693,7 +1693,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			}
 			getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 
-			int3 guardPos = gs->guardingCreaturePosition(int3(hmpos.x, hmpos.y, hmpos.z));
+			int3 guardPos = gs->guardingCreaturePosition(hmpos);
 			
 			tmh.result = TryMoveHero::SUCCESS;
 			tmh.attackedFrom = guardPos;
@@ -1701,7 +1701,8 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
 			// If a creature guards the tile, block visit.
-			if (gs->map->isInTheMap(guardPos)) {
+			if (gs->map->isInTheMap(guardPos)) 
+			{
 				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
 				objectVisited(guardTile.visitableObjects.back(), h);
 
@@ -1989,7 +1990,7 @@ void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstan
 
 void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb, bool creatureBank)
 {
-	startBattleI(army1, army2, army2->pos - army2->getVisitableOffset(), cb, creatureBank);
+	startBattleI(army1, army2, army2->visitablePos(), cb, creatureBank);
 }
 
 //void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army
@@ -2511,11 +2512,17 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 {
 	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid]);
 	const CArmedInstance *dst = NULL;
+	const CCreature *c = VLC->creh->creatures[crid];
+	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
+
+	//TODO: test for owning
 
 	if(dw->ID == TOWNI_TYPE)
 		dst = dw;
 	else if(dw->ID == 17  ||  dw->ID == 20) //advmap dwelling
 		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
+	else if(dw->ID == 106)
+		dst = dynamic_cast<const CGHeroInstance *>(getTile(dw->visitablePos())->visitableObjects.back());
 
 	assert(dw && dst);
 
@@ -2540,12 +2547,12 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 			break;
 		}
 	}
-	int slot = dst-> getSlotFor(crid);
+	int slot = dst->getSlotFor(crid); 
 
 	if(!found && complain("Cannot recruit: no such creatures!")
-		|| cram > VLC->creh->creatures[crid]->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!")
-		|| cram<=0	&& complain("Cannot recruit: cram <= 0!")
-		|| slot<0  && complain("Cannot recruit: no available slot!")) 
+		|| cram  >  VLC->creh->creatures[crid]->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!")
+		|| cram<=0  &&  complain("Cannot recruit: cram <= 0!")
+		|| slot<0  && !warMachine && complain("Cannot recruit: no available slot!")) 
 	{
 		return false;
 	}
@@ -2554,20 +2561,41 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 	SetResources sr;
 	sr.player = dst->tempOwner;
 	for(int i=0;i<RESOURCE_QUANTITY;i++)
-		sr.res[i]  =  gs->getPlayer(dst->tempOwner)->resources[i] - (VLC->creh->creatures[crid]->cost[i] * cram);
+		sr.res[i]  =  gs->getPlayer(dst->tempOwner)->resources[i] - (c->cost[i] * cram);
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
 	sac.creatures = dw->creatures;
 	sac.creatures[level].first -= cram;
 
-	SetGarrisons sg;
-	sg.garrs[dst->id] = dst->getArmy();
-	sg.garrs[dst->id] .addToSlot(slot, crid, cram);
-
-	sendAndApply(&sr); 
+	sendAndApply(&sr);
 	sendAndApply(&sac);
-	sendAndApply(&sg);
+	
+	if(warMachine)
+	{
+		switch(crid)
+		{
+		case 146:
+			giveHeroArtifact(4, dst->id, 13);
+			break;
+		case 147:
+			giveHeroArtifact(6, dst->id, 15);
+			break;
+		case 148:
+			giveHeroArtifact(5, dst->id, 14);
+			break;
+		default:
+			complain("This war machine cannot be recruited!");
+			return false;
+		}
+	}
+	else
+	{
+		SetGarrisons sg;
+		sg.garrs[dst->id] = dst->getArmy();
+		sg.garrs[dst->id] .addToSlot(slot, crid, cram);
+		sendAndApply(&sg);
+	}
 	return true;
 }
 

@@ -1657,6 +1657,11 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				i+=3;
 				break;
 			}
+		case 106: //War Machine Factory
+			{
+				nobj = new CGDwelling();
+				break;
+			}
 		case 220://mine (?)
 			{
 				nobj = new CGObjectInstance();

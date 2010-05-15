@@ -1858,6 +1858,10 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
 			slider->setAmount(newAmount);
+
+			slider->block(!newAmount);
+			max->block(!newAmount);
+
 			if(slider->value > newAmount)
 				slider->moveTo(newAmount);
 			else
