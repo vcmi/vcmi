@@ -161,6 +161,7 @@ public:
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd);
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
 	void showPuzzleMap();
+	void advmapSpellCast(const CGHeroInstance * caster, int spellID); //called when a hero casts a spell
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj);
@@ -187,7 +188,7 @@ public:
 	void battleNewRoundFirst(int round); //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(int ID, int dest, int distance, bool end);
-	void battleSpellCast(SpellCast *sc);
+	void battleSpellCast(BattleSpellCast *sc);
 	void battleStacksEffectsSet(SetStackEffect & sse); //called when a specific effect is set to stacks
 	void battleStacksAttacked(std::vector<BattleStackAttacked> & bsa);
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
@@ -218,7 +219,7 @@ public:
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
 	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
-	void eraseCurrentPathOf( const CGHeroInstance * ho );
+	void eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath = true );
 	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);

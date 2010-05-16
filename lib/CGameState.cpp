@@ -1771,6 +1771,12 @@ void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<
 
 		const TerrainTile &hlpt = map->getTile(hlp);
 
+		//we cannot visit things from blocked tiles
+		if(srct.blocked && hlpt.visitable)
+		{
+			continue;
+		}
+
 		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=TerrainTile::water) ) 
 			&& hlpt.tertype != TerrainTile::rock) 
 		{

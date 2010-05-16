@@ -530,7 +530,7 @@ void StartAction::applyFirstCl( CClient *cl )
 		cl->playerint[GS(cl)->curB->side2]->actionStarted(&ba);
 }
 
-void SpellCast::applyCl( CClient *cl )
+void BattleSpellCast::applyCl( CClient *cl )
 {
 	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
 		cl->playerint[GS(cl)->curB->side1]->battleSpellCast(this);
@@ -548,7 +548,7 @@ void SpellCast::applyCl( CClient *cl )
 
 void SetStackEffect::applyCl( CClient *cl )
 {
-	SpellCast sc;
+	BattleSpellCast sc;
 	sc.id = effect.id;
 	sc.side = 3; //doesn't matter
 	sc.skill = effect.level;
@@ -679,6 +679,12 @@ void ShowInInfobox::applyCl(CClient *cl)
 	{
 		static_cast<CPlayerInterface*>(cl->playerint[player])->showComp(sc);
 	}
+}
+
+
+void AdvmapSpellCast::applyCl(CClient *cl)
+{
+	cl->playerint[caster->getOwner()]->advmapSpellCast(caster, spellID);
 }
 
 void OpenWindow::applyCl(CClient *cl)

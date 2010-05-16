@@ -1316,7 +1316,7 @@ void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
 /**
  *
  */
-void CGeniusAI::battleSpellCast(SpellCast *sc)
+void CGeniusAI::battleSpellCast(BattleSpellCast *sc)
 {
 	DbgBox("\t\t\tCGeniusAI::battleSpellCast");
 }

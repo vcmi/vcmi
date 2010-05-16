@@ -808,7 +808,7 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 		st->state -= WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
 }
 
-DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
+DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 {
 	assert(gs->curB);
 	CGHeroInstance *h = (side) ? gs->curB->heroes[1] : gs->curB->heroes[0];

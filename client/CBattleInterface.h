@@ -25,7 +25,7 @@ class AdventureMapButton;
 class CHighlightableButton;
 class CHighlightableButtonsGroup;
 struct BattleResult;
-struct SpellCast;
+struct BattleSpellCast;
 template <typename T> struct CondSh;
 struct SetStackEffect;;
 struct BattleAction;
@@ -505,7 +505,7 @@ public:
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
 	void displayBattleFinished(); //displays battle result
-	void spellCast(SpellCast * sc); //called when a hero casts a spell
+	void spellCast(BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender

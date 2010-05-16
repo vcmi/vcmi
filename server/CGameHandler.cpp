@@ -3620,7 +3620,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 {
 	CSpell *spell = &VLC->spellh->spells[spellID];
 
-	SpellCast sc;
+	BattleSpellCast sc;
 	sc.side = casterSide;
 	sc.id = spellID;
 	sc.skill = spellLvl;
@@ -4323,6 +4323,11 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 		COMPLAIN_RET("Hero doesn't have enough spell points to cast this spell!");
 	if(s->combatSpell)
 		COMPLAIN_RET("This function can be used only for adventure map spells!");
+
+	AdvmapSpellCast asc;
+	asc.caster = h;
+	asc.spellID = spellID;
+	sendAndApply(&asc);
 
 	using namespace Spells;
 	switch(spellID)

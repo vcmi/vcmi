@@ -111,7 +111,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<BattleAttack>();
 	s.template registerType<StartAction>();
 	s.template registerType<EndAction>();
-	s.template registerType<SpellCast>();
+	s.template registerType<BattleSpellCast>();
 	s.template registerType<SetStackEffect>();
 	s.template registerType<StacksInjured>();
 	s.template registerType<BattleResultsApplied>();
@@ -120,6 +120,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<CatapultAttack>();
 	s.template registerType<BattleStacksRemoved>();
 	s.template registerType<ShowInInfobox>();
+	s.template registerType<AdvmapSpellCast>();
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
 

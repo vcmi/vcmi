@@ -1041,9 +1041,9 @@ struct EndAction : public CPackForClient//3008
 	}
 };
 
-struct SpellCast : public CPackForClient//3009
+struct BattleSpellCast : public CPackForClient//3009
 {
-	SpellCast(){type = 3009;};
+	BattleSpellCast(){type = 3009;};
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
@@ -1161,6 +1161,19 @@ struct ShowInInfobox : public CPackForClient //107
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & c & text;
+	}
+};
+
+struct AdvmapSpellCast : public CPackForClient //108
+{
+	AdvmapSpellCast(){type = 108;}
+	const CGHeroInstance * caster;
+	si32 spellID;
+
+	void applyCl(CClient *cl);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & caster & spellID;
 	}
 };
 

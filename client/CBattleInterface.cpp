@@ -2621,7 +2621,7 @@ void CBattleInterface::displayBattleFinished()
 	GH.pushInt(resWindow);
 }
 
-void CBattleInterface::spellCast(SpellCast * sc)
+void CBattleInterface::spellCast(BattleSpellCast * sc)
 {
 	CSpell &spell = CGI->spellh->spells[sc->id];
 

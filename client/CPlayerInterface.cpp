@@ -717,7 +717,7 @@ void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackMoved(ID, dest, end, distance);
 }
-void CPlayerInterface::battleSpellCast(SpellCast *sc)
+void CPlayerInterface::battleSpellCast(BattleSpellCast *sc)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -973,6 +973,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
 		cb->recalculatePaths();
+		eraseCurrentPathOf(hero, false);
 	}
 }
 
@@ -1011,7 +1012,9 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		enum TerrainTile::EterrainType newTerrain;
 		int sh = -1;
 
-		for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
+		const TerrainTile * curTile = cb->getTileInfo(CGHeroInstance::convertPosition(h->pos, false));
+
+		for(int i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
 			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
 			if(path.nodes[i-1].turns)
@@ -1042,6 +1045,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
 
 			cb->moveHero(h,endpos);
+			curTile = cb->getTileInfo(endpos);
 
 			eventsM.unlock();
 			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
@@ -1791,6 +1795,15 @@ void CPlayerInterface::showPuzzleMap()
 	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
 }
 
+void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+{
+	if (spellID == Spells::FLY || spellID == Spells::WATER_WALK)
+	{
+		cb->recalculatePaths();
+		eraseCurrentPathOf(caster, false);
+	}
+}
+
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;
@@ -1851,9 +1864,16 @@ SystemOptions::SystemOptions()
 	showQueue = true;
 }
 
-void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho )
+void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )
 {
-	assert(vstd::contains(paths, ho));
+	if(checkForExistanceOfPath)
+	{
+		assert(vstd::contains(paths, ho));
+	}
+	else if (!vstd::contains(paths, ho))
+	{
+		return;
+	}
 	assert(ho == adventureInt->selection);
 
 	paths.erase(ho);
