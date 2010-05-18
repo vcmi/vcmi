@@ -2655,7 +2655,8 @@ static void initItems( std::vector<CMarketplaceWindow::CTradeableItem*> &i, std:
 		i[j]->pos = p[j] + i[j]->pos;
 	}
 }
-CMarketplaceWindow::CMarketplaceWindow(int Mode)
+CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, EMarketMode Mode)
+	:market(Market)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	type = BLOCK_ADV_HOTKEYS;
@@ -2808,7 +2809,7 @@ void CMarketplaceWindow::setMax()
 
 void CMarketplaceWindow::makeDeal()
 {
-	LOCPLINT->cb->trade(mode,hLeft->id,hRight->id,slider->value*r1);
+	LOCPLINT->cb->trade(market->o, mode, hLeft->id, hRight->id, slider->value*r1);
 	slider->moveTo(0);
 	hLeft = NULL;
 	selectionChanged(true);
@@ -2824,7 +2825,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	{
 		if(mode == RESOURCE_RESOURCE)
 		{
-			LOCPLINT->cb->getMarketOffer(hLeft->id,hRight->id,r1,r2,0);
+			market->getOffer(hLeft->id, hRight->id, r1, r2, mode);
 			slider->setAmount(LOCPLINT->cb->getResourceAmount(hLeft->id) / r1);
 		}
 		else if(mode == RESOURCE_PLAYER)
@@ -2850,8 +2851,9 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		int h1, h2;
 		for(int i=0;i<right.size();i++)
 		{
+			market->getOffer(hLeft->id, i, h1, h2, RESOURCE_RESOURCE);
+
 			std::ostringstream oss;
-			LOCPLINT->cb->getMarketOffer(hLeft->id,i,h1,h2,0);
 			oss << h2;
 			if(h1!=1)
 				oss << "/" << h1;
@@ -2880,10 +2882,11 @@ void CMarketplaceWindow::getPositionsFor(std::vector<Rect> &poss, bool Right, ET
 	}
 }
 
-void CMarketplaceWindow::setMode(int Mode)
+void CMarketplaceWindow::setMode(EMarketMode Mode)
 {
+	CMarketplaceWindow *nwindow = new CMarketplaceWindow(market, Mode);
 	GH.popIntTotally(this);
-	GH.pushInt(new CMarketplaceWindow(Mode));
+	GH.pushInt(nwindow);
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)

@@ -144,7 +144,23 @@ void CObjectHandler::loadObjects()
 			cregens[dw]=cr;
 		}
 		tlog5 << "\t\tDone loading objects!\n";
+
+		ifs.close();
+		ifs.clear();
+
+		int k = -1;
+		ifs.open(DATA_DIR "/config/resources.txt");
+		ifs >> k;
+		int pom;
+		for(int i=0;i<k;i++)
+		{
+			ifs >> pom;
+			resVals.push_back(pom);
+		}
+		tlog5 << "\t\tDone loading resource prices!\n";
 	}
+
+
 
 	std::ifstream istr;
 	istr.open(DATA_DIR "/config/bankconfig.txt", std::ios_base::binary);
@@ -1567,7 +1583,7 @@ bool CGTownInstance::hasCapitol() const
 	return (builtBuildings.find(13))!=builtBuildings.end();
 }
 CGTownInstance::CGTownInstance()
-	:IShipyard(this)
+	:IShipyard(this), IMarket(this)
 {
 	builded=-1;
 	destroyed=-1;
@@ -1799,6 +1815,39 @@ void CGTownInstance::getBonuses(BonusList &out, const CSelector &selector, const
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 22, VLC->generaltexth->buildings[0][22].first + " +2"));
 		else if(vstd::contains(builtBuildings,5)) //tavern is built
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +1, 5, VLC->generaltexth->buildings[0][5].first + " +1"));
+	}
+}
+
+int CGTownInstance::getMarketEfficiency() const
+{
+	if(!vstd::contains(builtBuildings, 14)) 
+		return 0;
+
+	const PlayerState *p = cb->getPlayerState(tempOwner);
+	assert(p);
+
+	int marketCount = 0;
+	BOOST_FOREACH(const CGTownInstance *t, p->towns)
+		if(vstd::contains(t->builtBuildings, 14))
+			marketCount++;
+
+	return marketCount;
+}
+
+bool CGTownInstance::allowsTrade(EMarketMode mode) const
+{
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+	case RESOURCE_PLAYER:
+		return vstd::contains(builtBuildings, 14); // 	marketplace
+	case ARTIFACT_RESOURCE:
+		return (subID == 2 || subID == 5 || subID == 8) && vstd::contains(builtBuildings, 17);//artifact merchants
+	case CREATURE_RESOURCE:
+		return subID == 6 && vstd::contains(builtBuildings, 21); //Freelancer's guild
+	default:
+		assert(0);
+		return false;
 	}
 }
 
@@ -5859,4 +5908,153 @@ void CArmedInstance::getBonuses(BonusList &out, const CSelector &selector, const
 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
 		}
 	}
+}
+
+bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
+{
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+		{
+			float effectiveness = std::min(((float)getMarketEfficiency()+1.0f) / 20.0f, 0.5f);
+
+			float r = VLC->objh->resVals[id1], //value of given resource
+				g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
+
+			if(r>g) //if given resource is more expensive than wanted
+			{
+				val2 = ceil(r / g);
+				val1 = 1;
+			}
+			else //if wanted resource is more expensive
+			{
+				val1 = (g / r) + 0.5f;
+				val2 = 1;
+			}
+		}
+
+		break;
+	default:
+		assert(0);
+		return false;
+	}
+
+	return true;
+}
+
+bool IMarket::allowsTrade(EMarketMode mode) const
+{
+	return false;
+}
+
+int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+{
+	if(mode == RESOURCE_RESOURCE || ARTIFACT_RESOURCE || CREATURE_RESOURCE)
+		return -1;
+	else 
+		return 1;
+}
+
+std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
+{
+	std::vector<int> ret;
+	if(mode == RESOURCE_RESOURCE || ARTIFACT_RESOURCE || CREATURE_RESOURCE)
+		for (int i = 0; i < 7; i++)
+			ret.push_back(i);
+
+	return ret;
+}
+
+const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
+{
+	switch(obj->ID)
+	{
+	case TOWNI_TYPE:
+		return static_cast<const CGTownInstance*>(obj);
+	case 99: //Trading Post
+	case 221: //Trading Post (snow)
+		return static_cast<const CGMarket*>(obj);
+	default:
+		tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
+		return NULL;
+	}
+}
+
+IMarket::IMarket(const CGObjectInstance *O)
+	:o(O)
+{
+
+}
+
+std::vector<EMarketMode> IMarket::availableModes() const
+{
+	std::vector<EMarketMode> ret;
+	for (int i = 0; i < MARTKET_AFTER_LAST_PLACEHOLDER; i++)
+		if(allowsTrade((EMarketMode)i))
+			ret.push_back((EMarketMode)i);
+
+	return ret;
+}
+
+void CGMarket::onHeroVisit(const CGHeroInstance * h) const
+{
+	OpenWindow ow;
+	ow.id1 = id;
+	ow.id2 = h->id;
+	ow.window = OpenWindow::MARKET_WINDOW;
+	cb->sendAndApply(&ow);
+}
+
+void CGMarket::initObj()
+{
+
+}
+
+void CGMarket::newTurn() const
+{
+
+}
+
+int CGMarket::getMarketEfficiency() const
+{
+	return 5;
+}
+
+bool CGMarket::allowsTrade(EMarketMode mode) const
+{
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+	case RESOURCE_PLAYER:
+		switch(ID)
+		{
+		case 99: //Trading Post
+		case 221: //Trading Post (snow)
+			return true;
+		default:
+			return false;
+		}
+	}
+}
+
+int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+{
+	return -1;
+}
+
+std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
+{
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+	case RESOURCE_PLAYER:
+		return IMarket::availableItemsIds(mode);
+	default:
+		return std::vector<int>();
+	}
+}
+
+CGMarket::CGMarket()
+	:IMarket(this)
+{
 }

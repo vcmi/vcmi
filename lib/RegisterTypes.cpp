@@ -62,6 +62,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGDenOfthieves>();
 	s.template registerType<CGObelisk>();
 	s.template registerType<CGLighthouse>();
+	s.template registerType<CGMarket>();
 }
 
 template<typename Serializer> DLL_EXPORT 

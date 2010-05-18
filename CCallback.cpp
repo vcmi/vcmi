@@ -732,25 +732,6 @@ std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
 	return ret;
 }
 
-void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=0*/ ) const
-{
-	if(mode) return; //TODO - support
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	//if(gs->resVals[t1] >= gs->resVals[t2])
-	float r = gs->resVals[t1], //price of given resource
-		g = gs->resVals[t2] / gs->getMarketEfficiency(player,mode); //price of wanted resource
-	if(r>g) //if given resource is more expensive than wanted
-	{
-		rec = ceil(r / g);
-		give = 1;
-	}
-	else //if wanted resource is more expensive
-	{
-		give = ceil(g / r);
-		rec = 1;
-	}
-}
-
 std::vector < const CGObjectInstance * > CCallback::getFlaggableObjects(int3 pos) const
 {
 	if(!isVisible(pos))
@@ -772,11 +753,15 @@ int3 CCallback::getMapSize() const
 	return CGI->mh->sizes;
 }
 
-void CCallback::trade( int mode, int id1, int id2, int val1 )
+void CCallback::trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero/* = NULL*/)
 {
-	int p1, p2;
-	getMarketOffer(id1,id2,p1,p2,mode);
-	TradeOnMarketplace pack(player,mode,id1,id2,val1);
+	TradeOnMarketplace pack;
+	pack.market = market;
+	pack.hero = hero;
+	pack.mode = mode;
+	pack.r1 = id1;
+	pack.r2 = id2;
+	pack.val = val1;
 	sendRequest(&pack);
 }
 

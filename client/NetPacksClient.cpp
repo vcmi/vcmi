@@ -720,6 +720,15 @@ void OpenWindow::applyCl(CClient *cl)
 			GH.pushInt( new CThievesGuildWindow(obj) );
 		}
 		break;
+	case MARKET_WINDOW:
+		{
+			//displays Thieves' Guild window (when hero enters Den of Thieves)
+			const CGObjectInstance *obj = cl->getObj(id1);
+			const CGHeroInstance *hero = cl->getHero(id2);
+			const IMarket *market = IMarket::castFrom(obj);
+			INTERFACE_CALL_IF_PRESENT(cl->getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, showMarketWindow, market, hero);
+		}
+		break;
 	case PUZZLE_MAP:
 		{
 			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);

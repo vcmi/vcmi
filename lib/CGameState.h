@@ -378,7 +378,6 @@ public:
 	Mapa * map;
 	std::map<ui8, PlayerState> players; //ID <-> player state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
-	std::vector<ui32> resVals; //default values of resources in gold
 	CBonusSystemNode globalEffects;
 
 	struct DLL_EXPORT HeroesPool
@@ -417,7 +416,7 @@ public:
 	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
-	float getMarketEfficiency(int player, int mode=0);
+	//float getMarketEfficiency(int player, int mode=0);
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
@@ -441,7 +440,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool & globalEffects & campaign;
+		h & scenarioOps & seed & currentPlayer & day & map & players & hpool & globalEffects & campaign;
 		if(!h.saving)
 		{
 			loadTownDInfos();

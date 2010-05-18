@@ -2968,23 +2968,37 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	return false;
 }
 
-bool CGameHandler::tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 )
+
+bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2)
 {
-	val = std::min(si32(val),gs->getPlayer(player)->resources[id1]);
-	double yield = (double)gs->resVals[id1] * val * gs->getMarketEfficiency(player);
-	yield /= gs->resVals[id2];
+	int r1 = gs->getPlayer(player)->resources[id1], 
+		r2 = gs->getPlayer(player)->resources[id2];
+
+	amin(val, r1); //can't trade more resources than have
+
+	int b1, b2; //base quantities for trade
+	market->getOffer(id1, id2, b1, b2, RESOURCE_RESOURCE);
+	int units = val / b1; //how many base quantities we trade
+
+	if(val%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
+	{
+		//TODO: complain?
+		assert(0);
+	}
+
 	SetResource sr;
 	sr.player = player;
 	sr.resid = id1;
-	sr.val = gs->getPlayer(player)->resources[id1] - val;
+	sr.val = r1 - b1 * units;
 	sendAndApply(&sr);
 
 	sr.resid = id2;
-	sr.val = gs->getPlayer(player)->resources[id2] + (int)yield;
+	sr.val = r2 + b2 * units;
 	sendAndApply(&sr);
 
 	return true;
 }
+
 
 bool CGameHandler::sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2)
 {

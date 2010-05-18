@@ -36,6 +36,8 @@ struct SetResource;
 struct SetResources;
 struct NewStructures;
 class CGHeroInstance;
+class IMarket;
+
 extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
 extern boost::mutex gsm;
 
@@ -163,7 +165,7 @@ public:
 	bool hireHero( ui32 tid, ui8 hid );
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
-	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
+	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
 	bool sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2);
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, si32 aid );

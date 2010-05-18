@@ -65,6 +65,7 @@ class CResDataBar;
 struct SPuzzleInfo;
 class CGGarrison;
 class CStackInstance;
+class IMarket;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -536,14 +537,15 @@ public:
 		CTradeableItem(int Type, int ID, bool Left);
 	};
 
+	const IMarket *market;
 	CPicture *bg; //background
 	std::vector<CTradeableItem*> left, right;
 	std::vector<std::string> rSubs; //offer caption
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 
 	EType ltype, rtype;
-	int mode,//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-		r1, r2; //suggested amounts of traded resources
+	EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
+	int r1, r2; //suggested amounts of traded resources
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 
@@ -552,9 +554,9 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(int Mode = RESOURCE_RESOURCE); //c-tor
+	CMarketplaceWindow(const IMarket *Market, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
-	void setMode(int Mode); //mode setter
+	void setMode(EMarketMode Mode); //mode setter
 
 	void getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const;
 };

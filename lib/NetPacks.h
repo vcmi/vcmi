@@ -615,7 +615,7 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP, MARKET_WINDOW};
 	ui8 window;
 	ui32 id1, id2;
 
@@ -673,7 +673,7 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	enum {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE=8, LUCK, BUILDING, HERO, FLAG};
+	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE=8, LUCK, BUILDING, HERO, FLAG};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
@@ -1361,18 +1361,17 @@ struct BuyArtifact : public CPackForServer
 struct TradeOnMarketplace : public CPackForServer
 {
 	TradeOnMarketplace(){};
-	TradeOnMarketplace(ui8 Player, ui8 Mode, /*si32 ID, */ui32 R1, ui32 R2, ui32 Val)
-		:player(Player),mode(Mode),/*id(ID),*/r1(R1),r2(R2),val(Val){};
-	ui8 player;
+
+	const CGObjectInstance *market;
+	const CGHeroInstance *hero; //needed when trading artifacts / creatures
 	ui8 mode;//0 - res<->res; 
-	//si32 id; //object id
 	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res
 	ui32 val; //units of sold resource
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & mode & /*id & */r1 & r2 & val;
+		h & market & hero & mode & r1 & r2 & val;
 	}
 };
 

@@ -2,6 +2,7 @@
 GENERAL:
 * It's possible to start campaign
 * Support for build grail victory condition
+* New artifacts supported: Angel's Wings and Boots of levitation
 
 ADVENTURE MAP:
 * Creatures now guard surrounding tiles
@@ -9,6 +10,8 @@ ADVENTURE MAP:
 - Summon Boat
 - Scuttle Boat 
 - Dimension Door
+- Fly
+- Water walk
 
 BATTLES:
 * A number of new creature abilities supported
@@ -33,6 +36,7 @@ TOWNS:
 
 OBJECTS:
 New object supported:
+- Trading Post
 - War Machine Factory
 
 0.75 -> 0.8 (Mar 01 2010)

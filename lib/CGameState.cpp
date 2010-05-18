@@ -1347,14 +1347,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			(*i).second.resources[x] = startres[x];
 	}
 
-	tis.open(DATA_DIR "/config/resources.txt");
-	tis >> k;
-	int pom;
-	for(int i=0;i<k;i++)
-	{
-		tis >> pom;
-		resVals.push_back(pom);
-	}
 
 	/*************************HEROES************************************************/
 	std::set<int> hids;
@@ -1732,18 +1724,6 @@ UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 	if(ret.newID.size())
 		ret.oldID = base->idNumber;
 
-	return ret;
-}
-
-float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
-{
-	boost::shared_lock<boost::shared_mutex> lock(*mx);
-	if(mode) return -1; //todo - support other modes
-	int mcount = 0;
-	for(unsigned int i=0;i<getPlayer(player)->towns.size();i++)
-		if(vstd::contains(getPlayer(player)->towns[i]->builtBuildings,14))
-			mcount++;
-	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
 	return ret;
 }
 

@@ -84,7 +84,7 @@ public:
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 	
-	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 	
 	virtual void selectionMade(int selection, int asker) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
@@ -146,7 +146,6 @@ public:
 	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) =0;
-	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const = 0;
 
 	virtual UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos)const =0;
@@ -226,7 +225,7 @@ public:
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
 	void buyArtifact(const CGHeroInstance *hero, int aid);
-	void trade(int mode, int id1, int id2, int val1);
+	void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
 	void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero);
@@ -265,7 +264,6 @@ public:
 
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
-	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited

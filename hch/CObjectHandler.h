@@ -141,18 +141,22 @@ public:
 	static IShipyard *castFrom(CGObjectInstance *obj);
 };
 
- /*class DLL_EXPORT IMarket
- {
- public:
- 	const CGObjectInstance *o;
- 
- 	IMarket(const CGObjectInstance *O);
- 	virtual bool allowsMode(EMarketMode mode);
- 	virtual float getEfficiency(EMarketMode mode);
- 
- 	static const IMarket *castFrom(const CGObjectInstance *obj);
- 	static IMarket castFrom(CGObjectInstance *obj);
- };*/
+class DLL_EXPORT IMarket
+{
+	virtual int getMarketEfficiency() const =0;
+public:
+	const CGObjectInstance *o;
+
+	IMarket(const CGObjectInstance *O);
+	virtual bool allowsTrade(EMarketMode mode) const;
+	virtual int availableUnits(EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
+	virtual std::vector<int> availableItemsIds(EMarketMode mode) const;
+
+	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units 
+	std::vector<EMarketMode> availableModes() const;
+
+	static const IMarket *castFrom(const CGObjectInstance *obj);
+};
 
 class DLL_EXPORT CGObjectInstance : public IObjectInterface
 {
@@ -446,6 +450,7 @@ public:
 		h & visitors;
 	}
 };
+
 class DLL_EXPORT CTownBonus : public CGTownBuilding
 {
 ///used for one-time bonusing structures
@@ -463,7 +468,8 @@ public:
 		h & visitors;
 	}
 };
-class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard
+
+class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
 public:
 	CTown * town;
@@ -505,6 +511,8 @@ public:
 	int getSightRadious() const; //returns sight distance
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	int getMarketEfficiency() const; //=market count
+	bool allowsTrade(EMarketMode mode) const;
 	void setPropertyDer(ui8 what, ui32 val);
 	void newTurn() const;
 
@@ -1121,7 +1129,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CPlayersVisited&>(*this);;
+		h & static_cast<CPlayersVisited&>(*this);
 	}
 };
 
@@ -1134,9 +1142,28 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);;
+		h & static_cast<CGObjectInstance&>(*this);
 	}
 	void giveBonusTo( ui8 player ) const;
+};
+
+class DLL_EXPORT CGMarket : public CGObjectInstance, public IMarket
+{
+public:
+	CGMarket();
+	void onHeroVisit(const CGHeroInstance * h) const; //open trading window
+	void initObj();
+	void newTurn() const; //reset artifacts for black market every month
+	
+	int getMarketEfficiency() const;
+	bool allowsTrade(EMarketMode mode) const;
+	int availableUnits(EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
+	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
 };
 
 struct BankConfig
@@ -1166,12 +1193,13 @@ public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
 	std::map <ui32, std::vector <BankConfig*> > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
+	std::vector<ui32> resVals; //default values of resources in gold
 
 	void loadObjects();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & cregens & banksInfo & creBanksNames;
+		h & cregens & banksInfo & creBanksNames & resVals;
 	}
 };
 

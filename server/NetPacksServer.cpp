@@ -1,5 +1,8 @@
 #include "../lib/NetPacks.h"
 #include "CGameHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../lib/IGameCallback.h"
+#include "../lib/map.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
@@ -7,6 +10,7 @@
 							tlog1<<"Player is not allowed to perform this action!\n";	\
 							return false;}
 #define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
+#define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN }
 
 /*
  * NetPacksServer.cpp, part of VCMI engine
@@ -111,11 +115,30 @@ bool BuyArtifact::applyGh( CGameHandler *gh )
 
 bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 {
-	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
+	//market must be owned or visited
+	const IMarket *m = IMarket::castFrom(market);
+
+	if(!m)
+		COMPLAIN_AND_RETURN("market is not-a-market! :/");
+
+	ui8 player = market->tempOwner;
+
+	if(player >= PLAYER_LIMIT)
+		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
+
+	if(player >= PLAYER_LIMIT)
+		COMPLAIN_AND_RETURN("No player can use this market!");
+
+	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
+		COMPLAIN_AND_RETURN("This hero can't use this marketplace!");
+
+	if(gh->getPlayerAt(c) != player) 
+		ERROR_AND_RETURN;
+
 	switch(mode)
 	{
 	case RESOURCE_RESOURCE:
-		return gh->tradeResources(val,player,r1,r2);
+		return gh->tradeResources(m, val, player, r1, r2);
 	case RESOURCE_PLAYER:
 		return gh->sendResources(val, player, r1, r2);
 	default:

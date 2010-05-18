@@ -28,6 +28,7 @@
 #include "CPreGame.h"
 #include "../lib/VCMI_Lib.h"
 #include "../hch/CSpellHandler.h"
+#include <boost/foreach.hpp>
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -1521,15 +1522,19 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			//act on key down if marketplace windows is not already opened
 			if(key.state != SDL_PRESSED  || GH.topInt()->type & BLOCK_ADV_HOTKEYS) return;
 
-			//check if we have aby marketplace
-			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo();
-			size_t i = 0;
-			for(; i<towns.size(); i++)
-				if(vstd::contains(towns[i]->builtBuildings, 14))
+			//check if we have any marketplace
+			const CGTownInstance *townWithMarket = NULL;
+			BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
+			{
+				if(vstd::contains(t->builtBuildings, 14))
+				{
+					townWithMarket = t;
 					break;
+				}
+			}
 
-			if(i != towns.size()) //if any town has marketplace, open window
-				GH.pushInt(new CMarketplaceWindow); 
+			if(townWithMarket) //if any town has marketplace, open window
+				GH.pushInt(new CMarketplaceWindow(townWithMarket)); 
 			else //if not - complain
 				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<SComponent*>(), soundBase::sound_todo);
 			return;

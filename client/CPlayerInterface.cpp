@@ -1974,3 +1974,9 @@ void CPlayerInterface::stopMovement()
 	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
 		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
 }
+
+void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
+{
+	CMarketplaceWindow *cmw = new CMarketplaceWindow(market, market->availableModes().front());
+	GH.pushInt(cmw);
+}
