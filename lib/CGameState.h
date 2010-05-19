@@ -208,7 +208,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
-	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
+	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
 	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found

@@ -2776,10 +2776,10 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 	return attackedCres;
 }
 
-int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster)
+int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower )
 {
 	if(!caster) //TODO: something better
-		return 5;
+		return std::max(5, usedSpellPower);
 	switch(spell->id)
 	{
 	case 56: //frenzy

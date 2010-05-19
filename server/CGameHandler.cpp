@@ -349,6 +349,26 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 		}
 	}
 
+	//spells opening battle
+	if (hero1 && hero1->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+	{
+		BonusList bl;
+		hero1->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
+		BOOST_FOREACH (Bonus b, bl)
+		{
+			handleSpellCasting(b.subtype, 3, -1, 0, hero1->tempOwner, NULL, hero2, b.val);
+		}
+	}
+	if (hero2 && hero2->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+	{
+		BonusList bl;
+		hero2->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
+		BOOST_FOREACH (Bonus b, bl)
+		{
+			handleSpellCasting(b.subtype, 3, -1, 1, hero2->tempOwner, NULL, hero1, b.val);
+		}
+	}
+
 	//main loop
 	while(!battleResult.get()) //till the end of the battle ;]
 	{
@@ -3736,7 +3756,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			}
 			sse.effect.id = spellID;
 			sse.effect.level = spellLvl;
-			sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(spell, caster);
+			sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(spell, caster, usedSpellPower);
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
 			break;

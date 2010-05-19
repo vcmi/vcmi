@@ -2625,8 +2625,8 @@ void CBattleInterface::spellCast(BattleSpellCast * sc)
 {
 	CSpell &spell = CGI->spellh->spells[sc->id];
 
-
-	if(sc->castedByHero && sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned)
+	//spell opening battle is cast when no stack is active
+	if(sc->castedByHero && ( activeStack == -1 || sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned) )
 		bSpell->block(true);
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
