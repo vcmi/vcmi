@@ -663,7 +663,16 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	bsa->stackAttacked = def->ID;
 	bsa->attackerID = att->ID;
 	int attackerLuck = att->LuckVal();
-	if(attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
+	const CGHeroInstance * h0 = gs->curB->heroes[0],
+		* h1 = gs->curB->heroes[1];
+	bool noLuck = false;
+	if(h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK) ||
+		h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK))
+	{
+		noLuck = true;
+	}
+
+	if(!noLuck && attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
 	{
 		bsa->damageAmount *= 2;
 		bat.flags |= 4;
