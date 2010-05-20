@@ -3586,13 +3586,33 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
-		if ((*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-			|| ( (*it)->hasBonusOfType(Bonus::LEVEL_SPELL_IMMUNITY) &&
-				(*it)->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY) >= sp->level) ) //some creature abilities have level 0
+		if (caster->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES) ||
+			hero2->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
-			ret.push_back((*it)->ID);
-			continue;
+			//Here we need "source different than" selector
+// 			BonusList bl = (*it)->getBonuses(Selector::sourceNotType(Bonus::CREATURE_ABILITY));
+// 
+// 			BOOST_FOREACH(Bonus bb, bl)
+// 			{
+// 				if(bb.type == Bonus::SPELL_IMMUNITY && bb.subtype == sp->id || //100% sure spell immunity
+// 					bb.type == Bonus::LEVEL_SPELL_IMMUNITY && bb.val >= sp->level) //some creature abilities have level 0
+// 				{
+// 					ret.push_back((*it)->ID);
+// 					continue;
+// 				}
+// 			}
 		}
+		else
+		{
+			if ((*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+				|| ( (*it)->hasBonusOfType(Bonus::LEVEL_SPELL_IMMUNITY) &&
+				(*it)->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY) >= sp->level) ) //some creature abilities have level 0
+			{
+				ret.push_back((*it)->ID);
+				continue;
+			}
+		}
+		
 
 		//non-negative spells on friendly stacks should always succeed, unless immune
 		if(sp->positiveness >= 0 && (*it)->owner == caster->tempOwner)

@@ -770,8 +770,25 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
 		attacker->counterAttacks--;
+	
 	if(shot())
-		attacker->shots--;
+	{
+		//don't remove ammo if we have a working ammo cart
+		bool hasAmmoCart = false;
+		BOOST_FOREACH(const CStack * st, gs->curB->stacks)
+		{
+			if(st->owner == attacker->owner && st->type->idNumber == 148 && st->alive())
+			{
+				hasAmmoCart = true;
+				break;
+			}
+		}
+
+		if (!hasAmmoCart)
+		{
+			attacker->shots--;
+		}
+	}
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
 		stackAttacked.applyGs(gs);
 
