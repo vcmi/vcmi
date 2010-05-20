@@ -2614,7 +2614,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	};
 
 	//wall / distance penalty + advanced air shield
-	if (shooting && (
+	if (shooting && !NBonus::hasOfType(attackerHero, Bonus::NO_SHOTING_PENALTY) && (
 		hasDistancePenalty(attacker->ID, defender->position) || hasWallPenalty(attacker->ID, defender->position) ||
 		HLP::hasAdvancedAirShield(defender) )
 		)
