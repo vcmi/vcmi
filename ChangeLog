@@ -2,7 +2,15 @@
 GENERAL:
 * It's possible to start campaign
 * Support for build grail victory condition
-* New artifacts supported: Angel's Wings and Boots of levitation
+* New artifacts supported:
+- Angel's Wings
+- Boots of levitation
+- Orb of Vulnerability
+- Ammo cart
+- Golden Bow
+- Hourglass of Evil Hour
+- Bow of Sharpshooter
+- Armor of the Damned
 
 ADVENTURE MAP:
 * Creatures now guard surrounding tiles

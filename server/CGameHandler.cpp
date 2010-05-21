@@ -3598,18 +3598,22 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 		if (caster->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES) ||
 			hero2->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
-			//Here we need "source different than" selector
-// 			BonusList bl = (*it)->getBonuses(Selector::sourceNotType(Bonus::CREATURE_ABILITY));
-// 
-// 			BOOST_FOREACH(Bonus bb, bl)
-// 			{
-// 				if(bb.type == Bonus::SPELL_IMMUNITY && bb.subtype == sp->id || //100% sure spell immunity
-// 					bb.type == Bonus::LEVEL_SPELL_IMMUNITY && bb.val >= sp->level) //some creature abilities have level 0
-// 				{
-// 					ret.push_back((*it)->ID);
-// 					continue;
-// 				}
-// 			}
+			//don't use natural immunities when one of heroes has this bonus
+ 			BonusList bl = (*it)->getBonuses(Selector::type(Bonus::SPELL_IMMUNITY)),
+				b2 = (*it)->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+
+			bl.insert(bl.end(), b2.begin(), b2.end());
+ 
+ 			BOOST_FOREACH(Bonus bb, bl)
+ 			{
+ 				if( (bb.type == Bonus::SPELL_IMMUNITY && bb.subtype == sp->id || //100% sure spell immunity
+ 					bb.type == Bonus::LEVEL_SPELL_IMMUNITY && bb.val >= sp->level) //some creature abilities have level 0
+					&& bb.source != Bonus::CREATURE_ABILITY)
+ 				{
+ 					ret.push_back((*it)->ID);
+ 					continue;
+ 				}
+ 			}
 		}
 		else
 		{
