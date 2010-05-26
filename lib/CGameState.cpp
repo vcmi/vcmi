@@ -1752,7 +1752,7 @@ void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<
 		const TerrainTile &hlpt = map->getTile(hlp);
 
 		//we cannot visit things from blocked tiles
-		if(srct.blocked && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
+		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
 		{
 			continue;
 		}
@@ -2289,27 +2289,40 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
  */
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
+	const int3 originalPos = pos;
 	// Give monster at position priority.
 	if (!map->isInTheMap(pos))
 		return int3(-1, -1, -1);
 	const TerrainTile &posTile = map->terrain[pos.x][pos.y][pos.z];
-	if (posTile.visitable) {
-		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects) {
-			if (obj->ID == 54) { // Monster
-				return pos;
+	if (posTile.visitable) 
+	{
+		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects) 
+		{
+			if(obj->blockVisit)
+			{
+				if (obj->ID == 54) // Monster
+					return pos;
+				else
+					return int3(-1, -1, -1); //blockvis objects are not guarded by neighbouring creatures
 			}
 		}
 	}
 
 	// See if there are any monsters adjacent.
 	pos -= int3(1, 1, 0); // Start with top left.
-	for (int dx = 0; dx < 3; dx++) {
-		for (int dy = 0; dy < 3; dy++) {
-			if (map->isInTheMap(pos)) {
+	for (int dx = 0; dx < 3; dx++) 
+	{
+		for (int dy = 0; dy < 3; dy++) 
+		{
+			if (map->isInTheMap(pos)) 
+			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-				if (tile.visitable) {
-					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects) {
-						if (obj->ID == 54) { // Monster
+				if (tile.visitable) 
+				{
+					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects) 
+					{
+						if (obj->ID == 54  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						{ 
 							return pos;
 						}
 					}

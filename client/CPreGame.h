@@ -230,7 +230,7 @@ public:
 	const CMapInfo *ourGame; 
 
 
-	CSavingScreen();
+	CSavingScreen(bool hotseat = false);
 	~CSavingScreen();
 };
 

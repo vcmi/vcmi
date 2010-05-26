@@ -118,6 +118,7 @@ public:
 	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
 	int autosaveCount;
 	static const int SAVES_COUNT = 5;
+	static int howManyPeople;
 
 	SystemOptions sysOpts;
 

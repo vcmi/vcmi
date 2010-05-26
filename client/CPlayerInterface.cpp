@@ -77,7 +77,7 @@ CBattleInterface * CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero; //used during hero movement
 
-int howManyPeople = 0;
+int CPlayerInterface::howManyPeople = 0;
 
 
 struct OCM_HLP_CGIN

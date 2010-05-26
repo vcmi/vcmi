@@ -1483,7 +1483,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_s: 
 		if(isActive())
-			GH.pushInt(new CSavingScreen);
+			GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
 		return;
 	case SDLK_d: 
 		{

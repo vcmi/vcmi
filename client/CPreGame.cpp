@@ -2502,8 +2502,8 @@ void CBonusSelection::CRegion::show( SDL_Surface * to )
 	}
 }
 
-CSavingScreen::CSavingScreen()
- : CSelectionScreen(CMenuScreen::saveGame)
+CSavingScreen::CSavingScreen(bool hotseat)
+ : CSelectionScreen(CMenuScreen::saveGame, hotseat)
 {
 	ourGame = mapInfoFromGame();
 	sInfo = *LOCPLINT->cb->getStartInfo();

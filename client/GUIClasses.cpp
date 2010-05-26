@@ -3134,7 +3134,7 @@ void CSystemOptionsWindow::bmainmenuf()
 void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
-	GH.pushInt(new CSavingScreen);
+	GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
 	/*using namespace boost::posix_time;
 	std::ostringstream fnameStream;
 	fnameStream << second_clock::local_time();

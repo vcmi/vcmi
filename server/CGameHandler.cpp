@@ -623,6 +623,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 	}
 
+	if(visitObjectAfterVictory && winnerHero == hero1)
+	{
+		visitObjectOnTile(*getTile(winnerHero->getPosition()), winnerHero);
+	}
+	visitObjectAfterVictory = false; 
+
 	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
 	delete battleResult.data;
 }
@@ -870,6 +876,7 @@ CGameHandler::CGameHandler(void)
 	gs = NULL;
 	IObjectInterface::cb = this;
 	applier = new CGHApplier;
+	visitObjectAfterVictory = false; 
 }
 
 CGameHandler::~CGameHandler(void)
@@ -1734,23 +1741,17 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			{
 				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
 				objectVisited(guardTile.visitableObjects.back(), h);
-
-				// TODO: Need to wait until battle is over.
-
-				// Do not visit anything else if hero died.
-				if (h->getArmy().stacksCount() == 0)
-					return true;
+				visitObjectAfterVictory = true;
+// 
+// 				// TODO: Need to wait until battle is over.
+// 
+// 				// Do not visit anything else if hero died.
+// 				if (h->getArmy().stacksCount() == 0)
+// 					return true;
 			}
-
-			//call objects if they are visited
-
-			if(t.visitableObjects.size())
+			else if(t.visitableObjects.size()) //call objects if they are visited
 			{
-				//to prevent self-visiting heroes on space press
-				if(t.visitableObjects.back() != h)
-					objectVisited(t.visitableObjects.back(), h);
-				else if(t.visitableObjects.size() > 1)
-					objectVisited(*(t.visitableObjects.end()-2),h);
+				visitObjectOnTile(t, h);
 			}
 // 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 // 			{
@@ -4602,4 +4603,13 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 	sendAndApply(&sm);
 
 	return true;
+}
+
+void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
+{
+	//to prevent self-visiting heroes on space press
+	if(t.visitableObjects.back() != h)
+		objectVisited(t.visitableObjects.back(), h);
+	else if(t.visitableObjects.size() > 1)
+		objectVisited(*(t.visitableObjects.end()-2),h);
 }
