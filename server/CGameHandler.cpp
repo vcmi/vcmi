@@ -1064,7 +1064,7 @@ void CGameHandler::newTurn()
 		}
 	}
 }
-void CGameHandler::run(bool resume)
+void CGameHandler::run(bool resume, const StartInfo *si /*= NULL*/)
 {
 	using namespace boost::posix_time;
 	BOOST_FOREACH(CConnection *cc, conns)
@@ -1072,7 +1072,7 @@ void CGameHandler::run(bool resume)
 		ui8 quantity, pom;
 		//ui32 seed;
 		if(!resume)
-			(*cc) << gs->scenarioOps << gs->map->checksum << gs->seed;
+			(*cc) << si << gs->map->checksum << gs->seed; // gs->scenarioOps
 
 		(*cc) >> quantity; //how many players will be handled at that client
 		for(int i=0;i<quantity;i++)
@@ -3028,6 +3028,46 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, u
 	return true;
 }
 
+bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID)
+{
+	if(!vstd::contains(hero->Slots(), slot))
+		COMPLAIN_RET("Hero doesn't have any creature in that slot!");
+
+	const CStackInstance &s = hero->getStack(slot);
+
+	if(s.count < count  //can't sell more creatures than have
+		|| hero->Slots().size() == 1  &&  hero->needsLastStack()  &&  s.count == count) //can't sell last stack
+	{
+		COMPLAIN_RET("Not enough creatures in army!");
+	}
+
+	int b1, b2; //base quantities for trade
+ 	market->getOffer(s.type->idNumber, resourceID, b1, b2, CREATURE_RESOURCE);
+ 	int units = count / b1; //how many base quantities we trade
+ 
+ 	if(count%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
+ 	{
+ 		//TODO: complain?
+ 		assert(0);
+ 	}
+ 
+
+	SetGarrisons sg;
+	sg.garrs[hero->id] = hero->getArmy();
+	if(s.count > count)
+		sg.garrs[hero->id].setStackCount(slot, s.count - count);
+	else
+		sg.garrs[hero->id].eraseStack(slot);
+	sendAndApply(&sg);
+
+ 	SetResource sr;
+ 	sr.player = hero->tempOwner;
+ 	sr.resid = resourceID;
+ 	sr.val = getResource(hero->tempOwner, resourceID) + b2 * units;
+ 	sendAndApply(&sr);
+
+	return true;
+}
 
 bool CGameHandler::sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2)
 {

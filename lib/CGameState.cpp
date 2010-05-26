@@ -1752,7 +1752,7 @@ void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<
 		const TerrainTile &hlpt = map->getTile(hlp);
 
 		//we cannot visit things from blocked tiles
-		if(srct.blocked && hlpt.visitable)
+		if(srct.blocked && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
 		{
 			continue;
 		}
@@ -2216,6 +2216,8 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 		CGPathNode *cp = mq.front();
 		mq.pop();
 
+		const int3 guardPosition = guardingCreaturePosition(cp->coord);
+		const bool guardedPosition = (guardPosition != int3(-1, -1, -1) && cp->coord != src);
 		const TerrainTile &ct = map->getTile(cp->coord);
 		int movement = cp->moveRemains, turn = cp->turns;
 		if(!movement)
@@ -2252,7 +2254,6 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				remains = moveAtNextTile - cost;
 			}
 
-			const bool guardedPosition = guardingCreaturePosition(cp->coord) != int3(-1, -1, -1);
 			const bool neighborIsGuard = guardingCreaturePosition(cp->coord) == dp.coord;
 
 			if((dp.turns==0xff		//we haven't been here before
@@ -2267,10 +2268,10 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				dp.theNodeBefore = cp;
 
 				const bool guardedNeighbor = guardingCreaturePosition(dp.coord) != int3(-1, -1, -1);
-				const bool positionIsGuard = guardingCreaturePosition(cp->coord) == cp->coord;
+				//const bool positionIsGuard = guardingCreaturePosition(cp->coord) == cp->coord; //can this be true? hero never passes from monster tile...
 
 				if (dp.accessible == CGPathNode::ACCESSIBLE || dp.accessible == CGPathNode::FLYABLE
-					|| (guardedNeighbor && !positionIsGuard)) // Can step into a hostile tile once.
+					|| (guardedNeighbor && !guardedPosition)) // Can step into a hostile tile once.
 				{
 					mq.push(&dp);
 				}
@@ -3851,7 +3852,7 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 		//hide info about hero stacks counts using descriptives names ids
 		for(TSlots::const_iterator i = army.Slots().begin(); i != army.Slots().end(); ++i)
 		{
-			army.setStackCount(i->first, i->second.getQuantityID());
+			army.setStackCount(i->first, i->second.getQuantityID()+1);
 		}
 	}
 }

@@ -478,11 +478,15 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			wwg->garr->recreateSlots();
 			wasGarrison = true;
 		}
-		else
+		else if(CKingdomInterface *cki = dynamic_cast<CKingdomInterface*>(*i))
 		{//a cheat for Kingdom Overview window (it has CWindowWithGarrison-childrens which are not present in ListInt)
-			CKingdomInterface *cki = dynamic_cast<CKingdomInterface*>(*i);//need to create "Garrison Holder" class thingy
-			if (cki)
-				cki->updateAllGarrisons();
+		 //need to create "Garrison Holder" class thingy
+			cki->updateAllGarrisons();
+		}
+		else if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(*i))
+		{
+			if(obj == cmw->hero)
+				cmw->garrisonChanged();
 		}
 	}
 
@@ -1977,6 +1981,6 @@ void CPlayerInterface::stopMovement()
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-	CMarketplaceWindow *cmw = new CMarketplaceWindow(market, market->availableModes().front());
+	CMarketplaceWindow *cmw = new CMarketplaceWindow(market, visitor, market->availableModes().front());
 	GH.pushInt(cmw);
 }

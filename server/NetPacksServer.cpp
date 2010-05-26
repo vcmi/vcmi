@@ -141,6 +141,10 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		return gh->tradeResources(m, val, player, r1, r2);
 	case RESOURCE_PLAYER:
 		return gh->sendResources(val, player, r1, r2);
+	case CREATURE_RESOURCE:
+		if(!hero)
+			COMPLAIN_AND_RETURN("Only hero can sell creatures!");
+		return gh->sellCreatures(val, m, hero, r1, r2);
 	default:
 		gh->complain("Unknown exchange mode!");
 		ERROR_AND_RETURN;

@@ -518,26 +518,29 @@ public:
 
 class CMarketplaceWindow : public CIntObject
 {
+	bool printButtonFor(EMarketMode M) const;
 public:
 	enum EType
 	{
-		RESOURCE, PLAYER, ARTIFACT
+		RESOURCE, PLAYER, ARTIFACT, CREATURE
 	};
 	class CTradeableItem : public CIntObject
 	{
 	public:
-		int type; //0 - res, 1 - artif big, 2 - artif small, 3 - player flag
-		int id;
+		EType type;
+		int id; 
+		int serial;
 		bool left;
 		CFunctionList<void()> callback;
 
 		void show(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		SDL_Surface *getSurface();
-		CTradeableItem(int Type, int ID, bool Left);
+		CTradeableItem(EType Type, int ID, bool Left, int Serial);
 	};
 
 	const IMarket *market;
+	const CGHeroInstance *hero;
 	CPicture *bg; //background
 	std::vector<CTradeableItem*> left, right;
 	std::vector<std::string> rSubs; //offer caption
@@ -548,17 +551,20 @@ public:
 	int r1, r2; //suggested amounts of traded resources
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
+	bool readyToTrade;
 
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void setMax();
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(const IMarket *Market, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
+	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 	void setMode(EMarketMode Mode); //mode setter
 
 	void getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const;
+
+	void garrisonChanged(); //removes creatures with count 0 from the list (apparently whole stack has been sold)
 };
 
 class CSystemOptionsWindow : public CIntObject

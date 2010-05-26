@@ -192,6 +192,7 @@ void CCreatureSet::setFormation(bool tight)
 void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(vstd::contains(slots, slot));
+	assert(count > 0);
 	slots[slot].count = count;
 }
 

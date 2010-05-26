@@ -61,7 +61,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 		}
 		else
 		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*i->second.count],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count-1)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 	}
 

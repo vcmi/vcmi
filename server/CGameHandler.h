@@ -167,6 +167,7 @@ public:
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
 	bool sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2);
+	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID);
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, si32 aid );
 	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
@@ -203,7 +204,7 @@ public:
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);
 
-	void run(bool resume);
+	void run(bool resume, const StartInfo *si = NULL);
 	void newTurn();
 	void handleAfterAttackCasting( const BattleAttack & bat );
 	friend class CVCMIServer;

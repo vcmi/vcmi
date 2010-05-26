@@ -23,6 +23,7 @@
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <sstream>
+#include <boost/format.hpp>
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -557,6 +558,8 @@ void CCastleInterface::buildingClicked(int building)
 		building = town->town->hordeLvl[1] + 30;
 	}
 
+	const CBuilding *b = CGI->buildh->buildings[town->subID][building];
+
 	if(building >= 30)
 	{
 		showRecruitmentWindow(building);
@@ -635,7 +638,7 @@ void CCastleInterface::buildingClicked(int building)
 			break;
 		case 14:  //marketplace
 			{
-				CMarketplaceWindow *cmw = new CMarketplaceWindow(town);
+				CMarketplaceWindow *cmw = new CMarketplaceWindow(town, town->visitingHero);
 				GH.pushInt(cmw);
 				break;
 			}
@@ -648,13 +651,13 @@ void CCastleInterface::buildingClicked(int building)
 			{
 				switch(town->subID)
 				{
-	/*Rampart*/		case 1://Mystic Pond
+	/*Rampart*/	case 1://Mystic Pond
 					enterFountain(building);
 					break;
-	/*Tower*/		case 2://Artifact Merchant
-	/*Dungeon*/		case 5://Artifact Merchant
-	/*Conflux*/		case 8://Artifact Merchant
-					tlog4<<"Artifact Merchant not handled\n";
+	/*Tower*/	case 2://Artifact Merchant
+	/*Dungeon*/	case 5://Artifact Merchant
+	/*Conflux*/	case 8://Artifact Merchant
+					GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
 					break;
 				default:
 					defaultBuildingClicked(building);
@@ -671,13 +674,16 @@ void CCastleInterface::buildingClicked(int building)
 			{
 				switch(town->subID)
 				{
-	/*Rampart*/		case 1: //Fountain of Fortune
+	/*Rampart*/	case 1: //Fountain of Fortune
 					enterFountain(building);
 					break;
-	/*Stronghold*/		case 6: //Freelancer's Guild
-					tlog4<<"Freelancer's Guild not handled\n";
+	/*Stronghold*/case 6: //Freelancer's Guild
+					if(town->visitingHero)
+						GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, CREATURE_RESOURCE));
+					else
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 					break;
-	/*Conflux*/		case 8: //Magic University
+	/*Conflux*/	case 8: //Magic University
 					tlog4<<"Magic University not handled\n";
 					break;
 				default:

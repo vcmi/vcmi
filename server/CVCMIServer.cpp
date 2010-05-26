@@ -92,6 +92,7 @@ void CVCMIServer::newGame(CConnection *c)
 		*c << ui8(0); //OK!
 	}
 
+	StartInfo startInfoCpy = *si;
 	gh.init(si,rand());
 	c->setGS(gh.gs);
 
@@ -118,7 +119,7 @@ void CVCMIServer::newGame(CConnection *c)
 		gh.conns.insert(cc);
 	}
 
-	gh.run(false);
+	gh.run(false, &startInfoCpy);
 }
 void CVCMIServer::start()
 {

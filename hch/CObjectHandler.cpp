@@ -79,7 +79,7 @@ void IObjectInterface::preInit()
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 10)
-		players.insert(val);
+		players.insert((ui8)val);
 }
 
 bool CPlayersVisited::hasVisited( ui8 player ) const
@@ -1162,6 +1162,7 @@ void CGHeroInstance::pushPrimSkill(int which, int val)
 
 void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
+#define FOREACH_OWNER_TOWN(town) if(const PlayerState *p = cb->getPlayerState(tempOwner)) BOOST_FOREACH(const CGTownInstance *town, p->towns)
 	CArmedInstance::getBonuses(out, selector, root);
 
 	//TODO eliminate by moving secondary skills effects to bonus system
@@ -1172,7 +1173,7 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::SECONDARY_SKILL, luckSkill, 9, VLC->generaltexth->arraytxt[73+luckSkill]));
 
 		//guardian spirit
-		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+		FOREACH_OWNER_TOWN(t)
 			if(t->subID ==1 && vstd::contains(t->builtBuildings,26)) //rampart with grail
 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[1][26].first + " +2"));
 	}
@@ -1180,7 +1181,7 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 	if(Selector::matchesType(selector, Bonus::SEA_MOVEMENT))
 	{
 		//lighthouses
-		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+		FOREACH_OWNER_TOWN(t)
 			if(t->subID == 0 && vstd::contains(t->builtBuildings,17)) //castle
 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::SEA_MOVEMENT, Bonus::TOWN_STRUCTURE, +500, 17, VLC->generaltexth->buildings[0][17].first + " +500"));
 	}
@@ -1192,14 +1193,14 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::SECONDARY_SKILL, moraleSkill, 6, VLC->generaltexth->arraytxt[104+moraleSkill]));
 
 		//colossus
-		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+		FOREACH_OWNER_TOWN(t)
 			if(t->subID == 0 && vstd::contains(t->builtBuildings,26)) //castle
 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[0][26].first + " +2"));
 	}
 
 	if(Selector::matchesTypeSubtype(selector, Bonus::SECONDARY_SKILL_PREMY, 12)) //necromancy
 	{
-		BOOST_FOREACH(const CGTownInstance *t, cb->getPlayerState(tempOwner)->towns)
+		FOREACH_OWNER_TOWN(t)
 		{
 			if(t->subID == 4) //necropolis
 			{
@@ -5932,7 +5933,30 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 				val2 = 1;
 			}
 		}
+		break;
+	case CREATURE_RESOURCE:
+		{
+			const float effectivenessArray[] = {0, 0.3, 0.45, 0.50, 0.65, 0.7, 0.85, 0.9, 1};
+			float effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
 
+			float r = VLC->creh->creatures[id1]->cost[6], //value of given creature in gold
+				g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
+
+			if(r>g) //if given resource is more expensive than wanted
+			{
+				val2 = ceil(r / g);
+				val1 = 1;
+			}
+			else //if wanted resource is more expensive
+			{
+				val1 = (g / r) + 0.5f;
+				val2 = 1;
+			}
+		}
+		break;
+	case RESOURCE_PLAYER:
+		val1 = 1;
+		val2 = 1;
 		break;
 	default:
 		assert(0);
@@ -5949,19 +5973,29 @@ bool IMarket::allowsTrade(EMarketMode mode) const
 
 int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
-	if(mode == RESOURCE_RESOURCE || ARTIFACT_RESOURCE || CREATURE_RESOURCE)
-		return -1;
-	else 
-		return 1;
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+	case ARTIFACT_RESOURCE:
+	case CREATURE_RESOURCE:
+			return -1;
+	default:
+			return 1;
+	}
 }
 
 std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
 {
 	std::vector<int> ret;
-	if(mode == RESOURCE_RESOURCE || ARTIFACT_RESOURCE || CREATURE_RESOURCE)
+	switch(mode)
+	{
+	case RESOURCE_RESOURCE:
+	case ARTIFACT_RESOURCE:
+	case CREATURE_RESOURCE:
 		for (int i = 0; i < 7; i++)
 			ret.push_back(i);
-
+		break;
+	}
 	return ret;
 }
 
@@ -5971,8 +6005,10 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
 	{
 	case TOWNI_TYPE:
 		return static_cast<const CGTownInstance*>(obj);
+	case 7: //Black Market
 	case 99: //Trading Post
 	case 221: //Trading Post (snow)
+	case 213: //Freelancer's Guild
 		return static_cast<const CGMarket*>(obj);
 	default:
 		tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
@@ -6034,7 +6070,10 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 		default:
 			return false;
 		}
+	case CREATURE_RESOURCE:
+		return ID == 213; //Freelancer's Guild
 	}
+	return false;
 }
 
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
