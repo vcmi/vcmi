@@ -2338,7 +2338,7 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,*bitmap); //creature name
 	
 	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
 	if(c->shots)
 		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
 

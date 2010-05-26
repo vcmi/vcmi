@@ -1170,7 +1170,7 @@ CGameState::~CGameState()
 	delete mx;
 	delete map;
 	delete curB;
-	delete scenarioOps;
+	//delete scenarioOps;
 	delete applierGs;
 	delete objCaller;
 }
