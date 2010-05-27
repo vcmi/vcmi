@@ -425,7 +425,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
 
 			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
-				|| (next->type->idNumber == 146 && curOwner->getSecSkillLevel(20) == 0)) //ballista, hero has no artillery
+				|| (next->type->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
 			{
 				BattleAction attack;
 				attack.actionType = 7;
@@ -434,7 +434,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 				for(int g=0; g<gs->curB->stacks.size(); ++g)
 				{
-					if(gs->curB->stacks[g]->owner != curOwner->tempOwner && gs->curB->stacks[g]->alive())
+					if(gs->curB->stacks[g]->owner != next->owner && gs->curB->stacks[g]->alive())
 					{
 						attack.destinationTile = gs->curB->stacks[g]->position;
 						break;
@@ -3636,8 +3636,8 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
-		if (caster->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES) ||
-			hero2->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
+		if (NBonus::hasOfType(caster, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES) ||
+			NBonus::hasOfType(hero2, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
 			//don't use natural immunities when one of heroes has this bonus
  			BonusList bl = (*it)->getBonuses(Selector::type(Bonus::SPELL_IMMUNITY)),
