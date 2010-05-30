@@ -310,8 +310,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
-			& moveDir;
+			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & moveDir;
 
 		h & type;
 		//visitied town pointer will be restored by map serialization method

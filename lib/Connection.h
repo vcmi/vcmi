@@ -21,7 +21,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 
-const ui32 version = 721;
+const ui32 version = 722;
 class CConnection;
 class CGObjectInstance;
 class CGameState;

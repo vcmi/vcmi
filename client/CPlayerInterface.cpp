@@ -1268,6 +1268,10 @@ void CPlayerInterface::update()
 	if(terminate_cond.get())
 		return;
 
+	//in some conditions we may receive calls before selection is initialized - we must ignore them
+	if(!adventureInt->selection)
+		return;
+
 	//if there are any waiting dialogs, show them
 	if(dialogs.size() && !showingDialog->get())
 	{

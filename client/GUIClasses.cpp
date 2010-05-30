@@ -2243,11 +2243,11 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 
 			if(enough)
 			{
-				CFunctionList<void()> fs[2];
-				fs[0] += Upg;
-				fs[0] += boost::bind(&CCreInfoWindow::close,this);
+				CFunctionList<void()> fs;
+				fs += Upg;
+				fs += boost::bind(&CCreInfoWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false);
+				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], boost::ref(upgResCost), fs, 0, false);
 				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,76,237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -2374,8 +2374,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
 CCreInfoWindow::~CCreInfoWindow()
 {
 	delete anim;
-	for(int i=0; i<upgResCost.size();i++)
-		delete upgResCost[i];
+// 	for(int i=0; i<upgResCost.size();i++)
+// 		delete upgResCost[i];
 }
 
 void CCreInfoWindow::activate()
