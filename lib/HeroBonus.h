@@ -420,8 +420,9 @@ public:
 
 	bool operator()(const Bonus &bonus) const
 	{
-		return !turnsRequested 
-			|| ( bonus.turnsRemain > turnsRequested && bonus.duration == Bonus::N_TURNS);
+		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
+			|| !(bonus.duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| bonus.turnsRemain > turnsRequested;	
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{

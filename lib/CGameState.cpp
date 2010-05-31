@@ -1776,7 +1776,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	//get basic cost
 	int ret = h->getTileCost(d,s);
 
-	if(d.blocked)
+	if(d.blocked && h->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 	{
 		bool freeFlying = h->getBonusesCount(Selector::typeSybtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
 

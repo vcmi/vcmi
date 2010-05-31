@@ -43,6 +43,7 @@
 #include <cstdlib>
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
+#include "../hch/CObjectHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -420,6 +421,11 @@ void processCommand(const std::string &message)
 	else if(cn == "onlyai")
 	{
 		gOnlyAI = true;
+	}
+	else if(cn == "mp" && adventureInt)
+	{
+		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
+			tlog0 << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
