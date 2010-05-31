@@ -216,9 +216,13 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		if(desc[0] == '\"' && desc[desc.size()-1] == '\"')
 			desc = desc.substr(1,desc.size()-2);
 
+		if(onlyTxt)
+			continue;
+
 		// Fill in information about combined artifacts. Should perhaps be moved to a config file?
 		nart.constituentOf = NULL;
-		switch (nart.id) {
+		switch (nart.id) 
+		{
 			case 129: // Angelic Alliance
 				nart.constituents = new std::vector<ui32>();
 				*nart.constituents += 31, 32, 33, 34, 35, 36;
@@ -286,12 +290,13 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 				break;
 		}
 
-		if(!onlyTxt)
-			artifacts.push_back(nart);
+		artifacts.push_back(nart);
 	}
 	sortArts();
-	if(!onlyTxt)
-		addBonuses();
+	if(onlyTxt)
+		return;
+
+	addBonuses();
 
 	// Populate reverse mappings of combinational artifacts.
 	BOOST_FOREACH(CArtifact artifact, artifacts) {
