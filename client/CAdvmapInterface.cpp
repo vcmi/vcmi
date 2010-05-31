@@ -1517,6 +1517,14 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				LOCPLINT->openTownWindow(t);
 			return;
 		}
+	case SDLK_ESCAPE:
+		{
+			if(isActive() || GH.topInt() != this || !spellBeingCasted || key.state != SDL_PRESSED) 
+				return;
+
+			leaveCastingMode();
+			return;
+		}
 	case SDLK_t:
 		{
 			//act on key down if marketplace windows is not already opened
@@ -1993,7 +2001,6 @@ void CAdvMapInt::tileRClicked(const int3 &mp)
 	if(spellBeingCasted)
 	{
 		leaveCastingMode();
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 		return;
 	}
 
@@ -2034,7 +2041,10 @@ void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, 
 	terrain.deactivate();
 	activate();
 
-	LOCPLINT->cb->castSpell(curHero(), id, dest);
+	if(cast)
+		LOCPLINT->cb->castSpell(curHero(), id, dest);
+	else 
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
 const CGHeroInstance * CAdvMapInt::curHero() const

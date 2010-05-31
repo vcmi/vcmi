@@ -145,7 +145,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 	void setAmount(int objid, ui32 val);
 	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255);
-
+	bool tryAttackingGuard(const int3 &guardPos, const CGHeroInstance * h);
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	void giveHeroBonus(GiveBonus * bonus);
 	void setMovePoints(SetMovePoints * smp);

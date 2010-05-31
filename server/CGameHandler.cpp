@@ -1628,6 +1628,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 	int cost = gs->getMovementCost(h, h->getPosition(false), CGHeroInstance::convertPosition(dst,false),h->movement);
+	int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -1677,6 +1678,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 		sendAndApply(&tmh);
+		tryAttackingGuard(guardPos, h);
 		return true;
 	}
 
@@ -1729,27 +1731,15 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			}
 			getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 
-			int3 guardPos = gs->guardingCreaturePosition(hmpos);
-			
 			tmh.result = TryMoveHero::SUCCESS;
 			tmh.attackedFrom = guardPos;
 			sendAndApply(&tmh);
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
 			// If a creature guards the tile, block visit.
-			if (gs->map->isInTheMap(guardPos)) 
-			{
-				const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
-				objectVisited(guardTile.visitableObjects.back(), h);
-				visitObjectAfterVictory = true;
-// 
-// 				// TODO: Need to wait until battle is over.
-// 
-// 				// Do not visit anything else if hero died.
-// 				if (h->getArmy().stacksCount() == 0)
-// 					return true;
-			}
-			else if(t.visitableObjects.size()) //call objects if they are visited
+			const bool fightingGuard = tryAttackingGuard(guardPos, h);
+
+			if(!fightingGuard && t.visitableObjects.size()) //call objects if they are visited
 			{
 				visitObjectOnTile(t, h);
 			}
@@ -4514,6 +4504,8 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				sendAndApply(&iw);
 				return true; //TODO? or should it be false? request was correct and realized, but spell failed...
 			}
+			if(!gs->map->isInTheMap(pos))
+				COMPLAIN_RET("Invalid dst tile for scuttle!");
 
 			//TODO: test range, visibility
 			const TerrainTile *t = &gs->map->getTile(pos);
@@ -4558,14 +4550,19 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				break;
 			}
 
+			//we need obtain guard pos before moving hero, otherwise we get nothing, because tile will be "unguarded" by hero
+			int3 guardPos = gs->guardingCreaturePosition(pos);
+
 			TryMoveHero tmh;
 			tmh.id = h->id;
 			tmh.movePoints = std::max<int>(0, h->movement - 300);
 			tmh.result = TryMoveHero::TELEPORTATION;
 			tmh.start = h->pos;
-			tmh.end = pos;
+			tmh.end = pos + h->getVisitableOffset();
 			getTilesInRange(tmh.fowRevealed, pos, h->getSightRadious(), h->tempOwner,1);
 			sendAndApply(&tmh);
+
+			tryAttackingGuard(guardPos, h);
 		}
 		break;
 	case FLY: //Fly 
@@ -4612,4 +4609,15 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 		objectVisited(t.visitableObjects.back(), h);
 	else if(t.visitableObjects.size() > 1)
 		objectVisited(*(t.visitableObjects.end()-2),h);
+}
+
+bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance * h)
+{
+	if(!gs->map->isInTheMap(guardPos))
+		return false;
+
+	const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
+	objectVisited(guardTile.visitableObjects.back(), h);
+	visitObjectAfterVictory = true;
+	return true;
 }
