@@ -1418,8 +1418,6 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::show(SDL_Surface * to)
 {
-	if(bresult)
-		return;
 	std::map<int, CStack> stacks = curInt->cb->battleGetStacks(); //used in a few places
 	++animCount;
 	if(!to) //"evaluating" to
@@ -1654,6 +1652,12 @@ void CBattleInterface::show(SDL_Surface * to)
 	bDefence->show(to);
 	bConsoleUp->show(to);
 	bConsoleDown->show(to);
+
+	//showing window with result of battle
+	if(resWindow)
+	{
+		resWindow->show(to);
+	}
 
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
