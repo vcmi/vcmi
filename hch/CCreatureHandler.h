@@ -81,11 +81,7 @@ public:
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
 
-		if(version == 710) //temporary, for 0.74 savegames compatibility
-		{
-			char snd[40];
-			h & snd;
-		}
+		h & doubleWide;
 	}
 
 
