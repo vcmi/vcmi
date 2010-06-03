@@ -1758,6 +1758,11 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 	{
 		removeCapitols (h->getOwner());
 		cb->setOwner (id, h->tempOwner); //give control after checkout is done
+		FoWChange fw;
+		fw.player = h->tempOwner;
+		fw.mode = 1;
+		getSightTiles (fw.tiles); //update visibility for castle structures
+		cb->sendAndApply (&fw);
 	}
 }
 
