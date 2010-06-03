@@ -858,277 +858,218 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 		d1 = (x>0 && y<size) ? visibilityMap[x-1][y+1][lvl] : 0,
 		d2 = (y<size) ? visibilityMap[x][y+1][lvl] : 0,
 		d3 = (x<size && y<size) ? visibilityMap[x+1][y+1][lvl] : 0;
-	/*
-		g0_0, g0_1, g0_2, g1_0, g1_1, g2_0, g2_1, g3_0,
-		05;
-	
 
-	//decomposition and minimalization, do not touch
-	if ((d7 && d1 && d0) || (d7 && d6 && !d1) || (!d6 && d1 && !d0) || (!d7 && !d6 && !d1 && d0))
-		g0_0 = true;
-	else
-		g0_0 = false;
-
-	if ((!d6 && d1) || (!d6 && !d7))
-		g0_1 = true;
-	else
-		g0_1 = false;
-
-	if ((!d7 && d6 && d0) || (!d6 && !d1 && d0) || (!d7 && d1 && !d0))
-		g0_2 = true;
-	else
-		g0_2 = false;
-
-	if ((d5 && g0_0 && g0_2) || (d5 && d2 && !g0_0) || (!d5 && g0_0 && !g0_2) && (!d5 && !d2 && !g0_0 && g0_2))
-		g1_0 = true;
-	else
-		g1_0 = false;
-
-	if ((!d5 && !g0_0) || (d5 && !d2 && g0_0 && g0_2)
-		g1_1 = true;
-	else
-		g1_1 = false;
-
-	if ((!g0_1 && g1_0) || (g1_0 && !g1_1) || (d3 && !g0_1 && g1_1)
-		g2_0 = true;
-	else
-		g2_0 = false;
-
-	if ((d3 && g0_1 && g1_0) || (g0_1 && g1_0 && !g1_1) || (!d3 && !g0_1 && !g1_0) || (!g0_1 && !g1_0 && !g1_1)
-		g2_1 = true;
-	else
-		g2_1 = false;
-
-	if ((d5 && !g2_0 && g2_1) || (d5 && !d4 && !g2_0) || (!d5 & d4 && g2_0 && g2_1) || (!d5 && !d4 && g2_0 && !g2_1) || (!d5 && d4 && !g2_0 && !g2_1))
-		g3_0 = true;
-	else
-		g3_0 = false;
-	
-	if ((!g2_1 && g3_0) || (!g1_1 && g2_1 && !g3_0))
-		o5 = true;
-	else
-		o5 = false;
-		*/
-	if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && !d1)
+	if (!d6 && !d4)
 	{
-		return fullHide->ourImages[hideBitmap[x][y][lvl]].bitmap; //fully hidden
+		if (!d3 && !d9 && !d1 && !d7)
+			return fullHide->ourImages[hideBitmap[x][y][lvl]].bitmap; //fully hidden
+		if(d2)
+			return partialHide->ourImages[4].bitmap; //visble bottom
+		else if (d8)
+			return partialHide->ourImages[0].bitmap; //visible top
+		else if (d3)
+			return partialHide->ourImages[22].bitmap; //visible right bottom corner
+		else if (d9)
+			return partialHide->ourImages[15].bitmap; //visible right top corner
+		else if (d1)
+			return partialHide->ourImages[34].bitmap; //visible left bottom corner
+		else if (d7)
+			return partialHide->ourImages[35].bitmap; //visible left top corner
+		if (!d2 && !d8)
+		{
+			if (d1)
+			{
+				 if (d3)
+				 {
+					 if (d7)
+					 {
+						 if (d9)
+							 return partialHide->ourImages[21].bitmap;
+						 else
+							 return partialHide->ourImages[43].bitmap;
+					 }
+					 else
+					 {
+						 if (d9)
+							 return partialHide->ourImages[19].bitmap;
+						 else
+							 return partialHide->ourImages[40].bitmap;
+					 }
+				 }
+				 else
+				 {
+					 if (d7)
+					 {
+						 if (d9)
+							 return partialHide->ourImages[42].bitmap;
+						 else
+							 return partialHide->ourImages[39].bitmap;
+					 }
+					 else
+						 return partialHide->ourImages[17].bitmap;
+				 }
+			}
+			else
+			{
+				if(!d3)
+					return partialHide->ourImages[18].bitmap;
+				else if(!d7)
+					return partialHide->ourImages[16].bitmap; //visible right corner
+				else if(!d9)
+					return partialHide->ourImages[41].bitmap;
+				else
+					return partialHide->ourImages[20].bitmap;
+			}
+		}
+		if (d2)
+		{
+			if(d8)
+				return partialHide->ourImages[29].bitmap;
+			else if(d3)
+				return partialHide->ourImages[1].bitmap;
+			else
+				return partialHide->ourImages[5].bitmap;
+		}
+		else if (d7)
+			return partialHide->ourImages[4].bitmap;
+		else
+			return partialHide->ourImages[9].bitmap;
 	}
-	else if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1)
+	else //(d4 && d6 != 0)
 	{
-		return partialHide->ourImages[22].bitmap; //visible right bottom corner
-	}
-	else if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[15].bitmap; //visible right top corner
-	}
-	else if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[34].bitmap; //visible left bottom corner
-	}
-	else if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && !d1)
-	{
-		return partialHide->ourImages[35].bitmap; //visible left top corner
-	}
-	else if(!d2 && !d6 && !d4 && d8 && d7 && !d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[0].bitmap; //visible top
-	}
-	else if(d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[4].bitmap; //visble bottom
-	}
-	else if(!d2 && !d6 && d4 && !d8 && d7 && !d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[36].bitmap; //visible left
-	}
-	else if(!d2 && d6 && !d4 && !d8 && !d7 && d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[2].bitmap; //visible right
-	}
-	else if(d2 && d6 && !d4 && !d8 && !d7)
-	{
-		return partialHide->ourImages[12].bitmap; //visible bottom, right - bottom, right; left top corner hidden
-	}
-	else if(!d2 && d6 && !d4 && d8 && !d1)
-	{
-		return partialHide->ourImages[13].bitmap; //visible right, right - top; left bottom corner hidden
-	}
-	else if(!d2 && !d6 && d4 && d8 && !d3)
-	{
-		return partialHide->ourImages[37].bitmap; //visible top, top - left, left; right bottom corner hidden
-	}
-	else if(d2 && !d6 && d4 && !d8 && !d9)
-	{
-		return partialHide->ourImages[38].bitmap; //visible left, left - bottom, bottom; right top corner hidden
-	}
-	else if(d2 && d6 && d4 && d8)
-	{
-		return partialHide->ourImages[10].bitmap; //visible left, right, bottom and top
-	}
-	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[16].bitmap; //visible right corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[18].bitmap; //visible top corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[39].bitmap; //visible left corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[40].bitmap; //visible bottom corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && d9 && d1)
-	{
-		return partialHide->ourImages[17].bitmap; //visible right - top and bottom - left corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && !d1)
-	{
-		return partialHide->ourImages[41].bitmap; //visible top - left and bottom - right corners
-	}
-	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && d9 && d1)
-	{
-		return partialHide->ourImages[19].bitmap; //visible corners without left top
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && d9 && !d1)
-	{
-		return partialHide->ourImages[20].bitmap; //visible corners without left bottom
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && d9 && d1)
-	{
-		return partialHide->ourImages[42].bitmap; //visible corners without right bottom
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && d1)
-	{
-		return partialHide->ourImages[43].bitmap; //visible corners without right top
-	}
-	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && d9 && d1)
-	{
-		return partialHide->ourImages[21].bitmap; //visible all corners only
-	}
-	if(d2 && d6 && d4 && !d8)
-	{
-		return partialHide->ourImages[6].bitmap; //hidden top
-	}
-	if(d2 && !d6 && d4 && d8)
-	{
-		return partialHide->ourImages[7].bitmap; //hidden right
-	}
-	if(!d2 && d6 && d4 && d8)
-	{
-		return partialHide->ourImages[8].bitmap; //hidden bottom
-	}
-	if(d2 && d6 && !d4 && d8)
-	{
-		return partialHide->ourImages[44].bitmap; //hidden left
-	}
-	if(!d2 && d6 && d4 && !d8)
-	{
-		return partialHide->ourImages[9].bitmap; //hidden top and bottom
-	}
-	if(d2 && !d6 && !d4 && d8)
-	{
-		return partialHide->ourImages[29].bitmap;  //hidden left and right
-	}
-	if(!d2 && !d6 && !d4 && d8 && d3 && !d1)
-	{
-		return partialHide->ourImages[24].bitmap; //visible top and right bottom corner
-	}
-	if(!d2 && !d6 && !d4 && d8 && !d3 && d1)
-	{
-		return partialHide->ourImages[45].bitmap; //visible top and left bottom corner
-	}
-	if(!d2 && !d6 && !d4 && d8 && d3 && d1)
-	{
-		return partialHide->ourImages[33].bitmap; //visible top and bottom corners
-	}
-	if(!d2 && !d6 && d4 && !d8 && !d3 && d9)
-	{
-		return partialHide->ourImages[46].bitmap; //visible left and right top corner
-	}
-	if(!d2 && !d6 && d4 && !d8 && d3 && !d9)
-	{
-		return partialHide->ourImages[47].bitmap; //visible left and right bottom corner
-	}
-	if(!d2 && !d6 && d4 && !d8 && d3 && d9)
-	{
-		return partialHide->ourImages[32].bitmap; //visible left and right corners
-	}
-	if(d2 && !d6 && !d4 && !d8 && d7 && !d9)
-	{
-		return partialHide->ourImages[48].bitmap; //visible bottom and left top corner
-	}
-	if(d2 && !d6 && !d4 && !d8 && !d7 && d9)
-	{
-		return partialHide->ourImages[30].bitmap; //visible bottom and right top corner
-	}
-	if(d2 && !d6 && !d4 && !d8 && d7 && d9)
-	{
-		return partialHide->ourImages[31].bitmap; //visible bottom and top corners
-	}
-	if(!d2 && d6 && !d4 && !d8 && !d7 && d1)
-	{
-		return partialHide->ourImages[25].bitmap; //visible right and left bottom corner
-	}
-	if(!d2 && d6 && !d4 && !d8 && d7 && !d1)
-	{
-		return partialHide->ourImages[26].bitmap; //visible right and left top corner
-	}
-	if(!d2 && d6 && !d4 && !d8 && d7 && d1)
-	{
-		return partialHide->ourImages[49].bitmap; //visible right and left cornres
-	}
-	if(d2 && d6 && !d4 && !d8 && d7)
-	{
-		return partialHide->ourImages[28].bitmap; //visible bottom, right - bottom, right; left top corner visible
-	}
-	else if(!d2 && d6 && !d4 && d8 && d1)
-	{
-		return partialHide->ourImages[27].bitmap; //visible right, right - top; left bottom corner visible
-	}
-	else if(!d2 && !d6 && d4 && d8 && d3)
-	{
-		return partialHide->ourImages[50].bitmap; //visible top, top - left, left; right bottom corner visible
-	}
-	else if(d2 && !d6 && d4 && !d8 && d9)
-	{
-		return partialHide->ourImages[51].bitmap; //visible left, left - bottom, bottom; right top corner visible
-	}
-	//newly added
-	else if(!d2 && !d6 && !d4 && d8 && !d7 && !d3 && d9 && !d1) //visible t and tr
-	{
-		return partialHide->ourImages[0].bitmap;
-	}
-	else if(!d2 && !d6 && !d4 && d8 && d7 && !d3 && !d9 && !d1) //visible t and tl
-	{
-		return partialHide->ourImages[1].bitmap;
-	}
-	else if(d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1) //visible b and br
-	{
-		return partialHide->ourImages[4].bitmap;
-	}
-	else if(d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && d1) //visible b and bl
-	{
-		return partialHide->ourImages[5].bitmap;
-	}
-	else if(!d2 && !d6 && d4 && !d8 && d7 && !d3 && !d9 && !d1) //visible l and tl
-	{
-		return partialHide->ourImages[36].bitmap;
-	}
-	else if(!d2 && !d6 && d4 && !d8 && !d7 && !d3 && !d9 && d1) //visible l and bl
-	{
-		return partialHide->ourImages[36].bitmap;
-	}
-	else if(!d2 && d6 && !d4 && !d8 && !d7 && !d3 && d9 && !d1) //visible r and tr
-	{
-		return partialHide->ourImages[2].bitmap;
-	}
-	else if(!d2 && d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1) //visible r and br
-	{
-		return partialHide->ourImages[3].bitmap;
+		if (d2)
+		{
+			if (d4)
+			{
+				if (d6)
+				{
+					if (d8)
+						return partialHide->ourImages[10].bitmap;
+					else
+						return partialHide->ourImages[6].bitmap;
+				}
+				else
+				{
+					if (d8)
+						return partialHide->ourImages[7].bitmap;
+					else if (d9)
+						return partialHide->ourImages[51].bitmap;
+					else
+						return partialHide->ourImages[38].bitmap;
+				}
+			}
+			else
+			{
+				if (d6)
+				{
+					if (d8)
+						return partialHide->ourImages[44].bitmap;
+					else if (d7)
+						return partialHide->ourImages[28].bitmap;
+					else
+						return partialHide->ourImages[12].bitmap;
+				}
+				else
+				{
+					if (d7)
+					{
+						if (d9)
+							return partialHide->ourImages[31].bitmap;
+						else
+							return partialHide->ourImages[48].bitmap;
+					}
+					else
+						return partialHide->ourImages[30].bitmap;
+				}
+			}
+		}
+		else
+		{
+			if (d4)
+			{
+				if (d6)
+				{
+					if (d8)
+						return partialHide->ourImages[8].bitmap;
+					else
+						return partialHide->ourImages[9].bitmap;
+				}
+				else
+				{
+					if (d8)
+					{
+						if (d3)
+							return partialHide->ourImages[50].bitmap;
+						else
+							return partialHide->ourImages[37].bitmap;
+					}
+					else
+					{
+						if (d3)
+						{
+							if (d9)
+								return partialHide->ourImages[32].bitmap;
+							else
+								return partialHide->ourImages[47].bitmap;
+						}
+						else
+						{
+							if (d9)
+								return partialHide->ourImages[46].bitmap;
+							else
+								return partialHide->ourImages[36].bitmap;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (d6)
+				{
+					if (d8)
+					{
+						if (d1)
+							return partialHide->ourImages[27].bitmap;
+						else
+							return partialHide->ourImages[13].bitmap;
+					}
+					else
+					{
+						if (d7)
+						{
+							if (d1)
+								return partialHide->ourImages[49].bitmap;
+							else
+								return partialHide->ourImages[26].bitmap;
+						}
+						else
+						{
+							if (d1)
+								return partialHide->ourImages[25].bitmap;
+							else
+							{
+								if (d9)
+									return partialHide->ourImages[2].bitmap;
+								else
+									return partialHide->ourImages[3].bitmap;
+							}
+						}
+					}
+				}
+				else
+				{
+					if (d1)
+					{
+						if (d3)
+							return partialHide->ourImages[33].bitmap;
+						else
+							return partialHide->ourImages[45].bitmap;
+					}
+					else
+						return partialHide->ourImages[24].bitmap;
+				}
+			}
+		}
 	}
 	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
 }
