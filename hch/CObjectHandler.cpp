@@ -3271,14 +3271,19 @@ void CGSeerHut::initObj()
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
 	textOption = ran()%3;
 	progress = 0;
-	if (missionType && !isCustom)
+	if (missionType)
 	{
-		firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
-		nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
-		completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
+		if (!isCustom)
+		{
+		
+			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
+			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
+			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
+		}
 	}
 	else
 		firstVisitText = VLC->generaltexth->seerEmpty[textOption];
+
 }
 
 const std::string & CGSeerHut::getHoverText() const

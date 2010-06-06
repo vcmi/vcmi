@@ -1045,21 +1045,21 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 	i+=31; //omitting NULLS
 
 	allowedArtifact.resize(ARTIFACTS_QUANTITY);
-	for(unsigned int x=0;x<allowedArtifact.size();x++)
+	for (unsigned int x=0; x<allowedArtifact.size(); x++)
 		allowedArtifact[x] = true;
 
 	//reading allowed artifacts:  17 or 18 bytes
-	if(version!=RoE)
+	if (version!=RoE)
 	{
 		ist=i; //starting i for loop
-		for(i; i<ist+(version==AB ? 17 : 18); ++i)
+		for (i; i<ist+(version==AB ? 17 : 18); ++i)
 		{
 			unsigned char c = bufor[i];
-			for(int yy=0; yy<8; ++yy)
+			for (int yy=0; yy<8; ++yy)
 			{
-				if((i-ist)*8+yy < ARTIFACTS_QUANTITY)
+				if ((i-ist)*8+yy < ARTIFACTS_QUANTITY)
 				{
-					if(c == (c|((unsigned char)intPow(2, yy))))
+					if (c == (c|((unsigned char)intPow(2, yy))))
 						allowedArtifact[(i-ist)*8+yy] = false;
 				}
 			}
@@ -1831,6 +1831,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = new CGMagicWell();
 				break;
 			}
+		case 15: //Cover of darkness
 		case 58: //Redwood Observatory
 		case 60: //Pillar of Fire
 			{
@@ -2094,9 +2095,9 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	guard->nextVisitText = readString(bufor,i);
 	guard->completedText = readString(bufor,i);
 	if (guard->firstVisitText.size() && guard->nextVisitText.size() && guard->completedText.size())
-		guard->isCustom = false; //randomize all if any text is missing
-	else
 		guard->isCustom = true;
+	else
+		guard->isCustom = false;  //randomize all if any text is missing
 }
 
 TerrainTile & Mapa::getTile( int3 tile )
