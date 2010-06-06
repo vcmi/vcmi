@@ -913,6 +913,8 @@ void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.hideTile(*i);
+	if(pos.size())
+		GH.totalRedraw();
 }
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)

@@ -4377,16 +4377,40 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::LIGHTHOUSE;
 	iw.player = h->tempOwner;
-	iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
-	cb->showInfoDialog(&iw);
+	switch (ID)
+	{
+		case 58://redwood observatory
+		case 60://pillar of fire
+		{
+			iw.soundID = soundBase::LIGHTHOUSE;
+			iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
 
-	FoWChange fw;
-	fw.player = h->tempOwner;
-	fw.mode = 1;
-	cb->getTilesInRange(fw.tiles,pos,20,h->tempOwner,1);
-	cb->sendAndApply(&fw);
+			FoWChange fw;
+			fw.player = h->tempOwner;
+			fw.mode = 1;
+			cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
+			cb->sendAndApply (&fw);
+			break;
+		}
+		case 15://cover of darkness
+		{
+			iw.text.addTxt (MetaString::ADVOB_TXT, 31);
+			for (int i = 0; i < cb->gameState()->players.size(); ++i)
+			{
+				if ((h->tempOwner != i) && (cb->gameState()->getPlayer(i)->status == PlayerState::INGAME)) //TODO: team support
+				{
+					FoWChange fw;
+				    fw.mode = 0;
+					fw.player = i;
+					cb->getTilesInRange (fw.tiles, pos, 20, i, -1);
+					cb->sendAndApply (&fw);
+				}
+			}
+			break;
+		}
+	}
+	cb->showInfoDialog(&iw);
 }
 
 void CGShrine::onHeroVisit( const CGHeroInstance * h ) const

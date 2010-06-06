@@ -429,6 +429,18 @@ void CMinimap::showVisibleTiles(int level)
 
 void CMinimap::hideTile(const int3 &pos)
 {
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	//drawing terrain
+	int mw = map[0]->w, mh = map[0]->h;
+	double wo = ((double)mw)/mapSizes.x, ho = ((double)mh)/mapSizes.y;
+	for (int ii=0; ii<wo; ii++)
+	{
+		for (int jj=0; jj<ho; jj++)
+		{
+			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
+				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
+		}
+	}
 }
 
 void CMinimap::show( SDL_Surface * to )

@@ -164,10 +164,30 @@ DLL_EXPORT void SetMovePoints::applyGs( CGameState *gs )
 
 DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 {
-	BOOST_FOREACH(int3 t, tiles)
+		BOOST_FOREACH(int3 t, tiles)
 		gs->getPlayer(player)->fogOfWarMap[t.x][t.y][t.z] = mode;
+	if (mode == 0) //do not hide too much
+	{
+		std::set<int3> tilesRevealed;
+		for (size_t i = 0; i < gs->map->objects.size(); i++)
+		{
+			if(gs->map->objects[i] && gs->map->objects[i]->tempOwner == player) //check owned observators
+			{
+				switch(gs->map->objects[i]->ID)
+				{
+				case 34://hero
+				case 53://mine
+				case 98://town
+				case 220:
+					gs->map->objects[i]->getSightTiles(tilesRevealed);
+					break;
+				}
+			}
+		}
+		BOOST_FOREACH(int3 t, tilesRevealed) //probably not the most optimal solution ever
+			gs->getPlayer(player)->fogOfWarMap[t.x][t.y][t.z] = 1;
+	}
 }
-
 DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 {
 	gs->getPlayer(player)->availableHeroes.clear();
