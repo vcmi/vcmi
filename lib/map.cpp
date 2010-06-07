@@ -600,6 +600,7 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 	}
 	else //RoE
 	{
+		hut->isCustom = false;
 		int artID = bufor[i]; ++i;
 		if(artID!=255) //not none quest
 		{
@@ -1461,6 +1462,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 44: //teleport
 		case 45: //teleport
 		case 103://subterranean gate
+		case 111://Whirlpool
 			{
 				nobj = new CGTeleport();
 				break;

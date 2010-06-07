@@ -2849,9 +2849,40 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		else
 			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
 		break;
-	case 45: //two way monolith - pick any other one
-		if(vstd::contains(objs,45) && vstd::contains(objs[45],subID) && objs[45][subID].size()>1)
-			while ((destinationid = objs[45][subID][rand()%objs[45][subID].size()])==id);
+	case 45://two way monolith - pick any other one
+	case 111: //Whirlpool
+		if(vstd::contains(objs,ID) && vstd::contains(objs[ID],subID) && objs[ID][subID].size()>1)
+		{
+			while ((destinationid = objs[ID][subID][rand()%objs[ID][subID].size()]) == id); //choose another exit
+			if (ID == 111)
+			{
+				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
+				{
+					CCreatureSet army = h->getArmy();
+					int targetstack = army.Slots().size()-1;
+					for(TSlots::const_reverse_iterator i = army.Slots().rbegin(); i != army.Slots().rend(); i++)
+					{
+						if (army.getPower(targetstack) > army.getPower(i->first))
+						{
+							targetstack = (i->first);
+						}
+					}
+					CCreatureSet ourArmy;
+					ourArmy.addStack (targetstack, army.getStack(targetstack));
+					TQuantity tq = (TQuantity)((double)(ourArmy.getAmount(targetstack))*0.3);
+					if (tq) //casualties > 0
+					{
+						ourArmy.setStackCount (targetstack, tq);
+						InfoWindow iw;
+						iw.player = h->tempOwner;
+						iw.text.addTxt (MetaString::ADVOB_TXT, 168);
+						iw.components.push_back (Component(ourArmy.getStack(targetstack)));
+						cb->showInfoDialog(&iw);
+					    cb->takeCreatures (h->id, ourArmy.Slots());
+					}
+				}
+			}
+		}
 		else
 			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
 		break;
@@ -2876,7 +2907,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::ADVOB_TXT, 153); //Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
+				iw.text.addTxt(MetaString::ADVOB_TXT, 153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 				cb->sendAndApply(&iw);
 			}
 			break;
@@ -2887,16 +2918,23 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
 		return;
 	}
-	cb->moveHero(h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(),
-				true);
+	cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(), true);
 }
 
 void CGTeleport::initObj()
 {
 	int si = subID;
-	if(ID == 103) //ignore subterranean gates subid
-		si = 0;
-
+	switch (ID)
+	{
+		case 103://ignore subterranean gates subid
+		case 111:
+		{
+			si = 0;
+			break;
+		}
+		default:
+			break;
+	}
 	objs[ID][si].push_back(id);
 }
 
