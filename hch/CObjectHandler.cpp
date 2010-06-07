@@ -46,6 +46,8 @@ extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
 BankConfig CGPyramid::pyramidConfig;
+std::map<ui16, Component*> CGArtMerchant::advMapArts;
+std::map<ui16, Component*> CGArtMerchant::townArts;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
 
@@ -1686,7 +1688,8 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 }
 
 void CGTownInstance::initObj()
-{ 
+///initialize town structures
+{
 	blockVisit = true;
 	hoverName = name + ", " + town->Name();
 
@@ -1710,6 +1713,19 @@ void CGTownInstance::initObj()
 			break;
 		case 7:
 			bonusingBuildings.push_back (new CTownBonus(17, this));
+			break;
+		case 4:
+			if (vstd::contains(builtBuildings, 17))
+			{
+				GiveBonus gb(GiveBonus::TOWN); //magic
+				gb.bonus.type = Bonus::DARKNESS;
+				gb.bonus.val = 20;
+				gb.id = id;
+				gb.bonus.duration = Bonus::PERMANENT;
+				gb.bonus.source = Bonus::TOWN_STRUCTURE;
+				gb.bonus.id = id;
+				cb->sendAndApply(&gb);
+			}
 			break;
 	}
 }
@@ -1756,6 +1772,27 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
+		if (hasBonusOfType(Bonus::DARKNESS))
+		{
+			//TODO: Make some 'change owner' function for bonus, or bonuses independent of player
+			/*
+			RemoveBonus rb(RemoveBonus::PLAYER);
+			rb.whoID = getOwner();
+			rb.source = Bonus::TOWN_STRUCTURE;
+			rb.id = id;
+			cb->sendAndApply(&rb);
+
+			GiveBonus gb(GiveBonus::PLAYER);
+			gb.bonus.type = Bonus::DARKNESS;
+			gb.bonus.val = 20;
+			gb.id = h->tempOwner;
+			gb.bonus.duration = Bonus::PERMANENT;
+			gb.bonus.source = Bonus::TOWN_STRUCTURE;
+			gb.bonus.id = id;
+			cb->sendAndApply(&gb);
+			*/
+		}
+
 		removeCapitols (h->getOwner());
 		cb->setOwner (id, h->tempOwner); //give control after checkout is done
 		FoWChange fw;
@@ -1763,6 +1800,8 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 		fw.mode = 1;
 		getSightTiles (fw.tiles); //update visibility for castle structures
 		cb->sendAndApply (&fw);
+
+
 	}
 }
 
@@ -4401,14 +4440,14 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 		case 15://cover of darkness
 		{
 			iw.text.addTxt (MetaString::ADVOB_TXT, 31);
-			for (int i = 0; i < cb->gameState()->players.size(); ++i)
+			for (std::map<ui8, PlayerState>::iterator i = cb->gameState()->players.begin(); i != cb->gameState()->players.end(); i++)
 			{
-				if ((h->tempOwner != i) && (cb->gameState()->getPlayer(i)->status == PlayerState::INGAME)) //TODO: team support
+				if (h->tempOwner != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
 				{
 					FoWChange fw;
 				    fw.mode = 0;
-					fw.player = i;
-					cb->getTilesInRange (fw.tiles, pos, 20, i, -1);
+					fw.player = i->first;
+					cb->getTilesInRange (fw.tiles, pos, 20, i->first, -1);
 					cb->sendAndApply (&fw);
 				}
 			}
@@ -5667,11 +5706,6 @@ void CShop::setPropertyDer (ui8 what, ui32 val)
 {
 	switch (what)
 	{
-		case 13: //sweep
-			available.clear();
-			chosen.clear();
-			bought.clear();
-			break;
 		case 14: //reset - get new items
 			reset(val);
 			break;
@@ -5705,7 +5739,7 @@ void CGArtMerchant::reset(ui32 val)
 		{
 
 			index = arts.begin() + val % arts.size();
-			available [available.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+			advMapArts [advMapArts.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
 			arts.erase(index);
 			val *= (id + n * i); //randomize
 		}
@@ -5715,10 +5749,7 @@ void CGArtMerchant::reset(ui32 val)
 
 void CGRefugeeCamp::reset(ui32 val)
 {
-	/*int creid = creh->creatures[val%creh->creatures.size()]->idNumber;
-	VLC->creh->creatures[creatures[creid].second[0]]->growth;
-	available[0] = new Component (Component::CREATURE, creid, 0, 0);
-	*/
+	creatureID = VLC->creh->creatures[val%VLC->creh->creatures.size()]->idNumber;
 }
 
 

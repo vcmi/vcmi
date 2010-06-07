@@ -35,6 +35,7 @@
 class CTown;
 class CScriptCallback;
 class CCallback;
+class IGameCallback;
 class CLuaCallback;
 class CCPPObjectScript;
 class CCreatureSet;

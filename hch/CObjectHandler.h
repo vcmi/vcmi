@@ -1078,11 +1078,6 @@ class DLL_EXPORT CShop : public CGObjectInstance
 {
 ///base class for university, art merchant, slave market etc.
 public:
-	std::map<ui16, Component*> available;
-	std::map<ui16, Component*> chosen, bought; //redundant?
-	//keys are unique for all three maps
-	std::map<ui16, ui32> price;
-
 	void initObj() {};
 	void setPropertyDer (ui8 what, ui32 val);
 	void newTurn() const;
@@ -1092,22 +1087,36 @@ public:
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & available & chosen & bought & price;
+		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
 
 class DLL_EXPORT CGArtMerchant : public CShop
 {
+///aka Black Market
 public:
+	static std::map<ui16, Component*> advMapArts;
+	static std::map<ui16, Component*> townArts;
 	void reset (ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const {};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & advMapArts & townArts & static_cast<CShop&>(*this);
+	}
 };
 
 class DLL_EXPORT CGRefugeeCamp : public CShop
 {
 public:
+	ui16 creatureID;
 	void reset (ui32 val);
 	void onHeroVisit (const CGHeroInstance * h) const {};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & creatureID & static_cast<CShop&>(*this);
+	}
 };
 
 class DLL_EXPORT CGDenOfthieves : public CGObjectInstance

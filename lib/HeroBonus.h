@@ -146,7 +146,8 @@ namespace PrimarySkill
 	BONUS_NAME(FORGETFULL) /*forgetfulness spell effect, value - level*/ \
 	BONUS_NAME(NOT_ACTIVE)								\
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
-	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/
+	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
+	BONUS_NAME(DARKNESS) /*val = radius */
 
 struct DLL_EXPORT Bonus
 {

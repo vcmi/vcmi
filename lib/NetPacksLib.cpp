@@ -228,6 +228,12 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 			bonuses = &p->bonuses;
 		}
 		break;
+	case TOWN:
+		{
+			CGTownInstance *t = gs->getTown(id);
+			assert(t);
+			bonuses = &t->bonuses;
+		}
 	}
 
 	bonuses->push_back(bonus);

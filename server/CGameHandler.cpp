@@ -1026,7 +1026,29 @@ void CGameHandler::newTurn()
 				}
 			}
 			n.res[player][6] += (**j).dailyIncome();
-		}	
+		}
+		if ((**j).subID == 2 && vstd::contains((**j).builtBuildings, 26)) // Skyship, probably easier to handle same as Veil of darkness
+		{ //do it every new day after veils apply
+			FoWChange fw;
+			fw.mode = 1;
+			fw.player = player;
+			getAllTiles(fw.tiles, player, -1, 0);
+			sendAndApply (&fw);
+		}
+		if ((**j).hasBonusOfType (Bonus::DARKNESS))
+		{
+			for (std::map<ui8, PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
+			{
+				if (player != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
+				{
+					FoWChange fw;
+				    fw.mode = 0;
+					fw.player = i->first;
+					getTilesInRange (fw.tiles, (**j).getSightCenter(), (**j).getBonus(Selector::type(Bonus::DARKNESS))->val, i->first, -1);
+					sendAndApply (&fw);
+				}
+			}
+		}
 	}
 
 	sendAndApply(&n);
@@ -2473,6 +2495,17 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		ns.bid.insert(28);
 	else if(bid == 13)
 		ns.bid.insert(29);
+	else if (t->subID == 4 && bid == 17) //veil of darkness
+	{
+		GiveBonus gb(GiveBonus::PLAYER);
+		gb.bonus.type = Bonus::DARKNESS;
+		gb.bonus.val = 20;
+		gb.id = t->tempOwner;
+		gb.bonus.duration = Bonus::PERMANENT;
+		gb.bonus.source = Bonus::TOWN_STRUCTURE;
+		gb.bonus.id = t->id;
+		sendAndApply(&gb);
+	}
 
 	ns.bid.insert(bid);
 	ns.builded = t->builded + 1;
@@ -2518,6 +2551,15 @@ bool CGameHandler::razeStructure (si32 tid, si32 bid)
 	rs.bid.insert(bid);
 	rs.destroyed = t->destroyed + 1;
 	sendAndApply(&rs);
+//TODO: Remove dwellers
+	if (t->subID == 4 && bid == 17) //Veil of Darkness
+	{
+		RemoveBonus rb(RemoveBonus::PLAYER);
+		rb.whoID = t->getOwner();
+		rb.source = Bonus::TOWN_STRUCTURE;
+		rb.id = t->id;
+		sendAndApply(&rb);
+	}
 	return true;
 }
 

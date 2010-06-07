@@ -14,6 +14,7 @@
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CCreatureHandler.h"
+//#include "../lib/IGameCallback.h"
 #include "VCMI_Lib.h"
 #include "Connection.h"
 #include "map.h"
@@ -29,6 +30,7 @@
 #include <numeric>
 
 boost::rand48 ran;
+class CGObjectInstance;
 
 #ifdef min
 #undef min
@@ -912,16 +914,18 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 		return std::pair<int,int>(5,VLC->arth->majors[ran()%VLC->arth->majors.size()]->id);
 	case 69: //random relic artifact
 		return std::pair<int,int>(5,VLC->arth->relics[ran()%VLC->arth->relics.size()]->id);
-	/*case 65: //random artifact //TODO: apply new randndomization system
-		return std::pair<int,int>(5, cb.getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+	/*
+	case 65: //random artifact //how the hell use IGameCallback for this?
+		return std::pair<int,int>(5, obj->cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case 66: //random treasure artifact
-		return std::pair<int,int>(5, cb.getRandomArt (CArtifact::ART_TREASURE));
+		return std::pair<int,int>(5, cb->getRandomArt(CArtifact::ART_TREASURE));
 	case 67: //random minor artifact
-		return std::pair<int,int>(5, cb.getRandomArt (CArtifact::ART_MINOR));
+		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_MINOR));
 	case 68: //random major artifact
-		return std::pair<int,int>(5, cb.getRandomArt (CArtifact::ART_MAJOR));
+		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_MAJOR));
 	case 69: //random relic artifact
-		return std::pair<int,int>(5, cb.getRandomArt (CArtifact::ART_RELIC));*/
+		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_RELIC));
+		*/
 	case 70: //random hero
 		{
 			return std::pair<int,int>(HEROI_TYPE,pickHero(obj->tempOwner));
