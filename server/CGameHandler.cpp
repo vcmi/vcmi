@@ -1049,6 +1049,7 @@ void CGameHandler::newTurn()
 				}
 			}
 		}
+		//unhiding what shouldn't be hidden?
 	}
 
 	sendAndApply(&n);
@@ -2497,13 +2498,13 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		ns.bid.insert(29);
 	else if (t->subID == 4 && bid == 17) //veil of darkness
 	{
-		GiveBonus gb(GiveBonus::PLAYER);
+		GiveBonus gb(GiveBonus::TOWN);
 		gb.bonus.type = Bonus::DARKNESS;
 		gb.bonus.val = 20;
-		gb.id = t->tempOwner;
+		gb.id = t->id;
 		gb.bonus.duration = Bonus::PERMANENT;
 		gb.bonus.source = Bonus::TOWN_STRUCTURE;
-		gb.bonus.id = t->id;
+		gb.bonus.id = 17;
 		sendAndApply(&gb);
 	}
 
@@ -2554,10 +2555,10 @@ bool CGameHandler::razeStructure (si32 tid, si32 bid)
 //TODO: Remove dwellers
 	if (t->subID == 4 && bid == 17) //Veil of Darkness
 	{
-		RemoveBonus rb(RemoveBonus::PLAYER);
-		rb.whoID = t->getOwner();
+		RemoveBonus rb(RemoveBonus::TOWN);
+		rb.whoID = t->id;
 		rb.source = Bonus::TOWN_STRUCTURE;
-		rb.id = t->id;
+		rb.id = 17;
 		sendAndApply(&rb);
 	}
 	return true;

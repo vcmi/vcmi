@@ -1714,19 +1714,11 @@ void CGTownInstance::initObj()
 		case 7:
 			bonusingBuildings.push_back (new CTownBonus(17, this));
 			break;
-		case 4:
-			if (vstd::contains(builtBuildings, 17))
-			{
-				GiveBonus gb(GiveBonus::TOWN); //magic
-				gb.bonus.type = Bonus::DARKNESS;
-				gb.bonus.val = 20;
-				gb.id = id;
-				gb.bonus.duration = Bonus::PERMANENT;
-				gb.bonus.source = Bonus::TOWN_STRUCTURE;
-				gb.bonus.id = id;
-				cb->sendAndApply(&gb);
-			}
-			break;
+	}
+	//add special bonuses from buildings
+	if(subID == 4 && vstd::contains(builtBuildings, 17))
+	{
+		bonuses.push_back( Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
 	}
 }
 

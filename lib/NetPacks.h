@@ -370,7 +370,7 @@ struct GiveBonus :  public CPackForClient //115
 
 	enum {HERO, PLAYER, TOWN};
 	ui8 who; //who receives bonus, uses enum above
-	ui32 id; //hero or player id
+	ui32 id; //hero. town or player id - whoever receives it
 	Bonus bonus;
 	MetaString bdescr;
 
@@ -432,9 +432,9 @@ struct RemoveBonus :  public CPackForClient //118
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	enum {HERO, PLAYER};
+	enum {HERO, PLAYER, TOWN};
 	ui8 who; //who receives bonus, uses enum above
-	ui32 whoID; //hero or player id
+	ui32 whoID; //hero, town or player id - whoever loses bonus
 
 	//vars to identify bonus: its source
 	ui8 source;
