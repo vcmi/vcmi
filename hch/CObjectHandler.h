@@ -190,6 +190,7 @@ public:
 	bool hasShadowAt(int x, int y) const;//returns true if object covers with shadow location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
+	void hideTiles(int ourplayer, int radius) const;
 	CGObjectInstance();
 	virtual ~CGObjectInstance();
 	//CGObjectInstance(const CGObjectInstance & right);

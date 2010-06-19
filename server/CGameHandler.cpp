@@ -1037,19 +1037,9 @@ void CGameHandler::newTurn()
 		}
 		if ((**j).hasBonusOfType (Bonus::DARKNESS))
 		{
-			for (std::map<ui8, PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
-			{
-				if (player != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
-				{
-					FoWChange fw;
-				    fw.mode = 0;
-					fw.player = i->first;
-					getTilesInRange (fw.tiles, (**j).getSightCenter(), (**j).getBonus(Selector::type(Bonus::DARKNESS))->val, i->first, -1);
-					sendAndApply (&fw);
-				}
-			}
+			(**j).hideTiles((**j).getOwner(), (**j).getBonus(Selector::type(Bonus::DARKNESS))->val);
 		}
-		//unhiding what shouldn't be hidden?
+		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
 	sendAndApply(&n);

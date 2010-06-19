@@ -422,6 +422,20 @@ void CGObjectInstance::getSightTiles(std::set<int3> &tiles) const //returns refe
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
+void CGObjectInstance::hideTiles(int ourplayer, int radius) const
+{
+	for (std::map<ui8, PlayerState>::iterator i = cb->gameState()->players.begin(); i != cb->gameState()->players.end(); i++)
+	{
+		if (ourplayer != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
+		{
+			FoWChange fw;
+			fw.mode = 0;
+			fw.player = i->first;
+			cb->getTilesInRange (fw.tiles, pos, radius, i->first, -1);
+			cb->sendAndApply (&fw);
+		}
+	}
+}
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	for(int y = 0; y < 6; y++)
@@ -4470,17 +4484,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 		case 15://cover of darkness
 		{
 			iw.text.addTxt (MetaString::ADVOB_TXT, 31);
-			for (std::map<ui8, PlayerState>::iterator i = cb->gameState()->players.begin(); i != cb->gameState()->players.end(); i++)
-			{
-				if (h->tempOwner != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
-				{
-					FoWChange fw;
-				    fw.mode = 0;
-					fw.player = i->first;
-					cb->getTilesInRange (fw.tiles, pos, 20, i->first, -1);
-					cb->sendAndApply (&fw);
-				}
-			}
+			hideTiles(h->tempOwner, 20);
 			break;
 		}
 	}
