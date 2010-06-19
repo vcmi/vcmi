@@ -1579,10 +1579,20 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	cs.learn = true;
 	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(7)+2);i++)
 	{
-		for(int j=0; j<t->spellsAtLevel(i+1,true) && j<t->spells[i].size(); j++)
+		if (t->subID == 8 && vstd::contains(t->builtBuildings, 26)) //Aurora Borealis
 		{
-			if(!vstd::contains(h->spells,t->spells[i][j]))
-				cs.spells.insert(t->spells[i][j]);
+			std::vector<ui16> spells;
+			getAllowedSpells(spells, i);
+			for (int j = 0; j < spells.size(); ++j)
+				cs.spells.insert(spells[j]);
+		}
+		else
+		{
+			for(int j=0; j<t->spellsAtLevel(i+1,true) && j<t->spells[i].size(); j++)
+			{
+				if(!vstd::contains(h->spells,t->spells[i][j]))
+					cs.spells.insert(t->spells[i][j]);
+			}
 		}
 	}
 	if(cs.spells.size())
