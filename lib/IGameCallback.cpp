@@ -185,6 +185,7 @@ void IGameCallback::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CAr
 				(VLC->arth->*arts).push_back(&(VLC->arth->artifacts[i]));
 		}
 	}
+
 	for (int i = 0; i < (VLC->arth->*arts).size(); i++)
 	{
 		CArtifact *art = (VLC->arth->*arts)[i];
@@ -205,6 +206,11 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 		getAllowedArts(out,&CArtHandler::majors, CArtifact::ART_MAJOR);
 	if(flags & CArtifact::ART_RELIC)
 		getAllowedArts(out,&CArtHandler::relics, CArtifact::ART_RELIC);
+	if (!out.size()) //no arts are avaliable
+	{
+		out.resize(64);
+		std::fill_n(out.begin(), 64, &(VLC->arth->artifacts[2])); //magic
+	}
 }
 
 ui16 IGameCallback::getRandomArt (int flags)
@@ -227,6 +233,8 @@ ui16 IGameCallback::getRandomArt (int flags)
 		case CArtifact::ART_RELIC:
 			ptr = &VLC->arth->relics;
 			break;
+		default: //special artifacts should not be erased
+			return art->id;
 	}
 	ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from avaliable list
 	return art->id;

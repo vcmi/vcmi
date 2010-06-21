@@ -1555,6 +1555,10 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	case 2:
 		ret*=(1.5); break;
 	}
+	if(tempOwner != NEUTRAL_PLAYER)
+	{
+		ret *= (1 + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); //Statue of Legion
+	}
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
 			ret+=VLC->creh->creatures[town->basicCreatures[level]]->hordeGrowth;
@@ -4525,7 +4529,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		std::set<ui32> spells;
 		spells.insert(spell);
-		cb->changeSpells(h->id,true,spells);
+		cb->changeSpells(h->id, true, spells);
 
 		iw.components.push_back(Component(Component::SPELL,spell,0,0));
 	}
@@ -5450,7 +5454,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 		{
 			const CGObjectInstance *eye = cb->getObj(*it);
 
-			cb->getTilesInRange (fw.tiles, eye->pos, 5, h->tempOwner, 1);
+			cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
 			cb->sendAndApply(&fw);
 			cv.pos = eye->pos;
 			cv.focusTime = 2000;
