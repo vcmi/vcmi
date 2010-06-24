@@ -5092,7 +5092,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 
 	CDefHandler * strips = CDefHandler::giveDef("PRSTRIPS.DEF");
 
-	static const std::string colorToBox[] = {"PRRED.BMP", "PRBLUE.BMP", "PRTAN.BMP", "PRGREEN.BMP", "PRORANGE.BMP", "PRPURPLE.BMP", "PRTEAL.BMP", "PRPINK.BMP"};
+	static const std::string colorToBox[] = {"PRRED.BMP", "PRBLUE.BMP", "PRTAN.BMP", "PRGREEN.BMP", "PRORANGE.BMP", "PRPURPLE.BMP", "PRTEAL.BMP", "PRROSE.bmp"};
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
 	{

@@ -745,6 +745,8 @@ void CenterView::applyCl(CClient *cl)
 
 void NewObject::applyCl(CClient *cl)
 {
+	cl->updatePaths();
+
 	const CGObjectInstance *obj = cl->getObj(id);
 	//notify interfaces about move
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
