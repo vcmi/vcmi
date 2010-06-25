@@ -2869,19 +2869,21 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
 				{
 					CCreatureSet army = h->getArmy();
-					int targetstack = army.Slots().size()-1;
-					for(TSlots::const_reverse_iterator i = army.Slots().rbegin(); i != army.Slots().rend(); i++)
-					{
-						if (army.getPower(targetstack) > army.getPower(i->first))
+					if (army.Slots().size() > 1 || army.Slots().begin()->second.count > 1)
+					{ //we can't remove last unit
+						int targetstack = army.Slots().begin()->first; //slot numbers may vary
+						for(TSlots::const_reverse_iterator i = army.Slots().rbegin(); i != army.Slots().rend(); i++)
 						{
-							targetstack = (i->first);
+							if (army.getPower(targetstack) > army.getPower(i->first))
+							{
+								targetstack = (i->first);
+							}
 						}
-					}
-					CCreatureSet ourArmy;
-					ourArmy.addStack (targetstack, army.getStack(targetstack));
-					TQuantity tq = (TQuantity)((double)(ourArmy.getAmount(targetstack))*0.3);
-					if (tq) //casualties > 0
-					{
+						CCreatureSet ourArmy;
+						ourArmy.addStack (targetstack, army.getStack(targetstack));
+						TQuantity tq = (double)(ourArmy.getAmount(targetstack))*0.5;
+						amax (tq, 1);
+
 						ourArmy.setStackCount (targetstack, tq);
 						InfoWindow iw;
 						iw.player = h->tempOwner;
@@ -2928,7 +2930,10 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
 		return;
 	}
-	cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(), true);
+	if (ID == 111)
+		cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) + (h->pos - pos) - int3(1,0,0), true);
+	else
+		cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(), true);
 }
 
 void CGTeleport::initObj()

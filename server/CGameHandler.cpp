@@ -1893,14 +1893,15 @@ void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we cou
 		return;
 	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
 	CCreatureSet newArmy = obj->getArmy();
-	while (creatures.size() > 0)
+	while (creatures.size())
 	{
 		int slot = newArmy.getSlotFor(creatures.begin()->second.type->idNumber);
 		if (slot < 0)
 			break;
-
 		newArmy.slots[slot].type = creatures.begin()->second.type;
 		newArmy.slots[slot].count -= creatures.begin()->second.count;
+		if (newArmy.getStack(slot).count < 1)
+			newArmy.eraseStack(slot);
 		creatures.erase (creatures.begin());
 	}
 	SetGarrisons sg;
