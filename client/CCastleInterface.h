@@ -50,6 +50,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };
+
 class CHeroGSlot : public CIntObject
 {
 public:
@@ -97,7 +98,6 @@ class CCastleInterface : public CWindowWithGarrison
 		void show(SDL_Surface * to);
 	};
 public:
-	SDL_Rect pos; //why not inherit this member from CIntObject ?
 	bool showing; //indicates if interface is active
 	CBuildingRect * hBuild; //highlighted building
 	SDL_Surface * townInt;
@@ -125,6 +125,7 @@ public:
 	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
 	~CCastleInterface(); //d-tor
 
+	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void show(SDL_Surface * to);

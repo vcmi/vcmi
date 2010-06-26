@@ -618,7 +618,8 @@ void CCastleInterface::buildingClicked(int building)
 				break;
 			}
 		case 10: case 11: case 12: case 13: //hall
-			if(town->visitingHero && town->visitingHero->hasArt(2)) //hero has grail
+			if(town->visitingHero && town->visitingHero->hasArt(2) &&
+					!vstd::contains(town->builtBuildings, 26)) //hero has grail, but town does not have it
 			{
 				if(!vstd::contains(town->forbiddenBuildings, 26))
 				{
@@ -700,9 +701,30 @@ void CCastleInterface::buildingClicked(int building)
 					enterTavern();
 					break;
 	/*Inferno*/		case 3: //Castle Gate
-					tlog4<<"Castle Gate not handled\n";
-					break;
-	/*Necropolis*/		case 4: //Skeleton Transformer
+						{
+							std::vector <int> availableTowns;
+							std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+							for(size_t i=0;i<Towns.size();i++)
+							{
+								const CGTownInstance *t = Towns[i];
+								if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
+									t->subID == 3 && vstd::contains(t->builtBuildings, 26))//inferno with castle gate
+								{
+									availableTowns.push_back(t->id);//add to the list
+								}
+							}
+							if (!town->visitingHero)
+							{
+								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
+								break;//only visiting hero can use castle gates
+							}
+							tlog4<<"Warning: implementation is unfinished\n";
+							CPicture *titlePic = new CPicture (bicons->ourImages[building].bitmap, 0,0, false);
+							GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
+							    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, this, _1)));
+							break;
+						}
+	/*Necropolis*/	case 4: //Skeleton Transformer
 					tlog4<<"Skeleton Transformer not handled\n";
 					break;
 	/*Dungeon*/		case 5: //Portal of Summoning
@@ -727,6 +749,14 @@ void CCastleInterface::buildingClicked(int building)
 		}
 	}
 }
+
+void CCastleInterface::castleTeleport(int where)
+{
+	//TODO: send message to move hero,
+	//find a way to do this without new message type
+	//and update interface
+}
+
 void CCastleInterface::defaultBuildingClicked(int building)
 {
 	std::vector<SComponent*> comps(1,
@@ -829,7 +859,7 @@ void CCastleInterface::townChange()
 void CCastleInterface::show(SDL_Surface * to)
 {
 	count++;
-	if(count==8)
+	if(count==5)
 	{
 		count=0;
 		animval++;
@@ -1173,7 +1203,6 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				CGI->creh->creatures[crid]->hordeGrowth);
 
 		cnt = 0;
-		int creaLevel = (bid-30)%CREATURES_PER_TOWN;//dwellings have unupgraded units
 
 		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
 			it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
@@ -1224,7 +1253,6 @@ CCastleInterface::CTownInfo::~CTownInfo()
 CCastleInterface::CTownInfo::CTownInfo(int BID)
 {
 	used = LCLICK | RCLICK | HOVER;
-	int pom=0;
 	CCastleInterface * ci=LOCPLINT->castleInt;
 	switch (BID)
 	{

@@ -2581,6 +2581,135 @@ CCustomImgComponent::~CCustomImgComponent()
 		SDL_FreeSurface(bmp);
 }
 
+CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+				boost::function<void(int)> Callback, int initState):items(_items), title(_title), descr(_descr),selected(initState)
+{
+	init = false;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	defActions = ACTIVATE | DEACTIVATE | UPDATE | SHOWALL | DISPOSE | SHARE_POS;
+	used = LCLICK | KEYBOARD;
+	
+	onSelect = Callback;
+	length = 9;
+	pos.x = (screen->w-306)/2;
+	pos.y = (screen->h-468)/2;
+	
+	bg = new CPicture("TPGATE.pcx");//x=0, y=0
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	
+	slider = new CSlider(277, 120, 256, boost::bind(&CObjectListWindow::moveList,this, _1), length, items.size(), 0, false, 0);
+	ok = new AdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
+	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH, this),228,402,"ICANCEL.DEF",SDLK_ESCAPE);
+	pos.w = bg->pos.w;
+	pos.h = bg->pos.h;
+	titleImage = titlePic;
+	titleImage->pos.x =153+pos.x-titleImage->pos.w/2;
+	titleImage->pos.y =75 +pos.y-titleImage->pos.h/2;
+	
+	for (int i=0; i<length; i++)
+		areas.push_back(genRect(22, 260, pos.x+15, pos.y+152+i*25 ));//rects for selecting\printing items
+	init = true;
+}
+
+CObjectListWindow::~CObjectListWindow()
+{
+	delete titleImage;
+}
+
+void CObjectListWindow::elementSelected()
+{
+	onSelect(items[slider->value]);
+	GH.popIntTotally(this);
+}
+
+void CObjectListWindow::moveList(int which)
+{
+	if (init)//TODO: is there a way to disable running this when CSlider is created?
+		showAll(screen2);
+}
+
+void CObjectListWindow::clickLeft(tribool down, bool previousState)
+{
+	if (previousState && (!down))
+	{
+		for (int i=0; i<areas.size(); i++)
+			if(slider->value+i < items.size() && isItIn(&areas[i],GH.current->motion.x,GH.current->motion.y))
+			{//check all areas to find element which was clicked
+				selected = i+slider->value;
+				showAll(screen2);
+				return;
+			}
+	}
+}
+
+void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+{
+	if(key.state != SDL_PRESSED) return;
+
+	int sel = selected;
+
+	switch(key.keysym.sym)
+	{
+	case SDLK_UP:	
+					sel -=1;
+					break;
+	case SDLK_DOWN:
+					sel +=1;
+					break;
+	case SDLK_PAGEUP:
+					sel -=length;
+					break;
+	case SDLK_PAGEDOWN:
+					sel +=length;
+					break;
+	case SDLK_HOME:
+					sel = 0;
+					break;
+	case SDLK_END:
+					sel = slider->amount;
+					break;
+	default:
+		return;
+	}
+	if (sel<0)//start of list reached
+		sel = 0;
+	else if ( sel >= slider->amount )//end of list reached
+		sel = slider->amount-1;
+	if ( sel >= items.size() )
+		sel = items.size()-1;
+	if ( sel < slider->value )//need to move list up
+		slider->moveTo(sel);
+	else 
+	if ( sel >= slider->value+length )//move to bottom
+		slider->moveTo(sel-length+1);
+	selected = sel;
+	showAll(screen2);
+}
+
+void CObjectListWindow::show(SDL_Surface * to)
+{
+	
+}
+
+void CObjectListWindow::showAll(SDL_Surface * to)
+{
+	ok->block((selected<0)?2:0);
+	CIntObject::showAll(to);
+	CSDL_Ext::printAtMiddle(title,pos.x+152,pos.y+27,FONT_BIG,tytulowy,to);//"castle gate"
+	CSDL_Ext::printAtMiddle(descr,pos.x+145,pos.y+133,FONT_SMALL,zwykly,to);//"select destination"
+	titleImage->showAll(to);
+	if ( selected >= slider->value && selected < slider->value+length )//if selected item is visible 
+	{
+		SDL_Rect a = areas[selected-slider->value];
+		CSDL_Ext::drawBorder(to, a.x,   a.y,   a.w,   a.h,   int3(255, 231, 148));
+		CSDL_Ext::drawBorder(to, a.x-1, a.y-1, a.w+2, a.h+2, int3(255, 231, 148));//border shoul be 2 pixels width
+	}
+	int position = slider->value;
+	for ( int i = 0; i<9 && i<items.size()-position; i++)
+		CSDL_Ext::printAtMiddle(CGI->mh->map->objects[items[i+position]]->hoverName,pos.x+145,pos.y+163+25*i,
+			FONT_SMALL, zwykly, to);//print item names in list
+}
+
 CMarketplaceWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial)
 {
 	serial = Serial;

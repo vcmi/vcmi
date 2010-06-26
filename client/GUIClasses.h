@@ -516,6 +516,37 @@ public:
 	~CMinorResDataBar(); //d-tor
 };
 
+class CObjectListWindow : public CIntObject
+{
+public:
+
+	boost::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
+	std::string title,descr;//text for title and description
+
+	CPicture *bg; //background
+	CSlider *slider;
+	CPicture *titleImage;//title image (castle gate\town portal picture)
+	AdventureMapButton *ok, *exit;
+
+	std::vector<Rect> areas;//areas for each visible item
+	std::vector<int> items;//id of all items present in list
+	int selected;//currently selected item
+	int length;//size of list (=9)
+	bool init;//true = initialization completed
+
+	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
+	CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+                      boost::function<void(int)> Callback, int initState=-1); //c-tor
+	~CObjectListWindow(); //d-tor
+
+	void elementSelected();//call callback and exit
+	void moveList(int which);//called when slider moves
+	void clickLeft(tribool down, bool previousState);  //call-in
+	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
+};
+
 class CMarketplaceWindow : public CIntObject
 {
 	bool printButtonFor(EMarketMode M) const;
