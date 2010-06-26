@@ -5015,12 +5015,21 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 								setCreature (stacksCount(), it->first, it->second);
 							}
 						}
-						else //split first stack, as in Crypt
+						else if (bc->guards[2].second)//Wraiths are present, split two stacks in Crypt
 						{
 							setCreature (0, bc->guards[0].first, bc->guards[0].second  / 2 );
-							setCreature (1, bc->guards[0].first, bc->guards[0].second - (bc->guards[0].second  / 2) );
-							setCreature (2, bc->guards[1].first, bc->guards[1].second);
-							setCreature (3, bc->guards[2].first + upgraded, bc->guards[2].second);
+							setCreature (1, bc->guards[1].first, bc->guards[1].second / 2);
+							setCreature (2, bc->guards[2].first + upgraded, bc->guards[2].second);
+							setCreature (3, bc->guards[1].first, bc->guards[1].second / 2 );
+							setCreature (4, bc->guards[0].first, bc->guards[0].second - (bc->guards[0].second  / 2) );
+
+						}
+						else //split both stacks
+						{
+							for	(int i = 0; i < 3; ++i) //skellies
+								setCreature (2*i, bc->guards[0].first, bc->guards[0].second  / 3);
+							for	(int i = 0; i < 2; ++i) //zombies
+								setCreature (2*i+1, bc->guards[1].first, bc->guards[1].second  / 2);
 						}
 					}
 						break;
