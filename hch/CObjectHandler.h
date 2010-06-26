@@ -487,7 +487,7 @@ public:
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
-
+	static std::vector<const CArtifact *> merchantArtifacts; //vector of artifacts available at Artifact merchant, NULLs possible (for making empty space when artifact is bought)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1095,21 +1095,6 @@ public:
 	}
 };
 
-class DLL_EXPORT CGArtMerchant : public CShop
-{
-///aka Black Market
-public:
-	static std::map<ui16, Component*> advMapArts;
-	static std::map<ui16, Component*> townArts;
-	void reset (ui32 val);
-	void onHeroVisit (const CGHeroInstance * h) const {};
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & advMapArts & townArts & static_cast<CShop&>(*this);
-	}
-};
-
 class DLL_EXPORT CGRefugeeCamp : public CShop
 {
 public:
@@ -1164,8 +1149,6 @@ class DLL_EXPORT CGMarket : public CGObjectInstance, public IMarket
 public:
 	CGMarket();
 	void onHeroVisit(const CGHeroInstance * h) const; //open trading window
-	void initObj();
-	void newTurn() const; //reset artifacts for black market every month
 	
 	int getMarketEfficiency() const;
 	bool allowsTrade(EMarketMode mode) const;
@@ -1175,6 +1158,21 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_EXPORT CGBlackMarket : public CGMarket
+{
+public:
+	std::vector<const CArtifact *> artifacts; //available artifacts
+
+	void initObj();
+	void newTurn() const; //reset artifacts for black market every month
+	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGMarket&>(*this);
 	}
 };
 

@@ -27,7 +27,7 @@ public:
 		BARBARIAN, BATTLEMAGE, BEASTMASTER, WITCH, PLANESWALKER, ELEMENTALIST};
 
 	std::string name; //name of hero
-	ui16 ID;
+	si32 ID;
 	ui32 lowStack[3], highStack[3]; //amount of units; described below
 	std::string refTypeStack[3]; //reference names of units appearing in hero's army if he is recruited in tavern
 	CHeroClass * heroClass;

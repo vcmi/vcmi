@@ -46,10 +46,11 @@ extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
 BankConfig CGPyramid::pyramidConfig;
-std::map<ui16, Component*> CGArtMerchant::advMapArts;
-std::map<ui16, Component*> CGArtMerchant::townArts;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
+
+std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
+
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -694,7 +695,7 @@ const CArtifact * CGHeroInstance::getArt(int pos) const
 {
 	int id = getArtAtPos(pos);
 	if(id>=0)
-		return &VLC->arth->artifacts[id];
+		return VLC->arth->artifacts[id];
 	else
 		return NULL;
 }
@@ -1098,16 +1099,21 @@ si32 CGHeroInstance::getArtPos(int aid) const
  */
 void CGHeroInstance::giveArtifact (ui32 aid)
 {
-	const CArtifact &artifact = VLC->arth->artifacts[aid];
+	const CArtifact &artifact = *VLC->arth->artifacts[aid];
 
-	if (artifact.isBig()) {
-		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) {
-			if (!vstd::contains(artifWorn, *it)) {
+	if (artifact.isBig()) 
+	{
+		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) 
+		{
+			if (!vstd::contains(artifWorn, *it)) 
+			{
 				VLC->arth->equipArtifact(artifWorn, *it, aid, &bonuses);
 				break;
 			}
 		}
-	} else {
+	} 
+	else 
+	{
 		artifacts.push_back(aid);
 	}
 }
@@ -1118,7 +1124,7 @@ void CGHeroInstance::recreateArtBonuses()
 	bonuses.remove_if(boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,0xffffff));
 	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
 	{
-		CArtifact &art = VLC->arth->artifacts[ari->second];
+		CArtifact &art = *VLC->arth->artifacts[ari->second];
 		art.addBonusesTo(&bonuses);
 	}
 }
@@ -1759,6 +1765,39 @@ void CGTownInstance::newTurn() const
 		{
 			if ((*i)->ID == 21)
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
+		}
+	}
+
+	if(cb->getDate(2) == 1) //reset on new month
+	{
+		std::vector<CArtifact*>::iterator index;
+		for (ui8 i = 0; i < 3; ++i) //each tier
+		{	
+			int count = 0;
+			std::vector<CArtifact*> arts; //to avoid addition of different tiers
+			switch (i)
+			{
+			case 0:
+				cb->getAllowed (arts, CArtifact::ART_TREASURE);
+				count = 3; // first row - three treasures,
+				break;
+			case 1:
+				cb->getAllowed (arts, CArtifact::ART_MINOR);
+				count = 3; // second row three minors
+				break;
+			case 2:
+				cb->getAllowed (arts, CArtifact::ART_MAJOR);
+				count = 1; // and a third row - one major
+				break;
+			}
+			for (ui8 n = 0; n < count; n++)
+			{
+				
+// 				index = arts.begin() + val % arts.size();
+// 				advMapArts [advMapArts.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
+// 				arts.erase(index);
+// 				val *= (id + n * i); //randomize
+			}
 		}
 	}
 }
@@ -3027,7 +3066,7 @@ void CGArtifact::initObj()
 {
 	blockVisit = true;
 	if(ID == 5)
-		hoverName = VLC->arth->artifacts[subID].Name();
+		hoverName = VLC->arth->artifacts[subID]->Name();
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
@@ -5791,41 +5830,6 @@ void CShop::setPropertyDer (ui8 what, ui32 val)
 			break;
 	}
 }
-void CGArtMerchant::reset(ui32 val)
-{//TODO: it should have 2 global pools instead of unique for each merchant:
-// 1) for town merchants - resets every month,
-// 2) for adv. map - resets only on game start
-	std::vector<CArtifact*>::iterator index;
-	for (ui8 i = 0; i < 3; ++i) //each tier
-	{	
-		int count = 0;
-		std::vector<CArtifact*> arts; //to avoid addition of different tiers
-		switch (i)
-		{
-			case 0:
-				cb->getAllowed (arts, CArtifact::ART_TREASURE);
-				count = 3; // first row - three treasures,
-				break;
-			case 1:
-				cb->getAllowed (arts, CArtifact::ART_MINOR);
-				count = 3; // second row three minors
-				break;
-			case 2:
-				cb->getAllowed (arts, CArtifact::ART_MAJOR);
-				count = 1; // and a third row - one major
-				break;
-		}
-		for (ui8 n = 0; n < count; n++)
-		{
-
-			index = arts.begin() + val % arts.size();
-			advMapArts [advMapArts.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
-			arts.erase(index);
-			val *= (id + n * i); //randomize
-		}
-	}
-
-}
 
 void CGRefugeeCamp::reset(ui32 val)
 {
@@ -6186,16 +6190,6 @@ void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 	cb->sendAndApply(&ow);
 }
 
-void CGMarket::initObj()
-{
-
-}
-
-void CGMarket::newTurn() const
-{
-
-}
-
 int CGMarket::getMarketEfficiency() const
 {
 	return 5;
@@ -6241,4 +6235,35 @@ std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
 CGMarket::CGMarket()
 	:IMarket(this)
 {
+}
+
+std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
+{
+	switch(mode)
+	{
+	case ARTIFACT_RESOURCE:
+		return IMarket::availableItemsIds(mode);
+	case RESOURCE_ARTIFACT:
+		{
+			std::vector<int> ret;
+			BOOST_FOREACH(const CArtifact *a, artifacts)
+				if(a)
+					ret.push_back(a->id);
+				else
+					ret.push_back(-1);
+			return ret;
+		}
+	default:
+		return std::vector<int>();
+	}
+}
+
+void CGBlackMarket::initObj()
+{
+
+}
+
+void CGBlackMarket::newTurn() const
+{
+
 }

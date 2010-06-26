@@ -16,6 +16,9 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CCreatureHandler.h"
 #include "VCMI_Lib.h"
+#include "../hch/CArtHandler.h"
+#include "../hch/CHeroHandler.h"
+#include "../hch/CTownHandler.h"
 
 
 /*
@@ -66,7 +69,6 @@ void CConnection::init()
 	tlog0 << "Established connection with "<<pom<<std::endl;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
-	gs = NULL;
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
@@ -201,42 +203,6 @@ void CConnection::close()
 	}
 }
 
-
-CGObjectInstance *CConnection::loadObject()
-{
-	assert(gs);
-	si32 id;
-	*this >> id;
-	assert(id >= 0 && id < gs->map->objects.size());
-	return gs->map->objects[id];
-}
-
-void CConnection::saveObject( const CGObjectInstance *data )
-{
-	assert(gs);
-	assert(data);
-	*this << data->id;
-}
-
-CCreature * CConnection::loadCreature()
-{
-	si32 id;
-	*this >> id;
-	assert(id >= 0 && id < VLC->creh->creatures.size());
-	return VLC->creh->creatures[id];
-}
-
-void CConnection::saveCreature(const CCreature *data)
-{
-	assert(data);
-	*this << data->idNumber;
-}
-
-void CConnection::setGS( CGameState *state )
-{
-	gs = state;
-}
-
 bool CConnection::isOpen() const
 {
 	return socket && connected;
@@ -361,4 +327,24 @@ ui16 CTypeList::getTypeID( const std::type_info *type )
 		return i->second;
 	else
 		return 0;
+}
+
+CSerializer::~CSerializer()
+{
+
+}
+
+CSerializer::CSerializer()
+{
+	smartVectorMembersSerialization = false;
+}
+
+
+void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
+{
+	registerVectoredType(&gs->map->objects, &CGObjectInstance::id);
+	registerVectoredType(&lib->creh->creatures, &CCreature::idNumber);
+	registerVectoredType(&lib->arth->artifacts, &CArtifact::id);
+	registerVectoredType(&lib->heroh->heroes, &CHero::ID);
+	smartVectorMembersSerialization = true;
 }

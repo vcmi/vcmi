@@ -36,7 +36,7 @@ public:
 	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
 	std::vector<ui32> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
-	ui32 id;
+	si32 id;
 	std::list<Bonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -50,7 +50,7 @@ class DLL_EXPORT CArtHandler //handles artifacts
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
-	std::vector<CArtifact> artifacts;
+	std::vector<CArtifact *> artifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 
 	void loadArtifacts(bool onlyTxt);

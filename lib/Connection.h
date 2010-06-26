@@ -20,12 +20,16 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/any.hpp>
 
 const ui32 version = 723;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
 class CCreature;
+class LibClasses;
+class CHero;
+extern DLL_EXPORT LibClasses * VLC;
 namespace mpl = boost::mpl;
 
 /*
@@ -223,7 +227,81 @@ struct SerializationLevel
 	static const int value = SerializationLevel::type::value;
 };
 
-class DLL_EXPORT CSaverBase
+template <typename T>
+struct VectorisedObjectInfo
+{
+	const std::vector<T*> *vector;	//pointer to the appropriate vector
+	const si32 T::*idPtr;			//pointer to the field representing the position in the vector
+
+	VectorisedObjectInfo(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+		:vector(Vector), idPtr(IdPtr)
+	{
+	}
+};
+
+class DLL_EXPORT CSerializer
+{
+public:
+	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
+	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
+
+	bool smartVectorMembersSerialization;
+
+	CSerializer();
+	~CSerializer();
+
+	template <typename T>
+	void registerVectoredType(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	{
+		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
+	}
+
+	template <typename T>
+	const VectorisedObjectInfo<T> *getVectorisedTypeInfo()
+	{
+		const std::type_info *myType = NULL;
+// 
+// 		if(boost::is_base_of<CGObjectInstance, T>::value) //ugly workaround to support also types derived from CGObjectInstance -> if we encounter one, treat it aas CGObj..
+// 			myType = &typeid(CGObjectInstance);
+// 		else
+			 myType = &typeid(T);
+
+		TTypeVecMap::iterator i = vectors.find(myType);
+		if(i == vectors.end())
+			return NULL;
+		else
+		{
+			assert(!i->second.empty());
+			assert(i->second.type() == typeid(VectorisedObjectInfo<T>));
+			VectorisedObjectInfo<T> *ret = &(boost::any_cast<VectorisedObjectInfo<T>&>(i->second));
+			return ret;
+		}
+	}
+
+	template <typename T>
+	T* getVectorItemFromId(const VectorisedObjectInfo<T> &oInfo, si32 id) const
+	{
+		if(id < 0)
+			return NULL;
+
+		assert(oInfo.vector);
+		assert(oInfo.vector->size() > id);
+		return (*oInfo.vector)[id];
+	}
+
+	template <typename T>
+	si32 getIdFromVectorItem(const VectorisedObjectInfo<T> &oInfo, const T* obj) const
+	{
+		if(!obj)
+			return -1;
+
+		return obj->*oInfo.idPtr;
+	}
+
+	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
+};
+
+class DLL_EXPORT CSaverBase : public virtual CSerializer
 {
 };
 
@@ -245,6 +323,18 @@ public:
 		//T is most derived known type, it's time to call actual serialize
 		const_cast<T&>(*ptr).serialize(s,version);
 	}
+};
+
+template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
+struct VectorisedTypeFor
+{
+	typedef typename 
+		//if
+		mpl::eval_if<boost::is_base_of<CGObjectInstance,T>,
+		mpl::identity<CGObjectInstance>,
+		//else
+		mpl::identity<T>
+		>::type type;
 };
 
 template <typename Serializer> class DLL_EXPORT COSer : public CSaverBase
@@ -312,6 +402,17 @@ public:
 		//if pointer is NULL then we don't need anything more...
 		if(!hlp)
 			return;
+
+ 		if(smartVectorMembersSerialization)
+		{
+			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType;
+			typedef typename VectorisedTypeFor<TObjectType>::type VType;
+ 			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
+ 			{
+ 				*this << getIdFromVectorItem<VType>(*info, data);
+ 				return;
+ 			}
+ 		}
 
 		if(smartPointerSerialization)
 		{
@@ -429,7 +530,7 @@ public:
 
 
 
-class DLL_EXPORT CLoaderBase
+class DLL_EXPORT CLoaderBase : public virtual CSerializer
 {};
 
 class CBasicPointerLoader
@@ -455,7 +556,6 @@ public:
 		ptr->serialize(s,version);
 	}
 };
-
 
 template <typename Serializer> class DLL_EXPORT CISer : public CLoaderBase
 {
@@ -561,6 +661,19 @@ public:
 		{
 			data = NULL;
 			return;
+		}
+				
+		if(smartVectorMembersSerialization)
+		{
+			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
+			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
+			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
+			{
+				si32 id;
+				*this >> id;
+				data = static_cast<T>(getVectorItemFromId(*info, id));
+				return;
+			}
 		}
 
 		ui32 pid = -1; //pointer id (or maybe rather pointee id) 
@@ -711,7 +824,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 class DLL_EXPORT CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
-	CGameState *gs;
+	//CGameState *gs;
 	CConnection(void);
 
 	void init();
@@ -735,99 +848,6 @@ public:
     template<class T>
     CConnection &operator&(const T&);
 	~CConnection(void);
-	void setGS(CGameState *state);
-
-	CGObjectInstance *loadObject(); //reads id from net and returns that obj
-	void saveObject(const CGObjectInstance *data);
-	CCreature *loadCreature(); //reads id from net and returns that obj
-	void saveCreature(const CCreature *data);
-
-
-	template<typename T>
-	struct loadObjectHelper
-	{
-		static void invoke(CConnection &s, T &data, ui16 tid)
-		{
-			data = static_cast<T>(s.loadObject());
-		}
-	};
-	template<typename T>
-	struct loadCreatureHelper
-	{
-		static void invoke(CConnection &s, T &data, ui16 tid)
-		{
-			data = static_cast<T>(s.loadCreature());
-		}
-	};
-	template<typename T>
-	struct loadRestHelper
-	{
-		static void invoke(CConnection &s, T &data, ui16 tid)
-		{
-			s.CISer<CConnection>::loadPointerHlp(tid, data, -1);
-		}
-	};
-	template<typename T>
-	struct saveObjectHelper
-	{
-		static void invoke(CConnection &s, const T &data, ui16 tid)
-		{
-			//CGObjectInstance *&hlp = const_cast<CGObjectInstance*&>(data); //for loading pointer to const obj we must remove the qualifier
-			s.saveObject(data);
-		}
-	};
-	template<typename T>
-	struct saveCreatureHelper
-	{
-		static void invoke(CConnection &s, const T &data, ui16 tid)
-		{
-			//CGObjectInstance *&hlp = const_cast<CGObjectInstance*&>(data); //for loading pointer to const obj we must remove the qualifier
-			s.saveCreature(data);
-		}
-	};
-	template<typename T>
-	struct saveRestHelper
-	{
-		static void invoke(CConnection &s, const T &data, ui16 tid)
-		{
-			s.COSer<CConnection>::savePointerHlp(tid, data);
-		}
-	};
-
-
-	//"overload" loading pointer procedure
-	template <typename T>
-	void loadPointerHlp( ui16 tid, T & data, ui32 pid )
-	{
-		typedef typename 
-			//if
-			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
-			mpl::identity<loadObjectHelper<T> >,
-			//else if
-			mpl::eval_if< boost::is_base_of<CCreature, typename boost::remove_pointer<T>::type>,
-			mpl::identity<loadCreatureHelper<T> >,
-			//else
-			mpl::identity<loadRestHelper<T> >
-			> >::type typex;
-		typex::invoke(*this, data, tid);
-	}
-
-	//"overload" saving pointer procedure
-	template <typename T>
-	void savePointerHlp( ui16 tid, const T & data )
-	{
-		typedef typename 
-			//if
-			mpl::eval_if< boost::is_base_of<CGObjectInstance, typename boost::remove_pointer<T>::type>,
-				mpl::identity<saveObjectHelper<T> >,
-			//else if
-			mpl::eval_if< boost::is_base_of<CCreature, typename boost::remove_pointer<T>::type>,
-			mpl::identity<saveCreatureHelper<T> >,
-			//else
-				mpl::identity<saveRestHelper<T> >
-			> >::type typex;
-		typex::invoke(*this, data, tid);
-	}
 };
 
 #endif // __CONNECTION_H__

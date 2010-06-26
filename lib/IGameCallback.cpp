@@ -181,8 +181,8 @@ void IGameCallback::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CAr
 	{
 		for (int i = 0; i < VLC->arth->artifacts.size(); i++)
 		{
-			if (VLC->arth->artifacts[i].aClass == flag)
-				(VLC->arth->*arts).push_back(&(VLC->arth->artifacts[i]));
+			if (VLC->arth->artifacts[i]->aClass == flag)
+				(VLC->arth->*arts).push_back(VLC->arth->artifacts[i]);
 		}
 	}
 
@@ -209,7 +209,7 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 	if (!out.size()) //no arts are avaliable
 	{
 		out.resize(64);
-		std::fill_n(out.begin(), 64, &(VLC->arth->artifacts[2])); //magic
+		std::fill_n(out.begin(), 64, VLC->arth->artifacts[2]); //magic
 	}
 }
 

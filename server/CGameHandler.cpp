@@ -1944,7 +1944,7 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {
 	const CGHeroInstance* h = getHero(hid);
-	const CArtifact &art = VLC->arth->artifacts[artid];
+	const CArtifact &art = *VLC->arth->artifacts[artid];
 
 	SetHeroArtifacts sha;
 	sha.hid = hid;
@@ -2922,7 +2922,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			return false;
 		}
 
-		const CArtifact &artifact = VLC->arth->artifacts[assembleTo];
+		const CArtifact &artifact = *VLC->arth->artifacts[assembleTo];
 
 		if (artifact.constituents == NULL) {
 			complain("Not a combinational artifact.");
@@ -2975,7 +2975,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 		// Perform disassembly.
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
-			const CArtifact &constituent = VLC->arth->artifacts[constituentID];
+			const CArtifact &constituent = *VLC->arth->artifacts[constituentID];
 
 			if (!destConsumed && vstd::contains(constituent.possibleSlots, artifactSlot)) {
 				sha.artifWorn[artifactSlot] = constituentID;
@@ -3015,7 +3015,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	}
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
-		int price = VLC->arth->artifacts[aid].price;
+		int price = VLC->arth->artifacts[aid]->price;
 		if(vstd::contains(hero->artifWorn,ui16(9+aid)) && complain("Hero already has this machine!")
 			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
 			|| gs->getPlayer(hero->getOwner())->resources[6] < price  && complain("Not enough gold!")  //no gold

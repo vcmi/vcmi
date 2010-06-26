@@ -373,6 +373,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		h & CGMagi::eyelist;
 		h & CGPyramid::pyramidConfig;
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
+		h & CGTownInstance::merchantArtifacts;
 
 		for(unsigned int i=0; i<objects.size(); i++)
 		{

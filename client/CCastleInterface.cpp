@@ -798,7 +798,7 @@ void CCastleInterface::enterBlacksmith(int ArtifactID)
 		LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
 		return;
 	}
-	int price = CGI->arth->artifacts[ArtifactID].price;
+	int price = CGI->arth->artifacts[ArtifactID]->price;
 	bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
 	if(vstd::contains(hero->artifWorn,ui16(ArtifactID+9))) //hero already has machine
 		possible = false;
@@ -1218,7 +1218,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				for(std::list<Bonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
 					if(i->type == Bonus::CREATURE_GROWTH && i->subtype == level)
 						if (i->source == Bonus::ARTIFACT)
-							summ+=AddToString(CGI->arth->artifacts[i->id].Name()+" %+d",descr,i->val);
+							summ+=AddToString(CGI->arth->artifacts[i->id]->Name()+" %+d",descr,i->val);
 			};
 			ch = ci->town->visitingHero;
 		};
@@ -2056,7 +2056,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID]->nameSing.c_str()); //build a new ...
 	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,bmp);
 	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,bmp); //resource cost
-	SDL_itoa(CGI->arth->artifacts[aid].price,pom,10);
+	SDL_itoa(CGI->arth->artifacts[aid]->price,pom,10);
 	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,bmp);
 
 	pos.w = bmp->w;

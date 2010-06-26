@@ -845,8 +845,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	switch (Type)
 	{
 	case artifact:
-		description = CGI->arth->artifacts[Subtype].Description();
-		subtitle = CGI->arth->artifacts[Subtype].Name();
+		description = CGI->arth->artifacts[Subtype]->Description();
+		subtitle = CGI->arth->artifacts[Subtype]->Name();
 		break;
 	case primskill:
 		oss << std::showpos << Val << " ";

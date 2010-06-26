@@ -70,8 +70,9 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 
 		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
 
-		BOOST_FOREACH(ui32 constituentID, *constituents) {
-			const CArtifact& constituent = VLC->arth->artifacts[constituentID];
+		BOOST_FOREACH(ui32 constituentID, *constituents) 
+		{
+			const CArtifact& constituent = *VLC->arth->artifacts[constituentID];
 			const int slot = constituent.possibleSlots[0];
 
 			if (slot == 6 || slot == 7)
@@ -107,7 +108,7 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 ar
 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
 		return false;
 
-	const CArtifact &artifact = VLC->arth->artifacts[artifactID];
+	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
 	assert(artifact.constituents);
 
 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
@@ -135,8 +136,9 @@ void CArtifact::addBonusesTo (BonusList *otherBonuses) const
 		otherBonuses->push_back(*i);
 
 	if (constituents != NULL) {
-		BOOST_FOREACH(ui32 artifactID, *constituents) {
-			VLC->arth->artifacts[artifactID].addBonusesTo(otherBonuses);
+		BOOST_FOREACH(ui32 artifactID, *constituents) 
+		{
+			VLC->arth->artifacts[artifactID]->addBonusesTo(otherBonuses);
 		}
 	}
 }
@@ -149,7 +151,7 @@ void CArtifact::removeBonusesFrom (BonusList *otherBonuses) const
 {
 	if (constituents != NULL) {
 		BOOST_FOREACH(ui32 artifactID, *constituents) {
-			VLC->arth->artifacts[artifactID].removeBonusesFrom(otherBonuses);
+			VLC->arth->artifacts[artifactID]->removeBonusesFrom(otherBonuses);
 		}
 	}
 
@@ -174,9 +176,9 @@ CArtHandler::CArtHandler()
 
 CArtHandler::~CArtHandler()
 {
-	for (std::vector<CArtifact>::iterator it = artifacts.begin(); it != artifacts.end(); ++it) {
-		delete it->constituents;
-		delete it->constituentOf;
+	for (std::vector<CArtifact*>::iterator it = artifacts.begin(); it != artifacts.end(); ++it) {
+		delete (*it)->constituents;
+		delete (*it)->constituentOf;
 	}
 }
 
@@ -196,7 +198,8 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	VLC->generaltexth->artifDescriptions.resize(ARTIFACTS_QUANTITY);
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
-		CArtifact nart;
+		CArtifact *art = new CArtifact;
+		CArtifact &nart = *art;
 		nart.id=i;
 		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
 		loadToIt(pom,buf,it,4);
@@ -290,7 +293,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 				break;
 		}
 
-		artifacts.push_back(nart);
+		artifacts.push_back(&nart);
 	}
 	sortArts();
 	if(onlyTxt)
@@ -299,12 +302,15 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	addBonuses();
 
 	// Populate reverse mappings of combinational artifacts.
-	BOOST_FOREACH(CArtifact artifact, artifacts) {
-		if (artifact.constituents != NULL) {
-			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
-				if (artifacts[constituentID].constituentOf == NULL)
-					artifacts[constituentID].constituentOf = new std::vector<ui32>();
-				artifacts[constituentID].constituentOf->push_back(artifact.id);
+	BOOST_FOREACH(CArtifact *artifact, artifacts) 
+	{
+		if (artifact->constituents != NULL) 
+		{
+			BOOST_FOREACH(ui32 constituentID, *artifact->constituents) 
+			{
+				if (artifacts[constituentID]->constituentOf == NULL)
+					artifacts[constituentID]->constituentOf = new std::vector<ui32>();
+				artifacts[constituentID]->constituentOf->push_back(artifact->id);
 			}
 		}
 	}
@@ -345,19 +351,19 @@ void CArtHandler::sortArts()
 {
 	for(int i=0;i<144;i++) //do 144, bo nie chcemy bzdurek
 	{
-		switch (artifacts[i].aClass)
+		switch (artifacts[i]->aClass)
 		{
 		case CArtifact::ART_TREASURE:
-			treasures.push_back(&(artifacts[i]));
+			treasures.push_back(artifacts[i]);
 			break;
 		case CArtifact::ART_MINOR:
-			minors.push_back(&(artifacts[i]));
+			minors.push_back(artifacts[i]);
 			break;
 		case CArtifact::ART_MAJOR:
-			majors.push_back(&(artifacts[i]));
+			majors.push_back(artifacts[i]);
 			break;
 		case CArtifact::ART_RELIC:
-			relics.push_back(&(artifacts[i]));
+			relics.push_back(artifacts[i]);
 			break;
 		}
 	}
@@ -368,8 +374,8 @@ void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int sub
 	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
 	added.valType = valType;
 	if(type == Bonus::MORALE || Bonus::LUCK)
-		added.description = "\n" + artifacts[aid].Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
-	artifacts[aid].bonuses.push_back(added);
+		added.description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+	artifacts[aid]->bonuses.push_back(added);
 }
 
 void CArtHandler::addBonuses()
@@ -614,7 +620,10 @@ void CArtHandler::addBonuses()
 
 void CArtHandler::clear()
 {
+	BOOST_FOREACH(CArtifact *art, artifacts)
+		delete art;
 	artifacts.clear();
+
 	treasures.clear();
 	minors.clear();
 	majors.clear();
@@ -632,23 +641,30 @@ void CArtHandler::equipArtifact
 {
 	unequipArtifact(artifWorn, slotID, bonuses);
 
-	const CArtifact &artifact = artifacts[artifactID];
+	const CArtifact &artifact = *artifacts[artifactID];
 
 	// Add artifact.
 	artifWorn[slotID] = artifactID;
 
 	// Add locks, in reverse order of being removed.
-	if (artifact.constituents != NULL) {
+	if (artifact.constituents != NULL) 
+	{
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
-			const CArtifact &constituent = artifacts[constituentID];
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+		{
+			const CArtifact &constituent = *artifacts[constituentID];
 
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) {
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+			{
 				destConsumed = true;
-			} else {
-				BOOST_FOREACH(ui16 slot, constituent.possibleSlots) {
-					if (!vstd::contains(artifWorn, slot)) {
+			} 
+			else 
+			{
+				BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
+				{
+					if (!vstd::contains(artifWorn, slot)) 
+					{
 						artifWorn[slot] = 145;
 						break;
 					}
@@ -673,23 +689,30 @@ void CArtHandler::unequipArtifact
 	if (!vstd::contains(artifWorn, slotID))
 		return;
 
-	const CArtifact &artifact = artifacts[artifWorn[slotID]];
+	const CArtifact &artifact = *artifacts[artifWorn[slotID]];
 
 	// Remove artifact, if it's not already removed.
 	artifWorn.erase(slotID);
 
 	// Remove locks, in reverse order of being added.
-	if (artifact.constituents != NULL) {
+	if (artifact.constituents != NULL) 
+	{
 		bool destConsumed = false;
 
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
-			const CArtifact &constituent = artifacts[constituentID];
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+		{
+			const CArtifact &constituent = *artifacts[constituentID];
 
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) {
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+			{
 				destConsumed = true;
-			} else {
-				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) {
-					if (vstd::contains(artifWorn, slot) && artifWorn[slot] == 145) {
+			} 
+			else 
+			{
+				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) 
+				{
+					if (vstd::contains(artifWorn, slot) && artifWorn[slot] == 145) 
+					{
 						artifWorn.erase(slot);
 						break;
 					}

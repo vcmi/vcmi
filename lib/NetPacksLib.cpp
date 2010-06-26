@@ -487,7 +487,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(h->getArtPos(id) >= 0)
 			continue;
 
-		CArtifact &art = VLC->arth->artifacts[id];
+		CArtifact &art = *VLC->arth->artifacts[id];
 		art.addBonusesTo(&h->bonuses);
 		art.addBonusesTo(&gained);
 	}
@@ -503,7 +503,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(h->getArtPos(id) >= 0)
 			continue;
 
-		CArtifact &art = VLC->arth->artifacts[id];
+		CArtifact &art = *VLC->arth->artifacts[id];
 		art.removeBonusesFrom(&h->bonuses);
 		art.addBonusesTo(&lost);
 	}
@@ -604,6 +604,25 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
 	assert(o->defInfo);
+}
+
+DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
+{
+	if(id >= 0)
+	{
+		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id]))
+		{
+			bm->artifacts = arts;
+		}
+		else
+		{
+			tlog1 << "Wrong black market id!" << std::endl;
+		}
+	}
+	else
+	{
+		CGTownInstance::merchantArtifacts = arts;
+	}
 }
 
 DLL_EXPORT void NewTurn::applyGs( CGameState *gs )

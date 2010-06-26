@@ -820,7 +820,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		else
 		{
 			artifacts[i]->text = CGI->generaltexth->artifDescriptions[artifacts[i]->type];
-			artifacts[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[artifacts[i]->type].Name());
+			artifacts[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[artifacts[i]->type]->Name());
 		}
 	}
 
@@ -832,7 +832,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		else
 		{
 			backpack[i]->text = CGI->generaltexth->artifDescriptions[backpack[i]->type];
-			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type].Name());
+			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type]->Name());
 		}
 	}
 
@@ -883,7 +883,7 @@ void CKingdomInterface::CHeroItem::scrollArts(int move)
 		else
 		{
 			backpack[i]->text = CGI->generaltexth->artifDescriptions[backpack[i]->type];
-			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type].Name());
+			backpack[i]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % CGI->arth->artifacts[backpack[i]->type]->Name());
 		}
 	}
 	showAll(screen2);

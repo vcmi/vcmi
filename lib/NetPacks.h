@@ -22,6 +22,8 @@ class CGameState;
 class CGameHandler;
 class CConnection;
 
+class CArtifact;
+
 struct CPack
 {
 	ui16 type;
@@ -639,6 +641,21 @@ struct NewObject  : public CPackForClient //518
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & subID & pos;
+	}
+};
+
+struct SetAvailableArtifacts  : public CPackForClient //519
+{
+	SetAvailableArtifacts(){type = 519;};
+	//void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	si32 id; //two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)
+	std::vector<const CArtifact *> arts;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & arts;
 	}
 };
 

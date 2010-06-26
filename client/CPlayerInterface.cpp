@@ -1109,13 +1109,13 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  */
 void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo)
 {
-	const CArtifact &artifact = CGI->arth->artifacts[artifactID];
+	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
 	std::string text = artifact.Description();
 	text += "\n\n";
 	std::vector<SComponent*> scs;
 
 	if (assemble) {
-		const CArtifact &assembledArtifact = CGI->arth->artifacts[assembleTo];
+		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
 
 		// You possess all of the components to...
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());

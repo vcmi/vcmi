@@ -281,7 +281,7 @@ void CClient::loadGame( const std::string & fname )
 	tlog0 <<"Waiting for server: "<<tmh.getDif()<<std::endl;
 
 	serv = new CConnection(conf.cc.server,portc,NAME);
-	serv->setGS(gs);
+	serv->addStdVecItems(gs);
 	tlog0 <<"Setting up connection: "<<tmh.getDif()<<std::endl;
 
 	ui8 pom8;
@@ -356,7 +356,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	serv = con;
-	serv->setGS(CGI->state);
 	CConnection &c(*con);
 	////////////////////////////////////////////////////
 	ui8 pom8;
@@ -411,6 +410,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		playerint[color]->init(cb);
 	}
 
+	serv->addStdVecItems(CGI->state);
 	hotSeat = (humanPlayers > 1);
 
 	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
