@@ -609,6 +609,7 @@ public:
 	si32 gainedArtifact; //ID of artifact gained to hero, -1 if none
 	ui8 neverFlees; //if true, the troops will never flee
 	ui8 notGrowingTeam; //if true, number of units won't grow
+	ui32 temppower; //used to handle fractional stack growth for tiny stacks
 
 	void fight(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -619,12 +620,14 @@ public:
 	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
 	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
 	void initObj();
+	void newTurn() const;
+	void setPropertyDer(ui8 what, ui32 val);
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam;
+		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower;
 	}
 }; 
 

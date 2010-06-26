@@ -2433,6 +2433,7 @@ void CGCreature::endBattle( BattleResult *result ) const
 		pom = 174 + 3*pom + 1;
 		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 		cb->setHoverName(id,&ms);
+		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
 	}
 }
 
@@ -2472,6 +2473,28 @@ void CGCreature::initObj()
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
+	temppower = slots[0].count * 1000;
+}
+void CGCreature::newTurn() const
+{//Works only for stacks of single type of size up to 2 millions
+	if (slots.begin()->second.count < CREEP_SIZE && cb->getDate(1) == 1)
+	{
+		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
+		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
+		cb->setObjProperty(id, 11, power); //increase temppower
+	}
+}
+void CGCreature::setPropertyDer(ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 10:
+			slots[0].count = val;
+			break;
+		case 11:
+			temppower = val;
+			break;
+	}
 }
 
 int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
@@ -5560,10 +5583,15 @@ int3 IBoatGenerator::bestLocation() const
 	getOutOffsets(offsets);
 
 	TerrainTile *tile;
-	for(int i = 0; i < offsets.size(); i++)
-		if((tile = IObjectInterface::cb->getTile(o->pos + offsets[i]))  &&  tile->tertype == TerrainTile::water) //tile is in the map and is water
-			return o->pos + offsets[i];
-	return int3(-1,-1,-1);
+	for (int i = 0; i < offsets.size(); ++i)
+	{
+		if (tile = IObjectInterface::cb->getTile(o->pos + offsets[i])) //tile is in the map 
+		{
+			if (tile->tertype == TerrainTile::water) //and is water
+				return o->pos + offsets[i];
+		}
+	}
+	return int3 (-1,-1,-1);
 }
 
 int IBoatGenerator::state() const
@@ -5633,8 +5661,8 @@ CGShipyard::CGShipyard()
 
 void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 {
-	offsets += int3(1,0,0), int3(-3,0,0), int3(1,1,0), int3(-3,1,0), int3(1,-1,0), int3(-3,-1,0), 
-		int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0);
+	offsets += int3(1,0,0), int3(-3,0,0), int3(-3,1,0), int3(-2,1,0), int3(1,1,0), int3(1,-1,0), int3(-3,-1,0), 
+		int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0), int3(0,1,0), int3(-1,1,0);
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const

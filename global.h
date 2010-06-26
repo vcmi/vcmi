@@ -100,6 +100,8 @@ const int NAMES_PER_TOWN=16;
 const int CREATURES_PER_TOWN = 7; //without upgrades
 const int MAX_BUILDING_PER_TURN = 1;
 const int SPELL_LEVELS = 5;
+const int CREEP_SIZE = 4000; // neutral stacks won't grow beyon this number
+const int WEEKLY_GROWTH = 10; //percent
 
 #define BFIELD_WIDTH (17)
 #define BFIELD_HEIGHT (11)
