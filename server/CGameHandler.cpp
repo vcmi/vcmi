@@ -1042,6 +1042,14 @@ void CGameHandler::newTurn()
 		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
+	if(getDate(2) == 1)
+	{
+		SetAvailableArtifacts saa;
+		saa.id = -1;
+		pickAllowedArtsSet(saa.arts);
+		sendAndApply(&saa);
+	}
+
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
 	handleTimeEvents();
@@ -3032,6 +3040,56 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	return false;
 }
 
+bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int rid, int aid)
+{
+	if(!vstd::contains(m->availableItemsIds(RESOURCE_ARTIFACT), aid))
+		COMPLAIN_RET("That artifact is unavailable!");
+
+	int b1, b2;
+	m->getOffer(rid, aid, b1, b2, RESOURCE_ARTIFACT);
+	
+	if(getResource(h->tempOwner, rid) < b1)
+		COMPLAIN_RET("You can't afford to buy this artifact!");
+
+	SetResource sr;
+	sr.player = h->tempOwner;
+	sr.resid = rid;
+	sr.val = getResource(h->tempOwner, rid) - b1;
+	sendAndApply(&sr);
+
+
+	SetAvailableArtifacts saa;
+	if(m->o->ID == TOWNI_TYPE)
+	{
+		saa.id = -1;
+		saa.arts = CGTownInstance::merchantArtifacts;
+	}
+	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m->o)) //black market
+	{
+		saa.id = bm->id;
+		saa.arts = bm->artifacts;
+	}
+	else
+		COMPLAIN_RET("Wrong marktet...");
+
+	bool found = false;
+	BOOST_FOREACH(const CArtifact *&art, saa.arts)
+	{
+		if(art && art->id == aid)
+		{
+			art = NULL;
+			found = true;
+			break;
+		}
+	}
+
+	if(!found)
+		COMPLAIN_RET("Cannot find selected artifact on the list");
+
+	sendAndApply(&saa);
+
+	giveHeroArtifact(aid, h->id, -2);
+}
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2)
 {

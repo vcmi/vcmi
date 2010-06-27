@@ -27,6 +27,7 @@ struct TryMoveHero;
 class CGHeroInstance;
 class CGTownInstance;
 class CGObjectInstance;
+class CGBlackMarket;
 class CGDwelling;
 class CCreatureSet;
 class CArmedInstance;
@@ -87,6 +88,7 @@ public:
 	virtual void tileHidden(const std::set<int3> &pos){};
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
+	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL){}; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void yourTurn(){};
 	virtual void centerView (int3 pos, int focusTime){};
 	virtual void availableCreaturesChanged(const CGDwelling *town){};

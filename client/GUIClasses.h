@@ -596,6 +596,7 @@ public:
 	void getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const;
 
 	void garrisonChanged(); //removes creatures with count 0 from the list (apparently whole stack has been sold)
+	void artifactsChanged(bool left);
 };
 
 class CSystemOptionsWindow : public CIntObject

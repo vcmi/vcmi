@@ -382,8 +382,10 @@ public:
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
+	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refrsh = false);
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
+	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r); //sets pos so that r will be in the center of screen, returns new position

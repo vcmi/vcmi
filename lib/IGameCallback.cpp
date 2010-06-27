@@ -196,6 +196,18 @@ void IGameCallback::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CAr
 	}
 }
 
+void IGameCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 3 ; j++)
+		{
+			out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_TREASURE << i)]);
+		}
+	}
+	out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MAJOR)]);
+}
+
 void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 {
 	if(flags & CArtifact::ART_TREASURE)

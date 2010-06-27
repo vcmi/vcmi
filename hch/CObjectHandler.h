@@ -513,6 +513,7 @@ public:
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	int getMarketEfficiency() const; //=market count
 	bool allowsTrade(EMarketMode mode) const;
+	std::vector<int> availableItemsIds(EMarketMode mode) const;
 	void setPropertyDer(ui8 what, ui32 val);
 	void newTurn() const;
 
@@ -1166,13 +1167,13 @@ class DLL_EXPORT CGBlackMarket : public CGMarket
 public:
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
-	void initObj();
 	void newTurn() const; //reset artifacts for black market every month
 	std::vector<int> availableItemsIds(EMarketMode mode) const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGMarket&>(*this);
+		h & artifacts;
 	}
 };
 

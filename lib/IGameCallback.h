@@ -61,6 +61,7 @@ public:
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual ui16 getRandomArt (int flags);
 	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts, int flag);
+	virtual void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
 	virtual void getAllowedSpells(std::vector<ui16> &out, ui16 level);
 	virtual int3 getMapSize(); //returns size of the map

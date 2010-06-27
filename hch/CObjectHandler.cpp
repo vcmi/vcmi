@@ -1945,6 +1945,22 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 	}
 }
 
+std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
+{
+	if(mode == RESOURCE_ARTIFACT)
+	{
+		std::vector<int> ret;
+		BOOST_FOREACH(const CArtifact *a, merchantArtifacts)
+			if(a)
+				ret.push_back(a->id);
+			else
+				ret.push_back(-1);
+		return ret;
+	}
+	else
+		return IMarket::availableItemsIds(mode);
+}
+
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())
@@ -6107,6 +6123,21 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 		val1 = 1;
 		val2 = 1;
 		break;
+	case RESOURCE_ARTIFACT:
+		{
+			float effectiveness = std::min(((float)getMarketEfficiency()+3.0f) / 20.0f, 0.6f);
+			float r = VLC->objh->resVals[id1], //value of offered resource
+				g = VLC->arth->artifacts[id2]->price / effectiveness; //value of bought artifact in gold
+			
+			if(id1 != 6) //non-gold prices are doubled
+				r /= 2; 
+
+			assert(g >= r); //should we allow artifacts cheaper than unit of resource?
+			val1 = (g / r) + 0.5f;
+			val2 = 1;
+		}
+		break;
+
 	default:
 		assert(0);
 		return false;
@@ -6211,6 +6242,9 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 		}
 	case CREATURE_RESOURCE:
 		return ID == 213; //Freelancer's Guild
+	case ARTIFACT_RESOURCE:
+	case RESOURCE_ARTIFACT:
+		return ID == 7; //Black Market
 	}
 	return false;
 }
@@ -6258,12 +6292,13 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 	}
 }
 
-void CGBlackMarket::initObj()
-{
-
-}
-
 void CGBlackMarket::newTurn() const
 {
+	if(cb->getDate(2) != 1)
+		return;
 
+	SetAvailableArtifacts saa;
+	saa.id = id;
+	cb->pickAllowedArtsSet(saa.arts);
+	cb->sendAndApply(&saa);
 }

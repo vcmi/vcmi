@@ -2794,6 +2794,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	:market(Market), hero(Hero), hLeft(NULL), hRight(NULL), readyToTrade(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	type = BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 
@@ -2802,6 +2803,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	std::string bgName;
 	std::vector<int> *rIds = NULL, *lIds = NULL;
+	bool sliderNeeded = true;
 
 	switch(Mode)
 	{
@@ -2835,6 +2837,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 				lIds->push_back(-1);
 		}
 		break;
+
+	case RESOURCE_ARTIFACT:
+		bgName = "TPMRKABS.bmp";
+		ltype = RESOURCE;
+		rtype = ARTIFACT;
+		sliderNeeded = false;
+
+		rIds = new std::vector<int>(market->availableItemsIds(mode));
 	}
 
 	bg = new CPicture(bgName);
@@ -2865,20 +2875,34 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	delNull(rIds);
 	delNull(lIds);
 
-	//slider and buttons must be created after bg
-	slider = new CSlider(231,490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
-
 	
 	ok = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
-	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+	deal->block(true);
+
+
+	//slider and buttons must be created after bg
+	if(sliderNeeded)
+	{
+		slider = new CSlider(231,490,137,0,0,0);
+		slider->moved = boost::bind(&CMarketplaceWindow::sliderMoved,this,_1);
+		max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+		max->block(true);
+	}
+	else
+	{
+		slider = NULL;
+		max = NULL;
+		deal->pos.x -= 38;
+	}
 
 	//left side
 	switch(Mode)
 	{
 	case RESOURCE_RESOURCE:
 	case RESOURCE_PLAYER:
+	case RESOURCE_ARTIFACT:
 		printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,zwykly,*bg); //kingdom res.
 		break;
 	case CREATURE_RESOURCE: 
@@ -2891,6 +2915,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 	case RESOURCE_RESOURCE:
 	case CREATURE_RESOURCE:
+	case RESOURCE_ARTIFACT:
 		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,zwykly,*bg); //available for trade
 		break;
 	case RESOURCE_PLAYER:
@@ -2906,8 +2931,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 450,"TPMRKBU4.DEF");
 
 
-	max->block(true);
-	deal->block(true);
 }
 
 CMarketplaceWindow::~CMarketplaceWindow()
@@ -2944,7 +2967,13 @@ void CMarketplaceWindow::showAll(SDL_Surface * to)
 		if(readyToTrade)
 		{
 			blitAt(hLeft->getSurface(),pos.x+141,pos.y+457,to);
-			printAtMiddle(boost::lexical_cast<std::string>( slider->value * r1 ),pos.x+156,pos.y+505,FONT_SMALL,zwykly,to);
+			int val = -1;
+			if(slider)
+				val = slider->value * r1;
+			else
+				val = (deal->blocked) ? 0 : r1;
+
+			printAtMiddle(boost::lexical_cast<std::string>(val),pos.x+156,pos.y+505,FONT_SMALL,zwykly,to);
 		}
 		break;
 
@@ -2960,6 +2989,11 @@ void CMarketplaceWindow::showAll(SDL_Surface * to)
 		break;
 	}
 
+	Point rightSubOffset;
+	Point selectionPos;
+	Point selectionSubOffset;
+	std::string selectionSub;
+
 	//right side
 	switch(rtype)
 	{
@@ -2974,24 +3008,40 @@ void CMarketplaceWindow::showAll(SDL_Surface * to)
 					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+36,right[i]->pos.y+57,FONT_SMALL,zwykly,to);
 			}
 		}
-		if(readyToTrade)
-		{
-			blitAt(hRight->getSurface(),pos.x+429,pos.y+457,to);
-			printAtMiddle(boost::lexical_cast<std::string>( slider->value * r2 ),pos.x+443,pos.y+505,FONT_SMALL,zwykly,to);
-		}
+		selectionPos = Point(429, 457);
+		selectionSubOffset = Point(14, 47);
+		selectionSub = boost::lexical_cast<std::string>( slider->value * r2 );
+		break;
+
+	case ARTIFACT:
+		if(hLeft) //print prices
+			for(int i=0; i<right.size();i++)
+				if(right[i]->id != hLeft->id || mode != RESOURCE_RESOURCE)
+					printAtMiddle(rSubs[i], right[i]->pos.x+18, right[i]->pos.y+57, FONT_SMALL, zwykly, to);
+		
+		selectionPos = Point(425, 447);
+		selectionSubOffset = Point(18, 57);
+		selectionSub = (deal->blocked) ? "0" : "1";
 		break;
 
 	case PLAYER:
 		BOOST_FOREACH(CTradeableItem *i, right)
 			printAtMiddle(CGI->generaltexth->capColors[i->id], i->pos.x + 31, i->pos.y + 76, FONT_SMALL, zwykly, to);
 
-		if(readyToTrade)
-		{
-			blitAt(hRight->getSurface(),pos.x+417,pos.y+451,to);
-			printAtMiddle(CGI->generaltexth->capColors[hRight->id], pos.x+417 + 31, pos.y+451 + 76, FONT_SMALL, zwykly, to);
-		}
+		selectionPos = Point(417, 451);
+		selectionSubOffset = rightSubOffset = Point(31, 76);
+		selectionSub = hRight ? CGI->generaltexth->capColors[hRight->id] : "";
 		break;
 	}
+
+
+	if(readyToTrade)
+	{
+		assert(hRight);
+		blitAtLoc(hRight->getSurface(), selectionPos, to);
+		printAtMiddleLoc(selectionSub, selectionPos + selectionSubOffset, FONT_SMALL, zwykly, to);
+	}
+
 }
 
 void CMarketplaceWindow::setMax()
@@ -3001,7 +3051,13 @@ void CMarketplaceWindow::setMax()
 
 void CMarketplaceWindow::makeDeal()
 {
-	if(!slider->value)
+	int sliderValue = 0;
+	if(slider)
+		sliderValue = slider->value;
+	else	
+		sliderValue = !deal->blocked; //should always be 1
+
+	if(!sliderValue)
 		return;
 
 	int leftIdToSend = -1;
@@ -3010,8 +3066,16 @@ void CMarketplaceWindow::makeDeal()
 	else
 		leftIdToSend = hLeft->id;
 
-	LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->value*r1, hero);
-	slider->moveTo(0);
+	if(mode != RESOURCE_ARTIFACT)
+	{
+		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->value*r1, hero);
+		slider->moveTo(0);
+	}
+	else
+	{
+		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
+	}
+
 	hLeft = NULL;
 	hRight = NULL;
 	selectionChanged(true);
@@ -3038,18 +3102,29 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		else
 			assert(0);
 
-		slider->setAmount(newAmount / r1);
-		slider->moveTo(0);
-		max->block(false);
-		deal->block(false);
+		if(slider)
+		{
+			slider->setAmount(newAmount / r1);
+			slider->moveTo(0);
+			max->block(false);
+			deal->block(false);
+		}
+		else
+		{
+			deal->block(LOCPLINT->cb->getResourceAmount(hLeft->id) < r1);
+		}
 	}
 	else
 	{
-		max->block(true);
+		if(slider)
+		{
+			max->block(true);
+			slider->setAmount(0);
+			slider->moveTo(0);
+		}
 		deal->block(true);
-		slider->setAmount(0);
-		slider->moveTo(0);
 	}
+
 	if(side && hLeft) //left selection changed, recalculate offers
 	{
 		rSubs.clear();
@@ -3057,7 +3132,10 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		int h1, h2;
 		for(int i=0;i<right.size();i++)
 		{
-			market->getOffer(hLeft->id, i, h1, h2, mode);
+			if(rtype != ARTIFACT)
+				market->getOffer(hLeft->id, i, h1, h2, mode);
+			else
+				market->getOffer(hLeft->id, right[i]->id, h1, h2, mode);
 
 			std::ostringstream oss;
 			oss << h2;
@@ -3101,6 +3179,14 @@ void CMarketplaceWindow::getPositionsFor(std::vector<Rect> &poss, bool Right, ET
 		dx = 83;
 		dy = 98;
 		assert(!Right);
+
+	case ARTIFACT://45,123
+		x = 342-288;
+		y = 181;
+		w = 44;
+		h = 44;
+		dx = 83;
+		dy = 79;
 	}
 
 
@@ -3140,6 +3226,27 @@ void CMarketplaceWindow::garrisonChanged()
 		if(active)
 			t->deactivate();
 		left -= t;
+		delChild(t);
+	}
+}
+
+void CMarketplaceWindow::artifactsChanged(bool left)
+{
+	assert(!left);
+	if(mode != RESOURCE_ARTIFACT)
+		return;
+
+	std::vector<int> available = market->availableItemsIds(mode);
+	std::set<CTradeableItem *> toRemove;
+	BOOST_FOREACH(CTradeableItem *t, right)
+		if(!vstd::contains(available, t->id))
+			toRemove.insert(t);
+
+	BOOST_FOREACH(CTradeableItem *t, toRemove)
+	{
+		if(active)
+			t->deactivate();
+		right -= t;
 		delChild(t);
 	}
 }

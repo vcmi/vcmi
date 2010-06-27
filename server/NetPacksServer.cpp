@@ -145,9 +145,12 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell creatures!");
 		return gh->sellCreatures(val, m, hero, r1, r2);
+	case RESOURCE_ARTIFACT:
+		if(!hero)
+			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
+		return gh->buyArtifact(m, hero, r1, r2);
 	default:
-		gh->complain("Unknown exchange mode!");
-		ERROR_AND_RETURN;
+		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}
 }
 

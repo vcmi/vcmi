@@ -1949,12 +1949,16 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				break;
 			}
 		//case 2: //Altar of Sacrifice
-		//case 7: //Black Market
 		case 99: //Trading Post
 		case 213: //Freelancer's Guild
 		case 221: //Trading Post (snow)
 			{
 				nobj = new CGMarket();
+				break;
+			}
+		case 7: //Black Market
+			{
+				nobj = new CGBlackMarket();
 				break;
 			}
 

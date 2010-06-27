@@ -1990,3 +1990,9 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	CMarketplaceWindow *cmw = new CMarketplaceWindow(market, visitor, market->availableModes().front());
 	GH.pushInt(cmw);
 }
+
+void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
+{
+	if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))
+		cmw->artifactsChanged(false);
+}

@@ -647,7 +647,7 @@ struct NewObject  : public CPackForClient //518
 struct SetAvailableArtifacts  : public CPackForClient //519
 {
 	SetAvailableArtifacts(){type = 519;};
-	//void applyCl(CClient *cl);
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 id; //two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)

@@ -760,6 +760,21 @@ void NewObject::applyCl(CClient *cl)
 	}
 }
 
+void SetAvailableArtifacts::applyCl(CClient *cl)
+{
+	if(id < 0) //artifact merchants globally
+	{
+		for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+			i->second->availableArtifactsChanged(NULL);
+	}
+	else
+	{
+		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl->getObj(id));
+		assert(bm);
+		INTERFACE_CALL_IF_PRESENT(cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, availableArtifactsChanged, bm);
+	}
+}
+
 void TradeComponents::applyCl(CClient *cl)
 {///Shop handler
 	switch (CGI->mh->map->objects[objectid]->ID)

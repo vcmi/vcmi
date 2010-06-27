@@ -167,6 +167,7 @@ public:
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj);
+	void availableArtifactsChanged(const CGBlackMarket *bm = NULL); //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn();
 	void availableCreaturesChanged(const CGDwelling *town);
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain);//if gain hero received bonus, else he lost it

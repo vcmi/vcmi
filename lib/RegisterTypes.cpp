@@ -63,6 +63,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGObelisk>();
 	s.template registerType<CGLighthouse>();
 	s.template registerType<CGMarket>();
+	s.template registerType<CGBlackMarket>();
 }
 
 template<typename Serializer> DLL_EXPORT 
@@ -124,6 +125,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<AdvmapSpellCast>();
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
+	s.template registerType<SetAvailableArtifacts>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();

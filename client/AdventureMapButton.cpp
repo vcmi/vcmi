@@ -513,7 +513,9 @@ void CSlider::moveTo(int to)
 		else
 			slider->pos.y = pos.y+16;
 	}
-	moved(to);
+
+	if(moved)
+		moved(to);
 }
 
 void CSlider::clickLeft(tribool down, bool previousState)

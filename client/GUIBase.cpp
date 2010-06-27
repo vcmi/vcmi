@@ -597,9 +597,19 @@ void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFont
 	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
 }
 
+void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh /*= false*/)
+{
+	printAtMiddleLoc(text, p.x, p.y, font, kolor, dst, refresh);
+}
+
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 {
 	blitAt(src, pos.x + x, pos.y + y, dst);
+}
+
+void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
+{
+	blitAtLoc(src, p.x, p.y, dst);
 }
 
 void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refrsh /*= false*/ )
