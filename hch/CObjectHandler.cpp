@@ -1248,7 +1248,7 @@ void CGDwelling::initObj()
 			creatures[0].second.push_back(crid);
 			hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
-				addStack(0, CStackInstance(crs, (8 - crs->level) * 3));
+				addStack(0, CStackInstance(crs, (crs->growth) * 3));
 			if (getOwner() != 255)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
