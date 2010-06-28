@@ -454,6 +454,11 @@ void Mapa::initFromBytes(const unsigned char * bufor)
 	readHeader(bufor, i);
 	tlog0<<"\tReading header: "<<th.getDif()<<std::endl;
 
+	if (victoryCondition.condition == artifact || victoryCondition.condition == transportItem)
+	{ //messy, but needed
+		allowedArtifact[victoryCondition.ID] = false;
+	}
+
 	readRumors(bufor, i);
 	tlog0<<"\tReading rumors: "<<th.getDif()<<std::endl;
 
@@ -2065,6 +2070,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			for(int yy=0; yy<artNumber; ++yy)
 			{
 				guard->m5arts.push_back(readNormalNr(bufor,i, 2)); i+=2;
+				allowedArtifact[artNumber] = false; //these are unavaliable for random generation
 			}
 			break;
 		}
