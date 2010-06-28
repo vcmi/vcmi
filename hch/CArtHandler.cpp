@@ -9,6 +9,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/random/linear_congruential.hpp>
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
@@ -22,6 +23,8 @@ using namespace boost::assign;
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+extern boost::rand48 ran;
 
 const std::string & CArtifact::Name() const
 {
@@ -349,26 +352,96 @@ int CArtHandler::convertMachineID(int id, bool creToArt )
 
 void CArtHandler::sortArts()
 {
-	for(int i=0;i<144;i++) //do 144, bo nie chcemy bzdurek
+	for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
 	{
-		switch (artifacts[i]->aClass)
+		switch (allowedArtifacts[i]->aClass)
 		{
 		case CArtifact::ART_TREASURE:
-			treasures.push_back(artifacts[i]);
+			treasures.push_back(allowedArtifacts[i]);
 			break;
 		case CArtifact::ART_MINOR:
-			minors.push_back(artifacts[i]);
+			minors.push_back(allowedArtifacts[i]);
 			break;
 		case CArtifact::ART_MAJOR:
-			majors.push_back(artifacts[i]);
+			majors.push_back(allowedArtifacts[i]);
 			break;
 		case CArtifact::ART_RELIC:
-			relics.push_back(artifacts[i]);
+			relics.push_back(allowedArtifacts[i]);
 			break;
 		}
 	}
 }
+void CArtHandler::erasePickedArt (si32 id)
+{
+	std::vector<CArtifact*>* ptr;
+	CArtifact *art = artifacts[id];
+	switch (art->aClass)
+	{
+		case CArtifact::ART_TREASURE:
+			ptr = &treasures;
+			break;
+		case CArtifact::ART_MINOR:
+			ptr = &minors;
+			break;
+		case CArtifact::ART_MAJOR:
+			ptr = &majors;
+			break;
+		case CArtifact::ART_RELIC:
+			ptr = &relics;
+			break;
+		default: //special artifacts should not be erased
+			return;
+	}
+	ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from avaliable list
+}
+ui16 CArtHandler::getRandomArt(int flags)
+{
+	std::vector<CArtifact*> out;
+	getAllowed(out, flags);
+	ui16 id = out[ran() % out.size()]->id;
+	erasePickedArt (id);
+	return id;
+}
+ui16 CArtHandler::getArtSync (ui32 rand, int flags)
+{
+	std::vector<CArtifact*> out;
+	getAllowed(out, flags);
+	CArtifact *art = out[rand % out.size()];
+	return art->id;	
+}
+void CArtHandler::getAllowed(std::vector<CArtifact*> &out, int flags)
+{
+	if (flags & CArtifact::ART_TREASURE)
+		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
+	if (flags & CArtifact::ART_MINOR)
+		getAllowedArts (out, &minors, CArtifact::ART_MINOR);
+	if (flags & CArtifact::ART_MAJOR)
+		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
+	if (flags & CArtifact::ART_RELIC)
+		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
+	if (!out.size()) //no arts are avaliable
+	{
+		out.resize (64);
+		std::fill_n (out.begin(), 64, artifacts[2]); //magic
+	}
+}
+void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag)
+{
+	if (arts->empty()) //restock avaliable arts
+	{
+		for (int i = 0; i < allowedArtifacts.size(); ++i)
+		{
+			if (allowedArtifacts[i]->aClass == flag)
+				arts->push_back(allowedArtifacts[i]);
+		}
+	}
 
+	for (int i = 0; i < arts->size(); ++i)
+	{
+		CArtifact *art = (*arts)[i];
+		out.push_back(art);
+	}
+}
 void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType )
 {
 	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);

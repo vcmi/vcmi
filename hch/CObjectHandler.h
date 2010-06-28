@@ -302,6 +302,16 @@ public:
 			h & patrolling & patrolRadious;
 		}
 	} patrol;
+	struct DLL_EXPORT HeroSpecial : CBonusSystemNode
+	{
+		bool growthsWithLevel;
+		void RecalculateSpecials(){};
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & static_cast<CBonusSystemNode&>(*this);
+			h & growthsWithLevel;
+		}
+	} speciality;
 
 	//BonusList bonuses;
 	//////////////////////////////////////////////////////////////////////////
@@ -313,7 +323,7 @@ public:
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
 			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & moveDir;
 
-		h & type;
+		h & type & speciality;
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////

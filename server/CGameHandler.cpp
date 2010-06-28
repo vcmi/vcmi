@@ -1906,7 +1906,6 @@ void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we cou
 		int slot = newArmy.getSlotFor(creatures.begin()->second.type->idNumber);
 		if (slot < 0)
 			break;
-		//newArmy.slots[slot].type = creatures.begin()->second.type;
 		newArmy.slots[slot].count -= creatures.begin()->second.count;
 		if (newArmy.getStack(slot).count < 1)
 			newArmy.eraseStack(slot);

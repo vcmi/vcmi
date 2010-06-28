@@ -904,28 +904,16 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
-	case 65: //random artifact
-		return std::pair<int,int>(5,(ran()%136)+7); //the only reasonable range - there are siege weapons and blanks we must ommit
-	case 66: //random treasure artifact
- 		return std::pair<int,int>(5,VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id);
-	case 67: //random minor artifact
- 		return std::pair<int,int>(5,VLC->arth->minors[ran()%VLC->arth->minors.size()]->id);
-	case 68: //random major artifact
-		return std::pair<int,int>(5,VLC->arth->majors[ran()%VLC->arth->majors.size()]->id);
-	case 69: //random relic artifact
-		return std::pair<int,int>(5,VLC->arth->relics[ran()%VLC->arth->relics.size()]->id);
-	/*
 	case 65: //random artifact //how the hell use IGameCallback for this?
-		return std::pair<int,int>(5, obj->cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case 66: //random treasure artifact
-		return std::pair<int,int>(5, cb->getRandomArt(CArtifact::ART_TREASURE));
+		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
 	case 67: //random minor artifact
-		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_MINOR));
+		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
 	case 68: //random major artifact
-		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_MAJOR));
+		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
 	case 69: //random relic artifact
-		return std::pair<int,int>(5, cb->getRandomArt (CArtifact::ART_RELIC));
-		*/
+		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
 	case 70: //random hero
 		{
 			return std::pair<int,int>(HEROI_TYPE,pickHero(obj->tempOwner));
@@ -1185,6 +1173,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	{
 	case 0:
 		map = new Mapa(si->mapname);
+		for (int i=0; i<144; ++i) //yes, 144
+		{
+			if (map->allowedArtifact[i])
+				VLC->arth->allowedArtifacts.push_back(VLC->arth->artifacts[i]);
+		}
 		break;
 	case 2:
 		campaign = new CCampaignState();
@@ -1192,6 +1185,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
 		map = new Mapa();
 		map->initFromBytes((const unsigned char*)mapContent.c_str());
+		for (int i=0; i<144; ++i)
+		{
+			if (map->allowedArtifact[i])
+				VLC->arth->allowedArtifacts.push_back(VLC->arth->artifacts[i]);
+		}
 		break;
 	}
 	tlog0 << "Map loaded!" << std::endl;
@@ -3816,11 +3814,24 @@ PlayerState::PlayerState()
 
 void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
-	//TODO: global effects
+	/*
+	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); ++it)
+	{
+		if (*it != root)
+			(*it)->getParents(out, root);
+	}
+	for (std::vector<CGTownInstance *>::const_iterator it = towns.begin(); it != towns.end(); ++it)
+	{
+		if (*it != root)
+			(*it)->getParents(out, root);
+	}
+	*/
+	//TODO - dwellings
 }
 
 void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
+{//temporary
+	//CBonusSystemNode::getBonuses(out, selector, root);
 }
 
 InfoAboutHero::InfoAboutHero()

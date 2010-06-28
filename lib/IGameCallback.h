@@ -60,9 +60,9 @@ public:
 	virtual void getAllTiles (std::set<int3> &tiles, int player=-1, int level=-1, int surface=0); //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual ui16 getRandomArt (int flags);
-	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts, int flag);
+	virtual ui16 getArtSync (ui32 rand, int flags); //synchronic
 	virtual void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
+	virtual void erasePickedArt (si32 id);
 	virtual void getAllowedSpells(std::vector<ui16> &out, ui16 level);
 	virtual int3 getMapSize(); //returns size of the map
 	virtual TerrainTile * getTile(int3 pos);

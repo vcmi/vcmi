@@ -51,12 +51,18 @@ class DLL_EXPORT CArtHandler //handles artifacts
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact *> artifacts;
+	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
 	void addBonuses();
 	void clear();
+	ui16 getRandomArt (int flags);
+	ui16 getArtSync (ui32 rand, int flags);
+	void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag);
+	void getAllowed(std::vector<CArtifact*> &out, int flags);
+	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID, BonusList *bonuses = NULL);
 	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, BonusList *bonuses = NULL);
@@ -66,9 +72,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artifacts;
-		if(!h.saving)
-			sortArts();
+		h & artifacts & allowedArtifacts & treasures & minors & majors & relics;
+		//if(!h.saving) sortArts();
 	}
 };
 

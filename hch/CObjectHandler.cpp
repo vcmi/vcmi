@@ -1767,39 +1767,6 @@ void CGTownInstance::newTurn() const
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
 		}
 	}
-
-	if(cb->getDate(2) == 1) //reset on new month
-	{
-		std::vector<CArtifact*>::iterator index;
-		for (ui8 i = 0; i < 3; ++i) //each tier
-		{	
-			int count = 0;
-			std::vector<CArtifact*> arts; //to avoid addition of different tiers
-			switch (i)
-			{
-			case 0:
-				cb->getAllowed (arts, CArtifact::ART_TREASURE);
-				count = 3; // first row - three treasures,
-				break;
-			case 1:
-				cb->getAllowed (arts, CArtifact::ART_MINOR);
-				count = 3; // second row three minors
-				break;
-			case 2:
-				cb->getAllowed (arts, CArtifact::ART_MAJOR);
-				count = 1; // and a third row - one major
-				break;
-			}
-			for (ui8 n = 0; n < count; n++)
-			{
-				
-// 				index = arts.begin() + val % arts.size();
-// 				advMapArts [advMapArts.size()] = new Component (Component::ARTIFACT, (*index)->id, 0, 0);
-// 				arts.erase(index);
-// 				val *= (id + n * i); //randomize
-			}
-		}
-	}
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -5023,25 +4990,12 @@ void CBank::reset(ui16 var1) //prevents desync
 void CBank::initialize() const
 {
 	cb->setObjProperty (id, 14, ran()); //synchronous reset
+	ui32 artid;
 	for (ui8 i = 0; i <= 3; i++)
 	{
 		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
-		{
-			switch (i)
-			{
-				case 0:
-					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_TREASURE));
-					break;
-				case 1:
-					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_MINOR));
-					break;
-				case 2:
-					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_MAJOR));
-					break;
-				case 3:
-					cb->setObjProperty(id, 18, cb->getRandomArt (CArtifact::ART_RELIC));
-					break;				
-			}
+		{	
+				cb->setObjProperty (id, 18 + i, ran()); //synchronic
 		}
 	}
 }
@@ -5052,7 +5006,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 	{
 		case 11: //daycounter
 			if (val == 0)
-				daycounter = 0;
+				daycounter = 1; //yes, 1
 			else
 				daycounter++;
 			break;
@@ -5118,8 +5072,33 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			}
 			break;
 		case 18: //add Artifact
-			artifacts.push_back (val);
+		{
+			int id = cb->getArtSync(val, CArtifact::ART_TREASURE);
+			artifacts.push_back (id);
+			cb->erasePickedArt(id);
 			break;
+		}
+		case 19: //add Artifact
+		{
+			int id = cb->getArtSync(val, CArtifact::ART_MINOR);
+			artifacts.push_back (id);
+			cb->erasePickedArt(id);
+			break;
+		}
+		case 20: //add Artifact
+		{
+			int id = cb->getArtSync(val, CArtifact::ART_MAJOR);
+			artifacts.push_back (id);
+			cb->erasePickedArt(id);
+			break;
+		}
+		case 21: //add Artifact
+		{
+			int id = cb->getArtSync(val, CArtifact::ART_RELIC);
+			artifacts.push_back (id);
+			cb->erasePickedArt(id);
+			break;
+		}
 	}
 }
 
