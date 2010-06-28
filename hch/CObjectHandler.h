@@ -624,7 +624,7 @@ public:
 
 	void fight(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
-	//const std::string & getHoverText() const;
+	const std::string & getHoverText() const;
 
 	void flee( const CGHeroInstance * h ) const;
 	void endBattle(BattleResult *result) const;

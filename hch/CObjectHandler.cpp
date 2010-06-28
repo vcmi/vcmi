@@ -2376,13 +2376,18 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 			cb->setObjProperty (town->id, 13, id); //then it must be garrisoned hero
 	}
 }
-/*const std::string & CGCreature::getHoverText() const
+const std::string & CGCreature::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
-	hoverName += "\n Power rating: ";
+	MetaString ms;
+	int pom = slots.find(0)->second.getQuantityID();
+	pom = 174 + 3*pom + 1;
+	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
+	ms.toString(hoverName);
+
+	hoverName += "\n\n Threat: ";
 	float ratio = ((float)getArmyStrength() / cb->getSelectedHero(cb->getCurrentPlayer())->getTotalStrength());
 	if (ratio < 0.1) hoverName += "Effortless";
-	else if (ratio < 0.3) hoverName += "Very Weak";
+	else if (ratio < 0.25) hoverName += "Very Weak";
 	else if (ratio < 0.6) hoverName += "Weak";
 	else if (ratio < 0.9) hoverName += "A bit weaker";
 	else if (ratio < 1.1) hoverName += "Equal";
@@ -2394,7 +2399,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	else if (ratio < 20) hoverName += "Deadly";
 	else hoverName += "Impossible";
 	return hoverName;
-}*/
+}
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int action = takenAction(h);
@@ -2450,12 +2455,14 @@ void CGCreature::endBattle( BattleResult *result ) const
 		//		killedAmount += i->second;
 		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);	
 
+		/*
 		MetaString ms;
 		int pom = slots.find(0)->second.getQuantityID();
 		pom = 174 + 3*pom + 1;
 		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 		cb->setHoverName(id,&ms);
 		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
+		*/
 	}
 }
 
@@ -2489,13 +2496,14 @@ void CGCreature::initObj()
 			amount = c.ammMax;
 		else
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
-
+	/*
 	MetaString ms;
 	int pom = slots.find(0)->second.getQuantityID();
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
 	temppower = slots[0].count * 1000;
+	*/
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
