@@ -27,6 +27,10 @@ fi
 
 CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
 
+if test "x$GXX" = "xyes" ; then
+   CXXFLAGS="$CXXFLAGS -Wno-sign-compare"
+fi
+
 # Check for Boost libraries
 AX_BOOST_BASE([1.36])
 AX_BOOST_SYSTEM

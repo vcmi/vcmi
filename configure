@@ -3855,8 +3855,8 @@ esac
 
 
 
-macro_version='2.2.6'
-macro_revision='1.3012'
+macro_version='2.2.6b'
+macro_revision='1.3017'
 
 
 
@@ -14469,6 +14469,10 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
 fi
 
 CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
+
+if test "x$GXX" = "xyes" ; then
+   CXXFLAGS="$CXXFLAGS -Wno-sign-compare"
+fi
 
 # Check for Boost libraries
 
