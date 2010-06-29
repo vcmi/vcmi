@@ -992,9 +992,9 @@ void CGameHandler::newTurn()
 		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
 		{
-			if  ( (**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT
-				&& vstd::contains((**j).builtBuildings,22) )//dwarven treasury
+			if  ((**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT && vstd::contains((**j).builtBuildings, 22))//dwarven treasury
 					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
+		
 			SetAvailableCreatures sac;
 			sac.tid = (**j).id;
 			sac.creatures = (**j).creatures;

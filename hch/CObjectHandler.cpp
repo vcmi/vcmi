@@ -1564,6 +1564,11 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	if(tempOwner != NEUTRAL_PLAYER)
 	{
 		ret *= (1 + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); //Statue of Legion
+		for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
+		{ //+1 for each dwelling
+			if (VLC->creh->creatures[town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
+				++ret;
+		}
 	}
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
@@ -1577,11 +1582,6 @@ int CGTownInstance::creatureGrowth(const int & level) const
 		ret += garrisonHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
 	if(visitingHero)
 		ret += visitingHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
-	for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
-	{ //+1 for each dwelling
-		if (VLC->creh->creatures[town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
-			++ret;
-	}
 	if(builtBuildings.find(26)!=builtBuildings.end()) //grail - +50% to ALL growth
 		ret*=1.5;
 	return ret;//check CCastleInterface.cpp->CCastleInterface::CCreaInfo::clickRight if this one will be modified
@@ -1766,6 +1766,54 @@ void CGTownInstance::newTurn() const
 			if ((*i)->ID == 21)
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
 		}
+
+		if (tempOwner == NEUTRAL_PLAYER) //garrison growth for neutral towns
+			{
+				TSlots slt = Slots(); //meh, waste of time
+				std::vector<ui8> nativeCrits; //slots
+				for (TSlots::const_iterator it = slt.begin(); it != slt.end(); it++)
+				{
+					if (it->second.type->faction == subID) //native
+					{
+						nativeCrits.push_back(it->first); //collect matching slots
+					}
+				}
+				if (nativeCrits.size())
+				{
+					int pos = nativeCrits[rand() % nativeCrits.size()];
+					if (rand()%100 < 90 || slt[pos].type->upgrades.empty()) //increase number if no upgrade avaliable
+					{
+						SetGarrisons sg;
+						sg.garrs[id] = getArmy();
+						sg.garrs[id].slots[pos].count += slt[pos].type->growth;
+						cb->sendAndApply(&sg);	
+					}
+					else //upgrade
+					{
+						SetGarrisons sg; //somewhat better upgrade pack would come in handy
+						sg.garrs[id] = getArmy();
+						sg.garrs[id].setCreature(pos, *slt[pos].type->upgrades.begin(), slt[pos].count);
+						cb->sendAndApply(&sg);	
+					}
+				}
+				if ((stacksCount() < ARMY_SIZE && rand()%100 < 25) || slt.empty()) //add new stack
+				{
+					int n, i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);	
+					{//no lower tiers or above current month
+
+						if (n = getSlotFor(town->basicCreatures[i], ARMY_SIZE));
+						{ 
+							SetGarrisons sg;
+							sg.garrs[id] = getArmy();
+							if (slotEmpty(n))
+								sg.garrs[id].setCreature (n, town->basicCreatures[i], creatureGrowth(i)); //if the stack is not yet present
+							else
+								sg.garrs[id].addToSlot(n, town->basicCreatures[i], creatureGrowth(i)); //add to existing
+							cb->sendAndApply(&sg);
+						}
+					}
+				}		
+			}
 	}
 }
 

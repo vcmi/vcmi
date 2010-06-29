@@ -1125,24 +1125,24 @@ int CGameState::getDate(int mode) const
 	int temp;
 	switch (mode)
 	{
-	case 0:
+	case 0: //day number
 		return day;
 		break;
-	case 1:
+	case 1: //day of week
 		temp = (day)%7;
 		if (temp)
 			return temp;
 		else return 7;
 		break;
-	case 2:
+	case 2:  //current week
 		temp = ((day-1)/7)+1;
 		if (!(temp%4))
 			return 4;
 		else 
 			return (temp%4);
 		break;
-	case 3:
-		return ((day-1)/28)+1;
+	case 3: //current month
+		return ((day-1)/28)+1; 
 		break;
 	}
 	return 0;
