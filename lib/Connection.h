@@ -6,6 +6,7 @@
 #include <set>
 #include <list>
 #include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
+#include <assert.h>
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
