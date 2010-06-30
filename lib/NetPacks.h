@@ -1238,6 +1238,21 @@ struct MoveHero : public CPackForServer
 	}
 };
 
+struct CastleTeleportHero : public CPackForServer
+{
+	CastleTeleportHero(){};
+	CastleTeleportHero(const si32 HID, si32 Dest, ui8 Source ) : dest(Dest), hid(HID), source(Source){};
+	si32 dest;
+	si32 hid;
+	si8 source;//who give teleporting, 1=castle gate
+
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & dest & hid;
+	}
+};
+
 struct ArrangeStacks : public CPackForServer
 {
 	ArrangeStacks(){};

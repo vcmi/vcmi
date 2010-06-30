@@ -1483,7 +1483,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			vti->builtBuildings.insert(30);
 			if(ran()%2)
 				vti->builtBuildings.insert(31);
-		}//init hordes
+		}
+		if (vstd::contains(vti->builtBuildings,(6)) && vti->state()==3)
+			vti->builtBuildings.erase(6);//if we have harbor without water - erase it (this is H3 behaviour)
+	
+		//init hordes
 		for (int i = 0; i<CREATURES_PER_TOWN; i++)
 			if (vstd::contains(vti->builtBuildings,(-31-i))) //if we have horde for this level
 			{

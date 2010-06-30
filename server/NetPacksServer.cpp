@@ -59,6 +59,13 @@ bool MoveHero::applyGh( CGameHandler *gh )
 	return gh->moveHero(hid,dest,0,gh->getPlayerAt(c));
 }
 
+bool CastleTeleportHero::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(hid);
+	
+	return gh->teleportHero(hid,dest,source,gh->getPlayerAt(c));
+}
+
 bool ArrangeStacks::applyGh( CGameHandler *gh )
 {
 	//checks for owning in the gh func

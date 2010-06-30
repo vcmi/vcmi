@@ -46,6 +46,13 @@ template <ui16 N> bool isType(CPack *pack)
 	return pack->getType() == N;
 }
 
+bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
+{
+	CastleTeleportHero pack(who->id, where->id, 1);
+	sendRequest(&pack);
+	return true;
+}
+
 bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 {
 	MoveHero pack(dst,h->id);

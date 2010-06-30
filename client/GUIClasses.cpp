@@ -1931,21 +1931,21 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddle(pom,pos.x+205,pos.y+254,FONT_SMALL,zwykly,to);
+	printAtMiddle(pom,pos.x+205,pos.y+253,FONT_SMALL,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddle(pom,pos.x+279,pos.y+254,FONT_SMALL,zwykly,to);
+	printAtMiddle(pom,pos.x+279,pos.y+253,FONT_SMALL,zwykly,to);
 	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,pos.x+243,pos.y+32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
 
-	int curx = pos.x+115-creatures[which].res.size()*16;
-	for(int i=0;i<creatures[which].res.size();i++)
+	int curx = pos.x+122-creatures[which].res.size()*24;
+	for(int i=creatures[which].res.size()-1; i>=0; i--)// decrement used to make gold displayed as first res
 	{
 		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,to);
 		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,to);
 		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddle(pom,curx+14,pos.y+288,FONT_SMALL,zwykly,to);
+		printAtMiddle(pom,curx+15,pos.y+287,FONT_SMALL,zwykly,to);
 		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddle(pom,curx+12+258,pos.y+286,FONT_SMALL,zwykly,to);
-		curx+=32;
+		printAtMiddle(pom,curx+15+258,pos.y+287,FONT_SMALL,zwykly,to);
+		curx+=32+16;//size of bitmap + distance between them
 	}
 
 	curx = pos.x + 192 + CREATURE_WIDTH - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
@@ -1959,7 +1959,7 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 	bar->show(to);
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit)
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset)
 :recruit(Recruit), dwelling(Dwelling), dst(Dst), level(Level)
 {
 	which = 0;
@@ -1969,7 +1969,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2;
+	pos.y = screen->h/2 - bitmap->h/2+y_offset;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	bar = new CStatusBar(pos.x+8, pos.y+370, "APHLFTRT.bmp", 471);
@@ -1980,10 +1980,10 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 
 	initCres();
 
-	printAtMiddle(CGI->generaltexth->allTexts[346],113,233,FONT_SMALL,zwykly,bitmap); //cost per troop t
+	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,zwykly,bitmap); //available t
 	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,zwykly,bitmap); //recruit t
-	printAtMiddle(CGI->generaltexth->allTexts[466],373,233,FONT_SMALL,zwykly,bitmap); //total cost t
+	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,zwykly,bitmap); //total cost t
 	drawBorder(bitmap,172,222,67,42,int3(239,215,123));
 	drawBorder(bitmap,246,222,67,42,int3(239,215,123));
 	drawBorder(bitmap,64,222,99,76,int3(239,215,123));
@@ -2618,8 +2618,10 @@ CObjectListWindow::~CObjectListWindow()
 
 void CObjectListWindow::elementSelected()
 {
-	onSelect(items[slider->value]);
-	GH.popIntTotally(this);
+	boost::function<void(int)> toCall = onSelect;//save
+	int where = items[slider->value];      //required variables
+	GH.popIntTotally(this);//then destroy window
+	toCall(where);//and send selected object
 }
 
 void CObjectListWindow::moveList(int which)
@@ -2671,9 +2673,11 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 	default:
 		return;
 	}
+	if (sel<-1)//nothing was selected & list was moved up
+		return;
 	if (sel<0)//start of list reached
 		sel = 0;
-	else if ( sel >= slider->amount )//end of list reached
+	if ( sel >= slider->amount )//end of list reached
 		sel = slider->amount-1;
 	if ( sel >= items.size() )
 		sel = items.size()-1;

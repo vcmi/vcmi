@@ -211,6 +211,7 @@ protected:
 public:
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	void selectionMade(int selection, int asker);
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second

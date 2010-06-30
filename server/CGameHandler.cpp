@@ -1807,6 +1807,30 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return true;
 	}
 }
+
+bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 255*/)
+{
+	const CGHeroInstance *h = getHero(hid);
+	const CGTownInstance *t = getTown(dstid);
+	
+	if ( !h || !t || h->getOwner() != gs->currentPlayer )
+		tlog1<<"Invalid call to teleportHero!";
+	
+	const CGTownInstance *from = h->visitedTown;
+	if((h->getOwner() != t->getOwner()) 
+		&& complain("Cannot teleport hero to another player") 
+	|| (!from || from->subID!=3 || !vstd::contains(from->builtBuildings, 22))
+		&& complain("Hero must be in town with Castle gate for teleporting")
+	|| (t->subID!=3 || !vstd::contains(t->builtBuildings, 22))
+		&& complain("Cannot teleport hero to town without Castle gate in it"))
+			return false;
+	int3 pos = t->visitablePos();
+	pos.x++;//FIXME: get correct visitable position
+	stopHeroVisitCastle(from->id, hid);
+	moveHero(hid,pos,1);
+	heroVisitCastle(dstid, hid);
+}
+
 void CGameHandler::setOwner(int objid, ui8 owner)
 {
 	ui8 oldOwner = getOwner(objid);

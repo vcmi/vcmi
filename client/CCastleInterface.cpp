@@ -37,6 +37,19 @@ using namespace CSDL_Ext;
  *
  */
 
+int hordeToDwellingID(int bid)//helper, converts horde buiding ID into corresponding dwelling ID
+{
+	const CGTownInstance * t = LOCPLINT->castleInt->town;
+	switch (bid)
+	{
+		case 18: return t->town->hordeLvl[0] + 30;
+		case 19: return t->town->hordeLvl[0] + 37;
+		case 24: return t->town->hordeLvl[1] + 30;
+		case 25: return t->town->hordeLvl[1] + 37;
+		default: return bid;
+	}
+}
+
 CBuildingRect::CBuildingRect(Structure *Str)
 	:moi(false), offset(0), str(Str)
 {
@@ -154,7 +167,9 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		return;
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
-		CBuilding *bld = CGI->buildh->buildings[str->townID][str->ID];
+		int bid = hordeToDwellingID(str->ID);
+		
+		CBuilding *bld = CGI->buildh->buildings[str->townID][bid];
 		assert(bld);
 
 		CInfoPopup *vinya = new CInfoPopup();
@@ -162,13 +177,28 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		vinya->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,
 			bld->Description(),
-			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap,
+			LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,
 			bld->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
 		GH.pushInt(vinya);
 	}
 }
+
+std::string getBuildingSubtitle(int tid, int bid)//hover text for building
+{
+	const CGTownInstance * t = LOCPLINT->castleInt->town;
+	bid = hordeToDwellingID(bid);
+	
+	if (bid<30)//non-dwellings - only buiding name
+		return CGI->buildh->buildings[tid][bid]->Name();
+	else//dwellings - recruit %creature%
+	{
+		int creaID = t->creatures[(bid-30)%CREATURES_PER_TOWN].second.back();//taking last of available creatures
+		return CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creaID]->namePl;
+	}
+}
+
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area && isItIn(&pos,sEvent.x, sEvent.y))
@@ -188,19 +218,13 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 				if((*LOCPLINT->castleInt->hBuild)<(*this)) //set if we are on top
 				{
 					LOCPLINT->castleInt->hBuild = this;
-					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
-						GH.statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
-					else
-						GH.statusbar->print(str->name);
+					GH.statusbar->print(getBuildingSubtitle(str->townID, str->ID));
 				}
 			}
 			else //no building hovered
 			{
 				LOCPLINT->castleInt->hBuild = this;
-				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
-					GH.statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
-				else
-					GH.statusbar->print(str->name);
+				GH.statusbar->print(getBuildingSubtitle(str->townID, str->ID));
 			}
 		}
 	}
@@ -549,14 +573,7 @@ void CCastleInterface::splitF()
 void CCastleInterface::buildingClicked(int building)
 {
 	tlog5<<"You've clicked on "<<building<<std::endl;
-	if(building==19 || building==18)
-	{
-		building = town->town->hordeLvl[0] + 30;
-	}
-	else if(building==24 || building==25)
-	{
-		building = town->town->hordeLvl[1] + 30;
-	}
+	building = hordeToDwellingID(building);
 
 	const CBuilding *b = CGI->buildh->buildings[town->subID][building];
 
@@ -708,7 +725,7 @@ void CCastleInterface::buildingClicked(int building)
 							{
 								const CGTownInstance *t = Towns[i];
 								if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
-									t->subID == 3 && vstd::contains(t->builtBuildings, 26))//inferno with castle gate
+									t->subID == 3 && vstd::contains(t->builtBuildings, 22))//inferno with castle gate
 								{
 									availableTowns.push_back(t->id);//add to the list
 								}
@@ -718,8 +735,7 @@ void CCastleInterface::buildingClicked(int building)
 								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
 								break;//only visiting hero can use castle gates
 							}
-							tlog4<<"Warning: implementation is unfinished\n";
-							CPicture *titlePic = new CPicture (bicons->ourImages[building].bitmap, 0,0, false);
+							CPicture *titlePic = new CPicture (bicons->ourImages[building].bitmap, 0,0, false);//will be deleted by selection window
 							GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
 							    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, this, _1)));
 							break;
@@ -752,9 +768,9 @@ void CCastleInterface::buildingClicked(int building)
 
 void CCastleInterface::castleTeleport(int where)
 {
-	//TODO: send message to move hero,
-	//find a way to do this without new message type
-	//and update interface
+	const CGTownInstance * dest = dynamic_cast<const CGTownInstance *>(CGI->state->map->objects[where]);
+	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
+	close();//close this window, interface with new town will be called by town::onVisit
 }
 
 void CCastleInterface::defaultBuildingClicked(int building)
@@ -1017,7 +1033,7 @@ void CCastleInterface::recreateBuildings()
 	if(vstd::contains(town->builtBuildings,6))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
-		if(vobjs.size() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
+		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		{
 			Structure * st = CGI->townh->structures[town->subID][20];
 			buildings.push_back(new CBuildingRect(st));
@@ -1237,19 +1253,20 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		GH.pushInt(mess);
 	}
 }
+
 void CCastleInterface::CCreaInfo::show(SDL_Surface * to)
 {
 	blitAt(graphics->smallImgs[crid],pos.x+8,pos.y,to);
 	std::ostringstream oss;
 	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth((bid-30)%CREATURES_PER_TOWN);
-	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+37,FONT_TINY,zwykly,to);
+	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+40,FONT_SMALL,zwykly,to);
 }
 
 CCastleInterface::CTownInfo::~CTownInfo()
 {
-	if (pic)
 	delete pic;
 }
+
 CCastleInterface::CTownInfo::CTownInfo(int BID)
 {
 	used = LCLICK | RCLICK | HOVER;
@@ -1289,12 +1306,14 @@ void CCastleInterface::CTownInfo::hover(bool on)
 	else
 		GH.statusbar->clear();
 }
+
 void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
 		if (LOCPLINT->castleInt->town->builtBuildings.find(bid)!=LOCPLINT->castleInt->town->builtBuildings.end())
 			LOCPLINT->castleInt->buildingClicked(bid);//activate building
 }
+
 void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(down)
@@ -1314,13 +1333,14 @@ void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
 		GH.pushInt(mess);
 	}
 }
+
 void CCastleInterface::CTownInfo::show(SDL_Surface * to)
 {
 	if ( bid == 14 )//marketplace/income
 	{
 		std::ostringstream oss;
 		oss << LOCPLINT->castleInt->town->dailyIncome();
-		CSDL_Ext::printAtMiddle(oss.str(),pos.x+32,pos.y+32,FONT_SMALL,zwykly,to);
+		CSDL_Ext::printAtMiddle(oss.str(),pos.x+33,pos.y+34,FONT_SMALL,zwykly,to);
 	}
 	else if ( bid == 6 )//no fort
 		blitAt(pic->ourImages[3].bitmap,pos.x,pos.y,to);
@@ -1347,7 +1367,7 @@ CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 	//	crs.push_back(std::make_pair((int)cres[i],amount));
 	//CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 
-	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
+	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2), -87);
 	GH.pushInt(rw);
 	return rw;
 }
@@ -1519,33 +1539,27 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 		for(size_t j=0; j<boxList[i].size();j++) //for each box
 		{
 			size_t k=0;
+
 			for(;k<boxList[i][j].size();k++)//we are looking for the first not build structure
 			{
 				int bid = boxList[i][j][k];
-
-				if(!vstd::contains(owner->town->builtBuildings,bid))
+				//if building not build or this is unupgraded horde
+				if(!vstd::contains(owner->town->builtBuildings,bid) || bid==18 || bid == 24)
 				{
 					int x = 34 + 194*j,
 						y = 37 + 104*i,
 						ID = bid;
+
+					if (( bid == 18 && vstd::contains(owner->town->builtBuildings, owner->town->town->hordeLvl[0]+37))
+					 || ( bid == 24 && vstd::contains(owner->town->builtBuildings, owner->town->town->hordeLvl[1]+37)))
+						continue;//we have upgraded dwelling, horde description should be for upgraded creatures
+
 					if(boxList[i].size() == 2) //only two boxes in this row
 						x+=194;
 					else if(boxList[i].size() == 3) //only three boxes in this row
 						x+=97;
 					boxes[i].push_back(new CBuildingBox(bid,pos.x+x,pos.y+y));
-
-					//if this is horde dwelling for upgraded creatures and we already have one for basic creatures
-					if((bid == 25  &&  vstd::contains(owner->town->builtBuildings,24))
-						|| (bid == 19  &&  vstd::contains(owner->town->builtBuildings,18))
-					)
-					{
-						boxes[i].back()->state = 4; //already built
-					}
-					else
-					{
-						boxes[i].back()->state = LOCPLINT->cb->canBuildStructure(owner->town,ID);
-					}
-
+					boxes[i].back()->state = LOCPLINT->cb->canBuildStructure(owner->town,ID);
 					break;
 				}
 			}

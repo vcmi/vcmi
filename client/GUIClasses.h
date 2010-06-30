@@ -424,7 +424,7 @@ public:
 class CRecruitmentWindow : public CIntObject
 {
 public:
-	static const int SPACE_BETWEEN = 8;
+	static const int SPACE_BETWEEN = 18;
 	static const int CREATURE_WIDTH = 102;
 	static const int TOTAL_CREATURE_WIDTH = SPACE_BETWEEN + CREATURE_WIDTH;
 
@@ -461,7 +461,7 @@ public:
 	void showAll(SDL_Surface * to){show(to);};
 	void cleanCres();
 	void initCres();
-	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
+	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
 	~CRecruitmentWindow(); //d-tor
 };
 
