@@ -17,6 +17,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../lib/map.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
