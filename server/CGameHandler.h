@@ -172,6 +172,7 @@ public:
 	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
 	bool sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID);
+	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, si32 aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, int rid, int aid); //for artifact merchant and black market -> buying for any resource in special building / advobject

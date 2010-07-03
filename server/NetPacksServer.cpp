@@ -156,6 +156,8 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
 		return gh->buyArtifact(m, hero, r1, r2);
+	case CREATURE_UNDEAD:
+		return gh->transformInUndead(m, hero, r1);
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}

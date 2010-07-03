@@ -3185,6 +3185,36 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 	return true;
 }
 
+bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot)
+{
+	const CArmedInstance *army = NULL;
+	if (hero)
+		army = hero;
+	else
+	{
+		army = dynamic_cast<const CGTownInstance *>(market->o);
+	}
+	if (!army)
+		COMPLAIN_RET("Incorrect call to transform in undead!");
+	tlog1<<"test2\n";
+	if(!vstd::contains(army->Slots(), slot))
+		COMPLAIN_RET("Army doesn't have any creature in that slot!");
+	tlog1<<"test3\n";
+	const CStackInstance &s = army->getStack(slot);
+	int resCreature;//resulting creature - bone dragons or skeletons
+	
+	if	(s.hasBonusOfType(Bonus::KING1))
+		resCreature = 68;
+	else
+		resCreature = 56;
+	tlog1<<"test4\n";
+	SetGarrisons sg;
+	sg.garrs[army->id] = army->getArmy();
+	sg.garrs[army->id].setCreature(slot, resCreature, s.count);
+	sendAndApply(&sg);
+	return true;
+}
+
 bool CGameHandler::sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2)
 {
 	const PlayerState *p2 = gs->getPlayer(r2, false);

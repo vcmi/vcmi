@@ -5219,6 +5219,102 @@ void CPuzzleWindow::show(SDL_Surface * to)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
 
+void CTransformerWindow::CItem::showAll(SDL_Surface * to)
+{
+	SDL_Surface * backgr = graphics->bigImgs[parent->army->getCreature(id)->idNumber];
+	blitAt(backgr, pos.x, pos.y, to);
+	printAtMiddle(boost::lexical_cast<std::string>(size),pos.x+28, pos.y+76,FONT_SMALL,zwykly,to);//stack size
+}
+
+void CTransformerWindow::CItem::move()
+{
+	if (left)
+		pos.x += 289;
+	else
+		pos.x -= 289;
+	left = !left;
+}
+
+void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
+{
+	if(previousState && (!down))
+	{
+		move();
+		parent->showAll(screen2);
+	}
+}
+
+CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _id):
+	parent(_parent), id(_id), size(_size)
+{
+	used = LCLICK;
+	left=true;
+	pos.w = 58;
+	pos.h = 64;
+	
+	pos.x += 45  + (id%3)*83 + id/6*83;
+	pos.y += 109 + (id/3)*98;
+}
+
+CTransformerWindow::CItem::~CItem()
+{
+	
+}
+
+void CTransformerWindow::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+	printAtMiddleLoc(  CGI->generaltexth->allTexts[485], 153,     29,FONT_SMALL,     tytulowy,to);//holding area
+	printAtMiddleLoc(  CGI->generaltexth->allTexts[486], 153+295, 29,FONT_SMALL,     tytulowy,to);//transformer
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[487], 153,     75,FONT_MEDIUM, 32,tytulowy,to);//move creatures to create skeletons
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[488], 153+295, 75,FONT_MEDIUM, 32,tytulowy,to);//creatures here will become skeletons
+}
+
+void CTransformerWindow::makeDeal()
+{
+	for (int i=0; i<items.size(); i++)
+		if (!items[i]->left)
+			LOCPLINT->cb->trade(town, CREATURE_UNDEAD, items[i]->id, 0, 0, hero);
+}
+
+void CTransformerWindow::addAll()
+{
+	for (int i=0; i<items.size(); i++)
+		if (items[i]->left)
+			items[i]->move();
+	showAll(screen2);
+}
+
+CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):hero(_hero),town(_town)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	used = LCLICK;
+	pos.x = screen->w/2 - 300;
+	pos.y = screen->h/2 - 242;
+	bg = new CPicture ("SKTRNBK.PCX");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	pos.w = bg->bg->w;
+	pos.h = bg->bg->h;
+	
+	if (hero)
+		army = hero;
+	else
+		army = town;
+	
+	for (int i=0; i<7; i++ )
+		if ( army->getCreature(i) )
+			items.push_back(new CItem(this, army->getAmount(i), i));
+			
+	all    = new AdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
+	convert= new AdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
+}
+
+CTransformerWindow::~CTransformerWindow()
+{
+	
+}
+
 bool CShopWindow::swapItem (ui16 which, bool choose)
 {
 	bool itemFound = false;

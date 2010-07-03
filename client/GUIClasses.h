@@ -956,6 +956,38 @@ public:
 	~CPuzzleWindow();
 };
 
+class CTransformerWindow : public CIntObject
+{
+public:
+	class CItem : public CIntObject
+	{
+	public:
+		int id;//position of creature in hero army
+		bool left;//position of the item
+		int size; //size of creature stack
+		CTransformerWindow * parent;
+
+		void move();
+		void showAll(SDL_Surface * to);
+		void clickLeft(tribool down, bool previousState);
+		CItem(CTransformerWindow * _parent, int _size, int _id);
+		~CItem();
+	};
+
+	const CArmedInstance *army;//object with army for transforming (hero or town)
+	const CGHeroInstance *hero;//only if we have hero in town
+	const CGTownInstance *town;//market, town garrison is used if hero == NULL
+	CPicture *bg; //background
+	std::vector<CItem*> items;
+
+	AdventureMapButton *all, *convert, *cancel;
+	void showAll(SDL_Surface * to);
+	void makeDeal();
+	void addAll();
+	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
+	~CTransformerWindow(); //d-tor
+};
+
 class CShopWindow : public CIntObject
 {
 public:

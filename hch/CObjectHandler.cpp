@@ -1954,6 +1954,8 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 		return (subID == 2 || subID == 5 || subID == 8) && vstd::contains(builtBuildings, 17);//artifact merchants
 	case CREATURE_RESOURCE:
 		return subID == 6 && vstd::contains(builtBuildings, 21); //Freelancer's guild
+	case CREATURE_UNDEAD:
+		return subID == 4 && vstd::contains(builtBuildings, 22);//Skeleton transformer
 	default:
 		assert(0);
 		return false;

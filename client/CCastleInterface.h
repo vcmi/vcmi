@@ -18,6 +18,7 @@ class CResDataBar;
 class CStatusBar;
 class CTownList;
 class CRecruitmentWindow;
+class CTransformerWindow;
 class CCreaturePic;
 class CMinorResDataBar;
 

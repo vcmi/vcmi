@@ -742,8 +742,17 @@ void CCastleInterface::buildingClicked(int building)
 							break;
 						}
 	/*Necropolis*/	case 4: //Skeleton Transformer
-					tlog4<<"Skeleton Transformer not handled\n";
-					break;
+						const CGHeroInstance *hero;
+						if (town->visitingHero)
+							hero = town->visitingHero;
+						else if (town->garrisonHero)
+							hero = town->garrisonHero;
+						else
+							hero = NULL;//no hero - will trade with town garrison
+						
+						GH.pushInt ( new CTransformerWindow(hero, town) );
+						break;
+						
 	/*Dungeon*/		case 5: //Portal of Summoning
 					tlog4<<"Portal of Summoning not handled\n";
 					break;
