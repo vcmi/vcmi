@@ -828,6 +828,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
+	slider->changeUsedEvents(WHEEL, true);
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
@@ -1082,13 +1083,6 @@ void SelectionTab::clickLeft( tribool down, bool previousState )
 			select(line);
 	}
 }
-
-void SelectionTab::wheelScrolled( bool down, bool in )
-{
-	slider->moveTo(slider->value + 3 * (down ? +1 : -1));
-	//select(selectionPos - slider->value + (down ? +1 : -1));
-}
-
 void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 {
 	if(key.state != SDL_PRESSED) return;
@@ -1166,23 +1160,25 @@ InfoCard::InfoCard( CMenuScreen::EState Type )
 	OBJ_CONSTRUCTION;
 	pos.x += 393;
 	used = RCLICK;
-
+	mapDescription = NULL;
 	type = Type;
+
+	Rect descriptionRect(26, 149, 320, 115);
+	mapDescription = new CTextBox("", descriptionRect, 1);
 
 	if(type == CMenuScreen::campaignList)
 	{
-		/*bg = new CPicture(BitmapHandler::loadBitmap("CamCust.bmp"), 0, 0, true);
-		bg->pos.x = 0;
-		bg->pos.y = 0;*/
+		CSelectionScreen *ss = static_cast<CSelectionScreen*>(parent);
+		moveChild(new CPicture(*ss->bg, descriptionRect + Point(-393, 0)), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 	}
 	else
 	{
 		bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 0, 0, true);
+		std::swap(children.front(), children.back());
 		pos.w = bg->pos.w;
 		pos.h = bg->pos.h;
 		sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
 		sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
-
 		difficulty = new CHighlightableButtonsGroup(0);
 		{
 			static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
@@ -1197,8 +1193,11 @@ InfoCard::InfoCard( CMenuScreen::EState Type )
 
 		if(type != CMenuScreen::newGame)
 			difficulty->block(true);
+
+		//description needs bg
+		moveChild(new CPicture(*bg, descriptionRect), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 	}
-	
+
 }
 
 InfoCard::~InfoCard()
@@ -1329,22 +1328,16 @@ void InfoCard::showAll( SDL_Surface * to )
 		}
 
 		//blit description
-		std::string itemDesc, name;
+		std::string name;
 
 		if (type == CMenuScreen::campaignList)
 		{
-			itemDesc = curMap->campaignHeader->description;
 			name = curMap->campaignHeader->name;
 		} 
 		else
 		{
-			itemDesc = curMap->mapHeader->description;
 			name = curMap->mapHeader->name;
 		}
-		std::vector<std::string> *desc = CMessage::breakText(itemDesc,52);
-		for (int i=0;i<desc->size();i++)
-			printAtLoc((*desc)[i], 26, 149 + i*16, FONT_SMALL, zwykly, to);
-		delete desc;
 
 		//name
 		if (name.length())
@@ -1358,8 +1351,17 @@ void InfoCard::showAll( SDL_Surface * to )
 
 void InfoCard::changeSelection( const CMapInfo *to )
 {
-	if(to && type != CMenuScreen::newGame && type != CMenuScreen::campaignList)
-		difficulty->select(curOpts->difficulty, 0);
+	if(to && mapDescription)
+	{
+
+		if (type == CMenuScreen::campaignList)
+			mapDescription->setTxt(to->campaignHeader->description);
+		else
+			mapDescription->setTxt(to->mapHeader->description);
+
+		if(type != CMenuScreen::newGame && type != CMenuScreen::campaignList)
+			difficulty->select(curOpts->difficulty, 0);
+	}
 	GH.totalRedraw();
 }
 
@@ -2219,11 +2221,11 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
-
-	std::vector<std::string> *desc = CMessage::breakText(ourCampaign->header.description, 45);
-	for (int i=0; i<desc->size() ;i++)
-		printAtLoc((*desc)[i], 481, 86 + i*16, FONT_SMALL, zwykly, background);
-	delete desc;
+ 
+// 	std::vector<std::string> *desc = CMessage::breakText(ourCampaign->header.description, 45);
+// 	for (int i=0; i<desc->size() ;i++)
+// 		printAtLoc((*desc)[i], 481, 86 + i*16, FONT_SMALL, zwykly, background);
+// 	delete desc;
 
 	//set left part of window
 	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
@@ -2354,10 +2356,10 @@ void CBonusSelection::show( SDL_Surface * to )
 	//map description
 	printAtLoc(CGI->generaltexth->allTexts[496], 481, 253, FONT_SMALL, tytulowy, to);
 
-	std::vector<std::string> *desc = CMessage::breakText(mapDesc, 45);
-	for (int i=0; i<desc->size(); i++)
-		printAtLoc((*desc)[i], 481, 281 + i*16, FONT_SMALL, zwykly, to);
-	delete desc;
+// 	std::vector<std::string> *desc = CMessage::breakText(mapDesc, 45);
+// 	for (int i=0; i<desc->size(); i++)
+// 		printAtLoc((*desc)[i], 481, 281 + i*16, FONT_SMALL, zwykly, to);
+// 	delete desc;
 
 	//map size icon
 	int temp;

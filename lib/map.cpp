@@ -1953,7 +1953,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj->tempOwner = readNormalNr(bufor,i); i+=4;
 				break;
 			}
-		//case 2: //Altar of Sacrifice
+		case 2: //Altar of Sacrifice
 		case 99: //Trading Post
 		case 213: //Freelancer's Guild
 		case 221: //Trading Post (snow)

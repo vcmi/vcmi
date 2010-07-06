@@ -23,6 +23,7 @@ class CCampaignHeader;
 class CTextInput;
 class CCampaign;
 class CGStatusBar;
+class CTextBox;
 
 class CMapInfo
 {
@@ -86,6 +87,7 @@ class InfoCard : public CIntObject
 public:
 	CMenuScreen::EState type;
 
+	CTextBox *mapDescription;
 	CHighlightableButtonsGroup *difficulty;
 	CDefHandler *sizes, *sFlags;;
 
@@ -135,7 +137,6 @@ public:
 
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
-	void wheelScrolled(bool down, bool in);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
 	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, bool MultiPlayer=false);
@@ -201,10 +202,10 @@ public:
 
 class CSelectionScreen : public CIntObject
 {
+public:
 	CPicture *bg; //general bg image
 	InfoCard *card;
 	OptionsTab *opt;
-public:
 	AdventureMapButton *start, *back;
 
 	SelectionTab *sel;

@@ -66,23 +66,22 @@ struct SPuzzleInfo;
 class CGGarrison;
 class CStackInstance;
 class IMarket;
+class CTextBox;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
 public:
-	bool delComps; //whether comps will be deleted
+	CTextBox *text;
 	std::vector<AdventureMapButton *> buttons;
+	bool delComps; //whether comps will be deleted
 	std::vector<SComponent*> components;
-	CSlider *slider;
+
 	virtual void close();
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-	void activate();
-	void sliderMoved(int to);
-	void deactivate();
-	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
+	CInfoWindow(std::string Text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 
@@ -282,12 +281,37 @@ public:
 	SDL_Color color;
 	std::string text;
 	CPicture *bg;
-	bool autoRedraw;
+	bool autoRedraw;  //whether control will redraw itself on setTxt
 	Point textOffset; //text will be blitted at pos + textOffset with appropriate alignment
+	bool ignoreLeadingWhitespace; 
 
-	void setTxt(const std::string &Txt);
+	virtual void setTxt(const std::string &Txt);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
+};
+
+//a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
+class CTextBox
+	: public CLabel
+{
+public:
+	int maxW; //longest line of text in px
+	int maxH; //total height needed to print all lines
+
+	int sliderStyle;
+	bool redrawParentOnScrolling;
+
+	std::vector<std::string> lines;
+	CSlider *slider;
+
+	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
+	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
+	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	void setTxt(const std::string &Txt);
+	void setBounds(int limitW, int limitH);
+	void recalculateLines(const std::string &Txt);
+
+	void sliderMoved(int to);
 };
 
 class CGStatusBar

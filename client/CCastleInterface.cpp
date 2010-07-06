@@ -778,7 +778,7 @@ void CCastleInterface::buildingClicked(int building)
 
 void CCastleInterface::castleTeleport(int where)
 {
-	const CGTownInstance * dest = dynamic_cast<const CGTownInstance *>(CGI->state->map->objects[where]);
+	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(where, 1);
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 	close();//close this window, interface with new town will be called by town::onVisit
 }

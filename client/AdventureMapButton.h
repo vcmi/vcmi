@@ -125,25 +125,27 @@ public:
 		positions, //number of highest position (0 if there is only one)
 		value; //first active element
 	bool horizontal;
+	bool wheelScrolling;
+	bool keyScrolling;
+
 	CDefEssential *imgs ;
 
 	boost::function<void(int)> moved;
-	//void(T::*moved)(int to);
-	//T* owner;
 
 	void redrawSlider(); 
-
 	void sliderClicked();
 	void moveLeft();
-	void clickLeft(tribool down, bool previousState);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void moveRight();
 	void moveTo(int to);
 	void block(bool on);
 	void setAmount(int to);
-	//void activate(); // makes button active
-	//void deactivate(); // makes button inactive (but doesn't delete)
-	//void show(SDL_Surface * to);
+
+	void keyPressed(const SDL_KeyboardEvent & key);
+	void wheelScrolled(bool down, bool in);
+	void clickLeft(tribool down, bool previousState);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+	void showAll(SDL_Surface * to);
+
 	CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
 	~CSlider();

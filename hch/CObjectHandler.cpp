@@ -5459,7 +5459,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
 	if (what >= 101 && what <= (100 + PLAYER_LIMIT))
-		playerKeyMap.find(what-101)->second.insert(val);
+		playerKeyMap.find(what-101)->second.insert((ui8)val);
 }
 
 bool CGKeys::wasMyColorVisited (int player) const
@@ -6222,6 +6222,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
 	{
 	case TOWNI_TYPE:
 		return static_cast<const CGTownInstance*>(obj);
+	case 2: //Altar of Sacrifice
 	case 7: //Black Market
 	case 99: //Trading Post
 	case 221: //Trading Post (snow)
@@ -6282,6 +6283,9 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 	case ARTIFACT_RESOURCE:
 	case RESOURCE_ARTIFACT:
 		return ID == 7; //Black Market
+	case ARTIFACT_EXP:
+	case CREATURE_EXP:
+		return ID == 2; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
 	}
 	return false;
 }

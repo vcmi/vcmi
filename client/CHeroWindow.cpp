@@ -418,29 +418,27 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, tytulowy, curBack);
 
 	//dismiss / quest log
-	std::vector<std::string> * toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8].substr(1, CGI->generaltexth->jktexts[8].size()-2));
-	if(toPrin->size()==1)
+	std::vector<std::string> toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8].substr(1, CGI->generaltexth->jktexts[8].size()-2));
+	if(toPrin.size()==1)
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 372, 439, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[0], 372, 439, FONT_SMALL, zwykly, curBack);
 	}
 	else
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 372, 430, FONT_SMALL, zwykly, curBack);
-		CSDL_Ext::printAt((*toPrin)[1], 372, 446, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[0], 372, 430, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[1], 372, 446, FONT_SMALL, zwykly, curBack);
 	}
-	delete toPrin;
 
 	toPrin = CMessage::breakText(CGI->generaltexth->jktexts[9].substr(1, CGI->generaltexth->jktexts[9].size()-2));
-	if(toPrin->size()==1)
+	if(toPrin.size()==1)
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 512, 439, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[0], 512, 439, FONT_SMALL, zwykly, curBack);
 	}
 	else
 	{
-		CSDL_Ext::printAt((*toPrin)[0], 512, 430, FONT_SMALL, zwykly, curBack);
-		CSDL_Ext::printAt((*toPrin)[1], 512, 446, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[0], 512, 430, FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(toPrin[1], 512, 446, FONT_SMALL, zwykly, curBack);
 	}
-	delete toPrin;
 
 	//printing primary skills' amounts
 	for(int m=0; m<4; ++m)

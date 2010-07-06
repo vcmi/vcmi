@@ -713,6 +713,13 @@ int Font::getWidth(const char *text ) const
 
 	return ret;
 }
+
+int Font::getCharWidth( char c ) const
+{
+	const Char &C = chars[(unsigned char)c];
+	return C.width + C.unknown1 + C.unknown2;;
+}
+
 /*
 void Font::WriteAt(const char *text, SDL_Surface *sur, int x, int y )
 {

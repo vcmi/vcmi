@@ -164,17 +164,15 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode =
 		else 
 			return NULL;
 	}
-	else 
+	else if(mode == 1)
 	{
-		//TODO: add some smart ID to the CTownInstance
-
-
-		//for (int i=0; i<gs->players[gs->currentPlayer].towns.size();i++)
-		//{
-		//	if (gs->players[gs->currentPlayer].towns[i]->someID==val)
-		//		return gs->players[gs->currentPlayer].towns[i];
-		//}
-		return NULL;
+		const CGObjectInstance *obj = getObjectInfo(val);
+		if(!obj)
+			return NULL;
+		if(obj->ID != TOWNI_TYPE)
+			return NULL;
+		else
+			return static_cast<const CGTownInstance *>(obj);
 	}
 	return NULL;
 }
@@ -241,6 +239,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 
 const CGObjectInstance * CCallback::getObjectInfo(int ID) const
 {
+	//TODO: check for visibility
 	return gs->map->objects[ID];
 }
 

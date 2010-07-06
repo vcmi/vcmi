@@ -4,6 +4,7 @@
 #include "FontBase.h"
 #include "../global.h"
 #include <SDL.h>
+#include <boost/function.hpp>
 
 /*
  * CMessage.h, part of VCMI engine
@@ -63,12 +64,11 @@ public:
 	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight, int & curh, SDL_Surface * ret, int xCenterPos=-1); //xPos==-1 works as if ret->w/2
 	static void drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline);
 	static CSimpleWindow * genWindow(std::string text, int player, bool centerOnMouse=false, int Lmar=35, int Rmar=35, int Tmar=35, int Bmar=35);//supports h3 text formatting; player sets color of window, Lmar/Rmar/Tmar/Bmar are Left/Right/Top/Bottom margins
-	static SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly,
-								std::vector<CDefHandler*> *addPics=NULL, void * cb=NULL);
 	static SDL_Surface * drawBox1(int w, int h, int playerColor=1);
 	static void drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
 	static SDL_Surface * drawBoxTextBitmapSub(int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline=30, int imgToBmp=55);
-	static std::vector<std::string> * breakText(std::string text, size_t maxLineSize=30, bool userBreak=true, bool ifor=true);
+	static std::vector<std::string> breakText(std::string text, size_t maxLineSize=30, const boost::function<int(char)> &charMetric = boost::function<int(char)>(), bool allowLeadingWhitespace = false);
+	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
 	static void init();
 	static void dispose();
 };

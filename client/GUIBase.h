@@ -213,7 +213,7 @@ struct Rect : public SDL_Rect
 	}
 	template<typename T> Rect operator-(const T &t)
 	{
-		return Rect(x + t.x, y + t.y, w, h);
+		return Rect(x - t.x, y - t.y, w, h);
 	}
 	Rect operator&(const Rect &p) const //rect intersection
 	{
@@ -376,6 +376,8 @@ public:
 	void defDeactivate();
 	void activate();
 	void deactivate();
+	void activate(ui16 what);
+	void deactivate(ui16 what);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 
@@ -388,12 +390,26 @@ public:
 	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
-	const Rect & center(const Rect &r); //sets pos so that r will be in the center of screen, returns new position
-	const Rect & center(); //centers when pos.w and pos.h are set, returns new position
+	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, returns new position
+	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);
+	void changeUsedEvents(ui16 what, bool enable, bool adjust = true);
 
-	void delChild(CIntObject *child); //removes from chidlren list, deletes
+	void addChild(CIntObject *child, bool adjustPosition = false);
+	void removeChild(CIntObject *child, bool adjustPosition = false);
+	void delChild(CIntObject *child); //removes from children list, deletes
+	template <typename T> void delChildNUll(T *&child, bool deactivateIfNeeded = false) //removes from children list, deletes and sets pointer to NULL
+	{
+		if(!child)
+			return;
+
+		if(deactivateIfNeeded && child->active)
+			child->deactivate();
+
+		delChild(child);
+		child = NULL;
+	}
 };
 
 //class for binding keys to left mouse button clicks
@@ -419,29 +435,29 @@ class CSimpleWindow : public CIntObject
 {
 public:
 	SDL_Surface * bitmap; //background
-	CIntObject * owner; //who made this window
 	virtual void show(SDL_Surface * to);
-	CSimpleWindow():bitmap(NULL),owner(NULL){}; //c-tor
+	CSimpleWindow():bitmap(NULL){}; //c-tor
 	virtual ~CSimpleWindow(); //d-tor
-	void activate(){};
-	void deactivate(){};
 };
 
 class CPicture : public CIntObject
 {
 public: 
 	SDL_Surface *bg;
-	bool freeSurf;
+	Rect *srcRect; //if NULL then whole surface will be used
+	bool freeSurf; //whether surface will be freed upon CPicture destruction
 
 	operator SDL_Surface*()
 	{
 		return bg;
 	}
 
-	CPicture(const Rect &r, const SDL_Color &color, bool screenFormat = false);
-	CPicture(const Rect &r, ui32 color, bool screenFormat = false);
-	CPicture(SDL_Surface *BG, int x, int y, bool Free = true);
+	CPicture(const Rect &r, const SDL_Color &color, bool screenFormat = false); //rect filled with given color
+	CPicture(const Rect &r, ui32 color, bool screenFormat = false); //rect filled with given color
+	CPicture(SDL_Surface *BG, int x, int y, bool Free = true); //wrap existing SDL_Surface
 	CPicture(const std::string &bmpname, int x=0, int y=0);
+	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
+	void init();
 
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
 	~CPicture();
@@ -504,7 +520,7 @@ SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
 SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
 bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 bool isArrowKey(SDLKey key); 
-CIntObject *  moveChildren(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos = false);
+CIntObject *  moveChild(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos = false);
 
 template <typename T> void pushIntT()
 {
@@ -529,5 +545,6 @@ struct SetCaptureState
 #define OBJ_CONSTRUCTION ObjectConstruction obj__i(this)
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SetCaptureState obj__i1(true, 255); ObjectConstruction obj__i(this)
 #define BLOCK_CAPTURING SetCaptureState obj__i(false, 0)
+#define BLOCK_CAPTURING_DONT_TOUCH_REC_ACTIONS SetCaptureState obj__i(false, GH.defActionsDef)
 
 #endif //__GUIBASE_H__

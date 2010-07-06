@@ -80,12 +80,12 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 
 void printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
+	std::vector<std::string> ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
-	wesu.resize(ws->size());
+	wesu.resize(ws.size());
 	for (size_t i=0; i < wesu.size(); ++i)
 	{
-		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
+		wesu[i]=TTF_RenderText_Blended(font,ws[i].c_str(),kolor);
 	}
 
 	int tox=0, toy=0;
@@ -106,16 +106,15 @@ void printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, in
 
 	for (size_t i=0; i < wesu.size(); ++i)
 		SDL_FreeSurface(wesu[i]);
-	delete ws;
 }
 
 void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
+	std::vector<std::string> ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
-	wesu.resize(ws->size());
+	wesu.resize(ws.size());
 	for (size_t i=0; i < wesu.size(); ++i)
-		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
+		wesu[i]=TTF_RenderText_Blended(font,ws[i].c_str(),kolor);
 
 	int evy = y;
 	for (size_t i=0; i < wesu.size(); ++i)
@@ -126,7 +125,6 @@ void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int char
 
 	for (size_t i=0; i < wesu.size(); ++i)
 		SDL_FreeSurface(wesu[i]);
-	delete ws;
 }
 
 void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refresh)
@@ -137,15 +135,14 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, in
 		return;
 	}
 	const Font *f = graphics->fonts[font];
-	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
+	std::vector<std::string> ws = CMessage::breakText(text,charpr);
 
 	int cury = y;
-	for (size_t i=0; i < ws->size(); ++i)
+	for (size_t i=0; i < ws.size(); ++i)
 	{
-		printAt((*ws)[i], x, cury, font, kolor, dst, refresh);
+		printAt(ws[i], x, cury, font, kolor, dst, refresh);
 		cury += f->height;
 	}
-	delete ws;
 }
 
 
@@ -158,16 +155,15 @@ void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts f
 	}
 
 	const Font *f = graphics->fonts[font];
-	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
-	int totalHeight = ws->size() * f->height;
+	std::vector<std::string> ws = CMessage::breakText(text,charpr);
+	int totalHeight = ws.size() * f->height;
 
 	int cury = y - totalHeight/2;
-	for (size_t i=0; i < ws->size(); ++i)
+	for (size_t i=0; i < ws.size(); ++i)
 	{
-		printAt((*ws)[i], x - f->getWidth((*ws)[i].c_str())/2, cury, font, kolor, dst, refrsh);
+		printAt(ws[i], x - f->getWidth(ws[i].c_str())/2, cury, font, kolor, dst, refrsh);
 		cury += f->height;
 	}
-	delete ws;
 }
 
 void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)

@@ -141,7 +141,7 @@ public:
 	
 	//town
 	virtual int howManyTowns()const =0;
-	virtual const CGTownInstance * getTownInfo(int val, bool mode)const =0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual const CGTownInstance * getTownInfo(int val, bool mode)const =0; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	virtual std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const=0;
 	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
@@ -245,7 +245,7 @@ public:
 	int getResourceAmount(int type) const;
 	std::vector<si32> getResourceAmount() const;
 	int howManyHeroes(bool includeGarrisoned = true) const;
-	const CGTownInstance * getTownInfo(int val, bool mode) const; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	const CGTownInstance * getTownInfo(int val, bool mode) const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const;
 	int howManyTowns()const;
 	std::vector < std::string > getObjDescriptions(int3 pos) const; //returns descriptions of objects at pos in order from the lowest to the highest

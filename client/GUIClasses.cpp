@@ -612,9 +612,9 @@ void CGarrisonInt::deactivate()
 		splitButtons[i]->deactivate();
 }
 
-CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
+CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
 {
-	slider = NULL;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = -1;
 	this->delComps = delComps;
 	for(int i=0;i<Buttons.size();i++)
@@ -623,19 +623,26 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 		buttons[i]->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
 	}
 
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text->redrawParentOnScrolling = true;
+
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
 	for(int i=0;i<comps.size();i++)
 	{
+		comps[i]->recActions = 0xff;
+		addChild(comps[i]);
 		components.push_back(comps[i]);
 	}
-	CMessage::drawIWindow(this,text,player,charperline);
+	CMessage::drawIWindow(this,Text,player,charperline);
 }
+
 CInfoWindow::CInfoWindow() 
 {
 	ID = -1;
 	delComps = false;
+	text = NULL;
 }
 void CInfoWindow::close()
 {
@@ -645,54 +652,22 @@ void CInfoWindow::close()
 }
 void CInfoWindow::show(SDL_Surface * to)
 {
-	CSimpleWindow::show(to);
-	for(int i=0;i<buttons.size();i++)
-		buttons[i]->show(to);
-	if (slider)
-		slider->show(to);
+	CIntObject::show(to);
 }
 
 CInfoWindow::~CInfoWindow()
 {
-	if(delComps)
-	{
-		for (int i=0;i<components.size();i++)
-			delete components[i];
-	}
-	for(int i=0;i<buttons.size();i++)
-		delete buttons[i];
-	if (slider)
-		delete slider;
-}
-void CInfoWindow::activate()
-{
-	for (int i=0;i<components.size();i++)
-		components[i]->activate();
-	for(int i=0;i<buttons.size();i++)
-		buttons[i]->activate();
-	if (slider)
-		slider->activate();
-}
-void CInfoWindow::sliderMoved(int to)
-{
-	/*slider->moveTo(to);
-		if(!slider) return; //ignore spurious call when slider is being created
-	*/
-	redraw();
-}
-void CInfoWindow::deactivate()
-{
-	for (int i=0;i<components.size();i++)
-		components[i]->deactivate();
-	for(int i=0;i<buttons.size();i++)
-		buttons[i]->deactivate();
-	if (slider)
-		slider->deactivate();
+// 	if(delComps)
+// 	{
+// 		for (int i=0;i<components.size();i++)
+// 			delete components[i];
+// 	}
 }
 
 void CInfoWindow::showAll( SDL_Surface * to )
 {
-	show(to);
+	CSimpleWindow::show(to);
+	CIntObject::showAll(to);
 }
 
 void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player)
@@ -1088,7 +1063,8 @@ void CSelectableComponent::show(SDL_Surface * to)
 }
 void CSimpleWindow::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,to);
+	if(bitmap)
+		blitAt(bitmap,pos.x,pos.y,to);
 }
 CSimpleWindow::~CSimpleWindow()
 {
@@ -1129,6 +1105,8 @@ CSelWindow::CSelWindow(const std::string &text, int player, int charperline, con
 
 	for(int i=0;i<comps.size();i++)
 	{
+		comps[i]->recActions = 255;
+		addChild(comps[i]);
 		components.push_back(comps[i]);
 		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,this,i);
 		if(i<9)
@@ -2932,8 +2910,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	if(printButtonFor(RESOURCE_RESOURCE))
 		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450,"TPMRKBU5.DEF");
 	if(printButtonFor(CREATURE_RESOURCE))
-		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 450,"TPMRKBU4.DEF");
-
+		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
+	if(printButtonFor(RESOURCE_ARTIFACT))
+		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450,"TPMRKBU2.DEF");
+	if(printButtonFor(ARTIFACT_RESOURCE))																				//unblock when support for art-res is ready
+		(new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-res in some conditions
 
 }
 
@@ -3212,7 +3193,7 @@ void CMarketplaceWindow::setMode(EMarketMode Mode)
 
 bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || mode != CREATURE_RESOURCE);
+	return market->allowsTrade(M) && M != mode && (hero || mode != CREATURE_RESOURCE && mode != RESOURCE_ARTIFACT && mode != ARTIFACT_RESOURCE);
 }
 
 void CMarketplaceWindow::garrisonChanged()
@@ -5577,11 +5558,19 @@ void MoraleLuckBox::set(bool morale, const CGHeroInstance *hero)
 void CLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	if(!text.length())
+	std::string *hlpText = NULL;  //if NULL, text field will be used
+	if(ignoreLeadingWhitespace)
+	{
+		hlpText = new std::string(text);
+		boost::trim_left(*hlpText);
+	}
+
+	std::string &toPrint = hlpText ? *hlpText : text;
+	if(!toPrint.length())
 		return;
 
 	static void (*printer[3])(const std::string &, int, int, EFonts, SDL_Color, SDL_Surface *, bool) = {&CSDL_Ext::printAt, &CSDL_Ext::printAtMiddle, &CSDL_Ext::printTo}; //array of printing functions
-	printer[alignment](text, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to, false);
+	printer[alignment](toPrint, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to, false);
 }
 
 CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
@@ -5604,6 +5593,88 @@ void CLabel::setTxt(const std::string &Txt)
 		else
 			parent->redraw();
 	}
+}
+
+CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
+	:CLabel(rect.x, rect.y, Font, Align, Color, Text), slider(NULL), sliderStyle(SliderStyle)
+{
+	redrawParentOnScrolling = false;
+	autoRedraw = false;
+	pos.h = rect.h;
+	pos.w = rect.w;
+	assert(Align == TOPLEFT || Align == CENTER); //TODO: support for other alignments
+	assert(pos.w >= 80); //we need some space
+	setTxt(Text);
+}
+
+void CTextBox::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+
+	const Font &f = *graphics->fonts[font];
+	int dy = f.height; //line height
+	int base_y = pos.y;
+	if(alignment == CENTER)
+		base_y += (pos.h - maxH)/2;
+
+	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
+	int firstLineToPrint = slider ? slider->value : 0;
+
+	for (int i = 0; i < howManyLinesToPrint; i++)
+	{
+		const std::string &line = lines[i + firstLineToPrint];
+		int x = pos.x;
+		if(alignment == CENTER)
+			x += (pos.w - f.getWidth(line.c_str())) / 2;
+
+		printAt(line, pos.x, base_y + i*dy, font, color, to);
+	}
+
+}
+
+void CTextBox::setTxt(const std::string &Txt)
+{
+	recalculateLines(Txt);
+	CLabel::setTxt(Txt);
+}
+
+void CTextBox::sliderMoved(int to)
+{
+	if(redrawParentOnScrolling)
+		parent->redraw();
+	redraw();
+}
+
+void CTextBox::setBounds(int limitW, int limitH)
+{
+	pos.h = limitH;
+	pos.w = limitW;
+	recalculateLines(text);
+}
+
+void CTextBox::recalculateLines(const std::string &Txt)
+{
+	delChildNUll(slider, true);
+	lines.clear();
+
+	const Font &f = *graphics->fonts[font];
+	int lineHeight =  f.height; 
+	int lineCapacity = pos.h / lineHeight;
+
+	lines = CMessage::breakText(Txt, pos.w, font);
+	if(lines.size() > lineCapacity) //we need to add a slider
+	{
+		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
+		if(active)
+			slider->activate();
+	}
+
+	maxH = lineHeight * lines.size();
+	maxW = 0;
+	BOOST_FOREACH(const std::string &line, lines)
+		amax(maxW, f.getWidth(line.c_str()));
 }
 
 void CGStatusBar::print(const std::string & Text)
@@ -5632,7 +5703,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 {
 	init();
 	bg = BG;
-	moveChildren(bg, bg->parent, this);
+	moveChild(bg, bg->parent, this);
 	pos = bg->pos;
 
 	switch(Align)

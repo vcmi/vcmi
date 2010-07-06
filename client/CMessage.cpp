@@ -113,33 +113,30 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 
 /* The map file contains long texts, with or without line breaks. This
  * method takes such a text and breaks it into into several lines. */
-std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineSize, 
-											   bool userBreak, bool ifor)
+std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSize/*=30*/, const boost::function<int(char)> &charMetric /*= 0*/, bool allowLeadingWhitespace /*= false*/ )
 {
-	std::vector<std::string> * ret = new std::vector<std::string>();
+	std::vector<std::string> ret;
 
-	boost::algorithm::trim_if(text,boost::algorithm::is_any_of(" ")); 
+	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(" "));
 
 	while (text.length())
 	{
+		unsigned int lineLength = 0;	//in characters or given char metric
+		unsigned int z = 0; //our position in text
+		bool opened = false;//if we have an unclosed brace in current line
+		bool lineManuallyBroken = false;
 
-		unsigned int z = 0;
-		unsigned int braces = 0;
-		bool opened = false;
-
-		while(z < text.length()  &&  (text[z] != 0x0a) && (z < maxLineSize+braces))
+		while(z < text.length()  &&  text[z] != 0x0a  &&  lineLength < maxLineSize)
 		{
 			/* We don't count braces in string length. */
 			if (text[z] == '{')
-			{
 				opened=true;
-				braces++;
-			} 
 			else if (text[z]=='}')
-			{
 				opened=false;
-				braces++;
-			}
+			else if(charMetric)
+				lineLength += charMetric(text[z]);
+			else
+				lineLength++;
 
 			z++;
 		}
@@ -152,10 +149,13 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 			int pos = z-1;
 
 			// Do not break an ellipsis, backtrack until whitespace.
-			if (text[pos] == '.' && text[z] == '.') {
+			if (text[pos] == '.' && text[z] == '.') 
+			{
 				while (pos != 0 && text[pos] != ' ')
 					pos--;
-			} else {
+			} 
+			else 
+			{
 			/* TODO: boost should have a nice method to do that. */
 				while(pos > 0 &&
 					  text[pos] != ' ' && 
@@ -172,17 +172,17 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 		
 		if(z) //non-blank line 
 		{
-			ret->push_back(text.substr(0, z));
+			ret.push_back(text.substr(0, z));
 
 			if (opened)
 				/* Close the brace for the current line. */
-				ret->back() += '}';
+				ret.back() += '}';
 
 			text.erase(0, z);
 		}
 		else if(text[z] == 0x0a) //blank line 
 		{
-			ret->push_back(""); //add empty string, no extra actions needed
+			ret.push_back(""); //add empty string, no extra actions needed
 		}
 
 		if (text.length() && text[0] == 0x0a)
@@ -193,9 +193,12 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 
 			/* Remove LF */
 			text.erase(0, 1);
+
+			lineManuallyBroken = true;
 		}
 
-		boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" ")); 
+		if(!allowLeadingWhitespace || !lineManuallyBroken)
+			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" ")); 
 
 		if (opened)
 		{
@@ -206,10 +209,16 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 	}
 
 	/* Trim whitespaces of every line. */
-	for (size_t i=0; i<ret->size(); i++)
-		boost::algorithm::trim((*ret)[i]);
+	if(!allowLeadingWhitespace)
+		for (size_t i=0; i<ret.size(); i++)
+			boost::algorithm::trim(ret[i]);
 
 	return ret;
+}
+
+std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWidth, EFonts font )
+{
+	return breakText(text, maxLineWidth, boost::bind(&Font::getCharWidth, graphics->fonts[font], _1), true);
 }
 
 std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight)
@@ -328,13 +337,14 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, bool centerOnM
 {
 	CSimpleWindow * ret = new CSimpleWindow();
 	int fontHeight;
-	std::vector<std::string> * brtext = breakText(text,32,true,true);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
+	std::vector<std::string> brtext = breakText(text,32);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(&brtext, fontHeight);
 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,player);
 	ret->pos.h = ret->bitmap->h;
 	ret->pos.w = ret->bitmap->w;
-	if (centerOnMouse) {
+	if (centerOnMouse) 
+	{
 		ret->pos.x = GH.current->motion.x - ret->pos.w/2;
 		ret->pos.y = GH.current->motion.y - ret->pos.h/2;
 		// Put the window back on screen if necessary
@@ -342,14 +352,15 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, bool centerOnM
 		amax(ret->pos.y, 0);
 		amin(ret->pos.x, conf.cc.resx - ret->pos.w);
 		amin(ret->pos.y, conf.cc.resy - ret->pos.h);
-	} else {
+	} 
+	else 
+	{
 		// Center on screen
 		ret->pos.x = screen->w/2 - (ret->pos.w/2);
 		ret->pos.y = screen->h/2 - (ret->pos.h/2);
 	}
 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
 	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap);
-	delete brtext;
 	delete txtg;
 	return ret;
 }
@@ -357,8 +368,8 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 {
 	int curh;
 	int fontHeight;
-	std::vector<std::string> * tekst = breakText(text,charperline);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst, fontHeight);
+	std::vector<std::string> tekst = breakText(text,charperline);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(&tekst, fontHeight);
 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight), boxs;
 	boxs.first = std::max(txts.first,bitmap->w) // text/bitmap max width
 		+ 50; //side margins
@@ -376,7 +387,6 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
 	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,zwykly,ret);
-	delete tekst;
 	delete txtg;
 	return ret;
 }
@@ -384,32 +394,31 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline)
 {
 	SDL_Surface * _or = NULL;
-	int fontHeight;
-
-	// Try to compute a reasonable number of characters per line
-	if (!charperline) 
-	{
-		if (text.size() < 30 && ret->buttons.size() < 2)
-			charperline = 30;
-		else if (text.size() < 200)
-			charperline = 40;
-		else if (text.size() < 750)
-			charperline = 50;
-		else
-			charperline = 75; //TODO: add scrollbar for very long texts
-	}
+	const Font &f = *graphics->fonts[FONT_MEDIUM];
+	int fontHeight = f.height;
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);
 
-	std::vector<std::string> * brtext = breakText(text, charperline, true, true); //text 
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
-	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
+	const int sizes[][2] = {{400, 100}, {500, 150}, {600, 200}};
+	for(int i = 0; 
+		i < ARRAY_COUNT(sizes) 
+			&& sizes[i][0] < conf.cc.resx - 150  
+			&& sizes[i][1] < conf.cc.resy - 150
+			&& ret->text->slider;
+		i++)
+	{
+		ret->text->setBounds(sizes[i][0], sizes[i][1]);
+	}
+
+	if(ret->text->slider)
+		ret->text->slider->changeUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD, true);
+
+	std::pair<int,int> winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
 
 	ComponentsToBlit comps(ret->components,500,_or);
-
 	if (ret->components.size())
-		txts.second += 30 + comps.h; //space to first component
+		winSize.second += 30 + comps.h; //space to first component
 
 	int bw = 0;
 	if (ret->buttons.size())
@@ -418,35 +427,32 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 		bw = 20*(ret->buttons.size()-1); // space between all buttons
 		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
 			bw+=ret->buttons[i]->imgs[0][0]->w; 
-		txts.second += 20 + //before button
+		winSize.second += 20 + //before button
 		ok->ourImages[0].bitmap->h; //button	
 	}
 
 	// Clip window size
-	amax(txts.second, 50);
-	amax(txts.first, 80);
-	amax(txts.first, comps.w);
-	amax(txts.first, bw);
+	amax(winSize.second, 50);
+	amax(winSize.first, 80);
+	amax(winSize.first, comps.w);
+	amax(winSize.first, bw);
 
-	amin(txts.first, conf.cc.resx - 150);
+	amin(winSize.first, conf.cc.resx - 150);
 
-	ret->bitmap = drawBox1 (txts.first + 2*SIDE_MARGIN, txts.second + 2*SIDE_MARGIN, player);
+	ret->bitmap = drawBox1 (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
-	ret->pos.x=screen->w/2-(ret->pos.w/2);
-	ret->pos.y=screen->h/2-(ret->pos.h/2);
-	if (txts.second > conf.cc.resy - 150)
-	{
-		amin(txts.second, conf.cc.resy - 150);
-		ret->slider = new CSlider(ret->pos.x + ret->pos.w - SIDE_MARGIN, ret->pos.y + SIDE_MARGIN,
-			ret->pos.h - 2*SIDE_MARGIN, boost::bind (&CInfoWindow::sliderMoved, ret, _1), brtext->size(), brtext->size(), brtext->size()-1, false, 0);
-		//ret->bitmap->w -= ret->slider->pos.w; //crop text so that slider has more place for itself
-	}
-	else
-		ret->slider = NULL;
+	ret->center();
+
 
 	int curh = SIDE_MARGIN;
-	blitTextOnSur (txtg, fontHeight, curh, ret->bitmap);
+
+	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
+	ret->text->moveBy(Point(xOffset, SIDE_MARGIN));
+
+	//blitTextOnSur (txtg, fontHeight, curh, ret->bitmap);
+
+	curh += ret->text->pos.h;
 
 	if (ret->components.size())
 	{
@@ -471,74 +477,9 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 		ret->components[i]->pos.x += ret->pos.x;
 		ret->components[i]->pos.y += ret->pos.y;
 	}
-	delete brtext;
-	delete txtg;
+
 	if(_or)
 		SDL_FreeSurface(_or);
-}
-
-SDL_Surface * CMessage::genMessage
-(std::string title, std::string text, EWindowType type, std::vector<CDefHandler*> *addPics, void * cb)
-{
-//max x 320 okolo 30 znakow
-	std::vector<std::string> * tekst;
-	if (text.length() < 30) //does not need breaking
-	{
-		tekst = new std::vector<std::string>();
-		tekst->push_back(text);
-	}
-	else tekst = breakText(text);
-	int ww, hh; //dimensions of box
-	if (319>30+13*text.length())
-		ww = 30+13*text.length();
-	else ww = 319;
-	if (title.length())
-		hh=110+(21*tekst->size());
-	else hh=60+(21*tekst->size());
-	if (type==yesOrNO) //make place for buttons
-	{
-		if (ww<200) ww=200;
-		hh+=70;
-	}
-
-	SDL_Surface * ret = drawBox1(ww,hh,0);
-	//prepare title text
-
-	if (title.length())
-	{
-		SDL_Surface * titleText = FNT_RenderText(FONT_BIG,title,tytulowy);
-
-		//draw title
-		SDL_Rect tytul = genRect(titleText->h,titleText->w,((ret->w/2)-(titleText->w/2)),37);
-		SDL_BlitSurface(titleText,NULL,ret,&tytul);
-		SDL_FreeSurface(titleText);
-	}
-	//draw text
-	for (size_t i=0; i<tekst->size(); i++)
-	{
-		int by = 37+i*21;
-		if (title.length()) by+=40;
-		SDL_Surface * tresc = FNT_RenderText(FONT_BIG,(*tekst)[i],zwykly);
-		SDL_Rect trescRect = genRect(tresc->h,tresc->w,((ret->w/2)-(tresc->w/2)),by);
-		SDL_BlitSurface(tresc,NULL,ret,&trescRect);
-		SDL_FreeSurface(tresc);
-	}
-	if (type==yesOrNO) // add buttons
-	{
-		int by = 77+tekst->size()*21;
-		if (title.length()) by+=40;
-		int hwo = (*addPics)[0]->ourImages[0].bitmap->w, hwc=(*addPics)[0]->ourImages[0].bitmap->w;
-		//ok
-		SDL_Rect trescRect = genRect((*addPics)[0]->ourImages[0].bitmap->h,hwo,((ret->w/2)-hwo-10),by);
-		SDL_BlitSurface((*addPics)[0]->ourImages[0].bitmap,NULL,ret,&trescRect);
-		reinterpret_cast<std::vector<SDL_Rect>*>(cb)->push_back(trescRect);
-		//cancel
-		trescRect = genRect((*addPics)[1]->ourImages[0].bitmap->h,hwc,((ret->w/2)+10),by);
-		SDL_BlitSurface((*addPics)[1]->ourImages[0].bitmap,NULL,ret,&trescRect);
-		reinterpret_cast<std::vector<SDL_Rect>*>(cb)->push_back(trescRect);
-	}
-	delete tekst;
-	return ret;
 }
 
 void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
@@ -582,9 +523,8 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 {
 	comp = Comp;
 	img = comp->getImg();
-	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,13,true,true); //text 
-	txt = CMessage::drawText(brtext,txtFontHeight,FONT_MEDIUM);
-	delete brtext;
+	std::vector<std::string> brtext = CMessage::breakText(comp->subtitle,13); //text 
+	txt = CMessage::drawText(&brtext,txtFontHeight,FONT_MEDIUM);
 
 	//calculate dimensions
 	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, txtFontHeight);

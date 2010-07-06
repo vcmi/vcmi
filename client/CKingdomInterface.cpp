@@ -652,19 +652,17 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 	oss << town->dailyIncome();
 	CSDL_Ext::printAtMiddle(oss.str(),pos.x+189,pos.y+61,FONT_SMALL,zwykly,to);
 
-	std::vector<std::string> * toPrin = CMessage::breakText(CGI->generaltexth->allTexts[265]);
+	std::vector<std::string> toPrin = CMessage::breakText(CGI->generaltexth->allTexts[265]);
 
-	CSDL_Ext::printAt((*toPrin)[0], pos.x+4, pos.y+76, FONT_SMALL, tytulowy, to);
-	if(toPrin->size()!=1)
-		CSDL_Ext::printAt((*toPrin)[1], pos.x+4, pos.y+92, FONT_SMALL, tytulowy, to);
+	CSDL_Ext::printAt(toPrin[0], pos.x+4, pos.y+76, FONT_SMALL, tytulowy, to);
+	if(toPrin.size()!=1)
+		CSDL_Ext::printAt(toPrin[1], pos.x+4, pos.y+92, FONT_SMALL, tytulowy, to);
 
-	delete toPrin;
 	toPrin = CMessage::breakText(CGI->generaltexth->allTexts[266]);
 
-	CSDL_Ext::printAt((*toPrin)[0], pos.x+351, pos.y+76, FONT_SMALL, tytulowy, to);
-	if(toPrin->size()!=1)
-		CSDL_Ext::printAt((*toPrin)[1], pos.x+351, pos.y+92, FONT_SMALL, tytulowy, to);
-	delete toPrin;
+	CSDL_Ext::printAt(toPrin[0], pos.x+351, pos.y+76, FONT_SMALL, tytulowy, to);
+	if(toPrin.size()!=1)
+		CSDL_Ext::printAt(toPrin[1], pos.x+351, pos.y+92, FONT_SMALL, tytulowy, to);
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 	{//creatures info

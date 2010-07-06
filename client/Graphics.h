@@ -25,25 +25,6 @@ struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
 
-struct Font
-{
-	struct Char
-	{
-		si32 unknown1, width, unknown2, offset;
-		unsigned char *pixels;
-	};
-
-	Char chars[256];
-	ui8 height;
-
-	unsigned char *data;
-
-
-	Font(unsigned char *Data);
-	~Font();
-	int getWidth(const char *text) const;
-};
-
 class Graphics
 {
 public:

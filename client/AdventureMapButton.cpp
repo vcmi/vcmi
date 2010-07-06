@@ -637,3 +637,46 @@ void CSlider::setAmount( int to )
 	positions = to - capacity;
 	amax(positions, 0);
 }
+
+void CSlider::showAll(SDL_Surface * to)
+{
+	SDL_FillRect(to, &pos, 0);
+	CIntObject::showAll(to);
+}
+
+void CSlider::wheelScrolled(bool down, bool in)
+{
+	moveTo(value + 3 * (down ? +1 : -1));
+}
+
+void CSlider::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(key.state != SDL_PRESSED) return;
+
+	int moveDest = 0;
+	switch(key.keysym.sym)
+	{
+	case SDLK_UP:
+		moveDest = value - 1;
+		break;
+	case SDLK_DOWN:
+		moveDest = value + 1;
+		break;
+	case SDLK_PAGEUP:
+		moveDest = value - capacity + 1;
+		break;
+	case SDLK_PAGEDOWN:
+		moveDest = value + capacity - 1;
+		break;
+	case SDLK_HOME:
+		moveDest = 0;
+		break;
+	case SDLK_END:
+		moveDest = amount - capacity;
+		break;
+	default:
+		return;
+	}
+
+	moveTo(moveDest); 
+}

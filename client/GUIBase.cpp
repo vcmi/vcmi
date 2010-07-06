@@ -522,22 +522,7 @@ void CIntObject::activate()
 {
 	assert(!active);
 	active |= GENERAL;
-	if(used & LCLICK)
-		activateLClick();
-	if(used & RCLICK)
-		activateRClick();
-	if(used & HOVER)
-		activateHover();
-	if(used & MOVE)
-		activateMouseMove();
-	if(used & KEYBOARD)
-		activateKeys();
-	if(used & TIME)
-		activateTimer();
-	if(used & WHEEL)
-		activateWheel();
-	if(used & DOUBLECLICK)
-		activateDClick();
+	activate(used);
 
 	if(defActions & ACTIVATE)
 		for(size_t i = 0; i < children.size(); i++)
@@ -545,26 +530,31 @@ void CIntObject::activate()
 				children[i]->activate();
 }
 
+void CIntObject::activate(ui16 what)
+{
+	if(what & LCLICK)
+		activateLClick();
+	if(what & RCLICK)
+		activateRClick();
+	if(what & HOVER)
+		activateHover();
+	if(what & MOVE)
+		activateMouseMove();
+	if(what & KEYBOARD)
+		activateKeys();
+	if(what & TIME)
+		activateTimer();
+	if(what & WHEEL)
+		activateWheel();
+	if(what & DOUBLECLICK)
+		activateDClick();
+}
+
 void CIntObject::deactivate()
 {
 	assert(active);
 	active &= ~ GENERAL;
-	if(used & LCLICK)
-		deactivateLClick();
-	if(used & RCLICK)
-		deactivateRClick();
-	if(used & HOVER)
-		deactivateHover();
-	if(used & MOVE)
-		deactivateMouseMove();
-	if(used & KEYBOARD)
-		deactivateKeys();
-	if(active & TIME)			// TIME is special
-		deactivateTimer();
-	if(used & WHEEL)
-		deactivateWheel();
-	if(used & DOUBLECLICK)
-		deactivateDClick();
+	deactivate(used);
 
 	assert(!active);
 
@@ -572,6 +562,26 @@ void CIntObject::deactivate()
 		for(size_t i = 0; i < children.size(); i++)
 			if(children[i]->recActions & DEACTIVATE)
 				children[i]->deactivate();
+}
+
+void CIntObject::deactivate(ui16 what)
+{
+	if(what & LCLICK)
+		deactivateLClick();
+	if(what & RCLICK)
+		deactivateRClick();
+	if(what & HOVER)
+		deactivateHover();
+	if(what & MOVE)
+		deactivateMouseMove();
+	if(what & KEYBOARD)
+		deactivateKeys();
+	if(what & TIME)			// TIME is special
+		deactivateTimer();
+	if(what & WHEEL)
+		deactivateWheel();
+	if(what & DOUBLECLICK)
+		deactivateDClick();
 }
 
 CIntObject::~CIntObject()
@@ -684,18 +694,19 @@ void CIntObject::onDoubleClick()
 {
 }
 
-const Rect & CIntObject::center( const Rect &r )
+const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	pos.x = screen->w/2 - r.w/2;
-	pos.y = screen->h/2 - r.h/2;
+	moveBy(Point(screen->w/2 - r.w/2 - pos.x, 
+				 screen->h/2 - r.h/2 - pos.y), 
+			propagate);
 	return pos;
 }
 
-const Rect & CIntObject::center()
+const Rect & CIntObject::center( bool propagate )
 {
-	return center(pos);
+	return center(pos, propagate);
 }
 
 void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
@@ -718,8 +729,45 @@ void CIntObject::delChild(CIntObject *child)
 	delete child;
 }
 
+void CIntObject::addChild(CIntObject *child, bool adjustPosition /*= false*/)
+{
+	assert(!vstd::contains(children, child));
+	assert(child->parent == NULL);
+	children.push_back(child);
+	child->parent = this;
+	if(adjustPosition)
+		child->pos += pos;
+}
+
+void CIntObject::removeChild(CIntObject *child, bool adjustPosition /*= false*/)
+{
+	assert(vstd::contains(children, child));
+	assert(child->parent == this);
+	children -= child;
+	child->parent = NULL;
+	if(adjustPosition)
+		child->pos -= pos;
+}
+
+void CIntObject::changeUsedEvents(ui16 what, bool enable, bool adjust /*= true*/)
+{
+	if(enable)
+	{
+		used |= what;
+		if(adjust && active)
+			activate(what);
+	}
+	else
+	{
+		used &= ~what;
+		if(adjust && active)
+			deactivate(what);
+	}
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
+	init();
 	bg = BG; 
 	freeSurf = Free;
 	pos.x += x;
@@ -730,6 +778,7 @@ CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 
 CPicture::CPicture( const std::string &bmpname, int x, int y )
 {
+	init();
 	bg = BitmapHandler::loadBitmap(bmpname); 
 	freeSurf = true;;
 	pos.x += x;
@@ -747,24 +796,53 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 
 CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat /*= false*/)
 {
+	init();
 	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
 }
 
 CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 {
+	init();
 	createSimpleRect(r, screenFormat, color);
+}
+
+CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
+{
+	srcRect = new Rect(SrcRect);
+	pos.x += x;
+	pos.y += y;
+	bg = BG;
+	freeSurf = free;
 }
 
 CPicture::~CPicture()
 {
 	if(freeSurf)
 		SDL_FreeSurface(bg);
+	delete srcRect;
+}
+
+void CPicture::init()
+{
+	srcRect = NULL;
 }
 
 void CPicture::showAll( SDL_Surface * to )
 {
 	if(bg)
-		blitAt(bg, pos, to);
+	{
+		if(srcRect)
+		{
+			SDL_Rect srcRectCpy = *srcRect;
+			SDL_Rect dstRect = srcRectCpy;
+			dstRect.x = pos.x;
+			dstRect.y = pos.y;
+
+			SDL_BlitSurface(bg, &srcRectCpy, to, &dstRect);
+		}
+		else
+			blitAt(bg, pos, to);
+	}
 }
 
 void CPicture::convertToScreenBPP()
@@ -786,6 +864,7 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
 
 	SDL_FillRect(bg, NULL, color);
+	freeSurf = true;
 }
 
 void CPicture::colorizeAndConvert(int player)
@@ -868,16 +947,10 @@ bool isArrowKey( SDLKey key )
 	return key >= SDLK_UP && key <= SDLK_LEFT;
 }
 
-CIntObject * moveChildren(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos)
+CIntObject * moveChild(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos)
 {
-	assert(vstd::contains(from->children, obj));
-	assert(obj->parent == from);
-	from->children -= obj;
-	to->children.push_back(obj);
-	obj->parent = to;
-	if(adjustPos)
-		obj->pos -= from->pos - to->pos;
-
+	from->removeChild(obj, adjustPos);
+	to->addChild(obj, adjustPos);
 	return obj;
 }
 Rect Rect::createCentered( int w, int h )
