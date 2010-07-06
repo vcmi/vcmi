@@ -1444,26 +1444,22 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			}
 		case bartifact:
 			{
-				//TODO: FIX IT!
+ 				if(!k->second.heroes.size())
+				{
+					tlog5 << "Cannot give starting artifact - no heroes!" << std::endl;
+					break;
+				}
+ 				CArtifact *toGive;
+ 				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
 
-// 				if(!k->second.heroes.size())
-// 				{
-// 					tlog5 << "Cannot give starting artifact - no heroes!" << std::endl;
-// 					break;
-// 				}
-// 				CArtifact *toGive;
-// 				do 
-// 				{
-// 					toGive = VLC->arth->treasures[ran() % VLC->arth->treasures.size()];
-// 				} while (!map->allowedArtifact[toGive->id]);
-// 				CGHeroInstance *hero = k->second.heroes[0];
-// 				std::vector<ui16>::iterator slot = vstd::findFirstNot(hero->artifWorn,toGive->possibleSlots);
-// 				if(slot!=toGive->possibleSlots.end())
-// 				{
-// 					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive->id, &hero->bonuses);
-// 				}
-// 				else
-// 					hero->giveArtifact(toGive->id);
+				CGHeroInstance *hero = k->second.heroes[0];
+				std::vector<ui16>::iterator slot = vstd::findFirstNot (hero->artifWorn, toGive->possibleSlots);
+				if(slot!=toGive->possibleSlots.end())
+				{
+					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive->id, &hero->bonuses);
+				}
+				else
+ 					hero->giveArtifact(toGive->id);
 			}
 		}
 	}
