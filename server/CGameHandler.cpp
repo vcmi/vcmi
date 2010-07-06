@@ -976,11 +976,10 @@ void CGameHandler::newTurn()
 					n.res[i->first][6] += 500;
 					break;
 				}
-
-				for(std::list<Bonus>::iterator  j = h->bonuses.begin(); j != h->bonuses.end(); j++)
-					if(j->type == Bonus::GENERATE_RESOURCE)
-						n.res[i->first][j->subtype] += j->val;
-
+				for (int k = 0; k < RESOURCE_QUANTITY; k++)
+				{
+					n.res[i->first][k] += h->valOfBonuses(Bonus::GENERATE_RESOURCE, k);
+				}
 				//TODO player bonuses
 
 			}

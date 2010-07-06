@@ -1004,14 +1004,13 @@ void CGHeroInstance::initObj()
 				break;
 			case 7://maxed mastery for spell
 				bonus.type = Bonus::MAXED_SPELL;
-				bonus.val = it->val; //spell id
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 8://peculiar spells - enchantments
 				bonus.type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-				bonus.val = it->val; //spell id
 				bonus.subtype = it->subtype; //0, 1 for Coronius
 				speciality.bonuses.push_back (bonus);
+				break;
 			case 9://upgrade creatures
 				bonus.type = Bonus::SPECIAL_UPGRADE;
 				bonus.additionalInfo = it->additionalinfo;
@@ -1033,7 +1032,6 @@ void CGHeroInstance::initObj()
 				break;
 			case 12://army speed
 				bonus.type = Bonus::STACKS_SPEED;
-				bonus.val = it->val;
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 13://Dragon bonuses (Mutare)
@@ -1049,6 +1047,7 @@ void CGHeroInstance::initObj()
 						speciality.bonuses.push_back (bonus);
 					}
 				}
+				break;
 			default:
 				tlog2 << "Unexpected hero speciality " << type <<'\n';
 		}
