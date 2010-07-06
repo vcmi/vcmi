@@ -305,7 +305,7 @@ public:
 	struct DLL_EXPORT HeroSpecial : CBonusSystemNode
 	{
 		bool growthsWithLevel;
-		void RecalculateSpecials(){};
+		void recalculateSpecials(){};
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & static_cast<CBonusSystemNode&>(*this);

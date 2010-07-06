@@ -923,6 +923,138 @@ const std::string & CGHeroInstance::getBiography() const
 void CGHeroInstance::initObj()
 {
 	blockVisit = true;
+	speciality.growthsWithLevel = false;
+	Bonus bonus;
+	for (std::vector<specialInfo>::iterator it = type->spec.begin(); it != type->spec.end(); it++)
+	{
+		bonus.val = it->val;
+		bonus.id = id; //from the hero, speciality has no unique id
+		bonus.duration = Bonus::PERMANENT;
+		bonus.source = Bonus::HERO_SPECIAL;
+		switch (it->type)
+		{
+			case 1:// creature speciality
+				speciality.growthsWithLevel = true;
+				bonus.type = Bonus::SPECIAL_CREATURE;
+				bonus.valType = Bonus::ADDITIVE_VALUE;
+				bonus.subtype = 1; //attack
+				bonus.additionalInfo = level/VLC->creh->creatures[it->val]->level * VLC->creh->creatures[it->val]->attack;
+				speciality.bonuses.push_back (bonus);
+				bonus.subtype = 2; //defense
+				bonus.additionalInfo = level/VLC->creh->creatures[it->val]->level * VLC->creh->creatures[it->val]->defence;
+				speciality.bonuses.push_back (bonus);
+				bonus.subtype = 5;
+				bonus.additionalInfo = 1; //+1 speed
+				speciality.bonuses.push_back (bonus);
+				for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
+					i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
+				{
+					bonus.val = *i; // for all direct upgrades of that creature
+					bonus.subtype = 1; //attack
+					bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->attack;
+					speciality.bonuses.push_back (bonus);
+					bonus.subtype = 2; //defense
+					bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->defence;
+					speciality.bonuses.push_back (bonus);
+					bonus.subtype = 5;
+					bonus.additionalInfo = 1; //+1 speed
+					speciality.bonuses.push_back (bonus);
+				}
+				break;
+			case 2://secondary skill
+				speciality.growthsWithLevel = true;
+				bonus.type = Bonus::SECONDARY_SKILL;
+				bonus.subtype = it->val; //skill id
+				bonus.val = it->additionalinfo * level; //actual value, screwed mapping :/
+				switch (it->subtype)
+				{
+					case 0: //normal
+						bonus.valType = Bonus::PERCENT_TO_BASE;
+						break;
+					case 1: //when it's navigation or there's no 'base' at all
+						bonus.valType = Bonus::PERCENT_TO_ALL;
+						break;
+				}
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 3://spell damage bonus, level dependant
+				speciality.growthsWithLevel = true;
+				bonus.type = Bonus::SPECIAL_SPELL_LEV;
+				bonus.subtype = it->subtype;
+				bonus.additionalInfo = it->additionalinfo;
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 4://creature stat boost
+				bonus.type = Bonus::SPECIAL_CREATURE;
+				bonus.valType = Bonus::ADDITIVE_VALUE;
+				bonus.subtype = it->subtype;
+				bonus.additionalInfo = it->additionalinfo;
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 5://spell damage bonus in percent
+				bonus.type = Bonus::SPECIFIC_SPELL_DAMAGE;
+				bonus.valType = Bonus::PERCENT_TO_ALL;
+				bonus.additionalInfo = it->additionalinfo;
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 6://damage bonus for bless (Adela)
+				bonus.type = Bonus::SPECIAL_BLESS_DAMAGE;
+				bonus.additionalInfo = it->additionalinfo; //damage factor
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 7://maxed mastery for spell
+				bonus.type = Bonus::MAXED_SPELL;
+				bonus.val = it->val; //spell id
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 8://peculiar spells - enchantments
+				bonus.type = Bonus::SPECIAL_PECULIAR_ENCHANT;
+				bonus.val = it->val; //spell id
+				bonus.subtype = it->subtype; //0, 1 for Coronius
+				speciality.bonuses.push_back (bonus);
+			case 9://upgrade creatures
+				bonus.type = Bonus::SPECIAL_UPGRADE;
+				bonus.additionalInfo = it->additionalinfo;
+				speciality.bonuses.push_back (bonus);
+				for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
+					i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
+				{
+					bonus.val = *i;
+					speciality.bonuses.push_back (bonus); //propagate for regular upgrades of base creature
+				}
+				break;
+			case 10://resource generation
+				bonus.type = Bonus::GENERATE_RESOURCE;
+				bonus.subtype = it->subtype;
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 11://starting skill with mastery (Adrienne)
+				cb->changeSecSkill (id, it->val, it->additionalinfo); //simply give it and forget
+				break;
+			case 12://army speed
+				bonus.type = Bonus::STACKS_SPEED;
+				bonus.val = it->val;
+				speciality.bonuses.push_back (bonus);
+				break;
+			case 13://Dragon bonuses (Mutare)
+				bonus.type = Bonus::SPECIAL_CREATURE;
+				bonus.valType = Bonus::ADDITIVE_VALUE;
+				bonus.additionalInfo = it->additionalinfo; //value
+				bonus.subtype = it->subtype; //which stat it is
+				for (std::vector<CCreature*>::iterator i = VLC->creh->creatures.begin(); i != VLC->creh->creatures.end(); i++)
+				{ //TODO: what if creature changes type during the game (Dragon Eye Ring?)
+					if ((*i)->hasBonusOfType(Bonus::DRAGON_NATURE)) //TODO: implement it!
+					{
+						bonus.val = (*i)->idNumber; //for 
+						speciality.bonuses.push_back (bonus);
+					}
+				}
+			default:
+				tlog2 << "Unexpected hero speciality " << type <<'\n';
+		}
+	}
+	if (speciality.growthsWithLevel)
+		speciality.recalculateSpecials();
 }
 
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
@@ -1175,6 +1307,8 @@ void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= N
 
 	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown)
 		out.insert(visitedTown);
+
+	out.insert (&speciality);
 }
 
 void CGHeroInstance::pushPrimSkill(int which, int val)

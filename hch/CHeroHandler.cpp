@@ -1,14 +1,16 @@
 #define VCMI_DLL
 #include "../stdafx.h"
 #include "CHeroHandler.h"
-#include <sstream>
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <boost/spirit.hpp>
+using namespace boost::spirit;
 
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
-
 /*
  * CHeroHandler.cpp, part of VCMI engine
  *
@@ -350,6 +352,7 @@ void CHeroHandler::loadHeroes()
 			iss >> hid >> sid;
 			heroes[hid]->startingSpell = sid;
 		}
+		inp.close();
 	}
 	loadHeroClasses();
 	initHeroClasses();
@@ -403,6 +406,25 @@ void CHeroHandler::loadHeroes()
 			loadToIt(dump,buf,it,4);
 		}
 		ballistics.push_back(bli);
+	}
+	{
+		it = 0;
+		std::ifstream inp;
+		dump.clear();
+		inp.open(DATA_DIR "/config/specials.txt"); //loading hero specials
+		specialInfo dummy;
+		si32 hid;
+		inp.ignore(100, '\n');
+		for (int i = 0; i < 174; ++i)
+		{
+			inp >> hid;
+			inp >> dummy.type;
+			inp >> dummy.val;
+			inp >> dummy.subtype;
+			inp >> dummy.additionalinfo;
+			heroes[hid]->spec.push_back(dummy); //put a copy of dummy
+		}
+		inp.close();
 	}
 }
 void CHeroHandler::loadHeroClasses()

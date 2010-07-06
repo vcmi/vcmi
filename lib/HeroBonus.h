@@ -147,7 +147,17 @@ namespace PrimarySkill
 	BONUS_NAME(NOT_ACTIVE)								\
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
-	BONUS_NAME(DARKNESS) /*val = radius */
+	BONUS_NAME(DARKNESS) /*val = radius */ \
+	BONUS_NAME(SPECIAL_CREATURE_LEV) /*val = base id*/ \
+	BONUS_NAME(SPECIAL_SECONDARY_SKILL) /*val = id, additionalInfo = value per level in percent*/ \
+	BONUS_NAME(SPECIAL_SPELL_LEV) /*val = id, additionalInfo = value per level in percent*/\
+	BONUS_NAME(SPECIAL_CREATURE) /*val = base id, subtype = stat, additionalInfo = value*/\
+	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*val = id of spell, additionalInfo = value*/\
+	BONUS_NAME(SPECIAL_BLESS_DAMAGE) /*val = spell (bless), additionalInfo = value per level in percent*/\
+	BONUS_NAME(MAXED_SPELL) /*val = id*/\
+	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
+	BONUS_NAME(SPECIAL_UPGRADE) /*val = base, additionalInfo = target */\
+	BONUS_NAME(DRAGON_NATURE) /*TODO: implement it!*/
 
 struct DLL_EXPORT Bonus
 {
@@ -180,6 +190,7 @@ struct DLL_EXPORT Bonus
 		TOWN_STRUCTURE,
 		HERO_BASE_SKILL,
 		SECONDARY_SKILL,
+		HERO_SPECIAL,
 		ARMY
 	};
 
