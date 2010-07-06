@@ -5615,7 +5615,7 @@ void CTextBox::showAll(SDL_Surface * to)
 	int dy = f.height; //line height
 	int base_y = pos.y;
 	if(alignment == CENTER)
-		base_y += (pos.h - maxH)/2;
+		base_y += std::max((pos.h - maxH)/2,0);
 
 	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
 	int firstLineToPrint = slider ? slider->value : 0;
@@ -5625,9 +5625,13 @@ void CTextBox::showAll(SDL_Surface * to)
 		const std::string &line = lines[i + firstLineToPrint];
 		int x = pos.x;
 		if(alignment == CENTER)
+		{
 			x += (pos.w - f.getWidth(line.c_str())) / 2;
+			if(slider)
+				x -= slider->pos.w / 2 + 5;
+		}
 
-		printAt(line, pos.x, base_y + i*dy, font, color, to);
+		printAt(line, x, base_y + i*dy, font, color, to);
 	}
 
 }
@@ -5640,6 +5644,9 @@ void CTextBox::setTxt(const std::string &Txt)
 
 void CTextBox::sliderMoved(int to)
 {
+	if(!slider)
+		return;
+
 	if(redrawParentOnScrolling)
 		parent->redraw();
 	redraw();

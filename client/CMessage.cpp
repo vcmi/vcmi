@@ -400,7 +400,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);
 
-	const int sizes[][2] = {{400, 100}, {500, 150}, {600, 200}};
+	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}};
 	for(int i = 0; 
 		i < ARRAY_COUNT(sizes) 
 			&& sizes[i][0] < conf.cc.resx - 150  
