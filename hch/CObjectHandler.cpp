@@ -982,10 +982,10 @@ void CGHeroInstance::initObj()
 				break;
 			case 2://secondary skill
 				speciality.growthsWithLevel = true;
-				bonus.type = Bonus::SECONDARY_SKILL;
-				bonus.subtype = it->val; //skill id
-				bonus.val = it->additionalinfo * level; //actual value, screwed mapping :/
-				switch (it->subtype)
+				bonus.type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
+				bonus.subtype = it->subtype; //skill id
+				bonus.val = it->val; //value per level, in percent
+				switch (it->additionalinfo)
 				{
 					case 0: //normal
 						bonus.valType = Bonus::PERCENT_TO_BASE;
@@ -2704,14 +2704,8 @@ void CGCreature::initObj()
 			amount = c.ammMax;
 		else
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
-	/*
-	MetaString ms;
-	int pom = slots.find(0)->second.getQuantityID();
-	pom = 174 + 3*pom + 1;
-	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
-	ms.toString(hoverName);
+
 	temppower = slots[0].count * 1000;
-	*/
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
