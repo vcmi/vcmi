@@ -1894,7 +1894,7 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 	if (creatures.stacksCount() <= 0)
 		return;
 	CCreatureSet heroArmy = h->getArmy();
-	while (creatures.stacksCount() > 0)
+	while (creatures.stacksCount())
 	{
 		int slot = heroArmy.getSlotFor(creatures.Slots().begin()->second.type->idNumber);
 		if (slot < 0)

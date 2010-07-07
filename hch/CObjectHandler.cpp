@@ -939,14 +939,15 @@ void CGHeroInstance::initObj()
 		{
 			case 1:// creature speciality
 				{
-					int creLevel = VLC->creh->creatures[it->val]->level;
+					std::vector<CCreature*>* creatures = &VLC->creh->creatures;
+					int creLevel = (*creatures)[it->val]->level;
 					if(!creLevel)
 					{
 						if(it->val == 146)
 							creLevel = 5; //treat ballista as 5-level
 						else
 						{
-							tlog2 << "Warning: unknown level of " << VLC->creh->creatures[it->val]->namePl << std::endl;
+							tlog2 << "Warning: unknown level of " << (*creatures)[it->val]->namePl << std::endl;
 							continue;
 						}
 					}
@@ -955,23 +956,23 @@ void CGHeroInstance::initObj()
 					bonus.type = Bonus::SPECIAL_CREATURE;
 					bonus.valType = Bonus::ADDITIVE_VALUE;
 					bonus.subtype = 1; //attack
-					bonus.additionalInfo = level/creLevel * VLC->creh->creatures[it->val]->attack;
+					bonus.additionalInfo = level/creLevel * (*creatures)[it->val]->attack;
 					speciality.bonuses.push_back (bonus);
 					bonus.subtype = 2; //defense
-					bonus.additionalInfo = level/creLevel * VLC->creh->creatures[it->val]->defence;
+					bonus.additionalInfo = level/creLevel * (*creatures)[it->val]->defence;
 					speciality.bonuses.push_back (bonus);
 					bonus.subtype = 5;
 					bonus.additionalInfo = 1; //+1 speed
 					speciality.bonuses.push_back (bonus);
-					for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
+					for (std::set<ui32>::iterator i = (*creatures)[it->val]->upgrades.begin();
 						i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
 					{
 						bonus.val = *i; // for all direct upgrades of that creature
 						bonus.subtype = 1; //attack
-						bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->attack;
+						bonus.additionalInfo = level/(*creatures)[*i]->level * (*creatures)[*i]->attack;
 						speciality.bonuses.push_back (bonus);
 						bonus.subtype = 2; //defense
-						bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->defence;
+						bonus.additionalInfo = level/(*creatures)[*i]->level * (*creatures)[*i]->defence;
 						speciality.bonuses.push_back (bonus);
 						bonus.subtype = 5;
 						bonus.additionalInfo = 1; //+1 speed
@@ -1030,16 +1031,19 @@ void CGHeroInstance::initObj()
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 9://upgrade creatures
+			{
+				std::vector<CCreature*>* creatures = &VLC->creh->creatures;
 				bonus.type = Bonus::SPECIAL_UPGRADE;
 				bonus.additionalInfo = it->additionalinfo;
 				speciality.bonuses.push_back (bonus);
-				for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
-					i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
+				for (std::set<ui32>::iterator i = (*creatures)[it->val]->upgrades.begin();
+					i != (*creatures)[it->val]->upgrades.end(); i++)
 				{
 					bonus.val = *i;
 					speciality.bonuses.push_back (bonus); //propagate for regular upgrades of base creature
 				}
 				break;
+			}
 			case 10://resource generation
 				bonus.type = Bonus::GENERATE_RESOURCE;
 				bonus.subtype = it->subtype;
@@ -1061,7 +1065,7 @@ void CGHeroInstance::initObj()
 				{ //TODO: what if creature changes type during the game (Dragon Eye Ring?)
 					if ((*i)->hasBonusOfType(Bonus::DRAGON_NATURE)) //TODO: implement it!
 					{
-						bonus.val = (*i)->idNumber; //for 
+						bonus.val = (*i)->idNumber; //for each Dragon separately
 						speciality.bonuses.push_back (bonus);
 					}
 				}
@@ -4294,21 +4298,24 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 94: //Stables TODO: upgrade Cavaliers
 		sound = soundBase::horse20;
-		std::set<ui32> slots;
+		CCreatureSet creatures;
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
 			if(i->second.type->idNumber == 10)
-				slots.insert(i->first);
+				creatures.slots.insert(*i);
 		}
-		if (!slots.empty())
+		if (creatures.slots.size())
 		{
-			for (std::set<ui32>::const_iterator i = slots.begin(); i != slots.end(); i++)
+			messageID = 138;
+			cb->takeCreatures(h->id, creatures.slots);
+			for (std::map<TSlot, CStackInstance>::iterator i = creatures.slots.begin(); i != creatures.slots.end(); i++)
 			{
-				UpgradeCreature uc(*i, id, 11);
-				 //uc.applyGh (&gh);
+				i->second.setType(11);
 			}
+			cb->giveCreatures(h->id, h, creatures); //suboptimal again, but creature sets are screwed in general
 		}
-		messageID = 137;
+		else
+			messageID = 137;
 		gbonus.bonus.type = Bonus::LAND_MOVEMENT;
 		gbonus.bonus.val = 600;
 		bonusMove = 600;
