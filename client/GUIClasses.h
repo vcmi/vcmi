@@ -1005,6 +1005,7 @@ public:
 	std::vector<CItem*> items;
 
 	AdventureMapButton *all, *convert, *cancel;
+	CGStatusBar *bar;
 	void showAll(SDL_Surface * to);
 	void makeDeal();
 	void addAll();

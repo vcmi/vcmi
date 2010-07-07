@@ -5269,13 +5269,9 @@ void CTransformerWindow::addAll()
 CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):hero(_hero),town(_town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = LCLICK;
-	pos.x = screen->w/2 - 300;
-	pos.y = screen->h/2 - 242;
 	bg = new CPicture ("SKTRNBK.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos.w = bg->bg->w;
-	pos.h = bg->bg->h;
+	pos = center(bg->pos);
 	
 	if (hero)
 		army = hero;
@@ -5289,6 +5285,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	all    = new AdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new AdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
 	cancel = new AdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
+	bar    = new CGStatusBar(304, 469);
 }
 
 CTransformerWindow::~CTransformerWindow()

@@ -925,6 +925,10 @@ void CGHeroInstance::initObj()
 	blockVisit = true;
 	speciality.growthsWithLevel = false;
 	Bonus bonus;
+
+	if(!type)
+		return; //TODO support prison
+
 	for (std::vector<specialInfo>::iterator it = type->spec.begin(); it != type->spec.end(); it++)
 	{
 		bonus.val = it->val;
@@ -934,31 +938,45 @@ void CGHeroInstance::initObj()
 		switch (it->type)
 		{
 			case 1:// creature speciality
-				speciality.growthsWithLevel = true;
-				bonus.type = Bonus::SPECIAL_CREATURE;
-				bonus.valType = Bonus::ADDITIVE_VALUE;
-				bonus.subtype = 1; //attack
-				bonus.additionalInfo = level/VLC->creh->creatures[it->val]->level * VLC->creh->creatures[it->val]->attack;
-				speciality.bonuses.push_back (bonus);
-				bonus.subtype = 2; //defense
-				bonus.additionalInfo = level/VLC->creh->creatures[it->val]->level * VLC->creh->creatures[it->val]->defence;
-				speciality.bonuses.push_back (bonus);
-				bonus.subtype = 5;
-				bonus.additionalInfo = 1; //+1 speed
-				speciality.bonuses.push_back (bonus);
-				for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
-					i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
 				{
-					bonus.val = *i; // for all direct upgrades of that creature
+					int creLevel = VLC->creh->creatures[it->val]->level;
+					if(!creLevel)
+					{
+						if(it->val == 146)
+							creLevel = 5; //treat ballista as 5-level
+						else
+						{
+							tlog2 << "Warning: unknown level of " << VLC->creh->creatures[it->val]->namePl << std::endl;
+							continue;
+						}
+					}
+
+					speciality.growthsWithLevel = true;
+					bonus.type = Bonus::SPECIAL_CREATURE;
+					bonus.valType = Bonus::ADDITIVE_VALUE;
 					bonus.subtype = 1; //attack
-					bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->attack;
+					bonus.additionalInfo = level/creLevel * VLC->creh->creatures[it->val]->attack;
 					speciality.bonuses.push_back (bonus);
 					bonus.subtype = 2; //defense
-					bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->defence;
+					bonus.additionalInfo = level/creLevel * VLC->creh->creatures[it->val]->defence;
 					speciality.bonuses.push_back (bonus);
 					bonus.subtype = 5;
 					bonus.additionalInfo = 1; //+1 speed
 					speciality.bonuses.push_back (bonus);
+					for (std::set<ui32>::iterator i = VLC->creh->creatures[it->val]->upgrades.begin();
+						i != VLC->creh->creatures[it->val]->upgrades.end(); i++)
+					{
+						bonus.val = *i; // for all direct upgrades of that creature
+						bonus.subtype = 1; //attack
+						bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->attack;
+						speciality.bonuses.push_back (bonus);
+						bonus.subtype = 2; //defense
+						bonus.additionalInfo = level/VLC->creh->creatures[*i]->level * VLC->creh->creatures[*i]->defence;
+						speciality.bonuses.push_back (bonus);
+						bonus.subtype = 5;
+						bonus.additionalInfo = 1; //+1 speed
+						speciality.bonuses.push_back (bonus);
+					}
 				}
 				break;
 			case 2://secondary skill
@@ -2567,20 +2585,23 @@ const std::string & CGCreature::getHoverText() const
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
 
-	hoverName += "\n\n Threat: ";
-	float ratio = ((float)getArmyStrength() / cb->getSelectedHero(cb->getCurrentPlayer())->getTotalStrength());
-	if (ratio < 0.1) hoverName += "Effortless";
-	else if (ratio < 0.25) hoverName += "Very Weak";
-	else if (ratio < 0.6) hoverName += "Weak";
-	else if (ratio < 0.9) hoverName += "A bit weaker";
-	else if (ratio < 1.1) hoverName += "Equal";
-	else if (ratio < 1.3) hoverName += "A bit stronger";
-	else if (ratio < 1.8) hoverName += "Strong";
-	else if (ratio < 2.5) hoverName += "Very Strong";
-	else if (ratio < 4) hoverName += "Challenging";
-	else if (ratio < 8) hoverName += "Overpowering";
-	else if (ratio < 20) hoverName += "Deadly";
-	else hoverName += "Impossible";
+	if(const CGHeroInstance *selHero = cb->getSelectedHero(cb->getCurrentPlayer()))
+	{
+		hoverName += "\n\n Threat: ";
+		float ratio = ((float)getArmyStrength() / selHero->getTotalStrength());
+		if (ratio < 0.1) hoverName += "Effortless";
+		else if (ratio < 0.25) hoverName += "Very Weak";
+		else if (ratio < 0.6) hoverName += "Weak";
+		else if (ratio < 0.9) hoverName += "A bit weaker";
+		else if (ratio < 1.1) hoverName += "Equal";
+		else if (ratio < 1.3) hoverName += "A bit stronger";
+		else if (ratio < 1.8) hoverName += "Strong";
+		else if (ratio < 2.5) hoverName += "Very Strong";
+		else if (ratio < 4) hoverName += "Challenging";
+		else if (ratio < 8) hoverName += "Overpowering";
+		else if (ratio < 20) hoverName += "Deadly";
+		else hoverName += "Impossible";
+	}
 	return hoverName;
 }
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
