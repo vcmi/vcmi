@@ -1204,7 +1204,6 @@ struct AdvmapSpellCast : public CPackForClient //108
 	}
 };
 
-
 /***********************************************************************************************************/
 
 struct CloseServer : public CPackForServer

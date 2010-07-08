@@ -151,7 +151,6 @@ namespace PrimarySkill
 	BONUS_NAME(SPECIAL_CREATURE_LEV) /*val = base id*/ \
 	BONUS_NAME(SPECIAL_SECONDARY_SKILL) /*val = id, additionalInfo = value per level in percent*/ \
 	BONUS_NAME(SPECIAL_SPELL_LEV) /*val = id, additionalInfo = value per level in percent*/\
-	BONUS_NAME(SPECIAL_CREATURE) /*val = base id, subtype = stat, additionalInfo = value*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*val = id of spell, additionalInfo = value*/\
 	BONUS_NAME(SPECIAL_BLESS_DAMAGE) /*val = spell (bless), additionalInfo = value per level in percent*/\
 	BONUS_NAME(MAXED_SPELL) /*val = id*/\
@@ -295,6 +294,14 @@ struct DLL_EXPORT Bonus
  	{
  		return type == cf;
  	}
+	inline void ChangeBonusVal (const ui32 newVal)
+	{
+		val = newVal;
+	}
+	inline void operator += (const ui32 Val) //no return
+	{
+		val += Val;
+	}
 	const CSpell * sourceSpell() const;
 
 	std::string Description() const;

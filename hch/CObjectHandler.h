@@ -46,8 +46,8 @@ struct TerrainTile;
 struct InfoWindow;
 struct Component;
 struct BankConfig;
+struct UpdateHeroSpeciality;
 class CGBoat;
-
 
 class DLL_EXPORT CCastleEvent
 {
@@ -305,7 +305,6 @@ public:
 	struct DLL_EXPORT HeroSpecial : CBonusSystemNode
 	{
 		bool growthsWithLevel;
-		void recalculateSpecials(){};
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & static_cast<CBonusSystemNode&>(*this);
