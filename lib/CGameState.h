@@ -386,7 +386,7 @@ public:
 		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
 		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const;
+		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass = NULL) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -430,6 +430,7 @@ public:
 	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
 	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
+	std::map<ui32,CGHeroInstance *> unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);
@@ -445,32 +446,6 @@ public:
 		if(!h.saving)
 		{
 			loadTownDInfos();
-
-// 			//recreating towns/heroes vectors in players entries
-// 			for(int i=0; i<map->towns.size(); i++)
-// 				if(map->towns[i]->tempOwner < PLAYER_LIMIT)
-// 					getPlayer(map->towns[i]->tempOwner)->towns.push_back(map->towns[i]);
-// 			for(int i=0; i<map->heroes.size(); i++)
-// 				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
-// 					getPlayer(map->heroes[i]->tempOwner)->heroes.push_back(map->heroes[i]);
-// 			//recreating available heroes
-// 			for(std::map<ui8,PlayerState>::iterator i=players.begin(); i!=players.end(); i++)
-// 			{
-// 				for(size_t j=0; j < i->second.availableHeroes.size(); j++)
-// 				{
-// 					ui32 hlp = i->second.availableHeroes[j]->subID;
-// 					delete i->second.availableHeroes[j];
-// 					if(hlp != 0xffffffff)
-// 					{
-// 						assert(vstd::contains(hpool.heroesPool, hlp));
-// 						i->second.availableHeroes[j] = hpool.heroesPool[hlp];
-// 					}
-// 					else
-// 					{
-// 						i->second.availableHeroes[j] = NULL;
-// 					}
-// 				}
-// 			}
 		}
 	}
 

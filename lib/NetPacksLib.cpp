@@ -190,22 +190,15 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 }
 DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 {
-	gs->getPlayer(player)->availableHeroes.clear();
+	PlayerState *p = gs->getPlayer(player);
+	p->availableHeroes.clear();
 
-	CGHeroInstance *h = (hid1>=0 ?  gs->hpool.heroesPool[hid1] : NULL);
-	gs->getPlayer(player)->availableHeroes.push_back(h);
-	if(h  &&  flags & 1)
+	for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
 	{
-		h->clear();
-		h->addStack(0, CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1));
-	}
-
-	h = (hid2>=0 ?  gs->hpool.heroesPool[hid2] : NULL);
-	gs->getPlayer(player)->availableHeroes.push_back(h);
-	if(flags & 2)
-	{
-		h->clear();
-		h->addStack(0, CStackInstance(VLC->creh->nameToID[h->type->refTypeStack[0]],1));
+		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]] : NULL);
+		if(h && army[i])
+			h->setArmy(*army[i]);
+		p->availableHeroes.push_back(h);
 	}
 }
 
@@ -315,7 +308,10 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 			h->visitedTown = NULL;
 		}
 
-		//TODO: add to the pool?
+		//return hero to the pool, so he may reappear in tavern
+		gs->hpool.heroesPool[h->subID] = h;
+		if(!vstd::contains(gs->hpool.pavailable, h->subID))
+			gs->hpool.pavailable[h->subID] = 0xff;
 	}
 	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
 	{

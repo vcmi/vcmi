@@ -791,46 +791,10 @@ void CGHeroInstance::initHero()
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
 	{
-		int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
-		int pom = ran()%100;
-		int warMachinesGiven = 0;
-
-		if(pom < 9)
-			howManyStacks = 1;
-		else if(pom < 79)
-			howManyStacks = 2;
-		else
-			howManyStacks = 3;
-
-		for(int stackNo=0; stackNo<3; stackNo++)
-		{
-			int creID = (VLC->creh->nameToID[type->refTypeStack[stackNo]]);
-			int range = type->highStack[stackNo] - type->lowStack[stackNo];
-			int count = ran()%(range+1) + type->lowStack[stackNo];
-
-			if(creID>=145 && creID<=149) //war machine
-			{
-				warMachinesGiven++;
-				switch (creID)
-				{
-				case 145: //catapult
-					VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses);
-					break;
-				default:
-					VLC->arth->equipArtifact(
-						artifWorn,
-						9+CArtHandler::convertMachineID(creID,true),
-						CArtHandler::convertMachineID(creID,true),
-						&bonuses);
-					break;
-				}
-			}
-			else
-				addStack(stackNo-warMachinesGiven, CStackInstance(creID, count));
-		}
+		initArmy();
 	}
-
 	assert(validTypes());
+
 	hoverName = VLC->generaltexth->allTexts[15];
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
@@ -840,6 +804,49 @@ void CGHeroInstance::initHero()
 		mana = manaLimit(); //after all bonuses are taken into account
 }
 
+void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
+{
+	if(!dst)
+		dst = this;
+
+	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
+	int pom = ran()%100;
+	int warMachinesGiven = 0;
+
+	if(pom < 9)
+		howManyStacks = 1;
+	else if(pom < 79)
+		howManyStacks = 2;
+	else
+		howManyStacks = 3;
+
+	for(int stackNo=0; stackNo<3; stackNo++)
+	{
+		int creID = (VLC->creh->nameToID[type->refTypeStack[stackNo]]);
+		int range = type->highStack[stackNo] - type->lowStack[stackNo];
+		int count = ran()%(range+1) + type->lowStack[stackNo];
+
+		if(creID>=145 && creID<=149) //war machine
+		{
+			warMachinesGiven++;
+			switch (creID)
+			{
+			case 145: //catapult
+				VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses);
+				break;
+			default:
+				VLC->arth->equipArtifact(
+					artifWorn,
+					9+CArtHandler::convertMachineID(creID,true),
+					CArtHandler::convertMachineID(creID,true),
+					&bonuses);
+				break;
+			}
+		}
+		else
+			dst->addStack(stackNo-warMachinesGiven, CStackInstance(creID, count));
+	}
+}
 void CGHeroInstance::initHeroDefInfo()
 {
 	if(!defInfo  ||  defInfo->id != HEROI_TYPE)

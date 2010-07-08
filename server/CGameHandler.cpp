@@ -545,6 +545,7 @@ askInterfaceForMove:
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
+
 	BattleResultsApplied resultsApplied;
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
@@ -564,6 +565,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	ui8 sides[2];
 	sides[0] = gs->curB->side1;
 	sides[1] = gs->curB->side2;
+
+	ui8 loser = sides[!battleResult.data->winner];
 
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
@@ -598,6 +601,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	// Necromancy if applicable.
 	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
+	const CGHeroInstance *loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
+
 	if (winnerHero) 
 	{
 		CStackInstance raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
@@ -630,6 +635,27 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	visitObjectAfterVictory = false; 
 
 	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
+
+	int result = battleResult.get()->result;
+	if(result == 1 || result == 2) //loser has escaped or surrendered
+	{
+		SetAvailableHeroes sah;
+		sah.player = loser;
+		sah.hid[0] = loserHero->subID;
+		if(result == 1) //retreat
+		{
+			sah.army[0] = new CCreatureSet();
+			sah.army[0]->addToSlot(0, VLC->creh->nameToID[loserHero->type->refTypeStack[0]],1);
+		}
+
+		if(const CGHeroInstance *another =  getPlayerState(loser)->availableHeroes[1])
+			sah.hid[1] = another->subID;
+		else
+			sah.hid[1] = -1;
+
+		sendAndApply(&sah);
+	}
+
 	delete battleResult.data;
 }
 
@@ -916,29 +942,37 @@ void CGameHandler::newTurn()
 
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		if(i->first == 255) continue;
-		else if(i->first > PLAYER_LIMIT) assert(0); //illegal player number!
+		if(i->first == 255) 
+			continue;
+		else if(i->first >= PLAYER_LIMIT) 
+			assert(0); //illegal player number!
 
 		std::pair<ui8,si32> playerGold(i->first,i->second.resources[6]);
 		hadGold.insert(playerGold); 
 
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
+			const CTown *nativeTownType = &VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle];
+
 			SetAvailableHeroes sah;
 			sah.player = i->first;
-			CGHeroInstance *h = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle], pool);
-			if(h)
-				sah.hid1 = h->subID;
-			else
-				sah.hid1 = -1;
-			h = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle], pool);
-			if(h)
-				sah.hid2 = h->subID;
-			else
-				sah.hid2 = -1;
+
+			//pick heroes and their armies
+			CHeroClass *banned = NULL;
+			for (int j = 0; j < AVAILABLE_HEROES_PER_PLAYER; j++)
+			{
+				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, i->first, nativeTownType, pool, banned)) //first hero - native if possible, second hero -> any other class
+				{
+					sah.hid[j] = h->subID;
+					h->initArmy(sah.army[j] = new CCreatureSet());
+					banned = h->type->heroClass;
+				}
+				else
+					sah.hid[j] = -1;
+			}
+
 			sendAndApply(&sah);
 		}
-		if(i->first>=PLAYER_LIMIT) continue;
 
 		n.res[i->first] = i->second.resources;
 // 		SetResources r;
@@ -3247,14 +3281,16 @@ bool CGameHandler::setFormation( si32 hid, ui8 formation )
 
 bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 {
-	CGTownInstance *t = gs->getTown(tid);
+	const CGTownInstance *t = gs->getTown(tid);
+	const PlayerState *p = gs->getPlayer(t->tempOwner);
+
 	if(!vstd::contains(t->builtBuildings,5)  && complain("No tavern!")
-		|| gs->getPlayer(t->tempOwner)->resources[6]<2500  && complain("Not enough gold for buying hero!")
+		|| p->resources[6]<2500  && complain("Not enough gold for buying hero!")
 		|| t->visitingHero  && complain("There is visiting hero - no place!")
 		|| getHeroCount(t->tempOwner,false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!")
 		)
 		return false;
-	CGHeroInstance *nh = gs->getPlayer(t->tempOwner)->availableHeroes[hid];
+	CGHeroInstance *nh = p->availableHeroes[hid];
 	assert(nh);
 
 	HeroRecruited hr;
@@ -3265,25 +3301,30 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 	sendAndApply(&hr);
 
 
-	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
-	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
-			if(*j)
-				pool.erase((**j).subID);
+	std::map<ui32,CGHeroInstance *> pool = gs->unusedHeroesFromPool();
+
+	const CGHeroInstance *theOtherHero = p->availableHeroes[!hid];
+	const CGHeroInstance *newHero = gs->hpool.pickHeroFor(false, t->tempOwner,t->town, pool, theOtherHero->type->heroClass);
 
 	SetAvailableHeroes sah;
-	CGHeroInstance *h1 = gs->hpool.pickHeroFor(false,t->tempOwner,t->town, pool),
-				*h2 = gs->getPlayer(t->tempOwner)->availableHeroes[!hid];
-	(hid ? sah.hid2 : sah.hid1) = h1 ? h1->subID : -1;
-	(hid ? sah.hid1 : sah.hid2) = h2 ? h2->subID : -1;
 	sah.player = t->tempOwner;
-	sah.flags = hid+1;
+
+	if(newHero)
+	{
+		sah.hid[hid] = newHero->subID;
+		sah.army[hid] = new CCreatureSet();
+		sah.army[hid]->addToSlot(0, VLC->creh->nameToID[newHero->type->refTypeStack[0]],1);
+	}
+	else
+		sah.hid[hid] = -1;
+
+	sah.hid[!hid] = theOtherHero ? theOtherHero->subID : -1;
 	sendAndApply(&sah);
 
 	SetResource sr;
 	sr.player = t->tempOwner;
 	sr.resid = 6;
-	sr.val = gs->getPlayer(t->tempOwner)->resources[6] - 2500;
+	sr.val = p->resources[6] - 2500;
 	sendAndApply(&sr);
 
 	vistiCastleObjects (t, nh);

@@ -778,7 +778,7 @@ bool CStack::doubleWide() const
 	return type->doubleWide;
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
 
@@ -816,7 +816,8 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 
 		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
 		{
-			if(pavailable.find(i->first)->second & 1<<player)
+			if(pavailable.find(i->first)->second & 1<<player
+				&& !bannedClass || i->second->type->heroClass != bannedClass)
 			{
 				pool.push_back(i->second);
 				sum += i->second->type->heroClass->selectionProbability[town->typeID]; //total weight
@@ -1351,10 +1352,12 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 
 	/*************************HEROES************************************************/
-	std::set<int> hids;
+	std::set<int> hids; //hero ids to create pool
+
 	for(unsigned int i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
 		if(map->allowedHeroes[i])
 			hids.insert(i);
+
 	for (unsigned int i=0; i<map->heroes.size();i++) //heroes instances initialization
 	{
 		if (map->heroes[i]->getOwner()<0)
@@ -1367,11 +1370,13 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
 		hids.erase(vhi->subID);
 	}
-	for (unsigned int i=0; i<map->objects.size();i++) //heroes instances initialization
+
+	for (unsigned int i=0; i<map->objects.size();i++) //prisons
 	{
 		if (map->objects[i]->ID == 62)
 			hids.erase(map->objects[i]->subID);
 	}
+
 	for(unsigned int i=0; i<map->predefinedHeroes.size(); i++)
 	{
 		if(!vstd::contains(hids,map->predefinedHeroes[i]->subID))
@@ -1381,17 +1386,20 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		hpool.pavailable[map->predefinedHeroes[i]->subID] = 0xff;
 		hids.erase(map->predefinedHeroes[i]->subID);
 	}
-	BOOST_FOREACH(int hid, hids) //all not used allowed heroes go into the pool
+
+	BOOST_FOREACH(int hid, hids) //all not used allowed heroes go with default state into the pool
 	{
 		CGHeroInstance * vhi = new CGHeroInstance();
 		vhi->initHero(hid);
 		hpool.heroesPool[hid] = vhi;
 		hpool.pavailable[hid] = 0xff;
 	}
+
 	for(unsigned int i=0; i<map->disposedHeroes.size(); i++)
 	{
 		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
 	}
+
 	/*************************FOG**OF**WAR******************************************/		
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
@@ -3420,6 +3428,17 @@ int CGameState::lossCheck( ui8 player ) const
 		return 2;
 
 	return false;
+}
+
+std::map<ui32,CGHeroInstance *> CGameState::unusedHeroesFromPool()
+{
+	std::map<ui32,CGHeroInstance *> pool = hpool.heroesPool;
+	for ( std::map<ui8, PlayerState>::iterator i = players.begin() ; i != players.end();i++)
+		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+			if(*j)
+				pool.erase((**j).subID);
+
+	return pool;
 }
 
 const CStack * BattleInfo::getNextStack() const

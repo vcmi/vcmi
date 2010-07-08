@@ -375,6 +375,7 @@ public:
 
 	void initHero(); 
 	void initHero(int SUBID); 
+	void initArmy(CCreatureSet *dst = NULL);
 	void recreateArtBonuses();
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();

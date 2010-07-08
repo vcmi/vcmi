@@ -346,16 +346,26 @@ struct FoWChange : public CPackForClient //112
 
 struct SetAvailableHeroes : public CPackForClient //113
 {
-	SetAvailableHeroes(){type = 113;flags=0;};
+	SetAvailableHeroes()
+	{
+		type = 113;
+		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
+			army[i] = NULL;
+	}
+	~SetAvailableHeroes()
+	{
+		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
+			delete army[i];
+	}
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
-	si32 hid1, hid2;
-	ui8 flags; //1 - reset army of hero1; 2 - reset army of hero 2
+	si32 hid[AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
+	CCreatureSet *army[AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & hid1 & hid2 & flags;
+		h & player & hid & army;
 	}
 };
 
