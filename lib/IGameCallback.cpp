@@ -8,6 +8,7 @@
 #include "../hch/CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/random/linear_congruential.hpp>
+#include "../hch/CTownHandler.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -232,4 +233,9 @@ inline TerrainTile * IGameCallback::getTile( int3 pos )
 const PlayerState * IGameCallback::getPlayerState( int color )
 {
 	return gs->getPlayer(color, false);
+}
+
+const CTown * IGameCallback::getNativeTown(int color)
+{
+	return &VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(color).castle];
 }

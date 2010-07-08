@@ -893,7 +893,12 @@ CGTownInstance *CGameState::getTown(int objid)
 {
 	if(objid<0 || objid>=map->objects.size())
 		return NULL;
-	return static_cast<CGTownInstance *>(map->objects[objid]);
+	CGObjectInstance *obj = map->objects[objid];
+
+	if(obj->ID != TOWNI_TYPE)
+		return NULL;
+
+	return static_cast<CGTownInstance *>(obj);
 }
 
 const CGTownInstance * CGameState::getTown( int objid ) const

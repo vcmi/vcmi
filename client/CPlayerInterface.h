@@ -163,6 +163,7 @@ public:
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
 	void showPuzzleMap();
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor);
+	void showTavernWindow(const CGObjectInstance *townOrTavern);
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID); //called when a hero casts a spell
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles

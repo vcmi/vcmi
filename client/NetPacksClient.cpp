@@ -343,10 +343,12 @@ void HeroRecruited::applyCl( CClient *cl )
 
 	CGI->mh->initHeroDef(h);
 	CGI->mh->printObject(h);
+		
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
 		cl->playerint[h->tempOwner]->heroCreated(h);
-		cl->playerint[h->tempOwner]->heroInGarrisonChange(GS(cl)->getTown(tid));
+		if(const CGTownInstance *t = GS(cl)->getTown(tid))
+			cl->playerint[h->tempOwner]->heroInGarrisonChange(t);
 	}
 }
 
@@ -733,6 +735,10 @@ void OpenWindow::applyCl(CClient *cl)
 		{
 			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);
 		}
+	case TAVERN_WINDOW:
+		const CGObjectInstance *obj1 = cl->getObj(id1),
+								*obj2 = cl->getObj(id2);
+		INTERFACE_CALL_IF_PRESENT(obj1->tempOwner, showTavernWindow, obj2);
 		break;
 	}
 

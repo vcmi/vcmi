@@ -383,6 +383,12 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 
 void CGObjectInstance::initObj()
 {
+	switch(ID)
+	{
+	case 95:
+		blockVisit = true;
+		break;
+	}
 }
 
 void CGObjectInstance::setProperty( ui8 what, ui32 val )
@@ -474,6 +480,15 @@ void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
+	switch(ID)
+	{
+	case 95:
+		OpenWindow ow;
+		ow.window = OpenWindow::TAVERN_WINDOW;
+		ow.id1 = h->id;
+		ow.id2 = id;
+		cb->sendAndApply(&ow);
+	}
 }
 
 ui8 CGObjectInstance::getPassableness() const

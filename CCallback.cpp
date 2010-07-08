@@ -137,7 +137,7 @@ void CCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInsta
 	if(obj == NULL)
 		return;
 
-	if(obj->ID == TOWNI_TYPE) //it is a town
+	if(obj->ID == TOWNI_TYPE  ||  obj->ID == 95) //it is a town or adv map tavern
 	{
 		gs->obtainPlayersStats(thi, gs->players[player].towns.size());
 	}
@@ -793,21 +793,22 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	}
 }
 
-void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)
+void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
 {
 	ui8 i=0;
 	for(; i<gs->players[player].availableHeroes.size(); i++)
 	{
 		if(gs->players[player].availableHeroes[i] == hero)
 		{
-			HireHero pack(i,town->id);
+			HireHero pack(i,townOrTavern->id);
+			pack.player = player;
 			sendRequest(&pack);
 			return;
 		}
 	}
 }
 
-std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownInstance * town) const
+std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGObjectInstance * townOrTavern) const
 {
 	std::vector<const CGHeroInstance *> ret(gs->players[player].availableHeroes.size());
 	std::copy(gs->players[player].availableHeroes.begin(),gs->players[player].availableHeroes.end(),ret.begin());
@@ -980,6 +981,12 @@ int CCallback::getPlayerStatus(int player) const
 		return -1;
 	return ps->status;
 }
+
+std::string CCallback::getTavernGossip(const CGObjectInstance * townOrTavern) const
+{
+	return "GOSSIP TEST";
+}
+
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

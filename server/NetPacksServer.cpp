@@ -171,8 +171,13 @@ bool SetFormation::applyGh( CGameHandler *gh )
 
 bool HireHero::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT_OWNS(tid);
-	return gh->hireHero(tid,hid);
+	const CGObjectInstance *obj = gh->getObj(tid);
+
+	if(obj->ID == TOWNI_TYPE)
+		ERROR_IF_NOT_OWNS(tid);
+	//TODO check for visiting hero
+
+	return gh->hireHero(obj, hid,player);
 }
 
 bool BuildBoat::applyGh( CGameHandler *gh )

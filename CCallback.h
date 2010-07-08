@@ -78,7 +78,7 @@ public:
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	
 	//town
-	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
+	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, si32 buildingID)=0;
 	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
@@ -143,7 +143,8 @@ public:
 	virtual int howManyTowns()const =0;
 	virtual const CGTownInstance * getTownInfo(int val, bool mode)const =0; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	virtual std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const=0;
-	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
+	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const =0; //heroes that can be recruited
+	virtual std::string getTavernGossip(const CGObjectInstance * townOrTavern) const =0; 
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) =0;
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const = 0;
@@ -229,7 +230,7 @@ public:
 	void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
-	void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero);
+	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);
 	void save(const std::string &fname);
 	void sendMessage(const std::string &mess);
 	void buildBoat(const IShipyard *obj);
@@ -267,7 +268,8 @@ public:
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
-	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited
+	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
+	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const;
 	const TerrainTile * getTileInfo(int3 tile) const;
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);

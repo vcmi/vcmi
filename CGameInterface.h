@@ -84,6 +84,7 @@ public:
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) = 0; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void showPuzzleMap(){};
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
+	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::set<int3> &pos){};
 	virtual void tileRevealed(const std::set<int3> &pos){};

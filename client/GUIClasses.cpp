@@ -3403,38 +3403,36 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	effectsVolume->show(to);
 }
 
-CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)
-:h1(selected,0,72,299,H1),h2(selected,1,162,299,H2)
+CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
+ : tavernObj(TavernObj)
 {
-	if(H1)
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
+	assert(h.size() == 2);
+
+	h1 = new HeroPortrait(selected,0,72,299,h[0]);
+	h2 = new HeroPortrait(selected,1,162,299,h[1]);
+	if(h[0])
 		selected = 0;
 	else
 		selected = -1;
 	oldSelected = -1;
 
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPTAVERN.bmp");
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bg = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	SDL_FreeSurface(hhlp);
+	bg = new CPicture("TPTAVERN.bmp");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	pos = center(bg->pos);
 
-	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,tytulowy,bg);
-	printAtMiddle("2500",320,328,FONT_SMALL,zwykly,bg);
+
+	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,tytulowy,*bg);
+	printAtMiddle("2500",320,328,FONT_SMALL,zwykly,*bg);
 //	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,FONT_BIG,tytulowy,bg); //what is this???
-	printAtMiddleWB(gossip,200,220,FONT_SMALL,50,zwykly,bg);
-	pos.w = bg->w;
-	pos.h = bg->h;
-	pos.x = (screen->w-bg->w)/2;
-	pos.y = (screen->h-bg->h)/2;
-	bar = new CStatusBar(pos.x+8, pos.y+478, "APHLFTRT.bmp", 380);
-	h1.pos.x += pos.x;
-	h2.pos.x += pos.x;
-	h1.pos.y += pos.y;
-	h2.pos.y += pos.y;
+	printAtMiddleWB(LOCPLINT->cb->getTavernGossip(tavernObj), 200, 220, FONT_SMALL, 50, zwykly, *bg);
 
-	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), pos.x+310,pos.y+428, "ICANCEL.DEF", SDLK_ESCAPE);
-	recruit = new AdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), pos.x+272, pos.y+355, "TPTAV01.DEF", SDLK_RETURN);
-	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), pos.x+22, pos.y+428, "TPTAV02.DEF", SDLK_t);
+
+	bar = new CGStatusBar(8, 478, "APHLFTRT.bmp", 380);
+	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
+	recruit = new AdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), 272, 355, "TPTAV01.DEF", SDLK_RETURN);
+	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), 22, 428, "TPTAV02.DEF", SDLK_t);
 
 	if(LOCPLINT->cb->getResourceAmount(6) < 2500) //not enough gold
 	{
@@ -3454,7 +3452,7 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	}
 	else
 	{
-		if(!H1)
+		if(!h[0])
 			recruit->block(1);
 	}
 
@@ -3467,47 +3465,20 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 
 void CTavernWindow::recruitb()
 {
-	const CGHeroInstance *toBuy = (selected ? h2 : h1).h;
+	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
+	const CGObjectInstance *obj = tavernObj;
 	close();
-	LOCPLINT->cb->recruitHero(LOCPLINT->castleInt->town,toBuy);
+	LOCPLINT->cb->recruitHero(obj, toBuy);
 }
 
 void CTavernWindow::thievesguildb()
 {
-	GH.pushInt( new CThievesGuildWindow(LOCPLINT->castleInt->town) );
+	GH.pushInt( new CThievesGuildWindow(tavernObj) );
 }
 
 CTavernWindow::~CTavernWindow()
 {
 	CGI->videoh->close();
-	SDL_FreeSurface(bg);
-	delete cancel;
-	delete thiefGuild;
-	delete recruit;
-	delete bar;
-}
-
-void CTavernWindow::activate()
-{
-	thiefGuild->activate();
-	cancel->activate();
-	if(h1.h)
-		h1.activate();
-	if(h2.h)
-		h2.activate();
-	recruit->activate();
-	GH.statusbar = bar;
-}
-
-void CTavernWindow::deactivate()
-{
-	thiefGuild->deactivate();
-	cancel->deactivate();
-	if(h1.h)
-		h1.deactivate();
-	if(h2.h)
-		h2.deactivate();
-	recruit->deactivate();
 }
 
 void CTavernWindow::close()
@@ -3517,20 +3488,12 @@ void CTavernWindow::close()
 
 void CTavernWindow::show(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y,to);
-	CGI->videoh->update(pos.x+70, pos.y+56, to, true, false);
-	if(h1.h)
-		h1.show(to);
-	if(h2.h)
-		h2.show(to);
-	thiefGuild->show(to);
-	cancel->show(to);
-	recruit->show(to);
-	bar->show(to);
+	CIntObject::show(to);
 
+	CGI->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
 	{
-		HeroPortrait *sel = selected ? &h2 : &h1;
+		HeroPortrait *sel = selected ? h2 : h1;
 
 		if (selected != oldSelected  &&  !recruit->blocked) 
 		{
@@ -3549,28 +3512,14 @@ void CTavernWindow::show(SDL_Surface * to)
 
 void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 {
-	if(previousState && !down)
+	if(previousState && !down && h)
 		as();
 	//ClickableL::clickLeft(down);
 }
 
-void CTavernWindow::HeroPortrait::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-}
-
-void CTavernWindow::HeroPortrait::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-}
-
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
-	if(down)
+	if(down && h)
 	{
 		adventureInt->heroWindow->setHero(h);
 		GH.pushInt(new CRClickPopupInt(adventureInt->heroWindow,false));
@@ -3578,13 +3527,15 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
-:as(sel,id)
+:as(sel,id), h(H)
 {
+	used = LCLICK | RCLICK | HOVER;
 	h = H;
 	pos.x = x;
 	pos.y = y;
 	pos.w = 58;
 	pos.h = 64;
+
 	if(H)
 	{
 		hoverName = CGI->generaltexth->tavernInfo[4];
@@ -5370,7 +5321,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	SDL_FreeSurface(bg);
 
 	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "HSBTNS.def", SDLK_RETURN);
-	statusBar = new CStatusBar(3, 555, "TStatBar.bmp", 742);
+	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x - 3;
@@ -5709,16 +5660,22 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	bg = BG;
 	moveChild(bg, bg->parent, this);
 	pos = bg->pos;
+	calcOffset();
+}
 
-	switch(Align)
+CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
+	: CLabel(x, y, FONT_SMALL, CENTER)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init();
+	bg = new CPicture(name);
+	pos = bg->pos;
+	if(maxw < pos.w)
 	{
-	case CENTER:
-		textOffset = Point(pos.w/2, pos.h/2);
-		break;
-	case BOTTOMRIGHT:
-		textOffset = Point(pos.w, pos.h);
-		break;
+		amin(pos.w, maxw);
+		bg->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
+	calcOffset();
 }
 
 CGStatusBar::~CGStatusBar()
@@ -5735,6 +5692,19 @@ void CGStatusBar::init()
 {
 	oldStatusBar = GH.statusbar;
 	GH.statusbar = this;
+}
+
+void CGStatusBar::calcOffset()
+{
+	switch(alignment)
+	{
+	case CENTER:
+		textOffset = Point(pos.w/2, pos.h/2);
+		break;
+	case BOTTOMRIGHT:
+		textOffset = Point(pos.w, pos.h);
+		break;
+	}
 }
 
 CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )

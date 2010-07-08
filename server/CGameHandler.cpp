@@ -952,8 +952,6 @@ void CGameHandler::newTurn()
 
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
-			const CTown *nativeTownType = &VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle];
-
 			SetAvailableHeroes sah;
 			sah.player = i->first;
 
@@ -961,7 +959,7 @@ void CGameHandler::newTurn()
 			CHeroClass *banned = NULL;
 			for (int j = 0; j < AVAILABLE_HEROES_PER_PLAYER; j++)
 			{
-				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, i->first, nativeTownType, pool, banned)) //first hero - native if possible, second hero -> any other class
+				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, i->first, getNativeTown(i->first), pool, banned)) //first hero - native if possible, second hero -> any other class
 				{
 					sah.hid[j] = h->subID;
 					h->initArmy(sah.army[j] = new CCreatureSet());
@@ -3279,35 +3277,47 @@ bool CGameHandler::setFormation( si32 hid, ui8 formation )
 	return true;
 }
 
-bool CGameHandler::hireHero( ui32 tid, ui8 hid )
+bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 {
-	const CGTownInstance *t = gs->getTown(tid);
-	const PlayerState *p = gs->getPlayer(t->tempOwner);
+	const PlayerState *p = gs->getPlayer(player);
+	const CGTownInstance *t = gs->getTown(obj->id);
 
-	if(!vstd::contains(t->builtBuildings,5)  && complain("No tavern!")
-		|| p->resources[6]<2500  && complain("Not enough gold for buying hero!")
-		|| t->visitingHero  && complain("There is visiting hero - no place!")
-		|| getHeroCount(t->tempOwner,false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!")
-		)
+	//common prconditions
+	if( p->resources[6]<2500  && complain("Not enough gold for buying hero!")
+		|| getHeroCount(player, false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!"))
 		return false;
+
+	if(t) //tavern in town
+	{
+		if(!vstd::contains(t->builtBuildings,5)  && complain("No tavern!")
+			|| t->visitingHero  && complain("There is visiting hero - no place!"))
+			return false;
+	}
+	else if(obj->ID == 95) //Tavern on adv map
+	{
+		if(getTile(obj->visitablePos())->visitableObjects.back() != obj  &&  complain("Tavern entry must be unoccupied!"))
+			return false;
+	}
+
+
 	CGHeroInstance *nh = p->availableHeroes[hid];
 	assert(nh);
 
 	HeroRecruited hr;
-	hr.tid = tid;
+	hr.tid = obj->id;
 	hr.hid = nh->subID;
-	hr.player = t->tempOwner;
-	hr.tile = t->pos - int3(1,0,0);
+	hr.player = player;
+	hr.tile = obj->visitablePos() + nh->getVisitableOffset();
 	sendAndApply(&hr);
 
 
 	std::map<ui32,CGHeroInstance *> pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes[!hid];
-	const CGHeroInstance *newHero = gs->hpool.pickHeroFor(false, t->tempOwner,t->town, pool, theOtherHero->type->heroClass);
+	const CGHeroInstance *newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
 
 	SetAvailableHeroes sah;
-	sah.player = t->tempOwner;
+	sah.player = player;
 
 	if(newHero)
 	{
@@ -3322,13 +3332,16 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 	sendAndApply(&sah);
 
 	SetResource sr;
-	sr.player = t->tempOwner;
+	sr.player = player;
 	sr.resid = 6;
 	sr.val = p->resources[6] - 2500;
 	sendAndApply(&sr);
 
-	vistiCastleObjects (t, nh);
-	giveSpells (t,nh);
+	if(t)
+	{
+		vistiCastleObjects (t, nh);
+		giveSpells (t,nh);
+	}
 	return true;
 }
 

@@ -627,7 +627,8 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP, MARKET_WINDOW};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP, 
+					MARKET_WINDOW, TAVERN_WINDOW};
 	ui8 window;
 	ui32 id1, id2;
 
@@ -1434,12 +1435,13 @@ struct HireHero : public CPackForServer
 {
 	HireHero(){};
 	HireHero(si32 HID, si32 TID):hid(HID),tid(TID){};
-	si32 hid, tid; //available hero serial and town id
+	si32 hid, tid; //available hero serial and town (tavern) id
+	ui8 player;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & tid;
+		h & hid & tid & player;
 	}
 };
 

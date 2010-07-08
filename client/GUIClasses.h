@@ -329,8 +329,10 @@ public:
 
 	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly, const std::string &Text =  "");
 	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+	CGStatusBar(int x, int y, std::string name, int maxw=-1); 
 
 	~CGStatusBar();
+	void calcOffset();
 };
 
 class CFocusable 
@@ -657,31 +659,30 @@ public:
 		std::string hoverName;
 		vstd::assigner<int,int> as;
 		const CGHeroInstance *h;
-		void activate();
-		void deactivate();
+		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
+
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to);
-		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
-	} h1, h2; //recruitable heroes
 
-	SDL_Surface *bg; //background
-	CStatusBar *bar; //tavern's internal status bar
+	} *h1, *h2; //recruitable heroes
+
+	CPicture *bg; //background
+	CGStatusBar *bar; //tavern's internal status bar
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
 
 	AdventureMapButton *thiefGuild, *cancel, *recruit;
+	const CGObjectInstance *tavernObj;
 
-	CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip); //c-tor
+	CTavernWindow(const CGObjectInstance *TavernObj); //c-tor
 	~CTavernWindow(); //d-tor
 
 	void recruitb();
 	void close();
 	void thievesguildb();
-	void activate();
-	void deactivate();
 	void show(SDL_Surface * to);
 };
 
@@ -1049,7 +1050,7 @@ class CThievesGuildWindow : public CIntObject
 {
 	const CGObjectInstance * owner;
 
-	CStatusBar * statusBar;
+	CGStatusBar * statusBar;
 	AdventureMapButton * exitb;
 	SDL_Surface * background;
 	CMinorResDataBar * resdatabar;

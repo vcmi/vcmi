@@ -1389,9 +1389,7 @@ void CCastleInterface::enterMageGuild()
 
 void CCastleInterface::enterTavern()
 {
-	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
-	CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
-	GH.pushInt(tv);
+	LOCPLINT->showTavernWindow(town);
 }
 
 void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )

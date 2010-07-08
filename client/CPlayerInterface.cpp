@@ -1996,3 +1996,9 @@ void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NUL
 	if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))
 		cmw->artifactsChanged(false);
 }
+
+void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
+{
+	CTavernWindow *tv = new CTavernWindow(townOrTavern);
+	GH.pushInt(tv);
+}

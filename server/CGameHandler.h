@@ -166,7 +166,7 @@ public:
 	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower);
 	bool makeCustomAction(BattleAction &ba);
 	bool queryReply( ui32 qid, ui32 answer );
-	bool hireHero( ui32 tid, ui8 hid );
+	bool hireHero( const CGObjectInstance *obj, ui8 hid, ui8 player );
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
