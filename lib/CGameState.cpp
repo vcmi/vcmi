@@ -910,7 +910,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
-	case 65: //random artifact //how the hell use IGameCallback for this?
+	case 65:
 		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case 66: //random treasure artifact
 		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));

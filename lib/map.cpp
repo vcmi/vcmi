@@ -2072,8 +2072,9 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			int artNumber = bufor[i]; ++i;
 			for(int yy=0; yy<artNumber; ++yy)
 			{
-				guard->m5arts.push_back(readNormalNr(bufor,i, 2)); i+=2;
-				allowedArtifact[artNumber] = false; //these are unavaliable for random generation
+				int artid = readNormalNr(bufor,i, 2); i+=2;
+				guard->m5arts.push_back(artid); 
+				allowedArtifact[artid] = false; //these are unavaliable for random generation
 			}
 			break;
 		}
