@@ -1338,6 +1338,9 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 		//calculating coverageMap
 		std::string nameCopy = vinya->name;
 		std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
+
+		vinya->width = msk[0];
+		vinya->height = msk[1];
 		for(int i=0; i<6; ++i)
 		{
 			vinya->coverageMap[i] = msk[i+2];

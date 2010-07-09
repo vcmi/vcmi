@@ -77,7 +77,7 @@ struct DLL_EXPORT TerrainTile
 	unsigned char rivDir; // direction of Eriver
 	Eroad malle; // type of Eroad (0 if there is no river)
 	unsigned char roadDir; // direction of Eroad
-	unsigned char siodmyTajemniczyBajt; //bitfield, info whether this tile is coastal and how to rotate tile graphics
+	unsigned char siodmyTajemniczyBajt; //first two bits - how to rotate terrain graphic (next two - river graphic, next two - road); 7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
 
 	bool visitable; //false = not visitable; true = visitable
 	bool blocked; //false = free; true = blocked;

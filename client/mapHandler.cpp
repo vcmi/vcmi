@@ -325,8 +325,8 @@ static void processDef (CGDefInfo* def)
 			return;
 		}
 
-		def->width = def->handler->ourImages[0].bitmap->w/32;
-		def->height = def->handler->ourImages[0].bitmap->h/32;
+// 		def->width = def->handler->ourImages[0].bitmap->w/32;
+// 		def->height = def->handler->ourImages[0].bitmap->h/32;
 	}
 
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
@@ -1348,14 +1348,16 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	TerrainTile2 &t = ttiles[pos.x][pos.y][pos.z];
 	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = t.objects.begin(); i != t.objects.end(); i++)
 	{
-		if(i->first->ID == 124)
+		if(i->first->ID == 124) //Hole
 		{
 			out = i->first->hoverName;
 			return;
 		}
 	}
 
-	if(terName)
+	if(t.tileInfo->siodmyTajemniczyBajt & 128)
+		out = CGI->generaltexth->names[225]; //Favourable Winds
+	else if(terName)
 		out = CGI->generaltexth->terrainNames[t.tileInfo->tertype];
 }
 

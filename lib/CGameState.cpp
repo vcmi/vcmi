@@ -1271,14 +1271,24 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	//randomizing objects
-	for(unsigned int no=0; no<map->objects.size(); ++no)
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
-		randomizeObject(map->objects[no]);
-		if(map->objects[no]->ID==EVENTI_TYPE)
+		randomizeObject(obj);
+		if(obj->ID==EVENTI_TYPE)
 		{
-			map->objects[no]->defInfo->handler=NULL;
+			obj->defInfo->handler=NULL;
 		}
-		map->objects[no]->hoverName = VLC->generaltexth->names[map->objects[no]->ID];
+		obj->hoverName = VLC->generaltexth->names[obj->ID];
+
+		//handle Favouring Winds - mark tiles under it
+		if(obj->ID == 225)
+			for (int i = 0; i < obj->getWidth() ; i++)
+				for (int j = 0; j < obj->getHeight() ; j++)
+				{
+					int3 pos = obj->pos - int3(i,j,0);
+					if(map->isInTheMap(pos))
+						map->getTile(pos).siodmyTajemniczyBajt |= 128;
+				}
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
@@ -1804,10 +1814,10 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	}
 	else if (d.tertype == TerrainTile::water)
 	{
-		if (!h->boat && h->getBonusesCount(Selector::typeSybtype(Bonus::WATER_WALKING, 1)) > 0)
-		{
+		if(h->boat && s.siodmyTajemniczyBajt & 128 && d.siodmyTajemniczyBajt & 128) //Favourable Winds
+			ret *= 0.666f;
+		else if (!h->boat && h->getBonusesCount(Selector::typeSybtype(Bonus::WATER_WALKING, 1)) > 0)
 			ret *= 1.4f; //40% penalty for water walking
-		}
 	}
 
 	if(src.x != dest.x  &&  src.y != dest.y) //it's diagonal move
