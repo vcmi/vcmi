@@ -2172,21 +2172,27 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				}
 				else if(tinfo->visitable)
 				{
-					for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
+					//hero is protected in Sanctuary
+					if(tinfo->visitableObjects.front()->ID == 80 && tinfo->visitableObjects.back()->ID == HEROI_TYPE && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner)
+						node.accessible = CGPathNode::BLOCKED;
+					else
 					{
-						const CGObjectInstance * const obj = tinfo->visitableObjects[ii];
-						if(obj->getPassableness() & 1<<hero->tempOwner) //special object instance specific passableness flag - overwrites other accessibility flags
+						for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
 						{
-							node.accessible = CGPathNode::ACCESSIBLE;
-						}
-						else if(obj->blockVisit)
-						{
-							node.accessible = CGPathNode::BLOCKVIS;
-							break;
-						}
-						else if(obj->ID != EVENTI_TYPE) //pathfinder should ignore placed events
-						{
-							node.accessible = CGPathNode::VISITABLE;
+							const CGObjectInstance * const obj = tinfo->visitableObjects[ii];
+							if(obj->getPassableness() & 1<<hero->tempOwner) //special object instance specific passableness flag - overwrites other accessibility flags
+							{
+								node.accessible = CGPathNode::ACCESSIBLE;
+							}
+							else if(obj->blockVisit)
+							{
+								node.accessible = CGPathNode::BLOCKVIS;
+								break;
+							}
+							else if(obj->ID != EVENTI_TYPE) //pathfinder should ignore placed events
+							{
+								node.accessible = CGPathNode::VISITABLE;
+							}
 						}
 					}
 				}

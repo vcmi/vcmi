@@ -482,12 +482,24 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)
 	{
-	case 95:
-		OpenWindow ow;
-		ow.window = OpenWindow::TAVERN_WINDOW;
-		ow.id1 = h->id;
-		ow.id2 = id;
-		cb->sendAndApply(&ow);
+	case 80: //Sanctuary
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.soundID = soundBase::GETPROTECTION;
+			iw.text.addTxt(MetaString::ADVOB_TXT, 114);  //You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
+			cb->sendAndApply(&iw);
+		}
+		break;
+	case 95: //Tavern
+		{
+			OpenWindow ow;
+			ow.window = OpenWindow::TAVERN_WINDOW;
+			ow.id1 = h->id;
+			ow.id2 = id;
+			cb->sendAndApply(&ow);
+		}
+		break;
 	}
 }
 
@@ -982,10 +994,10 @@ void CGHeroInstance::initObj()
 					bonus.type = Bonus::PRIMARY_SKILL; //TODO: limit to specific creature type
 					bonus.valType = Bonus::ADDITIVE_VALUE;
 					bonus.subtype = 1; //attack
-					bonus.val = level * (*creatures)[it->additionalinfo]->attack / (*creatures)[it->additionalinfo]->level /20;
+					bonus.val = level * (*creatures)[it->additionalinfo]->attack / creLevel /20;
 					speciality.bonuses.push_back (bonus);
 					bonus.subtype = 2; //defense
-					bonus.val = level * (*creatures)[it->additionalinfo]->defence / (*creatures)[it->additionalinfo]->level /20;
+					bonus.val = level * (*creatures)[it->additionalinfo]->defence / creLevel /20;
 					speciality.bonuses.push_back (bonus);
 					bonus.type = Bonus::STACKS_SPEED;
 					bonus.val = 1; //+1 speed
