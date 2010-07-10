@@ -86,7 +86,7 @@ bool BuildStructure::applyGh( CGameHandler *gh )
 
 bool RecruitCreatures::applyGh( CGameHandler *gh )
 {
-	return gh->recruitCreatures(tid,crid,amount);
+	return gh->recruitCreatures(tid,crid,amount,level);
 }
 
 bool UpgradeCreature::applyGh( CGameHandler *gh )

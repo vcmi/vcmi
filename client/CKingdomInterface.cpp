@@ -1085,7 +1085,7 @@ void CKingdomInterface::CTownItem::CCreaPlace::clickLeft(tribool down, bool prev
 	if (!down && previousState && town)
 	{
 		GH.pushInt (new CRecruitmentWindow(town, type, town, boost::bind
-			(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2)));
+			(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2, type)));
 	}
 }
 

@@ -64,12 +64,12 @@ void CCallback::selectionMade(int selection, int asker)
 	QueryReply pack(asker,selection);
 	*cl->serv << &pack;
 }
-void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)
+void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
 {
 	if(player!=obj->tempOwner  &&  obj->ID != 106)
 		return;
 
-	RecruitCreatures pack(obj->id,ID,amount);
+	RecruitCreatures pack(obj->id,ID,amount,level);
 	sendRequest(&pack);
 }
 

@@ -77,8 +77,8 @@ class CCastleInterface : public CWindowWithGarrison
 	class CCreaInfo : public CIntObject
 	{
 	public:
-		int crid,bid;
-		CCreaInfo(int CRID, int BID); //c-tor
+		int crid,level;
+		CCreaInfo(int CRID, int LVL); //c-tor
 		~CCreaInfo();//d-tor
 		int AddToString(std::string from, std::string & to, int numb);
 		void hover(bool on);

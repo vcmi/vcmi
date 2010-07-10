@@ -928,6 +928,33 @@ static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
 	return *a < *b;
 }
 
+void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false)
+{// bool forced = true - if creature should be replaced, if false - only if no creature was set
+
+	if (forced || town->creatures[CREATURES_PER_TOWN].second.empty())//we need to change creature
+		{
+			SetAvailableCreatures ssi;
+			ssi.tid = town->id;
+			ssi.creatures = town->creatures;
+			ssi.creatures[CREATURES_PER_TOWN].second.clear();//remove old one
+			
+			std::vector<CGDwelling *> dwellings = gs->getPlayer(town->tempOwner)->dwellings;
+			if (dwellings.empty())//no dwellings - just remove
+			{
+				sendAndApply(&ssi);
+				return;
+			}
+			
+			ui32 dwellpos = rand()%dwellings.size();//take random dwelling
+			ui32 creapos = rand()%dwellings[dwellpos]->creatures.size();//for multi-creature dwellings like Golem Factory
+			ui32 creature = dwellings[dwellpos]->creatures[creapos].second[0];
+			
+			ssi.creatures[CREATURES_PER_TOWN].first = VLC->creh->creatures[creature]->growth;
+			ssi.creatures[CREATURES_PER_TOWN].second.push_back(creature);
+			sendAndApply(&ssi);
+		}
+}
+
 void CGameHandler::newTurn()
 {
 	tlog5 << "Turn " << gs->day+1 << std::endl;
@@ -1023,6 +1050,9 @@ void CGameHandler::newTurn()
 		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
 		{
+			if ((*j)->subID == 5 && vstd::contains((*j)->builtBuildings, 22))
+				setPortalDwelling(*j, true);//set creatures for Portal of Summoning
+			
 			if  ((**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT && vstd::contains((**j).builtBuildings, 22))//dwarven treasury
 					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
 		
@@ -1856,10 +1886,11 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 		&& complain("Cannot teleport hero to town without Castle gate in it"))
 			return false;
 	int3 pos = t->visitablePos();
-	pos.x++;//FIXME: get correct visitable position
+	pos.x++;//FIXME: get visitable position in more correct way (if any)
 	stopHeroVisitCastle(from->id, hid);
 	moveHero(hid,pos,1);
 	heroVisitCastle(dstid, hid);
+	return true;
 }
 
 void CGameHandler::setOwner(int objid, ui8 owner)
@@ -1869,14 +1900,28 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	sendAndApply(&sop);
 
 	winLoseHandle(1<<owner | 1<<oldOwner);
-	if(owner < PLAYER_LIMIT && getTown(objid) && !gs->getPlayer(owner)->towns.size()) //player lost last town
+	if(owner < PLAYER_LIMIT && getTown(objid)) //town captured
 	{
-		InfoWindow iw;
-		iw.player = oldOwner;
-		iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
-		sendAndApply(&iw);
+		const CGTownInstance * town = getTown(objid);
+		if (town->subID == 5 && vstd::contains(town->builtBuildings, 22))
+			setPortalDwelling(town);
+		
+		if (!gs->getPlayer(owner)->towns.size())//player lost last town
+		{
+			InfoWindow iw;
+			iw.player = oldOwner;
+			iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+			sendAndApply(&iw);
+		}
 	}
+	
+	const CGObjectInstance * obj = getObj(objid);
+	if ((obj->id == 17 || obj->id == 20 ) && gs->getPlayer(owner)->dwellings.size()==1 )//first dwelling captured
+		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
+			if (t->subID == 5 && vstd::contains(t->builtBuildings, 22))
+				setPortalDwelling(t);//set initial creatures for all portals of summoning
 }
+
 void CGameHandler::setHoverName(int objid, MetaString* name)
 {
 	SetHoverName shn(objid, *name);
@@ -2570,6 +2615,10 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 		gb.bonus.id = 17;
 		sendAndApply(&gb);
 	}
+	else if ( t->subID == 5 && bid == 22 )
+	{
+		setPortalDwelling(t);
+	}
 
 	ns.bid.insert(bid);
 	ns.builded = t->builded + 1;
@@ -2634,7 +2683,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
+bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid]);
 	const CArmedInstance *dst = NULL;
@@ -2654,12 +2703,13 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 
 	//verify
 	bool found = false;
-	int level = -1;
-
+	int level = 0;
 
 	typedef std::pair<const int,int> Parka;
-	for(level = 0; level < dw->creatures.size(); level++) //iterate through all levels
+	for(; level < dw->creatures.size(); level++) //iterate through all levels
 	{
+		if ( (fromLvl != -1) && ( level !=fromLvl ) )
+			continue;
 		const std::pair<ui32, std::vector<ui32> > &cur = dw->creatures[level]; //current level info <amount, list of cr. ids>
 		int i = 0;
 		for(; i < cur.second.size(); i++) //look for crid among available creatures list on current level

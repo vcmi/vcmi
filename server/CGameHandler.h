@@ -155,6 +155,7 @@ public:
 	void changeObjPos(int objid, int3 newPos, ui8 flags);
 	void useScholarSkill(si32 hero1, si32 hero2);
 	void heroExchange(si32 hero1, si32 hero2);
+	void setPortalDwelling(const CGTownInstance * town, bool forced);
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, int Seed);
@@ -179,7 +180,7 @@ public:
 	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
-	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram);
+	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);
 	bool buildStructure(si32 tid, si32 bid);
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );

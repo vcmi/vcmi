@@ -1316,14 +1316,14 @@ struct RazeStructure : public BuildStructure
 struct RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures(){};
-	RecruitCreatures(si32 TID, si32 CRID, si32 Amount):tid(TID),crid(CRID),amount(Amount){};
+	RecruitCreatures(si32 TID, si32 CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
 	si32 tid; //town id
 	ui32 crid, amount;//creature ID and amount
-
+	si32 level;//dwelling level to buy from, -1 if any
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & crid & amount;
+		h & tid & crid & amount & level;
 	}
 };
 

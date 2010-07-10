@@ -754,7 +754,15 @@ void CCastleInterface::buildingClicked(int building)
 						break;
 						
 	/*Dungeon*/		case 5: //Portal of Summoning
-					tlog4<<"Portal of Summoning not handled\n";
+						if (town->creatures[CREATURES_PER_TOWN].second.empty())
+						{//extra dwelling has no creatures in it. no external dwellinngs
+							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30], std::vector<SComponent*>(), soundBase::sound_todo);
+						}
+						else 
+						{
+							GH.pushInt(new CRecruitmentWindow(town, CREATURES_PER_TOWN, town, 
+									boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,CREATURES_PER_TOWN), -87));
+						}
 					break;
 	/*Stronghold*/		case 6: //Ballista Yard
 					enterBlacksmith(4);
@@ -1147,22 +1155,24 @@ void CCastleInterface::recreateIcons()
 				crid = town->town->basicCreatures[i];
 		}
 		if (crid>=0)
-			creainfo.push_back(new CCreaInfo(crid,bid));
+			creainfo.push_back(new CCreaInfo(crid,(bid-30)%CREATURES_PER_TOWN));
 	}
+	if(town->subID == 5 && vstd::contains(town->builtBuildings, 22) && //we have Portal of Summoning
+			!town->creatures[CREATURES_PER_TOWN].second.empty()) // with some creatures in it
+		creainfo.push_back(new CCreaInfo(town->creatures[CREATURES_PER_TOWN].second[0], CREATURES_PER_TOWN));
 }
 
 CCastleInterface::CCreaInfo::~CCreaInfo()
 {
 }
-CCastleInterface::CCreaInfo::CCreaInfo(int CRID, int BID)
+CCastleInterface::CCreaInfo::CCreaInfo(int CRID, int LVL)
 {
 	used = LCLICK | RCLICK | HOVER;
 	CCastleInterface * ci=LOCPLINT->castleInt;
-	bid = BID;
+	level = LVL;
 	crid = CRID;
-	int i = (bid-30)%CREATURES_PER_TOWN;
-	pos.x = ci->pos.x+14+(55*(i%4));
-	pos.y = (i>3)?(507+ci->pos.y):(459+ci->pos.y);
+	pos.x = ci->pos.x+14+(55*(level%4));
+	pos.y = (level>3)?(507+ci->pos.y):(459+ci->pos.y);
 	pos.w = 48;
 	pos.h = 48;
 }
@@ -1178,13 +1188,14 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 	else
 		GH.statusbar->clear();
 }
+
 void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
 	{
-		LOCPLINT->castleInt->showRecruitmentWindow(bid);
+		LOCPLINT->castleInt->showRecruitmentWindow(level+37);
 	}
-};
+}
 
 int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to, int numb)
 {
@@ -1193,7 +1204,7 @@ int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to,
 	boost::algorithm::replace_first(from,"%+d", "+"+boost::lexical_cast<std::string>(numb));
 	to+="\n"+from;
 	return numb;
-};
+}
 
 void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 {
@@ -1202,7 +1213,6 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		CCastleInterface * ci=LOCPLINT->castleInt;
 		std::set<si32> bld =ci->town->builtBuildings;
 		int summ=0, cnt=0;
-		int level=(bid-30)%CREATURES_PER_TOWN;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
 		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->nameSing);
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(
@@ -1212,47 +1222,50 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		summ = CGI->creh->creatures[crid]->growth;
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
 		
-
-		if ( bld.find(9)!=bld.end())//castle +100% to basic
-			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][9]->Name()+" %+d",descr,summ);
-		else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
-			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
-
-		if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
-		if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
-			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][18]->Name()+" %+d",descr,
-				CGI->creh->creatures[crid]->hordeGrowth);
-
-		if(ci->town->town->hordeLvl[1]==level)//horde, x to summ
-		if((bld.find(24)!=bld.end()) || (bld.find(25)!=bld.end()))
-			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][24]->Name()+" %+d",descr,
-				CGI->creh->creatures[crid]->hordeGrowth);
-
-		cnt = 0;
-
-		for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
-			it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
-				if (CGI->creh->creatures[ci->town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
-					cnt++;//external dwellings count to summ
-		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
-
-		const CGHeroInstance * ch = ci->town->garrisonHero;
-		for (cnt = 0; cnt<2; cnt++) // "loop" to avoid copy-pasting code
+		if ( level>=0 && level<CREATURES_PER_TOWN)
 		{
-			if(ch)
+
+			if ( bld.find(9)!=bld.end())//castle +100% to basic
+				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][9]->Name()+" %+d",descr,summ);
+			else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
+				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
+
+			if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
+			if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
+				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][18]->Name()+" %+d",descr,
+					CGI->creh->creatures[crid]->hordeGrowth);
+
+			if(ci->town->town->hordeLvl[1]==level)//horde, x to summ
+			if((bld.find(24)!=bld.end()) || (bld.find(25)!=bld.end()))
+				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][24]->Name()+" %+d",descr,
+					CGI->creh->creatures[crid]->hordeGrowth);
+
+			cnt = 0;
+
+			for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
+				it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
+					if (CGI->creh->creatures[ci->town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
+						cnt++;//external dwellings count to summ
+			summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
+
+			const CGHeroInstance * ch = ci->town->garrisonHero;
+			for (cnt = 0; cnt<2; cnt++) // "loop" to avoid copy-pasting code
 			{
-				for(std::list<Bonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
-					if(i->type == Bonus::CREATURE_GROWTH && i->subtype == level)
-						if (i->source == Bonus::ARTIFACT)
-							summ+=AddToString(CGI->arth->artifacts[i->id]->Name()+" %+d",descr,i->val);
+				if(ch)
+				{
+					for(std::list<Bonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
+						if(i->type == Bonus::CREATURE_GROWTH && i->subtype == level)
+							if (i->source == Bonus::ARTIFACT)
+								summ+=AddToString(CGI->arth->artifacts[i->id]->Name()+" %+d",descr,i->val);
+				};
+				ch = ci->town->visitingHero;
 			};
-			ch = ci->town->visitingHero;
-		};
 
-		//TODO player bonuses
+			//TODO player bonuses
 
-		if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
-			summ+=AddToString(CGI->buildh->buildings[ci->town->subID][26]->Name()+" %+d",descr,summ/2);
+			if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
+				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][26]->Name()+" %+d",descr,summ/2);
+		}
 
 		CInfoPopup *mess = new CInfoPopup();//creating popup
 		mess->free = true;
@@ -1268,7 +1281,7 @@ void CCastleInterface::CCreaInfo::show(SDL_Surface * to)
 {
 	blitAt(graphics->smallImgs[crid],pos.x+8,pos.y,to);
 	std::ostringstream oss;
-	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth((bid-30)%CREATURES_PER_TOWN);
+	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth(level);
 	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+40,FONT_SMALL,zwykly,to);
 }
 
@@ -1366,7 +1379,7 @@ CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 		building-=7;
 
 	int level = building-30;
-	assert(level >= 0 && level <= 6);
+	assert(level >= 0 && level < town->creatures.size());
 
 	//std::vector<std::pair<int,int > > crs;
 	//int amount = town->creatures[level].first;
@@ -1377,7 +1390,7 @@ CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 	//	crs.push_back(std::make_pair((int)cres[i],amount));
 	//CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 
-	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2), -87);
+	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87);
 	GH.pushInt(rw);
 	return rw;
 }

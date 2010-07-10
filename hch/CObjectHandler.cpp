@@ -1758,6 +1758,9 @@ int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns
 }
 int CGTownInstance::creatureGrowth(const int & level) const
 {
+	if (level<0 || level >=CREATURES_PER_TOWN)
+		return 0;
+		
 	int ret = VLC->creh->creatures[town->basicCreatures[level]]->growth;
 	switch(fortLevel())
 	{
@@ -1922,7 +1925,10 @@ void CGTownInstance::initObj()
 	blockVisit = true;
 	hoverName = name + ", " + town->Name();
 
-	creatures.resize(CREATURES_PER_TOWN);
+	if (subID == 5)
+		creatures.resize(CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
+	else
+		creatures.resize(CREATURES_PER_TOWN);
 	for (int i = 0; i < CREATURES_PER_TOWN; i++)
 	{
 		if(creatureDwelling(i,false))
@@ -1930,15 +1936,16 @@ void CGTownInstance::initObj()
 		if(creatureDwelling(i,true))
 			creatures[i].second.push_back(town->upgradedCreatures[i]);
 	}
+
 	switch (subID)
 	{ //add new visitable objects
 		case 0:
 			bonusingBuildings.push_back (new COPWBonus(21, this)); //Stables
 			break;
-		case 2: case 3: case 5: case 6:
+		case 5:
+			bonusingBuildings.push_back (new COPWBonus(21, this)); //Vortex
+		case 2: case 3: case 6:
 			bonusingBuildings.push_back (new CTownBonus(23, this));
-			if (subID == 5)
-				bonusingBuildings.push_back (new COPWBonus(21, this)); //Vortex
 			break;
 		case 7:
 			bonusingBuildings.push_back (new CTownBonus(17, this));

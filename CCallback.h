@@ -80,7 +80,7 @@ public:
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, si32 buildingID)=0;
-	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
+	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 	
@@ -221,7 +221,7 @@ public:
 	bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
 	bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
-	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount);
+	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
 	void endTurn();
