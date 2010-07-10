@@ -2161,6 +2161,8 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				node.land = tinfo->tertype != TerrainTile::water;
 				node.theNodeBefore = NULL;
 
+				bool leaveAsBlocked = false;
+
 				if((onLand || indeterminate(onLand)) && !node.land)//it's sea and we cannot walk on sea
 				{
 					if (waterWalk || flying)
@@ -2170,12 +2172,14 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 					else
 					{
 						node.accessible = CGPathNode::BLOCKED;
+						leaveAsBlocked = true;
 					}
 				}
 
 				if ( tinfo->tertype == TerrainTile::rock//it's rock
 					|| !onLand && node.land		//it's land and we cannot walk on land (complementary condition is handled above)
 					|| !FoW[i][j][k]					//tile is covered by the FoW
+					|| leaveAsBlocked
 				)
 				{
 					node.accessible = CGPathNode::BLOCKED;
