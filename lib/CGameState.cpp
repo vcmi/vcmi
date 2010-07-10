@@ -1764,7 +1764,7 @@ void CGameState::loadTownDInfos()
 	}
 }
 
-void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand )
+void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
 {
 	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
@@ -1782,6 +1782,17 @@ void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<
 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
 		{
 			continue;
+		}
+
+		if(srct.tertype == TerrainTile::water && limitCoastSailing && hlpt.tertype == TerrainTile::water && dirs[i].x && dirs[i].y) //diagonal move through water
+		{
+			int3 hlp1 = tile,
+				hlp2 = tile;
+			hlp1.x += dirs[i].x;
+			hlp2.y += dirs[i].y;
+
+			if(map->getTile(hlp1).tertype != TerrainTile::water || map->getTile(hlp2).tertype != TerrainTile::water)
+				continue;
 		}
 
 		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=TerrainTile::water) ) 
@@ -1836,7 +1847,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
-		getNeighbours(d, dest, vec, s.tertype != TerrainTile::water);
+		getNeighbours(d, dest, vec, s.tertype != TerrainTile::water, true);
 		for(size_t i=0; i < vec.size(); i++)
 		{
 			int fcost = getMovementCost(h,dest,vec[i],left,false);
@@ -2073,7 +2084,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		}
 
 		//add accessible neighbouring nodes to the queue
-		getNeighbours(map->getTile(cp.coord), cp.coord, neighbours, boost::logic::indeterminate);
+		getNeighbours(map->getTile(cp.coord), cp.coord, neighbours, boost::logic::indeterminate, true);
 		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
 			CPathNode & dp = graph[neighbours[i].x][neighbours[i].y];
@@ -2264,7 +2275,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 		}
 
 		//add accessible neighbouring nodes to the queue
-		getNeighbours(ct, cp->coord, neighbours, boost::logic::indeterminate);
+		getNeighbours(ct, cp->coord, neighbours, boost::logic::indeterminate, !onLand);
 		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
 			int moveAtNextTile = movement;
