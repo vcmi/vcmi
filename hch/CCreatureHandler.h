@@ -55,8 +55,10 @@ public:
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	void addBonus(int val, int type, int subtype = -1);
+
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen &ranGen)

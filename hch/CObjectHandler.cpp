@@ -973,50 +973,60 @@ void CGHeroInstance::initObj()
 		{
 			case 1:// creature speciality
 				{
+					speciality.growthsWithLevel = true;
+
 					bonus.type = Bonus::SPECIAL_CREATURE_LEV; // general info to indicate type of growing bonus
 					bonus.additionalInfo = it->additionalinfo; //base creature ID
 					speciality.bonuses.push_back (bonus);
 
-					std::vector<CCreature*>* creatures = &VLC->creh->creatures;
-					int creLevel = (*creatures)[it->additionalinfo]->level;
+					const CCreature &specCreature = *VLC->creh->creatures[it->additionalinfo]; //creature in which we have specialty
+
+					int creLevel = specCreature.level;
 					if(!creLevel) //TODO: set fixed level for War Machines
 					{
 						if(it->additionalinfo == 146)
 							creLevel = 5; //treat ballista as 5-level
 						else
 						{
-							tlog2 << "Warning: unknown level of " << (*creatures)[it->additionalinfo]->namePl << std::endl;
+							tlog2 << "Warning: unknown level of " << specCreature.namePl << std::endl;
 							continue;
 						}
 					}
 
-					speciality.growthsWithLevel = true;
-					bonus.type = Bonus::PRIMARY_SKILL; //TODO: limit to specific creature type
+					int levelFactor = level / creLevel; //round down
+					double primSkillModifier = levelFactor / 20.0;
+
+					bonus.limiter = new CCreatureTypeLimiter(specCreature);
+					bonus.type = Bonus::PRIMARY_SKILL; 
 					bonus.valType = Bonus::ADDITIVE_VALUE;
-					bonus.subtype = 1; //attack
-					bonus.val = level * (*creatures)[it->additionalinfo]->attack / creLevel /20;
+
+					bonus.subtype = PrimarySkill::ATTACK;
+					bonus.val = std::ceil(primSkillModifier * specCreature.attack);
 					speciality.bonuses.push_back (bonus);
-					bonus.subtype = 2; //defense
-					bonus.val = level * (*creatures)[it->additionalinfo]->defence / creLevel /20;
+
+					bonus.subtype = PrimarySkill::DEFENSE;
+					bonus.val = std::ceil(primSkillModifier * specCreature.defence);
 					speciality.bonuses.push_back (bonus);
+
 					bonus.type = Bonus::STACKS_SPEED;
 					bonus.val = 1; //+1 speed
 					speciality.bonuses.push_back (bonus);
-					for (std::set<ui32>::iterator i = (*creatures)[it->additionalinfo]->upgrades.begin();
-						i != VLC->creh->creatures[it->additionalinfo]->upgrades.end(); i++)
-					{
-						bonus.val = (*i); // for all direct upgrades of that creature
-						bonus.type = Bonus::PRIMARY_SKILL;
-						bonus.subtype = 1; //attack
-						bonus.val = level * (*creatures)[*i]->attack / (*creatures)[*i]->level /20;
-						speciality.bonuses.push_back (bonus);
-						bonus.subtype = 2; //defense
-						bonus.val = level * (*creatures)[*i]->defence / (*creatures)[*i]->level /20;
-						speciality.bonuses.push_back (bonus);
-						bonus.type = Bonus::STACKS_SPEED;
-						bonus.val = 1; //+1 speed
-						speciality.bonuses.push_back (bonus);
-					}
+
+// 					for (std::set<ui32>::iterator i = (*creatures)[it->additionalinfo]->upgrades.begin();
+// 						i != VLC->creh->creatures[it->additionalinfo]->upgrades.end(); i++)
+// 					{
+// 						bonus.val = (*i); // for all direct upgrades of that creature
+// 						bonus.type = Bonus::PRIMARY_SKILL;
+// 						bonus.subtype = 1; //attack
+// 						bonus.val = level * (*creatures)[*i]->attack / (*creatures)[*i]->level /20;
+// 						speciality.bonuses.push_back (bonus);
+// 						bonus.subtype = 2; //defense
+// 						bonus.val = level * (*creatures)[*i]->defence / (*creatures)[*i]->level /20;
+// 						speciality.bonuses.push_back (bonus);
+// 						bonus.type = Bonus::STACKS_SPEED;
+// 						bonus.val = 1; //+1 speed
+// 						speciality.bonuses.push_back (bonus);
+// 					}
 				}
 				break;
 			case 2://secondary skill

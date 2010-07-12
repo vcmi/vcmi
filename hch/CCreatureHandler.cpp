@@ -128,6 +128,12 @@ void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 	bonuses.push_back(added);
 }
 
+bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
+{
+	//TODO upgrade of upgrade?
+	return vstd::contains(upgrades, anotherCre->idNumber);
+}
+
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
 {
 	befi=i;
@@ -337,12 +343,7 @@ void CCreatureHandler::loadCreatures()
 			creatures.push_back(&ncre);
 		}
 	}
-
-	// Map types names
-#define BONUS_NAME(x) ( #x, Bonus::x )
-	static const std::map<std::string, int> type_list = map_list_of BONUS_LIST;
-#undef BONUS_NAME
-
+	
 	////second part of reading cr_abils.txt////
 	bool contReading = true;
 	while(contReading) //main reading loop
@@ -363,10 +364,10 @@ void CCreatureHandler::loadCreatures()
 				reader >> creatureID;
 				reader >> type;
 
-				std::map<std::string, int>::const_iterator it = type_list.find(type);
+				std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
 				CCreature *cre = creatures[creatureID];
 
-				if (it == type_list.end()) 
+				if (it == bonusNameMap.end()) 
 				{
 					if(type == "DOUBLE_WIDE")
 						cre->doubleWide = true;
@@ -403,8 +404,8 @@ void CCreatureHandler::loadCreatures()
 				std::string type;
 				reader >> creatureID;
 				reader >> type;
-				std::map<std::string, int>::const_iterator it = type_list.find(type);
-				if (it == type_list.end())
+				std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
+				if (it == bonusNameMap.end())
 				{
 					if(type == "DOUBLE_WIDE")
 						creatures[creatureID]->doubleWide = false;

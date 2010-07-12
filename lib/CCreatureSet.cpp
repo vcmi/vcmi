@@ -252,6 +252,7 @@ void CStackInstance::init()
 	type = NULL;
 	idRand = -1;
 	armyObj = NULL;
+	nodeType = STACK;
 }
 
 int CStackInstance::getQuantityID() const 

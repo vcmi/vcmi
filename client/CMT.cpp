@@ -48,6 +48,7 @@
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
+#include <boost/foreach.hpp>
 
 #if __MINGW32__
 #undef main
@@ -426,6 +427,19 @@ void processCommand(const std::string &message)
 	{
 		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
 			tlog0 << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
+	}
+	else if(cn == "bonuses")
+	{
+		tlog0 << "Bonuses of " << adventureInt->selection->getHoverText() << std::endl
+			<< adventureInt->selection->bonuses << std::endl;
+
+		tlog0 << "\nInherited bonuses:\n";
+		TCNodes parents;
+		adventureInt->selection->getParents(parents);
+		BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+		{
+			tlog0 << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->bonuses << std::endl;
+		}
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{

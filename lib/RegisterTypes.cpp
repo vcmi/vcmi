@@ -20,6 +20,7 @@
 template<typename Serializer> DLL_EXPORT
 void registerTypes1(Serializer &s)
 {
+	//map objects
 	s.template registerType<CGHeroPlaceholder>();
 	s.template registerType<CGHeroInstance>();
 	s.template registerType<CGTownInstance>();
@@ -64,6 +65,9 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGLighthouse>();
 	s.template registerType<CGMarket>();
 	s.template registerType<CGBlackMarket>();
+	//end of objects
+	s.template registerType<ILimiter>();
+	s.template registerType<CCreatureTypeLimiter>();
 }
 
 template<typename Serializer> DLL_EXPORT 

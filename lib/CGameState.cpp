@@ -117,11 +117,11 @@ class CObjectCaller : public IObjectCaller
 public:
 	void preInit()
 	{
-		T::preInit();
+		//T::preInit();
 	}
 	void postInit()
 	{
-		T::postInit();
+		//T::postInit();
 	}
 };
 
@@ -148,14 +148,14 @@ public:
 
 	void preInit()
 	{
-		for (size_t i = 0; i < apps.size(); i++)
-			apps[i]->preInit();
+// 		for (size_t i = 0; i < apps.size(); i++)
+// 			apps[i]->preInit();
 	}
 
 	void postInit()
 	{
-		for (size_t i = 0; i < apps.size(); i++)
-			apps[i]->postInit();
+// 		for (size_t i = 0; i < apps.size(); i++)
+// 			apps[i]->postInit();
 	}
 } *objCaller = NULL;
 
@@ -2365,7 +2365,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 			if (map->isInTheMap(pos)) 
 			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-				if (tile.visitable) 
+				if (tile.visitable && (tile.tertype == TerrainTile::water) == (posTile.tertype == TerrainTile::water)) 
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects) 
 					{

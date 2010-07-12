@@ -737,9 +737,9 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 						break;
 						case 2:
 							it->val = (level * (*creatures)[it->additionalInfo]->defence)/creLevel /20;
-						break;
+							break;
 					}
-				break;
+					break;
 			}
 		}
 	}

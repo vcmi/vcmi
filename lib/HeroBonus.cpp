@@ -5,9 +5,15 @@
 #include "../hch/CSpellHandler.h"
 #include <sstream>
 #include "../hch/CCreatureHandler.h"
+#include <boost/assign/list_of.hpp>
+#include "CCreatureSet.h"
 
 #define FOREACH_CONST_PARENT(pname, source) 	TCNodes parents; getParents(parents, source); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname, source) 	TNodes parents; getParents(parents, source); BOOST_FOREACH(CBonusSystemNode *pname, parents)
+
+#define BONUS_NAME(x) ( #x, Bonus::x )
+	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
+#undef BONUS_NAME
 
 int DLL_EXPORT BonusList::totalValue() const
 {
@@ -73,6 +79,19 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 	for(const_iterator i = begin(); i != end(); i++)
 		if(selector(*i) && (!limit || limit(*i)))
 			out.push_back(*i);
+}
+
+void BonusList::limit(const CBonusSystemNode &node)
+{
+	for(const_iterator i = begin(); i != end(); i++)
+	{
+		if(i->limiter && i->limiter->limit(*i, node))
+		{
+			const_iterator toErase = i;
+			i--;
+			erase(toErase);
+		}
+	}
 }
 
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
@@ -161,6 +180,9 @@ void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, con
 	bonuses.getBonuses(out, selector);
 	FOREACH_CONST_PARENT(p, root ? root : this)
 		p->getBonuses(out, selector, root ? root : this);
+	
+	if(!root)
+		out.limit(*this);
 }
 
 BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
@@ -175,6 +197,9 @@ void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, con
 	bonuses.getBonuses(out, selector, limit);
 	FOREACH_CONST_PARENT(p, root ? root : this)
 		p->getBonuses(out, selector, limit, root ? root : this);
+
+	if(!root)
+		out.limit(*this);
 }
 
 BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
@@ -243,6 +268,16 @@ si32 CBonusSystemNode::Defense(bool withFrenzy /*= true*/) const
 ui16 CBonusSystemNode::MaxHealth() const
 {
 	return valOfBonuses(Bonus::STACK_HEALTH);
+}
+
+CBonusSystemNode::CBonusSystemNode()
+{
+	nodeType = UNKNOWN;
+}
+
+CBonusSystemNode::~CBonusSystemNode()
+{
+
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
@@ -346,4 +381,65 @@ namespace Selector
 		dummy.subtype = subtype;
 		return sel(dummy);
 	}
+}
+
+DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)
+{
+	int i = 0;
+	BOOST_FOREACH(const Bonus &b, bonusList)
+	{
+		out << "Bonus " << i++ << "\n" << b << std::endl;
+	}
+	return out;
+}
+
+DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
+{
+	for(std::map<std::string, int>::const_iterator i = bonusNameMap.begin(); i != bonusNameMap.end(); i++)
+		if(i->second == bonus.type)
+			out << "\tType: " << i->first << " \t";
+
+#define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
+	printField(val);
+	printField(subtype);
+	printField(duration);
+	printField(source);
+	printField(id);
+	printField(additionalInfo);
+	printField(turnsRemain);
+	printField(valType);
+	printField(effectRange);
+#undef printField
+
+	return out;
+}
+
+ILimiter::~ILimiter()
+{
+}
+
+bool ILimiter::limit(const Bonus &b, const CBonusSystemNode &node) const /*return true to drop the bonus */
+{
+	return false;
+}
+
+bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) const
+{
+	if(node.nodeType != CBonusSystemNode::STACK)
+		return true;
+
+	const CCreature *c = (static_cast<const CStackInstance *>(&node))->type;
+
+	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c)); //drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
+}
+
+CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)
+	:creature(&Creature), includeUpgrades(IncludeUpgrades)
+{
+}
+
+CCreatureTypeLimiter::CCreatureTypeLimiter()
+{
+	creature = NULL;
+	includeUpgrades = false;
 }

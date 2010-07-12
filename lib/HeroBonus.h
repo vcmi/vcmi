@@ -19,16 +19,16 @@
 typedef ui8 TBonusType;
 typedef si32 TBonusSubtype;
 
-
+class CCreature;
 class CSpell;
 struct Bonus;
 class CBonusSystemNode;
+class ILimiter;
 
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef boost::function<bool(const Bonus&)> CSelector;
-
 
 namespace PrimarySkill
 {
@@ -223,6 +223,8 @@ struct DLL_EXPORT Bonus
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
 
+	ILimiter *limiter;
+
 	std::string description; 
 
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1)
@@ -232,6 +234,7 @@ struct DLL_EXPORT Bonus
 		turnsRemain = 0;
 		valType = ADDITIVE_VALUE;
 		effectRange = NO_LIMIT;
+		limiter = NULL;
 	}
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE)
 		:duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), valType(ValType)
@@ -239,6 +242,7 @@ struct DLL_EXPORT Bonus
 		additionalInfo = -1;
 		turnsRemain = 0;
 		effectRange = NO_LIMIT;
+		limiter = NULL;
 	}
 	Bonus()
 	{
@@ -247,6 +251,7 @@ struct DLL_EXPORT Bonus
 		turnsRemain = 0;
 		valType = ADDITIVE_VALUE;
 		effectRange = NO_LIMIT;
+		limiter = NULL;
 	}
 
 // 	//comparison
@@ -263,7 +268,7 @@ struct DLL_EXPORT Bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & subtype & source & val & id & description & additionalInfo & turnsRemain & valType & effectRange;
+		h & duration & type & subtype & source & val & id & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
 	}
 
 	static bool OneDay(const Bonus &hb)
@@ -307,6 +312,8 @@ struct DLL_EXPORT Bonus
 	std::string Description() const;
 };
 
+DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
+
 class BonusList : public std::list<Bonus>
 {
 public:
@@ -319,16 +326,35 @@ public:
 	DLL_EXPORT Bonus * getFirst(const CSelector &select);
 	DLL_EXPORT const Bonus * getFirst(const CSelector &select) const;
 
+	void limit(const CBonusSystemNode &node); //erases bonuses using limitor
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<std::list<Bonus>&>(*this);
 	}
 };
 
+DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
+
+class DLL_EXPORT ILimiter
+{
+public:
+	virtual ~ILimiter();
+
+	virtual bool limit(const Bonus &b, const CBonusSystemNode &node) const; //return true to drop the bonus
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
 class DLL_EXPORT CBonusSystemNode
 {
 public:
 	BonusList bonuses;
+	ui8 nodeType;
+
+	CBonusSystemNode();
+	virtual ~CBonusSystemNode();
 
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
@@ -366,8 +392,13 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bonuses;
+		h & bonuses & nodeType;
 	}
+
+	enum ENodeTypes
+	{
+		UNKNOWN, STACK
+	};
 };
 
 namespace NBonus
@@ -450,6 +481,23 @@ public:
 	}
 };
 
+class CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
+{
+public:
+	const CCreature *creature;
+	ui8 includeUpgrades;
+
+	CCreatureTypeLimiter();
+	CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades = true);
+
+	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & creature & includeUpgrades;
+	}
+};
+
 namespace Selector
 {
 	extern DLL_EXPORT CSelectFieldEqual<TBonusType> type;
@@ -466,3 +514,5 @@ namespace Selector
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);
 	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
 }
+
+extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
