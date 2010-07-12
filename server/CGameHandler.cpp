@@ -938,7 +938,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[CREATURES_PER_TOWN].second.clear();//remove old one
 			
-			std::vector<CGDwelling *> dwellings = gs->getPlayer(town->tempOwner)->dwellings;
+			const std::vector<CGDwelling *> &dwellings = gs->getPlayer(town->tempOwner)->dwellings;
 			if (dwellings.empty())//no dwellings - just remove
 			{
 				sendAndApply(&ssi);
