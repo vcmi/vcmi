@@ -1886,7 +1886,7 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 		&& complain("Cannot teleport hero to town without Castle gate in it"))
 			return false;
 	int3 pos = t->visitablePos();
-	pos.x++;//FIXME: get visitable position in more correct way (if any)
+	pos += h->getVisitableOffset();
 	stopHeroVisitCastle(from->id, hid);
 	moveHero(hid,pos,1);
 	heroVisitCastle(dstid, hid);
@@ -1916,7 +1916,7 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	}
 	
 	const CGObjectInstance * obj = getObj(objid);
-	if ((obj->id == 17 || obj->id == 20 ) && gs->getPlayer(owner)->dwellings.size()==1 )//first dwelling captured
+	if ((obj->ID == 17 || obj->ID == 20 ) && gs->getPlayer(owner)->dwellings.size()==1 )//first dwelling captured
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
 			if (t->subID == 5 && vstd::contains(t->builtBuildings, 22))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning

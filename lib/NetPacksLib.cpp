@@ -732,10 +732,10 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 					}
 					switch (it->subtype)
 					{
-						case 1:
-							it->val = (level * (*creatures)[it->additionalInfo]->attack)/creLevel /20;
+					case 1:
+						it->val = (level * (*creatures)[it->additionalInfo]->attack)/creLevel /20;
 						break;
-						case 2:
+					case 2:
 							it->val = (level * (*creatures)[it->additionalInfo]->defence)/creLevel /20;
 							break;
 					}
