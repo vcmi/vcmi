@@ -40,6 +40,24 @@
 
 extern SDL_Surface * screen;
 using namespace boost::assign;
+
+void CHeroSwitcher::clickLeft(tribool down, bool previousState)
+{
+	if(!down)
+	{
+		owner->deactivate();
+		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
+		owner->setHero(buf);
+		owner->redrawCurBack();
+		owner->activate();
+	}
+}
+
+CHeroSwitcher::CHeroSwitcher()
+{
+	used = LCLICK;
+}
+
 CHeroWindow::CHeroWindow(int playerColor):
 	player(playerColor)
 {
@@ -76,7 +94,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	for(int g=0; g<8; ++g)
 	{
 		//heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
-		heroListMi.push_back(new LClickableAreaHero());
+		heroListMi.push_back(new CHeroSwitcher());
 		heroListMi[g]->pos = genRect(32, 48, pos.x+677, pos.y  +  95+g*54);
 		heroListMi[g]->owner = this;
 		heroListMi[g]->id = g;
@@ -94,7 +112,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 		primSkillAreas[v]->pos = genRect(64, 42, pos.x+95 + 70*v, pos.y  +  117);
 		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v];
 		primSkillAreas[v]->type = v;
-		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
+		primSkillAreas[v]->bonusValue = -1; // to be initilized when hero is being set
 		primSkillAreas[v]->baseType = 0;
 		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[v].c_str());
 		primSkillAreas[v]->hoverText = std::string(bufor);
@@ -109,10 +127,10 @@ CHeroWindow::CHeroWindow(int playerColor):
 	expArea->pos = genRect(42, 136, pos.x+83, pos.y  +  236);
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new MoraleLuckBox();
+	morale = new MoraleLuckBox(true);
 	morale->pos = genRect(45,53,pos.x+240,pos.y+187);
 
-	luck = new MoraleLuckBox();
+	luck = new MoraleLuckBox(false);
 	luck->pos = genRect(45,53,pos.x+298,pos.y+187);
 
 	spellPointsArea = new LRClickableAreaWText();
@@ -230,7 +248,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonus = hero->getPrimSkillLevel(g);
+		primSkillAreas[g]->bonusValue = hero->getPrimSkillLevel(g);
 	}
 
 	//secondary skills support
@@ -240,7 +258,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 			level = hero->secSkills[g].second;
 
 		secSkillAreas[g]->type = skill;
-		secSkillAreas[g]->bonus = level;
+		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 
 		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level-1].c_str(), CGI->generaltexth->skillName[skill].c_str());
@@ -289,8 +307,8 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	formations->select(hero->formation,true);
 	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, hero, _1);
 
-	morale->set(true, hero);
-	luck->set(false, hero);
+	morale->set(hero);
+	luck->set(hero);
 
 	//restoring pos
 	pos.x += 65;

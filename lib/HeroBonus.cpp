@@ -7,6 +7,7 @@
 #include "../hch/CCreatureHandler.h"
 #include <boost/assign/list_of.hpp>
 #include "CCreatureSet.h"
+#include <boost/algorithm/string/trim.hpp>
 
 #define FOREACH_CONST_PARENT(pname, source) 	TCNodes parents; getParents(parents, source); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname, source) 	TNodes parents; getParents(parents, source); BOOST_FOREACH(CBonusSystemNode *pname, parents)
@@ -337,11 +338,40 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
+Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/) 
+	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), description(Desc)
+{
+	additionalInfo = -1;
+	turnsRemain = 0;
+	valType = ADDITIVE_VALUE;
+	effectRange = NO_LIMIT;
+	limiter = NULL;
+	boost::algorithm::trim(description);
+}
+
+Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ui8 ValType /*= ADDITIVE_VALUE*/) 
+	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), valType(ValType)
+{
+	additionalInfo = -1;
+	turnsRemain = 0;
+	effectRange = NO_LIMIT;
+	limiter = NULL;
+}
+
+Bonus::Bonus()
+{
+	subtype = -1;
+	additionalInfo = -1;
+	turnsRemain = 0;
+	valType = ADDITIVE_VALUE;
+	effectRange = NO_LIMIT;
+	limiter = NULL;
+}
+
 CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second)
 {
 	return CSelectorsConjunction(first, second);
 }
-
 
 namespace Selector
 {

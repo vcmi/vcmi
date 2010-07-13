@@ -136,6 +136,7 @@ public:
 		numbers.clear();
 	}
 	DLL_EXPORT void toString(std::string &dst) const;
+	DLL_EXPORT std::string toString() const;
 	void getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const;
 
 	MetaString()

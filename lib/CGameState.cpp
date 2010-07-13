@@ -276,6 +276,13 @@ DLL_EXPORT void MetaString::toString(std::string &dst) const
 	}
 }
 
+DLL_EXPORT std::string MetaString::toString() const
+{
+	std::string ret;
+	toString(ret);
+	return ret;
+}
+
 DLL_EXPORT std::string MetaString::buildList () const
 ///used to handle loot from creature bank
 {

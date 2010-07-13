@@ -1804,17 +1804,20 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
+			return;
 		}
 		else if(topBlocking && (topBlocking->ID == HEROI_TYPE || topBlocking->ID == TOWNI_TYPE) //clicked our town or hero
 			&& pn->turns == 255 && topBlocking->tempOwner == LOCPLINT->playerID) //at inaccessible tile
 		{
 			select(static_cast<const CArmedInstance*>(topBlocking), false);
+			return;
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mp)//we'll be moving
 			{
 				LOCPLINT->moveHero(currentHero,*terrain.currentPath);
+				return;
 			}
 			else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
 			{
@@ -1822,12 +1825,19 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 				terrain.currentPath = &path;
 				if(!LOCPLINT->cb->getPath2(mp, path)) //try getting path, erase if failed
 					LOCPLINT->eraseCurrentPathOf(currentHero);
+				else
+					return;
 			}
 		}
 	} //end of hero is selected "case"
 	else
 	{
 		throw std::string("Nothing is selected...");
+	}
+
+	if(const IShipyard *shipyard = ourInaccessibleShipyard(topBlocking))
+	{
+		LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
 	}
 }
 
@@ -2006,6 +2016,11 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 				CGI->curh->changeGraphic(0, 0);
 		}
 	}
+
+	if(const IShipyard *shipyard = ourInaccessibleShipyard(objAtTile))
+	{
+		CGI->curh->changeGraphic(0, 6);
+	}
 }
 
 void CAdvMapInt::tileRClicked(const int3 &mp)
@@ -2073,6 +2088,16 @@ const CGTownInstance * CAdvMapInt::curTown() const
 		return static_cast<const CGTownInstance *>(selection);
 	else
 		return NULL;
+}
+
+const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *obj) const
+{
+	const IShipyard *ret = IShipyard::castFrom(obj);
+
+	if(!ret || obj->tempOwner != player || CGI->curh->mode || (CGI->curh->number != 6 && CGI->curh->number != 0))
+		return NULL;
+
+	return ret;
 }
 
 CAdventureOptions::CAdventureOptions()

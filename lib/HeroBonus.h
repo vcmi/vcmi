@@ -227,32 +227,9 @@ struct DLL_EXPORT Bonus
 
 	std::string description; 
 
-	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1)
-		:duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), description(Desc) 
-	{
-		additionalInfo = -1;
-		turnsRemain = 0;
-		valType = ADDITIVE_VALUE;
-		effectRange = NO_LIMIT;
-		limiter = NULL;
-	}
-	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE)
-		:duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), valType(ValType)
-	{
-		additionalInfo = -1;
-		turnsRemain = 0;
-		effectRange = NO_LIMIT;
-		limiter = NULL;
-	}
-	Bonus()
-	{
-		subtype = -1;
-		additionalInfo = -1;
-		turnsRemain = 0;
-		valType = ADDITIVE_VALUE;
-		effectRange = NO_LIMIT;
-		limiter = NULL;
-	}
+	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
+	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE);
+	Bonus();
 
 // 	//comparison
 // 	bool operator==(const HeroBonus &other)

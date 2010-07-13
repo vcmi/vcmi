@@ -227,6 +227,7 @@ public:
 	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
+	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard; 
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

@@ -2002,3 +2002,15 @@ void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 	CTavernWindow *tv = new CTavernWindow(townOrTavern);
 	GH.pushInt(tv);
 }
+
+void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
+{
+	if(obj->state())
+	{
+		MetaString txt;
+		obj->getProblemText(txt);
+		showInfoDialog(txt.toString());
+	}
+	else
+		showShipyardDialog(obj);
+}

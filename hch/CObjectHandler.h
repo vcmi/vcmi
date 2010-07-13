@@ -25,6 +25,7 @@
  *
  */
 
+struct MetaString;
 class BattleInfo;
 class IGameCallback;
 struct BattleResult;
@@ -129,6 +130,7 @@ public:
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
 	int state() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
+	void getProblemText(MetaString &out, const CGHeroInstance *visitor = NULL) const; 
 };
 
 class DLL_EXPORT IShipyard : public IBoatGenerator

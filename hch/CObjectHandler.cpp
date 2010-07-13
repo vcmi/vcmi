@@ -5901,7 +5901,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if (tile = IObjectInterface::cb->getTile(o->pos + offsets[i])) //tile is in the map 
 		{
-			if (tile->tertype == TerrainTile::water) //and is water
+			if (tile->tertype == TerrainTile::water  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offsets[i];
 		}
 	}
@@ -5913,7 +5913,7 @@ int IBoatGenerator::state() const
 	int3 tile = bestLocation();
 	TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
-		return 3; //no water
+		return 2; //no available water
 	else if(!t->blockingObjects.size())
 		return 0; //OK
 	else if(t->blockingObjects.front()->ID == 8)
@@ -5934,6 +5934,28 @@ IBoatGenerator::IBoatGenerator(const CGObjectInstance *O)
 {
 }
 
+void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visitor) const
+{
+	switch(state())
+	{
+	case 1: 
+		out.addTxt(MetaString::GENERAL_TXT, 51);
+		break;
+	case 2:
+		if(visitor)
+		{
+			out.addTxt(MetaString::GENERAL_TXT, 134);
+			out.addReplacement(visitor->name);
+		}
+		else
+			out.addTxt(MetaString::ADVOB_TXT, 189);
+		break;
+	case 3:
+		tlog1 << "Shipyard without water!!! " << o->pos << "\t" << o->id << std::endl;
+		return;
+	}
+}
+
 void IShipyard::getBoatCost( std::vector<si32> &cost ) const
 {
 	cost.resize(RESOURCE_QUANTITY);
@@ -5948,6 +5970,9 @@ IShipyard::IShipyard(const CGObjectInstance *O)
 
 IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 {
+	if(!obj)
+		return NULL;
+
 	if(obj->ID == TOWNI_TYPE)
 	{
 		return static_cast<CGTownInstance*>(obj);
@@ -5958,7 +5983,7 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	}
 	else
 	{
-		tlog1 << "Cannot cast to IShipyard object with ID " << obj->ID << std::endl;
+		//tlog1 << "Cannot cast to IShipyard object with ID " << obj->ID << std::endl;
 		return NULL;
 	}
 }
@@ -5975,8 +6000,12 @@ CGShipyard::CGShipyard()
 
 void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 {
-	offsets += int3(1,0,0), int3(-3,0,0), int3(-3,1,0), int3(-2,1,0), int3(1,1,0), int3(1,-1,0), int3(-3,-1,0), 
-		int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0), int3(0,1,0), int3(-1,1,0);
+	// H J L K I
+	// A x S x B
+	// C E G F D
+	offsets += int3(-3,0,0), int3(1,0,0), //AB
+		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
+		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0); //HIJKL
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
@@ -5989,19 +6018,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		InfoWindow iw;
 		iw.player = tempOwner;
-		switch(s)
-		{
-		case 1: 
-			iw.text.addTxt(MetaString::GENERAL_TXT, 51);
-			break;
-		case 2:
-			iw.text.addTxt(MetaString::ADVOB_TXT, 189);
-			break;
-		case 3:
-			tlog1 << "Shipyard without water!!! " << pos << "\t" << id << std::endl;
-			return;
-		}
-
+		getProblemText(iw.text, h);
 		cb->showInfoDialog(&iw);
 	}
 	else

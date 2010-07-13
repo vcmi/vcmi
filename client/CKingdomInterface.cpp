@@ -747,10 +747,10 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	experience->pos = genRect(33, 49, pos.x+322, pos.y+5);
 	experience->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new MoraleLuckBox();
+	morale = new MoraleLuckBox(true);
 	morale->pos = genRect(20,32,pos.x+221,pos.y+52);
 
-	luck = new MoraleLuckBox();
+	luck = new MoraleLuckBox(false);
 	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
 
 	spellPoints = new LRClickableAreaWText();
@@ -842,7 +842,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 	//primary skills
 	for(size_t g=0; g<primarySkills.size(); ++g)
-		primarySkills[g]->bonus = hero->getPrimSkillLevel(g);
+		primarySkills[g]->bonusValue = hero->getPrimSkillLevel(g);
 
 	//secondary skills
 	for(size_t g=0; g<std::min(secondarySkills.size(),hero->secSkills.size()); ++g)
@@ -850,7 +850,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		int skill = hero->secSkills[g].first,
 		    level = hero->secSkills[g].second;
 		secondarySkills[g]->type = skill;
-		secondarySkills[g]->bonus = level;
+		secondarySkills[g]->bonusValue = level;
 		secondarySkills[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level-1].c_str(), CGI->generaltexth->skillName[skill].c_str());
 		secondarySkills[g]->hoverText = std::string(bufor);
@@ -866,8 +866,8 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	spellPoints->text = std::string(bufor);
 
 	//setting morale and luck
-	morale->set(true,hero);
-	luck->set(false,hero);
+	morale->set(hero);
+	luck->set(hero);
 }
 
 void CKingdomInterface::CHeroItem::scrollArts(int move)

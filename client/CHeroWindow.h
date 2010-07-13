@@ -25,7 +25,15 @@ class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHero;
 
+class CHeroSwitcher : public CIntObject
+{
+public:
+	int id;
+	CHeroWindow * owner;
+	virtual void clickLeft(tribool down, bool previousState);
 
+	CHeroSwitcher();
+};
 
 class CHeroWindow: public CWindowWithGarrison
 {
@@ -37,7 +45,7 @@ class CHeroWindow: public CWindowWithGarrison
 
 	//buttons
 	//AdventureMapButton * gar4button; //splitting
-	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
+	std::vector<CHeroSwitcher *> heroListMi; //new better list of heroes
 
 	CArtifactsOfHero * artifs;
 

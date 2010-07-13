@@ -2329,6 +2329,16 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
 
+
+	//setting morale
+	morale = new MoraleLuckBox(true);
+	morale->pos = genRect(42, 42, pos.x + 24, pos.y + 189);
+	morale->set(stack);
+	//setting luck
+	luck = new MoraleLuckBox(false);
+	luck->pos =  genRect(42, 42, pos.x + 77, pos.y + 189);
+	luck->set(stack);
+
 	//luck and morale
 	int luck = 3, morale = 3;
 	if(stack)
@@ -4156,109 +4166,43 @@ void HoverableArea::hover (bool on)
 		GH.statusbar->clear();
 }
 
-void HoverableArea::activate()
+HoverableArea::HoverableArea()
 {
-	activateHover();
+	used |= HOVER;
 }
 
-void HoverableArea::deactivate()
+HoverableArea::~HoverableArea()
 {
-	deactivateHover();
-}
-
-void LClickableArea::activate()
-{
-	activateLClick();
-}
-void LClickableArea::deactivate()
-{
-	deactivateLClick();
-}
-void LClickableArea::clickLeft(tribool down, bool previousState)
-{
-	//if(!down)
-	//{
-	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	//}
-}
-
-void RClickableArea::activate()
-{
-	activateRClick();
-}
-void RClickableArea::deactivate()
-{
-	deactivateRClick();
-}
-void RClickableArea::clickRight(tribool down, bool previousState)
-{
-	//if(!down)
-	//{
-	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	//}
 }
 
 void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 {
 	if(!down && previousState)
 	{
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(), soundBase::sound_todo);
+		LOCPLINT->showInfoDialog(text);
 	}
-	//ClickableL::clickLeft(down);
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
 	adventureInt->handleRightClick(text, down);
 }
-void LRClickableAreaWText::activate()
+
+LRClickableAreaWText::LRClickableAreaWText()
 {
-	LClickableArea::activate();
-	RClickableArea::activate();
-	activateHover();
-}
-void LRClickableAreaWText::deactivate()
-{
-	LClickableArea::deactivate();
-	RClickableArea::deactivate();
-	deactivateHover();
+	used = LCLICK | RCLICK | HOVER;
 }
 
-void LClickableAreaHero::clickLeft(tribool down, bool previousState)
+LRClickableAreaWText::~LRClickableAreaWText()
 {
-	if(!down)
-	{
-		owner->deactivate();
-		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
-		owner->setHero(buf);
-		owner->redrawCurBack();
-		owner->activate();
-	}
 }
 
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonus));
-		LOCPLINT->showInfoDialog(text, comp, soundBase::sound_todo);
+		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonusValue));
+		LOCPLINT->showInfoDialog(text, comp);
 	}
-	//ClickableL::clickLeft(down);
-}
-void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
-{
-	adventureInt->handleRightClick(text, down);
-}
-void LRClickableAreaWTextComp::activate()
-{
-	LClickableArea::activate();
-	RClickableArea::activate();
-	activateHover();
-}
-void LRClickableAreaWTextComp::deactivate()
-{
-	LClickableArea::deactivate();
-	RClickableArea::deactivate();
-	deactivateHover();
 }
 
 void LRClickableAreaOpenHero::clickLeft(tribool down, bool previousState)
@@ -4829,7 +4773,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		primSkillAreas[g]->pos = genRect(32, 140, pos.x+329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
-		primSkillAreas[g]->bonus = -1;
+		primSkillAreas[g]->bonusValue = -1;
 		primSkillAreas[g]->baseType = 0;
 		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[g].c_str());
 		primSkillAreas[g]->hoverText = std::string(bufor);
@@ -4848,7 +4792,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
-			secSkillAreas[b][g]->bonus = level;
+			secSkillAreas[b][g]->bonusValue = level;
 			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 
 			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level - 1].c_str(), CGI->generaltexth->skillName[skill].c_str());
@@ -4881,13 +4825,13 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
-		morale[b] = new MoraleLuckBox();
+		morale[b] = new MoraleLuckBox(true);
 		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
-		morale[b]->set(true,heroInst[b]);
+		morale[b]->set(heroInst[b]);
 		//setting luck
-		luck[b] = new MoraleLuckBox();
+		luck[b] = new MoraleLuckBox(false);
 		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
-		luck[b]->set(false,heroInst[b]);
+		luck[b]->set(heroInst[b]);
 	}
 
 	//buttons
@@ -5457,50 +5401,47 @@ CThievesGuildWindow::~CThievesGuildWindow()
 // 	delete resdatabar;
 }
 
-
-
-
-
-
-void MoraleLuckBox::set(bool morale, const CGHeroInstance *hero)
+void MoraleLuckBox::set(const CBonusSystemNode *hero)
 {
-	int mrlv = -9, mrlt = -9;
-	TModDescr mrl;
+	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
+	const int noneTxtId[] = {77, 108}; //I don't know why we have separate "none" texts for luck and morale...
+	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
+	const int componentType[] = {SComponent::luck, SComponent::morale};
+	const int hoverTextBase[] = {7, 4};
+	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
+	int (CBonusSystemNode::*getValue[])() const = {&CBonusSystemNode::LuckVal, &CBonusSystemNode::MoraleVal};
 
-	if(morale)
-	{
-		//setting morale
-		hero->getModifiersWDescr(mrl, Bonus::MORALE);
-		mrlv = hero->MoraleVal();
-		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
-		hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
-		baseType = SComponent::morale;
-		bonus = mrlv;
-		text = CGI->generaltexth->arraytxt[88];
-		boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
-		if (!mrl.size())
-			text += CGI->generaltexth->arraytxt[108];
-		else
-			for(int it=0; it < mrl.size(); it++)
-				text += "\n" + mrl[it].second;
-	}
+	int mrlt = -9;
+	TModDescr mrl;
+	hero->getModifiersWDescr(mrl, bonusType[morale]);
+	bonusValue = (hero->*getValue[morale])();
+	mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
+	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	baseType = componentType[morale];
+	text = CGI->generaltexth->arraytxt[textId[morale]];
+	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	if (!mrl.size())
+		text += CGI->generaltexth->arraytxt[noneTxtId[morale]];
 	else
-	{
-		//setting luck
-		hero->getModifiersWDescr(mrl, Bonus::LUCK);
-		mrlv = hero->LuckVal();
-		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
-		hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
-		baseType = SComponent::luck;
-		bonus = mrlv;
-		text = CGI->generaltexth->arraytxt[62];
-		boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
-		if (!mrl.size())
-			text += CGI->generaltexth->arraytxt[77];
-		else
-			for(int it=0; it < mrl.size(); it++)
-				text += "\n" + mrl[it].second;
-	}
+		for(int it=0; it < mrl.size(); it++)
+			text += "\n" + mrl[it].second;
+}
+
+void MoraleLuckBox::showAll(SDL_Surface * to)
+{
+	CDefEssential *def = morale ? graphics->morale42 : graphics->luck42;
+	blitAt(def->ourImages[bonusValue].bitmap, pos, to);
+}
+
+MoraleLuckBox::MoraleLuckBox(bool Morale)
+	:morale(Morale)
+{
+	bonusValue = 0;
+}
+
+MoraleLuckBox::~MoraleLuckBox()
+{
+
 }
 
 void CLabel::showAll(SDL_Surface * to)
@@ -5571,6 +5512,8 @@ void CTextBox::showAll(SDL_Surface * to)
 	for (int i = 0; i < howManyLinesToPrint; i++)
 	{
 		const std::string &line = lines[i + firstLineToPrint];
+		if(!line.size()) continue;
+
 		int x = pos.x;
 		if(alignment == CENTER)
 		{
@@ -5579,7 +5522,10 @@ void CTextBox::showAll(SDL_Surface * to)
 				x -= slider->pos.w / 2 + 5;
 		}
 
-		printAt(line, x, base_y + i*dy, font, color, to);
+		if(line.front() == '{' && line.back() == '}')
+			printAt(line, x, base_y + i*dy, font, tytulowy, to);
+		else
+			printAt(line, x, base_y + i*dy, font, color, to);
 	}
 
 }

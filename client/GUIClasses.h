@@ -714,62 +714,43 @@ class HoverableArea: public virtual CIntObject
 {
 public:
 	std::string hoverText;
+
 	virtual void hover (bool on);
-	virtual void activate();
-	virtual void deactivate();
+
+	HoverableArea();
+	virtual ~HoverableArea();
 };
 
-class LClickableArea: public virtual CIntObject
-{
-public:
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void activate();
-	virtual void deactivate();
-};
-
-class RClickableArea: public virtual CIntObject
-{
-public:
-	virtual void clickRight(tribool down, bool previousState);
-	virtual void activate();
-	virtual void deactivate();
-};
-
-class LClickableAreaHero : public LClickableArea
-{
-public:
-	int id;
-	CHeroWindow * owner;
-	virtual void clickLeft(tribool down, bool previousState);
-};
-
-class LRClickableAreaWText: public LClickableArea, public RClickableArea, public HoverableArea
+class LRClickableAreaWText: public HoverableArea
 {
 public:
 	std::string text;
-	virtual void activate();
-	virtual void deactivate();
+
+	LRClickableAreaWText();
+	virtual ~LRClickableAreaWText();
+
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
 };
 
-class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea, public HoverableArea
+class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
 public:
-	std::string text;
 	int baseType;
-	int bonus, type;
-	virtual void activate();
-	virtual void deactivate();
+	int bonusValue, type;
 	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 public:
+	bool morale; //true if morale, false if luck
 	
-	void set(bool morale, const CGHeroInstance *hero);
+	void set(const CBonusSystemNode*hero);
+	void showAll(SDL_Surface * to);
+
+	MoraleLuckBox(bool Morale);
+	~MoraleLuckBox();
 };
 
 class LRClickableAreaOpenHero: public LRClickableAreaWTextComp
@@ -803,7 +784,7 @@ public:
 	const CCreature *c; //related creature
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 
-	//MoraleLuckBox *luck, *morale;
+	MoraleLuckBox *luck, *morale;
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	CCreInfoWindow(const CStackInstance &st, int Type = 0, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
