@@ -707,42 +707,7 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 	CGHeroInstance* h = gs->getHero(heroid);
 	h->level = level;
 	//speciality
-	if (h->speciality.growthsWithLevel)
-	{
-		std::vector<CCreature*>* creatures = &VLC->creh->creatures;
-		for (std::list<Bonus>::iterator it = h->speciality.bonuses.begin(); it != h->speciality.bonuses.end(); it++)
-		{
-			switch (it->type)
-			{
-				case Bonus::SECONDARY_SKILL_PREMY:
-					it->val = (h->speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) *
-						h->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY,it->subtype) * h->level)/100;
-				break;
-				case Bonus::PRIMARY_SKILL:
-					int creLevel = (*creatures)[it->additionalInfo]->level;
-					if(!creLevel)
-					{
-						if(it->additionalInfo == 146)
-							creLevel = 5; //treat ballista as 5-level
-						else
-						{
-							tlog2 << "Warning: unknown level of " << (*creatures)[it->val]->namePl << std::endl;
-							continue;
-						}
-					}
-					switch (it->subtype)
-					{
-					case 1:
-						it->val = (level * (*creatures)[it->additionalInfo]->attack)/creLevel /20;
-						break;
-					case 2:
-							it->val = (level * (*creatures)[it->additionalInfo]->defence)/creLevel /20;
-							break;
-					}
-					break;
-			}
-		}
-	}
+	h->UpdateSpeciality();
 }
 
 DLL_EXPORT void BattleStart::applyGs( CGameState *gs )

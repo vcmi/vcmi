@@ -14,6 +14,7 @@ typedef boost::int64_t si64; //signed int 64 bits (8 bytes)
 typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
 typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
+typedef si64 expType;
 #include "int3.h"
 #include <map>
 #include <vector>

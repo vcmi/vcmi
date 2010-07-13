@@ -381,6 +381,7 @@ public:
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
+	void UpdateSpeciality();
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
@@ -424,7 +425,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
-	void treeSelected(int heroID, int resType, int resVal, ui64 expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+	void treeSelected(int heroID, int resType, int resVal, expType expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
 	void schoolSelected(int heroID, ui32 which) const;
 	void arenaSelected(int heroID, int primSkill) const;
 

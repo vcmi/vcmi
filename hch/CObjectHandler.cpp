@@ -975,10 +975,6 @@ void CGHeroInstance::initObj()
 				{
 					speciality.growthsWithLevel = true;
 
-					bonus.type = Bonus::SPECIAL_CREATURE_LEV; // general info to indicate type of growing bonus
-					bonus.additionalInfo = it->additionalinfo; //base creature ID
-					speciality.bonuses.push_back (bonus);
-
 					const CCreature &specCreature = *VLC->creh->creatures[it->additionalinfo]; //creature in which we have specialty
 
 					int creLevel = specCreature.level;
@@ -993,40 +989,21 @@ void CGHeroInstance::initObj()
 						}
 					}
 
-					int levelFactor = level / creLevel; //round down
-					double primSkillModifier = levelFactor / 20.0;
-
-					bonus.limiter = new CCreatureTypeLimiter(specCreature);
+					bonus.limiter = new CCreatureTypeLimiter (specCreature, true); //with upgrades
 					bonus.type = Bonus::PRIMARY_SKILL; 
+					bonus.additionalInfo = it->additionalinfo;
 					bonus.valType = Bonus::ADDITIVE_VALUE;
 
 					bonus.subtype = PrimarySkill::ATTACK;
-					bonus.val = std::ceil(primSkillModifier * specCreature.attack);
 					speciality.bonuses.push_back (bonus);
 
 					bonus.subtype = PrimarySkill::DEFENSE;
-					bonus.val = std::ceil(primSkillModifier * specCreature.defence);
 					speciality.bonuses.push_back (bonus);
+					//values will be calculated later
 
 					bonus.type = Bonus::STACKS_SPEED;
 					bonus.val = 1; //+1 speed
 					speciality.bonuses.push_back (bonus);
-
-// 					for (std::set<ui32>::iterator i = (*creatures)[it->additionalinfo]->upgrades.begin();
-// 						i != VLC->creh->creatures[it->additionalinfo]->upgrades.end(); i++)
-// 					{
-// 						bonus.val = (*i); // for all direct upgrades of that creature
-// 						bonus.type = Bonus::PRIMARY_SKILL;
-// 						bonus.subtype = 1; //attack
-// 						bonus.val = level * (*creatures)[*i]->attack / (*creatures)[*i]->level /20;
-// 						speciality.bonuses.push_back (bonus);
-// 						bonus.subtype = 2; //defense
-// 						bonus.val = level * (*creatures)[*i]->defence / (*creatures)[*i]->level /20;
-// 						speciality.bonuses.push_back (bonus);
-// 						bonus.type = Bonus::STACKS_SPEED;
-// 						bonus.val = 1; //+1 speed
-// 						speciality.bonuses.push_back (bonus);
-// 					}
 				}
 				break;
 			case 2://secondary skill
@@ -1135,6 +1112,49 @@ void CGHeroInstance::initObj()
 				break;
 			default:
 				tlog2 << "Unexpected hero speciality " << type <<'\n';
+		}
+	}
+	UpdateSpeciality();
+}
+void CGHeroInstance::UpdateSpeciality()
+{
+	if (speciality.growthsWithLevel)
+	{
+		std::vector<CCreature*>* creatures = &VLC->creh->creatures;
+		for (std::list<Bonus>::iterator it = speciality.bonuses.begin(); it != speciality.bonuses.end(); it++)
+		{
+			switch (it->type)
+			{
+				case Bonus::SECONDARY_SKILL_PREMY:
+					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) *
+						valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * level)/100;
+					break;
+				case Bonus::PRIMARY_SKILL: //for crearures, that is
+					int creLevel = (*creatures)[it->additionalInfo]->level;
+					if(!creLevel)
+					{
+						if(it->additionalInfo == 146)
+							creLevel = 5; //treat ballista as 5-level
+						else
+						{
+							tlog2 << "Warning: unknown level of " << (*creatures)[it->additionalInfo]->namePl << std::endl;
+							continue;
+						}
+					}
+
+					double primSkillModifier = (int)(level / creLevel) / 20.0;
+
+					switch (it->subtype)
+					{
+						case PrimarySkill::ATTACK:
+							it->val = (*creatures)[it->additionalInfo]->attack * primSkillModifier;
+						break;
+						case PrimarySkill::DEFENSE:
+							it->val = (*creatures)[it->additionalInfo]->defence * primSkillModifier;
+							break;
+					}
+					break;
+			}
 		}
 	}
 }
@@ -2232,7 +2252,7 @@ void CGVisitableOPH::initObj()
 		ttype = -1;
 }
 
-void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, ui64 expVal, ui32 result ) const
+void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, expType expVal, ui32 result ) const
 {
 	if(result) //player agreed to give res for exp
 	{
@@ -2243,7 +2263,8 @@ void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, ui64 exp
 }
 void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 {
-	int id=0, subid=0, ot=0, val=1, sound = 0;
+	int id=0, subid=0, ot=0, sound = 0;
+	expType val=1;
 	switch(ID)
 	{
 	case 4: //arena
@@ -2355,7 +2376,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				else
 				{
-					int res, resval;
+					ui32 res;
+					expType resval;
 					if(ttype==1)
 					{
 						res = 6;

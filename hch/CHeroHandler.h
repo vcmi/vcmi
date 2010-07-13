@@ -14,7 +14,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
 class CHeroClass;
 class CDefHandler;
 class CGameInfo;

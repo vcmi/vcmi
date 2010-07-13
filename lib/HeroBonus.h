@@ -148,7 +148,6 @@ namespace PrimarySkill
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
 	BONUS_NAME(DARKNESS) /*val = radius */ \
-	BONUS_NAME(SPECIAL_CREATURE_LEV) /*val = base id*/ \
 	BONUS_NAME(SPECIAL_SECONDARY_SKILL) /*val = id, additionalInfo = value per level in percent*/ \
 	BONUS_NAME(SPECIAL_SPELL_LEV) /*val = id, additionalInfo = value per level in percent*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*val = id of spell, additionalInfo = value*/\
