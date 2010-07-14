@@ -311,10 +311,13 @@ void delNull(T* &ptr) //deleted pointer and sets it to NULL
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;
-template <int lvl> class CLogger //logger, prints log info to console and saves in file
+
+class CLogger //logger, prints log info to console and saves in file
 {
+	const int lvl;
+
 public:
-	CLogger<lvl>& operator<<(std::ostream& (*fun)(std::ostream&))
+	CLogger& operator<<(std::ostream& (*fun)(std::ostream&))
 	{
 		if(lvl < CONSOLE_LOGGING_LEVEL)
 			std::cout << fun;
@@ -324,33 +327,29 @@ public:
 	}
 
 	template<typename T> 
-	CLogger<lvl> & operator<<(const T & data)
+	CLogger & operator<<(const T & data)
 	{
 		if(lvl < CONSOLE_LOGGING_LEVEL)
 		{
 			if(console)
-			{
 				console->print(data,lvl);
-			}
 			else
-			{
 				std::cout << data << std::flush;
-			}
 		}
 		if((lvl < FILE_LOGGING_LEVEL) && logfile)
-		{
 			*logfile << data << std::flush;
-		}
 		return *this;
 	}
+
+	CLogger(const int Lvl) : lvl(Lvl) {}
 };
 
-extern DLL_EXPORT CLogger<0> tlog0; //green - standard progress info
-extern DLL_EXPORT CLogger<1> tlog1; //red - big errors
-extern DLL_EXPORT CLogger<2> tlog2; //magenta - major warnings
-extern DLL_EXPORT CLogger<3> tlog3; //yellow - minor warnings
-extern DLL_EXPORT CLogger<4> tlog4; //white - detailed log info
-extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
+extern DLL_EXPORT CLogger tlog0; //green - standard progress info
+extern DLL_EXPORT CLogger tlog1; //red - big errors
+extern DLL_EXPORT CLogger tlog2; //magenta - major warnings
+extern DLL_EXPORT CLogger tlog3; //yellow - minor warnings
+extern DLL_EXPORT CLogger tlog4; //white - detailed log info
+extern DLL_EXPORT CLogger tlog5; //gray - minor log info
 
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \

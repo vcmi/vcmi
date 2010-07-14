@@ -27,12 +27,12 @@ LibClasses * VLC = NULL;
 DLL_EXPORT CLodHandler *bitmaph = NULL, 
 	*spriteh = NULL;
 
-DLL_EXPORT CLogger<0> tlog0;
-DLL_EXPORT CLogger<1> tlog1;
-DLL_EXPORT CLogger<2> tlog2;
-DLL_EXPORT CLogger<3> tlog3;
-DLL_EXPORT CLogger<4> tlog4;
-DLL_EXPORT CLogger<5> tlog5;
+DLL_EXPORT CLogger tlog0(0);
+DLL_EXPORT CLogger tlog1(1);
+DLL_EXPORT CLogger tlog2(2);
+DLL_EXPORT CLogger tlog3(3);
+DLL_EXPORT CLogger tlog4(4);
+DLL_EXPORT CLogger tlog5(5);
 
 DLL_EXPORT CConsoleHandler *console = NULL;
 DLL_EXPORT std::ostream *logfile = NULL

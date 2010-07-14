@@ -251,6 +251,8 @@ public:
 	CSerializer();
 	~CSerializer();
 
+	virtual void reportState(CLogger &out){};
+
 	template <typename T>
 	void registerVectoredType(const std::vector<T*> *Vector, const si32 T::*IdPtr)
 	{
@@ -722,11 +724,20 @@ public:
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
+#define READ_CHECK_U32(x)			\
+	boost::uint32_t length;			\
+	*this >> length;				\
+	if(length > 50000)				\
+	{								\
+		tlog2 << "Warning: very big length: " << length << "\n" ;\
+		reportState(tlog2);			\
+	};
+
+
 	template <typename T>
 	void loadSerializable(std::vector<T> &data)
 	{
-		boost::uint32_t length;
-		*this >> length;
+		READ_CHECK_U32(length);
 		data.resize(length);
 		for(ui32 i=0;i<length;i++)
 			*this >> data[i];
@@ -734,8 +745,7 @@ public:
 	template <typename T>
 	void loadSerializable(std::set<T> &data)
 	{
-		boost::uint32_t length;
-		*this >> length;
+		READ_CHECK_U32(length);
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -746,8 +756,7 @@ public:
 	template <typename T>
 	void loadSerializable(std::list<T> &data)
 	{
-		boost::uint32_t length;
-		*this >> length;
+		READ_CHECK_U32(length);
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -764,8 +773,7 @@ public:
 	template <typename T1, typename T2>
 	void loadSerializable(std::map<T1,T2> &data)
 	{
-		ui32 length;
-		*this >> length;
+		READ_CHECK_U32(length);
 		T1 t;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -775,8 +783,7 @@ public:
 	}
 	void loadSerializable(std::string &data)
 	{
-		ui32 length;
-		*this >> length;
+		READ_CHECK_U32(length);
 		data.resize(length);
 		this->This()->read((void*)data.c_str(),length);
 	}
@@ -792,13 +799,16 @@ class DLL_EXPORT CSaveFile
 		*this << std::string("This function makes stuff working.");
 	}
 public:
+	std::string fName;
 	std::ofstream *sfile;
+
 	CSaveFile(const std::string &fname);
 	~CSaveFile();
 	int write(const void * data, unsigned size);
 
 	void close();
 	void openNextFile(const std::string &fname);
+	void reportState(CLogger &out);
 };
 
 class DLL_EXPORT CLoadFile
@@ -810,13 +820,16 @@ class DLL_EXPORT CLoadFile
 		*this >> dummy;
 	}
 public:
+	std::string fName;
 	std::ifstream *sfile;
+
 	CLoadFile(const std::string &fname, bool requireLatest = true);
 	~CLoadFile();
 	int read(const void * data, unsigned size);
 
 	void close();
 	void openNextFile(const std::string &fname, bool requireLatest);
+	void reportState(CLogger &out);
 };
 
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
@@ -829,6 +842,7 @@ class DLL_EXPORT CConnection
 	CConnection(void);
 
 	void init();
+	void reportState(CLogger &out);
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;

@@ -208,6 +208,16 @@ bool CConnection::isOpen() const
 	return socket && connected;
 }
 
+void CConnection::reportState(CLogger &out)
+{
+	out << "CConnection\n";
+	if(socket && socket->is_open())
+	{
+		out << "\tWe have an open and valid socket\n";
+		out << "\t" << socket->available() <<" bytes awaiting\n";
+	}
+}
+
 CSaveFile::CSaveFile( const std::string &fname )
 	:sfile(NULL)
 {
@@ -234,6 +244,7 @@ void CSaveFile::close()
 
 void CSaveFile::openNextFile(const std::string &fname)
 {
+	fName = fname;
 	close();
 	sfile = new std::ofstream(fname.c_str(),std::ios::binary);
 	if(!(*sfile))
@@ -245,6 +256,15 @@ void CSaveFile::openNextFile(const std::string &fname)
 	{
 		sfile->write("VCMI",4); //write magic identifier
 		*this << version; //write format version
+	}
+}
+
+void CSaveFile::reportState(CLogger &out)
+{
+	out << "CSaveFile" << std::endl;
+	if(sfile && *sfile)
+	{
+		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp() << std::endl;
 	}
 }
 
@@ -274,6 +294,7 @@ void CLoadFile::close()
 
 void CLoadFile::openNextFile(const std::string &fname, bool requireLatest)
 {
+	fName = fname;
 	sfile = new std::ifstream(fname.c_str(),std::ios::binary);
 	if(!(*sfile))
 	{
@@ -300,6 +321,15 @@ void CLoadFile::openNextFile(const std::string &fname, bool requireLatest)
 			delete sfile;
 			sfile = NULL;
 		}
+	}
+}
+
+void CLoadFile::reportState(CLogger &out)
+{
+	out << "CLoadFile" << std::endl;
+	if(sfile && *sfile)
+	{
+		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg() << std::endl;
 	}
 }
 
