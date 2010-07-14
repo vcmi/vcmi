@@ -6206,7 +6206,13 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 	case 20:
 		assert(val < PLAYER_LIMIT);
 		visited[val]++;
-		assert(visited[val] <= obeliskCount);
+
+		if(visited[val] > obeliskCount)
+		{
+			tlog0 << "Error: Visited " << visited[val] << "\t\t" << obeliskCount << std::endl;
+			assert(0);
+		}
+
 		break;
 	}
 }

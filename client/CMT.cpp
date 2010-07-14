@@ -86,6 +86,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 void dispose();
 void playIntro();
 static void listenForEvents();
+void requestChangingResolution();
 
 #ifndef _WIN32
 #ifndef _GNU_SOURCE
@@ -531,6 +532,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
 
 	screenBuf = bufOnScreen ? screen : screen2;
+	setResolution = true;
 }
 
 static void listenForEvents()
@@ -572,8 +574,8 @@ static void listenForEvents()
 		}
 		else if(ev->type == SDL_USEREVENT && ev->user.code == 1)
 		{
+			tlog0 << "Changing resolution has been requested\n";
 			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
-			setResolution = true;
 			delete ev;
 			continue;
 		}
@@ -611,14 +613,17 @@ void startGame(StartInfo * options)
 
 	if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
 	{
-		//push special event to order event reading thread to change resolution
-		SDL_Event ev;
-		ev.type = SDL_USEREVENT;
-		ev.user.code = 1;
-		SDL_PushEvent(&ev);
+		requestChangingResolution();
+
+		//allow event handling thread change resolution
+		eventsM.unlock();
+		while(!setResolution) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		eventsM.lock();
 	}
 	else
 		setResolution = true;
+
+
 
 	client = new CClient;
 	switch(options->mode) //new game
@@ -635,11 +640,17 @@ void startGame(StartInfo * options)
 	}
 
 	CGI->musich->stopMusic();
-
-	//allow event handling thread change resolution
-	eventsM.unlock();
-	while(!setResolution) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-	eventsM.lock();
-
 	client->connectionHandler = new boost::thread(&CClient::run, client);
+}
+
+void requestChangingResolution()
+{
+	//mark that we are going to change resolution
+	setResolution = false;
+
+	//push special event to order event reading thread to change resolution
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = 1;
+	SDL_PushEvent(&ev);
 }
