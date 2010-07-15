@@ -3584,7 +3584,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
-			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(20)]; //artillery
+			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(10)]; //ballistics
 			
 			int attackedPart = gs->curB->hexToWallPart(ba.destinationTile);
 			if(attackedPart == -1)
