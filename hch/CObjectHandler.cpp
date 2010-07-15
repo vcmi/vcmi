@@ -1153,16 +1153,17 @@ void CGHeroInstance::UpdateSpeciality()
 					}
 
 					double primSkillModifier = (int)(level / creLevel) / 20.0;
-
+					int param;
 					switch (it->subtype)
 					{
 						case PrimarySkill::ATTACK:
-							it->val = (*creatures)[it->additionalInfo]->attack * primSkillModifier;
-						break;
+							param = (*creatures)[it->additionalInfo]->attack;
+							break;
 						case PrimarySkill::DEFENSE:
-							it->val = (*creatures)[it->additionalInfo]->defence * primSkillModifier;
+							param = (*creatures)[it->additionalInfo]->defence;
 							break;
 					}
+					it->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
 					break;
 			}
 		}
