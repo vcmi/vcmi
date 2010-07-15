@@ -90,7 +90,9 @@ public:
 	void initFromHero(const CGHeroInstance *h, bool detailed);
 };
 
-
+// typedef si32 TResourceUnit;
+// typedef std::vector<si32> TResourceVector;
+// typedef std::set<si32> TResourceSet;
 
 struct DLL_EXPORT SThievesGuildInfo
 {
@@ -416,7 +418,7 @@ public:
 	const CGHeroInstance * battleGetOwner(int stackID); //returns hero that owns given stack; NULL if none
 	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
-	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
+	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	//float getMarketEfficiency(int player, int mode=0);
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements

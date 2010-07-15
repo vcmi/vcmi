@@ -2778,7 +2778,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 {
 	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid]);
-	UpgradeInfo ui = gs->getUpgradeInfo(obj,pos);
+	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
 	int crQuantity = obj->slots[pos].count;
 

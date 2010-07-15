@@ -616,7 +616,6 @@ CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const st
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = -1;
-	this->delComps = delComps;
 	for(int i=0;i<Buttons.size();i++)
 	{
 		buttons.push_back(new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first));
@@ -635,13 +634,14 @@ CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const st
 		addChild(comps[i]);
 		components.push_back(comps[i]);
 	}
+	setDelComps(delComps);
 	CMessage::drawIWindow(this,Text,player,charperline);
 }
 
 CInfoWindow::CInfoWindow() 
 {
 	ID = -1;
-	delComps = false;
+	setDelComps(false);
 	text = NULL;
 }
 void CInfoWindow::close()
@@ -657,11 +657,11 @@ void CInfoWindow::show(SDL_Surface * to)
 
 CInfoWindow::~CInfoWindow()
 {
-// 	if(delComps)
-// 	{
-// 		for (int i=0;i<components.size();i++)
-// 			delete components[i];
-// 	}
+	if(!delComps)
+	{
+		for (int i=0;i<components.size();i++)
+			removeChild(components[i]);
+	}
 }
 
 void CInfoWindow::showAll( SDL_Surface * to )
@@ -677,7 +677,6 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text, player, 0, components ? *components : std::vector<SComponent*>(), pom, DelComps);
-	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
 	for(int i=0;i<onNo.funcs.size();i++)
@@ -692,6 +691,18 @@ CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/,
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * ret = new CInfoWindow(text, playerID, 0, components ? *components : std::vector<SComponent*>(), pom, false);
 	return ret;
+}
+
+void CInfoWindow::setDelComps(bool DelComps)
+{
+	delComps = DelComps;
+	BOOST_FOREACH(SComponent *comp, components)
+	{
+		if(delComps)
+			comp->recActions |= DISPOSE;
+		else
+			comp->recActions &= ~DISPOSE;
+	}
 }
 
 void CRClickPopup::clickRight(tribool down, bool previousState)
@@ -2214,6 +2225,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 			bool enough = true;
 			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++) //calculate upgrade cost
 			{
+				BLOCK_CAPTURING;
 				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*st.count)
 					enough = false;
 				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*st.count)); 
@@ -2362,8 +2374,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
 CCreInfoWindow::~CCreInfoWindow()
 {
 	delete anim;
-// 	for(int i=0; i<upgResCost.size();i++)
-// 		delete upgResCost[i];
+ 	for(int i=0; i<upgResCost.size();i++)
+ 		delete upgResCost[i];
 }
 
 void CCreInfoWindow::activate()

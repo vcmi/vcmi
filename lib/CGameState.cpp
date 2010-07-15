@@ -1723,37 +1723,61 @@ const CGHeroInstance * CGameState::battleGetOwner(int stackID)
 	return curB->heroes[!curB->getStack(stackID)->attackerOwned];
 }
 
-UpgradeInfo CGameState::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
+std::set<std::pair<int, int> > costDiff(const std::vector<ui32> &a, const std::vector<ui32> &b, const int modifier = 100) //modifer %
+{
+	std::set<std::pair<int, int> > ret;
+	for(int j=0;j<RESOURCE_QUANTITY;j++)
+	{
+		assert(a[j] >= b[j]);
+		if(int dif = modifier * (a[j] - b[j]) / 100)
+			ret.insert(std::make_pair(j,dif));
+	}
+	return ret;
+}
+
+UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 {
 	UpgradeInfo ret;
-	const CCreature *base = obj->getCreature(stackPos);
-	if((obj->ID == TOWNI_TYPE)  ||  ((obj->ID == HEROI_TYPE) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
+	const CCreature *base = stack.type;
+
+	const CGHeroInstance *h = stack.armyObj->ID == HEROI_TYPE ? static_cast<const CGHeroInstance*>(stack.armyObj) : NULL;
+	const CGTownInstance *t = NULL;
+
+	if(stack.armyObj->ID == TOWNI_TYPE)
+		t = static_cast<const CGTownInstance *>(stack.armyObj);
+	else if(h)
+		t = h->visitedTown;
+
+	if(t)
 	{
-		const CGTownInstance * t;
-		if(obj->ID == TOWNI_TYPE)
-			t = static_cast<const CGTownInstance *>(obj);
-		else
-			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;
-		for(std::set<si32>::const_iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
+		BOOST_FOREACH(si32 bid, t->builtBuildings)
 		{
-			if( (*i) >= 37   &&   (*i) < 44 ) //upgraded creature dwelling
+			if( bid >= 37   &&   bid < 44 ) //upgraded creature dwelling
 			{
-				int nid = t->town->upgradedCreatures[(*i)-37]; //upgrade offered by that building
-				if(base->upgrades.find(nid) != base->upgrades.end()) //possible upgrade
+				int nid = t->town->upgradedCreatures[bid-37]; //upgrade offered by that building
+				if(vstd::contains(base->upgrades, nid)) //possible upgrade
 				{
 					ret.newID.push_back(nid);
-					ret.cost.push_back(std::set<std::pair<int,int> >());
-					for(int j=0;j<RESOURCE_QUANTITY;j++)
-					{
-						int dif = VLC->creh->creatures[nid]->cost[j] - base->cost[j];
-						if(dif)
-							ret.cost[ret.cost.size()-1].insert(std::make_pair(j,dif));
-					}
+					ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost));
 				}
 			}
-		}//end for
+		}
 	}
-	//TODO: check if hero ability makes some upgrades possible
+
+	//hero is visiting Hill Fort
+	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == 35) 
+	{
+		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
+		const int costModifier = costModifiers[std::min<int>(std::max((int)base->level - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
+
+		BOOST_FOREACH(si32 nid, base->upgrades)
+		{
+			ret.newID.push_back(nid);
+			ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost, costModifier));
+		}
+	}
+
+	//TODO: check if hero specialty makes some upgrades possible
 
 	if(ret.newID.size())
 		ret.oldID = base->idNumber;

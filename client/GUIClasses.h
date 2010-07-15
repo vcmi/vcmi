@@ -72,15 +72,21 @@ extern SDL_Color tytulowy, tlo, zwykly ;
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
+	bool delComps; //whether comps will be deleted
+
 public:
 	CTextBox *text;
 	std::vector<AdventureMapButton *> buttons;
-	bool delComps; //whether comps will be deleted
 	std::vector<SComponent*> components;
+	CSlider *slider;
 
+	void setDelComps(bool DelComps);
 	virtual void close();
+
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
+	void sliderMoved(int to);
+
 	CInfoWindow(std::string Text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor

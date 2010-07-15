@@ -98,7 +98,7 @@ void CCallback::endTurn()
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->getUpgradeInfo(const_cast<CArmedInstance*>(obj),stackPos);
+	return gs->getUpgradeInfo(obj->getStack(stackPos));
 }
 
 const StartInfo * CCallback::getStartInfo() const
