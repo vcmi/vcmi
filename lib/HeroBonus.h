@@ -155,7 +155,8 @@ namespace PrimarySkill
 	BONUS_NAME(MAXED_SPELL) /*val = id*/\
 	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
 	BONUS_NAME(SPECIAL_UPGRADE) /*val = base, additionalInfo = target */\
-	BONUS_NAME(DRAGON_NATURE) /*TODO: implement it!*/
+	BONUS_NAME(DRAGON_NATURE) /*TODO: implement it!*/\
+	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/
 
 struct DLL_EXPORT Bonus
 {
@@ -373,7 +374,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK
+		UNKNOWN, STACK, SPECIALITY
 	};
 };
 
@@ -473,7 +474,6 @@ public:
 		h & creature & includeUpgrades;
 	}
 };
-
 namespace Selector
 {
 	extern DLL_EXPORT CSelectFieldEqual<TBonusType> type;

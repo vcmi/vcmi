@@ -416,7 +416,7 @@ void CHeroHandler::loadHeroes()
 		specialInfo dummy;
 		si32 hid;
 		inp.ignore(100, '\n');
-		for (int i = 0; i < 174; ++i)
+		for (int i = 0; i < 175; ++i)
 		{
 			inp >> hid;
 			inp >> dummy.type;

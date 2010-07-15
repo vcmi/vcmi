@@ -766,6 +766,7 @@ CGHeroInstance::CGHeroInstance()
 	type = NULL;
 	boat = NULL;
 	secSkills.push_back(std::make_pair(-1, -1));
+	speciality.nodeType = CBonusSystemNode::SPECIALITY;
 }
 
 void CGHeroInstance::initHero(int SUBID)
@@ -1021,7 +1022,7 @@ void CGHeroInstance::initObj()
 						break;
 				}
 				speciality.bonuses.push_back (bonus);
-				bonus.val = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * it->val/100; //TODO: limit range to hero only
+				bonus.val = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * it->val; //TODO: limit range to hero only
 				speciality.bonuses.push_back(bonus);
 				break;
 			case 3://spell damage bonus, level dependant
@@ -1035,19 +1036,28 @@ void CGHeroInstance::initObj()
 				switch (it->subtype)
 				{
 					case 1://attack
+						bonus.type = Bonus::PRIMARY_SKILL;
+						bonus.subtype = PrimarySkill::ATTACK;
+						break;
 					case 2://defense
 						bonus.type = Bonus::PRIMARY_SKILL;
-						bonus.subtype = it->subtype;
+						bonus.subtype = PrimarySkill::DEFENSE;
+						break;
+					case 3://damage, TODO: handle it!
+						bonus.type = Bonus::CREATURE_DAMAGE;
+						bonus.subtype = 0; //both min and max
+						break;
+					case 4://hp
+						bonus.type = Bonus::STACK_HEALTH;
 						break;
 					case 5:
 						bonus.type = Bonus::STACKS_SPEED;
-						bonus.subtype = 0;
 						break;
 					default:
-						continue; //TODO: damage, hp
+						continue;
 				}
 				bonus.valType = Bonus::ADDITIVE_VALUE;
-				bonus.additionalInfo = it->additionalinfo;
+				bonus.limiter = new CCreatureTypeLimiter (*VLC->creh->creatures[it->additionalinfo], true);
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 5://spell damage bonus in percent
@@ -1127,7 +1137,7 @@ void CGHeroInstance::UpdateSpeciality()
 			{
 				case Bonus::SECONDARY_SKILL_PREMY:
 					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) *
-						valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * level)/100;
+						valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * level); //TODO: use only skills as bonuses
 					break;
 				case Bonus::PRIMARY_SKILL: //for crearures, that is
 					int creLevel = (*creatures)[it->additionalInfo]->level;
