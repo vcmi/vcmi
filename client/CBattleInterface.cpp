@@ -371,6 +371,11 @@ void CReverseAnim::nextFrame()
 			owner->creDir[stackID] = !owner->creDir[stackID];
 
 			const CStack * curs = owner->curInt->cb->battleGetStackByID(stackID, false);
+			if(!curs)
+			{
+				endAnim();
+				return;
+			}
 
 			Point coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stackID], curs, owner);
 			owner->creAnims[stackID]->pos.x = coords.x;
@@ -1298,6 +1303,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 CBattleInterface::~CBattleInterface()
 {
+	if (active) //dirty fix for #485
+	{
+		deactivate();
+	}
 	SDL_FreeSurface(background);
 	SDL_FreeSurface(menu);
 	SDL_FreeSurface(amountNormal);
