@@ -3668,10 +3668,12 @@ si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
 {
 	const CStack * stack = getStack(stackID);
 
-	int distance = std::abs(destHex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH);
+	int xDst = std::abs(destHex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH),
+		yDst = std::abs(destHex / BFIELD_WIDTH - stack->position / BFIELD_WIDTH);
+	int distance = std::max(xDst, yDst) + std::min(xDst, yDst) - (std::max(xDst, yDst) + 1)/2;
 
 	//I hope it's approximately correct
-	return distance > 8 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
+	return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
 }
 
 si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
