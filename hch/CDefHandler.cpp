@@ -235,21 +235,15 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 
 				if (SegmentType==0xFF)
 				{
-					for (unsigned int k=0; k<SegmentLength;k++)
-					{
-						(reinterpret_cast<char*>(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
-						if ((TotalRowLength+k)>=SpriteWidth)
-							break;
-					}
+					memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, FDef + BaseOffset, SegmentLength);
 					BaseOffset+=SegmentLength;
-					TotalRowLength+=SegmentLength;
 				}
 				else
 				{
 					memset(reinterpret_cast<char*>(ret->pixels)+ftcp, SegmentType, SegmentLength);
-					ftcp += SegmentLength;
-					TotalRowLength += SegmentLength;
 				}
+				ftcp += SegmentLength;
+				TotalRowLength += SegmentLength;
 			}while(TotalRowLength<SpriteWidth);
 
 			RowAdd=SpriteWidth-TotalRowLength;
@@ -322,6 +316,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 				unsigned char value = (SegmentType & 31) + 1;
 
 				int len = std::min<unsigned int>(value, SpriteWidth - TotalRowLength) - std::max(0, -LeftMargin);
+				amax(len, 0);
 
 				if(code==7)
 				{

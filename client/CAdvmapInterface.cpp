@@ -459,6 +459,7 @@ CTerrainRect::CTerrainRect()
 	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
 	arrows = CDefHandler::giveDef("ADAG.DEF");
+
 	for(size_t y=0; y < arrows->ourImages.size(); ++y)
 	{
 		CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
