@@ -1056,4 +1056,20 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 	}
 }
 
+void CSDL_Ext::VflipSurf(SDL_Surface * surf)
+{
+	char buf[4]; //buffer
+	int bpp = surf->format->BytesPerPixel;
+	for (int y=0; y<surf->h; ++y)
+	{
+		char * base = (char*)surf->pixels + y * surf->pitch;
+		for (int x=0; x<surf->w/2; ++x)
+		{
+			memcpy(buf, base  + x * bpp, bpp);
+			memcpy(base + x * bpp, base + (surf->w - x - 1) * bpp, bpp);
+			memcpy(base + (surf->w - x - 1) * bpp, buf, bpp);
+		}
+	}
+}
+
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;

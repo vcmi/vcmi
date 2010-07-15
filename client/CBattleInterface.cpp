@@ -156,6 +156,14 @@ bool CSpellEffectAnim::init()
 			else
 				anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 
+			if (Vflip)
+			{
+				for (int v=0; v<anim->ourImages.size(); ++v)
+				{
+					CSDL_Ext::VflipSurf(anim->ourImages[v].bitmap);
+				}
+			}
+
 			for(int i=0; i * anim->width < owner->pos.w ; ++i)
 			{
 				for(int j=0; j * anim->height < owner->pos.h ; ++j)
@@ -163,6 +171,13 @@ bool CSpellEffectAnim::init()
 					SBattleEffect be;
 					be.effectID = ID;
 					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+					if (Vflip)
+					{
+						for (int v=0; v<be.anim->ourImages.size(); ++v)
+						{
+							CSDL_Ext::VflipSurf(be.anim->ourImages[v].bitmap);
+						}
+					}
 					be.frame = 0;
 					be.maxFrame = be.anim->ourImages.size();
 					be.x = i * anim->width + owner->pos.x;
@@ -190,6 +205,15 @@ bool CSpellEffectAnim::init()
 				be.anim = CDefHandler::giveDef(customAnim);
 			else
 				be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+
+			if (Vflip)
+			{
+				for (int v=0; v<be.anim->ourImages.size(); ++v)
+				{
+					CSDL_Ext::VflipSurf(be.anim->ourImages[v].bitmap);
+				}
+			}
+
 			be.frame = 0;
 			be.maxFrame = be.anim->ourImages.size();
 			if(effect == 1)
@@ -277,13 +301,13 @@ void CSpellEffectAnim::endAnim()
 	delete this;
 }
 
-CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx, int _dy)
-:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), dx(_dx), dy(_dy)
+CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx, int _dy, bool _Vflip)
+:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), dx(_dx), dy(_dy), Vflip(_Vflip)
 {
 }
 
-CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy)
-:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy)
+CSpellEffectAnim::CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip)
+:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip)
 {
 }
 
@@ -2666,6 +2690,12 @@ void CBattleInterface::spellCast(BattleSpellCast * sc)
 
 			//animation angle
 			float angle = atan2(float(destcoord.x - srccoord.x), float(destcoord.y - srccoord.y));
+			bool Vflip = false;
+			if (angle < 0)
+			{
+				Vflip = true;
+				angle = -angle;
+			}
 
 			//choosing animation by angle
 			if(angle > 1.50)
@@ -2681,6 +2711,7 @@ void CBattleInterface::spellCast(BattleSpellCast * sc)
 
 			//displaying animation
 			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
+			
 			int steps = sqrt((float)((destcoord.x - srccoord.x)*(destcoord.x - srccoord.x) + (destcoord.y - srccoord.y) * (destcoord.y - srccoord.y))) / 40;
 			if(steps <= 0)
 				steps = 1;
@@ -2688,7 +2719,7 @@ void CBattleInterface::spellCast(BattleSpellCast * sc)
 			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
 
 			delete animDef;
-			addNewAnim(new CSpellEffectAnim(this, animToDisplay, srccoord.x, srccoord.y, dx, dy));
+			addNewAnim(new CSpellEffectAnim(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 
 			break; //for 15 and 16 cases
 		}

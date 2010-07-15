@@ -130,6 +130,7 @@ namespace CSDL_Ext
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
+	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 };
 
 

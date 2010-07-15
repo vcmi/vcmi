@@ -94,13 +94,14 @@ private:
 	int destTile;
 	std::string customAnim;
 	int x, y, dx, dy;
+	bool Vflip;
 public:
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx = 0, int _dy = 0);
-	CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0);
+	CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false);
+	CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false);
 };
 
 class CBattleStackAnimation : public CBattleAnimation
