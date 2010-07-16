@@ -8,6 +8,7 @@
 #include "VCMI_Lib.h"
 #include "map.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CCreatureHandler.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>

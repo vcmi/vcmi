@@ -8,6 +8,7 @@
 #include "../hch/CSpellHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CCreatureHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"

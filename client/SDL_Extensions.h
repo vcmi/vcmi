@@ -1,7 +1,7 @@
 #ifndef __SDL_EXTENSIONS_H__
 #define __SDL_EXTENSIONS_H__
 #include "../global.h"
-#include "SDL.h"
+#include "SDL_Video.h"
 #include "SDL_ttf.h"
 #include <string>
 #include <vector>

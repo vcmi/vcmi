@@ -2,8 +2,6 @@
 #define __CGAMEINFO_H__
 #include "../global.h"
 
-#include <vector>
-
 
 /*
  * CGameInfo.h, part of VCMI engine

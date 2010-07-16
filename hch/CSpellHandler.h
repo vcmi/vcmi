@@ -6,7 +6,6 @@
 #include <set>
 
 #include "CSoundBase.h"
-//#include "map.h"
 
 /*
  * CSpellHandler.h, part of VCMI engine

@@ -1,11 +1,9 @@
 #ifndef __CLODHANDLER_H__
 #define __CLODHANDLER_H__
 #include "../global.h"
-#include <fstream>
 #include <vector>
 #include <string>
 #include "../nodrze.h"
-#include <SDL_stdinc.h>
 
 /*
  * CLodhandler.h, part of VCMI engine
@@ -31,10 +29,10 @@ namespace NLoadHandlerHelp
 
 struct LodEntry {
 	char filename[16];
-	Uint32 offset;				/* little endian */
-	Uint32 uncompressedSize;	/* little endian */
-	Uint32 unused;				/* little endian */
-	Uint32 size;				/* little endian */
+	ui32 offset;				/* little endian */
+	ui32 uncompressedSize;	/* little endian */
+	ui32 unused;				/* little endian */
+	ui32 size;				/* little endian */
 };
 
 DLL_EXPORT int readNormalNr (const unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false);

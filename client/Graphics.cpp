@@ -18,6 +18,7 @@
 #include "../hch/CTownHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CGeneralTextHandler.h"
+#include "../hch/CCreatureHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;

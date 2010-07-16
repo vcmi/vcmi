@@ -15,6 +15,7 @@
 #include "CTownHandler.h"
 #include "CArtHandler.h"
 #include "CSoundBase.h"
+#include "CCreatureHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/CGameState.h"

@@ -6,8 +6,6 @@
 #include <set>
 #include <map>
 #include <list>
-#include "CCreatureHandler.h"
-#include "../lib/HeroBonus.h"
 #ifndef _MSC_VER
 #include "CHeroHandler.h"
 #include "CTownHandler.h"

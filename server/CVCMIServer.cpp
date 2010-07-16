@@ -12,6 +12,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CCreatureHandler.h"
 #include "zlib.h"
 #ifndef __GNUC__
 #include <tchar.h>
