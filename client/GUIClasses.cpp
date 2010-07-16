@@ -2337,7 +2337,7 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	if(stack && stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
 		dmgMultiply += stack->armyObj->Attack(); 
 
-	printLine(3, CGI->generaltexth->allTexts[199], c->damageMin * dmgMultiply, c->damageMax * dmgMultiply, true);
+	printLine(3, CGI->generaltexth->allTexts[199], finalNode->getMinDamage() * dmgMultiply, finalNode->getMaxDamage() * dmgMultiply, true);
 	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
 

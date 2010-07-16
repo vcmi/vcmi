@@ -122,6 +122,15 @@ CCreature::CCreature()
 	doubleWide = false;
 }
 
+ui32 CCreature::getMinDamage() const
+{
+	return damageMin + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 1);
+}
+ui32 CCreature::getMaxDamage() const
+{
+	return damageMax + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 2);
+}
+
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
 	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
