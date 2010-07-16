@@ -25,6 +25,8 @@ public:
 	const CArmedInstance *armyObj; //stack must be part of some army, army must be part of some object
 	const CCreature *type;
 	TQuantity count;
+	ui32 getMinDamage() const;
+	ui32 getMaxDamage() const;
 	ui32 experience; //TODO: handle
 	//TODO: stack artifacts
 

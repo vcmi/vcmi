@@ -2495,8 +2495,8 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
 {
 	float additiveBonus=1.0f, multBonus=1.0f,
-		minDmg = attacker->type->damageMin * attacker->count, 
-		maxDmg = attacker->type->damageMax * attacker->count;
+		minDmg = attacker->getMinDamage() * attacker->count, 
+		maxDmg = attacker->getMaxDamage() * attacker->count;
 
 	if(attacker->type->idNumber == 149) //arrow turret
 	{

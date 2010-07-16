@@ -1109,13 +1109,20 @@ void CGHeroInstance::initObj()
 			case 13://Dragon bonuses (Mutare)
 				bonus.type = Bonus::PRIMARY_SKILL;
 				bonus.valType = Bonus::ADDITIVE_VALUE;
-				bonus.additionalInfo = it->additionalinfo; //id
-				bonus.subtype = it->subtype; //which stat it is
+				switch (it->subtype)
+				{
+					case 1:
+						bonus.subtype = PrimarySkill::ATTACK;
+						break;
+					case 2:
+						bonus.subtype = PrimarySkill::DEFENSE;
+						break;
+				}
 				for (std::vector<CCreature*>::iterator i = VLC->creh->creatures.begin(); i != VLC->creh->creatures.end(); i++)
 				{ //TODO: what if creature changes type during the game (Dragon Eye Ring?)
 					if ((*i)->hasBonusOfType(Bonus::DRAGON_NATURE)) //TODO: implement it!
 					{
-						bonus.additionalInfo = (*i)->idNumber; //for each Dragon separately
+						bonus.limiter = new CCreatureTypeLimiter (**i, false);
 						speciality.bonuses.push_back (bonus);
 					}
 				}

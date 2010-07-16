@@ -133,8 +133,8 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			// make stats
 			int hitPoints = st->count * stackHP - (stackHP - st->firstHPleft);
 
-			m_statMaxDamage.push_back(std::pair<int, int>(id, st->type->damageMax * st->count));
-			m_statMinDamage.push_back(std::pair<int, int>(id, st->type->damageMin * st->count));
+			m_statMaxDamage.push_back(std::pair<int, int>(id, st->getMaxDamage() * st->count));
+			m_statMinDamage.push_back(std::pair<int, int>(id, st->getMinDamage() * st->count));
 			m_statHitPoints.push_back(std::pair<int, int>(id, hitPoints));
 			m_statMaxSpeed.push_back(std::pair<int, int>(id, stackHP));
 
@@ -175,13 +175,13 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 				}
 			}
 
-			cs.damage_max = (int)(currentStack->type->damageMax * currentStack->count * damageFactor);
+			cs.damage_max = (int)(currentStack->getMaxDamage() * currentStack->count * damageFactor);
 			if (cs.damage_max > hitPoints)
 			{
 				cs.damage_max = hitPoints;
 			}
 
-			cs.damage_min = (int)(currentStack->type->damageMin * currentStack->count * damageFactor);
+			cs.damage_min = (int)(currentStack->getMinDamage() * currentStack->count * damageFactor);
 			if (cs.damage_min > hitPoints)
 			{
 				cs.damage_min = hitPoints;
@@ -217,7 +217,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			}
 			int hitPoints = st->count * stackHP - (stackHP - st->firstHPleft);
 
-			totalDamage += (st->type->damageMax + st->type->damageMin) * st->count / 2;
+			totalDamage += (st->getMaxDamage() + st->getMinDamage()) * st->count / 2;
 			totalHitPoints += hitPoints;
 		}
 	}

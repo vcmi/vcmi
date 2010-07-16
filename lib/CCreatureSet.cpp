@@ -277,3 +277,12 @@ void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*=
 	else
 		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
 }
+
+ui32 CStackInstance::getMinDamage() const
+{
+	return type->damageMin + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 1);
+}
+ui32 CStackInstance::getMaxDamage() const
+{
+	return type->damageMax + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 2);
+}
