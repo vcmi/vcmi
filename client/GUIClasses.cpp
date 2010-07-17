@@ -5534,7 +5534,7 @@ void CTextBox::showAll(SDL_Surface * to)
 				x -= slider->pos.w / 2 + 5;
 		}
 
-		if(line.front() == '{' && line.back() == '}')
+		if(line[0] == '{' && line[line.size()-1] == '}')
 			printAt(line, x, base_y + i*dy, font, tytulowy, to);
 		else
 			printAt(line, x, base_y + i*dy, font, color, to);
