@@ -3086,6 +3086,8 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
 			ret /= 100;
 		}
+		if (caster) //Hero specials like Solmyr, Deemer
+			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
 	}
 
 	return ret;

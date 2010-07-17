@@ -1026,11 +1026,9 @@ void CGHeroInstance::initObj()
 				bonus.val = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * it->val; //TODO: limit range to hero only
 				speciality.bonuses.push_back(bonus);
 				break;
-			case 3://spell damage bonus, level dependant
-				speciality.growthsWithLevel = true;
+			case 3://spell damage bonus, level dependant but calculated elsehwere
 				bonus.type = Bonus::SPECIAL_SPELL_LEV;
 				bonus.subtype = it->subtype;
-				bonus.additionalInfo = it->additionalinfo;
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 4://creature stat boost
