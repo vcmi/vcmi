@@ -3685,7 +3685,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case 12: //healing
 		{
-			static const int healingPerLevel[] = {50, 50, 75, 100};
 			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CStack *healer = gs->curB->getStack(ba.stackNumber),
@@ -3696,7 +3695,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
-			int maxiumHeal = healingPerLevel[ attackingHero->getSecSkillLevel(27) ];
+			int maxiumHeal = std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 27));
 
 			int healed = std::min(maxHealable, maxiumHeal);
 
@@ -3932,19 +3931,8 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 		{
 			//bonusHero's resistance support (secondary skils and artifacts)
 			prob += bonusHero->valOfBonuses(Bonus::MAGIC_RESISTANCE);
-
-			switch(bonusHero->getSecSkillLevel(26)) //resistance
-			{
-			case 1: //basic
-				prob += 5;
-				break;
-			case 2: //advanced
-				prob += 10;
-				break;
-			case 3: //expert
-				prob += 20;
-				break;
-			}
+			//resistance skill
+			prob += bonusHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 26) / 100.0f;
 		}
 
 		if(prob > 100) prob = 100;

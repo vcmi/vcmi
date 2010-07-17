@@ -2623,56 +2623,17 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	{
 		if(shooting)
 		{
-			switch(attackerHero->getSecSkillLevel(1)) //archery
-			{
-			case 1: //basic
-				additiveBonus += 0.1f;
-				break;
-			case 2: //advanced
-				additiveBonus += 0.25f;
-				break;
-			case 3: //expert
-				additiveBonus += 0.5f;
-				break;
-			}
-
-			if(attackerHero->getSecSkillLevel(1) > 0) //non-none level
-			{
-				//apply artifact premy to archery
-				additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
-			}
+			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
 		}
 		else
 		{
-			switch(attackerHero->getSecSkillLevel(22)) //offense
-			{
-			case 1: //basic
-				additiveBonus += 0.1f;
-				break;
-			case 2: //advanced
-				additiveBonus += 0.2f;
-				break;
-			case 3: //expert
-				additiveBonus += 0.3f;
-				break;
-			}
+			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 22) / 100.0f;
 		}
 	}
 
 	if(defendingHero)
 	{
-		switch(defendingHero->getSecSkillLevel(23)) //armorer
-		{
-		case 1: //basic
-			multBonus *= 0.95f;
-			break;
-		case 2: //advanced
-			multBonus *= 0.9f;
-			break;
-		case 3: //expert
-			multBonus *= 0.85f;
-			break;
-		}
+		multBonus *= (std::max(0, 100-attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 23))) / 100.0f;
 	}
 
 	//handling hate effect

@@ -380,6 +380,7 @@ public:
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
 	void UpdateSpeciality();
+	void updateSkill(int which, int val, bool abs);
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();

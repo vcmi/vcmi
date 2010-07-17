@@ -83,7 +83,7 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 	}
 	else
 	{
-		for(unsigned i=0;i<hero->secSkills.size();i++)
+		for (unsigned i=0; i<hero->secSkills.size(); i++)
 		{
 			if(hero->secSkills[i].first == which)
 			{
@@ -100,6 +100,7 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 			}
 		}
 	}
+	hero->updateSkill(which, val, abs);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )

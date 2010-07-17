@@ -615,13 +615,7 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 
 si32 CGHeroInstance::manaLimit() const
 {
-	double modifier = 1.0;
-	switch(getSecSkillLevel(24)) //intelligence level
-	{
-	case 1:		modifier+=0.25;		break;
-	case 2:		modifier+=0.5;		break;
-	case 3:		modifier+=1.0;		break;
-	}
+	double modifier = (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 100.0f;
 	return si32(10*getPrimSkillLevel(3)*modifier);
 }
 //void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
@@ -673,34 +667,12 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	if(onLand)
 	{
 		//logistics:
-		switch(getSecSkillLevel(2))
-		{
-		case 1:
-			modifier = 0.1;
-			break;
-		case 2:
-			modifier = 0.2;
-			break;
-		case 3:
-			modifier = 0.3;
-			break;
-		}
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 2) / 100.0f;
 	}
 	else
 	{
 		//navigation:
-		switch(getSecSkillLevel(5))
-		{
-		case 1:
-			modifier = 0.5;
-			break;
-		case 2:
-			modifier = 1.0;
-			break;
-		case 3:
-			modifier = 1.5;
-			break;
-		}
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 5) / 100.0f;
 	}
 	return int(base + base*modifier) + bonus;
 }
@@ -1132,6 +1104,9 @@ void CGHeroInstance::initObj()
 				tlog2 << "Unexpected hero speciality " << type <<'\n';
 		}
 	}
+	//initialize bonuses
+	for (std::vector<std::pair<ui8,ui8> >::iterator it = secSkills.begin(); it != secSkills.end(); it++)
+		updateSkill(it->first, it->second, true);
 	UpdateSpeciality();
 }
 void CGHeroInstance::UpdateSpeciality()
@@ -1145,7 +1120,8 @@ void CGHeroInstance::UpdateSpeciality()
 			{
 				case Bonus::SECONDARY_SKILL_PREMY:
 					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) *
-						valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * level); //TODO: use only skills as bonuses
+						valOfBonuses(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, it->subtype),this) * level);
+					//use only hero skills as bonuses to avoid feedback loop
 					break;
 				case Bonus::PRIMARY_SKILL: //for crearures, that is
 					int creLevel = (*creatures)[it->additionalInfo]->level;
@@ -1175,6 +1151,56 @@ void CGHeroInstance::UpdateSpeciality()
 					break;
 			}
 		}
+	}
+}
+void CGHeroInstance::updateSkill(int which, int val, bool abs)
+{
+	int skillVal = 0;
+	switch (which)
+	{
+		case 1: //Archery
+			switch (val)
+			{
+				case 1:
+					skillVal = 10; break;
+				case 2:
+					skillVal = 25; break;
+				case 3:
+					skillVal = 50; break;
+			}
+			break;
+		case 2: //Logistics
+			skillVal = 10 * val; break;
+		case 5: //Navigation
+			skillVal = 50 * val; break;
+		case 8: //Mysticism
+			skillVal = val; break;
+		case 11: //eagle Eye
+			skillVal = 30 + 10 * val; break;
+		case 12: //Necromancy
+			skillVal = 10 * val; break;
+		case 22: //Offense
+			skillVal = 10 * val; break;
+		case 23: //Armorer
+			skillVal = 5 * val; break;
+		case 24: //Intelligence
+			skillVal = 25 << val-1; break;
+		case 25: //Sorcery
+			skillVal = 5 * val; break;
+		case 26: //Resistance
+			skillVal = 5 << val-1; break;
+		case 27: //First Aid
+			skillVal = 25 + 25*val; break;
+	}
+	if(!hasBonusOfType(Bonus::SECONDARY_SKILL_PREMY, which))
+	{
+		bonuses.push_back
+			(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER));
+	}
+	else
+	{
+		if (skillVal)
+			getBonus(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which))->val = skillVal;
 	}
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
@@ -1253,8 +1279,7 @@ CStackInstance CGHeroInstance::calculateNecromancy (const BattleResult &battleRe
 	// Hero knows necromancy.
 	if (necromancyLevel > 0) 
 	{
-		double necromancySkill = necromancyLevel*0.1
-			+ valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 12)/100.0;
+		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 12)/100.0;
 		amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
@@ -1334,7 +1359,7 @@ si32 CGHeroInstance::manaRegain() const
 	if (hasBonusOfType(Bonus::FULL_MANA_REGENERATION))
 		return manaLimit();
 
-	return 1 + getSecSkillLevel(8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level 
+	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 
 si32 CGHeroInstance::getArtPos(int aid) const
