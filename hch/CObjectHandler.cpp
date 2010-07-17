@@ -1085,13 +1085,15 @@ void CGHeroInstance::initObj()
 			{
 				std::vector<CCreature*>* creatures = &VLC->creh->creatures;
 				bonus.type = Bonus::SPECIAL_UPGRADE;
-				bonus.additionalInfo = it->additionalinfo;
+				bonus.subtype = it->subtype; //base id
+				bonus.additionalInfo = it->additionalinfo; //target id
 				speciality.bonuses.push_back (bonus);
-				for (std::set<ui32>::iterator i = (*creatures)[it->val]->upgrades.begin();
-					i != (*creatures)[it->val]->upgrades.end(); i++)
+
+				for (std::set<ui32>::iterator i = (*creatures)[it->subtype]->upgrades.begin();
+					i != (*creatures)[it->subtype]->upgrades.end(); i++)
 				{
-					bonus.val = *i;
-					speciality.bonuses.push_back (bonus); //propagate for regular upgrades of base creature
+					bonus.subtype = *i; //propagate for regular upgrades of base creature
+					speciality.bonuses.push_back (bonus);
 				}
 				break;
 			}
