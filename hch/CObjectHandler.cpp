@@ -1044,7 +1044,7 @@ void CGHeroInstance::initObj()
 						bonus.type = Bonus::PRIMARY_SKILL;
 						bonus.subtype = PrimarySkill::DEFENSE;
 						break;
-					case 3://damage, TODO: handle it!
+					case 3:
 						bonus.type = Bonus::CREATURE_DAMAGE;
 						bonus.subtype = 0; //both min and max
 						break;
@@ -1063,8 +1063,8 @@ void CGHeroInstance::initObj()
 				break;
 			case 5://spell damage bonus in percent
 				bonus.type = Bonus::SPECIFIC_SPELL_DAMAGE;
-				bonus.valType = Bonus::PERCENT_TO_ALL;
-				bonus.additionalInfo = it->additionalinfo;
+				bonus.valType = Bonus::BASE_NUMBER; // current spell system is screwed
+				bonus.subtype = it->subtype; //spell id
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 6://damage bonus for bless (Adela)
@@ -2819,7 +2819,7 @@ void CGCreature::initObj()
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (slots.begin()->second.count < CREEP_SIZE && cb->getDate(1) == 1)
+	if (slots.begin()->second.count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
 		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
 		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount

@@ -462,7 +462,6 @@ bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) c
 
 	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c)); //drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
 }
-
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)
 	:creature(&Creature), includeUpgrades(IncludeUpgrades)
 {

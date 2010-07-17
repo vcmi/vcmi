@@ -3038,25 +3038,18 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 			ret *= 1.15f;
 			break;
 		}
-	}
-	//applying hero bonuses
-	if(sp->air && caster && caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0f;
-	}
-	else if(sp->fire && caster && caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0f;
-	}
-	else if(sp->water && caster && caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
-	}
-	else if(sp->earth && caster && caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY) != 0)
-	{
-		ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
-	}
+		//applying hero bonuses
+		ret *= (100.f + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0f;
 
+		if(sp->air)
+			ret *= (100.0f + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0f;
+		else if(sp->fire) //only one type of bonus for Magic Arrow
+			ret *= (100.0f + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0f;
+		else if(sp->water)
+			ret *= (100.0f + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
+		else if(sp->earth)
+			ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
+	}
 	//affected creature-specific part
 	if(affectedCreature)
 	{
@@ -3081,14 +3074,12 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
 			ret /= 100;
 		}
-
 		//general spell dmg reduction
 		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
 		{
 			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
 			ret /= 100;
 		}
-
 		//dmg increasing
 		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
 		{
