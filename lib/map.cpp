@@ -616,7 +616,6 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 	}
 	else //RoE
 	{
-		hut->isCustom = false;
 		int artID = bufor[i]; ++i;
 		if(artID!=255) //not none quest
 		{
@@ -625,11 +624,12 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 		}
 		else
 		{
-			hut->missionType = 255;
+			hut->missionType = 0; //no mission
 		}
+		hut->isCustom = false;
 	}
 
-	if(hut->missionType!=255)
+	if(hut->missionType)
 	{
 		unsigned char rewardType = bufor[i]; ++i;
 		hut->rewardType = rewardType;

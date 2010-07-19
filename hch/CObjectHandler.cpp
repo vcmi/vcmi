@@ -1106,7 +1106,7 @@ void CGHeroInstance::initObj()
 	}
 	//initialize bonuses
 	for (std::vector<std::pair<ui8,ui8> >::iterator it = secSkills.begin(); it != secSkills.end(); it++)
-		updateSkill(it->first, it->second, true);
+		updateSkill(it->first, it->second);
 	UpdateSpeciality();
 }
 void CGHeroInstance::UpdateSpeciality()
@@ -1153,7 +1153,7 @@ void CGHeroInstance::UpdateSpeciality()
 		}
 	}
 }
-void CGHeroInstance::updateSkill(int which, int val, bool abs)
+void CGHeroInstance::updateSkill(int which, int val)
 {
 	int skillVal = 0;
 	switch (which)
@@ -1192,15 +1192,17 @@ void CGHeroInstance::updateSkill(int which, int val, bool abs)
 		case 27: //First Aid
 			skillVal = 25 + 25*val; break;
 	}
-	if(!hasBonusOfType(Bonus::SECONDARY_SKILL_PREMY, which))
+	if (skillVal) //we don't need bonuses of other types here
 	{
-		bonuses.push_back
-			(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER));
-	}
-	else
-	{
-		if (skillVal)
+		if (hasBonusOfType(Bonus::SECONDARY_SKILL_PREMY, which))
+		{
 			getBonus(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which))->val = skillVal;
+		}
+		else
+		{
+			bonuses.push_back
+				(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER));
+		}
 	}
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )

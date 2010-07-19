@@ -2987,19 +2987,7 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 	//applying sorcerery secondary skill
 	if(caster)
 	{
-		switch(caster->getSecSkillLevel(25))
-		{
-		case 1: //basic
-			ret *= 1.05f;
-			break;
-		case 2: //advanced
-			ret *= 1.1f;
-			break;
-		case 3: //expert
-			ret *= 1.15f;
-			break;
-		}
-		//applying hero bonuses
+		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 25)) / 100.0f; //mysticism
 		ret *= (100.f + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0f;
 
 		if(sp->air)

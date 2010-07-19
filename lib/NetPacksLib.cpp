@@ -100,7 +100,7 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 			}
 		}
 	}
-	hero->updateSkill(which, val, abs);
+	hero->updateSkill(which, val);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )
