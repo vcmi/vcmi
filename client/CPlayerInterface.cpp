@@ -396,17 +396,14 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(which == 4)
 	{
 		if(CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.topInt()))
-		{
 			ctw->setExpToLevel();
-		}
 	}
-	if(which >= PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
-		return;
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	updateInfo(hero);
+	else if(which < PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
+		updateInfo(hero);
 }
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {

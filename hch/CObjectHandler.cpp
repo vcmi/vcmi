@@ -6158,6 +6158,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 	{
 		cb->giveResource (h->tempOwner, 6, -1000);
 		FoWChange fw;
+		fw.mode = 1;
 		fw.player = h->tempOwner;
 
 		//subIDs of different types of cartographers:
