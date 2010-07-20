@@ -628,8 +628,8 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD, PUZZLE_MAP, 
-					MARKET_WINDOW, TAVERN_WINDOW};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW,
+	              THIEVES_GUILD, UNIVERSITY_WINDOW, MARKET_WINDOW, PUZZLE_MAP, TAVERN_WINDOW};
 	ui8 window;
 	ui32 id1, id2;
 
@@ -1407,7 +1407,7 @@ struct TradeOnMarketplace : public CPackForServer
 
 	const CGObjectInstance *market;
 	const CGHeroInstance *hero; //needed when trading artifacts / creatures
-	ui8 mode;//0 - res<->res; 
+	ui8 mode;//enum EMarketMode
 	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res
 	ui32 val; //units of sold resource
 

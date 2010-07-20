@@ -178,6 +178,7 @@ public:
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, si32 aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, int rid, int aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
+	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
 	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );

@@ -405,6 +405,16 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	else if(which < PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
 		updateInfo(hero);
 }
+
+void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
+{
+	CUniversityWindow* cuw = dynamic_cast<CUniversityWindow*>(GH.topInt());
+	if(cuw) //university window is open
+	{
+		GH.totalRedraw();
+	}
+}
+
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -2011,6 +2021,12 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	}
 	else
 		GH.pushInt(new CMarketplaceWindow(market, visitor, market->availableModes().front()));
+}
+
+void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
+{
+	CUniversityWindow *cuw = new CUniversityWindow(visitor, market);
+	GH.pushInt(cuw);
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)

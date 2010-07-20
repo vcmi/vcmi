@@ -5657,6 +5657,170 @@ CTransformerWindow::~CTransformerWindow()
 	
 }
 
+void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
+{
+	if(previousState && (!down))
+	{
+		if ( state() != 2 )
+			return;
+		CUnivConfirmWindow *win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(6) >= 2000);
+		GH.pushInt(win);
+	}
+}
+
+void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{
+		CInfoPopup *message = new CInfoPopup();
+		message->free = true;
+		message->bitmap = CMessage::drawBoxTextBitmapSub
+		                            (LOCPLINT->playerID,
+		                             CGI->generaltexth->skillInfoTexts[ID][0],
+		                             graphics->abils82->ourImages[ID*3+3].bitmap,
+		                             CGI->generaltexth->skillName[ID]);
+		message->pos.x = screen->w/2 - message->bitmap->w/2;
+		message->pos.y = screen->h/2 - message->bitmap->h/2;
+		GH.pushInt(message);
+	}
+}
+
+void CUniversityWindow::CItem::hover(bool on)
+{
+	if (on)
+		GH.statusbar->print(CGI->generaltexth->skillName[ID]);
+	else
+		GH.statusbar->clear();
+}
+
+int CUniversityWindow::CItem::state()
+{
+	if (parent->hero->getSecSkillLevel(ID))//hero know this skill
+		return 1;
+	if (parent->hero->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
+		return 0;
+/*	if (LOCPLINT->cb->getResourceAmount(6) < 2000 )//no gold - allowed in H3, confirm button is blocked instead
+		return 0;*/
+	return 2;
+}
+
+void CUniversityWindow::CItem::showAll(SDL_Surface * to)
+{
+	SDL_Surface * bar;
+	switch (state())
+	{
+		case 0: bar = parent->red;
+		        break;
+		case 1: bar = parent->yellow;
+		        break;
+		case 2: bar = parent->green;
+		        break;
+	}
+	
+	blitAtLoc(bar, -28, -22, to);
+	blitAtLoc(bar, -28,  48, to);
+	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, zwykly,to);//Name
+	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, zwykly,to);//Level(always basic)
+	
+	CPicture::showAll(to);
+}
+
+CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):ID(_ID), parent(_parent),
+	CPicture (graphics->abils44->ourImages[_ID*3+3].bitmap,X,Y,false)
+{
+	used = LCLICK | RCLICK | HOVER;
+}
+
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market):hero(_hero), market(_market)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	bg = new CPicture("UNIVERS1.PCX");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	
+	yellow = BitmapHandler::loadBitmap("UNIVGOLD.PCX");
+	green  = BitmapHandler::loadBitmap("UNIVGREN.PCX");//bars
+	red    = BitmapHandler::loadBitmap("UNIVRED.PCX");
+
+	if ( market->o->ID == 104 ) // this is adventure map university
+	{
+		SDL_Surface * titleImage = BitmapHandler::loadBitmap("UNIVBLDG.PCX");
+		blitAtLoc(titleImage, 232-titleImage->w/2, 76-titleImage->h/2, bg->bg);
+		SDL_FreeSurface(titleImage);
+	}
+	else if (LOCPLINT->castleInt && LOCPLINT->castleInt->town->subID == 8)// this is town university
+	{
+		SDL_Surface * titleImage = LOCPLINT->castleInt->bicons->ourImages[21].bitmap;
+		blitAtLoc(titleImage, 232-titleImage->w/2, 76-titleImage->h/2, bg->bg);
+	}
+	else
+		tlog0<<"Error: Image for university was not found!\n";//This should not happen
+
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[603], 232, 153, FONT_SMALL, 70,zwykly,bg->bg);//Clerk speech
+	printAtMiddleLoc  (CGI->generaltexth->allTexts[602], 231, 26 , FONT_MEDIUM ,tytulowy,bg->bg);//University
+
+	std::vector<int> list = market->availableItemsIds(RESOURCE_SKILL);
+	if (list.size()!=4)
+		tlog0<<"\t\tIncorrect size of available items vector!\n";
+	for (int i=0; i<list.size(); i++)//prepare clickable items
+		items.push_back(new CItem(this, list[i], pos.x+54+i*104, pos.y+234));
+		
+	pos = center(bg->pos);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[632],
+		boost::bind(&CGuiHandler::popIntTotally,&GH, this),200,313,"IOKAY.DEF",SDLK_RETURN);
+		
+	bar = new CGStatusBar(232, 371);
+}
+
+CUniversityWindow::~CUniversityWindow()
+{
+	delete red;
+	delete yellow;
+	delete green;
+}
+
+CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):parent(PARENT)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	bg = new CPicture("UNIVERS2.PCX");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+
+	std::string text = CGI->generaltexth->allTexts[608];
+	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
+	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(text, "%d", "2000");
+
+	printAtMiddleWBLoc(text, 230, 163, FONT_SMALL, 65,zwykly,bg->bg);//Clerk speech
+	printAtMiddleLoc  (CGI->generaltexth-> skillName[SKILL], 230, 37,  FONT_SMALL,    zwykly,bg->bg);//Skill name
+	printAtMiddleLoc  (CGI->generaltexth->levels[1], 230, 107, FONT_SMALL,    zwykly,bg->bg);//Skill level
+	printAtMiddleLoc  ("2000", 230, 267, FONT_SMALL,    zwykly,bg->bg);//Cost
+	blitAtLoc(graphics->abils44->ourImages[SKILL*3+3].bitmap, 211, 51,  bg->bg);//skill
+	blitAtLoc(graphics->resources32->ourImages[6].bitmap, 210, 210, bg->bg);//gold
+
+	pos = center(bg->pos);
+
+	std::string hoverText = CGI->generaltexth->allTexts[609];
+	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
+	
+	text = CGI->generaltexth->zelp[633].second;
+	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
+	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(text, "%d", "2000");
+
+	confirm= new AdventureMapButton(hoverText, text, boost::bind(&CUnivConfirmWindow::makeDeal, this, SKILL),
+	         148,299,"IBY6432.DEF",SDLK_RETURN);
+	confirm->block(!available);
+	
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CGuiHandler::popIntTotally, &GH, this),
+	         252,299,"ICANCEL.DEF",SDLK_ESCAPE);
+	bar = new CGStatusBar(232, 371);
+}
+
+void CUnivConfirmWindow::makeDeal(int skill)
+{
+	LOCPLINT->cb->trade(parent->market->o, RESOURCE_SKILL, 6, skill, 1, parent->hero);
+	GH.popIntTotally(this);
+}
+
 void CThievesGuildWindow::activate()
 {
 	CIntObject::activate();

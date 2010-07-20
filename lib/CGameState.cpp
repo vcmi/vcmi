@@ -1494,6 +1494,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 	}
 	/****************************TOWNS************************************************/
+	for ( int i=0; i<4; i++)
+		CGTownInstance::universitySkills.push_back(14+i);//skills for university
+	
 	for (unsigned int i=0;i<map->towns.size();i++)
 	{
 		CGTownInstance * vti =(map->towns[i]);
@@ -1512,7 +1515,8 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			if(ran()%2)
 				vti->builtBuildings.insert(31);
 		}
-		if (vstd::contains(vti->builtBuildings,(6)) && vti->state()==3)
+		
+		if (vstd::contains(vti->builtBuildings,(6)) && vti->state()==2)
 			vti->builtBuildings.erase(6);//if we have harbor without water - erase it (this is H3 behaviour)
 	
 		//init hordes

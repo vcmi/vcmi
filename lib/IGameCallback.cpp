@@ -170,6 +170,8 @@ bool IGameCallback::isAllowed( int type, int id )
 		return gs->map->allowedSpell[id];
 	case 1:
 		return gs->map->allowedArtifact[id];
+	case 2:
+		return gs->map->allowedAbilities[id];
 	default:
 		tlog1 << "Wrong call to IGameCallback::isAllowed!\n";
 		return false;

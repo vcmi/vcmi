@@ -151,6 +151,7 @@ public:
 	void heroInGarrisonChange(const CGTownInstance *town);
 	void heroMoved(const TryMoveHero & details);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val);
+	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void heroManaPointsChanged(const CGHeroInstance * hero);
 	void heroMovePointsChanged(const CGHeroInstance * hero);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
@@ -163,6 +164,7 @@ public:
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
 	void showPuzzleMap();
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor);
+	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor);
 	void showTavernWindow(const CGObjectInstance *townOrTavern);
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID); //called when a hero casts a spell
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war

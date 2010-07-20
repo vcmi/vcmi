@@ -3196,6 +3196,32 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	giveHeroArtifact(aid, h->id, -2);
 }
 
+bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill)
+{
+	if (!h)
+		COMPLAIN_RET("You need hero to buy a skill!");
+		
+	if (h->getSecSkillLevel(skill))
+		COMPLAIN_RET("Hero already know this skill");
+		
+	if (h->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
+		COMPLAIN_RET("Hero can't learn any more skills");
+
+	if(!vstd::contains(m->availableItemsIds(RESOURCE_SKILL), skill))
+		COMPLAIN_RET("That skill is unavailable!");
+
+	if(getResource(h->tempOwner, 6) < 2000)//TODO: remove hardcoded resource\summ?
+		COMPLAIN_RET("You can't afford to buy this skill");
+
+	SetResource sr;
+	sr.player = h->tempOwner;
+	sr.resid = 6;
+	sr.val = getResource(h->tempOwner, 6) - 2000;
+	sendAndApply(&sr);
+
+	changeSecSkill(h->id, skill, 1, true); 
+}
+
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2)
 {
 	int r1 = gs->getPlayer(player)->resources[id1], 

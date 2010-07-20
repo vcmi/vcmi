@@ -975,7 +975,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	{
 		bool areSpells = bufor[i]; ++i;
 
-		if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+		if(areSpells) //TODO: sprawdziÃ¦ //seems to be ok - tow
 		{
 			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
 			int ist = i;
@@ -1963,6 +1963,11 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 221: //Trading Post (snow)
 			{
 				nobj = new CGMarket();
+				break;
+			}
+		case 104: //University
+			{
+				nobj = new CGUniversity();
 				break;
 			}
 		case 7: //Black Market

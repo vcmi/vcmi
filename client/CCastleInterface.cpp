@@ -703,7 +703,13 @@ void CCastleInterface::buildingClicked(int building)
 						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 					break;
 	/*Conflux*/	case 8: //Magic University
-					tlog4<<"Magic University not handled\n";
+					if (town->visitingHero)
+						GH.pushInt(new CUniversityWindow(town->visitingHero, town));
+					else if (town->garrisonHero)
+						GH.pushInt(new CUniversityWindow(town->garrisonHero, town));
+					else//no hero in town - default popup
+						defaultBuildingClicked(building);
+					
 					break;
 				default:
 					defaultBuildingClicked(building);

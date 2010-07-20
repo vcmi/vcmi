@@ -501,6 +501,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	static std::vector<const CArtifact *> merchantArtifacts; //vector of artifacts available at Artifact merchant, NULLs possible (for making empty space when artifact is bought)
+	static std::vector<int> universitySkills;//skills for university of magic
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1187,6 +1188,22 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & artifacts;
+	}
+};
+
+class DLL_EXPORT CGUniversity : public CGMarket
+{
+public:
+	std::vector<int> skills; //available skills
+	
+	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	void initObj();//set skills for trade
+	void onHeroVisit(const CGHeroInstance * h) const; //open window
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGMarket&>(*this);
+		h & skills;
 	}
 };
 

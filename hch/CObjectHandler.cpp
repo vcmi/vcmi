@@ -51,7 +51,7 @@ ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
-
+std::vector<int> CGTownInstance::universitySkills;
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -2250,6 +2250,8 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 		return subID == 6 && vstd::contains(builtBuildings, 21); //Freelancer's guild
 	case CREATURE_UNDEAD:
 		return subID == 4 && vstd::contains(builtBuildings, 22);//Skeleton transformer
+	case RESOURCE_SKILL:
+		return subID == 8 && vstd::contains(builtBuildings, 21);//Magic University
 	default:
 		assert(0);
 		return false;
@@ -2267,6 +2269,10 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 			else
 				ret.push_back(-1);
 		return ret;
+	}
+	else if ( mode == RESOURCE_SKILL )
+	{
+		return universitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -6555,6 +6561,8 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
 	case 221: //Trading Post (snow)
 	case 213: //Freelancer's Guild
 		return static_cast<const CGMarket*>(obj);
+	case 104: //University
+		return static_cast<const CGUniversity*>(obj);
 	default:
 		tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
 		return NULL;
@@ -6613,6 +6621,8 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 	case ARTIFACT_EXP:
 	case CREATURE_EXP:
 		return ID == 2; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
+	case RESOURCE_SKILL:
+		return ID == 104;//University
 	}
 	return false;
 }
@@ -6669,4 +6679,45 @@ void CGBlackMarket::newTurn() const
 	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts);
 	cb->sendAndApply(&saa);
+}
+
+void CGUniversity::initObj()
+{
+	std::vector <int> toChoose;
+	for (int i=0; i<SKILL_QUANTITY; i++)
+		if (cb->isAllowed(2,i))
+			toChoose.push_back(i);
+	if (toChoose.size() < 4)
+	{
+		tlog0<<"Warning: less then 4 available skills was found by University initializer!\n";
+		return;
+	}
+	
+	for (int i=0; i<4; i++)//get 4 skills
+	{
+		int skillPos = ran()%toChoose.size();
+		skills.push_back(toChoose[skillPos]);//move it to selected
+		toChoose.erase(toChoose.begin()+skillPos);//remove from list
+	}
+}
+
+std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
+{
+	switch (mode)
+	{
+		case RESOURCE_SKILL:
+			return skills;
+			
+		default:
+			return std::vector <int> ();
+	}
+}
+
+void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
+{
+	OpenWindow ow;
+	ow.id1 = id;
+	ow.id2 = h->id;
+	ow.window = OpenWindow::UNIVERSITY_WINDOW;
+	cb->sendAndApply(&ow);
 }

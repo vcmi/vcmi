@@ -1068,6 +1068,52 @@ public:
 	~CTransformerWindow(); //d-tor
 };
 
+class CUniversityWindow : public CIntObject
+{
+	class CItem : public CPicture
+	{
+	public:
+		int ID;//id of selected skill
+		CUniversityWindow * parent;
+		
+		void showAll(SDL_Surface * to);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
+		void hover(bool on);
+		int state();//0=can't learn, 1=learned, 2=can learn
+		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
+	};
+
+public:
+	const CGHeroInstance *hero;
+	const IMarket * market;
+	
+	SDL_Surface * red, 
+	            * green,//colored bars near skills
+	            * yellow;
+	CPicture *bg; //background
+	std::vector<CItem*> items;
+
+	AdventureMapButton *cancel;
+	CGStatusBar *bar;
+	
+	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
+	~CUniversityWindow(); //d-tor
+};
+
+
+class CUnivConfirmWindow : public CIntObject//Confirmation window for University
+{
+public:
+	CUniversityWindow * parent;
+	CPicture * bg;
+	CGStatusBar *bar;
+	AdventureMapButton *confirm, *cancel;
+
+	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available); //c-tor
+	void makeDeal(int skill);
+};
+
 class CThievesGuildWindow : public CIntObject
 {
 	const CGObjectInstance * owner;

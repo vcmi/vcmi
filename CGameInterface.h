@@ -72,6 +72,7 @@ public:
 	//virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroMoved(const TryMoveHero & details){};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val){};
+	virtual void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val){};
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after movement
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
@@ -84,6 +85,7 @@ public:
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) = 0; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void showPuzzleMap(){};
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
+	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor){};
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::set<int3> &pos){};

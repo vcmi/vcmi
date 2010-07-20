@@ -61,7 +61,13 @@ void SetPrimSkill::applyCl( CClient *cl )
 
 void SetSecSkill::applyCl( CClient *cl )
 {
-	//TODO: inform interface?
+	const CGHeroInstance *h = GS(cl)->getHero(id);
+	if(!h)
+	{
+		tlog1 << "Cannot find hero with ID " << id << std::endl;
+		return;
+	}
+	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroSecondarySkillChanged,h,which,val);
 }
 
 void HeroVisitCastle::applyCl( CClient *cl )
@@ -722,6 +728,14 @@ void OpenWindow::applyCl(CClient *cl)
 			GH.pushInt( new CThievesGuildWindow(obj) );
 		}
 		break;
+	case UNIVERSITY_WINDOW:
+		{
+			//displays University window (when hero enters University on adventure map)
+			const IMarket *market = IMarket::castFrom(cl->getObj(id1));
+			const CGHeroInstance *hero = cl->getHero(id2);
+			INTERFACE_CALL_IF_PRESENT(hero->tempOwner,showUniversityWindow, market, hero);
+		}
+		break;
 	case MARKET_WINDOW:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
@@ -735,6 +749,7 @@ void OpenWindow::applyCl(CClient *cl)
 		{
 			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);
 		}
+		break;
 	case TAVERN_WINDOW:
 		const CGObjectInstance *obj1 = cl->getObj(id1),
 								*obj2 = cl->getObj(id2);

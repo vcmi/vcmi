@@ -158,6 +158,8 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		return gh->buyArtifact(m, hero, r1, r2);
 	case CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
+	case RESOURCE_SKILL:
+		return gh->buySecSkill(m, hero, r2);
 	case CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
 	default:
