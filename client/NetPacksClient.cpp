@@ -326,17 +326,17 @@ void SetHeroArtifacts::applyCl( CClient *cl )
 	if(!player)
 		return;
 
-	h->recreateArtBonuses();
+	//h->recreateArtBonuses();
 	player->heroArtifactSetChanged(h);
 
-	BOOST_FOREACH(Bonus bonus, gained)
-	{
-		player->heroBonusChanged(h,bonus,true);
-	}
-	BOOST_FOREACH(Bonus bonus, lost)
-	{
-		player->heroBonusChanged(h,bonus,false);
-	}
+// 	BOOST_FOREACH(Bonus bonus, gained)
+// 	{
+// 		player->heroBonusChanged(h,bonus,true);
+// 	}
+// 	BOOST_FOREACH(Bonus bonus, lost)
+// 	{
+// 		player->heroBonusChanged(h,bonus,false);
+// 	}
 }
 
 void HeroRecruited::applyCl( CClient *cl )

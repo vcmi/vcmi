@@ -87,7 +87,8 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 		}
 
 		// Ensure enough ring slots are free
-		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) {
+		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) 
+		{
 			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
 				rings--;
 		}
@@ -95,7 +96,8 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 			return false;
 
 		// Ensure enough misc slots are free.
-		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) {
+		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) 
+		{
 			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
 				misc--;
 		}
@@ -114,10 +116,13 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 ar
 	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
 	assert(artifact.constituents);
 
-	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+	{
 		bool found = false;
-		for (std::map<ui16, ui32>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) {
-			if (it->second == constituentID) {
+		for (std::map<ui16, ui32>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+		{
+			if (it->second == constituentID) 
+			{
 				found = true;
 				break;
 			}
@@ -129,43 +134,13 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 ar
 	return true;
 }
 
-/**
- * Adds all the bonuses of this artifact, including possible constituents, to
- * a bonus list.
- */
-void CArtifact::addBonusesTo (BonusList *otherBonuses) const
+CArtifact::CArtifact()
 {
-	for(std::list<Bonus>::const_iterator i = bonuses.begin(); i != bonuses.end(); i++)
-		otherBonuses->push_back(*i);
-
-	if (constituents != NULL) {
-		BOOST_FOREACH(ui32 artifactID, *constituents) 
-		{
-			VLC->arth->artifacts[artifactID]->addBonusesTo(otherBonuses);
-		}
-	}
+	nodeType = ARTIFACT;
 }
 
-/**
- * Removes all the bonuses of this artifact, including possible constituents, from
- * a bonus list.
- */
-void CArtifact::removeBonusesFrom (BonusList *otherBonuses) const
+CArtifact::~CArtifact()
 {
-	if (constituents != NULL) {
-		BOOST_FOREACH(ui32 artifactID, *constituents) {
-			VLC->arth->artifacts[artifactID]->removeBonusesFrom(otherBonuses);
-		}
-	}
-
-	while (1) {
-		std::list<Bonus>::iterator it = std::find_if(otherBonuses->begin(), otherBonuses->end(),boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,id));
-
-		if (it != otherBonuses->end())
-			otherBonuses->erase(it);
-		else
-			break;
-	}
 }
 
 CArtHandler::CArtHandler()
@@ -709,10 +684,9 @@ void CArtHandler::clear()
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::equipArtifact
-	(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID, BonusList *bonuses)
+void CArtHandler::equipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID)
 {
-	unequipArtifact(artifWorn, slotID, bonuses);
+	unequipArtifact(artifWorn, slotID);
 
 	const CArtifact &artifact = *artifacts[artifactID];
 
@@ -745,9 +719,6 @@ void CArtHandler::equipArtifact
 			}
 		}
 	}
-
-	if (bonuses != NULL)
-		artifact.addBonusesTo(bonuses);
 }
 
 /**
@@ -756,8 +727,7 @@ void CArtHandler::equipArtifact
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::unequipArtifact
-	(std::map<ui16, ui32> &artifWorn, ui16 slotID, BonusList *bonuses)
+void CArtHandler::unequipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID)
 {
 	if (!vstd::contains(artifWorn, slotID))
 		return;
@@ -793,7 +763,4 @@ void CArtHandler::unequipArtifact
 			}
 		}
 	}
-
-	if (bonuses != NULL)
-		artifact.removeBonusesFrom(bonuses);
 }

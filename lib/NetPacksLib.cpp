@@ -301,12 +301,12 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		gs->getPlayer(player)->heroes.erase(nitr);
 		h->tempOwner = 255; //no one owns beaten hero
 
-		if(h->visitedTown)
+		if(CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown))
 		{
 			if(h->inTownGarrison)
-				h->visitedTown->garrisonHero = NULL;
+				t->garrisonHero = NULL;
 			else
-				h->visitedTown->visitingHero = NULL;
+				t->visitingHero = NULL;
 			h->visitedTown = NULL;
 		}
 
@@ -382,10 +382,11 @@ void TryMoveHero::applyGs( CGameState *gs )
 	}
 	else if(result == DISEMBARK) //hero leaves boat to dest tile
 	{
-		h->boat->direction = h->moveDir;
-		h->boat->pos = start;
-		h->boat->hero = NULL;
-		gs->map->addBlockVisTiles(h->boat);
+		CGBoat *b = const_cast<CGBoat *>(h->boat);
+		b->direction = h->moveDir;
+		b->pos = start;
+		b->hero = NULL;
+		gs->map->addBlockVisTiles(b);
 		h->boat = NULL;
 	}
 
@@ -393,8 +394,8 @@ void TryMoveHero::applyGs( CGameState *gs )
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;
-		if(h->boat)
-			h->boat->pos = end;
+		if(CGBoat *b = const_cast<CGBoat *>(h->boat))
+			b->pos = end;
 		gs->map->addBlockVisTiles(h);
 	}
 
@@ -413,8 +414,9 @@ DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
 		else if(ai->ID==HEROI_TYPE)
 		{
 			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
-			if(h->visitedTown && h->inTownGarrison)
-				h->visitedTown->setArmy(i->second);
+			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
+			if(t && h->inTownGarrison)
+				t->setArmy(i->second);
 		}
 	}
 }
@@ -470,7 +472,6 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
-	std::vector<ui32> equiped, unequiped;
 	for(std::map<ui16,ui32>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
 		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
 			unequiped.push_back(i->second);
@@ -479,37 +480,14 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
 			equiped.push_back(i->second);
 
-	BOOST_FOREACH(ui32 id, equiped)
-	{
-		//if hero already had equipped at least one artifact of that type, don't give any new bonuses
-		if(h->getArtPos(id) >= 0)
-			continue;
-
-		CArtifact &art = *VLC->arth->artifacts[id];
-		art.addBonusesTo(&h->bonuses);
-		art.addBonusesTo(&gained);
-	}
-
 	//update hero data
 	h->artifacts = artifacts;
 	h->artifWorn = artifWorn;
-
-	//remove bonus from unequipped artifact
-	BOOST_FOREACH(ui32 id, unequiped)
-	{
-		//if hero still has equipped at least one artifact of that type, don't remove bonuses
-		if(h->getArtPos(id) >= 0)
-			continue;
-
-		CArtifact &art = *VLC->arth->artifacts[id];
-		art.removeBonusesFrom(&h->bonuses);
-		art.addBonusesTo(&lost);
-	}
 }
 
 DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 {
-	if(art<0)
+	if(art < 0)
 	{
 		if(pos<19)
 			VLC->arth->unequipArtifact(artifWorn, pos);
@@ -518,9 +496,12 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 	}
 	else
 	{
-		if (pos < 19) {
+		if (pos < 19) 
+		{
 			VLC->arth->equipArtifact(artifWorn, pos, (ui32) art);
-		} else { // Goes into the backpack.
+		} 
+		else // Goes into the backpack.
+		{ 
 			if(pos - 19 < artifacts.size())
 				artifacts.insert(artifacts.begin() + (pos - 19), art);
 			else

@@ -18,7 +18,7 @@
  */
 class CDefHandler;
 
-class DLL_EXPORT CArtifact //container for artifacts
+class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
 {
 	std::string name, description; //set if custom
 public:
@@ -37,12 +37,15 @@ public:
 	std::vector<ui32> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
 	si32 id;
-	std::list<Bonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & description & price & possibleSlots & constituents & constituentOf & aClass & id & bonuses;
+		h & static_cast<CBonusSystemNode&>(*this);;
+		h & name & description & price & possibleSlots & constituents & constituentOf & aClass & id;
 	}
+
+	CArtifact();
+	~CArtifact();
 };
 
 class DLL_EXPORT CArtHandler //handles artifacts
@@ -64,8 +67,8 @@ public:
 	void getAllowed(std::vector<CArtifact*> &out, int flags);
 	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID, BonusList *bonuses = NULL);
-	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, BonusList *bonuses = NULL);
+	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID);
+	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 	~CArtHandler();

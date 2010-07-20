@@ -2926,7 +2926,8 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	const CArtifact *srcArtifact = srcHero->getArt(srcSlot);
 	const CArtifact *destArtifact = destHero->getArt(destSlot);
 
-	if (srcArtifact == NULL) {
+	if (srcArtifact == NULL)
+	{
 		complain("No artifact to swap!");
 		return false;
 	}
@@ -2937,7 +2938,8 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	sha.artifWorn = srcHero->artifWorn;
 
 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
-	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) {
+	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) 
+	{
 		sha.setArtAtPos(srcSlot, -1);
 		if (!vstd::contains(sha.artifWorn, destSlot))
 			destArtifact = NULL;
@@ -2952,17 +2954,20 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		return false;
 	}
 
-	if ((srcArtifact && srcArtifact->id == 145) || (destArtifact && destArtifact->id == 145)) {
+	if ((srcArtifact && srcArtifact->id == 145) || (destArtifact && destArtifact->id == 145)) 
+	{
 		complain("Cannot move artifact locks.");
 		return false;
 	}
 
-	if (destSlot >= 19 && srcArtifact->isBig()) {
+	if (destSlot >= 19 && srcArtifact->isBig()) 
+	{
 		complain("Cannot put big artifacts in backpack!");
 		return false;
 	}
 
-	if (srcSlot == 16 || destSlot == 16) {
+	if (srcSlot == 16 || destSlot == 16) 
+	{
 		complain("Cannot move catapult!");
 		return false;
 	}
@@ -2979,7 +2984,8 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact->id : -1);
 
 	// Internal hero artifact arrangement.
-	if(srcHero == destHero) {
+	if(srcHero == destHero) 
+	{
 		// Correction for destination from removing source artifact in backpack.
 		if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
 			destSlot--;
@@ -2987,7 +2993,8 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
 	}
 	sendAndApply(&sha);
-	if (srcHeroID != destHeroID) {
+	if (srcHeroID != destHeroID) 
+	{
 		// Exchange between two different heroes.
 		sha.hid = destHeroID;
 		sha.artifacts = destHero->artifacts;
@@ -3112,7 +3119,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
-	CGTownInstance *town = hero->visitedTown;
+	CGTownInstance *town = const_cast<CGTownInstance*>(hero->visitedTown);
 	if(aid==0) //spellbook
 	{
 		if(!vstd::contains(town->builtBuildings,si32(0)) && complain("Cannot buy a spellbook, no mage guild in the town!")

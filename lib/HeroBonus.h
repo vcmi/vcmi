@@ -377,7 +377,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY
+		UNKNOWN, STACK, SPECIALITY, ARTIFACT
 	};
 };
 

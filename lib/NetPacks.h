@@ -588,6 +588,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 		h & hid & artifacts & artifWorn;
 	}
 
+	std::vector<ui32> equiped, unequiped; //used locally
 	BonusList gained, lost; //used locally as hlp when applying
 };   
 

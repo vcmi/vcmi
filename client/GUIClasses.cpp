@@ -4367,10 +4367,12 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 			GH.pushInt(spellWindow);
 		}
 	}
+
 	if (!down && previousState)
 	{
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
+
 		if(!ourOwner->commonInfo->srcAOH) //nothing has been clicked
 		{
 			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
@@ -4431,10 +4433,11 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				ourOwner->commonInfo->destArtifact = ourArt;
 
 				// Special case when the dest artifact can't be fit into the src slot.
-				//CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
+				CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->srcAOH;
 				ui16 srcSlotID = ourOwner->commonInfo->srcSlotID;
-				if (ourArt && srcSlotID < 19 && !ourArt->fitsAt(srcAOH->curHero->artifWorn, srcSlotID)) {
+				if (ourArt && srcSlotID < 19 && !ourArt->fitsAt(srcAOH->curHero->artifWorn, srcSlotID)) 
+				{
 					// Put dest artifact into owner's backpack.
 					ourOwner->commonInfo->srcAOH = ourOwner;
 					ourOwner->commonInfo->srcSlotID = ourOwner->curHero->artifacts.size() + 19;
@@ -4448,19 +4451,14 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 			}
 		}
 	}
-	/*else if(!down && clicked)
-	{
-		if(ourArt && ourArt->id == 0)
-			return; //this is handled separately
-		deselect();
-	}*/
-	//ClickableL::clickLeft(down);
 }
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked() && text.size()) { //if there is no description or it's a lock, do nothing ;]
-		if (slotID < 19) {
+	if(down && ourArt && !locked() && text.size())  //if there is no description or it's a lock, do nothing ;]
+	{
+		if (slotID < 19) 
+		{
 			selectedNo = false;
 
 			// If the artifact can be assembled, display dialog.
@@ -4480,7 +4478,8 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 			}
 
 			// Otherwise if the artifact can be diasassembled, display dialog.
-			if (ourArt->constituents != NULL) {
+			if (ourArt->constituents != NULL) 
+			{
 				LOCPLINT->showArtifactAssemblyDialog(
 					ourArt->id,
 					0,
@@ -4522,11 +4521,11 @@ void CArtPlace::select ()
 	ourOwner->commonInfo->srcAOH = ourOwner;
 
 	// Temporarily remove artifact from hero.
-	//if (slotID < 19)
-	//	CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
-	//else
-	//	ourOwner->curHero->artifacts.erase(ourOwner->curHero->artifacts.begin() + (slotID - 19));
-	//ourOwner->markPossibleSlots(ourArt);
+	if (slotID < 19)
+		CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
+	else
+		ourOwner->curHero->artifacts.erase(ourOwner->curHero->artifacts.begin() + (slotID - 19));
+	ourOwner->markPossibleSlots(ourArt);
 	//ourOwner->curHero->recreateArtBonuses();
 
 	// Update the hero bonuses.
@@ -4548,6 +4547,13 @@ void CArtPlace::select ()
 				cew->artifs[g]->setHero(ourOwner->curHero);
 			}
 		}
+
+		//use our copy of hero to draw window
+		if(cew->heroInst[0]->id == ourOwner->curHero->id)
+			cew->heroInst[0] = ourOwner->curHero;
+		else
+			cew->heroInst[1] = ourOwner->curHero;
+
 		cew->prepareBackground();
 		cew->activate();
 	}
@@ -4694,61 +4700,23 @@ void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
-void CArtifactsOfHero::activate()
+void CArtifactsOfHero::SCommonPart::reset()
 {
-	for(size_t f=0; f<artWorn.size(); ++f)
-	{
-		if(artWorn[f])
-			artWorn[f]->activate();
-	}
-	for(size_t f=0; f<backpack.size(); ++f)
-	{
-		if(backpack[f])
-			backpack[f]->activate();
-	}
-	
-	leftArtRoll->activate();
-	rightArtRoll->activate();
-}
-
-void CArtifactsOfHero::deactivate()
-{
-	for(size_t f=0; f<artWorn.size(); ++f)
-	{
-		if(artWorn[f])
-			artWorn[f]->deactivate();
-	}
-	for(size_t f=0; f<backpack.size(); ++f)
-	{
-		if(backpack[f])
-			backpack[f]->deactivate();
-	}
-	
-	leftArtRoll->deactivate();
-	rightArtRoll->deactivate();
-}
-
-void CArtifactsOfHero::show(SDL_Surface * to)
-{
-	for(size_t d=0; d<artWorn.size(); ++d)
-	{
-		artWorn[d]->show(to);
-	}
-	for(size_t d=0; d<backpack.size(); ++d)
-	{
-		backpack[d]->show(to);
-	}
-
-	leftArtRoll->show(to);
-	rightArtRoll->show(to);
+	destAOH = srcAOH = NULL;
+	destArtifact = srcArtifact = NULL;
+	destSlotID = srcSlotID = -1;
 }
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
 	// An update is made, rather than initialization.
-	if (curHero == hero) 
+	if (curHero && curHero->id == hero->id) 
 	{
-		curHero = hero;
+		if(curHero != hero)
+		{
+			delete	curHero;
+			curHero = new CGHeroInstance(*hero);
+		}
 
 		// Compensate backpack pos if an artifact was insertad before it.
 		if (commonInfo->destSlotID >= 19 && commonInfo->destAOH == this
@@ -4757,14 +4725,16 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 			backpackPos++;
 		}
 
-		if (updateState && commonInfo->srcAOH == this) {
+		if (updateState && commonInfo->srcAOH == this) 
+		{
 			// A swap was made, make the replaced artifact the current selected.
-			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) {
+			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) 
+			{
 				// Temporarily remove artifact from hero.
-				//if (commonInfo->srcSlotID < 19)
-				//	CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
-				//else
-				//	curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
+				if (commonInfo->srcSlotID < 19)
+					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
+				else
+					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
 				//curHero->recreateArtBonuses();
 
 				// Source <- Dest
@@ -4775,20 +4745,13 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 				commonInfo->destArtifact = NULL;
 				commonInfo->destSlotID = -1;
 
-				CGI->curh->dragAndDropCursor(
-					graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
+				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
 				markPossibleSlots(commonInfo->srcArtifact);
 			} 
 			else if (commonInfo->destAOH != NULL) 
 			{
 				// Reset all parameters.
-				commonInfo->srcAOH = NULL;
-				commonInfo->srcArtifact = NULL;
-				commonInfo->srcSlotID = -1;
-				commonInfo->destAOH = NULL;
-				commonInfo->destArtifact = NULL;
-				commonInfo->destSlotID = -1;
-
+				commonInfo->reset();
 				CGI->curh->dragAndDropCursor(NULL);
 				unmarkSlots();
 			}
@@ -4796,10 +4759,14 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 	} 
 	else 
 	{
-		rollback();
+		commonInfo->reset();
 	}
 
-	curHero = const_cast<CGHeroInstance *>(hero);
+	if(hero != curHero)
+	{
+		delete curHero;
+		curHero = new CGHeroInstance(*hero);
+	}
 
 	if (curHero->artifacts.size() > 0)
 		backpackPos %= curHero->artifacts.size();
@@ -4816,67 +4783,16 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 	rightArtRoll->block(curHero->artifacts.size() <= backpack.size());
 }
 
-/**
- * Any held artifacts, marked slots etc. will be restored to it's original way.
- */
-void CArtifactsOfHero::rollback()
-{
-	if (curHero != NULL) 
-	{
-		// Restore any held artifact to it's original position.
-		if (commonInfo->srcArtifact && commonInfo->srcAOH == this) 
-		{
-			if (commonInfo->srcSlotID != -1) {
-				// Put a held artifact back to it's spot.
-				//if (commonInfo->srcSlotID < 19)
-				//	CGI->arth->equipArtifact(curHero->artifWorn, commonInfo->srcSlotID, commonInfo->srcArtifact->id);
-				//else
-				//	curHero->artifacts.insert(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19), commonInfo->srcArtifact->id);
-			} 
-			else  // Held swapped artifact.
-			{
-				// Wear the artifact in a suitable spot.
-				ui16 i = 0;
-				for (; i < 19; i++) 
-				{
-					if (artWorn[i]->fitsHere(commonInfo->srcArtifact) && !vstd::contains(curHero->artifWorn, i)) 
-					{
-						//CGI->arth->equipArtifact(curHero->artifWorn, i, commonInfo->srcArtifact->id);
-						break;
-					}
-				}
-
-				// If it can't be worn, put it in the backpack.
-				if (i == 19)
-					;//curHero->artifacts.push_back(commonInfo->srcArtifact->id);
-			}
-
-			//curHero->recreateArtBonuses();
-		}
-	}
-
-	unmarkSlots();
-	backpackPos = 0;
-
-	commonInfo->srcAOH = NULL;
-	commonInfo->srcArtifact = NULL;
-	commonInfo->srcSlotID = -1;
-	commonInfo->destAOH = NULL;
-	commonInfo->destArtifact = NULL;
-	commonInfo->destSlotID = -1;
-
-	CGI->curh->dragAndDropCursor(NULL);
-}
-
 void CArtifactsOfHero::dispose()
 {
-	curHero = NULL;
+	delNull(curHero);
 }
 
 void CArtifactsOfHero::scrollBackpack(int dir)
 {
 	backpackPos += dir;
-	if (curHero->artifacts.size() > 0) {
+	if (curHero->artifacts.size() > 0) 
+	{
 		if (backpackPos < 0) { // No guarantee of modulus behavior with negative operands.
 			do {
 				backpackPos += curHero->artifacts.size();
@@ -4887,7 +4803,8 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	}
 
 	//set new data
-	for (size_t s = 0; s < backpack.size(); ++s) {
+	for (size_t s = 0; s < backpack.size(); ++s) 
+	{
 		if (s < curHero->artifacts.size())
 			setSlotData(backpack[s], 19 + (s + backpackPos)%curHero->artifacts.size());
 		else
@@ -4906,7 +4823,8 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
 		it != commonInfo->participants.end();
 		++it)
 	{
-		for (int i = 0; i < (*it)->artWorn.size(); i++) {
+		for (int i = 0; i < (*it)->artWorn.size(); i++) 
+		{
 			if ((*it)->artWorn[i]->fitsHere(art))
 				(*it)->artWorn[i]->marked = true;
 			else
@@ -4924,7 +4842,8 @@ void CArtifactsOfHero::unmarkSlots ()
 		it != commonInfo->participants.end();
 		++it)
 	{
-		for (int i = 0; i < (*it)->artWorn.size(); i++) {
+		for (int i = 0; i < (*it)->artWorn.size(); i++) 
+		{
 			(*it)->artWorn[i]->marked = false;
 		}
 	}
@@ -4938,13 +4857,16 @@ void CArtifactsOfHero::setSlotData (CArtPlace* artPlace, int slotID)
 	artPlace->slotID = slotID;
 	artPlace->ourArt = curHero->getArt(slotID);
 
-	if (artPlace->ourArt) {
+	if (artPlace->ourArt) 
+	{
 		artPlace->text = artPlace->ourArt->Description();
 		if (artPlace->locked()) // Locks should appear as empty.
 			artPlace->hoverText = CGI->generaltexth->allTexts[507];
 		else
 			artPlace->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % artPlace->ourArt->Name().c_str());
-	} else {
+	} 
+	else 
+	{
 		eraseSlotData(artPlace, slotID);
 	}
 }
@@ -4961,25 +4883,26 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
-	backpackPos(0), updateState(false), commonInfo(NULL)
+	backpackPos(0), updateState(false), commonInfo(NULL), curHero(NULL)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
 	artWorn.resize(19);
 	
-	std::vector<SDL_Rect> slotPos;
-	slotPos += genRect(44,44,pos.x+509,pos.y+30), genRect(44,44,pos.x+567,pos.y+240), genRect(44,44,pos.x+509,pos.y+80), 
-		genRect(44,44,pos.x+383,pos.y+68), genRect(44,44,pos.x+564,pos.y+183), genRect(44,44,pos.x+509,pos.y+130), 
-		genRect(44,44,pos.x+431,pos.y+68), genRect(44,44,pos.x+610,pos.y+183), genRect(44,44,pos.x+515,pos.y+295), 
-		genRect(44,44,pos.x+383,pos.y+143), genRect(44,44,pos.x+399,pos.y+194), genRect(44,44,pos.x+415,pos.y+245),
-		genRect(44,44,pos.x+431,pos.y+296), genRect(44,44,pos.x+564,pos.y+30), genRect(44,44,pos.x+610,pos.y+30), 
-		genRect(44,44,pos.x+610,pos.y+76), genRect(44,44,pos.x+610,pos.y+122), genRect(44,44,pos.x+610,pos.y+310),	
-		genRect(44,44,pos.x+381,pos.y+296);
+	std::vector<Rect> slotPos;
+	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80), 
+		genRect(44,44,383,68), genRect(44,44,564,183), genRect(44,44,509,130), 
+		genRect(44,44,431,68), genRect(44,44,610,183), genRect(44,44,515,295), 
+		genRect(44,44,383,143), genRect(44,44,399,194), genRect(44,44,415,245),
+		genRect(44,44,431,296), genRect(44,44,564,30), genRect(44,44,610,30), 
+		genRect(44,44,610,76), genRect(44,44,610,122), genRect(44,44,610,310),	
+		genRect(44,44,381,296);
 
 	// Create slots for worn artifacts.
 	for (int g = 0; g < 19 ; g++)
 	{	
 		artWorn[g] = new CArtPlace(NULL);
-		artWorn[g]->pos = slotPos[g];
+		artWorn[g]->pos = slotPos[g] + pos;
 		artWorn[g]->ourOwner = this;
 		eraseSlotData(artWorn[g], g);
 	}
@@ -4998,28 +4921,14 @@ CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
 		backpack.push_back(add);
 	}
 
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
+	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), 379, 364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), 632, 364, "hsbtns5.def", SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()
 {
 	dispose();
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-		artWorn[g] = NULL;
-	}
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-		backpack[g] = NULL;
-	}
-	backpack.clear();
-	artWorn.clear();
-
-	delete leftArtRoll;
-	delete rightArtRoll;
+	CGI->curh->dragAndDropCursor(NULL);
 }
 
 void CExchangeWindow::close()
@@ -5324,8 +5233,6 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	delete quit;
 
 	//warning: don't experiment with these =NULL lines, they prevent heap corruption!
-	artifs[0]->rollback();
-	artifs[1]->rollback();
 	delete artifs[0]->commonInfo;
 	artifs[0]->commonInfo = NULL;
 	delete artifs[0];

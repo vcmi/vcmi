@@ -762,9 +762,9 @@ void CGHeroInstance::initHero()
 
 	if(!vstd::contains(artifWorn, 16) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set
 	{
-		VLC->arth->equipArtifact(artifWorn, 17, 0, &bonuses); //give spellbook
+		VLC->arth->equipArtifact(artifWorn, 17, 0); //give spellbook
 	}
-	VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses); //everyone has a catapult
+	VLC->arth->equipArtifact(artifWorn, 16, 3); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
@@ -800,7 +800,6 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 
-	recreateArtBonuses();
 	if(mana < 0)
 		mana = manaLimit(); //after all bonuses are taken into account
 }
@@ -833,14 +832,13 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 			switch (creID)
 			{
 			case 145: //catapult
-				VLC->arth->equipArtifact(artifWorn, 16, 3, &bonuses);
+				VLC->arth->equipArtifact(artifWorn, 16, 3);
 				break;
 			default:
 				VLC->arth->equipArtifact(
 					artifWorn,
 					9+CArtHandler::convertMachineID(creID,true),
-					CArtHandler::convertMachineID(creID,true),
-					&bonuses);
+					  CArtHandler::convertMachineID(creID,true));
 				break;
 			}
 		}
@@ -937,7 +935,7 @@ void CGHeroInstance::initObj()
 	if(!type)
 		return; //TODO support prison
 
-	for (std::vector<specialInfo>::iterator it = type->spec.begin(); it != type->spec.end(); it++)
+	for (std::vector<specialInfo>::const_iterator it = type->spec.begin(); it != type->spec.end(); it++)
 	{
 		bonus.val = it->val;
 		bonus.id = id; //from the hero, speciality has no unique id
@@ -1386,7 +1384,7 @@ void CGHeroInstance::giveArtifact (ui32 aid)
 		{
 			if (!vstd::contains(artifWorn, *it)) 
 			{
-				VLC->arth->equipArtifact(artifWorn, *it, aid, &bonuses);
+				VLC->arth->equipArtifact(artifWorn, *it, aid);
 				break;
 			}
 		}
@@ -1394,17 +1392,6 @@ void CGHeroInstance::giveArtifact (ui32 aid)
 	else 
 	{
 		artifacts.push_back(aid);
-	}
-}
-
-void CGHeroInstance::recreateArtBonuses()
-{
-	//clear all bonuses from artifacts (if present) and give them again
-	bonuses.remove_if(boost::bind(Bonus::IsFrom,_1,Bonus::ARTIFACT,0xffffff));
-	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
-	{
-		CArtifact &art = *VLC->arth->artifacts[ari->second];
-		art.addBonusesTo(&bonuses);
 	}
 }
 
@@ -1455,7 +1442,10 @@ void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= N
 	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown)
 		out.insert(visitedTown);
 
-	out.insert (&speciality);
+	for (std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		out.insert(VLC->arth->artifacts[i->second]);
+
+	out.insert(&speciality);
 }
 
 void CGHeroInstance::pushPrimSkill(int which, int val)

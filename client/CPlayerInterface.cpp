@@ -945,10 +945,10 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(adventureInt->heroWindow->curHero) //hero window is opened
+	if(adventureInt->heroWindow->curHero && adventureInt->heroWindow->curHero->id == hero->id) //hero window is opened
 	{
 		adventureInt->heroWindow->deactivate();
-		adventureInt->heroWindow->setHero(adventureInt->heroWindow->curHero);
+		adventureInt->heroWindow->setHero(hero);
 		adventureInt->heroWindow->activate();
 		return;
 	}
@@ -957,8 +957,9 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		cew->deactivate();
 		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
 		{
-			if(cew->heroInst[g] == hero)
+			if(cew->heroInst[g]->id == hero->id)
 			{
+				cew->heroInst[g] = hero;
 				cew->artifs[g]->updateState = true;
 				cew->artifs[g]->setHero(hero);
 				cew->artifs[g]->updateState = false;

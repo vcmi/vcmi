@@ -909,7 +909,7 @@ inline bool CArtPlace::locked () const
 
 class CArtifactsOfHero : public CIntObject
 {
-	const CGHeroInstance * curHero;
+	CGHeroInstance * curHero; //local copy of hero on which we operate
 
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
@@ -925,19 +925,16 @@ public:
 		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
 		int destSlotID;	                  // Needed to determine what kind of action was last taken in setHero
 		const CArtifact * destArtifact;   // For swapping.
+
+		void reset();
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
-
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state
-	void rollback();
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
 	void markPossibleSlots (const CArtifact* art);
 	void unmarkSlots ();

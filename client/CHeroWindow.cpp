@@ -171,10 +171,6 @@ CHeroWindow::~CHeroWindow()
 
 	delete garr;
 	delete ourBar;
-
-	artifs->rollback();
-	delete artifs->commonInfo;
-	artifs->commonInfo = NULL; //to prevent heap corruption
 	delete artifs;
 
 	delete portraitArea;
@@ -532,7 +528,6 @@ void CHeroWindow::dispose()
 	curBack = NULL;
 	curHero = NULL;
 
-	artifs->rollback();
 	artifs->dispose();
 }
 

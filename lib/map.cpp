@@ -920,39 +920,39 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		for(int pom=0;pom<16;pom++)
 		{
 			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, pom, id, &nhi->bonuses);
+			if(id != artmask)
+				VLC->arth->equipArtifact(nhi->artifWorn, pom, id);
 		}
 		//misc5 art //17
 		if(version>=SoD)
 		{
 			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, id, &nhi->bonuses);
+				VLC->arth->equipArtifact(nhi->artifWorn, 16, id);
 			else
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, 3, &nhi->bonuses); //catapult by default
+				VLC->arth->equipArtifact(nhi->artifWorn, 16, 3); //catapult by default
 		}
 		//spellbook
 		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 		if(id!=artmask)
-			VLC->arth->equipArtifact(nhi->artifWorn, 17, id, &nhi->bonuses);
+			VLC->arth->equipArtifact(nhi->artifWorn, 17, id);
 		//19 //???what is that? gap in file or what? - it's probably fifth slot..
 		if(version>RoE)
 		{
 			id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 18, id, &nhi->bonuses);
+				VLC->arth->equipArtifact(nhi->artifWorn, 18, id);
 		}
 		else
 			i+=1;
 		//bag artifacts //20
 		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-		if(amount>0)
+		if(amount > 0)
 		{
-			for(int ss=0; ss<amount; ++ss)
+			for(int ss = 0; ss < amount; ++ss)
 			{
 				id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-				if(id!=artmask)
+				if(id != artmask)
 					nhi->giveArtifact(id);
 			}
 		}
@@ -1160,7 +1160,7 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 					{
 						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, pom, id, &cgh->bonuses);
+							VLC->arth->equipArtifact(cgh->artifWorn, pom, id);
 					}
 					//misc5 art //17
 					if(version>=SoD)
@@ -1173,13 +1173,13 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 					//spellbook
 					int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						VLC->arth->equipArtifact(cgh->artifWorn, 17, id, &cgh->bonuses);
+						VLC->arth->equipArtifact(cgh->artifWorn, 17, id);
 					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(version>RoE)
 					{
 						id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, 18, id, &cgh->bonuses);
+							VLC->arth->equipArtifact(cgh->artifWorn, 18, id);
 					}
 					else
 						i+=1;

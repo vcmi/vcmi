@@ -275,7 +275,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	CHero * type;
+	const CHero * type;
 	ui64 exp; //experience points
 	si32 level; //current level of hero
 	std::string name; //may be custom
@@ -286,8 +286,8 @@ public:
 	si32 movement; //remaining movement points
 	ui8 sex;
 	ui8 inTownGarrison; // if hero is in town garrison 
-	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
-	CGBoat *boat; //set to CGBoat when sailing
+	const CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
+	const CGBoat *boat; //set to CGBoat when sailing
 	std::vector<ui32> artifacts; //hero's artifacts from bag
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
@@ -376,7 +376,6 @@ public:
 	void initHero(); 
 	void initHero(int SUBID); 
 	void initArmy(CCreatureSet *dst = NULL);
-	void recreateArtBonuses();
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
