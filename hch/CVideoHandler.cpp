@@ -129,7 +129,7 @@ CBIKHandler::CBIKHandler()
 	bufferSize = 0;
 }
 
-void CBIKHandler::open(std::string name)
+bool CBIKHandler::open(std::string name)
 {
 	hBinkFile = CreateFileA
 	(
@@ -145,8 +145,7 @@ void CBIKHandler::open(std::string name)
 	if(hBinkFile == INVALID_HANDLE_VALUE)
 	{
 		tlog1 << "BIK handler: failed to open " << name << std::endl;
-		checkForError();
-		return;
+		goto checkErrorAndClean;
 	}
 
 	void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
@@ -154,8 +153,20 @@ void CBIKHandler::open(std::string name)
 		binkSetSoundSystem(waveout,NULL);
 
 	hBink = binkOpen(hBinkFile, 0x8a800000);
+	if(!hBink)
+	{
+		tlog1 << "bink failed to open " << name << std::endl;
+		goto checkErrorAndClean;
+	}
 
 	allocBuffer();
+	return true;
+
+checkErrorAndClean:
+	CloseHandle(hBinkFile);
+	hBinkFile = NULL;
+	checkForError(false);
+	return false;
 }
 
 void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
@@ -282,19 +293,21 @@ void CSmackPlayer::close()
 	data = NULL;
 }
 
-void CSmackPlayer::open( std::string name )
+bool CSmackPlayer::open( std::string name )
 {
 	Uint32 flags[2] = {0xff400, 0xfe400};
 
-	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
+	data = ptrSmackOpen( (void*)name.c_str(), 0x8600, -1);
 	if (!data) 
 	{
 		tlog1 << "Smack cannot open " << name << std::endl;
-		return;
+		checkForError(false);
+		return false;
 	}
 
 	buffer = new char[data->width*data->height*2];
 	buf = buffer+data->width*(data->height-1)*2;	// adjust pointer position for later use by 'SmackToBuffer'
+	return true;
 }
 
 void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
@@ -368,7 +381,7 @@ CVideoPlayer::~CVideoPlayer()
 	delete vidh;
 }
 
-void CVideoPlayer::open(std::string name)
+bool CVideoPlayer::open(std::string name)
 {
 	if(boost::algorithm::ends_with(name, ".BIK"))
 		current = &bikPlayer;
@@ -380,7 +393,14 @@ void CVideoPlayer::open(std::string name)
 
 	//extract video from video.vid so we can play it
 	vidh->extract(name, name);
-	current->open(name);
+	bool opened = current->open(name);
+	if(!opened)
+	{
+		current = NULL;
+		tlog3 << "Failed to open video file " << name << std::endl;
+	}
+
+	return opened;
 }
 
 void CVideoPlayer::close()
@@ -403,32 +423,45 @@ void CVideoPlayer::close()
 
 void CVideoPlayer::nextFrame()
 {
-	current->nextFrame();
+	if(current)
+		current->nextFrame();
 }
 
 void CVideoPlayer::show(int x, int y, SDL_Surface *dst, bool update)
 {
-	current->show(x, y, dst, update);
+	if(current)
+		current->show(x, y, dst, update);
 }
 
 bool CVideoPlayer::wait()
 {
-	return current->wait();
+	if(current)
+		return current->wait();
+	else
+		return false;
 }
 
 int CVideoPlayer::curFrame() const
 {
-	return current->curFrame();
+	if(current)
+		return current->curFrame();
+	else
+		return -1;
 }
 
 int CVideoPlayer::frameCount() const
 {
-	return current->frameCount();
+	if(current)
+		return current->frameCount();
+	else
+		return -1;
 }
 
 bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey)
 {
-	open(name);
+	if(!open(name))
+		return false;
+
 	bool ret = playVideo(x, y, dst, stopOnKey);
 	close();
 	return ret;
@@ -436,6 +469,9 @@ bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface 
 
 void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
 {
+	if(current)
+		return;
+
 	bool w = false;
 	if(!first)
 	{
@@ -462,11 +498,15 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 {
-	current->redraw(x, y, dst, update);
+	if(current)
+		current->redraw(x, y, dst, update);
 }
 
 bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 {
+	if(!current)
+		return false;
+
 	int frame = 0;
 	while(frame < frameCount()) //play all frames
 	{

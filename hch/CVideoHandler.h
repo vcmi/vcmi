@@ -61,7 +61,7 @@ typedef si32(__stdcall*  BinkCopyToBuffer)(HBINK, void* buffer, int stride, int 
 class IVideoPlayer
 {
 public:
-	virtual void open(std::string name)=0;
+	virtual bool open(std::string name)=0; //true - succes
 	virtual void close()=0;
 	virtual void nextFrame()=0;
 	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
@@ -90,7 +90,7 @@ public:
 	BinkClose binkClose;
 
 	CBIKHandler();
-	void open(std::string name);
+	bool open(std::string name);
 	void close();
 	void nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
@@ -144,7 +144,7 @@ public:
 
 	CSmackPlayer();
 	~CSmackPlayer();
-	void open(std::string name);
+	bool open(std::string name);
 	void close();
 	void nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
@@ -172,7 +172,7 @@ public:
 	~CVideoPlayer(); //d-tor
 
 
-	void open(std::string name);
+	bool open(std::string name);
 	void close();
 	void nextFrame(); //move animation to the next frame
 	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
