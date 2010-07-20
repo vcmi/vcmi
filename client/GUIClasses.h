@@ -579,13 +579,12 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-class CMarketplaceWindow : public CIntObject
+class CTradeWindow : public CIntObject //base for markets and altar of sacrifice
 {
-	bool printButtonFor(EMarketMode M) const;
 public:
 	enum EType
 	{
-		RESOURCE, PLAYER, ARTIFACT, CREATURE
+		RESOURCE, PLAYER, ARTIFACT, CREATURE, CREATURE_PLACEHOLDER,ARTIFACT_PLACEHOLDER
 	};
 	class CTradeableItem : public CIntObject
 	{
@@ -594,9 +593,16 @@ public:
 		int id; 
 		int serial;
 		bool left;
-		CFunctionList<void()> callback;
+		std::string subtitle; //empty if default
 
-		void show(SDL_Surface * to);
+		CFunctionList<void()> callback;
+		bool downSelection;
+
+		void showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to);
+
+		void clickRight(tribool down, bool previousState);
+		void hover (bool on);
+		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		SDL_Surface *getSurface();
 		CTradeableItem(EType Type, int ID, bool Left, int Serial);
@@ -605,30 +611,96 @@ public:
 	const IMarket *market;
 	const CGHeroInstance *hero;
 	CPicture *bg; //background
-	std::vector<CTradeableItem*> left, right;
-	std::vector<std::string> rSubs; //offer caption
-	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 
-	EType ltype, rtype;
+	CArtifactsOfHero *arts;
+	//all indexes: 1 = left, 0 = right
+	std::vector<CTradeableItem*> items[2];
+	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
+	EType itemsType[2];
+
 	EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-	int r1, r2; //suggested amounts of traded resources
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
+	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c
+
 	void showAll(SDL_Surface * to);
+
+	void initSubs(bool Left);
+	void initTypes();
+	void initItems(bool Left);
+	std::vector<int> *getItemsIds(bool Left); //NULL if default
+	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
+	void removeItems(const std::set<CTradeableItem *> &toRemove);
+	void removeItem(CTradeableItem * t);
+	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
+	void setMode(EMarketMode Mode); //mode setter
+
+	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
+	virtual void selectionChanged(bool side) = 0; //true == left
+	virtual Point selectionOffset(bool Left) const = 0;
+	virtual std::string selectionSubtitle(bool Left) const = 0;
+	virtual void garrisonChanged() = 0; 
+	virtual void artifactsChanged(bool left) = 0;
+};
+
+class CMarketplaceWindow : public CTradeWindow
+{
+	bool printButtonFor(EMarketMode M) const;
+public:
+	int r1, r2; //suggested amounts of traded resources
+
 	void setMax();
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
 	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
-	void setMode(EMarketMode Mode); //mode setter
 
-	void getPositionsFor(std::vector<Rect> &poss, bool Right, EType type) const;
+	Point selectionOffset(bool Left) const;
+	std::string selectionSubtitle(bool Left) const;
+
 
 	void garrisonChanged(); //removes creatures with count 0 from the list (apparently whole stack has been sold)
 	void artifactsChanged(bool left);
+	void resourceChanged(int type, int val);
+
+	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
+};
+
+class CAltarWindow : public CTradeWindow
+{
+public:
+	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c-tor
+
+	void getExpValues();
+	~CAltarWindow(); //d-tor
+
+	std::vector<int> sacrificedUnits, //[slot_nr] -> how many creatures from that slot will be sacrificed
+		expPerUnit;
+
+	AdventureMapButton *sacrificeAll, *sacrificeBackpack;
+	CLabel *expToLevel, *expOnAltar;
+
+
+	void selectionChanged(bool side); //true == left
+	void SacrificeAll();
+	void SacrificeBackpack();
+	void makeDeal();
+
+	void blockTrade();
+	void sliderMoved(int to);
+	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
+	void mimicCres();
+
+	Point selectionOffset(bool Left) const;
+	std::string selectionSubtitle(bool Left) const;
+	void garrisonChanged(); 
+	void artifactsChanged(bool left);
+	void calcTotalExp();
+	void setExpToLevel();
+	void updateRight(CTradeableItem *toUpdate);
 };
 
 class CSystemOptionsWindow : public CIntObject
@@ -809,12 +881,7 @@ public:
 
 class CArtPlace: public LRClickableAreaWTextComp
 {
-private:
-	bool active;
 public:
-	//bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4,
-	//	misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso,
-	//	lHand, rHand, neck, shoulders, head; //my types
 	ui16 slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
 	bool marked;
@@ -877,7 +944,7 @@ public:
 	void setSlotData (CArtPlace* artPlace, int slotID);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
-	CArtifactsOfHero(const SDL_Rect & position); //c-tor
+	CArtifactsOfHero(const Point& position); //c-tor
 	~CArtifactsOfHero(); //d-tor
 
 	friend class CArtPlace;
@@ -1000,38 +1067,6 @@ public:
 	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
 	~CTransformerWindow(); //d-tor
 };
-
-class CShopWindow : public CIntObject
-{
-public:
-	std::map<ui16, Component> available, chosen, bought;
-
-	bool swapItem (ui16 which, bool choose);
-	virtual void Buy() {};
-};
-class CArtMerchantWindow : public CShopWindow
-{
-public:
-	void activate();
-	void deactivate();	
-	void show(SDL_Surface * to);
-	void Buy();
-
-	CArtMerchantWindow();
-	~CArtMerchantWindow();
-};
-class CUniversityWindow : public CShopWindow
-{};
-class CAltarWindow : public CShopWindow
-{};
-class CRefugeeCampWindow : public CShopWindow
-{};
-class CWarMachineWindow : public CShopWindow
-{};
-class CFreelancersWindow : public CShopWindow
-{};
-class CHillFortWindow : public CIntObject //garrison dialog? shop?
-{};
 
 class CThievesGuildWindow : public CIntObject
 {

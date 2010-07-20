@@ -396,6 +396,13 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
+	if(which == 4)
+	{
+		if(CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.topInt()))
+		{
+			ctw->setExpToLevel();
+		}
+	}
 	if(which >= PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
 		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -415,6 +422,9 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt()))
+		mw->resourceChanged(type, val);
+	
 	GH.totalRedraw();
 }
 
@@ -483,7 +493,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		 //need to create "Garrison Holder" class thingy
 			cki->updateAllGarrisons();
 		}
-		else if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(*i))
+		else if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
 		{
 			if(obj == cmw->hero)
 				cmw->garrisonChanged();
@@ -935,8 +945,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		adventureInt->heroWindow->activate();
 		return;
 	}
-	CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt());
-	if(cew) //exchange window is open
+	if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt())) //exchange window is open
 	{
 		cew->deactivate();
 		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
@@ -950,6 +959,14 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		}
 		cew->prepareBackground();
 		cew->activate();
+	}
+	else if(CTradeWindow *caw = dynamic_cast<CTradeWindow*>(GH.topInt()))
+	{
+		caw->deactivate();
+		caw->arts->updateState = true;
+		caw->arts->setHero(hero);
+		caw->arts->updateState = false;
+		caw->activate();
 	}
 }
 
@@ -1987,8 +2004,16 @@ void CPlayerInterface::stopMovement()
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-	CMarketplaceWindow *cmw = new CMarketplaceWindow(market, visitor, market->availableModes().front());
-	GH.pushInt(cmw);
+	if(market->o->ID == 2) //Altar
+	{
+		EMarketMode mode = market->availableModes().front();
+		if(market->allowsTrade(ARTIFACT_EXP) && visitor->getAlignment() != EVIL)
+			GH.pushInt(new CAltarWindow(market, visitor, ARTIFACT_EXP));
+		else if(market->allowsTrade(CREATURE_EXP) && visitor->getAlignment() != GOOD)
+			GH.pushInt(new CAltarWindow(market, visitor, CREATURE_EXP));
+	}
+	else
+		GH.pushInt(new CMarketplaceWindow(market, visitor, market->availableModes().front()));
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)

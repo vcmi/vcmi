@@ -337,7 +337,8 @@ public:
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
-
+	
+	EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling

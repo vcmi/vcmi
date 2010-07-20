@@ -105,9 +105,9 @@ const int CREEP_SIZE = 4000; // neutral stacks won't grow beyon this number
 const int WEEKLY_GROWTH = 10; //percent
 const int AVAILABLE_HEROES_PER_PLAYER = 2;
 
-#define BFIELD_WIDTH (17)
-#define BFIELD_HEIGHT (11)
-#define BFIELD_SIZE ((BFIELD_WIDTH) * (BFIELD_HEIGHT))
+const int BFIELD_WIDTH = 17;
+const int BFIELD_HEIGHT = 11;
+const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 
 enum EMarketMode
 {
@@ -116,6 +116,10 @@ enum EMarketMode
 	MARTKET_AFTER_LAST_PLACEHOLDER
 };
 
+enum EAlignment
+{
+	GOOD, EVIL, NEUTRAL
+};
 //uncomment to make it work
 //#define MARK_BLOCKED_POSITIONS
 //#define MARK_VISITABLE_POSITIONS

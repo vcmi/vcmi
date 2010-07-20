@@ -520,7 +520,7 @@ void CSlider::moveTo(int to)
 
 void CSlider::clickLeft(tribool down, bool previousState)
 {
-	if(down)
+	if(down && !slider->blocked)
 	{
 		float pw = 0;
 		float rw = 0;

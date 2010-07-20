@@ -47,6 +47,11 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	throw std::string("Cannot pick secondary skill!");
 }
 
+EAlignment CHeroClass::getAlignment()
+{
+	return (EAlignment)alignment;
+}
+
 int CObstacleInfo::getWidth() const
 {
 	int ret = 1;
@@ -440,6 +445,7 @@ void CHeroHandler::loadHeroClasses()
 	for(int ss=0; ss<18; ++ss) //18 classes of hero (including conflux)
 	{
 		CHeroClass * hc = new CHeroClass;
+		hc->alignment = ss / 6;
 
 		char name[BUFFER_SIZE+1];
 		str.get(name, BUFFER_SIZE, '\t');

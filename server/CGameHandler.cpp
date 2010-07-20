@@ -4868,3 +4868,31 @@ bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance 
 	visitObjectAfterVictory = true;
 	return true;
 }
+
+bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count)
+{
+	int oldCount = hero->getAmount(slot);
+	int newCount = oldCount - count;
+
+	if(oldCount < count)
+		COMPLAIN_RET("Not enough creatures to sacrifice!")
+	else if(oldCount == count && hero->Slots().size() == 1 && hero->needsLastStack())
+		COMPLAIN_RET("Cannot sacrifice last creature!");
+
+	int crid = hero->getStack(slot).type->idNumber;
+	
+	SetGarrisons sg;
+	sg.garrs[hero->id] = hero->getArmy();
+	if(newCount)
+		sg.garrs[hero->id].setStackCount(slot, newCount);
+	else
+		sg.garrs[hero->id].eraseStack(slot);
+	sendAndApply(&sg);
+
+	int dump, exp;
+	market->getOffer(crid, 0, dump, exp, CREATURE_EXP);
+	exp *= count;
+	changePrimSkill	(hero->id, 4, exp);
+
+	return true;
+}

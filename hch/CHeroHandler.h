@@ -54,6 +54,7 @@ public:
 class DLL_EXPORT CHeroClass
 {
 public:
+	ui8 alignment; 
 	ui32 skillLimit; //how many secondary skills can hero learn
 	std::string name;
 	float aggression;
@@ -70,8 +71,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & skillLimit & name & aggression & initialAttack & initialDefence & initialPower & initialKnowledge & primChance
-			& proSec & selectionProbability & terrCosts;
+			& proSec & selectionProbability & terrCosts & alignment;
 	}
+EAlignment getAlignment();
 };
 
 struct DLL_EXPORT CObstacleInfo

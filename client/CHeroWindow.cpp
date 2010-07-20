@@ -71,7 +71,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	curHero = NULL;
 	char bufor[400];
 
-	artifs = new CArtifactsOfHero(pos);
+	artifs = new CArtifactsOfHero(pos.topLeft());
 	artifs->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs->commonInfo->participants.insert(artifs);
 

@@ -1516,6 +1516,11 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 	}
 }
 
+EAlignment CGHeroInstance::getAlignment() const
+{
+	return type->heroClass->getAlignment();
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -2239,6 +2244,7 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 	case RESOURCE_PLAYER:
 		return vstd::contains(builtBuildings, 14); // 	marketplace
 	case ARTIFACT_RESOURCE:
+	case RESOURCE_ARTIFACT:
 		return (subID == 2 || subID == 5 || subID == 8) && vstd::contains(builtBuildings, 17);//artifact merchants
 	case CREATURE_RESOURCE:
 		return subID == 6 && vstd::contains(builtBuildings, 21); //Freelancer's guild
@@ -6485,6 +6491,13 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			assert(g >= r); //should we allow artifacts cheaper than unit of resource?
 			val1 = (g / r) + 0.5f;
 			val2 = 1;
+		}
+		break;
+
+	case CREATURE_EXP:
+		{
+			val1 = 1;
+			val2 = (VLC->creh->creatures[id1]->AIValue / 40) * 5;
 		}
 		break;
 

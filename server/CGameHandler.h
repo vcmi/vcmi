@@ -171,6 +171,7 @@ public:
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
+	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count);
 	bool sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
