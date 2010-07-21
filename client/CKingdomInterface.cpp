@@ -1049,7 +1049,7 @@ void CKingdomInterface::CHeroItem::CArtPlace::clickLeft(tribool down, bool previ
 	{tlog1<<type;
 		if(type == 0)
 		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), hero->hero, LOCPLINT);
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), hero->hero, LOCPLINT, false);
 			GH.pushInt(spellWindow);
 		}
 		else

@@ -216,6 +216,10 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 	curHero = hero;
 
+	artifs->updateState = true;
+	artifs->setHero(hero);
+	artifs->updateState = false;
+
 	//pos temporarily switched, restored later
 	pos.x -= 65;
 	pos.y -= 8;
@@ -271,9 +275,6 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPointsArea->text = std::string(bufor);
 
-	artifs->updateState = true;
-	artifs->setHero(hero);
-	artifs->updateState = false;
 
 	//if we have exchange window with this hero open
 	bool noDismiss=false;

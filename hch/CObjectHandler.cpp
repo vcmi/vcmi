@@ -1190,7 +1190,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	}
 	if (skillVal) //we don't need bonuses of other types here
 	{
-		Bonus * b = getBonus(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL));
+		Bonus * b = bonuses.getFirst(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL));
 		if (b) //only local hero bonus
 		{
 			b->val = skillVal;

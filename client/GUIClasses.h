@@ -943,7 +943,7 @@ public:
 
 	CArtifactsOfHero(const Point& position); //c-tor
 	~CArtifactsOfHero(); //d-tor
-
+	void updateParentWindow();
 	friend class CArtPlace;
 };
 

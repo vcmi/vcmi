@@ -4530,34 +4530,7 @@ void CArtPlace::select ()
 	//ourOwner->curHero->recreateArtBonuses();
 
 	// Update the hero bonuses.
-	CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt());
-	if (chw != NULL) 
-	{
-		chw->deactivate();
-		chw->setHero(ourOwner->curHero);
-		chw->activate();
-	} 
-	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
-	{
-		//assert(cew); // Either an exchange- or hero window should be active if an artifact slot is selected.
-		cew->deactivate();
-		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
-		{
-			if(cew->heroInst[g] == ourOwner->curHero)
-			{
-				cew->artifs[g]->setHero(ourOwner->curHero);
-			}
-		}
-
-		//use our copy of hero to draw window
-		if(cew->heroInst[0]->id == ourOwner->curHero->id)
-			cew->heroInst[0] = ourOwner->curHero;
-		else
-			cew->heroInst[1] = ourOwner->curHero;
-
-		cew->prepareBackground();
-		cew->activate();
-	}
+	ourOwner->updateParentWindow();
 
 	if (slotID >= 19)
 		ourOwner->scrollBackpack(backpackCorrection);
@@ -4716,7 +4689,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		if(curHero != hero)
 		{
 			delete	curHero;
-			curHero = new CGHeroInstance(*hero);
+			hero = curHero = new CGHeroInstance(*hero);
 		}
 
 		// Compensate backpack pos if an artifact was insertad before it.
@@ -4736,7 +4709,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
 				else
 					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-				//curHero->recreateArtBonuses();
+
+				updateParentWindow(); //TODO: evil! but does the thing
 
 				// Source <- Dest
 				commonInfo->srcArtifact = commonInfo->destArtifact;
@@ -4930,6 +4904,46 @@ CArtifactsOfHero::~CArtifactsOfHero()
 {
 	dispose();
 	CGI->curh->dragAndDropCursor(NULL);
+}
+
+void CArtifactsOfHero::updateParentWindow()
+{
+	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt())) 
+	{
+		if(updateState)
+			chw->curHero = curHero;
+		else
+		{
+			chw->deactivate();
+			chw->setHero(curHero);
+			chw->activate();
+		}
+	} 
+	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
+	{
+
+		//use our copy of hero to draw window
+		if(cew->heroInst[0]->id == curHero->id)
+			cew->heroInst[0] = curHero;
+		else
+			cew->heroInst[1] = curHero;
+
+		if(!updateState)
+		{
+			cew->deactivate();
+			for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
+			{
+				if(cew->heroInst[g] == curHero)
+				{
+					cew->artifs[g]->setHero(curHero);
+				}
+			}
+
+
+			cew->prepareBackground();
+			cew->activate();
+		}
+	}
 }
 
 void CExchangeWindow::close()
