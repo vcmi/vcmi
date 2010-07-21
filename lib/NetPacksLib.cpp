@@ -80,6 +80,7 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 	if(hero->getSecSkillLevel(which) == 0)
 	{
 		hero->secSkills.push_back(std::pair<int,int>(which, val));
+		hero->updateSkill(which, val);
 	}
 	else
 	{
@@ -97,10 +98,10 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 					tlog1 << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.\n";
 					hero->secSkills[i].second = 3;
 				}
+				hero->updateSkill(which, hero->secSkills[i].second); //when we know final value
 			}
 		}
 	}
-	hero->updateSkill(which, val);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )

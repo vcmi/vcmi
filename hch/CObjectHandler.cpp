@@ -615,8 +615,7 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 
 si32 CGHeroInstance::manaLimit() const
 {
-	double modifier = (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 100.0f;
-	return si32(10*getPrimSkillLevel(3)*modifier);
+	return si32(getPrimSkillLevel(3) * (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0f);
 }
 //void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
 //{
