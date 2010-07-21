@@ -981,8 +981,10 @@ void CGHeroInstance::initObj()
 			case 2://secondary skill
 				speciality.growthsWithLevel = true;
 				bonus.type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
+				bonus.valType = Bonus::BASE_NUMBER; // to receive nonzero value
 				bonus.subtype = it->subtype; //skill id
 				bonus.val = it->val; //value per level, in percent
+				speciality.bonuses.push_back (bonus);
 				switch (it->additionalinfo)
 				{
 					case 0: //normal
@@ -992,8 +994,7 @@ void CGHeroInstance::initObj()
 						bonus.valType = Bonus::PERCENT_TO_ALL;
 						break;
 				}
-				speciality.bonuses.push_back (bonus);
-				bonus.val = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, it->subtype) * it->val; //TODO: limit range to hero only
+				bonus.type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
 				speciality.bonuses.push_back(bonus);
 				break;
 			case 3://spell damage bonus, level dependant but calculated elsehwere
@@ -1117,10 +1118,8 @@ void CGHeroInstance::UpdateSpeciality()
 			switch (it->type)
 			{
 				case Bonus::SECONDARY_SKILL_PREMY:
-					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) *
-						valOfBonuses(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, it->subtype),this) * level);
-					//use only hero skills as bonuses to avoid feedback loop
-					break;
+					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) * level);
+					break; //use only hero skills as bonuses to avoid feedback loop
 				case Bonus::PRIMARY_SKILL: //for crearures, that is
 					int creLevel = (*creatures)[it->additionalInfo]->level;
 					if(!creLevel)
@@ -1192,14 +1191,16 @@ void CGHeroInstance::updateSkill(int which, int val)
 	}
 	if (skillVal) //we don't need bonuses of other types here
 	{
-		if (hasBonusOfType(Bonus::SECONDARY_SKILL_PREMY, which))
+		Bonus * b = getBonus(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL));
+		if (b) //only local hero bonus
 		{
-			getBonus(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which))->val = skillVal;
+			b->val = skillVal;
 		}
 		else
 		{
-			bonuses.push_back
-				(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER));
+			Bonus bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER);
+			bonus.source = Bonus::SECONDARY_SKILL;
+			bonuses.push_back (bonus);
 		}
 	}
 }
