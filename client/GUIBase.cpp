@@ -362,6 +362,11 @@ CGuiHandler::~CGuiHandler()
 
 }
 
+void CGuiHandler::breakEventHandling()
+{
+	current = NULL;
+}
+
 void CIntObject::activateLClick()
 {
 	GH.lclickable.push_front(this);
@@ -931,7 +936,28 @@ SDLKey arrowToNum( SDLKey key )
 
 SDLKey numToDigit( SDLKey key )
 {
-	return SDLKey(key - SDLK_KP0 + SDLK_0);
+	if(key >= SDLK_KP0 && key <= SDLK_KP9)
+		return SDLKey(key - SDLK_KP0 + SDLK_0);
+
+#define REMOVE_KP(keyName) case SDLK_KP_ ## keyName ## : return SDLK_ ## keyName;
+	switch(key)
+	{
+		REMOVE_KP(PERIOD)
+		REMOVE_KP(MINUS)
+		REMOVE_KP(PLUS)
+		REMOVE_KP(EQUALS)
+			
+	case SDLK_KP_MULTIPLY:
+		return SDLK_ASTERISK;
+	case SDLK_KP_DIVIDE:
+		return SDLK_SLASH;
+	case SDLK_KP_ENTER:
+		return SDLK_RETURN;
+	default:
+		tlog3 << "Illegal numkey conversion!" << std::endl;
+		return SDLK_UNKNOWN;
+	}
+#undef REMOVE_KP
 }
 
 bool isNumKey( SDLKey key, bool number )

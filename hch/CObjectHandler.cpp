@@ -1221,30 +1221,31 @@ int CGHeroInstance::getTotalStrength() const
 	return (int) ret;
 }
 
-ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
+ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
 {
-	ui8 skill = 0; //skill level
+	si16 skill = -1; //skill level
 
-	if(spell->fire)
-		skill = std::max(skill,getSecSkillLevel(14));
-	if(spell->air)
-		skill = std::max(skill,getSecSkillLevel(15));
-	if(spell->water)
-		skill = std::max(skill,getSecSkillLevel(16));
-	if(spell->earth)
-		skill = std::max(skill,getSecSkillLevel(17));
+#define TRY_SCHOOL(schoolName, schoolMechanicsId, schoolOutId)	\
+	if(spell-> ## schoolName)									\
+	{															\
+		int thisSchool = std::max<int>(getSecSkillLevel(14 + (schoolMechanicsId)), valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
+		if(thisSchool > skill)									\
+		{														\
+			skill = thisSchool;									\
+			if(outSelectedSchool)								\
+				*outSelectedSchool = schoolOutId;				\
+		}														\
+	}
+	TRY_SCHOOL(fire, 0, 1)
+	TRY_SCHOOL(air, 1, 0)
+	TRY_SCHOOL(water, 2, 2)
+	TRY_SCHOOL(earth, 3, 3)
+#undef TRY_SCHOOL;
 
-	//bonuses (eg. from special terrains)
-	skill = std::max<ui8>(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
-	if(spell->fire)
-		skill = std::max<ui8>(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1));
-	if(spell->air)
-		skill = std::max<ui8>(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 2));
-	if(spell->water)
-		skill = std::max<ui8>(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 4));
-	if(spell->earth)
-		skill = std::max<ui8>(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 8));
 
+
+	amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
+	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
 

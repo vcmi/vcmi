@@ -632,6 +632,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const st
 	{
 		comps[i]->recActions = 0xff;
 		addChild(comps[i]);
+		comps[i]->recActions &= ~(SHOWALL | UPDATE);
 		components.push_back(comps[i]);
 	}
 	setDelComps(delComps);
@@ -1168,7 +1169,7 @@ void CStatusBar::clear()
 	if(LOCPLINT->cingconsole->enteredText == "") //for appropriate support for in-game console
 	{
 		current="";
-		show(screen);
+		redraw();
 	}
 }
 
@@ -1177,7 +1178,7 @@ void CStatusBar::print(const std::string & text)
 	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
 	{
 		current=text;
-		show(GH.topInt()==adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
+		redraw();
 	}
 }
 
@@ -6206,7 +6207,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	if(key.keysym.sym == SDLK_TAB)
 	{
 		moveFocus();
-		GH.current = NULL;
+		GH.breakEventHandling();
 		return;
 	}
 

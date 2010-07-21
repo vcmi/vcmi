@@ -33,6 +33,7 @@ extern SDL_Color tytulowy, zwykly, darkTitle;
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
 {
+	used = LCLICK | RCLICK | HOVER;
 	pos = myRect;
 	onLeft = funcL;
 	textOnRclick = textR;
@@ -67,24 +68,10 @@ void SpellbookInteractiveArea::hover(bool on)
 	}
 }
 
-void SpellbookInteractiveArea::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-
-}
-void SpellbookInteractiveArea::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-}
-
 CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
-	spellSite(0),
+	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt)
 {
@@ -95,87 +82,27 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 			mySpells.insert(v);
 	}
 
-	//initializing schools' levels
-	for(int b=0; b<4; ++b) schoolLvls[b] = 0;
-	for(size_t b=0; b<myHero->secSkills.size(); ++b)
-	{
-		switch(myHero->secSkills[b].first)
-		{
-		case 14: //fire magic
-			schoolLvls[1] = myHero->secSkills[b].second;
-			break;
-		case 15: //air magic
-			schoolLvls[0] = myHero->secSkills[b].second;
-			break;
-		case 16: //water magic
-			schoolLvls[2] = myHero->secSkills[b].second;
-			break;
-		case 17: //earth magic
-			schoolLvls[3] = myHero->secSkills[b].second;
-			break;
-		}
-	}
-
 	//initializing sizes of spellbook's parts
 	for(int b=0; b<5; ++b)
 		sitesPerTabAdv[b] = 0;
 	for(int b=0; b<5; ++b)
 		sitesPerTabBattle[b] = 0;
+
 	for(std::set<ui32>::const_iterator g = mySpells.begin(); g!=mySpells.end(); ++g)
 	{
-		if(CGI->spellh->spells[*g].combatSpell)
-		{
-			++(sitesPerTabBattle[4]);
-		}
-		else
-		{
-			++(sitesPerTabAdv[4]);
-		}
+		const CSpell &s = CGI->spellh->spells[*g];
+		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
-		if(CGI->spellh->spells[*g].air)
-		{
-			if(CGI->spellh->spells[*g].combatSpell)
-			{
-				++(sitesPerTabBattle[0]);
-			}
-			else
-			{
-				++(sitesPerTabAdv[0]);
-			}
-		}
-		if(CGI->spellh->spells[*g].fire)
-		{
-			if(CGI->spellh->spells[*g].combatSpell)
-			{
-				++(sitesPerTabBattle[1]);
-			}
-			else
-			{
-				++(sitesPerTabAdv[1]);
-			}
-		}
-		if(CGI->spellh->spells[*g].water)
-		{
-			if(CGI->spellh->spells[*g].combatSpell)
-			{
-				++(sitesPerTabBattle[2]);
-			}
-			else
-			{
-				++(sitesPerTabAdv[2]);
-			}
-		}
-		if(CGI->spellh->spells[*g].earth)
-		{
-			if(CGI->spellh->spells[*g].combatSpell)
-			{
-				++(sitesPerTabBattle[3]);
-			}
-			else
-			{
-				++(sitesPerTabAdv[3]);
-			}
-		}
+		++sitesPerOurTab[4];
+
+		if(s.air)
+			++sitesPerOurTab[0];
+		if(s.fire)
+			++sitesPerOurTab[1];
+		if(s.water)
+			++sitesPerOurTab[2];
+		if(s.earth)
+			++sitesPerOurTab[3];
 	}
 	if(sitesPerTabAdv[4] % 12 == 0)
 		sitesPerTabAdv[4]/=12;
@@ -243,15 +170,15 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 	manaPoints = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fmanaPtsb, this), CGI->generaltexth->zelp[459].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[459].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 
 	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
-	selectSpellsA = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsAb, this), CGI->generaltexth->zelp[454].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[454].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
+	selectSpellsA = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::selectSchool, this, 0), CGI->generaltexth->zelp[454].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[454].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
-	selectSpellsE = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsEb, this), CGI->generaltexth->zelp[457].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[457].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
+	selectSpellsE = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::selectSchool, this, 3), CGI->generaltexth->zelp[457].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[457].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
-	selectSpellsF = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsFb, this), CGI->generaltexth->zelp[455].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[455].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
+	selectSpellsF = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::selectSchool, this, 1), CGI->generaltexth->zelp[455].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[455].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
-	selectSpellsW = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsWb, this), CGI->generaltexth->zelp[456].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[456].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
+	selectSpellsW = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::selectSchool, this, 2), CGI->generaltexth->zelp[456].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[456].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
-	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsAllb, this), CGI->generaltexth->zelp[458].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[458].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
+	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::selectSchool, this, 4), CGI->generaltexth->zelp[458].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[458].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
 
 	temp_rect = genRect(leftCorner->h, leftCorner->w, 97 + pos.x, 77 + pos.y);
 	lCorner = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fLcornerb, this), CGI->generaltexth->zelp[450].second, boost::bind(&CStatusBar::print, statusBar, (CGI->generaltexth->zelp[450].first)), boost::bind(&CStatusBar::clear, statusBar), myInt);
@@ -282,6 +209,10 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 			}
 		}
 	}
+
+	selectedTab = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap;
+	currentPage = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap;
+	abetw(currentPage, 0, pagesWithinCurrentTab());
 	computeSpellsPerArea();
 }
 
@@ -319,25 +250,30 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
+	(LOCPLINT->battleInt ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(LOCPLINT->battleInt ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+
 	GH.popIntTotally(this);
 }
 
 void CSpellWindow::fadvSpellsb()
 {
-	if (battleSpellsOnly == true) {
+	if (battleSpellsOnly == true) 
+	{
 		turnPageRight();
 		battleSpellsOnly = false;
-		spellSite = 0;
+		currentPage = 0;
 	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fbattleSpellsb()
 {
-	if (battleSpellsOnly == false) {
+	if (battleSpellsOnly == false) 
+	{
 		turnPageLeft();
 		battleSpellsOnly = true;
-		spellSite = 0;
+		currentPage = 0;
 	}
 	computeSpellsPerArea();
 }
@@ -346,75 +282,40 @@ void CSpellWindow::fmanaPtsb()
 {
 }
 
-void CSpellWindow::fspellsAb()
+void CSpellWindow::selectSchool(int school)
 {
-	if (selectedTab != 0) {
+	if (selectedTab != school) 
+	{
 		turnPageRight();
-		selectedTab = 0;
-		spellSite = 0;
-	}
-	computeSpellsPerArea();
-}
-
-void CSpellWindow::fspellsEb()
-{
-	if (selectedTab != 3) {
-		turnPageRight();
-		selectedTab = 3;
-		spellSite = 0;
-	}
-	computeSpellsPerArea();
-}
-
-void CSpellWindow::fspellsFb()
-{
-	if (selectedTab != 1) {
-		turnPageRight();
-		selectedTab = 1;
-		spellSite = 0;
-	}
-	computeSpellsPerArea();
-}
-
-void CSpellWindow::fspellsWb()
-{
-	if (selectedTab != 2) {
-		turnPageRight();
-		selectedTab = 2;
-		spellSite = 0;
-	}
-	computeSpellsPerArea();
-}
-
-void CSpellWindow::fspellsAllb()
-{
-	if (selectedTab != 4) {
-		turnPageRight();
-		selectedTab = 4;
-		spellSite = 0;
+		selectedTab = school;
+		currentPage = 0;
 	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fLcornerb()
 {
-	if(spellSite>0) {
+	if(currentPage>0) 
+	{
 		turnPageLeft();
-		--spellSite;
+		--currentPage;
 	}
 	computeSpellsPerArea();
+	GH.breakEventHandling();
 }
 
 void CSpellWindow::fRcornerb()
 {
-	if((spellSite + 1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab])) {
+	if((currentPage + 1) < (pagesWithinCurrentTab())) 
+	{
 		turnPageRight();
-		++spellSite;
+		++currentPage;
 	}
 	computeSpellsPerArea();
+	GH.breakEventHandling();
 }
 
-void CSpellWindow::show(SDL_Surface *to)
+void CSpellWindow::showAll(SDL_Surface *to)
 {
 	SDL_BlitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
@@ -423,20 +324,20 @@ void CSpellWindow::show(SDL_Surface *to)
 	mana<<myHero->mana;
 	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, tytulowy, to);
 	
-	statusBar->show(to);
+	statusBar->showAll(to);
 
 	//printing school images
-	if(selectedTab!=4 && spellSite == 0)
+	if(selectedTab!=4 && currentPage == 0)
 	{
 		blitAt(schools->ourImages[selectedTab].bitmap, 117 + pos.x, 74 + pos.y, to);
 	}
 
 	//printing corners
-	if(spellSite!=0)
+	if(currentPage!=0)
 	{
 		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
 	}
-	if((spellSite+1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]) )
+	if((currentPage+1) < (pagesWithinCurrentTab()) )
 	{
 		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
 	}
@@ -444,48 +345,7 @@ void CSpellWindow::show(SDL_Surface *to)
 	//printing spell info
 	for(int b=0; b<12; ++b)
 	{
-		if(spellAreas[b]->mySpell == -1)
-			continue;
-		const CSpell * spell = &CGI->spellh->spells[spellAreas[b]->mySpell];
-		//int b2 = -1; //TODO use me
-
-		blitAt(spells->ourImages[spellAreas[b]->mySpell].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
-
-		Uint8 bestSchool = -1,
-			bestslvl =  myHero->getSpellSchoolLevel( spell );
-
-		if(spell->air)
-			bestSchool = 0;
-		if(spell->fire)
-			bestSchool = 1;
-		if(spell->water)
-			bestSchool = 2;
-		if(spell->earth)
-			bestSchool = 3;
-
-		//printing border (indicates level of magic school)
-		blitAt(schoolBorders[bestSchool]->ourImages[bestslvl].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
-
-		SDL_Color firstLineColor, secondLineColor;
-		if(myInt->cb->getSpellCost(spell, myHero) > myHero->mana) //hero cannot cast this spell
-		{
-			firstLineColor = zwykly;
-			secondLineColor = darkTitle;
-		}
-		else
-		{
-			firstLineColor = tytulowy;
-			secondLineColor = zwykly;
-		}
-		//printing spell's name
-		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, FONT_TINY, firstLineColor, to);
-		//printing lvl
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, FONT_TINY, secondLineColor, to);
-		//printing  cost
-		std::ostringstream ss;
-		ss<<CGI->generaltexth->allTexts[387]<<": "<<myInt->cb->getSpellCost(spell, myHero);
-
-		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, FONT_TINY, secondLineColor, to);
+		spellAreas[b]->showAll(to);
 	}
 }
 
@@ -541,7 +401,7 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		if(spellsCurSite.size() > 12)
 		{
-			spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + spellSite*12, spellsCurSite.end());
+			spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
 			if(spellsCurSite.size() > 12)
 			{
 				spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -552,13 +412,13 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		if(spellsCurSite.size() > 10)
 		{
-			if(spellSite == 0)
+			if(currentPage == 0)
 			{
 				spellsCurSite.erase(spellsCurSite.begin()+10, spellsCurSite.end());
 			}
 			else
 			{
-				spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + (spellSite-1)*12 + 10, spellsCurSite.end());
+				spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
 				if(spellsCurSite.size() > 12)
 				{
 					spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -567,33 +427,33 @@ void CSpellWindow::computeSpellsPerArea()
 		}
 	}
 	//applying
-	if(selectedTab == 4 || spellSite != 0)
+	if(selectedTab == 4 || currentPage != 0)
 	{
 		for(size_t c=0; c<12; ++c)
 		{
 			if(c<spellsCurSite.size())
 			{
-				spellAreas[c]->mySpell = spellsCurSite[c];
+				spellAreas[c]->setSpell(spellsCurSite[c]);
 			}
 			else
 			{
-				spellAreas[c]->mySpell = -1;
+				spellAreas[c]->setSpell(-1);
 			}
 		}
 	}
 	else
 	{
-		spellAreas[0]->mySpell = -1;
-		spellAreas[1]->mySpell = -1;
+		spellAreas[0]->setSpell(-1);
+		spellAreas[1]->setSpell(-1);
 		for(size_t c=0; c<10; ++c)
 		{
 			if(c<spellsCurSite.size())
-				spellAreas[c+2]->mySpell = spellsCurSite[c];
+				spellAreas[c+2]->setSpell(spellsCurSite[c]);
 			else
-				spellAreas[c+2]->mySpell = -1;
+				spellAreas[c+2]->setSpell(-1);
 		}
 	}
-
+	redraw();
 }
 
 void CSpellWindow::activate()
@@ -610,13 +470,13 @@ void CSpellWindow::activate()
 	selectSpellsW->activate();
 	selectSpellsAll->activate();
 
-	lCorner->activate();
-	rCorner->activate();
-
 	for(int g=0; g<12; ++g)
 	{
 		spellAreas[g]->activate();
 	}
+
+	lCorner->activate();
+	rCorner->activate();
 }
 
 void CSpellWindow::deactivate()
@@ -632,14 +492,14 @@ void CSpellWindow::deactivate()
 	selectSpellsF->deactivate();
 	selectSpellsW->deactivate();
 	selectSpellsAll->deactivate();
-	
-	lCorner->deactivate();
-	rCorner->deactivate();
 
 	for(int g=0; g<12; ++g)
 	{
 		spellAreas[g]->deactivate();
 	}
+
+	lCorner->deactivate();
+	rCorner->deactivate();
 }
 
 void CSpellWindow::turnPageLeft()
@@ -656,12 +516,62 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_ESCAPE ||  key.keysym.sym == SDLK_RETURN)
 		fexitb();
+
+	if(key.state == SDL_PRESSED)
+	{
+		switch(key.keysym.sym)
+		{
+		case SDLK_LEFT:
+			fLcornerb();
+			break;
+		case SDLK_RIGHT:
+			fRcornerb();
+			break;
+		case SDLK_UP:
+		case SDLK_DOWN:
+			bool down = key.keysym.sym == SDLK_DOWN;
+			static const int schoolsOrder[] = {0, 3, 1, 2, 4};
+			int index = -1;
+			while(schoolsOrder[++index] != selectedTab);
+			index += (down ? 1 : -1);
+			abetw(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			if(selectedTab != schoolsOrder[index])
+				selectSchool(schoolsOrder[index]);
+			break;
+		}
+
+		//alt + 1234567890-= casts spell from 1 - 12 slot
+		if(LOCPLINT->altPressed())
+		{
+			SDLKey hlpKey = key.keysym.sym;
+			if(isNumKey(hlpKey, false))
+				hlpKey = numToDigit(hlpKey);
+
+			static const SDLKey spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
+
+			int index = -1;
+			while(++index < ARRAY_COUNT(spellSelectors) && spellSelectors[index] != hlpKey);
+			if(index >= ARRAY_COUNT(spellSelectors))
+				return;
+
+			//try casting spell
+			spellAreas[index]->clickLeft(false, true);
+		}
+	}
+}
+
+Uint8 CSpellWindow::pagesWithinCurrentTab()
+{
+	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
+	used = LCLICK | RCLICK | HOVER;
+
+	spellCost = mySpell = whichSchool = schoolLevel = -1;
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -669,9 +579,26 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	if(!down && mySpell!=-1)
 	{
 		const CSpell *sp = &CGI->spellh->spells[mySpell];
+
 		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
+		if(spellCost > owner->myHero->mana) //insufficient mana
+		{
+			char msgBuf[500];
+			sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
+			owner->myInt->showInfoDialog(std::string(msgBuf));
+		}
+
+		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
+		if(sp->combatSpell && !owner->myInt->battleInt
+			|| !sp->combatSpell && owner->myInt->battleInt)
+		{
+			std::vector<SComponent*> hlp(1, new SComponent(SComponent::spell, mySpell, 0));
+			LOCPLINT->showInfoDialog(sp->descriptions[schoolLevel], hlp);
+			return;
+		}
+
 		//we will cast a spell
-		if(owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell() && spellCost <= owner->myHero->mana) //if battle window is open
+		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
 			int spell = mySpell;
 			owner->fexitb();
@@ -679,50 +606,40 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 		else //adventure spell
 		{
-			//insufficient mana
-			if(spellCost > owner->myHero->mana)
-			{
-				char msgBuf[500];
-				sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
-				owner->myInt->showInfoDialog(std::string(msgBuf));
-			}
-			else
-			{
-				using namespace Spells;
-				int spell = mySpell;
-				const CGHeroInstance *h = owner->myHero;
-				owner->fexitb();
+			using namespace Spells;
+			int spell = mySpell;
+			const CGHeroInstance *h = owner->myHero;
+			owner->fexitb();
 
-				switch(spell)
+			switch(spell)
+			{
+			case SUMMON_BOAT:
 				{
-				case SUMMON_BOAT:
+					int3 pos = h->bestLocation();
+					if(pos.x < 0)
 					{
-						int3 pos = h->bestLocation();
-						if(pos.x < 0)
-						{
-							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
-							return;
-						}
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
+						return;
 					}
-					break;
-				case SCUTTLE_BOAT:
-				case DIMENSION_DOOR:
-					adventureInt->enterCastingMode(sp);
-					return;
-				case VISIONS:
-				case VIEW_EARTH:
-				case DISGUISE:
-				case VIEW_AIR:
-				case FLY:
-				case WATER_WALK:
-				case TOWN_PORTAL:
-					break;
-				default:
-					assert(0);
 				}
-
-				LOCPLINT->cb->castSpell(h, spell);
+				break;
+			case SCUTTLE_BOAT:
+			case DIMENSION_DOOR:
+				adventureInt->enterCastingMode(sp);
+				return;
+			case VISIONS:
+			case VIEW_EARTH:
+			case DISGUISE:
+			case VIEW_AIR:
+			case FLY:
+			case WATER_WALK:
+			case TOWN_PORTAL:
+				break;
+			default:
+				assert(0);
 			}
+
+			LOCPLINT->cb->castSpell(h, spell);
 		}
 	}
 }
@@ -743,7 +660,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 
 		SDL_Surface *spellBox = CMessage::drawBoxTextBitmapSub(
 			owner->myInt->playerID,
-			CGI->spellh->spells[mySpell].descriptions[0] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
+			CGI->spellh->spells[mySpell].descriptions[schoolLevel] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
 			CGI->spellh->spells[mySpell].name,30,30);
 		CInfoPopup *vinya = new CInfoPopup(spellBox, true);
 		GH.pushInt(vinya);
@@ -768,16 +685,45 @@ void CSpellWindow::SpellArea::hover(bool on)
 	}
 }
 
-void CSpellWindow::SpellArea::activate()
+void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
 {
-	activateLClick();
-	activateRClick();
-	activateHover();
+	if(mySpell < 0)
+		return;
+
+	const CSpell * spell = &CGI->spellh->spells[mySpell];
+
+	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
+	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
+
+	SDL_Color firstLineColor, secondLineColor;
+	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
+	{
+		static const SDL_Color unavailableSpell = {239, 189, 33, 0};
+		firstLineColor = zwykly;
+		secondLineColor = unavailableSpell;
+	}
+	else
+	{
+		firstLineColor = tytulowy;
+		secondLineColor = zwykly;
+	}
+	//printing spell's name
+	CSDL_Ext::printAtMiddle(spell->name, pos.x + 39, pos.y + 70, FONT_TINY, firstLineColor, to);
+	//printing lvl
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], pos.x + 39, pos.y + 82, FONT_TINY, secondLineColor, to);
+	//printing  cost
+	std::ostringstream ss;
+	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
+	CSDL_Ext::printAtMiddle(ss.str(), pos.x + 39, pos.y + 94, FONT_TINY, secondLineColor, to);
 }
 
-void CSpellWindow::SpellArea::deactivate()
+void CSpellWindow::SpellArea::setSpell(int spellID)
 {
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
+	mySpell = spellID;
+	if(mySpell < 0)
+		return;
+
+	const CSpell * spell = &CGI->spellh->spells[mySpell];
+	schoolLevel = owner->myHero->getSpellSchoolLevel(spell, &whichSchool);
+	spellCost = owner->myInt->cb->getSpellCost(spell, owner->myHero);
 }

@@ -849,13 +849,14 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	showInfoDialog(text,intComps,soundID);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, int soundID)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, int soundID, bool delComps)
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	
 	stopMovement();
 	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
+	temp->setDelComps(delComps);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
 		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
@@ -1012,6 +1013,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 {
 	h & playerID & serialID;
 	h & sysOpts;
+	h & spellbookSettings;
 }
 
 void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
@@ -1098,6 +1100,11 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 bool CPlayerInterface::shiftPressed() const
 {
 	return SDL_GetKeyState(NULL)[SDLK_LSHIFT]  ||  SDL_GetKeyState(NULL)[SDLK_RSHIFT];
+}
+
+bool CPlayerInterface::altPressed() const
+{
+	return SDL_GetKeyState(NULL)[SDLK_LALT]  ||  SDL_GetKeyState(NULL)[SDLK_RALT];
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
@@ -2052,4 +2059,10 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	}
 	else
 		showShipyardDialog(obj);
+}
+
+CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
+{
+	spellbookLastPageBattle = spellbokLastPageAdvmap = 0;
+	spellbookLastTabBattle = spellbookLastTabAdvmap = 4;
 }

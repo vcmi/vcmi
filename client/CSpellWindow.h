@@ -34,8 +34,6 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
-	void activate();
-	void deactivate();
 
 	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR,
 		boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
@@ -48,14 +46,19 @@ private:
 	{
 	public:
 		int mySpell;
+		int schoolLevel; //range: 0 none, 3 - expert
+		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+		int spellCost;
 		CSpellWindow * owner;
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+
+		void setSpell(int spellID);
+
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
-		void activate();
-		void deactivate();
+		void showAll(SDL_Surface *to);
 	};
 
 	SDL_Surface * background, * leftCorner, * rightCorner;
@@ -75,9 +78,8 @@ private:
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
-	Uint8 spellSite; //changes when corners are clicked
+	Uint8 currentPage; //changes when corners are clicked
 	std::set<ui32> mySpells; //all spels in this spellbook
-	Uint8 schoolLvls[4]; //levels of magic for different schools: [0]: air, [1]: fire, [2]: water, [3]: earth; 0 - none, 1 - beginner, 2 - medium, 3 - expert
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
 
@@ -98,19 +100,15 @@ public:
 	void fbattleSpellsb();
 	void fmanaPtsb();
 
-	void fspellsAb();
-	void fspellsEb();
-	void fspellsFb();
-	void fspellsWb();
-	void fspellsAllb();
-
 	void fLcornerb();
 	void fRcornerb();
 
+	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	Uint8 pagesWithinCurrentTab();
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 #endif // __CSPELLWINDOW_H__

@@ -137,6 +137,18 @@ public:
 	std::vector<const CGTownInstance *> towns; //our heroes on the adventure map (not the garrisoned ones)
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 
+	struct SpellbookLastSetting
+	{
+		int spellbookLastPageBattle, spellbokLastPageAdvmap; //on which page we left spellbook
+		int spellbookLastTabBattle, spellbookLastTabAdvmap; //on which page we left spellbook
+
+		SpellbookLastSetting();
+		template <typename Handler> void serialize( Handler &h, const int version )
+		{
+			h & spellbookLastPageBattle & spellbokLastPageAdvmap & spellbookLastTabBattle & spellbookLastTabAdvmap;
+		}
+	} spellbookSettings;
+
 	void update();
 	void recreateHeroTownList();
 	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
@@ -210,6 +222,7 @@ public:
 	void waitWhileDialog();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
+	bool altPressed() const; //determines if alt key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void showComp(SComponent comp); //TODO: comment me
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
@@ -218,7 +231,7 @@ public:
 	void updateInfo(const CGObjectInstance * specific);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
-	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);
+	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0, bool delComps = false);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	void stopMovement();
 	bool moveHero(const CGHeroInstance *h, CGPath path);
