@@ -77,7 +77,7 @@ public:
 	//AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
-	void setDef(const std::string & defName, bool playerColoredButton);
+	void setDef(const std::string & defName, bool playerColoredButton, bool reset=false);
 	void setPlayerColor(int player);
 };
 

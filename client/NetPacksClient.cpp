@@ -745,6 +745,14 @@ void OpenWindow::applyCl(CClient *cl)
 			INTERFACE_CALL_IF_PRESENT(cl->getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, showMarketWindow, market, hero);
 		}
 		break;
+	case HILL_FORT_WINDOW:
+		{
+			//displays Hill fort window
+			const CGObjectInstance *obj = cl->getObj(id1);
+			const CGHeroInstance *hero = cl->getHero(id2);
+			INTERFACE_CALL_IF_PRESENT(cl->getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, showHillFortWindow, obj, hero);
+		}
+		break;
 	case PUZZLE_MAP:
 		{
 			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);

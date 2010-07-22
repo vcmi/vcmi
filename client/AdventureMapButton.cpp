@@ -252,8 +252,15 @@ void AdventureMapButton::block( ui8 on )
 	show(screenBuf);
 }
 
-void AdventureMapButton::setDef(const std::string & defName, bool playerColoredButton)
+void AdventureMapButton::setDef(const std::string & defName, bool playerColoredButton, bool reset/*=false*/)
 {
+	if (reset)
+	{
+		for (size_t i=0;i<imgs[0].size();i++)
+			SDL_FreeSurface(imgs[0][i]);
+		imgs[0].clear();
+	}
+	
 	CDefHandler * temp = CDefHandler::giveDef(defName); 
 	temp->notFreeImgs = true;
 	for (size_t i=0;i<temp->ourImages.size();i++)

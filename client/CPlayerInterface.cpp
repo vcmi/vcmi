@@ -486,19 +486,12 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	updateInfo(obj);
 
-	bool wasGarrison = false;
 	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
 		if((*i)->type & IShowActivable::WITH_GARRISON)
 		{
-			CWindowWithGarrison *wwg = static_cast<CWindowWithGarrison*>(*i);
-			wwg->garr->recreateSlots();
-			wasGarrison = true;
-		}
-		else if(CKingdomInterface *cki = dynamic_cast<CKingdomInterface*>(*i))
-		{//a cheat for Kingdom Overview window (it has CWindowWithGarrison-childrens which are not present in ListInt)
-		 //need to create "Garrison Holder" class thingy
-			cki->updateAllGarrisons();
+			CGarrisonHolder *cgh = static_cast<CGarrisonHolder*>(*i);
+			cgh->updateGarrisons();
 		}
 		else if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
 		{
@@ -2035,6 +2028,12 @@ void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroI
 {
 	CUniversityWindow *cuw = new CUniversityWindow(visitor, market);
 	GH.pushInt(cuw);
+}
+
+void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
+{
+	CHillFortWindow *chfw = new CHillFortWindow(visitor, object);
+	GH.pushInt(chfw);
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)

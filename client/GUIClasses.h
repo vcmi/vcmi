@@ -831,12 +831,17 @@ public:
 	~MoraleLuckBox();
 };
 
-class LRClickableAreaOpenHero: public LRClickableAreaWTextComp
+class CHeroArea: public CIntObject
 {
 public:
 	const CGHeroInstance * hero;
+	
+	CHeroArea(int x, int y, const CGHeroInstance * _hero);
+	
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
+	void hover(bool on);
+	void showAll(SDL_Surface * to);
 };
 
 
@@ -976,7 +981,7 @@ class CExchangeWindow : public CWindowWithGarrison
 	LRClickableAreaWText *speciality[2];
 	LRClickableAreaWText *experience[2];
 	LRClickableAreaWText *spellPoints[2];
-	LRClickableAreaOpenHero *portrait[2];
+	CHeroArea *portrait[2];
 
 public:
 
@@ -1109,6 +1114,37 @@ public:
 
 	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available); //c-tor
 	void makeDeal(int skill);
+};
+
+class CHillFortWindow : public CWindowWithGarrison
+{
+public:
+
+	int slotsCount;//=7;
+	CGStatusBar * bar;
+	CDefEssential *resources;
+	CPicture *bg; //background surface
+	CHeroArea *heroPic;//clickable hero image
+	AdventureMapButton *quit,//closes window
+	                   *upgradeAll,//upgrade all creatures
+	                   *upgrade[7];//upgrade single creature
+
+	const CGObjectInstance * fort;
+	const CGHeroInstance * hero;
+	std::vector<int> currState;//current state of slot - to avoid calls to getState or updating buttons
+	std::vector<std::map<int,int> > costs;// costs [slot ID] [resource ID] = resource count for upgrade
+	std::vector<int> totalSumm; // totalSum[resource ID] = value 
+
+	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
+	~CHillFortWindow(); //d-tor
+	
+	void activate();
+	void deactivate();
+	void showAll (SDL_Surface *to);
+	std::string getDefForSlot(int slot);
+	void makeDeal(int slot);//-1 for upgrading all creatures
+	int getState(int slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+	void updateGarrisons();//update buttons after garrison changes
 };
 
 class CThievesGuildWindow : public CIntObject

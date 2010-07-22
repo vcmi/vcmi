@@ -42,9 +42,6 @@ using namespace CSDL_Ext;
  */
 
 #define ADVOPT (conf.go()->ac)
-CDefEssential* CKingdomInterface::slots;
-CDefEssential* CKingdomInterface::fort;
-CDefEssential* CKingdomInterface::hall;
 
 CKingdomInterface::CKingdomInterface()
 {
@@ -225,7 +222,7 @@ void CKingdomInterface::close()
 	GH.popIntTotally(this);
 }
 
-void CKingdomInterface::updateAllGarrisons()
+void CKingdomInterface::updateGarrisons()
 {
 	for (int i = 0; i<towns.size(); i++)
 	{
@@ -464,7 +461,7 @@ void CKingdomInterface::sliderMoved(int newpos)
 CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 {
 	recActions = DISPOSE | SHARE_POS;
-	owner = Owner;
+	parent = Owner;
 	numb = num;
 	pos.x += 23;
 	pos.y += 25+num*116;
@@ -473,11 +470,8 @@ CKingdomInterface::CTownItem::CTownItem(int num, CKingdomInterface * Owner)
 	town = NULL;
 	garr = NULL;
 
-	garrHero = new LRClickableAreaOpenHero();
-	garrHero->pos = genRect(64, 58, pos.x+244, pos.y + 6);
-
-	visitHero = new LRClickableAreaOpenHero();
-	visitHero->pos = genRect(64, 58, pos.x+476, pos.y + 6);
+	garrHero  = new CHeroArea(pos.x+244, pos.y + 6, NULL);
+	visitHero = new CHeroArea(pos.x+476, pos.y + 6, NULL);
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 	{//creatures info
@@ -523,22 +517,11 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 		return;
 		garr = NULL;
 	}
-	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),slots->ourImages[owner->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, 4,Point(-126,37));
+	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),parent->slots->ourImages[parent->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, 4,Point(-126,37));
 	garr->update = true;
 
-	char buf[400];
-	if (town->garrisonHero)
-		{
-		garrHero->hero = town->garrisonHero;
-		sprintf(buf, CGI->generaltexth->allTexts[15].c_str(), town->garrisonHero->name.c_str(), town->garrisonHero->type->heroClass->name.c_str());
-		garrHero->hoverText = buf;
-		}
-	if (town->visitingHero)
-		{
-		visitHero->hero = town->visitingHero;
-		sprintf(buf, CGI->generaltexth->allTexts[15].c_str(), town->visitingHero->name.c_str(), town->visitingHero->type->heroClass->name.c_str());
-		visitHero->hoverText = buf;
-		}
+	garrHero->hero = town->garrisonHero;
+	visitHero->hero = town->visitingHero;
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 	{
@@ -586,10 +569,8 @@ void CKingdomInterface::CTownItem::activate()
 	incomeArea->activate();
 	townImage->activate();
 
-	if (town->garrisonHero)
-		garrHero->activate();
-	if (town->visitingHero)
-		visitHero->activate();
+	garrHero->activate();
+	visitHero->activate();
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 		if (vstd::contains(town->builtBuildings,30+i))
@@ -610,10 +591,8 @@ void CKingdomInterface::CTownItem::deactivate()
 	incomeArea->deactivate();
 	townImage->deactivate();
 
-	if (town->garrisonHero)
-		garrHero->deactivate();
-	if (town->visitingHero)
-		visitHero->deactivate();
+	garrHero->deactivate();
+	visitHero->deactivate();
 
 	for (int i=0; i<CREATURES_PER_TOWN;i++)
 		if (creaCount[i]->active)
@@ -628,10 +607,10 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 {
 	if (!town)
 	{//if NULL - print background & exit
-		blitAt(slots->ourImages[numb % owner->PicCount].bitmap,pos.x,pos.y,to);
+		blitAt(parent->slots->ourImages[numb % parent->PicCount].bitmap,pos.x,pos.y,to);
 		return;
 	}//background
-	blitAt(slots->ourImages[owner->PicCount+2].bitmap,pos.x,pos.y,to);	garr->show(to);
+	blitAt(parent->slots->ourImages[parent->PicCount+2].bitmap,pos.x,pos.y,to);	garr->show(to);
 	//town pic/name
 	int townPic = town->subID*2;
 	if (!town->hasFort())
@@ -643,10 +622,10 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 	//fort pic
 	townPic = town->fortLevel()-1;
 	if (townPic==-1) townPic = 3;
-	blitAt(fort->ourImages[townPic].bitmap,pos.x+111,pos.y+31,to);
+	blitAt(parent->fort->ourImages[townPic].bitmap,pos.x+111,pos.y+31,to);
 	//hall pic
 	townPic = town->hallLevel();
-	blitAt(hall->ourImages[townPic].bitmap,pos.x+69,pos.y+31,to);
+	blitAt(parent->hall->ourImages[townPic].bitmap,pos.x+69,pos.y+31,to);
 	//income pic
 	std::ostringstream oss;
 	oss << town->dailyIncome();
@@ -689,13 +668,9 @@ void CKingdomInterface::CTownItem::showAll(SDL_Surface * to)
 		ostrs << town->creatures[i].first;
 		CSDL_Ext::printTo(ostrs.str(),pos.x+440+i*37,pos.y+110,FONT_TINY,zwykly,to);
 	}
-
-
-	if (town->garrisonHero)
-		blitAt(graphics->portraitLarge[town->garrisonHero->portrait],pos.x+244,pos.y+6,to);
-
-	if (town->visitingHero)
-		blitAt(graphics->portraitLarge[town->visitingHero->portrait],pos.x+476,pos.y+6,to);
+	
+	garrHero->showAll(to);
+	visitHero->showAll(to);
 }
 
 CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
@@ -703,7 +678,7 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	recActions = DISPOSE | SHARE_POS;
 	defActions = SHARE_POS;
-	owner = Owner;
+	parent = Owner;
 	numb = num;
 	pos.x += 23;
 	pos.y += 25+num*116;
@@ -730,8 +705,7 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	artRight = new AdventureMapButton("", "", boost::bind
 		(&CKingdomInterface::CHeroItem::scrollArts,this,+1), 675, 66, "hsbtns5.def", SDLK_RIGHT);
 
-	portrait = new LRClickableAreaOpenHero();
-	portrait->pos = genRect(64, 58, pos.x+5, pos.y + 5);
+	portrait = new CHeroArea(5,5,NULL);
 	char bufor[400];
 	for(int i=0; i<PRIMARY_SKILLS; i++)
 	{
@@ -807,7 +781,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	char bufor[4000];
 	artLeft->block(hero->artifacts.size() <= 8);
 	artRight->block(hero->artifacts.size() <= 8);
-	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), slots->ourImages[owner->PicCount].bitmap,
+	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), parent->slots->ourImages[parent->PicCount].bitmap,
 		Point(6,78), hero, NULL, true, true);
 
 	for (int i=0; i<artifacts.size(); i++)
@@ -834,8 +808,8 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		}
 	}
 
-	sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), hero->name.c_str(), hero->type->heroClass->name.c_str());
-	portrait->hoverText = std::string(bufor);
+	//sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), hero->name.c_str(), hero->type->heroClass->name.c_str());
+	//portrait->hoverText = std::string(bufor);
 	portrait->hero = hero;
 
 	speciality->text = CGI->generaltexth->hTxts[hero->subID].longBonus;
@@ -891,13 +865,13 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 {
 	if (!hero)
 	{//if we have no hero for this slot - print background & exit
-		blitAt(slots->ourImages[numb % owner->PicCount].bitmap,pos.x,pos.y,to);
+		blitAt(parent->slots->ourImages[numb % parent->PicCount].bitmap,pos.x,pos.y,to);
 		return;
 	}//print background, different for arts view/backpack mode
-	blitAt(slots->ourImages[(artGroup!=2)?owner->PicCount:(owner->PicCount+1)].bitmap,pos.x,pos.y,to);
+	blitAt(parent->slots->ourImages[(artGroup!=2)?parent->PicCount:(parent->PicCount+1)].bitmap,pos.x,pos.y,to);
 	//text "Artifacts"
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->overview[2],pos.x+320,pos.y+55,FONT_SMALL,zwykly,to);
-	blitAt(graphics->portraitLarge[hero->portrait],pos.x+5,pos.y+6,to);
+	portrait->showAll(to);
 
 	garr->show(to);
 	//hero name
@@ -1034,7 +1008,7 @@ void CKingdomInterface::CHeroItem::deactivate()
 
 CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner)
 {
-	hero = owner;
+	parent = owner;
 	used = LCLICK | RCLICK | HOVER;
 }
 
@@ -1049,7 +1023,7 @@ void CKingdomInterface::CHeroItem::CArtPlace::clickLeft(tribool down, bool previ
 	{tlog1<<type;
 		if(type == 0)
 		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), hero->hero, LOCPLINT, false);
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), parent->hero, LOCPLINT, false);
 			GH.pushInt(spellWindow);
 		}
 		else

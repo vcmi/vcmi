@@ -3213,6 +3213,9 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int s
 		
 	if (h->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
 		COMPLAIN_RET("Hero can't learn any more skills");
+	
+	if (h->type->heroClass->proSec[skill]==0)//can't learn this skill (like necromancy for most of non-necros)
+		COMPLAIN_RET("The hero can't learn this skill!");
 
 	if(!vstd::contains(m->availableItemsIds(RESOURCE_SKILL), skill))
 		COMPLAIN_RET("That skill is unavailable!");

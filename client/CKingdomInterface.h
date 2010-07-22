@@ -25,7 +25,7 @@ class MoraleLuckBox;
  *
  */
 
-class CKingdomInterface : public CIntObject
+class CKingdomInterface : public CGarrisonHolder
 {
 	class CTownItem : public CWindowWithGarrison
 	{
@@ -41,10 +41,10 @@ class CKingdomInterface : public CIntObject
 		};
 	public:
 		const CGTownInstance * town;
-		CKingdomInterface * owner;
+		CKingdomInterface * parent;
 		int numb;//position on screen (1..size)
 		HoverableArea *incomeArea;//hoverable text for town hall, fort, income
-		LRClickableAreaOpenHero * garrHero, *visitHero;//portraits of heroes
+		CHeroArea * garrHero, *visitHero;//portraits of heroes
 		LRClickableAreaOpenTown *hallArea, *fortArea,  * townImage;//town image
 		std::vector < HoverableArea * > creaGrowth;
 		std::vector < CCreaPlace * > creaCount;
@@ -60,7 +60,7 @@ class CKingdomInterface : public CIntObject
 		class CArtPlace: public LRClickableAreaWTextComp
 		{
 		public:
-			CHeroItem * hero;
+			CHeroItem * parent;
 			CArtPlace(CHeroItem * owner); //c-tor
 			void clickLeft(tribool down, bool previousState);
 			void clickRight(tribool down, bool previousState);
@@ -70,11 +70,11 @@ class CKingdomInterface : public CIntObject
 
 		public:
 		const CGHeroInstance * hero;
-		CKingdomInterface * owner;
+		CKingdomInterface * parent;
 		int artGroup,numb;//current art group (0 = equiped, 1 = misc, 2 = backpack)
 		int backpackPos;//first visible artifact in backpack
 		AdventureMapButton * artLeft, * artRight;//buttons for backpack
-		LRClickableAreaOpenHero * portrait;
+		CHeroArea * portrait;
 		LRClickableAreaWText * experience;
 		MoraleLuckBox * morale, * luck;
 		LRClickableAreaWText * spellPoints;
@@ -113,7 +113,7 @@ public:
 	int heroPos,townPos;//position of lists
 	std::vector<CHeroItem *> heroes;//heroes list
 	std::vector<CTownItem *> towns;//towns list
-	static CDefEssential * slots, *fort, *hall;
+	CDefEssential * slots, *fort, *hall;
 
 	//objects list
 	int objSize, objPos;
@@ -129,7 +129,7 @@ public:
 
 	CKingdomInterface(); //c-tor
 	~CKingdomInterface(); //d-tor
-	void updateAllGarrisons();//garrison updater
+	void updateGarrisons();//garrison updater
 	void moveObjectList(int newPos);
 	void recreateHeroList(int pos);//recreating heroes list (on slider move)
 	void recreateTownList(int pos);//same for town list

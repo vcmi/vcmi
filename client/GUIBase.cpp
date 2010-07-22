@@ -939,7 +939,7 @@ SDLKey numToDigit( SDLKey key )
 	if(key >= SDLK_KP0 && key <= SDLK_KP9)
 		return SDLKey(key - SDLK_KP0 + SDLK_0);
 
-#define REMOVE_KP(keyName) case SDLK_KP_ ## keyName ## : return SDLK_ ## keyName;
+#define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
 	switch(key)
 	{
 		REMOVE_KP(PERIOD)

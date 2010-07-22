@@ -424,11 +424,18 @@ public:
 	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };
 
-class CWindowWithGarrison : public CIntObject
+class CGarrisonHolder : public CIntObject// to unify updating garrisons via PlayerInterface
+{
+public:
+	CGarrisonHolder();
+	virtual void updateGarrisons(){};
+};
+
+class CWindowWithGarrison : public CGarrisonHolder
 {
 public:
 	CGarrisonInt *garr;
-	CWindowWithGarrison();
+	virtual void updateGarrisons();
 };
 
 class CSimpleWindow : public CIntObject

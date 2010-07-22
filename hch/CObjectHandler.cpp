@@ -483,6 +483,15 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)
 	{
+	case 35: //Hill fort
+		{
+			OpenWindow ow;
+			ow.window = OpenWindow::HILL_FORT_WINDOW;
+			ow.id1 = id;
+			ow.id2 = h->id;
+			cb->sendAndApply(&ow);
+		}
+		break;
 	case 80: //Sanctuary
 		{
 			InfoWindow iw;
@@ -1225,7 +1234,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	si16 skill = -1; //skill level
 
 #define TRY_SCHOOL(schoolName, schoolMechanicsId, schoolOutId)	\
-	if(spell-> ## schoolName)									\
+	if(spell-> schoolName)									\
 	{															\
 		int thisSchool = std::max<int>(getSecSkillLevel(14 + (schoolMechanicsId)), valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
 		if(thisSchool > skill)									\

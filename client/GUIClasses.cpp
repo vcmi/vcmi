@@ -4311,11 +4311,15 @@ IShowActivable::IShowActivable()
 	type = 0;
 }
 
-CWindowWithGarrison::CWindowWithGarrison()
+CGarrisonHolder::CGarrisonHolder()
 {
 	type |= WITH_GARRISON;
 }
 
+void CWindowWithGarrison::updateGarrisons()
+{
+	garr->recreateSlots();
+}
 
 void CRClickPopupInt::show(SDL_Surface * to)
 {
@@ -4643,16 +4647,36 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void LRClickableAreaOpenHero::clickLeft(tribool down, bool previousState)
+CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
+{
+	used = LCLICK | RCLICK | HOVER;
+	pos.x += x;	pos.w = 58;
+	pos.y += y;	pos.h = 64;
+}
+
+void CHeroArea::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState && hero)
 		LOCPLINT->openHeroWindow(hero);
 }
 
-void LRClickableAreaOpenHero::clickRight(tribool down, bool previousState)
+void CHeroArea::clickRight(tribool down, bool previousState)
 {
 	if((!down) && previousState && hero)
 		LOCPLINT->openHeroWindow(hero);
+}
+
+void CHeroArea::hover(bool on)
+{
+	if (on && hero)
+		GH.statusbar->print(hero->hoverName);
+	else
+		GH.statusbar->clear();
+}
+
+void CHeroArea::showAll(SDL_Surface * to)
+{
+	blitAtLoc(graphics->portraitLarge[hero->portrait],0,0,to);
 }
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
@@ -5192,11 +5216,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
 
-		portrait[b] = new LRClickableAreaOpenHero();
-		portrait[b]->pos = genRect(64, 58, pos.x + 257 + 228*b, pos.y + 13);
-		portrait[b]->hero = heroInst[b];
-		sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), heroInst[b]->name.c_str(), heroInst[b]->type->heroClass->name.c_str());
-		portrait[b]->hoverText = std::string(bufor);
+		portrait[b] = new CHeroArea(pos.x + 257 + 228*b, pos.y + 13, heroInst[b]);
 
 		speciality[b] = new LRClickableAreaWText();
 		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
@@ -5621,6 +5641,8 @@ int CUniversityWindow::CItem::state()
 		return 1;
 	if (parent->hero->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
 		return 0;
+	if (parent->hero->type->heroClass->proSec[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
+		return 0;
 /*	if (LOCPLINT->cb->getResourceAmount(6) < 2000 )//no gold - allowed in H3, confirm button is blocked instead
 		return 0;*/
 	return 2;
@@ -5741,6 +5763,210 @@ void CUnivConfirmWindow::makeDeal(int skill)
 {
 	LOCPLINT->cb->trade(parent->market->o, RESOURCE_SKILL, 6, skill, 1, parent->hero);
 	GH.popIntTotally(this);
+}
+
+CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object):
+	hero(visitor), fort(object)
+{
+	{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	
+	slotsCount=7;
+	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
+	bg = new CPicture("APHLFTBK.PCX");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	
+	printAtMiddleLoc  (fort->hoverName, 325, 32, FONT_BIG, tytulowy, bg->bg);//Hill Fort
+	pos = center(bg->pos);
+
+	heroPic = new CHeroArea(30, 60, hero);
+	
+	currState.resize(slotsCount+1);
+	costs.resize(slotsCount);
+	totalSumm.resize(RESOURCE_QUANTITY);
+	for (int i=0; i<slotsCount; i++)
+	{
+		currState[i] = getState(i);
+		upgrade[i] = new AdventureMapButton("","",boost::bind(&CHillFortWindow::makeDeal, this, i), 107+i*76, 171, getDefForSlot(i));
+		upgrade[i]->block(currState[i] == -1);
+	}
+	currState[slotsCount] = getState(slotsCount);
+	upgradeAll = new AdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount), 30, 231, getDefForSlot(slotsCount));
+	quit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
+	bar = new CGStatusBar(327, 332);
+	
+	}
+	BLOCK_CAPTURING;
+	garr = new CGarrisonInt(pos.x+107, pos.x+84, 18, Point(),bg->bg,Point(107,60),hero,NULL);
+	updateGarrisons();
+}
+
+CHillFortWindow::~CHillFortWindow()
+{
+	delete garr;
+}
+
+void CHillFortWindow::activate()
+{
+	CIntObject::activate();
+	garr->activate();
+	GH.statusbar = bar;
+}
+
+void CHillFortWindow::deactivate()
+{
+	CIntObject::deactivate();
+	garr->deactivate();
+}
+
+void CHillFortWindow::updateGarrisons()
+{
+	
+	for (int i=0; i<RESOURCE_QUANTITY; i++)
+		totalSumm[i]=0;
+	
+	for (int i=0; i<slotsCount; i++)
+	{
+		costs[i].clear();
+		int newState = getState(i);
+		if (newState != -1)
+		{
+			UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, i);
+			if (info.newID.size())//we have upgrades here - update costs
+				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
+				{
+					costs[i].insert(*it);
+					totalSumm[it->first] += it->second;
+				}
+		}
+		
+		if (currState[i] != newState )//we need to update buttons
+		{
+			currState[i] = newState;
+			upgrade[i]->setDef(getDefForSlot(i), false, true);
+			upgrade[i]->block(currState[i] == -1);
+		}
+	}
+	
+	int newState = getState(slotsCount);
+	if (currState[slotsCount] != newState )
+	{
+		currState[slotsCount] = newState;
+		upgradeAll->setDef(getDefForSlot(slotsCount), false, true);
+	}
+	garr->recreateSlots();
+}
+
+void CHillFortWindow::makeDeal(int slot)
+{
+	int offset = (slot == slotsCount)?2:0;
+	switch (currState[slot])
+	{
+		case 0:
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], 
+			          std::vector<SComponent*>(), soundBase::sound_todo);
+			break;
+		case 1:
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[315 + offset], 
+			          std::vector<SComponent*>(), soundBase::sound_todo);
+			break;
+		case 2:
+			for (int i=0; i<slotsCount; i++)
+				if ( slot ==i || ( slot == slotsCount && currState[i] == 2 ) )//this is activated slot or "upgrade all"
+				{
+					UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, i);
+					LOCPLINT->cb->upgradeCreature(hero, i, info.newID[0]);
+				}
+			break;
+		
+	}
+}
+
+void CHillFortWindow::showAll (SDL_Surface *to)
+{
+	CIntObject::showAll(to);
+	garr->show(to);
+	
+	for ( int i=0; i<slotsCount; i++)
+	{
+		if ( currState[i] == 0 || currState[i] == 2 )
+		{
+			if ( costs[i].size() )//we have several elements
+			{
+				int curY = 128;//reverse iterator is used to display gold as first element
+				for( std::map<int,int>::reverse_iterator rit=costs[i].rbegin(); rit!=costs[i].rend(); rit++)
+				{
+					blitAtLoc(resources->ourImages[rit->first].bitmap, 104+76*i, curY, to);
+					printToLoc(boost::lexical_cast<std::string>(rit->second), 168+76*i, curY+16, FONT_SMALL, zwykly, to);
+					curY += 20;
+				}
+			}
+			else//free upgrade - print gold image and "Free" text
+			{
+				blitAtLoc(resources->ourImages[6].bitmap, 104+76*i, 128, to);
+				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, zwykly, to);
+			}
+		}
+	}
+	for (int i=0; i<RESOURCE_QUANTITY; i++)
+	{
+		if (totalSumm[i])//this resource is used - display it
+		{
+			blitAtLoc(resources->ourImages[i].bitmap, 104+76*i, 237, to);
+			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, zwykly, to);
+		}
+	}
+}
+
+std::string CHillFortWindow::getDefForSlot(int slot)
+{
+	if ( slot == slotsCount)
+		switch (currState[slot])
+		{
+			case -1:
+			case  0: return "APHLF4R.DEF";
+			case  1: return "APHLF4Y.DEF";
+			case  2: return "APHLF4G.DEF";
+		}
+	else
+		switch (currState[slot])
+		{
+			case -1:
+			case  0: return "APHLF1R.DEF";
+			case  1: return "APHLF1Y.DEF";
+			case  2: return "APHLF1G.DEF";
+		}
+}
+
+int CHillFortWindow::getState(int slot)
+{
+	if ( slot == slotsCount )//"Upgrade all" slot
+	{
+		bool allUpgraded = true;//All creatures are upgraded?
+		for (int i=0; i<slotsCount; i++)
+			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
+			
+		if (allUpgraded)
+			return 1;
+
+		for ( int i=0; i<RESOURCE_QUANTITY; i++)//if we need more resources
+			if(LOCPLINT->cb->getResourceAmount(i) < totalSumm[i])
+				return 0;
+				
+		return 2;
+	}
+
+	if (hero->slotEmpty(slot))//no creature here
+		return -1;
+		
+	UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, slot);
+	if (!info.newID.size())//already upgraded
+		return 1;
+
+	for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
+		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getAmount(slot))
+			return 0;
+	return 2;//can upgrade
 }
 
 void CThievesGuildWindow::activate()

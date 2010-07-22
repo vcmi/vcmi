@@ -86,6 +86,7 @@ public:
 	virtual void showPuzzleMap(){};
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor){};
+	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::set<int3> &pos){};

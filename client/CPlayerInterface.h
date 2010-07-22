@@ -177,6 +177,7 @@ public:
 	void showPuzzleMap();
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor);
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor);
+	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor);
 	void showTavernWindow(const CGObjectInstance *townOrTavern);
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID); //called when a hero casts a spell
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
