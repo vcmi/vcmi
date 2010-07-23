@@ -6024,7 +6024,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	
 	}
 	BLOCK_CAPTURING;
-	garr = new CGarrisonInt(pos.x+107, pos.x+84, 18, Point(),bg->bg,Point(107,60),hero,NULL);
+	garr = new CGarrisonInt(pos.x+108, pos.y+60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
 	updateGarrisons();
 }
 
@@ -6094,7 +6094,7 @@ void CHillFortWindow::makeDeal(int slot)
 			          std::vector<SComponent*>(), soundBase::sound_todo);
 			break;
 		case 1:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[315 + offset], 
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], 
 			          std::vector<SComponent*>(), soundBase::sound_todo);
 			break;
 		case 2:
