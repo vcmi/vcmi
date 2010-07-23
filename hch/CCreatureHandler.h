@@ -113,6 +113,9 @@ public:
 	bool isGood (si8 faction) const;
 	bool isEvil (si8 faction) const;
 
+	int pickRandomMonster(const boost::function<int()> &randGen = 0) const;
+
+
 	CCreatureHandler();
 	~CCreatureHandler();
 

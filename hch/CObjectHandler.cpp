@@ -1568,6 +1568,10 @@ void CGDwelling::initObj()
 		hoverName = VLC->generaltexth->creGens4[subID];
 		break;
 
+	case 78: //Refugee Camp
+		//is handled within newturn func
+		break; 
+
 	case 106: //War Machine Factory
 		creatures.resize(3);
 		creatures[0].second.push_back(146); //Ballista 
@@ -1597,11 +1601,26 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 					cb->gameState()->players[val].dwellings.push_back (this);
 			}
 			break;
+		case ObjProperty::AVAILABLE_CREATURE:
+			creatures.resize(1);
+			creatures[0].second.resize(1);
+			creatures[0].second[0] = val;
+			break;
 	}
-	 CGObjectInstance::setProperty(what,val);
+	CGObjectInstance::setProperty(what,val);
 }
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
+	if(ID == 78 && !creatures[0].first) //Refugee Camp, no available cres
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text.addTxt(MetaString::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
+		iw.text.addReplacement(MetaString::OBJ_NAMES, ID);
+		cb->sendAndApply(&iw);
+		return;
+	}
+
 	if(h->tempOwner != tempOwner  &&  stacksCount() > 0) //object is guarded
 	{
 		BlockingDialog bd;
@@ -1630,6 +1649,13 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		for(size_t i = 0; i < creatures.size(); i++)
 			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
 	}
+	else if(ID == 78)
+	{
+		bd.text.addTxt(MetaString::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
+		bd.text.addReplacement(MetaString::OBJ_NAMES, ID);
+		for(size_t i = 0; i < creatures.size(); i++)
+			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+	}
 	else if(ID == 106)
 		bd.text.addTxt(MetaString::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
 	else
@@ -1646,6 +1672,11 @@ void CGDwelling::newTurn() const
 	//town growths and War Machines Factories are handled separately
 	if(ID == TOWNI_TYPE  ||  ID == 106)
 		return;
+
+	if(ID == 78) //if it's a refugee camp, we need to pick an available creature
+	{
+		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster());
+	}
 
 	bool change = false;
 
@@ -1676,7 +1707,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	int crid = creatures[0].second[0];
 	CCreature *crs = VLC->creh->creatures[crid];
 
-	if(crs->level == 1) //first level - creatures are for free
+	if(crs->level == 1  &&  ID != 78) //first level - creatures are for free
 	{
 		if(creatures[0].first) //there are available creatures
 		{
@@ -1737,7 +1768,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 		OpenWindow ow;
 		ow.id1 = id;
 		ow.id2 = h->id;
-		ow.window = ID == 17 
+		ow.window = (ID == 17 || ID == 78)
 			? OpenWindow::RECRUITMENT_FIRST 
 			: OpenWindow::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
@@ -6174,41 +6205,6 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		cb->setObjProperty (id, 10, h->tempOwner);
 	}
 }
-
-void CShop::newTurn() const 
-{ 
-	switch (ID)
-	{
-		case 7: //ArtMerchant aka. Black Market
-			if (cb->getDate(0)%28 == 1)
-			{
-				cb->setObjProperty (id, 13, 0);
-				cb->setObjProperty (id, 14, rand());
-			}
-			break;
-		case 78: //Refugee Camp
-		case 95: //Tavern -- global hero pool?
-			if (cb->getDate(0)%7 == 1)
-				cb->setObjProperty (id, 14, rand());
-			break;
-	}
-}
-
-void CShop::setPropertyDer (ui8 what, ui32 val)
-{
-	switch (what)
-	{
-		case 14: //reset - get new items
-			reset(val);
-			break;
-	}
-}
-
-void CGRefugeeCamp::reset(ui32 val)
-{
-	creatureID = VLC->creh->creatures[val%VLC->creh->creatures.size()]->idNumber;
-}
-
 
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {

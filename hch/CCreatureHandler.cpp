@@ -656,3 +656,19 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 CCreatureHandler::~CCreatureHandler()
 {
 }
+
+int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen) const
+{
+	int r = 0;
+	do 
+	{
+		if(randGen)
+			r = randGen();
+		else
+			r = rand();
+
+		r %= 197;
+	} while (vstd::contains(VLC->creh->notUsedMonsters,r));
+
+	return r;
+}

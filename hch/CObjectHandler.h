@@ -1089,37 +1089,6 @@ public:
 		h & static_cast<CPlayersVisited&>(*this);
 		h & players;
 	}
-
-};
-
-class DLL_EXPORT CShop : public CGObjectInstance
-{
-///base class for university, art merchant, slave market etc.
-public:
-	void initObj() {};
-	void setPropertyDer (ui8 what, ui32 val);
-	void newTurn() const;
-	virtual void reset (ui32 val) {}; //get new items for Black Market, Tavern, Refugee Camp 
-	virtual void onHeroVisit (const CGHeroInstance * h) const {};
-	virtual void trade (const CGHeroInstance * h) const {};
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_EXPORT CGRefugeeCamp : public CShop
-{
-public:
-	ui16 creatureID;
-	void reset (ui32 val);
-	void onHeroVisit (const CGHeroInstance * h) const {};
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & creatureID & static_cast<CShop&>(*this);
-	}
 };
 
 class DLL_EXPORT CGDenOfthieves : public CGObjectInstance

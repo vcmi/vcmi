@@ -933,12 +933,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 		}
 	case 71: //random monster
 		{
-			int r;
-			do 
-			{
-				r = ran()%197;
-			} while (vstd::contains(VLC->creh->notUsedMonsters,r));
-			return std::pair<int,int>(54,r); 
+			return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran))); 
 		}
 	case 72: //random monster lvl1
 		return std::pair<int,int>(54,VLC->creh->levelCreatures[1][ran()%VLC->creh->levelCreatures[1].size()]->idNumber); 

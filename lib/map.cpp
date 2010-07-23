@@ -1678,6 +1678,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				i+=3;
 				break;
 			}
+		case 78: //Refugee Camp
 		case 106: //War Machine Factory
 			{
 				nobj = new CGDwelling();

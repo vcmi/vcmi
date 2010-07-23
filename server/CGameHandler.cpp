@@ -2703,7 +2703,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 
 	if(dw->ID == TOWNI_TYPE)
 		dst = dw;
-	else if(dw->ID == 17  ||  dw->ID == 20) //advmap dwelling
+	else if(dw->ID == 17  ||  dw->ID == 20  ||  dw->ID == 78) //advmap dwelling
 		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
 	else if(dw->ID == 106)
 		dst = dynamic_cast<const CGHeroInstance *>(getTile(dw->visitablePos())->visitableObjects.back());
