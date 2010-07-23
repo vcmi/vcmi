@@ -687,7 +687,11 @@ public:
 	void selectionChanged(bool side); //true == left
 	void SacrificeAll();
 	void SacrificeBackpack();
+
+	void putOnAltar(int backpackIndex);
+	bool putOnAltar(CTradeableItem* altarSlot, int artID);
 	void makeDeal();
+	void showAll(SDL_Surface * to);
 
 	void blockTrade();
 	void sliderMoved(int to);
@@ -701,6 +705,10 @@ public:
 	void calcTotalExp();
 	void setExpToLevel();
 	void updateRight(CTradeableItem *toUpdate);
+
+	void artifactPicked();
+	int firstFreeSlot();
+	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, int artID);
 };
 
 class CSystemOptionsWindow : public CIntObject
@@ -900,7 +908,7 @@ public:
 	void deselect ();
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	bool fitsHere (const CArtifact * art); //returns true if given artifact can be placed here
 	bool locked () const;
 	void userSelectedNo ();
@@ -937,10 +945,14 @@ public:
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
+	bool allowedAssembling;
+	std::multiset<int> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
 
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
+
+	void safeRedraw();
 	void markPossibleSlots (const CArtifact* art);
 	void unmarkSlots ();
 	void setSlotData (CArtPlace* artPlace, int slotID);

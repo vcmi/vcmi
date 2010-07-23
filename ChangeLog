@@ -1,5 +1,39 @@
 0.8 -> 0.81 (Jun 01 2010)
 GENERAL:
+
+ADVENTURE MAP:
+* Neutral armies growth implemented (%10 weekly)
+* Power rating of neutral stack
+* Favourable Winds reduce sailing cost
+
+BATTLES:
+
+HERO:
+
+TOWNS:
+* Support for new town structures:
+- Artifact Merchant
+- Castle Gates
+- Magic University
+- Portal of Summoning 
+- Skeleton transformer
+- Veil of Darkness
+
+OBJECTS:
+* Stables will now upgrade Cavaliers to Champions.
+New object supported:
+- Altar of Sacrifice
+- Aurora Borealis
+- Black Market
+- Cover of Darkness
+- Hill Fort
+- Sanctuary
+- Tavern
+- University
+- Whirlpool
+
+0.8 -> 0.81 (Jun 01 2010)
+GENERAL:
 * It's possible to start campaign
 * Support for build grail victory condition
 * New artifacts supported:

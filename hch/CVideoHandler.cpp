@@ -469,7 +469,7 @@ bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface 
 
 void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
 {
-	if(current)
+	if(!current)
 		return;
 
 	bool w = false;

@@ -30,6 +30,7 @@ public:
 	bool canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const;
 	void addBonusesTo (BonusList *otherBonuses) const;
 	void removeBonusesFrom (BonusList *otherBonuses) const;
+	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed

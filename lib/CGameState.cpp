@@ -2635,7 +2635,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 
 	if(defendingHero)
 	{
-		multBonus *= (std::max(0, 100-attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 23))) / 100.0f;
+		multBonus *= (std::max(0, 100-defendingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 23))) / 100.0f;
 	}
 
 	//handling hate effect

@@ -143,6 +143,27 @@ CArtifact::~CArtifact()
 {
 }
 
+int CArtifact::getArtClassSerial() const
+{
+	if(id == 1)
+		return 4;
+	switch(aClass)
+	{
+	case ART_TREASURE:
+		return 0;
+	case ART_MINOR:
+		return 1;
+	case ART_MAJOR:
+		return 2;
+	case ART_RELIC:
+		return 3;
+	case ART_SPECIAL:
+		return 5;
+	}
+
+	return -1;
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;

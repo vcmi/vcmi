@@ -203,7 +203,7 @@ void CHeroWindow::show(SDL_Surface *to)
 	garr->show(to);
 	ourBar->show(to);
 
-	artifs->show(to);
+	artifs->showAll(to);
 }
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)

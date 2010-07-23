@@ -609,7 +609,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			owner->fexitb();
 			owner->myInt->battleInt->castThisSpell(spell);
 		}
-		else //adventure spell
+		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell
 		{
 			using namespace Spells;
 			int spell = mySpell;

@@ -2095,7 +2095,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 
 	sendAndApply(&sha);
 }
-void CGameHandler::removeArtifact(int artid, int hid)
+bool CGameHandler::removeArtifact(int artid, int hid)
 {
 	const CGHeroInstance* h = getHero(hid);
 
@@ -2109,7 +2109,8 @@ void CGameHandler::removeArtifact(int artid, int hid)
 		sha.artifacts.erase(it);
 	else //worn
 	{
-		for (std::map<ui16,ui32>::iterator itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
+		std::map<ui16,ui32>::iterator itr;
+		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
 		{
 			if (itr->second == artid)
 			{
@@ -2117,8 +2118,15 @@ void CGameHandler::removeArtifact(int artid, int hid)
 				break;
 			}
 		}
+
+		if(itr == sha.artifWorn.end())
+		{
+			tlog2 << "Cannot find artifact to remove!\n";
+			return false;
+		}
 	}
 	sendAndApply(&sha);
+	return true;
 }
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
@@ -4930,5 +4938,16 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	exp *= count;
 	changePrimSkill	(hero->id, 4, exp);
 
+	return true;
+}
+
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ui32 artID)
+{
+	if(!removeArtifact(artID, hero->id))
+		COMPLAIN_RET("Cannot find artifact to sacrifice!");
+
+	int dmp, expToGive;
+	m->getOffer(artID, 0, dmp, expToGive, ARTIFACT_EXP);
+	changePrimSkill(hero->id, 4, expToGive);
 	return true;
 }

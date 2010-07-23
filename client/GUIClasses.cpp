@@ -2745,6 +2745,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	case PLAYER:
 		posToSubCenter = Point(31, 76);
 		break;
+	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT:
 		posToSubCenter = Point(18, 57);
 		break;
@@ -2760,12 +2761,37 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
 	CTradeWindow *mw = static_cast<CTradeWindow *>(parent);
 	assert(mw);
-	if(type == ARTIFACT_PLACEHOLDER)
-	{
-
-	}
 	if(down)
 	{
+
+		if(type == ARTIFACT_PLACEHOLDER)
+		{
+			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
+			const CArtifact *movedArt = aw->arts->commonInfo->srcArtifact;
+			if(movedArt)
+			{
+				aw->moveFromSlotToAltar(aw->arts->commonInfo->srcSlotID, this, movedArt->id);
+			}
+			else if(id >= 0)
+			{
+				movedArt = CGI->arth->artifacts[id];
+				aw->arts->commonInfo->srcAOH = aw->arts;
+				aw->arts->commonInfo->srcArtifact = movedArt;
+				aw->arts->commonInfo->srcSlotID = 19 + vstd::findPos(aw->hero->artifacts, movedArt->id);
+
+				aw->arts->commonInfo->destAOH = aw->arts;
+				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->id].bitmap);
+
+				id = -1;
+				subtitle = "";
+				aw->arts->artifactsOnAltar.erase(movedArt->id);
+				aw->deal->block(!aw->arts->artifactsOnAltar.size());
+				aw->arts->markPossibleSlots(movedArt);
+			}
+
+			aw->calcTotalExp();
+			return;
+		}
 		if(left)
 		{
 			if(mw->hLeft != this)
@@ -2793,7 +2819,8 @@ SDL_Surface * CTradeWindow::CTradeableItem::getSurface()
 	case PLAYER:
 		return graphics->flags->ourImages[id].bitmap;
 	case ARTIFACT:
-		return graphics->artDefs->ourImages[id].bitmap;
+	case ARTIFACT_PLACEHOLDER:
+		return id >= 0 ? graphics->artDefs->ourImages[id].bitmap : NULL;
 	case CREATURE:
 		return graphics->bigImgs[id];
 	default:
@@ -2841,12 +2868,20 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 
 void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 {
-	switch(type)
+	if(down)
 	{
-	case CREATURE:
-	case CREATURE_PLACEHOLDER:
-		//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->creatures[id]->namePl));
-		break;
+		switch(type)
+		{
+		case CREATURE:
+		case CREATURE_PLACEHOLDER:
+			//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->creatures[id]->namePl));
+			break;
+		case ARTIFACT:
+		case ARTIFACT_PLACEHOLDER:
+			if(id >= 0)
+				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
+			break;
+		}
 	}
 }
 
@@ -2908,7 +2943,7 @@ void CTradeWindow::initItems(bool Left)
 	for(int j=0; j<amount; j++)
 	{
 		int id = (ids && ids->size()>j) ? (*ids)[j] : j;
-		if(id < 0) 
+		if(id < 0 && mode != ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
 			continue;
 
 		CTradeableItem *hlp = new CTradeableItem(itemsType[Left], id, Left, j);
@@ -2922,6 +2957,9 @@ void CTradeWindow::initItems(bool Left)
 std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 {
 	std::vector<int> *ids = NULL;
+
+	if(mode == ARTIFACT_EXP)
+		return new std::vector<int>(22, -1);
 
 	if(Left)
 	{
@@ -2974,8 +3012,8 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 			for (int j = 0; j < 5 ; j++)
 				poss += Rect(x + dx*j, y + dy*i, w, h);
 
-		poss += Rect(x + dx*2.5, y + dy*5, w, h);
-		poss += Rect(x + dx*2.5, y + dy*5, w, h);
+		poss += Rect(x + dx*1.5, y + dy*4, w, h);
+		poss += Rect(x + dx*2.5, y + dy*4, w, h);
 	}
 	else
 	{
@@ -3085,19 +3123,23 @@ void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 
 void CTradeWindow::setMode(EMarketMode Mode)
 {
+	const IMarket *m = market;
+	const CGHeroInstance *h = hero;
 	CTradeWindow *nwindow = NULL;
+
+	GH.popIntTotally(this);
+	
 	switch(Mode)
 	{
 	case CREATURE_EXP:
 	case ARTIFACT_EXP:
-		nwindow = new CAltarWindow(market, hero, Mode);
+		nwindow = new CAltarWindow(m, h, Mode);
 		break;
 	default:
-		nwindow = new CMarketplaceWindow(market, hero, Mode);
+		nwindow = new CMarketplaceWindow(m, h, Mode);
 		break;
 	}
 
-	GH.popIntTotally(this);
 	GH.pushInt(nwindow);
 }
 
@@ -3490,15 +3532,19 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		sacrificeBackpack = new AdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
 		sacrificeBackpack->block(!hero->artifacts.size());
 
-		BLOCK_CAPTURING;
 		slider = NULL;
 		max = NULL;
-		arts = new CArtifactsOfHero(Point(-267,-10));
-		arts->commonInfo = new CArtifactsOfHero::SCommonPart;
-		arts->commonInfo->participants.insert(arts);
-		arts->setHero(Hero);
-		arts->recActions = 255;
-		addChild(arts);
+
+		{
+			BLOCK_CAPTURING;
+			arts = new CArtifactsOfHero(Point(-267,-10));
+			arts->commonInfo = new CArtifactsOfHero::SCommonPart;
+			arts->commonInfo->participants.insert(arts);
+			arts->setHero(Hero);
+			arts->recActions = 255;
+			arts->allowedAssembling = false;
+			addChild(arts);
+		}
 
 		initItems(false);
 	}
@@ -3512,9 +3558,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 	deal = new AdventureMapButton(CGI->generaltexth->zelp[585],boost::bind(&CAltarWindow::makeDeal,this),269,520,"ALTSACR.DEF");
 
-	if(/*Hero->getAlignment() != EVIL && */Mode == CREATURE_EXP)
+	if(Hero->getAlignment() != EVIL && Mode == CREATURE_EXP)
 		new AdventureMapButton(CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, ARTIFACT_EXP), 516, 421, "ALTART.DEF");
-	if(/*Hero->getAlignment() != GOOD && */Mode == ARTIFACT_EXP)
+	if(Hero->getAlignment() != GOOD && Mode == ARTIFACT_EXP)
 		new AdventureMapButton(CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, CREATURE_EXP), 516, 421, "ALTSACC.DEF");
 
 	expPerUnit.resize(ARMY_SIZE, 0);
@@ -3555,23 +3601,44 @@ void CAltarWindow::sliderMoved(int to)
 
 void CAltarWindow::makeDeal()
 {
-	blockTrade();
-	slider->value = 0;
-
-	std::vector<int> toSacrifice = sacrificedUnits;
-	for (int i = 0; i < toSacrifice.size(); i++)
+	if(mode == CREATURE_EXP)
 	{
-		if(toSacrifice[i])
-			LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
+		blockTrade();
+		slider->value = 0;
+
+		std::vector<int> toSacrifice = sacrificedUnits;
+		for (int i = 0; i < toSacrifice.size(); i++)
+		{
+			if(toSacrifice[i])
+				LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
+		}
+
+		BOOST_FOREACH(int& val, sacrificedUnits)
+			val = 0;
+
+		BOOST_FOREACH(CTradeableItem *t, items[0])
+		{
+			t->type = CREATURE_PLACEHOLDER;
+			t->subtitle = "";
+		}
 	}
-
-	BOOST_FOREACH(int& val, sacrificedUnits)
-		val = 0;
-
-	BOOST_FOREACH(CTradeableItem *t, items[0])
+	else
 	{
-		t->type = CREATURE_PLACEHOLDER;
-		t->subtitle = "";
+		BOOST_FOREACH(int artID, arts->artifactsOnAltar) //sacrifice each artifact on the list
+		{
+			LOCPLINT->cb->trade(market->o, mode, artID, -1, 1, hero);
+		}
+		arts->artifactsOnAltar.clear();
+
+		BOOST_FOREACH(CTradeableItem *t, items[0])
+		{
+			t->id = -1;
+			t->subtitle = "";
+		}
+
+		arts->commonInfo->reset();
+		arts->scrollBackpack(0);
+		deal->block(true);
 	}
 
 	calcTotalExp();
@@ -3579,14 +3646,33 @@ void CAltarWindow::makeDeal()
 
 void CAltarWindow::SacrificeAll()
 {
-	BOOST_FOREACH(CTradeableItem *t, items[1])
-		sacrificedUnits[t->serial] = hero->getAmount(t->serial);
+	if(mode == CREATURE_EXP)
+	{
+		bool movedAnything = false;
+		BOOST_FOREACH(CTradeableItem *t, items[1])
+			sacrificedUnits[t->serial] = hero->getAmount(t->serial);
 
-	sacrificedUnits[items[1].front()->serial]--;
+		sacrificedUnits[items[1].front()->serial]--;
 
-	BOOST_FOREACH(CTradeableItem *t, items[0])
-		updateRight(t);
+		BOOST_FOREACH(CTradeableItem *t, items[0])
+		{
+			updateRight(t);
+			if(t->type == CREATURE)
+				movedAnything = true;
+		}
+		
+		deal->block(!movedAnything);
+		calcTotalExp();
+	}
+	else
+	{
+		for(std::map<ui16,ui32>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
+		{
+			moveFromSlotToAltar(i->first, NULL, i->second);
+		}
 
+		SacrificeBackpack();
+	}
 	redraw();
 }
 
@@ -3599,7 +3685,13 @@ void CAltarWindow::selectionChanged(bool side)
 	CTradeableItem *&theOther = side ? hRight : hLeft;
 
 	theOther = *std::find_if(items[!side].begin(), items[!side].end(), boost::bind(&CTradeableItem::serial, _1) == selected->serial);
-	slider->setAmount(hero->getAmount(hLeft->serial));
+
+	int stackCount = 0;
+	for (int i = 0; i < ARMY_SIZE; i++)
+		if(hero->getAmount(i) > sacrificedUnits[i])
+			stackCount++;
+
+	slider->setAmount(hero->getAmount(hLeft->serial) - (stackCount == 1));
 	slider->block(!slider->amount);
 	slider->value = sacrificedUnits[hLeft->serial];
 	max->block(!slider->amount);
@@ -3672,16 +3764,28 @@ void CAltarWindow::getExpValues()
 void CAltarWindow::calcTotalExp()
 {
 	int val = 0;
-	for (int i = 0; i < sacrificedUnits.size(); i++)
+	if(mode == CREATURE_EXP)
 	{
-		val += expPerUnit[i] * sacrificedUnits[i];
+		for (int i = 0; i < sacrificedUnits.size(); i++)
+		{
+			val += expPerUnit[i] * sacrificedUnits[i];
+		}
+	}
+	else
+	{
+		for(std::multiset<int>::const_iterator i = arts->artifactsOnAltar.begin(); i != arts->artifactsOnAltar.end(); i++)
+		{
+			int dmp, valOfArt;
+			market->getOffer(*i, 0, dmp, valOfArt, mode);
+			val += valOfArt * arts->artifactsOnAltar.count(*i);
+		}
 	}
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
 void CAltarWindow::setExpToLevel()
 {
-	expToLevel->setTxt(boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1) - hero->exp));
+	expToLevel->setTxt(boost::lexical_cast<std::string>(CGI->heroh->reqExp(CGI->heroh->level(hero->exp)+1) - hero->exp));
 }
 
 void CAltarWindow::blockTrade()
@@ -3703,9 +3807,86 @@ void CAltarWindow::updateRight(CTradeableItem *toUpdate)
 	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(val * expPerUnit[toUpdate->serial])) : ""; //%s exp
 }
 
+int CAltarWindow::firstFreeSlot()
+{
+	int ret = -1;
+	while(items[0][++ret]->id >= 0  &&  ret + 1 < items[0].size());
+	return ret < items[0].size() ? ret : -1;
+}
+
 void CAltarWindow::SacrificeBackpack()
 {
+	std::multiset<int> toOmmit = arts->artifactsOnAltar;
 
+	for (int i = 0; i < hero->artifacts.size(); i++)
+	{
+		if(vstd::contains(toOmmit, hero->artifacts[i]))
+		{
+			toOmmit -= hero->artifacts[i];
+			continue;
+		}
+
+		putOnAltar(NULL, hero->artifacts[i]);
+	}
+	arts->scrollBackpack(0);
+	calcTotalExp();
+}
+
+void CAltarWindow::artifactPicked()
+{
+	redraw();
+}
+
+void CAltarWindow::showAll(SDL_Surface * to)
+{
+	CTradeWindow::showAll(to);
+	if(mode == ARTIFACT_EXP && arts && arts->commonInfo->srcArtifact)
+	{
+		blitAtLoc(graphics->artDefs->ourImages[arts->commonInfo->srcArtifact->id].bitmap, 281, 442, to);
+
+		int dmp, val;
+		market->getOffer(arts->commonInfo->srcArtifact->id, 0, dmp, val, ARTIFACT_EXP);
+		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, zwykly, to);
+	}
+}
+
+bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, int artID)
+{
+	if(artID != 1 && artID < 7) //special art
+		return false;
+
+	if(!altarSlot)
+	{
+		int slotIndex = firstFreeSlot();
+		if(slotIndex < 0)
+		{
+			tlog2 << "No free slots on altar!\n";
+			return false;
+		}
+		altarSlot = items[0][slotIndex];
+	}
+
+	int dmp, val;
+	market->getOffer(artID, 0, dmp, val, ARTIFACT_EXP);
+
+	arts->artifactsOnAltar.insert(artID);
+	altarSlot->id = artID;
+	altarSlot->subtitle = boost::lexical_cast<std::string>(val);
+
+	deal->block(false);
+	return true;
+}
+
+void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, int artID)
+{
+	if(arts->commonInfo->srcArtifact)
+	{
+		arts->commonInfo->destSlotID = 65500;
+		arts->commonInfo->destAOH = arts;
+	}
+
+	if(putOnAltar(altarSlot, artID))
+		LOCPLINT->cb->swapArtifacts(hero, slotID, hero, 65500);
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
@@ -4465,34 +4646,39 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 		if (slotID < 19) 
 		{
 			selectedNo = false;
-
-			// If the artifact can be assembled, display dialog.
-			if (ourArt->constituentOf != NULL) {
-				BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) {
-					if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) {
-						LOCPLINT->showArtifactAssemblyDialog(
-							ourArt->id,
-							combination,
-							true,
-							boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination),
-							boost::bind(&CArtPlace::userSelectedNo, this));
-						if (!selectedNo)
-							return;
+			if(ourOwner->allowedAssembling)
+			{
+				// If the artifact can be assembled, display dialog.
+				if (ourArt->constituentOf != NULL) 
+				{
+					BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) 
+					{
+						if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) 
+						{
+							LOCPLINT->showArtifactAssemblyDialog(
+								ourArt->id,
+								combination,
+								true,
+								boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination),
+								boost::bind(&CArtPlace::userSelectedNo, this));
+							if (!selectedNo)
+								return;
+						}
 					}
 				}
-			}
 
-			// Otherwise if the artifact can be diasassembled, display dialog.
-			if (ourArt->constituents != NULL) 
-			{
-				LOCPLINT->showArtifactAssemblyDialog(
-					ourArt->id,
-					0,
-					false,
-					boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
-					boost::bind(&CArtPlace::userSelectedNo, this));
-				if (!selectedNo)
-					return;
+				// Otherwise if the artifact can be diasassembled, display dialog.
+				if (ourArt->constituents != NULL) 
+				{
+					LOCPLINT->showArtifactAssemblyDialog(
+						ourArt->id,
+						0,
+						false,
+						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
+						boost::bind(&CArtPlace::userSelectedNo, this));
+					if (!selectedNo)
+						return;
+				}
 			}
 		}
 
@@ -4533,13 +4719,15 @@ void CArtPlace::select ()
 	ourOwner->markPossibleSlots(ourArt);
 	//ourOwner->curHero->recreateArtBonuses();
 
-	// Update the hero bonuses.
-	ourOwner->updateParentWindow();
 
 	if (slotID >= 19)
 		ourOwner->scrollBackpack(backpackCorrection);
 	else
 		ourOwner->eraseSlotData(this, slotID);
+
+	// Update the hero bonuses.
+	ourOwner->updateParentWindow();
+	ourOwner->safeRedraw();
 }
 
 /**
@@ -4559,7 +4747,7 @@ void CArtPlace::deactivate()
 	}
 }
 
-void CArtPlace::show(SDL_Surface *to)
+void CArtPlace::showAll(SDL_Surface *to)
 {
 	if (ourArt)
 		blitAt(graphics->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
@@ -4703,6 +4891,7 @@ void CArtifactsOfHero::SCommonPart::reset()
 	destAOH = srcAOH = NULL;
 	destArtifact = srcArtifact = NULL;
 	destSlotID = srcSlotID = -1;
+	CGI->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
@@ -4751,7 +4940,6 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 			{
 				// Reset all parameters.
 				commonInfo->reset();
-				CGI->curh->dragAndDropCursor(NULL);
 				unmarkSlots();
 			}
 		}
@@ -4776,10 +4964,6 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 	for (int g = 0; g < 19 ; g++)
 		setSlotData(artWorn[g], g);
 	scrollBackpack(0);
-
-	//blocking scrolling if there is not enough artifacts to scroll
-	leftArtRoll->block(curHero->artifacts.size() <= backpack.size());
-	rightArtRoll->block(curHero->artifacts.size() <= backpack.size());
 }
 
 void CArtifactsOfHero::dispose()
@@ -4792,23 +4976,54 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	backpackPos += dir;
 	if (curHero->artifacts.size() > 0) 
 	{
-		if (backpackPos < 0) { // No guarantee of modulus behavior with negative operands.
-			do {
+		if (backpackPos < 0) // No guarantee of modulus behavior with negative operands.
+		{ 
+			do 
+			{
 				backpackPos += curHero->artifacts.size();
 			} while (backpackPos < 0);
-		} else {
+		} 
+		else 
+		{
 			backpackPos %= curHero->artifacts.size();
 		}
 	}
 
+	std::multiset<int> toOmmit = artifactsOnAltar;
+	int ommited = 0;
+
 	//set new data
-	for (size_t s = 0; s < backpack.size(); ++s) 
+	size_t s = 0;
+	for( ; s < curHero->artifacts.size(); ++s) 
 	{
+
 		if (s < curHero->artifacts.size())
-			setSlotData(backpack[s], 19 + (s + backpackPos)%curHero->artifacts.size());
-		else
-			eraseSlotData(backpack[s], 19 + s);
+		{
+			int slotID = 19 + (s + backpackPos)%curHero->artifacts.size();
+			const CArtifact *art = curHero->getArt(slotID);
+			assert(art);
+			if(!vstd::contains(toOmmit, art->id))
+			{
+				if(s - ommited < 5)
+					setSlotData(backpack[s-ommited], slotID);
+			}
+			else
+			{
+				toOmmit -= art->id;
+				ommited ++;
+				continue;
+			}
+		}
 	}
+	for( ; s - ommited < 5; s++)
+		eraseSlotData(backpack[s-ommited], 19 + s);
+
+	//blocking scrolling if there is not enough artifacts to scroll
+	leftArtRoll->block(curHero->artifacts.size() - ommited <= backpack.size());
+	rightArtRoll->block(curHero->artifacts.size() - ommited <= backpack.size());
+
+	safeRedraw();
+
 }
 
 /**
@@ -4830,6 +5045,8 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
 				(*it)->artWorn[i]->marked = false;
 		}
 	}
+
+	safeRedraw();
 }
 
 /**
@@ -4846,6 +5063,8 @@ void CArtifactsOfHero::unmarkSlots ()
 			(*it)->artWorn[i]->marked = false;
 		}
 	}
+
+	safeRedraw();
 }
 
 /**
@@ -4882,7 +5101,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
-	backpackPos(0), updateState(false), commonInfo(NULL), curHero(NULL)
+	backpackPos(0), updateState(false), commonInfo(NULL), curHero(NULL), allowedAssembling(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
@@ -4968,6 +5187,14 @@ void CArtifactsOfHero::updateParentWindow()
 			cew->activate();
 		}
 	}
+}
+
+void CArtifactsOfHero::safeRedraw()
+{
+	if(parent)
+		parent->redraw();
+	else 
+		redraw();
 }
 
 void CExchangeWindow::close()
@@ -5071,8 +5298,8 @@ void CExchangeWindow::show(SDL_Surface * to)
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 
-	artifs[0]->show(to);
-	artifs[1]->show(to);
+	artifs[0]->showAll(to);
+	artifs[1]->showAll(to);
 
 	ourBar->show(to);
 

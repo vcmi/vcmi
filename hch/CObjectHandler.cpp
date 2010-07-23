@@ -6507,7 +6507,21 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			val2 = (VLC->creh->creatures[id1]->AIValue / 40) * 5;
 		}
 		break;
+	case ARTIFACT_EXP:
+		{
+			val1 = 1;
 
+			int givenClass = VLC->arth->artifacts[id1]->getArtClassSerial();
+			if(givenClass < 0 || givenClass > 3)
+			{
+				val2 = 0;
+				return false;
+			}
+
+			static const int expPerClass[] = {1000, 1500, 3000, 6000};
+			val2 = expPerClass[givenClass];
+		}
+		break;
 	default:
 		assert(0);
 		return false;

@@ -1409,7 +1409,7 @@ struct TradeOnMarketplace : public CPackForServer
 	const CGObjectInstance *market;
 	const CGHeroInstance *hero; //needed when trading artifacts / creatures
 	ui8 mode;//enum EMarketMode
-	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res
+	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res (exception: when sacrificing art r1 is art id [todo: make r2 preferred slot?]
 	ui32 val; //units of sold resource
 
 	bool applyGh(CGameHandler *gh);
