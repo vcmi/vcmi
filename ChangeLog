@@ -1,18 +1,22 @@
-0.8 -> 0.81 (Jun 01 2010)
-GENERAL:
-
+0.81 -> 0.82 (Aug 01 2010)
 ADVENTURE MAP:
 * Neutral armies growth implemented (%10 weekly)
 * Power rating of neutral stack
 * Favourable Winds reduce sailing cost
 
-BATTLES:
-
 HERO:
+* Most of hero specialties are supported, including:
+-Creature specialities (progressive, fixed, Sir Mullich)
+-Spell damage specialities (Deemer), fixed bonus (Ciele)
+-Secondary skill bonuses
+-Creature Upgrades (Gelu)
+-Resorce generation
+-Starting Skill (Adrienne)
 
 TOWNS:
 * Support for new town structures:
 - Artifact Merchant
+- Aurora Borealis
 - Castle Gates
 - Magic University
 - Portal of Summoning 
@@ -23,10 +27,10 @@ OBJECTS:
 * Stables will now upgrade Cavaliers to Champions.
 New object supported:
 - Altar of Sacrifice
-- Aurora Borealis
 - Black Market
 - Cover of Darkness
 - Hill Fort
+- Refugee Camp
 - Sanctuary
 - Tavern
 - University
