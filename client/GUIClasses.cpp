@@ -686,11 +686,11 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	GH.pushInt(temp);
 }
 
-CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<SComponent*> *components /*= NULL*/)
+CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<SComponent*> *components /*= NULL*/, bool DelComps)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * ret = new CInfoWindow(text, playerID, 0, components ? *components : std::vector<SComponent*>(), pom, false);
+	CInfoWindow * ret = new CInfoWindow(text, playerID, 0, components ? *components : std::vector<SComponent*>(), pom, DelComps);
 	return ret;
 }
 
@@ -2366,6 +2366,7 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 }
 
 CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
+	: type(Type), dismiss(0), upgrade(0), ok(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	const CCreature *cre = CGI->creh->creatures[Cid];
@@ -6387,8 +6388,14 @@ void MoraleLuckBox::set(const CBonusSystemNode *hero)
 
 	int mrlt = -9;
 	TModDescr mrl;
-	hero->getModifiersWDescr(mrl, bonusType[morale]);
-	bonusValue = (hero->*getValue[morale])();
+	if(hero)
+	{
+		hero->getModifiersWDescr(mrl, bonusType[morale]);
+		bonusValue = (hero->*getValue[morale])();
+	}
+	else
+		bonusValue = 0;
+
 	mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
 	baseType = componentType[morale];

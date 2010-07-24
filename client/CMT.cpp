@@ -442,6 +442,10 @@ void processCommand(const std::string &message)
 			tlog0 << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->bonuses << std::endl;
 		}
 	}
+	else if(cn == "not dialog")
+	{
+		LOCPLINT->showingDialog->setn(false);
+	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
 		PlayerMessage pm(LOCPLINT->playerID,message);

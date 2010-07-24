@@ -183,6 +183,9 @@ void CPlayerInterface::yourTurn()
 			autosaveCount %= 5;
 		}
 
+		if(adventureInt->player != playerID)
+			adventureInt->setPlayer(playerID);
+
 		if(howManyPeople > 1) //hot seat message
 		{
 			adventureInt->startHotSeatWait(playerID);
@@ -944,9 +947,8 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		adventureInt->heroWindow->deactivate();
 		adventureInt->heroWindow->setHero(hero);
 		adventureInt->heroWindow->activate();
-		return;
 	}
-	if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt())) //exchange window is open
+	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt())) //exchange window is open
 	{
 		cew->deactivate();
 		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
@@ -970,6 +972,8 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		caw->arts->updateState = false;
 		caw->activate();
 	}
+
+	updateInfo(hero);
 }
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
@@ -1296,7 +1300,7 @@ void CPlayerInterface::update()
 		return;
 	
 	//if there are any waiting dialogs, show them
-	if(dialogs.size() && !showingDialog->get())
+	if((howManyPeople <= 1 || makingTurn) && dialogs.size() && !showingDialog->get())
 	{
 		showingDialog->set(true);
 		GH.pushInt(dialogs.front());
@@ -1796,11 +1800,15 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		while(showingDialog->get() || dialogs.size()); //wait till all dialogs are displayed and closed
 		makingTurn = false;
 
- 		//return to main menu
- 		SDL_Event event;
- 		event.type = SDL_USEREVENT;
- 		event.user.code = 2;
- 		SDL_PushEvent(&event);
+		howManyPeople--;
+		if(!howManyPeople) //all human players eliminated
+		{
+ 			//return to main menu
+			SDL_Event event;
+			event.type = SDL_USEREVENT;
+			event.user.code = 2;
+			SDL_PushEvent(&event);
+		}
 	}
 	else
 	{

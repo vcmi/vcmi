@@ -1189,7 +1189,7 @@ heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
 	spellBeingCasted = NULL;
-	player = 0;
+	player = 1;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
@@ -1733,7 +1733,6 @@ bool CAdvMapInt::isActive()
 
 void CAdvMapInt::startHotSeatWait(int Player)
 {
-	setPlayer(Player);
 	state = WAITING;
 }
 
