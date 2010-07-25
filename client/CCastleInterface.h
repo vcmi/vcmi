@@ -138,7 +138,7 @@ public:
 	void enterTavern();
 	void enterMageGuild();
 	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
-	CRecruitmentWindow * showRecruitmentWindow(int building);
+	void showRecruitmentWindow( int level );
 	void enterHall();
 	void close();
 	void splitF();
@@ -209,13 +209,14 @@ class CFortScreen : public CIntObject
 	class RecArea : public CIntObject
 	{
 	public:
-		int bid;
-		RecArea(int BID):bid(BID){used = LCLICK | RCLICK;}; //c-tor
+		int level;
+		RecArea(int LEVEL):level(LEVEL){used = LCLICK | RCLICK;}; //c-tor
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 	};
 public:
 	CMinorResDataBar * resdatabar;
+	int fortSize;
 	AdventureMapButton *exit;
 	SDL_Surface * bg;
 	std::vector<Rect> positions;

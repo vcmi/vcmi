@@ -3781,6 +3781,7 @@ void CAltarWindow::calcTotalExp()
 			val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
+	val *=(100+hero->getSecSkillLevel(21)*5)/100.0f;
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
@@ -6235,15 +6236,16 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 
 	//loading backround and converting to more bpp form
 	SDL_Surface * bg = background = BitmapHandler::loadBitmap("TpRank.bmp", false);
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	background = newSurface(bg->w, bg->h);
 	blitAt(bg, 0, 0, background);
 	SDL_FreeSurface(bg);
 
-	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "HSBTNS.def", SDLK_RETURN);
+	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "TPMAGE1.def", SDLK_RETURN);
 	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
-	resdatabar->pos.x += pos.x - 3;
+	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
 	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = { &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
@@ -6271,7 +6273,9 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		{
 			y = 52 + 32*g;
 		}
-		printAtMiddle(CGI->generaltexth->jktexts[24+g], 135, y, FONT_MEDIUM, tytulowy, background);
+		std::string text = CGI->generaltexth->jktexts[24+g];
+		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
+		printAtMiddle(text, 135, y, FONT_MEDIUM, tytulowy, background);
 	}
 
 	CDefHandler * strips = CDefHandler::giveDef("PRSTRIPS.DEF");
@@ -6284,7 +6288,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		{
 			blitAt(strips->ourImages[g-1].bitmap, 250 + 66*g, 7, background);
 		}
-		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 20, FONT_MEDIUM, tytulowy, background);
+		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 24, FONT_BIG, tytulowy, background);
 		SDL_Surface * box = BitmapHandler::loadBitmap(colorToBox[tgi.playerColors[g]]);
 		blitAt(box, 253 + 66*g, 334, background);
 		SDL_FreeSurface(box);
@@ -6327,12 +6331,12 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		//printing stats
 		if(it->second.details)
 		{
+			printAtWB(CGI->generaltexth->allTexts[184], 191 + 66*counter, 396, FONT_TINY, 10, zwykly, background);
 			for (int i=0; i<it->second.details->primskills.size(); ++i)
 			{
-				printAt(CGI->generaltexth->allTexts[380+i], 191 + 66*counter, 394 + 11*i, FONT_SMALL, zwykly, background);
 				std::ostringstream skill;
 				skill << it->second.details->primskills[i];
-				printTo(skill.str(), 244 + 66 * counter, 410 + 11*i, FONT_SMALL, zwykly, background);
+				printTo(skill.str(), 244 + 66 * counter, 407 + 11*i, FONT_TINY, zwykly, background);
 			}
 		}
 

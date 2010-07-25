@@ -1862,7 +1862,9 @@ int CGTownInstance::mageGuildLevel() const
 }
 bool CGTownInstance::creatureDwelling(const int & level, bool upgraded) const
 {
-	return builtBuildings.find(30+level+upgraded*7)!=builtBuildings.end();
+	if ( level<0 || level >= CREATURES_PER_TOWN )
+		return false;
+	return vstd::contains(builtBuildings, 30+level+upgraded*CREATURES_PER_TOWN);
 }
 int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
@@ -2437,6 +2439,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 			}
 		case 100: //give exp
 			{
+				const CGHeroInstance *h = cb->getHero(heroID);
+				val = val*(100+h->getSecSkillLevel(21)*5)/100.0f;
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(id,subid,val,0));
@@ -2731,9 +2735,9 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 					case 5://academy of battle scholars
 						what = 4;
-						val = 1000;
+						val = 1000*(100+h->getSecSkillLevel(21)*5)/100.0f;
 						mid = 583;
-						iw.components.push_back (Component(Component::EXPERIENCE, 0, 1000, 0));
+						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
 						break;
 				}
 				break;
@@ -3686,7 +3690,8 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(2,6,val1,0));
-				sd.components.push_back(Component(5,0,val2,0));
+				int expVal = val2*(100+h->getSecSkillLevel(21)*5)/100.0f;
+				sd.components.push_back(Component(5,0,expVal, 0));
 				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
 				cb->showBlockingDialog(&sd,fun);
@@ -3699,13 +3704,14 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGPickable::chosen( int which, int heroID ) const
 {
+	const CGHeroInstance *h = cb->getHero(heroID);
 	switch(which)
 	{
 	case 1: //player pick gold
 		cb->giveResource(cb->getOwner(heroID),6,val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(heroID, 4, val2);
+		cb->changePrimSkill(heroID, 4, val2*(100+h->getSecSkillLevel(21)*5)/100.0f);
 		break;
 	default:
 		throw std::string("Unhandled treasure choice");
@@ -4220,13 +4226,18 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 	switch (rewardType)
 	{
 		case 1: //experience
-			cb->changePrimSkill(h->id, 4, rVal, false);
-			iw.components.push_back (Component (Component::EXPERIENCE, 0, rVal, 0));
+		{
+			int expVal = rVal*(100+h->getSecSkillLevel(21)*5)/100.0f;
+			cb->changePrimSkill(h->id, 4, expVal, false);
+			iw.components.push_back (Component (Component::EXPERIENCE, 0, expVal, 0));
 			break;
+		}
 		case 2: //mana points
+		{
 			cb->setManaPoints(h->id, h->mana+rVal);
 			iw.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
 			break;
+		}
 		case 3: case 4: //morale /luck
 		{
 			Bonus hb(Bonus::ONE_WEEK, (rewardType == 3 ? Bonus::MORALE : Bonus::LUCK),
@@ -4682,10 +4693,11 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
+		int expVal = gainedExp*(100+h->getSecSkillLevel(21)*5)/100.0f;
 		getText(iw,afterBattle,175,h);
 
-		if(gainedExp)
-			iw.components.push_back(Component(Component::EXPERIENCE,0,gainedExp,0));
+		if(expVal)
+			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
 				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
@@ -4696,8 +4708,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 
 		//give exp
-		if(gainedExp)
-			cb->changePrimSkill(h->id,4,gainedExp,false);
+		if(expVal)
+			cb->changePrimSkill(h->id,4,expVal,false);
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])

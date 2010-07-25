@@ -571,6 +571,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
+	if (hero1)
+		battleResult.data->exp[0] *= (100+hero1->getSecSkillLevel(21)*5)/100.0f;//sholar skill
+	if (hero2)
+		battleResult.data->exp[1] *= (100+hero2->getSecSkillLevel(21)*5)/100.0f;
 	sendAndApply(battleResult.data);
 
 	//if one hero has lost we will erase him
@@ -4936,7 +4940,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	int dump, exp;
 	market->getOffer(crid, 0, dump, exp, CREATURE_EXP);
 	exp *= count;
-	changePrimSkill	(hero->id, 4, exp);
+	changePrimSkill	(hero->id, 4, exp*(100+hero->getSecSkillLevel(21)*5)/100.0f);
 
 	return true;
 }

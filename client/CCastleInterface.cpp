@@ -580,7 +580,7 @@ void CCastleInterface::buildingClicked(int building)
 
 	if(building >= 30)
 	{
-		showRecruitmentWindow(building);
+		showRecruitmentWindow((building-30)%CREATURES_PER_TOWN);
 	}
 	else
 	{
@@ -761,14 +761,10 @@ void CCastleInterface::buildingClicked(int building)
 						
 	/*Dungeon*/		case 5: //Portal of Summoning
 						if (town->creatures[CREATURES_PER_TOWN].second.empty())
-						{//extra dwelling has no creatures in it. no external dwellinngs
+						//extra dwelling has no creatures in it
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30], std::vector<SComponent*>(), soundBase::sound_todo);
-						}
 						else 
-						{
-							GH.pushInt(new CRecruitmentWindow(town, CREATURES_PER_TOWN, town, 
-									boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,CREATURES_PER_TOWN), -87));
-						}
+							this->showRecruitmentWindow(CREATURES_PER_TOWN);
 					break;
 	/*Stronghold*/		case 6: //Ballista Yard
 					enterBlacksmith(4);
@@ -1198,9 +1194,7 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
-	{
-		LOCPLINT->castleInt->showRecruitmentWindow(level+37);
-	}
+		LOCPLINT->castleInt->showRecruitmentWindow(level);
 }
 
 int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to, int numb)
@@ -1379,26 +1373,12 @@ void CCastleInterface::CTownInfo::show(SDL_Surface * to)
 		blitAt(pic->ourImages[bid-10].bitmap,pos.x,pos.y,to);
 }
 
-CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
+void CCastleInterface::showRecruitmentWindow( int level )
 {
-	if(building>36) //upg dwelling
-		building-=7;
-
-	int level = building-30;
 	assert(level >= 0 && level < town->creatures.size());
-
-	//std::vector<std::pair<int,int > > crs;
-	//int amount = town->creatures[level].first;
-
-	//const std::vector<ui32> &cres = town->creatures[level].second;
-
-	//for(size_t i = 0; i < cres.size(); i++)
-	//	crs.push_back(std::make_pair((int)cres[i],amount));
-	//CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 
 	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87);
 	GH.pushInt(rw);
-	return rw;
 }
 
 void CCastleInterface::enterMageGuild()
@@ -1817,7 +1797,7 @@ void CFortScreen::show( SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	static unsigned char anim = 1;
-	for (int i=0; i<CREATURES_PER_TOWN; i++)
+	for (int i=0; i<crePics.size(); i++)
 	{
 		crePics[i]->blitPic(to,pos.x+positions[i].x+159,pos.y+positions[i].y+4,!(anim%4));
 	}
@@ -1853,6 +1833,11 @@ void CFortScreen::close()
 
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
+	if (owner->town->creatures.size() > CREATURES_PER_TOWN 
+	        && owner->town->creatures[CREATURES_PER_TOWN].second.size() )//dungeon with active portal
+		fortSize = CREATURES_PER_TOWN+1;
+	else
+		fortSize = CREATURES_PER_TOWN;
 	resdatabar = new CMinorResDataBar;
 	pos = owner->pos;
 	bg = NULL;
@@ -1862,8 +1847,11 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 	exit = new AdventureMapButton(temp,"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
 		genRect(126,386,10,155),genRect(126,386,404,155),
-		genRect(126,386,10,288),genRect(126,386,404,288),
-		genRect(126,386,206,421);
+		genRect(126,386,10,288),genRect(126,386,404,288);
+	if (fortSize == CREATURES_PER_TOWN)
+		positions += genRect(126,386,206,421);
+	else
+		positions += genRect(126,386,10,421),genRect(126,386,404,421);
 	draw(owner,true);
 	resdatabar->pos += pos;
 }
@@ -1874,22 +1862,40 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		SDL_FreeSurface(bg);
 	char buf[20];
 	memset(buf,0,20);
-	SDL_Surface *bg2 = BitmapHandler::loadBitmap("TPCASTL7.bmp"),
-		*icons =  BitmapHandler::loadBitmap("ZPCAINFO.bmp");
+	SDL_Surface *bg2;
+	if (fortSize == CREATURES_PER_TOWN)
+		bg2 = BitmapHandler::loadBitmap("TPCASTL7.bmp");
+	else
+		bg2 = BitmapHandler::loadBitmap("TPCASTL8.bmp");
+		
+	SDL_Surface *icons =  BitmapHandler::loadBitmap("ZPCAINFO.bmp");
 	SDL_SetColorKey(icons,SDL_SRCCOLORKEY,SDL_MapRGB(icons->format,0,255,255));
 	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
 	bg = SDL_ConvertSurface(bg2,screen->format,0); 
 	SDL_FreeSurface(bg2);
 	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,FONT_MEDIUM,zwykly,bg);
-	for(int i=0;i<CREATURES_PER_TOWN; i++)
+	for(int i=0;i<fortSize; i++)
 	{
-		bool upgraded = owner->town->creatureDwelling(i,true);
-		bool present = owner->town->creatureDwelling(i,false);
-		CCreature *c = CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
+		int dwelling;// ID of buiding with this creature
+		CCreature *c;
+		bool present = true;
+		if ( i < CREATURES_PER_TOWN )
+		{
+			bool upgraded = owner->town->creatureDwelling(i,true);
+			present = owner->town->creatureDwelling(i,false);
+			c = CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
+			dwelling = 30+i+upgraded*7;
+		}
+		else
+		{
+			c = CGI->creh->creatures[owner->town->creatures[i].second[0]];
+			dwelling = 22;//Portal of summon
+		}
+
 		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,FONT_SMALL,zwykly,bg); //cr. name
-		blitAt(owner->bicons->ourImages[30+i+upgraded*7].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
-		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
-		if(present) //if creature is present print avail able quantity
+		blitAt(owner->bicons->ourImages[dwelling].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
+		printAtMiddle(CGI->buildh->buildings[owner->town->subID][dwelling]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
+		if(present) //if creature is present print available quantity
 		{
 			SDL_itoa(owner->town->creatures[i].first,buf,10);
 			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,FONT_SMALL,zwykly,bg);
@@ -1939,7 +1945,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 			crePics.push_back(new CCreaturePic(c,false));
 			if(present)
 			{
-				recAreas.push_back(new RecArea(30+i+upgraded*7));
+				recAreas.push_back(new RecArea(i));
 				recAreas.back()->pos = positions[i] + pos;
 			}
 		}
@@ -1949,10 +1955,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 void CFortScreen::RecArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && previousState)
-	{
-		LOCPLINT->castleInt->showRecruitmentWindow(bid);
-	}
-	//ClickableL::clickLeft(down);
+		LOCPLINT->castleInt->showRecruitmentWindow(level);
 }
 
 void CFortScreen::RecArea::clickRight(tribool down, bool previousState)

@@ -29,23 +29,11 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 	std::ifstream b5(DATA_DIR "/config/buildings5.txt");
 	while(!b5.eof())
 	{
-		int a, b;
-		b5 >> a >> b;
-		if(castleID==8 && b==17) //magic university ID 17 (h3m) => 21 (vcmi)
-			b=21;
-		if(castleID==4 && a==20) //necropolis, skeleton transformer
-			b=22;
-		if(castleID==4 && a==19) //necropolis, necromancy aplifier
-			b=21;
-		if(castleID==3 && a==18) //inferno, brimstone clouds
-			b=21;
-		if(castleID==3 && a==20) //inferno, order of fire
-			b=23;
-		if(castleID==8 && a==10) //conflux, artifact merchant
-			b=17;
-		mapa[a]=b;
+		int h3, VCMI, town;
+		b5 >> town >> h3 >> VCMI;
+		if ( town == castleID || town == -1 )
+			mapa[h3]=VCMI;
 	}
-
 	for(std::set<si32>::const_iterator i=h3m.begin();i!=h3m.end();i++)
 	{
 		if(mapa[*i]>=0)
