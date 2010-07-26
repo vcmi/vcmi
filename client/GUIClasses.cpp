@@ -6031,7 +6031,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	for (int i=0; i<slotsCount; i++)
 	{
 		currState[i] = getState(i);
-		upgrade[i] = new AdventureMapButton("","",boost::bind(&CHillFortWindow::makeDeal, this, i), 107+i*76, 171, getDefForSlot(i));
+		upgrade[i] = new AdventureMapButton(getTextForSlot(i),"",boost::bind(&CHillFortWindow::makeDeal, this, i), 107+i*76, 171, getDefForSlot(i));
 		upgrade[i]->block(currState[i] == -1);
 	}
 	currState[slotsCount] = getState(slotsCount);
@@ -6079,8 +6079,9 @@ void CHillFortWindow::updateGarrisons()
 			if (info.newID.size())//we have upgrades here - update costs
 				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
 				{
-					costs[i].insert(*it);
-					totalSumm[it->first] += it->second;
+					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getAmount(i) );
+					costs[i].insert(pair);
+					totalSumm[pair.first] += pair.second;
 				}
 		}
 		
@@ -6089,6 +6090,7 @@ void CHillFortWindow::updateGarrisons()
 			currState[i] = newState;
 			upgrade[i]->setDef(getDefForSlot(i), false, true);
 			upgrade[i]->block(currState[i] == -1);
+			upgrade[i]->hoverTexts[0] = getTextForSlot(i);
 		}
 	}
 	
@@ -6180,6 +6182,21 @@ std::string CHillFortWindow::getDefForSlot(int slot)
 			case  1: return "APHLF1Y.DEF";
 			case  2: return "APHLF1G.DEF";
 		}
+}
+
+std::string CHillFortWindow::getTextForSlot(int slot)
+{
+	if ( !hero->getCreature(slot) )//we dont have creature here
+		return "";
+
+	std::string str = CGI->generaltexth->allTexts[318];
+	int amount = hero->getAmount(slot);
+	if ( amount == 1 )
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
+	else
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->namePl);
+	
+	return str;
 }
 
 int CHillFortWindow::getState(int slot)

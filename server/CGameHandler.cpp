@@ -2794,39 +2794,35 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
 	int crQuantity = obj->slots[pos].count;
+	int newIDpos= vstd::findPos(ui.newID, upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible
-	if((ui.oldID<0 || !vstd::contains(ui.newID,upgID)) && complain("That upgrade is not possible!")) 
+	if( (ui.oldID<0 || newIDpos == -1 ) && complain("That upgrade is not possible!")) 
 	{
 		return false;
 	}
+	
 
 	//check if player has enough resources
-	for(int i=0;i<ui.cost.size();i++)
+	for (std::set<std::pair<int,int> >::iterator j=ui.cost[newIDpos].begin(); j!=ui.cost[newIDpos].end(); j++)
 	{
-		for (std::set<std::pair<int,int> >::iterator j=ui.cost[i].begin(); j!=ui.cost[i].end(); j++)
+		if(gs->getPlayer(player)->resources[j->first] < j->second*crQuantity)
 		{
-			if(gs->getPlayer(player)->resources[j->first] < j->second*crQuantity)
-			{
-				complain("Cannot upgrade, not enough resources!");
-				return false;
-			}
+			complain("Cannot upgrade, not enough resources!");
+			return false;
 		}
 	}
-
+	
 	//take resources
-	for(int i=0;i<ui.cost.size();i++)
+	for (std::set<std::pair<int,int> >::iterator j=ui.cost[newIDpos].begin(); j!=ui.cost[newIDpos].end(); j++)
 	{
-		for (std::set<std::pair<int,int> >::iterator j=ui.cost[i].begin(); j!=ui.cost[i].end(); j++)
-		{
-			SetResource sr;
-			sr.player = player;
-			sr.resid = j->first;
-			sr.val = gs->getPlayer(player)->resources[j->first] - j->second*crQuantity;
-			sendAndApply(&sr);
-		}
+		SetResource sr;
+		sr.player = player;
+		sr.resid = j->first;
+		sr.val = gs->getPlayer(player)->resources[j->first] - j->second*crQuantity;
+		sendAndApply(&sr);
 	}
-
+	
 	//upgrade creature
 	SetGarrisons sg;
 	sg.garrs[objid] = obj->getArmy();

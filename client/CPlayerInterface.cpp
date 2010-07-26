@@ -351,6 +351,8 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
+	if (castleInt)
+		GH.popIntTotally(castleInt);
 	castleInt = new CCastleInterface(town);
 	GH.pushInt(castleInt);
 }

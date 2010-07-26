@@ -726,6 +726,12 @@ void CCastleInterface::buildingClicked(int building)
 					break;
 	/*Inferno*/		case 3: //Castle Gate
 						{
+							if (!town->visitingHero)
+							{
+								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
+								break;//only visiting hero can use castle gates
+							}
+							
 							std::vector <int> availableTowns;
 							std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
 							for(size_t i=0;i<Towns.size();i++)
@@ -736,11 +742,6 @@ void CCastleInterface::buildingClicked(int building)
 								{
 									availableTowns.push_back(t->id);//add to the list
 								}
-							}
-							if (!town->visitingHero)
-							{
-								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
-								break;//only visiting hero can use castle gates
 							}
 							CPicture *titlePic = new CPicture (bicons->ourImages[building].bitmap, 0,0, false);//will be deleted by selection window
 							GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
@@ -790,7 +791,6 @@ void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(where, 1);
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	close();//close this window, interface with new town will be called by town::onVisit
 }
 
 void CCastleInterface::defaultBuildingClicked(int building)

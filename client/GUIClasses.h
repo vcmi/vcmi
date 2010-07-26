@@ -1153,7 +1153,8 @@ public:
 	void activate();
 	void deactivate();
 	void showAll (SDL_Surface *to);
-	std::string getDefForSlot(int slot);
+	std::string getDefForSlot(int slot);//return def name for this slot
+	std::string getTextForSlot(int slot);//return hover text for this slot
 	void makeDeal(int slot);//-1 for upgrading all creatures
 	int getState(int slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
 	void updateGarrisons();//update buttons after garrison changes

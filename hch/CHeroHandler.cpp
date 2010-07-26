@@ -450,7 +450,13 @@ void CHeroHandler::loadHeroClasses()
 		char name[BUFFER_SIZE+1];
 		str.get(name, BUFFER_SIZE, '\t');
 		hc->name = name;
-		str >> hc->aggression;
+		//workaround for locale issue (different localisations use different decimal separator)
+		int intPart,fracPart;
+		str >> intPart;
+		str.ignore();//ignore decimal separator
+		str >> fracPart;
+		hc->aggression = intPart + fracPart/100.0f;
+		
 		str >> hc->initialAttack;
 		str >> hc->initialDefence;
 		str >> hc->initialPower;
