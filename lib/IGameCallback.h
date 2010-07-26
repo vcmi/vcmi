@@ -49,7 +49,7 @@ public:
 	virtual int getOwner(int heroID);
 	virtual int getResource(int player, int which);
 	virtual int getDate(int mode=0); ////mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual const CGObjectInstance* getObj(int objid);
+	virtual const CGObjectInstance* getObj(int objid, bool verbose = true);
 	virtual const CGHeroInstance* getHero(int objid);
 	virtual const CGTownInstance* getTown(int objid);
 	virtual const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected

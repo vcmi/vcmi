@@ -26,23 +26,25 @@ CGameState *const IGameCallback::gameState ()
 { 
 	return gs;
 }
-const CGObjectInstance* IGameCallback::getObj(int objid)
+const CGObjectInstance* IGameCallback::getObj(int objid, bool verbose)
 {
 	if(objid < 0  ||  objid >= gs->map->objects.size())
 	{
-		tlog1 << "Cannot get object with id " << objid << std::endl;
+		if(verbose)
+			tlog1 << "Cannot get object with id " << objid << std::endl;
 		return NULL;
 	}
 	else if (!gs->map->objects[objid])
 	{
-		tlog1 << "Cannot get object with id " << objid << ". Object was removed.\n";
+		if(verbose)
+			tlog1 << "Cannot get object with id " << objid << ". Object was removed.\n";
 		return NULL;
 	}
 	return gs->map->objects[objid];
 }
 const CGHeroInstance* IGameCallback::getHero(int objid)
 {
-	const CGObjectInstance *obj = getObj(objid);
+	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
 		return dynamic_cast<const CGHeroInstance*>(obj);
 	else
@@ -50,7 +52,7 @@ const CGHeroInstance* IGameCallback::getHero(int objid)
 }
 const CGTownInstance* IGameCallback::getTown(int objid)
 {
-	const CGObjectInstance *obj = getObj(objid);
+	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
 		return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid]);
 	else
