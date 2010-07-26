@@ -47,6 +47,9 @@ public:
 
 	CArtifact();
 	~CArtifact();
+
+	//override
+	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 };
 
 class DLL_EXPORT CArtHandler //handles artifacts

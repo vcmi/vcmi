@@ -87,7 +87,7 @@ public:
 	void showAll(SDL_Surface * to);
 	void sliderMoved(int to);
 
-	CInfoWindow(std::string Text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
+	CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 

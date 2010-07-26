@@ -612,7 +612,7 @@ void CGarrisonInt::deactivate()
 		splitButtons[i]->deactivate();
 }
 
-CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
+CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = -1;
@@ -636,7 +636,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, int charperline, const st
 		components.push_back(comps[i]);
 	}
 	setDelComps(delComps);
-	CMessage::drawIWindow(this,Text,player,charperline);
+	CMessage::drawIWindow(this,Text,player);
 }
 
 CInfoWindow::CInfoWindow() 
@@ -677,7 +677,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text, player, 0, components ? *components : std::vector<SComponent*>(), pom, DelComps);
+	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<SComponent*>(), pom, DelComps);
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
 	for(int i=0;i<onNo.funcs.size();i++)
@@ -690,7 +690,7 @@ CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/,
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * ret = new CInfoWindow(text, playerID, 0, components ? *components : std::vector<SComponent*>(), pom, DelComps);
+	CInfoWindow * ret = new CInfoWindow(text, playerID, components ? *components : std::vector<SComponent*>(), pom, DelComps);
 	return ret;
 }
 
@@ -1073,6 +1073,7 @@ void CSelectableComponent::show(SDL_Surface * to)
 	blitAt(myBitmap,pos.x,pos.y,to);
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
 }
+
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(bitmap)
@@ -1098,8 +1099,9 @@ void CSelWindow::selectionChange(unsigned to)
 		blitAt(pom->getImg(),pom->pos.x-pos.x,pom->pos.y-pos.y,bitmap);
 	}
 }
-CSelWindow::CSelWindow(const std::string &text, int player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
+CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = askID;
 	for(int i=0;i<Buttons.size();i++)
 	{
@@ -1108,6 +1110,9 @@ CSelWindow::CSelWindow(const std::string &text, int player, int charperline, con
 			buttons.back()->callback += boost::bind(&CSelWindow::madeChoice,this);
 		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
 	}
+
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text->redrawParentOnScrolling = true;
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
@@ -1124,7 +1129,10 @@ CSelWindow::CSelWindow(const std::string &text, int player, int charperline, con
 		if(i<9)
 			comps[i]->assignedKeys.insert(SDLK_1+i);
 	}
-	CMessage::drawIWindow(this,text,player,charperline);
+	CMessage::drawIWindow(this, Text, player);
+
+	BOOST_FOREACH(SComponent *c, components)
+		c->subtitle = "";//workaround - erase subtitles since they were hard-blitted by function drawing window
 }
 
 void CSelWindow::madeChoice()
@@ -3170,11 +3178,17 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		bgName = "TPMRKABS.bmp";
 		sliderNeeded = false;
 		break;
+
+	case ARTIFACT_RESOURCE:
+		bgName = "TPMRKASS.bmp";
+		break;
 	}
 
 	bg = new CPicture(bgName);
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bg->center();
+
+	new CGStatusBar(302, 576);
 
 	if(market->o->ID == 99 || market->o->ID == 221)
 	{
@@ -3251,7 +3265,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	if(printButtonFor(RESOURCE_ARTIFACT))
 		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450,"TPMRKBU2.DEF");
 	if(printButtonFor(ARTIFACT_RESOURCE))																				//unblock when support for art-res is ready
-		(new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-res in some conditions
+		(new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-art in some conditions
 
 }
 
@@ -3483,8 +3497,8 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 		assert(!Right);
 		break;
 	case ARTIFACT://45,123
-		x = 342-288;
-		y = 181;
+		x = 340-289;
+		y = 180;
 		w = 44;
 		h = 44;
 		dx = 83;
@@ -3492,7 +3506,7 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 		break;
 	}
 
-	leftToRightOffset = 280;
+	leftToRightOffset = 289;
 }
 
 CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= NULL*/, EMarketMode Mode)
@@ -3669,7 +3683,8 @@ void CAltarWindow::SacrificeAll()
 	{
 		for(std::map<ui16,ui32>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
 		{
-			moveFromSlotToAltar(i->first, NULL, i->second);
+			if(i->second != 145) //ignore locks from assembled artifacts
+				moveFromSlotToAltar(i->first, NULL, i->second);
 		}
 
 		SacrificeBackpack();

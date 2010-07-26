@@ -966,11 +966,14 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 	}
 	else if(CTradeWindow *caw = dynamic_cast<CTradeWindow*>(GH.topInt()))
 	{
-		caw->deactivate();
-		caw->arts->updateState = true;
-		caw->arts->setHero(hero);
-		caw->arts->updateState = false;
-		caw->activate();
+		if(caw->arts)
+		{
+			caw->deactivate();
+			caw->arts->updateState = true;
+			caw->arts->setHero(hero);
+			caw->arts->updateState = false;
+			caw->activate();
+		}
 	}
 
 	updateInfo(hero);

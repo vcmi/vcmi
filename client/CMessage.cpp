@@ -391,7 +391,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	return ret;
 }
 
-void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline)
+void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 {
 	SDL_Surface * _or = NULL;
 	const Font &f = *graphics->fonts[FONT_MEDIUM];

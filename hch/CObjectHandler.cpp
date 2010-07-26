@@ -6637,7 +6637,7 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 		}
 	case CREATURE_RESOURCE:
 		return ID == 213; //Freelancer's Guild
-	case ARTIFACT_RESOURCE:
+	//case ARTIFACT_RESOURCE:
 	case RESOURCE_ARTIFACT:
 		return ID == 7; //Black Market
 	case ARTIFACT_EXP:

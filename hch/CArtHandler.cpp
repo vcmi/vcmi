@@ -164,6 +164,16 @@ int CArtifact::getArtClassSerial() const
 	return -1;
 }
 
+void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+{
+	//combined artifact carries bonuses from its parts
+	if(constituents)
+	{
+		BOOST_FOREACH(ui32 id, *constituents)
+			out.insert(VLC->arth->artifacts[id]);
+	}
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;

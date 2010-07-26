@@ -1797,6 +1797,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(topBlocking && (topBlocking->ID == TOWNI_TYPE || topBlocking->ID == HEROI_TYPE) && topBlocking->tempOwner == LOCPLINT->playerID) //our town/hero clicked
 			select(static_cast<const CArmedInstance*>(topBlocking), false);
+		return;
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
