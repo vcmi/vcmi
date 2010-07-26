@@ -65,6 +65,7 @@ public:
 	void sortArts();
 	void addBonuses();
 	void clear();
+	void clearHlpLists();
 	ui16 getRandomArt (int flags);
 	ui16 getArtSync (ui32 rand, int flags);
 	void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag);

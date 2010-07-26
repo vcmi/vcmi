@@ -358,24 +358,24 @@ int CArtHandler::convertMachineID(int id, bool creToArt )
 
 void CArtHandler::sortArts()
 {
-	for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
-	{
-		switch (allowedArtifacts[i]->aClass)
-		{
-		case CArtifact::ART_TREASURE:
-			treasures.push_back(allowedArtifacts[i]);
-			break;
-		case CArtifact::ART_MINOR:
-			minors.push_back(allowedArtifacts[i]);
-			break;
-		case CArtifact::ART_MAJOR:
-			majors.push_back(allowedArtifacts[i]);
-			break;
-		case CArtifact::ART_RELIC:
-			relics.push_back(allowedArtifacts[i]);
-			break;
-		}
-	}
+// 	for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
+// 	{
+// 		switch (allowedArtifacts[i]->aClass)
+// 		{
+// 		case CArtifact::ART_TREASURE:
+// 			treasures.push_back(allowedArtifacts[i]);
+// 			break;
+// 		case CArtifact::ART_MINOR:
+// 			minors.push_back(allowedArtifacts[i]);
+// 			break;
+// 		case CArtifact::ART_MAJOR:
+// 			majors.push_back(allowedArtifacts[i]);
+// 			break;
+// 		case CArtifact::ART_RELIC:
+// 			relics.push_back(allowedArtifacts[i]);
+// 			break;
+// 		}
+// 	}
 }
 void CArtHandler::erasePickedArt (si32 id)
 {
@@ -703,10 +703,8 @@ void CArtHandler::clear()
 		delete art;
 	artifacts.clear();
 
-	treasures.clear();
-	minors.clear();
-	majors.clear();
-	relics.clear();
+	clearHlpLists();
+
 }
 
 /**
@@ -794,4 +792,12 @@ void CArtHandler::unequipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID)
 			}
 		}
 	}
+}
+
+void CArtHandler::clearHlpLists()
+{
+	treasures.clear();
+	minors.clear();
+	majors.clear();
+	relics.clear();
 }

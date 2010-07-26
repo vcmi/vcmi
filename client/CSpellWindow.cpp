@@ -591,6 +591,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			char msgBuf[500];
 			sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
 			owner->myInt->showInfoDialog(std::string(msgBuf));
+			return;
 		}
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast

@@ -828,7 +828,7 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 	else
 		howManyStacks = 3;
 
-	for(int stackNo=0; stackNo<3; stackNo++)
+	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
 	{
 		int creID = (VLC->creh->nameToID[type->refTypeStack[stackNo]]);
 		int range = type->highStack[stackNo] - type->lowStack[stackNo];

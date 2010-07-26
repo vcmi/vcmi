@@ -1176,7 +1176,8 @@ CGameState::~CGameState()
 }
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
-
+	VLC->arth->allowedArtifacts.clear();
+	VLC->arth->clearHlpLists();
 	switch(si->mode)
 	{
 	case 0:
