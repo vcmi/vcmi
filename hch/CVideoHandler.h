@@ -125,6 +125,7 @@ typedef void (__stdcall* SmackClose)(SmackStruct*);
 typedef void (__stdcall* SmackToBuffer) (SmackStruct*, int, int, int, int, char *, ui32);
 typedef bool (__stdcall* SmackWait)(SmackStruct*);
 typedef void (__stdcall* SmackSoundOnOff) (SmackStruct*, bool);
+typedef int (__stdcall* SmackVolumePan)(SmackStruct *, int SmackTrack, int volume, int pan);
 
 
 
@@ -138,6 +139,7 @@ public:
 	SmackWait ptrSmackWait;
 	SmackSoundOnOff ptrSmackSoundOnOff;
 	SmackClose ptrSmackClose;
+	SmackVolumePan ptrVolumePan;
 
 	char *buffer, *buf;
 	SmackStruct* data;

@@ -4,7 +4,9 @@
 #include "CVideoHandler.h"
 #include <SDL.h>
 #include "../client/SDL_Extensions.h"
+#include "../client/CPlayerInterface.h"
 
+extern SystemOptions GDefaultOptions; 
 //reads events and returns true on key down
 static bool keyDown()
 {
@@ -279,6 +281,7 @@ CSmackPlayer::CSmackPlayer()
 	ptrSmackOpen = (SmackOpen)FindAddress("_SmackOpen@12");
 	ptrSmackSoundOnOff = (SmackSoundOnOff)FindAddress("_SmackSoundOnOff@8");
 	ptrSmackClose = (SmackClose)FindAddress("_SmackClose@4");
+	ptrVolumePan = (SmackVolumePan)FindAddress("_SmackVolumePan@16");
 }
 
 CSmackPlayer::~CSmackPlayer()
@@ -297,7 +300,7 @@ bool CSmackPlayer::open( std::string name )
 {
 	Uint32 flags[2] = {0xff400, 0xfe400};
 
-	data = ptrSmackOpen( (void*)name.c_str(), 0x8600, -1);
+	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
 	if (!data) 
 	{
 		tlog1 << "Smack cannot open " << name << std::endl;
@@ -307,6 +310,8 @@ bool CSmackPlayer::open( std::string name )
 
 	buffer = new char[data->width*data->height*2];
 	buf = buffer+data->width*(data->height-1)*2;	// adjust pointer position for later use by 'SmackToBuffer'
+
+	ptrVolumePan(data, 0xfe000, 3640 * GDefaultOptions.musicVolume / 11, 0x8000); //set volume
 	return true;
 }
 
