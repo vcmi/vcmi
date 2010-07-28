@@ -4086,7 +4086,6 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					MetaString loot;
 					for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 					{
-						bd.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 						loot << "%s";
 						loot.addReplacement (MetaString::ART_NAMES, *it);
 					}
@@ -4099,7 +4098,6 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					MetaString loot;
 					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
 					{
-						bd.components.push_back(Component(it->second));
 						loot << "%s";
 						loot.addReplacement(it->second);
 					}
@@ -4114,7 +4112,6 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					{
 						if (m7resources[i])
 						{
-							bd.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
 							loot << "%d %s";
 							loot.addReplacement (m7resources[i]);
 							loot.addReplacement (MetaString::RES_NAMES, i);
@@ -4143,11 +4140,35 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					}
 				}
 				case MISSION_PLAYER:
-					bd.components.push_back (Component (Component::FLAG, m13489val, 0, 0));
 					if (!isCustom)
 						bd.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
+			
+			switch (rewardType)
+			{
+				case 1: bd.components.push_back (Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(21)*5)/100.0f, 0));
+					break;
+				case 2: bd.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
+					break;
+				case 3: bd.components.push_back (Component (Component::MORALE, 0, rVal, 0));
+					break;
+				case 4: bd.components.push_back (Component (Component::LUCK, 0, rVal, 0));
+					break;
+				case 5: bd.components.push_back (Component (Component::RESOURCE, rID, rVal, 0));
+					break;
+				case 6: bd.components.push_back (Component (Component::PRIM_SKILL, rID, rVal, 0));
+					break;
+				case 7: bd.components.push_back (Component (Component::SEC_SKILL, rID, rVal, 0));
+					break;
+				case 8: bd.components.push_back (Component (Component::ARTIFACT, rID, 0, 0));
+					break;
+				case 9: bd.components.push_back (Component (Component::SPELL, rID, 0, 0));
+					break;
+				case 10: bd.components.push_back (Component (Component::CREATURE, rID, rVal, 0));
+					break;
+			}
+			
 			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
 			return;
 		}
@@ -4221,21 +4242,17 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 }
 void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 {
-	InfoWindow iw;
-	iw.player = h->getOwner();
 	switch (rewardType)
 	{
 		case 1: //experience
 		{
 			int expVal = rVal*(100+h->getSecSkillLevel(21)*5)/100.0f;
 			cb->changePrimSkill(h->id, 4, expVal, false);
-			iw.components.push_back (Component (Component::EXPERIENCE, 0, expVal, 0));
 			break;
 		}
 		case 2: //mana points
 		{
 			cb->setManaPoints(h->id, h->mana+rVal);
-			iw.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
 			break;
 		}
 		case 3: case 4: //morale /luck
@@ -4245,34 +4262,26 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			GiveBonus gb;
 			gb.id = h->id;
 			gb.bonus = hb;
-			//gb.descr = "";
 			cb->giveHeroBonus(&gb);
-			iw.components.push_back (Component (
-				(rewardType == 3 ? Component::MORALE : Component::LUCK), 0, rVal, 0));
 		}
 			break;
 		case 5: //resources
 			cb->giveResource(h->getOwner(), rID, rVal);
-			iw.components.push_back (Component (Component::RESOURCE, rID, rVal, 0));
 			break;
 		case 6: //main ability bonus (attak, defence etd.)
 			cb->changePrimSkill(h->id, rID, rVal, false);
-			iw.components.push_back (Component (Component::PRIM_SKILL, rID, rVal, 0));
 			break;
 		case 7: // secondary ability gain
 			cb->changeSecSkill(h->id, rID, rVal, false);
-			iw.components.push_back (Component (Component::SEC_SKILL, rID, rVal, 0));
 			break;
 		case 8: // artifact
 			cb->giveHeroArtifact(rID, h->id, -2);
-			iw.components.push_back (Component (Component::ARTIFACT, rID, 0, 0));
 			break;
 		case 9:// spell
 		{
 			std::set<ui32> spell;
 			spell.insert (rID);
 			cb->changeSpells(h->id, true, spell);
-			iw.components.push_back (Component (Component::SPELL, rID, 0, 0));
 		}
 			break;
 		case 10:// creature
@@ -4280,13 +4289,11 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			CCreatureSet creatures;
 			creatures.setCreature (0, rID, rVal);
 			cb->giveCreatures (id, h,  creatures);
-			iw.components.push_back (Component (Component::CREATURE, rID, rVal, 0));
 		}
 			break;
 		default:
 			break;
 	}
-	cb->showInfoDialog(&iw);
 }
 
 void CGQuestGuard::initObj()

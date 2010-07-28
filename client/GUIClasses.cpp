@@ -2489,11 +2489,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 		}
 	}
 
-	if(comps.size() > 1)
-	{
-		ok->block(true);
-	}
-	else if(comps.size() == 1)
+	if(comps.size())
 	{
 		comps[0]->select(true);
 	}

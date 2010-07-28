@@ -123,6 +123,8 @@ public:
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);
 	void setObjProperty(int objid, int prop, si64 val);
+	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed 
+	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
 	void changePrimSkill(int ID, int which, si64 val, bool abs=false);
 	void changeSecSkill(int ID, int which, int val, bool abs=false); 
 	void showInfoDialog(InfoWindow *iw);

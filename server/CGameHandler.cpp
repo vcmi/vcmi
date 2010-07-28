@@ -194,6 +194,110 @@ void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 	fun(args[which]);
 }
 
+void CGameHandler::levelUpHero(int ID, int skill)
+{
+	changeSecSkill(ID, skill, 1, 0);
+	levelUpHero(ID);
+}
+
+void CGameHandler::levelUpHero(int ID)
+{
+	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
+	if (hero->exp < VLC->heroh->reqExp(hero->level+1)) // no more level-ups
+		return;
+		
+	//give prim skill
+	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
+	int r = rand()%100, pom=0, x=0;
+	int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
+	for(;x<PRIMARY_SKILLS;x++)
+	{
+		pom += hero->type->heroClass->primChance[x].*g;
+		if(r<pom)
+			break;
+	}
+	tlog5 << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+	SetPrimSkill sps;
+	sps.id = ID;
+	sps.which = x;
+	sps.abs = false;
+	sps.val = 1;
+	sendAndApply(&sps);
+
+	HeroLevelUp hlu;
+	hlu.heroid = ID;
+	hlu.primskill = x;
+	hlu.level = hero->level+1;
+
+	//picking sec. skills for choice
+	std::set<int> basicAndAdv, expert, none;
+	for(int i=0;i<SKILL_QUANTITY;i++)
+		if (isAllowed(2,i))
+			none.insert(i);
+
+	for(unsigned i=0;i<hero->secSkills.size();i++)
+	{
+		if(hero->secSkills[i].second < 3)
+			basicAndAdv.insert(hero->secSkills[i].first);
+		else
+			expert.insert(hero->secSkills[i].first);
+		none.erase(hero->secSkills[i].first);
+	}
+
+	//first offered skill
+	if(basicAndAdv.size())
+	{
+		int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
+		hlu.skills.push_back(s);
+		basicAndAdv.erase(s);
+	}
+	else if(hero->secSkills.size() < hero->type->heroClass->skillLimit)
+	{
+		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //give new skill
+		none.erase(hlu.skills.back());
+	}
+
+	//second offered skill
+	if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //hero have free skill slot
+	{
+		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
+	}
+	else if(basicAndAdv.size())
+	{
+		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
+	}
+
+	if(hlu.skills.size() > 1) //apply and ask for secondary skill
+	{
+		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
+		applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
+	}
+	else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+	{
+		sendAndApply(&hlu);
+		levelUpHero(ID, hlu.skills.back());
+	}
+	else //apply and send info
+	{
+		sendAndApply(&hlu);
+		levelUpHero(ID);
+	}
+}
+
+void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
+{
+	SetPrimSkill sps;
+	sps.id = ID;
+	sps.which = which;
+	sps.abs = abs;
+	sps.val = val;
+	sendAndApply(&sps);
+	if(which==4) //only for exp - hero may level up
+	{
+		levelUpHero(ID);
+	}
+}
+
 void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*/ )
 {
 	SetSecSkill sss;
@@ -208,95 +312,6 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 		const CGHeroInstance *h = getHero(ID);
 		if(h && h->visitedTown)
 			giveSpells(h->visitedTown, h);
-	}
-}
-
-void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
-{
-	SetPrimSkill sps;
-	sps.id = ID;
-	sps.which = which;
-	sps.abs = abs;
-	sps.val = val;
-	sendAndApply(&sps);
-	if(which==4) //only for exp - hero may level up
-	{
-		CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
-		while (hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
-		{
-			//give prim skill
-			tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
-			int r = rand()%100, pom=0, x=0;
-			int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
-			for(;x<PRIMARY_SKILLS;x++)
-			{
-				pom += hero->type->heroClass->primChance[x].*g;
-				if(r<pom)
-					break;
-			}
-			tlog5 << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
-			SetPrimSkill sps;
-			sps.id = ID;
-			sps.which = x;
-			sps.abs = false;
-			sps.val = 1;
-			sendAndApply(&sps);
-
-			HeroLevelUp hlu;
-			hlu.heroid = ID;
-			hlu.primskill = x;
-			hlu.level = hero->level+1;
-
-			//picking sec. skills for choice
-			std::set<int> basicAndAdv, expert, none;
-			for(int i=0;i<SKILL_QUANTITY;i++) none.insert(i);
-			for(unsigned i=0;i<hero->secSkills.size();i++)
-			{
-				if(hero->secSkills[i].second < 3)
-					basicAndAdv.insert(hero->secSkills[i].first);
-				else
-					expert.insert(hero->secSkills[i].first);
-				none.erase(hero->secSkills[i].first);
-			}
-
-			//first offered skill
-			if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //free skill slot
-			{
-				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
-				none.erase(hlu.skills.back());
-			}
-			else if(basicAndAdv.size())
-			{
-				int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);
-				hlu.skills.push_back(s);
-				basicAndAdv.erase(s);
-			}
-
-			//second offered skill
-			if(basicAndAdv.size())
-			{
-				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
-			}
-			else if(hero->secSkills.size() < hero->type->heroClass->skillLimit)
-			{
-				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
-			}
-
-			if(hlu.skills.size() > 1) //apply and ask for secondary skill
-			{
-				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
-				applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
-			}
-			else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
-			{
-				sendAndApply(&hlu);
-				changeSecSkill(ID,hlu.skills.back(),1,false);
-			}
-			else //apply and send info
-			{
-				sendAndApply(&hlu);
-			}
-		}
 	}
 }
 
