@@ -785,6 +785,21 @@ bool CStack::doubleWide() const
 	return type->doubleWide;
 }
 
+int CStack::occupiedHex() const
+{
+	if (doubleWide())
+	{
+		if (attackerOwned)
+			return position - 1;
+		else
+			return position + 1;
+	} 
+	else
+	{
+		return -1;
+	}
+}
+
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
@@ -3617,12 +3632,25 @@ si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
 {
 	const CStack * stack = getStack(stackID);
 
-	int xDst = std::abs(destHex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH),
-		yDst = std::abs(destHex / BFIELD_WIDTH - stack->position / BFIELD_WIDTH);
-	int distance = std::max(xDst, yDst) + std::min(xDst, yDst) - (std::max(xDst, yDst) + 1)/2;
+	struct HLP
+	{
+		static bool lowerAnalyze(const CStack * stack, int hex)
+		{
+			int xDst = std::abs(hex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH),
+				yDst = std::abs(hex / BFIELD_WIDTH - stack->position / BFIELD_WIDTH);
+			int distance = std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
 
-	//I hope it's approximately correct
-	return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
+			//I hope it's approximately correct
+			return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
+		}
+	};
+	const CStack * dstStack = getStackT(destHex, false);
+
+	if (dstStack->doubleWide())
+		return HLP::lowerAnalyze(stack, destHex) && HLP::lowerAnalyze(stack, dstStack->occupiedHex());
+	else
+		return HLP::lowerAnalyze(stack, destHex);
+	
 }
 
 si8 BattleInfo::sameSideOfWall(int pos1, int pos2)

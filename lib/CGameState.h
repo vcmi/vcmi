@@ -262,6 +262,7 @@ public:
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
 
 	bool doubleWide() const;
+	int occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
