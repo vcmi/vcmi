@@ -329,42 +329,44 @@ struct DLL_EXPORT Mapa : public CMapHeader
 					for (int k = 0; k <= twoLevel ; k++)
 						h & terrain[i][j][k];
 		}
+		
+		h & defy & objects;
 
-		//definfos
-		std::vector<CGDefInfo*> defs;
+// 		//definfos
+// 		std::vector<CGDefInfo*> defs;
+// 
+// 		if(h.saving) //create vector with all defs used on map
+// 		{
+// 			for(unsigned int i=0; i<objects.size(); i++)
+// 				if(objects[i])
+// 					objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
+// 
+// 			for(unsigned int i=0; i<objects.size(); i++)
+// 			{
+// 				if(!objects[i]) continue;
+// 				CGDefInfo *cur = objects[i]->defInfo;
+// 				if(cur->serial < 0)
+// 				{
+// 					cur->serial = defs.size();
+// 					defs.push_back(cur);
+// 				}
+// 			}
+// 		}
+// 
+// 		h & ((h.saving) ? defs : defy);
 
-		if(h.saving) //create vector with all defs used on map
-		{
-			for(unsigned int i=0; i<objects.size(); i++)
-				if(objects[i])
-					objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
-
-			for(unsigned int i=0; i<objects.size(); i++)
-			{
-				if(!objects[i]) continue;
-				CGDefInfo *cur = objects[i]->defInfo;
-				if(cur->serial < 0)
-				{
-					cur->serial = defs.size();
-					defs.push_back(cur);
-				}
-			}
-		}
-
-		h & ((h.saving) ? defs : defy);
-
-		//objects
-		if(h.saving)
-		{
-			ui32 hlp = objects.size(); 
-			h & hlp;
-		}
-		else
-		{
-			ui32 hlp;
-			h & hlp;
-			objects.resize(hlp);
-		}
+// 		//objects
+// 		if(h.saving)
+// 		{
+// 			ui32 hlp = objects.size(); 
+// 			h & hlp;
+// 		}
+// 		else
+// 		{
+// 			ui32 hlp;
+// 			h & hlp;
+// 			objects.resize(hlp);
+// 		}
 
 		//static members
 		h & CGTeleport::objs;
@@ -375,20 +377,20 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 
-		for(unsigned int i=0; i<objects.size(); i++)
-		{
-			CGObjectInstance *&obj = objects[i];
-			h & obj;
-
-			if (obj)
-			{
-				si32 shlp;
-				//definfo
-				h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
-				if(!h.saving)
-					obj->defInfo = defy[shlp];
-			}
-		}
+// 		for(unsigned int i=0; i<objects.size(); i++)
+// 		{
+// 			CGObjectInstance *&obj = objects[i];
+// 			h & obj;
+// 
+// 			if (obj)
+// 			{
+// 				si32 shlp;
+// 				//definfo
+// 				h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
+// 				if(!h.saving)
+// 					obj->defInfo = defy[shlp];
+// 			}
+// 		}
 
 		if(!h.saving)
 		{

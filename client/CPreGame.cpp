@@ -10,6 +10,7 @@
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
 #include "../hch/CDefHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CLodHandler.h"
 #include "../hch/CTownHandler.h"

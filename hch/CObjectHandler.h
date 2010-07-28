@@ -207,7 +207,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit;
+		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit & defInfo;
 		//definfo is handled by map serializer
 	}
 };
