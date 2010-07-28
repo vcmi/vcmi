@@ -2812,7 +2812,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	spellDestSelectMode = true;
 
 	//choosing possible tragets
-	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : attackingHeroInstance;
+	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	const CSpell & spell = CGI->spellh->spells[spellID];
 	spellSelMode = 0;
 	if(spell.attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
@@ -2833,7 +2833,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	if(spell.attributes.find("CREATURE_TARGET_1") != std::string::npos ||
 		spell.attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
-		if(castingHero && castingHero->getSpellSecLevel(spellID) < 3)
+		if(castingHero && castingHero->getSpellSchoolLevel(&spell) < 3)
 		{
 			switch(spell.positiveness)
 			{

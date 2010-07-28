@@ -362,7 +362,7 @@ public:
 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
 
-	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
+	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getHeroStrength() const;
 	int getTotalStrength() const;

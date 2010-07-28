@@ -708,31 +708,31 @@ const CArtifact * CGHeroInstance::getArt(int pos) const
 		return NULL;
 }
 
-int CGHeroInstance::getSpellSecLevel(int spell) const
-{
-	int bestslvl = 0;
-	if(VLC->spellh->spells[spell].air)
-		if(getSecSkillLevel(15) >= bestslvl)
-		{
-			bestslvl = getSecSkillLevel(15);
-		}
-	if(VLC->spellh->spells[spell].fire)
-		if(getSecSkillLevel(14) >= bestslvl)
-		{
-			bestslvl = getSecSkillLevel(14);
-		}
-	if(VLC->spellh->spells[spell].water)
-		if(getSecSkillLevel(16) >= bestslvl)
-		{
-			bestslvl = getSecSkillLevel(16);
-		}
-	if(VLC->spellh->spells[spell].earth)
-		if(getSecSkillLevel(17) >= bestslvl)
-		{
-			bestslvl = getSecSkillLevel(17);
-		}
-	return bestslvl;
-}
+// int CGHeroInstance::getSpellSecLevel(int spell) const
+// {
+// 	int bestslvl = 0;
+// 	if(VLC->spellh->spells[spell].air)
+// 		if(getSecSkillLevel(15) >= bestslvl)
+// 		{
+// 			bestslvl = getSecSkillLevel(15);
+// 		}
+// 	if(VLC->spellh->spells[spell].fire)
+// 		if(getSecSkillLevel(14) >= bestslvl)
+// 		{
+// 			bestslvl = getSecSkillLevel(14);
+// 		}
+// 	if(VLC->spellh->spells[spell].water)
+// 		if(getSecSkillLevel(16) >= bestslvl)
+// 		{
+// 			bestslvl = getSecSkillLevel(16);
+// 		}
+// 	if(VLC->spellh->spells[spell].earth)
+// 		if(getSecSkillLevel(17) >= bestslvl)
+// 		{
+// 			bestslvl = getSecSkillLevel(17);
+// 		}
+// 	return bestslvl;
+// }
 
 CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)
@@ -1248,7 +1248,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	TRY_SCHOOL(air, 1, 0)
 	TRY_SCHOOL(water, 2, 2)
 	TRY_SCHOOL(earth, 3, 3)
-#undef TRY_SCHOOL;
+#undef TRY_SCHOOL
 
 
 
