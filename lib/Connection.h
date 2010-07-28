@@ -23,7 +23,7 @@
 #include <boost/mpl/identity.hpp>
 #include <boost/any.hpp>
 
-const ui32 version = 724;
+const ui32 version = 725;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
