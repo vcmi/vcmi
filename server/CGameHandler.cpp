@@ -1363,7 +1363,8 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 	}
 	if(hero2)
 	{
-		if(hero2->getArt(13)) //ballista
+		//defending hero shouldn't receive ballista (bug #551)
+		if(hero2->getArt(13) && !town) //ballista
 		{
 			CStack * stack = curB->generateNewStack(CStackInstance(146, 1, hero2),  stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 66);
 			stacks.push_back(stack);
