@@ -1189,7 +1189,6 @@ heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
 	spellBeingCasted = NULL;
-	player = 1;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
@@ -1209,12 +1208,15 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	//townList.init();
 	//townList.genList();
 
-	heroWindow = new CHeroWindow(this->player);
+	heroWindow = new CHeroWindow(LOCPLINT->playerID);
 
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[0]));
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[1]));
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[2]));
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[3]));
+
+
+	setPlayer(LOCPLINT->playerID);
 }
 
 CAdvMapInt::~CAdvMapInt()
