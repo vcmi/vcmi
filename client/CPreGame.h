@@ -275,6 +275,9 @@ class CBonusSelection : public CIntObject
 	SDL_Surface * background;
 	AdventureMapButton * startB, * backB;
 
+	//campaign & map descriptions:
+	CTextBox * cmpgDesc, * mapDesc;
+
 	struct SCampPositions
 	{
 		std::string campPrefix;

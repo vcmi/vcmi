@@ -35,6 +35,7 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdlib>
 #include "CMessage.h"
+#include "../hch/CSpellHandler.h" /*for campaign bonuses*/
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -2192,7 +2193,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 }
 
 CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap )
-: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL)
+: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
@@ -2223,10 +2224,15 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
  
-// 	std::vector<std::string> *desc = CMessage::breakText(ourCampaign->header.description, 45);
-// 	for (int i=0; i<desc->size() ;i++)
-// 		printAtLoc((*desc)[i], 481, 86 + i*16, FONT_SMALL, zwykly, background);
-// 	delete desc;
+	cmpgDesc = new CTextBox(ourCampaign->header.description, Rect(480, 86, 286, 117), 1);
+	cmpgDesc->showAll(background);
+
+	//map description
+	mapDesc = new CTextBox("", Rect(480, 280, 286, 117), 1);
+
+	//bonus choosing
+	printAtLoc(CGI->generaltexth->allTexts[71], 510, 431, FONT_MEDIUM, zwykly, background); //Choose a bonus:
+	bonuses = new CHighlightableButtonsGroup(0);
 
 	//set left part of window
 	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
@@ -2261,9 +2267,6 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	}*/
 
 	SDL_FreeSurface(panel);
-
-	//bonus choosing
-	printAtLoc(CGI->generaltexth->allTexts[71], 510, 431, FONT_MEDIUM, zwykly, background); //Choose a bonus:
 
 	//difficulty
 	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
@@ -2339,6 +2342,10 @@ void CBonusSelection::selectMap( int whichOne )
 	CSelectionScreen::updateStartInfo(curMap, sInfo, ourHeader);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
+
+	mapDesc->setTxt(ourHeader->description);
+
+	updateBonusSelection();
 }
 
 void CBonusSelection::show( SDL_Surface * to )
@@ -2346,8 +2353,7 @@ void CBonusSelection::show( SDL_Surface * to )
 	blitAt(background, pos.x, pos.y, to);
 
 	//map name
-	std::string mapDesc = ourHeader->description,
-		mapName = ourHeader->name;
+	std::string mapName = ourHeader->name;
 
 	if (mapName.length())
 		printAtLoc(mapName, 481, 219, FONT_BIG, tytulowy, to);
@@ -2357,10 +2363,7 @@ void CBonusSelection::show( SDL_Surface * to )
 	//map description
 	printAtLoc(CGI->generaltexth->allTexts[496], 481, 253, FONT_SMALL, tytulowy, to);
 
-// 	std::vector<std::string> *desc = CMessage::breakText(mapDesc, 45);
-// 	for (int i=0; i<desc->size(); i++)
-// 		printAtLoc((*desc)[i], 481, 281 + i*16, FONT_SMALL, zwykly, to);
-// 	delete desc;
+	mapDesc->showAll(to); //showAll because CTextBox has no show()
 
 	//map size icon
 	int temp;
@@ -2400,18 +2403,124 @@ void CBonusSelection::updateBonusSelection()
 	//resource - BORES.DEF
 	//player - ?
 	//hero -?
+	const CCampaignScenario &scenario = ourCampaign->scenarios[sInfo.whichMapInCampaign];
+	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
-	bonuses = new CHighlightableButtonsGroup(0);
+	CDefEssential * twcp = CDefHandler::giveDefEss("TWCRPORT.DEF"); //for yellow border
+
+	bonuses->buttons.clear();
 	{
+		BLOCK_CAPTURING;
 		static const char *bonDefs[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "GSPBUT5.DEF", "ARTIFBON.DEF", "SPELLBON.DEF",
 			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "GSPBUT5.DEF", "GSPBUT5.DEF"};
 
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < bonDescs.size(); i++)
 		{
-			bonuses->addButton(new CHighlightableButton("", "", 0, 110 + i*32, 450, bonDefs[i], i));
-			bonuses->buttons.back()->pos += Point(68, 0);
+			SDL_Surface *notSelected, *selected;
+
+			CDefEssential * de = CDefHandler::giveDefEss(bonDefs[bonDescs[i].type]);
+			SDL_Surface * surfToDuplicate = NULL;
+
+			std::string desc;
+			switch(bonDescs[i].type)
+			{
+			case 0: //spell
+				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
+				desc = CGI->generaltexth->allTexts[715];
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				break;
+			case 1: //monster
+				surfToDuplicate = de->ourImages[bonDescs[i].info2 + 2].bitmap;
+				desc = CGI->generaltexth->allTexts[717];
+				boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
+				boost::algorithm::replace_first(desc, "%s", CGI->creh->creatures[bonDescs[i].info2]->namePl);
+				break;
+			case 2: //building
+				//TODO
+				break;
+			case 3: //artifact
+				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
+				desc = CGI->generaltexth->allTexts[715];
+				boost::algorithm::replace_first(desc, "%s", CGI->arth->artifacts[bonDescs[i].info2]->Name());
+				break;
+			case 4: //spell scroll
+				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
+				desc = CGI->generaltexth->allTexts[716];
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				break;
+			case 5: //primary skill
+				{
+					int leadingSkill = -1;
+					std::vector<std::pair<int, int>> toPrint; //primary skills to be listed <num, val>
+					const ui8* ptr = reinterpret_cast<const ui8*>(&bonDescs[i].info2);
+					for (int g=0; g<PRIMARY_SKILLS; ++g)
+					{
+						if (leadingSkill == -1 || ptr[g] > ptr[leadingSkill])
+						{
+							leadingSkill = g;
+						}
+						if (ptr[g] != 0)
+						{
+							toPrint.push_back(std::make_pair(g, ptr[g]));
+						}
+					}
+					surfToDuplicate = de->ourImages[leadingSkill].bitmap;
+					desc = CGI->generaltexth->allTexts[715];
+
+					std::string substitute; //text to be printed instead of %s
+					for (int v=0; v<toPrint.size(); ++v)
+					{
+						substitute += boost::lexical_cast<std::string>(toPrint[v].second);
+						substitute += " " + CGI->generaltexth->primarySkillNames[toPrint[v].first];
+						if(v != toPrint.size() - 1)
+						{
+							substitute += ", ";
+						}
+					}
+
+					boost::algorithm::replace_first(desc, "%s", substitute);
+					break;
+				}
+			case 6: //secondary skill
+				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
+				desc = CGI->generaltexth->allTexts[718];
+
+				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3]); //skill level
+				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->skillName[bonDescs[i].info2]); //skill name
+
+				break;
+			case 7: //resource
+				//TODO
+				break;
+			case 8: //player
+				//TODO
+				break;
+			case 9: //hero
+				//TODO
+				break;
+			}
+
+			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, bonDefs[bonDescs[i].type], i));
+
+			notSelected = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format, surfToDuplicate->flags);
+			selected = SDL_ConvertSurface(notSelected, notSelected->format, notSelected->flags);
+
+			//printing yellow border
+			blitAt(twcp->ourImages[1].bitmap, 0, 0, selected);
+
+			//moving surfaces into button
+			bonuses->buttons.back()->imgs[0].clear();
+			bonuses->buttons.back()->imgs[0].push_back(notSelected);
+			bonuses->buttons.back()->imgs[0].push_back(selected);
+
+			//cleaning
+			delete de;
 		}
 	}
+
+	bonuses->select(0, 0);
+
+	delete twcp;
 
 }
 
