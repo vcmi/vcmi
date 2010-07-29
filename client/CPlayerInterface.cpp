@@ -821,7 +821,10 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 		int shift = 0;
 		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			if( BattleInfo::mutualPosition(curAction->destinationTile + 1, attacker->position) >= 0 )
+			int distp = BattleInfo::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = BattleInfo::getDistance(curAction->destinationTile - 1, attacker->position);
+
+			if( distp < distm )
 				shift = 1;
 			else
 				shift = -1;

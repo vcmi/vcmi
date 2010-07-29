@@ -3636,9 +3636,7 @@ si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
 	{
 		static bool lowerAnalyze(const CStack * stack, int hex)
 		{
-			int xDst = std::abs(hex % BFIELD_WIDTH - stack->position % BFIELD_WIDTH),
-				yDst = std::abs(hex / BFIELD_WIDTH - stack->position / BFIELD_WIDTH);
-			int distance = std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
+			int distance = BattleInfo::getDistance(hex, stack->position);
 
 			//I hope it's approximately correct
 			return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
@@ -3719,6 +3717,13 @@ void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBo
 				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ENEMY_ARMY), this);
 		}
 	}
+}
+
+si8 BattleInfo::getDistance( int hex1, int hex2 )
+{
+	int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
+		yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);
+	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
 }
 
 int3 CPath::startPos() const
