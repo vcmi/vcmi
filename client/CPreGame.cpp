@@ -2208,8 +2208,8 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	blitAt(panel, 456, 6, background);
 
-	startB = new AdventureMapButton("", "", bind(&CBonusSelection::startMap, this), 475, 536, "SCNRBEG.DEF", SDLK_RETURN);
-	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "SCNRBACK.DEF", SDLK_ESCAPE);
+	startB = new AdventureMapButton("", "", bind(&CBonusSelection::startMap, this), 475, 536, "CBBEGIB.DEF", SDLK_RETURN);
+	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
 
 	//campaign name
 	if (ourCampaign->header.name.length())
@@ -2422,6 +2422,7 @@ void CBonusSelection::updateBonusSelection()
 
 			CDefEssential * de = CDefHandler::giveDefEss(bonDefs[bonDescs[i].type]);
 			SDL_Surface * surfToDuplicate = NULL;
+			bool freeDuplicatedSurface = false;
 
 			std::string desc;
 			switch(bonDescs[i].type)
@@ -2438,7 +2439,23 @@ void CBonusSelection::updateBonusSelection()
 				boost::algorithm::replace_first(desc, "%s", CGI->creh->creatures[bonDescs[i].info2]->namePl);
 				break;
 			case 2: //building
-				//TODO
+				{
+					static const std::string bldgBitmaps [1][44] = {
+						{"MAG1", "MAG2", "MAG3", "MAG4", "MAG5", "TAV1", "DOCK", "CAS1", "CAS2", "CAS3",
+						"HAL1", "HAL2", "HAL3", "HAL4", "MRK1", "MRK2", "BLAK", "LITE", "GR1H", "GR2H",
+						"ship at the shipyard", "CV1S", "TAV2", "nothing", "nothing", "nothing", "HOLY",
+						"houses", "houses", "houses", "PIK1", "CRS1", "GR1", "SWD1", "MON1", "CV1", "ANG1",
+						"PIK2", "CRS2", "GR2", "SWD2", "MON2", "CV2", "ANG2"}
+					};
+					static const std::string fracInfixes[F_NUMBER] = {"CS", "R", "T", "I", "N", "D", "s", "F", "E"};
+
+					//TODO; find appropriate faction number
+					int faction = 0;
+					std::string bldgBitmapName = "BO" + fracInfixes[faction] + bldgBitmaps[faction][bonDescs[i].info1] + ".BMP";
+					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
+
+					freeDuplicatedSurface = true;
+				}
 				break;
 			case 3: //artifact
 				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
@@ -2545,9 +2562,13 @@ void CBonusSelection::updateBonusSelection()
 
 			//cleaning
 			delete de;
+			if(freeDuplicatedSurface)
+			{
+				SDL_FreeSurface(surfToDuplicate);
+			}
 		}
 	}
-	if (bonDescs.size() > 0)
+	if (bonuses->buttons.size() > 0)
 	{
 		bonuses->select(0, 0);
 	}
