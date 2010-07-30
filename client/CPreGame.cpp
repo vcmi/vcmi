@@ -2451,7 +2451,7 @@ void CBonusSelection::updateBonusSelection()
 			case 5: //primary skill
 				{
 					int leadingSkill = -1;
-					std::vector<std::pair<int, int>> toPrint; //primary skills to be listed <num, val>
+					std::vector<std::pair<int, int> > toPrint; //primary skills to be listed <num, val>
 					const ui8* ptr = reinterpret_cast<const ui8*>(&bonDescs[i].info2);
 					for (int g=0; g<PRIMARY_SKILLS; ++g)
 					{
