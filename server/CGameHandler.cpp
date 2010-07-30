@@ -3898,10 +3898,20 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 						fc.tiles.insert(int3(i,j,k));
 		sendAndApply(&fc);
 	}
-	else if(message == "vcmiglorfindel")
+	else if(message == "vcmiglorfindel") //selected hero gains a new level
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
 		changePrimSkill(hero->id,4,VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+	}
+	else if(message == "vcmisilmaril") //player wins
+	{
+		gs->getPlayer(player)->enteredWinningCheatCode = 1;
+		checkLossVictory(player);
+	}
+	else if(message == "vcmimelkor") //player looses
+	{
+		gs->getPlayer(player)->enteredLosingCheatCode = 1;
+		checkLossVictory(player);
 	}
 	else
 		cheated = false;

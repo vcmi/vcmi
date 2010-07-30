@@ -127,6 +127,7 @@ public:
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	std::vector<CGDwelling *> dwellings; //used for town growth
 
+	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
 	ui8 daysWithoutCastle;
 
@@ -140,6 +141,7 @@ public:
 	{
 		h & color & serial & human & currentSelection & fogOfWarMap & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
+		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 };

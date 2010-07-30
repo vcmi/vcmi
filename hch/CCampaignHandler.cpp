@@ -100,26 +100,34 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLo
 	std::vector<ui32> h3mStarts = locateH3mStarts(cmpgn, it, realSize);
 
 	assert(h3mStarts.size() <= howManyScenarios);
-	//it looks like we can have less scenarios than we should..
-	//if(h3mStarts.size() != howManyScenarios)
-	//{
-	//	tlog1<<"Our heuristic for h3m start points gave wrong results for campaign " << name <<std::endl;
-	//	tlog1<<"Please send this campaign to VCMI Project team to help us fix this problem" << std::endl;
-	//	delete [] cmpgn;
-	//	assert(0);
-	//	return NULL;
-	//}
+	//it looks like we can have more scenarios than we should..
+	if(h3mStarts.size() > howManyScenarios)
+	{
+		tlog1<<"Our heuristic for h3m start points gave wrong results for campaign " << name <<std::endl;
+		tlog1<<"Please send this campaign to VCMI Project team to help us fix this problem" << std::endl;
+		delete [] cmpgn;
+		assert(0);
+		return NULL;
+	}
+
+	int scenarioID = 0;
 
 	for (int g=0; g<h3mStarts.size(); ++g)
 	{
+		while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
+		{
+			scenarioID++;
+		}
+		//set map piece appropriately
 		if(g == h3mStarts.size() - 1)
 		{
-			ret->mapPieces.push_back(std::string( cmpgn + h3mStarts[g], cmpgn + realSize ));
+			ret->mapPieces[scenarioID] = std::string( cmpgn + h3mStarts[g], cmpgn + realSize );
 		}
 		else
 		{
-			ret->mapPieces.push_back(std::string( cmpgn + h3mStarts[g], cmpgn + h3mStarts[g+1] ));
+			ret->mapPieces[scenarioID] = std::string( cmpgn + h3mStarts[g], cmpgn + h3mStarts[g+1] );
 		}
+		scenarioID++;
 	}
 
 	delete [] cmpgn;
@@ -423,6 +431,12 @@ unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLo
 
 bool CCampaign::conquerable( int whichScenario ) const
 {
+	//check for void scenraio
+	if (!scenarios[whichScenario].isNotVoid())
+	{
+		return false;
+	}
+
 	if (scenarios[whichScenario].conquered)
 	{
 		return false;
@@ -440,4 +454,9 @@ bool CCampaign::conquerable( int whichScenario ) const
 CCampaign::CCampaign()
 {
 
+}
+
+bool CCampaignScenario::isNotVoid() const
+{
+	return mapName.size() > 0;
 }

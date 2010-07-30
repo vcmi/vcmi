@@ -94,6 +94,8 @@ public:
 
 	CScenarioTravel travelOptions;
 
+	bool isNotVoid() const;
+
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & conquered & regionText & 
@@ -106,7 +108,7 @@ class DLL_EXPORT CCampaign
 public:
 	CCampaignHeader header;
 	std::vector<CCampaignScenario> scenarios;
-	std::vector<std::string> mapPieces; //binary h3ms
+	std::map<int, std::string> mapPieces; //binary h3ms, scenario number -> map data
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{

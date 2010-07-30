@@ -3090,6 +3090,11 @@ int CGameState::victoryCheck( ui8 player ) const
 		if(player == checkForStandardWin())
 			return -1;
 
+	if (p->enteredWinningCheatCode)
+	{ //cheater or tester, but has entered the code...
+		return 1;
+	}
+
 	if(p->human || map->victoryCondition.appliesToAI)
 	{
  		switch(map->victoryCondition.condition)
@@ -3427,6 +3432,11 @@ int CGameState::lossCheck( ui8 player ) const
 	//if(map->lossCondition.typeOfLossCon == lossStandard)
 		if(checkForStandardLoss(player))
 			return -1;
+
+	if (p->enteredLosingCheatCode)
+	{
+		return 1;
+	}
 
 	if(p->human) //special loss condition applies only to human player
 	{
@@ -3879,7 +3889,8 @@ CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 }
 
 PlayerState::PlayerState() 
- : color(-1), currentSelection(0xffffffff), status(INGAME), daysWithoutCastle(0)
+ : color(-1), currentSelection(0xffffffff), status(INGAME), daysWithoutCastle(0),
+ enteredLosingCheatCode(0), enteredWinningCheatCode(0)
 {
 
 }
@@ -3979,7 +3990,10 @@ void CCampaignState::initNewCampaign( const StartInfo &si )
 	campaignName = si.mapname;
 	currentMap = si.whichMapInCampaign;
 	
-	camp = CCampaignHandler::getCampaign(campaignName, true); //TODO lod???
+	//check if campaign is in lod or not
+	bool inLod = campaignName.find('/') == std::string::npos;
+
+	camp = CCampaignHandler::getCampaign(campaignName, inLod); //TODO lod???
 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
 		mapsRemaining.push_back(i);
 }

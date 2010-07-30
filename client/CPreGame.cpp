@@ -2289,6 +2289,8 @@ void CBonusSelection::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
 	blitAt(background, pos.x, pos.y, to);
+
+	show(to);
 }
 
 void CBonusSelection::loadPositionsOfGraphics()
@@ -2333,7 +2335,7 @@ void CBonusSelection::selectMap( int whichOne )
 	int i = 0;
 	delete ourHeader;
 	ourHeader = new CMapHeader();
-	ourHeader->initFromMemory((const unsigned char*)ourCampaign->mapPieces[whichOne].c_str(), i);
+	ourHeader->initFromMemory((const unsigned char*)ourCampaign->mapPieces.find(whichOne)->second.c_str(), i);
 	CMapInfo *mapInfo = const_cast<CMapInfo *>(curMap);
 	mapInfo->mapHeader = ourHeader;
 	mapInfo->countPlayers();
@@ -2490,7 +2492,35 @@ void CBonusSelection::updateBonusSelection()
 
 				break;
 			case 7: //resource
-				//TODO
+				{
+					int serialResID = 0;
+					switch(bonDescs[i].info1)
+					{
+					case 0: case 1: case 2: case 3: case 4: case 5: case 6:
+						serialResID = bonDescs[i].info1;
+						break;
+					case 0xFD: //wood + ore
+						serialResID = 7;
+						break;
+					case 0xFE: //rare resources
+						serialResID = 8;
+						break;
+					}
+					surfToDuplicate = de->ourImages[serialResID].bitmap;
+
+					desc = CGI->generaltexth->allTexts[717];
+					boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info2));
+					std::string replacement;
+					if (serialResID <= 6)
+					{
+						replacement = CGI->generaltexth->restypes[serialResID];
+					}
+					else
+					{
+						replacement = CGI->generaltexth->allTexts[714 + serialResID];
+					}
+					boost::algorithm::replace_first(desc, "%s", replacement);
+				}
 				break;
 			case 8: //player
 				//TODO
@@ -2517,8 +2547,10 @@ void CBonusSelection::updateBonusSelection()
 			delete de;
 		}
 	}
-
-	bonuses->select(0, 0);
+	if (bonDescs.size() > 0)
+	{
+		bonuses->select(0, 0);
+	}
 
 	delete twcp;
 
