@@ -496,15 +496,11 @@ void CHeroWindow::redrawCurBack()
 	}
 
 	//secondary skills
-	for(int g=1; g<=8; ++g)
+	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
-		
-		if(curHero->secSkills.size()>=g)
-		{
-			blitAt(graphics->abils44->ourImages[curHero->secSkills[g-1].first*3+3+curHero->secSkills[g-1].second-1].bitmap, g%2 ? 18 : 161, 276 + 48 * ((g-1)/2), curBack);
-			CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[g-1].second-1], g%2 ? 68 : 212, 280 + 48 * ((g-1)/2), FONT_SMALL, zwykly, curBack);
-			CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[g-1].first], g%2 ? 68 : 212, 300 + 48 * ((g-1)/2), FONT_SMALL, zwykly, curBack);
-		}
+		blitAt(graphics->abils44->ourImages[curHero->secSkills[v].first*3+3+curHero->secSkills[v].second-1].bitmap, v%2 ? 161 : 18, 276 + 48 * (v/2), curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[v].second-1], v%2 ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[v].first], v%2 ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, zwykly, curBack);
 	}
 
 	//printing special ability

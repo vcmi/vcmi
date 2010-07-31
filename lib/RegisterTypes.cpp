@@ -65,6 +65,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGLighthouse>();
 	s.template registerType<CGMarket>();
 	s.template registerType<CGBlackMarket>();
+	s.template registerType<CGUniversity>();
 	//end of objects
 	s.template registerType<ILimiter>();
 	s.template registerType<CCreatureTypeLimiter>();
