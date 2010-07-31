@@ -3092,12 +3092,8 @@ void CGMine::newTurn() const
 
 	if (tempOwner == NEUTRAL_PLAYER)
 		return;
-	int vv = 1;
-	if (subID==0 || subID==2)
-		vv++;
-	else if (subID==6)
-		vv = 1000;
-	cb->giveResource(tempOwner,subID,vv);
+
+	cb->giveResource(tempOwner, producedResource, producedQuantity);
 }
 
 void CGMine::initObj()

@@ -605,6 +605,7 @@ public:
 		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		SDL_Surface *getSurface();
+		std::string getName(int number = -1) const;
 		CTradeableItem(EType Type, int ID, bool Left, int Serial);
 	};
 
@@ -650,6 +651,8 @@ class CMarketplaceWindow : public CTradeWindow
 	bool printButtonFor(EMarketMode M) const;
 public:
 	int r1, r2; //suggested amounts of traded resources
+	bool madeTransaction; //if player made at least one transaction
+	CTextBox *traderText;
 
 	void setMax();
 	void sliderMoved(int to);
@@ -667,6 +670,7 @@ public:
 	void resourceChanged(int type, int val);
 
 	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
+	void updateTraderText();
 };
 
 class CAltarWindow : public CTradeWindow

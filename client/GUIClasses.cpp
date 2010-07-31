@@ -2739,7 +2739,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	{
 	case RESOURCE:
 		posToBitmap = Point(19,9);
-		posToSubCenter = Point(36, 57);
+		posToSubCenter = Point(36, 59);
 		break;
 	case CREATURE_PLACEHOLDER:
 	case CREATURE:
@@ -2751,8 +2751,12 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		posToSubCenter = Point(31, 76);
 		break;
 	case ARTIFACT_PLACEHOLDER:
+		posToSubCenter = Point(19, 55);
+		if(downSelection)
+			posToSubCenter.y += 8;
+		break;
 	case ARTIFACT:
-		posToSubCenter = Point(18, 57);
+		posToSubCenter = Point(19, 58);
 		break;
 	}
 
@@ -2887,6 +2891,24 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
 			break;
 		}
+	}
+}
+
+std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
+{
+	switch(type)
+	{
+	case PLAYER:
+		return CGI->generaltexth->capColors[id];
+	case RESOURCE:
+		return CGI->generaltexth->restypes[id];
+	case CREATURE:
+		if(number == 1)
+			return CGI->creh->creatures[id]->nameSing;
+		else
+			return CGI->creh->creatures[id]->namePl;
+	case ARTIFACT:
+		return CGI->arth->artifacts[id]->Name();
 	}
 }
 
@@ -3152,7 +3174,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	: CTradeWindow(Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
+	madeTransaction = false;
 	std::string bgName;
 	bool sliderNeeded = true;
 
@@ -3186,7 +3208,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	new CGStatusBar(302, 576);
 
-	if(market->o->ID == 99 || market->o->ID == 221)
+	if(market->o->ID == 7) //black market
+	{
+		printAtMiddle(CGI->generaltexth->allTexts[349],300,27,FONT_BIG,tytulowy,*bg); //title
+	}
+	else if(market->o->ID == 99 || market->o->ID == 221) //trading post
 	{
 		printAtMiddle(CGI->generaltexth->allTexts[159],300,27,FONT_BIG,tytulowy,*bg); //title
 	}
@@ -3199,15 +3225,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	}
 	else
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,*bg); //trading post
+		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,*bg); //marketplace
 	}
 
 	initItems(false);
 	initItems(true);
 	
-	ok = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new AdventureMapButton(CGI->generaltexth->zelp[600],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
-	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
+	deal = new AdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
 	deal->block(true);
 
 
@@ -3216,7 +3242,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		slider = new CSlider(231,490,137,0,0,0);
 		slider->moved = boost::bind(&CMarketplaceWindow::sliderMoved,this,_1);
-		max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+		max = new AdventureMapButton(CGI->generaltexth->zelp[596],boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
 		max->block(true);
 	}
 	else
@@ -3225,6 +3251,8 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		max = NULL;
 		deal->pos.x -= 38;
 	}
+
+	Rect traderTextRect;
 
 	//left side
 	switch(Mode)
@@ -3246,23 +3274,28 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case CREATURE_RESOURCE:
 	case RESOURCE_ARTIFACT:
 		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,zwykly,*bg); //available for trade
+		traderTextRect = Rect(316, 48, 260, 75);
 		break;
 	case RESOURCE_PLAYER:
 		printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,zwykly,*bg); //players
+		traderTextRect = Rect(28, 48, 260, 75);
 		break;
 	}
 
-	if(printButtonFor(RESOURCE_PLAYER))
-		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
-	if(printButtonFor(RESOURCE_RESOURCE))
-		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450,"TPMRKBU5.DEF");
-	if(printButtonFor(CREATURE_RESOURCE))
-		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
-	if(printButtonFor(RESOURCE_ARTIFACT))
-		new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450,"TPMRKBU2.DEF");
-	if(printButtonFor(ARTIFACT_RESOURCE))																				//unblock when support for art-res is ready
-		(new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-art in some conditions
+	traderText = new CTextBox("", traderTextRect, 0, FONT_SMALL, CENTER);
 
+	if(printButtonFor(RESOURCE_PLAYER))
+		new AdventureMapButton(CGI->generaltexth->zelp[612],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
+	if(printButtonFor(RESOURCE_RESOURCE))
+		new AdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450,"TPMRKBU5.DEF");
+	if(printButtonFor(CREATURE_RESOURCE))
+		new AdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
+	if(printButtonFor(RESOURCE_ARTIFACT))
+		new AdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450,"TPMRKBU2.DEF");
+	if(printButtonFor(ARTIFACT_RESOURCE))																				//unblock when support for art-res is ready
+		(new AdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-art in some conditions
+
+	updateTraderText();
 }
 
 CMarketplaceWindow::~CMarketplaceWindow()
@@ -3312,6 +3345,7 @@ void CMarketplaceWindow::makeDeal()
 	{
 		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
 	}
+	madeTransaction = true;
 
 	hLeft = NULL;
 	hRight = NULL;
@@ -3365,6 +3399,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	if(side && itemsType[0] != PLAYER) //items[1] selection changed, recalculate offers
 		initSubs(false);
 
+	updateTraderText();
 	redraw();
 }
 
@@ -3399,6 +3434,7 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 			toRemove.insert(t);
 
 	removeItems(toRemove);
+	redraw();
 }
 
 std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
@@ -3503,6 +3539,51 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 	}
 
 	leftToRightOffset = 289;
+}
+
+void CMarketplaceWindow::updateTraderText()
+{
+	if(readyToTrade)
+	{
+		if(mode == RESOURCE_PLAYER)
+		{
+			//I can give %s to the %s player.
+			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[165]) % hLeft->getName() % hRight->getName()));
+		}
+		else if(mode == RESOURCE_ARTIFACT)
+		{
+			//I can offer you the %s for %d %s of %s.
+			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[267]) % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
+		}
+		else if(mode == RESOURCE_RESOURCE)
+		{
+			//I can offer you %d %s of %s for %d %s of %s.
+			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[157]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
+		}
+		else if(mode == CREATURE_RESOURCE)
+		{
+			//I can offer you %d %s of %s for %d %s.
+			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[269]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % hLeft->getName(r1)));
+		}
+		return;
+	}
+
+	int gnrtxtnr = -1;
+	if(madeTransaction)
+	{
+		if(mode == RESOURCE_PLAYER)
+			gnrtxtnr = 166; //Are there any other resources you'd like to give away?
+		else
+			gnrtxtnr = 162; //You have received quite a bargain.  I expect to make no profit on the deal.  Can I interest you in any of my other wares?
+	}
+	else
+	{
+		if(mode == RESOURCE_PLAYER)
+			gnrtxtnr = 167; //If you'd like to give any of your resources to another player, click on the item you wish to give and to whom.
+		else
+			gnrtxtnr = 163; //Please inspect our fine wares.  If you feel like offering a trade, click on the items you wish to trade with and for.
+	}
+	traderText->setTxt(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
 CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= NULL*/, EMarketMode Mode)
