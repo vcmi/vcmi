@@ -50,6 +50,8 @@ public:
 					//8 - player from previous scenario, 9 - hero [???]
 		si32 info1, info2, info3; //purpose depends on type
 
+		bool isBonusForHero() const;
+
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
 			h & type & info1 & info2 & info3;

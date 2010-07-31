@@ -191,7 +191,8 @@ struct DLL_EXPORT Bonus
 		HERO_BASE_SKILL,
 		SECONDARY_SKILL,
 		HERO_SPECIAL,
-		ARMY
+		ARMY,
+		CAMPAIGN_BONUS
 	};
 
 	enum LimitEffect

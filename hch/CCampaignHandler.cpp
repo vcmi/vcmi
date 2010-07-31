@@ -229,6 +229,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 			{
 				CScenarioTravel::STravelBonus bonus;
 				bonus.type = buffer[outIt++];
+				//hero: FFFD means 'most powerful' and FFFE means 'generated'
 				switch(bonus.type)
 				{
 				case 0: //spell
@@ -459,4 +460,9 @@ CCampaign::CCampaign()
 bool CCampaignScenario::isNotVoid() const
 {
 	return mapName.size() > 0;
+}
+
+bool CScenarioTravel::STravelBonus::isBonusForHero() const
+{
+	return type == 0 || type == 1 || type == 3 || type == 4 || type == 5 || type == 6;
 }

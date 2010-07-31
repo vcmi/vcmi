@@ -1189,8 +1189,67 @@ CGameState::~CGameState()
 	delete applierGs;
 	delete objCaller;
 }
+
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
+	struct HLP
+	{
+		//heroType: FFFD means 'most powerful' and FFFE means 'generated'
+		static void giveCampaignBonusToHero(CGHeroInstance * hero, si32 heroType, const StartInfo * si, const CScenarioTravel & st )
+		{
+			const CScenarioTravel::STravelBonus & curBonus = st.bonusesToChoose[si->choosenCampaignBonus];
+			if(curBonus.isBonusForHero() && curBonus.info1 == heroType)
+			{
+				//apply bonus
+				switch (curBonus.type)
+				{
+				case 0: //spell
+					hero->spells.insert(curBonus.info2);
+					break;
+				case 1: //monster
+					//TODO
+					break;
+				case 3: //artifact
+					hero->giveArtifact(curBonus.info2);
+					break;
+				case 4: //spell scroll
+					//TODO
+					break;
+				case 5: //prim skill
+					{
+						const ui8* ptr = reinterpret_cast<const ui8*>(curBonus.info2);
+						for (int g=0; g<PRIMARY_SKILLS; ++g)
+						{
+							int val = ptr[g];
+							if (val == 0)
+							{
+								continue;
+							}
+							Bonus bb(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, si->whichMapInCampaign, g);
+							hero->bonuses.push_back(bb);
+						}
+					}
+					break;
+				case 6: //sec skills
+					hero->setSecSkillLevel(curBonus.info2, curBonus.info3, true);
+					break;
+				}
+			}
+		}
+
+		static std::vector<const PlayerSettings *> getHumanPlayerInfo(const StartInfo * si)
+		{
+			std::vector<const PlayerSettings *> ret;
+			for (int g=0; g<si->playerInfos.size(); ++g)
+			{
+				if(si->playerInfos[g].human)
+					ret.push_back(&si->playerInfos[g]);
+			}
+
+			return ret;
+		}
+
+	};
 	VLC->arth->allowedArtifacts.clear();
 	VLC->arth->clearHlpLists();
 	switch(si->mode)
@@ -1345,6 +1404,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
 			map->addBlockVisTiles(nnn);
+			//give campaign bonus
+			if (si->mode == 2 && getPlayer(nnn->tempOwner)->human)
+			{
+				HLP::giveCampaignBonusToHero(nnn, 0xFFFE, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+			}
 		}
 	}
 
@@ -1358,21 +1422,26 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
-	//TODO: computer player should receive other amount of resource than player (depending on difficulty)
-	std::vector<int> startres;
+	std::vector<int> startresAI, startresHuman;
 	std::ifstream tis(DATA_DIR "/config/startres.txt");
 	int k;
-	for (int j=0;j<scenarioOps->difficulty;j++)
+	for (int j=0; j<scenarioOps->difficulty * 2; j++)
 	{
 		tis >> k;
 		for (int z=0;z<RESOURCE_QUANTITY;z++)
 			tis>>k;
 	}
 	tis >> k;
-	for (int i=0;i<RESOURCE_QUANTITY;i++)
+	for (int i=0; i<RESOURCE_QUANTITY; i++)
 	{
 		tis >> k;
-		startres.push_back(k);
+		startresHuman.push_back(k);
+	}
+	tis >> k;
+	for (int i=0; i<RESOURCE_QUANTITY; i++)
+	{
+		tis >> k;
+		startresAI.push_back(k);
 	}
 	tis.close();
 	tis.clear();
@@ -1380,7 +1449,51 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	{
 		(*i).second.resources.resize(RESOURCE_QUANTITY);
 		for (int x=0;x<RESOURCE_QUANTITY;x++)
-			(*i).second.resources[x] = startres[x];
+		{
+			if (i->second.human)
+			{
+				(*i).second.resources[x] = startresHuman[x];
+			}
+			else
+			{
+				(*i).second.resources[x] = startresAI[x];
+			}
+		}
+	}
+
+	//give start resource bonus in case of campaign
+	if (si->mode == 2)
+	{
+		CScenarioTravel::STravelBonus chosenBonus = 
+			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+		if(chosenBonus.type == 7) //resource
+		{
+			std::vector<const PlayerSettings *> people = HLP::getHumanPlayerInfo(si); //players we will give resource bonus
+			for (int b=0; b<people.size(); ++b)
+			{
+				std::vector<int> res; //resources we will give
+				switch (chosenBonus.info1)
+				{
+				case 0: case 1: case 2: case 3: case 4: case 5: case 6:
+					res.push_back(chosenBonus.info1);
+					break;
+				case 0xFD: //wood+ore
+					res.push_back(0); res.push_back(2);
+					break;
+				case 0xFE:  //rare
+					res.push_back(1); res.push_back(3); res.push_back(4); res.push_back(5);
+					break;
+				default:
+					assert(0);
+					break;
+				}
+				//increasing resource quantity
+				for (int n=0; n<res.size(); ++n)
+				{
+					players[people[b]->color].resources[res[n]] += chosenBonus.info2;
+				}
+			}
+		}
 	}
 
 
@@ -1462,14 +1575,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 
 		//starting bonus
-		if(si->playerInfos[k->second.serial].bonus==brandom)
+		if(si->playerInfos[k->second.serial].bonus==PlayerSettings::brandom)
 			si->playerInfos[k->second.serial].bonus = ran()%3;
 		switch(si->playerInfos[k->second.serial].bonus)
 		{
-		case bgold:
+		case PlayerSettings::bgold:
 			k->second.resources[6] += 500 + (ran()%6)*100;
 			break;
-		case bresource:
+		case PlayerSettings::bresource:
 			{
 				int res = VLC->townh->towns[si->playerInfos[k->second.serial].castle].primaryRes;
 				if(res == 127)
@@ -1483,7 +1596,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				}
 				break;
 			}
-		case bartifact:
+		case PlayerSettings::bartifact:
 			{
  				if(!k->second.heroes.size())
 				{
@@ -1611,11 +1724,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 	}
 
-	for(unsigned int i=0; i<map->defy.size(); i++)
-	{
-		map->defy[i]->serial = i;
-	}
-
 	objCaller->preInit();
 	for(unsigned int i=0; i<map->objects.size(); i++)
 	{
@@ -1624,11 +1732,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
 	}
 	objCaller->postInit();
-}
-
-bool CGameState::battleShootCreatureStack(int ID, int dest)
-{
-	return true;
 }
 
 bool CGameState::battleCanFlee(int player)

@@ -1484,8 +1484,8 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	if(s.hero >= 0)
 		s.hero = -1;
- 	if(cur < 0  &&  s.bonus == bresource)
- 		s.bonus = brandom;
+ 	if(cur < 0  &&  s.bonus == PlayerSettings::bresource)
+ 		s.bonus = PlayerSettings::brandom;
 
 	entries[player]->selectButtons();
 	redraw();
@@ -1551,23 +1551,23 @@ void OptionsTab::nextBonus( int player, int dir )
 	PlayerSettings &s = curOpts->playerInfos[player];
 	si8 &ret = s.bonus += dir;
 
-	if (s.hero==-2 && !curMap->mapHeader->players[s.color].heroesNames.size() && ret==bartifact) //no hero - can't be artifact
+	if (s.hero==-2 && !curMap->mapHeader->players[s.color].heroesNames.size() && ret==PlayerSettings::bartifact) //no hero - can't be artifact
 	{
 		if (dir<0)
-			ret=brandom;
-		else ret=bgold;
+			ret=PlayerSettings::brandom;
+		else ret=PlayerSettings::bgold;
 	}
 
-	if(ret > bresource)
-		ret = brandom;
-	if(ret < brandom)
-		ret = bresource;
+	if(ret > PlayerSettings::bresource)
+		ret = PlayerSettings::brandom;
+	if(ret < PlayerSettings::brandom)
+		ret = PlayerSettings::bresource;
 
-	if (s.castle==-1 && ret==bresource) //random castle - can't be resource
+	if (s.castle==-1 && ret==PlayerSettings::bresource) //random castle - can't be resource
 	{
 		if (dir<0)
-			ret=bgold;
-		else ret=brandom;
+			ret=PlayerSettings::bgold;
+		else ret=PlayerSettings::brandom;
 	}
 
 	redraw();
@@ -1932,20 +1932,20 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 			{
 				switch(val)
 				{
-				case brandom:
+				case PlayerSettings::brandom:
 					title = &CGI->generaltexth->allTexts[86]; //{Random Bonus}
 					description = &CGI->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
 					break;
-				case bartifact:
+				case PlayerSettings::bartifact:
 					title = &CGI->generaltexth->allTexts[83]; //{Artifact Bonus}
 					description = &CGI->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
 					break;
-				case bgold:
+				case PlayerSettings::bgold:
 					title = &CGI->generaltexth->allTexts[84]; //{Gold Bonus}
 					subTitle = &CGI->generaltexth->allTexts[87]; //500-1000
 					description = &CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 					break;
-				case bresource:
+				case PlayerSettings::bresource:
 					{
 						title = &CGI->generaltexth->allTexts[85]; //{Resource Bonus}
 						switch(CGI->townh->towns[s.castle].primaryRes)
@@ -2232,7 +2232,7 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	//bonus choosing
 	printAtLoc(CGI->generaltexth->allTexts[71], 510, 431, FONT_MEDIUM, zwykly, background); //Choose a bonus:
-	bonuses = new CHighlightableButtonsGroup(0);
+	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
 	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
@@ -2257,19 +2257,14 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	//allies / enemies
 	printAtLoc(CGI->generaltexth->allTexts[390] + ":", 486, 407, FONT_SMALL, zwykly, background); //Allies
 	printAtLoc(CGI->generaltexth->allTexts[391] + ":", 619, 407, FONT_SMALL, zwykly, background); //Enemies
-	int fx=64, ex=244, myT;
-	myT = ourHeader->players[playerColor].team;
-	/*for (std::vector<PlayerSettings>::const_iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
-	{
-		int *myx = ((i->color == playerColor  ||  ourHeader.players[i->color].team == myT) ? &fx : &ex);
-		blitAtLoc(sFlags->ourImages[i->color].bitmap, *myx, 399, to);
-		*myx += sFlags->ourImages[i->color].bitmap->w;
-	}*/
 
 	SDL_FreeSurface(panel);
 
 	//difficulty
 	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
+
+	//load miniflags
+	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 	
 }
 
@@ -2278,6 +2273,7 @@ CBonusSelection::~CBonusSelection()
 	SDL_FreeSurface(background);
 	delete sizes;
 	delete ourHeader;
+	delete sFlags;
 }
 
 void CBonusSelection::goBack()
@@ -2389,6 +2385,16 @@ void CBonusSelection::show( SDL_Surface * to )
 	}
 	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
 
+	//flags
+	int fx=530, ex=674, myT;
+	myT = ourHeader->players[playerColor].team;
+	for (std::vector<PlayerSettings>::const_iterator i = sInfo.playerInfos.begin(); i != sInfo.playerInfos.end(); i++)
+	{
+		int *myx = ((i->color == playerColor  ||  ourHeader->players[i->color].team == myT) ? &fx : &ex);
+		blitAtLoc(sFlags->ourImages[i->color].bitmap, *myx, 405, to);
+		*myx += sFlags->ourImages[i->color].bitmap->w;
+	}
+
 	CIntObject::show(to);
 }
 
@@ -2397,7 +2403,7 @@ void CBonusSelection::updateBonusSelection()
 	//graphics:
 	//spell - SPELLBON.DEF
 	//monster - TWCRPORT.DEF
-	//building - ?
+	//building - BO*.BMP graphics
 	//artifact - ARTIFBON.DEF
 	//spell scroll - SPELLBON.DEF
 	//prim skill - PSKILBON.DEF
@@ -2440,13 +2446,17 @@ void CBonusSelection::updateBonusSelection()
 				break;
 			case 2: //building
 				{
-					static const std::string bldgBitmaps [1][44] = {
-						{"MAG1", "MAG2", "MAG3", "MAG4", "MAG5", "TAV1", "DOCK", "CAS1", "CAS2", "CAS3",
-						"HAL1", "HAL2", "HAL3", "HAL4", "MRK1", "MRK2", "BLAK", "LITE", "GR1H", "GR2H",
-						"ship at the shipyard", "CV1S", "TAV2", "nothing", "nothing", "nothing", "HOLY",
-						"houses", "houses", "houses", "PIK1", "CRS1", "GR1", "SWD1", "MON1", "CV1", "ANG1",
-						"PIK2", "CRS2", "GR2", "SWD2", "MON2", "CV2", "ANG2"}
+					static const std::string bldgBitmaps [1][39] = {
+						{  //TODO: finish it; HAL1 means "it's a placeholder"
+						"HAL2", "HAL3", "HAL4", "CAS1", "CAS2", "CAS3", "TAV1", "BLAK", "MRK1", "MRK2", "HAL1",
+						"MAG1", "MAG2", "MAG3", "MAG4", "MAG5", "DOCK", "HOLY", "LITE", "CV1S", "TAV2", "HAL1"
+						"PIK1", "CRS1", "GR1", "SWD1", "MON1", "CV1", "ANG1",
+						"PIK2", "CRS2", "GR2", "SWD2", "MON2", "CV2", "ANG2",
+						"HAL1", "HAL1", "HAL1", "HAL1"
+						}
 					};
+					
+
 					static const std::string fracInfixes[F_NUMBER] = {"CS", "R", "T", "I", "N", "D", "s", "F", "E"};
 
 					//TODO; find appropriate faction number
@@ -2541,9 +2551,11 @@ void CBonusSelection::updateBonusSelection()
 				break;
 			case 8: //player
 				//TODO
+				continue;
 				break;
 			case 9: //hero
 				//TODO
+				continue;
 				break;
 			}
 
@@ -2583,6 +2595,11 @@ void CBonusSelection::startMap()
 	GH.popInts(3);
 	curOpts = NULL;
 	::startGame(si);
+}
+
+void CBonusSelection::selectBonus( int id )
+{
+	sInfo.choosenCampaignBonus = id;
 }
 
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )

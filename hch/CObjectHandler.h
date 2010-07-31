@@ -355,6 +355,8 @@ public:
 	TModDescr getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
+	void setSecSkillLevel(int which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+
 	int maxMovePoints(bool onLand) const;
 
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact

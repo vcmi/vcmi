@@ -77,31 +77,7 @@ DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
-	if(hero->getSecSkillLevel(which) == 0)
-	{
-		hero->secSkills.push_back(std::pair<int,int>(which, val));
-		hero->updateSkill(which, val);
-	}
-	else
-	{
-		for (unsigned i=0; i<hero->secSkills.size(); i++)
-		{
-			if(hero->secSkills[i].first == which)
-			{
-				if(abs)
-					hero->secSkills[i].second = val;
-				else
-					hero->secSkills[i].second += val;
-
-				if(hero->secSkills[i].second > 3) //workaround to avoid crashes when same sec skill is given more than once
-				{
-					tlog1 << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.\n";
-					hero->secSkills[i].second = 3;
-				}
-				hero->updateSkill(which, hero->secSkills[i].second); //when we know final value
-			}
-		}
-	}
+	hero->setSecSkillLevel(which, val, abs);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )

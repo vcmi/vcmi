@@ -15,10 +15,11 @@
  *
  */
 
-enum Ebonus {brandom=-1,bartifact, bgold, bresource};
 
 struct PlayerSettings
 {
+	enum Ebonus {brandom=-1,bartifact, bgold, bresource};
+
 	si32 castle, hero,  //ID, if -1 then random, if -2 then none
 		heroPortrait; //-1 if default, else ID
 	std::string heroName;
@@ -58,6 +59,7 @@ struct StartInfo
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	ui8 whichMapInCampaign; //used only for mode 2
+	ui8 choosenCampaignBonus; //used only for mode 2
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
 		for(unsigned int i=0; i<playerInfos.size(); ++i)
@@ -84,6 +86,7 @@ struct StartInfo
 		h & turnTime;
 		h & mapname;
 		h & whichMapInCampaign;
+		h & choosenCampaignBonus;
 	}
 };
 

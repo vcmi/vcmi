@@ -656,6 +656,36 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 			return secSkills[i].second;
 	return 0;
 }
+
+void CGHeroInstance::setSecSkillLevel(int which, int val, bool abs)
+{
+	if(getSecSkillLevel(which) == 0)
+	{
+		secSkills.push_back(std::pair<int,int>(which, val));
+		updateSkill(which, val);
+	}
+	else
+	{
+		for (unsigned i=0; i<secSkills.size(); i++)
+		{
+			if(secSkills[i].first == which)
+			{
+				if(abs)
+					secSkills[i].second = val;
+				else
+					secSkills[i].second += val;
+
+				if(secSkills[i].second > 3) //workaround to avoid crashes when same sec skill is given more than once
+				{
+					tlog1 << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.\n";
+					secSkills[i].second = 3;
+				}
+				updateSkill(which, secSkills[i].second); //when we know final value
+			}
+		}
+	}
+}
+
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
 	int base = -1;

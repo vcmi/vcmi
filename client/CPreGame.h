@@ -323,12 +323,14 @@ class CBonusSelection : public CIntObject
 
 	//bonus selection
 	void updateBonusSelection();
-	void selectBonus(int id);
 	CHighlightableButtonsGroup * bonuses;
 
 public:
 	StartInfo sInfo;
+	CDefHandler *sFlags;
+
 	void selectMap(int whichOne);
+	void selectBonus(int id);
 
 	CBonusSelection(const CCampaign * _ourCampaign, int _whichMap);
 	~CBonusSelection();

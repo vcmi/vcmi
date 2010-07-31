@@ -26,7 +26,6 @@ public:
 	ui8 coverageMap[6], shadowCoverage[6]; //to determine which tiles are covered by picture of this object
 	ui8 visitDir; //directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
 	si32 id, subid; //of object described by this defInfo
-	si32 serial;
 	si32 terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
 	si32 width, height; //tiles
@@ -43,7 +42,7 @@ public:
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & serial & visitMap & blockMap & visitDir & id & subid &terrainAllowed
+		h & name & visitMap & blockMap & visitDir & id & subid &terrainAllowed
 			& terrainMenu & width & height & type & printPriority & coverageMap & shadowCoverage;
 	}
 	CGDefInfo();

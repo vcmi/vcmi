@@ -255,7 +255,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	for(size_t g=0; g<std::min(secSkillAreas.size(),hero->secSkills.size()); ++g)
 	{
 		int skill = hero->secSkills[g].first, 
-			level = hero->secSkills[g].second;
+			level = hero->getSecSkillLevel(hero->secSkills[g].first);
 
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
