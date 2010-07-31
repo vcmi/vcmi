@@ -405,6 +405,9 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 	case ObjProperty::ID:
 		ID = val;
 		break;
+	case ObjProperty::SUBID:
+		subID = val;
+		break;
 	}
 	setPropertyDer(what, val);
 }
@@ -2606,11 +2609,11 @@ const std::string & CGVisitableOPH::getHoverText() const
 	}
 	hoverName = VLC->generaltexth->names[ID];
 	if(pom >= 0)
-		hoverName += (" " + VLC->generaltexth->xtrainfo[pom]);
+		hoverName += ("\n" + VLC->generaltexth->xtrainfo[pom]);
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	if(h)
 	{
-		hoverName += ' ';
+		hoverName += "\n\n";
 		hoverName += (vstd::contains(visitors,h->id)) 
 							? (VLC->generaltexth->allTexts[352])  //visited
 							: ( VLC->generaltexth->allTexts[353]); //not visited
@@ -3061,34 +3064,25 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(subID == 7) //TODO: support for abandoned mine
-		return;
-
 	if(h->tempOwner == tempOwner) //we're visiting our mine
 	{
 		cb->showGarrisonDialog(id,h->id,true,0);
 		return; 
 	}
 
+	if(subID >= 7) //Abandoned mine
+	{
+		BlockingDialog ynd(true,false);
+		ynd.player = h->tempOwner;
+		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 84); 
+		cb->showBlockingDialog(&ynd,boost::bind(&CGMine::fight, this, _1, h));
+		return;
+	}
+
 	//TODO: check if mine is guarded
-	cb->setOwner(id,h->tempOwner); //not ours? flag it!
 
-	MetaString ms;
-	ms << std::pair<ui8,ui32>(9,subID) << " (" << std::pair<ui8,ui32>(6,23+h->tempOwner) << ")";
-	cb->setHoverName(id,&ms);
+	flagMine(h->tempOwner);
 
-	int vv=1; //amount of resource per turn	
-	if (subID==0 || subID==2)
-		vv++;
-	else if (subID==6)
-		vv = 1000;
-
-	InfoWindow iw;
-	iw.soundID = soundBase::FLAGMINE;
-	iw.text << std::pair<ui8,ui32>(10,subID);
-	iw.player = h->tempOwner;
-	iw.components.push_back(Component(2,subID,vv,-1));
-	cb->showInfoDialog(&iw);
 }
 
 void CGMine::newTurn() const
@@ -3108,13 +3102,95 @@ void CGMine::newTurn() const
 
 void CGMine::initObj()
 {
-	MetaString ms;
-	ms << std::pair<ui8,ui32>(9,subID);
-	if(tempOwner >= PLAYER_LIMIT)
-		tempOwner = NEUTRAL_PLAYER;	
+	if(subID >= 7) //Abandoned Mine
+	{
+		//set guardians
+		int howManyTroglodytes = 100 + ran()%100;
+		CStackInstance troglodytes(70, howManyTroglodytes);
+		addStack(0, troglodytes);
+
+		//after map reading tempOwner placeholds bitmask for allowed resources
+		std::vector<int> possibleResources;
+		for (int i = 0; i < 8; i++)
+			if(tempOwner & 1<<i)
+				possibleResources.push_back(i);
+
+		assert(possibleResources.size());
+		producedResource = possibleResources[ran()%possibleResources.size()];
+		tempOwner = NEUTRAL_PLAYER;
+		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes.getQuantityTXT(false) + " " + troglodytes.type->namePl;
+	}
 	else
-		ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
-	ms.toString(hoverName);
+	{
+		producedResource = subID;
+
+		MetaString ms;
+		ms << std::pair<ui8,ui32>(9,producedResource);
+		if(tempOwner >= PLAYER_LIMIT)
+			tempOwner = NEUTRAL_PLAYER;	
+		else
+			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
+		ms.toString(hoverName);
+	}
+
+	producedQuantity = defaultResProduction();
+}
+
+void CGMine::fight(ui32 agreed, const CGHeroInstance *h) const
+{
+	cb->startBattleI(h, this, boost::bind(&CGMine::endBattle, this, _1, h->tempOwner));
+}
+
+void CGMine::endBattle(BattleResult *result, ui8 attackingPlayer) const
+{
+	if(result->winner == 0) //attacker won
+	{
+		if(subID == 7)
+		{
+			InfoWindow iw;
+			iw.player = attackingPlayer;
+			iw.text.addTxt(MetaString::ADVOB_TXT, 85);
+			cb->showInfoDialog(&iw);
+
+		}
+		flagMine(attackingPlayer);
+	}
+}
+
+void CGMine::flagMine(ui8 player) const
+{
+	assert(tempOwner != player);
+	cb->setOwner(id,player); //not ours? flag it!
+
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(9,subID) << "\n(" << std::pair<ui8,ui32>(6,23+player) << ")";
+	if(subID == 7)
+	{
+		ms << "(%s)";
+		ms.addReplacement(MetaString::RES_NAMES, producedResource);
+	}
+	cb->setHoverName(id,&ms);
+
+	InfoWindow iw;
+	iw.soundID = soundBase::FLAGMINE;
+	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
+	iw.player = player;
+	iw.components.push_back(Component(2,producedResource,producedQuantity,-1));
+	cb->showInfoDialog(&iw);
+}
+
+ui32 CGMine::defaultResProduction()
+{
+	switch(producedResource)
+	{
+	case 0: //wood
+	case 2: //ore
+		return 2;
+	case 6: //gold
+		return 1000;
+	default:
+		return 1;
+	}
 }
 
 void CGResource::initObj()

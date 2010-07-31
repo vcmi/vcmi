@@ -1668,6 +1668,11 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	else if(tile==int3() && !curB)
 		return -1;
 
+	const TerrainTile &t = map->getTile(tile);
+	//fight in mine -> subterranean
+	if(const CGMine *mine = dynamic_cast<const CGMine *>(t.visitableObjects.front()))
+		return 12;
+
 	const std::vector <CGObjectInstance*> & objs = map->objects;
 	for(int g=0; g<objs.size(); ++g)
 	{
@@ -1701,7 +1706,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 		}
 	}
 
-	switch(map->terrain[tile.x][tile.y][tile.z].tertype)
+	switch(t.tertype)
 	{
 	case TerrainTile::dirt:
 		return rand()%3+3;

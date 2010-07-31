@@ -286,3 +286,8 @@ ui32 CStackInstance::getMaxDamage() const
 {
 	return type->damageMax + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 2);
 }
+
+std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
+{
+	return VLC->generaltexth->arraytxt[174 + getQuantityID()*3 + 2 - capitalized];
+}

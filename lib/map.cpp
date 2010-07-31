@@ -1653,6 +1653,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				break;
 			}
 		case 53: 
+		case 220://mine (?)
 			{
 				nobj = new CGMine();
 				nobj->setOwner(bufor[i++]);
@@ -1670,13 +1671,6 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 106: //War Machine Factory
 			{
 				nobj = new CGDwelling();
-				break;
-			}
-		case 220://mine (?)
-			{
-				nobj = new CGObjectInstance();
-				nobj->setOwner(bufor[i++]);
-				i+=3;
 				break;
 			}
 		case 88: case 89: case 90: //spell shrine

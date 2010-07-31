@@ -818,14 +818,24 @@ public:
 class DLL_EXPORT CGMine : public CArmedInstance
 {
 public: 
+	ui8 producedResource;
+	ui32 producedQuantity;
+
 	void offerLeavingGuards(const CGHeroInstance *h) const;
+	void endBattle(BattleResult *result, ui8 attackingPlayer) const;
+	void fight(ui32 agreed, const CGHeroInstance *h) const;
+
 	void onHeroVisit(const CGHeroInstance * h) const;
+
+	void flagMine(ui8 player) const;
 	void newTurn() const;
 	void initObj();	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
+		h & producedResource & producedQuantity;
 	}
+	ui32 defaultResProduction();
 };
 
 class DLL_EXPORT CGVisitableOPW : public CGObjectInstance //objects visitable OPW

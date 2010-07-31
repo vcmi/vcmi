@@ -84,13 +84,22 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 
 void BonusList::limit(const CBonusSystemNode &node)
 {
+limit_start:
 	for(iterator i = begin(); i != end(); i++)
 	{
 		if(i->limiter && i->limiter->limit(*i, node))
 		{
 			iterator toErase = i;
-			i--;
-			erase(toErase);
+			if(i != begin())
+			{
+				i--;
+				erase(toErase);
+			}
+			else
+			{
+				erase(toErase);
+				goto limit_start;
+			}
 		}
 	}
 }

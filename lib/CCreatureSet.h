@@ -40,6 +40,7 @@ public:
 	void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 
 	int getQuantityID() const;
+	std::string getQuantityTXT(bool capitalized = true) const;
 	void init();
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count, const CArmedInstance *ArmyObj = NULL);
