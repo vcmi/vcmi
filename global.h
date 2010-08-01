@@ -24,7 +24,7 @@ typedef si64 expType;
 #define THC
 #endif
 
-#define NAME_VER ("VCMI 0.81d")
+#define NAME_VER ("VCMI 0.81e")
 extern std::string NAME; //full name
 extern std::string NAME_AFFIX; //client / server
 #define CONSOLE_LOGGING_LEVEL 5

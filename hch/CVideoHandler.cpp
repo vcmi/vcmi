@@ -311,7 +311,7 @@ bool CSmackPlayer::open( std::string name )
 	buffer = new char[data->width*data->height*2];
 	buf = buffer+data->width*(data->height-1)*2;	// adjust pointer position for later use by 'SmackToBuffer'
 
-	ptrVolumePan(data, 0xfe000, 3640 * GDefaultOptions.musicVolume / 11, 0x8000); //set volume
+	//ptrVolumePan(data, 0xfe000, 3640 * GDefaultOptions.musicVolume / 11, 0x8000); //set volume
 	return true;
 }
 

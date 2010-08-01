@@ -49,6 +49,7 @@
 #include "SDL_syswm.h"
 #endif
 #include <boost/foreach.hpp>
+#include "../hch/CDefObjInfoHandler.h"
 
 #if __MINGW32__
 #undef main
@@ -590,6 +591,10 @@ static void listenForEvents()
 			client = NULL;
 
 			delete ev;
+
+			delete CGI->dobjinfo;
+			CGI->dobjinfo = new CDefObjInfoHandler;
+			CGI->dobjinfo->load();
 
 			GH.curInt = CGP;
 			GH.defActionsDef = 63;

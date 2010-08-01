@@ -446,6 +446,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & seed & currentPlayer & day & map & players & hpool & globalEffects & campaign;
+		h & villages & forts & capitols;
 		if(!h.saving)
 		{
 			loadTownDInfos();

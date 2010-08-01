@@ -397,6 +397,7 @@ void CMapHandler::init()
 		}
 		else 
 			n = CGI->state->capitols[i%ccc];
+
 		ifs >> n->name;
 		if(!n)
 			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;

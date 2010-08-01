@@ -1188,6 +1188,10 @@ CGameState::~CGameState()
 	//delete scenarioOps;
 	delete applierGs;
 	delete objCaller;
+
+	//TODO: delete properly that definfos
+	villages.clear();
+	capitols.clear();
 }
 
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
@@ -1966,7 +1970,23 @@ void CGameState::loadTownDInfos()
 	{
 		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
 		forts[i] = VLC->dobjinfo->castles[i];
+		map->defy.push_back(forts[i]);
 		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
+	}
+
+	std::ifstream ifs(DATA_DIR "/config/townsDefs.txt");
+	int ccc;
+	ifs>>ccc;
+	for(int i=0; i < ccc*2; i++)
+	{
+		CGDefInfo *n;
+		if(i<ccc)
+			n = villages[i];
+		else 
+			n = capitols[i%ccc];
+
+		ifs >> n->name;
+		map->defy.push_back(n);
 	}
 }
 
