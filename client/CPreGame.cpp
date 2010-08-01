@@ -2193,7 +2193,8 @@ void CHotSeatPlayers::enterSelectionScreen()
 }
 
 CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap )
-: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL)
+: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL),
+	diffLb(NULL), diffRb(NULL)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
@@ -2262,6 +2263,23 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 
 	//difficulty
 	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
+	{//difficulty pics
+		for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
+		{
+			CDefEssential * cde = CDefHandler::giveDefEss("GSPBUT" + boost::lexical_cast<std::string>(b+3) + ".DEF");
+			SDL_Surface * surfToDuplicate = cde->ourImages[0].bitmap;
+			diffPics[b] = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format,
+				surfToDuplicate->flags);
+
+			delete cde;
+		}
+	}
+	//difficulty selection buttons
+	if (ourCampaign->header.difficultyChoosenByPlayer)
+	{
+		diffLb = new AdventureMapButton("", "", bind(&CBonusSelection::changeDiff, this, false), 694, 508, "SCNRBLF.DEF");
+		diffRb = new AdventureMapButton("", "", bind(&CBonusSelection::changeDiff, this, true), 738, 508, "SCNRBRT.DEF");
+	}
 
 	//load miniflags
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
@@ -2274,6 +2292,10 @@ CBonusSelection::~CBonusSelection()
 	delete sizes;
 	delete ourHeader;
 	delete sFlags;
+	for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
+	{
+		SDL_FreeSurface(diffPics[b]);
+	}
 }
 
 void CBonusSelection::goBack()
@@ -2340,6 +2362,7 @@ void CBonusSelection::selectMap( int whichOne )
 	CSelectionScreen::updateStartInfo(curMap, sInfo, ourHeader);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
+	sInfo.difficulty = ourCampaign->scenarios[whichOne].difficulty;
 
 	mapDesc->setTxt(ourHeader->description);
 
@@ -2394,6 +2417,9 @@ void CBonusSelection::show( SDL_Surface * to )
 		blitAtLoc(sFlags->ourImages[i->color].bitmap, *myx, 405, to);
 		*myx += sFlags->ourImages[i->color].bitmap->w;
 	}
+
+	//difficulty
+	blitAt(diffPics[sInfo.difficulty], 709, 455, to);
 
 	CIntObject::show(to);
 }
@@ -2592,6 +2618,7 @@ void CBonusSelection::updateBonusSelection()
 void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
+	//don't pop - we should get back to this screen
 	GH.popInts(3);
 	curOpts = NULL;
 	::startGame(si);
@@ -2600,6 +2627,18 @@ void CBonusSelection::startMap()
 void CBonusSelection::selectBonus( int id )
 {
 	sInfo.choosenCampaignBonus = id;
+}
+
+void CBonusSelection::changeDiff( bool increase )
+{
+	if (increase)
+	{
+		sInfo.difficulty = std::min(sInfo.difficulty + 1, 4);
+	}
+	else
+	{
+		sInfo.difficulty = std::max(sInfo.difficulty - 1, 0);
+	}
 }
 
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )

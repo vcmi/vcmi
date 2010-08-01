@@ -1198,11 +1198,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
 	struct HLP
 	{
-		//heroType: FFFD means 'most powerful' and FFFE means 'generated'
-		static void giveCampaignBonusToHero(CGHeroInstance * hero, si32 heroType, const StartInfo * si, const CScenarioTravel & st )
+		//it's assumed that given hero should receive the bonus
+		static void giveCampaignBonusToHero(CGHeroInstance * hero, const StartInfo * si, const CScenarioTravel & st )
 		{
 			const CScenarioTravel::STravelBonus & curBonus = st.bonusesToChoose[si->choosenCampaignBonus];
-			if(curBonus.isBonusForHero() && curBonus.info1 == heroType)
+			if(curBonus.isBonusForHero())
 			{
 				//apply bonus
 				switch (curBonus.type)
@@ -1211,7 +1211,19 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					hero->spells.insert(curBonus.info2);
 					break;
 				case 1: //monster
-					//TODO
+					{
+						CCreatureSet newArmy = hero->getArmy();
+						for(int i=0; i<ARMY_SIZE; i++)
+						{
+							if(newArmy.slotEmpty(i))
+							{
+								newArmy.addToSlot(i, CStackInstance(curBonus.info2, curBonus.info3));
+								break;
+							}
+						}
+
+						hero->setArmy(newArmy);
+					}
 					break;
 				case 3: //artifact
 					hero->giveArtifact(curBonus.info2);
@@ -1411,7 +1423,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			//give campaign bonus
 			if (si->mode == 2 && getPlayer(nnn->tempOwner)->human)
 			{
-				HLP::giveCampaignBonusToHero(nnn, 0xFFFE, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+				HLP::giveCampaignBonusToHero(nnn, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
 			}
 		}
 	}
@@ -1579,7 +1591,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 						maxB = b;
 					}
 				}
-				HLP::giveCampaignBonusToHero(heroes[maxB], 0xFFFD, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+				HLP::giveCampaignBonusToHero(heroes[maxB], si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
 			}
 			else //specific hero
 			{
@@ -1587,7 +1599,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				{
 					if (heroes[b]->subID == chosenBonus.info1)
 					{
-						HLP::giveCampaignBonusToHero(heroes[b], chosenBonus.info1, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+						HLP::giveCampaignBonusToHero(heroes[b], si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
 						break;
 					}
 				}

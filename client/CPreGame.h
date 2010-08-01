@@ -319,6 +319,9 @@ class CBonusSelection : public CIntObject
 	const CCampaign * ourCampaign;
 	CMapHeader *ourHeader;
 	CDefHandler *sizes; //icons of map sizes
+	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
+	AdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
+	void changeDiff(bool increase); //if false, then decrease
 	int whichMap;
 
 	//bonus selection
