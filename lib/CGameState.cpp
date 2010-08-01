@@ -1217,7 +1217,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					break;
 				case 5: //prim skill
 					{
-						const ui8* ptr = reinterpret_cast<const ui8*>(curBonus.info2);
+						const ui8* ptr = reinterpret_cast<const ui8*>(&curBonus.info2);
 						for (int g=0; g<PRIMARY_SKILLS; ++g)
 						{
 							int val = ptr[g];
@@ -1544,6 +1544,51 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	for(unsigned int i=0; i<map->disposedHeroes.size(); i++)
 	{
 		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
+	}
+
+	if (si->mode == 2) //give campaign bonuses for specific / best hero
+	{
+
+		CScenarioTravel::STravelBonus chosenBonus = 
+			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+		if (chosenBonus.isBonusForHero() && chosenBonus.info1 != 0xFFFE) //exclude generated heroes
+		{
+			//find human player
+			int humanPlayer;
+			for (std::map<ui8, PlayerState>::iterator it=players.begin(); it != players.end(); ++it)
+			{
+				if(it->second.human)
+				{
+					humanPlayer = it->first;
+					break;
+				}
+			}
+			std::vector<CGHeroInstance *> & heroes = players[humanPlayer].heroes;
+
+			if (chosenBonus.info1 == 0xFFFD) //most powerful
+			{
+				int maxB = -1;
+				for (int b=0; b<heroes.size(); ++b)
+				{
+					if (maxB == -1 || heroes[b]->getTotalStrength() > heroes[maxB]->getTotalStrength())
+					{
+						maxB = b;
+					}
+				}
+				HLP::giveCampaignBonusToHero(heroes[maxB], 0xFFFD, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+			}
+			else //specific hero
+			{
+				for (int b=0; b<heroes.size(); ++b)
+				{
+					if (heroes[b]->subID == chosenBonus.info1)
+					{
+						HLP::giveCampaignBonusToHero(heroes[b], chosenBonus.info1, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	/*************************FOG**OF**WAR******************************************/		
