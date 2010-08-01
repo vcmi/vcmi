@@ -46,6 +46,7 @@ public:
 			& terrainMenu & width & height & type & printPriority & coverageMap & shadowCoverage;
 	}
 	CGDefInfo();
+void fetchInfoFromMSK();
 };
 class DLL_EXPORT CDefObjInfoHandler
 {

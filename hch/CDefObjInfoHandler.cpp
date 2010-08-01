@@ -32,7 +32,24 @@ CGDefInfo::CGDefInfo()
 {
 	handler = NULL;
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
+
+	width = height = -1;
 }
+
+void CGDefInfo::fetchInfoFromMSK()
+{
+	std::string nameCopy = name;
+	std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
+
+	width = msk[0];
+	height = msk[1];
+	for(int i=0; i<6; ++i)
+	{
+		coverageMap[i] = msk[i+2];
+		shadowCoverage[i] = msk[i+8];
+	}
+}
+
 void CDefObjInfoHandler::load()
 {
 	VLC->dobjinfo = this;
@@ -102,13 +119,7 @@ void CDefObjInfoHandler::load()
 		inp >> nobj->printPriority;
 
 		//coverageMap calculating
-		std::string nameCopy = nobj->name;
-		std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
-		for(int i=0; i<6; ++i)
-		{
-			nobj->coverageMap[i] = msk[i+2];
-			nobj->shadowCoverage[i] = msk[i+8];
-		}
+		nobj->fetchInfoFromMSK();
 
 
 		gobjs[nobj->id][nobj->subid] = nobj;

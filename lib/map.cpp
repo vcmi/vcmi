@@ -1325,16 +1325,7 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 			std::memset(vinya->blockMap,255,6);
 
 		//calculating coverageMap
-		std::string nameCopy = vinya->name;
-		std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
-
-		vinya->width = msk[0];
-		vinya->height = msk[1];
-		for(int i=0; i<6; ++i)
-		{
-			vinya->coverageMap[i] = msk[i+2];
-			vinya->shadowCoverage[i] = msk[i+8];
-		}
+		vinya->fetchInfoFromMSK();
 
 		defy.push_back(vinya); // add this def to the vector
 	}
