@@ -1,7 +1,14 @@
 0.81 -> 0.82 (Aug 01 2010)
+GENERAL:
+* Some of the starting bonuses in campaigns are supported
+* It's possible to select difficulty level of mission in campaign
+* new cheat codes:
+- vcmisilmaril - player wins
+- vcmimelkor - player loses
+
 ADVENTURE MAP:
 * Neutral armies growth implemented (%10 weekly)
-* Power rating of neutral stack
+* Power rating of neutral stacks
 * Favourable Winds reduce sailing cost
 
 HERO:
@@ -27,6 +34,7 @@ TOWNS:
 OBJECTS:
 * Stables will now upgrade Cavaliers to Champions.
 New object supported:
+- Abandoned Mine
 - Altar of Sacrifice
 - Black Market
 - Cover of Darkness

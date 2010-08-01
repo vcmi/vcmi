@@ -159,6 +159,10 @@ void PlayerEndsGame::applyCl( CClient *cl )
 {
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 		i->second->gameOver(player,	victory);
+
+
+	if(!CPlayerInterface::howManyPeople)
+		cl->terminate = true;
 }
 
 void RemoveBonus::applyCl( CClient *cl )

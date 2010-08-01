@@ -635,6 +635,7 @@ void startGame(StartInfo * options)
 
 
 	client = new CClient;
+	CPlayerInterface::howManyPeople = 0;
 	switch(options->mode) //new game
 	{
 	case 0:

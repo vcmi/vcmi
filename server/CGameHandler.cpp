@@ -1937,7 +1937,9 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	}
 	
 	const CGObjectInstance * obj = getObj(objid);
-	if ((obj->ID == 17 || obj->ID == 20 ) && gs->getPlayer(owner)->dwellings.size()==1 )//first dwelling captured
+	const PlayerState * p = gs->getPlayer(owner);
+
+	if((obj->ID == 17 || obj->ID == 20 ) && p && p->dwellings.size()==1)//first dwelling captured
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
 			if (t->subID == 5 && vstd::contains(t->builtBuildings, 22))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
