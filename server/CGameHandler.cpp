@@ -521,37 +521,52 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
-askInterfaceForMove:
-			//ask interface and wait for answer
-			if(!battleResult.get())
-			{
-				BattleSetActiveStack sas;
-				sas.stack = next->ID;
-				sendAndApply(&sas);
-				boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-				while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
-					battleMadeAction.cond.wait(lock);
-				battleMadeAction.data = false;
-			}
-			else
+			int numberOfAsks = 1;
+			bool breakOuter = false;
+			do 
+			{//ask interface and wait for answer
+				if(!battleResult.get())
+				{
+					BattleSetActiveStack sas;
+					sas.stack = next->ID;
+					sendAndApply(&sas);
+					boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+					while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
+						battleMadeAction.cond.wait(lock);
+					battleMadeAction.data = false;
+				}
+
+				if(battleResult.get()) //don't touch it, battle could be finished while waiting got action
+				{
+					breakOuter = true;
+					break;
+				}
+
+				//we're after action, all results applied
+				checkForBattleEnd(stacks); //check if this action ended the battle
+
+				//check for good morale
+				nextStackMorale = next->MoraleVal();
+				if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
+					&& !vstd::contains(next->state,DEFENDING)
+					&& !vstd::contains(next->state,WAITING)
+					&&  next->alive()
+					&&  nextStackMorale > 0
+					&& !(NBonus::hasOfType(hero1, Bonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, Bonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses
+				)
+				{
+					if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
+						++numberOfAsks; //move this stack once more
+				}
+
+				--numberOfAsks;
+			} while (numberOfAsks > 0);
+
+			if (breakOuter)
 			{
 				break;
 			}
-
-			//we're after action, all results applied
-			checkForBattleEnd(stacks); //check if this action ended the battle
-
-			//check for good morale
-			nextStackMorale = next->MoraleVal();
-			if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
-				&& !vstd::contains(next->state,DEFENDING)
-				&& !vstd::contains(next->state,WAITING)
-				&&  next->alive()
-				&&  nextStackMorale > 0
-				&& !(NBonus::hasOfType(hero1, Bonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, Bonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses
-			)
-				if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
-					goto askInterfaceForMove; //move this stack once more
+			
 		}
 	}
 
@@ -4245,7 +4260,9 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			checkForBattleEnd(gs->curB->stacks);
 			if(battleResult.get())
 			{
-				endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+				battleMadeAction.setn(true);
+				//battle will be ended by startBattle function
+				//endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
 			}
 
 			return true;
