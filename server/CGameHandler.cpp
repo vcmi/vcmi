@@ -3242,6 +3242,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	sendAndApply(&saa);
 
 	giveHeroArtifact(aid, h->id, -2);
+	return true;
 }
 
 bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill)
@@ -3270,7 +3271,8 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int s
 	sr.val = getResource(h->tempOwner, 6) - 2000;
 	sendAndApply(&sr);
 
-	changeSecSkill(h->id, skill, 1, true); 
+	changeSecSkill(h->id, skill, 1, true);
+	return true;
 }
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2)

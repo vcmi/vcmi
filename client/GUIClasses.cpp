@@ -2910,6 +2910,8 @@ std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
 	case ARTIFACT:
 		return CGI->arth->artifacts[id]->Name();
 	}
+	assert(0);
+	return "";
 }
 
 CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
@@ -6259,6 +6261,8 @@ std::string CHillFortWindow::getDefForSlot(int slot)
 			case  1: return "APHLF1Y.DEF";
 			case  2: return "APHLF1G.DEF";
 		}
+	assert(0);
+	return "";
 }
 
 std::string CHillFortWindow::getTextForSlot(int slot)
