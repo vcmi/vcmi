@@ -6,6 +6,9 @@
 #include "../lib/VCMI_Lib.h"
 #include <sstream>
 #include <fstream>
+#include <assert.h>
+#include <boost/assign/list_of.hpp>
+
 extern CLodHandler * bitmaph;
 
 /*
@@ -141,6 +144,24 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 
+	//loading ERMU to picture
+	std::ifstream etp("config/ERMU_to_picture.txt");
+
+	assert(etp.is_open());
+
+	for(int g=0; g<44; ++g)
+	{
+		for (int b=0; b<ARRAY_COUNT(ERMUtoPicture); ++b)
+		{
+			std::string buf;
+			etp >> buf;
+			ERMUtoPicture[b][g] = buf;
+		}
+	}
+
+	etp.close();
+
+
 }
 
 CBuildingHandler::~CBuildingHandler()
@@ -177,3 +198,49 @@ CBuilding::CBuilding( int TID, int BID )
 	tid = TID;
 	bid = BID;
 }
+
+int CBuildingHandler::campToERMU(int camp, int townType)
+{
+	using namespace boost::assign;
+	static const std::vector<int> campToERMU = list_of(11)(12)(13)(7)(8)(9)(5)(16)(14)(15)(-1)(0)(1)(2)(3)(4)
+		(6)(26)(17)(21)(22)(23)
+		; //creature generators with banks - handled separately
+	if (camp < campToERMU.size())
+	{
+		return campToERMU[camp];
+	}
+
+	static const std::vector<int> hordeLvlsPerTType[F_NUMBER] = {list_of(2), list_of(1), list_of(1)(4), list_of(0)(2),
+		list_of(0), list_of(0), list_of(0), list_of(0), list_of(0)};
+
+	int curPos = campToERMU.size();
+	for (int i=0; i<7; ++i)
+	{
+		if(camp == curPos) //non-upgraded
+			return 30 + i;
+		curPos++;
+		if(camp == curPos) //upgraded
+			return 37 + i;
+		curPos++;
+		//horde building
+		if (vstd::contains(hordeLvlsPerTType[townType], i))
+		{
+			if (camp == curPos)
+			{
+				if (hordeLvlsPerTType[townType][0] == i)
+				{
+					return 18; //or 19 - TODO
+				}
+				else
+				{
+					return 24; //or 25 - TODO
+				}
+			}
+			curPos++;
+		}
+
+	}
+	assert(0);
+	return -1; //not found
+}
+

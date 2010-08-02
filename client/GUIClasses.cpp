@@ -4866,7 +4866,7 @@ void CArtPlace::showAll(SDL_Surface *to)
 	}
 }
 
-bool CArtPlace::fitsHere(const CArtifact * art)
+bool CArtPlace::fitsHere(const CArtifact * art) const
 {
 	// You can place 'no artifact' anywhere.
 	if(!art)
@@ -4882,6 +4882,11 @@ bool CArtPlace::fitsHere(const CArtifact * art)
 CArtPlace::~CArtPlace()
 {
 	deactivate();
+}
+
+bool CArtPlace::locked() const
+{
+	return ourArt && ourArt->id == 145;
 }
 
 void HoverableArea::hover (bool on)

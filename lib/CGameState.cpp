@@ -1385,6 +1385,16 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
+	/*********creating players entries in gs****************************************/
+	for (unsigned int i=0; i<scenarioOps->playerInfos.size();i++)
+	{
+		std::pair<int,PlayerState> ins(scenarioOps->playerInfos[i].color,PlayerState());
+		ins.second.color=ins.first;
+		ins.second.serial=i;
+		ins.second.human = scenarioOps->playerInfos[i].human;
+		players.insert(ins);
+	}
+
 	/*********give starting hero****************************************/
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
@@ -1428,15 +1438,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 	}
 
-	/*********creating players entries in gs****************************************/
-	for (unsigned int i=0; i<scenarioOps->playerInfos.size();i++)
-	{
-		std::pair<int,PlayerState> ins(scenarioOps->playerInfos[i].color,PlayerState());
-		ins.second.color=ins.first;
-		ins.second.serial=i;
-		ins.second.human = scenarioOps->playerInfos[i].human;
-		players.insert(ins);
-	}
 	/******************RESOURCES****************************************************/
 	std::vector<int> startresAI, startresHuman;
 	std::ifstream tis(DATA_DIR "/config/startres.txt");
@@ -1753,6 +1754,32 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 		if(vti->getOwner() != 255)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
+	}
+
+	//campaign bonuses for towns
+	if (si->mode == 2)
+	{
+		CScenarioTravel::STravelBonus chosenBonus = 
+			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+
+		if (chosenBonus.type == 2)
+		{
+			for (int g=0; g<map->towns.size(); ++g)
+			{
+				PlayerState * owner = getPlayer(map->towns[g]->getOwner());
+				PlayerInfo & pi = map->players[owner->color];
+				
+
+				if (owner->human && //human-owned
+					map->towns[g]->pos == pi.posOfMainTown) 
+				{
+					map->towns[g]->builtBuildings.insert(
+						CBuildingHandler::campToERMU(chosenBonus.info1, map->towns[g]->alignment));
+					break;
+				}
+			}
+		}
+
 	}
 
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)

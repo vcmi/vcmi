@@ -36,6 +36,9 @@
 #include <cstdlib>
 #include "CMessage.h"
 #include "../hch/CSpellHandler.h" /*for campaign bonuses*/
+#include "../hch/CArtHandler.h" /*for campaign bonuses*/
+#include "../hch/CBuildingHandler.h" /*for campaign bonuses*/
+
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -2472,22 +2475,19 @@ void CBonusSelection::updateBonusSelection()
 				break;
 			case 2: //building
 				{
-					static const std::string bldgBitmaps [1][39] = {
-						{  //TODO: finish it; HAL1 means "it's a placeholder"
-						"HAL2", "HAL3", "HAL4", "CAS1", "CAS2", "CAS3", "TAV1", "BLAK", "MRK1", "MRK2", "HAL1",
-						"MAG1", "MAG2", "MAG3", "MAG4", "MAG5", "DOCK", "HOLY", "LITE", "CV1S", "TAV2", "HAL1"
-						"PIK1", "CRS1", "GR1", "SWD1", "MON1", "CV1", "ANG1",
-						"PIK2", "CRS2", "GR2", "SWD2", "MON2", "CV2", "ANG2",
-						"HAL1", "HAL1", "HAL1", "HAL1"
+					int faction = -1;
+					for (int g=0; g<sInfo.playerInfos.size(); ++g)
+					{
+						if (sInfo.playerInfos[g].human)
+						{
+							faction = sInfo.playerInfos[g].castle;
+							break;
 						}
-					};
-					
+						
+					}
+					assert(faction != -1);
 
-					static const std::string fracInfixes[F_NUMBER] = {"CS", "R", "T", "I", "N", "D", "s", "F", "E"};
-
-					//TODO; find appropriate faction number
-					int faction = 0;
-					std::string bldgBitmapName = "BO" + fracInfixes[faction] + bldgBitmaps[faction][bonDescs[i].info1] + ".BMP";
+					std::string bldgBitmapName = CGI->buildh->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction)];
 					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
 
 					freeDuplicatedSurface = true;

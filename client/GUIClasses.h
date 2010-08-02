@@ -2,8 +2,6 @@
 #define __GUICLASSES_H__
 
 #include "../global.h"
-#include "../hch/CArtHandler.h"
-#include "SDL_framerate.h"
 #include "GUIBase.h"
 #include "FunctionList.h"
 #include <set>
@@ -27,6 +25,8 @@
  *
  */
 
+class CBonusSystemNode;
+class CArtifact;
 class CDefEssential;
 class AdventureMapButton;
 class CHighlightableButtonsGroup;
@@ -836,7 +836,7 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 public:
 	bool morale; //true if morale, false if luck
 	
-	void set(const CBonusSystemNode*hero);
+	void set(const CBonusSystemNode* hero);
 	void showAll(SDL_Surface * to);
 
 	MoraleLuckBox(bool Morale);
@@ -913,16 +913,11 @@ public:
 	void activate();
 	void deactivate();
 	void showAll(SDL_Surface * to);
-	bool fitsHere (const CArtifact * art); //returns true if given artifact can be placed here
+	bool fitsHere (const CArtifact * art) const; //returns true if given artifact can be placed here
 	bool locked () const;
 	void userSelectedNo ();
 	~CArtPlace(); //d-tor
 };
-
-inline bool CArtPlace::locked () const
-{
-	return ourArt && ourArt->id == 145;
-}
 
 class CArtifactsOfHero : public CIntObject
 {
