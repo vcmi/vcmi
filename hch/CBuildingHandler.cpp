@@ -199,7 +199,7 @@ CBuilding::CBuilding( int TID, int BID )
 	bid = BID;
 }
 
-int CBuildingHandler::campToERMU(int camp, int townType)
+int CBuildingHandler::campToERMU( int camp, int townType, std::set<si32> builtBuildings )
 {
 	using namespace boost::assign;
 	static const std::vector<int> campToERMU = list_of(11)(12)(13)(7)(8)(9)(5)(16)(14)(15)(-1)(0)(1)(2)(3)(4)
@@ -229,11 +229,20 @@ int CBuildingHandler::campToERMU(int camp, int townType)
 			{
 				if (hordeLvlsPerTType[townType][0] == i)
 				{
-					return 18; //or 19 - TODO
+					if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][0])) //if upgraded dwelling is built
+						return 19;
+					else //upgraded dwelling not presents
+						return 18;
 				}
 				else
 				{
-					return 24; //or 25 - TODO
+					if(hordeLvlsPerTType[townType].size() > 1)
+					{
+						if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][1])) //if upgraded dwelling is built
+							return 25;
+						else //upgraded dwelling not presents
+							return 24;
+					}
 				}
 			}
 			curPos++;

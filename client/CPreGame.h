@@ -182,7 +182,7 @@ public:
 
 	std::set<int> usedHeroes;
 
-	std::vector<PlayerOptionsEntry *> entries;
+	std::map<int, PlayerOptionsEntry *> entries; //indexed by color
 
 	void nextCastle(int player, int dir); //dir == -1 or +1
 	void nextHero(int player, int dir); //dir == -1 or +1

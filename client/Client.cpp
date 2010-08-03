@@ -294,9 +294,10 @@ void CClient::loadGame( const std::string & fname )
 		tlog0 << "Server opened savegame properly.\n";
 
 	*serv << ui8(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(size_t i=0;i<gs->scenarioOps->playerInfos.size();i++) 
+	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
+		it != gs->scenarioOps->playerInfos.end(); ++it)
 	{
-		*serv << ui8(gs->scenarioOps->playerInfos[i].color); //players
+		*serv << ui8(it->first); //players
 	}
 	*serv << ui8(255); // neutrals
 	tlog0 <<"Sent info to server: "<<tmh.getDif()<<std::endl;
@@ -367,9 +368,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	else
 		tlog0 << "Server opened map properly.\n";
 	c << ui8(si->playerInfos.size()+1); //number of players + neutral
-	for(size_t i=0;i<si->playerInfos.size();i++) 
+	for(std::map<int, PlayerSettings>::iterator it =si->playerInfos.begin(); 
+		it != si->playerInfos.end(); ++it)
 	{
-		c << ui8(si->playerInfos[i].color); //players
+		c << ui8(it->first); //players
 	}
 	c << ui8(255); // neutrals
 
@@ -393,17 +395,18 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 	int humanPlayers = 0;
-	for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
+	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
+		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
-		ui8 color = gs->scenarioOps->playerInfos[i].color;
+		ui8 color = it->first;
 		CCallback *cb = new CCallback(gs,color,this);
-		if(!gs->scenarioOps->playerInfos[i].human) 
+		if(!it->second.human) 
 		{
 			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
 		}
 		else 
 		{
-			playerint[color] = new CPlayerInterface(color,i);
+			playerint[color] = new CPlayerInterface(color);
 			humanPlayers++;
 		}
 		gs->currentPlayer = color;
@@ -466,7 +469,7 @@ void CClient::serialize( Handler &h, const int version )
 			if(dllname.length())
 				nInt = CAIHandler::getNewAI(callback,dllname);
 			else
-				nInt = new CPlayerInterface(pid,i);
+				nInt = new CPlayerInterface(pid);
 
 			playerint[pid] = nInt;
 			nInt->init(callback);

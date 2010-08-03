@@ -59,7 +59,7 @@ class CGameInterface
 {
 public:
 	bool human;
-	int playerID, serialID;
+	int playerID;
 	std::string dllName;
 
 	virtual ~CGameInterface() {};

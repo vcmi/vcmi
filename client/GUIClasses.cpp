@@ -5757,7 +5757,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 
 	delete arrows;
 
-	int faction = LOCPLINT->cb->getStartInfo()->playerInfos[LOCPLINT->serialID].castle;
+	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 
 	std::vector<SPuzzleInfo> puzzlesToPrint;
 

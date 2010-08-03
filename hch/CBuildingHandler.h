@@ -3,6 +3,7 @@
 #include "../global.h"
 #include <map>
 #include <vector>
+#include <set>
 
 /*
  * CBuildingHandler.h, part of VCMI engine
@@ -42,7 +43,7 @@ public:
 
 	void loadBuildings(); //main loader
 	~CBuildingHandler(); //d-tor
-	static int campToERMU(int camp, int townType);
+	static int campToERMU(int camp, int townType, std::set<si32> builtBuildings);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

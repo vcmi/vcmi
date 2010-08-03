@@ -1256,10 +1256,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		static std::vector<const PlayerSettings *> getHumanPlayerInfo(const StartInfo * si)
 		{
 			std::vector<const PlayerSettings *> ret;
-			for (int g=0; g<si->playerInfos.size(); ++g)
+			for(std::map<int, PlayerSettings>::const_iterator it = si->playerInfos.begin(); 
+				it != si->playerInfos.end(); ++it)
 			{
-				if(si->playerInfos[g].human)
-					ret.push_back(&si->playerInfos[g]);
+				if(it->second.human)
+					ret.push_back(&it->second);
 			}
 
 			return ret;
@@ -1350,16 +1351,17 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
  	}
 
 	//picking random factions for players
-	for(unsigned int i=0;i<scenarioOps->playerInfos.size();i++)
+	for(std::map<int, PlayerSettings>::iterator it = scenarioOps->playerInfos.begin(); 
+		it != scenarioOps->playerInfos.end(); ++it)
 	{
-		if(scenarioOps->playerInfos[i].castle==-1)
+		if(it->second.castle==-1)
 		{
 			int f;
 			do
 			{
 				f = ran()%F_NUMBER;
-			}while(!(map->players[scenarioOps->playerInfos[i].color].allowedFactions  &  1<<f));
-			scenarioOps->playerInfos[i].castle = f;
+			}while(!(map->players[it->first].allowedFactions  &  1<<f));
+			it->second.castle = f;
 		}
 	}
 
@@ -1386,12 +1388,12 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
 	/*********creating players entries in gs****************************************/
-	for (unsigned int i=0; i<scenarioOps->playerInfos.size();i++)
+	for(std::map<int, PlayerSettings>::iterator it = scenarioOps->playerInfos.begin(); 
+		it != scenarioOps->playerInfos.end(); ++it)
 	{
-		std::pair<int,PlayerState> ins(scenarioOps->playerInfos[i].color,PlayerState());
+		std::pair<int,PlayerState> ins(it->first,PlayerState());
 		ins.second.color=ins.first;
-		ins.second.serial=i;
-		ins.second.human = scenarioOps->playerInfos[i].human;
+		ins.second.human = it->second.human;
 		players.insert(ins);
 	}
 
@@ -1402,16 +1404,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		{
 			int3 hpos = map->players[i].posOfMainTown;
 			hpos.x+=1;// hpos.y+=1;
-			int j;
-			for(j=0; j<scenarioOps->playerInfos.size(); j++) //don't add unsigned here - we are refering to the variable above
-				if(scenarioOps->playerInfos[j].color == i)
-					break;
-			if(j == scenarioOps->playerInfos.size())
+			if (scenarioOps->playerInfos.find(i) == scenarioOps->playerInfos.end())
+			{
 				continue;
+			}
 
 			int h=pickHero(i);
-			if(scenarioOps->playerInfos[j].hero == -1)
-				scenarioOps->playerInfos[j].hero = h;
+			if(scenarioOps->playerInfos[i].hero == -1)
+				scenarioOps->playerInfos[i].hero = h;
 
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
@@ -1637,16 +1637,16 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 
 		//starting bonus
-		if(si->playerInfos[k->second.serial].bonus==PlayerSettings::brandom)
-			si->playerInfos[k->second.serial].bonus = ran()%3;
-		switch(si->playerInfos[k->second.serial].bonus)
+		if(si->playerInfos[k->first].bonus==PlayerSettings::brandom)
+			si->playerInfos[k->first].bonus = ran()%3;
+		switch(si->playerInfos[k->first].bonus)
 		{
 		case PlayerSettings::bgold:
 			k->second.resources[6] += 500 + (ran()%6)*100;
 			break;
 		case PlayerSettings::bresource:
 			{
-				int res = VLC->townh->towns[si->playerInfos[k->second.serial].castle].primaryRes;
+				int res = VLC->townh->towns[si->playerInfos[k->first].castle].primaryRes;
 				if(res == 127)
 				{
 					k->second.resources[0] += 5 + ran()%6;
@@ -1769,12 +1769,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				PlayerState * owner = getPlayer(map->towns[g]->getOwner());
 				PlayerInfo & pi = map->players[owner->color];
 				
-
 				if (owner->human && //human-owned
-					map->towns[g]->pos == pi.posOfMainTown) 
+					map->towns[g]->pos == pi.posOfMainTown + int3(2, 0, 0)) 
 				{
 					map->towns[g]->builtBuildings.insert(
-						CBuildingHandler::campToERMU(chosenBonus.info1, map->towns[g]->alignment));
+						CBuildingHandler::campToERMU(chosenBonus.info1, map->towns[g]->town->typeID, map->towns[g]->builtBuildings));
 					break;
 				}
 			}
@@ -3607,7 +3606,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			}
 			else //AI
 			{
-				tgi.personality[g->second.color] = map->players[g->second.serial].AITactic;
+				tgi.personality[g->second.color] = map->players[g->second.color].AITactic;
 			}
 			
 		}

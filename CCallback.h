@@ -110,7 +110,6 @@ public:
 	virtual int getResourceAmount(int type)const =0;
 	virtual bool isVisible(int3 pos)const =0;
 	virtual int getMyColor()const =0;
-	virtual int getMySerial()const =0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)const =0;
 	virtual const StartInfo * getStartInfo()const =0;
 	virtual const CMapHeader * getMapHeader()const =0;
@@ -254,7 +253,7 @@ public:
 	bool isVisible(int3 pos) const;
 	int getMyColor() const;
 	int getHeroSerial(const CGHeroInstance * hero) const;
-	int getMySerial() const;
+	//int getMySerial() const;
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj) const;
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos) const;
 	const StartInfo * getStartInfo() const;

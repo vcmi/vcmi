@@ -614,9 +614,10 @@ void startGame(StartInfo * options)
 	GH.curInt =NULL;
 	if(gOnlyAI)
 	{
-		for (size_t i =0; i < options->playerInfos.size(); i++)
+		for(std::map<int, PlayerSettings>::iterator it = options->playerInfos.begin(); 
+			it != options->playerInfos.end(); ++it)
 		{
-			options->playerInfos[i].human = false;
+			it->second.human = false;
 		}
 	}
 

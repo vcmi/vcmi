@@ -451,7 +451,6 @@ void CGeniusAI::init(ICallback *CB)
 
 	human = false;
 	playerID = m_cb->getMyColor();
-	serialID = m_cb->getMySerial();
 	std::string info = std::string("GeniusAI initialized for player ") 
                    + boost::lexical_cast<std::string>(playerID);
 	m_battleLogic = NULL;
@@ -462,13 +461,13 @@ void CGeniusAI::init(ICallback *CB)
 void CGeniusAI::reportResources()
 {
 	cout << "Day " << m_cb->getDate() << ": ";
-	cout << "AI Player " <<m_cb->getMySerial()<< " with "
+	cout << "AI Player " <<m_cb->getMyColor()<< " with "
        <<  m_cb->howManyHeroes(true) << " heroes. " << endl;
 	cout << m_cb->getResourceAmount(0) << " wood. ";
 	cout << m_cb->getResourceAmount(1) << " mercury. ";
 	cout << m_cb->getResourceAmount(2) << " ore. ";
 	cout << m_cb->getResourceAmount(3) << " sulfur. ";
-	cout << m_cb->getResourceAmount(4) << " cristal. ";
+	cout << m_cb->getResourceAmount(4) << " crystal. ";
 	cout << m_cb->getResourceAmount(5) << " gems. ";
 	cout << m_cb->getResourceAmount(6) << " gold.";
 	cout << endl;

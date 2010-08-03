@@ -62,7 +62,7 @@ void startGame(StartInfo * options);
 CGPreGame * CGP;
 static const CMapInfo *curMap;
 static StartInfo *curOpts;
-static int playerColor, playerSerial; //if more than one player - applies to the first
+static int playerColor; //if more than one player - applies to the first
 static std::vector<std::string> playerNames; // serial id of name <-> player name
 
 static std::string selectedName; //set when game is started/loaded
@@ -85,14 +85,13 @@ static CMapInfo *mapInfoFromGame()
 static void setPlayersFromGame()
 {
 	playerColor = LOCPLINT->playerID;
-	playerSerial = LOCPLINT->serialID;
 }
 
 static void clearInfo()
 {
 	delNull(curMap);
 	delNull(curOpts);
-	playerColor = playerSerial = -1;
+	playerColor = -1;
 	playerNames.clear();
 }
 
@@ -113,8 +112,8 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOpts)
-		for (std::vector<PlayerSettings>::const_iterator i = scenarioOpts->playerInfos.begin(); i != scenarioOpts->playerInfos.end(); i++)
-			if(i->human)
+		for (std::map<int, PlayerSettings>::const_iterator i = scenarioOpts->playerInfos.begin(); i != scenarioOpts->playerInfos.end(); i++)
+			if(i->second.human)
 				actualHumanPlayers++;
 }
 
@@ -406,7 +405,7 @@ CSelectionScreen::~CSelectionScreen()
 {
 	curMap = NULL;
 	curOpts = NULL;
-	playerSerial = playerColor = -1;
+	playerColor = -1;
 	playerNames.clear();
 }
 
@@ -456,7 +455,7 @@ void setPlayer(PlayerSettings &pset, unsigned player)
 		if(playerColor < 0)
 		{
 			playerColor = pset.color;
-			playerSerial = pset.serial;
+			//playerSerial = pset.serial;
 		}
 	}
 	else
@@ -472,12 +471,11 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to, StartInfo & sInfo, 
 	if(!to) 
 		return;
 
-	sInfo.playerInfos.resize(to->playerAmnt);
+	/*sInfo.playerInfos.resize(to->playerAmnt);*/
 	sInfo.mapname = to->filename;
-	playerSerial = playerColor = -1;
+	playerColor = -1;
 	ui8 placedPlayers = 0;
 
-	int serialC=0;
 	for (int i = 0; i < PLAYER_LIMIT; i++)
 	{
 		const PlayerInfo &pinfo = mapHeader->players[i];
@@ -486,9 +484,8 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to, StartInfo & sInfo, 
 		if (!(pinfo.canComputerPlay || pinfo.canComputerPlay))
 			continue;
 
-		PlayerSettings &pset = sInfo.playerInfos[serialC];
+		PlayerSettings &pset = sInfo.playerInfos[i];
 		pset.color = i;
-		pset.serial = serialC++;
 		if(pinfo.canHumanPlay)
 			setPlayer(pset, placedPlayers++);
 		else
@@ -533,9 +530,9 @@ void CSelectionScreen::startGame()
 	if(type == CMenuScreen::newGame)
 	{
 		//there must be at least one human player before game can be started
-		std::vector<PlayerSettings>::const_iterator i;
+		std::map<int, PlayerSettings>::const_iterator i;
 		for(i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
-			if(i->human)
+			if(i->second.human)
 				break;
 
 		if(i == curOpts->playerInfos.end())
@@ -1303,11 +1300,11 @@ void InfoCard::showAll( SDL_Surface * to )
 			myT = curMap->mapHeader->players[playerColor].team;
 			//else 
 			//	myT = -1;
-			for (std::vector<PlayerSettings>::const_iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
+			for (std::map<int, PlayerSettings>::const_iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
 			{
-				int *myx = ((i->color == playerColor  ||  curMap->mapHeader->players[i->color].team == myT) ? &fx : &ex);
-				blitAtLoc(sFlags->ourImages[i->color].bitmap, *myx, 399, to);
-				*myx += sFlags->ourImages[i->color].bitmap->w;
+				int *myx = ((i->first == playerColor  ||  curMap->mapHeader->players[i->first].team == myT) ? &fx : &ex);
+				blitAtLoc(sFlags->ourImages[i->first].bitmap, *myx, 399, to);
+				*myx += sFlags->ourImages[i->first].bitmap->w;
 			}
 
 			std::string tob;
@@ -1578,19 +1575,20 @@ void OptionsTab::nextBonus( int player, int dir )
 
 void OptionsTab::changeSelection( const CMapHeader *to )
 {
-	for(int i = 0; i < entries.size(); i++)
+	for(std::map<int, PlayerOptionsEntry*>::iterator it = entries.begin(); it != entries.end(); ++it)
 	{
-		children -= entries[i];
-		delete entries[i];
+		children -= it->second;
+		delete it->second;
 	}
 	entries.clear();
 	usedHeroes.clear();
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	for(int i = 0; i < curOpts->playerInfos.size(); i++)
+	for(std::map<int, PlayerSettings>::iterator it = curOpts->playerInfos.begin(); 
+		it != curOpts->playerInfos.end(); ++it)
 	{
-		entries.push_back(new PlayerOptionsEntry(this, curOpts->playerInfos[i]));
-		const std::vector<SheroName> &heroes = curMap->mapHeader->players[curOpts->playerInfos[i].color].heroesNames;
+		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
+		const std::vector<SheroName> &heroes = curMap->mapHeader->players[it->first].heroesNames;
 		for(size_t hi=0; hi<heroes.size(); hi++)
 			usedHeroes.insert(heroes[hi].heroID);
 	}
@@ -1607,22 +1605,21 @@ void OptionsTab::setTurnLength( int npos )
 
 void OptionsTab::flagPressed( int player )
 {
-	static std::pair<int, int> playerToRestore(-1, -1); //<color serial, player name serial> 
+	static std::pair<int, int> playerToRestore(-1, -1); //<color, player name serial> 
 
 	PlayerSettings &clicked =  curOpts->playerInfos[player];
 	PlayerSettings *old = NULL;
 
 	if(playerNames.size() == 1) //single player -> swap
 	{
-		if(player == playerSerial) //that color is already selected, no action needed
+		if(player == playerColor) //that color is already selected, no action needed
 			return;
 
 
-		old = &curOpts->playerInfos[playerSerial];
+		old = &curOpts->playerInfos[playerColor];
 		std::swap(old->human, clicked.human);
 		std::swap(old->name, clicked.name);
 		playerColor = clicked.color;
-		playerSerial = player;
 	}
 	else
 	{
@@ -1656,26 +1653,26 @@ void OptionsTab::flagPressed( int player )
 		//if that player was somewhere else, we need to replace him with computer
 		if(curNameID < playerNames.size())
 		{
-			for(std::vector<PlayerSettings>::iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
+			for(std::map<int, PlayerSettings>::iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
 			{
-				if(i->serial != player  &&  i->name == playerNames[curNameID])
+				if(i->first != player  &&  i->second.name == playerNames[curNameID])
 				{
-					assert(i->human);
-					playerToRestore.first = i->serial;
-					playerToRestore.second = vstd::findPos(playerNames, i->name);
-					setPlayer(*i, -1); //set computer
-					old = &*i;
+					assert(i->second.human);
+					playerToRestore.first = i->first;
+					playerToRestore.second = vstd::findPos(playerNames, i->second.name);
+					setPlayer(i->second, -1); //set computer
+					old = &i->second;
 					break;
 				}
 			}
 		}
 	}
 
-	entries[clicked.serial]->selectButtons();
+	entries[clicked.color]->selectButtons();
 	if(old)
 	{
-		entries[old->serial]->selectButtons();
-		if(!entries[playerSerial]->fixedHero)
+		entries[old->color]->selectButtons();
+		if(!entries[playerColor]->fixedHero)
 			old->hero = -1;
 	}
 	GH.totalRedraw();
@@ -1686,7 +1683,14 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
-	pos = parent->pos + Point(54, 122 + s.serial*50);
+	int serial = 0;
+	for(int g=0; g < s.color; ++g)
+	{
+		if( curMap->mapHeader->players[g].canComputerPlay || curMap->mapHeader->players[g].canHumanPlay)
+			serial++;
+	}
+
+	pos = parent->pos + Point(54, 122 + serial*50);
 
 	static const char *flags[] = {"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF", 
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"};
@@ -1696,12 +1700,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color]), 0, 0, true);
 	if(owner->type == CMenuScreen::newGame)
 	{
-		btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[132], bind(&OptionsTab::nextCastle, owner, s.serial, -1), 107, 5, "ADOPLFA.DEF");
-		btns[1] = new AdventureMapButton(CGI->generaltexth->zelp[133], bind(&OptionsTab::nextCastle, owner, s.serial, +1), 168, 5, "ADOPRTA.DEF");
-		btns[2] = new AdventureMapButton(CGI->generaltexth->zelp[148], bind(&OptionsTab::nextHero, owner, s.serial, -1), 183, 5, "ADOPLFA.DEF");
-		btns[3] = new AdventureMapButton(CGI->generaltexth->zelp[149], bind(&OptionsTab::nextHero, owner, s.serial, +1), 244, 5, "ADOPRTA.DEF");
-		btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.serial, -1), 259, 5, "ADOPLFA.DEF");
-		btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.serial, +1), 320, 5, "ADOPRTA.DEF");
+		btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[132], bind(&OptionsTab::nextCastle, owner, s.color, -1), 107, 5, "ADOPLFA.DEF");
+		btns[1] = new AdventureMapButton(CGI->generaltexth->zelp[133], bind(&OptionsTab::nextCastle, owner, s.color, +1), 168, 5, "ADOPRTA.DEF");
+		btns[2] = new AdventureMapButton(CGI->generaltexth->zelp[148], bind(&OptionsTab::nextHero, owner, s.color, -1), 183, 5, "ADOPLFA.DEF");
+		btns[3] = new AdventureMapButton(CGI->generaltexth->zelp[149], bind(&OptionsTab::nextHero, owner, s.color, +1), 244, 5, "ADOPRTA.DEF");
+		btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.color, -1), 259, 5, "ADOPLFA.DEF");
+		btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.color, +1), 320, 5, "ADOPRTA.DEF");
 	}
 	else
 		for(int i = 0; i < 6; i++)
@@ -1722,18 +1726,18 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 
 	if(owner->type != CMenuScreen::scenarioInfo  &&  curMap->mapHeader->players[s.color].canHumanPlay)
 	{
-		flag = new AdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.serial), -43, 2, flags[s.color]);
+		flag = new AdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.color), -43, 2, flags[s.color]);
 		flag->hoverable = true;
 	}
 	else
 		flag = NULL;
 
 	defActions &= ~SHARE_POS;
-	town = new SelectedBox(TOWN, s.serial);
+	town = new SelectedBox(TOWN, s.color);
 	town->pos += pos + Point(119, 2);
-	hero = new SelectedBox(HERO, s.serial);
+	hero = new SelectedBox(HERO, s.color);
 	hero->pos += pos + Point(195, 2);
-	bonus = new SelectedBox(BONUS, s.serial);
+	bonus = new SelectedBox(BONUS, s.color);
 	bonus->pos += pos + Point(271, 2);
 }
 
@@ -2050,12 +2054,12 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	for(size_t i = 0; i < startInfo->playerInfos.size(); i++)
+	for(std::map<int, PlayerSettings>::const_iterator it = startInfo->playerInfos.begin(); 
+		it != startInfo->playerInfos.end(); ++it)
 	{
-		if(startInfo->playerInfos[i].human)
+		if(it->second.human)
 		{
-			playerColor = startInfo->playerInfos[i].color;
-			playerSerial = i;
+			playerColor = it->first;
 		}
 	}
 
@@ -2414,11 +2418,11 @@ void CBonusSelection::show( SDL_Surface * to )
 	//flags
 	int fx=530, ex=674, myT;
 	myT = ourHeader->players[playerColor].team;
-	for (std::vector<PlayerSettings>::const_iterator i = sInfo.playerInfos.begin(); i != sInfo.playerInfos.end(); i++)
+	for (std::map<int, PlayerSettings>::const_iterator i = sInfo.playerInfos.begin(); i != sInfo.playerInfos.end(); i++)
 	{
-		int *myx = ((i->color == playerColor  ||  ourHeader->players[i->color].team == myT) ? &fx : &ex);
-		blitAtLoc(sFlags->ourImages[i->color].bitmap, *myx, 405, to);
-		*myx += sFlags->ourImages[i->color].bitmap->w;
+		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first].team == myT) ? &fx : &ex);
+		blitAtLoc(sFlags->ourImages[i->first].bitmap, *myx, 405, to);
+		*myx += sFlags->ourImages[i->first].bitmap->w;
 	}
 
 	//difficulty
@@ -2476,18 +2480,19 @@ void CBonusSelection::updateBonusSelection()
 			case 2: //building
 				{
 					int faction = -1;
-					for (int g=0; g<sInfo.playerInfos.size(); ++g)
+					for(std::map<int, PlayerSettings>::iterator it = sInfo.playerInfos.begin(); 
+						it != sInfo.playerInfos.end(); ++it)
 					{
-						if (sInfo.playerInfos[g].human)
+						if (it->second.human)
 						{
-							faction = sInfo.playerInfos[g].castle;
+							faction = it->second.castle;
 							break;
 						}
 						
 					}
 					assert(faction != -1);
 
-					std::string bldgBitmapName = CGI->buildh->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction)];
+					std::string bldgBitmapName = CGI->buildh->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
 					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
 
 					freeDuplicatedSurface = true;

@@ -245,7 +245,7 @@ public:
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard; 
 
-	CPlayerInterface(int Player, int serial);//c-tor
+	CPlayerInterface(int Player);//c-tor
 	~CPlayerInterface();//d-tor
 
 	CondSh<bool> terminate_cond; // confirm termination

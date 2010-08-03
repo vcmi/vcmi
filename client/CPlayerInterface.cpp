@@ -90,14 +90,13 @@ struct OCM_HLP_CGIN
 
 
 
-CPlayerInterface::CPlayerInterface(int Player, int serial)
+CPlayerInterface::CPlayerInterface(int Player)
 {
 	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	curAction = NULL;
 	playerID=Player;
-	serialID=serial;
 	human=true;
 	castleInt = NULL;
 	battleInt = NULL;
@@ -192,7 +191,7 @@ void CPlayerInterface::yourTurn()
 
 			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
-			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos[serialID].name);
+			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<SComponent*> cmp;
 			cmp.push_back(new SComponent(SComponent::flag, playerID, 0));
 			showInfoDialog(msg, cmp);
@@ -1016,7 +1015,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
-	h & playerID & serialID;
+	h & playerID;
 	h & sysOpts;
 	h & spellbookSettings;
 }

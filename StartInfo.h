@@ -25,7 +25,6 @@ struct PlayerSettings
 	std::string heroName;
 	si8 bonus; //usees enum type Ebonus
 	ui8 color; //from 0 - 
-	ui8 serial;
 	ui8 handicap;//0-no, 1-mild, 2-severe
 	std::string name;
 	ui8 human;
@@ -37,7 +36,6 @@ struct PlayerSettings
 		h & heroName;
 		h & bonus;
 		h & color;
-		h & serial;
 		h & handicap;
 		h & name;
 		h & human;
@@ -55,25 +53,24 @@ struct StartInfo
 {
 	ui8 mode; //0 - new game; 1 - load game; 2 - campaign
 	ui8 difficulty; //0=easy; 4=impossible
-	std::vector<PlayerSettings> playerInfos; //serial indexed
+	std::map<int, PlayerSettings> playerInfos; //color indexed
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	ui8 whichMapInCampaign; //used only for mode 2
 	ui8 choosenCampaignBonus; //used only for mode 2
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
-		for(unsigned int i=0; i<playerInfos.size(); ++i)
-			if(playerInfos[i].color == no)
-				return playerInfos[i];
+		if(playerInfos.find(no) != playerInfos.end())
+			return playerInfos[no];
 		tlog1 << "Cannot find info about player " << no <<". Throwing...\n";
 		throw std::string("Cannot find info about player");
 	}
 
 	PlayerSettings *getPlayersSettings(const std::string &name)
 	{
-		for(unsigned int i=0; i<playerInfos.size(); ++i)
-			if(playerInfos[i].name == name)
-				return &playerInfos[i];
+		for(std::map<int, PlayerSettings>::iterator it=playerInfos.begin(); it != playerInfos.end(); ++it)
+			if(it->second.name == name)
+				return &it->second;
 
 		return NULL;
 	}
