@@ -68,6 +68,7 @@ public:
 	virtual int3 getMapSize(); //returns size of the map
 	virtual TerrainTile * getTile(int3 pos);
 	virtual const PlayerState * getPlayerState(int color);
+	virtual int getPlayerRelations(ui8 color1, ui8 color2);// -1 = enemy, 0 = neutral, 1 = ally, 2 = same player
 	virtual const CTown *getNativeTown(int color);
 
 	//do sth

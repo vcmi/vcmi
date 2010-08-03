@@ -157,13 +157,13 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 			else 
 			{
 			/* TODO: boost should have a nice method to do that. */
-				while(pos > 0 &&
-					  text[pos] != ' ' && 
+				while(pos > 0 && text[pos]>' ')
+					/*  text[pos] != ' ' && 
 					  text[pos] != ',' &&
 					  text[pos] != '.' &&
 					  text[pos] != ';' &&
 					  text[pos] != '!' &&
-					  text[pos] != '?')
+					  text[pos] != '?')*/
 					pos --;
 			}
 			if (pos > 0)

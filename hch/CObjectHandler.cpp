@@ -435,9 +435,9 @@ void CGObjectInstance::getSightTiles(std::set<int3> &tiles) const //returns refe
 }
 void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 {
-	for (std::map<ui8, PlayerState>::iterator i = cb->gameState()->players.begin(); i != cb->gameState()->players.end(); i++)
+	for (std::map<ui8, TeamState>::iterator i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
 	{
-		if (ourplayer != i->first && i->second.status == PlayerState::INGAME) //TODO: team support
+		if ( !vstd::contains(i->second.players, ourplayer )/* && i->second.status == PlayerState::INGAME*/)
 		{
 			FoWChange fw;
 			fw.mode = 0;
@@ -923,8 +923,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 	if (ID == HEROI_TYPE) //hero
 	{
-		//TODO: check for allies
-		if(tempOwner == h->tempOwner) //our hero
+		if( cb->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
 		{
 			//exchange
 			cb->heroExchange(id, h->id);

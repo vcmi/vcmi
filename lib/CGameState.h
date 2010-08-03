@@ -120,7 +120,8 @@ public:
 	ui8 color;
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	ui8 team;
+	//std::vector<std::vector<std::vector<ui8> > > * fogOfWarMap; //pointer to team's fog of war
 	std::vector<si32> resources;
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
@@ -139,11 +140,27 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & human & currentSelection & fogOfWarMap & resources & status;
+		h & color & human & currentSelection & team & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
+};
+
+struct DLL_EXPORT TeamState : public CBonusSystemNode
+{
+public:
+	std::set<ui8> players; // members of this team
+	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	
+	//TeamState();
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players & fogOfWarMap;
+		h & static_cast<CBonusSystemNode&>(*this);
+	}
+
 };
 
 struct DLL_EXPORT CObstacleInstance
@@ -384,6 +401,7 @@ public:
 	ui32 day; //total number of days in game
 	Mapa * map;
 	std::map<ui8, PlayerState> players; //ID <-> player state
+	std::map<ui8, TeamState> teams; //ID <-> team state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
 
@@ -402,7 +420,11 @@ public:
 
 	boost::shared_mutex *mx;
 	PlayerState *getPlayer(ui8 color, bool verbose = true);
+	TeamState *getTeam(ui8 teamID);//get team by team ID
+	TeamState *getPlayerTeam(ui8 color);// get team by player color
 	const PlayerState *getPlayer(ui8 color, bool verbose = true) const;
+	const TeamState *getTeam(ui8 teamID) const;
+	const TeamState *getPlayerTeam(ui8 color) const;
 	void init(StartInfo * si, ui32 checksum, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);

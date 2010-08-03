@@ -145,7 +145,7 @@ void CBuildingHandler::loadBuildings()
 	}
 
 	//loading ERMU to picture
-	std::ifstream etp("config/ERMU_to_picture.txt");
+	std::ifstream etp(DATA_DIR "/config/ERMU_to_picture.txt");
 
 	assert(etp.is_open());
 

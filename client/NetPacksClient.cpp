@@ -194,7 +194,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
 		if(i->first >= PLAYER_LIMIT) continue;
-		if(GS(cl)->players[i->first].fogOfWarMap[pos.x][pos.y][pos.z])
+		if(GS(cl)->getPlayerTeam(i->first)->fogOfWarMap[pos.x][pos.y][pos.z])
 		{
 			i->second->objectRemoved(o);
 		}
@@ -216,8 +216,9 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 	{
 		if(i->first >= PLAYER_LIMIT)
 			continue;
-		PlayerState &p = GS(cl)->players[i->first];
-		if((p.fogOfWarMap[start.x-1][start.y][start.z] || p.fogOfWarMap[end.x-1][end.y][end.z]) && p.human)
+		TeamState *t = GS(cl)->getPlayerTeam(i->first);
+		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
+				&& GS(cl)->getPlayer(i->first)->human)
 			humanKnows = true;
 	}
 
@@ -250,8 +251,8 @@ void TryMoveHero::applyCl( CClient *cl )
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
 		if(i->first >= PLAYER_LIMIT) continue;
-		PlayerState &p = GS(cl)->players[i->first];
-		if(p.fogOfWarMap[start.x-1][start.y][start.z] || p.fogOfWarMap[end.x-1][end.y][end.z])
+		TeamState *t = GS(cl)->getPlayerTeam(i->first);
+		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
 		{
 			i->second->heroMoved(*this);
 		}
@@ -786,7 +787,7 @@ void NewObject::applyCl(CClient *cl)
 	{
 		//TODO: check if any covered tile is visible
 		if(i->first >= PLAYER_LIMIT) continue;
-		if(GS(cl)->players[i->first].fogOfWarMap[obj->pos.x][obj->pos.y][obj->pos.z])
+		if(GS(cl)->getPlayerTeam(i->first)->fogOfWarMap[obj->pos.x][obj->pos.y][obj->pos.z])
 		{
 			i->second->newObject(obj);
 		}

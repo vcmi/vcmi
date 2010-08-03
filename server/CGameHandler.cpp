@@ -1888,12 +1888,11 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			{
 				CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
 
-				if(obj->tempOwner==h->tempOwner) 
+				if( getPlayerRelations(dh->tempOwner, h->tempOwner)) 
 				{
 					heroExchange(dh->id, h->id);
 					return true;
 				}
-				//TODO: check for ally
 				startBattleI(h, dh);
 				return true;
 			}
@@ -3357,10 +3356,8 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	}
 	if (!army)
 		COMPLAIN_RET("Incorrect call to transform in undead!");
-	tlog1<<"test2\n";
 	if(!vstd::contains(army->Slots(), slot))
 		COMPLAIN_RET("Army doesn't have any creature in that slot!");
-	tlog1<<"test3\n";
 	const CStackInstance &s = army->getStack(slot);
 	int resCreature;//resulting creature - bone dragons or skeletons
 	
@@ -3368,7 +3365,6 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 		resCreature = 68;
 	else
 		resCreature = 56;
-	tlog1<<"test4\n";
 	SetGarrisons sg;
 	sg.garrs[army->id] = army->getArmy();
 	sg.garrs[army->id].setCreature(slot, resCreature, s.count);
@@ -3913,7 +3909,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		for(int i=0;i<gs->map->width;i++)
 			for(int j=0;j<gs->map->height;j++)
 				for(int k=0;k<gs->map->twoLevel+1;k++)
-					if(!gs->getPlayer(fc.player)->fogOfWarMap[i][j][k])
+					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap[i][j][k])
 						fc.tiles.insert(int3(i,j,k));
 		sendAndApply(&fc);
 	}

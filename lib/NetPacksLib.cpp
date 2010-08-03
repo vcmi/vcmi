@@ -143,14 +143,15 @@ DLL_EXPORT void SetMovePoints::applyGs( CGameState *gs )
 
 DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 {
-		BOOST_FOREACH(int3 t, tiles)
-		gs->getPlayer(player)->fogOfWarMap[t.x][t.y][t.z] = mode;
+	TeamState * team = gs->getPlayerTeam(player);
+	BOOST_FOREACH(int3 t, tiles)
+		team->fogOfWarMap[t.x][t.y][t.z] = mode;
 	if (mode == 0) //do not hide too much
 	{
 		std::set<int3> tilesRevealed;
 		for (size_t i = 0; i < gs->map->objects.size(); i++)
 		{
-			if(gs->map->objects[i] && gs->map->objects[i]->tempOwner == player) //check owned observators
+			if (gs->map->objects[i])
 			{
 				switch(gs->map->objects[i]->ID)
 				{
@@ -158,13 +159,14 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 				case 53://mine
 				case 98://town
 				case 220:
-					gs->map->objects[i]->getSightTiles(tilesRevealed);
+					if(vstd::contains(team->players, player)) //check owned observators
+						gs->map->objects[i]->getSightTiles(tilesRevealed);
 					break;
 				}
 			}
 		}
 		BOOST_FOREACH(int3 t, tilesRevealed) //probably not the most optimal solution ever
-			gs->getPlayer(player)->fogOfWarMap[t.x][t.y][t.z] = 1;
+			team->fogOfWarMap[t.x][t.y][t.z] = 1;
 	}
 }
 DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
@@ -377,7 +379,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 	}
 
 	BOOST_FOREACH(int3 t, fowRevealed)
-		gs->getPlayer(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
 DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )

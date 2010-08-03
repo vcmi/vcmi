@@ -107,7 +107,7 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 		getAllTiles (tiles, player, -1, 0);
 	else
 	{
-		PlayerState * plr = &gs->players.find(player)->second;
+		const TeamState * team = gs->getPlayerTeam(player);
 		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
 		{
 			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
@@ -116,8 +116,8 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 				if(distance <= radious)
 				{
 					if(player < 0 
-						|| (mode == 1  && plr->fogOfWarMap[xd][yd][pos.z]==0)
-						|| (mode == -1 && plr->fogOfWarMap[xd][yd][pos.z]==1)
+						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
+						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}
@@ -237,6 +237,18 @@ inline TerrainTile * IGameCallback::getTile( int3 pos )
 const PlayerState * IGameCallback::getPlayerState( int color )
 {
 	return gs->getPlayer(color, false);
+}
+
+int IGameCallback::getPlayerRelations( ui8 color1, ui8 color2 )
+{
+	if ( color1 == color2 )
+		return 2;
+	if ( color1 == 255 || color2 == 255)
+		return 0;
+	const TeamState * ts = gs->getPlayerTeam(color1);
+	if (ts && vstd::contains(ts->players, color2))
+		return 1;
+	return 0;
 }
 
 const CTown * IGameCallback::getNativeTown(int color)

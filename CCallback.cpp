@@ -315,7 +315,7 @@ bool CCallback::verifyPath(CPath * path, bool blockSea) const
 std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->players[player].fogOfWarMap;
+	return gs->getPlayerTeam(player)->fogOfWarMap;
 }
 
 

@@ -1394,6 +1394,8 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		std::pair<int,PlayerState> ins(it->first,PlayerState());
 		ins.second.color=ins.first;
 		ins.second.human = it->second.human;
+		ins.second.team = map->players[ins.first].team;
+		teams[ins.second.team].players.insert(ins.first);
 		players.insert(ins);
 	}
 
@@ -1608,8 +1610,8 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 	}
 
-	/*************************FOG**OF**WAR******************************************/		
-	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	/*************************FOG**OF**WAR******************************************/
+	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
 		for(int g=0; g<map->width; ++g)
@@ -1626,7 +1628,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 		BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 		{
-			if(obj->tempOwner != k->first) continue; //not a flagged object
+			if( !vstd::contains(k->second.players, obj->tempOwner)) continue; //not a flagged object
 
 			std::set<int3> tiles;
 			obj->getSightTiles(tiles);
@@ -1635,7 +1637,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				k->second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
 			}
 		}
-
+	}
+	
+	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	{
 		//starting bonus
 		if(si->playerInfos[k->first].bonus==PlayerSettings::brandom)
 			si->playerInfos[k->first].bonus = ran()%3;
@@ -2225,6 +2230,28 @@ void CGameState::apply(CPack *pack)
 	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 
+TeamState *CGameState::getTeam(ui8 teamID)
+{
+	if(vstd::contains(teams,teamID))
+	{
+		return &teams[teamID];
+	}
+	else 
+	{
+		tlog2 << "Warning: Cannot find info for team " << int(teamID) << std::endl;
+		return NULL;
+	}
+	
+}
+
+TeamState *CGameState::getPlayerTeam(ui8 color)
+{
+	PlayerState * ps = getPlayer(color);
+	if (ps)
+		return getTeam(ps->team);
+	return NULL;
+}
+
 PlayerState * CGameState::getPlayer( ui8 color, bool verbose )
 {
 	if(vstd::contains(players,color))
@@ -2244,6 +2271,17 @@ const PlayerState * CGameState::getPlayer( ui8 color, bool verbose ) const
 	return (const_cast<CGameState *>(this))->getPlayer(color, verbose);
 }
 
+
+const TeamState * CGameState::getTeam( ui8 teamID ) const
+{
+	return (const_cast<CGameState *>(this))->getTeam(teamID);
+}
+
+const TeamState * CGameState::getPlayerTeam( ui8 teamID ) const
+{
+	return (const_cast<CGameState *>(this))->getPlayerTeam(teamID);
+}
+
 bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
 {
 	if(!map->isInTheMap(src) || !map->isInTheMap(dest)) //check input
@@ -2261,7 +2299,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 // 	else
 // 		blockLandSea = boost::logic::indeterminate;
 
-	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
+	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayerTeam(hero->tempOwner)->fogOfWarMap;
 
 	//graph initialization
 	std::vector< std::vector<CPathNode> > graph;
@@ -2407,7 +2445,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 	else
 		onLand = boost::logic::indeterminate;
 
-	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
+	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayerTeam(hero->tempOwner)->fogOfWarMap;
 
 	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	bool waterWalk = hero->hasBonusOfType(Bonus::WATER_WALKING);
@@ -2654,7 +2692,7 @@ bool CGameState::isVisible(int3 pos, int player)
 {
 	if(player == 255) //neutral player
 		return false;
-	return players[player].fogOfWarMap[pos.x][pos.y][pos.z];
+	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, int player )
@@ -3434,9 +3472,9 @@ ui8 CGameState::checkForStandardWin() const
 			{
 				//first player remaining ingame - candidate for victory
 				supposedWinner = i->second.color;
-				winnerTeam = map->players[supposedWinner].team;
+				winnerTeam = i->second.team;
 			}
-			else if(winnerTeam != map->players[i->second.color].team)
+			else if(winnerTeam != i->second.team)
 			{
 				//current candidate has enemy remaining in game -> no vicotry
 				return 255;
