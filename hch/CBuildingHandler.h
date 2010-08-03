@@ -42,7 +42,7 @@ public:
 
 	void loadBuildings(); //main loader
 	~CBuildingHandler(); //d-tor
-	static int CBuildingHandler::campToERMU(int camp, int townType);
+	static int campToERMU(int camp, int townType);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
