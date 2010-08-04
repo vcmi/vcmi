@@ -570,6 +570,12 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
+void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
+{
+	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(town, 1);
+	LOCPLINT->cb->castSpell(hero, Spells::TOWN_PORTAL, dest->visitablePos() + hero->getVisitableOffset());
+}
+
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
@@ -639,12 +645,55 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			case VIEW_AIR:
 			case FLY:
 			case WATER_WALK:
+				break;
 			case TOWN_PORTAL:
+				{
+					std::vector <int> availableTowns;
+					std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+					for(size_t i=0;i<Towns.size();i++)
+					{
+						const CGTownInstance *t = Towns[i];
+						if (t->visitingHero == NULL) //empty town and this is
+						{
+							availableTowns.push_back(t->id);//add to the list
+						}
+					}
+
+					if (h->getSpellSchoolLevel(&CGI->spellh->spells[spell]) < 3) //not expert - teleport to nearest available city
+					{
+						int nearest = -1; //nearest town's ID
+						double dist = -1;
+						for (int g=0; g<availableTowns.size(); ++g)
+						{
+							const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(availableTowns[g], 1);
+							double curDist = dest->pos.dist2d(h->pos);
+							if (nearest == -1 || curDist < dist)
+							{
+								nearest = g;
+								dist = curDist;
+							}
+						}
+
+						LOCPLINT->cb->castSpell(h, spell,
+							LOCPLINT->cb->getTownInfo(availableTowns[nearest], 1)->visitablePos() + h->getVisitableOffset());
+					}
+					else
+					{ //let the player choose
+						GH.pushInt (new CObjectListWindow(availableTowns,
+							new CPicture(graphics->spellscr->ourImages[spell].bitmap, 0, 0, false),
+							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
+							boost::bind (&CSpellWindow::teleportTo, owner, _1, h)));
+					}
+					
+
+					return;
+				}
 				break;
 			default:
 				assert(0);
 			}
 
+			//can return earlier in some cases
 			LOCPLINT->cb->castSpell(h, spell);
 		}
 	}

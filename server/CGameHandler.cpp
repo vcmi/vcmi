@@ -4919,13 +4919,21 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			sendAndApply(&gb);
 		}
 		break;
+		
+	case TOWN_PORTAL: //Town Portal 
+		{
+			//TODO: check if given position is valid
+			moveHero(h->id,pos,1);
+		}
+		break;
+
 	case VISIONS: //Visions 
 	case VIEW_EARTH: //View Earth 
 	case DISGUISE: //Disguise 
 	case VIEW_AIR: //View Air 
-	case TOWN_PORTAL: //Town Portal 
 	default:
 		COMPLAIN_RET("This spell is not implemented yet!");
+		break;
 	}
 
 	SetMana sm;
