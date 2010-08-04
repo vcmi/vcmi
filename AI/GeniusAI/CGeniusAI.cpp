@@ -573,7 +573,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel& h
     // TODO: Will have to make some calculations so that the AI can enter the
     // underground.
     if (hpos.z == destination.z) {
-      //TODO: fix get path so that it doesn't return a path unless z's are \
+      //TODO: fix get path so that it doesn't return a path unless z's are
       // the same, or path goes through sub gate.
 			if (m_cb->getPath(hpos, destination, h.h, path)) {
 				path.convert(0);
