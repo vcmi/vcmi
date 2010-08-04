@@ -1210,10 +1210,10 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 
 	heroWindow = new CHeroWindow(LOCPLINT->playerID);
 
-	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[0]));
-	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[1]));
-	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[2]));
-	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[3]));
+	for (int g=0; g<ADVOPT.gemG.size(); ++g)
+	{
+		gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[g]));
+	}
 
 
 	setPlayer(LOCPLINT->playerID);

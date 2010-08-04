@@ -24,6 +24,7 @@ class CTextInput;
 class CCampaign;
 class CGStatusBar;
 class CTextBox;
+class CCampaignState;
 
 class CMapInfo
 {
@@ -316,13 +317,12 @@ class CBonusSelection : public CIntObject
 	CRegion * highlightedRegion;
 
 	void loadPositionsOfGraphics();
-	const CCampaign * ourCampaign;
+	CCampaignState * ourCampaign;
 	CMapHeader *ourHeader;
 	CDefHandler *sizes; //icons of map sizes
 	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
 	AdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
 	void changeDiff(bool increase); //if false, then decrease
-	int whichMap;
 
 	//bonus selection
 	void updateBonusSelection();
@@ -335,7 +335,7 @@ public:
 	void selectMap(int whichOne);
 	void selectBonus(int id);
 
-	CBonusSelection(const CCampaign * _ourCampaign, int _whichMap);
+	CBonusSelection(CCampaignState * _ourCampaign);
 	~CBonusSelection();
 
 	void showAll(SDL_Surface * to);

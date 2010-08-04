@@ -274,10 +274,10 @@ struct DLL_EXPORT Bonus
 	{
 		return hb.source==source && (id==0xffffff  ||  hb.id==id);
 	}
- 	inline bool operator == (const BonusType & cf) const
- 	{
- 		return type == cf;
- 	}
+	inline bool operator == (const BonusType & cf) const
+	{
+		return type == cf;
+	}
 	inline void ChangeBonusVal (const ui32 newVal)
 	{
 		val = newVal;

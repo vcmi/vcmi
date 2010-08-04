@@ -1109,7 +1109,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//create stack queue
 	bool embedQueue = screen->h < 700;
 	queue = new CStackQueue(embedQueue, this);
- 	if(!embedQueue && curInt->sysOpts.showQueue)
+	if(!embedQueue && curInt->sysOpts.showQueue)
 	{
 		pos.y += queue->pos.h / 2; //center whole window
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
@@ -1117,7 +1117,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 // 		queue->pos.y = pos.y - queue->pos.h;
 //  		pos.h += queue->pos.h;
 //  		center();
- 	}
+	}
 	queue->update();
 
 	//preparing siege info
@@ -2188,7 +2188,7 @@ void CBattleInterface::bDefencef()
 		return;
 
 	if(activeStack != -1)
- 		giveCommand(3,0,activeStack);
+		giveCommand(3,0,activeStack);
 }
 
 void CBattleInterface::bConsoleUpf()
@@ -3028,7 +3028,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 			FONT_TINY,
 			zwykly,
 			to
-        );
+		);
 	}
 }
 

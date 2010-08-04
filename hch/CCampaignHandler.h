@@ -15,6 +15,8 @@
  *
  */
 
+struct StartInfo;
+
 class DLL_EXPORT CCampaignHeader
 {
 public:
@@ -120,6 +122,22 @@ public:
 	bool conquerable(int whichScenario) const;
 
 	CCampaign();
+};
+
+class DLL_EXPORT CCampaignState
+{
+public:
+	CCampaign *camp;
+	std::string campaignName; 
+	std::vector<ui8> mapsConquered, mapsRemaining;
+	ui8 currentMap; 
+
+	void initNewCampaign(const StartInfo &si);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
+	}
 };
 
 class DLL_EXPORT CCampaignHandler

@@ -7,6 +7,7 @@
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
+#include "../StartInfo.h"
 
 namespace fs = boost::filesystem;
 
@@ -465,4 +466,18 @@ bool CCampaignScenario::isNotVoid() const
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == 0 || type == 1 || type == 3 || type == 4 || type == 5 || type == 6;
+}
+
+void CCampaignState::initNewCampaign( const StartInfo &si )
+{
+	assert(si.mode == 2);
+	campaignName = si.mapname;
+	currentMap = si.whichMapInCampaign;
+
+	//check if campaign is in lod or not
+	bool inLod = campaignName.find('/') == std::string::npos;
+
+	camp = CCampaignHandler::getCampaign(campaignName, inLod); //TODO lod???
+	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
+		mapsRemaining.push_back(i);
 }

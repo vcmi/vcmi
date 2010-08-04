@@ -60,6 +60,7 @@ class CSpell;
 struct TerrainTile;
 class CHeroClass;
 class CCampaign;
+class CCampaignState;
 
 namespace boost
 {
@@ -372,22 +373,6 @@ struct DLL_EXPORT CPathsInfo
 	bool getPath(const int3 &dst, CGPath &out);
 	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();
-};
-
-class DLL_EXPORT CCampaignState
-{
-public:
-	CCampaign *camp;
-	std::string campaignName; 
-	std::vector<ui8> mapsConquered, mapsRemaining;
-	ui8 currentMap; 
-
-	void initNewCampaign(const StartInfo &si);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
-	}
 };
 
 class DLL_EXPORT CGameState

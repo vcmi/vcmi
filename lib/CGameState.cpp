@@ -4233,16 +4233,4 @@ InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
 	return *this;
 }
 
-void CCampaignState::initNewCampaign( const StartInfo &si )
-{
-	assert(si.mode == 2);
-	campaignName = si.mapname;
-	currentMap = si.whichMapInCampaign;
-	
-	//check if campaign is in lod or not
-	bool inLod = campaignName.find('/') == std::string::npos;
 
-	camp = CCampaignHandler::getCampaign(campaignName, inLod); //TODO lod???
-	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
-		mapsRemaining.push_back(i);
-}

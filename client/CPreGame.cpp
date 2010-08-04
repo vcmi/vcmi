@@ -522,7 +522,8 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to, StartInfo & sInfo, 
 void CSelectionScreen::startCampaign()
 {
 	CCampaign * ourCampaign = CCampaignHandler::getCampaign(curMap->filename, curMap->lodCmpgn);
-	GH.pushInt( new CBonusSelection(ourCampaign, 0) );
+	CCampaignState * campState = new CCampaignState();
+	GH.pushInt( new CBonusSelection(campState) );
 }
 
 void CSelectionScreen::startGame()
@@ -731,7 +732,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	txt = NULL;
 	tabType = Type;
 
- 	if (Type != CMenuScreen::campaignList)
+	if (Type != CMenuScreen::campaignList)
 	{
 		bg = new CPicture(BitmapHandler::loadBitmap("SCSELBCK.bmp"), 0, 0, true);
 		pos.w = bg->pos.w;
@@ -1446,46 +1447,46 @@ void OptionsTab::nextCastle( int player, int dir )
 	si32 &cur = s.castle;
 	ui32 allowed = curMap->mapHeader->players[s.color].allowedFactions;
 
- 	if (cur == -2) //no castle - no change
- 		return;
+	if (cur == -2) //no castle - no change
+		return;
 
- 	if (cur == -1) //random => first/last available
- 	{
- 		int pom = (dir>0) ? (0) : (F_NUMBER-1); // last or first
- 		for (;pom >= 0  &&  pom < F_NUMBER;  pom+=dir)
- 		{
- 			if((1 << pom) & allowed)
- 			{
- 				cur=pom;
- 				break;
- 			}
- 		}
- 	}
- 	else // next/previous available
- 	{
- 		for (;;)
- 		{
+	if (cur == -1) //random => first/last available
+	{
+		int pom = (dir>0) ? (0) : (F_NUMBER-1); // last or first
+		for (;pom >= 0  &&  pom < F_NUMBER;  pom+=dir)
+		{
+			if((1 << pom) & allowed)
+			{
+				cur=pom;
+				break;
+			}
+		}
+	}
+	else // next/previous available
+	{
+		for (;;)
+		{
 			cur+=dir;
 			if ((1 << cur) & allowed)
- 				break;
+				break;
 
- 			if (cur >= F_NUMBER  ||  cur<0)
- 			{
- 				double p1 = log((double)allowed) / log(2.0f)+0.000001f;
- 				double check = p1 - ((int)p1);
- 				if (check < 0.001)
- 					cur = (int)p1;
- 				else
- 					cur = -1;
- 				break;
- 			}
- 		}
- 	}
+			if (cur >= F_NUMBER  ||  cur<0)
+			{
+				double p1 = log((double)allowed) / log(2.0f)+0.000001f;
+				double check = p1 - ((int)p1);
+				if (check < 0.001)
+					cur = (int)p1;
+				else
+					cur = -1;
+				break;
+			}
+		}
+	}
 
 	if(s.hero >= 0)
 		s.hero = -1;
- 	if(cur < 0  &&  s.bonus == PlayerSettings::bresource)
- 		s.bonus = PlayerSettings::brandom;
+	if(cur < 0  &&  s.bonus == PlayerSettings::bresource)
+		s.bonus = PlayerSettings::brandom;
 
 	entries[player]->selectButtons();
 	redraw();
@@ -1628,15 +1629,15 @@ void OptionsTab::flagPressed( int player )
 						? vstd::findPos(playerNames, clicked.name) 
 						: -1;
 
- 		if(curNameID >= 0  &&  playerToRestore.second == curNameID) //player to restore is about to being replaced -> put him back to the old place
+		if(curNameID >= 0  &&  playerToRestore.second == curNameID) //player to restore is about to being replaced -> put him back to the old place
 		{
 			PlayerSettings &restPos = curOpts->playerInfos[playerToRestore.first];
- 			setPlayer(restPos, playerToRestore.second);
+			setPlayer(restPos, playerToRestore.second);
 			playerToRestore.first = playerToRestore.second = 0;
 		}
 
- 		//who will be put here?
- 		if(curNameID < 0) //if possible replace computer with unallocated player
+		//who will be put here?
+		if(curNameID < 0) //if possible replace computer with unallocated player
 		{
 			for(int i = 0; i < playerNames.size(); i++)
 			{
@@ -1648,7 +1649,7 @@ void OptionsTab::flagPressed( int player )
 			}
 		}
 
- 		setPlayer(clicked, ++curNameID); //simply next player
+		setPlayer(clicked, ++curNameID); //simply next player
 
 		//if that player was somewhere else, we need to replace him with computer
 		if(curNameID < playerNames.size())
@@ -2199,18 +2200,18 @@ void CHotSeatPlayers::enterSelectionScreen()
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame));
 }
 
-CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap )
-: ourCampaign(_ourCampaign), whichMap(_whichMap), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL),
+CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
+: ourCampaign(_ourCampaign), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL),
 	diffLb(NULL), diffRb(NULL)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
 		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
 		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"};
-	
+
 	loadPositionsOfGraphics();
 
-	background = BitmapHandler::loadBitmap(bgNames[ourCampaign->header.mapVersion]);
+	background = BitmapHandler::loadBitmap(bgNames[ourCampaign->camp->header.mapVersion]);
 
 	SDL_Surface * panel = BitmapHandler::loadBitmap("CAMPBRF.BMP");
 
@@ -2220,8 +2221,8 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
 
 	//campaign name
-	if (ourCampaign->header.name.length())
-		printAtLoc(ourCampaign->header.name, 481, 28, FONT_BIG, tytulowy, background);
+	if (ourCampaign->camp->header.name.length())
+		printAtLoc(ourCampaign->camp->header.name, 481, 28, FONT_BIG, tytulowy, background);
 	else 
 		printAtLoc("Unnamed", 481, 28, FONT_BIG, tytulowy, background);
 
@@ -2232,7 +2233,7 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
  
-	cmpgDesc = new CTextBox(ourCampaign->header.description, Rect(480, 86, 286, 117), 1);
+	cmpgDesc = new CTextBox(ourCampaign->camp->header.description, Rect(480, 86, 286, 117), 1);
 	cmpgDesc->showAll(background);
 
 	//map description
@@ -2243,23 +2244,29 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
-	for (int g=0; g<ourCampaign->scenarios.size(); ++g)
+	for (int g=0; g<ourCampaign->camp->scenarios.size(); ++g)
 	{
-		if(ourCampaign->conquerable(g))
+		if(ourCampaign->camp->conquerable(g))
 		{
 			regions.push_back(new CRegion(this, true, true, g));
-			regions[regions.size()-1]->rclickText = ourCampaign->scenarios[g].regionText;
+			regions[regions.size()-1]->rclickText = ourCampaign->camp->scenarios[g].regionText;
 			if (highlightedRegion == NULL)
 			{
 				highlightedRegion = regions.back();
 				selectMap(g);
 			}
 		}
-		else if (ourCampaign->scenarios[g].conquered) //display as striped
+		else if (ourCampaign->camp->scenarios[g].conquered) //display as striped
 		{
 			regions.push_back(new CRegion(this, false, false, g));
-			regions[regions.size()-1]->rclickText = ourCampaign->scenarios[g].regionText;
+			regions[regions.size()-1]->rclickText = ourCampaign->camp->scenarios[g].regionText;
 		}
+	}
+
+	//init campaign state if necessary
+	if (ourCampaign->campaignName.size() == 0)
+	{
+		ourCampaign->initNewCampaign(sInfo);
 	}
 
 	//allies / enemies
@@ -2282,7 +2289,7 @@ CBonusSelection::CBonusSelection( const CCampaign * _ourCampaign, int _whichMap 
 		}
 	}
 	//difficulty selection buttons
-	if (ourCampaign->header.difficultyChoosenByPlayer)
+	if (ourCampaign->camp->header.difficultyChoosenByPlayer)
 	{
 		diffLb = new AdventureMapButton("", "", bind(&CBonusSelection::changeDiff, this, false), 694, 508, "SCNRBLF.DEF");
 		diffRb = new AdventureMapButton("", "", bind(&CBonusSelection::changeDiff, this, true), 738, 508, "SCNRBRT.DEF");
@@ -2352,15 +2359,15 @@ void CBonusSelection::loadPositionsOfGraphics()
 
 void CBonusSelection::selectMap( int whichOne )
 {
-	sInfo.difficulty = ourCampaign->scenarios[whichOne].difficulty;
-	sInfo.mapname = ourCampaign->header.filename;
+	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
+	sInfo.mapname = ourCampaign->camp->header.filename;
 	sInfo.mode = 2;
 
 	//get header
 	int i = 0;
 	delete ourHeader;
 	ourHeader = new CMapHeader();
-	ourHeader->initFromMemory((const unsigned char*)ourCampaign->mapPieces.find(whichOne)->second.c_str(), i);
+	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
 	CMapInfo *mapInfo = const_cast<CMapInfo *>(curMap);
 	mapInfo->mapHeader = ourHeader;
 	mapInfo->countPlayers();
@@ -2369,7 +2376,9 @@ void CBonusSelection::selectMap( int whichOne )
 	CSelectionScreen::updateStartInfo(curMap, sInfo, ourHeader);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
-	sInfo.difficulty = ourCampaign->scenarios[whichOne].difficulty;
+	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
+
+	ourCampaign->currentMap = whichOne;
 
 	mapDesc->setTxt(ourHeader->description);
 
@@ -2444,7 +2453,7 @@ void CBonusSelection::updateBonusSelection()
 	//resource - BORES.DEF
 	//player - ?
 	//hero -?
-	const CCampaignScenario &scenario = ourCampaign->scenarios[sInfo.whichMapInCampaign];
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
 	CDefEssential * twcp = CDefHandler::giveDefEss("TWCRPORT.DEF"); //for yellow border
@@ -2624,7 +2633,7 @@ void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
 	//don't pop - we should get back to this screen
-	GH.popInts(3);
+	//GH.popInts(3);
 	curOpts = NULL;
 	::startGame(si);
 }
@@ -2656,7 +2665,7 @@ CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, b
 		{"R", "B", "N", "G", "O", "V", "T", "P"},
 		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}};
 
-	const SCampPositions & campDsc = owner->campDescriptions[owner->ourCampaign->header.mapVersion];
+	const SCampPositions & campDsc = owner->campDescriptions[owner->ourCampaign->camp->header.mapVersion];
 	const SCampPositions::SRegionDesc & desc = campDsc.regions[myNumber];
 	pos.x = desc.xpos;
 	pos.y = desc.ypos;
@@ -2664,7 +2673,7 @@ CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, b
 	//loading of graphics
 
 	std::string prefix = campDsc.campPrefix + desc.infix + "_";
-	std::string suffix = colors[campDsc.colorSuffixLength - 1][owner->ourCampaign->scenarios[myNumber].regionColor];
+	std::string suffix = colors[campDsc.colorSuffixLength - 1][owner->ourCampaign->camp->scenarios[myNumber].regionColor];
 
 	static const std::string infix [] = {"En", "Se", "Co"};
 	for (int g = 0; g < ARRAY_COUNT(infix); g++)
@@ -2710,7 +2719,7 @@ void CBonusSelection::CRegion::clickRight( tribool down, bool previousState )
 
 void CBonusSelection::CRegion::show( SDL_Surface * to )
 {
-	const SCampPositions::SRegionDesc & desc = owner->campDescriptions[owner->ourCampaign->header.mapVersion].regions[myNumber];
+	const SCampPositions::SRegionDesc & desc = owner->campDescriptions[owner->ourCampaign->camp->header.mapVersion].regions[myNumber];
 	if (!accessible)
 	{
 		//show as striped
