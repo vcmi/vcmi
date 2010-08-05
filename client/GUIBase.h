@@ -309,8 +309,6 @@ public:
 	Rect pos, //position of object on the screen
 		posRelative; //position of object in the parent (not used if no parent)
 
-	int ID; //object ID, rarely used by some classes for identification / internal info
-
 	CIntObject();
 	virtual ~CIntObject(); //d-tor
 

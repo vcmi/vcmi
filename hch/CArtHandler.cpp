@@ -530,11 +530,11 @@ void CArtHandler::addBonuses()
 	ART_LUCK(47,+1); //Cards of Prophecy
 	ART_LUCK(48,+1); //Ladybird of Luck
 	ART_MORALE(49,+1); //Badge of Courage -> +1 morale and immunity to hostile mind spells:
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,50);//sorrow
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,59);//berserk
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,60);//hypnotize
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,61);//forgetfulness
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,62);//blind
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,50);//sorrow
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,59);//berserk
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,60);//hypnotize
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,61);//forgetfulness
+	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,62);//blind
 	ART_MORALE(50,+1); //Crest of Valor
 	ART_MORALE(51,+1); //Glyph of Gallantry
 
@@ -595,7 +595,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(90,Bonus::WATER_WALKING, 0, 1);//Boots of Levitation
 	giveArtBonus(91,Bonus::NO_SHOTING_PENALTY,0);//Golden Bow
-	giveArtBonus(92,Bonus::SPELL_IMMUNITY,35);//Sphere of Permanence
+	giveArtBonus(92,Bonus::SPELL_IMMUNITY,0,35);//Sphere of Permanence
 	giveArtBonus(93,Bonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
 
 	giveArtBonus(94,Bonus::STACK_HEALTH,+1);//Ring of Vitality
@@ -606,14 +606,14 @@ void CArtHandler::addBonuses()
 	giveArtBonus(98,Bonus::LAND_MOVEMENT,+600);//Boots of Speed
 	giveArtBonus(99,Bonus::STACKS_SPEED,+2);//Cape of Velocity
 
-	giveArtBonus(100,Bonus::SPELL_IMMUNITY,59);//Pendant of Dispassion
-	giveArtBonus(101,Bonus::SPELL_IMMUNITY,62);//Pendant of Second Sight
-	giveArtBonus(102,Bonus::SPELL_IMMUNITY,42);//Pendant of Holiness
-	giveArtBonus(103,Bonus::SPELL_IMMUNITY,24);//Pendant of Life
-	giveArtBonus(104,Bonus::SPELL_IMMUNITY,25);//Pendant of Death
-	giveArtBonus(105,Bonus::SPELL_IMMUNITY,60);//Pendant of Free Will
-	giveArtBonus(106,Bonus::SPELL_IMMUNITY,17);//Pendant of Negativity
-	giveArtBonus(107,Bonus::SPELL_IMMUNITY,61);//Pendant of Total Recall
+	giveArtBonus(100,Bonus::SPELL_IMMUNITY,0,59);//Pendant of Dispassion
+	giveArtBonus(101,Bonus::SPELL_IMMUNITY,0,62);//Pendant of Second Sight
+	giveArtBonus(102,Bonus::SPELL_IMMUNITY,0,42);//Pendant of Holiness
+	giveArtBonus(103,Bonus::SPELL_IMMUNITY,0,24);//Pendant of Life
+	giveArtBonus(104,Bonus::SPELL_IMMUNITY,0,25);//Pendant of Death
+	giveArtBonus(105,Bonus::SPELL_IMMUNITY,0,60);//Pendant of Free Will
+	giveArtBonus(106,Bonus::SPELL_IMMUNITY,0,17);//Pendant of Negativity
+	giveArtBonus(107,Bonus::SPELL_IMMUNITY,0,61);//Pendant of Total Recall
 	giveArtBonus(108,Bonus::MORALE,+3);//Pendant of Courage
 	giveArtBonus(108,Bonus::LUCK,+3);//Pendant of Courage
 
@@ -645,7 +645,7 @@ void CArtHandler::addBonuses()
 
 	//Armageddon's Blade
 	giveArtBonus(128, Bonus::SPELL, 3, 26, Bonus::INDEPENDENT_MAX);
-	giveArtBonus(128, Bonus::SPELL_IMMUNITY, 26);
+	giveArtBonus(128, Bonus::SPELL_IMMUNITY,0, 26);
 	ART_ATTACK_AND_DEFENSE(128, +3);
 	ART_PRIM_SKILL(128, 2, +3);
 	ART_PRIM_SKILL(128, 3, +6);

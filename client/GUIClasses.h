@@ -75,6 +75,7 @@ class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 	bool delComps; //whether comps will be deleted
 
 public:
+	int ID; //for identification
 	CTextBox *text;
 	std::vector<AdventureMapButton *> buttons;
 	std::vector<SComponent*> components;
@@ -205,6 +206,7 @@ class CGarrisonInt;
 class CGarrisonSlot : public CIntObject
 {
 public:
+	int ID; //for identification
 	CGarrisonInt *owner;
 	const CStackInstance *myStack; //NULL if slot is empty
 	const CCreature *creature;

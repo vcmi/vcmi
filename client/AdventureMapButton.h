@@ -89,6 +89,7 @@ public:
 	CHighlightableButton(const std::pair<std::string, std::string> help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	CHighlightableButton(const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	bool onlyOn, selected;
+	int ID; //for identification
 	CFunctionList<void()> callback2; //when de-selecting
 	void select(bool on);
 	void clickLeft(tribool down, bool previousState);
