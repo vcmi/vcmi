@@ -523,6 +523,7 @@ void CSelectionScreen::startCampaign()
 {
 	CCampaign * ourCampaign = CCampaignHandler::getCampaign(curMap->filename, curMap->lodCmpgn);
 	CCampaignState * campState = new CCampaignState();
+	campState->camp = ourCampaign;
 	GH.pushInt( new CBonusSelection(campState) );
 }
 
@@ -2633,7 +2634,7 @@ void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
 	//don't pop - we should get back to this screen
-	//GH.popInts(3);
+	GH.popInts(3);
 	curOpts = NULL;
 	::startGame(si);
 }
