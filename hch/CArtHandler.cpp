@@ -636,15 +636,15 @@ void CArtHandler::addBonuses()
 	//Sea Captain's Hat 
 	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0); 
 	giveArtBonus(123,Bonus::SEA_MOVEMENT,+500); 
-	giveArtBonus(123,Bonus::SPELL,3,0); 
-	giveArtBonus(123,Bonus::SPELL,3,1); 
+	giveArtBonus(123,Bonus::SPELL,3,0, Bonus::INDEPENDENT_MAX); 
+	giveArtBonus(123,Bonus::SPELL,3,1, Bonus::INDEPENDENT_MAX); 
 
 	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
 	giveArtBonus(126,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
 
 	//Armageddon's Blade
-	giveArtBonus(128, Bonus::SPELL, 3, 26);
+	giveArtBonus(128, Bonus::SPELL, 3, 26, Bonus::INDEPENDENT_MAX);
 	giveArtBonus(128, Bonus::SPELL_IMMUNITY, 26);
 	ART_ATTACK_AND_DEFENSE(128, +3);
 	ART_PRIM_SKILL(128, 2, +3);

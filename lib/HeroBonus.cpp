@@ -22,6 +22,8 @@ int DLL_EXPORT BonusList::totalValue() const
 	int percentToBase = 0;
 	int percentToAll = 0;
 	int additive = 0;
+	int indepMax = 0;
+	bool hasIndepMax = false;
 
 	for(const_iterator i = begin(); i != end(); i++)
 	{
@@ -39,11 +41,27 @@ int DLL_EXPORT BonusList::totalValue() const
 		case Bonus::ADDITIVE_VALUE:
 			additive += i->val;
 			break;
+		case Bonus::INDEPENDENT_MAX:
+			if (!indepMax)
+			{
+				indepMax = i->val;
+				hasIndepMax = true;
+			}
+			else
+			{
+				amax(indepMax, i->val);
+			}
+
+			break;
 		}
 	}
 	int modifiedBase = base + (base * percentToBase) / 100;
 	modifiedBase += additive;
-	return (modifiedBase * (100 + percentToAll)) / 100;
+	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
+	if (hasIndepMax)
+		return std::max(valFirst, indepMax);
+	else
+		return valFirst;
 }
 
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const

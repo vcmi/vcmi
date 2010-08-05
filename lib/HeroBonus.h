@@ -208,7 +208,8 @@ struct DLL_EXPORT Bonus
 		ADDITIVE_VALUE,
 		BASE_NUMBER,
 		PERCENT_TO_ALL,
-		PERCENT_TO_BASE
+		PERCENT_TO_BASE,
+		INDEPENDENT_MAX //used for SPELL bonus
 	};
 
 	ui8 duration; //uses BonusDuration values
@@ -220,7 +221,7 @@ struct DLL_EXPORT Bonus
 	ui8 source;//source type" uses BonusSource values - what gave that bonus
 	si32 val;
 	ui32 id; //source id: id of object/artifact/spell
-	ui8 valType; 
+	ui8 valType; //by ValueType enum
 
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default

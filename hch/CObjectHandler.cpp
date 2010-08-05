@@ -1285,6 +1285,10 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 
 	amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
+	if (hasBonusOfType(Bonus::SPELL, spell->id))
+	{
+		amax(skill, valOfBonuses(Bonus::SPELL, spell->id));
+	}
 	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
