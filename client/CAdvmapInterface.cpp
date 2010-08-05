@@ -61,34 +61,8 @@ CMinimap::CMinimap(bool draw)
 	pos.h=ADVOPT.minimapW;//144
 	pos.w=ADVOPT.minimapH;//144
 
-	const int tilesw=(ADVOPT.advmapW+31)/32;
-	const int tilesh=(ADVOPT.advmapH+31)/32;
-
-	int rx = (((float)tilesw)/(mapSizes.x))*((float)pos.w),
-		ry = (((float)tilesh)/(mapSizes.y))*((float)pos.h);
-
-	radar = newSurface(rx,ry);
 	temps = newSurface(pos.w,pos.h);
-	SDL_FillRect(radar,NULL,0x00FFFF);
-	for (int i=0; i<radar->w; i++)
-	{
-		if (i%4 || (i==0))
-		{
-			SDL_PutPixelWithoutRefresh(radar,i,0,255,75,125);
-			SDL_PutPixelWithoutRefresh(radar,i,radar->h-1,255,75,125);
-		}
-	}
-	for (int i=0; i<radar->h; i++)
-	{
-		if ((i%4) || (i==0))
-		{
-			SDL_PutPixelWithoutRefresh(radar,0,i,255,75,125);
-			SDL_PutPixelWithoutRefresh(radar,radar->w-1,i,255,75,125);
-		}
-	}
-	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
 
-	//radar = CDefHandler::giveDef("RADAR.DEF");
 	std::ifstream is(DATA_DIR "/config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
@@ -120,7 +94,6 @@ CMinimap::CMinimap(bool draw)
 }
 CMinimap::~CMinimap()
 {
-	SDL_FreeSurface(radar);
 	SDL_FreeSurface(temps);
 }
 void CMinimap::draw(SDL_Surface * to)
@@ -156,9 +129,16 @@ void CMinimap::draw(SDL_Surface * to)
 	blitAt(FoW[adventureInt->position.z],0,0,temps);
 
 	//draw radar
+	const int tilesw=(ADVOPT.advmapW+31)/32;
+	const int tilesh=(ADVOPT.advmapH+31)/32;
 	int bx = (((float)adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
-		by = (((float)adventureInt->position.y)/(((float)mapSizes.y)))*pos.h;
-	blitAt(radar,bx,by,temps);
+		by = (((float)adventureInt->position.y)/(((float)mapSizes.y)))*pos.h,
+		rx = (((float)tilesw)/(mapSizes.x))*((float)pos.w), //width
+		ry = (((float)tilesh)/(mapSizes.y))*((float)pos.h); //height
+
+	CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
+
+	//blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y,to);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels

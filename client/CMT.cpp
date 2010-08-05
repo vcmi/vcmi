@@ -473,9 +473,9 @@ void dispose()
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 {	
-	// VCMI will only work with 3 or 4 bytes per pixel
-	if (bpp < 24) bpp = 24;
-	if (bpp > 32) bpp = 32;
+	// VCMI will only work with 2, 3 or 4 bytes per pixel
+	amax(bpp, 16);
+	amin(bpp, 32);
 
 	// Try to use the best screen depth for the display
 	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));

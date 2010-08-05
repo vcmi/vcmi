@@ -500,6 +500,10 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_GetClipRect(extSurf, &prevClip);
 	SDL_SetClipRect(extSurf, extRect); //preventing blitting outside of that rect
 
+	const BlitterWithRotationVal blitterWithRotation = CSDL_Ext::getBlitterWithRotation(extSurf);
+	const BlitterWithRotationVal blitterWithRotationAndAlpja = CSDL_Ext::getBlitterWithRotationAndAlpha(extSurf);
+	//const BlitterWithRotationAndAlphaVal blitterWithRotation = CSDL_Ext::getBlitterWithRotation(extSurf);
+
 	// printing terrain
 	srx = srx_init;
 
@@ -531,11 +535,11 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 			if(tile.terbitmap) //if custom terrain graphic - use it
 				SDL_BlitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), extSurf, &sr);
 			else //use default terrain graphic
-				CSDL_Ext::blitWithRotateClipVal(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
+				blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
 			if(tinfo.nuine) //print river if present
-				CSDL_Ext::blitWithRotateClipValWithAlpha(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
+				blitterWithRotationAndAlpja(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
 			if(tinfo.malle) //print road if present
-				CSDL_Ext::blitWithRotateClipValWithAlpha(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>4)%4);
+				blitterWithRotationAndAlpja(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>4)%4);
 
 			//blit objects
 			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;

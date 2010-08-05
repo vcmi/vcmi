@@ -43,7 +43,6 @@ public:
 class CMinimap : public CIntObject
 {
 public:
-	SDL_Surface * radar;
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
