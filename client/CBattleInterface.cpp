@@ -2867,6 +2867,11 @@ void CBattleInterface::castThisSpell(int spellID)
 		spellSelMode = 5;
 	}
 
+	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ].size() > 1) //spell has many-hex range
+	{
+		spellSelMode = 0;
+	}
+
 	if(spellSelMode == -1) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;

@@ -3928,6 +3928,21 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		gs->getPlayer(player)->enteredLosingCheatCode = 1;
 		checkLossVictory(player);
 	}
+	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
+	{
+		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		if(!hero) return;
+		SetHeroArtifacts sha;
+		sha.hid = hero->id;
+		sha.artifacts = hero->artifacts;
+		sha.artifWorn = hero->artifWorn;
+		sha.artifacts.push_back(2); //grail
+		for (int g=7; g<=140; ++g)
+		{
+			sha.artifacts.push_back(g);
+		}
+		sendAndApply(&sha);
+	}
 	else
 		cheated = false;
 	if(cheated)

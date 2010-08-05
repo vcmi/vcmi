@@ -3059,6 +3059,15 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			}
 		}
 	}
+	else if (s->range[skillLevel].size() > 1) //custom many-hex range
+	{
+		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+		{
+			CStack * st = getStackT(*it, onlyAlive);
+			if(st)
+				attackedCres.insert(st);
+		}
+	}
 	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_1") != std::string::npos
 		|| VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
