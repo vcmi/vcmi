@@ -1014,11 +1014,10 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 								g8 = (g5 << (8 - gbit)) | (g5 >> (2*gbit - 8)),
 								b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
 
-
-							ColorPutter<2, 0>::PutColor((Uint8*)p, 
-								((r8-tbc.r)*tbc.unused) >> 8 + tbc.r,
-								((g8-tbc.g)*tbc.unused) >> 8 + tbc.g,
-								((b8-tbc.b)*tbc.unused) >> 8 + tbc.b);
+							ColorPutter<2, 0>::PutColor(p, 
+								(((r8-tbc.r)*tbc.unused) >> 8) + tbc.r,
+								(((g8-tbc.g)*tbc.unused) >> 8) + tbc.g,
+								(((b8-tbc.b)*tbc.unused) >> 8) + tbc.b);
 							break;
 						}
 					}
