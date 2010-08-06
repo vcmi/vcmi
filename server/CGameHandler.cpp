@@ -3361,7 +3361,7 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	const CStackInstance &s = army->getStack(slot);
 	int resCreature;//resulting creature - bone dragons or skeletons
 	
-	if	(s.hasBonusOfType(Bonus::KING1))
+	if	(s.hasBonusOfType(Bonus::DRAGON_NATURE))
 		resCreature = 68;
 	else
 		resCreature = 56;

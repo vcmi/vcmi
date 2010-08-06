@@ -437,13 +437,18 @@ void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 {
 	for (std::map<ui8, TeamState>::iterator i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
 	{
-		if ( !vstd::contains(i->second.players, ourplayer )/* && i->second.status == PlayerState::INGAME*/)
+		if ( !vstd::contains(i->second.players, ourplayer ))//another team
 		{
-			FoWChange fw;
-			fw.mode = 0;
-			fw.player = i->first;
-			cb->getTilesInRange (fw.tiles, pos, radius, i->first, -1);
-			cb->sendAndApply (&fw);
+			for (std::set<ui8>::iterator j = i->second.players.begin(); j != i->second.players.end(); j++)
+				if ( cb->getPlayerState(*j)->status == PlayerState::INGAME )//seek for living player (if any)
+				{
+					FoWChange fw;
+					fw.mode = 0;
+					fw.player = i->first;
+					cb->getTilesInRange (fw.tiles, pos, radius, (*j), -1);
+					cb->sendAndApply (&fw);
+					break;
+				}
 		}
 	}
 }
@@ -1659,7 +1664,12 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	if(h->tempOwner != tempOwner  &&  stacksCount() > 0) //object is guarded
+	int relations = cb->getPlayerRelations( h->tempOwner, tempOwner );
+	
+	if ( relations == 1 )//ally
+		return;//do not allow recruiting or capturing
+		
+	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
 	{
 		BlockingDialog bd;
 		bd.player = h->tempOwner;
@@ -1672,7 +1682,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	if(h->tempOwner != tempOwner  &&  ID != 106)
+	if(!relations  &&  ID != 106)
 	{
 		cb->setOwner(id, h->tempOwner);
 	}
@@ -2037,9 +2047,8 @@ bool CGTownInstance::needsLastStack() const
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(getOwner() != h->getOwner())
+	if( !cb->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
 	{
-		//TODO ally check
 		if(stacksCount() > 0 || visitingHero)
 		{
 			const CGHeroInstance *defendingHero = NULL;
@@ -2188,7 +2197,17 @@ int3 CGTownInstance::getSightCenter() const
 
 ui8 CGTownInstance::getPassableness() const
 {
-	return stacksCount() ? 1<<tempOwner : ALL_PLAYERS; //if there is garrison army, castle be entered only by owner //TODO: allies
+	if ( !stacksCount() )//empty castle - anyone can visit
+		return ALL_PLAYERS;
+	if ( tempOwner == 255 )//neutral guarded - noone can visit
+		return 0;
+		
+	ui8 mask;
+	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
+	BOOST_FOREACH(ui8 it, ts->players)
+		mask |= 1<<it;//allies - add to possible visitors
+	
+	return mask;
 }
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
@@ -3099,22 +3118,24 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(h->tempOwner == tempOwner) //we're visiting our mine
+	int relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
+	
+	if(relations == 2) //we're visiting our mine
 	{
 		cb->showGarrisonDialog(id,h->id,true,0);
 		return; 
 	}
+	else if (relations == 1)//ally
+		return;
 
-	if(subID >= 7) //Abandoned mine
+	if(stacksCount()) //Mine is guarded
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 84); 
+		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187); 
 		cb->showBlockingDialog(&ynd,boost::bind(&CGMine::fight, this, _1, h));
 		return;
 	}
-
-	//TODO: check if mine is guarded
 
 	flagMine(h->tempOwner);
 
@@ -5239,14 +5260,15 @@ void CGScholar::initObj()
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	if (h->tempOwner != tempOwner && stacksCount() > 0) {
+	int ally = cb->getPlayerRelations(h->tempOwner, tempOwner);
+	if (!ally && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattleI(h, this, boost::bind(&CGGarrison::fightOver, this, h, _1));
 		return;
 	}
 
 	//New owner.
-	if (h->tempOwner != tempOwner)
+	if (!ally)
 		cb->setOwner(id, h->tempOwner);
 
 	cb->showGarrisonDialog(id, h->id, removableUnits, 0);
@@ -5260,7 +5282,17 @@ void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const
 
 ui8 CGGarrison::getPassableness() const
 {
-	return 1<<tempOwner;
+	if ( !stacksCount() )//empty - anyone can visit
+		return ALL_PLAYERS;
+	if ( tempOwner == 255 )//neutral guarded - noone can visit
+		return 0;
+		
+	ui8 mask;
+	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
+	BOOST_FOREACH(ui8 it, ts->players)
+		mask |= 1<<it;//allies - add to possible visitors
+	
+	return mask;
 }
 
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
@@ -6247,7 +6279,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(tempOwner != h->tempOwner)
+	if(!cb->getPlayerRelations(tempOwner, h->tempOwner))
 		cb->setOwner(id, h->tempOwner);
 
 	int s = state();
@@ -6341,20 +6373,23 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
+	TeamState *ts = cb->gameState()->getPlayerTeam(h->tempOwner);
+	assert(ts);
+	int team = ts->id;
 	
-	if(!hasVisited(h->tempOwner))
+	if(!hasVisited(team))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
 
-		cb->setObjProperty(id,20,h->tempOwner); //increment general visited obelisks counter
+		cb->setObjProperty(id,20,team); //increment general visited obelisks counter
 
 		OpenWindow ow;
 		ow.id1 = h->tempOwner;
 		ow.window = OpenWindow::PUZZLE_MAP;
 		cb->sendAndApply(&ow);
 
-		cb->setObjProperty(id,10,h->tempOwner); //mark that particular obelisk as visited
+		cb->setObjProperty(id,10,team); //mark that particular obelisk as visited
 	}
 	else
 	{

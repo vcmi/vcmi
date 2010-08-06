@@ -1395,7 +1395,8 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		ins.second.color=ins.first;
 		ins.second.human = it->second.human;
 		ins.second.team = map->players[ins.first].team;
-		teams[ins.second.team].players.insert(ins.first);
+		teams[ins.second.team].id = ins.second.team;//init team
+		teams[ins.second.team].players.insert(ins.first);//add player to team
 		players.insert(ins);
 	}
 

@@ -1112,7 +1112,7 @@ class DLL_EXPORT CGObelisk : public CPlayersVisited
 {
 public:
 	static ui8 obeliskCount; //how many obelisks are on map
-	static std::map<ui8, ui8> visited; //map: color_id => how many obelisks has been visited
+	static std::map<ui8, ui8> visited; //map: team_id => how many obelisks has been visited
 
 	void setPropertyDer (ui8 what, ui32 val);
 	void onHeroVisit(const CGHeroInstance * h) const;

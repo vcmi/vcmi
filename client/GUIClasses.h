@@ -1103,9 +1103,7 @@ public:
 	const CGHeroInstance *hero;
 	const IMarket * market;
 	
-	SDL_Surface * red, 
-	            * green,//colored bars near skills
-	            * yellow;
+	CPicture * green, * yellow, * red;//colored bars near skills
 	CPicture *bg; //background
 	std::vector<CItem*> items;
 

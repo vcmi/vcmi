@@ -923,7 +923,7 @@ int3 CCallback::getGrailPos( float &outKnownRatio )
 	}
 	else
 	{
-		outKnownRatio = (float)CGObelisk::visited[player] / CGObelisk::obeliskCount;
+		outKnownRatio = (float)CGObelisk::visited[gs->getPlayerTeam(player)->id] / CGObelisk::obeliskCount;
 	}
 	return gs->map->grailPos;
 }

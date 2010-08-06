@@ -5978,7 +5978,7 @@ int CUniversityWindow::CItem::state()
 
 void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 {
-	SDL_Surface * bar;
+	CPicture * bar;
 	switch (state())
 	{
 		case 0: bar = parent->red;
@@ -5989,8 +5989,8 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 		        break;
 	}
 	
-	blitAtLoc(bar, -28, -22, to);
-	blitAtLoc(bar, -28,  48, to);
+	blitAtLoc(bar->bg, -28, -22, to);
+	blitAtLoc(bar->bg, -28,  48, to);
 	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, zwykly,to);//Name
 	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, zwykly,to);//Level(always basic)
 	
@@ -6009,9 +6009,13 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	bg = new CPicture("UNIVERS1.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	
-	yellow = BitmapHandler::loadBitmap("UNIVGOLD.PCX");
-	green  = BitmapHandler::loadBitmap("UNIVGREN.PCX");//bars
-	red    = BitmapHandler::loadBitmap("UNIVRED.PCX");
+	green  = new CPicture("UNIVGREN.PCX");
+	yellow = new CPicture("UNIVGOLD.PCX");//bars
+	red    = new CPicture("UNIVRED.PCX");
+
+	green->recActions  =
+	yellow->recActions =
+	red->recActions    = DISPOSE;
 
 	if ( market->o->ID == 104 ) // this is adventure map university
 	{
@@ -6045,9 +6049,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 CUniversityWindow::~CUniversityWindow()
 {
-	delete red;
-	delete yellow;
-	delete green;
+	
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):parent(PARENT)

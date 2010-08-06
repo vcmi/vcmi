@@ -151,6 +151,7 @@ public:
 struct DLL_EXPORT TeamState : public CBonusSystemNode
 {
 public:
+	ui8 id; //position in gameState::teams
 	std::set<ui8> players; // members of this team
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 	
