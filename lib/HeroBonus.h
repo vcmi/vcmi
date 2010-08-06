@@ -479,6 +479,25 @@ public:
 		h & creature & includeUpgrades;
 	}
 };
+
+class HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
+{
+public:
+	TBonusType type;
+	TBonusSubtype subtype;
+	ui8 isSubtypeRelevant; //check for subtype only if this is true
+
+	HasAnotherBonusLimiter(TBonusType bonus);
+	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
+
+	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & subtype & isSubtypeRelevant;
+	}
+};
+
 namespace Selector
 {
 	extern DLL_EXPORT CSelectFieldEqual<TBonusType> type;

@@ -499,3 +499,25 @@ CCreatureTypeLimiter::CCreatureTypeLimiter()
 	creature = NULL;
 	includeUpgrades = false;
 }
+
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus )
+	: type(bonus), subtype(0), isSubtypeRelevant(false)
+{
+}
+
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus, TBonusSubtype _subtype )
+	: type(bonus), subtype(_subtype), isSubtypeRelevant(true)
+{
+}
+
+bool HasAnotherBonusLimiter::limit( const Bonus &b, const CBonusSystemNode &node ) const
+{
+	if(isSubtypeRelevant)
+	{
+		return !node.hasBonusOfType(static_cast<Bonus::BonusType>(type), subtype);
+	}
+	else
+	{
+		return !node.hasBonusOfType(static_cast<Bonus::BonusType>(type));
+	}
+}

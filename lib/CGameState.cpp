@@ -3255,10 +3255,10 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 	ret = usedSpellPower * dmgMultipliers[sp->id];
 	ret += sp->powers[spellSchoolLevel];
 	
-	//applying sorcerery secondary skill
+	//applying sorcery secondary skill
 	if(caster)
 	{
-		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 25)) / 100.0f; //mysticism
+		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 25)) / 100.0f; //sorcery
 		ret *= (100.f + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0f;
 
 		if(sp->air)

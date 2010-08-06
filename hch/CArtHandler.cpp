@@ -448,10 +448,11 @@ void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArti
 		out.push_back(art);
 	}
 }
-void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType )
+void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter )
 {
 	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
 	added.valType = valType;
+	added.limiter = limiter;
 	if(type == Bonus::MORALE || Bonus::LUCK)
 		added.description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
 	artifacts[aid]->bonuses.push_back(added);
@@ -642,6 +643,10 @@ void CArtHandler::addBonuses()
 	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
 	giveArtBonus(126,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
+
+	//vial of dragon blood
+	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::ATTACK, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
+	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::DEFENSE, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
 
 	//Armageddon's Blade
 	giveArtBonus(128, Bonus::SPELL, 3, 26, Bonus::INDEPENDENT_MAX);

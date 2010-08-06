@@ -4,7 +4,7 @@ clientSettings
 {
 	port=3030;
 	resolution=800x600; // format: WxH
-	bpp=24; // bytes per pixels: 24 or 32
+	bpp=24; // bits per pixels: 16, 24 or 32
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost
 	localInformation=2; //0 - *all* information sent from server (safest and slowest); 1 - map information sent from server; 2 - all information local-storaged
