@@ -2202,7 +2202,7 @@ ui8 CGTownInstance::getPassableness() const
 	if ( tempOwner == 255 )//neutral guarded - noone can visit
 		return 0;
 		
-	ui8 mask;
+	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
 	BOOST_FOREACH(ui8 it, ts->players)
 		mask |= 1<<it;//allies - add to possible visitors
@@ -5287,7 +5287,7 @@ ui8 CGGarrison::getPassableness() const
 	if ( tempOwner == 255 )//neutral guarded - noone can visit
 		return 0;
 		
-	ui8 mask;
+	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
 	BOOST_FOREACH(ui8 it, ts->players)
 		mask |= 1<<it;//allies - add to possible visitors

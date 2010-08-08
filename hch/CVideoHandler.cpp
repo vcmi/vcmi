@@ -188,6 +188,9 @@ void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
 
 	switch(Bpp)
 	{
+	case 2:
+		mode = 3; //565, mode 2 is 555 probably
+		break;
 	case 3:
 		mode = 0;
 		break;
@@ -351,18 +354,38 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 	// draw the frame
 	Uint16* addr = (Uint16*) (buffer+w*(h-1)*2-2);
-	for( int j=0; j<h-1; j++)	// why -1 ?
+	if(dst->format->BytesPerPixel >= 3)
 	{
-		for ( int i=w-1; i>=0; i--)
+		for( int j=0; j<h-1; j++)	// why -1 ?
 		{
-			Uint16 pixel = *addr;
+			for ( int i=w-1; i>=0; i--)
+			{
+				Uint16 pixel = *addr;
 
-			Uint8 *p = (Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel;
-			p[2] = ((pixel & 0x7c00) >> 10) * 8;
-			p[1] = ((pixel & 0x3e0) >> 5) * 8;
-			p[0] = ((pixel & 0x1F)) * 8;
+				Uint8 *p = (Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel;
+				p[2] = ((pixel & 0x7c00) >> 10) * 8;
+				p[1] = ((pixel & 0x3e0) >> 5) * 8;
+				p[0] = ((pixel & 0x1F)) * 8;
 
-			addr--;
+				addr--;
+			}
+		}
+	}
+	else if(dst->format->BytesPerPixel == 2)
+	{
+		for( int j=0; j<h-1; j++)	// why -1 ?
+		{
+			for ( int i=w-1; i>=0; i--)
+			{
+				//convert rgb 555 to 565
+				Uint16 pixel = *addr;
+				Uint16 *p = (Uint16 *)((Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel);
+				*p =	(pixel & 0x1F) 
+					  +	((pixel & 0x3e0) << 1)
+					  +	((pixel & 0x7c00) << 1);
+
+				addr--;
+			}
 		}
 	}
 
