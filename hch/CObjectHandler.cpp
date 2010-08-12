@@ -48,7 +48,7 @@ std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
 BankConfig CGPyramid::pyramidConfig;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
-std::map<ui8, ui8> CGObelisk::visited; //map: color_id => how many obelisks has been visited
+std::map<ui8, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -931,7 +931,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if( cb->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
 		{
 			//exchange
-			cb->heroExchange(id, h->id);
+			cb->heroExchange(h->id, id);
 		}
 		else //battle
 		{

@@ -188,7 +188,7 @@ public:
 	bool buildStructure(si32 tid, si32 bid);
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
-	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val );
+	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player);
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();

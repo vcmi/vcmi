@@ -378,7 +378,7 @@ void CKingdomInterface::recreateHeroList(int pos)
 		heroes[i]->setHero(Heroes[j]);
 		i++;
 	}
-	for (i;i<size;i++)//if we still have empty pieces
+	for (;i<size;i++)//if we still have empty pieces
 		heroes[i]->setHero(NULL);//empty pic
 }
 
@@ -517,7 +517,7 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 		return;
 		garr = NULL;
 	}
-	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),parent->slots->ourImages[parent->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, 4,Point(-126,37));
+	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),parent->slots->ourImages[parent->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, true);
 	garr->update = true;
 
 	garrHero->hero = town->garrisonHero;
@@ -782,7 +782,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	artLeft->block(hero->artifacts.size() <= 8);
 	artRight->block(hero->artifacts.size() <= 8);
 	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), parent->slots->ourImages[parent->PicCount].bitmap,
-		Point(6,78), hero, NULL, true, true);
+		Point(6,78), hero, NULL, true, false, true);
 
 	for (int i=0; i<artifacts.size(); i++)
 	{

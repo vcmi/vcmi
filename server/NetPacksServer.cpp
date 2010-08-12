@@ -69,7 +69,7 @@ bool CastleTeleportHero::applyGh( CGameHandler *gh )
 bool ArrangeStacks::applyGh( CGameHandler *gh )
 {
 	//checks for owning in the gh func
-	return gh->arrangeStacks(id1,id2,what,p1,p2,val);
+	return gh->arrangeStacks(id1,id2,what,p1,p2,val,gh->getPlayerAt(c));
 }
 
 bool DisbandCreature::applyGh( CGameHandler *gh )
@@ -97,14 +97,15 @@ bool UpgradeCreature::applyGh( CGameHandler *gh )
 
 bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT_OWNS(tid);
+	const CGTownInstance * town = gh->getTown(tid);
+	if (!PLAYER_OWNS(tid) && !( town->garrisonHero && PLAYER_OWNS(town->garrisonHero->id) ) )
+		ERROR_AND_RETURN;//neither town nor garrisoned hero (if present) is ours 
 	return gh->garrisonSwap(tid);
 }
 
 bool ExchangeArtifacts::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT_OWNS(hid1);
-	ERROR_IF_NOT_OWNS(hid2);
+	ERROR_IF_NOT_OWNS(hid1);//second hero can be ally
 	return gh->swapArtifacts(hid1,hid2,slot1,slot2);
 }
 

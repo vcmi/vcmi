@@ -155,6 +155,11 @@ const CArmedInstance * CGarrisonSlot::getObj()
 	return 	(!upg)?(owner->oup):(owner->odown);
 }
 
+bool CGarrisonSlot::our()
+{
+	return 	upg?(owner->ourDown):(owner->ourUp);
+}
+
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
@@ -176,22 +181,15 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			{
 				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(), ID);
 
-				CCreInfoWindow *creWindow = NULL;
-				if(pom.oldID>=0) //upgrade is possible
-				{
+				bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
+				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
+				boost::function<void()> upgr = NULL;
+				boost::function<void()> dism = NULL;
+				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]);
+				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
 
-					creWindow = new CCreInfoWindow(
-						*myStack, 1, 
-						boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]), //bind upgrade function
-						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), &pom);
-				}
-				else
-				{
-					creWindow = new CCreInfoWindow(
-						*myStack, 1, 0, 
-						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), NULL);
-				}
-
+				CCreInfoWindow *creWindow = new CCreInfoWindow( *myStack, 1, upgr, dism, &pom);
+				
 				GH.pushInt(creWindow);
 
 				owner->highlighted = NULL;
@@ -205,10 +203,12 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			}
 			else 
 			{
-				// Only allow certain moves if troops aren't removable.
-				if (owner->removableUnits
-					|| (upg == 0 && (owner->highlighted->upg == 1 && !creature))
-					|| (upg == 1 && owner->highlighted->upg == 1))
+				// Only allow certain moves if troops aren't removable or not ours.
+				if (  ( owner->highlighted->our()//our creature is selected
+				     || owner->highlighted->creature == creature )//or we are rebalancing army
+				   && ( owner->removableUnits
+				     || (upg == 0 &&  ( owner->highlighted->upg == 1 && !creature ) )
+					 || (upg == 1 &&    owner->highlighted->upg == 1 ) ) )
 				{
 					//we want to split
 					if((owner->splitting || LOCPLINT->shiftPressed())
@@ -350,7 +350,7 @@ void CGarrisonSlot::show(SDL_Surface * to)
 		pos1.y = owner->surOffset.y+ pos.y-owner->pos.y;
 
 		SDL_BlitSurface(owner->sur,&pos1,to,&pos2);
-		if(owner->splitting)
+		if(owner->splitting && owner->highlighted->our())
 			blitAt(imgs[-1],pos,to);
 	}
 }
@@ -472,11 +472,11 @@ void CGarrisonInt::createSlots()
 			if((*sup)[i] == NULL)
 				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL);
 
-		if (shiftPos)
-			for (int i=shiftPos; i<sup->size(); i++)
+		if (twoRows)
+			for (int i=4; i<sup->size(); i++)
 			{
-				(*sup)[i]->pos.x += shiftPoint.x;
-				(*sup)[i]->pos.y += shiftPoint.y;
+				(*sup)[i]->pos.x -= 126;
+				(*sup)[i]->pos.y += 37;
 			};
 	}
 	if(set2)
@@ -490,11 +490,12 @@ void CGarrisonInt::createSlots()
 		for(int i=0; i<sdown->size(); i++)
 			if((*sdown)[i] == NULL)
 				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL);
-		if (shiftPos)
-			for (int i=shiftPos; i<sup->size(); i++)
+		
+		if (twoRows)
+			for (int i=4; i<sup->size(); i++)
 			{
-				(*sdown)[i]->pos.x += shiftPoint.x;
-				(*sdown)[i]->pos.y += shiftPoint.y;
+				(*sup)[i]->pos.x -= 126;
+				(*sup)[i]->pos.y += 37;
 			};
 	}
 }
@@ -564,10 +565,12 @@ void CGarrisonInt::splitStacks(int am2)
 
 }
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
-						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs, int _shiftPos, const Point &_shiftPoint)
+						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs, bool _twoRows )
 	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(SurOffset),sup(NULL),
-	 sdown(NULL),oup(s1),odown(s2), removableUnits(_removableUnits), smallIcons(smallImgs), shiftPos(_shiftPos), shiftPoint(_shiftPoint)
+	 sdown(NULL),oup(s1),odown(s2), smallIcons(smallImgs), twoRows(_twoRows)
 {
+	ourUp =  s1?s1->tempOwner == LOCPLINT->playerID:false;
+	ourDown = s2?s2->tempOwner == LOCPLINT->playerID:false;
 	active = false;
 	splitting = false;
 	set1 = LOCPLINT->cb->getGarrison(s1);
@@ -4621,7 +4624,8 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 		if(!ourOwner->commonInfo->srcAOH) //nothing has been clicked
 		{
-			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
+			if(ourArt  //to prevent selecting empty slots (bugfix to what GrayFace reported)
+				&&  ourOwner->curHero->tempOwner == LOCPLINT->playerID)//can't take art from another player
 			{
 				if(ourArt->id == 3) //catapult cannot be highlighted
 				{
@@ -4672,7 +4676,8 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				}
 			}
 			//check if swap is possible
-			else if (this->fitsHere(ourOwner->commonInfo->srcArtifact))
+			else if (this->fitsHere(ourOwner->commonInfo->srcArtifact) &&
+				(!ourArt || ourOwner->curHero->tempOwner == LOCPLINT->playerID))
 			{
 				ourOwner->commonInfo->destAOH = ourOwner;
 				ourOwner->commonInfo->destSlotID = slotID;
@@ -4929,7 +4934,8 @@ void CHeroArea::hover(bool on)
 
 void CHeroArea::showAll(SDL_Surface * to)
 {
-	blitAtLoc(graphics->portraitLarge[hero->portrait],0,0,to);
+	if (hero)
+		blitAtLoc(graphics->portraitLarge[hero->portrait],0,0,to);
 }
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)

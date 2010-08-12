@@ -431,7 +431,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 
 bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)
 {
-	if(player!=hero1->tempOwner || player!=hero2->tempOwner)
+	if(player!=hero1->tempOwner && player!=hero2->tempOwner)
 		return false;
 
 	ExchangeArtifacts ea(hero1->id, hero2->id, pos1, pos2);

@@ -480,7 +480,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
-	if(hero->tempOwner != town->tempOwner)
+	if(hero->tempOwner != playerID )
 		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	openTownWindow(town);
@@ -1180,7 +1180,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	GH.pushInt(new CExchangeWindow(hero2, hero1));
+	GH.pushInt(new CExchangeWindow(hero1, hero2));
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)

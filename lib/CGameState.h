@@ -453,7 +453,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & hpool & globalEffects & campaign;
+		h & scenarioOps & seed & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
 		h & villages & forts & capitols;
 		if(!h.saving)
 		{

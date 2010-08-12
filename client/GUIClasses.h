@@ -212,6 +212,7 @@ public:
 
 	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj();
+	bool our();
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
 	void activate();
@@ -226,8 +227,7 @@ class CGarrisonInt :public CIntObject
 public:
 	int interx; //space between slots
 	Point garOffset, //offset between garrisons (not used if only one hero)
-		surOffset, //offset between garrison position on the bg surface and position on the screen
-		shiftPoint;//how last slots will be shifted (for second row, set shiftPoint for effect)
+		surOffset; //offset between garrison position on the bg surface and position on the screen
 	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
@@ -235,8 +235,10 @@ public:
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
 	bool ignoreEvent, update, active, splitting, pb, 
-		smallIcons; //true - 32x32 imgs, false - 58x64
-	bool removableUnits;
+	     smallIcons, //true - 32x32 imgs, false - 58x64
+	     removableUnits,//player can remove units from up
+	     twoRows,//slots will be placed in 2 rows
+		 ourUp,ourDown;//player owns up or down army
 
 	const CCreatureSet *set1; //top set of creatures
 	const CCreatureSet *set2; //bottom set of creatures
@@ -255,8 +257,8 @@ public:
 
 	void splitClick(); //handles click on split button
 	void splitStacks(int am2); //TODO: comment me
-
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, int _shiftPos = 0, const Point &_shiftPoint =Point()); //c-tor
+	//x, y - position; inx - distance between slots; pomsur - background surface, SurOffset - ?; s1, s2 - top and bottom armies; removableUnits - you can take units from top; smallImgs - units images size 64x58 or 32x32; twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 

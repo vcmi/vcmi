@@ -1890,7 +1890,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 				if( getPlayerRelations(dh->tempOwner, h->tempOwner)) 
 				{
-					heroExchange(dh->id, h->id);
+					heroExchange(h->id, dh->id);
 					return true;
 				}
 				startBattleI(h, dh);
@@ -2355,7 +2355,7 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 	ui8 player1 = getHero(hero1)->tempOwner;
 	ui8 player2 = getHero(hero2)->tempOwner;
 
-	if(player1 == player2)//TODO: allies
+	if( getPlayerRelations( player1, player2))
 	{
 		OpenWindow hex;
 		hex.window = OpenWindow::EXCHANGE_WINDOW;
@@ -2464,7 +2464,7 @@ void CGameHandler::close()
 	//exit(0);
 }
 
-bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val )
+bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player )
 {
 	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1]),
 		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2]);
@@ -2479,6 +2479,13 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 	if(what==1) //swap
 	{
+		if ( (s1->tempOwner != player && S1.slots[p1].count)
+		  || (s2->tempOwner != player && S2.slots[p2].count))
+		{
+			complain("Can't take troops from another player!");
+			return false;
+		}
+		
 		std::swap(S1.slots[p1],S2.slots[p2]); //swap slots
 
 		//if one of them is empty, remove entry
@@ -2489,11 +2496,9 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	}
 	else if(what==2)//merge
 	{
-		if(S1.slots[p1].type != S2.slots[p2].type) //not same creature
-		{
-			complain("Cannot merge different creatures stacks!");
+		if (( S1.slots[p1].type != S2.slots[p2].type && complain("Cannot merge different creatures stacks!"))
+			|| (s1->tempOwner != player && S2.slots[p2].count) && complain("Can't take troops from another player!"))
 			return false; 
-		}
 
 		S2.slots[p2].count += S1.slots[p1].count;
 		S1.slots.erase(p1);
@@ -2531,6 +2536,13 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 			S2.slots[p2].type = S1.slots[p1].type;
 			S2.slots[p2].count = val;
 			S1.slots[p1].count -= val;
+		}
+
+		if ( (s1->tempOwner != player && S1.slots[p1].count < s1->getArmy().getAmount(p1) )
+		  || (s2->tempOwner != player && S2.slots[p2].count < s2->getArmy().getAmount(p2) ) )
+		{
+			complain("Can't move troops of another player!");
+			return false;
 		}
 
 		if(!S1.slots[p1].count) //if we've moved all creatures
@@ -2960,7 +2972,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	CGHeroInstance *destHero = gs->getHero(destHeroID);
 
 	// Make sure exchange is even possible between the two heroes.
-	if ((distance(srcHero->pos,destHero->pos) > 1.5 )|| (srcHero->tempOwner != destHero->tempOwner))
+	if (distance(srcHero->pos,destHero->pos) > 1.5 )
 		return false;
 
 	const CArtifact *srcArtifact = srcHero->getArt(srcSlot);
@@ -2969,6 +2981,12 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	if (srcArtifact == NULL)
 	{
 		complain("No artifact to swap!");
+		return false;
+	}
+	
+	if (destArtifact && srcHero->tempOwner != destHero->tempOwner)
+	{
+		complain("Can't take artifact from hero of another player!");
 		return false;
 	}
 
@@ -3032,19 +3050,19 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 
 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
 	}
-	sendAndApply(&sha);
 	if (srcHeroID != destHeroID) 
 	{
 		// Exchange between two different heroes.
-		sha.hid = destHeroID;
-		sha.artifacts = destHero->artifacts;
-		sha.artifWorn = destHero->artifWorn;
-		sha.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
+		SetHeroArtifacts sha2;
+		sha2.hid = destHeroID;
+		sha2.artifacts = destHero->artifacts;
+		sha2.artifWorn = destHero->artifWorn;
+		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
 		if (!destFits)
-			sha.setArtAtPos(sha.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
-		sendAndApply(&sha);
+			sha2.setArtAtPos(sha2.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
+		sendAndApply(&sha2);
 	}
-
+	sendAndApply(&sha);
 	return true;
 }
 
@@ -4523,19 +4541,19 @@ void CGameHandler::checkLossVictory( ui8 player )
 	peg.victory = vic;
 	sendAndApply(&peg);
 
-	if(vic > 0) //one player won -> all enemies lost  //TODO: allies
+	if(vic > 0) //one player won -> all enemies lost
 	{
 		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
 
 		for (std::map<ui8,PlayerState>::const_iterator i = gs->players.begin(); i!=gs->players.end(); i++)
 		{
-			if(i->first < PLAYER_LIMIT && i->first != player)
+			if(i->first < PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
 			{
 				iw.player = i->first;
 				sendAndApply(&iw);
 
 				peg.player = i->first;
-				peg.victory = false;
+				peg.victory = getPlayerRelations(player, i->first) == 1; // ally of winner
 				sendAndApply(&peg);
 			}
 		}
