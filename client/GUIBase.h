@@ -138,7 +138,16 @@ struct Rect : public SDL_Rect
 		w = r.w;
 		h = r.h;
 	}
+	explicit Rect(const SDL_Surface * const &surf)
+	{
+		x = y = 0;
+		w = surf->w;
+		h = surf->h;
+	}
+
 	static Rect createCentered(int w, int h);
+	static Rect around(const Rect &r, int width = 1); //creates rect around another
+
 	bool isIn(int qx, int qy) const //determines if given point lies inside rect
 	{
 		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)

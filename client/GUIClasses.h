@@ -166,7 +166,7 @@ public:
 	virtual ~SComponent(){}; //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
-	virtual SDL_Surface * getImg();
+	SDL_Surface * getImg();
 	virtual void show(SDL_Surface * to);
 	virtual void activate();
 	virtual void deactivate();
@@ -186,21 +186,17 @@ class CSelectableComponent : public SComponent, public KeyShortcut
 {
 public:
 	bool selected; //if true, this component is selected
-
-	bool customB; //TODO: comment me
-	SDL_Surface * border, *myBitmap;
 	boost::function<void()> onSelect; //function called on selection change
 
 	void clickLeft(tribool down, bool previousState); //call-in
-	void init(SDL_Surface * Border);
-	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
-	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
+	void init();
+	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0); //c-tor
+	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0); //c-tor
 	~CSelectableComponent(); //d-tor
 	virtual void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
 	void select(bool on);
-	SDL_Surface * getImg(); //returns myBitmap
 };
 class CGarrisonInt;
 class CGarrisonSlot : public CIntObject

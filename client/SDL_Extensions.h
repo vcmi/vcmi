@@ -18,6 +18,15 @@
  *
  */
 
+
+//A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
+#ifdef _MSC_VER
+	#define STRONG_INLINE __forceinline
+#else
+	//TODO: GCC counterpart?
+	#define STRONG_INLINE inline
+#endif
+
 struct Rect;
 
 extern SDL_Surface * screen, *screen2, *screenBuf;
@@ -68,6 +77,7 @@ std::string makeNumberShort(IntType number) //the output is a string containing 
 }
 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 
 
 inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
@@ -79,6 +89,27 @@ inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const in
 	ret.y=yy;
 	return ret;
 }
+
+
+template<int bpp, int incrementPtr>
+struct ColorPutter
+{
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
+};
+
+template <int incrementPtr>
+struct ColorPutter<2, incrementPtr>
+{
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
+};
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
@@ -100,6 +131,10 @@ namespace CSDL_Ext
 	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
+
+	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y);
+	const TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
+	const TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	BlitterWithRotationVal getBlitterWithRotation(SDL_Surface *dest);
 	BlitterWithRotationVal getBlitterWithRotationAndAlpha(SDL_Surface *dest);
 
@@ -116,7 +151,8 @@ namespace CSDL_Ext
 	template<int bpp> void blitWithRotate2WithAlpha(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
 	template<int bpp> void blitWithRotate3WithAlpha(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
 
-
+	template<int bpp>
+	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 

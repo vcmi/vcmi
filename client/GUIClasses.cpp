@@ -988,51 +988,22 @@ void CSelectableComponent::clickLeft(tribool down, bool previousState)
 			onSelect();
 	}
 }
-void CSelectableComponent::init(SDL_Surface * Border)
+void CSelectableComponent::init()
 {
-	SDL_Surface * symb = SComponent::getImg();
-	myBitmap = CSDL_Ext::newSurface(symb->w+2,symb->h+2,screen);
-	SDL_SetColorKey(myBitmap,SDL_SRCCOLORKEY,SDL_MapRGB(myBitmap->format,0,255,255));
-	blitAt(symb,1,1,myBitmap);
-	if (Border) //use custom border
-	{
-		border = Border;
-		customB = true;
-	}
-	else //we need to draw border
-	{
-		customB = false;
-		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,screen);
-		SDL_FillRect(border,NULL,0x00FFFF);
-		for (int i=0;i<border->w;i++)
-		{
-			SDL_PutPixelWithoutRefresh(border,i,0,239,215,123);
-			SDL_PutPixelWithoutRefresh(border,i,(border->h)-1,239,215,123);
-		}
-		for (int i=0;i<border->h;i++)
-		{
-			SDL_PutPixelWithoutRefresh(border,0,i,239,215,123);
-			SDL_PutPixelWithoutRefresh(border,(border->w)-1,i,239,215,123);
-		}
-		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
-	}
 	selected = false;
 }
-CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect, SDL_Surface * Border)
+CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect)
 :SComponent(c),onSelect(OnSelect)
 {
-	init(Border);
+	init();
 }
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect, SDL_Surface * Border)
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect)
 :SComponent(Type,Sub,Val),onSelect(OnSelect)
 {
-	init(Border);
+	init();
 }
 CSelectableComponent::~CSelectableComponent()
 {
-	SDL_FreeSurface(myBitmap);
-	if (!customB)
-		SDL_FreeSurface(border);
 }
 void CSelectableComponent::activate()
 {
@@ -1046,20 +1017,10 @@ void CSelectableComponent::deactivate()
 	SComponent::deactivate();
 	deactivateLClick();
 }
-SDL_Surface * CSelectableComponent::getImg()
-{
-	return myBitmap;
-}
 void CSelectableComponent::select(bool on)
 {
 	if(on != selected)
 	{
-		SDL_FillRect(myBitmap,NULL,0x000000);
-		blitAt(SComponent::getImg(),1,1,myBitmap);
-		if (on)
-		{
-			blitAt(border,0,0,myBitmap);
-		}
 		selected = on;
 		return;
 	}
@@ -1070,7 +1031,10 @@ void CSelectableComponent::select(bool on)
 }
 void CSelectableComponent::show(SDL_Surface * to)
 {
-	blitAt(myBitmap,pos.x,pos.y,to);
+	blitAt(getImg(),pos.x,pos.y,to);
+	if(selected)
+		CSDL_Ext::drawBorder(to, Rect::around(Rect(getImg())), int3(239,215,123));
+	
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
 }
 

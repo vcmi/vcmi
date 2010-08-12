@@ -24,71 +24,143 @@
 
 
 template<int bpp, int incrementPtr>
-struct ColorPutter
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
 {
-	static void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
+	PutColor(ptr, Color.r, Color.g, Color.b, Color.unused);
+}
+
+template<int bpp, int incrementPtr>
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const SDL_Color & Color)
+{
+	PutColor(ptr, Color.r, Color.g, Color.b);
+}
+
+template<int bpp, int incrementPtr>
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+{
+	switch (A)
 	{
-		if(incrementPtr == 0)
-		{
-			ptr[0] = B;
-			ptr[1] = G;
-			ptr[2] = R;
-		}
-		else if(incrementPtr == 1)
-		{
-			*ptr++ = B;
-			*ptr++ = G;
-			*ptr++ = R;
-
-			if(bpp == 4)
-				*ptr++ = 0;
-		}
-		else if(incrementPtr == -1)
-		{
-			if(bpp == 4)
-				*(--ptr) = 0;
-
-			*(--ptr) = R;
-			*(--ptr) = G;
-			*(--ptr) = B;
-		}
-		else
-		{
-			assert(0);
-		}
+	case 255:
+		ptr += bpp * incrementPtr;
+		return;
+	case 0:
+		PutColor(ptr, R, G, B);
+		return;
+	case 128:  // optimized
+		PutColor(ptr,	((Uint16)R + (Uint16)ptr[2]) >> 1, 
+			((Uint16)G + (Uint16)ptr[1]) >> 1, 
+			((Uint16)B + (Uint16)ptr[0]) >> 1);
+		return;
+	default:
+		PutColor(ptr, R, G, B, A);
+		return;
 	}
+}
 
-	static void PutColor(Uint8 *&ptr, const SDL_Color & Color)
+template<int bpp, int incrementPtr>
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+{
+	PutColor(ptr,	(((Uint32)ptr[2]-(Uint32)R)*(Uint32)A) >> 8 + (Uint32)R, 
+		(((Uint32)ptr[1]-(Uint32)G)*(Uint32)A) >> 8 + (Uint32)G, 
+		(((Uint32)ptr[0]-(Uint32)B)*(Uint32)A) >> 8 + (Uint32)B);
+}
+
+
+template<int bpp, int incrementPtr>
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
+{
+	if(incrementPtr == 0)
 	{
-		PutColor(ptr, Color.r, Color.g, Color.b);
+		ptr[0] = B;
+		ptr[1] = G;
+		ptr[2] = R;
 	}
-};
+	else if(incrementPtr == 1)
+	{
+		*ptr++ = B;
+		*ptr++ = G;
+		*ptr++ = R;
 
+		if(bpp == 4)
+			*ptr++ = 0;
+	}
+	else if(incrementPtr == -1)
+	{
+		if(bpp == 4)
+			*(--ptr) = 0;
+
+		*(--ptr) = R;
+		*(--ptr) = G;
+		*(--ptr) = B;
+	}
+	else
+	{
+		assert(0);
+	}
+}
 
 template <int incrementPtr>
-struct ColorPutter<2, incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
 {
-	static void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
+	if(incrementPtr == -1)
+		ptr -= 2;
+
+	Uint16 * const px = (Uint16*)ptr;
+	*px = (B>>3) + ((G>>2) << 5) + ((R>>3) << 11); //drop least significant bits of 24 bpp encoded color
+
+	if(incrementPtr == 1)
+		ptr += 2; //bpp
+}
+
+template <int incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+{
+	switch (A)
 	{
-		if(incrementPtr == -1)
-			ptr -= 2;
-
-		Uint16 * const px = (Uint16*)ptr;
-		*px = (B>>3) + ((G>>2) << 5) + ((R>>3) << 11); //drop least significant bits of 24 bpp encoded color
-
-		if(incrementPtr == 1)
-			ptr += 2; //bpp
+	case 255:
+		ptr += 2 * incrementPtr;
+		return;
+	case 0:
+		PutColor(ptr, R, G, B);
+		return;
+	default:
+		PutColor(ptr, R, G, B, A);
+		return;
 	}
+}
 
-	static void PutColor(Uint8 *&ptr, const SDL_Color & Color)
-	{
-		PutColor(ptr, Color.r, Color.g, Color.b);
-	}
-};
+template <int incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+{
+	const int rbit = 5, gbit = 6, bbit = 5; //bits per color
+	const int rmask = 0xF800, gmask = 0x7E0, bmask = 0x1F;
+	const int rshift = 11, gshift = 5, bshift = 0;
 
-Uint8 *getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y);
-const TColorPutter getPutterFor(SDL_Surface  * const &dest, bool incrementing);
+	const Uint8 r5 = (*((Uint16 *)ptr) & rmask) >> rshift,
+		b5 = (*((Uint16 *)ptr) & bmask) >> bshift,
+		g5 = (*((Uint16 *)ptr) & gmask) >> gshift;
 
+	const Uint32 r8 = (r5 << (8 - rbit)) | (r5 >> (2*rbit - 8)),
+		g8 = (g5 << (8 - gbit)) | (g5 >> (2*gbit - 8)),
+		b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
+
+	PutColor(ptr, 
+		(((r8-R)*A) >> 8) + R,
+		(((g8-G)*A) >> 8) + G,
+		(((b8-B)*A) >> 8) + B);
+}
+
+template <int incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
+{
+	PutColor(ptr, Color.r, Color.g, Color.b, Color.unused);
+}
+
+template <int incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const SDL_Color & Color)
+{
+	PutColor(ptr, Color.r, Color.g, Color.b);
+}
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
@@ -780,11 +852,9 @@ void CSDL_Ext::blitWithRotate3WithAlpha(const SDL_Surface *src, const SDL_Rect *
 		sp += src->w - dstRect->w;
 	}
 }
-
-int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+template<int bpp>
+int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
-	const int bpp = dst->format->BytesPerPixel;
-
 	if (src && src->format->BytesPerPixel==1 && dst && (bpp==3 || bpp==4 || bpp==2)) //everything's ok
 	{
 		SDL_Rect fulldst;
@@ -886,147 +956,34 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 			Uint8 *colory = (Uint8*)src->pixels + srcy*src->pitch + srcx;
 			Uint8 *py = (Uint8*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
 
-			if(dst->format->Rshift==16)	//such as screen
+			for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
 			{
-				for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
+				Uint8 *color = colory;
+				Uint8 *p = py;
+
+				for(int x = w; x; x--)
 				{
-					Uint8 *color = colory;
-					Uint8 *p = py;
-
-					for(int x=w; x; x--, p += bpp)
-					{
-						const SDL_Color tbc = colors[*color++]; //color to blit
-
-						switch (tbc.unused)
-						{
-							case 255:
-								// ~59% of calls
-								break;
-							case 0:
-								// ~37% of calls
-								p[0] = tbc.b;
-								p[1] = tbc.g;
-								p[2] = tbc.r;
-								break;
-							case 128:  // optimized
-								// ~3.5% of calls
-								p[0] = ((Uint16)tbc.b + (Uint16)p[0]) >> 1;
-								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
-								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
-								break;
-							default:
-								// ~0.5% of calls
-								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
-								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
-								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
-								break;
-						}
-					}
-				}
-			}
-			else if(dst->format->Rshift==0)	//like in most surfaces
-			{
-				for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
-				{
-					Uint8 *color = colory;
-					Uint8 *p = py;
-
-					for(int x=w; x; x--, p += bpp)
-					{
-						const SDL_Color tbc = colors[*color++]; //color to blit
-
-						// According analyze, the values of tbc.unused are fixed,
-						// and the approximate ratios are as following:
-						//
-						// tbc.unused	numbers
-						// 192			    2679
-						// 164			  326907
-						// 82			  705590
-						// 214			 1292625
-						// 128			 4842923
-						// 0			72138078
-						// 255			77547326
-						//
-						// By making use of such characteristic, we may implement a
-						// very fast algorithm for heroes3 without loose much quality.
-						switch (tbc.unused)
-						{
-							case 255:
-								break;
-							case 0:
-								p[0] = tbc.r;
-								p[1] = tbc.g;
-								p[2] = tbc.b;
-								break;
-							case 128:  // optimized
-								p[0] = ((Uint16)tbc.r + (Uint16)p[0]) >> 1;
-								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
-								p[2] = ((Uint16)tbc.b + (Uint16)p[2]) >> 1;
-								break;
-							default:
-								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
-								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
-								p[2] = ((((Uint32)p[2]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
-								break;
-						}
-					}
-				}
-			}
-			else if(dst->format->Rshift == 11)
-			{
-				const int rbit = 5, gbit = 6, bbit = 5; //bits per color
-				const int rmask = 0xF800, gmask = 0x7E0, bmask = 0x1F;
-				const int rshift = 11, gshift = 5, bshift = 0;
-
-				for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
-				{
-					Uint8 *color = colory;
-					Uint8 *p = py;
-
-					for(int x=w; x; x--, p += bpp)
-					{
-						const SDL_Color tbc = colors[*color++]; //color to blit
-						switch (tbc.unused)
-						{
-						case 255:
-							break;
-						case 0:
-							ColorPutter<2, 0>::PutColor(p, tbc.r,tbc.g,tbc.b);
-							break;
-// 						case 128:  // optimized
-// 							ColorPutter<2, 0>::PutColor(p, tbc.r,tbc.g,tbc.b);
-// // 							p[0] = ((Uint16)tbc.r + (Uint16)p[0]) >> 1;
-// // 							p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
-// // 							p[2] = ((Uint16)tbc.b + (Uint16)p[2]) >> 1;
-// 							break;
-						default:
-							const Uint8 r5 = (*((Uint16 *)p) & rmask) >> rshift,
-								b5 = (*((Uint16 *)p) & bmask) >> bshift,
-								g5 = (*((Uint16 *)p) & gmask) >> gshift;
-
-							const Uint32 r8 = (r5 << (8 - rbit)) | (r5 >> (2*rbit - 8)),
-								g8 = (g5 << (8 - gbit)) | (g5 >> (2*gbit - 8)),
-								b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
-
-							ColorPutter<2, 0>::PutColor(p, 
-								(((r8-tbc.r)*tbc.unused) >> 8) + tbc.r,
-								(((g8-tbc.g)*tbc.unused) >> 8) + tbc.g,
-								(((b8-tbc.b)*tbc.unused) >> 8) + tbc.b);
-							break;
-						}
-					}
+					const SDL_Color &tbc = colors[*color++]; //color to blit
+					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.unused);
 				}
 			}
 			SDL_UnlockSurface(dst);
 		}
 	}
 	return 0;
+}
+
+int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+{
+	switch(dst->format->BytesPerPixel)
+	{
+	case 2: return blit8bppAlphaTo24bppT<2>(src, srcRect, dst, dstRect);
+	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstRect);
+	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstRect);
+	default:
+		tlog1 << (int)dst->format->BitsPerPixel << " bpp is not supported!!!\n";
+		return -1;
+	}
 }
 
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
@@ -1123,14 +1080,16 @@ int readNormalNr (std::istream &in, int bytCon)
 	return ret;
 }
 
-const TColorPutter getPutterFor(SDL_Surface * const &dest, bool incrementing)
+const TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
 {
 #define CASE_BPP(BytesPerPixel)							\
 case BytesPerPixel:									\
-	if(incrementing)									\
-	return ColorPutter<BytesPerPixel, 1>::PutColor;	\
+	if(incrementing > 0)								\
+		return ColorPutter<BytesPerPixel, 1>::PutColor;	\
+	else if(incrementing == 0)							\
+		return ColorPutter<BytesPerPixel, 0>::PutColor;	\
 	else												\
-	return ColorPutter<BytesPerPixel, 0>::PutColor;	\
+		return ColorPutter<BytesPerPixel, -1>::PutColor;\
 	break;
 
 	switch(dest->format->BytesPerPixel)
@@ -1140,15 +1099,26 @@ case BytesPerPixel:									\
 		CASE_BPP(4)
 	default:
 		tlog1 << (int)dest->format->BitsPerPixel << "bpp is not supported!\n";
-		break;
+		return NULL;
 	}
-#undef CASE_BPP
 
-	assert(0);
-	return NULL;
 }
 
-Uint8 * getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y)
+const TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
+{
+	switch(dest->format->BytesPerPixel)
+	{
+		CASE_BPP(2)
+		CASE_BPP(3)
+		CASE_BPP(4)
+	default:
+		tlog1 << (int)dest->format->BitsPerPixel << "bpp is not supported!\n";
+		return NULL;
+	}
+#undef CASE_BPP
+}
+
+Uint8 * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y)
 {
 	return (Uint8 *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
 }

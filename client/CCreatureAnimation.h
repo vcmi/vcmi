@@ -43,6 +43,7 @@ private:
 		return ret;
 	}
 
+	template<int bpp>
 	void putPixel(
                 SDL_Surface * dest,
                 const int & ftcp,
@@ -68,6 +69,9 @@ public:
 	void setType(int type); //sets type of animation and cleares framecount
 	int getType() const; //returns type of animation
 
+
+	template<int bpp>
+	int nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	void incrementFrame();

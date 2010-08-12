@@ -2,6 +2,7 @@
 #include "../hch/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <assert.h>
+#include "SDL_Extensions.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine
@@ -150,11 +151,10 @@ void CCreatureAnimation::playOnce(int type)
 	once = true;
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
-{
-	if(dest->format->BytesPerPixel<3)
-		return -1; //not enough depth
 
+template<int bpp>
+int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= NULL*/)
+{
 	//increasing frame numer
 	int SIndex = curFrame;
 	if(IncrementFrame)
@@ -167,7 +167,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 		i, FullHeight,FullWidth,
 		TotalRowLength; // length of read segment
 	unsigned char SegmentType, SegmentLength;
-	
+
 	i=BaseOffset=SEntries[SIndex].offset;
 	int prSize=readNormalNr<4>(i,FDef);i+=4;//TODO use me
 	int defType2 = readNormalNr<4>(i,FDef);i+=4;
@@ -229,7 +229,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				}
 
 				int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
-				
+
 
 				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e)>>1)<<4 : 0x0f - ((animCount & 0x1e)>>1)<<4;
 
@@ -239,15 +239,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 					{
 						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB ))
 						{
-							if (SegmentType == 0xFF)
-							{
-								putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder, blueBorder, aCountMod);
-							}
-							else
-							{
-								putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder, blueBorder, aCountMod);
-							}
-
+							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
+							putPixel<bpp>(dest, xB + yB*dest->w, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
 						}
 					}
 					ftcp++; //increment pos
@@ -279,6 +272,19 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	return 0;
 }
 
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
+{
+	switch(dest->format->BytesPerPixel)
+	{
+	case 2: return nextFrameT<2>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
+	case 3: return nextFrameT<3>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
+	case 4: return nextFrameT<4>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
+	default:
+		tlog1 << (int)dest->format->BitsPerPixel << " bpp is not supported!!!\n";
+		return -1;
+	}
+}
+
 int CCreatureAnimation::framesInGroup(int group) const
 {
 	if(frameGroups.find(group) == frameGroups.end())
@@ -291,6 +297,7 @@ CCreatureAnimation::~CCreatureAnimation()
 	delete [] FDef;
 }
 
+template<int bpp>
 inline void CCreatureAnimation::putPixel(
 	SDL_Surface * dest,
 	const int & ftcp,
@@ -306,39 +313,21 @@ inline void CCreatureAnimation::putPixel(
 		Uint8 * p = (Uint8*)dest->pixels + ftcp*dest->format->BytesPerPixel;
 		if(palc > 7) //normal color
 		{
-			p[0] = color.B;
-			p[1] = color.G;
-			p[2] = color.R;
+			ColorPutter<bpp, 0>::PutColor(p, color.R, color.G, color.B);
 		}
 		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //dark yellow border
 		{
 			if(blueBorder)
-			{
-				p[0] = 0x0f + animCount;
-				p[1] = 0x0f + animCount;
-				p[2] = 0;
-			}
+				ColorPutter<bpp, 0>::PutColor(p, 0, 0x0f + animCount, 0x0f + animCount);
 			else
-			{
-				p[0] = 0;
-				p[1] = 0x0f + animCount;
-				p[2] = 0x0f + animCount;
-			}
+				ColorPutter<bpp, 0>::PutColor(p, 0x0f + animCount, 0x0f + animCount, 0);
 		}
 		else if((yellowBorder || blueBorder) && (palc == 5)) //yellow border
 		{
 			if(blueBorder)
-			{
-				p[0] = color.R - 0xf0 + animCount;
-				p[1] = color.G - 0xf0 + animCount;
-				p[2] = color.B;
-			}
+				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldnt it be reversed? its bgr instead of rgb
 			else
-			{
-				p[0] = color.B;
-				p[1] = color.G - 0xf0 + animCount;
-				p[2] = color.R - 0xf0 + animCount;
-			}
+				ColorPutter<bpp, 0>::PutColor(p, color.R - 0xf0 + animCount, color.G - 0xf0 + animCount, color.B);
 		}
 		else if(palc < 5) //shadow
 		{ 
@@ -367,10 +356,17 @@ inline void CCreatureAnimation::putPixel(
 				alpha = 255;
 				break;
 			}
-			//alpha counted
-			p[0] = (p[0] * alpha)>>8;
-			p[1] = (p[1] * alpha)>>8;
-			p[2] = (p[2] * alpha)>>8;
+
+			if(bpp != 3 && bpp != 4)
+			{
+				ColorPutter<bpp, 0>::PutColor(p, 0, 0, 0, alpha);
+			}
+			else
+			{
+				p[0] = (p[0] * alpha)>>8;
+				p[1] = (p[1] * alpha)>>8;
+				p[2] = (p[2] * alpha)>>8;
+			}
 		}
 	}
 }
