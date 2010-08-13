@@ -1207,6 +1207,7 @@ void CList::fixPos()
 
 	amin(from, size() - SIZE);
 	amax(from, 0);
+	draw(screen);
 }
 
 CHeroList::CHeroList(int Size)
@@ -1270,6 +1271,8 @@ void CHeroList::select(int which)
 
 	selected = which;
 	adventureInt->select(LOCPLINT->wanderingHeroes[which]);
+	fixPos();
+	draw(screen);
 }
 
 void CHeroList::clickLeft(tribool down, bool previousState)
@@ -1551,6 +1554,7 @@ void CTownList::select(int which)
 	selected = which;
 	if(!fun.empty())
 		fun();
+	fixPos();
 }
 
 void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)

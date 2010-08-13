@@ -1771,14 +1771,17 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 		}
 		return;
 	}
+	//check if we can select this object
+	bool canSelect = topBlocking && topBlocking->ID == HEROI_TYPE && topBlocking->tempOwner == LOCPLINT->playerID;
+	canSelect |= topBlocking && topBlocking->ID == TOWNI_TYPE && CGI->state->getPlayerRelations(topBlocking->tempOwner, LOCPLINT->playerID);
 
 	if (selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
 	{
 		assert(!terrain.currentPath); //path can be active only when hero is selected
 		if(selection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
-		else if(topBlocking && (topBlocking->ID == TOWNI_TYPE || topBlocking->ID == HEROI_TYPE) && topBlocking->tempOwner == LOCPLINT->playerID) //our town/hero clicked
-			select(static_cast<const CArmedInstance*>(topBlocking), false);
+		else if ( canSelect )
+				select(static_cast<const CArmedInstance*>(topBlocking), false);
 		return;
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
@@ -1789,8 +1792,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 			LOCPLINT->openHeroWindow(currentHero);
 			return;
 		}
-		else if(topBlocking && (topBlocking->ID == HEROI_TYPE || topBlocking->ID == TOWNI_TYPE) //clicked our town or hero
-			&& pn->turns == 255 && topBlocking->tempOwner == LOCPLINT->playerID) //at inaccessible tile
+		else if(canSelect && pn->turns == 255 ) //selectable object at inaccessible tile
 		{
 			select(static_cast<const CArmedInstance*>(topBlocking), false);
 			return;
@@ -1877,11 +1879,11 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 
 	if(selection->ID == TOWNI_TYPE)
 	{
-		if(objAtTile && objAtTile->tempOwner == LOCPLINT->playerID)
+		if(objAtTile)
 		{
-			if(objAtTile->ID == TOWNI_TYPE)
+			if(objAtTile->ID == TOWNI_TYPE && CGI->state->getPlayerRelations(objAtTile->tempOwner, LOCPLINT->playerID))
 				CGI->curh->changeGraphic(0, 3);
-			else if(objAtTile->ID == HEROI_TYPE)
+			else if(objAtTile->ID == HEROI_TYPE && objAtTile->tempOwner == LOCPLINT->playerID)
 				CGI->curh->changeGraphic(0, 2);
 		}
 		else
@@ -1893,14 +1895,14 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		{
 			if(objAtTile->ID == HEROI_TYPE)
 			{
-				if(objAtTile->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
+				if(!CGI->state->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy hero
 				{
 					if(accessible)
 						CGI->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CGI->curh->changeGraphic(0, 0);
 				}
-				else //our hero
+				else //our or ally hero
 				{
 					if(selection == objAtTile)
 						CGI->curh->changeGraphic(0, 2);
@@ -1912,7 +1914,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			}
 			else if(objAtTile->ID == TOWNI_TYPE)
 			{
-				if(objAtTile->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
+				if(!CGI->state->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy town
 				{
 					if(accessible) 
 					{
@@ -1930,7 +1932,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 						CGI->curh->changeGraphic(0, 0);
 					}
 				}
-				else //our town
+				else //our or ally town
 				{
 					if(accessible)
 						CGI->curh->changeGraphic(0, 9 + turns*6);
@@ -1952,7 +1954,8 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
 
 					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-					if (garrObj  &&  garrObj->tempOwner != LOCPLINT->playerID  &&  garrObj->stacksCount())
+					if (garrObj&&  garrObj->stacksCount() 
+						&& !CGI->state->getPlayerRelations( garrObj->tempOwner, LOCPLINT->playerID) )
 						CGI->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CGI->curh->changeGraphic(0, 9 + turns*6);

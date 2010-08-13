@@ -1888,7 +1888,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			{
 				CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
 
-				if( getPlayerRelations(dh->tempOwner, h->tempOwner)) 
+				if( gameState()->getPlayerRelations(dh->tempOwner, h->tempOwner)) 
 				{
 					heroExchange(h->id, dh->id);
 					return true;
@@ -2355,7 +2355,7 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 	ui8 player1 = getHero(hero1)->tempOwner;
 	ui8 player2 = getHero(hero2)->tempOwner;
 
-	if( getPlayerRelations( player1, player2))
+	if( gameState()->getPlayerRelations( player1, player2))
 	{
 		OpenWindow hex;
 		hex.window = OpenWindow::EXCHANGE_WINDOW;
@@ -4553,7 +4553,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 				sendAndApply(&iw);
 
 				peg.player = i->first;
-				peg.victory = getPlayerRelations(player, i->first) == 1; // ally of winner
+				peg.victory = gameState()->getPlayerRelations(player, i->first) == 1; // ally of winner
 				sendAndApply(&peg);
 			}
 		}

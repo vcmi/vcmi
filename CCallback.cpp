@@ -184,7 +184,7 @@ bool CCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest )
 
 	bool detailed = hasAccess(town->tempOwner);
 
-	//TODO vision support, info about allies
+	//TODO vision support
 	if(town->ID == TOWNI_TYPE)
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
 	else if(town->ID == 33 || town->ID == 219)
@@ -249,7 +249,7 @@ bool CCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest )
 	if(!h || !isVisible(h->getPosition(false))) //it's not a hero or it's not visible for layer
 		return false;
 	
-	//TODO vision support, info about allies
+	//TODO vision support
 	dest.initFromHero(h, hasAccess(h->tempOwner));
 	return true;
 }
@@ -956,7 +956,7 @@ void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &p
 
 bool CCallback::hasAccess(int playerId) const
 {
-	return playerId == player  ||  player < 0;
+	return gs->getPlayerRelations( playerId, player ) ||  player < 0;
 }
 
 si8 CCallback::battleHasDistancePenalty( int stackID, int destHex )

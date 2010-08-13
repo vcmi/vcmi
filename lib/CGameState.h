@@ -428,6 +428,7 @@ public:
 	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
+	int getPlayerRelations(ui8 color1, ui8 color2);// 0 = enemy, 1 = ally, 2 = same player
 	//float getMarketEfficiency(int player, int mode=0);
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements

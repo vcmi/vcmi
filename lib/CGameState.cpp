@@ -2008,6 +2008,16 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	return ret;
 }
 
+int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
+{
+	if ( color1 == color2 )
+		return 2;
+	const TeamState * ts = getPlayerTeam(color1);
+	if (ts && vstd::contains(ts->players, color2))
+		return 1;
+	return 0;
+}
+
 void CGameState::loadTownDInfos()
 {
 	for(int i=0;i<F_NUMBER;i++)

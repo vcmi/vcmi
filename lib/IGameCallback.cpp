@@ -239,18 +239,6 @@ const PlayerState * IGameCallback::getPlayerState( int color )
 	return gs->getPlayer(color, false);
 }
 
-int IGameCallback::getPlayerRelations( ui8 color1, ui8 color2 )
-{
-	if ( color1 == color2 )
-		return 2;
-	if ( color1 == 255 || color2 == 255)
-		return 0;
-	const TeamState * ts = gs->getPlayerTeam(color1);
-	if (ts && vstd::contains(ts->players, color2))
-		return 1;
-	return 0;
-}
-
 const CTown * IGameCallback::getNativeTown(int color)
 {
 	return &VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(color).castle];

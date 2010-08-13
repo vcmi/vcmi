@@ -782,7 +782,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 	artLeft->block(hero->artifacts.size() <= 8);
 	artRight->block(hero->artifacts.size() <= 8);
 	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), parent->slots->ourImages[parent->PicCount].bitmap,
-		Point(6,78), hero, NULL, true, false, true);
+		Point(6,78), hero, NULL, true, true, true);
 
 	for (int i=0; i<artifacts.size(); i++)
 	{

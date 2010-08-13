@@ -928,7 +928,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 	if (ID == HEROI_TYPE) //hero
 	{
-		if( cb->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
+		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
 		{
 			//exchange
 			cb->heroExchange(h->id, id);
@@ -1664,7 +1664,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	int relations = cb->getPlayerRelations( h->tempOwner, tempOwner );
+	int relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
 	
 	if ( relations == 1 )//ally
 		return;//do not allow recruiting or capturing
@@ -2047,7 +2047,7 @@ bool CGTownInstance::needsLastStack() const
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if( !cb->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
+	if( !cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
 	{
 		if(stacksCount() > 0 || visitingHero)
 		{
@@ -3118,7 +3118,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
+	int relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 	
 	if(relations == 2) //we're visiting our mine
 	{
@@ -5260,7 +5260,7 @@ void CGScholar::initObj()
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	int ally = cb->getPlayerRelations(h->tempOwner, tempOwner);
+	int ally = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 	if (!ally && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattleI(h, this, boost::bind(&CGGarrison::fightOver, this, h, _1));
@@ -6279,7 +6279,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!cb->getPlayerRelations(tempOwner, h->tempOwner))
+	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
 		cb->setOwner(id, h->tempOwner);
 
 	int s = state();
