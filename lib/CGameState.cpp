@@ -1960,12 +1960,12 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	if(stack.armyObj->ID == TOWNI_TYPE)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
-	{	//TODO: check if hero specialty makes some upgrades possible
+	{	//hero speciality
 		BonusList lista = h->speciality.getBonuses(Selector::typeSybtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		for (BonusList::iterator it = lista.begin(); it != lista.end(); it++)
 		{
 			ui16 nid = it->additionalInfo;
-			if (nid != base->idNumber) //sharpshooter appears to be default upgrade of minor creatures (?)
+			if (nid != base->idNumber) //in very specific case the upgrade is avaliable by default (?)
 			{
 				ret.newID.push_back(nid);
 				ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost));

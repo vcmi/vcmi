@@ -846,8 +846,8 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 
-	if(mana < 0)
-		mana = manaLimit(); //after all bonuses are taken into account
+	if (mana < 0)
+		mana = manaLimit();
 }
 
 void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
@@ -1135,14 +1135,6 @@ void CGHeroInstance::initObj()
 						bonus.subtype = PrimarySkill::DEFENSE;
 						break;
 				}
-// 				for (std::vector<CCreature*>::iterator i = VLC->creh->creatures.begin(); i != VLC->creh->creatures.end(); i++)
-// 				{ //TODO: what if creature changes type during the game (Dragon Eye Ring?)
-// 					if ((*i)->hasBonusOfType(Bonus::DRAGON_NATURE)) //TODO: implement it!
-// 					{
-// 						bonus.limiter = new CCreatureTypeLimiter (**i, false);
-// 						speciality.bonuses.push_back (bonus);
-// 					}
-// 				}
 				bonus.limiter = new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE);
 				speciality.bonuses.push_back (bonus);
 				break;
@@ -1154,6 +1146,8 @@ void CGHeroInstance::initObj()
 	for (std::vector<std::pair<ui8,ui8> >::iterator it = secSkills.begin(); it != secSkills.end(); it++)
 		updateSkill(it->first, it->second);
 	UpdateSpeciality();
+
+	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 void CGHeroInstance::UpdateSpeciality()
 {
@@ -4828,7 +4822,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
-		int expVal = gainedExp*(100+h->getSecSkillLevel(21)*5)/100.0f;
+		expType expVal = gainedExp*(100+h->getSecSkillLevel(21)*5)/100.0f;
 		getText(iw,afterBattle,175,h);
 
 		if(expVal)
