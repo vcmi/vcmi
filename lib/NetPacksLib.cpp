@@ -615,7 +615,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 	BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 		h->bonuses.remove_if(Bonus::OneDay);
 
-	if(gs->getDate(1) == 7) //new week
+	if(gs->getDate(1) == 1) //new week, Monday that is
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 			h->bonuses.remove_if(Bonus::OneWeek);
 
@@ -628,7 +628,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 			i->second.daysWithoutCastle++;
 
 		i->second.bonuses.remove_if(Bonus::OneDay);
-		if(gs->getDate(1) == 7) //new week
+		if(gs->getDate(1) == 1) //new week
 			i->second.bonuses.remove_if(Bonus::OneWeek);
 	}
 }

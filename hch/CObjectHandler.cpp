@@ -3316,7 +3316,7 @@ void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) cons
 
 void CGVisitableOPW::newTurn() const
 {
-	if (cb->getDate(1)==1) //first day of week
+	if (cb->getDate(1) == 1) //first day of week = 1
 	{
 		cb->setObjProperty(id, ObjProperty::VISITED, false);
 		MetaString ms; //set text to "not visited"
@@ -4608,7 +4608,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,103);
 		bonusMove = 400;
 		break;
-	case 94: //Stables TODO: upgrade Cavaliers
+	case 94: //Stables
 		sound = soundBase::horse20;
 		CCreatureSet creatures;
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)

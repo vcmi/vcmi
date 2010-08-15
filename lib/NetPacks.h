@@ -922,7 +922,7 @@ struct BattleResult : public CPackForClient//3003
 	ui8 result; //0 - normal victory; 1 - escape; 2 - surrender
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number
-	ui32 exp[2]; //exp for attacker and defender
+	expType exp[2]; //exp for attacker and defender
 	std::set<ui32> artifacts; //artifacts taken from loser to winner
 
 

@@ -1152,7 +1152,7 @@ int CGameState::getDate(int mode) const
 		return day;
 		break;
 	case 1: //day of week
-		temp = (day)%7;
+		temp = (day)%7; // 1 - Monday, 7 - Sunday
 		if (temp)
 			return temp;
 		else return 7;
