@@ -84,51 +84,51 @@ struct OCM_HLP
 	}
 } ocmptwo ;
 
-void alphaTransformDef(CGDefInfo * defInfo)
-{	
-	for(int yy=0; yy<defInfo->handler->ourImages.size(); ++yy)
-	{
-		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
-	}
-}
+// void alphaTransformDef(CGDefInfo * defInfo)
+// {	
+// 	for(int yy=0; yy<defInfo->handler->ourImages.size(); ++yy)
+// 	{
+// 		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
+// 	}
+// }
 
 void CMapHandler::prepareFOWDefs()
 {
-	fullHide = CDefHandler::giveDef("TSHRC.DEF");
-	partialHide = CDefHandler::giveDef("TSHRE.DEF");
+	graphics->FoWfullHide = CDefHandler::giveDef("TSHRC.DEF");
+	graphics->FoWpartialHide = CDefHandler::giveDef("TSHRE.DEF");
 
 	//adding necessary rotations
-	int missRot [] = {22, 15, 2, 13, 12, 16, 18, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27, 28};
+	static const int missRot [] = {22, 15, 2, 13, 12, 16, 18, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27, 28};
 
 	Cimage nw;
 	for(int g=0; g<ARRAY_COUNT(missRot); ++g)
 	{
-		nw = partialHide->ourImages[missRot[g]];
+		nw = graphics->FoWpartialHide->ourImages[missRot[g]];
 		nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-		partialHide->ourImages.push_back(nw);
+		graphics->FoWpartialHide->ourImages.push_back(nw);
 	}
 	//necessaary rotations added
 
 	//alpha - transformation
-	for(size_t i=0; i<partialHide->ourImages.size(); ++i)
+	for(size_t i=0; i<graphics->FoWpartialHide->ourImages.size(); ++i)
 	{
-		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(graphics->FoWpartialHide->ourImages[i].bitmap);
 	}
 
 	//initialization of type of full-hide image
-	hideBitmap.resize(CGI->mh->map->width);
+	hideBitmap.resize(sizes.x);
 	for (size_t i=0;i<hideBitmap.size();i++)
 	{
-		hideBitmap[i].resize(CGI->mh->map->height);
+		hideBitmap[i].resize(sizes.y);
 	}
 	for (size_t i=0; i<hideBitmap.size(); ++i)
 	{
-		for (int j=0; j < CGI->mh->map->height; ++j)
+		for (int j=0; j < sizes.y; ++j)
 		{
-			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1);
-			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
+			hideBitmap[i][j].resize(sizes.z);
+			for(int k=0; k<sizes.z; ++k)
 			{
-				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
+				hideBitmap[i][j][k] = rand()%graphics->FoWfullHide->ourImages.size();
 			}
 		}
 	}
@@ -160,32 +160,26 @@ void CMapHandler::roadsRiverTerrainInit()
 		}
 	}
 
-	sizes.x = CGI->mh->map->width;
-	sizes.y = CGI->mh->map->height;
-	sizes.z = CGI->mh->map->twoLevel+1;
-
 	// Create enough room for the whole map and its frame
-	ttiles.resize(CGI->mh->map->width, frameW, frameW);
+	ttiles.resize(sizes.x, frameW, frameW);
 	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
 	{
-		ttiles[i].resize(CGI->mh->map->height, frameH, frameH);
+		ttiles[i].resize(sizes.y, frameH, frameH);
 	}
 	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
 	{
-		for (int j=0-frameH;j<(int)CGI->mh->map->height+frameH;j++)
-			ttiles[i][j].resize(CGI->mh->map->twoLevel+1, 0, 0);
+		for (int j=0-frameH;j<(int)sizes.y+frameH;j++)
+			ttiles[i][j].resize(sizes.z, 0, 0);
 	}
 
 	// prepare the map
-	for (int i=0; i<map->width; i++) //by width
+	for (int i=0; i<sizes.x; i++) //by width
 	{
-		for (int j=0; j<map->height;j++) //by height
+		for (int j=0; j<sizes.y;j++) //by height
 		{
-			for (int k=0; k<=map->twoLevel; ++k) //by levels
+			for (int k=0; k<sizes.z; ++k) //by levels
 			{
 				TerrainTile2 &pom(ttiles[i][j][k]);
-				pom.pos = int3(i, j, k);
-				pom.tileInfo = &(map->terrain[i][j][k]);
 			}
 		}
 	}
@@ -205,31 +199,31 @@ void CMapHandler::borderAndTerrainBitmapInit()
 		delete hlp;
 	}
 
-	for (int i=0-frameW; i<map->width+frameW; i++) //by width
+	for (int i=0-frameW; i<sizes.x+frameW; i++) //by width
 	{
-		for (int j=0-frameH; j<map->height+frameH;j++) //by height
+		for (int j=0-frameH; j<sizes.y+frameH;j++) //by height
 		{
-			for(int k=0; k<=map->twoLevel; ++k) //by levles
+			for(int k=0; k<sizes.z; ++k) //by levles
 			{
-				if(i < 0 || i > (map->width-1) || j < 0  || j > (map->height-1))
+				if(i < 0 || i > (sizes.x-1) || j < 0  || j > (sizes.y-1))
 				{
 					int terBitmapNum = -1;
 
 					if(i==-1 && j==-1)
 						terBitmapNum = 16;
-					else if(i==-1 && j==(map->height))
+					else if(i==-1 && j==(sizes.y))
 						terBitmapNum = 19;
-					else if(i==(map->width) && j==-1)
+					else if(i==(sizes.x) && j==-1)
 						terBitmapNum = 17;
-					else if(i==(map->width) && j==(map->height))
+					else if(i==(sizes.x) && j==(sizes.y))
 						terBitmapNum = 18;
-					else if(j == -1 && i > -1 && i < map->height)
+					else if(j == -1 && i > -1 && i < sizes.y)
 						terBitmapNum = 22+rand()%2;
-					else if(i == -1 && j > -1 && j < map->height)
+					else if(i == -1 && j > -1 && j < sizes.y)
 						terBitmapNum = 33+rand()%2;
-					else if(j == map->height && i >-1 && i < map->width)
+					else if(j == sizes.y && i >-1 && i < sizes.x)
 						terBitmapNum = 29+rand()%2;
-					else if(i == map->width && j > -1 && j < map->height)
+					else if(i == sizes.x && j > -1 && j < sizes.y)
 						terBitmapNum = 25+rand()%2;
 					else
 						terBitmapNum = rand()%16;
@@ -309,13 +303,13 @@ static void processDef (CGDefInfo* def)
 	{
 		if(def->name.size())
 		{
-			if(vstd::contains(CGI->mh->loadedDefs, def->name))
+			if(vstd::contains(graphics->mapObjectDefs, def->name))
 			{
-				def->handler = CGI->mh->loadedDefs[def->name];
+				def->handler = graphics->mapObjectDefs[def->name];
 			}
 			else
 			{
-				CGI->mh->loadedDefs[def->name] = def->handler = CDefHandler::giveDefEss(def->name);
+				graphics->mapObjectDefs[def->name] = def->handler = CDefHandler::giveDefEss(def->name);
 			}
 		}
 		else
@@ -361,8 +355,13 @@ void CMapHandler::init()
 	CGI->dobjinfo->gobjs[8][2]->handler = graphics->boatAnims[2];
 
 	// Size of visible terrain.
-	mapW = conf.go()->ac.advmapW;
-	mapH = conf.go()->ac.advmapH;
+	int mapW = conf.go()->ac.advmapW;
+	int mapH = conf.go()->ac.advmapH;
+
+	//sizes of terrain
+	sizes.x = map->width;
+	sizes.y = map->height;
+	sizes.z = map->twoLevel+1;
 
 	// Total number of visible tiles. Substract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
@@ -384,28 +383,6 @@ void CMapHandler::init()
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
 
-	std::ifstream ifs(DATA_DIR "/config/townsDefs.txt");
-	int ccc;
-	ifs>>ccc;
-	for(int i=0;i<ccc*2;i++)
-	{
-		CGDefInfo *n;
-		if(i<ccc)
-		{
-			n = CGI->state->villages[i];
-			map->defy.push_back(CGI->state->forts[i]);
-		}
-		else 
-			n = CGI->state->capitols[i%ccc];
-
-		ifs >> n->name;
-		if(!n)
-			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
-		else
-			map->defy.push_back(n);
-	} 
-	tlog0<<"\tLoading town def info: "<<th.getDif()<<std::endl;
-
 	for(int i=0;i<map->heroes.size();i++)
 	{
 		if(!map->heroes[i]->defInfo->handler)
@@ -417,14 +394,15 @@ void CMapHandler::init()
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
 	tlog0<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
-	for(int i=0;i<PLAYER_LIMIT;i++)
-	{
-		for(size_t j=0; j < map->players[i].heroesNames.size(); ++j)
-		{
-			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
-		}
-	}
-	tlog0<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
+	//it seems to be completely unnecessary and useless
+// 	for(int i=0;i<PLAYER_LIMIT;i++)
+// 	{
+// 		for(size_t j=0; j < map->players[i].heroesNames.size(); ++j)
+// 		{
+// 			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
+// 		}
+// 	}
+// 	tlog0<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
 
 
 
@@ -488,10 +466,10 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 		top_tile.x = -frameW;
 	if (top_tile.y < -frameH)
 		top_tile.y = -frameH;
-	if (top_tile.x + dx > map->width + frameW)
-		dx = map->width + frameW - top_tile.x;
-	if (top_tile.y + dy > map->height + frameH)
-		dy = map->height + frameH - top_tile.y;
+	if (top_tile.x + dx > sizes.x + frameW)
+		dx = sizes.x + frameW - top_tile.x;
+	if (top_tile.y + dy > sizes.y + frameH)
+		dy = sizes.y + frameH - top_tile.y;
 	
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
@@ -510,7 +488,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	for (int bx = 0; bx < dx; bx++, srx+=32)
 	{
 		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
+		if (top_tile.x+bx < 0 || top_tile.x+bx >= sizes.x)
 			continue;
 
 		sry = sry_init;
@@ -520,11 +498,11 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 			int3 pos(top_tile.x+bx, top_tile.y+by, top_tile.z); //blitted tile position
 
 			// Skip tile if not in map
-			if (pos.y < 0 || pos.y >= map->height)
+			if (pos.y < 0 || pos.y >= sizes.y)
 				continue;
 
 			const TerrainTile2 & tile = ttiles[pos.x][pos.y][pos.z];
-			const TerrainTile &tinfo = *tile.tileInfo;
+			const TerrainTile &tinfo = map->terrain[pos.x][pos.y][pos.z];
 
 			SDL_Rect sr;
 			sr.x=srx;
@@ -691,8 +669,8 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 			sr.y=sry;
 			sr.h=sr.w=32;
 
-			if (pos.x < 0 || pos.x >= map->width ||
-				pos.y < 0 || pos.y >= map->height)
+			if (pos.x < 0 || pos.x >= sizes.x ||
+				pos.y < 0 || pos.y >= sizes.y)
 			{
 
 
@@ -706,11 +684,11 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 				{
 					if (pos.x >= 0 &&
 						pos.y >= 0 &&
-						pos.x < CGI->mh->map->width &&
-						pos.y < CGI->mh->map->height &&
+						pos.x < sizes.x &&
+						pos.y < sizes.y &&
 						!(*visibilityMap)[pos.x][pos.y][top_tile.z])
 					{
-						SDL_Surface * hide = getVisBitmap(pos.x, pos.y, *visibilityMap, top_tile.z);
+						SDL_Surface * hide = getVisBitmap(pos, *visibilityMap);
 						CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
 					}
 				}
@@ -719,7 +697,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 
 				// TODO: these should be activable by the console
 #ifdef MARK_BLOCKED_POSITIONS
-				if(ttiles[pos.x][pos.y][top_tile.z].tileInfo->blocked) //temporary hiding blocked positions
+				if(map->terrain[pos.x][pos.y][top_tile.z].blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
 
@@ -732,7 +710,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 				}
 #endif
 #ifdef MARK_VISITABLE_POSITIONS
-				if(ttiles[pos.x][pos.y][top_tile.z].tileInfo->visitable) //temporary hiding visitable positions
+				if(map->terrain[pos.x][pos.y][top_tile.z].visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
 
@@ -851,232 +829,45 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
-SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
+SDL_Surface * CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap )
 {
-	int size = visibilityMap.size()-1;							//is tile visible. arrangement: (like num keyboard)
-	bool d7 = (x>0 && y>0) ? visibilityMap[x-1][y-1][lvl] : 0,	//789
-		d8 = (y>0) ? visibilityMap[x][y-1][lvl] : 0,			//456
-		d9 = (y>0 && x<size) ? visibilityMap[x+1][y-1][lvl] : 0,//123
-		d4 = (x>0) ? visibilityMap[x-1][y][lvl] : 0,
-		d5 = visibilityMap[x][y][lvl], //TODO use me - OMFG
-		d6 = (x<size) ? visibilityMap[x+1][y][lvl] : 0,
-		d1 = (x>0 && y<size) ? visibilityMap[x-1][y+1][lvl] : 0,
-		d2 = (y<size) ? visibilityMap[x][y+1][lvl] : 0,
-		d3 = (x<size && y<size) ? visibilityMap[x+1][y+1][lvl] : 0;
+	static const int visBitmaps[256] = {-1, 34, -1, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 3, 25, 12, 12, 3, 25, 12, 12,
+		9, 9, 6, 6, 9, 9, 6, 6, 35, 34, 4, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 26, 49, 28, 28, 26, 49, 28,
+		28, 9, 9, 6, 6, 9, 9, 6, 6, -3, 0, -3, 4, 0, 0, 4, 4, 37, 37, 7, 7, 50, 50, 7, 7, 13, 27, 44, 44, 13, 27, 44,
+		44, 8,8, 10, 10, 8, 8, 10, 10, 0, 0, 4, 4, 0, 0, 4, 4, 37, 37, 7, 7, 50, 50, 7, 7, 13, 27, 44, 44, 13, 27, 44,
+		44, 8, 8, 10, 10, 8, 8, 10, 10, 15, 15, 4, 4, 22, 22, 4, 4, 46, 46, 51, 51, 32, 32, 51, 51, 2, 25, 12, 12, 2,
+		25, 12, 12, 9, 9, 6, 6, 9, 9, 6, 6, 15, 15, 4, 4, 22, 22, 4, 4, 46, 46, 51, 51, 32, 32, 51, 51, 26, 49, 28, 28,
+		26, 49, 28, 28, 9, 9, 6, 6, 9, 9, 6, 6, 0, 0, 4, 4, 0, 0, 4, 4, 37, 37, 7, 7, 50, 50, 7, 7, 13, 27, 44, 44, 13,
+		27, 44, 44, 8, 8, 10, 10, 8, 8, 10, 10, 0, 0, 4, 4, 0, 0, 4, 4, 37, 37, 7, 7, 50, 50, 7, 7, 13, 27, 44, 44, 13,
+		27, 44, 44, 8, 8, 10, 10, 8, 8, 10, 10};
 
-	if (!d6 && !d4)
+
+							//is tile visible. arrangement: (like num keyboard)
+	bool d7 = (pos.x>0 && pos.y>0) ? visibilityMap[pos.x-1][pos.y-1][pos.z] : 0,		//789
+		d8 = (pos.y>0) ? visibilityMap[pos.x][pos.y-1][pos.z] : 0,					//456
+		d9 = (pos.y>0 && pos.x<sizes.x) ? visibilityMap[pos.x+1][pos.y-1][pos.z] : 0,	//123
+		d4 = (pos.x>0) ? visibilityMap[pos.x-1][pos.y][pos.z] : 0,
+		//d5 = visibilityMap[pos.x][y][pos.z], //TODO use me - OMFG
+		d6 = (pos.x<sizes.x) ? visibilityMap[pos.x+1][pos.y][pos.z] : 0,
+		d1 = (pos.x>0 && pos.y<sizes.y) ? visibilityMap[pos.x-1][pos.y+1][pos.z] : 0,
+		d2 = (pos.y<sizes.y) ? visibilityMap[pos.x][pos.y+1][pos.z] : 0,
+		d3 = (pos.x<sizes.x && pos.y<sizes.y) ? visibilityMap[pos.x+1][pos.y+1][pos.z] : 0;
+
+	int retBitmapID = visBitmaps[d1 + d2 * 2 + d3 * 4 + d4 * 8 + d6 * 16 + d7 * 32 + d8 * 64 + d9 * 128]; // >=0 -> partial hide, <0 - full hide
+	if (retBitmapID < 0)
 	{
-		if (!d3 && !d9 && !d1 && !d7)
-			return fullHide->ourImages[hideBitmap[x][y][lvl]].bitmap; //fully hidden
-		if(d2)
-			return partialHide->ourImages[4].bitmap; //visble bottom
-		else if (d8)
-			return partialHide->ourImages[0].bitmap; //visible top
-		else if (d3)
-			return partialHide->ourImages[22].bitmap; //visible right bottom corner
-		else if (d9)
-			return partialHide->ourImages[15].bitmap; //visible right top corner
-		else if (d1)
-			return partialHide->ourImages[34].bitmap; //visible left bottom corner
-		else if (d7)
-			return partialHide->ourImages[35].bitmap; //visible left top corner
-		if (!d2 && !d8)
-		{
-			if (d1)
-			{
-				 if (d3)
-				 {
-					 if (d7)
-					 {
-						 if (d9)
-							 return partialHide->ourImages[21].bitmap;
-						 else
-							 return partialHide->ourImages[43].bitmap;
-					 }
-					 else
-					 {
-						 if (d9)
-							 return partialHide->ourImages[19].bitmap;
-						 else
-							 return partialHide->ourImages[40].bitmap;
-					 }
-				 }
-				 else
-				 {
-					 if (d7)
-					 {
-						 if (d9)
-							 return partialHide->ourImages[42].bitmap;
-						 else
-							 return partialHide->ourImages[39].bitmap;
-					 }
-					 else
-						 return partialHide->ourImages[17].bitmap;
-				 }
-			}
-			else
-			{
-				if(!d3)
-					return partialHide->ourImages[18].bitmap;
-				else if(!d7)
-					return partialHide->ourImages[16].bitmap; //visible right corner
-				else if(!d9)
-					return partialHide->ourImages[41].bitmap;
-				else
-					return partialHide->ourImages[20].bitmap;
-			}
-		}
-		if (d2)
-		{
-			if(d8)
-				return partialHide->ourImages[29].bitmap;
-			else if(d3)
-				return partialHide->ourImages[1].bitmap;
-			else
-				return partialHide->ourImages[5].bitmap;
-		}
-		else if (d7)
-			return partialHide->ourImages[4].bitmap;
-		else
-			return partialHide->ourImages[9].bitmap;
+		retBitmapID = - hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
 	}
-	else //(d4 && d6 != 0)
+
+	
+	if (retBitmapID >= 0)
 	{
-		if (d2)
-		{
-			if (d4)
-			{
-				if (d6)
-				{
-					if (d8)
-						return partialHide->ourImages[10].bitmap;
-					else
-						return partialHide->ourImages[6].bitmap;
-				}
-				else
-				{
-					if (d8)
-						return partialHide->ourImages[7].bitmap;
-					else if (d9)
-						return partialHide->ourImages[51].bitmap;
-					else
-						return partialHide->ourImages[38].bitmap;
-				}
-			}
-			else
-			{
-				if (d6)
-				{
-					if (d8)
-						return partialHide->ourImages[44].bitmap;
-					else if (d7)
-						return partialHide->ourImages[28].bitmap;
-					else
-						return partialHide->ourImages[12].bitmap;
-				}
-				else
-				{
-					if (d7)
-					{
-						if (d9)
-							return partialHide->ourImages[31].bitmap;
-						else
-							return partialHide->ourImages[48].bitmap;
-					}
-					else
-						return partialHide->ourImages[30].bitmap;
-				}
-			}
-		}
-		else
-		{
-			if (d4)
-			{
-				if (d6)
-				{
-					if (d8)
-						return partialHide->ourImages[8].bitmap;
-					else
-						return partialHide->ourImages[9].bitmap;
-				}
-				else
-				{
-					if (d8)
-					{
-						if (d3)
-							return partialHide->ourImages[50].bitmap;
-						else
-							return partialHide->ourImages[37].bitmap;
-					}
-					else
-					{
-						if (d3)
-						{
-							if (d9)
-								return partialHide->ourImages[32].bitmap;
-							else
-								return partialHide->ourImages[47].bitmap;
-						}
-						else
-						{
-							if (d9)
-								return partialHide->ourImages[46].bitmap;
-							else
-								return partialHide->ourImages[36].bitmap;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (d6)
-				{
-					if (d8)
-					{
-						if (d1)
-							return partialHide->ourImages[27].bitmap;
-						else
-							return partialHide->ourImages[13].bitmap;
-					}
-					else
-					{
-						if (d7)
-						{
-							if (d1)
-								return partialHide->ourImages[49].bitmap;
-							else
-								return partialHide->ourImages[26].bitmap;
-						}
-						else
-						{
-							if (d1)
-								return partialHide->ourImages[25].bitmap;
-							else
-							{
-								if (d9)
-									return partialHide->ourImages[2].bitmap;
-								else
-									return partialHide->ourImages[3].bitmap;
-							}
-						}
-					}
-				}
-				else
-				{
-					if (d1)
-					{
-						if (d3)
-							return partialHide->ourImages[33].bitmap;
-						else
-							return partialHide->ourImages[45].bitmap;
-					}
-					else
-						return partialHide->ourImages[24].bitmap;
-				}
-			}
-		}
+		return graphics->FoWpartialHide->ourImages[retBitmapID].bitmap;
 	}
-	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
+	else
+	{
+		return graphics->FoWfullHide->ourImages[-retBitmapID - 1].bitmap;
+	}
 }
 
 bool CMapHandler::printObject(const CGObjectInstance *obj)
@@ -1321,8 +1112,8 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 
 CMapHandler::~CMapHandler()
 {
-	delete fullHide;
-	delete partialHide;
+	delete graphics->FoWfullHide;
+	delete graphics->FoWpartialHide;
 
 	for(int i=0; i < roadDefs.size(); i++)
 		delete roadDefs[i];
@@ -1341,17 +1132,17 @@ CMapHandler::~CMapHandler()
 
 CMapHandler::CMapHandler()
 {
-	mapW = mapH = 0;
 	frameW = frameH = 0;
-	fullHide = NULL;
-	partialHide = NULL;
+	graphics->FoWfullHide = NULL;
+	graphics->FoWpartialHide = NULL;
 }
 
 void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
 {
 	out.clear();
-	TerrainTile2 &t = ttiles[pos.x][pos.y][pos.z];
-	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = t.objects.begin(); i != t.objects.end(); i++)
+	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+	const TerrainTile &t = map->terrain[pos.x][pos.y][pos.z];
+	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
 	{
 		if(i->first->ID == 124) //Hole
 		{
@@ -1360,12 +1151,12 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 		}
 	}
 
-	if(t.tileInfo->siodmyTajemniczyBajt & 128)
+	if(t.siodmyTajemniczyBajt & 128)
 		out = CGI->generaltexth->names[225]; //Favourable Winds
 	else if(terName)
-		out = CGI->generaltexth->terrainNames[t.tileInfo->tertype];
+		out = CGI->generaltexth->terrainNames[t.tertype];
 }
 
 TerrainTile2::TerrainTile2()
- :tileInfo(0),terbitmap(0)
+ :terbitmap(0)
 {}

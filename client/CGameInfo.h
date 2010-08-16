@@ -17,28 +17,20 @@ class CMapHandler;
 class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
-class CAbilityHandler;
 class CSpellHandler;
-class CAmbarCendamo;
-class CPreGameTextHandler;
 class CBuildingHandler;
 class CObjectHandler;
 class CSoundHandler;
 class CMusicHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
-class CLodHandler;
 class CGeneralTextHandler;
 class CConsoleHandler;
-class CPathfinder;
 class CCursorHandler;
-class CScreenHandler;
 class CGameState;
-class CMapHandler;
-class CGameInterface;
-class CPreGame;
-class CDefHandler;
 class CVideoPlayer;
+
+class Mapa;
 
 /*
 	CGameInfo class
@@ -62,13 +54,12 @@ public:
 	/*const*/ CGeneralTextHandler * generaltexth;
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;
-	/*const*/ CScreenHandler * screenh;
 	CVideoPlayer * videoh;
 
 	void setFromLib();
 
 	friend class CClient;
-	friend class CMapHandler; //TODO: remove it
+	friend void initVillagesCapitols(Mapa * map);
 
 	CGameInfo();
 };

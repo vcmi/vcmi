@@ -283,8 +283,8 @@ bool CCallback::verifyPath(CPath * path, bool blockSea) const
 {
 	for (size_t i=0; i < path->nodes.size(); ++i)
 	{
-		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->blocked 
-			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->visitable)))
+		if ( CGI->mh->map->terrain[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].blocked 
+			&& (! (CGI->mh->map->terrain[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].visitable)))
 			return false; //path is wrong - one of the tiles is blocked
 
 		if (blockSea)
@@ -293,15 +293,15 @@ bool CCallback::verifyPath(CPath * path, bool blockSea) const
 				continue;
 
 			if (
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==TerrainTile::water)
+					((CGI->mh->map->terrain[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tertype==TerrainTile::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=TerrainTile::water))
+					(CGI->mh->map->terrain[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tertype!=TerrainTile::water))
 				  ||
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=TerrainTile::water)
+					((CGI->mh->map->terrain[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tertype!=TerrainTile::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==TerrainTile::water))
+					(CGI->mh->map->terrain[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tertype==TerrainTile::water))
 				  ||
-				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==TerrainTile::rock)
+				  (CGI->mh->map->terrain[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tertype==TerrainTile::rock)
 					
 				)
 				return false;

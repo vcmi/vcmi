@@ -394,6 +394,36 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
+class DLL_EXPORT CSpecObjInfo
+{
+public:
+	virtual ~CSpecObjInfo(){};
+};
+
+class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	bool asCastle;
+	ui32 identifier;
+	unsigned char castles[2]; //allowed castles
+};
+class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	bool asCastle;
+	ui32 identifier;
+	unsigned char castles[2]; //allowed castles
+	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+};
+class DLL_EXPORT CCreGen3ObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+};
+
 class DLL_EXPORT CGDwelling : public CArmedInstance
 {
 public:

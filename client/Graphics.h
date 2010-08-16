@@ -59,6 +59,9 @@ public:
 	CDefEssential * flags;
 	std::vector<CDefEssential *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	std::map<std::string, CDefEssential*> mapObjectDefs; //pointers to loaded defs (key is filename, uppercase)
+	CDefHandler * FoWfullHide; //for Fog of War
+	CDefHandler * FoWpartialHide; //for For of War
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border

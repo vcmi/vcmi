@@ -191,6 +191,31 @@ void CClient::save(const std::string & fname)
 	*serv << &SaveGame(fname);
 }
 
+#include <fstream>
+void initVillagesCapitols(Mapa * map)
+{
+	std::ifstream ifs(DATA_DIR "/config/townsDefs.txt");
+	int ccc;
+	ifs>>ccc;
+	for(int i=0;i<ccc*2;i++)
+	{
+		CGDefInfo *n;
+		if(i<ccc)
+		{
+			n = CGI->state->villages[i];
+			map->defy.push_back(CGI->state->forts[i]);
+		}
+		else 
+			n = CGI->state->capitols[i%ccc];
+
+		ifs >> n->name;
+		if(!n)
+			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
+		else
+			map->defy.push_back(n);
+	}
+}
+
 void CClient::endGame()
 {
 	tlog0 << "\n\nEnding current game!" << std::endl;
@@ -274,6 +299,8 @@ void CClient::loadGame( const std::string & fname )
 		CGI->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
+		initVillagesCapitols(gs->map);
+
 		tlog0 <<"Initing maphandler: "<<tmh.getDif()<<std::endl;
 	}
 
@@ -391,6 +418,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	CGI->mh->map = gs->map;
 	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 	CGI->mh->init();
+	initVillagesCapitols(gs->map);
 	pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 

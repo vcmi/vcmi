@@ -206,7 +206,7 @@ void CPlayerInterface::yourTurn()
 	acceptTurn();
 }
 
-inline void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)
+STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
@@ -217,7 +217,7 @@ inline void subRect(const int & x, const int & y, const int & z, const SDL_Rect 
 		}
 }
 
-inline void delObjRect(const int & x, const int & y, const int & z, const int & hid)
+STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const int & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
@@ -392,10 +392,10 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 		pos.x = -CGI->mh->frameW;
 	if(pos.y<-CGI->mh->frameH)
 		pos.y = -CGI->mh->frameH;
-	if(pos.x>CGI->mh->map->width - adventureInt->terrain.tilesw + CGI->mh->frameW)
-		pos.x = CGI->mh->map->width - adventureInt->terrain.tilesw + CGI->mh->frameW;
-	if(pos.y>CGI->mh->map->height - adventureInt->terrain.tilesh + CGI->mh->frameH)
-		pos.y = CGI->mh->map->height - adventureInt->terrain.tilesh + CGI->mh->frameH;
+	if(pos.x>CGI->mh->sizes.x - adventureInt->terrain.tilesw + CGI->mh->frameW)
+		pos.x = CGI->mh->sizes.x - adventureInt->terrain.tilesw + CGI->mh->frameW;
+	if(pos.y>CGI->mh->sizes.y - adventureInt->terrain.tilesh + CGI->mh->frameH)
+		pos.y = CGI->mh->sizes.y - adventureInt->terrain.tilesh + CGI->mh->frameH;
 	return pos;
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)

@@ -31,40 +31,8 @@ class CGCreature;
 class CQuest;
 class CGTownInstance;
 
-enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
-	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
-	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
-	BORDERGUARD_DEF, HEROPLACEHOLDER_DEF};
 
-class DLL_EXPORT CSpecObjInfo
-{
-public:
-	virtual ~CSpecObjInfo(){};
-};
 
-class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char player; //owner
-	bool asCastle;
-	ui32 identifier;
-	unsigned char castles[2]; //allowed castles
-};
-class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char player; //owner
-	bool asCastle;
-	ui32 identifier;
-	unsigned char castles[2]; //allowed castles
-	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
-};
-class DLL_EXPORT CCreGen3ObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char player; //owner
-	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
-};
 struct DLL_EXPORT TerrainTile
 {
 	enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
@@ -294,11 +262,13 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	Mapa(std::string filename); //creates map structure from .h3m file
 	Mapa();
 	~Mapa();
-	TerrainTile &getTile(int3 tile);
-	const TerrainTile &getTile(int3 tile) const;
+	TerrainTile &getTile(const int3 & tile);
+	const TerrainTile &getTile(const int3 & tile) const;
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(const int3 &pos) const;
 	bool isWaterTile(const int3 &pos) const; //out-of-pos safe
+
+	void loadingHelper();
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);

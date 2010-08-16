@@ -81,64 +81,6 @@ static unsigned char reverse(unsigned char arg)
 	}
 	return ret;
 }
-static EDefType getDefType(CGDefInfo * a)
-{
-	switch(a->id)
-	{
-	case 5: case 65: case 66: case 67: case 68: case 69:
-		return ARTIFACT_DEF; //handled
-	case 6:
-		return PANDORA_DEF; //hanled
-	case 10:
-		return EVENTOBJ_DEF; //???
-	case 26:
-		return EVENTOBJ_DEF; //handled
-	case 33:
-		return GARRISON_DEF; //handled
-	case 34: case 70: case 62: //70 - random hero //62 - prison
-		return HERO_DEF; //handled
-	case 36:
-		return GRAIL_DEF; //hanled
-	case 53: case 17: case 18: case 19: case 20: case 42: case 87: case 220://cases 17 - 20 and 42 - tests
-		return PLAYERONLY_DEF; //handled
-	case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
-		return CREATURES_DEF; //handled
-	case 59:
-		return SIGN_DEF; //handled
-	case 77:
-		return TOWN_DEF; //can be problematic, but handled
-	case 79: case 76:
-		return RESOURCE_DEF; //handled
-	case 81:
-		return SCHOLAR_DEF; //handled
-	case 83:
-		return SEERHUT_DEF; //handled
-	case 91:
-		return SIGN_DEF; //handled
-	case 88: case 89: case 90:
-		return SHRINE_DEF; //handled
-	case 93:
-		return SPELLSCROLL_DEF; //handled
-	case 98:
-		return TOWN_DEF; //handled
-	case 113:
-		return WITCHHUT_DEF; //handled
-	case 214:
-		return HEROPLACEHOLDER_DEF; //partially handled
-	case 215: case 9: //???
-		return BORDERGUARD_DEF; //handled by analogy to seer huts ;]
-	case 216:
-		return CREGEN2_DEF; //handled
-	case 217:
-		return CREGEN_DEF; //handled
-	case 218:
-		return CREGEN3_DEF; //handled
-	case 219:
-		return GARRISON_DEF; //handled
-	default:
-		return TERRAINOBJ_DEF; // nothing to be handled
-	}
-}
 
 static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
@@ -2106,12 +2048,12 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 		guard->isCustom = false;  //randomize all if any text is missing
 }
 
-TerrainTile & Mapa::getTile( int3 tile )
+TerrainTile & Mapa::getTile( const int3 & tile )
 {
 	return terrain[tile.x][tile.y][tile.z];
 }
 
-const TerrainTile & Mapa::getTile( int3 tile ) const
+const TerrainTile & Mapa::getTile( const int3 & tile ) const
 {
 	return terrain[tile.x][tile.y][tile.z];
 }

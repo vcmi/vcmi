@@ -27,17 +27,12 @@ class CDefEssential;
 
 struct TerrainTile2
 {
-	int3 pos;
-	const TerrainTile *tileInfo;
 	SDL_Surface * terbitmap; //bitmap of terrain
 
 	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 	TerrainTile2();
 };
 
-//pathfinder
-//	map<int,int> iDTerenu=>koszt_pola
-//	map<int,int> IDdrogi=>koszt_drogi
 template <typename T> class PseudoV
 {
 public:
@@ -73,16 +68,13 @@ public:
 		return inver.size();
 	}
 };
+
 class CMapHandler
 {
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
-	Mapa * map;
-
-	// Size of the map window in pixels. This doesn't have to be a multiple of tiles.
-	int mapW;
-	int mapH;
+	const Mapa * map;
 
 	// Max number of tiles that will fit in the map screen. Tiles
 	// can be partial on each edges.
@@ -99,22 +91,18 @@ public:
 	int offsetX;
 	int offsetY;
 
-	std::set<int> usedHeroes;
-	CDefHandler * fullHide; //for Fog of War
-	CDefHandler * partialHide; //for For of War
+	//std::set<int> usedHeroes;
 
 	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
 	std::vector<CDefEssential *> roadDefs;
 	std::vector<CDefEssential *> staticRiverDefs;
-
-	std::map<std::string, CDefEssential*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
 	CMapHandler(); //c-tor
 	~CMapHandler(); //d-tor
 
-	SDL_Surface * getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
+	SDL_Surface * getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap);
 
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
