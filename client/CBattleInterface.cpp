@@ -987,7 +987,7 @@ bool CShootingAnim::init()
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
+	spi.spin = CGI->creh->idToProjectileSpin.find(spi.creID)->second;
 
 	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	Point destcoord;
@@ -1149,13 +1149,13 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
-			std::pair<int, int> moatPos = CGI->heroh->wallPositions[siegeH->town->town->typeID][10],
-				mlipPos = CGI->heroh->wallPositions[siegeH->town->town->typeID][11];
+			Point moatPos = graphics->wallPositions[siegeH->town->town->typeID][10],
+				mlipPos = graphics->wallPositions[siegeH->town->town->typeID][11];
 
 			if(moat) //eg. tower has no moat
-				blitAt(moat, moatPos.first,moatPos.second, background);
+				blitAt(moat, moatPos.x,moatPos.y, background);
 			if(mlip) //eg. tower has no mlip
-				blitAt(mlip, mlipPos.first, mlipPos.second, background);
+				blitAt(mlip, mlipPos.x, mlipPos.y, background);
 
 			SDL_FreeSurface(moat);
 			SDL_FreeSurface(mlip);
@@ -1258,9 +1258,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	for(std::map<int, CStack>::iterator g = stacks.begin(); g != stacks.end(); ++g)
 	{
 		int creID = (g->second.type->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : g->second.type->idNumber; //id of creature whose shots should be loaded
-		if(g->second.type->isShooting() && CGI->creh->idToProjectile[creID] != std::string())
+		if(g->second.type->isShooting() && CGI->creh->idToProjectile.find(creID) != CGI->creh->idToProjectile.end())
 		{	
-			idToProjectile[g->second.type->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile[creID]);
+			idToProjectile[g->second.type->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile.find(creID)->second);
 
 			if(idToProjectile[g->second.type->idNumber]->ourImages.size() > 2) //add symmetric images
 			{
@@ -1312,7 +1312,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	std::vector<CObstacleInstance> obst = curInt->cb->battleGetAllObstacles();
 	for(int t=0; t<obst.size(); ++t)
 	{
-		idToObstacle[obst[t].ID] = CDefHandler::giveDef(CGI->heroh->obstacles[obst[t].ID].defName);
+		idToObstacle[obst[t].ID] = CDefHandler::giveDef(CGI->heroh->obstacles.find(obst[t].ID)->second.defName);
 		for(int n=0; n<idToObstacle[obst[t].ID]->ourImages.size(); ++n)
 		{
 			SDL_SetColorKey(idToObstacle[obst[t].ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[obst[t].ID]->ourImages[n].bitmap->format,0,255,255));
@@ -1535,7 +1535,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::multimap<int, int> hexToObstacle;
 	for(int b=0; b<obstacles.size(); ++b)
 	{
-		int position = CGI->heroh->obstacles[obstacles[b].ID].getMaxBlocked(obstacles[b].pos);
+		int position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
 		hexToObstacle.insert(std::make_pair(position, b));
 	}
 
@@ -1635,7 +1635,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(std::multimap<int, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 		{
 			CObstacleInstance & curOb = obstacles[it->second];
-			std::pair<si16, si16> shift = CGI->heroh->obstacles[curOb.ID].posShift;
+			std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
 			int x = ((curOb.pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%BFIELD_WIDTH) + pos.x + shift.first;
 			int y = 86 + 42 * (curOb.pos/BFIELD_WIDTH) + pos.y + shift.second;
 			std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
@@ -2338,7 +2338,7 @@ bool CBattleInterface::blockedByObstacle(int hex) const
 	std::set<int> coveredHexes;
 	for(int b = 0; b < obstacles.size(); ++b)
 	{
-		std::vector<int> blocked = CGI->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
+		std::vector<int> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
 		for(int w = 0; w < blocked.size(); ++w)
 			coveredHexes.insert(blocked[w]);
 	}
@@ -2656,7 +2656,7 @@ void CBattleInterface::displayBattleFinished()
 
 void CBattleInterface::spellCast(BattleSpellCast * sc)
 {
-	CSpell &spell = CGI->spellh->spells[sc->id];
+	const CSpell &spell = CGI->spellh->spells[sc->id];
 
 	//spell opening battle is cast when no stack is active
 	if(sc->castedByHero && ( activeStack == -1 || sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned) )
@@ -4096,19 +4096,19 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 	case 10: //gate arch
 	case 11: //bottom static wall
 	case 12: //upper static wall
-		pos.x = CGI->heroh->wallPositions[town->town->typeID][what - 3].first + owner->pos.x;
-		pos.y = CGI->heroh->wallPositions[town->town->typeID][what - 3].second + owner->pos.y;
+		pos.x = graphics->wallPositions[town->town->typeID][what - 3].x + owner->pos.x;
+		pos.y = graphics->wallPositions[town->town->typeID][what - 3].y + owner->pos.y;
 		break;
 	case 15: //keep creature cover
 		pos = Point(owner->pos.w + owner->pos.x - walls[2]->w, 154 + owner->pos.y);
 		break;
 	case 16: //bottom turret creature cover
-		pos.x = CGI->heroh->wallPositions[town->town->typeID][0].first + owner->pos.x;
-		pos.y = CGI->heroh->wallPositions[town->town->typeID][0].second + owner->pos.y;
+		pos.x = graphics->wallPositions[town->town->typeID][0].x + owner->pos.x;
+		pos.y = graphics->wallPositions[town->town->typeID][0].y + owner->pos.y;
 		break;
 	case 17: //upper turret creature cover
-		pos.x = CGI->heroh->wallPositions[town->town->typeID][5].first + owner->pos.x;
-		pos.y = CGI->heroh->wallPositions[town->town->typeID][5].second + owner->pos.y;
+		pos.x = graphics->wallPositions[town->town->typeID][5].x + owner->pos.x;
+		pos.y = graphics->wallPositions[town->town->typeID][5].y + owner->pos.y;
 		break;
 	};
 

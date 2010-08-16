@@ -133,6 +133,8 @@ public:
 	virtual void castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 	
 	//map
+	virtual std::vector < const CGDwelling * > getMyDwellings() const =0; //returns all dwellings that belong to player
+	virtual std::vector < const CGObjectInstance * > getMyObjects() const =0; //returns all objects flagged by belonging player
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
 	virtual std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos)const =0;
 	virtual std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const =0;
@@ -153,6 +155,7 @@ public:
 
 	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTileInfo(int3 tile) const = 0;
+	virtual int getPlayerRelations(ui8 color1, ui8 color2) const =0;// 0 = enemy, 1 = ally, 2 = same player 
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -263,6 +266,8 @@ public:
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	int3 getGrailPos(float &outKnownRatio); //returns pos and (via arg) percent of discovered obelisks; TODO: relies on fairness of GUI/AI... :/
 
+	std::vector < const CGDwelling * > getMyDwellings() const; //returns all dwellings that belong to player
+	std::vector < const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
@@ -281,6 +286,7 @@ public:
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 	int3 guardingCreaturePosition (int3 pos) const;
 	int getPlayerStatus(int player) const;
+	int getPlayerRelations(ui8 color1, ui8 color2) const;// 0 = enemy, 1 = ally, 2 = same player 
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

@@ -12,7 +12,7 @@
  *
  */
 
-CGameInfo * CGI;
+CGameInfo * CGI; //game info for general use
 
 CGameInfo::CGameInfo()
 {

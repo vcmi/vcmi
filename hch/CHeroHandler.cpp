@@ -138,36 +138,6 @@ CHeroHandler::~CHeroHandler()
 CHeroHandler::CHeroHandler()
 {}
 
-void CHeroHandler::loadWallPositions()
-{
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/wall_pos.txt", std::ios_base::in|std::ios_base::binary);
-	if(!inp.is_open())
-	{
-		tlog1<<"missing file: config/wall_pos.txt"<<std::endl;
-	}
-	else
-	{
-		const int MAX_BUF = 2000;
-		char buf[MAX_BUF+1];
-
-		inp.getline(buf, MAX_BUF);
-		std::string dump;
-		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
-		{
-			inp >> dump;
-			for(int b=0; b<12; ++b)
-			{
-				std::pair<int, int> pt;
-				inp >> pt.first;
-				inp >> pt.second;
-				wallPositions[g].push_back(pt);
-			}
-		}
-	}
-	inp.close();
-}
-
 void CHeroHandler::loadObstacles()
 {
 	std::ifstream inp;
@@ -376,6 +346,11 @@ void CHeroHandler::loadHeroes()
 	expPerLevel.push_back(24320);
 	expPerLevel.push_back(28784);
 	expPerLevel.push_back(34140);
+	while (expPerLevel[expPerLevel.size() - 1] > expPerLevel[expPerLevel.size() - 2])
+	{
+		int i = expPerLevel.size() - 1;
+		expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
+	}
 
 	//ballistics info
 	buf = bitmaph->getTextFile("BALLIST.TXT");
@@ -498,7 +473,7 @@ void CHeroHandler::initHeroClasses()
 	loadNativeTerrains();
 }
 
-unsigned int CHeroHandler::level (ui64 experience)
+unsigned int CHeroHandler::level (ui64 experience) const
 {
 	int i;
 	if (experience <= expPerLevel.back())
@@ -515,7 +490,7 @@ unsigned int CHeroHandler::level (ui64 experience)
 	}
 }
 
-ui64 CHeroHandler::reqExp (unsigned int level)
+ui64 CHeroHandler::reqExp (unsigned int level) const
 {
 	if(!level)
 		return 0;
@@ -526,12 +501,8 @@ ui64 CHeroHandler::reqExp (unsigned int level)
 	}
 	else
 	{
-		while (level > expPerLevel.size())
-		{
-			int i = expPerLevel.size() - 1;
-			expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
-		}
-		return expPerLevel[level-1];
+		tlog3 << "A hero has reached unsupported amount of experience\n";
+		return expPerLevel[expPerLevel.size()-1];
 	}
 }
 

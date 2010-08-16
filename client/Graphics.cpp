@@ -279,6 +279,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
+	tasks += boost::bind(&Graphics::loadWallPositions,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
 	tasks += GET_SURFACE(heroInGarrison,"TOWNQKGH.bmp");
@@ -364,6 +365,37 @@ void Graphics::loadHeroPortraits()
 	}
 	of.close();
 }
+
+void Graphics::loadWallPositions()
+{
+	std::ifstream inp;
+	inp.open(DATA_DIR "/config/wall_pos.txt", std::ios_base::in|std::ios_base::binary);
+	if(!inp.is_open())
+	{
+		tlog1<<"missing file: config/wall_pos.txt"<<std::endl;
+	}
+	else
+	{
+		const int MAX_BUF = 2000;
+		char buf[MAX_BUF+1];
+
+		inp.getline(buf, MAX_BUF);
+		std::string dump;
+		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
+		{
+			inp >> dump;
+			for(int b=0; b<12; ++b)
+			{
+				Point pt;
+				inp >> pt.x;
+				inp >> pt.y;
+				wallPositions[g].push_back(pt);
+			}
+		}
+	}
+	inp.close();
+}
+
 void Graphics::loadHeroAnims()
 {
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1

@@ -42,32 +42,40 @@ class CVideoPlayer;
 
 /*
 	CGameInfo class
-	for allowing different functions for modifying game informations
+	for allowing different functions for accessing game informations
 */
 class CGameInfo
 {
+	/*const*/ CGameState * state; //don't touch it in client's code
 public:
-	CGameState * state;
-	CArtHandler * arth;
-	CHeroHandler * heroh;
-	CCreatureHandler * creh;
-	CSpellHandler * spellh;
-	CMapHandler * mh;
-	CBuildingHandler * buildh;
-	CObjectHandler * objh;
+	/*const*/ CArtHandler * arth;
+	/*const*/ CHeroHandler * heroh;
+	/*const*/ CCreatureHandler * creh;
+	/*const*/ CSpellHandler * spellh;
+	/*const*/ CMapHandler * mh;
+	/*const*/ CBuildingHandler * buildh;
+	/*const*/ CObjectHandler * objh;
 	CSoundHandler * soundh;
 	CMusicHandler * musich;
-	CDefObjInfoHandler * dobjinfo;
-	CTownHandler * townh;
-	CGeneralTextHandler * generaltexth;
+	/*const*/ CDefObjInfoHandler * dobjinfo;
+	/*const*/ CTownHandler * townh;
+	/*const*/ CGeneralTextHandler * generaltexth;
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;
-	CScreenHandler * screenh;
+	/*const*/ CScreenHandler * screenh;
 	CVideoPlayer * videoh;
 
-	CGameInfo();
 	void setFromLib();
+
+	friend class CClient;
+	friend class CMapHandler; //TODO: remove it
+
+	CGameInfo();
 };
+
+
+
+
 
 
 #endif // __CGAMEINFO_H__

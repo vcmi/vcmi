@@ -170,7 +170,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	{
 		int bid = hordeToDwellingID(str->ID);
 		
-		CBuilding *bld = CGI->buildh->buildings[str->townID][bid];
+		CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		assert(bld);
 
 		CInfoPopup *vinya = new CInfoPopup();
@@ -192,7 +192,7 @@ std::string getBuildingSubtitle(int tid, int bid)//hover text for building
 	bid = hordeToDwellingID(bid);
 	
 	if (bid<30)//non-dwellings - only buiding name
-		return CGI->buildh->buildings[tid][bid]->Name();
+		return CGI->buildh->buildings[tid].find(bid)->second->Name();
 	else//dwellings - recruit %creature%
 	{
 		int creaID = t->creatures[(bid-30)%CREATURES_PER_TOWN].second.back();//taking last of available creatures
@@ -576,7 +576,7 @@ void CCastleInterface::buildingClicked(int building)
 	tlog5<<"You've clicked on "<<building<<std::endl;
 	building = hordeToDwellingID(building);
 
-	const CBuilding *b = CGI->buildh->buildings[town->subID][building];
+	const CBuilding *b = CGI->buildh->buildings[town->subID].find(building)->second;
 
 	if(building >= 30)
 	{
@@ -799,7 +799,7 @@ void CCastleInterface::defaultBuildingClicked(int building)
 		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
 
 	LOCPLINT->showInfoDialog(
-		CGI->buildh->buildings[town->subID][building]->Description(),
+		CGI->buildh->buildings[town->subID].find(building)->second->Description(),
 		comps, soundBase::sound_todo);
 }
 
@@ -808,9 +808,9 @@ void CCastleInterface::enterFountain(int building)
 	std::vector<SComponent*> comps(1,
 		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
 
-	std::string descr = CGI->buildh->buildings[town->subID][building]->Description();
+	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
 	if ( building == 21)//we need description for mystic pond as well
-	descr += "\n\n"+CGI->buildh->buildings[town->subID][17]->Description();
+	descr += "\n\n"+CGI->buildh->buildings[town->subID].find(17)->second->Description();
 	if (town->bonusValue.first == 0)//fountain was builded this week
 		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
 	else//fountain produced something;
@@ -830,7 +830,7 @@ void CCastleInterface::enterBlacksmith(int ArtifactID)
 	if(!hero)
 	{
 		std::string pom = CGI->generaltexth->allTexts[273];
-		boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->Name());
+		boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID].find(16)->second->Name());
 		LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
 		return;
 	}
@@ -999,7 +999,7 @@ void CCastleInterface::recreateBuildings()
 
 	for (std::set<si32>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
 	{
-		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
+		if(town->subID >= 0 && town->subID < CGI->townh->structures.size()) //we have info about structures in this town
 		{
 			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
 			{
@@ -1242,10 +1242,10 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 
 			cnt = 0;
 
-			for (std::vector<CGDwelling*>::const_iterator it = CGI->state->players[ci->town->tempOwner].dwellings.begin();
-				it !=CGI->state->players[ci->town->tempOwner].dwellings.end(); ++it)
-					if (CGI->creh->creatures[ci->town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
-						cnt++;//external dwellings count to summ
+			std::vector< const CGDwelling * > myDwellings = LOCPLINT->cb->getMyDwellings();
+			for (std::vector<const CGDwelling*>::const_iterator it = myDwellings.begin(); it != myDwellings.end(); ++it)
+				if (CGI->creh->creatures[ci->town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
+					cnt++;//external dwellings count to summ
 			summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
 
 			const CGHeroInstance * ch = ci->town->garrisonHero;

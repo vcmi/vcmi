@@ -248,6 +248,7 @@ int main(int argc, char** argv)
 	srand ( time(NULL) );
 	//CPG=NULL;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
+
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 	{
 		tlog1<<"Something was wrong: "<< SDL_GetError() << std::endl;

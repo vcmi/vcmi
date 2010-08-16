@@ -128,27 +128,25 @@ CKingdomInterface::CKingdomInterface()
 	INSERT_MAP (87,0) ,87));//Harbor
 	#undef INSERT_MAP
 
-	for(size_t i = 0; i<CGI->state->map->objects.size(); i++)//getting mines and dwelling (in one pass to make it faster)
+	std::vector<const CGObjectInstance * > myObjects = LOCPLINT->cb->getMyObjects();
+	for(size_t i = 0; i<myObjects.size(); i++)//getting mines and dwelling (in one pass to make it faster)
 	{
-		CGObjectInstance* obj = CGI->state->map->objects[i];//current object
+		const CGObjectInstance* obj = myObjects[i];//current object
 		if (obj)
 		{
-			if (obj->tempOwner == CGI->state->currentPlayer)//if object is our
+			std::pair<int,int > curElm = std::pair<int,int >(obj->ID, obj->subID);
+			if ( obj->ID == 17 )//dwelling, text is a plural name of a creature
 			{
-				std::pair<int,int > curElm = std::pair<int,int >(obj->ID, obj->subID);
-				if ( obj->ID == 17 )//dwelling, text is a plural name of a creature
-				{
-					objList[obj->subID].first += 1;
-					objList[obj->subID].second = & CGI->creh->creatures[CGI->objh->cregens[obj->subID]]->namePl;
-				}
-				else if (addObjects.find(curElm) != addObjects.end())
-				{//object from addObjects map, text is name of the object
-					objList[addObjects[curElm]].first += 1;
-					objList[addObjects[curElm]].second = & obj->hoverName;
-				}
-				else if ( obj->ID == 53 )//TODO: abandoned mines
-					incomesVal[obj->subID]+=1;
+				objList[obj->subID].first += 1;
+				objList[obj->subID].second = & CGI->creh->creatures[CGI->objh->cregens[obj->subID]]->namePl;
 			}
+			else if (addObjects.find(curElm) != addObjects.end())
+			{//object from addObjects map, text is name of the object
+				objList[addObjects[curElm]].first += 1;
+				objList[addObjects[curElm]].second = & obj->hoverName;
+			}
+			else if ( obj->ID == 53 )//TODO: abandoned mines
+				incomesVal[obj->subID]+=1;
 		}
 	}
 

@@ -64,8 +64,8 @@ class DLL_EXPORT CTownHandler
 {
 public:
 	std::vector<CTown> towns;
-	std::map<int,std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
-	std::map<int, std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
+	std::vector<std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
+	std::vector<std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
 
 	CTownHandler(); //c-tor
 	~CTownHandler(); //d-tor

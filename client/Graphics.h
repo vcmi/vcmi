@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include "../global.h"
 #include "FontBase.h"
+#include "GUIBase.h"
 
 /*
  * Graphics.h, part of VCMI engine
@@ -69,6 +70,7 @@ public:
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
+	std::vector< Point > wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
 	CDefEssential * abils32, * abils44, * abils82;
 	//spells
@@ -82,6 +84,7 @@ public:
 	void loadHeroAnims();
 	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
 	void loadHeroPortraits();
+	void loadWallPositions();
 	SDL_Surface * drawHeroInfoWin(const InfoAboutHero &curh);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
 	SDL_Surface * drawTownInfoWin(const InfoAboutTown & curh);

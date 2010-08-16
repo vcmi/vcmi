@@ -25,8 +25,8 @@ CTownHandler::CTownHandler()
 }
 CTownHandler::~CTownHandler()
 {
-	for( std::map<int,std::map<int, Structure*> >::iterator i= structures.begin(); i!=structures.end(); i++)
-		for( std::map<int, Structure*>::iterator j = i->second.begin(); j!=i->second.end(); j++)
+	for( std::vector<std::map<int, Structure*> >::iterator i= structures.begin(); i!=structures.end(); i++)
+		for( std::map<int, Structure*>::iterator j = i->begin(); j!=i->end(); j++)
 			delete j->second;
 }
 void CTownHandler::loadNames()
@@ -94,6 +94,7 @@ void CTownHandler::loadNames()
 	of.clear();
 
 	of.open(DATA_DIR "/config/requirements.txt");
+	requirements.resize(F_NUMBER);
 	while(!of.eof())
 	{
 		int ile, town, build, pom;
@@ -124,6 +125,7 @@ void CTownHandler::loadNames()
 
 void CTownHandler::loadStructures()
 {
+	structures.resize(F_NUMBER);
 	//read buildings coords
 	std::ifstream of(DATA_DIR "/config/buildings.txt");
 	while(!of.eof())
@@ -151,7 +153,7 @@ void CTownHandler::loadStructures()
 	of >> format >> idt;
 	while(!of.eof())
 	{
-		std::map<int,std::map<int, Structure*> >::iterator i;
+		std::vector<std::map<int, Structure*> >::iterator i;
 		std::map<int, Structure*>::iterator i2;
 		int itr=1, buildingID;
 		int castleID;
@@ -165,8 +167,8 @@ void CTownHandler::loadStructures()
 			if (s == "END")
 				break;
 			else
-				if((i=structures.find(castleID))!=structures.end())
-					if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
+				if( (i=structures.begin() + castleID) != structures.end() )
+					if( (i2 = i->find( buildingID = atoi(s.c_str()) )) != (i->end()) )
 						i2->second->pos.z=itr++;
 					else
 						tlog3 << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
@@ -181,14 +183,14 @@ void CTownHandler::loadStructures()
 	of.open(DATA_DIR "/config/buildings3.txt");
 	while(!of.eof())
 	{
-		std::map<int,std::map<int, Structure*> >::iterator i;
+		std::vector<std::map<int, Structure*> >::iterator i;
 		std::map<int, Structure*>::iterator i2;
 		int town, id;
 		std::string border, area;
 		of >> town >> id >> border >> border >> area;
 
-		if((i=structures.find(town))!=structures.end())
-			if((i2=(i->second.find(id)))!=(i->second.end()))
+		if( (i = structures.begin() + town) != structures.end() )
+			if((i2=(i->find(id)))!=(i->end()))
 			{
 				i2->second->borderName = border;
 				i2->second->areaName = area;
@@ -216,7 +218,7 @@ void CTownHandler::loadStructures()
 		int itr=1;
 		while(!of.eof())
 		{
-			std::map<int,std::map<int, Structure*> >::iterator i;
+			std::vector<std::map<int, Structure*> >::iterator i;
 			std::map<int, Structure*>::iterator i2;
 			int buildingID;
 			int castleID;
@@ -246,8 +248,8 @@ void CTownHandler::loadStructures()
 						buildingID = atoi(s.c_str());
 						if(castleID>=0)
 						{
-							if((i=structures.find(castleID))!=structures.end())
-								if((i2=(i->second.find(buildingID)))!=(i->second.end()))
+							if((i = structures.begin() + castleID) != structures.end())
+								if((i2=(i->find(buildingID)))!=(i->end()))
 									i2->second->group = itr;
 								else
 									tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
@@ -258,7 +260,7 @@ void CTownHandler::loadStructures()
 						{
 							for(i=structures.begin();i!=structures.end();i++)
 							{
-								for(i2=i->second.begin(); i2!=i->second.end(); i2++)
+								for(i2=i->begin(); i2!=i->end(); i2++)
 								{
 									if(i2->first == buildingID)
 									{

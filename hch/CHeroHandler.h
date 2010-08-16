@@ -132,9 +132,6 @@ public:
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
-	std::vector<std::pair<int, int> > wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
-	void loadWallPositions();
-
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 	std::vector<int> nativeTerrains; //info about native terrains of different factions
 
@@ -143,8 +140,8 @@ public:
 	std::vector<SPuzzleInfo> puzzleInfo[F_NUMBER]; //descriptions of puzzles
 	void loadPuzzleInfo();
 
-	unsigned int level(ui64 experience); //calculates level corresponding to given experience amount
-	ui64 reqExp(unsigned int level); //calculates experience required for given level
+	unsigned int level(ui64 experience) const; //calculates level corresponding to given experience amount
+	ui64 reqExp(unsigned int level) const; //calculates experience required for given level
 
 	void loadHeroes();
 	void loadHeroClasses();
@@ -156,7 +153,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & wallPositions & obstacles & nativeTerrains & puzzleInfo;
+		h & heroClasses & heroes & expPerLevel & ballistics & obstacles & nativeTerrains & puzzleInfo;
 		if(!h.saving)
 		{
 			//restore class pointers

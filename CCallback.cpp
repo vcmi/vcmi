@@ -987,6 +987,34 @@ std::string CCallback::getTavernGossip(const CGObjectInstance * townOrTavern) co
 	return "GOSSIP TEST";
 }
 
+std::vector < const CGObjectInstance * > CCallback::getMyObjects() const
+{
+	std::vector < const CGObjectInstance * > ret;
+	for (int g=0; g<gs->map->objects.size(); ++g)
+	{
+		if (gs->map->objects[g]->tempOwner == LOCPLINT->playerID)
+		{
+			ret.push_back(gs->map->objects[g]);
+		}
+	}
+	return ret;
+}
+
+std::vector < const CGDwelling * > CCallback::getMyDwellings() const
+{
+	std::vector < const CGDwelling * > ret;
+	BOOST_FOREACH(CGDwelling * dw, gs->getPlayer(player)->dwellings)
+	{
+		ret.push_back(dw);
+	}
+	return ret;
+}
+
+int CCallback::getPlayerRelations( ui8 color1, ui8 color2 ) const
+{
+	return gs->getPlayerRelations(color1, color2);
+}
+
 InfoAboutTown::InfoAboutTown()
 {
 	tType = NULL;

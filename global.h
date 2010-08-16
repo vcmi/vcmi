@@ -77,7 +77,8 @@ enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
 enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING};
 
 class CGameInfo;
-extern CGameInfo* CGI;
+extern CGameInfo* CGI; //game info for general use
+
 
 const int HEROI_TYPE = 34, 
 	TOWNI_TYPE = 98,

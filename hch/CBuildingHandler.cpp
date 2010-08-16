@@ -54,6 +54,7 @@ void CBuildingHandler::loadBuildings()
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
 
 	//read 9 special buildings for every faction
+	buildings.resize(F_NUMBER);
 	for(int i=0;i<F_NUMBER;i++)
 	{
 		temp = readTo(buf,it,'\n');//read blank line and faction name
@@ -166,8 +167,8 @@ void CBuildingHandler::loadBuildings()
 
 CBuildingHandler::~CBuildingHandler()
 {
-	for(std::map<int, std::map<int, CBuilding*> >::iterator i=buildings.begin(); i!=buildings.end(); i++)
-		for(std::map<int, CBuilding*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
+	for(std::vector< std::map<int, CBuilding*> >::iterator i=buildings.begin(); i!=buildings.end(); i++)
+		for(std::map<int, CBuilding*>::iterator j=i->begin(); j!=i->end(); j++)
 			delete j->second;
 }
 

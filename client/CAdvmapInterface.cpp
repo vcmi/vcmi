@@ -1773,7 +1773,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 	}
 	//check if we can select this object
 	bool canSelect = topBlocking && topBlocking->ID == HEROI_TYPE && topBlocking->tempOwner == LOCPLINT->playerID;
-	canSelect |= topBlocking && topBlocking->ID == TOWNI_TYPE && CGI->state->getPlayerRelations(topBlocking->tempOwner, LOCPLINT->playerID);
+	canSelect |= topBlocking && topBlocking->ID == TOWNI_TYPE && LOCPLINT->cb->getPlayerRelations(topBlocking->tempOwner, LOCPLINT->playerID);
 
 	if (selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
 	{
@@ -1881,7 +1881,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 	{
 		if(objAtTile)
 		{
-			if(objAtTile->ID == TOWNI_TYPE && CGI->state->getPlayerRelations(objAtTile->tempOwner, LOCPLINT->playerID))
+			if(objAtTile->ID == TOWNI_TYPE && LOCPLINT->cb->getPlayerRelations(objAtTile->tempOwner, LOCPLINT->playerID))
 				CGI->curh->changeGraphic(0, 3);
 			else if(objAtTile->ID == HEROI_TYPE && objAtTile->tempOwner == LOCPLINT->playerID)
 				CGI->curh->changeGraphic(0, 2);
@@ -1895,7 +1895,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		{
 			if(objAtTile->ID == HEROI_TYPE)
 			{
-				if(!CGI->state->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy hero
+				if(!LOCPLINT->cb->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy hero
 				{
 					if(accessible)
 						CGI->curh->changeGraphic(0, 5 + turns*6);
@@ -1914,7 +1914,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			}
 			else if(objAtTile->ID == TOWNI_TYPE)
 			{
-				if(!CGI->state->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy town
+				if(!LOCPLINT->cb->getPlayerRelations( objAtTile->tempOwner, LOCPLINT->playerID)) //enemy town
 				{
 					if(accessible) 
 					{
@@ -1955,7 +1955,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 
 					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
 					if (garrObj&&  garrObj->stacksCount() 
-						&& !CGI->state->getPlayerRelations( garrObj->tempOwner, LOCPLINT->playerID) )
+						&& !LOCPLINT->cb->getPlayerRelations( garrObj->tempOwner, LOCPLINT->playerID) )
 						CGI->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CGI->curh->changeGraphic(0, 9 + turns*6);
