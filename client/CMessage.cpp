@@ -13,6 +13,7 @@
 #include "GUIClasses.h"
 #include "AdventureMapButton.h"
 #include "CConfigHandler.h"
+#include "CBitmapHandler.h"
 
 /*
  * CMessage.cpp, part of VCMI engine

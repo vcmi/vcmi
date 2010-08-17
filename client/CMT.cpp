@@ -32,7 +32,6 @@
 #include "../hch/CVideoHandler.h"
 #include "../hch/CLodHandler.h"
 #include "../hch/CDefHandler.h"
-#include "../hch/CAmbarCendamo.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"

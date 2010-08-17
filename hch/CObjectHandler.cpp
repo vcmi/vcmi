@@ -4625,6 +4625,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 				i->second.setType(11);
 			}
 			cb->giveCreatures(h->id, h, creatures); //suboptimal again, but creature sets are screwed in general
+			iw.components.push_back(Component(Component::CREATURE,11,0,1));
 		}
 		else
 			messageID = 137;
@@ -5538,9 +5539,10 @@ void CBank::initialize() const
 	{
 		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
 		{	
-				cb->setObjProperty (id, 18 + i, ran()); //synchronic
+				cb->setObjProperty (id, 18 + i, ran()); //synchronic artifacts
 		}
 	}
+	cb->setObjProperty (id, 17, ran()); //get army
 }
 void CBank::setPropertyDer (ui8 what, ui32 val)
 /// random values are passed as arguments and processed identically on all clients
@@ -5727,7 +5729,6 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 {
 	if (accept)
 	{
-		cb->setObjProperty (id, 17, ran()); //get army
 		cb->startBattleI (h, this, boost::bind (&CBank::endBattle, this, h, _1), true);
 	}
 }
@@ -5856,10 +5857,10 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures (id, h, ourArmy);
 		}
-		cb->setObjProperty (id, 15, 0); //bc = NULL
+		//cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
-	else //in case of defeat
-		initialize();
+	//else //in case of defeat
+	//	initialize();
 }
 
 void CGPyramid::initObj()
@@ -5900,7 +5901,7 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 	{
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
-		bd.soundID = soundBase::DANGER;
+		bd.soundID = soundBase::MYSTERY;
 		bd.text << VLC->generaltexth->advobtxt[105];
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));	
 	}

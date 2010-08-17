@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="VCMI_client"
 	ProjectGUID="{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
 	RootNamespace="VCMI_client"
@@ -379,10 +379,6 @@
 			</File>
 			<File
 				RelativePath=".\GUIClasses.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\mapHandler.cpp"
 				>
 			</File>
 			<File

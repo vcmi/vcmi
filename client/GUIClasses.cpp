@@ -874,7 +874,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->spellh->spells[Subtype].name;
 		break;
 	case creature:
-		subtitle = boost::lexical_cast<std::string>(Val) + " " + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
+		if (Val) //no need to display 0 value
+			subtitle = boost::lexical_cast<std::string>(Val) + " " + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 		break;
 	case experience:
 		description = CGI->generaltexth->allTexts[241];
