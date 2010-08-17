@@ -1110,6 +1110,7 @@ public:
 
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
+	void showEyes(const CGHeroInstance * h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

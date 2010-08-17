@@ -1,22 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_client", "client\VCMI_client.vcproj", "{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_client", "client\VCMI_client.vcxproj", "{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_lib", "lib\VCMI_lib.vcproj", "{B952FFC5-3039-4DE1-9F08-90ACDA483D8F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_lib", "lib\VCMI_lib.vcxproj", "{B952FFC5-3039-4DE1-9F08-90ACDA483D8F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_server", "server\VCMI_server.vcproj", "{8AF697C3-465E-4910-B31B-576A9ECDB309}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_server", "server\VCMI_server.vcxproj", "{8AF697C3-465E-4910-B31B-576A9ECDB309}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "genius", "AI\GeniusAI\genius.vcproj", "{B6A14ED9-E7C1-411B-A596-2FE90B3145B4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "genius", "AI\GeniusAI\genius.vcxproj", "{B6A14ED9-E7C1-411B-A596-2FE90B3145B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
