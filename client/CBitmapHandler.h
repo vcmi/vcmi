@@ -2,7 +2,6 @@
 #define __CBITMAPHANDLER_H__
 
 
-
 #include "../global.h"
 struct SDL_Surface;
 class CLodHandler;

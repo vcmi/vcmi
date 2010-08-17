@@ -27,6 +27,7 @@
 #include <boost/format.hpp>
 #include <sstream>
 #include <SDL.h>
+#include "CBitmapHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;

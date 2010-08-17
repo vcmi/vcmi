@@ -980,7 +980,7 @@ void CGHeroInstance::initObj()
 	if(!type)
 		return; //TODO support prison
 
-	for (std::vector<specialInfo>::const_iterator it = type->spec.begin(); it != type->spec.end(); it++)
+	for (std::vector<SSpecialtyInfo>::const_iterator it = type->spec.begin(); it != type->spec.end(); it++)
 	{
 		bonus.val = it->val;
 		bonus.id = id; //from the hero, speciality has no unique id

@@ -17,17 +17,11 @@ class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
-//class CPreGameTextHandler;
 class CBuildingHandler;
 class CObjectHandler;
-//class CMusicHandler;
-//class CSemiLodHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
-//class CConsoleHandler;
-//class CPathfinder;
-//class CGameState;
 
 class DLL_EXPORT LibClasses
 {

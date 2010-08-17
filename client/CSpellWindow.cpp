@@ -16,6 +16,7 @@
 #include <sstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
+#include "CBitmapHandler.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine

@@ -393,7 +393,7 @@ void CHeroHandler::loadHeroes()
 		dump.clear();
 		inp.open(DATA_DIR "/config/specials.txt"); //loading hero specials
 		assert(inp);
-		specialInfo dummy;
+		SSpecialtyInfo dummy;
 		si32 hid;
 		inp.ignore(100, '\n');
 		for (int i = 0; i < 175; ++i)

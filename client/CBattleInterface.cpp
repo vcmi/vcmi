@@ -3447,7 +3447,6 @@ CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bo
 		}
 		CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
 	}
-	dh->alphaTransformed = true;
 
 	if(flip)
 		flag = CDefHandler::giveDef("CMFLAGR.DEF");

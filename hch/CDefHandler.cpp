@@ -4,6 +4,7 @@
 #include <sstream>
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../client/CBitmapHandler.h"
 
 /*
  * CDefHandler.cpp, part of VCMI engine
@@ -25,13 +26,10 @@ static long long pow(long long a, int b)
 }
 CDefHandler::CDefHandler()
 {
-	//FDef = NULL;
 	notFreeImgs = false;
 }
 CDefHandler::~CDefHandler()
 {
-	//if (FDef)
-		//delete [] FDef;
 	if (notFreeImgs)
 		return;
 	for (size_t i=0; i<ourImages.size(); ++i)
@@ -369,7 +367,6 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 		throw "bad def name!";
 	CDefHandler * nh = new CDefHandler();
 	nh->openFromMemory(data, defName);
-	nh->alphaTransformed = false;
 	delete [] data;
 	return nh;
 }

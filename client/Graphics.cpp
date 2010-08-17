@@ -19,6 +19,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CCreatureHandler.h"
+#include "CBitmapHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;

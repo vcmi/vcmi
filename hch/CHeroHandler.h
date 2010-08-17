@@ -18,12 +18,14 @@ class CHeroClass;
 class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
-struct specialInfo
+
+struct SSpecialtyInfo
 {	si32 type;
 	si32 val;
 	si32 subtype;
 	si32 additionalinfo;
 };
+
 class DLL_EXPORT CHero
 {
 public:
@@ -38,7 +40,7 @@ public:
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
-	std::vector<specialInfo> spec;
+	std::vector<SSpecialtyInfo> spec;
 	si32 startingSpell; //-1 if none
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 

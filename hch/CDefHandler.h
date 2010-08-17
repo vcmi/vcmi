@@ -1,10 +1,10 @@
 #ifndef __CDEFHANDLER_H__
 #define __CDEFHANDLER_H__
-#include "../client/CBitmapHandler.h"
-#include <SDL_stdinc.h>
+
+#include "../global.h"
+
 struct SDL_Surface;
-class CDefEssential;
-class CLodHandler;
+struct BMPPalette;
 
 /*
  * CDefHandler.h, part of VCMI engine
@@ -26,20 +26,20 @@ struct Cimage
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
 struct SDefEntryBlock {
-	Uint32 unknown1;
-	Uint32 totalInBlock;
-	Uint32 unknown2;
-	Uint32 unknown3;
+	ui32 unknown1;
+	ui32 totalInBlock;
+	ui32 unknown2;
+	ui32 unknown3;
 	unsigned char data[0];
 };
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
 struct SDefEntry {
-	Uint32 DEFType;
-	Uint32 width;
-	Uint32 height;
-	Uint32 totalBlocks;
+	ui32 DEFType;
+	ui32 width;
+	ui32 height;
+	ui32 totalBlocks;
 
 	struct {
 		unsigned char R;
@@ -55,14 +55,21 @@ struct SDefEntry {
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
 struct SSpriteDef {
-	Uint32 prSize;
-	Uint32 defType2;
-	Uint32 FullWidth;
-	Uint32 FullHeight;
-	Uint32 SpriteWidth;
-	Uint32 SpriteHeight;
-	Uint32 LeftMargin;
-	Uint32 TopMargin;
+	ui32 prSize;
+	ui32 defType2;
+	ui32 FullWidth;
+	ui32 FullHeight;
+	ui32 SpriteWidth;
+	ui32 SpriteHeight;
+	ui32 LeftMargin;
+	ui32 TopMargin;
+};
+
+class CDefEssential //DefHandler with images only
+{
+public:
+	std::vector<Cimage> ourImages;
+	~CDefEssential(); //d-tor
 };
 
 class CDefHandler
@@ -83,7 +90,6 @@ public:
 	int width, height; //width and height
 	std::string defName;
 	std::vector<Cimage> ourImages;
-	bool alphaTransformed;
 	bool notFreeImgs;
 
 	CDefHandler(); //c-tor
@@ -97,12 +103,6 @@ public:
 	static CDefEssential * giveDefEss(const std::string & defName);
 };
 
-class CDefEssential //DefHandler with images only
-{
-public:
-	std::vector<Cimage> ourImages;
-	~CDefEssential(); //d-tor
-};
 
 
 #endif // __CDEFHANDLER_H__

@@ -5,6 +5,7 @@
 #include "../global.h"
 #include "../hch/CDefHandler.h"
 #include "GUIBase.h"
+#include "../client/CBitmapHandler.h"
 
 /*
  * CCreatureAnimation.h, part of VCMI engine
@@ -15,6 +16,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+struct BMPPalette;
 
 class CCreatureAnimation : public CIntObject
 {

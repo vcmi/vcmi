@@ -38,6 +38,7 @@
 #include "../hch/CSpellHandler.h" /*for campaign bonuses*/
 #include "../hch/CArtHandler.h" /*for campaign bonuses*/
 #include "../hch/CBuildingHandler.h" /*for campaign bonuses*/
+#include "CBitmapHandler.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
