@@ -2875,6 +2875,20 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	return true;
 }
 
+void CGameHandler::changeCreatureType (int objid, TSlot slot, TCreature creature)
+{
+	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid]);
+	if (obj)
+	{
+		SetGarrisons sg;
+		sg.garrs[objid] = obj->getArmy();
+		sg.garrs[objid].slots[slot].setType(creature);
+		sendAndApply(&sg);
+	}
+	else
+		tlog2 <<"Illegal call of changeCreatureType for non-armed instance!\n";	
+}
+
 bool CGameHandler::garrisonSwap( si32 tid )
 {
 	CGTownInstance *town = gs->getTown(tid);

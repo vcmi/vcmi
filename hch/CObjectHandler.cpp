@@ -4619,13 +4619,11 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		if (creatures.slots.size())
 		{
 			messageID = 138;
-			cb->takeCreatures(h->id, creatures.slots);
-			for (std::map<TSlot, CStackInstance>::iterator i = creatures.slots.begin(); i != creatures.slots.end(); i++)
-			{
-				i->second.setType(11);
-			}
-			cb->giveCreatures(h->id, h, creatures); //suboptimal again, but creature sets are screwed in general
 			iw.components.push_back(Component(Component::CREATURE,11,0,1));
+			for (TSlots::const_iterator i = creatures.slots.begin(); i != creatures.slots.end(); ++i)
+			{
+				cb->changeCreatureType(h->id, i->first, 11);
+			}
 		}
 		else
 			messageID = 137;
