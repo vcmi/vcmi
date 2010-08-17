@@ -1209,4 +1209,71 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotationAndAlpha(SDL_Surface *des
 	return NULL;
 }
 
+void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode )
+{
+	switch(mode)
+	{
+	case 0: //sepia
+		{
+			const int sepiaDepth = 20;
+			const int sepiaIntensity = 30;
+
+			for(int xp = rect->x; xp < rect->x + rect->w; ++xp)
+			{
+				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
+				{
+					unsigned char * pixels = (unsigned char*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+
+					int b = pixels[0]; 
+					int g = pixels[1]; 
+					int r = pixels[2]; 
+					int gry = (r + g + b) / 3;
+
+					r = g = b = gry; 
+					r = r + (sepiaDepth * 2); 
+					g = g + sepiaDepth; 
+
+					if (r>255) r=255; 
+					if (g>255) g=255; 
+					if (b>255) b=255; 
+
+					// Darken blue color to increase sepia effect 
+					b -= sepiaIntensity; 
+
+					// normalize if out of bounds 
+					if (b<0) b=0; 
+					if (b>255) b=255; 
+
+					pixels[0] = b; 
+					pixels[1] = g; 
+					pixels[2] = r; 
+
+				}
+			}
+		}
+		break;
+	case 1: //grayscale
+		{
+			for(int xp = rect->x; xp < rect->x + rect->w; ++xp)
+			{
+				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
+				{
+					unsigned char * pixels = (unsigned char*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+
+					int b = pixels[0]; 
+					int g = pixels[1]; 
+					int r = pixels[2]; 
+					int gry = (r + g + b) / 3;
+
+					pixels[0] = pixels[1] = pixels[2] = gry;
+				}
+			}
+		}
+		break;
+	default:
+		throw std::string("Unsuppoerted efftct!");
+	}
+}
+
+
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;

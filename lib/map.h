@@ -268,7 +268,6 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	bool isInTheMap(const int3 &pos) const;
 	bool isWaterTile(const int3 &pos) const; //out-of-pos safe
 
-	void loadingHelper();
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);

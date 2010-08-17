@@ -768,61 +768,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	//applying sepia / gray effect
 	if(puzzleMode)
 	{
-		if(ADVOPT.puzzleSepia)
-		{
-			const int sepiaDepth = 20;
-			const int sepiaIntensity = 30;
-
-			for(int xp = extRect->x; xp < extRect->x + extRect->w; ++xp)
-			{
-				for(int yp = extRect->y; yp < extRect->y + extRect->h; ++yp)
-				{
-					unsigned char * pixels = (unsigned char*)extSurf->pixels + yp * extSurf->pitch + xp * extSurf->format->BytesPerPixel;
-
-					int b = pixels[0]; 
-					int g = pixels[1]; 
-					int r = pixels[2]; 
-					int gry = (r + g + b) / 3;
-
-					r = g = b = gry; 
-					r = r + (sepiaDepth * 2); 
-					g = g + sepiaDepth; 
-
-					if (r>255) r=255; 
-					if (g>255) g=255; 
-					if (b>255) b=255; 
-
-					// Darken blue color to increase sepia effect 
-					b -= sepiaIntensity; 
-
-					// normalize if out of bounds 
-					if (b<0) b=0; 
-					if (b>255) b=255; 
-
-					pixels[0] = b; 
-					pixels[1] = g; 
-					pixels[2] = r; 
-
-				}
-			}
-		}
-		else
-		{
-			for(int xp = extRect->x; xp < extRect->x + extRect->w; ++xp)
-			{
-				for(int yp = extRect->y; yp < extRect->y + extRect->h; ++yp)
-				{
-					unsigned char * pixels = (unsigned char*)extSurf->pixels + yp * extSurf->pitch + xp * extSurf->format->BytesPerPixel;
-
-					int b = pixels[0]; 
-					int g = pixels[1]; 
-					int r = pixels[2]; 
-					int gry = (r + g + b) / 3;
-
-					pixels[0] = pixels[1] = pixels[2] = gry;
-				}
-			}
-		}
+		CSDL_Ext::applyEffect(extSurf, extRect, static_cast<int>(!ADVOPT.puzzleSepia));
 	}
 	//sepia / gray effect applied
 
@@ -948,53 +894,11 @@ unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) con
 	{
 		static const unsigned char frame [] = {-1, 10, 5, 6, 7, 8, 9, 12, 11};
 		return frame[dir];
-		/*switch(dir)
-		{
-		case 1:
-		return 10;
-		case 2:
-		return 5;
-		case 3:
-		return 6;
-		case 4:
-		return 7;
-		case 5:
-		return 8;
-		case 6:
-		return 9;
-		case 7:
-		return 12;
-		case 8:
-		return 11;
-		default:
-		throw std::string("Something very wrong1.");
-		}*/
 	}
 	else //if(isMoving)
 	{
 		static const unsigned char frame [] = {-1, 13, 0, 1, 2, 3, 4, 15, 14};
 		return frame[dir];
-		/*switch(dir)
-		{
-		case 1:
-		return 13;
-		case 2:
-		return 0;
-		case 3:
-		return 1;
-		case 4:
-		return 2;
-		case 5:
-		return 3;
-		case 6:
-		return 4;
-		case 7:
-		return 15;
-		case 8:
-		return 14;
-		default:
-		throw std::string("Something very wrong2.");
-		}*/
 	}
 }
 

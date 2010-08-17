@@ -171,6 +171,7 @@ namespace CSDL_Ext
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
+	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
 };
 
 
