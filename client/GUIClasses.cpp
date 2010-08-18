@@ -1037,7 +1037,9 @@ void CSelectableComponent::show(SDL_Surface * to)
 {
 	blitAt(getImg(),pos.x,pos.y,to);
 	if(selected)
-		CSDL_Ext::drawBorder(to, Rect::around(Rect(getImg())), int3(239,215,123));
+	{
+		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
+	}
 	
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
 }
