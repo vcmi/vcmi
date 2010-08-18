@@ -791,13 +791,13 @@ SDL_Surface * CMapHandler::getVisBitmap( const int3 & pos, const std::vector< st
 							//is tile visible. arrangement: (like num keyboard)
 	bool d7 = (pos.x>0 && pos.y>0) ? visibilityMap[pos.x-1][pos.y-1][pos.z] : 0,		//789
 		d8 = (pos.y>0) ? visibilityMap[pos.x][pos.y-1][pos.z] : 0,					//456
-		d9 = (pos.y>0 && pos.x<sizes.x) ? visibilityMap[pos.x+1][pos.y-1][pos.z] : 0,	//123
+		d9 = (pos.y>0 && pos.x<sizes.x-1) ? visibilityMap[pos.x+1][pos.y-1][pos.z] : 0,	//123
 		d4 = (pos.x>0) ? visibilityMap[pos.x-1][pos.y][pos.z] : 0,
 		//d5 = visibilityMap[pos.x][y][pos.z], //TODO use me - OMFG
-		d6 = (pos.x<sizes.x) ? visibilityMap[pos.x+1][pos.y][pos.z] : 0,
-		d1 = (pos.x>0 && pos.y<sizes.y) ? visibilityMap[pos.x-1][pos.y+1][pos.z] : 0,
-		d2 = (pos.y<sizes.y) ? visibilityMap[pos.x][pos.y+1][pos.z] : 0,
-		d3 = (pos.x<sizes.x && pos.y<sizes.y) ? visibilityMap[pos.x+1][pos.y+1][pos.z] : 0;
+		d6 = (pos.x<sizes.x-1) ? visibilityMap[pos.x+1][pos.y][pos.z] : 0,
+		d1 = (pos.x>0 && pos.y<sizes.y-1) ? visibilityMap[pos.x-1][pos.y+1][pos.z] : 0,
+		d2 = (pos.y<sizes.y-1) ? visibilityMap[pos.x][pos.y+1][pos.z] : 0,
+		d3 = (pos.x<sizes.x-1 && pos.y<sizes.y-1) ? visibilityMap[pos.x+1][pos.y+1][pos.z] : 0;
 
 	int retBitmapID = visBitmaps[d1 + d2 * 2 + d3 * 4 + d4 * 8 + d6 * 16 + d7 * 32 + d8 * 64 + d9 * 128]; // >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
