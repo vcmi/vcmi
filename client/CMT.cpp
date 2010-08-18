@@ -639,11 +639,11 @@ void startGame(StartInfo * options)
 	CPlayerInterface::howManyPeople = 0;
 	switch(options->mode) //new game
 	{
-	case 0:
-	case 2:
+	case StartInfo::NEW_GAME:
+	case StartInfo::CAMPAIGN:
 		client->newGame(NULL, options);
 		break;
-	case 1:
+	case StartInfo::LOAD_GAME:
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
 		client->loadGame(fname);

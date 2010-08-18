@@ -244,6 +244,7 @@ public:
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard; 
+	void requestReturningToMainMenu();
 
 	CPlayerInterface(int Player);//c-tor
 	~CPlayerInterface();//d-tor

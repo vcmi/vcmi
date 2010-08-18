@@ -806,3 +806,14 @@ void CArtHandler::clearHlpLists()
 	majors.clear();
 	relics.clear();
 }
+
+void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
+{
+	allowedArtifacts.clear();
+	clearHlpLists();
+	for (int i=0; i<144; ++i) //yes, 144
+	{
+		if (allowed[i])
+			allowedArtifacts.push_back(artifacts[i]);
+	}
+}

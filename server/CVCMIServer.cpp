@@ -81,7 +81,7 @@ void CVCMIServer::newGame(CConnection *c)
 	FILE * f = fopen(si->mapname.c_str(),"r");
 	problem = !f;
 #endif
-	if(problem && si->mode == 0) //TODO some checking for campaigns
+	if(problem && si->mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
 	{
 		*c << ui8(problem); //WRONG!
 		return;

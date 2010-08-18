@@ -74,6 +74,7 @@ public:
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID);
 	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
+	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 	~CArtHandler();

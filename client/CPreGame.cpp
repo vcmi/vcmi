@@ -337,7 +337,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
 	sInfo.difficulty = 1;
 	current = NULL;
 
-	sInfo.mode = (Type == CMenuScreen::newGame ? 0 : 1);
+	sInfo.mode = (Type == CMenuScreen::newGame ? StartInfo::NEW_GAME : StartInfo::LOAD_GAME);
 	sInfo.turnTime = 0;
 	curTab = NULL;
 
@@ -2363,7 +2363,7 @@ void CBonusSelection::selectMap( int whichOne )
 {
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
 	sInfo.mapname = ourCampaign->camp->header.filename;
-	sInfo.mode = 2;
+	sInfo.mode = StartInfo::CAMPAIGN;
 
 	//get header
 	int i = 0;

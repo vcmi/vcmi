@@ -1267,32 +1267,30 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 
 	};
-	VLC->arth->allowedArtifacts.clear();
-	VLC->arth->clearHlpLists();
+
 	switch(si->mode)
 	{
-	case 0:
+	case StartInfo::NEW_GAME:
 		map = new Mapa(si->mapname);
-		for (int i=0; i<144; ++i) //yes, 144
+		break;
+	case StartInfo::CAMPAIGN:
 		{
-			if (map->allowedArtifact[i])
-				VLC->arth->allowedArtifacts.push_back(VLC->arth->artifacts[i]);
+			assert(vstd::contains(campaign->camp->mapPieces, si->whichMapInCampaign));
+			campaign = new CCampaignState();
+			campaign->initNewCampaign(*si);
+
+			std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
+			map = new Mapa();
+			map->initFromBytes((const unsigned char*)mapContent.c_str());
 		}
 		break;
-	case 2:
-		campaign = new CCampaignState();
-		campaign->initNewCampaign(*si);
-		std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
-		map = new Mapa();
-		map->initFromBytes((const unsigned char*)mapContent.c_str());
-		for (int i=0; i<144; ++i)
-		{
-			if (map->allowedArtifact[i])
-				VLC->arth->allowedArtifacts.push_back(VLC->arth->artifacts[i]);
-		}
-		break;
+	default:
+		tlog1 << "Wrong mode: " << (int)si->mode << std::endl;
+		return;
 	}
+	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
 	tlog0 << "Map loaded!" << std::endl;
+
 
 	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 	if(checksum)
@@ -1434,7 +1432,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			map->objects.push_back(nnn);
 			map->addBlockVisTiles(nnn);
 			//give campaign bonus
-			if (si->mode == 2 && getPlayer(nnn->tempOwner)->human)
+			if (si->mode == StartInfo::CAMPAIGN && getPlayer(nnn->tempOwner)->human)
 			{
 				HLP::giveCampaignBonusToHero(nnn, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
 			}
@@ -1482,7 +1480,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	//give start resource bonus in case of campaign
-	if (si->mode == 2)
+	if (si->mode == StartInfo::CAMPAIGN)
 	{
 		CScenarioTravel::STravelBonus chosenBonus = 
 			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
@@ -1566,7 +1564,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
 	}
 
-	if (si->mode == 2) //give campaign bonuses for specific / best hero
+	if (si->mode == StartInfo::CAMPAIGN) //give campaign bonuses for specific / best hero
 	{
 
 		CScenarioTravel::STravelBonus chosenBonus = 
@@ -1763,7 +1761,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	//campaign bonuses for towns
-	if (si->mode == 2)
+	if (si->mode == StartInfo::CAMPAIGN)
 	{
 		CScenarioTravel::STravelBonus chosenBonus = 
 			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];

@@ -1818,12 +1818,12 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		howManyPeople--;
 		if(!howManyPeople) //all human players eliminated
 		{
- 			//return to main menu
-			SDL_Event event;
-			event.type = SDL_USEREVENT;
-			event.user.code = 2;
-			SDL_PushEvent(&event);
+			if(cb->getStartInfo()->mode != StartInfo::CAMPAIGN)
+				requestReturningToMainMenu();
+			
+			//TODO next campaign scenario
 		}
+
 	}
 	else
 	{
@@ -2081,6 +2081,14 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	}
 	else
 		showShipyardDialog(obj);
+}
+
+void CPlayerInterface::requestReturningToMainMenu()
+{
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.code = 2;
+	SDL_PushEvent(&event);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

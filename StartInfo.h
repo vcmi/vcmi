@@ -51,6 +51,8 @@ struct PlayerSettings
 
 struct StartInfo
 {
+	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN};
+
 	ui8 mode; //0 - new game; 1 - load game; 2 - campaign
 	ui8 difficulty; //0=easy; 4=impossible
 	std::map<int, PlayerSettings> playerInfos; //color indexed

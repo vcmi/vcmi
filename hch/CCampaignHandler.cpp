@@ -470,7 +470,7 @@ bool CScenarioTravel::STravelBonus::isBonusForHero() const
 
 void CCampaignState::initNewCampaign( const StartInfo &si )
 {
-	assert(si.mode == 2);
+	assert(si.mode == StartInfo::CAMPAIGN);
 	campaignName = si.mapname;
 	currentMap = si.whichMapInCampaign;
 
