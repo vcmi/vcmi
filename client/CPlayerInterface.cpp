@@ -914,14 +914,6 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		GH.pushInt(temp);
 		intComps[0]->clickLeft(true, false);
 	}
-	else //only accept
-	{
-		std::vector<SComponent*> intComps;
-		for(int i=0;i<components.size();i++)
-			intComps.push_back(new SComponent(components[i])); //will be deleted by close in window
-
-		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),NULL,true);
-	}
 
 }
 

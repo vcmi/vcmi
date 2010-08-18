@@ -6051,25 +6051,16 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == 37)
 	{
-		BlockingDialog bd (false, false); //only accept
-		bd.soundID = soundBase::LIGHTHOUSE;
-		bd.player = h->tempOwner;
-		bd.text.addTxt (MetaString::ADVOB_TXT, 61);
-		cb->showBlockingDialog (&bd, boost::bind (&CGMagi::showEyes, this, h, _1));	
-	}
-	else if (ID == 27)
-	{
 		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.text.addTxt (MetaString::ADVOB_TXT, 48);
-		cb->showInfoDialog(&iw);
-	}
-}
-void CGMagi::showEyes(const CGHeroInstance * h, ui32 accept) const
-{
 		CenterView cv;
 		FoWChange fw;
-		cv.player = fw.player = h->tempOwner;
+		cv.player = iw.player = fw.player = h->tempOwner;
+
+		iw.soundID = soundBase::LIGHTHOUSE;
+		iw.player = h->tempOwner;
+		iw.text.addTxt (MetaString::ADVOB_TXT, 61);
+		cb->showInfoDialog(&iw);
+
 		fw.mode = 1;
 		std::vector<si32>::iterator it;
 		for (it = eyelist[subID].begin(); it < eyelist[subID].end(); it++)
@@ -6084,8 +6075,16 @@ void CGMagi::showEyes(const CGHeroInstance * h, ui32 accept) const
 		}	
 		cv.pos = h->getPosition(false);
 		cb->sendAndApply(&cv);	
-}
+	}
+	else if (ID == 27)
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text.addTxt (MetaString::ADVOB_TXT, 48);
+		cb->showInfoDialog(&iw);
+	}
 
+}
 void CGBoat::initObj()
 {
 	hero = NULL;

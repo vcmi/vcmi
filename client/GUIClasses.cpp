@@ -679,16 +679,12 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	if (onNo)
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<SComponent*>(), pom, DelComps);
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
-	if (onNo)
-	{
-		for(int i=0;i<onNo.funcs.size();i++)
-			temp->buttons[1]->callback += onNo.funcs[i];
-	}
+	for(int i=0;i<onNo.funcs.size();i++)
+		temp->buttons[1]->callback += onNo.funcs[i];
 
 	GH.pushInt(temp);
 }
