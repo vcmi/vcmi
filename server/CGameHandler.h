@@ -8,6 +8,7 @@
 #include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"
+#include "../lib/NetPacks.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 
@@ -186,13 +187,14 @@ public:
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);
-	bool buildStructure(si32 tid, si32 bid);
+	bool buildStructure(si32 tid, si32 bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
 	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player);
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();
+	void handleTownEvents(CGTownInstance *town, NewTurn &n);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void engageIntoBattle( ui8 player );

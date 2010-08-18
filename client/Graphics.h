@@ -67,12 +67,15 @@ public:
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
 	std::map<int,SDL_Surface*> backgroundsm; //castle ID -> 100x120 background creature image // -1 is for neutral
+	//towns
+	std::vector< std::string > buildingPics;//filenames of def with building images (used rarely, too big to keep them loaded)
+	std::vector< std::string > townBgs;//backgrounds of town
+	std::vector< std::string > guildBgs;// name of bitmaps with imgs for mage guild screen
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
 	std::vector< Point > wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
 	CDefEssential * abils32, * abils44, * abils82;

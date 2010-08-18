@@ -303,9 +303,15 @@ CMusicHandler::CMusicHandler(): currentMusic(NULL), nextMusic(NULL)
 #undef VCMI_MUSIC_NAME
 #undef VCMI_MUSIC_FILE
 
-	// Vector for helper
+	// Vectors for helper
 	battleMusics += musicBase::combat1, musicBase::combat2, 
 		musicBase::combat3, musicBase::combat4;
+	
+	townMusics += musicBase::castleTown,     musicBase::rampartTown,
+	              musicBase::towerTown,      musicBase::infernoTown,
+	              musicBase::necroTown,      musicBase::dungeonTown,
+				  musicBase::strongHoldTown, musicBase::fortressTown,
+	              musicBase::elemTown;
 }
 
 void CMusicHandler::init()

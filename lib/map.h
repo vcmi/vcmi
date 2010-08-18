@@ -177,6 +177,7 @@ public:
 	ui8 computerAffected;
 	ui32 firstOccurence;
 	ui32 nextOccurence; //after nextOccurance day event will occur; if it it 0, event occures only one time;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & name & message & resources
@@ -187,6 +188,21 @@ public:
 		return firstOccurence < b.firstOccurence;
 	}
 };
+
+class DLL_EXPORT CCastleEvent: public CMapEvent
+{
+public:
+	std::set<si32> buildings;//build specific buildings
+	std::vector<si32> creatures;//additional creatures in i-th level dwelling
+	CGTownInstance * town;//owner of this event
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CMapEvent&>(*this);
+		h & buildings & creatures;
+	}
+};
+
 class DLL_EXPORT CMapHeader
 {
 public:

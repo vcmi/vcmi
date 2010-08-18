@@ -1123,6 +1123,7 @@ void CGameHandler::newTurn()
 			}
 			n.res[player][6] += (**j).dailyIncome();
 		}
+		handleTownEvents(*j, n);
 		if ((**j).subID == 2 && vstd::contains((**j).builtBuildings, 26)) // Skyship, probably easier to handle same as Veil of darkness
 		{ //do it every new day after veils apply
 			FoWChange fw;
@@ -2604,18 +2605,18 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 	return true;
 }
 
-bool CGameHandler::buildStructure( si32 tid, si32 bid )
+bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 {
 	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
 	CBuilding * b = VLC->buildh->buildings[t->subID][bid];
 
-	if(gs->canBuildStructure(t,bid) != 7)
+	if( !force && gs->canBuildStructure(t,bid) != 7)
 	{
 		complain("Cannot build that building!");
 		return false;
 	}
 	
-	if(bid == 26) //grail
+	if( !force && bid == 26) //grail
 	{
 		if(!t->visitingHero || !t->visitingHero->hasArt(2))
 		{
@@ -2688,12 +2689,15 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 	getTilesInRange(fw.tiles,t->pos,t->getSightRadious(),t->tempOwner,1);
 	sendAndApply(&fw);
 
-	SetResources sr;
-	sr.player = t->tempOwner;
-	sr.res = gs->getPlayer(t->tempOwner)->resources;
-	for(int i=0;i<b->resources.size();i++)
-		sr.res[i]-=b->resources[i];
-	sendAndApply(&sr);
+	if (!force)
+	{
+		SetResources sr;
+		sr.player = t->tempOwner;
+		sr.res = gs->getPlayer(t->tempOwner)->resources;
+		for(int i=0;i<b->resources.size();i++)
+			sr.res[i]-=b->resources[i];
+		sendAndApply(&sr);
+	}
 
 	if(bid<5) //it's mage guild
 	{
@@ -4376,6 +4380,81 @@ void CGameHandler::handleTimeEvents()
 		{
 			delete ev;
 			gs->map->events.pop_front();
+		}
+	}
+}
+
+void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
+{
+	town->events.sort(evntCmp);
+	while(town->events.size() && town->events.front()->firstOccurence == gs->day)
+	{
+		ui8 player = town->tempOwner;
+		CCastleEvent *ev = town->events.front();
+		PlayerState *pinfo = gs->getPlayer(player);
+
+		if( pinfo  //player exists
+			&& (ev->players & 1<<player) //event is enabled to this player
+			&& ((ev->computerAffected && !pinfo->human) 
+				|| (ev->humanAffected && pinfo->human) ) )
+		{
+
+			// dialog
+			InfoWindow iw;
+			iw.player = player;
+			iw.text << ev->message;
+
+			for (int i=0; i<ev->resources.size(); i++)
+				if(ev->resources[i]) //if resource had changed, we add it to the dialog
+				{
+					int was = n.res[player][i];
+					n.res[player][i] += ev->resources[i];
+					n.res[player][i] = std::max(n.res[player][i], 0);
+
+					if(pinfo->resources[i] != n.res[player][i]) //if non-zero res change
+						iw.components.push_back(Component(Component::RESOURCE,i,n.res[player][i]-was,0));
+				}
+			for(std::set<si32>::iterator i = ev->buildings.begin(); i!=ev->buildings.end();i++)
+				if ( !vstd::contains(town->builtBuildings, *i))
+				{
+					buildStructure(town->id, *i, true);
+					iw.components.push_back(Component(Component::BUILDING, town->subID, *i, 0));
+				}
+
+			SetAvailableCreatures sac;
+			if (n.cres.empty() || n.cres.back().tid != town->id)
+			{
+				sac.tid = town->id;
+				sac.creatures = town->creatures;
+			}
+			else
+			{
+				sac = n.cres.back();
+				n.cres.pop_back();
+			}
+			
+			for(int i=0;i<ev->creatures.size();i++) //creature growths
+			{
+				if(town->creatureDwelling(i) && ev->creatures[i])//there is dwelling
+				{
+					sac.creatures[i].first += ev->creatures[i];
+					iw.components.push_back(Component(Component::CREATURE, 
+							town->creatures[i].second.back(), ev->creatures[i], 0));
+				}
+			}
+			n.cres.push_back(sac);
+			sendAndApply(&iw); //show dialog
+		}
+
+		if(ev->nextOccurence)
+		{
+			ev->firstOccurence += ev->nextOccurence;
+			town->events.sort(evntCmp);
+		}
+		else
+		{
+			delete ev;
+			town->events.pop_front();
 		}
 	}
 }

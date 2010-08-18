@@ -392,36 +392,6 @@ void CHeroGSlot::setHighlight( bool on )
 	}
 }
 
-static std::string getBgName(int type) //TODO - co z tym zrobi�?
-{
-	switch (type)
-	{
-	case 0:
-		return "TBCSBACK.bmp";
-	case 1:
-		return "TBRMBACK.bmp";
-	case 2:
-		return "TBTWBACK.bmp";
-	case 3:
-		return "TBINBACK.bmp";
-	case 4:
-		return "TBNCBACK.bmp";
-	case 5:
-		return "TBDNBACK.bmp";
-	case 6:
-		return "TBSTBACK.bmp";
-	case 7:
-		return "TBFRBACK.bmp";
-	case 8:
-		return "TBELBACK.bmp";
-	default:
-#ifndef __GNUC__
-		throw new std::exception("std::string getBgName(int type): invalid type");
-#else
-		throw new std::exception();
-#endif
-	}
-}
 class SORTHELP
 {
 public:
@@ -444,7 +414,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	fort = NULL;
 	market = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
-	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
 	pos.x = screen->w/2 - 400;
 	pos.y = screen->h/2 - 300;
 	hslotup.pos.x += pos.x;
@@ -483,51 +452,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	//growth icons and buildings
 	recreateBuildings();
 	recreateIcons();
-
-	std::string defname;
-	switch (town->subID)
-	{
-	case 0:
-		defname = "HALLCSTL.DEF";
-		musicID = musicBase::castleTown;
-		break;
-	case 1:
-		defname = "HALLRAMP.DEF";
-		musicID = musicBase::rampartTown;
-		break;
-	case 2:
-		defname = "HALLTOWR.DEF";
-		musicID = musicBase::towerTown;
-		break;
-	case 3:
-		defname = "HALLINFR.DEF";
-		musicID = musicBase::infernoTown;
-		break;
-	case 4:
-		defname = "HALLNECR.DEF";
-		musicID = musicBase::necroTown;
-		break;
-	case 5:
-		defname = "HALLDUNG.DEF";
-		musicID = musicBase::dungeonTown;
-		break;
-	case 6:
-		defname = "HALLSTRN.DEF";
-		musicID = musicBase::strongHoldTown;
-		break;
-	case 7:
-		defname = "HALLFORT.DEF";
-		musicID = musicBase::fortressTown;
-		break;
-	case 8:
-		defname = "HALLELEM.DEF";
-		musicID = musicBase::elemTown;
-		break;
-	default:
-		throw new std::string("Wrong town subID");
-	}
-	bicons = CDefHandler::giveDefEss(defname);
-	CGI->musich->playMusic(musicID, -1);
+	cityBg = BitmapHandler::loadBitmap(graphics->townBgs[town->subID]);
+	bicons = CDefHandler::giveDefEss(graphics->buildingPics[town->subID]);
+	CGI->musich->playMusic(CGI->musich->townMusics[town->subID], -1);
 }
 
 CCastleInterface::~CCastleInterface()
@@ -796,7 +723,7 @@ void CCastleInterface::castleTeleport(int where)
 void CCastleInterface::defaultBuildingClicked(int building)
 {
 	std::vector<SComponent*> comps(1,
-		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
+		new SComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
 
 	LOCPLINT->showInfoDialog(
 		CGI->buildh->buildings[town->subID].find(building)->second->Description(),
@@ -806,7 +733,7 @@ void CCastleInterface::defaultBuildingClicked(int building)
 void CCastleInterface::enterFountain(int building)
 {
 	std::vector<SComponent*> comps(1,
-		new CCustomImgComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
+		new SComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
 
 	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
 	if ( building == 21)//we need description for mystic pond as well
@@ -2051,7 +1978,7 @@ void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		std::vector<SComponent*> comps(1,
-			new CCustomImgComponent(SComponent::spell,spell->id,0,graphics->spellscr->ourImages[spell->id].bitmap,false)
+			new SComponent(SComponent::spell,spell->id,0)
 		);
 		LOCPLINT->showInfoDialog(spell->descriptions[0],comps, soundBase::sound_todo);
 	}

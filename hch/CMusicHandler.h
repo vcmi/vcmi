@@ -120,6 +120,7 @@ public:
 	// Musics
 	std::map<musicBase::musicID, std::string> musics;
 	std::vector<musicBase::musicID> battleMusics;
+	std::vector<musicBase::musicID> townMusics;
 
 	void playMusic(musicBase::musicID musicID, int loop=1);
 	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);

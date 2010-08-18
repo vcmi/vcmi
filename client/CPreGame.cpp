@@ -2329,7 +2329,7 @@ void CBonusSelection::showAll( SDL_Surface * to )
 
 void CBonusSelection::loadPositionsOfGraphics()
 {
-	std::ifstream is((GVCMIDirs.UserPath + "/config/campaign_regions.txt").c_str(), std::ios_base::binary | std::ios_base::in);
+	std::ifstream is(DATA_DIR "/config/campaign_regions.txt", std::ios_base::binary | std::ios_base::in);
 
 	assert(is.is_open());
 

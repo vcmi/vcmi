@@ -721,41 +721,48 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 
 	for(int gh = 0; gh<numberOfEvent; ++gh)
 	{
-		CCastleEvent nce;
-		nce.name = readString(bufor,i);
-		nce.message = readString(bufor,i);
-		nce.resources.resize(RESOURCE_QUANTITY);
+		CCastleEvent *nce = new CCastleEvent();
+		nce->town = nt;
+		nce->name = readString(bufor,i);
+		nce->message = readString(bufor,i);
+		nce->resources.resize(RESOURCE_QUANTITY);
 		for(int x=0; x < 7; x++)
 		{
-			nce.resources[x] = readNormalNr(bufor,i); 
+			nce->resources[x] = readNormalNr(bufor,i); 
 			i+=4;
 		}
 
-		nce.players = bufor[i]; ++i;
+		nce->players = bufor[i]; ++i;
 		if(version > AB)
 		{
-			nce.forHuman = bufor[i]; ++i;
+			nce->humanAffected = bufor[i]; ++i;
 		}
 		else
-			nce.forHuman = true;
+			nce->humanAffected = true;
 
-		nce.forComputer = bufor[i]; ++i;
-		nce.firstShow = readNormalNr(bufor,i, 2); i+=2;
-		nce.forEvery = bufor[i]; ++i;
+		nce->computerAffected = bufor[i]; ++i;
+		nce->firstOccurence = readNormalNr(bufor,i, 2); i+=2;
+		nce->nextOccurence = bufor[i]; ++i;
 
 		i+=17;
 
-		for(int kk=0; kk<6; ++kk)
+		//new buildings
+		for(int byte=0;byte<6;byte++)
 		{
-			nce.bytes[kk] = bufor[i]; ++i;
+			for(int bit=0;bit<8;bit++)
+				if(bufor[i] & (1<<bit))
+					nce->buildings.insert(byte*8+bit);
+			i++;
 		}
-
+		nce->buildings = convertBuildings(nce->buildings,subid);
+		
+		nce->creatures.resize(7);
 		for(int vv=0; vv<7; ++vv)
 		{
-			nce.gen[vv] = readNormalNr(bufor,i, 2); i+=2;
+			nce->creatures[vv] = readNormalNr(bufor,i, 2);i+=2;
 		}
 		i+=4;
-		nt->events.insert(nce);
+		nt->events.push_back(nce);
 	}//castle events have been read 
 
 	if(version > AB)

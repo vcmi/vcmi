@@ -198,13 +198,18 @@ void Graphics::loadPaletteAndColors()
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
 
-	std::ifstream bback(DATA_DIR "/config/mageBg.txt");
-	while(!bback.eof())
+	std::ifstream tpics(DATA_DIR "/config/townPics.txt");
+	assert(tpics.is_open());
+	while(!tpics.eof())
 	{
-		bback >> pals;
+		tpics >> pals;
+		townBgs.push_back(pals);
+		tpics >> pals;
 		guildBgs.push_back(pals);
+		tpics >> pals;
+		buildingPics.push_back(pals);
 	}
-	bback.close();
+	tpics.close();
 }
 
 void Graphics::initializeBattleGraphics()

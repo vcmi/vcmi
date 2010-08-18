@@ -159,27 +159,22 @@ public:
 	std::string description; //r-click
 	std::string subtitle; //TODO: comment me
 
+	SDL_Surface *img; //our image
+	bool free; //should surface be freed on delete
+	
+	SDL_Surface * setSurface(std::string defName, int imgPos);
+
 	void init(Etype Type, int Subtype, int Val);
-	SComponent(Etype Type, int Subtype, int Val); //c-tor
+	SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
 	SComponent(const Component &c); //c-tor
 	SComponent(){}; //c-tor
-	virtual ~SComponent(){}; //d-tor
+	virtual ~SComponent(); //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
 	SDL_Surface * getImg();
 	virtual void show(SDL_Surface * to);
 	virtual void activate();
 	virtual void deactivate();
-};
-
-class CCustomImgComponent :  public SComponent
-{
-public:
-	SDL_Surface *bmp; //our image
-	bool free; //should surface be freed on delete
-	SDL_Surface * getImg();
-	CCustomImgComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur); //c-tor
-	~CCustomImgComponent(); //d-tor
 };
 
 class CSelectableComponent : public SComponent, public KeyShortcut

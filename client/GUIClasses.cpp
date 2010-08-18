@@ -896,6 +896,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->generaltexth->capColors[Subtype];
 		break;
 	}
+	img = NULL;
+	free = false;
 	type = Type;
 	subtype = Subtype;
 	val = Val;
@@ -908,7 +910,7 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
-SComponent::SComponent(Etype Type, int Subtype, int Val)
+SComponent::SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur):img(sur),free(freeSur)
 {
 	init(Type,Subtype,Val);
 }
@@ -925,44 +927,58 @@ SComponent::SComponent(const Component &c)
 	if(c.id==2 && c.when==-1)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
+
+SComponent::~SComponent()
+{
+	if (free && img)
+		SDL_FreeSurface(img);
+}
+
+SDL_Surface * SComponent::setSurface(std:: string defname, int imagepos)
+{
+	if (img)
+		tlog1<<"SComponent::setSurface: Warning - surface is already set!\n";
+	CDefEssential * def = CDefHandler::giveDefEss(defname);
+	
+	free = true;
+	img = def->ourImages[imagepos].bitmap;
+	img->refcount++;//to preserve surface whed def is deleted
+	delete def;
+}
+
 void SComponent::show(SDL_Surface * to)
 {
 	blitAt(getImg(),pos.x,pos.y,to);
 }
+
 SDL_Surface * SComponent::getImg()
 {
+	if (img)
+		return img;
 	switch (type)
 	{
 	case artifact:
 		return graphics->artDefs->ourImages[subtype].bitmap;
-		break;
 	case primskill:
 		return graphics->pskillsb->ourImages[subtype].bitmap;
-		break;
 	case secskill44:
 		return graphics->abils44->ourImages[subtype*3 + 3 + val - 1].bitmap;
-		break;
 	case secskill:
 		return graphics->abils82->ourImages[subtype*3 + 3 + val - 1].bitmap;
-		break;
 	case resource:
 		return graphics->resources->ourImages[subtype].bitmap;
-		break;
 	case experience:
 		return graphics->pskillsb->ourImages[4].bitmap;
-		break;
 	case morale:
 		return graphics->morale82->ourImages[val+3].bitmap;
-		break;
 	case luck:
 		return graphics->luck82->ourImages[val+3].bitmap;
-		break;
 	case spell:
 		return graphics->spellscr->ourImages[subtype].bitmap;
-		break;
+	case building:
+		return setSurface(graphics->buildingPics[subtype],val);
 	case creature:
 		return graphics->bigImgs[subtype];
-		break;
 	case hero:
 		return graphics->portraitLarge[subtype];
 	case flag:
@@ -2542,23 +2558,6 @@ CMinorResDataBar::CMinorResDataBar()
 CMinorResDataBar::~CMinorResDataBar()
 {
 	SDL_FreeSurface(bg);
-}
-
-SDL_Surface * CCustomImgComponent::getImg()
-{
-	return bmp;
-}
-
-CCustomImgComponent::CCustomImgComponent( Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur )
-:bmp(sur), free(freeSur)
-{
-	init(Type,Subtype,Val);
-}
-
-CCustomImgComponent::~CCustomImgComponent()
-{
-	if(free)
-		SDL_FreeSurface(bmp);
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,

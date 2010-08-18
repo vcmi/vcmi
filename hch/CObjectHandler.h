@@ -41,36 +41,13 @@ class CGTownBuilding;
 class CArtifact;
 class CGDefInfo;
 class CSpecObjInfo;
+class CCastleEvent;
 struct TerrainTile;
 struct InfoWindow;
 struct Component;
 struct BankConfig;
 struct UpdateHeroSpeciality;
 class CGBoat;
-
-class DLL_EXPORT CCastleEvent
-{
-public:
-	std::string name, message;
-	std::vector<si32> resources;  //gain / loss of resources
-	ui8 players; //players for whom this event can be applied
-	ui8 forHuman, forComputer;
-	ui32 firstShow; //postpone of first encounter time in days
-	ui32 forEvery; //every n days this event will occure
-	ui8 bytes[6]; //build specific buildings (raw format, similar to town's)
-	si32 gen[7]; //additional creatures in i-th level dwelling
-
-	bool operator<(const CCastleEvent &drugie) const
-	{
-		return firstShow<drugie.firstShow;
-	}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & name & message & resources & players & forHuman & forComputer & firstShow 
-			& forEvery & bytes & gen;
-	}
-};
 
 class DLL_EXPORT CQuest
 {
@@ -527,7 +504,7 @@ public:
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
-	std::set<CCastleEvent> events;
+	std::list<CCastleEvent*> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
