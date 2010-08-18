@@ -625,14 +625,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if(battleResult.data->exp[1] && hero2)
 		changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
 
-	if(battleEndCallback && *battleEndCallback)
+	sendAndApply(&resultsApplied);
+
+	if(battleEndCallback && *battleEndCallback) //TODO: object interaction after level dialog is handled
 	{
 		(*battleEndCallback)(battleResult.data);
 		delete battleEndCallback;
 		battleEndCallback = 0;
 	}
-
-	sendAndApply(&resultsApplied);
 
 	// Necromancy if applicable.
 	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;

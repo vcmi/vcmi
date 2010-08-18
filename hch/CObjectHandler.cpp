@@ -46,7 +46,6 @@ extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;
-BankConfig CGPyramid::pyramidConfig;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
@@ -130,6 +129,54 @@ static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //hel
 	else //given creatures
 		bc.creatures.push_back(guardInfo);
 }
+void CObjectHandler::readConfigLine(std::ifstream &istr, int g)
+{
+	banksInfo[g].push_back(new BankConfig);
+
+	BankConfig &bc = *banksInfo[g].back();
+	std::string buf;
+	char dump;
+	//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
+	istr >> buf; 
+	bc.level = atoi(buf.c_str());
+
+	istr >> buf;
+	bc.chance = atoi(buf.c_str());
+
+	readCreatures(istr, bc, true);
+	istr >> buf;
+	bc.upgradeChance = atoi(buf.c_str());
+
+	for(int b=0; b<3; ++b)
+		readCreatures(istr, bc, true);
+
+	istr >> bc.combatValue;
+	bc.resources.resize(RESOURCE_QUANTITY);
+			
+	//a dirty trick to make it work if there is no 0 for 0 quantity (like in grotto - last entry)
+	char buft[52];
+	istr.getline(buft, 50, '\t');
+	for(int h=0; h<7; ++h)
+	{
+		istr.getline(buft, 50, '\t');
+		if(buft[0] == '\0')
+			bc.resources[h] = 0;
+		else
+			bc.resources[h] = SDL_atoi(buft);
+	}
+	readCreatures(istr, bc, false);
+
+	bc.artifacts.resize(4);
+	for(int b=0; b<4; ++b)
+	{
+		istr >> bc.artifacts[b];
+	}
+
+	istr >> bc.value;
+	istr >> bc.rewardDifficulty;
+	istr >> buf;
+	bc.easiest = atoi(buf.c_str());
+}
 
 void CObjectHandler::loadObjects()
 {
@@ -164,8 +211,6 @@ void CObjectHandler::loadObjects()
 		tlog5 << "\t\tDone loading resource prices!\n";
 	}
 
-
-
 	std::ifstream istr;
 	istr.open(DATA_DIR "/config/bankconfig.txt", std::ios_base::binary);
 	if(!istr.is_open())
@@ -191,53 +236,15 @@ void CObjectHandler::loadObjects()
 
 		for(int i=0; i<4; ++i) //reading levels
 		{
-			banksInfo[g].push_back(new BankConfig);
-
-			BankConfig &bc = *banksInfo[g].back();
-			std::string buf;
-			char dump;
-			//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
-			istr >> buf; 
-			bc.level = atoi(buf.c_str());
-
-			istr >> buf;
-			bc.chance = atoi(buf.c_str());
-
-			readCreatures(istr, bc, true);
-			istr >> buf;
-			bc.upgradeChance = atoi(buf.c_str());
-
-			for(int b=0; b<3; ++b)
-				readCreatures(istr, bc, true);
-
-			istr >> bc.combatValue;
-			bc.resources.resize(RESOURCE_QUANTITY);
-			
-			//a dirty trick to make it work if there is no 0 for 0 quantity (like in grotto - last entry)
-			char buft[52];
-			istr.getline(buft, 50, '\t');
-			for(int h=0; h<7; ++h)
-			{
-				istr.getline(buft, 50, '\t');
-				if(buft[0] == '\0')
-					bc.resources[h] = 0;
-				else
-					bc.resources[h] = SDL_atoi(buft);
-			}
-			readCreatures(istr, bc, false);
-
-			bc.artifacts.resize(4);
-			for(int b=0; b<4; ++b)
-			{
-				istr >> bc.artifacts[b];
-			}
-
-			istr >> bc.value;
-			istr >> bc.rewardDifficulty;
-			istr >> buf;
-			bc.easiest = atoi(buf.c_str());
+			readConfigLine(istr,g);
 		}
 	}
+	//reading name
+	istr.getline(buffer, MAX_BUF, '\t');
+	creBanksNames[21] = std::string(buffer);
+	while(creBanksNames[21][0] == 10 || creBanksNames[21][0] == 13)
+			creBanksNames[21].erase(creBanksNames[21].begin());
+	readConfigLine(istr,21); //pyramid
 }
 
 int CGObjectInstance::getOwner() const
@@ -5863,30 +5870,22 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 
 void CGPyramid::initObj()
 {
-//would be nice to do that only once
-	if (!pyramidConfig.guards.size())
-	{
-		pyramidConfig.level = 1;
-		pyramidConfig.chance = 100;
-		pyramidConfig.upgradeChance = 0;
-		for (int i = 0; i < 2; ++i)
-		{
-			pyramidConfig.guards.push_back (std::pair <ui16, ui32>(116, 20));
-			pyramidConfig.guards.push_back (std::pair <ui16, ui32>(117, 10));
-		}
-		pyramidConfig.combatValue; //how hard are guards of this level
-		pyramidConfig.value; //overall value of given things
-		pyramidConfig.rewardDifficulty; //proportion of reward value to difficulty of guards; how profitable is this creature Bank config
-		pyramidConfig.easiest; //?!?
-	}
-	bc = &pyramidConfig;
 	std::vector<ui16> available;
 	cb->getAllowedSpells (available, 5);
-	spell = (available[rand()%available.size()]);
+	if (available.size())
+	{
+		bc = VLC->objh->banksInfo[21].front(); //TODO: remove hardcoded value?
+		spell = (available[rand()%available.size()]);
+	}
+	else
+	{
+		tlog1 <<"No spells available for Pyramid! Object set to empty.\n";
+	}
+	setPropertyDer (17,ran()); //set guards at game start
 }
 const std::string & CGPyramid::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objh->creBanksNames[21];
 	if (bc == NULL)
 		hoverName += " " + VLC->generaltexth->allTexts[352];
 	else

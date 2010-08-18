@@ -85,3 +85,4 @@ Grotto	1	30%	3	Harpy	0	3	Beholder	3	Harpy	3	Beholder	200			20				1000	0	None	0	0
 	2	30%	4	Harpy	0	4	Beholder	4	Harpy	4	Beholder	300			25				1000	0	None	0	0	0	0	3000	20	150%
 	3	30%	5	Harpy	0	5	Beholder	5	Harpy	5	Beholder	400			30				1500	0	None	0	0	0	0	4000	20	200%
 	4	10%	6	Harpy	0	6	Beholder	6	Harpy	6	Beholder	500			35				2000	0	None	0	0	0	0	5000	20	250%
+Pyramid	1	100%	20	Gold Golem	0%	10	Diamond Golem	20	Gold Golem	10	Diamond Golem	786														15000	19	100%

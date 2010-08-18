@@ -1079,7 +1079,6 @@ class DLL_EXPORT CBank : public CArmedInstance
 class DLL_EXPORT CGPyramid : public CBank
 {
 public:
-	static BankConfig pyramidConfig;
 	ui16 spell;
 
 	void initObj();
@@ -1247,6 +1246,7 @@ public:
 	std::vector<ui32> resVals; //default values of resources in gold
 
 	void loadObjects();
+	void readConfigLine(std::ifstream &istr, int g);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

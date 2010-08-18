@@ -342,7 +342,6 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		h & CGTeleport::gates;
 		h & CGKeys::playerKeyMap;
 		h & CGMagi::eyelist;
-		h & CGPyramid::pyramidConfig;
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 
