@@ -1270,6 +1270,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 
 void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
+	waitWhileDialog();
 	adventureInt->centerOn (pos);
 	if(focusTime)
 	{
