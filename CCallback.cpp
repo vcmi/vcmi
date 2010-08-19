@@ -624,9 +624,9 @@ bool CCallback::battleCanCastSpell()
 		return false;
 
 	if(gs->curB->side1 == player)
-		return gs->curB->castSpells[0] == 0 && gs->curB->heroes[0]->getArt(17);
+		return gs->curB->castSpells[0] == 0 && gs->curB->heroes[0] && gs->curB->heroes[0]->getArt(17);
 	else
-		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1]->getArt(17);
+		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1] && gs->curB->heroes[1]->getArt(17);
 }
 
 bool CCallback::battleCanFlee()

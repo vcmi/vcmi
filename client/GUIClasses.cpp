@@ -2161,6 +2161,14 @@ void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 	{
 		which = !which;
 	}
+	else if (k == SDLK_LEFT)
+	{
+		ncur--;
+	}
+	else if (k == SDLK_RIGHT)
+	{
+		ncur++;
+	}
 	else
 	{
 		int number = k - SDLK_0;

@@ -251,14 +251,14 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
-	else if(hero->secSkills.size() < hero->type->heroClass->skillLimit)
+	else if(none.size() && hero->secSkills.size() < hero->type->heroClass->skillLimit)
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //give new skill
 		none.erase(hlu.skills.back());
 	}
 
 	//second offered skill
-	if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //hero have free skill slot
+	if(none.size() && hero->secSkills.size() < hero->type->heroClass->skillLimit) //hero have free skill slot
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 	}

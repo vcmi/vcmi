@@ -1830,8 +1830,23 @@ bool CGameState::battleCanFlee(int player)
 	if(!curB) //there is no battle
 		return false;
 
-	if(curB->heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
-		|| curB->heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE))
+	if (player == curB->side1)
+	{
+		if (!curB->heroes[0])
+			return false;//current player have no hero
+	}
+	else
+	{
+		if (!curB->heroes[1])
+			return false;
+	}
+
+	if( ( curB->heroes[0] && curB->heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE) ) //eg. one of heroes is wearing shakles of war
+		|| ( curB->heroes[1] && curB->heroes[1]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE)))
+		return false;
+
+	if (player == curB->side2 && curB->siege //defender in siege
+		&& !(getTown(curB->tid)->subID == 6 && vstd::contains(getTown(curB->tid)->builtBuildings, 17)))//without escape tunnel
 		return false;
 
 	return true;

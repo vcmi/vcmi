@@ -159,7 +159,7 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 				case 53://mine
 				case 98://town
 				case 220:
-					if(vstd::contains(team->players, player)) //check owned observators
+					if(vstd::contains(team->players, gs->map->objects[i]->tempOwner)) //check owned observators
 						gs->map->objects[i]->getSightTiles(tilesRevealed);
 					break;
 				}
