@@ -1,7 +1,6 @@
 #ifndef __GRAPHICS_H__
 #define __GRAPHICS_H__
 
-#include <SDL_ttf.h>
 #include "../global.h"
 #include "FontBase.h"
 #include "GUIBase.h"
@@ -25,6 +24,7 @@ class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
+typedef struct _TTF_Font TTF_Font; //from SDL_ttf.h
 
 class Graphics
 {

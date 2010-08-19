@@ -4409,7 +4409,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 				{
 					int was = n.res[player][i];
 					n.res[player][i] += ev->resources[i];
-					n.res[player][i] = std::max(n.res[player][i], 0);
+					n.res[player][i] = std::max<si32>(n.res[player][i], 0);
 
 					if(pinfo->resources[i] != n.res[player][i]) //if non-zero res change
 						iw.components.push_back(Component(Component::RESOURCE,i,n.res[player][i]-was,0));

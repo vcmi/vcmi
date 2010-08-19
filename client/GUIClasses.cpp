@@ -944,6 +944,7 @@ SDL_Surface * SComponent::setSurface(std:: string defname, int imagepos)
 	img = def->ourImages[imagepos].bitmap;
 	img->refcount++;//to preserve surface whed def is deleted
 	delete def;
+	return img;
 }
 
 void SComponent::show(SDL_Surface * to)
