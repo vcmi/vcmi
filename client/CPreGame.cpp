@@ -260,8 +260,8 @@ CGPreGame::~CGPreGame()
 
 void CGPreGame::openSel( CMenuScreen::EState type, bool multi )
 {
-	playerNames.clear();
-	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
+	resetPlayerNames();
+
 	GH.pushInt(new CSelectionScreen(type, multi));
 }
 
@@ -304,6 +304,12 @@ void CGPreGame::update()
 	GH.topInt()->show(screen);
 	GH.updateTime();
 	GH.handleEvents();
+}
+
+void CGPreGame::resetPlayerNames()
+{
+	playerNames.clear();
+	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
@@ -2206,10 +2212,15 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 : ourCampaign(_ourCampaign), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL),
 	diffLb(NULL), diffRb(NULL)
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
 		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
 		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"};
+
+	if(ourCampaign->mapsConquered.size())
+	{
+		CGP->resetPlayerNames();
+	}
 
 	loadPositionsOfGraphics();
 
@@ -2370,12 +2381,15 @@ void CBonusSelection::selectMap( int whichOne )
 	delete ourHeader;
 	ourHeader = new CMapHeader();
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
-	CMapInfo *mapInfo = const_cast<CMapInfo *>(curMap);
-	mapInfo->mapHeader = ourHeader;
-	mapInfo->countPlayers();
-	mapInfo->mapHeader = NULL;
+// 	CMapInfo *mapInfo = const_cast<CMapInfo *>(curMap);
+// 	mapInfo->mapHeader = ourHeader;
+// 	mapInfo->countPlayers();
+// 	mapInfo->mapHeader = NULL;
+	CMapInfo dummyInfo(false);
+	dummyInfo.filename = "lala";
+
 	
-	CSelectionScreen::updateStartInfo(curMap, sInfo, ourHeader);
+	CSelectionScreen::updateStartInfo(curMap ? curMap : &dummyInfo, sInfo, ourHeader);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;

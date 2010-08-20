@@ -360,6 +360,8 @@ public:
 	void update();
 	void run();
 	void openSel(CMenuScreen::EState type, bool multi = false);
+
+	void resetPlayerNames();
 	void loadGraphics();
 	void disposeGraphics();
 };

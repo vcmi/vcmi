@@ -1275,9 +1275,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		break;
 	case StartInfo::CAMPAIGN:
 		{
-			assert(vstd::contains(campaign->camp->mapPieces, si->whichMapInCampaign));
 			campaign = new CCampaignState();
 			campaign->initNewCampaign(*si);
+			assert(vstd::contains(campaign->camp->mapPieces, si->whichMapInCampaign));
 
 			std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
 			map = new Mapa();
@@ -2250,7 +2250,6 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 void CGameState::apply(CPack *pack)
 {
 	ui16 typ = typeList.getTypeID(pack);
-	assert(typ >= 0);
 	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 

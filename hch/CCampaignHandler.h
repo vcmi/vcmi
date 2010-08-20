@@ -133,6 +133,7 @@ public:
 	ui8 currentMap; 
 
 	void initNewCampaign(const StartInfo &si);
+	void mapConquered();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

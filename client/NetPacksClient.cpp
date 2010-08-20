@@ -22,6 +22,7 @@
 #include "CConfigHandler.h"
 #include "SDL_Extensions.h"
 #include "CBattleInterface.h"
+#include "../hch/CCampaignHandler.h"
 
 //macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 	\
@@ -161,8 +162,8 @@ void PlayerEndsGame::applyCl( CClient *cl )
 		i->second->gameOver(player,	victory);
 
 
-	if(!CPlayerInterface::howManyPeople)
-		cl->terminate = true;
+// 	if(!CPlayerInterface::howManyPeople)
+// 		cl->terminate = true;
 }
 
 void RemoveBonus::applyCl( CClient *cl )
@@ -182,6 +183,15 @@ void RemoveBonus::applyCl( CClient *cl )
 		}
 		break;
 	}
+}
+
+void UpdateCampaignState::applyCl( CClient *cl )
+{
+	cl->stopConnection();
+	if(camp->mapsRemaining.size())
+		cl->proposeNextMission(camp);
+	else
+		cl->finishCampaign(camp);
 }
 
 void RemoveObject::applyFirstCl( CClient *cl )

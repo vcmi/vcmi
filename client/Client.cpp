@@ -27,6 +27,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <sstream>
+#include "CPreGame.h"
 
 #undef DLL_EXPORT
 #define DLL_EXPORT
@@ -168,18 +169,6 @@ void CClient::run()
 	}
 }
 
-void CClient::stop()
-{
-	// Game is ending
-	// Tell the network thread to reach a stable state
-	terminate = true;
-	GH.curInt = NULL;
-	LOCPLINT->terminate_cond.setn(true);
-	LOCPLINT->pim->lock();
-	endGame();
-	tlog0 << "Client stopped." << std::endl;
-}
-
 void CClient::save(const std::string & fname)
 {
 	if(gs->curB)
@@ -216,8 +205,14 @@ void initVillagesCapitols(Mapa * map)
 	}
 }
 
-void CClient::endGame()
+void CClient::endGame( bool closeConnection /*= true*/ )
 {
+	// Game is ending
+	// Tell the network thread to reach a stable state
+	GH.curInt = NULL;
+	LOCPLINT->terminate_cond.setn(true);
+	LOCPLINT->pim->lock();
+
 	tlog0 << "\n\nEnding current game!" << std::endl;
 	if(GH.topInt())
 		GH.topInt()->deactivate();
@@ -246,24 +241,10 @@ void CClient::endGame()
 	}
 	tlog0 << "Deleted playerInts." << std::endl;
 
-	if (serv) 
-	{
-		tlog0 << "Connection has been requested to be closed.\n";
-		boost::unique_lock<boost::mutex>(*serv->wmx);
-		*serv << &CloseServer();
-		tlog0 << "Sent closing signal to the server\n";
+	if(closeConnection)
+		stopConnection();
 
-		serv->close();
-		delete serv;
-		serv = NULL;
-		tlog3 << "Our socket has been closed." << std::endl;
-	}
-
-	connectionHandler->join();
-	tlog0 << "Connection handler thread joined" << std::endl;
-
-	delete connectionHandler;
-	connectionHandler = NULL;
+	tlog0 << "Client stopped." << std::endl;
 }
 
 void CClient::loadGame( const std::string & fname )
@@ -541,5 +522,45 @@ void CClient::updatePaths()
 	if (h)//if we have selected hero...
 		gs->calculatePaths(h, *pathInfo);
 }
+
+void CClient::finishCampaign( CCampaignState * camp )
+{
+}
+
+void CClient::proposeNextMission( CCampaignState * camp )
+{
+	GH.pushInt(new CBonusSelection(camp));
+	GH.curInt = CGP;
+}
+
+void CClient::stopConnection()
+{
+	terminate = true;
+
+	if (serv) 
+	{
+		tlog0 << "Connection has been requested to be closed.\n";
+		boost::unique_lock<boost::mutex>(*serv->wmx);
+		*serv << &CloseServer();
+		tlog0 << "Sent closing signal to the server\n";
+
+		serv->close();
+		delete serv;
+		serv = NULL;
+		tlog3 << "Our socket has been closed." << std::endl;
+	}
+
+	if(connectionHandler)
+	{
+		if(connectionHandler->get_id() != boost::this_thread::get_id())
+			connectionHandler->join();
+
+		tlog0 << "Connection handler thread joined" << std::endl;
+
+		delete connectionHandler;
+		connectionHandler = NULL;
+	}
+}
+
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );

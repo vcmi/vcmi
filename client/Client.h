@@ -55,11 +55,13 @@ public:
 
 	void init();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
-	void endGame();
+	void endGame(bool closeConnection = true);
+	void stopConnection();
 	void save(const std::string & fname);
 	void loadGame(const std::string & fname);
 	void run();
-	void stop();
+	void finishCampaign( CCampaignState * camp );
+	void proposeNextMission( CCampaignState * camp );
 
 	bool terminate;	// tell to terminate
 	boost::thread *connectionHandler; //thread running run() method

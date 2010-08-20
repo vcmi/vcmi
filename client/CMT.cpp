@@ -553,7 +553,7 @@ static void listenForEvents()
 			(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 		{
 			if (client)
-				client->stop();
+				client->endGame();
 			if (mainGUIThread) 
 			{
 				GH.terminate = true;
@@ -577,27 +577,34 @@ static void listenForEvents()
 			delete ev;
 			continue;
 		}
-		else if(ev->type == SDL_USEREVENT && ev->user.code == 1)
+		else if(ev->type == SDL_USEREVENT)
 		{
-			tlog0 << "Changing resolution has been requested\n";
-			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
-			delete ev;
-			continue;
-		}
-		else if (ev->type == SDL_USEREVENT && ev->user.code == 2) //something want to quit to main menu
-		{
-			client->stop();
-			delete client;
-			client = NULL;
+			switch(ev->user.code)
+			{
+			case 1:
+				tlog0 << "Changing resolution has been requested\n";
+				setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+				break;
+
+			case 2:
+				client->endGame();
+				delete client;
+				client = NULL;
+
+				delete CGI->dobjinfo;
+				CGI->dobjinfo = new CDefObjInfoHandler;
+				CGI->dobjinfo->load();
+
+				GH.curInt = CGP;
+				GH.defActionsDef = 63;
+				break;
+
+			case 3:
+				client->endGame(false);
+				break;
+			}
 
 			delete ev;
-
-			delete CGI->dobjinfo;
-			CGI->dobjinfo = new CDefObjInfoHandler;
-			CGI->dobjinfo->load();
-
-			GH.curInt = CGP;
-			GH.defActionsDef = 63;
 			continue;
 		}
 

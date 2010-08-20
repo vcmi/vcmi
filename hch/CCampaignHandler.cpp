@@ -481,3 +481,10 @@ void CCampaignState::initNewCampaign( const StartInfo &si )
 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
 		mapsRemaining.push_back(i);
 }
+
+void CCampaignState::mapConquered()
+{
+	mapsConquered.push_back(currentMap);
+	mapsRemaining -= currentMap;
+	camp->scenarios[currentMap].conquered = true;
+}

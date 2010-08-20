@@ -21,7 +21,7 @@ class CClient;
 class CGameState;
 class CGameHandler;
 class CConnection;
-
+class CCampaignState;
 class CArtifact;
 
 struct CPack
@@ -459,6 +459,22 @@ struct RemoveBonus :  public CPackForClient //118
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & source & id & who & whoID;
+	}
+};
+
+struct UpdateCampaignState : public CPackForClient //119
+{
+	UpdateCampaignState()
+	{
+		type = 119;
+	}
+
+	CCampaignState *camp;
+	void applyCl(CClient *cl);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & camp;
 	}
 };
 

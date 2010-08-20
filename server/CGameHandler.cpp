@@ -4668,7 +4668,18 @@ void CGameHandler::checkLossVictory( ui8 player )
 	}
 
 	if(vic)
+	{
 		end2 = true;
+
+		if(gs->campaign)
+		{
+			gs->campaign->mapConquered();
+
+			UpdateCampaignState ucs;
+			ucs.camp = gs->campaign;
+			sendAndApply(&ucs);
+		}
+	}
 }
 
 void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, InfoWindow &out ) const

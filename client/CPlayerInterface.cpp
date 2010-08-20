@@ -1813,8 +1813,8 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		{
 			if(cb->getStartInfo()->mode != StartInfo::CAMPAIGN)
 				requestReturningToMainMenu();
-			
-			//TODO next campaign scenario
+			else
+				requestStoppingClient();
 		}
 
 	}
@@ -2078,9 +2078,19 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu()
 {
+	sendCustomEvent(2);
+}
+
+void CPlayerInterface::requestStoppingClient()
+{
+	sendCustomEvent(3);
+}
+
+void CPlayerInterface::sendCustomEvent( int code )
+{
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
-	event.user.code = 2;
+	event.user.code = code;
 	SDL_PushEvent(&event);
 }
 
