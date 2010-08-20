@@ -154,8 +154,8 @@ public:
 
 	void postInit()
 	{
-// 		for (size_t i = 0; i < apps.size(); i++)
-// 			apps[i]->postInit();
+	//for (size_t i = 0; i < apps.size(); i++)
+	//apps[i]->postInit();
 	}
 } *objCaller = NULL;
 
@@ -1822,7 +1822,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
 			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
 	}
-	objCaller->postInit();
+	CGTeleport::postInit(); //pairing subterranean gates
 }
 
 bool CGameState::battleCanFlee(int player)

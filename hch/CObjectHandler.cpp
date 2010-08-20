@@ -3561,8 +3561,6 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 			gates.push_back(std::pair<int, int>(cur->id, -1));
 		}
 	}
-
-
 	objs.erase(103);
 }
 
