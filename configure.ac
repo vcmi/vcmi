@@ -13,6 +13,9 @@ AC_ENABLE_SHARED
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+# Use silent rules if supported.
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AC_ARG_ENABLE(debug,
 		[  --disable-debug         turn off debugging (default=enable)],
 		[ if test x$enableval = xyes ; then
@@ -22,14 +25,14 @@ AC_ARG_ENABLE(debug,
 		  fi],
 		  [ enable_debug="yes" ])
 if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
-   CXXFLAGS="-O0 -ggdb -Wall -Wcast-align -Wpointer-arith"
+   CXXFLAGS="-O0 -ggdb"
+fi
+
+if test "x$GXX" = "xyes" ; then
+   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch-enum -Wno-sign-compare -Wcast-align -Wpointer-arith"
 fi
 
 CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
-
-if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wno-sign-compare"
-fi
 
 # Check for Boost libraries
 AX_BOOST_BASE([1.36])
