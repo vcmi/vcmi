@@ -19,6 +19,7 @@
 #include "../hch/CArtHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CCampaignHandler.h"
 
 
 /*
