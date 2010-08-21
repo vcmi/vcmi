@@ -218,7 +218,7 @@ void CConsoleHandler::end()
 {
 	if (thread) {
 		ThreadHandle th = (ThreadHandle)thread->native_handle();
-		int ret = _kill_thread(th);
+		_kill_thread(th);
 		thread->join();
 		delete thread;
 		thread = NULL;

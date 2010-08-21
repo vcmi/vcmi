@@ -108,7 +108,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 		LOD.read((char*)outp, ourEntry->size);
 		mutex->unlock();
 		unsigned char * decomp = NULL;
-		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
+		infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
 		delete[] outp;
 		return decomp;
 	}

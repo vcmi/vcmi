@@ -48,7 +48,6 @@ static CBuilding * readBg(std::string &buf, int& it)
 void CBuildingHandler::loadBuildings()
 {
 	std::string buf = bitmaph->getTextFile("BUILDING.TXT"), temp;
-	unsigned int andame = buf.size();
 	int it=0; //buf iterator
 
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info

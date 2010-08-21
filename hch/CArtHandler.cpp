@@ -80,7 +80,7 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 
 			if (slot == 6 || slot == 7)
 				rings++;
-			else if (slot >= 9 && slot <= 12 || slot == 18)
+			else if ((slot >= 9 && slot <= 12) || slot == 18)
 				misc++;
 			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
 				return false;

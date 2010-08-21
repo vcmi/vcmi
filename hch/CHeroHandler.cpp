@@ -6,7 +6,13 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 103800
+#include <boost/spirit/include/classic.hpp>
+#else
 #include <boost/spirit.hpp>
+#endif
+
 using namespace boost::spirit;
 
 extern CLodHandler * bitmaph;
@@ -217,7 +223,6 @@ void CHeroHandler::loadPuzzleInfo()
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;
-	int ID=0;
 	std::string buf = bitmaph->getTextFile("HOTRAITS.TXT");
 	int it=0;
 	std::string dump;
