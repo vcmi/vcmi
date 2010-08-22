@@ -27,6 +27,7 @@ LibClasses * VLC = NULL;
 DLL_EXPORT CLodHandler *bitmaph = NULL, 
 	*spriteh = NULL;
 
+
 DLL_EXPORT CLogger tlog0(0);
 DLL_EXPORT CLogger tlog1(1);
 DLL_EXPORT CLogger tlog2(2);

@@ -164,6 +164,30 @@ void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int l
 	}
 }
 
+void IGameCallback::getFreeTiles (std::vector<int3> &tiles)
+{
+	std::vector<int> floors;
+	for (int b=0; b<gs->map->twoLevel + 1; ++b) //if gs->map->twoLevel is false then false (0) + 1 is 1, if it's true (1) then we have 2
+	{
+		floors.push_back(b);
+	}
+	TerrainTile *tinfo;
+	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
+	{
+		register int zd = *i;
+		for (int xd = 0; xd < gs->map->width; xd++)
+		{
+			for (int yd = 0; yd < gs->map->height; yd++)
+			{
+				tinfo = getTile (int3 (xd,yd,zd));
+				if (tinfo->tertype != 8 && !tinfo->blocked) //land and free
+					tiles.push_back (int3 (xd,yd,zd));
+			}
+		}
+	}
+
+}
+
 bool IGameCallback::isAllowed( int type, int id )
 {
 	switch(type)

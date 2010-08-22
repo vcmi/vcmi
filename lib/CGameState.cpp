@@ -1167,6 +1167,12 @@ int CGameState::getDate(int mode) const
 	case 3: //current month
 		return ((day-1)/28)+1; 
 		break;
+	case 4: //day of month
+		temp = (day)%28;
+		if (temp)
+			return temp;
+		else return 28;
+		break;
 	}
 	return 0;
 }

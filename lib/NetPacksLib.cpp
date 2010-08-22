@@ -544,6 +544,17 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	case 8:
 		o = new CGBoat();
 		break;
+	case 54: //probably more options will be needed
+		o = new CGCreature();
+		{
+			CStackInstance hlp;
+			CGCreature *cre = static_cast<CGCreature*>(o);
+			cre->slots[0] = hlp;
+			cre->notGrowingTeam = cre->neverFlees = 0;
+			cre->character = 2;
+			cre->gainedArtifact = -1;
+		}
+		break;
 	default:
 		o = new CGObjectInstance();
 		break;
@@ -555,11 +566,17 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	id = o->id = gs->map->objects.size();
 	o->hoverName = VLC->generaltexth->names[ID];
 
-	if(ID == 124) // hole
+	switch(ID)
 	{
-		const TerrainTile &t = gs->map->getTile(pos);
-		o->defInfo = VLC->dobjinfo->gobjs[ID][t.tertype];
-		assert(o->defInfo);
+		case 54: //cfreature
+			o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
+			assert(o->defInfo);
+			break;
+		case 124://hole
+			const TerrainTile &t = gs->map->getTile(pos);
+			o->defInfo = VLC->dobjinfo->gobjs[ID][t.tertype];
+			assert(o->defInfo);
+		break;
 	}
 
 	gs->map->objects.push_back(o);
