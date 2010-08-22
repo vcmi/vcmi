@@ -690,6 +690,8 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 
 struct NewTurn : public CPackForClient //101
 {
+	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, PLAGUE, CUSTOM};
+
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	struct Hero
@@ -708,6 +710,7 @@ struct NewTurn : public CPackForClient //101
 	std::vector<SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	bool resetBuilded;
+	weekType specialWeek;
 
 	NewTurn(){type = 101;};
 

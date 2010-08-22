@@ -57,8 +57,7 @@ extern bool end2;
 
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
-boost::rand48 ran; //TODO: Use common (external?) function for it
-std::ptrdiff_t randomizer (ptrdiff_t i) {return ran();}
+std::ptrdiff_t randomizer (ptrdiff_t i) {return rand();}
 std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
 class CBaseForGHApply
@@ -1149,6 +1148,82 @@ void CGameHandler::newTurn()
 		pickAllowedArtsSet(saa.arts);
 		sendAndApply(&saa);
 	}
+	if (getDate(1) == 7 && getDate(0)>1) //new week (day numbers are confusing, as day was not yet switched)
+	{
+		int monsterid;
+		bool newmonth;
+		int monthType = rand()%100;
+		if(getDate(4) == 28) //new month
+		{
+			newmonth = true;
+			if (monthType < 60) //double growth
+			{
+				//spawn wandering monsters
+				n.specialWeek = NewTurn::DOUBLE_GROWTH;
+				std::vector<int3>::iterator tile;
+				std::vector<int3> tiles;
+				getFreeTiles(tiles);
+				ui32 amount = (tiles.size()) >> 6;
+				std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+
+				std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+				monsterid = newMonster.second;
+				for (int i = 0; i < amount; ++i)
+				{
+					tile = tiles.begin();
+					TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
+					NewObject no;
+					no.ID = newMonster.first;
+					no.subID= newMonster.second;
+					no.pos = *tile;
+					sendAndApply(&no);
+					tiles.erase(tile); //not use it again
+				}
+			}
+			else if (monthType < 98)
+				n.specialWeek = NewTurn::NORMAL;
+			else
+				n.specialWeek = NewTurn::PLAGUE;
+		}
+		else //it's a week, but not full month
+		{
+			newmonth = false;
+			if (monthType < 20)
+			{
+				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
+				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+				monsterid = newMonster.second;
+			}
+		}
+
+		InfoWindow iw;
+		int msgid;
+		switch (n.specialWeek)
+		{
+			case NewTurn::DOUBLE_GROWTH:
+				iw.text.addTxt(MetaString::ARRAY_TXT, 131);
+				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
+				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
+				break;
+			case NewTurn::PLAGUE:
+				iw.text.addTxt(MetaString::ARRAY_TXT, 132);
+				break;
+			case NewTurn::BONUS_GROWTH:
+				iw.text.addTxt(MetaString::ARRAY_TXT, 134);
+				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
+				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
+				break;
+			default:
+				iw.text.addTxt(MetaString::ARRAY_TXT, (newmonth ? 130 : 133));
+				iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
+		}
+
+		for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
+		{
+			iw.player = i->first;
+			sendAndApply(&iw);
+		}
+	}
 
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
@@ -1158,29 +1233,6 @@ void CGameHandler::newTurn()
 	{
 		if(gs->map->objects[i])
 			gs->map->objects[i]->newTurn();
-	}
-
-	if(getDate(4) == 1 && getDate(0)>1) //new month
-	{
-		//spawn wandering monsters
-		std::vector<int3>::iterator tile;
-		std::vector<int3> tiles;
-		getFreeTiles(tiles);
-		ui32 amount = (tiles.size()) >> 6;
-		std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
-
-		std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(ran)));
-		for (int i = 0; i < amount; ++i)
-		{
-			tile = tiles.begin();
-			TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
-			NewObject no;
-			no.ID = newMonster.first;
-			no.subID = newMonster.second;
-			no.pos = *tile;
-			sendAndApply(&no);
-			tiles.erase(tile); //not use it again
-		}
 	}
 
 	winLoseHandle(0xff);

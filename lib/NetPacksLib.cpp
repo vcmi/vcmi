@@ -633,8 +633,10 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		h->bonuses.remove_if(Bonus::OneDay);
 
 	if(gs->getDate(1) == 1) //new week, Monday that is
+	{
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 			h->bonuses.remove_if(Bonus::OneWeek);
+	}
 
 	//count days without town
 	for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
