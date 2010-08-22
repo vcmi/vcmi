@@ -22,6 +22,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/random/linear_congruential.hpp>
 #include <fstream>
 #include <boost/system/system_error.hpp>
 
@@ -56,7 +57,9 @@ extern bool end2;
 
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
-
+boost::rand48 ran; //TODO: Use common (external?) function for it
+std::ptrdiff_t randomizer (ptrdiff_t i) {return ran();}
+std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
 class CBaseForGHApply
 {
@@ -1139,9 +1142,9 @@ void CGameHandler::newTurn()
 		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
-	if(getDate(2) == 1)
+	if(getDate(2) == 1) //first week
 	{
-		SetAvailableArtifacts saa;
+		SetAvailableArtifacts saa; 
 		saa.id = -1;
 		pickAllowedArtsSet(saa.arts);
 		sendAndApply(&saa);
@@ -1152,8 +1155,33 @@ void CGameHandler::newTurn()
 	handleTimeEvents();
 	//call objects
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
+	{
 		if(gs->map->objects[i])
 			gs->map->objects[i]->newTurn();
+	}
+
+	if(getDate(4) == 1 && getDate(0)>1) //new month
+	{
+		//spawn wandering monsters
+		std::vector<int3>::iterator tile;
+		std::vector<int3> tiles;
+		getFreeTiles(tiles);
+		ui32 amount = (tiles.size()) >> 6;
+		std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+
+		std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(ran)));
+		for (int i = 0; i < amount; ++i)
+		{
+			tile = tiles.begin();
+			TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
+			NewObject no;
+			no.ID = newMonster.first;
+			no.subID = newMonster.second;
+			no.pos = *tile;
+			sendAndApply(&no);
+			tiles.erase(tile); //not use it again
+		}
+	}
 
 	winLoseHandle(0xff);
 
