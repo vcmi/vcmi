@@ -114,6 +114,7 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 namespace CSDL_Ext
 {
 	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
+	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
 	extern SDL_Surface * std32bppSurface;
 
 	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);

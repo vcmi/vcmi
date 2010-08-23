@@ -1277,4 +1277,23 @@ void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface *
 	}
 }
 
+void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
+{
+	SDL_Rect newRect;
+	if (dstrect)
+	{
+		newRect = *dstrect;
+	}
+	else
+	{
+		newRect = Rect(0, 0, dst->w, dst->h);
+	}
+	if (dst == screen)
+	{
+		newRect.x += screenLT.x;
+		newRect.y += screenLT.y;
+	}
+	SDL_FillRect(dst, &newRect, color);
+}
+
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;

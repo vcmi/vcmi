@@ -528,6 +528,8 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
+	screenLT = Point(0, 0);
+
 #ifdef _WIN32
 	SDL_SysWMinfo wm;
 	SDL_VERSION(&wm.version);

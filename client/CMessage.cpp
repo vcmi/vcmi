@@ -279,7 +279,7 @@ SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= zw
 	int w = f->getWidth(text.c_str()),
 	    h = f->height;
 	SDL_Surface * ret = CSDL_Ext::newSurface(w, h, screen);
-	SDL_FillRect (ret, NULL, SDL_MapRGB(ret->format,128,128,128));//if use default black - no shadowing
+	CSDL_Ext::fillRect (ret, NULL, SDL_MapRGB(ret->format,128,128,128));//if use default black - no shadowing
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,128,128,128));
 	CSDL_Ext::printAt(text.c_str(), 0, 0, font, kolor, ret);
 	return ret;

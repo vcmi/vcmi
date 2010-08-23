@@ -150,6 +150,16 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	current = sEvent;
 	bool prev;
 
+	struct HLP
+	{
+		static void adjustMousePos(SDL_Event * ev)
+		{
+			//adjust mouse position according to screenLT
+			ev->motion.x -= screenLT.x;
+			ev->motion.y -= screenLT.y;
+		}
+	};
+
 	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
 		SDL_KeyboardEvent key = sEvent->key;
@@ -178,16 +188,12 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
 		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
-		//adjust mouse position according to screenLT
-		sEvent->motion.x -= screenLT.x;
-		sEvent->motion.y -= screenLT.y;
+		HLP::adjustMousePos(sEvent);
 		handleMouseMotion(sEvent);
 	}
 	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
 	{
-		//adjust mouse position according to screenLT
-		sEvent->motion.x -= screenLT.x;
-		sEvent->motion.y -= screenLT.y;
+		HLP::adjustMousePos(sEvent);
 
 		if(sEvent->button.button == SDL_BUTTON_LEFT)
 		{
@@ -247,9 +253,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		//adjust mouse position according to screenLT
-		sEvent->motion.x -= screenLT.x;
-		sEvent->motion.y -= screenLT.y;
+		HLP::adjustMousePos(sEvent);
 
 		std::list<CIntObject*> hlp = lclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
@@ -267,9 +271,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		//adjust mouse position according to screenLT
-		sEvent->motion.x -= screenLT.x;
-		sEvent->motion.y -= screenLT.y;
+		HLP::adjustMousePos(sEvent);
 
 		std::list<CIntObject*> hlp = rclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)

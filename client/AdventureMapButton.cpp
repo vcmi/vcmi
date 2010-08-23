@@ -647,7 +647,7 @@ void CSlider::setAmount( int to )
 
 void CSlider::showAll(SDL_Surface * to)
 {
-	SDL_FillRect(to, &pos, 0);
+	CSDL_Ext::fillRect(to, &pos, 0);
 	CIntObject::showAll(to);
 }
 
