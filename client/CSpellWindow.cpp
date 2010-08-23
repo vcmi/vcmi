@@ -318,7 +318,7 @@ void CSpellWindow::fRcornerb()
 
 void CSpellWindow::showAll(SDL_Surface *to)
 {
-	SDL_BlitSurface(background, NULL, to, &pos);
+	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
 	std::ostringstream mana;

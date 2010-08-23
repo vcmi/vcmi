@@ -105,7 +105,7 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	{
 		for (int j=0; j<w; j+=background->w)
 		{
-			SDL_BlitSurface(background,&genRect(background->h,background->w,0,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
+			CSDL_Ext::blitSurface(background,&genRect(background->h,background->w,0,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
 		}
 	}
 	drawBorder(playerColor, ret, w, h);
@@ -488,27 +488,27 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 	//obwodka I-szego rzedu pozioma //border of 1st series, horizontal
 	for (int i=0; i<w-piecesOfBox[playerColor][6]->w; i+=piecesOfBox[playerColor][6]->w)
 	{
-		SDL_BlitSurface
+		CSDL_Ext::blitSurface
 			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,x+i,y+0));
-		SDL_BlitSurface
+		CSDL_Ext::blitSurface
 			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h+1));
 	}
 	//obwodka I-szego rzedu pionowa  //border of 1st series, vertical
 	for (int i=0; i<h-piecesOfBox[playerColor][4]->h; i+=piecesOfBox[playerColor][4]->h)
 	{
-		SDL_BlitSurface
+		CSDL_Ext::blitSurface
 			(piecesOfBox[playerColor][4],NULL,ret,&genRect(piecesOfBox[playerColor][4]->h,piecesOfBox[playerColor][4]->w,x+0,y+i));
-		SDL_BlitSurface
+		CSDL_Ext::blitSurface
 			(piecesOfBox[playerColor][5],NULL,ret,&genRect(piecesOfBox[playerColor][5]->h,piecesOfBox[playerColor][5]->w,x+w-piecesOfBox[playerColor][5]->w,y+i));
 	}
 	//corners
-	SDL_BlitSurface
+	CSDL_Ext::blitSurface
 		(piecesOfBox[playerColor][0],NULL,ret,&genRect(piecesOfBox[playerColor][0]->h,piecesOfBox[playerColor][0]->w,x+0,y+0));
-	SDL_BlitSurface
+	CSDL_Ext::blitSurface
 		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,x+w-piecesOfBox[playerColor][1]->w,y+0));
-	SDL_BlitSurface
+	CSDL_Ext::blitSurface
 		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,x+0,y+h-piecesOfBox[playerColor][2]->h+1));
-	SDL_BlitSurface
+	CSDL_Ext::blitSurface
 		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,x+w-piecesOfBox[playerColor][3]->w,y+h-piecesOfBox[playerColor][3]->h+1));
 }
 

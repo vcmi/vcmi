@@ -20,6 +20,7 @@
 
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
+extern Point screenLT;
 
 void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
@@ -177,10 +178,17 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
 		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
+		//adjust mouse position according to screenLT
+		sEvent->motion.x -= screenLT.x;
+		sEvent->motion.y -= screenLT.y;
 		handleMouseMotion(sEvent);
 	}
 	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
 	{
+		//adjust mouse position according to screenLT
+		sEvent->motion.x -= screenLT.x;
+		sEvent->motion.y -= screenLT.y;
+
 		if(sEvent->button.button == SDL_BUTTON_LEFT)
 		{
 			
@@ -239,6 +247,10 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
+		//adjust mouse position according to screenLT
+		sEvent->motion.x -= screenLT.x;
+		sEvent->motion.y -= screenLT.y;
+
 		std::list<CIntObject*> hlp = lclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{
@@ -255,6 +267,10 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
+		//adjust mouse position according to screenLT
+		sEvent->motion.x -= screenLT.x;
+		sEvent->motion.y -= screenLT.y;
+
 		std::list<CIntObject*> hlp = rclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{
@@ -602,19 +618,19 @@ CIntObject::~CIntObject()
 		parent->children -= this;
 }
 
-void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
 {
-	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
 {
-	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh /*= false*/)
+void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
-	printAtMiddleLoc(text, p.x, p.y, font, kolor, dst, refresh);
+	printAtMiddleLoc(text, p.x, p.y, font, kolor, dst);
 }
 
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
@@ -627,14 +643,14 @@ void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
 	blitAtLoc(src, p.x, p.y, dst);
 }
 
-void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refrsh /*= false*/ )
+void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	CSDL_Ext::printAtMiddleWB(text, pos.x + x, pos.y + y, font, charpr, kolor, dst, refrsh);
+	CSDL_Ext::printAtMiddleWB(text, pos.x + x, pos.y + y, font, charpr, kolor, dst);
 }
 
-void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh /*= false*/ )
+void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst )
 {
-	CSDL_Ext::printTo(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+	CSDL_Ext::printTo(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
 void CIntObject::disable()
@@ -843,7 +859,7 @@ void CPicture::showAll( SDL_Surface * to )
 			dstRect.x = pos.x;
 			dstRect.y = pos.y;
 
-			SDL_BlitSurface(bg, &srcRectCpy, to, &dstRect);
+			CSDL_Ext::blitSurface(bg, &srcRectCpy, to, &dstRect);
 		}
 		else
 			blitAt(bg, pos, to);

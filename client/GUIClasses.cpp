@@ -349,7 +349,7 @@ void CGarrisonSlot::show(SDL_Surface * to)
 		pos1.x = owner->surOffset.x+ pos.x-owner->pos.x;
 		pos1.y = owner->surOffset.y+ pos.y-owner->pos.y;
 
-		SDL_BlitSurface(owner->sur,&pos1,to,&pos2);
+		CSDL_Ext::blitSurface(owner->sur,&pos1,to,&pos2);
 		if(owner->splitting && owner->highlighted->our())
 			blitAt(imgs[-1],pos,to);
 	}
@@ -1179,7 +1179,7 @@ void CStatusBar::print(const std::string & text)
 void CStatusBar::show(SDL_Surface * to)
 {
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),to,&pom);
+	CSDL_Ext::blitSurface(bg,&genRect(pos.h,pos.w,0,0),to,&pom);
 	printAtMiddle(current,middlex,middley,FONT_SMALL,zwykly,to);
 }
 
@@ -1261,7 +1261,7 @@ void CHeroList::init()
 {
 	int w = pos.w+1, h = pos.h+4;
 	bg = CSDL_Ext::newSurface(w,h,screen);
-	SDL_BlitSurface(adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
+	CSDL_Ext::blitSurface(adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
 }
 
 void CHeroList::genList()
@@ -4121,7 +4121,7 @@ void CSystemOptionsWindow::deactivate()
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
 {
-	SDL_BlitSurface(background, NULL, to, &pos);
+	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 
 	save->show(to);
 	quitGame->show(to);
@@ -6547,8 +6547,8 @@ void CLabel::showAll(SDL_Surface * to)
 	if(!toPrint.length())
 		return;
 
-	static void (*printer[3])(const std::string &, int, int, EFonts, SDL_Color, SDL_Surface *, bool) = {&CSDL_Ext::printAt, &CSDL_Ext::printAtMiddle, &CSDL_Ext::printTo}; //array of printing functions
-	printer[alignment](toPrint, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to, false);
+	static void (*printer[3])(const std::string &, int, int, EFonts, SDL_Color, SDL_Surface *) = {&CSDL_Ext::printAt, &CSDL_Ext::printAtMiddle, &CSDL_Ext::printTo}; //array of printing functions
+	printer[alignment](toPrint, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to);
 }
 
 CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
@@ -6760,7 +6760,7 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
 	Rect hlp = Pos;
-	SDL_BlitSurface(srf, &hlp, *bg, NULL);
+	CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;

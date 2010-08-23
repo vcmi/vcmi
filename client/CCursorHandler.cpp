@@ -57,17 +57,23 @@ void CCursorHandler::draw1()
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
 	SDL_BlitSurface(screen, &genRect(40,40,x,y), help, &genRect(40,40,0,0));
+// 	if (dndImage)
+// 		blitAt(dndImage, x - dndImage->w/2, y - dndImage->h/2);
+// 	else
+// 		blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
+
 	if (dndImage)
-		blitAt(dndImage, x - dndImage->w/2, y - dndImage->h/2);
+		SDL_BlitSurface(dndImage, NULL, screen, &genRect(40, 40, x - dndImage->w/2, y - dndImage->h/2));
 	else
-		blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
+		SDL_BlitSurface(cursors[mode]->ourImages[number].bitmap, NULL, screen, &genRect(40,40,x,y));
 }
 void CCursorHandler::draw2()
 {
 	if(!Show) return;
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
-	blitAt(help,x,y);
+	SDL_BlitSurface(help, NULL, screen, &genRect(40, 40, x, y));
+	//blitAt(help,x,y);
 }
 
 void CCursorHandler::shiftPos( int &x, int &y )

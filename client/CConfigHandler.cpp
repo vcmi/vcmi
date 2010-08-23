@@ -195,6 +195,8 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 			fname = lexeme_d[+(alnum_p | '.')];
 			clientOption 
 				= str_p("resolution=") >> (uint_p[assign_a(conf.cc.resx)] >> 'x' >> uint_p[assign_a(conf.cc.resy)] | eps_p[lerror("Wrong resolution!")])
+				| str_p("pregameRes=") >> (uint_p[assign_a(conf.cc.pregameResx)] >> 'x' >> uint_p[assign_a(conf.cc.pregameResy)] | eps_p[lerror("Wrong pregame size!")])
+				| str_p("screenSize=") >> (uint_p[assign_a(conf.cc.screenx)] >> 'x' >> uint_p[assign_a(conf.cc.screeny)] | eps_p[lerror("Wrong screen size!")])
 				| str_p("port=") >> (uint_p[assign_a(conf.cc.port)] | eps_p[lerror("Wrong port!")])
 				| str_p("bpp=") >> (uint_p[assign_a(conf.cc.bpp)] | eps_p[lerror("Wrong bpp!")])
 				| str_p("localInformation=") >> (uint_p[assign_a(conf.cc.localInformation)] | eps_p[lerror("Wrong localInformation!")])

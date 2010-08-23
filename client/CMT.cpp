@@ -71,7 +71,22 @@ static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
+int screenScrollingDir = 0; //used for displays smaller then selected resolution; 0 - no scrolling, & 1 - down, & 2 - up, & 4 - right, & 8 - left
+Point screenLT = Point(0, 0); //position of top left corner of the screen
 static boost::thread *mainGUIThread;
+
+void updateScreenLT(int maxW, int maxH)
+{
+	if (screenScrollingDir & 1) //down
+	{
+		screenLT.y = std::max<int>(screenLT.y - 5, screen->h - maxH);
+	}
+	else if (screenScrollingDir & 2) //up
+	{
+		screenLT.y = std::min<int>(screenLT.y + 5, 0);
+	}
+	GH.totalRedraw();
+}
 
 SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
@@ -255,7 +270,7 @@ int main(int argc, char** argv)
 	}
 	atexit(SDL_Quit);
 
-	setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
+	setScreenRes(conf.cc.pregameResx, conf.cc.pregameResy, conf.cc.bpp, conf.cc.fullscreen);
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
 
 	// Initialize video
@@ -606,6 +621,25 @@ static void listenForEvents()
 
 			delete ev;
 			continue;
+		} else if (ev->type == SDL_MOUSEMOTION)
+		{
+			if (conf.cc.resy > screen->h)
+			{
+				if (std::abs(ev->motion.y - screen->h) < 10 ) //scroll down
+				{
+					screenScrollingDir &= (~2);
+					screenScrollingDir |= 1;
+				}
+				else if (std::abs(ev->motion.y) < 10) //scroll up
+				{
+					screenScrollingDir &= (~1);
+					screenScrollingDir |= 2;
+				}
+				else //don't scroll vertically
+				{
+					screenScrollingDir &= (~3);
+				}
+			}
 		}
 
 		//tlog0 << " pushing ";

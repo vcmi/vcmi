@@ -53,6 +53,8 @@ namespace fs = boost::filesystem;
 using boost::bind;
 using boost::ref;
 
+void updateScreenLT(int maxW, int maxH);
+
 #if _MSC_VER >= 1600
 	#define bind boost::bind
 	#define ref boost::ref
@@ -301,6 +303,7 @@ void CGPreGame::update()
 	CGI->curh->draw1();
 	SDL_Flip(screen);
 	CGI->curh->draw2();
+	updateScreenLT(800, 600);
 	GH.topInt()->show(screen);
 	GH.updateTime();
 	GH.handleEvents();

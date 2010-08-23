@@ -22,6 +22,7 @@
  *
  */
 
+extern Point screenLT;
 
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
@@ -180,23 +181,11 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 	else return false;
 }
 
-void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst)
-{
-	SDL_Rect pom = genRect(src->h,src->w,x,y);
-	SDL_BlitSurface(src,NULL,dst,&pom);
-	SDL_UpdateRect(dst,x,y,src->w,src->h);
-}
-
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	if(!dst) dst = screen;
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
-	SDL_BlitSurface(src,NULL,dst,&pom);
-}
-
-void blitAtWR(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
-{
-	blitAtWR(src,pos.x,pos.y,dst);
+	CSDL_Ext::blitSurface(src,NULL,dst,&pom);
 }
 
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
@@ -268,7 +257,7 @@ void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int char
 		SDL_FreeSurface(wesu[i]);
 }
 
-void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refresh)
+void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -281,13 +270,13 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, in
 	int cury = y;
 	for (size_t i=0; i < ws.size(); ++i)
 	{
-		printAt(ws[i], x, cury, font, kolor, dst, refresh);
+		printAt(ws[i], x, cury, font, kolor, dst);
 		cury += f->height;
 	}
 }
 
 
-void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=tytulowy*/, SDL_Surface * dst/*=screen*/, bool refrsh /*= false*/ )
+void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=tytulowy*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -302,12 +291,12 @@ void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts f
 	int cury = y - totalHeight/2;
 	for (size_t i=0; i < ws.size(); ++i)
 	{
-		printAt(ws[i], x - f->getWidth(ws[i].c_str())/2, cury, font, kolor, dst, refrsh);
+		printAt(ws[i], x - f->getWidth(ws[i].c_str())/2, cury, font, kolor, dst);
 		cury += f->height;
 	}
 }
 
-void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)
+void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
 {
 	if(text.length()==0) return;
 	SDL_Surface * temp;
@@ -331,13 +320,11 @@ void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
-	if(refresh)
-		SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
+	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -348,7 +335,7 @@ void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts fon
 	int nx = x - f->getWidth(text.c_str())/2,
 		ny = y - f->height/2;
 
-	printAt(text, nx, ny, font, kolor, dst, refresh);
+	printAt(text, nx, ny, font, kolor, dst);
 }
 
 void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)
@@ -376,7 +363,7 @@ void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
+	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
 	if(refresh)
 		SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
@@ -384,10 +371,18 @@ void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 
 
 
-void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
 {
 	if(!text.size())
 		return;
+
+	//adjust x and y
+	if (dst == screen)
+	{
+		x += screenLT.x;
+		y += screenLT.y;
+	}
+
 	if (graphics->fontsTrueType[font])
 	{
 		printAt(text,x, y, graphics->fontsTrueType[font], kolor, dst);
@@ -417,14 +412,14 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 		const unsigned char c = text[txti];
 		x += f->chars[c].unknown1;
 
-		for(int i = 0; i < f->height  &&  (y + i) < (dst->h - 1); i++)
+		for(int i = std::max(0, -y); i < f->height  &&  (y + i) < (dst->h - 1); i++)
 		{
 			px = (Uint8*)dst->pixels;
 			px +=  (y+i) * dst->pitch  +  x * bpp;
 	 		src = f->chars[c].pixels;
 			src += i * f->chars[c].width;//if we have reached end of surface in previous line
 
-			for(int j = 0; j < f->chars[c].width  &&  (j + x) < (dst->w - 1); j++)
+			for(int j = std::max(0, -x); j < f->chars[c].width  &&  (j + x) < (dst->w - 1); j++)
 			{
 				switch(*src)
 				{
@@ -442,11 +437,6 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 
 		x += f->chars[c].width;
 		x += f->chars[c].unknown2;
-	}
-
-	if(refresh)
-	{
-		SDL_UpdateRect(dst, x, y, f->getWidth(text.c_str()), f->height);
 	}
 }
 
@@ -475,12 +465,12 @@ void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
+	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
 	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -488,7 +478,7 @@ void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL
 		return;
 	}
 	const Font *f = graphics->fonts[font];
-	printAt(text, x - f->getWidth(text.c_str()), y - f->height, font, kolor, dst, refresh);
+	printAt(text, x - f->getWidth(text.c_str()), y - f->height, font, kolor, dst);
 }
 
 void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
@@ -516,21 +506,8 @@ void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Colo
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
+	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
 	SDL_FreeSurface(temp);
-}
-
-void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
-{
-	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel;
-
-	p[0] = B;
-	p[1] = G;
-	p[2] = R;
-	if(ekran->format->BytesPerPixel==4)
-		p[3] = A;
-
-	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
 // Vertical flip
@@ -698,7 +675,7 @@ void CSDL_Ext::blitWithRotateClip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surfa
 	static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1<bpp>, blitWithRotate2<bpp>, blitWithRotate3<bpp>};
 	if(!rotation)
 	{
-		SDL_BlitSurface(src, srcRect, dst, dstRect);
+		CSDL_Ext::blitSurface(src, srcRect, dst, dstRect);
 	}
 	else
 	{
@@ -1275,5 +1252,29 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 	}
 }
 
+void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect )
+{
+	if (dst != screen)
+	{
+		SDL_BlitSurface(src, srcRect, dst, dstRect);
+	}
+	else
+	{
+		SDL_Rect betterDst;
+		if (dstRect)
+		{
+			betterDst = *dstRect;
+		}
+		else
+		{
+			betterDst = Rect(0, 0, dst->w, dst->h);
+		}
+
+		betterDst.x += screenLT.x;
+		betterDst.y += screenLT.y;
+
+		SDL_BlitSurface(src, srcRect, dst, &betterDst);
+	}
+}
 
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;

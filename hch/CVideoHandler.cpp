@@ -341,7 +341,7 @@ int CSmackPlayer::frameCount() const
 
 void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 {
-	int w = data->width, h = data->height;
+	int w = std::min<int>(data->width, dst->w - x), h = std::min<int>(data->height, dst->h - y);
 	/* Lock the screen for direct access to the pixels */
 	if ( SDL_MUSTLOCK(dst) ) 
 	{
@@ -819,7 +819,7 @@ void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
 
 	pos.x = x;
 	pos.y = y;
-	SDL_BlitSurface(dest, &destRect, dst, &pos);
+	CSDL_Ext::blitSurface((dest, &destRect, dst, &pos);
 	
 	if (update)
 		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
