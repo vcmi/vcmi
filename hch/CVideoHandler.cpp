@@ -819,7 +819,7 @@ void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
 
 	pos.x = x;
 	pos.y = y;
-	CSDL_Ext::blitSurface((dest, &destRect, dst, &pos);
+	CSDL_Ext::blitSurface(dest, &destRect, dst, &pos);
 	
 	if (update)
 		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
