@@ -8,6 +8,7 @@
 
 #include "CSoundBase.h"
 #include "../lib/HeroBonus.h"
+#include "../lib/CGameState.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -21,6 +22,7 @@
 
 class CLodHandler;
 class CCreatureHandler;
+class CCreature;
 
 class DLL_EXPORT CCreature : public CBonusSystemNode
 {
@@ -60,7 +62,7 @@ public:
 	ui32 getMaxDamage() const;
 
 	void addBonus(int val, int type, int subtype = -1);
-
+	void getParents(TNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen &ranGen)
@@ -95,8 +97,9 @@ public:
 
 
 class DLL_EXPORT CCreatureHandler
-{
+{	
 public:
+	CBonusSystemNode *globalEffects;
 	std::set<int> notUsedMonsters;
 	std::vector<CCreature*> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
@@ -123,7 +126,7 @@ public:
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
-		h & levelCreatures;		
+		h & levelCreatures & globalEffects;		
 	}
 };
 

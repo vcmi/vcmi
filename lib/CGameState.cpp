@@ -1202,6 +1202,7 @@ CGameState::~CGameState()
 
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
+	VLC->creh->globalEffects = &globalEffects;
 	struct HLP
 	{
 		//it's assumed that given hero should receive the bonus

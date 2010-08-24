@@ -69,7 +69,7 @@ namespace PrimarySkill
 	BONUS_NAME(WATER_SPELLS) \
 	BONUS_NAME(EARTH_SPELLS) \
 	BONUS_NAME(GENERATE_RESOURCE) /*daily value, uses subtype (resource type)*/  \
-	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level*/  \
+	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if aplicable*/  \
 	BONUS_NAME(WHIRLPOOL_PROTECTION) /*hero won't lose army when teleporting through whirlpool*/  \
 	BONUS_NAME(SPELL) /*hero knows spell, val - skill level (0 - 3), subtype - spell id*/  \
 	BONUS_NAME(SPELLS_OF_LEVEL) /*hero knows all spells of given level, val - skill level; subtype - level*/  \
@@ -192,7 +192,8 @@ struct DLL_EXPORT Bonus
 		SECONDARY_SKILL,
 		HERO_SPECIAL,
 		ARMY,
-		CAMPAIGN_BONUS
+		CAMPAIGN_BONUS,
+		SPECIAL_WEEK
 	};
 
 	enum LimitEffect
@@ -298,6 +299,7 @@ class BonusList : public std::list<Bonus>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
+	int DLL_EXPORT valPercent(Bonus::BonusType type, const CSelector &selector, int val) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
@@ -379,7 +381,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY, ARTIFACT
+		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE
 	};
 };
 

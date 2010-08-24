@@ -690,7 +690,7 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 
 struct NewTurn : public CPackForClient //101
 {
-	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, PLAGUE, CUSTOM};
+	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, PLAGUE, CUSTOM, NO_ACTION, NONE};
 
 	DLL_EXPORT void applyGs(CGameState *gs);
 
@@ -711,6 +711,7 @@ struct NewTurn : public CPackForClient //101
 	ui32 day;
 	bool resetBuilded;
 	weekType specialWeek;
+	TQuantity creatureid; //for creature weeks
 
 	NewTurn(){type = 101;};
 

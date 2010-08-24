@@ -159,7 +159,7 @@ public:
 	void changeObjPos(int objid, int3 newPos, ui8 flags);
 	void useScholarSkill(si32 hero1, si32 hero2);
 	void heroExchange(si32 hero1, si32 hero2);
-	void setPortalDwelling(const CGTownInstance * town, bool forced);
+	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, int Seed);

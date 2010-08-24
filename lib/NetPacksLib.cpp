@@ -632,10 +632,42 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 	BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 		h->bonuses.remove_if(Bonus::OneDay);
 
-	if(gs->getDate(1) == 1) //new week, Monday that is
+	if(gs->getDate(1) == 1 && specialWeek != NO_ACTION) //new week, Monday that is
 	{
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 			h->bonuses.remove_if(Bonus::OneWeek);
+
+		gs->globalEffects.bonuses.remove_if(Bonus::OneWeek);
+
+		Bonus b;
+		b.duration = Bonus::ONE_WEEK;
+		b.source = Bonus::SPECIAL_WEEK;
+		b.effectRange = Bonus::NO_LIMIT;
+		switch (specialWeek)
+		{
+			case DOUBLE_GROWTH:
+				b.val = 100;
+				b.type = Bonus::CREATURE_GROWTH_PERCENT;
+				b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+				b.valType = Bonus::PERCENT_TO_ALL;
+				break;
+			case BONUS_GROWTH:
+				b.val = 5;
+				b.type = Bonus::CREATURE_GROWTH;
+				b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+				b.valType = Bonus::BASE_NUMBER;
+				break;
+			case PLAGUE:
+				b.val = -50;
+				b.type = Bonus::CREATURE_GROWTH_PERCENT;
+				b.valType = Bonus::PERCENT_TO_ALL;
+				break;
+			default:
+				b.val = 0;
+
+		}
+		if (b.val)
+			gs->globalEffects.bonuses.push_back(b);
 	}
 
 	//count days without town

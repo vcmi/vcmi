@@ -1736,10 +1736,12 @@ void CGDwelling::newTurn() const
 	{
 		if(creatures[i].second.size())
 		{
+			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
+			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
 			if(false /*accumulate creatures*/)
-				sac.creatures[i].first += VLC->creh->creatures[creatures[i].second[0]]->growth;
+				sac.creatures[i].first += amount;
 			else
-				sac.creatures[i].first = VLC->creh->creatures[creatures[i].second[0]]->growth;
+				sac.creatures[i].first = amount;
 			change = true;
 		}
 	}
@@ -1923,8 +1925,9 @@ int CGTownInstance::creatureGrowth(const int & level) const
 {
 	if (level<0 || level >=CREATURES_PER_TOWN)
 		return 0;
+	TCreature creid = town->basicCreatures[level];
 		
-	int ret = VLC->creh->creatures[town->basicCreatures[level]]->growth;
+	int ret = VLC->creh->creatures[creid]->growth;
 	switch(fortLevel())
 	{
 	case 3:
@@ -1932,29 +1935,33 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	case 2:
 		ret*=(1.5); break;
 	}
+	ret *= (1 + VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); // double growth or plague
 	if(tempOwner != NEUTRAL_PLAYER)
 	{
 		ret *= (1 + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); //Statue of Legion
 		for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
 		{ //+1 for each dwelling
-			if (VLC->creh->creatures[town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
+			if (VLC->creh->creatures[creid]->idNumber == (*it)->creatures[0].second[0])
 				++ret;
 		}
 	}
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
-			ret+=VLC->creh->creatures[town->basicCreatures[level]]->hordeGrowth;
+			ret+=VLC->creh->creatures[creid]->hordeGrowth;
 	if(getHordeLevel(1)==level)
 		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
-			ret+=VLC->creh->creatures[town->basicCreatures[level]]->hordeGrowth;
+			ret+=VLC->creh->creatures[creid]->hordeGrowth;
 
 	//support for legs of legion etc.
 	if(garrisonHero)
 		ret += garrisonHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
 	if(visitingHero)
 		ret += visitingHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
+	//spcecial week
+	ret += VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH);
 	if(builtBuildings.find(26)!=builtBuildings.end()) //grail - +50% to ALL growth
 		ret*=1.5;
+	amax(ret, 1); //even plague week gives at least one creature
 	return ret;//check CCastleInterface.cpp->CCastleInterface::CCreaInfo::clickRight if this one will be modified
 }
 int CGTownInstance::dailyIncome() const
@@ -6518,10 +6525,10 @@ void CArmedInstance::randomizeArmy(int type)
 void CArmedInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
 	const PlayerState *p = cb->getPlayerState(tempOwner);
-	if(!p) //occurs when initializing starting hero and heroes from the pool, also for neutral armed objects
-		out.insert(&cb->gameState()->globalEffects);
-	else
+	if(p)
 		out.insert(p); //hero always inherits bonuses from player
+
+	out.insert(&cb->gameState()->globalEffects); //global effect are always active I believe
 
 	if(battle)
 		out.insert(battle);

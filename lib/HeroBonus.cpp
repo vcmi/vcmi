@@ -64,6 +64,54 @@ int DLL_EXPORT BonusList::totalValue() const
 		return valFirst;
 }
 
+int DLL_EXPORT BonusList::valPercent(Bonus::BonusType type, const CSelector &selector, int val) const
+{
+	int base = val;
+	int percentToBase = 0;
+	int percentToAll = 0;
+	int additive = 0;
+	int indepMax = 0;
+	bool hasIndepMax = false;
+
+	for(const_iterator i = begin(); i != end(); i++)
+	{
+		switch(i->valType)
+		{
+		case Bonus::BASE_NUMBER:
+			base += i->val;
+			break;
+		case Bonus::PERCENT_TO_ALL:
+			percentToAll += i->val;
+			break;
+		case Bonus::PERCENT_TO_BASE:
+			percentToBase += i->val;
+			break;
+		case Bonus::ADDITIVE_VALUE:
+			additive += i->val;
+			break;
+		case Bonus::INDEPENDENT_MAX:
+			if (!indepMax)
+			{
+				indepMax = i->val;
+				hasIndepMax = true;
+			}
+			else
+			{
+				amax(indepMax, i->val);
+			}
+
+			break;
+		}
+	}
+	int modifiedBase = base + (base * percentToBase) / 100;
+	modifiedBase += additive;
+	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
+	if (hasIndepMax)
+		return std::max(valFirst, indepMax);
+	else
+		return valFirst;
+}
+
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const
 {
 	for (const_iterator i = begin(); i != end(); i++)
@@ -482,12 +530,23 @@ bool ILimiter::limit(const Bonus &b, const CBonusSystemNode &node) const /*retur
 
 bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) const
 {
-	if(node.nodeType != CBonusSystemNode::STACK)
-		return true;
-
-	const CCreature *c = (static_cast<const CStackInstance *>(&node))->type;
-
-	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c)); //drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
+	switch (node.nodeType)
+	{	
+		case CBonusSystemNode::STACK:
+		{
+			const CCreature *c = (static_cast<const CStackInstance *>(&node))->type;
+			return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
+		}	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
+			break;
+		case CBonusSystemNode::CREATURE:
+		{
+			const CCreature *c = (static_cast<const CCreature *>(&node));
+			return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
+		}
+			break;
+		default:
+			return true;
+	}
 }
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)
 	:creature(&Creature), includeUpgrades(IncludeUpgrades)

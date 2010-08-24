@@ -965,7 +965,7 @@ static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
 	return *a < *b;
 }
 
-void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false)
+void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
 {// bool forced = true - if creature should be replaced, if false - only if no creature was set
 
 	if (forced || town->creatures[CREATURES_PER_TOWN].second.empty())//we need to change creature
@@ -986,7 +986,10 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ui32 creapos = rand()%dwellings[dwellpos]->creatures.size();//for multi-creature dwellings like Golem Factory
 			ui32 creature = dwellings[dwellpos]->creatures[creapos].second[0];
 			
-			ssi.creatures[CREATURES_PER_TOWN].first = VLC->creh->creatures[creature]->growth;
+			if (clear)
+				ssi.creatures[CREATURES_PER_TOWN].first = std::max((ui32)1, (VLC->creh->creatures[creature]->growth)/2);
+			else
+				ssi.creatures[CREATURES_PER_TOWN].first = VLC->creh->creatures[creature]->growth;
 			ssi.creatures[CREATURES_PER_TOWN].second.push_back(creature);
 			sendAndApply(&ssi);
 		}
@@ -998,9 +1001,59 @@ void CGameHandler::newTurn()
 	NewTurn n;
 	n.day = gs->day + 1;
 	n.resetBuilded = true;
+	bool newmonth = false;
 	
 	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
 	srand(time(NULL));
+
+	if (getDate(1) == 7 && getDate(0)>1) //new week (day numbers are confusing, as day was not yet switched)
+	{
+		int monsterid;
+		int monthType = rand()%100;
+		if(getDate(4) == 28) //new month
+		{
+			newmonth = true;
+			if (monthType < 100) //double growth
+			{
+				//spawn wandering monsters
+				n.specialWeek = NewTurn::DOUBLE_GROWTH;
+				std::vector<int3>::iterator tile;
+				std::vector<int3> tiles;
+				getFreeTiles(tiles);
+				ui32 amount = (tiles.size()) >> 6;
+				std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+
+				//std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+				std::pair<int,int> newMonster(54, 1); //pikeman
+				n.creatureid = newMonster.second;
+				for (int i = 0; i < amount; ++i)
+				{
+					tile = tiles.begin();
+					TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
+					NewObject no;
+					no.ID = newMonster.first;
+					no.subID= newMonster.second;
+					no.pos = *tile;
+					sendAndApply(&no);
+					tiles.erase(tile); //not use it again
+				}
+			}
+			else if (monthType < 98)
+				n.specialWeek = NewTurn::NORMAL;
+			else
+				n.specialWeek = NewTurn::PLAGUE;
+		}
+		else //it's a week, but not full month
+		{
+			newmonth = false;
+			if (monthType < 20)
+			{
+				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
+				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+				monsterid = newMonster.second;
+			}
+		}
+	}
 
 	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
 
@@ -1060,24 +1113,12 @@ void CGameHandler::newTurn()
 			
 			if(gs->day) //not first day
 			{
-				switch(h->getSecSkillLevel(13)) //handle estates - give gold
-				{
-				case 1: //basic
-					n.res[i->first][6] += 125;
-					break;
-				case 2: //advanced
-					n.res[i->first][6] += 250;
-					break;
-				case 3: //expert
-					n.res[i->first][6] += 500;
-					break;
-				}
+				n.res[i->first][6] += h->valOfBonuses(Selector::typeSybtype(Bonus::SECONDARY_SKILL, 13)); //estates
+
 				for (int k = 0; k < RESOURCE_QUANTITY; k++)
 				{
 					n.res[i->first][k] += h->valOfBonuses(Bonus::GENERATE_RESOURCE, k);
 				}
-				//TODO player bonuses
-
 			}
 		}
 		//n.res.push_back(r);
@@ -1088,24 +1129,10 @@ void CGameHandler::newTurn()
 		if(gs->getDate(1)==7) //first day of week
 		{
 			if ((*j)->subID == 5 && vstd::contains((*j)->builtBuildings, 22))
-				setPortalDwelling(*j, true);//set creatures for Portal of Summoning
-			
+				setPortalDwelling(*j, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+
 			if  ((**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT && vstd::contains((**j).builtBuildings, 22))//dwarven treasury
 					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
-		
-			SetAvailableCreatures sac;
-			sac.tid = (**j).id;
-			sac.creatures = (**j).creatures;
-			for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
-			{
-				if((**j).creatureDwelling(k))//there is dwelling (k-level)
-				{
-					sac.creatures[k].first += (**j).creatureGrowth(k);
-					if(!gs->getDate(0)) //first day of game: use only basic growths
-						amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
-				}
-			}
-			n.cres.push_back(sac);
 		}
 		if(gs->day  &&  player < PLAYER_LIMIT)//not the first day and town not neutral
 		{
@@ -1126,13 +1153,29 @@ void CGameHandler::newTurn()
 			n.res[player][6] += (**j).dailyIncome();
 		}
 		handleTownEvents(*j, n);
-		if ((**j).subID == 2 && vstd::contains((**j).builtBuildings, 26)) // Skyship, probably easier to handle same as Veil of darkness
-		{ //do it every new day after veils apply
-			FoWChange fw;
-			fw.mode = 1;
-			fw.player = player;
-			getAllTiles(fw.tiles, player, -1, 0);
-			sendAndApply (&fw);
+		if (vstd::contains((**j).builtBuildings, 26)) 
+		{
+			switch ((**j).subID)
+			{
+				case 2: // Skyship, probably easier to handle same as Veil of darkness
+					{ //do it every new day after veils apply
+						FoWChange fw;
+						fw.mode = 1;
+						fw.player = player;
+						getAllTiles(fw.tiles, player, -1, 0);
+						sendAndApply (&fw);
+					}
+					break;
+				case 3: //Deity of Fire
+					{
+						if (getDate(0) > 1)
+						{
+							n.specialWeek = NewTurn::DOUBLE_GROWTH;
+							n.creatureid = 42; //familiar
+						}
+					}
+					break;
+			}
 		}
 		if ((**j).hasBonusOfType (Bonus::DARKNESS))
 		{
@@ -1148,84 +1191,65 @@ void CGameHandler::newTurn()
 		pickAllowedArtsSet(saa.arts);
 		sendAndApply(&saa);
 	}
-	if (getDate(1) == 7 && getDate(0)>1) //new week (day numbers are confusing, as day was not yet switched)
-	{
-		int monsterid;
-		bool newmonth;
-		int monthType = rand()%100;
-		if(getDate(4) == 28) //new month
-		{
-			newmonth = true;
-			if (monthType < 60) //double growth
-			{
-				//spawn wandering monsters
-				n.specialWeek = NewTurn::DOUBLE_GROWTH;
-				std::vector<int3>::iterator tile;
-				std::vector<int3> tiles;
-				getFreeTiles(tiles);
-				ui32 amount = (tiles.size()) >> 6;
-				std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
-
-				std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				monsterid = newMonster.second;
-				for (int i = 0; i < amount; ++i)
-				{
-					tile = tiles.begin();
-					TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
-					NewObject no;
-					no.ID = newMonster.first;
-					no.subID= newMonster.second;
-					no.pos = *tile;
-					sendAndApply(&no);
-					tiles.erase(tile); //not use it again
-				}
-			}
-			else if (monthType < 98)
-				n.specialWeek = NewTurn::NORMAL;
-			else
-				n.specialWeek = NewTurn::PLAGUE;
-		}
-		else //it's a week, but not full month
-		{
-			newmonth = false;
-			if (monthType < 20)
-			{
-				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				monsterid = newMonster.second;
-			}
-		}
-
-		InfoWindow iw;
-		int msgid;
-		switch (n.specialWeek)
-		{
-			case NewTurn::DOUBLE_GROWTH:
-				iw.text.addTxt(MetaString::ARRAY_TXT, 131);
-				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
-				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
-				break;
-			case NewTurn::PLAGUE:
-				iw.text.addTxt(MetaString::ARRAY_TXT, 132);
-				break;
-			case NewTurn::BONUS_GROWTH:
-				iw.text.addTxt(MetaString::ARRAY_TXT, 134);
-				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
-				iw.text.addReplacement(MetaString::CRE_SING_NAMES, monsterid);
-				break;
-			default:
-				iw.text.addTxt(MetaString::ARRAY_TXT, (newmonth ? 130 : 133));
-				iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
-		}
-
-		for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
-		{
-			iw.player = i->first;
-			sendAndApply(&iw);
-		}
-	}
 
 	sendAndApply(&n);
+
+	if (gs->getDate(1)==1) //first day of week, day has already been changed
+	{
+		NewTurn n2; //just to handle  creature growths after bonuses are applied
+		n2.specialWeek = NewTurn::NO_ACTION;
+		n2.day = gs->day;
+
+		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+		{
+			ui8 player = (*j)->tempOwner;
+			SetAvailableCreatures sac;
+			sac.tid = (**j).id;
+			sac.creatures = (**j).creatures;
+			for (int k=0; k < CREATURES_PER_TOWN; k++) //creature growths
+			{
+				if((**j).creatureDwelling(k))//there is dwelling (k-level)
+				{
+					sac.creatures[k].first += (**j).creatureGrowth(k);
+					if(gs->getDate(0) == 1) //first day of game: use only basic growths
+						amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
+				}
+			}
+			n2.cres.push_back(sac);
+		}
+		if (gs->getDate(0) > 1)
+		{
+			InfoWindow iw; //new week info
+			int msgid;
+			switch (n.specialWeek)
+			{
+				case NewTurn::DOUBLE_GROWTH:
+					iw.text.addTxt(MetaString::ARRAY_TXT, 131);
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					break;
+				case NewTurn::PLAGUE:
+					iw.text.addTxt(MetaString::ARRAY_TXT, 132);
+					break;
+				case NewTurn::BONUS_GROWTH:
+					iw.text.addTxt(MetaString::ARRAY_TXT, 134);
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					break;
+				default:
+					iw.text.addTxt(MetaString::ARRAY_TXT, (newmonth ? 130 : 133));
+					iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
+			}
+
+			for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
+			{
+				iw.player = i->first;
+				sendAndApply(&iw);
+			}
+		}
+
+		sendAndApply(&n2);
+	}
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
 	handleTimeEvents();
 	//call objects
@@ -2020,7 +2044,7 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	{
 		const CGTownInstance * town = getTown(objid);
 		if (town->subID == 5 && vstd::contains(town->builtBuildings, 22))
-			setPortalDwelling(town);
+			setPortalDwelling(town, true, false);
 		
 		if (!gs->getPlayer(owner)->towns.size())//player lost last town
 		{
