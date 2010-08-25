@@ -649,7 +649,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				b.val = 100;
 				b.type = Bonus::CREATURE_GROWTH_PERCENT;
 				b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
-				b.valType = Bonus::PERCENT_TO_ALL;
+				b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
 				break;
 			case BONUS_GROWTH:
 				b.val = 5;
@@ -660,7 +660,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 			case PLAGUE:
 				b.val = -50;
 				b.type = Bonus::CREATURE_GROWTH_PERCENT;
-				b.valType = Bonus::PERCENT_TO_ALL;
+				b.valType = Bonus::BASE_NUMBER;
 				break;
 			default:
 				b.val = 0;

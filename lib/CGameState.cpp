@@ -4201,8 +4201,8 @@ void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL
 }
 
 void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{//temporary
-	//CBonusSystemNode::getBonuses(out, selector, root);
+{
+	CBonusSystemNode::getBonuses(out, selector, root);
 }
 
 InfoAboutHero::InfoAboutHero()

@@ -62,7 +62,7 @@ public:
 	ui32 getMaxDamage() const;
 
 	void addBonus(int val, int type, int subtype = -1);
-	void getParents(TNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
+	void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen &ranGen)

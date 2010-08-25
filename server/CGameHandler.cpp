@@ -1013,7 +1013,7 @@ void CGameHandler::newTurn()
 		if(getDate(4) == 28) //new month
 		{
 			newmonth = true;
-			if (monthType < 100) //double growth
+			if (monthType < 60) //double growth
 			{
 				//spawn wandering monsters
 				n.specialWeek = NewTurn::DOUBLE_GROWTH;

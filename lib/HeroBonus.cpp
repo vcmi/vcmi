@@ -63,55 +63,6 @@ int DLL_EXPORT BonusList::totalValue() const
 	else
 		return valFirst;
 }
-
-int DLL_EXPORT BonusList::valPercent(Bonus::BonusType type, const CSelector &selector, int val) const
-{
-	int base = val;
-	int percentToBase = 0;
-	int percentToAll = 0;
-	int additive = 0;
-	int indepMax = 0;
-	bool hasIndepMax = false;
-
-	for(const_iterator i = begin(); i != end(); i++)
-	{
-		switch(i->valType)
-		{
-		case Bonus::BASE_NUMBER:
-			base += i->val;
-			break;
-		case Bonus::PERCENT_TO_ALL:
-			percentToAll += i->val;
-			break;
-		case Bonus::PERCENT_TO_BASE:
-			percentToBase += i->val;
-			break;
-		case Bonus::ADDITIVE_VALUE:
-			additive += i->val;
-			break;
-		case Bonus::INDEPENDENT_MAX:
-			if (!indepMax)
-			{
-				indepMax = i->val;
-				hasIndepMax = true;
-			}
-			else
-			{
-				amax(indepMax, i->val);
-			}
-
-			break;
-		}
-	}
-	int modifiedBase = base + (base * percentToBase) / 100;
-	modifiedBase += additive;
-	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
-	if (hasIndepMax)
-		return std::max(valFirst, indepMax);
-	else
-		return valFirst;
-}
-
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const
 {
 	for (const_iterator i = begin(); i != end(); i++)
@@ -170,6 +121,10 @@ limit_start:
 	}
 }
 
+int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
+{
+	return valOfBonuses(Selector::type(type) && selector);
+}
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
 {
 	CSelector s = Selector::type(type);
@@ -178,19 +133,12 @@ int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) 
 
 	return valOfBonuses(s);
 }
-
-int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
-{
-	return valOfBonuses(Selector::type(type) && selector);
-}
-
 int CBonusSystemNode::valOfBonuses(const CSelector &selector, const CBonusSystemNode *root/* = NULL*/) const
 {
 	BonusList hlp;
 	getBonuses(hlp, selector, root);
 	return hlp.totalValue();
 }
-
 bool CBonusSystemNode::hasBonus(const CSelector &selector, const CBonusSystemNode *root/* = NULL*/) const
 {
 	return getBonuses(selector).size() > 0;
@@ -545,7 +493,7 @@ bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) c
 		}
 			break;
 		default:
-			return true;
+			return false; //don't delete it if it's other type of node
 	}
 }
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)

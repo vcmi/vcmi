@@ -137,9 +137,9 @@ void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	bonuses.push_back(added);
 }
-void CCreature::getParents(TNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
-	out.insert(VLC->creh->globalEffects);
+	out.insert (VLC->creh->globalEffects);
 }
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {

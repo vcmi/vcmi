@@ -299,7 +299,6 @@ class BonusList : public std::list<Bonus>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	int DLL_EXPORT valPercent(Bonus::BonusType type, const CSelector &selector, int val) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
@@ -355,7 +354,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
-	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
+	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
 	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
 	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
