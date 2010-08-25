@@ -422,10 +422,11 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAtMiddle(curHero->name, 190, 38, FONT_BIG, tytulowy, curBack);
 
 	//printing hero's level
-	std::ostringstream secondLine;
-	secondLine<<"Level "<<curHero->level<<" "<<curHero->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(secondLine.str(), 190, 65, FONT_MEDIUM, zwykly, curBack);
-
+	std::string secondLine= CGI->generaltexth->allTexts[342];
+	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
+	boost::algorithm::replace_first(secondLine,"%s",curHero->type->heroClass->name);
+	CSDL_Ext::printAtMiddle(secondLine, 190, 65, FONT_MEDIUM, zwykly, curBack);
+	
 	//primary skills names
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, tytulowy, curBack);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, tytulowy, curBack);

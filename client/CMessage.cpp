@@ -592,39 +592,43 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 
 void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret )
 {
-	for (size_t i=0;i<comps.size();i++)
+	for (size_t i=0;i<comps.size();i++)//for each row
 	{
 		int totalw=0, maxh=0;
-		for(size_t j=0;j<(comps)[i].size();j++)
+		for(size_t j=0;j<(comps)[i].size();j++)//find max height & total width in this row
 		{
 			ComponentResolved *cur = (comps)[i][j];
 			totalw += cur->comp->pos.w;
-			amax(maxh,cur->comp->pos.h+BETWEEN_COMPS_ROWS);
+			amax(maxh,cur->comp->getImg()->h);//subtitles height will added later
 		}
 		if(_or)
 		{
 			totalw += (inter*2+_or->w) * ((comps)[i].size() - 1);
 		}
-		else
+		else//add space between comps in this row
 		{
 			totalw += (inter) * ((comps)[i].size() - 1);
 		}
 
 		curh+=maxh/2;
+		int compX, compY;
+
 		int curw = (ret->w/2)-(totalw/2);
 		for(size_t j=0;j<(comps)[i].size();j++)
 		{
 			ComponentResolved *cur = (comps)[i][j];
 
 			//blit img
-			int hlp = curh-(cur->comp->pos.h)/2;
-			blitAt(cur->img, curw + (cur->comp->pos.w - cur->comp->getImg()->w)/2, hlp, ret);
-			cur->comp->pos.x = curw;
-			cur->comp->pos.y = hlp;
+			compX = curw + ( cur->comp->pos.w - cur->comp->getImg()->w ) / 2;
+			compY = curh - cur->comp->getImg()->h / 2;
+			blitAt(cur->img, compX, compY, ret);
+			cur->comp->pos.x = compX;
+			cur->comp->pos.y = compY;
 
 			//blit subtitle
-			hlp += cur->img->h + COMPONENT_TO_SUBTITLE;
-			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, hlp, ret, cur->comp->pos.x + cur->comp->pos.w/2 );
+			compX += cur->comp->getImg()->w/2;
+			compY  = curh + maxh / 2 + COMPONENT_TO_SUBTITLE;
+			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, compY, ret, compX );
 
 			//if there is subsequent component blit "or"
 			curw += cur->comp->pos.w;
@@ -639,6 +643,6 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 				curw+=inter;
 			}
 		}
-		curh+=maxh/2;
+		curh = compY+BETWEEN_COMPS_ROWS;
 	}
 }

@@ -42,6 +42,7 @@ public:
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> spec;
 	si32 startingSpell; //-1 if none
+	ui8 sex; // default sex: 0=male, 1=female
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 
 	CHero();

@@ -304,6 +304,8 @@ void CHeroHandler::loadHeroes()
 				if(hid == -1)
 					break;
 				inp>>secQ;
+				heroes[hid]->sex = secQ;
+				inp>>secQ;
 				for(int g=0; g<secQ; ++g)
 				{
 					int a, b;
@@ -356,6 +358,7 @@ void CHeroHandler::loadHeroes()
 		int i = expPerLevel.size() - 1;
 		expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
 	}
+	expPerLevel.pop_back();//last value is broken
 
 	//ballistics info
 	buf = bitmaph->getTextFile("BALLIST.TXT");

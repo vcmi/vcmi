@@ -3,6 +3,7 @@
 
 #include "../global.h"
 #include <set>
+#include <map>
 #include "../client/FunctionList.h"
 #include "../lib/CGameState.h"
 #include "../lib/Connection.h"
@@ -194,7 +195,7 @@ public:
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();
-	void handleTownEvents(CGTownInstance *town, NewTurn &n);
+	void handleTownEvents(CGTownInstance *town, NewTurn &n, std::map<si32, std::map<si32, si32> > &newCreas);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void engageIntoBattle( ui8 player );

@@ -1123,6 +1123,9 @@ void CGameHandler::newTurn()
 		}
 		//n.res.push_back(r);
 	}
+	//      townID,    creatureID, amount
+	std::map<si32, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
+	
 	for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 	{
 		ui8 player = (*j)->tempOwner;
@@ -1152,7 +1155,7 @@ void CGameHandler::newTurn()
 			}
 			n.res[player][6] += (**j).dailyIncome();
 		}
-		handleTownEvents(*j, n);
+		handleTownEvents(*j, n, newCreas);
 		if (vstd::contains((**j).builtBuildings, 26)) 
 		{
 			switch ((**j).subID)
@@ -1215,6 +1218,11 @@ void CGameHandler::newTurn()
 						amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
 				}
 			}
+			//creatures from town events
+			if (vstd::contains(newCreas, (**j).id))
+				for(std::map<si32, si32>::iterator i=newCreas[(**j).id].begin() ; i!=newCreas[(**j).id].end(); i++)
+					sac.creatures[i->first].first += i->second;
+			
 			n2.cres.push_back(sac);
 		}
 		if (gs->getDate(0) > 1)
@@ -2783,7 +2791,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	}
 
 	ns.bid.insert(bid);
-	ns.builded = t->builded + 1;
+	ns.builded = force?t->builded:(t->builded+1);
 	sendAndApply(&ns);
 	
 	//reveal ground for lookout tower
@@ -4488,7 +4496,7 @@ void CGameHandler::handleTimeEvents()
 	}
 }
 
-void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
+void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<si32, std::map<si32, si32> > &newCreas)
 {
 	town->events.sort(evntCmp);
 	while(town->events.size() && town->events.front()->firstOccurence == gs->day)
@@ -4525,28 +4533,15 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 					iw.components.push_back(Component(Component::BUILDING, town->subID, *i, 0));
 				}
 
-			SetAvailableCreatures sac;
-			if (n.cres.empty() || n.cres.back().tid != town->id)
-			{
-				sac.tid = town->id;
-				sac.creatures = town->creatures;
-			}
-			else
-			{
-				sac = n.cres.back();
-				n.cres.pop_back();
-			}
-			
-			for(int i=0;i<ev->creatures.size();i++) //creature growths
+			for(si32 i=0;i<ev->creatures.size();i++) //creature growths
 			{
 				if(town->creatureDwelling(i) && ev->creatures[i])//there is dwelling
 				{
-					sac.creatures[i].first += ev->creatures[i];
+					newCreas[town->id][i] += ev->creatures[i];
 					iw.components.push_back(Component(Component::CREATURE, 
 							town->creatures[i].second.back(), ev->creatures[i], 0));
 				}
 			}
-			n.cres.push_back(sac);
 			sendAndApply(&iw); //show dialog
 		}
 

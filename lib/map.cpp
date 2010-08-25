@@ -905,8 +905,13 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	{
 		if(readChar(bufor,i))//true if hero has nonstandard (mapmaker defined) biography
 			nhi->biography = readString(bufor,i);
-		nhi->sex = !(bufor[i]); ++i;
+		nhi->sex = bufor[i]; ++i;
+		
+		if (nhi->sex != 0xFF)//remove trash
+			nhi->sex &=1;
 	}
+	else
+		nhi->sex = 0xFF;
 	//spells
 	if(version>AB)
 	{

@@ -1732,6 +1732,17 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 						vti->builtBuildings.insert(25);
 				}
 			}
+			
+		for (std::list<CCastleEvent*>::iterator ev=vti->events.begin(); ev!=vti->events.end(); ev++)
+			for (int i = 0; i<CREATURES_PER_TOWN; i++)
+				if (vstd::contains((*ev)->buildings,(-31-i))) //if we have horde for this level
+				{
+					(*ev)->buildings.erase(-31-i);
+					if (vti->town->hordeLvl[0] == i)
+						(*ev)->buildings.insert(18);
+					if (vti->town->hordeLvl[1] == i)
+						(*ev)->buildings.insert(24);
+				}
 		//init spells
 		vti->spells.resize(SPELL_LEVELS);
 		CSpell *s;

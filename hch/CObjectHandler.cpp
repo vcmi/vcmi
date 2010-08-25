@@ -842,6 +842,9 @@ void CGHeroInstance::initHero()
 		level = VLC->heroh->level(exp);
 	}
 
+	if (sex == 0xFF)//sex is default
+		sex = type->sex;
+
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
 	{
