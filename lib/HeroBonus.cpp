@@ -493,7 +493,8 @@ bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) c
 		}
 			break;
 		default:
-			return false; //don't delete it if it's other type of node
+			//return false; //don't delete it if it's other type of node
+			return true;
 	}
 }
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)

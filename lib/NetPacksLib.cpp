@@ -625,62 +625,74 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 	BOOST_FOREACH(SetAvailableCreatures h, cres) //set available creatures in towns
 		h.applyGs(gs);
 
-	if(resetBuilded) //reset amount of structures set in this turn in towns
-		BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
-		t->builded = 0;
-
-	BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-		h->bonuses.remove_if(Bonus::OneDay);
-
-	if(gs->getDate(1) == 1 && specialWeek != NO_ACTION) //new week, Monday that is
+	if (specialWeek != NO_ACTION) //first pack applied, reset all effects and aplly new
 	{
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-			h->bonuses.remove_if(Bonus::OneWeek);
+			h->bonuses.remove_if(Bonus::OneDay);
 
-		gs->globalEffects.bonuses.remove_if(Bonus::OneWeek);
-
-		Bonus b;
-		b.duration = Bonus::ONE_WEEK;
-		b.source = Bonus::SPECIAL_WEEK;
-		b.effectRange = Bonus::NO_LIMIT;
-		switch (specialWeek)
+		if(resetBuilded) //reset amount of structures set in this turn in towns
 		{
-			case DOUBLE_GROWTH:
-				b.val = 100;
-				b.type = Bonus::CREATURE_GROWTH_PERCENT;
-				b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
-				b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
-				break;
-			case BONUS_GROWTH:
-				b.val = 5;
-				b.type = Bonus::CREATURE_GROWTH;
-				b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
-				b.valType = Bonus::BASE_NUMBER;
-				break;
-			case PLAGUE:
-				b.val = -50;
-				b.type = Bonus::CREATURE_GROWTH_PERCENT;
-				b.valType = Bonus::BASE_NUMBER;
-				break;
-			default:
-				b.val = 0;
-
+			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
+				t->builded = 0;
 		}
-		if (b.val)
-			gs->globalEffects.bonuses.push_back(b);
+		if(gs->getDate(1)) //new week, Monday that is
+		{
+			for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+				i->second.bonuses.remove_if(Bonus::OneWeek);
+			BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
+				h->bonuses.remove_if(Bonus::OneWeek);
+
+			gs->globalEffects.bonuses.remove_if(Bonus::OneWeek);
+
+			Bonus b;
+			b.duration = Bonus::ONE_WEEK;
+			b.source = Bonus::SPECIAL_WEEK;
+			b.effectRange = Bonus::NO_LIMIT;
+			switch (specialWeek)
+			{
+				case DOUBLE_GROWTH:
+					b.val = 100;
+					b.type = Bonus::CREATURE_GROWTH_PERCENT;
+					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
+					break;
+				case BONUS_GROWTH:
+					b.val = 5;
+					b.type = Bonus::CREATURE_GROWTH;
+					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b.valType = Bonus::BASE_NUMBER;
+					break;
+				case DEITYOFFIRE:
+					b.val = 15;
+					b.type = Bonus::CREATURE_GROWTH;
+					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
+					b.valType = Bonus::BASE_NUMBER;
+					break;
+				case PLAGUE:
+					b.val = -100; //no basic creatures
+					b.type = Bonus::CREATURE_GROWTH_PERCENT;
+					b.valType = Bonus::BASE_NUMBER;
+					break;
+				default:
+					b.val = 0;
+
+			}
+			if (b.val)
+				gs->globalEffects.bonuses.push_back(b);
+		}
 	}
-
-	//count days without town
-	for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	else //second pack is applied
 	{
-		if(i->second.towns.size() || gs->day == 1)
-			i->second.daysWithoutCastle = 0;
-		else
-			i->second.daysWithoutCastle++;
+		//count days without town
+		for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+		{
+			if(i->second.towns.size() || gs->day == 1)
+				i->second.daysWithoutCastle = 0;
+			else
+				i->second.daysWithoutCastle++;
 
-		i->second.bonuses.remove_if(Bonus::OneDay);
-		if(gs->getDate(1) == 1) //new week
-			i->second.bonuses.remove_if(Bonus::OneWeek);
+			i->second.bonuses.remove_if(Bonus::OneDay);
+		}
 	}
 }
 
@@ -705,7 +717,6 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 				gs->getPlayer(val)->towns.push_back(t);
 		}
 	}
-
 	
 	obj->setProperty(what,val);
 }

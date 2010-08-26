@@ -121,6 +121,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 CCreature::CCreature()
 {
 	doubleWide = false;
+	nodeType = CBonusSystemNode::CREATURE;
 }
 
 ui32 CCreature::getMinDamage() const

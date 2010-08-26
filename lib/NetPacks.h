@@ -73,7 +73,7 @@ struct Query : public CPackForClient
 struct MetaString : public CPack //2001 helper for object scrips
 {
 private:
-	enum EMessage {TEXACT_STRING, TLOCAL_STRING, TNUMBER, TREPLACE_ESTRING, TREPLACE_LSTRING, TREPLACE_NUMBER};
+	enum EMessage {TEXACT_STRING, TLOCAL_STRING, TNUMBER, TREPLACE_ESTRING, TREPLACE_LSTRING, TREPLACE_NUMBER, TREPLACE_PLUSNUMBER};
 public:
 	enum {GENERAL_TXT=1, XTRAINFO_TXT, OBJ_NAMES, RES_NAMES, ART_NAMES, ARRAY_TXT, CRE_PL_NAMES, CREGENS, MINE_NAMES, 
 		MINE_EVNTS, ADVOB_TXT, ART_EVNTS, SPELL_NAME, SEC_SKILL_NAME, CRE_SING_NAMES, CREGENS4, COLOR, ART_DESCR};
@@ -124,6 +124,11 @@ public:
 	void addReplacement(int txt)
 	{
 		message.push_back(TREPLACE_NUMBER);
+		numbers.push_back(txt);
+	}
+	void addReplacement2(int txt)
+	{
+		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
 	DLL_EXPORT void addReplacement(const CStackInstance &stack); //adds sing or plural name;
@@ -690,7 +695,7 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 
 struct NewTurn : public CPackForClient //101
 {
-	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, PLAGUE, CUSTOM, NO_ACTION, NONE};
+	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, CUSTOM, NO_ACTION, NONE};
 
 	DLL_EXPORT void applyGs(CGameState *gs);
 
@@ -710,14 +715,14 @@ struct NewTurn : public CPackForClient //101
 	std::vector<SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	bool resetBuilded;
-	weekType specialWeek;
-	TQuantity creatureid; //for creature weeks
+	ui8 specialWeek; //weekType
+	TCreature creatureid; //for creature weeks
 
 	NewTurn(){type = 101;};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroes & cres & res & day & resetBuilded;
+		h & heroes & cres & res & day & resetBuilded & specialWeek & creatureid;
 	}
 }; 
 

@@ -1142,8 +1142,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		int summ=0, cnt=0;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
 		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->nameSing);
-		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(
-			ci->town->creatureGrowth(level)));
+		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(ci->town->creatureGrowth(level)));
 
 		descr +="\n"+CGI->generaltexth->allTexts[590];
 		summ = CGI->creh->creatures[crid]->growth;
@@ -1156,6 +1155,9 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][9]->Name()+" %+d",descr,summ);
 			else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
+
+			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr,
+				summ * CGI->creh->creatures[crid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
 
 			if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
 			if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
@@ -1187,11 +1189,12 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				};
 				ch = ci->town->visitingHero;
 			};
-
-			//TODO player bonuses
+			//TODO: player bonuses
 
 			if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][26]->Name()+" %+d",descr,summ/2);
+
+			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, CGI->creh->creatures[crid]->valOfBonuses(Bonus::CREATURE_GROWTH));
 		}
 
 		CInfoPopup *mess = new CInfoPopup();//creating popup

@@ -1960,11 +1960,10 @@ int CGTownInstance::creatureGrowth(const int & level) const
 		ret += garrisonHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
 	if(visitingHero)
 		ret += visitingHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
-	//spcecial week
-	ret += VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH);
 	if(builtBuildings.find(26)!=builtBuildings.end()) //grail - +50% to ALL growth
 		ret*=1.5;
-	amax(ret, 1); //even plague week gives at least one creature
+	//spcecial week unaffected by grail (bug in original game?)
+	ret += VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH);
 	return ret;//check CCastleInterface.cpp->CCastleInterface::CCreaInfo::clickRight if this one will be modified
 }
 int CGTownInstance::dailyIncome() const

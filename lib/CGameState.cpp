@@ -269,6 +269,9 @@ DLL_EXPORT void MetaString::toString(std::string &dst) const
 		case TREPLACE_NUMBER:
 			dst.replace (dst.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
+		case TREPLACE_PLUSNUMBER:
+			dst.replace (dst.find("%+d"), 3, '+' + boost::lexical_cast<std::string>(numbers[nums++]));
+			break;
 		default:
 			tlog1 << "MetaString processing error!\n";
 			break;

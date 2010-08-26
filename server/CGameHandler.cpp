@@ -999,6 +999,7 @@ void CGameHandler::newTurn()
 {
 	tlog5 << "Turn " << gs->day+1 << std::endl;
 	NewTurn n;
+	n.creatureid = -1;
 	n.day = gs->day + 1;
 	n.resetBuilded = true;
 	bool newmonth = false;
@@ -1013,32 +1014,14 @@ void CGameHandler::newTurn()
 		if(getDate(4) == 28) //new month
 		{
 			newmonth = true;
-			if (monthType < 60) //double growth
+			if (monthType < 40) //double growth
 			{
-				//spawn wandering monsters
 				n.specialWeek = NewTurn::DOUBLE_GROWTH;
-				std::vector<int3>::iterator tile;
-				std::vector<int3> tiles;
-				getFreeTiles(tiles);
-				ui32 amount = (tiles.size()) >> 6;
-				std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
 
-				//std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				std::pair<int,int> newMonster(54, 1); //pikeman
+				std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 				n.creatureid = newMonster.second;
-				for (int i = 0; i < amount; ++i)
-				{
-					tile = tiles.begin();
-					TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
-					NewObject no;
-					no.ID = newMonster.first;
-					no.subID= newMonster.second;
-					no.pos = *tile;
-					sendAndApply(&no);
-					tiles.erase(tile); //not use it again
-				}
 			}
-			else if (monthType < 98)
+			else if (monthType < 90)
 				n.specialWeek = NewTurn::NORMAL;
 			else
 				n.specialWeek = NewTurn::PLAGUE;
@@ -1046,12 +1029,14 @@ void CGameHandler::newTurn()
 		else //it's a week, but not full month
 		{
 			newmonth = false;
-			if (monthType < 20)
+			if (monthType < 25)
 			{
 				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
 				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 				monsterid = newMonster.second;
 			}
+			else
+				n.specialWeek = NewTurn::NORMAL;
 		}
 	}
 
@@ -1173,7 +1158,7 @@ void CGameHandler::newTurn()
 					{
 						if (getDate(0) > 1)
 						{
-							n.specialWeek = NewTurn::DOUBLE_GROWTH;
+							n.specialWeek = NewTurn::DEITYOFFIRE; //spawn familiars on new month
 							n.creatureid = 42; //familiar
 						}
 					}
@@ -1199,6 +1184,26 @@ void CGameHandler::newTurn()
 
 	if (gs->getDate(1)==1) //first day of week, day has already been changed
 	{
+		if (getDate(4) == 1 && (n.specialWeek == NewTurn::DOUBLE_GROWTH || n.specialWeek == NewTurn::DEITYOFFIRE))
+		{ //spawn wandering monsters
+			std::vector<int3>::iterator tile;
+			std::vector<int3> tiles;
+			getFreeTiles(tiles);
+			ui32 amount = (tiles.size()) >> 6;
+			std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+			for (int i = 0; i < amount; ++i)
+			{
+				tile = tiles.begin();
+				TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
+				NewObject no;
+				no.ID = 54; //creature
+				no.subID= n.creatureid;
+				no.pos = *tile;
+				sendAndApply(&no);
+				tiles.erase(tile); //not use it again
+			}
+		}
+
 		NewTurn n2; //just to handle  creature growths after bonuses are applied
 		n2.specialWeek = NewTurn::NO_ACTION;
 		n2.day = gs->day;
@@ -1228,7 +1233,6 @@ void CGameHandler::newTurn()
 		if (gs->getDate(0) > 1)
 		{
 			InfoWindow iw; //new week info
-			int msgid;
 			switch (n.specialWeek)
 			{
 				case NewTurn::DOUBLE_GROWTH:
@@ -1244,11 +1248,18 @@ void CGameHandler::newTurn()
 					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
 					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
 					break;
+				case NewTurn::DEITYOFFIRE:
+					iw.text.addTxt(MetaString::ARRAY_TXT, 135);
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 42); //%s imp
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 42); //%s imp
+					iw.text.addReplacement2(15);							//%+d 15
+					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 43); //%s familiar
+					iw.text.addReplacement2(15);							//%+d 15
+					break;
 				default:
 					iw.text.addTxt(MetaString::ARRAY_TXT, (newmonth ? 130 : 133));
 					iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
 			}
-
 			for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
 			{
 				iw.player = i->first;
