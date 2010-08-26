@@ -732,9 +732,18 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
 							 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 	} else {
+		PixelFormat screenFormat = PIX_FMT_NONE;
+		switch(screen->format->BytesPerPixel)
+		{
+		case 2: screenFormat = PIX_FMT_RGB565; break;
+		case 3: screenFormat = PIX_FMT_RGB24; break;
+		case 4: screenFormat = PIX_FMT_RGB32; break;
+		default: return false;
+		}
+
 		sws = sws_getContext(codecContext->width, codecContext->height, 
 							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
-							 PIX_FMT_RGB32, SWS_BICUBIC, NULL, NULL, NULL);
+							 screenFormat, SWS_BICUBIC, NULL, NULL, NULL);
 	}
 
 	if (sws == NULL)
