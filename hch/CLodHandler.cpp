@@ -77,7 +77,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	{
 		int result;
 		unsigned char * outp = new unsigned char[ourEntry->realSize];
-		FILE * f = fopen((myDir + "/" + ourEntry->nameStr).c_str(), "rb");
+		FILE * f = fopen((myDir + "/" + ourEntry->realName).c_str(), "rb");
 		if (f) {
 			result = fread(outp,1,ourEntry->realSize,f);
 			fclose(f);
