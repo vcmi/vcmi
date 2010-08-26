@@ -511,7 +511,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 
 			//blit terrain with river/road
 			if(tile.terbitmap) //if custom terrain graphic - use it
-				SDL_BlitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), extSurf, &sr);
+				CSDL_Ext::blitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), extSurf, &sr);
 			else //use default terrain graphic
 				blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
 			if(tinfo.nuine) //print river if present
@@ -602,7 +602,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 						//printing flag
 						pp.y+=IMGVAL*2-32;
 						sr2.y-=16;
-						SDL_BlitSurface((graphics->*flg)[color]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
+						CSDL_Ext::blitSurface((graphics->*flg)[color]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
 					}
 					else //hero / boat stands still
 					{
@@ -628,7 +628,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 							bufr.h = 64;
 							bufr.w = 96;
 							if(bufr.x-extRect->x>-64)
-								SDL_BlitSurface((graphics->*flg)[color]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
+								CSDL_Ext::blitSurface((graphics->*flg)[color]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
 						}
 					}
 				}
@@ -644,7 +644,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					if( obj->hasShadowAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5) )
 						CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
 					else
-						SDL_BlitSurface(bitmap,&pp,extSurf,&sr2);
+						CSDL_Ext::blitSurface(bitmap,&pp,extSurf,&sr2);
 				}
 			}
 			//objects blitted
@@ -674,7 +674,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 			{
 
 
-				SDL_BlitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
+				CSDL_Ext::blitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
 								&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
 			}
 			else 
@@ -706,7 +706,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					sr.h=sr.w=32;
 
 					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
-					SDL_BlitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
+					CSDL_Ext::blitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
 				}
 #endif
 #ifdef MARK_VISITABLE_POSITIONS
@@ -719,7 +719,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 					sr.h=sr.w=32;
 
 					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
-					SDL_BlitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
+					CSDL_Ext::blitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
 				}
 #endif
 			}

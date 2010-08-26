@@ -451,7 +451,7 @@ void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 				{
 					FoWChange fw;
 					fw.mode = 0;
-					fw.player = i->first;
+					fw.player = *j;
 					cb->getTilesInRange (fw.tiles, pos, radius, (*j), -1);
 					cb->sendAndApply (&fw);
 					break;
