@@ -21,6 +21,7 @@
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 extern Point screenLT;
+extern Point screenLTmax;
 
 void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
@@ -268,6 +269,23 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			else
 				(*i)->clickLeft(boost::logic::indeterminate, prev);
 		}
+
+		//screen drag-and-drop handling
+		if (screenLTmax != Point(0,0))
+		{
+			int diffX = sEvent->motion.x - lastClick.x,
+				diffY = sEvent->motion.y - lastClick.y;
+
+			screenLT.x += diffX;
+			amin(screenLT.x, 0);
+			amax(screenLT.x, -screenLTmax.x);
+
+			screenLT.y += diffY;
+			amin(screenLT.y, 0);
+			amax(screenLT.y, -screenLTmax.y);
+			totalRedraw();
+		}
+
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{

@@ -688,8 +688,11 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 						pos.y < sizes.y &&
 						!(*visibilityMap)[pos.x][pos.y][top_tile.z])
 					{
-						SDL_Surface * hide = getVisBitmap(pos, *visibilityMap);
-						CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+						std::pair<SDL_Surface *, bool> hide = getVisBitmap(pos, *visibilityMap);
+						if(hide.second)
+							CSDL_Ext::blit8bppAlphaTo24bpp(hide.first, &rtile, extSurf, &sr);
+						else
+							CSDL_Ext::blitSurface(hide.first, &rtile, extSurf, &sr);
 					}
 				}
 				
@@ -775,7 +778,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
-SDL_Surface * CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap )
+std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap )
 {
 	static const int visBitmaps[256] = {-1, 34, -1, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 3, 25, 12, 12, 3, 25, 12, 12,
 		9, 9, 6, 6, 9, 9, 6, 6, 35, 34, 4, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 26, 49, 28, 28, 26, 49, 28,
@@ -808,11 +811,11 @@ SDL_Surface * CMapHandler::getVisBitmap( const int3 & pos, const std::vector< st
 	
 	if (retBitmapID >= 0)
 	{
-		return graphics->FoWpartialHide->ourImages[retBitmapID].bitmap;
+		return std::make_pair(graphics->FoWpartialHide->ourImages[retBitmapID].bitmap, true);
 	}
 	else
 	{
-		return graphics->FoWfullHide->ourImages[-retBitmapID - 1].bitmap;
+		return std::make_pair(graphics->FoWfullHide->ourImages[-retBitmapID - 1].bitmap, false);
 	}
 }
 

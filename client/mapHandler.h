@@ -102,7 +102,7 @@ public:
 	CMapHandler(); //c-tor
 	~CMapHandler(); //d-tor
 
-	SDL_Surface * getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap);
+	std::pair<SDL_Surface *, bool> getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap); //returns appropriate bitmap and info if alpha blitting is necessary
 
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear

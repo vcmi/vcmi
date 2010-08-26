@@ -112,9 +112,13 @@ struct Point
 		y = t.y;
 		return *this;
 	}
-	template<typename T> bool operator==(const T &t)
+	template<typename T> bool operator==(const T &t) const
 	{
 		return x == t.x  &&  y == t.y;
+	}
+	template<typename T> bool operator!=(const T &t) const
+	{
+		return !(*this == t);
 	}
 };
 

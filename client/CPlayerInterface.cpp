@@ -66,7 +66,8 @@ using namespace boost::assign;
 using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
-void updateScreenLT(int maxW, int maxH);
+
+extern Point screenLTmax;
 
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
@@ -1332,7 +1333,7 @@ void CPlayerInterface::update()
 	CSDL_Ext::update(screen);
 	CGI->curh->draw2();
 
-	updateScreenLT(conf.cc.resx, conf.cc.resy);
+	screenLTmax = Point(conf.cc.resx - screen->w, conf.cc.resy - screen->h);
 
 	pim->unlock();
 

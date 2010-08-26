@@ -71,22 +71,10 @@ static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
-int screenScrollingDir = 0; //used for displays smaller then selected resolution; 0 - no scrolling, & 1 - down, & 2 - up, & 4 - right, & 8 - left
 Point screenLT = Point(0, 0); //position of top left corner of the screen
+Point screenLTmax = Point(0, 0); //,maximal values for screenLT coordinates
 static boost::thread *mainGUIThread;
 
-void updateScreenLT(int maxW, int maxH)
-{
-	if (screenScrollingDir & 1) //down
-	{
-		screenLT.y = std::max<int>(screenLT.y - 5, screen->h - maxH);
-	}
-	else if (screenScrollingDir & 2) //up
-	{
-		screenLT.y = std::min<int>(screenLT.y + 5, 0);
-	}
-	GH.totalRedraw();
-}
 
 SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
@@ -589,7 +577,7 @@ static void listenForEvents()
 		{
 			boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 			bool full = !(screen->flags&SDL_FULLSCREEN);
-			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
+			setScreenRes(conf.cc.screenx, conf.cc.screeny, conf.cc.bpp, full);
 			GH.totalRedraw();
 			delete ev;
 			continue;
@@ -600,7 +588,7 @@ static void listenForEvents()
 			{
 			case 1:
 				tlog0 << "Changing resolution has been requested\n";
-				setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+				setScreenRes(conf.cc.screenx, conf.cc.screeny, conf.cc.bpp, conf.cc.fullscreen);
 				break;
 
 			case 2:
@@ -623,26 +611,7 @@ static void listenForEvents()
 
 			delete ev;
 			continue;
-		} else if (ev->type == SDL_MOUSEMOTION)
-		{
-			if (conf.cc.resy > screen->h)
-			{
-				if (std::abs(ev->motion.y - screen->h) < 10 ) //scroll down
-				{
-					screenScrollingDir &= (~2);
-					screenScrollingDir |= 1;
-				}
-				else if (std::abs(ev->motion.y) < 10) //scroll up
-				{
-					screenScrollingDir &= (~1);
-					screenScrollingDir |= 2;
-				}
-				else //don't scroll vertically
-				{
-					screenScrollingDir &= (~3);
-				}
-			}
-		}
+		} 
 
 		//tlog0 << " pushing ";
 		eventsM.lock();
@@ -664,7 +633,7 @@ void startGame(StartInfo * options)
 		}
 	}
 
-	if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
+	if(screen->w != conf.cc.screenx   ||   screen->h != conf.cc.screeny)
 	{
 		requestChangingResolution();
 
