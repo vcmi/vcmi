@@ -167,11 +167,6 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
-	if(owner->ignoreEvent)
-	{
-		owner->ignoreEvent = false;
-		return;
-	}
 	if(down)
 	{
 		bool refr = false;
@@ -308,8 +303,8 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	myStack = Creature;
 	creature = Creature ? Creature->type : NULL;
 	count = Creature ? Creature->count : 0;
-	pos.x = x;
-	pos.y = y;
+	pos.x += x;
+	pos.y += y;
 	if(Owner->smallIcons)
 	{
 		pos.w = 32;
@@ -355,102 +350,42 @@ void CGarrisonSlot::show(SDL_Surface * to)
 	}
 }
 CGarrisonInt::~CGarrisonInt()
-{
-	if(sup)
-	{
-		for(size_t i=0;i<sup->size();i++)
-		{
-			delete (*sup)[i];
-		}
-		delete sup;
-	}
-	if(sdown)
-	{
-		for(size_t i=0;i<sdown->size();i++)
-		{
-			delete (*sdown)[i]; //XXX what about smartpointers? boost or auto_ptr from std
-		}
-		delete sdown;
-	}
-
+{/*
 	for(size_t i = 0; i<splitButtons.size(); i++)
-		delete splitButtons[i];
+		delete splitButtons[i];*/
 }
 
-void CGarrisonInt::show(SDL_Surface * to)
+void CGarrisonInt::addSplitBtn(AdventureMapButton * button)
 {
-	if(sup)
+	addChild(button);
+	button->recActions = defActions;
+	splitButtons.push_back(button);
+}
+
+void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, int Upg )
+{
+	ret.resize(7);
+	
+	for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
 	{
-		for(size_t i = 0; i<sup->size(); i++)
-		{
-			if((*sup)[i])
-			{
-				(*sup)[i]->show(to);
-			}
-		}
-	}
-	if(sdown)
-	{
-		for(size_t i = 0; i<sdown->size(); i++)
-		{
-			if((*sdown)[i])
-			{
-				(*sdown)[i]->show(to);
-			}
-		}
+		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, &i->second);
 	}
 
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->show(to);
+	for(int i=0; i<ret.size(); i++)
+		if(!ret[i])
+			ret[i] = new CGarrisonSlot(this, posX + (i*distance), posY,i,Upg,NULL);
+
+	if (twoRows)
+		for (int i=4; i<ret.size(); i++)
+		{
+			ret[i]->pos.x -= 126;
+			ret[i]->pos.y += 37;
+		};
 }
-void CGarrisonInt::deactiveteSlots()
-{
-	if(sup)
-	{
-		for(int i = 0; i<sup->size(); i++)
-		{
-			if((*sup)[i])
-			{
-				(*sup)[i]->deactivate();
-			}
-		}
-	}
-	if(sdown)
-	{
-		for(int i = 0; i<sdown->size(); i++)
-		{
-			if((*sdown)[i])
-			{
-				(*sdown)[i]->deactivate();
-			}
-		}
-	}
-}
-void CGarrisonInt::activeteSlots()
-{
-	if(sup)
-	{
-		for(int i = 0; i<sup->size(); i++)
-		{
-			if((*sup)[i])
-			{
-				(*sup)[i]->activate();
-			}
-		}
-	}
-	if(sdown)
-	{
-		for(int i = 0; i<sdown->size(); i++)
-		{
-			if((*sdown)[i])
-			{
-				(*sdown)[i]->activate();
-			}
-		}
-	}
-}
+
 void CGarrisonInt::createSlots()
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	int h, w; //height and width of slot
 	if(smallIcons)
 	{
@@ -463,90 +398,46 @@ void CGarrisonInt::createSlots()
 	}
 
 	if(set1)
-	{
-		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
-		for(TSlots::const_iterator i=set1->Slots().begin(); i!=set1->Slots().end(); i++)
-			(*sup)[i->first] =	new CGarrisonSlot(this, pos.x + (i->first*(w+interx)), pos.y, i->first, 0, &i->second);
+		createSet(slotsUp, set1, 0, 0, w+interx, 0);
 
-		for(int i=0; i<sup->size(); i++)
-			if((*sup)[i] == NULL)
-				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL);
-
-		if (twoRows)
-			for (int i=4; i<sup->size(); i++)
-			{
-				(*sup)[i]->pos.x -= 126;
-				(*sup)[i]->pos.y += 37;
-			};
-	}
 	if(set2)
-	{
-		sdown = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
-		for(TSlots::const_iterator i=set2->Slots().begin(); i!=set2->Slots().end(); i++)
-		{
-			(*sdown)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(w+interx)) + garOffset.x, pos.y + garOffset.y,i->first,1, &i->second);
-		}
-		for(int i=0; i<sdown->size(); i++)
-			if((*sdown)[i] == NULL)
-				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL);
-		
-		if (twoRows)
-			for (int i=4; i<sup->size(); i++)
-			{
-				(*sup)[i]->pos.x -= 126;
-				(*sup)[i]->pos.y += 37;
-			};
-	}
+		createSet (slotsDown, set2, garOffset.x, garOffset.y, w+interx, 1);
 }
+
 void CGarrisonInt::deleteSlots()
 {
-	if(sup)
-	{
-		for(int i = 0; i<sup->size(); i++)
-		{
-			if((*sup)[i])
-			{
-				delete (*sup)[i];
-			}
-		}
-		delete sup;
-		sup = NULL;
-	}
-	if(sdown)
-	{
-		for(int i = 0; i<sdown->size(); i++)
-		{
-			if((*sdown)[i])
-			{
-				delete (*sdown)[i];
-			}
-		}
-		delete sdown;
-		sdown = NULL;
-	}
+	for (int i=0; i<slotsUp.size(); i++)
+		delChildNUll(slotsUp[i]);
+		
+	for (int i=0; i<slotsDown.size(); i++)
+		delChildNUll(slotsDown[i]);
 }
+
 void CGarrisonInt::recreateSlots()
 {
+
 	splitting = false;
 	highlighted = NULL;
 
 	for(size_t i = 0; i<splitButtons.size(); i++)
 		splitButtons[i]->block(true);
 
+	bool wasActive = active;
 	if(active)
 	{
-		deactiveteSlots();
+		deactivate();
 	}
+	
 	deleteSlots();
 	createSlots();
-	if(active)
+	
+	if(wasActive)
 	{
-		//ignoreEvent = true;
-		activeteSlots();
-		//show(screen2);
+		activate();
+		showAll(screen2);
 	}
 }
+
 void CGarrisonInt::splitClick()
 {
 	if(!highlighted)
@@ -564,23 +455,20 @@ void CGarrisonInt::splitStacks(int am2)
 		am2);
 
 }
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
-						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs, bool _twoRows )
-	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(SurOffset),sup(NULL),
-	 sdown(NULL),oup(s1),odown(s2), smallIcons(smallImgs), twoRows(_twoRows)
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
+                            SDL_Surface *&pomsur, const Point& SurOffset, 
+                            const CArmedInstance *s1, const CArmedInstance *s2, 
+                            bool _removableUnits, bool smallImgs, bool _twoRows )
+
+	:interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
+	 smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows), oup(s1), odown(s2)
 {
 	ourUp =  s1?s1->tempOwner == LOCPLINT->playerID:false;
 	ourDown = s2?s2->tempOwner == LOCPLINT->playerID:false;
-	active = false;
-	splitting = false;
 	set1 = LOCPLINT->cb->getGarrison(s1);
 	set2 = LOCPLINT->cb->getGarrison(s2);
-	ignoreEvent = false;
-	update = true;
-	pos.x=(x);
-	pos.y=(y);
-	pos.w=(58);
-	pos.h=(64);
+	pos.x += x;
+	pos.y += y;
 	createSlots();
 }
 
@@ -590,29 +478,7 @@ void CGarrisonInt::activate()
 		if(splitButtons[i]->blocked != !highlighted)
 			splitButtons[i]->block(!highlighted);
 
-	active = true;
-	if(sup)
-	{
-		for(int i = 0; i<sup->size(); i++)
-			if((*sup)[i])
-				(*sup)[i]->activate();
-	}
-	if(sdown)
-	{
-		for(int i = 0; i<sdown->size(); i++)
-			if((*sdown)[i])
-				(*sdown)[i]->activate();
-	}
-
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->activate();
-}
-void CGarrisonInt::deactivate()
-{
-	active = false;
-	deactiveteSlots();
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->deactivate();
+	CIntObject::activate();
 }
 
 CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
@@ -863,6 +729,12 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	case secskill44: case secskill:
 		subtitle += CGI->generaltexth->levels[Val-1] + " " + CGI->generaltexth->skillName[Subtype];
 		description = CGI->generaltexth->skillInfoTexts[Subtype][Val-1];
+		break;
+	case morale:
+		description = CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
+		break;
+	case luck:
+		description = CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 		break;
 	case resource:
 		description = CGI->generaltexth->allTexts[242];
@@ -1948,7 +1820,7 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset)
-:recruit(Recruit), dwelling(Dwelling), dst(Dst), level(Level)
+:recruit(Recruit), dwelling(Dwelling), level(Level), dst(Dst)
 {
 	which = 0;
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPRCRT.bmp");
@@ -2203,7 +2075,6 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 
 void CCreInfoWindow::show(SDL_Surface * to)
 {
-	char pom[15];
 	blitAt(*bitmap,pos.x,pos.y,to);
 	anim->blitPic(to,pos.x+21,pos.y+48,(type) && !(anf%4));
 	if(++anf==4) 
@@ -2569,7 +2440,8 @@ CMinorResDataBar::~CMinorResDataBar()
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
-				boost::function<void(int)> Callback, int initState):items(_items), title(_title), descr(_descr),selected(initState)
+				boost::function<void(int)> Callback, int initState)
+				:title(_title), descr(_descr),items(_items),selected(initState)
 {
 	init = false;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -2896,7 +2768,7 @@ std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
 }
 
 CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
-	: market(Market), hero(Hero), hLeft(NULL), hRight(NULL), readyToTrade(false), arts(NULL)
+	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
 {
 	type = BLOCK_ADV_HOTKEYS;
 	mode = Mode;
@@ -4553,7 +4425,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.h = screen->h;
 
 	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down, removableUnits);
-	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
+	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }
 
@@ -5186,7 +5058,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
-	backpackPos(0), updateState(false), commonInfo(NULL), curHero(NULL), allowedAssembling(true)
+	curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
@@ -5570,8 +5442,8 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
 
-	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
-	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
+	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
+	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
@@ -5844,7 +5716,7 @@ void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
 }
 
 CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _id):
-	parent(_parent), id(_id), size(_size)
+	id(_id), size(_size), parent(_parent)
 {
 	used = LCLICK;
 	left = true;
@@ -5981,8 +5853,8 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	CPicture::showAll(to);
 }
 
-CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):ID(_ID), parent(_parent),
-	CPicture (graphics->abils44->ourImages[_ID*3+3].bitmap,X,Y,false)
+CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):
+	CPicture (graphics->abils44->ourImages[_ID*3+3].bitmap,X,Y,false),ID(_ID), parent(_parent)
 {
 	used = LCLICK | RCLICK | HOVER;
 }
@@ -6080,9 +5952,8 @@ void CUnivConfirmWindow::makeDeal(int skill)
 }
 
 CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object):
-	hero(visitor), fort(object)
+	fort(object),hero(visitor)
 {
-	{
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	
 	slotsCount=7;
@@ -6108,9 +5979,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	upgradeAll = new AdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount), 30, 231, getDefForSlot(slotsCount));
 	quit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(327, 332);
-	
-	}
-	BLOCK_CAPTURING;
+
 	garr = new CGarrisonInt(pos.x+108, pos.y+60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
 	updateGarrisons();
 }
@@ -6552,7 +6421,7 @@ void CLabel::showAll(SDL_Surface * to)
 }
 
 CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
-:font(Font), color(Color), text(Text), alignment(Align)
+:alignment(Align), font(Font), color(Color), text(Text)
 {
 	autoRedraw = true;
 	pos.x += x;
@@ -6574,7 +6443,7 @@ void CLabel::setTxt(const std::string &Txt)
 }
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
-	:CLabel(rect.x, rect.y, Font, Align, Color, Text), slider(NULL), sliderStyle(SliderStyle)
+	:CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
 {
 	redrawParentOnScrolling = false;
 	autoRedraw = false;

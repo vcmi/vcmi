@@ -222,14 +222,14 @@ class CGarrisonInt :public CIntObject
 public:
 	int interx; //space between slots
 	Point garOffset, //offset between garrisons (not used if only one hero)
-		surOffset; //offset between garrison position on the bg surface and position on the screen
+	      surOffset; //offset between garrison position on the bg surface and position on the screen
 	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
 	SDL_Surface *&sur; //bg surface
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
-	bool ignoreEvent, update, active, splitting, pb, 
+	bool splitting, pb, 
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
 	     twoRows,//slots will be placed in 2 rows
@@ -238,16 +238,15 @@ public:
 	const CCreatureSet *set1; //top set of creatures
 	const CCreatureSet *set2; //bottom set of creatures
 
-	std::vector<CGarrisonSlot*> *sup, *sdown; //slots of upper and lower garrison
+	std::vector<CGarrisonSlot*> slotsUp, slotsDown; //slots of upper and lower garrison
 	const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
+	void addSplitBtn(AdventureMapButton * button);
+	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
+	
 	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
-	void activeteSlots();
-	void deactiveteSlots();
-	void deleteSlots();
 	void createSlots();
+	void deleteSlots();
 	void recreateSlots();
 
 	void splitClick(); //handles click on split button

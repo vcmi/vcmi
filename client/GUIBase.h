@@ -472,7 +472,7 @@ public:
 
 	CPicture(const Rect &r, const SDL_Color &color, bool screenFormat = false); //rect filled with given color
 	CPicture(const Rect &r, ui32 color, bool screenFormat = false); //rect filled with given color
-	CPicture(SDL_Surface *BG, int x, int y, bool Free = true); //wrap existing SDL_Surface
+	CPicture(SDL_Surface *BG, int x=0, int y=0, bool Free = true); //wrap existing SDL_Surface
 	CPicture(const std::string &bmpname, int x=0, int y=0);
 	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
 	void init();

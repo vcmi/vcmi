@@ -140,6 +140,14 @@ SDL_Surface * CPCXConv::getSurface() const
 	return ret;
 }
 
+bool isPCX(const unsigned char *header)//check whether file can be PCX according to 1st 12 bytes
+{
+	int fSize  = readNormalNr(header, 0);
+	int width  = readNormalNr(header, 4);
+	int height = readNormalNr(header, 8);
+	return fSize == width*height || fSize == width*height*3;
+}
+
 SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
 	if(!fname.size())
@@ -153,47 +161,44 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	Entry *e = bitmaph->entries.znajdz(fname);
 	if(!e)
 	{
-		tlog2<<"File "<<fname<<" not found"<<std::endl;
+		tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
 		return NULL;
 	}
-	if(e->offset<0)
+	if(e->offset<0)//not in LOD
 	{
 		fname = e->realName;
 		fname = DATA_DIR "/Data/" + fname;
 		FILE * f = fopen(fname.c_str(),"r");
-		char sign[3];
-		f = fopen(fname.c_str(),"r");
+		unsigned char sign[12];
 		if(!f)
 		{
-			tlog1 << "Cannot open " << fname << " - not present as bmp nor as pcx.\n";
+			tlog1 << "Cannot open " << fname << " - file not found!\n";
 			return NULL; 
 		}
-		fread(sign,1,3,f);
-		if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
+		fread(sign,1,12,f);
+		SDL_Surface * ret=NULL;
+		if (isPCX(sign))//H3-style PCX
+		{
+			CPCXConv cp;
+			pcx = new unsigned char[e->realSize];
+			memcpy(pcx,sign,3);
+			int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
+			fclose(f);
+			cp.openPCX((char*)pcx,e->realSize);
+			ret = cp.getSurface();
+			if (!ret)
+				tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
+		}
+		else //try loading via SDL_Image
 		{
 			fclose(f);
-			return SDL_LoadBMP(fname.c_str());
+			ret = IMG_Load(fname.c_str());
+			if (!ret)
+				tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
 		}
-		else //PCX - but we don't know which
-		{
-			if((sign[0]==10) && (sign[1]<6) && (sign[2]==1)) //ZSoft PCX
-			{
-				fclose(f);
-				return IMG_Load(fname.c_str());
-			}
-			else //H3-style PCX
-			{
-				CPCXConv cp;
-				pcx = new unsigned char[e->realSize];
-				memcpy(pcx,sign,3);
-				int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
-				fclose(f);
-				cp.openPCX((char*)pcx,e->realSize);
-				return cp.getSurface();
-			}
-		}
+		return ret;
 	}
-
+	//loading from LOD
 	pcx = bitmaph->giveFile(e->nameStr, NULL);
 
 	CPCXConv cp;

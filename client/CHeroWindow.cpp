@@ -239,11 +239,10 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 
 	delete garr;
 	garr = new CGarrisonInt(pos.x+80, pos.y+493, 8, Point(), curBack, Point(16,486), curHero);
-	garr->update = false;
 
 	AdventureMapButton * split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
 	boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-	garr->splitButtons.push_back(split);
+	garr->addSplitBtn(split);
 
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)

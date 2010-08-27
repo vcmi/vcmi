@@ -530,6 +530,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 			break;
 		case SDLK_UP:
 		case SDLK_DOWN:
+		{
 			bool down = key.keysym.sym == SDLK_DOWN;
 			static const int schoolsOrder[] = {0, 3, 1, 2, 4};
 			int index = -1;
@@ -538,6 +539,9 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 			abetw(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
+			break;
+		}
+		default://to get rid of warnings
 			break;
 		}
 
@@ -602,8 +606,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if(sp->combatSpell && !owner->myInt->battleInt
-			|| !sp->combatSpell && owner->myInt->battleInt)
+		if((sp->combatSpell && !owner->myInt->battleInt)
+			|| (!sp->combatSpell && owner->myInt->battleInt))
 		{
 			std::vector<SComponent*> hlp(1, new SComponent(SComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->descriptions[schoolLevel], hlp);

@@ -517,7 +517,6 @@ void CKingdomInterface::CTownItem::setTown(const CGTownInstance * newTown)
 		garr = NULL;
 	}
 	garr = new CGarrisonInt(pos.x+313,pos.y+3,4,Point(232,0),parent->slots->ourImages[parent->PicCount+2].bitmap,Point(313,2),town,town->visitingHero,true,true, true);
-	garr->update = true;
 
 	garrHero->hero = town->garrisonHero;
 	visitHero->hero = town->visitingHero;

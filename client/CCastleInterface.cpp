@@ -435,7 +435,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
 	split->callback += boost::bind(&CCastleInterface::splitClicked,this);
-	garr->splitButtons.push_back(split);
+	garr->addSplitBtn(split);
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
 
