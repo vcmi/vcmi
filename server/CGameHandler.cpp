@@ -4783,7 +4783,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 
 		if(gs->campaign)
 		{
-			gs->campaign->mapConquered();
+			gs->campaign->mapConquered(gs->map->heroes);
 
 			UpdateCampaignState ucs;
 			ucs.camp = gs->campaign;

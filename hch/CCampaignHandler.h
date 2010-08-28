@@ -16,6 +16,7 @@
  */
 
 struct StartInfo;
+class CGHeroInstance;
 
 class DLL_EXPORT CCampaignHeader
 {
@@ -98,12 +99,16 @@ public:
 
 	CScenarioTravel travelOptions;
 
+	std::vector<CGHeroInstance*> crossoverHeroes;
+
+	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);
+
 	bool isNotVoid() const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & conquered & regionText & 
-			prolog & epilog & travelOptions;
+			prolog & epilog & travelOptions & crossoverHeroes;
 	}
 };
 
@@ -133,7 +138,7 @@ public:
 	ui8 currentMap; 
 
 	void initNewCampaign(const StartInfo &si);
-	void mapConquered();
+	void mapConquered(const std::vector<CGHeroInstance*> & heroes);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

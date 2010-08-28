@@ -354,6 +354,8 @@ public:
 
 	void initHero(); 
 	void initHero(int SUBID); 
+
+	void initExp();
 	void initArmy(CCreatureSet *dst = NULL);
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();

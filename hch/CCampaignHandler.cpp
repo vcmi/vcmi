@@ -8,6 +8,10 @@
 #include "../lib/VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "../StartInfo.h"
+#include "CArtHandler.h" //for hero crossover
+#include "CObjectHandler.h" //for hero crossover
+#include "CHeroHandler.h"
+#include <boost/foreach.hpp>
 
 namespace fs = boost::filesystem;
 
@@ -463,6 +467,82 @@ bool CCampaignScenario::isNotVoid() const
 	return mapName.size() > 0;
 }
 
+void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> heroes )
+{
+	crossoverHeroes = heroes;
+	
+	if (!(travelOptions.whatHeroKeeps & 1))
+	{
+		//trimming experience
+		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		{
+			cgh->initExp();
+		}
+	}
+	if (!(travelOptions.whatHeroKeeps & 2))
+	{
+		//trimming prim skills
+		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		{
+#define RESET_PRIM_SKILL(NAME, VALNAME) \
+			cgh->getBonus(Selector::type(Bonus::PRIMARY_SKILL) && \
+				Selector::subtype(PrimarySkill::NAME) && \
+				Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val = cgh->type->heroClass->VALNAME;
+
+			RESET_PRIM_SKILL(ATTACK, initialAttack);
+			RESET_PRIM_SKILL(DEFENSE, initialDefence);
+			RESET_PRIM_SKILL(SPELL_POWER, initialPower);
+			RESET_PRIM_SKILL(KNOWLEDGE, initialKnowledge);
+#undef RESET_PRIM_SKILL
+		}
+	}
+	if (!(travelOptions.whatHeroKeeps & 4))
+	{
+		//trimming sec skills
+		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		{
+			cgh->secSkills = cgh->type->secSkillsInit;
+		}
+	}
+	if (!(travelOptions.whatHeroKeeps & 8))
+	{
+		//trimming spells
+		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		{
+			cgh->spells.clear();
+		}
+	}
+	if (!(travelOptions.whatHeroKeeps & 16))
+	{
+		//trimming artifacts
+		for (int g=0; g<VLC->arth->artifacts.size(); ++g)
+		{
+			bool takeable = travelOptions.artifsKeptByHero[g / 8] & ( 1 << (g%8) ) ;
+			if (!takeable)
+			{
+				BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+				{
+					cgh->artifacts -= g;
+				}
+			}
+		}
+	}
+
+	//trimming creatures
+	BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+	{
+		CCreatureSet army = cgh->getArmy();
+		for (TSlots::iterator j = army.slots.begin(); j != army.slots.end(); j++)
+		{
+			if (! (travelOptions.monstersKeptByHero[j->first / 8] & (1 << (j->first%8)) ))
+			{
+				army.slots.erase(j);
+				j = army.slots.begin();
+			}
+		}
+	}
+}
+
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == 0 || type == 1 || type == 3 || type == 4 || type == 5 || type == 6;
@@ -482,8 +562,9 @@ void CCampaignState::initNewCampaign( const StartInfo &si )
 		mapsRemaining.push_back(i);
 }
 
-void CCampaignState::mapConquered()
+void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
 {
+	camp->scenarios[currentMap].prepareCrossoverHeroes(heroes);
 	mapsConquered.push_back(currentMap);
 	mapsRemaining -= currentMap;
 	camp->scenarios[currentMap].conquered = true;

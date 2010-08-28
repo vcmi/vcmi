@@ -834,8 +834,7 @@ void CGHeroInstance::initHero()
 		name = type->name;
 	if (exp == 0xffffffff)
 	{
-		exp=40+  (ran())  % 50;
-		level = 1;
+		initExp();
 	}
 	else
 	{
@@ -1566,6 +1565,12 @@ void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const
 EAlignment CGHeroInstance::getAlignment() const
 {
 	return type->heroClass->getAlignment();
+}
+
+void CGHeroInstance::initExp()
+{
+	exp=40+  (ran())  % 50;
+	level = 1;
 }
 
 void CGDwelling::initObj()

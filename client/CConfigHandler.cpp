@@ -383,6 +383,13 @@ void config::CConfigHandler::init()
 		tlog1 << "Cannot parse config/settings.txt file!\n";
 	else if(!info.full)
 		tlog2 << "Not entire config/settings.txt parsed!\n";
+
+	//fixing screenx / screeny if set to 0x0
+	if (cc.screenx == 0 && cc.screeny == 0)
+	{
+		cc.screenx = cc.resx;
+		cc.screeny = cc.resy;
+	}
 }
 
 GUIOptions * config::CConfigHandler::go()

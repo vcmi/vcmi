@@ -2388,7 +2388,7 @@ void CBonusSelection::selectMap( int whichOne )
 // 	mapInfo->countPlayers();
 // 	mapInfo->mapHeader = NULL;
 	CMapInfo dummyInfo(false);
-	dummyInfo.filename = "lala";
+	dummyInfo.filename = ourCampaign->camp->header.filename;
 
 	
 	CSelectionScreen::updateStartInfo(curMap ? curMap : &dummyInfo, sInfo, ourHeader);
@@ -2607,13 +2607,30 @@ void CBonusSelection::updateBonusSelection()
 					boost::algorithm::replace_first(desc, "%s", replacement);
 				}
 				break;
-			case 8: //player
-				//TODO
-				continue;
+			case 8: //player aka hero crossover
+				surfToDuplicate = graphics->flags->ourImages[bonDescs[i].info1].bitmap;
+				desc = CGI->generaltexth->allTexts[718];
+
+				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //player color
+				boost::algorithm::replace_first(desc, "%s", ourCampaign->camp->scenarios[bonDescs[i].info2].mapName); //scenario
+
 				break;
 			case 9: //hero
-				//TODO
-				continue;
+
+				desc = CGI->generaltexth->allTexts[718];
+				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //hero's color
+
+				if (bonDescs[i].info2 == 0xFFFF)
+				{
+					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[0]->name); //hero's name
+					surfToDuplicate = graphics->portraitLarge[0];
+				}
+				else
+				{
+
+					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[bonDescs[i].info2]->name); //hero's name
+					surfToDuplicate = graphics->portraitLarge[bonDescs[i].info2];
+				}
 				break;
 			}
 
@@ -2650,8 +2667,14 @@ void CBonusSelection::updateBonusSelection()
 void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
-	//don't pop - we should get back to this screen
-	GH.popInts(3);
+	if (ourCampaign->mapsConquered.size())
+	{
+		GH.popInts(1);
+	}
+	else
+	{
+		GH.popInts(3);
+	}
 	curOpts = NULL;
 	::startGame(si);
 }

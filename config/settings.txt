@@ -5,7 +5,7 @@ clientSettings
 	port=3030;
 	resolution=800x600; // format: WxH
 	pregameRes=800x600; //WxH
-	screenSize=800x600; //WxH
+	screenSize=0x0; //WxH, if 0x0 will be set to he same value as resolution
 	bpp=24; // bits per pixels: 16, 24 or 32
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost

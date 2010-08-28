@@ -176,9 +176,7 @@ SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given s
 
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
-	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
-		return true;
-	else return false;
+	return (x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h);
 }
 
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
