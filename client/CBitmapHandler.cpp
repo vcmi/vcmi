@@ -157,7 +157,10 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	unsigned char * pcx;
 	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
-	fname.replace(fname.find_last_of('.'), fname.find_last_of('.')+4, ".PCX");
+		int dotPos = fname.find_last_of('.');
+	if ( dotPos != -1 )
+		fname.erase(dotPos);
+	
 	Entry *e = bitmaph->entries.znajdz(fname);
 	if(!e)
 	{

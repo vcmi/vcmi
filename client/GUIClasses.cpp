@@ -1443,9 +1443,9 @@ void CTownList::select(int which)
 	if (which>=LOCPLINT->towns.size())
 		return;
 	selected = which;
+	fixPos();
 	if(!fun.empty())
 		fun();
-	fixPos();
 }
 
 void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)

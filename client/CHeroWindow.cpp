@@ -61,7 +61,7 @@ CHeroSwitcher::CHeroSwitcher()
 CHeroWindow::CHeroWindow(int playerColor):
 	player(playerColor)
 {
-	background = BitmapHandler::loadBitmap("HEROSCR4.bmp");
+	background = BitmapHandler::loadBitmap("HeroScr4");
 	graphics->blueToPlayersAdv(background, playerColor);
 	pos.x = screen->w/2 - background->w/2 - 65;
 	pos.y = screen->h/2 - background->h/2 - 8;

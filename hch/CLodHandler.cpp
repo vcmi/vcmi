@@ -63,6 +63,10 @@ std::string readString(const unsigned char * bufor, int &i)
 unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 {
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
+	int dotPos = defName.find_last_of('.');
+	if ( dotPos != -1 )
+		defName.erase(dotPos);
+		
 	Entry * ourEntry = entries.znajdz(Entry(defName));
 	if(!ourEntry) //nothing's been found
 	{
@@ -224,8 +228,16 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		Entry entry;
 
 		entry.nameStr = lodEntries[i].filename;
+		//format string: upper-case, remove extension
 		std::transform(entry.nameStr.begin(), entry.nameStr.end(), 
 					   entry.nameStr.begin(), toupper);
+					   
+		int dotPos = entry.nameStr.find_last_of('.');
+		std::string ext = entry.nameStr.substr(dotPos);
+		if (ext == ".MSK" || ext == ".MSG")
+			entry.nameStr[dotPos] = '#';//this files have same name as def - rename to defName#msk
+		else
+			entry.nameStr.erase(dotPos);//filename.ext becomes filename
 
 		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
 		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
@@ -246,7 +258,11 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				std::string name = dir->path().leaf();
 				std::string realname = name;
 				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-				boost::algorithm::replace_all(name,".BMP",".PCX");
+				
+				int dotPos = name.find_last_of('.');
+				if ( dotPos != -1 )//extension found
+					name.erase(dotPos);
+				
 				Entry * e = entries.znajdz(name);
 				if(e) //file present in .lod - overwrite its entry
 				{

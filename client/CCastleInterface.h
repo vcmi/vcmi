@@ -149,11 +149,10 @@ public:
 	void recreateBuildings();
 	void recreateIcons();
 };
-class CHallInterface : public IShowActivable
+class CHallInterface : public CIntObject
 {
 public:
 	CMinorResDataBar * resdatabar;
-	SDL_Rect pos;
 
 	class CBuildingBox : public CIntObject
 	{

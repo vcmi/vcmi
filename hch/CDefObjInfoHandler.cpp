@@ -39,7 +39,7 @@ CGDefInfo::CGDefInfo()
 void CGDefInfo::fetchInfoFromMSK()
 {
 	std::string nameCopy = name;
-	std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
+	std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, "#MSK" ));
 
 	width = msk[0];
 	height = msk[1];
