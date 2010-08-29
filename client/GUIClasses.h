@@ -830,7 +830,7 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 public:
 	bool morale; //true if morale, false if luck
 	
-	void set(const CBonusSystemNode* hero);
+	void set(const CBonusSystemNode *node);
 	void showAll(SDL_Surface * to);
 
 	MoraleLuckBox(bool Morale);

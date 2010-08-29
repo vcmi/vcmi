@@ -2219,7 +2219,6 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
 
-
 	//setting morale
 	morale = new MoraleLuckBox(true);
 	morale->pos = genRect(42, 42, pos.x + 24, pos.y + 189);
@@ -6353,7 +6352,7 @@ CThievesGuildWindow::~CThievesGuildWindow()
 // 	delete resdatabar;
 }
 
-void MoraleLuckBox::set(const CBonusSystemNode *hero)
+void MoraleLuckBox::set(const CBonusSystemNode *node)
 {
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId[] = {77, 108}; //I don't know why we have separate "none" texts for luck and morale...
@@ -6365,10 +6364,12 @@ void MoraleLuckBox::set(const CBonusSystemNode *hero)
 
 	int mrlt = -9;
 	TModDescr mrl;
-	if(hero)
+
+	
+	if (node)
 	{
-		hero->getModifiersWDescr(mrl, bonusType[morale]);
-		bonusValue = (hero->*getValue[morale])();
+		node->getModifiersWDescr(mrl, bonusType[morale]);
+		bonusValue = (node->*getValue[morale])();
 	}
 	else
 		bonusValue = 0;
@@ -6381,8 +6382,18 @@ void MoraleLuckBox::set(const CBonusSystemNode *hero)
 	if (!mrl.size())
 		text += CGI->generaltexth->arraytxt[noneTxtId[morale]];
 	else
-		for(int it=0; it < mrl.size(); it++)
-			text += "\n" + mrl[it].second;
+	{
+		if (node->nodeType == CBonusSystemNode::STACK &&
+			(node->hasBonusOfType (Bonus::UNDEAD) || node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING))) //it's a creature window
+		{
+			text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
+		}
+		else
+		{
+			for(int it=0; it < mrl.size(); it++)
+				text += "\n" + mrl[it].second;
+		}
+	}
 }
 
 void MoraleLuckBox::showAll(SDL_Surface * to)
