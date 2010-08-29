@@ -3511,7 +3511,12 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 	if (ID == 111)
-		cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) + (h->pos - pos) - int3(1,0,0), true);
+	{
+		std::set<int3> tiles = cb->getObj(destinationid)->getBlockedPos();
+		std::set<int3>::iterator it = tiles.begin();
+		std::advance (it, rand() % tiles.size()); //picking random element of set is tiring
+		cb->moveHero (h->id, *it + int3(1,0,0), true);
+	}
 	else
 		cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(), true);
 }
