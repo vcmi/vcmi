@@ -205,7 +205,6 @@ void CTownHandler::loadStructures()
 	of.clear();
 
 	//read groups
-	int itr = 0;
 	of.open(DATA_DIR "/config/buildings4.txt");
 	of >> format;
 	if(format!=1)

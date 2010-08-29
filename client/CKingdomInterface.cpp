@@ -146,7 +146,7 @@ CKingdomInterface::CKingdomInterface()
 				objList[addObjects[curElm]].first += 1;
 				objList[addObjects[curElm]].second = & obj->hoverName;
 			}
-			else if ( obj->ID == 53 )//TODO: abandoned mines
+			else if ( obj->ID == 53 )
 				incomesVal[obj->subID]+=1;
 		}
 	}

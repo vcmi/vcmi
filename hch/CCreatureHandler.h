@@ -9,6 +9,7 @@
 #include "CSoundBase.h"
 #include "../lib/HeroBonus.h"
 #include "../lib/CGameState.h"
+#include "../lib/CCreatureSet.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine

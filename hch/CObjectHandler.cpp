@@ -135,7 +135,6 @@ void CObjectHandler::readConfigLine(std::ifstream &istr, int g)
 
 	BankConfig &bc = *banksInfo[g].back();
 	std::string buf;
-	char dump;
 	//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
 	istr >> buf; 
 	bc.level = atoi(buf.c_str());
@@ -2954,10 +2953,12 @@ void CGCreature::initObj()
 	si32 &amount = slots[0].count;
 	CCreature &c = *VLC->creh->creatures[subID];
 	if(!amount)
+	{
 		if(c.ammMax == c.ammMin)
 			amount = c.ammMax;
 		else
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
+	}
 
 	temppower = slots[0].count * 1000;
 }
@@ -4511,7 +4512,7 @@ const std::string & CGWitchHut::getHoverText() const
 void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 {
 	bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
-	int messageID, bonusType, bonusVal;
+	int messageID;
 	int bonusMove = 0, sound = -1;
 	InfoWindow iw;
 	iw.player = h->tempOwner;
@@ -4872,8 +4873,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		{
 			int curLev = h->getSecSkillLevel(abilities[i]);
 
-			if(curLev  &&  curLev < abilityLevels[i]
-				|| h->secSkills.size() < SKILL_PER_HERO )
+			if( (curLev  &&  curLev < abilityLevels[i])
+				|| (h->secSkills.size() < SKILL_PER_HERO) )
 			{
 				cb->changeSecSkill(h->id,abilities[i],abilityLevels[i],true);
 			}
@@ -5556,7 +5557,6 @@ void CBank::reset(ui16 var1) //prevents desync
 void CBank::initialize() const
 {
 	cb->setObjProperty (id, 14, ran()); //synchronous reset
-	ui32 artid;
 	for (ui8 i = 0; i <= 3; i++)
 	{
 		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
@@ -6119,7 +6119,6 @@ const std::string & CGSirens::getHoverText() const
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int message;
 	InfoWindow iw;
 	iw.soundID = soundBase::DANGER;
 	iw.player = h->tempOwner;
@@ -6724,6 +6723,7 @@ std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
 	case CREATURE_RESOURCE:
 		for (int i = 0; i < 7; i++)
 			ret.push_back(i);
+	default:
 		break;
 	}
 	return ret;
@@ -6803,8 +6803,9 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 		return ID == 2; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
 	case RESOURCE_SKILL:
 		return ID == 104;//University
+	default:
+		return false;
 	}
-	return false;
 }
 
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const

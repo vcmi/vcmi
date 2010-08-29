@@ -3748,7 +3748,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	}
 	if(owner->defendingHeroInstance) //a hero defended
 	{
-		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &genRect(64, 58, 391, 38));
+		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &genRect(64, 58, 392, 38));
 		//setting defenderName
 		defenderName = owner->defendingHeroInstance->name;
 	}
@@ -3764,7 +3764,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second.type->idNumber;
 			}
 		}
-		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 391, 38));
+		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 392, 38));
 		//setting defenderName
 		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
@@ -3795,62 +3795,59 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	}
 	//printing result description
 	bool weAreAttacker = (owner->curInt->playerID == owner->attackingHeroInstance->tempOwner);
-	switch(br.result)
+	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
-	case 0: //normal victory
-		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
+		int text;
+		switch(br.result)
 		{
-			CGI->musich->playMusic(musicBase::winBattle);
-#ifdef _WIN32
-			CGI->videoh->open(VIDEO_WIN);
-#else
-			CGI->videoh->open(VIDEO_WIN, true);
-#endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, FONT_SMALL, zwykly, background);
+			case 0: text = 304; break;
+			case 1: text = 303; break;
+			case 2: text = 302; break;
 		}
-		else
+
+		CGI->musich->playMusic(musicBase::winBattle);
+		#ifdef _WIN32
+			CGI->videoh->open(VIDEO_WIN);
+		#else
+			CGI->videoh->open(VIDEO_WIN, true);
+		#endif
+		std::string str = CGI->generaltexth->allTexts[text];
+		
+		const CGHeroInstance * ourHero = weAreAttacker? owner->attackingHeroInstance : owner->defendingHeroInstance;
+		if (ourHero)
+		{
+			str += CGI->generaltexth->allTexts[305];
+			boost::algorithm::replace_first(str,"%s",ourHero->name);
+			boost::algorithm::replace_first(str,"%d",boost::lexical_cast<std::string>(br.exp[weAreAttacker?0:1]));
+		}
+		CSDL_Ext::printAtMiddleWB(str, 235, 235, FONT_SMALL, 55, zwykly, background);
+	}
+	else // we lose
+	{
+		switch(br.result)
+		{
+		case 0: //normal victory
 		{
 			CGI->musich->playMusic(musicBase::loseCombat);
 			CGI->videoh->open(VIDEO_LOSE_BATTLE_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, FONT_SMALL, zwykly, background);
+			break;
 		}
-		break;
-	case 1: //flee
-		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
-		{
-			CGI->musich->playMusic(musicBase::winBattle);
-#ifdef _WIN32
-			CGI->videoh->open(VIDEO_WIN);
-#else
-			CGI->videoh->open(VIDEO_WIN, true);
-#endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, FONT_SMALL, zwykly, background);
-		}
-		else
+		case 1: //flee
 		{
 			CGI->musich->playMusic(musicBase::retreatBattle);
 			CGI->videoh->open(VIDEO_RETREAT_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, FONT_SMALL, zwykly, background);
+			break;
 		}
-		break;
-	case 2: //surrender
-		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
-		{
-			CGI->musich->playMusic(musicBase::winBattle);
-#ifdef _WIN32
-			CGI->videoh->open(VIDEO_WIN);
-#else
-			CGI->videoh->open(VIDEO_WIN, true);
-#endif
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, FONT_SMALL, zwykly, background);
-		}
-		else
+		case 2: //surrender
 		{
 			CGI->musich->playMusic(musicBase::surrenderBattle);
 			CGI->videoh->open(VIDEO_SURRENDER);
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, FONT_SMALL, zwykly, background);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 220, FONT_SMALL, zwykly, background);
+			break;
 		}
-		break;
+		}
 	}
 }
 
