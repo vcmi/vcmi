@@ -19,6 +19,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#define ALLCREATURESGETDOUBLEMONTHS false
 
 class CLodHandler;
 class CCreatureHandler;
@@ -101,6 +102,7 @@ class DLL_EXPORT CCreatureHandler
 public:
 	CBonusSystemNode *globalEffects;
 	std::set<int> notUsedMonsters;
+	std::set<TCreature> doubledCreatures; //they get double week
 	std::vector<CCreature*> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;

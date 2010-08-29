@@ -1017,9 +1017,17 @@ void CGameHandler::newTurn()
 			if (monthType < 40) //double growth
 			{
 				n.specialWeek = NewTurn::DOUBLE_GROWTH;
-
-				std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				n.creatureid = newMonster.second;
+				if (ALLCREATURESGETDOUBLEMONTHS)
+				{
+					std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					n.creatureid = newMonster.second;
+				}
+				else
+				{
+					std::set<TCreature>::const_iterator it = VLC->creh->doubledCreatures.begin();
+					std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random elelemnt of set is tiring
+					n.creatureid = *it;
+				}
 			}
 			else if (monthType < 90)
 				n.specialWeek = NewTurn::NORMAL;
