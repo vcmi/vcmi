@@ -4402,7 +4402,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			handleSpellCasting(ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2));
+			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2));
 
 			sendAndApply(&EndAction());
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )

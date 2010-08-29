@@ -1097,6 +1097,7 @@ void CGHeroInstance::initObj()
 				break;
 			case 7://maxed mastery for spell
 				bonus.type = Bonus::MAXED_SPELL;
+				bonus.subtype = it->subtype; //spell i
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 8://peculiar spells - enchantments
@@ -1295,10 +1296,9 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 
 	amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
-	if (hasBonusOfType(Bonus::SPELL, spell->id))
-	{
-		amax(skill, valOfBonuses(Bonus::SPELL, spell->id));
-	}
+	amax(skill, valOfBonuses(Bonus::SPELL, spell->id)); //given by artifact or other effect
+	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero speciality (Daremyth, Melodia)
+		skill = 3;
 	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
