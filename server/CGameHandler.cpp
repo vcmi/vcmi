@@ -4118,34 +4118,6 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-static ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack)
-{
-	switch(spell->id)
-	{
-	case 37: //cure
-		{
-			int healedHealth = caster->getPrimSkillLevel(2) * 5 + spell->powers[caster->getSpellSchoolLevel(spell)];
-			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft);
-			break;
-		}
-	case 38: //resurrection
-		{
-			int healedHealth = caster->getPrimSkillLevel(2) * 50 + spell->powers[caster->getSpellSchoolLevel(spell)];
-			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + stack->baseAmount * stack->MaxHealth());
-			break;
-		}
-	case 39: //animate dead
-		{
-			int healedHealth = caster->getPrimSkillLevel(2) * 50 + spell->powers[caster->getSpellSchoolLevel(spell)];
-			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + stack->baseAmount * stack->MaxHealth());
-			break;
-		}
-	}
-	//we shouldn't be here
-	tlog1 << "calculateHealedHP called for non-healing spell: " << spell->name << std::endl;
-	return 0;
-}
-
 static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures)
 {
 	std::vector<ui32> ret;
@@ -4334,7 +4306,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			}
 			sse.effect.id = spellID;
 			sse.effect.level = spellLvl;
-			sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(spell, caster, usedSpellPower);
+			sse.effect.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
 			break;
@@ -4365,7 +4337,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (*it)->ID;
-				hi.healedHP = calculateHealedHP(caster, spell, *it);
+				hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it);
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}

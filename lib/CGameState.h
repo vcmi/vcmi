@@ -239,7 +239,9 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	int lineToWallHex(int line) const; //returns hex with wall in given line
 	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
+	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
 	si8 hasDistancePenalty(int stackID, int destHex); //determines if given stack has distance penalty shooting given pos
 	si8 sameSideOfWall(int pos1, int pos2); //determines if given positions are on the same side of wall
 	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos

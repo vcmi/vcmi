@@ -3282,23 +3282,9 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 
 	return std::make_pair<const CStack * , int>(NULL, -1);
 }
-
-ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
+ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
 {
-	ui32 ret = 0; //value to return
-
-	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
-	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50)(77, 10);
-
-	//check if spell really does damage - if not, return 0
-	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
-		return 0;
-
-
-	ret = usedSpellPower * dmgMultipliers[sp->id];
-	ret += sp->powers[spellSchoolLevel];
-	
+	ui32 ret = baseDamage;
 	//applying sorcery secondary skill
 	if(caster)
 	{
@@ -3314,6 +3300,26 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 		else if(sp->earth)
 			ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
 	}
+	if (caster) //Hero specials like Solmyr, Deemer
+		ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
+	return ret;
+}
+
+ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
+{
+	ui32 ret = 0; //value to return
+
+	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
+	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
+	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50)(77, 10);
+
+	//check if spell really does damage - if not, return 0
+	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
+		return 0;
+
+	ret = usedSpellPower * dmgMultipliers[sp->id];
+	ret += sp->powers[spellSchoolLevel];
+
 	//affected creature-specific part
 	if(affectedCreature)
 	{
@@ -3350,11 +3356,34 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
 			ret /= 100;
 		}
-		if (caster) //Hero specials like Solmyr, Deemer
-			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
 	}
-
+	calculateSpellBonus(ret, sp, caster, affectedCreature);
 	return ret;
+}
+
+ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const
+{
+	int powerPerLevel;
+	bool resurrect;
+	switch(spell->id)
+	{
+	case 37: //cure
+		{
+			powerPerLevel = 5;
+			resurrect = false;
+			break;
+		}
+	case 38: //resurrection
+	case 39: //animate dead
+		{
+			powerPerLevel = 50;
+			resurrect = true;
+			break;
+		}
+	}
+	int healedHealth = caster->getPrimSkillLevel(2) * powerPerLevel + spell->powers[caster->getSpellSchoolLevel(spell)];
+	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
 
 bool CGameState::battleCanShoot(int ID, int dest)
