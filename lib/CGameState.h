@@ -278,7 +278,7 @@ public:
 	{
 		Bonus hb(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo));
 		hb.effectRange = limit;
-		hb.source = Bonus::SPELL; //right?
+		hb.source = Bonus::CASTED_SPELL; //right?
 		return hb;
 	}
 
@@ -286,7 +286,7 @@ public:
 	{
 		Bonus ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
 		ret.valType = valType;
-		ret.source = Bonus::SPELL; //right?
+		ret.source = Bonus::CASTED_SPELL; //right?
 		return ret;
 	}
 

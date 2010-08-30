@@ -4262,7 +4262,6 @@ void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBo
 	if (!dest)
 		return;
 
-
 	//TODO: make it in clean way
 	if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
 	{

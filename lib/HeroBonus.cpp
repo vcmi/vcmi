@@ -100,10 +100,23 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 }
 void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
 {
+limit_start:
 	for(iterator i = begin(); i != end(); i++)
 	{ 
 		if (i->source == sourceType)
-			erase(i);
+		{
+			iterator toErase = i;
+			if(i != begin())
+			{
+				i--;
+				erase(toErase);
+			}
+			else
+			{
+				erase(toErase);
+				goto limit_start;
+			}
+		}
 	}
 }
 
