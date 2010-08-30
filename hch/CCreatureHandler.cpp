@@ -124,16 +124,6 @@ CCreature::CCreature()
 	doubleWide = false;
 	nodeType = CBonusSystemNode::CREATURE;
 }
-
-ui32 CCreature::getMinDamage() const
-{
-	return damageMin + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 1);
-}
-ui32 CCreature::getMaxDamage() const
-{
-	return damageMax + valOfBonuses(Bonus::CREATURE_DAMAGE, 0) + valOfBonuses(Bonus::CREATURE_DAMAGE, 2);
-}
-
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
 	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
@@ -272,8 +262,10 @@ void CCreatureHandler::loadCreatures()
 		ncre.addBonus(ncre.attack, Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 		ncre.defence = readNumber(befi, i, andame, buf);
 		ncre.addBonus(ncre.defence, Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-		ncre.damageMin = readNumber(befi, i, andame, buf);
+		ncre.damageMin = readNumber(befi, i, andame, buf); //not used anymore?
+		ncre.addBonus(ncre.damageMin, Bonus::CREATURE_DAMAGE, 1);
 		ncre.damageMax = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.damageMax, Bonus::CREATURE_DAMAGE, 2);
 
 		ncre.shots = readNumber(befi, i, andame, buf);
 		ncre.spells = readNumber(befi, i, andame, buf);

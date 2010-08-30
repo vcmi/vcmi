@@ -1091,6 +1091,7 @@ void CGHeroInstance::initObj()
 				break;
 			case 6://damage bonus for bless (Adela)
 				bonus.type = Bonus::SPECIAL_BLESS_DAMAGE;
+				bonus.subtype = it->subtype; //spell id if you ever wanted to use it otherwise
 				bonus.additionalInfo = it->additionalinfo; //damage factor
 				speciality.bonuses.push_back (bonus);
 				break;

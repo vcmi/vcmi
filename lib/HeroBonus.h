@@ -302,6 +302,7 @@ public:
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
+	void DLL_EXPORT removeSpells(Bonus::BonusSource sourceType);
 
 	//special find functions
 	DLL_EXPORT Bonus * getFirst(const CSelector &select);
@@ -359,8 +360,8 @@ public:
 	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
 	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(int from, int id) const;
-	virtual ui32 getMinDamage() const {return 0;}; //used for stacks and creatures only
-	virtual ui32 getMaxDamage() const {return 0;};
+	virtual ui32 getMinDamage() const; //used for stacks and creatures only
+	virtual ui32 getMaxDamage() const;
 
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
@@ -424,6 +425,20 @@ public:
 };
 CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second);
 
+class DLL_EXPORT CSelectorsAlternative
+{
+	const CSelector first, second;
+public:
+	CSelectorsAlternative(const CSelector &First, const CSelector &Second)
+		:first(First), second(Second)
+	{
+	}
+	bool operator()(const Bonus &bonus) const
+	{
+		return first(bonus) || second(bonus);
+	}
+};
+CSelector DLL_EXPORT operator||(const CSelector &first, const CSelector &second);
 
 template<typename T>
 class CSelectFieldEqual

@@ -2148,12 +2148,15 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 	{
 		//spell effects
 		int printed=0; //how many effect pics have been printed
-		BOOST_FOREACH(const CStack::StackEffect &effect, battleStack->effects)
+		BOOST_FOREACH(const Bonus effect, battleStack->bonuses)
 		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect.id + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
-			++printed;
-			if(printed >= 3) //we can fit only 3 effects
-				break;
+			if (effect.source == Bonus::CASTED_SPELL)
+			{
+				blitAt(graphics->spellEffectsPics->ourImages[effect.id + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
+				++printed;
+				if(printed >= 3) //we can fit only 3 effects
+					break;
+			}
 		}
 
 		//print current health

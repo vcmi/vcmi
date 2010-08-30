@@ -1123,7 +1123,7 @@ struct SetStackEffect : public CPackForClient //3010
 	void applyCl(CClient *cl);
 
 	std::vector<ui32> stacks; //affected stacks (IDs)
-	CStack::StackEffect effect; //type of effect
+	Bonus effect; //type of effect
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect;

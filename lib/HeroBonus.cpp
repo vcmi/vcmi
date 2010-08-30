@@ -98,6 +98,14 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 		if(selector(*i) && (!limit || limit(*i)))
 			out.push_back(*i);
 }
+void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
+{
+	for(iterator i = begin(); i != end(); i++)
+	{ 
+		if (i->source == sourceType)
+			erase(i);
+	}
+}
 
 void BonusList::limit(const CBonusSystemNode &node)
 {
@@ -294,6 +302,15 @@ ui16 CBonusSystemNode::MaxHealth() const
 	return valOfBonuses(Bonus::STACK_HEALTH);
 }
 
+ui32 CBonusSystemNode::getMinDamage() const
+{
+	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 1));
+}
+ui32 CBonusSystemNode::getMaxDamage() const
+{
+	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 2));
+}
+
 CBonusSystemNode::CBonusSystemNode()
 {
 	nodeType = UNKNOWN;
@@ -394,6 +411,10 @@ Bonus::Bonus()
 CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second)
 {
 	return CSelectorsConjunction(first, second);
+}
+CSelector DLL_EXPORT operator||(const CSelector &first, const CSelector &second)
+{
+	return CSelectorsAlternative(first, second);
 }
 
 namespace Selector

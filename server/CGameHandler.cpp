@@ -4305,7 +4305,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				sse.stacks.push_back((*it)->ID);
 			}
 			sse.effect.id = spellID;
-			sse.effect.level = spellLvl;
+			sse.effect.val = spellLvl;
 			sse.effect.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);

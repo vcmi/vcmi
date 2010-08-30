@@ -3010,16 +3010,17 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 
 		//blitting amoutn background box
 		SDL_Surface *amountBG = NULL;
-		if(curStack.effects.size() == 0)
+		if(!curStack.bonuses.size())
 		{
 			amountBG = amountNormal;
 		}
 		else
 		{
 			int pos=0; //determining total positiveness of effects
-			for(int c=0; c<curStack.effects.size(); ++c)
+			for(BonusList::const_iterator it = curStack.bonuses.begin(); it != curStack.bonuses.end(); it++)
 			{
-				pos += CGI->spellh->spells[ curStack.effects[c].id ].positiveness;
+				if (it->source == Bonus::CASTED_SPELL)
+					pos += CGI->spellh->spells[ it->id ].positiveness;
 			}
 			if(pos > 0)
 			{

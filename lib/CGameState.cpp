@@ -742,20 +742,161 @@ ui32 CStack::Speed( int turn /*= 0*/ ) const
 	return speed;
 }
 
-const CStack::StackEffect * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
+const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
-	for (unsigned int i=0; i< effects.size(); i++)
-		if(effects[i].id == id)
-			if(!turn || effects[i].turnsRemain > turn)
-				return &effects[i];
+	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
+	{
+		if(it->id == id)
+		{
+			if(!turn || it->turnsRemain > turn)
+				return &(*it);
+		}
+	}
 	return NULL;
+}
+
+void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
+{
+	si32 power = VLC->spellh->spells[sse.id].powers[sse.val];
+	switch(sse.id)
+	{
+	case 27: //shield 
+		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 28: //air shield
+		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 29: //fire shield
+		sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 30: //protection from air
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 31: //protection from fire
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 32: //protection from water
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 33: //protection from earth
+		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 34: //anti-magic
+		sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 41: //bless
+		if (hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, 41)) //TODO: better handling of bonus percentages
+		{
+			int damagePercent = dynamic_cast<const CGHeroInstance*>(armyObj)->level * valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / type->level;
+			sf.push_back(featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, sse.turnsRemain));
+			sf.back().id = sse.id;
+			sf.back().valType = Bonus::PERCENT_TO_ALL;
+		}
+		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 42: //curse
+		sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
+		sf.back().id = sse.id;
+		break;
+	case 43: //bloodlust
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
+		sf.back().id = sse.id;
+		break;
+	case 44: //precision
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
+		sf.back().id = sse.id;
+		break;
+	case 45: //weakness
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 46: //stone skin
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 47: //disrupting ray
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 48: //prayer
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 49: //mirth
+		sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 50: //sorrow
+		sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 51: //fortune
+		sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 52: //misfortune
+		sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 53: //haste
+		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 54: //slow
+		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
+		sf.back().id = sse.id;
+		break;
+	case 55: //slayer
+		sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 56: //frenzy
+		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56].powers[sse.val]/100.0, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 58: //counterstrike
+		sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 59: //bersek
+		sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 60: //hypnotize
+		sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.val, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 61: //forgetfulness
+		sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.val, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	case 62: //blind
+		sf.push_back(makeFeature(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().id = sse.id;
+		sf.push_back(makeFeature(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().id = sse.id;
+		break;
+	}
 }
 
 ui8 CStack::howManyEffectsSet(ui16 id) const
 {
 	ui8 ret = 0;
-	for (unsigned int i=0; i< effects.size(); i++)
-		if(effects[i].id == id) //effect found
+	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
+		if(it->id == id) //effect found
 		{
 			++ret;
 		}
@@ -2941,7 +3082,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	if(attacker->getEffect(55)) //slayer handling
 	{
 		std::vector<int> affectedIds;
-		int spLevel = attacker->getEffect(55)->level;
+		int spLevel = attacker->getEffect(55)->val;
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
@@ -2961,7 +3102,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		{
 			if(defender->type->idNumber == affectedIds[g])
 			{
-				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->level];
+				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->val];
 				break;
 			}
 		}
@@ -3038,7 +3179,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	}
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
-		multBonus *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->level]); //the second factor is 1 or 0
+		multBonus *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->val]); //the second factor is 1 or 0
 	}
 
 	class HLP
@@ -3046,9 +3187,9 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	public:
 		static bool hasAdvancedAirShield(const CStack * stack)
 		{
-			for(int g=0; g<stack->effects.size(); ++g)
+			for (BonusList::const_iterator it = stack->bonuses.begin(); it != stack->bonuses.end(); it++)
 			{
-				if (stack->effects[g].id == 28 && stack->effects[g].level >= 2)
+				if (it->id == 28 && it->val >= 2)
 				{
 					return true;
 				}
@@ -3077,12 +3218,12 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
-		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->level];
+		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->val];
 		returnedVal = std::make_pair(int(minDmg), int(minDmg));
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
-		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->level];
+		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->val];
 		returnedVal =  std::make_pair(int(maxDmg), int(maxDmg));
 	}
 	else

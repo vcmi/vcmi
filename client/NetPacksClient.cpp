@@ -574,7 +574,7 @@ void SetStackEffect::applyCl( CClient *cl )
 	BattleSpellCast sc;
 	sc.id = effect.id;
 	sc.side = 3; //doesn't matter
-	sc.skill = effect.level;
+	sc.skill = effect.val;
 
 	//informing about effects
 	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())

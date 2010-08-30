@@ -261,29 +261,34 @@ public:
 	si16 shots; //how many shots left
 
 	std::set<ECombatInfo> state;
-	struct StackEffect
-	{
-		ui16 id; //spell id
-		ui8 level; //skill level
-		si16 turnsRemain; 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & id & level & turnsRemain;
-		}
-	};
-	std::vector<StackEffect> effects;
-
 	//overrides
 	const CCreature* getCreature() const {return type;}
 
 	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
 	CStack() : ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
-	const StackEffect * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
+	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
+	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
+
+	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	{
+		Bonus hb(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo));
+		hb.effectRange = limit;
+		hb.source = Bonus::SPELL; //right?
+		return hb;
+	}
+
+	static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
+	{
+		Bonus ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
+		ret.valType = valType;
+		ret.source = Bonus::SPELL; //right?
+		return ret;
+	}
 
 	bool doubleWide() const;
 	int occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
