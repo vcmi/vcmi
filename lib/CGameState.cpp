@@ -1203,6 +1203,22 @@ CGameState::~CGameState()
 	capitols.clear();
 }
 
+namespace HHLP
+{
+	class HeroRemoverHelper
+	{
+	public:
+		si32 allowedplayer;
+		HeroRemoverHelper(si32 player) : allowedplayer(player)
+		{
+		}
+		bool operator()(const CGHeroInstance * cgh)
+		{
+			return cgh->tempOwner != allowedplayer;
+		}
+	};
+}
+
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
 	VLC->creh->globalEffects = &globalEffects;
@@ -1276,6 +1292,18 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			return ret;
 		}
 
+		static void replaceHero( CGameState * gs, int objId, CGHeroInstance * ghi ) 
+		{
+			ghi->id = objId;
+			gs->map->objects[objId] = ghi;
+			gs->map->heroes.push_back(ghi);
+		}
+
+		//sort in descending order by power
+		static bool heroPowerSorter(const CGHeroInstance * a, const CGHeroInstance * b)
+		{
+			return a->getHeroStrength() > b->getHeroStrength();
+		}
 	};
 
 	switch(si->mode)
@@ -1445,6 +1473,53 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			if (si->mode == StartInfo::CAMPAIGN && getPlayer(nnn->tempOwner)->human)
 			{
 				HLP::giveCampaignBonusToHero(nnn, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+			}
+		}
+	}
+
+	/*************************replace hero placeholders*****************************/
+
+	if (campaign)
+	{
+
+		CScenarioTravel::STravelBonus bonus =
+			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+
+		for(int g=0; g<map->objects.size(); ++g)
+		{
+			CGObjectInstance * obj = map->objects[g];
+			if (obj->ID != 214) //not a placeholder
+			{
+				continue;
+			}
+			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
+			CGHeroInstance * substitution = NULL;
+
+			std::vector<CGHeroInstance *> Xheroes;
+			if (bonus.type == 8) //hero crossover
+			{
+				Xheroes = campaign->camp->scenarios[bonus.info2].crossoverHeroes;
+				std::remove_if(Xheroes.begin(), Xheroes.end(), HHLP::HeroRemoverHelper(bonus.info1));
+			}
+			else if (bonus.type == 9) //starting hero
+			{
+			}
+
+			if (hp->subID == 0xFF) //select by power
+			{
+				std::sort(Xheroes.begin(), Xheroes.end(), HLP::heroPowerSorter);
+				HLP::replaceHero(this, g, Xheroes[hp->power - 1]);
+			}
+			else //select by type
+			{
+				BOOST_FOREACH(CGHeroInstance * ghi, Xheroes)
+				{
+					if (ghi->subID == hp->subID)
+					{
+						HLP::replaceHero(this, g, ghi);
+						break;
+					}
+				}
 			}
 		}
 	}
