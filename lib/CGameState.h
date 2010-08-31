@@ -272,7 +272,9 @@ public:
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
+	BonusList getSpellBonuses() const;
 	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
+	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 
 	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 	{

@@ -746,7 +746,7 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
 	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
 	{
-		if(it->id == id)
+		if(it->source == Bonus::SPELL_EFFECT && it->id == id)
 		{
 			if(!turn || it->turnsRemain > turn)
 				return &(*it);
@@ -926,7 +926,7 @@ ui8 CStack::howManyEffectsSet(ui16 id) const
 {
 	ui8 ret = 0;
 	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
-		if(it->id == id) //effect found
+		if(it->source == Bonus::SPELL_EFFECT && it->id == id) //effect found
 		{
 			++ret;
 		}
@@ -972,6 +972,28 @@ int CStack::occupiedHex() const
 	{
 		return -1;
 	}
+}
+BonusList CStack::getSpellBonuses() const
+{
+	return getBonuses(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
+}
+
+std::vector<si32> CStack::activeSpells() const
+{
+	//spell ID deduplication (some spells have many corresponding bonuses)
+	//TODO: what about spells that casted multiple times, have their effect muliplied? std::pair<spell id, time> or what?
+	std::vector<si32> ret;
+
+	BonusList spellEffects = getSpellBonuses();
+	std::set<int> spellIds;
+	for(BonusList::const_iterator it = spellEffects.begin(); it != spellEffects.end(); it++)
+	{
+		spellIds.insert(it->id);
+	}
+	ret.resize(spellIds.size());
+	std::copy(spellIds.begin(), spellIds.end(), ret.begin());
+
+	return ret;
 }
 
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
@@ -3219,7 +3241,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		{
 			for (BonusList::const_iterator it = stack->bonuses.begin(); it != stack->bonuses.end(); it++)
 			{
-				if (it->id == 28 && it->val >= 2)
+				if (it->source == Bonus::SPELL_EFFECT && it->id == 28 && it->val >= 2)
 				{
 					return true;
 				}

@@ -526,6 +526,7 @@ namespace Selector
 	CSelector DLL_EXPORT typeSybtype(TBonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_EXPORT typeSybtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID);
+	CSelector DLL_EXPORT sourceTypeSel(ui8 source);
 
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);
 	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);

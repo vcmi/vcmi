@@ -98,26 +98,27 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 		if(selector(*i) && (!limit || limit(*i)))
 			out.push_back(*i);
 }
+
+namespace HHLP
+{
+	class SourceComp
+	{
+	public:
+		Bonus::BonusSource src;
+		SourceComp(Bonus::BonusSource _src) : src(src)
+		{
+		}
+		bool operator()(const Bonus & bon)
+		{
+			return bon.source == src;
+		}
+	};
+}
+
+
 void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
 {
-limit_start:
-	for(iterator i = begin(); i != end(); i++)
-	{ 
-		if (i->source == sourceType)
-		{
-			iterator toErase = i;
-			if(i != begin())
-			{
-				i--;
-				erase(toErase);
-			}
-			else
-			{
-				erase(toErase);
-				goto limit_start;
-			}
-		}
-	}
+	std::remove_if(begin(), end(), HHLP::SourceComp(sourceType));
 }
 
 void BonusList::limit(const CBonusSystemNode &node)
@@ -452,6 +453,11 @@ namespace Selector
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID)
 	{
 		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::id, sourceID);
+	}
+
+	CSelector DLL_EXPORT sourceTypeSel(ui8 source)
+	{
+		return CSelectFieldEqual<ui8>(&Bonus::source, source);
 	}
 
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type)
