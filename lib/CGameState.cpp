@@ -758,6 +758,31 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
 {
 	si32 power = VLC->spellh->spells[sse.id].powers[sse.val];
+	Bonus * bonus = getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, sse.id));
+	if (bonus)
+	{
+		switch(bonus->additionalInfo)
+		{
+			case 0: //normal
+				switch(type->level)
+				{
+					case 1: case 2:
+						power += 3; //it doesn't necessarily make sense for some spells, use it wisely
+					break;
+					case 3: case 4:
+						power += 2;
+					break;
+					case 5: case 6:
+						power += 1;
+					break;
+				}
+			break;
+			case 1: //only Coronius as yet
+				power = std::max(5 - type->level, 0);
+			break;
+		}
+	}
+
 	switch(sse.id)
 	{
 	case 27: //shield 
@@ -860,6 +885,11 @@ void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
 		sf.back().id = sse.id;
 		break;
 	case 55: //slayer
+		if (bonus) //Coronius
+		{
+			sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
+			sf.back().id = sse.id;
+		}
 		sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
 		sf.back().id = sse.id;
 		break;

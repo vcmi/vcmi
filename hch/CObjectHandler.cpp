@@ -1102,7 +1102,8 @@ void CGHeroInstance::initObj()
 				break;
 			case 8://peculiar spells - enchantments
 				bonus.type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-				bonus.subtype = it->subtype; //0, 1 for Coronius
+				bonus.subtype = it->subtype; //spell id
+				bonus.additionalInfo = it->additionalinfo;//0, 1 for Coronius
 				speciality.bonuses.push_back (bonus);
 				break;
 			case 9://upgrade creatures
