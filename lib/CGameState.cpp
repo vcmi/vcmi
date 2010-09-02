@@ -975,23 +975,18 @@ int CStack::occupiedHex() const
 }
 BonusList CStack::getSpellBonuses() const
 {
-	return getBonuses(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
+	return getBonuses(Selector::sourceTypeSel(Bonus::CASTED_SPELL));
 }
 
 std::vector<si32> CStack::activeSpells() const
 {
-	//spell ID deduplication (some spells have many corresponding bonuses)
-	//TODO: what about spells that casted multiple times, have their effect muliplied? std::pair<spell id, time> or what?
 	std::vector<si32> ret;
 
 	BonusList spellEffects = getSpellBonuses();
-	std::set<int> spellIds;
 	for(BonusList::const_iterator it = spellEffects.begin(); it != spellEffects.end(); it++)
 	{
-		spellIds.insert(it->id);
+		ret.push_back(it->id);
 	}
-	ret.resize(spellIds.size());
-	std::copy(spellIds.begin(), spellIds.end(), ret.begin());
 
 	return ret;
 }
