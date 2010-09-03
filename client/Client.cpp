@@ -26,11 +26,11 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <boost/lexical_cast.hpp>
 #include <sstream>
 #include "CPreGame.h"
 
-#undef DLL_EXPORT
-#define DLL_EXPORT
+#define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
@@ -45,13 +45,21 @@ namespace intpr = boost::interprocess;
  *
  */
 
+template <typename T> class CApplyOnCL;
+
 class CBaseForCLApply
 {
 public:
 	virtual void applyOnClAfter(CClient *cl, void *pack) const =0; 
 	virtual void applyOnClBefore(CClient *cl, void *pack) const =0; 
 	virtual ~CBaseForCLApply(){}
+
+	template<typename U> static CBaseForCLApply *getApplier(const U * t=NULL)
+	{
+		return new CApplyOnCL<U>;
+	}
 };
+
 template <typename T> class CApplyOnCL : public CBaseForCLApply
 {
 public:
@@ -67,46 +75,20 @@ public:
 	}
 };
 
-class CCLApplier
-{
-public:
-	std::map<ui16,CBaseForCLApply*> apps; 
-
-	CCLApplier()
-	{
-		registerTypes2(*this);
-	}
-	~CCLApplier()
-	{
-		std::map<ui16,CBaseForCLApply*>::iterator iter;
-
-		for(iter = apps.begin(); iter != apps.end(); iter++)
-			delete iter->second;
-	}
-	template<typename T> void registerType(const T * t=NULL)
-	{
-		ui16 ID = typeList.registerType(t);
-		apps[ID] = new CApplyOnCL<T>;
-	}
-
-} *applier = NULL;
+CApplier<CBaseForCLApply> *applier = NULL;
 
 void CClient::init()
 {
 	hotSeat = false;
 	connectionHandler = NULL;
 	pathInfo = NULL;
-	applier = new CCLApplier;
+	applier = new CApplier<CBaseForCLApply>;
+	registerTypes2(*applier);
 	IObjectInterface::cb = this;
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
 	terminate = false;
-	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
-	try
-	{
-		shared = new SharedMem();
-	} HANDLE_EXCEPTIONC(tlog1 << "Cannot open interprocess memory: ";)
 }
 
 CClient::CClient(void)
@@ -114,18 +96,20 @@ CClient::CClient(void)
 {
 	init();
 }
+
 CClient::CClient(CConnection *con, StartInfo *si)
 :waitingRequest(false)
 {
 	init();
 	newGame(con,si);
 }
+
 CClient::~CClient(void)
 {
 	delete pathInfo;
 	delete applier;
-	delete shared;
 }
+
 void CClient::waitForMoveAndSend(int color)
 {
 	try
@@ -144,7 +128,7 @@ void CClient::run()
 		CPack *pack = NULL;
 		while(!terminate)
 		{
-			pack = retreivePack(); //get the package from the server
+			pack = serv->retreivePack(); //get the package from the server
 			
 			if (terminate) 
 			{
@@ -231,8 +215,9 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	LOCPLINT = NULL;
 	while (!playerint.empty())
 	{
-		delete playerint.begin()->second;
+		CGameInterface *pint = playerint.begin()->second;
 		playerint.erase(playerint.begin());
+		delete pint;
 	}
 
 	BOOST_FOREACH(CCallback *cb, callbacks)
@@ -251,13 +236,10 @@ void CClient::loadGame( const std::string & fname )
 {
 	tlog0 <<"\n\nLoading procedure started!\n\n";
 
+	CServerHandler sh;
+	sh.startServer();
+
 	timeHandler tmh;
-
-	char portc[10];
-	SDL_itoa(conf.cc.port,portc,10);
-	runServer(portc); //create new server
-	tlog0 <<"Restarting server: "<<tmh.getDif()<<std::endl;
-
 	{
 		ui32 ver;
 		char sig[8];
@@ -284,14 +266,10 @@ void CClient::loadGame( const std::string & fname )
 
 		tlog0 <<"Initing maphandler: "<<tmh.getDif()<<std::endl;
 	}
-
-	waitForServer();
-	tlog0 <<"Waiting for server: "<<tmh.getDif()<<std::endl;
-
-	serv = new CConnection(conf.cc.server,portc,NAME);
+	serv = sh.connectToServer();
 	serv->addStdVecItems(gs);
-	tlog0 <<"Setting up connection: "<<tmh.getDif()<<std::endl;
 
+	tmh.update();
 	ui8 pom8;
 	*serv << ui8(3) << ui8(1); //load game; one client
 	*serv << fname;
@@ -333,32 +311,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	if (con == NULL) 
 	{
-		timeHandler pomtime;
-		char portc[10];
-		SDL_itoa(conf.cc.port,portc,10);
-		CClient::runServer(portc);
-		tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
-
-		pomtime.getDif();//reset timers
-
-		//wait until server is ready
-		tlog0<<"Waiting for server... ";
-		waitForServer();
-		tlog0 << pomtime.getDif()<<std::endl;
-		while(!con)
-		{
-			try
-			{
-				tlog0 << "Establishing connection...\n";
-				con = new CConnection(conf.cc.server,portc,NAME);
-			}
-			catch(...)
-			{
-				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
-				SDL_Delay(2000);
-			}
-		}
-		THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
+		CServerHandler sh;
+		con = sh.connectToServer();
 	}
 
 	timeHandler tmh;
@@ -429,21 +383,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	playerint[255]->init(new CCallback(gs,255,this));
 }
 
-void CClient::runServer(const char * portc)
-{
-	static std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + portc + " > server_log.txt"; //needs to be static, if not - will be probably destroyed before new thread reads it
-	boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 	//TODO: will it work on non-windows platforms?
-}
-
-void CClient::waitForServer()
-{
-	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
-	while(!shared->sr->ready)
-	{
-		shared->sr->cond.wait(slock);
-	}
-}
-
 template <typename Handler>
 void CClient::serialize( Handler &h, const int version )
 {
@@ -485,16 +424,6 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->serialize(h, version);
 		}
 	}
-}
-
-CPack * CClient::retreivePack()
-{
-	CPack *ret = NULL;
-	boost::unique_lock<boost::mutex> lock(*serv->rmx);
-	tlog5 << "Listening... ";
-	*serv >> ret;
-	tlog5 << "\treceived server message of type " << typeid(*ret).name() << std::endl;
-	return ret;
 }
 
 void CClient::handlePack( CPack * pack )
@@ -564,3 +493,79 @@ void CClient::stopConnection()
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );
+
+void CServerHandler::startServer()
+{
+	th.update();
+	
+	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable; 	//TODO: will it work on non-windows platforms?
+	if(verbose)
+		tlog0 << "Setting up thread calling server: " << th.getDif() << std::endl;
+}
+
+void CServerHandler::waitForServer()
+{
+	if(!serverThread)
+		startServer();
+
+	th.update();
+	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
+	while(!shared->sr->ready)
+	{
+		shared->sr->cond.wait(slock);
+	}
+	if(verbose)
+		tlog0 << "Waiting for server: " << th.getDif() << std::endl;
+}
+
+CConnection * CServerHandler::connectToServer()
+{
+	if(!shared->sr->ready)
+		waitForServer();
+
+	th.update();
+	CConnection *ret = NULL;
+	while(!ret)
+	{
+		try
+		{
+			tlog0 << "Establishing connection...\n";
+			ret = new CConnection(conf.cc.server, port, NAME);
+		}
+		catch(...)
+		{
+			tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
+			SDL_Delay(2000);
+		}
+	}
+	if(verbose)
+		tlog0<<"\tConnecting to the server: "<<th.getDif()<<std::endl;
+
+	return ret;
+}
+
+CServerHandler::CServerHandler()
+{
+	serverThread = NULL;
+	shared = NULL;
+	port = boost::lexical_cast<std::string>(conf.cc.port);
+
+	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
+	try
+	{
+		shared = new SharedMem();
+	} HANDLE_EXCEPTIONC(tlog1 << "Cannot open interprocess memory: ";)
+}
+
+CServerHandler::~CServerHandler()
+{
+	delete shared;
+	delete serverThread; //detaches, not kills thread
+}
+
+void CServerHandler::callServer()
+{
+	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > server_log.txt";
+	std::system(comm.c_str());
+	tlog0 << "Server finished\n";
+}

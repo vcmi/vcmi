@@ -72,6 +72,7 @@ void CButtonBase::showAll( SDL_Surface * to )
 
 void CButtonBase::addTextOverlay( const std::string Text, EFonts font, SDL_Color color)
 {
+	delete text;
 	text = new TextOverlay;
 	text->text = Text;
 

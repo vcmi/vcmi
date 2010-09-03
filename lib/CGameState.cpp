@@ -66,7 +66,12 @@ class CBaseForGSApply
 public:
 	virtual void applyOnGS(CGameState *gs, void *pack) const =0; 
 	virtual ~CBaseForGSApply(){};
+	template<typename U> static CBaseForGSApply *getApplier(const U * t=NULL)
+	{
+		return new CApplyOnGS<U>;
+	}
 };
+
 template <typename T> class CApplyOnGS : public CBaseForGSApply
 {
 public:
@@ -80,29 +85,7 @@ public:
 	}
 };
 
-class CGSApplier
-{
-public:
-	std::map<ui16,CBaseForGSApply*> apps; 
-
-	CGSApplier()
-	{
-		registerTypes2(*this);
-	}
-	~CGSApplier()
-	{
-		std::map<ui16,CBaseForGSApply*>::iterator iter;
-
-		for(iter = apps.begin(); iter != apps.end(); iter++)
-			delete iter->second;
-	}
-	template<typename T> void registerType(const T * t=NULL)
-	{
-		ui16 ID = typeList.registerType(t);
-		apps[ID] = new CApplyOnGS<T>;
-	}
-
-} *applierGs = NULL;
+CApplier<CBaseForGSApply> *applierGs = NULL;
 
 class IObjectCaller
 {
@@ -1373,7 +1356,8 @@ CGameState::CGameState()
 	map = NULL;
 	curB = NULL;
 	scenarioOps = NULL;
-	applierGs = new CGSApplier;
+	applierGs = new CApplier<CBaseForGSApply>;
+	registerTypes2(*applierGs);
 	objCaller = new CObjectCallersHandler;
 	campaign = NULL;
 }

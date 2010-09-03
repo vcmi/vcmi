@@ -23,6 +23,7 @@ class CGameHandler;
 class CConnection;
 class CCampaignState;
 class CArtifact;
+class CSelectionScreen;
 
 struct CPack
 {
@@ -1618,5 +1619,22 @@ struct CenterView : public CPackForClient//515
 	}
 };
 
+/***********************************************************************************************************/
+
+struct CPackForSelectionScreen : public CPack
+{
+	void apply(CSelectionScreen *selScreen){}; //that functions are implemented in CPreGame.cpp
+};
+
+struct ChatMessage : public CPackForSelectionScreen
+{
+	std::string playerName, message;
+
+	void apply(CSelectionScreen *selScreen);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & playerName & message;
+	}
+};
 
 #endif //__NETPACKS_H__

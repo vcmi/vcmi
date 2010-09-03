@@ -30,6 +30,7 @@ class CGameState;
 class CCreature;
 class LibClasses;
 class CHero;
+class CPack;
 extern DLL_EXPORT LibClasses * VLC;
 namespace mpl = boost::mpl;
 
@@ -863,6 +864,29 @@ public:
     template<class T>
     CConnection &operator&(const T&);
 	~CConnection(void);
+
+	CPack *retreivePack(); //gets from server next pack (allocates it with new)
+};
+
+template<typename T>
+class CApplier
+{
+public:
+	std::map<ui16,T*> apps; 
+
+	~CApplier()
+	{
+		std::map<ui16,T*>::iterator iter;
+
+		for(iter = apps.begin(); iter != apps.end(); iter++)
+			delete iter->second;
+	}
+	template<typename U> void registerType(const U * t=NULL)
+	{
+		ui16 ID = typeList.registerType(t);
+		apps[ID] = T::getApplier(t);
+	}
+
 };
 
 #endif // __CONNECTION_H__

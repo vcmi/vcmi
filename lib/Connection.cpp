@@ -20,6 +20,7 @@
 #include "../hch/CHeroHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CCampaignHandler.h"
+#include "NetPacks.h"
 
 
 /*
@@ -217,6 +218,16 @@ void CConnection::reportState(CLogger &out)
 		out << "\tWe have an open and valid socket\n";
 		out << "\t" << socket->available() <<" bytes awaiting\n";
 	}
+}
+
+CPack * CConnection::retreivePack()
+{
+	CPack *ret = NULL;
+	boost::unique_lock<boost::mutex> lock(*rmx);
+	tlog5 << "Listening... ";
+	*this >> ret;
+	tlog5 << "\treceived server message of type " << typeid(*ret).name() << std::endl;
+	return ret;
 }
 
 CSaveFile::CSaveFile( const std::string &fname )

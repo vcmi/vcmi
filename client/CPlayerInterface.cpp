@@ -1824,11 +1824,11 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 	}
 	else
 	{
-		if(!victory) //enemy has lost
+		if(!victory && cb->getPlayerStatus(playerID) == PlayerState::INGAME) //enemy has lost
 		{
 			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
 			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-			//showInfoDialog(txt,std::vector<SComponent*>(1, new SComponent(SComponent::flag, player, 0)));
+			showInfoDialog(txt,std::vector<SComponent*>(1, new SComponent(SComponent::flag, player, 0)));
 		}
 	}
 }

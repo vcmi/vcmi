@@ -25,6 +25,7 @@ class CCampaign;
 class CGStatusBar;
 class CTextBox;
 class CCampaignState;
+class CConnection;
 
 class CMapInfo
 {
@@ -64,6 +65,10 @@ public:
 		mainMenu, newGame, loadGame, campaignMain, saveGame, scenarioInfo, campaignList
 	};
 
+	enum EMultiMode {
+		SINGLE_PLAYER = 0, HOT_SEAT, MULTI_PLAYER
+	};
+
 	CPicture *bgAd;
 	AdventureMapButton *buttons[5];
 
@@ -82,13 +87,25 @@ struct FileInfo
 	bool inLod; //tells if this file is located in Lod
 };
 
+class CChatBox : public CIntObject
+{
+public:
+	CTextBox *chatHistory;
+	CTextInput *inputBox;
+
+	CChatBox(const Rect &rect);
+};
+
 class InfoCard : public CIntObject
 {
 	CPicture *bg; 
 public:
 	CMenuScreen::EState type;
 
+	bool chatOn;  //if chat is shown, then description is hidden
 	CTextBox *mapDescription;
+	CChatBox *chat;
+
 	CHighlightableButtonsGroup *difficulty;
 	CDefHandler *sizes, *sFlags;;
 
@@ -96,7 +113,9 @@ public:
 	void showAll(SDL_Surface * to);
 	void clickRight(tribool down, bool previousState);
 	void showTeamsPopup();
-	InfoCard(CMenuScreen::EState Type);
+	void toggleChat();
+	void setChat(bool activateChat);
+	InfoCard(CMenuScreen::EState Type, bool network = false);
 	~InfoCard();
 };
 
@@ -214,9 +233,11 @@ public:
 	const CMapInfo *current;
 	StartInfo sInfo;
 	CIntObject *curTab;
-	bool multiPlayer;
+	CMenuScreen::EMultiMode multiPlayer;
 
-	CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer = false);
+	CConnection *serv; //connection to server, used in MP mode
+
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -224,6 +245,9 @@ public:
 	void startCampaign();
 	void startGame();
 	void difficultyChange(int to);
+
+	void toggleChat();
+	void handleConnection();
 };
 
 class CSavingScreen : public CSelectionScreen
@@ -257,6 +281,8 @@ public:
 
 	CMultiMode();
 	void openHotseat();
+	void hostTCP();
+	void joinTCP();
 };
 
 class CHotSeatPlayers : public CIntObject
@@ -359,7 +385,7 @@ public:
 	~CGPreGame();
 	void update();
 	void run();
-	void openSel(CMenuScreen::EState type, bool multi = false);
+	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
 	void resetPlayerNames();
 	void loadGraphics();

@@ -27,8 +27,29 @@ struct BattleAction;
 struct SharedMem;
 class CClient;
 struct CPathsInfo;
+namespace boost { class thread; }
 
 void processCommand(const std::string &message, CClient *&client);
+
+//structure to handle running server and connecting to it
+class CServerHandler
+{
+private:
+	void callServer(); //calls server via system(), should be called as thread
+public:
+	timeHandler th;
+	boost::thread *serverThread; //thread that called system to run server
+	SharedMem *shared; //interprocess memory (for waiting for server)
+	bool verbose; //whether to print log msgs
+	std::string port; //port number in text form
+
+	void startServer(); //creates a thread with callServer
+	void waitForServer(); //waits till server is ready
+	CConnection * connectToServer(); //connects to server
+
+	CServerHandler();
+	~CServerHandler();
+};
 
 class CClient : public IGameCallback
 {
@@ -38,7 +59,6 @@ public:
 	std::map<ui8,CGameInterface *> playerint;
 	bool hotSeat;
 	CConnection *serv;
-	SharedMem *shared;
 	BattleAction *curbaction;
 	CPathsInfo *pathInfo;
 
@@ -111,10 +131,6 @@ public:
 	friend class CCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
-	
-	static void runServer(const char * portc);
-	void waitForServer();
-	CPack * retreivePack(); //gets from server next pack (allocates it with new)
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void updatePaths();
 

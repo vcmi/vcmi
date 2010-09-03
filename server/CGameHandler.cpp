@@ -60,10 +60,16 @@ CondSh<BattleResult *> battleResult(NULL);
 std::ptrdiff_t randomizer (ptrdiff_t i) {return rand();}
 std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
+
 class CBaseForGHApply
 {
 public:
 	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack) const =0; 
+	virtual ~CBaseForGHApply(){}
+	template<typename U> static CBaseForGHApply *getApplier(const U * t=NULL)
+	{
+		return new CApplyOnGH<U>;
+	}
 };
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
@@ -76,22 +82,7 @@ public:
 	}
 };
 
-class CGHApplier
-{
-public:
-	std::map<ui16,CBaseForGHApply*> apps; 
-
-	CGHApplier()
-	{
-		registerTypes3(*this);
-	}
-	template<typename T> void registerType(const T * t=NULL)
-	{
-		ui16 ID = typeList.registerType(t);
-		apps[ID] = new CApplyOnGH<T>;
-	}
-
-} *applier = NULL;
+CApplier<CBaseForGHApply> *applier = NULL;
 
 CMP_stack cmpst ;
 
@@ -938,7 +929,8 @@ CGameHandler::CGameHandler(void)
 	QID = 1;
 	gs = NULL;
 	IObjectInterface::cb = this;
-	applier = new CGHApplier;
+	applier = new CApplier<CBaseForGHApply>;
+	registerTypes3(*applier);
 	visitObjectAfterVictory = false; 
 }
 

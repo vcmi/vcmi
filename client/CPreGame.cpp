@@ -39,6 +39,11 @@
 #include "../hch/CArtHandler.h" /*for campaign bonuses*/
 #include "../hch/CBuildingHandler.h" /*for campaign bonuses*/
 #include "CBitmapHandler.h"
+#include "Client.h"
+#include "../lib/NetPacks.h"
+
+#define NOT_LIB
+#include "../lib/RegisterTypes.cpp"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -96,6 +101,29 @@ static void clearInfo()
 	playerColor = -1;
 	playerNames.clear();
 }
+
+class CBaseForPGApply
+{
+public:
+	virtual void applyOnPG(CSelectionScreen *selScr, void *pack) const =0; 
+	virtual ~CBaseForPGApply(){};
+	template<typename U> static CBaseForPGApply *getApplier(const U * t=NULL)
+	{
+		return new CApplyOnPG<U>;
+	}
+};
+
+template <typename T> class CApplyOnPG : public CBaseForPGApply
+{
+public:
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	{
+		T *ptr = static_cast<T*>(pack);
+		ptr->apply(selScr);
+	}
+};
+
+CApplier<CBaseForPGApply> *applier = NULL;
 
 void CMapInfo::countPlayers()
 {
@@ -186,7 +214,7 @@ CMenuScreen::CMenuScreen( EState which )
 	case newGame:
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame, false), 545, 4, "ZTSINGL.DEF", SDLK_s);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
@@ -196,8 +224,8 @@ CMenuScreen::CMenuScreen( EState which )
 	case loadGame:
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZLOADGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame, false), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CGPreGame::openSel, CGP, loadGame, true), 568, 120, "ZTMULTI.DEF", SDLK_m);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CGPreGame::openSel, CGP, loadGame, HOT_SEAT), 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
@@ -208,7 +236,7 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[0] = new AdventureMapButton("", "", 0 /*cb*/, 535, 8, "ZSSSOD.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", "", 0 /*cb*/, 494, 117, "ZSSROE.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", "", 0 /*cb*/, 486, 241, "ZSSARM.DEF", SDLK_c);
-			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, false), 550, 358, "ZSSCUS.DEF", SDLK_t);
+			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
 
 		}
@@ -259,10 +287,9 @@ CGPreGame::~CGPreGame()
 		delete scrs[i];
 }
 
-void CGPreGame::openSel( CMenuScreen::EState type, bool multi )
+void CGPreGame::openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
 {
 	resetPlayerNames();
-
 	GH.pushInt(new CSelectionScreen(type, multi));
 }
 
@@ -314,10 +341,19 @@ void CGPreGame::resetPlayerNames()
 	playerNames.push_back(CGI->generaltexth->allTexts[434]); //we have only one player and his name is "Player"
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
-	:multiPlayer(MultiPlayer)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/)
+	:multiPlayer(MultiPlayer), serv(NULL)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	applier = new CApplier<CBaseForPGApply>;
+
+	CServerHandler *sh = NULL;
+	if(multiPlayer == CMenuScreen::MULTI_PLAYER)
+	{
+		sh = new CServerHandler;
+		sh->startServer();
+	}
+
 	IShowActivable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;
 	pos.h = 584;
@@ -349,7 +385,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
 	sInfo.turnTime = 0;
 	curTab = NULL;
 
-	card = new InfoCard(type); //right info card
+	card = new InfoCard(type, multiPlayer == CMenuScreen::MULTI_PLAYER); //right info card
 	if (type == CMenuScreen::campaignList)
 	{
 		opt = NULL;
@@ -378,6 +414,12 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
 			random->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
 
 			start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 529, "SCNRBEG.DEF", SDLK_b);
+
+			if(multiPlayer == CMenuScreen::MULTI_PLAYER)
+			{
+				AdventureMapButton *hideChat = new AdventureMapButton(CGI->generaltexth->zelp[48], 0, 619, 75, "GSPBUT2.DEF", SDLK_h);
+				hideChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+			}
 		}
 		break;
 	case CMenuScreen::loadGame:
@@ -408,6 +450,13 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, bool MultiPlayer)
 	}
 
 	back = new AdventureMapButton("", CGI->generaltexth->zelp[105].second, bind(&CGuiHandler::popIntTotally, &GH, this), 581, 529, backName, SDLK_ESCAPE);
+
+
+	if(multiPlayer == CMenuScreen::MULTI_PLAYER)
+	{
+		serv = sh->connectToServer();
+	}
+	delete sh;
 }
 
 CSelectionScreen::~CSelectionScreen()
@@ -416,6 +465,7 @@ CSelectionScreen::~CSelectionScreen()
 	curOpts = NULL;
 	playerColor = -1;
 	playerNames.clear();
+	delete applier;
 }
 
 void CSelectionScreen::toggleTab(CIntObject *tab)
@@ -596,6 +646,19 @@ void CSelectionScreen::difficultyChange( int to )
 	assert(type == CMenuScreen::newGame);
 	sInfo.difficulty = to;
 	GH.totalRedraw();
+}
+
+void CSelectionScreen::handleConnection()
+{
+	while(serv)
+	{
+		
+	}
+}
+
+void CSelectionScreen::toggleChat()
+{
+
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
@@ -1167,8 +1230,14 @@ void SelectionTab::selectFName( const std::string &fname )
 
 
 
-InfoCard::InfoCard( CMenuScreen::EState Type )
-: difficulty(NULL), sizes(NULL), sFlags(NULL), bg(NULL)
+CChatBox::CChatBox(const Rect &rect)
+{
+	const int height = 10;
+	//inputBox = new CTextInput(Rect(rect.x, rect.y + rect.h - height, rect.w, height));
+}
+
+InfoCard::InfoCard( CMenuScreen::EState Type, bool network )
+: difficulty(NULL), sizes(NULL), sFlags(NULL), bg(NULL), chatOn(false), chat(NULL)
 {
 	OBJ_CONSTRUCTION;
 	pos.x += 393;
@@ -1209,6 +1278,12 @@ InfoCard::InfoCard( CMenuScreen::EState Type )
 
 		//description needs bg
 		moveChild(new CPicture(*bg, descriptionRect), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+
+		if(network)
+		{
+			new CPicture("CHATPLUG.bmp", 17, 276);
+			chat = new CChatBox(descriptionRect);
+		}
 	}
 
 }
@@ -1411,6 +1486,36 @@ void InfoCard::showTeamsPopup()
 	}
 
 	GH.pushInt(new CInfoPopup(bmp, true));
+}
+
+void InfoCard::toggleChat()
+{
+	setChat(!chatOn);
+}
+
+void InfoCard::setChat(bool activateChat)
+{
+	if(chatOn == activateChat)
+		return;
+
+	assert(active);
+
+	if(activateChat)
+	{
+		mapDescription->recActions = 0;
+		mapDescription->deactivate();
+		chat->recActions = 255;
+		chat->activate();
+	}
+	else
+	{
+		mapDescription->recActions = 255;
+		mapDescription->activate();
+		chat->recActions = 0;
+		chat->deactivate();
+	}
+
+	chatOn = activateChat;
 }
 
 OptionsTab::OptionsTab( CMenuScreen::EState Type)
@@ -2172,12 +2277,27 @@ CMultiMode::CMultiMode()
 	txt->setText(CGI->generaltexth->allTexts[434]); //Player
 
 	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
+	btns[1] = new AdventureMapButton("Host TCP/IP game", "", bind(&CMultiMode::hostTCP, this), 373, 78 + 57*1, "MUBHOST.DEF");
+	btns[2] = new AdventureMapButton("Join TCP/IP game", "", bind(&CMultiMode::joinTCP, this), 373, 78 + 57*2, "MUBJOIN.DEF");
 	btns[6] = new AdventureMapButton(CGI->generaltexth->zelp[288], bind(&CGuiHandler::popIntTotally, ref(GH), this), 373, 424, "MUBCANC.DEF", SDLK_ESCAPE);
 }
 
 void CMultiMode::openHotseat()
 {
 	GH.pushInt(new CHotSeatPlayers(txt->text));
+}
+
+void CMultiMode::hostTCP()
+{
+	playerNames.clear();
+	playerNames.push_back(txt->text);
+	GH.popIntTotally(this);
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_PLAYER));
+}
+
+void CMultiMode::joinTCP()
+{
+
 }
 
 CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
@@ -2206,7 +2326,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 		if(txt[i]->text.length())
 			playerNames.push_back(txt[i]->text);
 
-	GH.popInts(2);
+	GH.popInts(2); //pop MP mode window and this
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame));
 }
 
@@ -2779,7 +2899,7 @@ void CBonusSelection::CRegion::show( SDL_Surface * to )
 }
 
 CSavingScreen::CSavingScreen(bool hotseat)
- : CSelectionScreen(CMenuScreen::saveGame, hotseat)
+ : CSelectionScreen(CMenuScreen::saveGame, hotseat ? CMenuScreen::HOT_SEAT : CMenuScreen::SINGLE_PLAYER)
 {
 	ourGame = mapInfoFromGame();
 	sInfo = *LOCPLINT->cb->getStartInfo();
@@ -2791,3 +2911,7 @@ CSavingScreen::~CSavingScreen()
 
 }
 
+void ChatMessage::apply(CSelectionScreen *selScreen)
+{
+
+}

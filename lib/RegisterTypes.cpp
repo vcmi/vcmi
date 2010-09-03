@@ -1,12 +1,11 @@
-#define VCMI_DLL
+
+
 #include "Connection.h"
 #include "NetPacks.h"
 #include "VCMI_Lib.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CTownHandler.h"
-#include "RegisterTypes.h"
-
 /*
  * RegisterTypes.cpp, part of VCMI engine
  *
@@ -16,6 +15,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#ifndef VCMI_DLL
+	#undef DLL_EXPORT
+	#define DLL_EXPORT
+#endif
+
+#include "RegisterTypes.h"
 
 template<typename Serializer> DLL_EXPORT
 void registerTypes1(Serializer &s)
@@ -172,9 +178,16 @@ void registerTypes3(Serializer &s)
 }
 
 template<typename Serializer> DLL_EXPORT
+void registerTypes4(Serializer &s)
+{
+	s.template registerType<ChatMessage>();
+}
+
+template<typename Serializer> DLL_EXPORT
 void registerTypes(Serializer &s)
 {
 	registerTypes1(s);
 	registerTypes2(s);
 	registerTypes3(s);
+	registerTypes4(s);
 }
