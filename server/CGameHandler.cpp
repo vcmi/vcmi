@@ -60,6 +60,7 @@ CondSh<BattleResult *> battleResult(NULL);
 std::ptrdiff_t randomizer (ptrdiff_t i) {return rand();}
 std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
+template <typename T> class CApplyOnGH;
 
 class CBaseForGHApply
 {
@@ -71,6 +72,7 @@ public:
 		return new CApplyOnGH<U>;
 	}
 };
+
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
@@ -82,7 +84,7 @@ public:
 	}
 };
 
-CApplier<CBaseForGHApply> *applier = NULL;
+static CApplier<CBaseForGHApply> *applier = NULL;
 
 CMP_stack cmpst ;
 

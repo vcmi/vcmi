@@ -60,6 +60,7 @@ void foofoofoo()
 	registerTypes((CTypeList&)*ccc);
 }
 
+template <typename T> class CApplyOnGS;
 
 class CBaseForGSApply
 {
@@ -85,7 +86,7 @@ public:
 	}
 };
 
-CApplier<CBaseForGSApply> *applierGs = NULL;
+static CApplier<CBaseForGSApply> *applierGs = NULL;
 
 class IObjectCaller
 {

@@ -102,6 +102,8 @@ static void clearInfo()
 	playerNames.clear();
 }
 
+template <typename T> class CApplyOnPG;
+
 class CBaseForPGApply
 {
 public:
@@ -123,7 +125,7 @@ public:
 	}
 };
 
-CApplier<CBaseForPGApply> *applier = NULL;
+static CApplier<CBaseForPGApply> *applier = NULL;
 
 void CMapInfo::countPlayers()
 {

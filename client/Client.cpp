@@ -75,7 +75,7 @@ public:
 	}
 };
 
-CApplier<CBaseForCLApply> *applier = NULL;
+static CApplier<CBaseForCLApply> *applier = NULL;
 
 void CClient::init()
 {

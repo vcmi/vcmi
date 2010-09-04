@@ -876,7 +876,7 @@ public:
 
 	~CApplier()
 	{
-		std::map<ui16,T*>::iterator iter;
+		typename std::map<ui16, T*>::iterator iter;
 
 		for(iter = apps.begin(); iter != apps.end(); iter++)
 			delete iter->second;
