@@ -1376,22 +1376,6 @@ CGameState::~CGameState()
 	capitols.clear();
 }
 
-namespace HHLP
-{
-	class HeroRemoverHelper
-	{
-	public:
-		si32 allowedplayer;
-		HeroRemoverHelper(si32 player) : allowedplayer(player)
-		{
-		}
-		bool operator()(const CGHeroInstance * cgh)
-		{
-			return cgh->tempOwner != allowedplayer;
-		}
-	};
-}
-
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
 	VLC->creh->globalEffects = &globalEffects;
@@ -1658,6 +1642,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		CScenarioTravel::STravelBonus bonus =
 			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
 
+
+		std::vector<CGHeroInstance *> Xheroes;
+		if (bonus.type == 8) //hero crossover
+		{
+			Xheroes = campaign->camp->scenarios[bonus.info2].crossoverHeroes;
+		}
+
+		//selecting heroes by type
 		for(int g=0; g<map->objects.size(); ++g)
 		{
 			CGObjectInstance * obj = map->objects[g];
@@ -1668,31 +1660,43 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
 			CGHeroInstance * substitution = NULL;
 
-			std::vector<CGHeroInstance *> Xheroes;
-			if (bonus.type == 8) //hero crossover
+			if(hp->subID != 0xFF) //select by type
 			{
-				Xheroes = campaign->camp->scenarios[bonus.info2].crossoverHeroes;
-				std::remove_if(Xheroes.begin(), Xheroes.end(), HHLP::HeroRemoverHelper(bonus.info1));
-			}
-			else if (bonus.type == 9) //starting hero
-			{
-			}
-
-			if (hp->subID == 0xFF) //select by power
-			{
-				std::sort(Xheroes.begin(), Xheroes.end(), HLP::heroPowerSorter);
-				HLP::replaceHero(this, g, Xheroes[hp->power - 1]);
-			}
-			else //select by type
-			{
+				bool found = false;
 				BOOST_FOREACH(CGHeroInstance * ghi, Xheroes)
 				{
 					if (ghi->subID == hp->subID)
 					{
+						found = true;
 						HLP::replaceHero(this, g, ghi);
+						Xheroes -= ghi;
 						break;
 					}
 				}
+				if (!found)
+				{
+					//TODO: create new hero of this type
+				}
+			}
+		}
+
+		//selecting heroes by power
+
+		std::sort(Xheroes.begin(), Xheroes.end(), HLP::heroPowerSorter);
+		for(int g=0; g<map->objects.size(); ++g)
+		{
+			CGObjectInstance * obj = map->objects[g];
+			if (obj->ID != 214) //not a placeholder
+			{
+				continue;
+			}
+			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
+			CGHeroInstance * substitution = NULL;
+
+			if (hp->subID == 0xFF) //select by power
+			{
+				HLP::replaceHero(this, g, Xheroes[hp->power - 1]);
+				//we don't have to remove hero from Xheroes because it would destroy the order and duplicates shouldn't happen
 			}
 		}
 	}

@@ -2804,6 +2804,13 @@ void CBonusSelection::startMap()
 void CBonusSelection::selectBonus( int id )
 {
 	sInfo.choosenCampaignBonus = id;
+
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
+	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	if (bonDescs[id].type == 8) //hero crossover
+	{
+		setPlayer(sInfo.playerInfos[0], bonDescs[id].info1); //TODO: substitute with appropriate color
+	}
 }
 
 void CBonusSelection::changeDiff( bool increase )

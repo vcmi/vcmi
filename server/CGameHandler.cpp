@@ -4757,7 +4757,15 @@ void CGameHandler::checkLossVictory( ui8 player )
 
 		if(gs->campaign)
 		{
-			gs->campaign->mapConquered(gs->map->heroes);
+			std::vector<CGHeroInstance *> hes;
+			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
+			{
+				if (ghi->tempOwner == 0 /*TODO: insert human player's color*/)
+				{
+					hes.push_back(ghi);
+				}
+			}
+			gs->campaign->mapConquered(hes);
 
 			UpdateCampaignState ucs;
 			ucs.camp = gs->campaign;

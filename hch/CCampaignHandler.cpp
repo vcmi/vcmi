@@ -470,6 +470,7 @@ bool CCampaignScenario::isNotVoid() const
 void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> heroes )
 {
 	crossoverHeroes = heroes;
+
 	
 	if (!(travelOptions.whatHeroKeeps & 1))
 	{
