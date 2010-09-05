@@ -260,8 +260,11 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 				
 				int dotPos = name.find_last_of('.');
-				if ( dotPos != -1 )//extension found
-					name.erase(dotPos);
+				std::string ext = name.substr(dotPos);
+				if (ext == ".MSK" || ext == ".MSG")
+					name[dotPos] = '#';//this files have same name as def - rename to defName#msk
+				else
+					name.erase(dotPos);//filename.ext becomes filename
 				
 				Entry * e = entries.znajdz(name);
 				if(e) //file present in .lod - overwrite its entry
