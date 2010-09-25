@@ -1949,7 +1949,7 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	ret *= (1 + VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); // double growth or plague
 	if(tempOwner != NEUTRAL_PLAYER)
 	{
-		ret *= (1 + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); //Statue of Legion
+		ret *= (100.0f + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT))/100; //Statue of Legion
 		for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
 		{ //+1 for each dwelling
 			if (VLC->creh->creatures[creid]->idNumber == (*it)->creatures[0].second[0])
