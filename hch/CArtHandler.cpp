@@ -673,7 +673,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
 
 	// Statue of Legion - gives only 50% growth
-	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50);
+	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50, -1);
 
 	//Power of the Dragon Father
 	giveArtBonus(134, Bonus::LEVEL_SPELL_IMMUNITY, 4);

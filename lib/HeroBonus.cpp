@@ -223,9 +223,13 @@ void CBonusSystemNode::getParents(TNodes &out, const CBonusSystemNode *root /*= 
 
 void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
-	bonuses.getBonuses(out, selector);
-	FOREACH_CONST_PARENT(p, root ? root : this)
+	//FOREACH_CONST_PARENT(p, root ? root : this) //unwinded macro
+	TCNodes parents;
+	getParents(parents, root ? root : this);
+	BOOST_FOREACH(const CBonusSystemNode *p, parents)
 		p->getBonuses(out, selector, root ? root : this);
+
+	bonuses.getBonuses(out, selector);
 	
 	if(!root)
 		out.limit(*this);
@@ -240,9 +244,13 @@ BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CBonusSy
 
 void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
 {
-	bonuses.getBonuses(out, selector, limit);
-	FOREACH_CONST_PARENT(p, root ? root : this)
+	//FOREACH_CONST_PARENT(p, root ? root : this) //unwinded macro
+	TCNodes parents;
+	getParents(parents, root ? root : this);
+	BOOST_FOREACH(const CBonusSystemNode *p, parents)
 		p->getBonuses(out, selector, limit, root ? root : this);
+
+	bonuses.getBonuses(out, selector, limit);
 
 	if(!root)
 		out.limit(*this);

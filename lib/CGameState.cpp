@@ -4479,24 +4479,34 @@ PlayerState::PlayerState()
 
 void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
-	/*
-	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); ++it)
+	//an issue - this way we get quadratic complexity at the moment all objects are called
+	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
 	{
-		if (*it != root)
-			(*it)->getParents(out, root);
+		out.insert(*it);
 	}
-	for (std::vector<CGTownInstance *>::const_iterator it = towns.begin(); it != towns.end(); ++it)
+	/*
+	for (std::vector<CGTownInstance *>::const_iterator it = towns.begin(); it != towns.end(); it++)
 	{
-		if (*it != root)
-			(*it)->getParents(out, root);
+			out.insert(*it);
 	}
 	*/
-	//TODO - dwellings
+	if (root != this) 
+	{
+		out.erase(out.find(root)); //don't use yourself
+		root = this; //get all nodes ONLY once - see Armed Instance::getParents
+	}
 }
 
 void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
-	CBonusSystemNode::getBonuses(out, selector, root);
+	if (Selector::matchesType(selector, Bonus::CREATURE_GROWTH_PERCENT))
+		CBonusSystemNode::getBonuses(out, selector, this); //no recursive loops for PlayerState
+	/* //universal solution
+	if (root == this) // called directly
+		CBonusSystemNode::getBonuses(out, selector, this); //no recursive loops for PlayerState
+	else //unused yet
+		CBonusSystemNode::getBonuses(out, selector && Selector::effectRange(Bonus::GLOBAL), root); //only very specific bonuses can be propagated this way
+	*/
 }
 
 InfoAboutHero::InfoAboutHero()

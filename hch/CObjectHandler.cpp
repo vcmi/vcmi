@@ -1493,11 +1493,12 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 
 void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
-	CArmedInstance::getParents(out, root);// 	if(visitedTown && source != this && source != visitedTown)
-// 		out.insert(visitedTown);
+	CArmedInstance::getParents(out, root);
 
 	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown)
-		out.insert(visitedTown);
+	{
+			out.insert(visitedTown);
+	}
 
 	for (std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
 		out.insert(VLC->arth->artifacts[i->second]);
@@ -1513,7 +1514,8 @@ void CGHeroInstance::pushPrimSkill(int which, int val)
 void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
 #define FOREACH_OWNER_TOWN(town) if(const PlayerState *p = cb->getPlayerState(tempOwner)) BOOST_FOREACH(const CGTownInstance *town, p->towns)
-	CArmedInstance::getBonuses(out, selector, root);
+
+	CArmedInstance::getBonuses(out, selector, root); ///that's not part of macro!
 
 	//TODO eliminate by moving secondary skills effects to bonus system
 	if(Selector::matchesType(selector, Bonus::LUCK))
@@ -6538,10 +6540,10 @@ void CArmedInstance::randomizeArmy(int type)
 void CArmedInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
 	const PlayerState *p = cb->getPlayerState(tempOwner);
-	if(p)
+	if (p && p != root) 
 		out.insert(p); //hero always inherits bonuses from player
 
-	out.insert(&cb->gameState()->globalEffects); //global effect are always active I believe
+	out.insert(&cb->gameState()->globalEffects); //global effects are always active I believe
 
 	if(battle)
 		out.insert(battle);
@@ -6604,6 +6606,12 @@ void CArmedInstance::getBonuses(BonusList &out, const CSelector &selector, const
 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
 		}
 	}
+}
+
+int CArmedInstance::valOfGlobalBonuses(Bonus::BonusType type, int subtype) const
+{
+	//if (tempOwner != NEUTRAL_PLAYER)
+	return cb->gameState()->players[tempOwner].valOfBonuses(type, subtype);
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const

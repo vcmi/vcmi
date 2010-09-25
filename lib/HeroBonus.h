@@ -201,7 +201,8 @@ struct DLL_EXPORT Bonus
 		NO_LIMIT = 0, 
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
 		ONLY_ALLIED_ARMY, ONLY_ENEMY_ARMY,
-		PLAYR_HEROES
+		PLAYR_HEROES,
+		GLOBAL //Statue of Legion etc.
 	};
 
 	enum ValueType
@@ -291,6 +292,18 @@ struct DLL_EXPORT Bonus
 	const CSpell * sourceSpell() const;
 
 	std::string Description() const;
+};
+
+struct DLL_EXPORT stackExperience : public Bonus
+{
+	std::vector<ui32> expBonuses; // variations for levels 1-10, copied to val field;
+	bool enable; //if true - turns ability on / off for zero value
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<Bonus&>(this);
+		h & expBonuses & enable;
+	}
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

@@ -228,6 +228,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	int valOfGlobalBonuses(Bonus::BonusType type, int subtype) const; //used only for castle interface
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();

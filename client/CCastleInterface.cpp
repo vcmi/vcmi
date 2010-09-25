@@ -1138,7 +1138,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		CCastleInterface * ci=LOCPLINT->castleInt;
-		std::set<si32> bld =ci->town->builtBuildings;
+		const CGTownInstance * town = ci->town;
+		std::set<si32> bld = ci->town->builtBuildings;
 		int summ=0, cnt=0;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
 		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->nameSing);
@@ -1156,8 +1157,11 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 			else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
 
-			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr,
+			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //plague
 				summ * CGI->creh->creatures[crid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
+
+			summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
+				summ * ci->town->valOfGlobalBonuses(Bonus::CREATURE_GROWTH_PERCENT, -1)/100); //Statue of Legion 
 
 			if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
 			if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
