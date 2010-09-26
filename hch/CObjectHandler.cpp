@@ -4890,10 +4890,14 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	{
 		std::set<ui32> spellsToGive;
 		iw.components.clear();
-		for(int i=0; i<spells.size(); i++)
+		std::vector<CSpell> * sp = &VLC->spellh->spells;
+		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
 		{
-			iw.components.push_back(Component(Component::SPELL,spells[i],0,0));
-			spellsToGive.insert(spells[i]);
+			if ((*sp)[*i].level <= h->getSecSkillLevel(7) + 2) //enough wisdom
+			{
+				iw.components.push_back(Component(Component::SPELL,*i,0,0));
+				spellsToGive.insert(*i);
+			}
 		}
 		if(spellsToGive.size())
 		{
@@ -5217,7 +5221,8 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	int ssl = h->getSecSkillLevel(bid); //current sec skill level, used if bonusType == 1
 	if((type == 1
 			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)))) //hero doesn't have a spellbook or already knows the spell
+		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid) || (VLC->spellh->spells[bid].level > h->getSecSkillLevel(7) + 2)
+		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = 0;
 		bid = ran() % PRIMARY_SKILLS;
