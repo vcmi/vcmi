@@ -1182,17 +1182,18 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 			summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
 
 			const CGHeroInstance * ch = ci->town->garrisonHero;
+			BonusList bl;
 			for (cnt = 0; cnt<2; cnt++) // "loop" to avoid copy-pasting code
 			{
 				if(ch)
 				{
-					for(std::list<Bonus>::const_iterator i=ch->bonuses.begin(); i != ch->bonuses.end(); i++)
-						if(i->type == Bonus::CREATURE_GROWTH && i->subtype == level)
-							if (i->source == Bonus::ARTIFACT)
-								summ+=AddToString(CGI->arth->artifacts[i->id]->Name()+" %+d",descr,i->val);
+					ch->getBonuses(bl, Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) && Selector::sourceType(Bonus::ARTIFACT), ch);
 				};
 				ch = ci->town->visitingHero;
 			};
+			if (bl.size())
+				summ+=AddToString (CGI->arth->artifacts[bl.front().id]->Name()+" %+d", descr, bl.totalValue());
+			
 			//TODO: player bonuses
 
 			if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
