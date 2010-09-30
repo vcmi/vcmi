@@ -181,9 +181,14 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 	if(ret)
 		return ret;
 
-	FOREACH_PARENT(p, this)
-		if(ret = p->getBonus(selector))
+	//FOREACH_PARENT(p, this)
+	TNodes parents;
+	getParents (parents, this);
+	BOOST_FOREACH (CBonusSystemNode *pname, parents)
+	{
+		if(ret = pname->getBonus(selector))
 			return ret;
+	}
 
 	return NULL;
 }

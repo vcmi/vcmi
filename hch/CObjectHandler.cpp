@@ -1495,7 +1495,7 @@ void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= N
 {
 	CArmedInstance::getParents(out, root);
 
-	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown)
+	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown && !dynamic_cast<const PlayerState*>(root))
 	{
 			out.insert(visitedTown);
 	}
@@ -1749,7 +1749,7 @@ void CGDwelling::newTurn() const
 		{
 			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
-			if(false /*accumulate creatures*/)
+			if (DWELLINGS_ACCUMULATE_CREATURES)
 				sac.creatures[i].first += amount;
 			else
 				sac.creatures[i].first = amount;

@@ -635,7 +635,7 @@ public:
 	si32 gainedArtifact; //ID of artifact gained to hero, -1 if none
 	ui8 neverFlees; //if true, the troops will never flee
 	ui8 notGrowingTeam; //if true, number of units won't grow
-	ui32 temppower; //used to handle fractional stack growth for tiny stacks
+	ui64 temppower; //used to handle fractional stack growth for tiny stacks
 
 	void fight(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
