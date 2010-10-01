@@ -52,6 +52,50 @@ public:
 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 };
 
+class DLL_EXPORT IModableArt //artifact which can have different properties, such as scroll or banner
+{
+public:
+	virtual void Init() = 0;
+};
+
+class DLL_EXPORT CScroll : public CArtifact, public IModableArt // Spell Scroll
+{
+public:
+	spelltype spellid;
+	void Init(){};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifact&>(*this);
+		h & spellid;
+	}
+};
+
+class DLL_EXPORT CCustomizableArt : public CArtifact, public IModableArt // Warlord's Banner with multiple options
+{
+public:
+	ui8 mode;
+	void Init(){};
+	void SelectMode (int mod){};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifact&>(*this);
+		h & mode;
+	}
+};
+
+class DLL_EXPORT CCommanderArt : public CArtifact, public IModableArt // Growing with time
+{
+public:
+	ui32 level;
+	void Init(){};
+	void Upgrade(){level++;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifact&>(*this);
+		h & level;
+	}
+};
+
 class DLL_EXPORT CArtHandler //handles artifacts
 {
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL);

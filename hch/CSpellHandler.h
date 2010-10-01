@@ -16,7 +16,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-typedef ui16 spelltype;
 
 class DLL_EXPORT CSpell
 {
