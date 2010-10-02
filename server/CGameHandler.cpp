@@ -1220,9 +1220,14 @@ void CGameHandler::newTurn()
 			{
 				if((**j).creatureDwelling(k))//there is dwelling (k-level)
 				{
-					sac.creatures[k].first += (**j).creatureGrowth(k);
-					if(gs->getDate(0) == 1) //first day of game: use only basic growths
-						amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
+					if (n.specialWeek == NewTurn::PLAGUE)
+						sac.creatures[k].first = (**j).creatures[k].first / 2; //halve their number, no growth
+					else
+					{
+						sac.creatures[k].first += (**j).creatureGrowth(k);
+						if(gs->getDate(0) == 1) //first day of game: use only basic growths
+							amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
+					}
 				}
 			}
 			//creatures from town events

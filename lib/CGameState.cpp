@@ -969,7 +969,8 @@ std::vector<si32> CStack::activeSpells() const
 	BonusList spellEffects = getSpellBonuses();
 	for(BonusList::const_iterator it = spellEffects.begin(); it != spellEffects.end(); it++)
 	{
-		ret.push_back(it->id);
+		if (!vstd::contains(ret, it->id)) //do not duplicate spells with multiple effects
+			ret.push_back(it->id);
 	}
 
 	return ret;

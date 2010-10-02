@@ -1052,7 +1052,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CArmedInstance&>(*this);
 		h & index & multiplier & artifacts & daycounter & bc;
 	}
 };

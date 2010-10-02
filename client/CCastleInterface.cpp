@@ -1128,7 +1128,7 @@ int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to,
 {
 	if (!numb)
 		return 0;//do not add string if 0
-	boost::algorithm::replace_first(from,"%+d", "+"+boost::lexical_cast<std::string>(numb));
+	boost::algorithm::replace_first(from,"%+d", (numb > 0 ? "+" : "")+boost::lexical_cast<std::string>(numb)); //negative values don't need "+"
 	to+="\n"+from;
 	return numb;
 }
@@ -1157,7 +1157,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 			else if ( bld.find(8)!=bld.end())//else if citadel+50% to basic
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][8]->Name()+" %+d",descr,summ/2);
 
-			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //plague
+			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //double growth or plague
 				summ * CGI->creh->creatures[crid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
 
 			summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
