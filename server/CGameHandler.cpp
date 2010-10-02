@@ -1041,6 +1041,8 @@ void CGameHandler::newTurn()
 				n.specialWeek = NewTurn::NORMAL;
 		}
 	}
+	else
+		n.specialWeek = NewTurn::NO_ACTION; //don't remove bonuses
 
 	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
 

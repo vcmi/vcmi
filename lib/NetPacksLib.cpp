@@ -648,30 +648,27 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 			b.duration = Bonus::ONE_WEEK;
 			b.source = Bonus::SPECIAL_WEEK;
 			b.effectRange = Bonus::NO_LIMIT;
+			b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
 			switch (specialWeek)
 			{
 				case DOUBLE_GROWTH:
 					b.val = 100;
 					b.type = Bonus::CREATURE_GROWTH_PERCENT;
 					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
-					b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
 					break;
 				case BONUS_GROWTH:
 					b.val = 5;
 					b.type = Bonus::CREATURE_GROWTH;
 					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
-					b.valType = Bonus::BASE_NUMBER;
 					break;
 				case DEITYOFFIRE:
 					b.val = 15;
 					b.type = Bonus::CREATURE_GROWTH;
 					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
-					b.valType = Bonus::BASE_NUMBER;
 					break;
 				case PLAGUE:
 					b.val = -100; //no basic creatures
 					b.type = Bonus::CREATURE_GROWTH_PERCENT;
-					b.valType = Bonus::BASE_NUMBER;
 					break;
 				default:
 					b.val = 0;

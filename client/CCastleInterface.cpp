@@ -1161,7 +1161,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				summ * CGI->creh->creatures[crid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
 
 			summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
-				summ * ci->town->valOfGlobalBonuses(Bonus::CREATURE_GROWTH_PERCENT, -1)/100); //Statue of Legion 
+				summ * ci->town->valOfGlobalBonuses
+				(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion 
 
 			if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
 			if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))

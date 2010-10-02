@@ -1949,7 +1949,8 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	ret *= (1 + VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); // double growth or plague
 	if(tempOwner != NEUTRAL_PLAYER)
 	{
-		ret *= (100.0f + cb->gameState()->players[tempOwner].valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT))/100; //Statue of Legion
+		ret *= (100.0f + cb->gameState()->players[tempOwner].valOfBonuses
+			(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT)))/100; //Statue of Legion
 		for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
 		{ //+1 for each dwelling
 			if (VLC->creh->creatures[creid]->idNumber == (*it)->creatures[0].second[0])
@@ -6613,10 +6614,10 @@ void CArmedInstance::getBonuses(BonusList &out, const CSelector &selector, const
 	}
 }
 
-int CArmedInstance::valOfGlobalBonuses(Bonus::BonusType type, int subtype) const
+int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
 {
 	//if (tempOwner != NEUTRAL_PLAYER)
-	return cb->gameState()->players[tempOwner].valOfBonuses(type, subtype);
+	return cb->gameState()->players[tempOwner].valOfBonuses(selector, this);
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
