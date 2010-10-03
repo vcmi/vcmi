@@ -93,7 +93,7 @@ public:
 	virtual void heroVisitCastle(int obj, int heroID)=0;
 	virtual void stopHeroVisitCastle(int obj, int heroID)=0;
 	virtual void giveHeroArtifact(int artid, int hid, int position)=0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
-	virtual bool removeArtifact(int artid, int hid) = 0;
+	virtual bool removeArtifact(CArtifact* art, int hid) = 0;
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL)=0; //use hero=NULL for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle

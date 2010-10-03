@@ -17,6 +17,7 @@
  *
  */
 class CDefHandler;
+class CArtifact;
 
 class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
 {
@@ -26,8 +27,9 @@ public:
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	bool isBig () const;
-	bool fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slot) const;
-	bool canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const;
+	bool isModable () const;
+	bool fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slot) const;
+	bool canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, ui32 artifactID) const;
 	void addBonusesTo (BonusList *otherBonuses) const;
 	void removeBonusesFrom (BonusList *otherBonuses) const;
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
@@ -61,8 +63,9 @@ public:
 class DLL_EXPORT CScroll : public CArtifact, public IModableArt // Spell Scroll
 {
 public:
+	CScroll(spelltype sid){spellid = sid;};
 	spelltype spellid;
-	void Init(){};
+	void Init();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifact&>(*this);
@@ -116,8 +119,8 @@ public:
 	void getAllowed(std::vector<CArtifact*> &out, int flags);
 	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID);
-	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
+	void equipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art);
+	void unequipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID);
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();

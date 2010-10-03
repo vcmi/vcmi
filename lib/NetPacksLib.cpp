@@ -451,11 +451,11 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
-	for(std::map<ui16,ui32>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
+	for(std::map<ui16,CArtifact*>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
 		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
 			unequiped.push_back(i->second);
 
-	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
 			equiped.push_back(i->second);
 
@@ -464,7 +464,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 	h->artifWorn = artifWorn;
 }
 
-DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
+DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
 {
 	if(art < 0)
 	{
@@ -477,14 +477,14 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 	{
 		if (pos < 19) 
 		{
-			VLC->arth->equipArtifact(artifWorn, pos, (ui32) art);
+			VLC->arth->equipArtifact(artifWorn, pos, art);
 		} 
 		else // Goes into the backpack.
 		{ 
 			if(pos - 19 < artifacts.size())
-				artifacts.insert(artifacts.begin() + (pos - 19), art);
+				artifacts.insert(artifacts.begin() + (pos - 19), const_cast<CArtifact*>(art));
 			else
-				artifacts.push_back(art);
+				artifacts.push_back(const_cast<CArtifact*>(art));
 		}
 	}
 }

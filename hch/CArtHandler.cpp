@@ -47,25 +47,31 @@ bool CArtifact::isBig () const
 	return VLC->arth->isBigArtifact(id);
 }
 
+bool CArtifact::isModable () const
+{
+	return (bool)dynamic_cast<const IModableArt *>(this);
+}
+
 /**
  * Checks whether the artifact fits at a given slot.
  * @param artifWorn A hero's set of worn artifacts.
  */
-bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) const
+bool CArtifact::fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slotID) const
 {
 	if (!vstd::contains(possibleSlots, slotID))
 		return false;
 
 	// Can't put an artifact in a locked slot.
-	std::map<ui16, ui32>::const_iterator it = artifWorn.find(slotID);
-	if (it != artifWorn.end() && it->second == 145)
+	std::map<ui16, CArtifact*>::const_iterator it = artifWorn.find(slotID);
+	if (it != artifWorn.end() && it->second->id == 145)
 		return false;
 
 	// Check if a combination artifact fits.
 	// TODO: Might want a more general algorithm?
 	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
-	if (constituents != NULL) {
-		std::map<ui16, ui32> tempArtifWorn = artifWorn;
+	if (constituents != NULL)
+	{
+		std::map<ui16, CArtifact*> tempArtifWorn = artifWorn;
 		const ui16 ringSlots[] = {6, 7};
 		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
 		int rings = 0;
@@ -108,7 +114,7 @@ bool CArtifact::fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slotID) cons
 	return true;
 }
 
-bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const
+bool CArtifact::canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, ui32 artifactID) const
 {
 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
 		return false;
@@ -119,9 +125,9 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 ar
 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
 	{
 		bool found = false;
-		for (std::map<ui16, ui32>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+		for (std::map<ui16, CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
 		{
-			if (it->second == constituentID) 
+			if (it->second->id == constituentID) 
 			{
 				found = true;
 				break;
@@ -174,6 +180,11 @@ void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/
 	}
 }
 
+void CScroll::Init()
+{
+	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL,0, id, spellid, Bonus::INDEPENDENT_MAX));
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
@@ -185,7 +196,8 @@ CArtHandler::CArtHandler()
 
 CArtHandler::~CArtHandler()
 {
-	for (std::vector<CArtifact*>::iterator it = artifacts.begin(); it != artifacts.end(); ++it) {
+	for (std::vector<CArtifact*>::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
+	{
 		delete (*it)->constituents;
 		delete (*it)->constituentOf;
 	}
@@ -718,14 +730,14 @@ void CArtHandler::clear()
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::equipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID)
+void CArtHandler::equipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slotID, const CArtifact* newArtifact)
 {
 	unequipArtifact(artifWorn, slotID);
 
-	const CArtifact &artifact = *artifacts[artifactID];
+	const CArtifact &artifact = *newArtifact;
 
 	// Add artifact.
-	artifWorn[slotID] = artifactID;
+	artifWorn[slotID] = const_cast<CArtifact*>(newArtifact);
 
 	// Add locks, in reverse order of being removed.
 	if (artifact.constituents != NULL) 
@@ -746,7 +758,7 @@ void CArtHandler::equipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui
 				{
 					if (!vstd::contains(artifWorn, slot)) 
 					{
-						artifWorn[slot] = 145;
+						artifWorn[slot] = VLC->arth->artifacts[145]; //lock
 						break;
 					}
 				}
@@ -761,12 +773,12 @@ void CArtHandler::equipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID, ui
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::unequipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID)
+void CArtHandler::unequipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slotID)
 {
 	if (!vstd::contains(artifWorn, slotID))
 		return;
 
-	const CArtifact &artifact = *artifacts[artifWorn[slotID]];
+	const CArtifact &artifact = *artifWorn[slotID];
 
 	// Remove artifact, if it's not already removed.
 	artifWorn.erase(slotID);
@@ -788,7 +800,7 @@ void CArtHandler::unequipArtifact(std::map<ui16, ui32> &artifWorn, ui16 slotID)
 			{
 				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) 
 				{
-					if (vstd::contains(artifWorn, slot) && artifWorn[slot] == 145) 
+					if (vstd::contains(artifWorn, slot) && artifWorn[slot]->id == 145) 
 					{
 						artifWorn.erase(slot);
 						break;

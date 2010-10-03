@@ -523,7 +523,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			{
 				BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 				{
-					cgh->artifacts -= g;
+					cgh->artifacts -= VLC->arth->artifacts[g];
 				}
 			}
 		}

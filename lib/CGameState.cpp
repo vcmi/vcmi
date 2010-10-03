@@ -1938,7 +1938,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				CGHeroInstance *hero = k->second.heroes[0];
 				std::vector<ui16>::iterator slot = vstd::findFirstNot (hero->artifWorn, toGive->possibleSlots);
 				if(slot != toGive->possibleSlots.end())
-					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive->id);
+					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive);
 				else
  					hero->giveArtifact(toGive->id);
 			}
