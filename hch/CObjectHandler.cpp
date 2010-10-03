@@ -3591,24 +3591,36 @@ void CGArtifact::initObj()
 	blockVisit = true;
 	if(ID == 5)
 		hoverName = VLC->arth->artifacts[subID]->Name();
+	if(ID == 93)
+		subID = 1;
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!stacksCount())
 	{
-		if(ID == 5)
+		InfoWindow iw;
+		iw.soundID = soundBase::treasure;
+		iw.player = h->tempOwner;
+		switch(ID)
 		{
-			InfoWindow iw;
-			iw.soundID = soundBase::treasure;
-			iw.player = h->tempOwner;
-			iw.components.push_back(Component(4,subID,0,0));
-			if(message.length())
-				iw.text <<  message;
-			else
-				iw.text << std::pair<ui8,ui32>(12,subID);
-			cb->showInfoDialog(&iw);
+			case 5:
+			{
+				iw.components.push_back(Component(4,subID,0,0));
+				if(message.length())
+					iw.text <<  message;
+				else
+					iw.text << std::pair<ui8,ui32>(12,subID);
+			}
+			break;
+			case 93:
+				iw.components.push_back (Component(Component::SPELL, spell,0,0));
+				iw.text.addTxt (MetaString::ADVOB_TXT,135);
+				iw.text.addReplacement(MetaString::SPELL_NAME, spell);
+			break;
+
 		}
+		cb->showInfoDialog(&iw);
 		pick(h);
 	}
 	else
@@ -3629,15 +3641,22 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if(ID == 5) //Artifact
-	{
-		if (VLC->arth->artifacts[subID]->isModable()) //TODO: create new instance, initialize it
-		{}
-		cb->giveHeroArtifact(subID,h->id,-2);
+	if (VLC->arth->artifacts[subID]->isModable())
+	{//TODO: create new instance, initialize it
+		if (ID == 93) //scroll
+		{
+			NewArtifact na;
+			na.value = spell;
+			na.artid = subID;
+			cb->sendAndApply(&na);
+			cb->giveNewArtifact(h->id, -2);
+		}
+		else
+			cb->giveNewArtifact(h->id, -2);; //nothing / zero / empty by default
 	}
-	else if(ID == 93) // Spell scroll 
+	else
 	{
-		//TODO: support for the spell scroll
+		cb->giveHeroArtifact(subID,h->id,-2);
 	}
 	cb->removeObject(id);
 }

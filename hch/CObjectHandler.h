@@ -47,6 +47,7 @@ struct InfoWindow;
 struct Component;
 struct BankConfig;
 struct UpdateHeroSpeciality;
+struct NewArtifact;
 class CGBoat;
 
 class DLL_EXPORT CQuest

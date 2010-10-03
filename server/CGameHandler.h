@@ -143,6 +143,7 @@ public:
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
+	void giveNewArtifact(int hid, int position);
 	void moveArtifact(int hid, int oldPosition, int destPos);
 	bool removeArtifact(CArtifact* art, int hid);
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL); //use hero=NULL for no hero

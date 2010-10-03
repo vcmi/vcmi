@@ -455,9 +455,11 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
 			unequiped.push_back(i->second);
 
-	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+	for(std::map<ui16,CArtifact*>::iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
+		{
 			equiped.push_back(i->second);
+		}
 
 	//update hero data
 	h->artifacts = artifacts;
@@ -584,6 +586,31 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	o->initObj();
 	assert(o->defInfo);
 }
+DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
+{
+	CArtifact * art;
+
+	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
+	switch (itr->second)
+	{
+			case 1:
+				art = new CScroll;
+				break;
+			case 2:
+				art = new CCustomizableArt;
+				break;
+			case 3:
+				art = new CCommanderArt;
+				break;
+			default:
+				tlog1<<"unhandled customizable artifact!\n";
+	};
+	*art = *(VLC->arth->artifacts[artid]); //copy properties
+	static_cast<IModableArt*>(art)->ID = gs->map->artInstances.size();
+	art->SetProperty (value); //init scroll, banner, commander art
+	art->Init(); //set bonuses for new instance
+	gs->map->artInstances.push_back(static_cast<IModableArt*>(art));
+}
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
@@ -630,11 +657,6 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 			h->bonuses.remove_if(Bonus::OneDay);
 
-		if(resetBuilded) //reset amount of structures set in this turn in towns
-		{
-			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
-				t->builded = 0;
-		}
 		if(gs->getDate(1)) //new week, Monday that is
 		{
 			for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
@@ -689,6 +711,11 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				i->second.daysWithoutCastle++;
 
 			i->second.bonuses.remove_if(Bonus::OneDay);
+		}
+		if(resetBuilded) //reset amount of structures set in this turn in towns
+		{
+			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
+				t->builded = 0;
 		}
 	}
 }

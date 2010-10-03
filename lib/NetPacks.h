@@ -694,6 +694,21 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 	}
 };
 
+struct NewArtifact : public CPackForClient
+{
+	NewArtifact(){type = 520;};
+	//void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	si32 artid;
+	si32 value; //initializing parameter
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artid & value;
+	}
+};
+
 struct NewTurn : public CPackForClient //101
 {
 	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, CUSTOM, NO_ACTION, NONE};

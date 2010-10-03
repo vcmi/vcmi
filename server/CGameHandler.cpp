@@ -1211,6 +1211,7 @@ void CGameHandler::newTurn()
 		NewTurn n2; //just to handle  creature growths after bonuses are applied
 		n2.specialWeek = NewTurn::NO_ACTION;
 		n2.day = gs->day;
+		n2.resetBuilded = true;
 
 		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{
@@ -2239,6 +2240,52 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 				{
 					//we've found a free suitable slot
 					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], VLC->arth->artifacts[artid]);
+					break;
+				}
+			}
+			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
+				sha.artifacts.push_back(art);
+		}
+		else if (!art->isBig()) //should be -1 => put artifact into backpack
+		{
+			sha.artifacts.push_back(art);
+		}
+	}
+	else
+	{
+		if(!vstd::contains(sha.artifWorn,ui16(position)))
+		{
+			VLC->arth->equipArtifact(sha.artifWorn, position, art);
+		}
+		else if (!art->isBig())
+		{
+			sha.artifacts.push_back(art);
+		}
+	}
+
+	sendAndApply(&sha);
+}
+void CGameHandler::giveNewArtifact(int hid, int position)
+{
+	const CGHeroInstance* h = getHero(hid);
+	CArtifact * art = gs->map->artInstances.back(); //we use it only to immediatelly equip new artifact
+
+	SetHeroArtifacts sha;
+	sha.hid = hid;
+	sha.artifacts = h->artifacts;
+	sha.artifWorn = h->artifWorn;
+
+	if(position<0)
+	{
+		if(position == -2)
+		{
+			int i;
+			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
+			{
+				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
+				{
+					//we've found a free suitable slot
+					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], art);
 					break;
 				}
 			}

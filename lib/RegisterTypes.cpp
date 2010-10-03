@@ -137,6 +137,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<AdvmapSpellCast>();
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
+	s.template registerType<NewArtifact>();
 	s.template registerType<SetAvailableArtifacts>();
 
 	s.template registerType<SaveGame>();

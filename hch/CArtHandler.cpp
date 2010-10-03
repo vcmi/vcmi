@@ -10,6 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random/linear_congruential.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
@@ -182,7 +183,8 @@ void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/
 
 void CScroll::Init()
 {
-	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL,0, id, spellid, Bonus::INDEPENDENT_MAX));
+	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 0, id, spellid, Bonus::INDEPENDENT_MAX));
+	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 }
 
 CArtHandler::CArtHandler()
@@ -192,6 +194,7 @@ CArtHandler::CArtHandler()
 	// War machines are the default big artifacts.
 	for (ui32 i = 3; i <= 6; i++)
 		bigArtifacts.insert(i);
+	modableArtifacts = boost::assign::map_list_of(1, 1)(146,3)(147,3)(148,3)(150,3)(151,3)(152,3)(154,3)(156,2);
 }
 
 CArtHandler::~CArtHandler()
@@ -217,9 +220,28 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	}
 	VLC->generaltexth->artifNames.resize(ARTIFACTS_QUANTITY);
 	VLC->generaltexth->artifDescriptions.resize(ARTIFACTS_QUANTITY);
+	std::map<ui32,ui8>::iterator itr;
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
-		CArtifact *art = new CArtifact;
+		CArtifact *art;
+		if ((itr = modableArtifacts.find(i)) != modableArtifacts.end())
+		{
+			switch (itr->second)
+			{
+				case 1:
+					art = new CScroll;
+					break;
+				case 2:
+					art = new CCustomizableArt;
+					break;
+				case 3:
+					art = new CCommanderArt;
+					break;
+			};
+		}
+		else
+			art = new CArtifact;
+
 		CArtifact &nart = *art;
 		nart.id=i;
 		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
