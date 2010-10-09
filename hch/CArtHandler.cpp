@@ -183,7 +183,7 @@ void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/
 
 void CScroll::Init()
 {
-	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 0, id, spellid, Bonus::INDEPENDENT_MAX));
+	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 }
 
@@ -756,32 +756,35 @@ void CArtHandler::equipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slot
 {
 	unequipArtifact(artifWorn, slotID);
 
-	const CArtifact &artifact = *newArtifact;
-
-	// Add artifact.
-	artifWorn[slotID] = const_cast<CArtifact*>(newArtifact);
-
-	// Add locks, in reverse order of being removed.
-	if (artifact.constituents != NULL) 
+	if (newArtifact) //false when artifact is NULL -> slot set to empty
 	{
-		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
+		const CArtifact &artifact = *newArtifact;
 
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+		// Add artifact.
+		artifWorn[slotID] = const_cast<CArtifact*>(newArtifact);
+
+		// Add locks, in reverse order of being removed.
+		if (artifact.constituents != NULL) 
 		{
-			const CArtifact &constituent = *artifacts[constituentID];
+			bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
 			{
-				destConsumed = true;
-			} 
-			else 
-			{
-				BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
+				const CArtifact &constituent = *artifacts[constituentID];
+
+				if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
 				{
-					if (!vstd::contains(artifWorn, slot)) 
+					destConsumed = true;
+				} 
+				else 
+				{
+					BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
 					{
-						artifWorn[slot] = VLC->arth->artifacts[145]; //lock
-						break;
+						if (!vstd::contains(artifWorn, slot)) 
+						{
+							artifWorn[slot] = VLC->arth->artifacts[145]; //lock
+							break;
+						}
 					}
 				}
 			}

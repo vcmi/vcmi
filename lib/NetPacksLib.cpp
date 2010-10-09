@@ -588,7 +588,7 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 }
 DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 {
-	CArtifact * art;
+	IModableArt * art;
 
 	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
 	switch (itr->second)
@@ -605,11 +605,11 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 			default:
 				tlog1<<"unhandled customizable artifact!\n";
 	};
-	*art = *(VLC->arth->artifacts[artid]); //copy properties
-	static_cast<IModableArt*>(art)->ID = gs->map->artInstances.size();
+	*art = *static_cast<IModableArt*>(VLC->arth->artifacts[artid]); //copy properties
+	art->ID = gs->map->artInstances.size();
 	art->SetProperty (value); //init scroll, banner, commander art
 	art->Init(); //set bonuses for new instance
-	gs->map->artInstances.push_back(static_cast<IModableArt*>(art));
+	gs->map->artInstances.push_back(art);
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
