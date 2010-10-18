@@ -15,6 +15,7 @@
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
+#include "../hch/CAnimation.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CGeneralTextHandler.h"
@@ -3868,19 +3869,19 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	// std::swap(save->imgs[0][0], load->imgs[0][1]);
 
 	save = new AdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), pos.x+357, pos.y+298, "SOSAVE.DEF", SDLK_s);
-	std::swap(save->imgs[0][0], save->imgs[0][1]);
+	save->imgs[0]->fixButtonPos();
 
 	// restart = new AdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
 	// std::swap(save->imgs[0][0], restart->imgs[0][1]);
 
 	mainMenu = new AdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+357, pos.y+357, "SOMAIN.DEF", SDLK_m);
-	std::swap(mainMenu->imgs[0][0], mainMenu->imgs[0][1]);
+	mainMenu->imgs[0]->fixButtonPos();
 
 	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), pos.x+246, pos.y+415, "soquit.def", SDLK_q);
-	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
+	quitGame->imgs[0]->fixButtonPos();
 
 	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), pos.x+357, pos.y+415, "soretrn.def", SDLK_RETURN);
-	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
+	backToMap->imgs[0]->fixButtonPos();
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);

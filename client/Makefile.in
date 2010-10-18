@@ -59,6 +59,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CGameInterface.$(OBJEXT) \
 	vcmiclient-CThreadHelper.$(OBJEXT) \
+	vcmiclient-CAnimation.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CSndHandler.$(OBJEXT) \
@@ -280,7 +281,8 @@ vcmiclient_SOURCES = \
 	../CThreadHelper.h \
 	../StartInfo.h \
 	../global.h \
-	../hch/CAmbarCendamo.h \
+	../hch/CAnimation.h \
+	../hch/CAnimation.cpp \
 	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
@@ -437,6 +439,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-AdventureMapButton.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAdvmapInterface.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBitmapHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCallback.Po@am__quote@
@@ -538,6 +541,22 @@ vcmiclient-CThreadHelper.obj: ../CThreadHelper.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CThreadHelper.cpp' object='vcmiclient-CThreadHelper.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CThreadHelper.obj `if test -f '../CThreadHelper.cpp'; then $(CYGPATH_W) '../CThreadHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/../CThreadHelper.cpp'; fi`
+
+vcmiclient-CAnimation.o: ../hch/CAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CAnimation.Tpo -c -o vcmiclient-CAnimation.o `test -f '../hch/CAnimation.cpp' || echo '$(srcdir)/'`../hch/CAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CAnimation.Tpo $(DEPDIR)/vcmiclient-CAnimation.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CAnimation.cpp' object='vcmiclient-CAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CAnimation.o `test -f '../hch/CAnimation.cpp' || echo '$(srcdir)/'`../hch/CAnimation.cpp
+
+vcmiclient-CAnimation.obj: ../hch/CAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CAnimation.Tpo -c -o vcmiclient-CAnimation.obj `if test -f '../hch/CAnimation.cpp'; then $(CYGPATH_W) '../hch/CAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CAnimation.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CAnimation.Tpo $(DEPDIR)/vcmiclient-CAnimation.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CAnimation.cpp' object='vcmiclient-CAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CAnimation.obj `if test -f '../hch/CAnimation.cpp'; then $(CYGPATH_W) '../hch/CAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CAnimation.cpp'; fi`
 
 vcmiclient-CDefHandler.o: ../hch/CDefHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.o `test -f '../hch/CDefHandler.cpp' || echo '$(srcdir)/'`../hch/CDefHandler.cpp

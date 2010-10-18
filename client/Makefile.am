@@ -13,7 +13,8 @@ vcmiclient_SOURCES =  \
 	../CThreadHelper.h \
 	../StartInfo.h \
 	../global.h \
-	../hch/CAmbarCendamo.h \
+	../hch/CAnimation.h \
+	../hch/CAnimation.cpp \
 	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \

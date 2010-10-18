@@ -17,7 +17,7 @@
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
-class CDefEssential;
+class CAnimation;
 
 namespace config{struct ButtonInfo;}
 
@@ -41,7 +41,7 @@ public:
 	bool notFreeButton; //TODO: comment me
 	CIntObject * ourObj; // "owner"
 	int state; //TODO: comment me
-	std::vector< std::vector<SDL_Surface*> > imgs; //images for this button
+	std::vector< CAnimation * > imgs; //images for this button
 	int curimg; //curently displayed image from imgs
 	virtual void show(SDL_Surface * to);
 	virtual void showAll(SDL_Surface * to);
@@ -128,8 +128,6 @@ public:
 	bool horizontal;
 	bool wheelScrolling;
 	bool keyScrolling;
-
-	CDefEssential *imgs ;
 
 	boost::function<void(int)> moved;
 

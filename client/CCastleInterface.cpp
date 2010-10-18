@@ -1138,9 +1138,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		CCastleInterface * ci=LOCPLINT->castleInt;
-		const CGTownInstance * town = ci->town;
 		std::set<si32> bld = ci->town->builtBuildings;
-		int summ=0, cnt=0;
+		int summ=0;
 		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
 		boost::algorithm::replace_first(descr,"%s",CGI->creh->creatures[crid]->nameSing);
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(ci->town->creatureGrowth(level)));
@@ -1174,7 +1173,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				summ+=AddToString(CGI->buildh->buildings[ci->town->subID][24]->Name()+" %+d",descr,
 					CGI->creh->creatures[crid]->hordeGrowth);
 
-			cnt = 0;
+			int cnt = 0;
 
 			std::vector< const CGDwelling * > myDwellings = LOCPLINT->cb->getMyDwellings();
 			for (std::vector<const CGDwelling*>::const_iterator it = myDwellings.begin(); it != myDwellings.end(); ++it)

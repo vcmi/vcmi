@@ -119,6 +119,17 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	return NULL;
 }
 
+bool CLodHandler::haveFile(std::string name)
+{
+	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
+	int dotPos = name.find_last_of('.');
+	if ( dotPos != -1 )
+		name.erase(dotPos);
+		
+	Entry * ourEntry = entries.znajdz(Entry(name));
+	return ourEntry != NULL;
+}
+
 DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char *& out, int wBits)
 {
 	int ret;
@@ -232,12 +243,15 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		std::transform(entry.nameStr.begin(), entry.nameStr.end(), 
 					   entry.nameStr.begin(), toupper);
 					   
-		int dotPos = entry.nameStr.find_last_of('.');
-		std::string ext = entry.nameStr.substr(dotPos);
-		if (ext == ".MSK" || ext == ".MSG")
-			entry.nameStr[dotPos] = '#';//this files have same name as def - rename to defName#msk
-		else
-			entry.nameStr.erase(dotPos);//filename.ext becomes filename
+		size_t dotPos = entry.nameStr.find_last_of('.');
+		if ( dotPos < entry.nameStr.size() )
+		{
+			std::string ext = entry.nameStr.substr(dotPos);
+			if (ext == ".MSK" || ext == ".MSG")
+				entry.nameStr[dotPos] = '#';//this files have same name as def - rename to defName#msk
+			else
+				entry.nameStr.erase(dotPos);//filename.ext becomes filename
+		}
 
 		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
 		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
@@ -259,12 +273,15 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				std::string realname = name;
 				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 				
-				int dotPos = name.find_last_of('.');
-				std::string ext = name.substr(dotPos);
-				if (ext == ".MSK" || ext == ".MSG")
-					name[dotPos] = '#';//this files have same name as def - rename to defName#msk
-				else
-					name.erase(dotPos);//filename.ext becomes filename
+				size_t dotPos = name.find_last_of('.');
+				if ( dotPos < name.size() )
+				{
+					std::string ext = name.substr(dotPos);
+					if (ext == ".MSK" || ext == ".MSG")
+						name[dotPos] = '#';//this files have same name as def - rename to defName#msk
+					else
+						name.erase(dotPos);//filename.ext becomes filename
+				}
 				
 				Entry * e = entries.znajdz(name);
 				if(e) //file present in .lod - overwrite its entry

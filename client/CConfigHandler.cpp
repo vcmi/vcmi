@@ -2,14 +2,18 @@
 #include "CConfigHandler.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#if BOOST_VERSION >= 103800
-#include <boost/spirit/include/classic.hpp>
-#else
-#include <boost/spirit.hpp>
-#endif
+#include <boost/version.hpp>
 #include <fstream>
 using namespace config;
+
+#if BOOST_VERSION >= 103800
+#include <boost/spirit/include/classic.hpp>
+using namespace boost::spirit::classic;
+#else
+#include <boost/spirit.hpp>
 using namespace boost::spirit;
+#endif
+
 using namespace phoenix;
 
 /*

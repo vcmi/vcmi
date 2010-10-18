@@ -13,16 +13,20 @@ And then regenerate the build system with
 
 To compile, at least the following packages (and their development counterparts) are needed to build:
     * libstdc++ devel
-	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org)
 	* SDL and SDL-devel
 	* SDL_mixer and SDL_mixer-devel
 	* SDL_image and SDL_image-devel
 	* SDL_ttf and SDL_ttf-devel
 	* zlib and zlib-devel
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
+	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org):
+		- filesystem
+		- iostreams
+		- system
+		- thread
 
-On Ubuntu 9.04, run:
-  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost1.37-dev
+On Ubuntu 9.04 or later, run:
+  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev
 
 Create a directory /YOUR_INSTALL_PATH/vcmi (such as
 /usr/local/share/games/vcmi) that will contain the game data files. The /vcmi at the end is necessary.
@@ -47,7 +51,7 @@ That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 II. Installing Heroes of Might and Magic 3
 
 VCMI needs an installed version of Heroes III as well as WoG on top of
-it.  The version of Heroes needed is (I think!) either Shadow of Death
+it.  The version of Heroes needed is either Shadow of Death
 or Complete.
 
 Wog can be downloaded from: http://www.maps4heroes.com/heroes3/files/allinone_358f.zip
@@ -61,7 +65,7 @@ Install Heroes 3 and Wog. Then move all the installed files into
 Once both programs are installed, you can install VCMI.
 
 Download the windows VCMI release (at time of writing: 
-http://vcmi.antypika.aplus.pl/forum/dload.php?action=download&id=14)
+http://forum.vcmi.eu/dload.php?action=download&id=18)
 and extract it in a private directory. Populate /YOUR_INSTALL_PATH/vcmi:
 
   mv sprites /YOUR_INSTALL_PATH/vcmi/Sprites

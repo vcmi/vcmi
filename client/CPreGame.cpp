@@ -9,6 +9,7 @@
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
+#include "../hch/CAnimation.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CGeneralTextHandler.h"
@@ -798,7 +799,7 @@ void SelectionTab::parseCampaigns( std::vector<FileInfo> & files )
 }
 
 SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, bool MultiPlayer)
-	:onSelect(OnSelect), bg(NULL)
+	:bg(NULL), onSelect(OnSelect)
 {
 	OBJ_CONSTRUCTION;
 	selectionPos = 0;
@@ -1239,7 +1240,7 @@ CChatBox::CChatBox(const Rect &rect)
 }
 
 InfoCard::InfoCard( CMenuScreen::EState Type, bool network )
-: difficulty(NULL), sizes(NULL), sFlags(NULL), bg(NULL), chatOn(false), chat(NULL)
+: bg(NULL), chatOn(false), chat(NULL), difficulty(NULL), sizes(NULL), sFlags(NULL)
 {
 	OBJ_CONSTRUCTION;
 	pos.x += 393;
@@ -2333,8 +2334,8 @@ void CHotSeatPlayers::enterSelectionScreen()
 }
 
 CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
-: ourCampaign(_ourCampaign), highlightedRegion(NULL), ourHeader(NULL), bonuses(NULL),
-	diffLb(NULL), diffRb(NULL)
+: highlightedRegion(NULL), ourCampaign(_ourCampaign), ourHeader(NULL),
+	diffLb(NULL), diffRb(NULL), bonuses(NULL)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
@@ -2765,9 +2766,9 @@ void CBonusSelection::updateBonusSelection()
 			blitAt(twcp->ourImages[1].bitmap, 0, 0, selected);
 
 			//moving surfaces into button
-			bonuses->buttons.back()->imgs[0].clear();
-			bonuses->buttons.back()->imgs[0].push_back(notSelected);
-			bonuses->buttons.back()->imgs[0].push_back(selected);
+			bonuses->buttons.back()->imgs[0]->unload();
+			bonuses->buttons.back()->imgs[0]->add(notSelected);
+			bonuses->buttons.back()->imgs[0]->add(selected);
 
 			//cleaning
 			delete de;

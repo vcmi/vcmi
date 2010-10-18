@@ -61,9 +61,9 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
 {
-	PutColor(ptr,	(((Uint32)ptr[2]-(Uint32)R)*(Uint32)A) >> 8 + (Uint32)R, 
-		(((Uint32)ptr[1]-(Uint32)G)*(Uint32)A) >> 8 + (Uint32)G, 
-		(((Uint32)ptr[0]-(Uint32)B)*(Uint32)A) >> 8 + (Uint32)B);
+	PutColor(ptr,	(((Uint32)ptr[2]-(Uint32)R)*(Uint32)A) >> (8 + (Uint32)R), 
+		(((Uint32)ptr[1]-(Uint32)G)*(Uint32)A) >> (8 + (Uint32)G), 
+		(((Uint32)ptr[0]-(Uint32)B)*(Uint32)A) >> (8 + (Uint32)B));
 }
 
 

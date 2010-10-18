@@ -29,7 +29,7 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
 fi
 
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch-enum -Wno-sign-compare -Wcast-align -Wpointer-arith"
+   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
 fi
 
 CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""

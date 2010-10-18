@@ -283,10 +283,10 @@ public:
 	}
 
 	template <typename T>
-	T* getVectorItemFromId(const VectorisedObjectInfo<T> &oInfo, si32 id) const
+	T* getVectorItemFromId(const VectorisedObjectInfo<T> &oInfo, ui32 id) const
 	{
-		if(id < 0)
-			return NULL;
+	/*	if(id < 0)
+			return NULL;*/
 
 		assert(oInfo.vector);
 		assert(oInfo.vector->size() > id);
@@ -673,14 +673,14 @@ public:
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
 			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
 			{
-				si32 id;
+				ui32 id;
 				*this >> id;
 				data = static_cast<T>(getVectorItemFromId(*info, id));
 				return;
 			}
 		}
 
-		ui32 pid = -1; //pointer id (or maybe rather pointee id) 
+		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id) 
 		if(smartPointerSerialization)
 		{
 			*this >> pid; //get the id
@@ -721,7 +721,7 @@ public:
 	template <typename T>
 	void ptrAllocated(const T *ptr, ui32 pid)
 	{
-		if(smartPointerSerialization && pid != -1)
+		if(smartPointerSerialization && pid != 0xffffffff)
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 

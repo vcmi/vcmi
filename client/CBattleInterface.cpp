@@ -4,6 +4,7 @@
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
 #include "AdventureMapButton.h"
+#include "../hch/CAnimation.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CDefHandler.h"
@@ -3914,9 +3915,9 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
 	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[392].first, CGI->generaltexth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
-	std::swap(setToDefault->imgs[0][0], setToDefault->imgs[0][1]);
+	setToDefault->imgs[0]->fixButtonPos();
 	exit = new AdventureMapButton (CGI->generaltexth->zelp[393].first, CGI->generaltexth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
-	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
+	exit->imgs[0]->fixButtonPos();
 
 	//printing texts to background
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 242, 32, FONT_BIG, tytulowy, background); //window title
