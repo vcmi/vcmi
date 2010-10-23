@@ -3552,9 +3552,10 @@ ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const C
 			ret *= (100.0f + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
 		else if(sp->earth)
 			ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
+
+		if (affectedCreature) //Hero specials like Solmyr, Deemer
+			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
 	}
-	if (caster) //Hero specials like Solmyr, Deemer
-		ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
 	return ret;
 }
 
