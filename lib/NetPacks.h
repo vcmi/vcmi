@@ -599,18 +599,18 @@ struct SetHeroArtifacts : public CPackForClient //509
 	SetHeroArtifacts(){type = 509;};
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
-	DLL_EXPORT void setArtAtPos(ui16 pos, const CArtifact* art);
+	DLL_EXPORT void setArtAtPos(ui16 pos, int art);
 
 	si32 hid;
-	std::vector<CArtifact*> artifacts; //hero's artifacts from bag
-	std::map<ui16,CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<ui32> artifacts; //hero's artifacts from bag
+	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid & artifacts & artifWorn;
 	}
 
-	std::vector<CArtifact*> equiped, unequiped; //used locally
+	std::vector<ui32> equiped, unequiped; //used locally
 	BonusList gained, lost; //used locally as hlp when applying
 };   
 
@@ -691,21 +691,6 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & arts;
-	}
-};
-
-struct NewArtifact : public CPackForClient
-{
-	NewArtifact(){type = 520;};
-	//void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
-
-	si32 artid;
-	si32 value; //initializing parameter
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & artid & value;
 	}
 };
 

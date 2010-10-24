@@ -2640,7 +2640,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				movedArt = CGI->arth->artifacts[id];
 				aw->arts->commonInfo->srcAOH = aw->arts;
 				aw->arts->commonInfo->srcArtifact = movedArt;
-				aw->arts->commonInfo->srcSlotID = 19 + vstd::findPos(aw->hero->artifacts, const_cast<CArtifact*>(movedArt));
+				aw->arts->commonInfo->srcSlotID = 19 + vstd::findPos(aw->hero->artifacts, movedArt->id);
 
 				aw->arts->commonInfo->destAOH = aw->arts;
 				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->id].bitmap);
@@ -3614,10 +3614,10 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(std::map<ui16,CArtifact*>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
+		for(std::map<ui16,ui32>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
 		{
-			if(i->second->id != 145) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, NULL, i->second->id);
+			if(i->second != 145) //ignore locks from assembled artifacts
+				moveFromSlotToAltar(i->first, NULL, i->second);
 		}
 
 		SacrificeBackpack();
@@ -3770,13 +3770,13 @@ void CAltarWindow::SacrificeBackpack()
 
 	for (int i = 0; i < hero->artifacts.size(); i++)
 	{
-		if(vstd::contains(toOmmit, hero->artifacts[i]->id))
+		if(vstd::contains(toOmmit, hero->artifacts[i]))
 		{
-			toOmmit -= hero->artifacts[i]->id;
+			toOmmit -= hero->artifacts[i];
 			continue;
 		}
 
-		putOnAltar(NULL, hero->artifacts[i]->id);
+		putOnAltar(NULL, hero->artifacts[i]);
 	}
 	arts->scrollBackpack(0);
 	calcTotalExp();

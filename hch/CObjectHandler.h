@@ -47,7 +47,6 @@ struct InfoWindow;
 struct Component;
 struct BankConfig;
 struct UpdateHeroSpeciality;
-struct NewArtifact;
 class CGBoat;
 
 class DLL_EXPORT CQuest
@@ -267,8 +266,8 @@ public:
 	ui8 inTownGarrison; // if hero is in town garrison 
 	const CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 	const CGBoat *boat; //set to CGBoat when sailing
-	std::vector<CArtifact*> artifacts; //hero's artifacts from bag
-	std::map<ui16, CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<ui32> artifacts; //hero's artifacts from bag
+	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
 
 	struct DLL_EXPORT Patrol
@@ -338,7 +337,7 @@ public:
 
 	int maxMovePoints(bool onLand) const;
 
-	CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
+	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	const CArtifact * getArt(int pos) const;
 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)

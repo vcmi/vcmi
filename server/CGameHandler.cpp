@@ -1211,7 +1211,6 @@ void CGameHandler::newTurn()
 		NewTurn n2; //just to handle  creature growths after bonuses are applied
 		n2.specialWeek = NewTurn::NO_ACTION;
 		n2.day = gs->day;
-		n2.resetBuilded = true;
 
 		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{
@@ -2222,7 +2221,7 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {
 	const CGHeroInstance* h = getHero(hid);
-	CArtifact * const art = VLC->arth->artifacts[artid];
+	const CArtifact &art = *VLC->arth->artifacts[artid];
 
 	SetHeroArtifacts sha;
 	sha.hid = hid;
@@ -2234,84 +2233,38 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 		if(position == -2)
 		{
 			int i;
-			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
+			for(i=0; i<art.possibleSlots.size(); i++) //try to put artifact into first available slot
 			{
-				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
+				if( !vstd::contains(sha.artifWorn,art.possibleSlots[i]) )
 				{
 					//we've found a free suitable slot
-					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], VLC->arth->artifacts[artid]);
+					VLC->arth->equipArtifact(sha.artifWorn, art.possibleSlots[i], artid);
 					break;
 				}
 			}
-			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
-				sha.artifacts.push_back(art);
+			if(i == art.possibleSlots.size() && !art.isBig()) //if haven't find proper slot, use backpack or discard big artifact
+				sha.artifacts.push_back(artid);
 		}
-		else if (!art->isBig()) //should be -1 => put artifact into backpack
+		else if (!art.isBig()) //should be -1 => put artifact into backpack
 		{
-			sha.artifacts.push_back(art);
+			sha.artifacts.push_back(artid);
 		}
 	}
 	else
 	{
 		if(!vstd::contains(sha.artifWorn,ui16(position)))
 		{
-			VLC->arth->equipArtifact(sha.artifWorn, position, art);
+			VLC->arth->equipArtifact(sha.artifWorn, position, artid);
 		}
-		else if (!art->isBig())
+		else if (!art.isBig())
 		{
-			sha.artifacts.push_back(art);
+			sha.artifacts.push_back(artid);
 		}
 	}
 
 	sendAndApply(&sha);
 }
-void CGameHandler::giveNewArtifact(int hid, int position)
-{
-	const CGHeroInstance* h = getHero(hid);
-	CArtifact * art = gs->map->artInstances.back(); //we use it only to immediatelly equip new artifact
-
-	SetHeroArtifacts sha;
-	sha.hid = hid;
-	sha.artifacts = h->artifacts;
-	sha.artifWorn = h->artifWorn;
-
-	if(position<0)
-	{
-		if(position == -2)
-		{
-			int i;
-			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
-			{
-				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
-				{
-					//we've found a free suitable slot
-					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], art);
-					break;
-				}
-			}
-			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
-				sha.artifacts.push_back(art);
-		}
-		else if (!art->isBig()) //should be -1 => put artifact into backpack
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-	else
-	{
-		if(!vstd::contains(sha.artifWorn,ui16(position)))
-		{
-			VLC->arth->equipArtifact(sha.artifWorn, position, art);
-		}
-		else if (!art->isBig())
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-
-	sendAndApply(&sha);
-}
-bool CGameHandler::removeArtifact(CArtifact* art, int hid)
+bool CGameHandler::removeArtifact(int artid, int hid)
 {
 	const CGHeroInstance* h = getHero(hid);
 
@@ -2320,15 +2273,15 @@ bool CGameHandler::removeArtifact(CArtifact* art, int hid)
 	sha.artifacts = h->artifacts;
 	sha.artifWorn = h->artifWorn;
 	
-	std::vector<CArtifact*>::iterator it;
-	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), art)) != sha.artifacts.end()) //it is in backpack
+	std::vector<ui32>::iterator it;
+	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), artid)) != sha.artifacts.end()) //it is in backpack
 		sha.artifacts.erase(it);
 	else //worn
 	{
-		std::map<ui16,CArtifact*>::iterator itr;
+		std::map<ui16,ui32>::iterator itr;
 		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
 		{
-			if (itr->second == art)
+			if (itr->second == artid)
 			{
 				VLC->arth->unequipArtifact(sha.artifWorn, itr->first);
 				break;
@@ -2803,7 +2756,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 			return false;
 		}
 
-		removeArtifact(VLC->arth->artifacts[2], t->visitingHero->id);
+		removeArtifact(2, t->visitingHero->id);
 	}
 
 	NewStructures ns;
@@ -3195,7 +3148,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
 	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) 
 	{
-		sha.setArtAtPos(srcSlot, NULL);
+		sha.setArtAtPos(srcSlot, -1);
 		if (!vstd::contains(sha.artifWorn, destSlot))
 			destArtifact = NULL;
 	}
@@ -3229,14 +3182,14 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 
 	// If dest does not fit in src, put it in dest's backpack instead.
 	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
-		sha.setArtAtPos(destSlot, NULL);
+		sha.setArtAtPos(destSlot, -1);
 	const bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
 	if (srcHeroID == destHeroID && destArtifact)
-		sha.setArtAtPos(destSlot, destArtifact);
+		sha.setArtAtPos(destSlot, destArtifact->id);
 
-	sha.setArtAtPos(srcSlot, NULL);
+	sha.setArtAtPos(srcSlot, -1);
 	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
-		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact : NULL);
+		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact->id : -1);
 
 	// Internal hero artifact arrangement.
 	if(srcHero == destHero) 
@@ -3254,7 +3207,7 @@ bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, 
 		sha2.hid = destHeroID;
 		sha2.artifacts = destHero->artifacts;
 		sha2.artifWorn = destHero->artifWorn;
-		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact : NULL);
+		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact->id : -1);
 		if (!destFits)
 			sha2.setArtAtPos(sha2.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
 		sendAndApply(&sha2);
@@ -3286,24 +3239,20 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 	sha.artifacts = hero->artifacts;
 	sha.artifWorn = hero->artifWorn;
 
-	if (assemble)
-	{
-		if (VLC->arth->artifacts.size() < assembleTo)
-		{
+	if (assemble) {
+		if (VLC->arth->artifacts.size() < assembleTo) {
 			complain("Illegal artifact to assemble to.");
 			return false;
 		}
 
-		if (!destArtifact->canBeAssembledTo(hero->artifWorn, assembleTo))
-		{
+		if (!destArtifact->canBeAssembledTo(hero->artifWorn, assembleTo)) {
 			complain("Artifact cannot be assembled.");
 			return false;
 		}
 
 		const CArtifact &artifact = *VLC->arth->artifacts[assembleTo];
 
-		if (artifact.constituents == NULL)
-		{
+		if (artifact.constituents == NULL) {
 			complain("Not a combinational artifact.");
 			return false;
 		}
@@ -3312,43 +3261,32 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
 		const bool destSpecific = vstd::contains(artifact.possibleSlots, artifactSlot); // Prefer the chosen slot as the location for the assembled artifact.
 
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
-		{
-			if (destSpecific && constituentID == destArtifact->id)
-			{
-				sha.artifWorn[artifactSlot] = VLC->arth->artifacts[assembleTo];
+		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) {
+			if (destSpecific && constituentID == destArtifact->id) {
+				sha.artifWorn[artifactSlot] = assembleTo;
 				destConsumed = true;
 				continue;
 			}
 
 			bool found = false;
-			for (std::map<ui16, CArtifact*>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it)
-			{
-				if (it->second->id == constituentID)
-				{ // Found possible constituent to substitute.
-					if (destSpecific && !destConsumed && it->second->id == destArtifact->id)
-					{
+			for (std::map<ui16, ui32>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it) {
+				if (it->second == constituentID) { // Found possible constituent to substitute.
+					if (destSpecific && !destConsumed && it->second == destArtifact->id) {
 						// Find the specified destination for assembled artifact.
-						if (it->first == artifactSlot)
-						{
-							it->second = VLC->arth->artifacts[assembleTo];
+						if (it->first == artifactSlot) {
+							it->second = assembleTo;
 							destConsumed = true;
 
 							found = true;
 							break;
 						}
-					}
-					else
-					{
+					} else {
 						// Either put the assembled artifact in a fitting spot, or put a lock.
-						if (!destSpecific && !destConsumed && vstd::contains(artifact.possibleSlots, it->first))
-						{
-							it->second = VLC->arth->artifacts[assembleTo];
+						if (!destSpecific && !destConsumed && vstd::contains(artifact.possibleSlots, it->first)) {
+							it->second = assembleTo;
 							destConsumed = true;
-						}
-						else
-						{
-							it->second = VLC->arth->artifacts[145];
+						} else {
+							it->second = 145;
 						}
 
 						found = true;
@@ -3361,27 +3299,19 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 				return false;
 			}
 		}
-	}
-	else
-	{
+	} else {
 		// Perform disassembly.
 		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
-		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents)
-		{
+		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents) {
 			const CArtifact &constituent = *VLC->arth->artifacts[constituentID];
 
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, artifactSlot))
-			{
-				sha.artifWorn[artifactSlot] = VLC->arth->artifacts[constituentID];
+			if (!destConsumed && vstd::contains(constituent.possibleSlots, artifactSlot)) {
+				sha.artifWorn[artifactSlot] = constituentID;
 				destConsumed = true;
-			}
-			else
-			{
-				BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots)
-				{
-					if (vstd::contains(sha.artifWorn, slotID) && sha.artifWorn[slotID]->id == 145)
-					{
-						sha.artifWorn[slotID]->id = constituentID;
+			} else {
+				BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots) {
+					if (vstd::contains(sha.artifWorn, slotID) && sha.artifWorn[slotID] == 145) {
+						sha.artifWorn[slotID] = constituentID;
 						break;
 					}
 				}
@@ -4115,9 +4045,9 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		sha.hid = hero->id;
 		sha.artifacts = hero->artifacts;
 		sha.artifWorn = hero->artifWorn;
-		VLC->arth->equipArtifact(sha.artifWorn, 13, VLC->arth->artifacts[4]);
-		VLC->arth->equipArtifact(sha.artifWorn, 14, VLC->arth->artifacts[5]);
-		VLC->arth->equipArtifact(sha.artifWorn, 15, VLC->arth->artifacts[6]);
+		VLC->arth->equipArtifact(sha.artifWorn, 13, 4);
+		VLC->arth->equipArtifact(sha.artifWorn, 14, 5);
+		VLC->arth->equipArtifact(sha.artifWorn, 15, 6);
 		sendAndApply(&sha);
 	}
 	else if(message == "vcminahar") //1000000 movement points
@@ -4174,10 +4104,10 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		sha.hid = hero->id;
 		sha.artifacts = hero->artifacts;
 		sha.artifWorn = hero->artifWorn;
-		sha.artifacts.push_back(VLC->arth->artifacts[2]); //grail
+		sha.artifacts.push_back(2); //grail
 		for (int g=7; g<=140; ++g)
 		{
-			sha.artifacts.push_back(VLC->arth->artifacts[g]);
+			sha.artifacts.push_back(g);
 		}
 		sendAndApply(&sha);
 	}
@@ -5298,13 +5228,13 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, CArtifact* art)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ui32 artID)
 {
-	if(!removeArtifact(art, hero->id))
+	if(!removeArtifact(artID, hero->id))
 		COMPLAIN_RET("Cannot find artifact to sacrifice!");
 
 	int dmp, expToGive;
-	m->getOffer(art->id, 0, dmp, expToGive, ARTIFACT_EXP);
+	m->getOffer(artID, 0, dmp, expToGive, ARTIFACT_EXP);
 	changePrimSkill(hero->id, 4, expToGive);
 	return true;
 }

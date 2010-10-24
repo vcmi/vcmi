@@ -319,7 +319,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	serv = con;
-CConnection &c(*con);
+	CConnection &c(*con);
 	////////////////////////////////////////////////////
 	ui8 pom8;
 	c << ui8(2) << ui8(1); //new game; one client

@@ -17,7 +17,6 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include "hch/CSpellHandler.h"
-#include "hch/CArtHandler.h"
 #ifdef min
 #undef min
 #endif

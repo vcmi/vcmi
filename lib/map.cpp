@@ -858,27 +858,27 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		{
 			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id != artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, pom, VLC->arth->artifacts[id]);
+				VLC->arth->equipArtifact(nhi->artifWorn, pom, id);
 		}
 		//misc5 art //17
 		if(version>=SoD)
 		{
 			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[id]);
+				VLC->arth->equipArtifact(nhi->artifWorn, 16, id);
 			else
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[3]); //catapult by default
+				VLC->arth->equipArtifact(nhi->artifWorn, 16, 3); //catapult by default
 		}
 		//spellbook
 		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 		if(id!=artmask)
-			VLC->arth->equipArtifact(nhi->artifWorn, 17, VLC->arth->artifacts[id]);
+			VLC->arth->equipArtifact(nhi->artifWorn, 17, id);
 		//19 //???what is that? gap in file or what? - it's probably fifth slot..
 		if(version>RoE)
 		{
 			id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 18, VLC->arth->artifacts[id]);
+				VLC->arth->equipArtifact(nhi->artifWorn, 18, id);
 		}
 		else
 			i+=1;
@@ -1102,7 +1102,7 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 					{
 						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, pom, VLC->arth->artifacts[id]);
+							VLC->arth->equipArtifact(cgh->artifWorn, pom, id);
 					}
 					//misc5 art //17
 					if(version>=SoD)
@@ -1115,13 +1115,13 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 					//spellbook
 					int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						VLC->arth->equipArtifact(cgh->artifWorn, 17, VLC->arth->artifacts[id]);
+						VLC->arth->equipArtifact(cgh->artifWorn, 17, id);
 					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(version>RoE)
 					{
 						id = readNormalNr(bufor,i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, 18, VLC->arth->artifacts[id]);
+							VLC->arth->equipArtifact(cgh->artifWorn, 18, id);
 					}
 					else
 						i+=1;

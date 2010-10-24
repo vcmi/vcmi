@@ -729,23 +729,27 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	return int(base + base*modifier) + bonus;
 }
 
-CArtifact* CGHeroInstance::getArtAtPos(ui16 pos) const
+ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 {
 	if(pos<19)
 		if(vstd::contains(artifWorn,pos))
 			return artifWorn.find(pos)->second;
 		else
-			return NULL;
+			return -1;
 	else
 		if(pos-19 < artifacts.size())
 			return artifacts[pos-19];
 		else 
-			return NULL;
+			return -1;
 }
 
 const CArtifact * CGHeroInstance::getArt(int pos) const
 {
-	return getArtAtPos(pos);
+	int id = getArtAtPos(pos);
+	if(id>=0)
+		return VLC->arth->artifacts[id];
+	else
+		return NULL;
 }
 
 // int CGHeroInstance::getSpellSecLevel(int spell) const
@@ -810,9 +814,9 @@ void CGHeroInstance::initHero()
 
 	if(!vstd::contains(artifWorn, 16) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set
 	{
-		VLC->arth->equipArtifact(artifWorn, 17, VLC->arth->artifacts[0]); //give spellbook
+		VLC->arth->equipArtifact(artifWorn, 17, 0); //give spellbook
 	}
-	VLC->arth->equipArtifact(artifWorn, 16, VLC->arth->artifacts[3]); //everyone has a catapult
+	VLC->arth->equipArtifact(artifWorn, 16, 3); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
@@ -882,13 +886,13 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 			switch (creID)
 			{
 			case 145: //catapult
-				VLC->arth->equipArtifact(artifWorn, 16, VLC->arth->artifacts[3]);
+				VLC->arth->equipArtifact(artifWorn, 16, 3);
 				break;
 			default:
 				VLC->arth->equipArtifact(
 					artifWorn,
 					9+CArtHandler::convertMachineID(creID,true),
-					  VLC->arth->artifacts[CArtHandler::convertMachineID(creID,true)]);
+					  CArtHandler::convertMachineID(creID,true));
 				break;
 			}
 		}
@@ -1417,8 +1421,8 @@ si32 CGHeroInstance::manaRegain() const
 
 si32 CGHeroInstance::getArtPos(int aid) const
 {
-	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(i->second->id == aid)
+	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		if(i->second == aid)
 			return i->first;
 	return -1;
 }
@@ -1427,34 +1431,33 @@ si32 CGHeroInstance::getArtPos(int aid) const
  * Places an artifact in hero's backpack. If it's a big artifact equips it
  * or discards it if it cannot be equipped.
  */
-void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
+void CGHeroInstance::giveArtifact (ui32 aid)
 {
-	CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
+	const CArtifact &artifact = *VLC->arth->artifacts[aid];
 
-	if (artifact->isBig()) 
+	if (artifact.isBig()) 
 	{
-		for (std::vector<ui16>::const_iterator it = artifact->possibleSlots.begin(); it != artifact->possibleSlots.end(); ++it) 
+		for (std::vector<ui16>::const_iterator it = artifact.possibleSlots.begin(); it != artifact.possibleSlots.end(); ++it) 
 		{
 			if (!vstd::contains(artifWorn, *it)) 
 			{
-				VLC->arth->equipArtifact(artifWorn, *it, artifact);
+				VLC->arth->equipArtifact(artifWorn, *it, aid);
 				break;
 			}
 		}
 	} 
 	else 
 	{
-		artifacts.push_back(artifact);
+		artifacts.push_back(aid);
 	}
 }
 
 bool CGHeroInstance::hasArt( ui32 aid ) const
 {
-	for(std::vector<CArtifact*>::const_iterator i = artifacts.begin(); i != artifacts.end(); i++)
-		if((*i)->id == aid)
-			return true;
-	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(i->second->id == aid)
+	if(vstd::contains(artifacts, aid))
+		return true;
+	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		if(i->second == aid)
 			return true;
 
 	return false;
@@ -1497,8 +1500,8 @@ void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= N
 			out.insert(visitedTown);
 	}
 
-	for (std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		out.insert(i->second);
+	for (std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		out.insert(VLC->arth->artifacts[i->second]);
 
 	out.insert(&speciality);
 }
@@ -3591,36 +3594,24 @@ void CGArtifact::initObj()
 	blockVisit = true;
 	if(ID == 5)
 		hoverName = VLC->arth->artifacts[subID]->Name();
-	if(ID == 93)
-		subID = 1;
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!stacksCount())
 	{
-		InfoWindow iw;
-		iw.soundID = soundBase::treasure;
-		iw.player = h->tempOwner;
-		switch(ID)
+		if(ID == 5)
 		{
-			case 5:
-			{
-				iw.components.push_back(Component(4,subID,0,0));
-				if(message.length())
-					iw.text <<  message;
-				else
-					iw.text << std::pair<ui8,ui32>(12,subID);
-			}
-			break;
-			case 93:
-				iw.components.push_back (Component(Component::SPELL, spell,0,0));
-				iw.text.addTxt (MetaString::ADVOB_TXT,135);
-				iw.text.addReplacement(MetaString::SPELL_NAME, spell);
-			break;
-
+			InfoWindow iw;
+			iw.soundID = soundBase::treasure;
+			iw.player = h->tempOwner;
+			iw.components.push_back(Component(4,subID,0,0));
+			if(message.length())
+				iw.text <<  message;
+			else
+				iw.text << std::pair<ui8,ui32>(12,subID);
+			cb->showInfoDialog(&iw);
 		}
-		cb->showInfoDialog(&iw);
 		pick(h);
 	}
 	else
@@ -3641,22 +3632,13 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if (VLC->arth->artifacts[subID]->isModable())
-	{//TODO: create new instance, initialize it
-		if (ID == 93) //scroll
-		{
-			NewArtifact na;
-			na.value = spell;
-			na.artid = subID;
-			cb->sendAndApply(&na);
-			cb->giveNewArtifact(h->id, -2);
-		}
-		else
-			cb->giveNewArtifact(h->id, -2);; //nothing / zero / empty by default
-	}
-	else
+	if(ID == 5) //Artifact
 	{
 		cb->giveHeroArtifact(subID,h->id,-2);
+	}
+	else if(ID == 93) // Spell scroll 
+	{
+		//TODO: support for the spell scroll
 	}
 	cb->removeObject(id);
 }
@@ -4391,7 +4373,7 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_ART:
 				for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 				{
-					cb->removeArtifact(VLC->arth->artifacts[*it], h->id);
+					cb->removeArtifact(*it, h->id);
 				}
 				break;
 			case CQuest::MISSION_ARMY:

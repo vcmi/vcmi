@@ -164,7 +164,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
 	case ARTIFACT_EXP:
-		return gh->sacrificeArtifact(m, hero, hero->getArtAtPos(r1));
+		return gh->sacrificeArtifact(m, hero, r1);
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}
