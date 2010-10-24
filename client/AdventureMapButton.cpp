@@ -51,9 +51,19 @@ void CButtonBase::show(SDL_Surface * to)
 	int img = std::min(state+bitmapOffset,int(imgs[curimg]->size()-1));
 	img = std::max(0, img);
 
+	SDL_Surface *toBlit = imgs[curimg]->image(img);
+
 	if (abs)
 	{
-		blitAt(imgs[curimg]->image(img),pos.x,pos.y,to);
+		if(toBlit)
+		{
+			blitAt(toBlit,pos.x,pos.y,to);
+		}
+		else
+		{
+			SDL_Rect r = pos;
+			SDL_FillRect(to, &r, 0x505000);
+		}
 		if(text)
 		{//using "state" instead of "state == 1" screwed up hoverable buttons with text
 			CSDL_Ext::printAt(text->text, text->x + pos.x + (state == 1), text->y + pos.y + (state == 1), text->font, text->color, to);
@@ -61,7 +71,7 @@ void CButtonBase::show(SDL_Surface * to)
 	}
 	else
 	{
-		blitAt(imgs[curimg]->image(img),pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+		blitAt(toBlit,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
 	}
 }
 

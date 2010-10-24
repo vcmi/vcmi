@@ -53,10 +53,11 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 	}
 	if (mode == ALL) //add all lod campaigns
 	{
+		ext = "#H3C";
 		for(int g=0; g<bitmaph->entries.size(); ++g)
 		{
 			const std::string & nameS = bitmaph->entries[g].nameStr;
-			if( boost::ends_with(nameS, ext) && nameS != "TOSBLK1.H3C" )
+			if( boost::ends_with(nameS, ext) && nameS != "TOSBLK1#H3C" )
 			{
 				ret.push_back( getHeader(bitmaph->entries[g].nameStr, true) );
 			}

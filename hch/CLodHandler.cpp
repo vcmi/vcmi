@@ -247,7 +247,7 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		if ( dotPos < entry.nameStr.size() )
 		{
 			std::string ext = entry.nameStr.substr(dotPos);
-			if (ext == ".MSK" || ext == ".MSG")
+			if (ext == ".MSK" || ext == ".MSG" || ext == ".H3C")
 				entry.nameStr[dotPos] = '#';//this files have same name as def - rename to defName#msk
 			else
 				entry.nameStr.erase(dotPos);//filename.ext becomes filename
@@ -277,7 +277,7 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				if ( dotPos < name.size() )
 				{
 					std::string ext = name.substr(dotPos);
-					if (ext == ".MSK" || ext == ".MSG")
+					if (ext == ".MSK" || ext == ".MSG" || ext == ".H3C")
 						name[dotPos] = '#';//this files have same name as def - rename to defName#msk
 					else
 						name.erase(dotPos);//filename.ext becomes filename
