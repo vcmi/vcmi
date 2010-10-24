@@ -101,6 +101,31 @@ struct DLL_EXPORT PlayerInfo
 		mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
 		team(255), generateHero(0) {};
 
+	si8 defaultCastle() const
+	{
+		si8 ret = -2;
+		for (int j = 0; j < F_NUMBER  &&  ret != -1; j++) //we start with none and find matching faction. if more than one, then set to random
+		{
+			if((1 << j) & allowedFactions)
+			{
+				if (ret >= 0) //we've already assigned a castle and another one is possible -> set random and let player choose
+					ret = -1; //breaks
+
+				if (ret == -2) //first available castle - pick
+					ret = j;
+			}
+		}
+		return ret;
+	}
+	si8 defaultHero(bool isMapRoE = false) const
+	{
+		if ((generateHeroAtMainTown || isMapRoE)  &&  hasMainTown  //we will generate hero in front of main town
+			|| p8) //random hero
+			return -1;
+		else
+			return -2;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &

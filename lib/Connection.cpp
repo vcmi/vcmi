@@ -71,6 +71,11 @@ void CConnection::init()
 	tlog0 << "Established connection with "<<pom<<std::endl;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
+
+	handler = NULL;
+	receivedStop = sendStop = false;
+	static int cid = 1;
+	connectionID = cid++;
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
@@ -180,6 +185,11 @@ int CConnection::read(void * data, unsigned size)
 }
 CConnection::~CConnection(void)
 {
+	if(handler)
+		handler->join();
+
+	delete handler;
+
 	close();
  	delete io_service;
  	delete wmx;
@@ -280,11 +290,11 @@ void CSaveFile::reportState(CLogger &out)
 	}
 }
 
-CLoadFile::CLoadFile( const std::string &fname, bool requireLatest )
+CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
 :sfile(NULL)
 {
 	registerTypes(*this);
-	openNextFile(fname, requireLatest);
+	openNextFile(fname, minimalVersion);
 }
 
 CLoadFile::~CLoadFile()
@@ -304,7 +314,7 @@ void CLoadFile::close()
 	sfile = NULL;
 }
 
-void CLoadFile::openNextFile(const std::string &fname, bool requireLatest)
+void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 {
 	fName = fname;
 	sfile = new std::ifstream(fname.c_str(),std::ios::binary);
@@ -320,16 +330,16 @@ void CLoadFile::openNextFile(const std::string &fname, bool requireLatest)
 
 		if(std::memcmp(buffer,"VCMI",4))
 		{
-			tlog1 << "Error: not a VCMI save! (file " << fname << " )\n";
+			tlog1 << "Error: not a VCMI file! ( " << fname << " )\n";
 			delete sfile;
 			sfile = NULL;
 			return;
 		}
 
 		*this >> myVersion;	
-		if(myVersion != version && requireLatest)
+		if(myVersion < minimalVersion)
 		{
-			tlog1 << "Error: Not supported save format! (file " << fname << " )\n";
+			tlog1 << "Error: Old file format! (file " << fname << " )\n";
 			delete sfile;
 			sfile = NULL;
 		}
@@ -370,6 +380,11 @@ ui16 CTypeList::getTypeID( const std::type_info *type )
 	else
 		return 0;
 }
+
+ std::ostream & operator<<(std::ostream &str, const CConnection &cpc)
+ {
+ 	return str << "Connection with " << cpc.name << " (ID: " << cpc.connectionID << /*", " << (cpc.host ? "host" : "guest") <<*/ ")";
+ }
 
 CSerializer::~CSerializer()
 {

@@ -41,12 +41,12 @@
 
 void SetResources::applyCl( CClient *cl )
 {
-	cl->playerint[player]->receivedResource(-1,-1);
+	INTERFACE_CALL_IF_PRESENT(player,receivedResource,-1,-1);
 }
 
 void SetResource::applyCl( CClient *cl )
 {
-	cl->playerint[player]->receivedResource(resid,val);
+	INTERFACE_CALL_IF_PRESENT(player,receivedResource,resid,val);
 }
 
 void SetPrimSkill::applyCl( CClient *cl )
@@ -698,7 +698,7 @@ void ShowInInfobox::applyCl(CClient *cl)
 {
 	SComponent sc(c);
 	text.toString(sc.description);
-	if(cl->playerint[player]->human)
+	if(vstd::contains(cl->playerint, player) && cl->playerint[player]->human)
 	{
 		static_cast<CPlayerInterface*>(cl->playerint[player])->showComp(sc);
 	}

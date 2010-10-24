@@ -110,7 +110,7 @@ void init()
 	tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
 	{
 		//read system options
-		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin", false);
+		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin", 727);
 		if(settings.sfile)
 		{
 			settings >> GDefaultOptions;
@@ -280,6 +280,17 @@ int main(int argc, char** argv)
 	listenForEvents();
 
 	return 0;
+}
+
+void printInfoAboutIntObject(const CIntObject *obj, int level)
+{
+	int tabs = level;
+	while(tabs--) tlog4 << '\t';
+
+	tlog4 << typeid(*obj).name() << " *** " << (obj->active ? "" : "not ") << "active\n";
+
+	BOOST_FOREACH(const CIntObject *child, obj->children)
+		printInfoAboutIntObject(child, level+1);
 }
 
 void processCommand(const std::string &message)
@@ -452,13 +463,22 @@ void processCommand(const std::string &message)
 	{
 		LOCPLINT->showingDialog->setn(false);
 	}
+	else if(cn == "gui")
+	{
+		BOOST_FOREACH(const IShowActivable *child, GH.listInt)
+		{
+			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
+				printInfoAboutIntObject(obj, 0);
+			else
+				tlog4 << typeid(*obj).name() << std::endl;
+		}
+	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
 		PlayerMessage pm(LOCPLINT->playerID,message);
 		*client->serv << &pm;
 	}
 }
-
 
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
@@ -623,7 +643,7 @@ static void listenForEvents()
 	}
 }
 
-void startGame(StartInfo * options) 
+void startGame(StartInfo * options, CConnection *serv/* = NULL*/) 
 {
 	GH.curInt =NULL;
 	if(gOnlyAI)
@@ -655,7 +675,7 @@ void startGame(StartInfo * options)
 	{
 	case StartInfo::NEW_GAME:
 	case StartInfo::CAMPAIGN:
-		client->newGame(NULL, options);
+		client->newGame(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:
 		std::string fname = options->mapname;

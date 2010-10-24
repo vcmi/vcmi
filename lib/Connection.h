@@ -23,7 +23,7 @@
 #include <boost/mpl/identity.hpp>
 #include <boost/any.hpp>
 
-const ui32 version = 726;
+const ui32 version = 727;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
@@ -824,12 +824,12 @@ public:
 	std::string fName;
 	std::ifstream *sfile;
 
-	CLoadFile(const std::string &fname, bool requireLatest = true);
+	CLoadFile(const std::string &fname, int minimalVersion = version);
 	~CLoadFile();
 	int read(const void * data, unsigned size);
 
 	void close();
-	void openNextFile(const std::string &fname, bool requireLatest);
+	void openNextFile(const std::string &fname, int minimalVersion);
 	void reportState(CLogger &out);
 };
 
@@ -853,6 +853,12 @@ public:
     boost::asio::io_service *io_service;
 	std::string name; //who uses this connection
 
+	int connectionID;
+	CConnection *c;
+	boost::thread *handler;
+
+	bool receivedStop, sendStop;
+
 	CConnection(std::string host, std::string port, std::string Name);
 	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
 	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
@@ -867,6 +873,8 @@ public:
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
 };
+
+DLL_EXPORT std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
 
 template<typename T>
 class CApplier

@@ -181,6 +181,15 @@ template<typename Serializer> DLL_EXPORT
 void registerTypes4(Serializer &s)
 {
 	s.template registerType<ChatMessage>();
+	s.template registerType<QuitMenuWithoutStarting>();
+	s.template registerType<PlayerJoined>();
+	s.template registerType<SelectMap>();
+	s.template registerType<UpdateStartOptions>();
+	s.template registerType<PregameGuiAction>();
+	s.template registerType<RequestOptionsChange>();
+	s.template registerType<PlayerLeft>();
+	s.template registerType<PlayersNames>();
+	s.template registerType<StartWithCurrentSettings>();
 }
 
 template<typename Serializer> DLL_EXPORT

@@ -1669,7 +1669,7 @@ void CRecruitmentWindow::close()
 }
 void CRecruitmentWindow::Max()
 {
-	slider->moveTo(slider->amount);
+	slider->moveToMax();
 }
 void CRecruitmentWindow::Buy()
 {
@@ -3172,7 +3172,7 @@ CMarketplaceWindow::~CMarketplaceWindow()
 
 void CMarketplaceWindow::setMax()
 {
-	slider->moveTo(slider->amount);
+	slider->moveToMax();
 }
 
 void CMarketplaceWindow::makeDeal()
@@ -3461,7 +3461,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		slider = new CSlider(231,481,137,0,0,0);
 		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
-		max = new AdventureMapButton(CGI->generaltexth->zelp[578],boost::bind(&CSlider::moveTo, slider, boost::ref(slider->amount)),147,520,"IRCBTNS.DEF");
+		max = new AdventureMapButton(CGI->generaltexth->zelp[578],boost::bind(&CSlider::moveToMax, slider),147,520,"IRCBTNS.DEF");
 
 		sacrificedUnits.resize(ARMY_SIZE, 0);
 		sacrificeAll = new AdventureMapButton(CGI->generaltexth->zelp[579],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTARMY.DEF");
@@ -6629,6 +6629,7 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 {
 	focus = false;
 	pos += Pos;
+	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
 	used = LCLICK | KEYBOARD;
@@ -6639,10 +6640,14 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 {
 	focus = false;
 	pos += Pos;
+	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
 	Rect hlp = Pos;
-	CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
+	if(srf)
+		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
+	else
+		SDL_FillRect(*bg, NULL, 0);
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;

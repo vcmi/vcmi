@@ -76,6 +76,7 @@ namespace boost
 
 struct SystemOptions
 {
+	std::string playerName;
 
 	ui8 heroMoveSpeed;/*, enemyMoveSpeed*/ //speed of player's hero movement
 	ui8 mapScrollingSpeed; //map scrolling speed
@@ -94,13 +95,14 @@ struct SystemOptions
 	void setMapScrollingSpeed(int newSpeed); //set the member above
 	void setMusicVolume(int newVolume);
 	void setSoundVolume(int newVolume);
+	void setPlayerName(const std::string &newPlayerName);
 	void settingsChanged(); //updates file with "default" settings for next running of application
 	void apply();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & playerName;
 		h & heroMoveSpeed & mapScrollingSpeed & musicVolume & soundVolume;
-
 		h & printCellBorders & printStackRange & animSpeed & printMouseShadow & showQueue;
 	}
 };

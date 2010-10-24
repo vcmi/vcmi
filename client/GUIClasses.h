@@ -359,7 +359,7 @@ public:
 	void setText(const std::string &nText, bool callCb = false);
 
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf);
+	CTextInput(const Rect &Pos, SDL_Surface *srf = NULL);
 	~CTextInput();
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);

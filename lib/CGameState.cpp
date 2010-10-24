@@ -28,6 +28,7 @@
 #include "RegisterTypes.cpp"
 #include <algorithm>
 #include <numeric>
+#include "CMapInfo.h"
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -1057,14 +1058,15 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 int CGameState::pickHero(int owner)
 {
 	int h=-1;
-	if(!map->getHero(h = scenarioOps->getIthPlayersSettings(owner).hero,0)  &&  h>=0) //we haven't used selected hero
+	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
+	if(!map->getHero(h = ps.hero,0)  &&  h>=0) //we haven't used selected hero
 		return h;
-	int f = scenarioOps->getIthPlayersSettings(owner).castle;
+	int f = ps.castle;
 	int i=0;
 	do //try to find free hero of our faction
 	{
 		i++;
-		h = scenarioOps->getIthPlayersSettings(owner).castle*HEROES_PER_TYPE*2+(ran()%(HEROES_PER_TYPE*2));//->scenarioOps->playerInfos[pru].hero = VLC->
+		h = ps.castle*HEROES_PER_TYPE*2+(ran()%(HEROES_PER_TYPE*2));//->scenarioOps->playerInfos[pru].hero = VLC->
 	} while( map->getHero(h)  &&  i<175);
 	if(i>174) //probably no free heroes - there's no point in further search, we'll take first free
 	{
@@ -1368,7 +1370,7 @@ CGameState::~CGameState()
 	delete mx;
 	delete map;
 	delete curB;
-	//delete scenarioOps;
+	delete scenarioOps;
 	delete applierGs;
 	delete objCaller;
 
@@ -1503,7 +1505,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	day = 0;
 	seed = Seed;
 	ran.seed((boost::int32_t)seed);
-	scenarioOps = si;
+	scenarioOps = new StartInfo(*si);
 	loadTownDInfos();
 
  	//pick grail location
@@ -1628,9 +1630,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			map->objects.push_back(nnn);
 			map->addBlockVisTiles(nnn);
 			//give campaign bonus
-			if (si->mode == StartInfo::CAMPAIGN && getPlayer(nnn->tempOwner)->human)
+			if (scenarioOps->mode == StartInfo::CAMPAIGN && getPlayer(nnn->tempOwner)->human)
 			{
-				HLP::giveCampaignBonusToHero(nnn, si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+				HLP::giveCampaignBonusToHero(nnn, scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
 			}
 		}
 	}
@@ -1641,7 +1643,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	{
 
 		CScenarioTravel::STravelBonus bonus =
-			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+			campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
 
 
 		std::vector<CGHeroInstance *> Xheroes;
@@ -1743,13 +1745,13 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	//give start resource bonus in case of campaign
-	if (si->mode == StartInfo::CAMPAIGN)
+	if (scenarioOps->mode == StartInfo::CAMPAIGN)
 	{
 		CScenarioTravel::STravelBonus chosenBonus = 
-			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+			campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
 		if(chosenBonus.type == 7) //resource
 		{
-			std::vector<const PlayerSettings *> people = HLP::getHumanPlayerInfo(si); //players we will give resource bonus
+			std::vector<const PlayerSettings *> people = HLP::getHumanPlayerInfo(scenarioOps); //players we will give resource bonus
 			for (int b=0; b<people.size(); ++b)
 			{
 				std::vector<int> res; //resources we will give
@@ -1827,11 +1829,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
 	}
 
-	if (si->mode == StartInfo::CAMPAIGN) //give campaign bonuses for specific / best hero
+	if (scenarioOps->mode == StartInfo::CAMPAIGN) //give campaign bonuses for specific / best hero
 	{
 
 		CScenarioTravel::STravelBonus chosenBonus = 
-			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+			campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
 		if (chosenBonus.isBonusForHero() && chosenBonus.info1 != 0xFFFE) //exclude generated heroes
 		{
 			//find human player
@@ -1856,7 +1858,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 						maxB = b;
 					}
 				}
-				HLP::giveCampaignBonusToHero(heroes[maxB], si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+				HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
 			}
 			else //specific hero
 			{
@@ -1864,7 +1866,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				{
 					if (heroes[b]->subID == chosenBonus.info1)
 					{
-						HLP::giveCampaignBonusToHero(heroes[b], si, campaign->camp->scenarios[si->whichMapInCampaign].travelOptions);
+						HLP::giveCampaignBonusToHero(heroes[b], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
 						break;
 					}
 				}
@@ -1904,16 +1906,16 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
 		//starting bonus
-		if(si->playerInfos[k->first].bonus==PlayerSettings::brandom)
-			si->playerInfos[k->first].bonus = ran()%3;
-		switch(si->playerInfos[k->first].bonus)
+		if(scenarioOps->playerInfos[k->first].bonus==PlayerSettings::brandom)
+			scenarioOps->playerInfos[k->first].bonus = ran()%3;
+		switch(scenarioOps->playerInfos[k->first].bonus)
 		{
 		case PlayerSettings::bgold:
 			k->second.resources[6] += 500 + (ran()%6)*100;
 			break;
 		case PlayerSettings::bresource:
 			{
-				int res = VLC->townh->towns[si->playerInfos[k->first].castle].primaryRes;
+				int res = VLC->townh->towns[scenarioOps->playerInfos[k->first].castle].primaryRes;
 				if(res == 127)
 				{
 					k->second.resources[0] += 5 + ran()%6;
@@ -2035,10 +2037,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	//campaign bonuses for towns
-	if (si->mode == StartInfo::CAMPAIGN)
+	if (scenarioOps->mode == StartInfo::CAMPAIGN)
 	{
 		CScenarioTravel::STravelBonus chosenBonus = 
-			campaign->camp->scenarios[si->whichMapInCampaign].travelOptions.bonusesToChoose[si->choosenCampaignBonus];
+			campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
 
 		if (chosenBonus.type == 2)
 		{

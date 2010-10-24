@@ -28,6 +28,10 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
+#include <boost/thread.hpp>
+#include <boost/foreach.hpp>
+#include "../lib/CMapInfo.h"
+
 std::string NAME_AFFIX = "server";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 using namespace boost;
@@ -53,8 +57,256 @@ static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code
 	ac->accept(*s,*error);
 }
 
+
+
+CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= NULL*/)
+	: host(Host), state(RUNNING), acceptor(Acceptor), upcomingConnection(NULL), curmap(NULL), listeningThreads(0),
+	  curStartInfo(NULL)
+{
+	initConnection(host);
+}
+
+void CPregameServer::handleConnection(CConnection *cpc)
+{
+	try
+	{
+		while(!cpc->receivedStop)
+		{
+			CPackForSelectionScreen *cpfs = NULL;
+			*cpc >> cpfs;
+
+			tlog0 << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc << std::endl; 
+
+			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+			bool quitting = dynamic_cast<QuitMenuWithoutStarting*>(cpfs), 
+				startingGame = dynamic_cast<StartWithCurrentSettings*>(cpfs);
+			if(quitting || startingGame) //host leaves main menu or wants to start game -> we end
+			{
+				cpc->receivedStop = true;
+				if(!cpc->sendStop)
+					sendPack(cpc, *cpfs);
+
+				if(cpc == host)
+					toAnnounce.push_back(cpfs);
+			}
+			else
+				toAnnounce.push_back(cpfs);
+
+			if(startingGame)
+			{
+				//wait for sending thread to announce start
+				mx.unlock();
+				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+				mx.lock();
+			}
+		}
+	} 
+	catch (const std::exception& e)
+	{
+		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+		tlog0 << *cpc << " dies... \nWhat happened: " << e.what() << std::endl;
+	}
+
+	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	if(state != ENDING_AND_STARTING_GAME)
+	{
+		connections -= cpc;
+
+		//notify other players about leaving
+		PlayerLeft *pl = new PlayerLeft();
+		pl->playerID = cpc->connectionID;
+		announceTxt(cpc->name + " left the game");
+		toAnnounce.push_back(pl);
+
+		if(!connections.size())
+		{
+			tlog0 << "Last connection lost, server will close itself...\n";
+			boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
+			state = ENDING_WITHOUT_START;
+		}
+	}
+
+	tlog0 << "Thread listening for " << *cpc << " ended\n";
+	listeningThreads--;
+	delNull(cpc->handler);
+}
+
+void CPregameServer::run()
+{
+	startListeningThread(host);
+	start_async_accept();
+
+	while(state == RUNNING)
+	{
+		{
+			boost::unique_lock<boost::recursive_mutex> myLock(mx);
+			while(toAnnounce.size())
+			{
+				processPack(toAnnounce.front());
+				toAnnounce.pop_front();
+			}
+
+// 			//we end sending thread if we ordered all our connections to stop
+// 			ending = true;
+// 			BOOST_FOREACH(CPregameConnection *pc, connections)
+// 				if(!pc->sendStop)
+// 					ending = false;
+
+			if(state != RUNNING)
+			{
+				tlog0 << "Stopping listening for connections...\n";
+				acceptor->close();
+			}
+
+			if(acceptor)
+			{
+				acceptor->io_service().reset();
+				acceptor->io_service().poll();
+			}
+		} //frees lock
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	}
+
+	tlog0 << "Thread handling connections ended\n";
+
+	if(state == ENDING_AND_STARTING_GAME)
+	{
+		tlog0 << "Waiting for listening thread to finish...\n";
+		while(listeningThreads) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		tlog0 << "Preparing new game\n";
+	}
+}
+
+CPregameServer::~CPregameServer()
+{
+	delete acceptor;
+	delete upcomingConnection;
+
+	BOOST_FOREACH(CPackForSelectionScreen *pack, toAnnounce)
+		delete pack;
+
+	toAnnounce.clear();
+
+	//TODO pregameconnections
+}
+
+void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
+{
+	if(ec)
+	{
+		tlog0 << "Something wrong during accepting: " << ec.message() << std::endl;
+		return;
+	}
+
+	tlog0 << "We got a new connection! :)\n";
+	CConnection *pc = new CConnection(upcomingConnection, NAME);
+	initConnection(pc);
+	upcomingConnection = NULL;
+
+	*pc << (ui8)pc->connectionID << curmap;
+
+	startListeningThread(pc);
+
+	announceTxt(pc->name + " joins the game");
+	PlayerJoined *pj = new PlayerJoined();
+	pj->playerName = pc->name;
+	pj->connectionID = pc->connectionID;
+	toAnnounce.push_back(pj);
+
+	start_async_accept();
+}
+
+void CPregameServer::start_async_accept()
+{
+	assert(!upcomingConnection);
+	assert(acceptor);
+
+	upcomingConnection = new TSocket(acceptor->io_service());
+	acceptor->async_accept(*upcomingConnection, boost::bind(&CPregameServer::connectionAccepted, this, boost::asio::placeholders::error));
+}
+
+void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
+{
+	tlog0 << playerName << " says: " << txt << std::endl;
+	ChatMessage cm;
+	cm.playerName = playerName;
+	cm.message = txt;
+
+	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	toAnnounce.push_front(new ChatMessage(cm));
+}
+
+void CPregameServer::announcePack(const CPackForSelectionScreen &pack)
+{
+	BOOST_FOREACH(CConnection *pc, connections)
+		sendPack(pc, pack);
+}
+
+void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & pack)
+{
+	if(!pc->sendStop)
+	{
+		tlog0 << "\tSending pack of type " << typeid(pack).name() << " to " << *pc << std::endl;
+		*pc << &pack;
+	}
+
+	if(dynamic_cast<const QuitMenuWithoutStarting*>(&pack))
+	{
+		pc->sendStop = true;
+	}
+	else if(dynamic_cast<const StartWithCurrentSettings*>(&pack))
+	{
+		pc->sendStop = true;
+	}
+}
+
+void CPregameServer::processPack(CPackForSelectionScreen * pack)
+{
+	if(dynamic_cast<CPregamePackToHost*>(pack))
+	{
+		sendPack(host, *pack);
+	}
+	else if(SelectMap *sm = dynamic_cast<SelectMap*>(pack))
+	{
+		delNull(curmap);
+		curmap = sm->mapInfo;
+		sm->free = false;
+		announcePack(*pack);
+	}
+	else if(UpdateStartOptions *uso = dynamic_cast<UpdateStartOptions*>(pack))
+	{
+		delNull(curStartInfo);
+		curStartInfo = uso->options;
+		uso->free = false;
+		announcePack(*pack);
+	}
+	else if(dynamic_cast<const StartWithCurrentSettings*>(pack))
+	{
+		state = ENDING_AND_STARTING_GAME;
+		announcePack(*pack);
+	}
+	else
+		announcePack(*pack);
+
+	delete pack;
+}
+
+void CPregameServer::initConnection(CConnection *c)
+{
+	*c >> c->name;
+	connections.insert(c);
+	tlog0 << "Pregame connection with player " << c->name << " established!" << std::endl;
+}
+
+void CPregameServer::startListeningThread(CConnection * pc)
+{	
+	listeningThreads++;
+	pc->handler = new boost::thread(&CPregameServer::handleConnection, this, pc);
+}
+
 CVCMIServer::CVCMIServer()
-: io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), port)))
+: io(new io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(NULL)
 {
 	tlog4 << "CVCMIServer created!" <<std::endl;
 }
@@ -64,64 +316,75 @@ CVCMIServer::~CVCMIServer()
 	//delete acceptor;
 }
 
-void CVCMIServer::newGame(CConnection *c)
+CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 {
-	CGameHandler gh;
-	boost::system::error_code error;
-	StartInfo *si = new StartInfo;
-	ui8 clients;
-	*c >> clients; //how many clients should be connected - TODO: support more than one
-	*c >> *si; //get start options
+	CGameHandler *gh = new CGameHandler();
+	StartInfo si;
+	c >> si; //get start options
 	int problem;
 
 #ifdef _MSC_VER
 	FILE *f;
-	problem = fopen_s(&f,si->mapname.c_str(),"r");
+	problem = fopen_s(&f,si.mapname.c_str(),"r");
 #else
-	FILE * f = fopen(si->mapname.c_str(),"r");
+	FILE * f = fopen(si.mapname.c_str(),"r");
 	problem = !f;
 #endif
-	if(problem && si->mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
+
+	if(problem && si.mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
 	{
-		*c << ui8(problem); //WRONG!
-		return;
+		c << ui8(problem); //WRONG!
+		return NULL;
 	}
 	else
 	{
 		if(f)	
 			fclose(f);
-		*c << ui8(0); //OK!
+		c << ui8(0); //OK!
 	}
 
-	StartInfo startInfoCpy = *si;
-	gh.init(si,rand());
-	c->addStdVecItems(gh.gs);
+	gh->init(&si,std::clock());
+	c.addStdVecItems(gh->gs);
+	gh->conns.insert(&c);
 
-	CConnection* cc; //tcp::socket * ss;
-	for(int i=0; i<clients; i++)
-	{
-		if(!i) 
-		{
-			cc=c;
-		}
-		else
-		{
-			tcp::socket * s = new tcp::socket(acceptor->io_service());
-			acceptor->accept(*s,error);
-			if(error) //retry
-			{
-				tlog3<<"Cannot establish connection - retrying..." << std::endl;
-				i--;
-				continue;
-			}
-			cc = new CConnection(s,NAME);
-			cc->addStdVecItems(gh.gs);
-		}	
-		gh.conns.insert(cc);
-	}
-
-	gh.run(false, &startInfoCpy);
+	return gh;
 }
+
+void CVCMIServer::newGame()
+{
+	CConnection &c = *firstConnection;
+	ui8 clients;
+	c >> clients; //how many clients should be connected 
+	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
+
+	CGameHandler *gh = initGhFromHostingConnection(c);
+	gh->run(false);
+	delNull(gh);
+}
+
+void CVCMIServer::newPregame()
+{
+	CPregameServer *cps = new CPregameServer(firstConnection, acceptor);
+	cps->run();
+	if(cps->state == CPregameServer::ENDING_WITHOUT_START)
+	{
+		delete cps;
+		return;
+	}
+
+	if(cps->state == CPregameServer::ENDING_AND_STARTING_GAME)
+	{
+		CGameHandler gh;
+		gh.conns = cps->connections;
+		gh.init(cps->curStartInfo,std::clock());
+
+		BOOST_FOREACH(CConnection *c, gh.conns)
+			c->addStdVecItems(gh.gs);
+
+		gh.run(false);
+	}
+}
+
 void CVCMIServer::start()
 {
 	ServerReady *sr = NULL;
@@ -147,6 +410,7 @@ void CVCMIServer::start()
 	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
 	delete mr;
+
 	acc.join();
 	if (error)
 	{
@@ -154,39 +418,44 @@ void CVCMIServer::start()
 		return;
 	}
 	tlog0<<"We've accepted someone... " << std::endl;
-	CConnection *connection = new CConnection(s,NAME);
+	firstConnection = new CConnection(s,NAME);
 	tlog0<<"Got connection!" << std::endl;
 	while(!end2)
 	{
 		ui8 mode;
-		*connection >> mode;
+		*firstConnection >> mode;
 		switch (mode)
 		{
 		case 0:
-			connection->socket->close();
+			firstConnection->close();
 			exit(0);
 			break;
 		case 1:
-			connection->socket->close();
+			firstConnection->close();
 			return;
 			break;
 		case 2:
-			newGame(connection);
+			newGame();
 			break;
 		case 3:
-			loadGame(connection);
+			loadGame();
+			break;
+		case 4:
+			newPregame();
 			break;
 		}
 	}
 }
 
-void CVCMIServer::loadGame( CConnection *c )
+void CVCMIServer::loadGame()
 {
+	CConnection &c = *firstConnection;
 	std::string fname;
 	CGameHandler gh;
 	boost::system::error_code error;
 	ui8 clients;
-	*c >> clients >> fname; //how many clients should be connected - TODO: support more than one
+
+	c >> clients >> fname; //how many clients should be connected - TODO: support more than one
 
 	{
 		ui32 ver;
@@ -202,7 +471,7 @@ void CVCMIServer::loadGame( CConnection *c )
 		tlog0 <<"Reading handlers"<<std::endl;
 
 		lf >> (gh.gs);
-		c->addStdVecItems(gh.gs);
+		c.addStdVecItems(gh.gs);
 		tlog0 <<"Reading gamestate"<<std::endl;
 	}
 
@@ -211,14 +480,14 @@ void CVCMIServer::loadGame( CConnection *c )
 		lf >> gh;
 	}
 
-	*c << ui8(0);
+	c << ui8(0);
 
 	CConnection* cc; //tcp::socket * ss;
 	for(int i=0; i<clients; i++)
 	{
 		if(!i) 
 		{
-			cc=c;
+			cc = &c;
 		}
 		else
 		{

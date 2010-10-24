@@ -24,6 +24,7 @@ class CConnection;
 class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
+class CMapInfo;
 
 struct CPack
 {
@@ -1626,7 +1627,13 @@ struct CPackForSelectionScreen : public CPack
 	void apply(CSelectionScreen *selScreen){}; //that functions are implemented in CPreGame.cpp
 };
 
-struct ChatMessage : public CPackForSelectionScreen
+class CPregamePackToPropagate  : public CPackForSelectionScreen
+{};
+
+class CPregamePackToHost  : public CPackForSelectionScreen
+{};
+
+struct ChatMessage : public CPregamePackToPropagate
 {
 	std::string playerName, message;
 
@@ -1634,6 +1641,157 @@ struct ChatMessage : public CPackForSelectionScreen
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & playerName & message;
+	}
+};
+
+struct QuitMenuWithoutStarting : public CPregamePackToPropagate
+{
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+struct PlayerJoined : public CPregamePackToHost
+{
+	std::string playerName;
+	ui8 connectionID;
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & playerName & connectionID;
+	}
+};
+
+struct SelectMap : public CPregamePackToPropagate
+{
+	const CMapInfo *mapInfo;
+	bool free;
+
+	SelectMap(const CMapInfo &src)
+	{
+		mapInfo = &src;
+		free = false;
+	}
+	SelectMap()
+	{
+		mapInfo = NULL;
+		free = true;
+	}
+	~SelectMap()
+	{
+		if(free)
+			delete mapInfo;
+	}
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & mapInfo;
+	}
+
+};
+
+struct UpdateStartOptions : public CPregamePackToPropagate
+{
+	StartInfo *options;
+	bool free;
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	UpdateStartOptions(StartInfo &src)
+	{
+		options = &src;
+		free = false;
+	}
+	UpdateStartOptions()
+	{
+		options = NULL;
+		free = true;
+	}
+	~UpdateStartOptions()
+	{
+		if(free)
+			delete options;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & options;
+	}
+
+};
+
+struct PregameGuiAction : public CPregamePackToPropagate
+{
+	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST};
+
+	ui8 action;
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & action;
+	}
+};
+
+struct RequestOptionsChange : public CPregamePackToHost
+{
+	enum {TOWN, HERO, BONUS};
+	ui8 what;
+	si8 direction; //-1 or +1 
+	ui8 playerID;
+
+	RequestOptionsChange(ui8 What, si8 Dir, ui8 Player)
+		:what(What), direction(Dir), playerID(Player)
+	{}
+	RequestOptionsChange(){}
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & what & direction & playerID;
+	}
+};
+
+struct PlayerLeft : public CPregamePackToPropagate
+{
+	ui8 playerID;
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & playerID;
+	}
+};
+
+struct PlayersNames : public CPregamePackToPropagate
+{
+public:
+	std::map<ui32, std::string> playerNames;
+
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & playerNames;
+	}
+};
+
+struct StartWithCurrentSettings : public CPregamePackToPropagate
+{
+public:
+	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		//h & playerNames;
 	}
 };
 

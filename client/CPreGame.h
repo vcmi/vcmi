@@ -6,6 +6,7 @@
 #include "../StartInfo.h"
 #include "GUIBase.h"
 #include "FunctionList.h"
+#include "../lib/CMapInfo.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -26,27 +27,10 @@ class CGStatusBar;
 class CTextBox;
 class CCampaignState;
 class CConnection;
+class CPackForSelectionScreen;
+class PlayerInfo;
 
-class CMapInfo
-{
-public:
-	CMapHeader * mapHeader; //may be NULL if campaign
-	CCampaignHeader * campaignHeader; //may be NULL if scenario
-	StartInfo *scenarioOpts; //options with which scenario has been started (used only with saved games)
-	std::string filename;
-	bool lodCmpgn; //tells if this campaign is located in Lod file
-	std::string date;
-	int playerAmnt, //players in map
-		humenPlayers; //players ALLOWED to be controlled by human
-	int actualHumanPlayers; // >1 if multiplayer game
-	CMapInfo(bool map = true);
-	~CMapInfo();
-	//CMapInfo(const std::string &fname, const unsigned char *map);
-	void setHeader(CMapHeader *header);
-	void mapInit(const std::string &fname, const unsigned char *map);
-	void campaignInit();
-	void countPlayers();
-};
+namespace boost{ class thread; class recursive_mutex;}
 
 enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps}; //_numOfMaps is for campaigns
 
@@ -66,7 +50,7 @@ public:
 	};
 
 	enum EMultiMode {
-		SINGLE_PLAYER = 0, HOT_SEAT, MULTI_PLAYER
+		SINGLE_PLAYER = 0, MULTI_HOT_SEAT, MULTI_NETWORK_HOST, MULTI_NETWORK_GUEST
 	};
 
 	CPicture *bgAd;
@@ -94,6 +78,10 @@ public:
 	CTextInput *inputBox;
 
 	CChatBox(const Rect &rect);
+
+	void keyPressed(const SDL_KeyboardEvent & key);
+
+	void addNewMessage(const std::string &text);
 };
 
 class InfoCard : public CIntObject
@@ -102,9 +90,11 @@ class InfoCard : public CIntObject
 public:
 	CMenuScreen::EState type;
 
+	bool network;
 	bool chatOn;  //if chat is shown, then description is hidden
 	CTextBox *mapDescription;
 	CChatBox *chat;
+	CPicture *playerListBg;
 
 	CHighlightableButtonsGroup *difficulty;
 	CDefHandler *sizes, *sFlags;;
@@ -115,7 +105,7 @@ public:
 	void showTeamsPopup();
 	void toggleChat();
 	void setChat(bool activateChat);
-	InfoCard(CMenuScreen::EState Type, bool network = false);
+	InfoCard(bool Network = false);
 	~InfoCard();
 };
 
@@ -159,7 +149,7 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
-	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, bool MultiPlayer=false);
+	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
 	~SelectionTab();
 };
 
@@ -183,6 +173,7 @@ public:
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
+		PlayerInfo &pi;
 		PlayerSettings &s;
 		CPicture *bg;
 		AdventureMapButton *btns[6]; //left and right for town, hero, bonus
@@ -190,17 +181,24 @@ public:
 		SelectedBox *town;
 		SelectedBox *hero;
 		SelectedBox *bonus;
-		bool fixedHero;
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 		
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(bool onlyHero = true); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
 	};
-	CMenuScreen::EState type;
+
 	CSlider *turnDuration;
 
 	std::set<int> usedHeroes;
+
+	struct PlayerToRestore
+	{
+		int color, id; 
+		void reset() { color = id = -1; }
+		PlayerToRestore(){ reset(); }
+	} playerToRestore;
+
 
 	std::map<int, PlayerOptionsEntry *> entries; //indexed by color
 
@@ -210,8 +208,8 @@ public:
 	void setTurnLength(int npos);
 	void flagPressed(int player);
 
-	void changeSelection(const CMapHeader *to);
-	OptionsTab(CMenuScreen::EState Type/*, StartInfo &Opts*/);
+	void recreate();
+	OptionsTab();
 	~OptionsTab();
 	void showAll(SDL_Surface * to);
 
@@ -220,7 +218,32 @@ public:
 	bool canUseThisHero( int ID );
 };
 
-class CSelectionScreen : public CIntObject
+class ISelectionScreenInfo
+{
+public:
+	CMenuScreen::EMultiMode multiPlayer;
+	CMenuScreen::EState screenType; //new/save/load#Game
+	const CMapInfo *current;
+	StartInfo sInfo;
+	std::map<ui32, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
+
+	ISelectionScreenInfo(const std::map<ui32, std::string> *Names = NULL);
+	virtual ~ISelectionScreenInfo();
+	virtual void update(){};
+	virtual void propagateOptions() {};
+	virtual void postRequest(ui8 what, ui8 dir) {};
+	virtual void postChatMessage(const std::string &txt){};
+
+	void setPlayer(PlayerSettings &pset, unsigned player);
+	void updateStartInfo( std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader );
+
+	int getIdOfFirstUnallocatedPlayer(); //returns 0 if none
+	bool isGuest() const;
+	bool isHost() const;
+
+};
+
+class CSelectionScreen : public CIntObject, public ISelectionScreenInfo
 {
 public:
 	CPicture *bg; //general bg image
@@ -229,25 +252,33 @@ public:
 	AdventureMapButton *start, *back;
 
 	SelectionTab *sel;
-	CMenuScreen::EState type; //new/save/load#Game
-	const CMapInfo *current;
-	StartInfo sInfo;
 	CIntObject *curTab;
-	CMenuScreen::EMultiMode multiPlayer;
+
+	boost::thread *serverHandlingThread;
+	boost::recursive_mutex *mx;
+	std::list<CPackForSelectionScreen *> upcomingPacks; //protected by mx
 
 	CConnection *serv; //connection to server, used in MP mode
+	bool ongoingClosing;
+	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui32, std::string> *Names = NULL);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
-	static void updateStartInfo( const CMapInfo * to, StartInfo & sInfo, const CMapHeader * mapHeader );
 	void startCampaign();
 	void startGame();
 	void difficultyChange(int to);
 
-	void toggleChat();
 	void handleConnection();
+
+	void processPacks();
+	void setSInfo(const StartInfo &si);
+	void update() OVERRIDE;
+	void propagateOptions() OVERRIDE;
+	void postRequest(ui8 what, ui8 dir) OVERRIDE;
+	void postChatMessage(const std::string &txt) OVERRIDE;
+	void propagateNames();
 };
 
 class CSavingScreen : public CSelectionScreen
@@ -260,7 +291,8 @@ public:
 	~CSavingScreen();
 };
 
-class CScenarioInfo : public CIntObject
+//scenario information screen shown during the game (thus not really a "pre-game" but fits here anyway)
+class CScenarioInfo : public CIntObject, public ISelectionScreenInfo
 {
 public:
 	AdventureMapButton *back;
@@ -386,10 +418,8 @@ public:
 	CGPreGame();
 	~CGPreGame();
 	void update();
-	void run();
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
-	void resetPlayerNames();
 	void loadGraphics();
 	void disposeGraphics();
 };

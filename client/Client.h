@@ -43,11 +43,15 @@ public:
 	bool verbose; //whether to print log msgs
 	std::string port; //port number in text form
 
+	//functions setting up local server
 	void startServer(); //creates a thread with callServer
 	void waitForServer(); //waits till server is ready
 	CConnection * connectToServer(); //connects to server
 
-	CServerHandler();
+	//////////////////////////////////////////////////////////////////////////
+	static CConnection * justConnectToServer(const std::string &host = "", const std::string &port = ""); //connects to given host without taking any other actions (like setting up server)
+
+	CServerHandler(bool runServer = false);
 	~CServerHandler();
 };
 

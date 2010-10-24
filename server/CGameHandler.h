@@ -219,7 +219,7 @@ public:
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);
 
-	void run(bool resume, const StartInfo *si = NULL);
+	void run(bool resume);
 	void newTurn();
 	void handleAfterAttackCasting( const BattleAttack & bat );
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ui32 artID);

@@ -148,6 +148,7 @@ public:
 	CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
 	~CSlider();
+	void moveToMax();
 };	
 
 #endif // __ADVENTUREMAPBUTTON_H__

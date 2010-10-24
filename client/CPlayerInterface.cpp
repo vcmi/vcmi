@@ -1917,6 +1917,14 @@ SystemOptions::SystemOptions()
 	animSpeed = 2;
 	printMouseShadow = true;
 	showQueue = true;
+
+	playerName = "Player";
+}
+
+void SystemOptions::setPlayerName(const std::string &newPlayerName)
+{
+	playerName = newPlayerName;
+	settingsChanged();
 }
 
 void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )

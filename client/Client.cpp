@@ -309,37 +309,57 @@ int CClient::getSelectedHero()
 
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
+	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
+	std::set<ui8> myPlayers;
+
 	if (con == NULL) 
 	{
 		CServerHandler sh;
-		con = sh.connectToServer();
+		serv = sh.connectToServer();
 	}
+	else
+	{
+		serv = con;
+		networkMode = (con->connectionID == 1) ? HOST : GUEST;
+	}
+
+	for(std::map<int, PlayerSettings>::iterator it =si->playerInfos.begin(); 
+		it != si->playerInfos.end(); ++it)
+	{
+		if(networkMode == SINGLE												//single - one client has all player
+			|| networkMode != SINGLE && serv->connectionID == it->second.human	//multi - client has only "its players"
+			|| networkMode == HOST && it->second.human == false)				//multi - host has all AI players
+		{
+			myPlayers.insert(ui8(it->first)); //add player
+		}
+	}
+	if(networkMode != GUEST)
+		myPlayers.insert(255); //neutral
+
+
 
 	timeHandler tmh;
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
-	serv = con;
-	CConnection &c(*con);
+	CConnection &c(*serv);
 	////////////////////////////////////////////////////
-	ui8 pom8;
-	c << ui8(2) << ui8(1); //new game; one client
-	c << *si;
-	c >> pom8;
-	if(pom8) 
-		throw "Server cannot open the map!";
-	else
-		tlog0 << "Server opened map properly.\n";
-	c << ui8(si->playerInfos.size()+1); //number of players + neutral
-	for(std::map<int, PlayerSettings>::iterator it =si->playerInfos.begin(); 
-		it != si->playerInfos.end(); ++it)
+
+	if(networkMode == SINGLE)
 	{
-		c << ui8(it->first); //players
+		ui8 pom8;
+		c << ui8(2) << ui8(1); //new game; one client
+		c << *si;
+		c >> pom8;
+		if(pom8) 
+			throw "Server cannot open the map!";
+		else
+			tlog0 << "Server opened map properly.\n";
 	}
-	c << ui8(255); // neutrals
+
+	c << myPlayers;
 
 
 	ui32 seed, sum;
-	delete si;
 	c >> si	>> sum >> seed;
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
@@ -362,6 +382,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
 		ui8 color = it->first;
+		if(!vstd::contains(myPlayers, color))
+			continue;
+
 		CCallback *cb = new CCallback(gs,color,this);
 		if(!it->second.human) 
 		{
@@ -524,27 +547,15 @@ CConnection * CServerHandler::connectToServer()
 		waitForServer();
 
 	th.update();
-	CConnection *ret = NULL;
-	while(!ret)
-	{
-		try
-		{
-			tlog0 << "Establishing connection...\n";
-			ret = new CConnection(conf.cc.server, port, NAME);
-		}
-		catch(...)
-		{
-			tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
-			SDL_Delay(2000);
-		}
-	}
+	CConnection *ret = justConnectToServer(conf.cc.server, port);
+
 	if(verbose)
 		tlog0<<"\tConnecting to the server: "<<th.getDif()<<std::endl;
 
 	return ret;
 }
 
-CServerHandler::CServerHandler()
+CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = NULL;
 	shared = NULL;
@@ -568,4 +579,25 @@ void CServerHandler::callServer()
 	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > server_log.txt";
 	std::system(comm.c_str());
 	tlog0 << "Server finished\n";
+}
+
+CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
+{
+	CConnection *ret = NULL;
+	while(!ret)
+	{
+		try
+		{
+			tlog0 << "Establishing connection...\n";
+			ret = new CConnection(	host.size() ? host : conf.cc.server, 
+									port.size() ? port : boost::lexical_cast<std::string>(conf.cc.port), 
+									NAME);
+		}
+		catch(...)
+		{
+			tlog1 << "\nCannot establish connection! Retrying within 2 seconds" << std::endl;
+			SDL_Delay(2000);
+		}
+	}
+	return ret;
 }

@@ -26,8 +26,9 @@ struct PlayerSettings
 	si8 bonus; //usees enum type Ebonus
 	ui8 color; //from 0 - 
 	ui8 handicap;//0-no, 1-mild, 2-severe
+
 	std::string name;
-	ui8 human;
+	ui8 human; //0 - AI, non-0 serves as player id
 	template <typename Handler> 	void serialize(Handler &h, const int version)
 	{
 		h & castle;
@@ -51,15 +52,15 @@ struct PlayerSettings
 
 struct StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN};
+	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
 
-	ui8 mode; //0 - new game; 1 - load game; 2 - campaign
+	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible
 	std::map<int, PlayerSettings> playerInfos; //color indexed
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
-	ui8 whichMapInCampaign; //used only for mode 2
-	ui8 choosenCampaignBonus; //used only for mode 2
+	ui8 whichMapInCampaign; //used only for mode CAMPAIGN
+	ui8 choosenCampaignBonus; //used only for mode CAMPAIGN
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
@@ -68,10 +69,10 @@ struct StartInfo
 		throw std::string("Cannot find info about player");
 	}
 
-	PlayerSettings *getPlayersSettings(const std::string &name)
+	PlayerSettings *getPlayersSettings(const ui8 nameID)
 	{
 		for(std::map<int, PlayerSettings>::iterator it=playerInfos.begin(); it != playerInfos.end(); ++it)
-			if(it->second.name == name)
+			if(it->second.human == nameID)
 				return &it->second;
 
 		return NULL;
@@ -86,6 +87,11 @@ struct StartInfo
 		h & mapname;
 		h & whichMapInCampaign;
 		h & choosenCampaignBonus;
+	}
+
+	StartInfo()
+	{
+		mode = INVALID;
 	}
 };
 

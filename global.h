@@ -412,4 +412,11 @@ static inline ui32 read_unaligned_u32(const void *p)
 #define read_unaligned_u32(p) (* reinterpret_cast<const Uint32 *>(p))
 #endif
 
+//for explicit overrides
+#ifdef _MSC_VER
+	#define OVERRIDE override
+#else
+	#define OVERRIDE 	//is there any working counterpart?
+#endif
+
 #endif // __GLOBAL_H__
