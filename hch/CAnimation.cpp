@@ -606,6 +606,11 @@ SDL_Surface * CAnimation::image(size_t frame, size_t group)
 	return NULL;
 }
 
+void CAnimation::clear()
+{
+	entries.clear();
+}
+
 void CAnimation::load()
 {
 	CDefFile * file = getFile();

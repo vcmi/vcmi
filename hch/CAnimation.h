@@ -146,6 +146,9 @@ public:
 	//get pointer to surface, from specific group
 	SDL_Surface * image(size_t frame, size_t group);
 
+	//removes all frames as well as their entries
+	void clear();
+
 	//all available frames
 	void load  ();
 	void unload();

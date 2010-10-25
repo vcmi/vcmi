@@ -64,6 +64,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CSndHandler.$(OBJEXT) \
 	vcmiclient-CVideoHandler.$(OBJEXT) \
+	vcmiclient-CMapInfo.$(OBJEXT) \
 	vcmiclient-AdventureMapButton.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
 	vcmiclient-CBattleInterface.$(OBJEXT) \
@@ -296,6 +297,8 @@ vcmiclient_SOURCES = \
 	../hch/CSoundBase.h \
 	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
+	../lib/CMapInfo.cpp \
+	../lib/CMapInfo.h \
 	../int3.h \
 	../nodrze.h \
 	../stdafx.h \
@@ -453,6 +456,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CHeroWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CKingdomInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMapInfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMessage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMusicHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPlayerInterface.Po@am__quote@
@@ -621,6 +625,22 @@ vcmiclient-CVideoHandler.obj: ../hch/CVideoHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
+
+vcmiclient-CMapInfo.o: ../lib/CMapInfo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMapInfo.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMapInfo.Tpo -c -o vcmiclient-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMapInfo.Tpo $(DEPDIR)/vcmiclient-CMapInfo.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiclient-CMapInfo.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
+
+vcmiclient-CMapInfo.obj: ../lib/CMapInfo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMapInfo.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMapInfo.Tpo -c -o vcmiclient-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMapInfo.Tpo $(DEPDIR)/vcmiclient-CMapInfo.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiclient-CMapInfo.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
 
 vcmiclient-AdventureMapButton.o: AdventureMapButton.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapButton.o -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo -c -o vcmiclient-AdventureMapButton.o `test -f 'AdventureMapButton.cpp' || echo '$(srcdir)/'`AdventureMapButton.cpp

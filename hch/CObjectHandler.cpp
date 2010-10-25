@@ -1233,11 +1233,11 @@ void CGHeroInstance::updateSkill(int which, int val)
 		case 23: //Armorer
 			skillVal = 5 * val; break;
 		case 24: //Intelligence
-			skillVal = 25 << val-1; break;
+			skillVal = 25 << (val-1); break;
 		case 25: //Sorcery
 			skillVal = 5 * val; break;
 		case 26: //Resistance
-			skillVal = 5 << val-1; break;
+			skillVal = 5 << (val-1); break;
 		case 27: //First Aid
 			skillVal = 25 + 25*val; break;
 	}

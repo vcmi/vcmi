@@ -6,6 +6,8 @@
 #include "HeroBonus.h"
 #include <set>
 #include "CCreatureSet.h"
+#include "CMapInfo.h"
+#include "../StartInfo.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -24,7 +26,7 @@ class CConnection;
 class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
-class CMapInfo;
+//class CMapInfo;
 
 struct CPack
 {

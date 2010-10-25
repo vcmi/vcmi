@@ -1,9 +1,9 @@
 #define VCMI_DLL
 
 #include "CMapInfo.h"
-#include "..\StartInfo.h"
+#include "../StartInfo.h"
 #include "map.h"
-#include "..\hch\CCampaignHandler.h"
+#include "../hch/CCampaignHandler.h"
 
 void CMapInfo::countPlayers()
 {

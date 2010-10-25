@@ -119,7 +119,7 @@ struct DLL_EXPORT PlayerInfo
 	}
 	si8 defaultHero(bool isMapRoE = false) const
 	{
-		if ((generateHeroAtMainTown || isMapRoE)  &&  hasMainTown  //we will generate hero in front of main town
+		if ( ((generateHeroAtMainTown || isMapRoE)  &&  hasMainTown)  //we will generate hero in front of main town
 			|| p8) //random hero
 			return -1;
 		else

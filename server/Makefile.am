@@ -8,4 +8,6 @@ vcmiserver_SOURCES = \
 	CGameHandler.h \
 	CVCMIServer.cpp \
 	CVCMIServer.h \
-	NetPacksServer.cpp
+	NetPacksServer.cpp \
+	../lib/CMapInfo.cpp \
+	../lib/CMapInfo.h

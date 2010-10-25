@@ -30,6 +30,8 @@ libvcmi_la_SOURCES = \
 	BattleAction.h \
 	CCreatureSet.cpp \
 	CCreatureSet.h \
+	CMapInfo.cpp \
+	CMapInfo.h \
 	CGameState.cpp \
 	CGameState.h \
 	CondSh.h \

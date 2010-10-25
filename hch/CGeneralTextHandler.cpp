@@ -64,7 +64,7 @@ void CGeneralTextHandler::load()
 	for(int gg=0; gg<14; ++gg)
 	{
 		int befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\r')
 				break;
@@ -78,7 +78,7 @@ void CGeneralTextHandler::load()
 	for(int gg=0; gg<4; ++gg)
 	{
 		int befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\r')
 				break;
@@ -335,7 +335,7 @@ void CGeneralTextHandler::load()
 	std::string tmp;
 	andame = buf.size();
 	i=0; //buf iterator
-	for(i; i<andame; ++i)
+	for(; i<andame; ++i)
 	{
 		if(buf[i]=='\r')
 			break;

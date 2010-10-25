@@ -142,7 +142,7 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
 {
 	befi=i;
-	for(i; i<andame; ++i)
+	for(; i<andame; ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -156,7 +156,7 @@ int readNumber(int & befi, int & i, int andame, std::string & buf) //helper func
 float readFloat(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadUnitAnimInfo()
 {
 	befi=i;
-	for(i; i<andame; ++i)
+	for(; i<andame; ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -211,7 +211,7 @@ void CCreatureHandler::loadCreatures()
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
-	for(i; i<andame; ++i)
+	for(; i<andame; ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -228,7 +228,7 @@ void CCreatureHandler::loadCreatures()
 		ncre.level=0;
 
 		int befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\t')
 				break;
@@ -237,7 +237,7 @@ void CCreatureHandler::loadCreatures()
 		++i;
 
 		befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\t')
 				break;
@@ -273,7 +273,7 @@ void CCreatureHandler::loadCreatures()
 		ncre.ammMax = readNumber(befi, i, andame, buf);
 
 		befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\t')
 				break;
@@ -282,7 +282,7 @@ void CCreatureHandler::loadCreatures()
 		++i;
 
 		befi=i;
-		for(i; i<andame; ++i)
+		for(; i<andame; ++i)
 		{
 			if(buf[i]=='\r')
 				break;
@@ -457,7 +457,7 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-	for(int i=1;i<=10;i++)
+	for(i=1;i<=10;i++)
 		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
 
 	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
@@ -514,7 +514,7 @@ void CCreatureHandler::loadCreatures()
 
 	i = 0; //buf iterator
 	hmcr = 0;
-	for(i; i<andame2; ++i) //omitting rubbish
+	for(; i<andame2; ++i) //omitting rubbish
 	{
 		if(buf[i]=='\r')
 			break;
@@ -526,7 +526,7 @@ void CCreatureHandler::loadCreatures()
 		//tlog5 <<"\t\t\t" << s <<". Reading defname. \n";
 		int befi=i;
 		std::string rub;
-		for(i; i<andame2; ++i)
+		for(; i<andame2; ++i)
 		{
 			if(buf[i]==' ')
 				break;
@@ -535,7 +535,7 @@ void CCreatureHandler::loadCreatures()
 		++i;
 
 		befi=i;
-		for(i; i<andame2; ++i)
+		for(; i<andame2; ++i)
 		{
 			if(buf[i]=='\r')
 				break;
@@ -587,7 +587,7 @@ void CCreatureHandler::loadAnimationInfo()
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
-	for(i; i<andame; ++i)
+	for(; i<andame; ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -611,7 +611,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 
 	while(unit.timeBetweenFidgets == 0.0)
 	{
-		for(i; i<src.size(); ++i)
+		for(; i<src.size(); ++i)
 		{
 			if(src[i]=='\r')
 				break;
@@ -643,7 +643,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 	unit.troopCountLocationOffset= readNumber(befi, i, src.size(), src);
 	unit.attackClimaxFrame = readNumber(befi, i, src.size(), src);
 
-	for(i; i<src.size(); ++i)
+	for(; i<src.size(); ++i)
 	{
 		if(src[i]=='\r')
 			break;

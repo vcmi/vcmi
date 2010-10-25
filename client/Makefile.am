@@ -28,6 +28,8 @@ vcmiclient_SOURCES =  \
 	../hch/CSoundBase.h \
 	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
+	../lib/CMapInfo.cpp \
+	../lib/CMapInfo.h \
 	../int3.h \
 	../nodrze.h \
 	../stdafx.h \

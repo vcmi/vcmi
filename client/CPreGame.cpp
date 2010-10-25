@@ -2948,7 +2948,7 @@ void CBonusSelection::updateBonusSelection()
 			blitAt(twcp->ourImages[1].bitmap, 0, 0, selected);
 
 			//moving surfaces into button
-			bonuses->buttons.back()->imgs[0]->unload();
+			bonuses->buttons.back()->imgs[0]->clear();
 			bonuses->buttons.back()->imgs[0]->add(notSelected);
 			bonuses->buttons.back()->imgs[0]->add(selected);
 
