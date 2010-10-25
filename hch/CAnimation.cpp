@@ -608,6 +608,7 @@ SDL_Surface * CAnimation::image(size_t frame, size_t group)
 
 void CAnimation::clear()
 {
+	unload();
 	entries.clear();
 }
 
