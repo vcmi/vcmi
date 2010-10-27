@@ -1371,6 +1371,7 @@ CGameState::~CGameState()
 	delete map;
 	delete curB;
 	delete scenarioOps;
+	delete initialOpts;
 	delete applierGs;
 	delete objCaller;
 
@@ -1381,7 +1382,6 @@ CGameState::~CGameState()
 
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
-	VLC->creh->globalEffects = &globalEffects;
 	struct HLP
 	{
 		//it's assumed that given hero should receive the bonus
@@ -1466,24 +1466,32 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 	};
 
-	switch(si->mode)
+
+	seed = Seed;
+	ran.seed((boost::int32_t)seed);
+	VLC->creh->globalEffects = &globalEffects;
+	scenarioOps = new StartInfo(*si);
+	initialOpts = new StartInfo(*si);
+	si = NULL;
+
+	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		map = new Mapa(si->mapname);
+		map = new Mapa(scenarioOps->mapname);
 		break;
 	case StartInfo::CAMPAIGN:
 		{
 			campaign = new CCampaignState();
-			campaign->initNewCampaign(*si);
-			assert(vstd::contains(campaign->camp->mapPieces, si->whichMapInCampaign));
+			campaign->initNewCampaign(*scenarioOps);
+			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->whichMapInCampaign));
 
-			std::string &mapContent = campaign->camp->mapPieces[si->whichMapInCampaign];
+			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
 			map = new Mapa();
 			map->initFromBytes((const unsigned char*)mapContent.c_str());
 		}
 		break;
 	default:
-		tlog1 << "Wrong mode: " << (int)si->mode << std::endl;
+		tlog1 << "Wrong mode: " << (int)scenarioOps->mode << std::endl;
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
@@ -1493,7 +1501,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 	if(checksum)
 	{
-		tlog0 << "\tServer checksum for " << si->mapname <<": "<< checksum << std::endl;
+		tlog0 << "\tServer checksum for " << scenarioOps->mapname <<": "<< checksum << std::endl;
 		tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
 		if(map->checksum != checksum)
 		{
@@ -1503,9 +1511,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	day = 0;
-	seed = Seed;
-	ran.seed((boost::int32_t)seed);
-	scenarioOps = new StartInfo(*si);
 	loadTownDInfos();
 
  	//pick grail location

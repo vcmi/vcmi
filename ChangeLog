@@ -1,3 +1,26 @@
+0.82 -> 0.83
+GENERAL:
+* Alliances support
+* Week of / Month of events
+* Mostly done pregame for MP games (temporarily only for local clients)
+* Support for 16bpp displays
+* Campaigns:
+ - support for building bonus
+ - moving to next map after victory
+* Town Portal supported
+* Vial of Dragon Blood supported
+
+HERO:
+* remaining specialities have been implemented
+
+TOWNS:
+* town events supported
+* Support for new town structures: Deiety of Fire and Escape Tunnel 
+
+BATTLES:
+* blocked retreating from castle
+
+
 0.81 -> 0.82 (Aug 01 2010)
 GENERAL:
 * Some of the starting bonuses in campaigns are supported

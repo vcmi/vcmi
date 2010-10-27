@@ -388,7 +388,7 @@ struct DLL_EXPORT CPathsInfo
 class DLL_EXPORT CGameState
 {
 public:
-	StartInfo* scenarioOps;
+	StartInfo* scenarioOps, *initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	CCampaignState *campaign;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn

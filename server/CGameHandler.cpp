@@ -1330,7 +1330,7 @@ void CGameHandler::run(bool resume)
 		ui8 pom;
 		//ui32 seed;
 		if(!resume)
-			(*cc) << gs->scenarioOps << gs->map->checksum << gs->seed; // gs->scenarioOps
+			(*cc) << gs->initialOpts << gs->map->checksum << gs->seed; // gs->scenarioOps
 
 		(*cc) >> quantity; //how many players will be handled at that client
 
