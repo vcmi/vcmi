@@ -1,3 +1,7 @@
 #!/usr/bin/make -f
 include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
+
+
+override_dh_auto_configure:
+	dh_auto_configure -- --disable-debug
