@@ -3613,7 +3613,7 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 			ret /= 100;
 		}
 	}
-	calculateSpellBonus(ret, sp, caster, affectedCreature);
+	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
 	return ret;
 }
 

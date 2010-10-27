@@ -6545,10 +6545,11 @@ void CArmedInstance::randomizeArmy(int type)
 
 void CArmedInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 {
+	/* //already given via PlayerState->getBonuses();
 	const PlayerState *p = cb->getPlayerState(tempOwner);
 	if (p && p != root) 
-		out.insert(p); //hero always inherits bonuses from player
-
+		out.insert(p); 
+	*/
 	out.insert(&cb->gameState()->globalEffects); //global effects are always active I believe
 
 	if(battle)
