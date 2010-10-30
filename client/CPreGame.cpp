@@ -70,7 +70,7 @@ extern SystemOptions GDefaultOptions;
 CGPreGame * CGP;
 ISelectionScreenInfo *SEL;
 
-static int playerColor; //if more than one player - applies to the first -------- BROKEN BROKEN BROKEN
+static int playerColor; //if more than one player - applies to the first
 
 static std::string selectedName; //set when game is started/loaded
 
@@ -125,6 +125,59 @@ static void swapPlayers(PlayerSettings &a, PlayerSettings &b)
 		playerColor = a.color;
 	else if(b.human == 1)
 		playerColor = b.color;
+}
+
+void setPlayer(PlayerSettings &pset, unsigned player, const std::map<ui32, std::string> &playerNames)
+{
+	if(vstd::contains(playerNames, player))
+		pset.name = playerNames.find(player)->second;
+	else
+		pset.name = CGI->generaltexth->allTexts[468];//Computer
+
+	pset.human = player;
+	if(player == playerNames.begin()->first)
+		playerColor = pset.color;
+}
+
+void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui32, std::string> &playerNames)
+{
+	sInfo.playerInfos.clear();
+	if(!filename.size()) 
+		return;
+
+	/*sInfo.playerInfos.resize(to->playerAmnt);*/
+	sInfo.mapname = filename;
+	playerColor = -1;
+
+	std::map<ui32, std::string>::const_iterator namesIt = playerNames.begin();
+
+	for (int i = 0; i < PLAYER_LIMIT; i++)
+	{
+		const PlayerInfo &pinfo = mapHeader->players[i];
+
+		//neither computer nor human can play - no player
+		if (!(pinfo.canComputerPlay || pinfo.canComputerPlay))
+			continue;
+
+		PlayerSettings &pset = sInfo.playerInfos[i];
+		pset.color = i;
+		if(pinfo.canHumanPlay && namesIt != playerNames.end())
+			setPlayer(pset, namesIt++->first, playerNames);
+		else
+			setPlayer(pset, 0, playerNames);
+
+		pset.castle = pinfo.defaultCastle();
+		pset.hero = pinfo.defaultHero(mapHeader->version==CMapHeader::RoE);
+
+
+		if(pinfo.mainHeroName.length())
+		{
+			pset.heroName = pinfo.mainHeroName;
+			if((pset.heroPortrait = pinfo.mainHeroPortrait) == 255)
+				pset.heroPortrait = pinfo.p9;
+		}
+		pset.handicap = 0;
+	}
 }
 
 template <typename T> class CApplyOnPG;
@@ -2696,7 +2749,9 @@ void CBonusSelection::selectMap( int whichOne )
 	ourHeader = new CMapHeader();
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
 	
-	SEL->updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader);
+	std::map<ui32, std::string> names;
+	names[1] = GDefaultOptions.playerName;
+	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
@@ -3123,55 +3178,12 @@ ISelectionScreenInfo::~ISelectionScreenInfo()
 
 void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader)
 {
-	sInfo.playerInfos.clear();
-	if(!filename.size()) 
-		return;
-
-	/*sInfo.playerInfos.resize(to->playerAmnt);*/
-	sInfo.mapname = filename;
-	playerColor = -1;
-
-	std::map<ui32, std::string>::const_iterator namesIt = playerNames.begin();
-
-	for (int i = 0; i < PLAYER_LIMIT; i++)
-	{
-		const PlayerInfo &pinfo = mapHeader->players[i];
-
-		//neither computer nor human can play - no player
-		if (!(pinfo.canComputerPlay || pinfo.canComputerPlay))
-			continue;
-
-		PlayerSettings &pset = sInfo.playerInfos[i];
-		pset.color = i;
-		if(pinfo.canHumanPlay && namesIt != playerNames.end())
-			setPlayer(pset, namesIt++->first);
-		else
-			setPlayer(pset, 0);
-
-		pset.castle = pinfo.defaultCastle();
-		pset.hero = pinfo.defaultHero(mapHeader->version==CMapHeader::RoE);
-
-
-		if(pinfo.mainHeroName.length())
-		{
-			pset.heroName = pinfo.mainHeroName;
-			if((pset.heroPortrait = pinfo.mainHeroPortrait) == 255)
-				pset.heroPortrait = pinfo.p9;
-		}
-		pset.handicap = 0;
-	}
+	::updateStartInfo(filename, sInfo, mapHeader, playerNames);
 }
 
 void ISelectionScreenInfo::setPlayer(PlayerSettings &pset, unsigned player)
 {
-	if(vstd::contains(playerNames, player))
-		pset.name = playerNames[player];
-	else
-		pset.name = CGI->generaltexth->allTexts[468];//Computer
-
-	pset.human = player;
-	if(player == playerNames.begin()->first)
-		playerColor = pset.color;
+	::setPlayer(pset, player, playerNames);
 }
 
 int ISelectionScreenInfo::getIdOfFirstUnallocatedPlayer()
