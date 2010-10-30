@@ -14497,7 +14497,8 @@ if test "x$GXX" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
 fi
 
-CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
+# For clang only. Need an autoconf test.
+# CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-unknown-pragmas -Wno-cast-align"
 
 # Check for Boost libraries
 
@@ -16177,6 +16178,8 @@ _ACEOF
 fi
 done
 
+
+CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
 
 
 

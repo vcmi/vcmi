@@ -32,7 +32,8 @@ if test "x$GXX" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
 fi
 
-CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
+# For clang only. Need an autoconf test.
+# CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-unknown-pragmas -Wno-cast-align"
 
 # Check for Boost libraries
 AX_BOOST_BASE([1.36])
@@ -74,6 +75,8 @@ AC_CHECK_HEADERS([boost/filesystem.hpp boost/algorithm/string.hpp boost/algorith
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
+
+CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
 
 AC_SUBST(SDL_LIBS)
 AC_SUBST(SDL_CXXFLAGS)
