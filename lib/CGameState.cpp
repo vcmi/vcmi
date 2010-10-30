@@ -1703,7 +1703,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 			if (hp->subID == 0xFF) //select by power
 			{
-				HLP::replaceHero(this, g, Xheroes[hp->power - 1]);
+				if(Xheroes.size() > hp->power - 1)
+					HLP::replaceHero(this, g, Xheroes[hp->power - 1]);
+				else
+					tlog2 << "Warning, to hero to replace!\n";
 				//we don't have to remove hero from Xheroes because it would destroy the order and duplicates shouldn't happen
 			}
 		}
@@ -1863,7 +1866,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 						maxB = b;
 					}
 				}
-				HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
+				if(maxB < 0)
+					tlog2 << "Warning - cannot give bonus to hero cause there are no heroes!\n";
+				else
+					HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
 			}
 			else //specific hero
 			{
