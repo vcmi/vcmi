@@ -396,8 +396,8 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 {
 	SDL_Surface * _or = NULL;
-	const Font &f = *graphics->fonts[FONT_MEDIUM];
-	int fontHeight = f.height;
+	//const Font &f = *graphics->fonts[FONT_MEDIUM];
+	//int fontHeight = f.height;
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);

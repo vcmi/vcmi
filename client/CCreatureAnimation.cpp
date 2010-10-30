@@ -43,7 +43,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 
 	//init anim data
 	int i,j, totalInBlock;
-	char Buffer[13];
+
 	defName=name;
 	i = 0;
 	DEFType = readNormalNr<4>(i,FDef); i+=4;

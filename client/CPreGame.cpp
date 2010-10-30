@@ -349,7 +349,8 @@ void CGPreGame::update()
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
-	: ISelectionScreenInfo(Names), serv(NULL), ongoingClosing(false), serverHandlingThread(NULL), myNameID(255), mx(new boost::recursive_mutex)
+	: ISelectionScreenInfo(Names), serverHandlingThread(NULL), mx(new boost::recursive_mutex),
+	  serv(NULL), ongoingClosing(false), myNameID(255)
 {
 	screenType = Type;
 	multiPlayer = MultiPlayer;
@@ -1397,7 +1398,8 @@ void CChatBox::addNewMessage(const std::string &text)
 }
 
 InfoCard::InfoCard( bool Network )
-: difficulty(NULL), sizes(NULL), sFlags(NULL), bg(NULL), chatOn(false), chat(NULL), network(Network), playerListBg(NULL)
+  : bg(NULL), network(Network), chatOn(false), chat(NULL), playerListBg(NULL),
+	difficulty(NULL), sizes(NULL), sFlags(NULL)
 {
 	OBJ_CONSTRUCTION;
 	pos.x += 393;
@@ -2018,7 +2020,7 @@ void OptionsTab::flagPressed( int color )
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSettings &S)
-:s(S), pi(SEL->current->mapHeader->players[S.color])
+ : pi(SEL->current->mapHeader->players[S.color]), s(S)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;

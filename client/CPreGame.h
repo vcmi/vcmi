@@ -18,7 +18,7 @@
  *
  */
 
-struct CMusicHandler;
+class CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
 class CTextInput;
@@ -27,8 +27,8 @@ class CGStatusBar;
 class CTextBox;
 class CCampaignState;
 class CConnection;
-class CPackForSelectionScreen;
-class PlayerInfo;
+struct CPackForSelectionScreen;
+struct PlayerInfo;
 
 namespace boost{ class thread; class recursive_mutex;}
 

@@ -825,11 +825,12 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 		processDef(obj->defInfo);
 
 	const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
-	int tilesW = bitmap->w/32,
-		tilesH = bitmap->h/32;
-	for(int fx=0; fx<bitmap->w/32; ++fx)
+	const int tilesW = bitmap->w/32;
+	const int tilesH = bitmap->h/32;
+
+	for(int fx=0; fx<tilesW; ++fx)
 	{
-		for(int fy=0; fy<bitmap->h/32; ++fy)
+		for(int fy=0; fy<tilesH; ++fy)
 		{
 			SDL_Rect cr;
 			cr.w = 32;
@@ -837,9 +838,9 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			cr.x = fx*32;
 			cr.y = fy*32;
 			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
-			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frameW && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frameH)
+			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
-				TerrainTile2 & curt = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z];
+				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];
 
 				std::vector< std::pair<const CGObjectInstance*,SDL_Rect> >::iterator i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
@@ -857,8 +858,8 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 					curt.objects.insert(i, toAdd);
 			}
 
-		} // for(int fy=0; fy<bitmap->h/32; ++fy)
-	} //for(int fx=0; fx<bitmap->w/32; ++fx)
+		} // for(int fy=0; fy<tilesH; ++fy)
+	} //for(int fx=0; fx<tilesW; ++fx)
 	return true;
 }
 

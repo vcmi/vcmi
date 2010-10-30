@@ -429,7 +429,7 @@ void CMinimap::show( SDL_Surface * to )
 }
 
 CTerrainRect::CTerrainRect()
-	:currentPath(NULL), curHoveredTile(-1,-1,-1)
+	:curHoveredTile(-1,-1,-1), currentPath(NULL)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
 	tilesh=(ADVOPT.advmapH+31)/32;

@@ -17,7 +17,7 @@
 class CMapInfo;
 
 class CConnection;
-class CPackForSelectionScreen;
+struct CPackForSelectionScreen;
 class CGameHandler;
 
 namespace boost

@@ -1061,8 +1061,8 @@ int CGameState::pickHero(int owner)
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	if(!map->getHero(h = ps.hero,0)  &&  h>=0) //we haven't used selected hero
 		return h;
-	int f = ps.castle;
 	int i=0;
+
 	do //try to find free hero of our faction
 	{
 		i++;
@@ -1666,7 +1666,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				continue;
 			}
 			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
-			CGHeroInstance * substitution = NULL;
 
 			if(hp->subID != 0xFF) //select by type
 			{
@@ -1699,7 +1698,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				continue;
 			}
 			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
-			CGHeroInstance * substitution = NULL;
 
 			if (hp->subID == 0xFF) //select by power
 			{
@@ -2023,7 +2021,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		}
 		while(vti->possibleSpells.size())
 		{
-			ui32 total=0, sel=-1;
+			ui32 total=0;
+			int sel = -1;
+
 			for(unsigned int ps=0;ps<vti->possibleSpells.size();ps++)
 				total += VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
 			int r = (total)? ran()%total : -1;
@@ -4277,7 +4277,7 @@ si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
 		return false;
 	}
 	const CStack * stack = getStack(stackID);
-	if (stack->hasBonusOfType(Bonus::NO_WALL_PENALTY));
+	if (stack->hasBonusOfType(Bonus::NO_WALL_PENALTY))
 	{
 		return false;
 	}
@@ -4486,8 +4486,8 @@ CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 }
 
 PlayerState::PlayerState() 
- : color(-1), currentSelection(0xffffffff), status(INGAME), daysWithoutCastle(0),
- enteredLosingCheatCode(0), enteredWinningCheatCode(0)
+ : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0), 
+   enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
 {
 
 }

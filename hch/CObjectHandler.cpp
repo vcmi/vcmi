@@ -2193,7 +2193,7 @@ void CGTownInstance::newTurn() const
 					int n, i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);	
 					{//no lower tiers or above current month
 
-						if (n = getSlotFor(town->basicCreatures[i], ARMY_SIZE));
+						if ((n = getSlotFor(town->basicCreatures[i], ARMY_SIZE)))
 						{ 
 							SetGarrisons sg;
 							sg.garrs[id] = getArmy();
@@ -6183,10 +6183,10 @@ int3 IBoatGenerator::bestLocation() const
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
 
-	TerrainTile *tile;
 	for (int i = 0; i < offsets.size(); ++i)
 	{
-		if (tile = IObjectInterface::cb->getTile(o->pos + offsets[i])) //tile is in the map 
+		TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i]);
+		if (tile) //tile is in the map
 		{
 			if (tile->tertype == TerrainTile::water  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offsets[i];

@@ -50,7 +50,7 @@ template <typename T> struct CondSh;
 class CInGameConsole;
 class CGarrisonInt;
 class CInGameConsole;
-class Component;
+struct Component;
 class CArmedInstance;
 class CGTownInstance;
 class StackState;

@@ -136,7 +136,7 @@ void CDummyAnim::endAnim()
 	delete this;
 }
 
-CDummyAnim::CDummyAnim(CBattleInterface * _owner, int howManyFrames) : CBattleAnimation(_owner), howMany(howManyFrames), counter(0)
+CDummyAnim::CDummyAnim(CBattleInterface * _owner, int howManyFrames) : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
 {
 }
 
@@ -441,7 +441,7 @@ void CReverseAnim::endAnim()
 }
 
 CReverseAnim::CReverseAnim(CBattleInterface * _owner, int stack, int dest, bool _priority)
-: CBattleStackAnimation(_owner, stack), partOfAnim(1), hex(dest), secondPartSetup(false), priority(_priority)
+: CBattleStackAnimation(_owner, stack), partOfAnim(1), secondPartSetup(false), hex(dest), priority(_priority)
 {
 }
 
@@ -514,8 +514,6 @@ bool CDefenceAnim::init()
 	}
 
 	//initializing
-	int maxLen = 0;
-		
 	if(killed)
 	{
 		CGI->soundh->playSound(battle_sound(attacked->type, killed));
@@ -1095,10 +1093,11 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 }
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
-	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), stackToActivate(-1),
-	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
-	  spellToCast(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), animIDhelper(0),
-	  moveStarted(false), moveSh(-1), siegeH(NULL), bresult(NULL), queue(NULL), attackerInt(att), defenderInt(defen), curInt(att)
+	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
+	  activeStack(-1), stackToActivate(-1), mouseHoveredStack(-1), previouslyHoveredHex(-1),
+	  currentlyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL), siegeH(NULL),
+	  attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
+	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
 {
 	ObjectConstruction h__l__p(this);
 
@@ -4009,7 +4008,7 @@ void CBattleOptionsWindow::bExitf()
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)
-: town(siegeTown), owner(_owner)
+  : owner(_owner), town(siegeTown)
 {
 	for(int g=0; g<ARRAY_COUNT(walls); ++g)
 	{
@@ -4220,7 +4219,7 @@ void CStackQueue::StackBox::setStack( const CStack *nStack )
 }
 
 CStackQueue::StackBox::StackBox(SDL_Surface *BG)
-:bg(BG), my(NULL)
+ :my(NULL), bg(BG)
 {
 	if(bg)
 	{

@@ -329,10 +329,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if (directlyAttackingCreature) {
 		// Get direction to attacker.
 		int3 posOffset = details.attackedFrom - details.end + int3(2, 1, 0);
-		const ui8 dirLookup[3][3] = {
-			1, 2, 3,
-			8, 0, 4,
-			7, 6, 5
+		static const ui8 dirLookup[3][3] = {
+			{ 1, 2, 3 },
+			{ 8, 0, 4 },
+			{ 7, 6, 5 }
 		};
 		// FIXME: Avoid const_cast, make moveDir mutable in some other way?
 		const_cast<CGHeroInstance *>(ho)->moveDir = dirLookup[posOffset.y][posOffset.x];

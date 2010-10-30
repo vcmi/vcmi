@@ -16,6 +16,7 @@
  *
  */
 
+#ifdef unused
 static long long pow(long long a, int b)
 {
 	if (!b) return 1;
@@ -24,6 +25,8 @@ static long long pow(long long a, int b)
 		a*=c;
 	return a;
 }
+#endif
+
 CDefHandler::CDefHandler()
 {
 	notFreeImgs = false;

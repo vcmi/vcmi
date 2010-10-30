@@ -24,7 +24,7 @@
  */
 
 struct MetaString;
-class BattleInfo;
+struct BattleInfo;
 class IGameCallback;
 struct BattleResult;
 class CCPPObjectScript;

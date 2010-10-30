@@ -30,7 +30,7 @@ class CGameState;
 class CCreature;
 class LibClasses;
 class CHero;
-class CPack;
+struct CPack;
 extern DLL_EXPORT LibClasses * VLC;
 namespace mpl = boost::mpl;
 

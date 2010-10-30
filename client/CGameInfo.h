@@ -30,7 +30,7 @@ class CCursorHandler;
 class CGameState;
 class CVideoPlayer;
 
-class Mapa;
+struct Mapa;
 
 /*
 	CGameInfo class

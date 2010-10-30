@@ -60,8 +60,8 @@ static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code
 
 
 CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= NULL*/)
-	: host(Host), state(RUNNING), acceptor(Acceptor), upcomingConnection(NULL), curmap(NULL), listeningThreads(0),
-	  curStartInfo(NULL)
+	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(NULL),
+	  curmap(NULL), curStartInfo(NULL), state(RUNNING)
 {
 	initConnection(host);
 }
@@ -458,7 +458,6 @@ void CVCMIServer::loadGame()
 	c >> clients >> fname; //how many clients should be connected - TODO: support more than one
 
 	{
-		ui32 ver;
 		char sig[8];
 		CMapHeader dum;
 		StartInfo *si;

@@ -2866,7 +2866,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 		{
 		case PLAYER:
 			ids = new std::vector<int>;
-			for(int i = 0, found = 0; i < PLAYER_LIMIT; i++)
+			for(int i = 0; i < PLAYER_LIMIT; i++)
 				if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == PlayerState::INGAME)
 					ids->push_back(i);
 			break;

@@ -4,7 +4,7 @@
 
 class CMapHeader;
 class CCampaignHeader;
-class StartInfo;
+struct StartInfo;
 
 
 class DLL_EXPORT CMapInfo

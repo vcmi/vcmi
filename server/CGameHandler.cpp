@@ -1198,7 +1198,6 @@ void CGameHandler::newTurn()
 			for (int i = 0; i < amount; ++i)
 			{
 				tile = tiles.begin();
-				TerrainTile *tinfo = &gs->map->terrain[tile->x][tile->y][tile->z];
 				NewObject no;
 				no.ID = 54; //creature
 				no.subID= n.creatureid;
@@ -1214,7 +1213,6 @@ void CGameHandler::newTurn()
 
 		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{
-			ui8 player = (*j)->tempOwner;
 			SetAvailableCreatures sac;
 			sac.tid = (**j).id;
 			sac.creatures = (**j).creatures;
@@ -4640,7 +4638,6 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 bool CGameHandler::buildBoat( ui32 objid )
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
-	int boatType = 1; 
 
 	if(obj->state())
 	{
@@ -4788,7 +4785,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 
 void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, InfoWindow &out ) const
 {
-	const PlayerState *p = gs->getPlayer(player);
+//	const PlayerState *p = gs->getPlayer(player);
 // 	if(!p->human)
 // 		return; //AI doesn't need text info of loss
 
@@ -4971,7 +4968,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				int spellID = sf.subtype;
 				int spellLevel = sf.val;
 				int chance = sf.additionalInfo % 1000;
-				int meleeRanged = sf.additionalInfo / 1000;
+				//int meleeRanged = sf.additionalInfo / 1000;
 				int destination = oneOfAttacked->position;
 				//check if spell should be casted (probability handling)
 				if( rand()%100 >= chance )

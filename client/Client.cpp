@@ -241,7 +241,6 @@ void CClient::loadGame( const std::string & fname )
 
 	timeHandler tmh;
 	{
-		ui32 ver;
 		char sig[8];
 		CMapHeader dum;
 		CGI->mh = new CMapHandler();

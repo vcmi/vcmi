@@ -105,7 +105,7 @@ namespace HHLP
 	{
 	public:
 		Bonus::BonusSource src;
-		SourceComp(Bonus::BonusSource _src) : src(src)
+		SourceComp(Bonus::BonusSource _src) : src(_src)
 		{
 		}
 		bool operator()(const Bonus & bon)
@@ -186,7 +186,8 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 	getParents (parents, this);
 	BOOST_FOREACH (CBonusSystemNode *pname, parents)
 	{
-		if(ret = pname->getBonus(selector))
+		ret = pname->getBonus(selector);
+		if (ret)
 			return ret;
 	}
 
