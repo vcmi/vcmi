@@ -1102,6 +1102,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 {
 	ObjectConstruction h__l__p(this);
 
+	if(!curInt) curInt = LOCPLINT; //may happen when we are defending during network MP game
+
 	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
@@ -2916,7 +2918,8 @@ void CBattleInterface::activateStack()
 	stackToActivate = -1;
 
 	myTurn = true;
-	curInt = attackerInt->playerID == LOCPLINT->cb->battleGetStackByID(activeStack)->owner ? attackerInt : defenderInt;
+	if(attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
+		curInt = attackerInt->playerID == LOCPLINT->cb->battleGetStackByID(activeStack)->owner ? attackerInt : defenderInt;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);

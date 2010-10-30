@@ -6,11 +6,11 @@
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
-#define ERROR_AND_RETURN	{if(c) *c << &SystemMessage("You are not allowed to perform this action!");	\
+#define ERROR_AND_RETURN	do {if(c) *c << &SystemMessage("You are not allowed to perform this action!");	\
 							tlog1<<"Player is not allowed to perform this action!\n";	\
-							return false;}
+							return false;} while(0)
 #define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
-#define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN }
+#define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN; }
 
 /*
  * NetPacksServer.cpp, part of VCMI engine
@@ -43,6 +43,8 @@ bool CloseServer::applyGh( CGameHandler *gh )
 
 bool EndTurn::applyGh( CGameHandler *gh )
 {
+	if(gh->getPlayerAt(c) != GS(gh)->currentPlayer)
+		ERROR_AND_RETURN;
 	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
 	return true;
 }
