@@ -485,10 +485,13 @@ CCastleInterface::~CCastleInterface()
 
 void CCastleInterface::close()
 {
-	if(town->visitingHero)
-		adventureInt->select(town->visitingHero);
-	else
-		adventureInt->select(town);
+	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
+	{
+		if(town->visitingHero)
+			adventureInt->select(town->visitingHero);
+		else
+			adventureInt->select(town);
+	}
 	LOCPLINT->castleInt = NULL;
 	GH.popIntTotally(this);
 	CGI->musich->stopMusic(5000);

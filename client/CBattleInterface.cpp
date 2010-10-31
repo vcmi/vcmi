@@ -986,7 +986,13 @@ bool CShootingAnim::init()
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	spi.spin = CGI->creh->idToProjectileSpin.find(spi.creID)->second;
+	if(vstd::contains(CGI->creh->idToProjectileSpin, spi.creID))
+		spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
+	else
+	{
+		tlog2 << "Warning - no projectile spin for spi.creID " << spi.creID << std::endl;
+		spi.spin = false;
+	}
 
 	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	Point destcoord;

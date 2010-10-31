@@ -3079,6 +3079,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		else
 			printAtMiddle(market->o->getHoverText(), 300, 27, FONT_BIG, tytulowy, *bg); //title
 	}
+	else if(mode == RESOURCE_ARTIFACT || mode == ARTIFACT_RESOURCE)
+	{
+		const std::string &title = market->o->ID == TOWNI_TYPE 
+									? CGI->buildh->buildings[market->o->subID][17]->Name()
+									: market->o->getHoverText();
+		
+		printAtMiddle(title, 300, 27, FONT_BIG, tytulowy, *bg); //title
+	}
 	else
 	{
 		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,*bg); //marketplace
@@ -3261,7 +3269,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 
 bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || mode != CREATURE_RESOURCE && mode != RESOURCE_ARTIFACT && mode != ARTIFACT_RESOURCE);
+	return market->allowsTrade(M) && M != mode && (hero || M != CREATURE_RESOURCE && M != RESOURCE_ARTIFACT && M != ARTIFACT_RESOURCE);
 }
 
 void CMarketplaceWindow::garrisonChanged()
@@ -4927,6 +4935,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 void CArtifactsOfHero::dispose()
 {
 	delNull(curHero);
+	unmarkSlots(false);
+	CGI->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::scrollBackpack(int dir)
@@ -5010,7 +5020,7 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
 /**
  * Unamarks all slots.
  */
-void CArtifactsOfHero::unmarkSlots ()
+void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 {
 	for (std::set<CArtifactsOfHero *>::iterator it = commonInfo->participants.begin();
 		it != commonInfo->participants.end();
@@ -5022,7 +5032,8 @@ void CArtifactsOfHero::unmarkSlots ()
 		}
 	}
 
-	safeRedraw();
+	if(withRedraw)
+		safeRedraw();
 }
 
 /**

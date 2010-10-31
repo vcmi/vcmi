@@ -947,7 +947,7 @@ public:
 
 	void safeRedraw();
 	void markPossibleSlots (const CArtifact* art);
-	void unmarkSlots ();
+	void unmarkSlots(bool withRedraw = true);
 	void setSlotData (CArtPlace* artPlace, int slotID);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
