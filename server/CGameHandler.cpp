@@ -1210,6 +1210,7 @@ void CGameHandler::newTurn()
 		NewTurn n2; //just to handle  creature growths after bonuses are applied
 		n2.specialWeek = NewTurn::NO_ACTION;
 		n2.day = gs->day;
+		n2.resetBuilded = true;
 
 		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{

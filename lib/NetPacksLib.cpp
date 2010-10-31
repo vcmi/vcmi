@@ -630,11 +630,6 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
 			h->bonuses.remove_if(Bonus::OneDay);
 
-		if(resetBuilded) //reset amount of structures set in this turn in towns
-		{
-			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
-				t->builded = 0;
-		}
 		if(gs->getDate(1)) //new week, Monday that is
 		{
 			for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
@@ -689,6 +684,11 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				i->second.daysWithoutCastle++;
 
 			i->second.bonuses.remove_if(Bonus::OneDay);
+		}
+		if(resetBuilded) //reset amount of structures set in this turn in towns
+		{
+			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
+				t->builded = 0;
 		}
 	}
 }
