@@ -242,7 +242,10 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		//format string: upper-case, remove extension
 		std::transform(entry.nameStr.begin(), entry.nameStr.end(), 
 					   entry.nameStr.begin(), toupper);
-					   
+		
+		if(entry.nameStr == "GARRISON.TXT") //crude workaround -> there are both GARRISON.TXT and GARRSION.BMP, since we ommit extensions, first one (not used by VCMI) would overwrite the second
+			continue;
+
 		size_t dotPos = entry.nameStr.find_last_of('.');
 		if ( dotPos < entry.nameStr.size() )
 		{

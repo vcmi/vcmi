@@ -2921,18 +2921,19 @@ void CBattleInterface::activateStack()
 {
 	activeStack = stackToActivate;
 	stackToActivate = -1;
+	const CStack *s = LOCPLINT->cb->battleGetStackByID(activeStack);
 
 	myTurn = true;
 	if(attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
-		curInt = attackerInt->playerID == LOCPLINT->cb->battleGetStackByID(activeStack)->owner ? attackerInt : defenderInt;
+		curInt = attackerInt->playerID == s->owner ? attackerInt : defenderInt;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);
-	bWait->block(vstd::contains(curInt->cb->battleGetStackByID(activeStack)->state, WAITING)); //block waiting button if stack has been already waiting
+	bWait->block(vstd::contains(s->state, WAITING)); //block waiting button if stack has been already waiting
 
 	//block cast spell button if hero doesn't have a spellbook
 	bSpell->block(!curInt->cb->battleCanCastSpell());
-	bSurrender->block(!curInt->cb->battleCanFlee());
+	bSurrender->block((curInt == attackerInt ? defendingHeroInstance : attackingHeroInstance) == NULL);
 	bFlee->block(!curInt->cb->battleCanFlee());
 
 	GH.fakeMouseMove();

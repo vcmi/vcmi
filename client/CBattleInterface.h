@@ -385,7 +385,7 @@ private:
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
 	CStackQueue *queue;
 	CCreatureSet army1, army2; //copy of initial armies (for result window)
-	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
+	const CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
