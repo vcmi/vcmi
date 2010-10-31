@@ -1084,7 +1084,6 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
 
 			cb->moveHero(h,endpos);
-			curTile = cb->getTileInfo(endpos);
 
 			eventsM.unlock();
 			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)

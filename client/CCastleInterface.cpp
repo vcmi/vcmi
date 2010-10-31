@@ -603,7 +603,11 @@ void CCastleInterface::buildingClicked(int building)
 	/*Tower*/	case 2://Artifact Merchant
 	/*Dungeon*/	case 5://Artifact Merchant
 	/*Conflux*/	case 8://Artifact Merchant
-					GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
+					if(town->visitingHero)
+						GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
+					else
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+
 					break;
 				default:
 					defaultBuildingClicked(building);
