@@ -1,4 +1,4 @@
-0.82 -> 0.83
+0.82 -> 0.83 (Nov 01 2010)
 GENERAL:
 * Alliances support
 * Week of / Month of events
@@ -8,7 +8,7 @@ GENERAL:
  - support for building bonus
  - moving to next map after victory
 * Town Portal supported
-* Vial of Dragon Blood supported
+* Vial of Dragon Blood and Statue of Legion supported
 
 HERO:
 * remaining specialities have been implemented
