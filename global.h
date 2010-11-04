@@ -25,7 +25,7 @@ typedef ui16 spelltype;
 #define THC
 #endif
 
-#define NAME_VER ("VCMI 0.83'")
+#define NAME_VER ("VCMI 0.83''")
 extern std::string NAME; //full name
 extern std::string NAME_AFFIX; //client / server
 #define CONSOLE_LOGGING_LEVEL 5
