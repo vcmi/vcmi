@@ -2239,9 +2239,9 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 			int i;
 			for(i=0; i<art.possibleSlots.size(); i++) //try to put artifact into first available slot
 			{
-				if( !vstd::contains(sha.artifWorn,art.possibleSlots[i]) )
+				if(art.fitsAt(sha.artifWorn, art.possibleSlots[i]))
 				{
-					//we've found a free suitable slot
+					//we've found a free suitable slot.
 					VLC->arth->equipArtifact(sha.artifWorn, art.possibleSlots[i], artid);
 					break;
 				}
@@ -2256,7 +2256,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	}
 	else
 	{
-		if(!vstd::contains(sha.artifWorn,ui16(position)))
+		if(art.fitsAt(sha.artifWorn, ui16(position)))
 		{
 			VLC->arth->equipArtifact(sha.artifWorn, position, artid);
 		}

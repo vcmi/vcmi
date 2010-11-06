@@ -110,9 +110,9 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 
 		LOD.seekg(ourEntry->offset, std::ios::beg);
 		LOD.read((char*)outp, ourEntry->size);
-		mutex->unlock();
 		unsigned char * decomp = NULL;
 		infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
+		mutex->unlock();
 		delete[] outp;
 		return decomp;
 	}

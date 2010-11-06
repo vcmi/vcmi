@@ -278,7 +278,7 @@ void CClient::loadGame( const std::string & fname )
 	else
 		tlog0 << "Server opened savegame properly.\n";
 
-	*serv << ui8(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
+	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
 	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)
 	{

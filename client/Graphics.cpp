@@ -696,6 +696,15 @@ Font * Graphics::loadFont( const char * name )
 		tlog1 << "Error: cannot load font: " << name << std::endl;
 		return NULL;
 	}
+
+	int magic =  *(const int*)hlp;
+	if(len < 10000  || magic != 589598 && magic != 589599)
+	{
+		tlog1 << "Suspicious font file (length " << len <<", fname " << name << "), logging to suspicious_" << name << ".fnt\n";
+		std::ofstream o("suspicious_" + std::string(name) + ".fnt");
+		o.write((const char*)hlp, len);
+	}
+
 	Font *ret = new Font(hlp);
 	return ret;
 }
@@ -707,7 +716,8 @@ void Graphics::loadFonts()
 
 	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
 	for(int i = 0; i < FONTS_NUMBER; i++)
-		fonts[i] = loadFont(fontnames[i]);
+		if(i != 2) //TODO TODO TODO !!!
+			fonts[i] = loadFont(fontnames[i]);
 }
 
 Font::Font(unsigned char *Data)

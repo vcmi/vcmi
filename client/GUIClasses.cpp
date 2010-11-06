@@ -5022,6 +5022,7 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
  */
 void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 {
+	if(!commonInfo) return;
 	for (std::set<CArtifactsOfHero *>::iterator it = commonInfo->participants.begin();
 		it != commonInfo->participants.end();
 		++it)
@@ -5115,7 +5116,6 @@ CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
 CArtifactsOfHero::~CArtifactsOfHero()
 {
 	dispose();
-	CGI->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::updateParentWindow()

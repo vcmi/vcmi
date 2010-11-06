@@ -1370,8 +1370,8 @@ CGameState::~CGameState()
 	delete mx;
 	delete map;
 	delete curB;
-	delete scenarioOps;
-	delete initialOpts;
+	//delete scenarioOps; //TODO: fix for loading ind delete
+	//delete initialOpts;
 	delete applierGs;
 	delete objCaller;
 
