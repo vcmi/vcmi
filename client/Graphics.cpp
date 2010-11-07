@@ -701,7 +701,8 @@ Font * Graphics::loadFont( const char * name )
 	if(len < 10000  || magic != 589598 && magic != 589599)
 	{
 		tlog1 << "Suspicious font file (length " << len <<", fname " << name << "), logging to suspicious_" << name << ".fnt\n";
-		std::ofstream o("suspicious_" + std::string(name) + ".fnt");
+		std::string suspFName = "suspicious_" + std::string(name) + ".fnt";
+		std::ofstream o(suspFName.c_str());
 		o.write((const char*)hlp, len);
 	}
 
