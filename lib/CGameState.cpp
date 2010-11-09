@@ -2166,7 +2166,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 
 	const TerrainTile &t = map->getTile(tile);
 	//fight in mine -> subterranean
-	if(const CGMine *mine = dynamic_cast<const CGMine *>(t.visitableObjects.front()))
+	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
 		return 12;
 
 	const std::vector <CGObjectInstance*> & objs = map->objects;
@@ -2800,7 +2800,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				}
 
 				if ( tinfo->tertype == TerrainTile::rock//it's rock
-					|| !onLand && node.land		//it's land and we cannot walk on land (complementary condition is handled above)
+					|| (!onLand && node.land)		//it's land and we cannot walk on land (complementary condition is handled above)
 					|| !FoW[i][j][k]					//tile is covered by the FoW
 					|| leaveAsBlocked
 				)
@@ -3795,8 +3795,8 @@ int CGameState::victoryCheck( ui8 player ) const
 		case transportItem:
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
-				if(t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.ID)
-					|| t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.ID))
+				if((t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.ID))
+					|| (t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.ID)))
 				{
 					return 1;
 				}

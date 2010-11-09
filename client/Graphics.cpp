@@ -159,7 +159,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 
 void Graphics::loadPaletteAndColors()
 {
-	std::string pals = bitmaph->getTextFile("PLAYERS.PAL");
+	std::string pals = bitmaph->getTextFile("PLAYERS.PAL", FILE_OTHER);
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
 	playerColors = new SDL_Color[PLAYER_LIMIT];
@@ -690,7 +690,7 @@ void Graphics::loadTrueType()
 Font * Graphics::loadFont( const char * name )
 {
 	int len = 0;
-	unsigned char * hlp = bitmaph->giveFile(name, &len);
+	unsigned char * hlp = bitmaph->giveFile(name, FILE_FONT, &len);
 	if(!hlp || !len)
 	{
 		tlog1 << "Error: cannot load font: " << name << std::endl;
@@ -698,7 +698,7 @@ Font * Graphics::loadFont( const char * name )
 	}
 
 	int magic =  *(const int*)hlp;
-	if(len < 10000  || magic != 589598 && magic != 589599)
+	if(len < 10000  || (magic != 589598 && magic != 589599))
 	{
 		tlog1 << "Suspicious font file (length " << len <<", fname " << name << "), logging to suspicious_" << name << ".fnt\n";
 		std::string suspFName = "suspicious_" + std::string(name) + ".fnt";
@@ -717,8 +717,7 @@ void Graphics::loadFonts()
 
 	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
 	for(int i = 0; i < FONTS_NUMBER; i++)
-		if(i != 2) //TODO TODO TODO !!!
-			fonts[i] = loadFont(fontnames[i]);
+		fonts[i] = loadFont(fontnames[i]);
 }
 
 Font::Font(unsigned char *Data)

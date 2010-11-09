@@ -56,7 +56,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 	case 0:
 		{
 			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\t')
 					++hmcr;
@@ -66,7 +66,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 			++iter;
 
 			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\t')
 					break;
@@ -75,7 +75,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 			++iter;
 
 			hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\r')
 					++hmcr;
@@ -88,7 +88,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 	case 1:
 		{
 			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\t')
 					++hmcr;
@@ -98,7 +98,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 			++iter;
 
 			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\r')
 					break;
@@ -110,7 +110,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 	case 2:
 		{
 			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\t')
 					break;
@@ -119,7 +119,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 			++iter;
 
 			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\r')
 					++hmcr;
@@ -132,7 +132,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 	case 3:
 		{
 			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\r')
 					break;
@@ -144,7 +144,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 	case 4:
 		{
 			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
+			for(; iter<src.size(); ++iter)
 			{
 				if(src[iter]=='\t')
 					break;

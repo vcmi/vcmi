@@ -155,62 +155,34 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		tlog2 << "Call to loadBitmap with void fname!\n";
 		return NULL;
 	}
-	unsigned char * pcx;
-	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
-		int dotPos = fname.find_last_of('.');
-	if ( dotPos != -1 )
-		fname.erase(dotPos);
+	SDL_Surface * ret=NULL;
+	int size;
+	unsigned char * file = bitmaph->giveFile(fname, FILE_GRAPHICS, &size);
 	
-	Entry *e = bitmaph->entries.znajdz(fname);
-	if(!e)
+	if (!file)
 	{
 		tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
 		return NULL;
 	}
-	if(e->offset<0)//not in LOD
-	{
-		fname = e->realName;
-		fname = DATA_DIR "/Data/" + fname;
-		FILE * f = fopen(fname.c_str(),"r");
-		unsigned char sign[12];
-		if(!f)
+	
+	if (isPCX(file))
+	{//H3-style PCX
+		CPCXConv cp;
+		cp.openPCX((char*)file,size);
+		ret = cp.getSurface();
+		if (!ret)
+			tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
+		if(ret->format->BytesPerPixel == 1  &&  setKey)
 		{
-			tlog1 << "Cannot open " << fname << " - file not found!\n";
-			return NULL; 
+			const SDL_Color &c = ret->format->palette->colors[0];
+			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
 		}
-		fread(sign,1,12,f);
-		SDL_Surface * ret=NULL;
-		if (isPCX(sign))//H3-style PCX
-		{
-			CPCXConv cp;
-			pcx = new unsigned char[e->realSize];
-			memcpy(pcx,sign,3);
-			int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
-			fclose(f);
-			cp.openPCX((char*)pcx,e->realSize);
-			ret = cp.getSurface();
-			if (!ret)
-				tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
-		}
-		else //try loading via SDL_Image
-		{
-			fclose(f);
-			ret = IMG_Load(fname.c_str());
-			if (!ret)
-				tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
-		}
-		return ret;
 	}
-	//loading from LOD
-	pcx = bitmaph->giveFile(e->nameStr, NULL);
-
-	CPCXConv cp;
-	cp.openPCX((char*)pcx, e->realSize);
-	SDL_Surface * ret = cp.getSurface();
-	if(ret->format->BytesPerPixel == 1  &&  setKey)
-	{
-		const SDL_Color &c = ret->format->palette->colors[0];
-		SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
+	else
+	{ //loading via SDL_Image
+		ret = IMG_Load_RW( SDL_RWFromMem((void*)file, size), 1);
+		if (!ret)
+			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
 	}
 	return ret;
 }

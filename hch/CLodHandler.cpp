@@ -7,11 +7,11 @@
 #include <cctype>
 #include <cstring>
 #include <iostream>
-#include <fstream>
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
+#include <boost/foreach.hpp>
 #include <SDL_endian.h>
 #ifdef max
 #undef max
@@ -60,58 +60,69 @@ std::string readString(const unsigned char * bufor, int &i)
 	return ret;
 }
 
-unsigned char * CLodHandler::giveFile(std::string defName, int * length)
+Entry CLodHandler::getEntry(const std::string name, LodFileType type)
 {
-	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
-	int dotPos = defName.find_last_of('.');
+	Entry ret;
+	std::set<Entry>::iterator it = entries.find(Entry(name, type));
+	
+	if (it!=entries.end())
+		ret = *it;
+	return ret;
+}
+
+unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType type, int * length)
+{
+	std::string fname = defName;
+	std::transform(fname.begin(), fname.end(), fname.begin(), (int(*)(int))toupper);
+	int dotPos = fname.find_last_of('.');
 	if ( dotPos != -1 )
-		defName.erase(dotPos);
+		fname.erase(dotPos);
 		
-	Entry * ourEntry = entries.znajdz(Entry(defName));
-	if(!ourEntry) //nothing's been found
+	Entry ourEntry = getEntry(fname, type);
+	if(!vstd::contains(entries, ourEntry)) //nothing's been found
 	{
-		tlog1 << "Cannot find file: " << defName << std::endl;
+		tlog1 << "Cannot find file: " << fname << std::endl;
 		return NULL;
 	}
-	if(length) *length = ourEntry->realSize;
+	if(length) *length = ourEntry.realSize;
 	mutex->lock();
 
 	unsigned char * outp;
-	if (ourEntry->offset<0) //file is in the sprites/ folder; no compression
+	if (ourEntry.offset<0) //file is in the sprites/ folder; no compression
 	{
 		int result;
-		unsigned char * outp = new unsigned char[ourEntry->realSize];
-		FILE * f = fopen((myDir + "/" + ourEntry->realName).c_str(), "rb");
+		unsigned char * outp = new unsigned char[ourEntry.realSize];
+		FILE * f = fopen((myDir + "/" + ourEntry.realName).c_str(), "rb");
 		if (f) {
-			result = fread(outp,1,ourEntry->realSize,f);
+			result = fread(outp,1,ourEntry.realSize,f);
 			fclose(f);
 		} else
 			result = -1;
 		mutex->unlock();
 		if(result<0) {
-			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry->nameStr << std::endl;
+			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry.name << std::endl;
 			delete[] outp;
 			return NULL;
 		} else
 			return outp;
 	}
-	else if (ourEntry->size==0) //file is not compressed
+	else if (ourEntry.size==0) //file is not compressed
 	{
-		outp = new unsigned char[ourEntry->realSize];
+		outp = new unsigned char[ourEntry.realSize];
 
-		LOD.seekg(ourEntry->offset, std::ios::beg);
-		LOD.read((char*)outp, ourEntry->realSize);
+		LOD.seekg(ourEntry.offset, std::ios::beg);
+		LOD.read((char*)outp, ourEntry.realSize);
 		mutex->unlock();
 		return outp;
 	}
 	else //we will decompress file
 	{
-		outp = new unsigned char[ourEntry->size];
+		outp = new unsigned char[ourEntry.size];
 
-		LOD.seekg(ourEntry->offset, std::ios::beg);
-		LOD.read((char*)outp, ourEntry->size);
+		LOD.seekg(ourEntry.offset, std::ios::beg);
+		LOD.read((char*)outp, ourEntry.size);
 		unsigned char * decomp = NULL;
-		infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
+		infs2(outp, ourEntry.size, ourEntry.realSize, decomp);
 		mutex->unlock();
 		delete[] outp;
 		return decomp;
@@ -119,15 +130,15 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	return NULL;
 }
 
-bool CLodHandler::haveFile(std::string name)
+bool CLodHandler::haveFile(const std::string name, LodFileType type)
 {
-	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-	int dotPos = name.find_last_of('.');
+	std::string fname = name;
+	std::transform(fname.begin(), fname.end(), fname.begin(), (int(*)(int))toupper);
+	int dotPos = fname.find_last_of('.');
 	if ( dotPos != -1 )
-		name.erase(dotPos);
+		fname.erase(dotPos);
 		
-	Entry * ourEntry = entries.znajdz(Entry(name));
-	return ourEntry != NULL;
+	return vstd::contains(entries, Entry(fname, type));
 }
 
 DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char *& out, int wBits)
@@ -194,10 +205,10 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-void CLodHandler::extractFile(std::string FName, std::string name)
+void CLodHandler::extractFile(const std::string FName, const std::string name)
 {
 	int len; //length of file to write
-	unsigned char * outp = giveFile(name, &len);
+	unsigned char * outp = giveFile(name, FILE_ANY, &len);
 	std::ofstream out;
 	out.open(FName.c_str(), std::ios::binary);
 	if(!out.is_open())
@@ -211,12 +222,45 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 	}
 }
 
-void CLodHandler::init(std::string lodFile, std::string dirName)
+void CLodHandler::initEntry(Entry &e, const std::string name)
 {
-	myDir = dirName;
-	std::string Ts;
-	Uint32 temp;
+	e.name = name;
+	//file names stored in upper case without extension
+	std::transform(e.name.begin(), e.name.end(), e.name.begin(), toupper);
+	std::string ext;
+		
+	size_t dotPos = e.name.find_last_of('.');
+	if ( dotPos < e.name.size() )
+	{
+		ext = e.name.substr(dotPos);
+		e.name.erase(dotPos);
+	}
+	
+	std::map<std::string, LodFileType>::iterator it = extMap.find(ext);
+	if (it == extMap.end())
+		e.type = FILE_OTHER;
+	else
+		e.type = it->second;
+}
 
+void CLodHandler::init(const std::string lodFile, const std::string dirName)
+{
+	#define EXT(NAME, TYPE) extMap.insert(std::pair<std::string, LodFileType>(NAME, TYPE));
+	EXT(".TXT", FILE_TEXT);
+	EXT(".DEF", FILE_ANIMATION);
+	EXT(".MSK", FILE_MASK);
+	EXT(".MSG", FILE_MASK);
+	EXT(".H3C", FILE_CAMPAIGN);
+	EXT(".H3M", FILE_MAP);
+	EXT(".FNT", FILE_FONT);
+	EXT(".BMP", FILE_GRAPHICS);
+	EXT(".JPG", FILE_GRAPHICS);
+	EXT(".PCX", FILE_GRAPHICS);
+	EXT(".PNG", FILE_GRAPHICS);
+	#undef EXT
+	
+	myDir = dirName;
+	
 	LOD.open(lodFile.c_str(), std::ios::in | std::ios::binary);
 
 	if (!LOD.is_open()) 
@@ -225,6 +269,7 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		return;
 	}
 
+	Uint32 temp;
 	LOD.seekg(8);
 	LOD.read((char *)&temp, 4);
 	totalFiles = SDL_SwapLE32(temp);
@@ -237,30 +282,13 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 	for (unsigned int i=0; i<totalFiles; i++)
 	{
 		Entry entry;
-
-		entry.nameStr = lodEntries[i].filename;
-		//format string: upper-case, remove extension
-		std::transform(entry.nameStr.begin(), entry.nameStr.end(), 
-					   entry.nameStr.begin(), toupper);
+		initEntry(entry, lodEntries[i].filename);
 		
-		if(entry.nameStr == "GARRISON.TXT") //crude workaround -> there are both GARRISON.TXT and GARRSION.BMP, since we ommit extensions, first one (not used by VCMI) would overwrite the second
-			continue;
-
-		size_t dotPos = entry.nameStr.find_last_of('.');
-		if ( dotPos < entry.nameStr.size() )
-		{
-			std::string ext = entry.nameStr.substr(dotPos);
-			if (ext == ".MSK" || ext == ".MSG" || ext == ".H3C")
-				entry.nameStr[dotPos] = '#';//this files have same name as def - rename to defName#msk
-			else
-				entry.nameStr.erase(dotPos);//filename.ext becomes filename
-		}
-
 		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
 		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
 		entry.size = SDL_SwapLE32(lodEntries[i].size);
 
-		entries.push_back(entry);
+		entries.insert(entry);
 	}
 
 	delete [] lodEntries;
@@ -272,36 +300,16 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		{
 			if(boost::filesystem::is_regular(dir->status()))
 			{
-				std::string name = dir->path().leaf();
-				std::string realname = name;
-				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-				
-				size_t dotPos = name.find_last_of('.');
-				if ( dotPos < name.size() )
-				{
-					std::string ext = name.substr(dotPos);
-					if (ext == ".MSK" || ext == ".MSG" || ext == ".H3C")
-						name[dotPos] = '#';//this files have same name as def - rename to defName#msk
-					else
-						name.erase(dotPos);//filename.ext becomes filename
-				}
-				
-				Entry * e = entries.znajdz(name);
-				if(e) //file present in .lod - overwrite its entry
-				{
-					e->offset = -1;
-					e->realName = realname;
-					e->realSize = e->size = boost::filesystem::file_size(dir->path());
-				}
-				else //file not present in lod - add entry for it
-				{
-					Entry e2;
-					e2.offset = -1;
-					e2.nameStr = name;
-					e2.realName = realname;
-					e2.realSize = e2.size = boost::filesystem::file_size(dir->path());
-					entries.push_back(e2);
-				}
+				Entry e;
+				e.realName = dir->path().leaf();
+				initEntry(e, e.realName);
+
+				if(vstd::contains(entries, e)) //file present in .lod - overwrite its entry
+					entries.erase(e);
+
+				e.offset = -1;
+				e.realSize = e.size = boost::filesystem::file_size(dir->path());
+				entries.insert(e);
 			}
 		}
 	}
@@ -310,10 +318,10 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
 	}
 }
-std::string CLodHandler::getTextFile(std::string name)
+std::string CLodHandler::getTextFile(const std::string name, LodFileType type)
 {
 	int length=-1;
-	unsigned char* data = giveFile(name,&length);
+	unsigned char* data = giveFile(name, type, &length);
 
 	if (!data) {
 		tlog1<<"Fatal error. Missing game file: " << name << ". Aborting!"<<std::endl;

@@ -53,13 +53,11 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 	}
 	if (mode == ALL) //add all lod campaigns
 	{
-		ext = "#H3C";
-		for(int g=0; g<bitmaph->entries.size(); ++g)
+		BOOST_FOREACH(Entry e, bitmaph->entries)
 		{
-			const std::string & nameS = bitmaph->entries[g].nameStr;
-			if( boost::ends_with(nameS, ext) && nameS != "TOSBLK1#H3C" )
+			if( e.type == FILE_CAMPAIGN && e.name != "TOSBLK1" )
 			{
-				ret.push_back( getHeader(bitmaph->entries[g].nameStr, true) );
+				ret.push_back( getHeader(e.name, true) );
 			}
 		}
 
@@ -422,7 +420,7 @@ unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLo
 	unsigned char * cmpgn;
 	if(fromLod)
 	{
-		cmpgn = bitmaph->giveFile(name, &outSize);
+		cmpgn = bitmaph->giveFile(name, FILE_CAMPAIGN, &outSize);
 		FILE * tmp = fopen("tmp_cmpgn", "wb");
 		fwrite(cmpgn, 1, outSize, tmp);
 		fclose(tmp);

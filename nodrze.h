@@ -5,6 +5,8 @@
 
 //ignore comment above, it is simply TowDragon's envy. Everything (without removing) is working fine
 
+//TODO? remove file - not used anymore
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -180,7 +182,7 @@ template <typename T> void nodrze<T>::wypisujPre(wezel<T> * w, std::ostream & st
 }
 template <typename T> void nodrze<T>::wypiszObficie(std::ostream & strum)
 {
-	strum << "Nodrze " <<this<<" ma " << ile << " elementów."<<std::endl;
+	strum << "Nodrze " <<this<<" ma " << ile << " elementÃ³w."<<std::endl;
 	strum << "NIL to " << NIL <<std::endl;
 	strum << "Ostatnio bralismy "<<ktory<<std::flush<<" element, czyli "<<" ("<<ostatnio<<")"<<std::flush<<*ostatnio<<std::flush<<std::endl;
 	strum << "Nasze wezly in-order"<<std::endl;
@@ -589,14 +591,14 @@ template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 	}
 	else if (nowy == ostatnio)
 	{
-		CLOG ("To by³ ostatnio ogl¹dany element. Elementem o numerze "<<ktory<<" bedzie teraz ");
+		CLOG ("To byÂ³ ostatnio oglÂ¹dany element. Elementem o numerze "<<ktory<<" bedzie teraz ");
 		if (ktory < ile)
 		{
 			ostatnio = nastepnik(ostatnio);
 		}
 		else
 		{
-			CLOG ("Ojej, koniec. Cofamy siê. "<<std::endl);
+			CLOG ("Ojej, koniec. Cofamy siÃª. "<<std::endl);
 			ostatnio = poprzednik(ostatnio);
 			ktory--;
 		}
@@ -753,7 +755,7 @@ template <typename T> bool nodrze<T>::sprawdzW(wezel<T> * w)
 }
 template <typename T> void nodrze<T>::rotacjaLewa (wezel<T> * x)
 {
-	//CLOG("Wykonuje lew¹ rotacjê na "<<x->zawart<<std::endl);
+	//CLOG("Wykonuje lewÂ¹ rotacjÃª na "<<x->zawart<<std::endl);
 	wezel<T> * y = x->prawy;
 	x->prawy = y->lewy; // zamiana lewego poddrzewa y na prawe poddrzewo x
 	if (y->lewy != NIL) y->lewy->ojciec = x; // i przypisanie ojcostwa temu poddrzewu
@@ -769,7 +771,7 @@ template <typename T> void nodrze<T>::rotacjaLewa (wezel<T> * x)
 }
 template <typename T> void nodrze<T>::rotacjaPrawa (wezel<T> * y)
 {
-	//CLOG("Wykonuje prawa rotacjê na "<<y->zawart<<std::endl);
+	//CLOG("Wykonuje prawa rotacjÃª na "<<y->zawart<<std::endl);
 	wezel<T> * x = y->lewy;
 	y->lewy = x->prawy; // zamiana prawe poddrzewa x na lewe poddrzewo y
 	if (x->prawy != NIL) x->prawy->ojciec = y; // i przypisanie ojcostwa temu poddrzewu

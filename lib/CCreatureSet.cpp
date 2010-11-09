@@ -115,7 +115,7 @@ void CCreatureSet::addToSlot(TSlot slot, TCreature cre, TQuantity count, bool al
 {
 	assert(slot >= 0);
 	const CCreature *c = VLC->creh->creatures[cre];
-	assert(!vstd::contains(slots, slot) || slots[slot].type == c && allowMerging); //that slot was empty or contained same type creature
+	assert(!vstd::contains(slots, slot) || (slots[slot].type == c && allowMerging)); //that slot was empty or contained same type creature
 	slots[slot].type = c;
 	slots[slot].count += count;
 

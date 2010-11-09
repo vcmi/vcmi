@@ -365,7 +365,7 @@ CDefEssential * CDefHandler::essentialize()
 
 CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
-	unsigned char * data = spriteh->giveFile(defName);
+	unsigned char * data = spriteh->giveFile(defName, FILE_ANIMATION);
 	if(!data)
 		throw "bad def name!";
 	CDefHandler * nh = new CDefHandler();

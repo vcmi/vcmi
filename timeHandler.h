@@ -18,7 +18,7 @@ class timeHandler
 public:
 	clock_t start, last, mem;
 	timeHandler():start(clock()){last=clock();mem=0;};
-	long getDif(){long ret=clock()-last;last=clock();return ret;};
+	long getDif(){long ret=clock()-last;last=clock();return ret/(CLOCKS_PER_SEC/1000);};//get diff in milliseconds
 	void update(){last=clock();};
 	void remember(){mem=clock();};
 	long memDif(){return clock()-mem;};

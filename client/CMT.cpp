@@ -412,23 +412,10 @@ void processCommand(const std::string &message)
 		CLodHandler * txth = new CLodHandler;
 		txth->init(std::string(DATA_DIR "/Data/H3bitmap.lod"),"");
 		tlog0<<"done.\nScanning .lod file\n";
-		int curp=0;
-		std::string pattern = ".TXT", pom;
-		for(int i=0;i<txth->entries.size(); i++)
-		{
-			pom = txth->entries[i].nameStr;
-			if(boost::algorithm::find_last(pom,pattern))
-			{
-				txth->extractFile(std::string(DATA_DIR "/Extracted_txts/")+pom,pom);
-			}
-			if(i%8) continue;
-			int p2 = ((float)i/(float)txth->entries.size())*(float)100;
-			if(p2!=curp)
-			{
-				curp = p2;
-				tlog0<<"\r"<<curp<<"%";
-			}
-		}
+		
+		BOOST_FOREACH(Entry e, txth->entries)
+			if( e.type == FILE_TEXT )
+				txth->extractFile(std::string(DATA_DIR "/Extracted_txts/")+e.name,e.name);
 		tlog0<<"\rExtracting done :)\n";
 	}
 	else if(cn=="crash")

@@ -39,7 +39,7 @@ void CCreatureAnimation::setType(int type)
 
 CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), once(false)
 {
-	FDef = spriteh->giveFile(name); //load main file
+	FDef = spriteh->giveFile(name, FILE_ANIMATION); //load main file
 
 	//init anim data
 	int i,j, totalInBlock;

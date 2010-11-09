@@ -1084,7 +1084,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 				changedStack->state.insert(SUMMONED);
 				//changedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		}
-		int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
+		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
 		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
 		changedStack->count += res;
 		changedStack->firstHPleft += healedStacks[g].healedHP - res * changedStack->MaxHealth();

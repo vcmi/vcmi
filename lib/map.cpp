@@ -165,7 +165,7 @@ void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 
 	pom = i;
 	allowedHeroes.resize(HEROES_QUANTITY,false);
-	for(i; i<pom+ (version == RoE ? 16 : 20) ; ++i)
+	for(; i<pom+ (version == RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
@@ -687,7 +687,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	int ist = i;
 	if(version>RoE)
 	{
-		for(i; i<ist+9; ++i)
+		for(; i<ist+9; ++i)
 		{
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
@@ -702,7 +702,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	}
 
 	ist = i;
-	for(i; i<ist+9; ++i)
+	for(; i<ist+9; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
@@ -921,7 +921,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		{
 			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
 			int ist = i;
-			for(i; i<ist+9; ++i)
+			for(; i<ist+9; ++i)
 			{
 				unsigned char c = bufor[i];
 				for(int yy=0; yy<8; ++yy)
@@ -1011,7 +1011,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 	if (version!=RoE)
 	{
 		ist=i; //starting i for loop
-		for (i; i<ist+(version==AB ? 17 : 18); ++i)
+		for (; i<ist+(version==AB ? 17 : 18); ++i)
 		{
 			unsigned char c = bufor[i];
 			for (int yy=0; yy<8; ++yy)
@@ -1038,7 +1038,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 	{
 		//reading allowed spells (9 bytes)
 		ist=i; //starting i for loop
-		for(i; i<ist+9; ++i)
+		for(; i<ist+9; ++i)
 		{
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
@@ -1050,7 +1050,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 
 		//allowed hero's abilities (4 bytes)
 		ist=i; //starting i for loop
-		for(i; i<ist+4; ++i)
+		for(; i<ist+4; ++i)
 		{
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
@@ -1139,11 +1139,11 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 				} //artifacts
 				if(readChar(bufor,i))//customBio
 					cgh->biography = readString(bufor,i);
-				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female
+				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female    //FIXME:unused?
 				if(readChar(bufor,i))//are spells
 				{
 					int ist = i;
-					for(i; i<ist+9; ++i)
+					for(; i<ist+9; ++i)
 					{
 						unsigned char c = bufor[i];
 						for(int yy=0; yy<8; ++yy)
@@ -1498,7 +1498,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				if(version>RoE) //in reo we cannot specify it - all are allowed (I hope)
 				{
 					int ist=i; //starting i for loop
-					for(i; i<ist+4; ++i)
+					for(; i<ist+4; ++i)
 					{
 						unsigned char c = bufor[i];
 						for(int yy=0; yy<8; ++yy)
@@ -2114,7 +2114,7 @@ bool TerrainTile::entrableTerrain(const TerrainTile *from /*= NULL*/) const
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
 	return tertype != rock 
-		&& (allowSea && tertype == water   ||   allowLand && tertype != water);
+		&& ((allowSea && tertype == water)  ||  (allowLand && tertype != water));
 }
 
 bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const

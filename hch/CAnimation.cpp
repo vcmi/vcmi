@@ -282,7 +282,7 @@ BMPPalette * CDefFile::getPalette()
 
 CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 {
-	data = spriteh->giveFile(Name, &datasize);
+	data = spriteh->giveFile(Name, FILE_ANIMATION, &datasize);
 	if (!data)
 	{
 		tlog0<<"Error: file "<< Name <<" not found\n";
@@ -399,7 +399,7 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 		else
 			str << name << '#' << (frame+1);//file#34.*
 
-		pic = spriteh->giveFile(str.str(), &size);
+		pic = spriteh->giveFile(str.str(), FILE_GRAPHICS, &size);
 		if (pic)
 		{
 			if (compressed)
