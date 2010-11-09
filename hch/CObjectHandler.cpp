@@ -5889,10 +5889,8 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures (id, h, ourArmy);
 		}
-		//cb->setObjProperty (id, 15, 0); //bc = NULL
+		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
-	//else //in case of defeat
-	//	initialize();
 }
 
 void CGPyramid::initObj()
