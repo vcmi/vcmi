@@ -2193,7 +2193,7 @@ void CGTownInstance::newTurn() const
 					int n, i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);	
 					{//no lower tiers or above current month
 
-						if ((n = getSlotFor(town->basicCreatures[i], ARMY_SIZE)))
+						if ((n = getSlotFor(town->basicCreatures[i], ARMY_SIZE))>=0)
 						{ 
 							SetGarrisons sg;
 							sg.garrs[id] = getArmy();
@@ -5891,6 +5891,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		}
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
+
 }
 
 void CGPyramid::initObj()
