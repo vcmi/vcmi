@@ -468,7 +468,7 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
 {
-	if(art < 0)
+	if(!art)
 	{
 		if(pos<19)
 			VLC->arth->unequipArtifact(artifWorn, pos);
