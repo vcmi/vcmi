@@ -61,6 +61,7 @@ struct TerrainTile;
 class CHeroClass;
 class CCampaign;
 class CCampaignState;
+class IModableArt;
 
 namespace boost
 {
@@ -142,7 +143,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & bonuses & status & daysWithoutCastle;
+		h & heroes & towns & availableHeroes & dwellings & bonuses;
+		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}

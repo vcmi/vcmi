@@ -30,7 +30,7 @@ class CGHeroInstance;
 class CGCreature;
 class CQuest;
 class CGTownInstance;
-
+class IModableArt;
 
 
 struct DLL_EXPORT TerrainTile
@@ -279,6 +279,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<CGObjectInstance*> objects;
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
+	std::vector<IModableArt *> artInstances; //stores single scrolls
 	std::map<ui16, CGCreature*> monsters;
 	std::map<ui16, CGHeroInstance*> heroesToBeat;
 
@@ -313,7 +314,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
-		h & monsters & heroesToBeat; //hoprfully serialization is now automagical?
+		h & monsters & heroesToBeat & artInstances; //hopefully serialization is now automagical?
 
 		//TODO: viccondetails
 		if(h.saving)

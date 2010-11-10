@@ -17,19 +17,24 @@
  *
  */
 class CDefHandler;
+class CArtifact;
 
 class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
 {
+protected:
 	std::string name, description; //set if custom
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	bool isBig () const;
-	bool fitsAt (const std::map<ui16, ui32> &artifWorn, ui16 slot) const;
-	bool canBeAssembledTo (const std::map<ui16, ui32> &artifWorn, ui32 artifactID) const;
+	bool isModable () const;
+	bool fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slot) const;
+	bool canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, ui32 artifactID) const;
 	void addBonusesTo (BonusList *otherBonuses) const;
 	void removeBonusesFrom (BonusList *otherBonuses) const;
+	virtual void SetProperty (int mod){};
+	virtual void Init(){};
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 
 	ui32 price;
@@ -52,46 +57,58 @@ public:
 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 };
 
-class DLL_EXPORT IModableArt //artifact which can have different properties, such as scroll or banner
-{
+class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
+{ //used only for dynamic cast :P
 public:
-	virtual void Init() = 0;
-};
+	si32 ID; //used for smart serialization
 
-class DLL_EXPORT CScroll : public CArtifact, public IModableArt // Spell Scroll
-{
-public:
-	spelltype spellid;
-	void Init(){};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifact&>(*this);
+		h & ID;
+	}
+};
+
+class DLL_EXPORT CScroll : public IModableArt // Spell Scroll
+{
+public:
+	CScroll(){spellid=0;};
+	CScroll(spelltype sid){spellid = sid;};
+	spelltype spellid;
+	void Init();
+	void SetProperty (int mod){spellid = mod;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<IModableArt&>(*this);
 		h & spellid;
 	}
 };
 
-class DLL_EXPORT CCustomizableArt : public CArtifact, public IModableArt // Warlord's Banner with multiple options
+class DLL_EXPORT CCustomizableArt : public IModableArt // Warlord's Banner with multiple options
 {
 public:
 	ui8 mode;
+	CCustomizableArt(){mode=0;};
 	void Init(){};
-	void SelectMode (int mod){};
+	void SetProperty (int mod){};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArtifact&>(*this);
+		h & static_cast<IModableArt&>(*this);
 		h & mode;
 	}
 };
 
-class DLL_EXPORT CCommanderArt : public CArtifact, public IModableArt // Growing with time
+class DLL_EXPORT CCommanderArt : public IModableArt // Growing with time
 {
 public:
 	ui32 level;
+	CCommanderArt(){level = 0;};
 	void Init(){};
+	void SetProperty (int mod){level = mod;};
 	void Upgrade(){level++;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArtifact&>(*this);
+		h & static_cast<IModableArt&>(*this);
 		h & level;
 	}
 };
@@ -104,6 +121,7 @@ public:
 	std::vector<CArtifact *> artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
+	std::map<ui32, ui8> modableArtifacts; //1-scroll, 2-banner, 3-commander art with progressive bonus
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
@@ -116,8 +134,8 @@ public:
 	void getAllowed(std::vector<CArtifact*> &out, int flags);
 	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	void equipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID, ui32 artifactID);
-	void unequipArtifact (std::map<ui16, ui32> &artifWorn, ui16 slotID);
+	void equipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art);
+	void unequipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID);
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
