@@ -227,9 +227,9 @@ public:
 	void randomizeArmy(int type);
 
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
@@ -305,8 +305,8 @@ public:
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
@@ -528,8 +528,8 @@ public:
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used

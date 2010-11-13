@@ -9,8 +9,8 @@
 #include "CCreatureSet.h"
 #include <boost/algorithm/string/trim.hpp>
 
-#define FOREACH_CONST_PARENT(pname, source) 	TCNodes parents; getParents(parents, source); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
-#define FOREACH_PARENT(pname, source) 	TNodes parents; getParents(parents, source); BOOST_FOREACH(CBonusSystemNode *pname, parents)
+#define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
+#define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
 	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
@@ -155,13 +155,13 @@ int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) 
 
 	return valOfBonuses(s);
 }
-int CBonusSystemNode::valOfBonuses(const CSelector &selector, const CBonusSystemNode *root/* = NULL*/) const
+int CBonusSystemNode::valOfBonuses(const CSelector &selector) const
 {
 	BonusList hlp;
-	getBonuses(hlp, selector, root);
+	getBonuses(hlp, selector);
 	return hlp.totalValue();
 }
-bool CBonusSystemNode::hasBonus(const CSelector &selector, const CBonusSystemNode *root/* = NULL*/) const
+bool CBonusSystemNode::hasBonus(const CSelector &selector) const
 {
 	return getBonuses(selector).size() > 0;
 }
@@ -181,10 +181,7 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 	if(ret)
 		return ret;
 
-	//FOREACH_PARENT(p, this)
-	TNodes parents;
-	getParents (parents, this);
-	BOOST_FOREACH (CBonusSystemNode *pname, parents)
+	FOREACH_PARENT(pname)
 	{
 		ret = pname->getBonus(selector);
 		if (ret)
@@ -199,7 +196,7 @@ void CBonusSystemNode::getModifiersWDescr(TModDescr &out, Bonus::BonusType type,
 	getModifiersWDescr(out, Selector::typeSybtype(type, subtype));
 }
 
-void CBonusSystemNode::getModifiersWDescr(TModDescr &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+void CBonusSystemNode::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
 {
 	getBonuses(selector).getModifiersWDescr(out);
 }
@@ -208,31 +205,26 @@ int CBonusSystemNode::getBonusesCount(int from, int id) const
 	return getBonusesCount(Selector::source(from, id));
 }
 
-int CBonusSystemNode::getBonusesCount(const CSelector &selector, const CBonusSystemNode *root/* = NULL*/) const
+int CBonusSystemNode::getBonusesCount(const CSelector &selector) const
 {
-	return getBonuses(selector, root).size();
+	return getBonuses(selector).size();
 }
 
-void CBonusSystemNode::getParents(TCNodes &out, const CBonusSystemNode *root) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
+void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
 {
-	return;
+	BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+		out.insert(parent);
 }
 
-void CBonusSystemNode::getParents(TNodes &out, const CBonusSystemNode *root /*= NULL*/)
+void CBonusSystemNode::getParents(TNodes &out)
 {
-	//de-constify above
-	TCNodes hlp;
-	getParents(hlp, root);
-	BOOST_FOREACH(const CBonusSystemNode *pname, hlp)
-		out.insert(const_cast<CBonusSystemNode*>(pname));
+	BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+		out.insert(const_cast<CBonusSystemNode*>(parent));
 }
 
 void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
-	//FOREACH_CONST_PARENT(p, root ? root : this) //unwinded macro
-	TCNodes parents;
-	getParents(parents, root ? root : this);
-	BOOST_FOREACH(const CBonusSystemNode *p, parents)
+	FOREACH_CONST_PARENT(p) //unwinded macro
 		p->getBonuses(out, selector, root ? root : this);
 
 	bonuses.getBonuses(out, selector);
@@ -241,31 +233,24 @@ void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, con
 		out.limit(*this);
 }
 
-BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+BonusList CBonusSystemNode::getBonuses(const CSelector &selector) const
 {
 	BonusList ret;
-	getBonuses(ret, selector, root);
+	getBonuses(ret, selector);
 	return ret;
 }
 
-void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const
 {
-	//FOREACH_CONST_PARENT(p, root ? root : this) //unwinded macro
-	TCNodes parents;
-	getParents(parents, root ? root : this);
-	BOOST_FOREACH(const CBonusSystemNode *p, parents)
-		p->getBonuses(out, selector, limit, root ? root : this);
-
-	bonuses.getBonuses(out, selector, limit);
-
-	if(!root)
-		out.limit(*this);
+	getBonuses(out, selector); //first get all the bonuses
+	out.remove_if(std::not1(limit)); //now remove the ones we don't like
+	out.limit(*this); //apply bonuses' limiters
 }
 
-BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelector &limit) const
 {
 	BonusList ret;
-	getBonuses(ret, selector, limit, root);
+	getBonuses(ret, selector, limit);
 	return ret;
 }
 
@@ -345,6 +330,16 @@ CBonusSystemNode::CBonusSystemNode()
 }
 
 CBonusSystemNode::~CBonusSystemNode()
+{
+
+}
+
+void CBonusSystemNode::attachTo(const CBonusSystemNode *parent)
+{
+
+}
+
+void CBonusSystemNode::detachFrom(const CBonusSystemNode *parent)
 {
 
 }

@@ -265,18 +265,18 @@ void CStackInstance::setType(int creID)
 	type = VLC->creh->creatures[creID];
 }
 
-void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*= NULL*/) const
-{
-	out.insert(type);
-
-	if(source && source != this) //we should be root, if not - do not inherit anything
-		return;
-
-	if(armyObj)
-		out.insert(armyObj);
-	else
-		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
-}
+// void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*= NULL*/) const
+// {
+// 	out.insert(type);
+// 
+// 	if(source && source != this) //we should be root, if not - do not inherit anything
+// 		return;
+// 
+// 	if(armyObj)
+// 		out.insert(armyObj);
+// 	else
+// 		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
+// }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
 {

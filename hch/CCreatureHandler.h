@@ -62,7 +62,7 @@ public:
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	void addBonus(int val, int type, int subtype = -1);
-	void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
+	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen &ranGen)

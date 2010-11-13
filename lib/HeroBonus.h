@@ -345,7 +345,12 @@ public:
 class DLL_EXPORT CBonusSystemNode
 {
 public:
-	BonusList bonuses;
+	BonusList bonuses; //wielded bonuses (local and up-propagated here)
+	std::vector<Bonus*> exportedBonuses;
+
+	std::vector<const CBonusSystemNode *> parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
+									children;
+
 	ui8 nodeType;
 
 	CBonusSystemNode();
@@ -354,18 +359,20 @@ public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
-	virtual void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
-	virtual void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-	BonusList getBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-	BonusList getBonuses(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int getBonusesCount(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int valOfBonuses(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	bool hasBonus(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;  //out: pairs<modifier value, modifier description>
 
 	//////////////////////////////////////////////////////////////////////////
+	//interface
+	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(const CSelector &selector) const;
+	int valOfBonuses(const CSelector &selector) const;
+	bool hasBonus(const CSelector &selector) const;
+	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	BonusList getBonuses(const CSelector &selector) const;
+
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
@@ -384,8 +391,11 @@ public:
 
 
 	//non-const interface
-	void getParents(TNodes &out, const CBonusSystemNode *root = NULL);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 	Bonus *getBonus(const CSelector &selector);
+
+	void attachTo(const CBonusSystemNode *parent);
+	void detachFrom(const CBonusSystemNode *parent);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

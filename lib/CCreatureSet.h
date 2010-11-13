@@ -35,7 +35,7 @@ public:
 	}
 
 	//overrides CBonusSystemNode
-	void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	//void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;

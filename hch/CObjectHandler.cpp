@@ -1488,79 +1488,79 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 	return sp->costs[getSpellSchoolLevel(sp)];
 }
 
-void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CArmedInstance::getParents(out, root);
-
-	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown && !dynamic_cast<const PlayerState*>(root))
-	{
-			out.insert(visitedTown);
-	}
-
-	for (std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		out.insert(i->second);
-
-	out.insert(&speciality);
-}
+// void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	CArmedInstance::getParents(out, root);
+// 
+// 	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown && !dynamic_cast<const PlayerState*>(root))
+// 	{
+// 			out.insert(visitedTown);
+// 	}
+// 
+// 	for (std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+// 		out.insert(i->second);
+// 
+// 	out.insert(&speciality);
+// }
 
 void CGHeroInstance::pushPrimSkill(int which, int val)
 {
 	bonuses.push_back(Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
 
-void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-#define FOREACH_OWNER_TOWN(town) if(const PlayerState *p = cb->getPlayerState(tempOwner)) BOOST_FOREACH(const CGTownInstance *town, p->towns)
-
-	CArmedInstance::getBonuses(out, selector, root); ///that's not part of macro!
-
-	//TODO eliminate by moving secondary skills effects to bonus system
-	if(Selector::matchesType(selector, Bonus::LUCK))
-	{
-		//luck skill
-		if(int luckSkill = getSecSkillLevel(9)) 
-			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::SECONDARY_SKILL, luckSkill, 9, VLC->generaltexth->arraytxt[73+luckSkill]));
-
-		//guardian spirit
-		FOREACH_OWNER_TOWN(t)
-			if(t->subID ==1 && vstd::contains(t->builtBuildings,26)) //rampart with grail
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[1][26].first + " +2"));
-	}
-
-	if(Selector::matchesType(selector, Bonus::SEA_MOVEMENT))
-	{
-		//lighthouses
-		FOREACH_OWNER_TOWN(t)
-			if(t->subID == 0 && vstd::contains(t->builtBuildings,17)) //castle
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::SEA_MOVEMENT, Bonus::TOWN_STRUCTURE, +500, 17, VLC->generaltexth->buildings[0][17].first + " +500"));
-	}
-
-	if(Selector::matchesType(selector, Bonus::MORALE))
-	{
-		//leadership
-		if(int moraleSkill = getSecSkillLevel(6)) 
-			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::SECONDARY_SKILL, moraleSkill, 6, VLC->generaltexth->arraytxt[104+moraleSkill]));
-
-		//colossus
-		FOREACH_OWNER_TOWN(t)
-			if(t->subID == 0 && vstd::contains(t->builtBuildings,26)) //castle
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[0][26].first + " +2"));
-	}
-
-	if(Selector::matchesTypeSubtype(selector, Bonus::SECONDARY_SKILL_PREMY, 12)) //necromancy
-	{
-		FOREACH_OWNER_TOWN(t)
-		{
-			if(t->subID == 4) //necropolis
-			{
-				if(vstd::contains(t->builtBuildings,21)) //necromancy amplifier
-					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +10, 21, VLC->generaltexth->buildings[4][21].first + " +10%", 12));
-				if(vstd::contains(t->builtBuildings,26)) //grail - Soul prison
-					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +20, 26, VLC->generaltexth->buildings[4][26].first + " +20%", 12));
-			}
-		}
-	}
-}
+// void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// #define FOREACH_OWNER_TOWN(town) if(const PlayerState *p = cb->getPlayerState(tempOwner)) BOOST_FOREACH(const CGTownInstance *town, p->towns)
+// 
+// 	CArmedInstance::getBonuses(out, selector, root); ///that's not part of macro!
+// 
+// 	//TODO eliminate by moving secondary skills effects to bonus system
+// 	if(Selector::matchesType(selector, Bonus::LUCK))
+// 	{
+// 		//luck skill
+// 		if(int luckSkill = getSecSkillLevel(9)) 
+// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::SECONDARY_SKILL, luckSkill, 9, VLC->generaltexth->arraytxt[73+luckSkill]));
+// 
+// 		//guardian spirit
+// 		FOREACH_OWNER_TOWN(t)
+// 			if(t->subID ==1 && vstd::contains(t->builtBuildings,26)) //rampart with grail
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[1][26].first + " +2"));
+// 	}
+// 
+// 	if(Selector::matchesType(selector, Bonus::SEA_MOVEMENT))
+// 	{
+// 		//lighthouses
+// 		FOREACH_OWNER_TOWN(t)
+// 			if(t->subID == 0 && vstd::contains(t->builtBuildings,17)) //castle
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::SEA_MOVEMENT, Bonus::TOWN_STRUCTURE, +500, 17, VLC->generaltexth->buildings[0][17].first + " +500"));
+// 	}
+// 
+// 	if(Selector::matchesType(selector, Bonus::MORALE))
+// 	{
+// 		//leadership
+// 		if(int moraleSkill = getSecSkillLevel(6)) 
+// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::SECONDARY_SKILL, moraleSkill, 6, VLC->generaltexth->arraytxt[104+moraleSkill]));
+// 
+// 		//colossus
+// 		FOREACH_OWNER_TOWN(t)
+// 			if(t->subID == 0 && vstd::contains(t->builtBuildings,26)) //castle
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 26, VLC->generaltexth->buildings[0][26].first + " +2"));
+// 	}
+// 
+// 	if(Selector::matchesTypeSubtype(selector, Bonus::SECONDARY_SKILL_PREMY, 12)) //necromancy
+// 	{
+// 		FOREACH_OWNER_TOWN(t)
+// 		{
+// 			if(t->subID == 4) //necropolis
+// 			{
+// 				if(vstd::contains(t->builtBuildings,21)) //necromancy amplifier
+// 					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +10, 21, VLC->generaltexth->buildings[4][21].first + " +10%", 12));
+// 				if(vstd::contains(t->builtBuildings,26)) //grail - Soul prison
+// 					out.push_back(Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::TOWN_STRUCTURE, +20, 26, VLC->generaltexth->buildings[4][26].first + " +20%", 12));
+// 			}
+// 		}
+// 	}
+// }
 
 EAlignment CGHeroInstance::getAlignment() const
 {
@@ -2299,32 +2299,32 @@ int CGTownInstance::getBoatType() const
 		return 2;
 }
 
-void CGTownInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CArmedInstance::getParents(out, root);
-	if(root == this  &&  visitingHero && visitingHero != root)
-		out.insert(visitingHero);
-}
+// void CGTownInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	CArmedInstance::getParents(out, root);
+// 	if(root == this  &&  visitingHero && visitingHero != root)
+// 		out.insert(visitingHero);
+// }
 
-void CGTownInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CArmedInstance::getBonuses(out, selector, root);
-	//TODO eliminate by moving structures effects to bonus system
-
-	if(Selector::matchesType(selector, Bonus::LUCK))
-	{
-		if(subID == 1  &&  vstd::contains(builtBuildings,21)) //rampart, fountain of fortune
-			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 21, VLC->generaltexth->buildings[1][21].first + " +2"));
-	}
-
-	if(Selector::matchesType(selector, Bonus::MORALE))
-	{
-		if(subID == 0  &&  vstd::contains(builtBuildings,22)) //castle, brotherhood of sword built
-			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 22, VLC->generaltexth->buildings[0][22].first + " +2"));
-		else if(vstd::contains(builtBuildings,5)) //tavern is built
-			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +1, 5, VLC->generaltexth->buildings[0][5].first + " +1"));
-	}
-}
+// void CGTownInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	CArmedInstance::getBonuses(out, selector, root);
+// 	//TODO eliminate by moving structures effects to bonus system
+// 
+// 	if(Selector::matchesType(selector, Bonus::LUCK))
+// 	{
+// 		if(subID == 1  &&  vstd::contains(builtBuildings,21)) //rampart, fountain of fortune
+// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 21, VLC->generaltexth->buildings[1][21].first + " +2"));
+// 	}
+// 
+// 	if(Selector::matchesType(selector, Bonus::MORALE))
+// 	{
+// 		if(subID == 0  &&  vstd::contains(builtBuildings,22)) //castle, brotherhood of sword built
+// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 22, VLC->generaltexth->buildings[0][22].first + " +2"));
+// 		else if(vstd::contains(builtBuildings,5)) //tavern is built
+// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +1, 5, VLC->generaltexth->buildings[0][5].first + " +1"));
+// 	}
+// }
 
 int CGTownInstance::getMarketEfficiency() const
 {
@@ -6560,82 +6560,82 @@ void CArmedInstance::randomizeArmy(int type)
 	return;
 }
 
-void CArmedInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-{
-	/* //already given via PlayerState->getBonuses();
-	const PlayerState *p = cb->getPlayerState(tempOwner);
-	if (p && p != root) 
-		out.insert(p); 
-	*/
-	out.insert(&cb->gameState()->globalEffects); //global effects are always active I believe
-
-	if(battle)
-		out.insert(battle);
-}
+// void CArmedInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	/* //already given via PlayerState->getBonuses();
+// 	const PlayerState *p = cb->getPlayerState(tempOwner);
+// 	if (p && p != root) 
+// 		out.insert(p); 
+// 	*/
+// 	out.insert(&cb->gameState()->globalEffects); //global effects are always active I believe
+// 
+// 	if(battle)
+// 		out.insert(battle);
+// }
 
 CArmedInstance::CArmedInstance()
 {
 	battle = NULL;
 }
 
-void CArmedInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CBonusSystemNode::getBonuses(out, selector, root);
-
-	if(!battle)
-	{
-		//TODO do it clean, unify with BattleInfo version
-		if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
-		{
-			for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
-				i->second.getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
-		}
-	}
-
-	if(Selector::matchesType(selector, Bonus::MORALE))
-	{
-		//number of alignments and presence of undead
-		if(contains(dynamic_cast<const CStackInstance*>(root)))
-		{
-			bool archangelInArmy = false;
-			bool canMix = hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX);
-			std::set<si8> factions;
-			for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
-			{
-				// Take Angelic Alliance troop-mixing freedom of non-evil, non-Conflux units into account.
-				const si8 faction = i->second.type->faction;
-				if (canMix
-					&& ((faction >= 0 && faction <= 2) || faction == 6 || faction == 7))
-				{
-					factions.insert(0); // Insert a single faction of the affected group, Castle will do.
-				}
-				else
-				{
-					factions.insert(faction);
-				}
-
-				if(i->second.type->idNumber == 13)
-					archangelInArmy = true;
-			}
-
-			if(factions.size() == 1)
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, +1, id, VLC->generaltexth->arraytxt[115]));//All troops of one alignment +1
-			else
-			{
-				int fcountModifier = 2-factions.size();
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, fcountModifier, id, boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % fcountModifier)));//Troops of %d alignments %d
-			}
-
-			if(vstd::contains(factions,4))
-				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
-		}
-	}
-}
+// void CArmedInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	CBonusSystemNode::getBonuses(out, selector, root);
+// 
+// 	if(!battle)
+// 	{
+// 		//TODO do it clean, unify with BattleInfo version
+// 		if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
+// 		{
+// 			for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
+// 				i->second.getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
+// 		}
+// 	}
+// 
+// 	if(Selector::matchesType(selector, Bonus::MORALE))
+// 	{
+// 		//number of alignments and presence of undead
+// 		if(contains(dynamic_cast<const CStackInstance*>(root)))
+// 		{
+// 			bool archangelInArmy = false;
+// 			bool canMix = hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX);
+// 			std::set<si8> factions;
+// 			for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
+// 			{
+// 				// Take Angelic Alliance troop-mixing freedom of non-evil, non-Conflux units into account.
+// 				const si8 faction = i->second.type->faction;
+// 				if (canMix
+// 					&& ((faction >= 0 && faction <= 2) || faction == 6 || faction == 7))
+// 				{
+// 					factions.insert(0); // Insert a single faction of the affected group, Castle will do.
+// 				}
+// 				else
+// 				{
+// 					factions.insert(faction);
+// 				}
+// 
+// 				if(i->second.type->idNumber == 13)
+// 					archangelInArmy = true;
+// 			}
+// 
+// 			if(factions.size() == 1)
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, +1, id, VLC->generaltexth->arraytxt[115]));//All troops of one alignment +1
+// 			else
+// 			{
+// 				int fcountModifier = 2-factions.size();
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, fcountModifier, id, boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % fcountModifier)));//Troops of %d alignments %d
+// 			}
+// 
+// 			if(vstd::contains(factions,4))
+// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
+// 		}
+// 	}
+// }
 
 int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
 {
 	//if (tempOwner != NEUTRAL_PLAYER)
-	return cb->gameState()->players[tempOwner].valOfBonuses(selector, this);
+	return cb->gameState()->players[tempOwner].valOfBonuses(selector);
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const

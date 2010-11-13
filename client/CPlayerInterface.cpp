@@ -243,7 +243,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	bool directlyAttackingCreature =
 		CGI->mh->map->isInTheMap(details.attackedFrom)
-		&& adventureInt->terrain.currentPath->nodes.size() == 3;
+		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
+		&& adventureInt->terrain.currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{

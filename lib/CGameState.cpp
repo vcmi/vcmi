@@ -4305,26 +4305,26 @@ si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
 
 }
 
-void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CBonusSystemNode::getBonuses(out, selector, root);
-
-	const CStack *dest = dynamic_cast<const CStack*>(root);
-	if (!dest)
-		return;
-
-	//TODO: make it in clean way
-	if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
-	{
-		BOOST_FOREACH(const CStack *s, stacks)
-		{
-			if(s->owner == dest->owner)
-				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
-			else
-				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ENEMY_ARMY), this);
-		}
-	}
-}
+// void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	CBonusSystemNode::getBonuses(out, selector, root);
+// 
+// 	const CStack *dest = dynamic_cast<const CStack*>(root);
+// 	if (!dest)
+// 		return;
+// 
+// 	//TODO: make it in clean way
+// 	if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
+// 	{
+// 		BOOST_FOREACH(const CStack *s, stacks)
+// 		{
+// 			if(s->owner == dest->owner)
+// 				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
+// 			else
+// 				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ENEMY_ARMY), this);
+// 		}
+// 	}
+// }
 
 si8 BattleInfo::getDistance( int hex1, int hex2 )
 {
@@ -4492,19 +4492,19 @@ PlayerState::PlayerState()
 
 }
 
-void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-{
-	return; //no loops possible
-}
-
-void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
-	{
-		if (*it != root)
-			(*it)->getBonuses(out, selector, this);
-	}
-}
+// void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	return; //no loops possible
+// }
+// 
+// void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
+// 	{
+// 		if (*it != root)
+// 			(*it)->getBonuses(out, selector, this);
+// 	}
+// }
 
 InfoAboutHero::InfoAboutHero()
 {

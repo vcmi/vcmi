@@ -137,8 +137,8 @@ public:
 	PlayerState();
 
 	//override
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
+	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -212,7 +212,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 
 	const CStack * getNextStack() const; //which stack will have turn after current one

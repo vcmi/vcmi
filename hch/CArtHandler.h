@@ -54,7 +54,7 @@ public:
 	~CArtifact();
 
 	//override
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 };
 
 class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
