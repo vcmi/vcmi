@@ -4458,7 +4458,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		{
 			CCreatureSet creatures;
 			creatures.setCreature (0, rID, rVal);
-			cb->giveCreatures (id, h,  creatures);
+			cb->giveCreatures (id, h, creatures,false);
 		}
 			break;
 		default:
@@ -5027,14 +5027,16 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		iw.text.addReplacement (h->name);
 
 		cb->showInfoDialog(&iw);
-		cb->giveCreatures (id, h, ourArmy);
+		cb->giveCreatures (id, h, ourArmy, true);
+		//boost::bind(&CGPandoraBox::endBattle, this, h, _1)
 	}
 	if(!afterBattle && message.size())
 	{
 		iw.text << message;
 		cb->showInfoDialog(&iw);
 	}
-	cb->removeObject(id);
+	if (!creatures.Slots().size())
+		cb->removeObject(id); //only when we don't need to display garrison window
 }
 
 void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
@@ -5905,7 +5907,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.text.addReplacement (loot.buildList());
 			iw.text.addReplacement (h->name);
 			cb->showInfoDialog(&iw);
-			cb->giveCreatures (id, h, ourArmy);
+			cb->giveCreatures (id, h, ourArmy, false);
 		}
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}

@@ -86,7 +86,7 @@ public:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
 	virtual void showThievesGuildWindow(int requestingObjId) =0;
 	virtual void giveResource(int player, int which, int val)=0;
-	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures) =0;
+	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) =0;
 	virtual void takeCreatures (int objid, TSlots creatures) =0;
 	virtual void changeCreatureType (int objid, TSlot slot, TCreature creature) =0;
 	virtual void showCompInfo(ShowInInfobox * comp)=0;

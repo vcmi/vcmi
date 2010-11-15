@@ -464,8 +464,8 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
 	:interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
 	 smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows), oup(s1), odown(s2)
 {
-	ourUp =  s1?s1->tempOwner == LOCPLINT->playerID:false;
-	ourDown = s2?s2->tempOwner == LOCPLINT->playerID:false;
+	ourUp =  s1?(s1->tempOwner == LOCPLINT->playerID || s1->tempOwner == 254):false; //254 - neutral objects (pandora, banks)
+	ourDown = s2?(s2->tempOwner == LOCPLINT->playerID || s2->tempOwner == 254):false;
 	set1 = LOCPLINT->cb->getGarrison(s1);
 	set2 = LOCPLINT->cb->getGarrison(s2);
 	pos.x += x;
@@ -4418,9 +4418,18 @@ void CGarrisonWindow::show(SDL_Surface * to)
 	quit->show(to);
 	garr->show(to);
 
+	std::string title;
+	if (garr->odown->tempOwner == garr->oup->tempOwner)
+		title = CGI->generaltexth->allTexts[709];
+	else
+	{
+		title = CGI->generaltexth->allTexts[35];
+		boost::algorithm::replace_first(title, "%s", garr->oup->Slots().begin()->second.type->namePl);
+	}
+
 	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);
 	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
-	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,FONT_BIG,tytulowy,to);
+	printAtMiddle(title,pos.x+275,pos.y+30,FONT_BIG,tytulowy,to);
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
