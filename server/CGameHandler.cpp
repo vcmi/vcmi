@@ -2153,20 +2153,16 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 		heroArmy.addToSlot(slot, creatures.slots.begin()->second);
 		creatures.slots.erase (creatures.slots.begin());
 	}
+	//move all matching creatures to hero's army
+	SetGarrisons sg;
+	sg.garrs[h->id] = heroArmy;
+	//garrisons need to be synchronized after this, even if object vanishes
+	sg.garrs[objid] = creatures;
+	sendAndApply (&sg);
 
-	if (creatures.stacksCount() == 0) //all creatures can be moved to hero army - do that
+	if (creatures.stacksCount()) //show garrison window and let player pick remaining creatures
 	{
-		SetGarrisons sg;
-		sg.garrs[h->id] = heroArmy;
-		sendAndApply(&sg);
-	}
-	else //show garrison window and let player pick creatures
-	{
-		SetGarrisons sg;
-		sg.garrs[objid] = creatures;
-		sendAndApply (&sg);
 		showGarrisonDialog (objid, h->id, true, 0);
-		return;
 	}
 }
 void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we could use ArmedInstance as well
