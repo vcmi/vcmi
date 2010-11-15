@@ -6535,9 +6535,10 @@ void CArmedInstance::setArmy(const CCreatureSet &src)
 	}
 }
 
-CCreatureSet CArmedInstance::getArmy() const
-{
-	return *this;
+CCreatureSet& CArmedInstance::getArmy() const
+{ //do not return itself by value, or it will xplode
+//	CCreatureSet set = *this; return set;
+	return *((CCreatureSet*)(this));
 }
 
 void CArmedInstance::randomizeArmy(int type)

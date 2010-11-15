@@ -114,7 +114,7 @@ public:
 	virtual const StartInfo * getStartInfo()const =0;
 	virtual const CMapHeader * getMapHeader()const =0;
 	virtual int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const =0; //when called during battle, takes into account creatures' spell cost reduction
-	virtual int estimateSpellDamage(const CSpell * sp) const =0; //estimates damage of given spell; returns 0 if spell causes no dmg
+	virtual int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const =0; //estimates damage of given spell; returns 0 if spell causes no dmg
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)=0; //get thieves' guild info obtainable while visiting given object
 	virtual int3 getGrailPos(float &outKnownRatio)=0;
 	virtual int getPlayerStatus(int player) const = 0; //-1 if no such player
@@ -262,7 +262,7 @@ public:
 	const StartInfo * getStartInfo() const;
 	const CMapHeader * getMapHeader()const ;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
-	int estimateSpellDamage(const CSpell * sp) const; //estimates damage of given spell; returns 0 if spell causes no dmg
+	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	int3 getGrailPos(float &outKnownRatio); //returns pos and (via arg) percent of discovered obelisks; TODO: relies on fairness of GUI/AI... :/
 
