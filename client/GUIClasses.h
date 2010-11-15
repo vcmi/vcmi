@@ -42,7 +42,7 @@ class SComponent;
 class CCreature;
 struct SDL_Surface;
 struct CPath;
-class CCreatureAnimation;
+class CCreatureAnim;
 class CSelectableComponent;
 class CCreatureSet;
 class CGObjectInstance;
@@ -435,16 +435,18 @@ public:
 	int size(); //how many elements do we have
 };
 
-class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation
+class CCreaturePic : public CIntObject //draws picture with creature on background, use Animated=true to get animation
 {
-public:
+private:
 	const CCreature *c; //which creature's picture
 	bool big; //big => 100x130; !big => 100x120
-	CCreatureAnimation *anim; //displayed animation
-	CCreaturePic(const CCreature *cre, bool Big=true); //c-tor
+	CCreatureAnim *anim; //displayed animation
+	
+public:
+	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
 	~CCreaturePic(); //d-tor
-	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame); //prints creature on screen
-	SDL_Surface * getPic(bool nextFrame); //returns frame of animation
+	void show(SDL_Surface *to); //prints creature on screen
+	
 };
 
 class CRecruitmentWindow : public CIntObject
@@ -496,7 +498,7 @@ class CSplitWindow : public CIntObject
 public:
 	CGarrisonInt *gar;
 	CSlider *slider;
-	CCreaturePic *anim; //creature's animation
+	CCreaturePic *animLeft, *animRight; //creature's animation
 	AdventureMapButton *ok, *cancel;
 	SDL_Surface *bitmap; //background
 	int a1, a2, c; //TODO: comment me
@@ -538,6 +540,7 @@ class CMinorResDataBar : public CIntObject
 public:
 	SDL_Surface *bg; //background bitmap
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CMinorResDataBar(); //c-tor
 	~CMinorResDataBar(); //d-tor
 };
@@ -865,7 +868,6 @@ public:
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	CPicture *bitmap; //background
-	char anf; //animation counter
 	std::string count; //creature count in text format
 
 	boost::function<void()> dsm; //dismiss button callback
@@ -1082,7 +1084,7 @@ class CUniversityWindow : public CIntObject
 	public:
 		int ID;//id of selected skill
 		CUniversityWindow * parent;
-		
+
 		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
@@ -1094,14 +1096,14 @@ class CUniversityWindow : public CIntObject
 public:
 	const CGHeroInstance *hero;
 	const IMarket * market;
-	
+
 	CPicture * green, * yellow, * red;//colored bars near skills
 	CPicture *bg; //background
 	std::vector<CItem*> items;
 
 	AdventureMapButton *cancel;
 	CGStatusBar *bar;
-	
+
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
 	~CUniversityWindow(); //d-tor
 };
@@ -1136,13 +1138,12 @@ public:
 	const CGHeroInstance * hero;
 	std::vector<int> currState;//current state of slot - to avoid calls to getState or updating buttons
 	std::vector<std::map<int,int> > costs;// costs [slot ID] [resource ID] = resource count for upgrade
-	std::vector<int> totalSumm; // totalSum[resource ID] = value 
+	std::vector<int> totalSumm; // totalSum[resource ID] = value
 
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
 	~CHillFortWindow(); //d-tor
-	
+
 	void activate();
-	void deactivate();
 	void showAll (SDL_Surface *to);
 	std::string getDefForSlot(int slot);//return def name for this slot
 	std::string getTextForSlot(int slot);//return hover text for this slot

@@ -15,7 +15,7 @@
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
-#include "../hch/CAnimation.h"
+#include "CAnimation.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CGeneralTextHandler.h"
@@ -1632,37 +1632,37 @@ int CTownList::size()
 	return LOCPLINT->towns.size();
 }
 
-CCreaturePic::CCreaturePic(const CCreature *cre, bool Big)
+CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
 :c(cre),big(Big)
 {
-	anim = new CCreatureAnimation(cre->animDefName);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pos.x+=x;
+	pos.y+=y;
+	
+	x = 225 - (c->isDoubleWide()?63:78);
+	y = 225 - (big?75:65);
+	
+	anim = new CCreatureAnim(0,0, cre->animDefName);
+	anim->movePic(x,y);
+	anim->pos.w = 100;
+	anim->pos.h = big?130:120;
 }
+
 CCreaturePic::~CCreaturePic()
 {
-	delete anim;
+	
 }
-int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
+
+void CCreaturePic::show(SDL_Surface *to)
 {
-	SDL_Rect dst;
 	if(big)
-	{
-		blitAt(graphics->backgrounds[c->faction],x,y,to);//curx-50,pos.y+130-65);
-		dst = genRect(130,100,x,y);
-	}
+		blitAtLoc(graphics->backgrounds[c->faction],0,0,to);
 	else
-	{
-		blitAt(graphics->backgroundsm[c->faction],x,y,to);//curx-50,pos.y+130-65);
-		dst = genRect(120,100,x,y);
-	}
-	if(c->isDoubleWide())
-		x-=15;
-	return anim->nextFrameMiddle(to,x+78,y+(big ? 55 : 45),true,0,nextFrame,false,false,&dst);
+		blitAtLoc(graphics->backgroundsm[c->faction],0,0,to);
+
+	CIntObject::show(to);
 }
-SDL_Surface * CCreaturePic::getPic(bool nextFrame)
-{
-	//TODO: write
-	return NULL;
-}
+
 void CRecruitmentWindow::close()
 {
 	GH.popIntTotally(this);
@@ -1783,7 +1783,6 @@ void CRecruitmentWindow::deactivate()
 
 void CRecruitmentWindow::show(SDL_Surface * to)
 {
-	static char animCounter=0; //animation counter - for determining appropriate animation frame to be shown
 	blitAt(bitmap,pos.x,pos.y,to);
 	buy->show(to);
 	max->show(to);
@@ -1809,14 +1808,9 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 		curx+=32+16;//size of bitmap + distance between them
 	}
 
-	curx = pos.x + 192 + CREATURE_WIDTH - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0; i<creatures.size(); ++i)
-	{
-		creatures[i].pic->blitPic(to, curx-50, pos.y+130-65, !(animCounter%4));
-		curx += TOTAL_CREATURE_WIDTH;
-	}
+		creatures[i].pic->show(to);
 
-	++animCounter;
 	bar->show(to);
 }
 
@@ -1854,17 +1848,18 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	drawBorder(bitmap,289,312,66,34,int3(173,142,66));
 
 	//border for creatures
-	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
+	int curx = 192 + 50 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		creatures[i].pos.x = curx+1;
+		creatures[i].pos.x = curx;
 		creatures[i].pos.y = 65;
 		creatures[i].pos.w = 100;
 		creatures[i].pos.h = 130;
 		if(which==i)
-			drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(255,0,0));
+			drawBorder(bitmap,curx-1,64,CREATURE_WIDTH,132,int3(255,0,0));
 		else
-			drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(239,215,123));
+			drawBorder(bitmap,curx-1,64,CREATURE_WIDTH,132,int3(239,215,123));
+		creatures[i].pic = new CCreaturePic(pos.x+curx, pos.y+65, CGI->creh->creatures[creatures[i].ID]);
 		curx += TOTAL_CREATURE_WIDTH;
 	}
 
@@ -1902,8 +1897,7 @@ void CRecruitmentWindow::initCres()
 
 			cur.amount = dwelling->creatures[i].first;
 			cur.ID = dwelling->creatures[i].second[j];
-			const CCreature *cre = CGI->creh->creatures[cur.ID];
-			cur.pic = new CCreaturePic(cre);
+			CCreature * cre= CGI->creh->creatures[cur.ID];
 
 			for(int k=0; k<cre->cost.size(); k++)
 				if(cre->cost[k])
@@ -1948,8 +1942,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),0,sliderPositions,val,true);
 	a1 = max-val;
 	a2 = val;
-	anim = new CCreaturePic(CGI->creh->creatures[cid]);
-	anim->anim->setType(1);
+	animLeft = new CCreaturePic(pos.x+20,  pos.y+54, CGI->creh->creatures[cid], true, false);
+	animRight = new CCreaturePic(pos.x+177, pos.y+54, CGI->creh->creatures[cid], true, false);
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid]->namePl);
@@ -1962,7 +1956,8 @@ CSplitWindow::~CSplitWindow() //d-tor
 	delete ok;
 	delete cancel;
 	delete slider;
-	delete anim;
+	delete animLeft;
+	delete animRight;
 }
 
 void CSplitWindow::activate()
@@ -2010,8 +2005,8 @@ void CSplitWindow::show(SDL_Surface * to)
 	slider->show(to);
 	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,FONT_BIG,zwykly,to);
 	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,FONT_BIG,zwykly,to);
-	anim->blitPic(to,pos.x+20,pos.y+54,false);
-	anim->blitPic(to,pos.x+177,pos.y+54,false);
+	animLeft->show(to);
+	animRight->show(to);
 }
 
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
@@ -2077,9 +2072,7 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 void CCreInfoWindow::show(SDL_Surface * to)
 {
 	blitAt(*bitmap,pos.x,pos.y,to);
-	anim->blitPic(to,pos.x+21,pos.y+48,(type) && !(anf%4));
-	if(++anf==4) 
-		anf=0;
+	anim->show(to);
 	if(count.size())
 		printTo(count.c_str(),pos.x+114,pos.y+174,FONT_TIMES,zwykly,to);
 	if(upgrade)
@@ -2157,7 +2150,6 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 			if(printed >= 3) //we can fit only 3 effects
 				break;
 		}
-
 		//print current health
 		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
 	}
@@ -2188,19 +2180,13 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 	else
 		finalNode = cre;
 
-	anf = 0;
 	c = cre;
 
 	bitmap = new CPicture("CRSTKPU.bmp");
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bitmap->center();
 
-	{
-		BLOCK_CAPTURING;
-		anim = new CCreaturePic(c);
-	}
-
-	if(!type) anim->anim->setType(2);
+	anim = new CCreaturePic(21, 48, c);
 
 	count = boost::lexical_cast<std::string>(creatureCount);
 
@@ -2253,7 +2239,6 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
 
 CCreInfoWindow::~CCreInfoWindow()
 {
-	delete anim;
  	for(int i=0; i<upgResCost.size();i++)
  		delete upgResCost[i];
 }
@@ -2423,6 +2408,11 @@ void CMinorResDataBar::show(SDL_Surface * to)
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
 		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,zwykly,to);
+}
+
+void CMinorResDataBar::showAll(SDL_Surface * to)
+{
+	show(to);
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -2913,8 +2903,10 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 			genRect(h, w, x + dx, y + 2*dy);
 
 		if(!Left)
+		{
 			BOOST_FOREACH(Rect &r, poss)
 				r.x += leftToRightOffset;
+		}
 	}
 }
 
@@ -3269,7 +3261,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 
 bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || M != CREATURE_RESOURCE && M != RESOURCE_ARTIFACT && M != ARTIFACT_RESOURCE);
+	return market->allowsTrade(M) && M != mode && (hero || ( M != CREATURE_RESOURCE && M != RESOURCE_ARTIFACT && M != ARTIFACT_RESOURCE ));
 }
 
 void CMarketplaceWindow::garrisonChanged()
@@ -6013,14 +6005,7 @@ CHillFortWindow::~CHillFortWindow()
 void CHillFortWindow::activate()
 {
 	CIntObject::activate();
-	garr->activate();
 	GH.statusbar = bar;
-}
-
-void CHillFortWindow::deactivate()
-{
-	CIntObject::deactivate();
-	garr->deactivate();
 }
 
 void CHillFortWindow::updateGarrisons()

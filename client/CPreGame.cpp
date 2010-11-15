@@ -9,7 +9,7 @@
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
-#include "../hch/CAnimation.h"
+#include "CAnimation.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CGeneralTextHandler.h"
@@ -2097,8 +2097,8 @@ void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
 	if(!btns[0])
 		return;
 
-	if(!onlyHero  &&  pi.defaultCastle() != -1 //fixed tow
-		|| SEL->isGuest() && s.color != playerColor) //or not our player
+	if( (!onlyHero  &&  pi.defaultCastle() != -1) //fixed tow
+		|| (SEL->isGuest() && s.color != playerColor)) //or not our player
 	{
 		btns[0]->disable();
 		btns[1]->disable();
@@ -2109,8 +2109,8 @@ void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
 		btns[1]->enable(active);
 	}
 
-	if(pi.defaultHero() != -1  ||  !s.human  ||  s.castle < 0 //fixed hero
-		|| SEL->isGuest() && s.color != playerColor)//or not our player
+	if( (pi.defaultHero() != -1  ||  !s.human  ||  s.castle < 0) //fixed hero
+		|| (SEL->isGuest() && s.color != playerColor))//or not our player
 	{
 		btns[2]->disable();
 		btns[3]->disable();
@@ -3128,7 +3128,7 @@ void CBonusSelection::CRegion::clickRight( tribool down, bool previousState )
 
 void CBonusSelection::CRegion::show( SDL_Surface * to )
 {
-	const SCampPositions::SRegionDesc & desc = owner->campDescriptions[owner->ourCampaign->camp->header.mapVersion].regions[myNumber];
+	//const SCampPositions::SRegionDesc & desc = owner->campDescriptions[owner->ourCampaign->camp->header.mapVersion].regions[myNumber];
 	if (!accessible)
 	{
 		//show as striped

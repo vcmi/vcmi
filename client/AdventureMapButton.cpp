@@ -1,5 +1,5 @@
 #include "AdventureMapButton.h"
-#include "../hch/CAnimation.h"
+#include "CAnimation.h"
 #include "CAdvmapInterface.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"

@@ -2,6 +2,7 @@
 #include "CCastleInterface.h"
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
+#include "CAnimation.h"
 #include "../CCallback.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
@@ -20,7 +21,7 @@
 #include "../lib/map.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp> 
+#include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <sstream>
@@ -52,45 +53,32 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 }
 
 CBuildingRect::CBuildingRect(Structure *Str)
-	:moi(false), offset(0), str(Str)
+	:CShowableAnim(0, 0, Str->defName, CShowableAnim::FLAG_BASE),
+	moi(false), str(Str)
 {
-	def = CDefHandler::giveDef(Str->defName);
-	max = def->ourImages.size();
 
-	if(str->ID == 33    &&    str->townID == 4) //little 'hack' for estate in necropolis - background color is not always the first color in the palette
-	{
-		for(std::vector<Cimage>::iterator i=def->ourImages.begin();i!=def->ourImages.end();i++)
-		{
-			SDL_SetColorKey(i->bitmap,SDL_SRCCOLORKEY,*((char*)i->bitmap->pixels));
-		}
-	}
+	pos.x += str->pos.x + LOCPLINT->castleInt->pos.x;
+	pos.y += str->pos.y + LOCPLINT->castleInt->pos.y;
 
-	pos.x = str->pos.x + LOCPLINT->castleInt->pos.x;
-	pos.y = str->pos.y + LOCPLINT->castleInt->pos.y;
-	pos.w = def->ourImages[0].bitmap->w;
-	pos.h = def->ourImages[0].bitmap->h;
+	if(str->ID == 33 && str->townID == 4) //little 'hack' for estate in necropolis - background color is not always the first color in the palette
+		for(size_t i=0; i<anim.groupSize(0);i++)
+			SDL_SetColorKey(anim.image(i,0), SDL_SRCCOLORKEY,
+			      *((char*)(anim.image(i,0)->pixels)));
+
 	if(Str->ID<0  || (Str->ID>=27 && Str->ID<=29))
 	{
 		area = border = NULL;
 		return;
 	}
 
-	border = BitmapHandler::loadBitmap(str->borderName);
-	if (border)
-	{
-		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
-	}
-	else
+	border = BitmapHandler::loadBitmap(str->borderName, true);
+	if (!border)
 	{
 		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
 	}
 
-	area = BitmapHandler::loadBitmap(str->areaName); //FIXME look up
-	if (area)
-	{ 
-		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
-	}
-	else
+	area = BitmapHandler::loadBitmap(str->areaName);
+	if (!area)
 	{
 		tlog2 << "Warning: no area for "<<Str->ID<<std::endl;
 	}
@@ -98,7 +86,6 @@ CBuildingRect::CBuildingRect(Structure *Str)
 
 CBuildingRect::~CBuildingRect()
 {
-	delete def;
 	if(border)
 		SDL_FreeSurface(border);
 	if(area)
@@ -152,16 +139,14 @@ void CBuildingRect::hover(bool on)
 		}
 	}
 }
+
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) &&
-		!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
-	{
-		if(previousState && !down)
+	if( previousState && !down && area && (LOCPLINT->castleInt->hBuild==this) )
+		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 			LOCPLINT->castleInt->buildingClicked(str->ID);
-		//ClickableL::clickLeft(down);
-	}
 }
+
 void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
@@ -169,7 +154,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
 		int bid = hordeToDwellingID(str->ID);
-		
+
 		CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		assert(bld);
 
@@ -186,11 +171,24 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	}
 }
 
+void CBuildingRect::show(SDL_Surface *to)
+{
+	CShowableAnim::show(to);
+
+	if(LOCPLINT->castleInt->hBuild == this && border) //if this this higlighted structure and has border we'll blit it
+		blitAtLoc(border,0,0,to);
+}
+
+void CBuildingRect::showAll(SDL_Surface *to)
+{
+	show(to);
+}
+
 std::string getBuildingSubtitle(int tid, int bid)//hover text for building
 {
 	const CGTownInstance * t = LOCPLINT->castleInt->town;
 	bid = hordeToDwellingID(bid);
-	
+
 	if (bid<30)//non-dwellings - only buiding name
 		return CGI->buildh->buildings[tid].find(bid)->second->Name();
 	else//dwellings - recruit %creature%
@@ -214,27 +212,19 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		}
 		else //inside the area of this building
 		{
-			if(LOCPLINT->castleInt->hBuild) //a building is hovered
-			{
-				if((*LOCPLINT->castleInt->hBuild)<(*this)) //set if we are on top
-				{
-					LOCPLINT->castleInt->hBuild = this;
-					GH.statusbar->print(getBuildingSubtitle(str->townID, str->ID));
-				}
-			}
-			else //no building hovered
+			if(! LOCPLINT->castleInt->hBuild //no building hovered
+			  || (*LOCPLINT->castleInt->hBuild)<(*this)) //or we are on top
 			{
 				LOCPLINT->castleInt->hBuild = this;
 				GH.statusbar->print(getBuildingSubtitle(str->townID, str->ID));
 			}
 		}
 	}
-	//if(border)
-	//	blitAt(border,pos.x,pos.y);
 }
+
 void CHeroGSlot::hover (bool on)
 {
-	if(!on) 
+	if(!on)
 	{
 		GH.statusbar->clear();
 		return;
@@ -282,10 +272,6 @@ void CHeroGSlot::hover (bool on)
 	}
 	if(temp.size())
 		GH.statusbar->print(temp);
-}
-
-void CHeroGSlot::clickRight(tribool down, bool previousState)
-{
 }
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
@@ -341,19 +327,10 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	//}
 }
 
-void CHeroGSlot::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-}
-
 void CHeroGSlot::deactivate()
 {
 	highlight = false;
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
+	CIntObject::deactivate();
 }
 
 void CHeroGSlot::show(SDL_Surface * to)
@@ -544,7 +521,7 @@ void CCastleInterface::buildingClicked(int building)
 					}
 				}
 				else
-				{ 
+				{
 					enterMageGuild();
 				}
 				break;
@@ -572,8 +549,8 @@ void CCastleInterface::buildingClicked(int building)
 				if(!vstd::contains(town->forbiddenBuildings, 26))
 				{
 					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-												std::vector<SComponent*>(), 
-												boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, 26), 
+												std::vector<SComponent*>(),
+												boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, 26),
 												boost::bind(&CCastleInterface::enterHall, this), true);
 				}
 				else
@@ -643,7 +620,7 @@ void CCastleInterface::buildingClicked(int building)
 						GH.pushInt(new CUniversityWindow(town->garrisonHero, town));
 					else//no hero in town - default popup
 						defaultBuildingClicked(building);
-					
+
 					break;
 				default:
 					defaultBuildingClicked(building);
@@ -665,7 +642,7 @@ void CCastleInterface::buildingClicked(int building)
 								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
 								break;//only visiting hero can use castle gates
 							}
-							
+
 							std::vector <int> availableTowns;
 							std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
 							for(size_t i=0;i<Towns.size();i++)
@@ -690,15 +667,15 @@ void CCastleInterface::buildingClicked(int building)
 							hero = town->garrisonHero;
 						else
 							hero = NULL;//no hero - will trade with town garrison
-						
+
 						GH.pushInt ( new CTransformerWindow(hero, town) );
 						break;
-						
+
 	/*Dungeon*/		case 5: //Portal of Summoning
 						if (town->creatures[CREATURES_PER_TOWN].second.empty())
 						//extra dwelling has no creatures in it
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30], std::vector<SComponent*>(), soundBase::sound_todo);
-						else 
+						else
 							this->showRecruitmentWindow(CREATURES_PER_TOWN);
 					break;
 	/*Stronghold*/		case 6: //Ballista Yard
@@ -828,30 +805,13 @@ void CCastleInterface::townChange()
 
 void CCastleInterface::show(SDL_Surface * to)
 {
-	count++;
-	if(count==5)
-	{
-		count=0;
-		animval++;
-	}
-
 	blitAt(cityBg,pos,to);
 
 
 	//blit buildings
 	for(size_t i=0;i<buildings.size();i++)
 	{
-		int frame = ((animval)%(buildings[i]->max - buildings[i]->offset)) + buildings[i]->offset;
-		if(frame)
-		{
-			blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-		}
-		else
-			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-
-		if(hBuild==buildings[i] && hBuild->border) //if this this higlighted structure and has border we'll blit it
-			blitAt(hBuild->border,hBuild->pos,to);
+		buildings[i]->showAll(to);
 	}
 	statusbar->show(to);//refreshing statusbar
 }
@@ -992,7 +952,7 @@ void CCastleInterface::recreateBuildings()
 			Structure * st = CGI->townh->structures[town->subID][20];
 			buildings.push_back(new CBuildingRect(st));
 			s.insert(std::pair<int,int>(st->group,st->ID));
-			isThereShip = true; 
+			isThereShip = true;
 		}
 	}
 
@@ -1012,13 +972,11 @@ void CCastleInterface::recreateBuildings()
 		}
 		if(town->builtBuildings.find(4)!=town->builtBuildings.end()) //there is mage Guild level 5
 		{
-			vortex->offset = 10;
-			vortex->max = vortex->def->ourImages.size();
+			vortex->set(0,10);
 		}
 		else
 		{
-			vortex->offset = 0;
-			vortex->max = 10;
+			vortex->set(0,0,9);
 		}
 	}
 	//code for the shipyard in the Castle
@@ -1043,13 +1001,11 @@ void CCastleInterface::recreateBuildings()
 			}
 			if(town->builtBuildings.find(8)!=town->builtBuildings.end()) //there is citadel
 			{
-				shipyard->offset = 1;
-				shipyard->max = shipyard->def->ourImages.size();
+				shipyard->set(0,1);
 			}
 			else
 			{
-				shipyard->offset = 0;
-				shipyard->max = 1;
+				shipyard->set(0,0,0);
 			}
 		}
 	}
@@ -1154,7 +1110,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 		descr +="\n"+CGI->generaltexth->allTexts[590];
 		summ = CGI->creh->creatures[crid]->growth;
 		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
-		
+
 		if ( level>=0 && level<CREATURES_PER_TOWN)
 		{
 
@@ -1168,7 +1124,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 
 			summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
 				summ * ci->town->valOfGlobalBonuses
-				(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion 
+				(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion
 
 			if(ci->town->town->hordeLvl[0]==level)//horde, x to summ
 			if((bld.find(18)!=bld.end()) || (bld.find(19)!=bld.end()))
@@ -1200,7 +1156,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 			};
 			if (bl.size())
 				summ+=AddToString (CGI->arth->artifacts[bl.front().id]->Name()+" %+d", descr, bl.totalValue());
-			
+
 			//TODO: player bonuses
 
 			if(bld.find(26)!=bld.end()) //grail - +50% to ALL growth
@@ -1261,7 +1217,7 @@ void CCastleInterface::CTownInfo::hover(bool on)
 	{
 		std::string descr;
 		if ( bid == 6 ) {} //empty "no fort" icon. no hover message
-		else 
+		else
 		if ( bid == 14 ) //marketplace/income icon
 			descr = CGI->generaltexth->allTexts[255];
 		else
@@ -1282,7 +1238,7 @@ void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
 void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(down)
-	{	
+	{
 		if (( bid == 6 ) || ( bid == 14) )
 			return;
 		CInfoPopup *mess = new CInfoPopup();
@@ -1414,7 +1370,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 	CCastleInterface *ci = LOCPLINT->castleInt;
 	if (( (BID == 18) && (vstd::contains(ci->town->builtBuildings,(ci->town->town->hordeLvl[0]+37))))
 	||  ( (BID == 24) && (vstd::contains(ci->town->builtBuildings,(ci->town->town->hordeLvl[1]+37)))) )
-		blitAt(ci->bicons->ourImages[BID+1].bitmap,pos.x,pos.y,to);		
+		blitAt(ci->bicons->ourImages[BID+1].bitmap,pos.x,pos.y,to);
 	else
 		blitAt(ci->bicons->ourImages[BID].bitmap,pos.x,pos.y,to);
 	int pom, pom2=-1;
@@ -1672,7 +1628,7 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	CSDL_Ext::printAtMiddleWB(getTextForState(state),199,248,FONT_SMALL,50,zwykly,bitmap);
 	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->generaltexth->hcommands[7],pom),197,30,FONT_BIG,tytulowy,bitmap);
 
-	int resamount=0; 
+	int resamount=0;
 	for(int i=0;i<7;i++)
 	{
 		if(CGI->buildh->buildings[tid][bid]->resources[i])
@@ -1738,12 +1694,10 @@ CFortScreen::~CFortScreen()
 void CFortScreen::show( SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
-	static unsigned char anim = 1;
 	for (int i=0; i<crePics.size(); i++)
 	{
-		crePics[i]->blitPic(to,pos.x+positions[i].x+159,pos.y+positions[i].y+4,!(anim%4));
+		crePics[i]->show(to);
 	}
-	anim++;
 	exit->show(to);
 	resdatabar->show(to);
 	GH.statusbar->show(to);
@@ -1775,7 +1729,7 @@ void CFortScreen::close()
 
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
-	if (owner->town->creatures.size() > CREATURES_PER_TOWN 
+	if (owner->town->creatures.size() > CREATURES_PER_TOWN
 	        && owner->town->creatures[CREATURES_PER_TOWN].second.size() )//dungeon with active portal
 		fortSize = CREATURES_PER_TOWN+1;
 	else
@@ -1809,11 +1763,11 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		bg2 = BitmapHandler::loadBitmap("TPCASTL7.bmp");
 	else
 		bg2 = BitmapHandler::loadBitmap("TPCASTL8.bmp");
-		
+
 	SDL_Surface *icons =  BitmapHandler::loadBitmap("ZPCAINFO.bmp");
 	SDL_SetColorKey(icons,SDL_SRCCOLORKEY,SDL_MapRGB(icons->format,0,255,255));
 	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
-	bg = SDL_ConvertSurface(bg2,screen->format,0); 
+	bg = SDL_ConvertSurface(bg2,screen->format,0);
 	SDL_FreeSurface(bg2);
 	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,FONT_MEDIUM,zwykly,bg);
 	for(int i=0;i<fortSize; i++)
@@ -1884,7 +1838,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		}
 		if(first)
 		{
-			crePics.push_back(new CCreaturePic(c,false));
+			crePics.push_back(new CCreaturePic( positions[i].x+pos.x+160, positions[i].y+pos.y+5, c,false));
 			if(present)
 			{
 				recAreas.push_back(new RecArea(i));
@@ -1906,24 +1860,32 @@ void CFortScreen::RecArea::clickRight(tribool down, bool previousState)
 }
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	
+	bg = new CPicture("TPMAGE.bmp");
+	pos = bg->center();
 	resdatabar = new CMinorResDataBar;
-	pos = owner->pos;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
-	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
 	LOCPLINT->castleInt->statusbar->clear();
-	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+	
+	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
-	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");
+	CAnimation scrolls("TPMAGES.DEF");
+	scrolls.load();
+	
 	SDL_Surface *view = BitmapHandler::loadBitmap(graphics->guildBgs[owner->town->subID]);
 	SDL_SetColorKey(view,SDL_SRCCOLORKEY,SDL_MapRGB(view->format,0,255,255));
+	blitAt(view,332,76,*bg);
+	SDL_FreeSurface(view);
+	
 	positions.resize(5);
 	positions[0] += genRect(61,83,222,445), genRect(61,83,312,445), genRect(61,83,402,445), genRect(61,83,520,445), genRect(61,83,610,445), genRect(61,83,700,445);
 	positions[1] += genRect(61,83,48,53), genRect(61,83,48,147), genRect(61,83,48,241), genRect(61,83,48,335), genRect(61,83,48,429);
 	positions[2] += genRect(61,83,570,82), genRect(61,83,672,82), genRect(61,83,570,157), genRect(61,83,672,157);
 	positions[3] += genRect(61,83,183,42), genRect(61,83,183,148), genRect(61,83,183,253);
 	positions[4] += genRect(61,83,491,325), genRect(61,83,591,325);
-	blitAt(view,332,76,bg);
+	
 	for(size_t i=0; i<owner->town->town->mageLevel; i++)
 	{
 		size_t sp = owner->town->spellsAtLevel(i+1,false); //spell at level with -1 hmmm?
@@ -1931,30 +1893,27 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
 			{
-				spells.push_back(Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
-				spells[spells.size()-1].pos = positions[i][j];
-				blitAt(graphics->spellscr->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],bg);
+				spells.push_back( new Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
+				spells[spells.size()-1]->pos = positions[i][j];
+				blitAt(graphics->spellscr->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],*bg);
 			}
 			else
 			{
-				blitAt(scrolls2->ourImages[1].bitmap,positions[i][j],bg);
+				blitAt(scrolls.image(1),positions[i][j],*bg);
 			}
 		}
 	}
-	SDL_FreeSurface(view);
+	
 	for(size_t i=0;i<spells.size();i++)
 	{
-		spells[i].pos.x += pos.x;
-		spells[i].pos.y += pos.y;
+		spells[i]->pos.x += pos.x;
+		spells[i]->pos.y += pos.y;
 	}
-	delete scrolls2;
 }
 
 CMageGuildScreen::~CMageGuildScreen()
 {
-	delete exit;
-	SDL_FreeSurface(bg);
-	delete resdatabar;
+	
 }
 
 void CMageGuildScreen::close()
@@ -1962,30 +1921,10 @@ void CMageGuildScreen::close()
 	GH.popIntTotally(this);
 }
 
-void CMageGuildScreen::show(SDL_Surface * to)
+CMageGuildScreen::Scroll::Scroll(CSpell *Spell)
+	:spell(Spell)
 {
-	blitAt(bg,pos,to);
-	resdatabar->show(to);
-	GH.statusbar->show(to);
-	exit->show(to);
-}
-
-void CMageGuildScreen::activate()
-{
-	exit->activate();
-	for(size_t i=0;i<spells.size();i++)
-	{
-		spells[i].activate();
-	}
-}
-
-void CMageGuildScreen::deactivate()
-{
-	exit->deactivate();
-	for(size_t i=0;i<spells.size();i++)
-	{
-		spells[i].deactivate();
-	}
+	used = LCLICK | RCLICK | HOVER;
 }
 
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
@@ -2017,7 +1956,6 @@ void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 
 void CMageGuildScreen::Scroll::hover(bool on)
 {
-	//Hoverable::hover(on);
 	if(on)
 		GH.statusbar->print(spell->name);
 	else
@@ -2027,66 +1965,39 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)
 {
-	SDL_Surface *bg2 = BitmapHandler::loadBitmap("TPSMITH.bmp");
-	SDL_SetColorKey(bg2,SDL_SRCCOLORKEY,SDL_MapRGB(bg2->format,0,255,255));
-	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
-	bmp = SDL_ConvertSurface(bg2,screen->format,0); 
-	SDL_FreeSurface(bg2);
-	bg2 = BitmapHandler::loadBitmap("TPSMITBK.bmp");
-	blitAt(bg2,64,50,bmp);
-	SDL_FreeSurface(bg2);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+//	SDL_SetColorKey(bg2,SDL_SRCCOLORKEY,SDL_MapRGB(bg2->format,0,255,255));
+	bmp = new CPicture("TPSMITH");
+	bmp->colorizeAndConvert(LOCPLINT->playerID);
+	
+	pos = bmp->center();
+	
+	SDL_Surface *bg = BitmapHandler::loadBitmap("TPSMITBK.bmp");
+	blitAt(bg,64,50,*bmp);
+	SDL_FreeSurface(bg);
 
-	CCreatureAnimation cra(CGI->creh->creatures[creMachineID]->animDefName);
-	cra.nextFrameMiddle(bmp,170,120,true,0,false);
+	CCreatureAnim cra(170, 120, CGI->creh->creatures[creMachineID]->animDefName);
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID]->nameSing.c_str()); //build a new ...
-	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,bmp);
-	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,bmp); //resource cost
+	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,*bmp);
+	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,*bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid]->price,pom,10);
-	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,bmp);
+	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,*bmp);
 
-	pos.w = bmp->w;
-	pos.h = bmp->h;
-	pos.x = screen->w/2 - pos.w/2;
-	pos.y = screen->h/2 - pos.h/2;
-
-	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 42,pos.y + 312,"IBUY30.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 224,pos.y + 312,"ICANCEL.DEF",SDLK_ESCAPE);
+	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this), 42, 312,"IBUY30.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
 
 	if(possible)
 		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHeroInfo(hid,2),aid);
 	else
-		buy->bitmapOffset = 2;
+		buy->block(2);
 
-	blitAt(graphics->resources32->ourImages[6].bitmap,148,244,bmp);
-}
-
-void CBlacksmithDialog::show( SDL_Surface * to )
-{
-	blitAt(bmp,pos,to);
-	buy->show(to);
-	cancel->show(to);
-}
-
-void CBlacksmithDialog::activate()
-{
-	if(!buy->bitmapOffset)
-		buy->activate();
-	cancel->activate();
-}
-
-void CBlacksmithDialog::deactivate()
-{
-	if(!buy->bitmapOffset)
-		buy->deactivate();
-	cancel->deactivate();
+	blitAt(graphics->resources32->ourImages[6].bitmap,148,244,*bmp);
 }
 
 CBlacksmithDialog::~CBlacksmithDialog()
 {
-	SDL_FreeSurface(bmp);
-	delete cancel;
-	delete buy;
+	
 }
 
 void CBlacksmithDialog::close()

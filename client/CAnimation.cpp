@@ -1,13 +1,15 @@
 #include <iostream>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 
 #include "SDL.h"
 #include "SDL_image.h"
 
-#include "../client/CBitmapHandler.h"
+#include "CBitmapHandler.h"
 #include "CAnimation.h"
-#include "CLodHandler.h"
+#include "SDL_Extensions.h"
+#include "../hch/CLodHandler.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine
@@ -18,7 +20,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
 
 extern DLL_EXPORT CLodHandler *spriteh;
 
@@ -267,8 +268,9 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 		break;
 	}
 
-	SDL_Color ttcol = ret->format->palette->colors[0];
-	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);
+	SDL_Color *col = ret->format->palette->colors;
+	
+	Uint32 keycol = SDL_MapRGBA(ret->format, col[0].r, col[0].b, col[0].g, col[0].unused);
 	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
 	return ret;
 };
@@ -282,6 +284,15 @@ BMPPalette * CDefFile::getPalette()
 
 CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 {
+	static SDL_Color H3Palette[8] = {{  0,   0,   0, 255},
+	                                 {  0,   0,   0, 192},
+	                                 {  0,   0,   0, 128},
+	                                 {  0,   0,   0,  64},
+	                                 {  0,   0,   0,  32},
+	                                 {255, 255,   0, 255},
+	                                 {255, 255,   0, 255},
+	                                 {255, 255,   0, 255}};//H3 palette for shadow\selection highlight
+	
 	data = spriteh->giveFile(Name, FILE_ANIMATION, &datasize);
 	if (!data)
 	{
@@ -292,37 +303,41 @@ CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 	colors = new BMPPalette[256];
 	int it = 0;
 
-	//int type   = readNormalNr(data, it); it+=4;
+	type = readNormalNr(data, it); it+=4;
 	//int width  = readNormalNr(data, it); it+=4;//not used
 	//int height = readNormalNr(data, it); it+=4;
-	it+=12;
+	it+=8;
 	unsigned int totalBlocks = readNormalNr(data, it);
 	it+=4;
 
-	for (unsigned int i=0; i<256; i++)
+	for (unsigned int i= 0; i<256; i++)
 	{
 		colors[i].R = data[it++];
 		colors[i].G = data[it++];
 		colors[i].B = data[it++];
 		colors[i].F = 0;
 	}
+	memcpy(colors, H3Palette, (type == 66)? 32:20);//initialize shadow\selection colors
 
-	offset.resize(totalBlocks);
 	offList.insert(datasize);
 
 	for (unsigned int i=0; i<totalBlocks; i++)
 	{
+		unsigned int blockID = readNormalNr(data, it);
 		it+=4;
 		unsigned int totalEntries = readNormalNr(data, it);
 		it+=12;
+		//8 unknown bytes - skipping
 
 		//13 bytes for name of every frame in this block - not used, skipping
 		it+= 13 * totalEntries;
 
+		offset.resize(std::max(blockID+1, offset.size()));
+
 		for (unsigned int j=0; j<totalEntries; j++)
 		{
 			size_t currOffset = readNormalNr(data, it);
-			offset[i].push_back(currOffset);
+			offset[blockID].push_back(currOffset);
 			offList.insert(currOffset);
 			it += 4;
 		}
@@ -353,6 +368,8 @@ unsigned char * CDefFile::getFrame(size_t frame, size_t group) const
 
 CDefFile::~CDefFile()
 {
+	offset.clear();
+	offList.clear();
 	delete[] data;
 	delete[] colors;
 }
@@ -379,7 +396,10 @@ CAnimation::AnimEntry::AnimEntry():
 bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 {
 	if (groupSize(group) <= frame)
+	{
+		printError(frame, group, "LoadFrame");
 		return false;
+	}
 	AnimEntry &e = entries[group][frame];
 
 	if (e.surf || e.data)
@@ -410,7 +430,7 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 			else
 			{
 				e.surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
-				delete pic;
+				delete [] pic;
 			}
 		}
 	}
@@ -438,7 +458,7 @@ bool CAnimation::unloadFrame(size_t frame, size_t group)
 			return true;
 
 		SDL_FreeSurface(e.surf);
-		delete e.data;
+		delete [] e.data;
 
 		e.surf = NULL;
 		e.data = NULL;
@@ -501,7 +521,13 @@ void CAnimation::init(CDefFile * file)
 		if (!toAdd.empty())
 		{
 			entries.push_back(toAdd);
-			break;
+		}
+		else
+		{
+			entries.resize(entries.size()+1);
+			if (group > 21)
+				break;//FIXME: crude workaround: if some groups are not present
+				      //(common for creatures) parser will exit before reaching them
 		}
 	}
 }
@@ -532,7 +558,6 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 	int dotPos = name.find_last_of('.');
 	if ( dotPos != -1 )
 		name.erase(dotPos);
-
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
@@ -548,12 +573,11 @@ CAnimation::CAnimation():
 
 CAnimation::~CAnimation()
 {
-	delete defPalette;
-
+	delete [] defPalette;
 	for (size_t i = 0; i < entries.size(); i++)
 		for (size_t j = 0; j < entries.at(i).size(); j++)
 		{
-			delete entries[i][j].data;
+			delete [] entries[i][j].data;
 			if (entries[i][j].surf)
 				SDL_FreeSurface(entries[i][j].surf);
 		}
@@ -575,21 +599,25 @@ void CAnimation::add(SDL_Surface * surf, bool shared, size_t group)
 	entries[group].back().surf = surf;
 }
 
-void CAnimation::purgeCompressed()
+void CAnimation::removeDecompressed(size_t frame, size_t group)
 {
-	for (size_t group; group < entries.size(); group++)
-		for (size_t frame; frame < entries[group].size(); frame++)
-			if (entries[group][frame].surf)
-				SDL_FreeSurface(entries[group][frame].surf);
+	AnimEntry &e = entries[group][frame];
+	if (e.surf && e.data)
+	{
+		SDL_FreeSurface(e.surf);
+		e.surf = NULL;
+	}
 }
 
 SDL_Surface * CAnimation::image(size_t frame)
 {
 	size_t group=0;
-	for (; group<entries.size() && frame > entries[group].size(); group++)
+	while (group<entries.size() && frame > entries[group].size())
 		frame -= entries[group].size();
 
-	return image(frame, group);
+	if (group <entries.size() && frame < entries[group].size())
+		return image(frame, group);
+	return NULL;
 }
 
 SDL_Surface * CAnimation::image(size_t frame, size_t group)
@@ -634,13 +662,14 @@ void CAnimation::loadGroup(size_t group)
 {
 	CDefFile * file = getFile();
 
-	for (size_t frame = 0; frame<entries[group].size(); frame++)
+	for (size_t frame = 0; frame<groupSize(group); frame++)
 		loadFrame(file, frame, group);
+	delete file;
 }
 
 void CAnimation::unloadGroup(size_t group)
 {
-	for (size_t frame = 0; frame<entries[group].size(); frame++)
+	for (size_t frame = 0; frame<groupSize(group); frame++)
 		unloadFrame(frame, group);
 }
 
@@ -692,4 +721,250 @@ size_t CAnimation::size() const
 		ret += entries[i].size();
 	}
 	return ret;
+}
+/*
+CAnimImage::CAnimImage(int x, int y, std::string name, size_t Frame, size_t Group):
+	anim(name),
+	frame(Frame),
+	group(Group)
+{
+	anim.load(frame, group);
+	pos.w = anim.image(frame, group)->w;
+	pos.h = anim.image(frame, group)->h;
+}
+
+CAnimImage::~CAnimImage()
+{
+
+}
+
+void CAnimImage::show(SDL_Surface *to)
+{
+	blitAtLoc(anim.image(frame, group), 0,0, to);
+}
+
+void CAnimImage::setFrame(size_t Frame, size_t Group)
+{
+	if (frame == Frame && group==Group)
+		return;
+	if (anim.groupSize(Group) > Frame)
+	{
+		anim.unload(frame, group);
+		anim.load(Frame, Group);
+		frame = Frame;
+		group = Group;
+	}
+}
+*/
+CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags, unsigned int Delay, size_t Group):
+	anim(name, Flags),
+	group(Group),
+	frame(0),
+	first(0),
+	flags(Flags),
+	frameDelay(Delay),
+	value(0),
+	xOffset(0),
+	yOffset(0)
+{
+	pos.x+=x;
+	pos.y+=y;
+
+	anim.loadGroup(group);
+	last = anim.groupSize(group);
+	pos.w = anim.image(0, group)->w;
+	pos.h = anim.image(0, group)->h;
+}
+
+CShowableAnim::~CShowableAnim()
+{
+
+}
+
+bool CShowableAnim::set(size_t Group, size_t from, size_t to)
+{
+	size_t max = anim.groupSize(Group);
+
+	if (max>to)
+		max = to;
+
+	if (max < from || max == 0)
+		return false;
+
+	anim.load(Group);
+	anim.unload(group);
+	group = Group;
+	frame = first = from;
+	last = max;
+	value = 0;
+	return true;
+}
+
+bool CShowableAnim::set(size_t Group)
+{
+	if (anim.groupSize(Group)== 0)
+		return false;
+	if (group != Group)
+	{
+		anim.loadGroup(Group);
+		anim.unloadGroup(group);
+		first = 0;
+		group = Group;
+		last = anim.groupSize(Group);
+	}
+	frame = value = 0;
+	return true;
+}
+
+void CShowableAnim::reset()
+{
+	value = 0;
+	frame = first;
+	if (callback)
+		callback();
+}
+
+void CShowableAnim::movePic( int byX, int byY)
+{
+	xOffset += byX;
+	yOffset += byY;
+}
+
+void CShowableAnim::show(SDL_Surface *to)
+{
+	if ( flags & FLAG_BASE && frame != first)
+		blitImage(anim.image(first, group), to);
+	blitImage(anim.image(frame, group), to);
+	
+	if ( ++value == frameDelay )
+	{
+		value = 0;
+		if (flags & FLAG_COMPRESSED)
+			anim.removeDecompressed(frame, group);
+		if ( ++frame == last)
+			reset();
+	}
+
+}
+
+void CShowableAnim::showAll(SDL_Surface *to)
+{
+	show(to);
+}
+
+void CShowableAnim::blitImage(SDL_Surface *what, SDL_Surface *to)
+{
+	assert(what);
+	//TODO: SDL RLE?
+	SDL_Rect dstRect=genRect(pos.h, pos.w, pos.x, pos.y);
+	SDL_Rect srcRect;
+	
+	srcRect.x = xOffset;
+	srcRect.y = yOffset;
+	srcRect.w = pos.w;
+	srcRect.h = pos.h;
+	
+	/*if ( flags & FLAG_ROTATED )
+	{} //TODO: rotate surface
+	else */
+	if (flags & FLAG_ALPHA && what->format->BytesPerPixel == 1) //alpha on 8-bit surf - use custom blitter
+		CSDL_Ext::blit8bppAlphaTo24bpp(what, &srcRect, to, &dstRect);
+	else
+		CSDL_Ext::blitSurface(what, &srcRect, to, &dstRect);
+}
+
+void CShowableAnim::rotate(bool on)
+{
+	if (on)
+		flags |= FLAG_ROTATED;
+	else
+		flags &= ~FLAG_ROTATED;
+}
+
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, unsigned char flags, EAnimType type):
+	CShowableAnim(x,y,name,flags,3,type)
+{
+	if (flags & FLAG_PREVIEW)
+		callback = boost::bind(&CCreatureAnim::loopPreview,this);
+};
+
+void CCreatureAnim::loopPreview()
+{
+	std::vector<EAnimType> available;
+	if (anim.groupSize(ANIM_HOLDING))
+		available.push_back(ANIM_HOLDING);
+
+	if (anim.groupSize(ANIM_HITTED))
+		available.push_back(ANIM_HITTED);
+
+	if (anim.groupSize(ANIM_DEFENCE))
+		available.push_back(ANIM_DEFENCE);
+
+	if (anim.groupSize(ANIM_ATTACK_FRONT))
+		available.push_back(ANIM_ATTACK_FRONT);
+
+	if (anim.groupSize(ANIM_CAST_FRONT))
+		available.push_back(ANIM_CAST_FRONT);
+
+	size_t rnd = rand()%(available.size()*2);
+
+	if (rnd >= available.size())
+	{
+		if ( anim.groupSize(ANIM_MOVING) == 0 )//no moving animation present
+			addLast( ANIM_HOLDING );
+		else
+			addLast( ANIM_MOVING ) ;
+	}
+	else
+		addLast(available[rnd]);
+}
+
+void CCreatureAnim::addLast(EAnimType newType)
+{
+	if (type != ANIM_MOVING && newType == ANIM_MOVING)//starting moving - play init sequence
+	{
+		queue.push( ANIM_MOVE_START );
+	}
+	else if (type == ANIM_MOVING && newType != ANIM_MOVING )//previous anim was moving - finish it
+	{
+		queue.push( ANIM_MOVE_END);
+	}
+	if (newType == ANIM_TURN_L || newType == ANIM_TURN_R)
+		queue.push(newType);
+
+	queue.push(newType);
+}
+
+void CCreatureAnim::reset()
+{
+	//if we are in the middle of rotation - set flag
+	if (type == ANIM_TURN_L && !queue.empty() && queue.front() == ANIM_TURN_L)
+		flags |= FLAG_ROTATED;
+	if (type == ANIM_TURN_R && !queue.empty() && queue.front() == ANIM_TURN_R)
+		flags &= ~FLAG_ROTATED;
+
+	while (!queue.empty())//FIXME: remove dublication
+	{
+		EAnimType at = queue.front();
+		queue.pop();
+		if (set(at))
+			return;
+	}
+	if  (callback)
+		callback();
+	while (!queue.empty())
+	{
+		EAnimType at = queue.front();
+		queue.pop();
+		if (set(at))
+			return;
+	}
+	tlog0<<"Warning: next sequence is not found for animation!\n";
+}
+
+void CCreatureAnim::clearAndSet(EAnimType type)
+{
+	while (!queue.empty())
+		queue.pop();
+	set(type);
 }

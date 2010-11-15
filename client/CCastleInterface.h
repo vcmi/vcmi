@@ -5,6 +5,7 @@
 
 #include "../global.h"
 #include <SDL.h>
+#include "CAnimation.h"
 #include "GUIBase.h"
 #include "../hch/CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
@@ -19,6 +20,7 @@ class CStatusBar;
 class CTownList;
 class CRecruitmentWindow;
 class CTransformerWindow;
+class CPicture;
 class CCreaturePic;
 class CMinorResDataBar;
 
@@ -32,13 +34,11 @@ class CMinorResDataBar;
  *
  */
 
-class CBuildingRect : public CIntObject
+class CBuildingRect : public CShowableAnim
 {
 public:
 	bool moi; //motion interested is active
-	int offset, max; //first and last animation frame
 	Structure* str;
-	CDefHandler* def;
 	SDL_Surface* border;
 	SDL_Surface* area;
 	CBuildingRect(Structure *Str); //c-tor
@@ -50,6 +50,8 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+	void show(SDL_Surface *to);
+	void showAll(SDL_Surface *to);
 };
 
 class CHeroGSlot : public CIntObject
@@ -63,9 +65,7 @@ public:
 	void setHighlight(bool on);
 
 	void hover (bool on);
-	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
-	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner); //c-tor
@@ -240,40 +240,35 @@ public:
 	public:
 		CSpell *spell;
 
-		Scroll(CSpell *Spell):spell(Spell){used = LCLICK | RCLICK | HOVER;};
+		Scroll(CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 	};
 	std::vector<std::vector<SDL_Rect> > positions;
 
-	SDL_Surface *bg;
-	CDefEssential *scrolls, *scrolls2;
+	CPicture *bg;
 	AdventureMapButton *exit;
-	std::vector<Scroll> spells;
+	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
 
 
 	CMageGuildScreen(CCastleInterface * owner); //c-tor
 	~CMageGuildScreen(); //d-tor
 	void close();
-	void show(SDL_Surface * to);
-	void activate();
-	void deactivate();
+
 };
 
 class CBlacksmithDialog : public CIntObject
 {
 public:
 	AdventureMapButton *buy, *cancel;
-	SDL_Surface *bmp; //background
+	CPicture *bmp; //background
+	CCreatureAnim * anim;
 
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid); //c-tor
 	~CBlacksmithDialog(); //d-tor
 	void close();
-	void show(SDL_Surface * to);
-	void activate();
-	void deactivate();
 };
 
 #endif // __CCASTLEINTERFACE_H__
