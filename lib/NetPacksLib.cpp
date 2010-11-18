@@ -185,33 +185,26 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 
 DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 {
-	BonusList *bonuses = NULL;
+	CBonusSystemNode *cbsn = NULL;
 	switch(who)
 	{
 	case HERO:
-		{
-			CGHeroInstance *h = gs->getHero(id);
-			assert(h);
-			bonuses = &h->bonuses;
-		}
+		cbsn = gs->getHero(id);
 		break;
 	case PLAYER:
-		{
-			PlayerState *p = gs->getPlayer(id);
-			assert(p);
-			bonuses = &p->bonuses;
-		}
+		cbsn = gs->getPlayer(id);
 		break;
 	case TOWN:
-		{
-			CGTownInstance *t = gs->getTown(id);
-			assert(t);
-			bonuses = &t->bonuses;
-		}
+		cbsn = gs->getTown(id);
+		break;
 	}
 
-	bonuses->push_back(bonus);
-	std::string &descr = bonuses->back().description;
+	assert(cbsn);
+
+	Bonus *b = new Bonus(bonus);
+	cbsn->addNewBonus(b);
+
+	std::string &descr = b->description;
 
 	if(!bdescr.message.size() 
 		&& bonus.source == Bonus::OBJECT 
@@ -248,13 +241,13 @@ DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
 
 DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 {
-	std::list<Bonus> &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
+	BonusList &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
 
-	for(std::list<Bonus>::iterator i = bonuses.begin(); i != bonuses.end(); i++)
+	for(BonusList::iterator i = bonuses.begin(); i != bonuses.end(); i++)
 	{
-		if(i->source == source && i->id == id)
+		if((*i)->source == source && (*i)->id == id)
 		{
-			bonus = *i; //backup bonus (to show to interfaces later)
+			bonus = **i; //backup bonus (to show to interfaces later)
 			bonuses.erase(i);
 			break;
 		}
@@ -654,50 +647,45 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 
 	if (specialWeek != NO_ACTION) //first pack applied, reset all effects and aplly new
 	{
-		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-			h->bonuses.remove_if(Bonus::OneDay);
+		//TODO? won't work for battles lasting several turns (not an issue now but...)
+		gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
 
 		if(gs->getDate(1)) //new week, Monday that is
 		{
-			for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-				i->second.bonuses.remove_if(Bonus::OneWeek);
-			BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-				h->bonuses.remove_if(Bonus::OneWeek);
+			gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
 
-			gs->globalEffects.bonuses.remove_if(Bonus::OneWeek);
-
-			Bonus b;
-			b.duration = Bonus::ONE_WEEK;
-			b.source = Bonus::SPECIAL_WEEK;
-			b.effectRange = Bonus::NO_LIMIT;
-			b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
+			Bonus *b = new Bonus();
+			b->duration = Bonus::ONE_WEEK;
+			b->source = Bonus::SPECIAL_WEEK;
+			b->effectRange = Bonus::NO_LIMIT;
+			b->valType = Bonus::BASE_NUMBER; //certainly not intuitive
 			switch (specialWeek)
 			{
 				case DOUBLE_GROWTH:
-					b.val = 100;
-					b.type = Bonus::CREATURE_GROWTH_PERCENT;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->val = 100;
+					b->type = Bonus::CREATURE_GROWTH_PERCENT;
+					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
 					break;
 				case BONUS_GROWTH:
-					b.val = 5;
-					b.type = Bonus::CREATURE_GROWTH;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->val = 5;
+					b->type = Bonus::CREATURE_GROWTH;
+					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
 					break;
 				case DEITYOFFIRE:
-					b.val = 15;
-					b.type = Bonus::CREATURE_GROWTH;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
+					b->val = 15;
+					b->type = Bonus::CREATURE_GROWTH;
+					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
 					break;
 				case PLAGUE:
-					b.val = -100; //no basic creatures
-					b.type = Bonus::CREATURE_GROWTH_PERCENT;
+					b->val = -100; //no basic creatures
+					b->type = Bonus::CREATURE_GROWTH_PERCENT;
 					break;
 				default:
-					b.val = 0;
+					b->val = 0;
 
 			}
-			if (b.val)
-				gs->globalEffects.bonuses.push_back(b);
+			if (b->val)
+				gs->globalEffects.addNewBonus(b);
 		}
 	}
 	else //second pack is applied
@@ -709,8 +697,6 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				i->second.daysWithoutCastle = 0;
 			else
 				i->second.daysWithoutCastle++;
-
-			i->second.bonuses.remove_if(Bonus::OneDay);
 		}
 		if(resetBuilded) //reset amount of structures set in this turn in towns
 		{
@@ -786,28 +772,29 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		//remove effects and restore only those with remaining turns in duration
 		BonusList tmpEffects = s->bonuses;
 		s->bonuses.removeSpells(Bonus::CASTED_SPELL);
-		for (BonusList::iterator it = tmpEffects.begin(); it != tmpEffects.end(); it++)
+
+		BOOST_FOREACH(Bonus *it, tmpEffects)
 		{
 			it->turnsRemain--;
 			if(it->turnsRemain > 0)
-				s->bonuses.push_back(*it);
+				s->addNewBonus(it);
 		}
 
 		//the same as above for features
 		BonusList tmpFeatures = s->bonuses;
 		s->bonuses.clear();
 
-		BOOST_FOREACH(Bonus &b, tmpFeatures)
+		BOOST_FOREACH(Bonus *b, tmpFeatures)
 		{
-			if((b.duration & Bonus::N_TURNS) != 0)
+			if((b->duration & Bonus::N_TURNS) != 0)
 			{
-				b.turnsRemain--;
-				if(b.turnsRemain > 0)
-					s->bonuses.push_back(b);
+				b->turnsRemain--;
+				if(b->turnsRemain > 0)
+					s->addNewBonus(b);
 			}
 			else
 			{
-				s->bonuses.push_back(b);
+				s->addNewBonus(b);
 			}
 		}
 	}
@@ -954,9 +941,10 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 			{
 				BonusList remainingEff;
+				//WTF?
 				for (BonusList::iterator it = remainingEff.begin(); it != remainingEff.end(); it++)
 				{
-					if (onlyHelpful && VLC->spellh->spells[ it->id ].positiveness != 1)
+					if (onlyHelpful && VLC->spellh->spells[ (*it)->id ].positiveness != 1)
 					{
 						remainingEff.push_back(*it);
 					}
@@ -968,11 +956,11 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 				//removing all features from spells
 				BonusList tmpFeatures = s->bonuses;
 				s->bonuses.clear();
-				BOOST_FOREACH(Bonus &b, tmpFeatures)
+				BOOST_FOREACH(Bonus *b, tmpFeatures)
 				{
-					const CSpell *sp = b.sourceSpell();
-					if(sp && sp->positiveness != 1) //if(b.source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
-						s->bonuses.push_back(b);
+					const CSpell *sp = b->sourceSpell();
+					if(sp && sp->positiveness != 1) //if(b->source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
+						s->addNewBonus(b);
 				}
 			}
 		}
@@ -1005,7 +993,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		bool ac[BFIELD_SIZE];
 		std::set<int> occupyable;
 		bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
-		bool flying = vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
+		bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
 		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
 		for(int g=0; g<BFIELD_SIZE; ++g)
 		{
@@ -1018,7 +1006,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 
 		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, ter, pos);
 		summonedStack->state.insert(SUMMONED);
-		//summonedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
+		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 
 		gs->curB->stacks.push_back(summonedStack);
 	}
@@ -1027,7 +1015,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 void actualizeEffect(CStack * s, Bonus & ef)
 {
 	//actualizing effects vector
-	for (BonusList::iterator it = s->bonuses.begin(); it != s->bonuses.end(); it++)
+	BOOST_FOREACH(Bonus *it, s->bonuses)
 	{
 		if(it->id == ef.id)
 		{
@@ -1038,13 +1026,13 @@ void actualizeEffect(CStack * s, Bonus & ef)
 	BonusList sf;
 	s->stackEffectToFeature(sf, ef);
 
-	BOOST_FOREACH(const Bonus &fromEffect, sf)
+	BOOST_FOREACH(const Bonus *fromEffect, sf)
 	{
-		BOOST_FOREACH(Bonus &stackBonus, s->bonuses) //TODO: optimize
+		BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
 		{
-			if(stackBonus.source == Bonus::SPELL_EFFECT && stackBonus.type == fromEffect.type && stackBonus.subtype == fromEffect.subtype)
+			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect->type && stackBonus->subtype == fromEffect->subtype)
 			{
-				stackBonus.turnsRemain = std::max(stackBonus.turnsRemain, ef.turnsRemain);
+				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 			}
 		}
 	}
@@ -1060,12 +1048,12 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		{
 			if(effect.id == 42 || !s->hasBonus(Selector::source(Bonus::CASTED_SPELL, effect.id)))//disrupting ray or not on the list - just add	
 			{
-				s->bonuses.push_back(effect);
+				s->addNewBonus(new Bonus(effect));
 				BonusList sf;
 				s->stackEffectToFeature(sf, effect);
-				BOOST_FOREACH(const Bonus &fromEffect, sf)
+				BOOST_FOREACH(Bonus *fromEffect, sf)
 				{
-					s->bonuses.push_back(fromEffect);
+					s->addNewBonus(fromEffect);
 				}
 			}
 			else //just actualize
@@ -1109,7 +1097,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			changedStack->state.insert(ALIVE);
 			if(healedStacks[g].lowLevelResurrection)
 				changedStack->state.insert(SUMMONED);
-				//changedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
+				//changedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		}
 		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
 		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
@@ -1127,9 +1115,10 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		//removal of negative effects
 		if(resurrected)
 		{
+			
 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
 			{
-				if(VLC->spellh->spells[it->id].positiveness < 0)
+				if(VLC->spellh->spells[(*it)->id].positiveness < 0)
 				{
 					changedStack->bonuses.erase(it);
 				}
@@ -1139,12 +1128,12 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			BonusList tmpFeatures = changedStack->bonuses;
 			changedStack->bonuses.clear();
 
-			BOOST_FOREACH(Bonus &b, tmpFeatures)
+			BOOST_FOREACH(Bonus *b, tmpFeatures)
 			{
-				const CSpell *s = b.sourceSpell();
+				const CSpell *s = b->sourceSpell();
 				if(s && s->positiveness >= 0)
 				{
-					changedStack->bonuses.push_back(b);
+					changedStack->addNewBonus(b);
 				}
 			}
 		}

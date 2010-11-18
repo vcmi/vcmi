@@ -365,18 +365,18 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 	{
 		BonusList bl;
 		hero1->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus b, bl)
+		BOOST_FOREACH (Bonus *b, bl)
 		{
-			handleSpellCasting(b.subtype, 3, -1, 0, hero1->tempOwner, NULL, hero2, b.val);
+			handleSpellCasting(b->subtype, 3, -1, 0, hero1->tempOwner, NULL, hero2, b->val);
 		}
 	}
 	if (hero2 && hero2->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
 	{
 		BonusList bl;
 		hero2->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus b, bl)
+		BOOST_FOREACH (Bonus *b, bl)
 		{
-			handleSpellCasting(b.subtype, 3, -1, 1, hero2->tempOwner, NULL, hero1, b.val);
+			handleSpellCasting(b->subtype, 3, -1, 1, hero2->tempOwner, NULL, hero1, b->val);
 		}
 	}
 
@@ -1664,15 +1664,15 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		{
 			if(town->subID == 0  &&  vstd::contains(town->builtBuildings,22)) //castle, brotherhood of sword built
 				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
 
 			else if(vstd::contains(town->builtBuildings,5)) //tavern is built
 				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TOWN_STRUCTURE));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TOWN_STRUCTURE));
 
 			if(town->subID == 1  &&  vstd::contains(town->builtBuildings,21)) //rampart, fountain of fortune is present
 				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
+					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
 		}
 	}
 
@@ -1726,9 +1726,9 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 			for(int g=0; g<stacks.size(); ++g) //+1 morale bonus for good creatures, -1 morale bonus for evil creatures
 			{
 				if (stacks[g]->type->isGood())
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
 				else if (stacks[g]->type->isEvil())
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
 			}
 			break;
 		}
@@ -1738,7 +1738,7 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 			{
 				if(stacks[g]->type->faction == -1) //+2 luck bonus for neutral creatures
 				{
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TERRAIN_OVERLAY));
+					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TERRAIN_OVERLAY));
 				}
 			}
 			break;
@@ -1748,9 +1748,9 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 			for(int g=0; g<stacks.size(); ++g) //-1 morale bonus for good creatures, +1 morale bonus for evil creatures
 			{
 				if (stacks[g]->type->isGood())
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
 				else if (stacks[g]->type->isEvil())
-					stacks[g]->bonuses.push_back(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
+					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
 			}
 			break;
 		}
@@ -1758,8 +1758,8 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		{
 			for(int g=0; g<stacks.size(); ++g) //no luck nor morale
 			{
-				stacks[g]->bonuses.push_back(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-				stacks[g]->bonuses.push_back(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+				stacks[g]->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+				stacks[g]->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
 			}
 
 			const CGHeroInstance * cHero = NULL;
@@ -4213,11 +4213,11 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 
 			bl.insert(bl.end(), b2.begin(), b2.end());
  
- 			BOOST_FOREACH(Bonus bb, bl)
+ 			BOOST_FOREACH(Bonus *bb, bl)
  			{
- 				if( (bb.type == Bonus::SPELL_IMMUNITY && bb.subtype == sp->id || //100% sure spell immunity
- 					bb.type == Bonus::LEVEL_SPELL_IMMUNITY && bb.val >= sp->level) //some creature abilities have level 0
-					&& bb.source != Bonus::CREATURE_ABILITY)
+ 				if( (bb->type == Bonus::SPELL_IMMUNITY && bb->subtype == sp->id || //100% sure spell immunity
+ 					bb->type == Bonus::LEVEL_SPELL_IMMUNITY && bb->val >= sp->level) //some creature abilities have level 0
+					&& bb->source != Bonus::CREATURE_ABILITY)
  				{
  					ret.push_back((*it)->ID);
  					continue;
@@ -5026,9 +5026,9 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
 	if( attacker->hasBonusOfType(Bonus::SPELL_AFTER_ATTACK) )
 	{
-		BOOST_FOREACH(const Bonus & sf, attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK)))
+		BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK)))
 		{
-			if (sf.type == Bonus::SPELL_AFTER_ATTACK)
+			if (sf->type == Bonus::SPELL_AFTER_ATTACK)
 			{
 				const CStack * oneOfAttacked = NULL;
 				for(int g=0; g<bat.bsa.size(); ++g)
@@ -5042,10 +5042,10 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				if(oneOfAttacked == NULL) //all attacked creatures have been killed
 					return;
 
-				int spellID = sf.subtype;
-				int spellLevel = sf.val;
-				int chance = sf.additionalInfo % 1000;
-				//int meleeRanged = sf.additionalInfo / 1000;
+				int spellID = sf->subtype;
+				int spellLevel = sf->val;
+				int chance = sf->additionalInfo % 1000;
+				//int meleeRanged = sf->additionalInfo / 1000;
 				int destination = oneOfAttacked->position;
 				//check if spell should be casted (probability handling)
 				if( rand()%100 >= chance )

@@ -1016,15 +1016,15 @@ void CGHeroInstance::initObj()
 					bonus.valType = Bonus::ADDITIVE_VALUE;
 
 					bonus.subtype = PrimarySkill::ATTACK;
-					speciality.bonuses.push_back (bonus);
+					speciality.addNewBonus(bonus);
 
 					bonus.subtype = PrimarySkill::DEFENSE;
-					speciality.bonuses.push_back (bonus);
+					speciality.addNewBonus(bonus);
 					//values will be calculated later
 
 					bonus.type = Bonus::STACKS_SPEED;
 					bonus.val = 1; //+1 speed
-					speciality.bonuses.push_back (bonus);
+					speciality.addNewBonus(bonus);
 				}
 				break;
 			case 2://secondary skill
@@ -1033,7 +1033,7 @@ void CGHeroInstance::initObj()
 				bonus.valType = Bonus::BASE_NUMBER; // to receive nonzero value
 				bonus.subtype = it->subtype; //skill id
 				bonus.val = it->val; //value per level, in percent
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				switch (it->additionalinfo)
 				{
 					case 0: //normal
@@ -1044,12 +1044,12 @@ void CGHeroInstance::initObj()
 						break;
 				}
 				bonus.type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
-				speciality.bonuses.push_back(bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 3://spell damage bonus, level dependant but calculated elsehwere
 				bonus.type = Bonus::SPECIAL_SPELL_LEV;
 				bonus.subtype = it->subtype;
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 4://creature stat boost
 				switch (it->subtype)
@@ -1077,30 +1077,30 @@ void CGHeroInstance::initObj()
 				}
 				bonus.valType = Bonus::ADDITIVE_VALUE;
 				bonus.limiter = new CCreatureTypeLimiter (*VLC->creh->creatures[it->additionalinfo], true);
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 5://spell damage bonus in percent
 				bonus.type = Bonus::SPECIFIC_SPELL_DAMAGE;
 				bonus.valType = Bonus::BASE_NUMBER; // current spell system is screwed
 				bonus.subtype = it->subtype; //spell id
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 6://damage bonus for bless (Adela)
 				bonus.type = Bonus::SPECIAL_BLESS_DAMAGE;
 				bonus.subtype = it->subtype; //spell id if you ever wanted to use it otherwise
 				bonus.additionalInfo = it->additionalinfo; //damage factor
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 7://maxed mastery for spell
 				bonus.type = Bonus::MAXED_SPELL;
 				bonus.subtype = it->subtype; //spell i
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 8://peculiar spells - enchantments
 				bonus.type = Bonus::SPECIAL_PECULIAR_ENCHANT;
 				bonus.subtype = it->subtype; //spell id
 				bonus.additionalInfo = it->additionalinfo;//0, 1 for Coronius
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 9://upgrade creatures
 			{
@@ -1108,27 +1108,27 @@ void CGHeroInstance::initObj()
 				bonus.type = Bonus::SPECIAL_UPGRADE;
 				bonus.subtype = it->subtype; //base id
 				bonus.additionalInfo = it->additionalinfo; //target id
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 
 				for (std::set<ui32>::iterator i = (*creatures)[it->subtype]->upgrades.begin();
 					i != (*creatures)[it->subtype]->upgrades.end(); i++)
 				{
 					bonus.subtype = *i; //propagate for regular upgrades of base creature
-					speciality.bonuses.push_back (bonus);
+					speciality.addNewBonus(bonus);
 				}
 				break;
 			}
 			case 10://resource generation
 				bonus.type = Bonus::GENERATE_RESOURCE;
 				bonus.subtype = it->subtype;
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill (id, it->val, it->additionalinfo); //simply give it and forget
+				cb->changeSecSkill(id, it->val, it->additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
 				bonus.type = Bonus::STACKS_SPEED;
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			case 13://Dragon bonuses (Mutare)
 				bonus.type = Bonus::PRIMARY_SKILL;
@@ -1143,7 +1143,7 @@ void CGHeroInstance::initObj()
 						break;
 				}
 				bonus.limiter = new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE);
-				speciality.bonuses.push_back (bonus);
+				speciality.addNewBonus(bonus);
 				break;
 			default:
 				tlog2 << "Unexpected hero speciality " << type <<'\n';
@@ -1161,7 +1161,8 @@ void CGHeroInstance::UpdateSpeciality()
 	if (speciality.growthsWithLevel)
 	{
 		std::vector<CCreature*>* creatures = &VLC->creh->creatures;
-		for (std::list<Bonus>::iterator it = speciality.bonuses.begin(); it != speciality.bonuses.end(); it++)
+
+		BOOST_FOREACH(Bonus *it, speciality.bonuses)
 		{
 			switch (it->type)
 			{
@@ -1248,7 +1249,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 		{
 			Bonus bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER);
 			bonus.source = Bonus::SECONDARY_SKILL;
-			bonuses.push_back (bonus);
+			addNewBonus (bonus);
 		}
 	}
 }
@@ -1505,7 +1506,7 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 
 void CGHeroInstance::pushPrimSkill(int which, int val)
 {
-	bonuses.push_back(Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
+	addNewBonus(Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
 
 // void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
@@ -2131,7 +2132,7 @@ void CGTownInstance::initObj()
 	//add special bonuses from buildings
 	if(subID == 4 && vstd::contains(builtBuildings, 17))
 	{
-		bonuses.push_back( Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
+		addNewBonus( Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
 	}
 }
 

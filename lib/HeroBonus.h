@@ -28,7 +28,7 @@ class ILimiter;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
-typedef boost::function<bool(const Bonus&)> CSelector;
+typedef boost::function<bool(const Bonus*)> CSelector;
 
 namespace PrimarySkill
 {
@@ -253,25 +253,25 @@ struct DLL_EXPORT Bonus
 		h & duration & type & subtype & source & val & id & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
 	}
 
-	static bool OneDay(const Bonus &hb)
+	static bool OneDay(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_DAY;
+		return hb->duration & Bonus::ONE_DAY;
 	}
-	static bool OneWeek(const Bonus &hb)
+	static bool OneWeek(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_WEEK;
+		return hb->duration & Bonus::ONE_WEEK;
 	}
-	static bool OneBattle(const Bonus &hb)
+	static bool OneBattle(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_BATTLE;
+		return hb->duration & Bonus::ONE_BATTLE;
 	}
-	static bool UntilAttack(const Bonus &hb)
+	static bool UntilAttack(const Bonus *hb)
 	{
-		return hb.duration & Bonus::UNTIL_ATTACK;
+		return hb->duration & Bonus::UNTIL_ATTACK;
 	}
-	static bool UntilBeingAttacked(const Bonus &hb)
+	static bool UntilBeingAttacked(const Bonus *hb)
 	{
-		return hb.duration & Bonus::UNITL_BEING_ATTACKED;
+		return hb->duration & Bonus::UNITL_BEING_ATTACKED;
 	}
 	static bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{
@@ -308,7 +308,7 @@ struct DLL_EXPORT stackExperience : public Bonus
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-class BonusList : public std::list<Bonus>
+class BonusList : public std::list<Bonus*>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
@@ -325,7 +325,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<std::list<Bonus>&>(*this);
+		h & static_cast<std::list<Bonus*>&>(*this);
 	}
 };
 
@@ -336,7 +336,7 @@ class DLL_EXPORT ILimiter
 public:
 	virtual ~ILimiter();
 
-	virtual bool limit(const Bonus &b, const CBonusSystemNode &node) const; //return true to drop the bonus
+	virtual bool limit(const Bonus *b, const CBonusSystemNode &node) const; //return true to drop the bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
@@ -348,7 +348,7 @@ public:
 	BonusList bonuses; //wielded bonuses (local and up-propagated here)
 	std::vector<Bonus*> exportedBonuses;
 
-	std::vector<const CBonusSystemNode *> parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	std::vector<CBonusSystemNode *> parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
 									children;
 
 	ui8 nodeType;
@@ -396,6 +396,11 @@ public:
 
 	void attachTo(const CBonusSystemNode *parent);
 	void detachFrom(const CBonusSystemNode *parent);
+	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
+	void addNewBonus(const Bonus &b); //b will copied
+	void removeBonus(Bonus *b);
+
+	void popBonuses(const CSelector &s);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -441,7 +446,7 @@ public:
 		:first(First), second(Second)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return first(bonus) && second(bonus);
 	}
@@ -456,7 +461,7 @@ public:
 		:first(First), second(Second)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return first(bonus) || second(bonus);
 	}
@@ -473,9 +478,9 @@ public:
 		: ptr(Ptr), val(Val)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
-		return bonus.*ptr == val;
+		return bonus->*ptr == val;
 	}
 	CSelectFieldEqual& operator()(const T &setVal)
 	{
@@ -489,11 +494,11 @@ class CWillLastTurns
 public:
 	int turnsRequested;
 
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus.duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
-			|| bonus.turnsRemain > turnsRequested;	
+			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| bonus->turnsRemain > turnsRequested;	
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{
@@ -511,7 +516,7 @@ public:
 	CCreatureTypeLimiter();
 	CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades = true);
 
-	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -529,7 +534,7 @@ public:
 	HasAnotherBonusLimiter(TBonusType bonus);
 	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
 
-	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

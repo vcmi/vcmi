@@ -78,17 +78,17 @@ bool CCreature::isDoubleWide() const
 
 bool CCreature::isFlying() const
 {
-	return vstd::contains(bonuses, Bonus::FLYING);
+	return hasBonusOfType(Bonus::FLYING);
 }
 
 bool CCreature::isShooting() const
 {
-	return vstd::contains(bonuses, Bonus::SHOOTER);
+	return hasBonusOfType(Bonus::SHOOTER);
 }
 
 bool CCreature::isUndead() const
 {
-	return vstd::contains(bonuses, Bonus::UNDEAD);
+	return hasBonusOfType(Bonus::UNDEAD);
 }
 
 /**
@@ -127,7 +127,7 @@ CCreature::CCreature()
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
 	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
-	bonuses.push_back(added);
+	addNewBonus(added);
 }
 // void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 // {
@@ -312,12 +312,12 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.bonuses.back().effectRange = Bonus::ONLY_ALLIED_ARMY;
+				ncre.bonuses.back()->effectRange = Bonus::ONLY_ALLIED_ARMY;
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
 			{
 				ncre.addBonus(-1, Bonus::MORALE);;
-				ncre.bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+				ncre.bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
 				ncre.addBonus(0, Bonus::KING1);
@@ -380,13 +380,13 @@ void CCreatureHandler::loadCreatures()
 						cre->doubleWide = true;
 					else if(type == "ENEMY_MORALE_DECREASING")
 					{
-						cre->addBonus(-1, Bonus::MORALE);;
-						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->addBonus(-1, Bonus::MORALE);
+						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else if(type == "ENEMY_LUCK_DECREASING")
 					{
-						cre->addBonus(-1, Bonus::LUCK);;
-						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->addBonus(-1, Bonus::LUCK);
+						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else
 						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
@@ -402,7 +402,7 @@ void CCreatureHandler::loadCreatures()
 				nsf.duration = Bonus::ONE_BATTLE;
 				nsf.turnsRemain = 0;
 
-				cre->bonuses += nsf;
+				cre->addNewBonus(nsf);
 				break;
 			}
 		case '-': //remove ability
@@ -424,7 +424,8 @@ void CCreatureHandler::loadCreatures()
 
 				Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
 
-				creatures[creatureID]->bonuses -= ecf;
+				Bonus *b = creatures[creatureID]->getBonus(Selector::type(ecf));
+				creatures[creatureID]->removeBonus(b);
 				break;
 			}
 		case '0': //end reading

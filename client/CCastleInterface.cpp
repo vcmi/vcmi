@@ -1155,7 +1155,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				ch = ci->town->visitingHero;
 			};
 			if (bl.size())
-				summ+=AddToString (CGI->arth->artifacts[bl.front().id]->Name()+" %+d", descr, bl.totalValue());
+				summ+=AddToString (CGI->arth->artifacts[bl.front()->id]->Name()+" %+d", descr, bl.totalValue());
 
 			//TODO: player bonuses
 

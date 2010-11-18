@@ -25,7 +25,7 @@ int DLL_EXPORT BonusList::totalValue() const
 	int indepMax = 0;
 	bool hasIndepMax = false;
 
-	for(const_iterator i = begin(); i != end(); i++)
+	BOOST_FOREACH(Bonus *i, *this)
 	{
 		switch(i->valType)
 		{
@@ -65,38 +65,38 @@ int DLL_EXPORT BonusList::totalValue() const
 }
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const
 {
-	for (const_iterator i = begin(); i != end(); i++)
-		if(selector(*i))
+	BOOST_FOREACH(Bonus *i, *this)
+		if(selector(i))
 			return &*i;
 	return NULL;
 }
 
 DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &select)
 {
-	for (iterator i = begin(); i != end(); i++)
-		if(select(*i))
+	BOOST_FOREACH(Bonus *i, *this)
+		if(select(i))
 			return &*i;
 	return NULL;
 }
 
 void DLL_EXPORT BonusList::getModifiersWDescr(TModDescr &out) const
 {
-	for(const_iterator i = begin(); i != end(); i++)
+	BOOST_FOREACH(Bonus *i, *this)
 		out.push_back(std::make_pair(i->val, i->Description()));
 }
 
 void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source /*= NULL*/) const
 {
-	for(const_iterator i = begin(); i != end(); i++)
-		if(selector(*i) && i->effectRange == Bonus::NO_LIMIT)
-			out.push_back(*i);
+	BOOST_FOREACH(Bonus *i, *this)
+		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
+			out.push_back(i);
 }
 
 void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source /*= NULL*/) const
 {
-	for(const_iterator i = begin(); i != end(); i++)
-		if(selector(*i) && (!limit || limit(*i)))
-			out.push_back(*i);
+	BOOST_FOREACH(Bonus *i, *this)
+		if(selector(i) && (!limit || limit(i)))
+			out.push_back(i);
 }
 
 namespace HHLP
@@ -108,9 +108,9 @@ namespace HHLP
 		SourceComp(Bonus::BonusSource _src) : src(_src)
 		{
 		}
-		bool operator()(const Bonus & bon)
+		bool operator()(const Bonus * bon)
 		{
-			return bon.source == src;
+			return bon->source == src;
 		}
 	};
 }
@@ -126,7 +126,8 @@ void BonusList::limit(const CBonusSystemNode &node)
 limit_start:
 	for(iterator i = begin(); i != end(); i++)
 	{
-		if(i->limiter && i->limiter->limit(*i, node))
+		Bonus *b = *i;
+		if(b->limiter && b->limiter->limit(b, node))
 		{
 			iterator toErase = i;
 			if(i != begin())
@@ -344,6 +345,31 @@ void CBonusSystemNode::detachFrom(const CBonusSystemNode *parent)
 
 }
 
+void CBonusSystemNode::popBonuses(const CSelector &s)
+{
+	//TODO
+	//prop
+
+	bonuses.remove_if(s);
+	BOOST_FOREACH(CBonusSystemNode *child, children)
+		child->popBonuses(s);
+}
+
+void CBonusSystemNode::addNewBonus(const Bonus &b)
+{
+	addNewBonus(new Bonus(b));
+}
+
+void CBonusSystemNode::addNewBonus(Bonus *b)
+{
+
+}
+
+void CBonusSystemNode::removeBonus(Bonus *b)
+{
+	//TODO
+}
+
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	if(obj)
@@ -473,7 +499,7 @@ namespace Selector
 	{
 		Bonus dummy;
 		dummy.type = type;
-		return sel(dummy);
+		return sel(&dummy);
 	}
 
 	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype)
@@ -481,16 +507,16 @@ namespace Selector
 		Bonus dummy;
 		dummy.type = type;
 		dummy.subtype = subtype;
-		return sel(dummy);
+		return sel(&dummy);
 	}
 }
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)
 {
 	int i = 0;
-	BOOST_FOREACH(const Bonus &b, bonusList)
+	BOOST_FOREACH(const Bonus *b, bonusList)
 	{
-		out << "Bonus " << i++ << "\n" << b << std::endl;
+		out << "Bonus " << i++ << "\n" << *b << std::endl;
 	}
 	return out;
 }
@@ -520,12 +546,12 @@ ILimiter::~ILimiter()
 {
 }
 
-bool ILimiter::limit(const Bonus &b, const CBonusSystemNode &node) const /*return true to drop the bonus */
+bool ILimiter::limit(const Bonus *b, const CBonusSystemNode &node) const /*return true to drop the bonus */
 {
 	return false;
 }
 
-bool CCreatureTypeLimiter::limit(const Bonus &b, const CBonusSystemNode &node) const
+bool CCreatureTypeLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
 {
 	switch (node.nodeType)
 	{	
@@ -566,7 +592,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus, TBonusSubtype 
 {
 }
 
-bool HasAnotherBonusLimiter::limit( const Bonus &b, const CBonusSystemNode &node ) const
+bool HasAnotherBonusLimiter::limit( const Bonus *b, const CBonusSystemNode &node ) const
 {
 	if(isSubtypeRelevant)
 	{

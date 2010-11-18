@@ -183,8 +183,8 @@ int CArtifact::getArtClassSerial() const
 
 void CScroll::Init()
 {
-	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
-	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
+// 	addNewBonus (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
+// 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 }
 
 CArtHandler::CArtHandler()
@@ -489,7 +489,7 @@ void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int sub
 	added.limiter = limiter;
 	if(type == Bonus::MORALE || Bonus::LUCK)
 		added.description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
-	artifacts[aid]->bonuses.push_back(added);
+	artifacts[aid]->addNewBonus(added);
 }
 
 void CArtHandler::addBonuses()
