@@ -349,8 +349,11 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 {
 	//TODO
 	//prop
+	BonusList bl;
+	exportedBonuses.getBonuses(bl, s);
+	BOOST_FOREACH(Bonus *b, bl)
+		removeBonus(b);
 
-	bonuses.remove_if(s);
 	BOOST_FOREACH(CBonusSystemNode *child, children)
 		child->popBonuses(s);
 }
@@ -362,12 +365,20 @@ void CBonusSystemNode::addNewBonus(const Bonus &b)
 
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
+	exportedBonuses.push_back(b);
 
+	if(!b->propagator)
+		bonuses.push_back(b);
+	else
+	{
+		//prop
+	}
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
 {
-	//TODO
+	exportedBonuses -= b;
+	//TODO: prop
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
@@ -435,6 +446,7 @@ Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
 	limiter = NULL;
+	propagator = NULL;
 	boost::algorithm::trim(description);
 }
 
@@ -445,6 +457,7 @@ Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/,
 	turnsRemain = 0;
 	effectRange = NO_LIMIT;
 	limiter = NULL;
+	propagator = NULL;
 }
 
 Bonus::Bonus()
@@ -455,6 +468,7 @@ Bonus::Bonus()
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
 	limiter = NULL;
+	propagator = NULL;
 }
 
 CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second)
@@ -602,4 +616,9 @@ bool HasAnotherBonusLimiter::limit( const Bonus *b, const CBonusSystemNode &node
 	{
 		return !node.hasBonusOfType(static_cast<Bonus::BonusType>(type));
 	}
+}
+
+IPropagator::~IPropagator()
+{
+
 }

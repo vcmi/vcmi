@@ -24,6 +24,7 @@ class CSpell;
 struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
+class IPropagator;
 
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
@@ -229,6 +230,7 @@ struct DLL_EXPORT Bonus
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
 
 	ILimiter *limiter;
+	IPropagator *propagator;
 
 	std::string description; 
 
@@ -331,6 +333,12 @@ public:
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
+class DLL_EXPORT IPropagator
+{
+public:
+	virtual ~IPropagator();
+};
+	
 class DLL_EXPORT ILimiter
 {
 public:
@@ -346,7 +354,7 @@ class DLL_EXPORT CBonusSystemNode
 {
 public:
 	BonusList bonuses; //wielded bonuses (local and up-propagated here)
-	std::vector<Bonus*> exportedBonuses;
+	BonusList exportedBonuses;
 
 	std::vector<CBonusSystemNode *> parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
 									children;
