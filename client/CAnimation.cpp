@@ -47,23 +47,20 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 {
 	SDL_Surface * ret=NULL;
 
-	unsigned int BaseOffset,
-	         SpriteWidth, SpriteHeight, //format of sprite
-	         TotalRowLength,			// length of read segment
-	         add, FullHeight,FullWidth,
-	         RowAdd,
-	         prSize,
-	         defType2;
-	int LeftMargin, RightMargin, TopMargin, BottomMargin;
+	unsigned int DefFormat, // format in which pixel data of sprite is encoded
+	             FullHeight,FullWidth, // full width and height of sprite including borders
+	             SpriteWidth, SpriteHeight, // width and height of encoded sprite
 
+	             TotalRowLength,
+	             RowAdd, add,
+	             BaseOffset;
 
-	unsigned char SegmentType;
+	int LeftMargin, RightMargin, // position of 1st stored in sprite pixel on surface
+	    TopMargin, BottomMargin;
 
-	BaseOffset = 0;
-	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
+	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
 
-	prSize = SDL_SwapLE32(sd.prSize);
-	defType2 = SDL_SwapLE32(sd.defType2);
+	DefFormat = SDL_SwapLE32(sd.defType2);
 	FullWidth = SDL_SwapLE32(sd.FullWidth);
 	FullHeight = SDL_SwapLE32(sd.FullHeight);
 	SpriteWidth = SDL_SwapLE32(sd.SpriteWidth);
@@ -73,8 +70,6 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
-	//if(LeftMargin + RightMargin < 0)
-	//	SpriteWidth += LeftMargin + RightMargin; //ugly construction... TODO: check how to do it nicer
 	if (LeftMargin<0)
 		SpriteWidth+=LeftMargin;
 	if (RightMargin<0)
@@ -86,9 +81,8 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 		add=0;
 
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
-	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
-	BaseOffset += sizeof(SSpriteDef);
+	BaseOffset = sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
 	for (int i=0; i<256; ++i)
@@ -101,65 +95,75 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 		(*(ret->format->palette->colors+i))=pr;
 	}
 
-	int ftcp=0;
-
 	// If there's a margin anywhere, just blank out the whole surface.
 	if (TopMargin > 0 || BottomMargin > 0 || LeftMargin > 0 || RightMargin > 0)
 	{
 		memset( reinterpret_cast<char*>(ret->pixels), 0, FullHeight*FullWidth);
 	}
 
+	int current=0;//current pixel on output surface
+
 	// Skip top margin
 	if (TopMargin > 0)
-		ftcp += TopMargin*(FullWidth+add);
+		current += TopMargin*(FullWidth+add);
 
-	switch (defType2)
+	switch (DefFormat)
 	{
+	//pixel data is not compressed, copy each line to surface
 	case 0:
 		{
 			for (unsigned int i=0; i<SpriteHeight; i++)
 			{
 				if (LeftMargin>0)
-					ftcp += LeftMargin;
+					current += LeftMargin;
 
-				memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], SpriteWidth);
-				ftcp += SpriteWidth;
+				memcpy(reinterpret_cast<char*>(ret->pixels)+current, &FDef[BaseOffset], SpriteWidth);
+				current += SpriteWidth;
 				BaseOffset += SpriteWidth;
 
 				if (RightMargin>0)
-					ftcp += RightMargin;
+					current += RightMargin;
 			}
 		}
 		break;
 
+	// RLE encoding:
+	// read offset of pixel data of each line
+	// for each line
+	//     read type and size
+	//     if type is 0xff
+	//         no encoding, copy to output
+	//     else
+	//        RLE: set size pixels to type
+	//   do this until all line is parsed
 	case 1:
 		{
+			//for each line we have offset of pixel data
 			const unsigned int * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+BaseOffset);
 			BaseOffset += sizeof(int) * SpriteHeight;
+
 			for (unsigned int i=0; i<SpriteHeight; i++)
 			{
 				BaseOffset=BaseOffsetor + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
 				if (LeftMargin>0)
-					ftcp += LeftMargin;
+					current += LeftMargin;
 
 				TotalRowLength=0;
 				do
 				{
-					unsigned int SegmentLength;
-
-					SegmentType=FDef[BaseOffset++];
-					SegmentLength=FDef[BaseOffset++] + 1;
+					unsigned char SegmentType=FDef[BaseOffset++];
+					unsigned int  SegmentLength=FDef[BaseOffset++] + 1;
 
 					if (SegmentType==0xFF)
 					{
-						memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, FDef + BaseOffset, SegmentLength);
+						memcpy(reinterpret_cast<char*>(ret->pixels)+current, FDef + BaseOffset, SegmentLength);
 						BaseOffset+=SegmentLength;
 					}
 					else
 					{
-						memset(reinterpret_cast<char*>(ret->pixels)+ftcp, SegmentType, SegmentLength);
+						memset(reinterpret_cast<char*>(ret->pixels)+current, SegmentType, SegmentLength);
 					}
-					ftcp += SegmentLength;
+					current += SegmentLength;
 					TotalRowLength += SegmentLength;
 				}
 				while (TotalRowLength<SpriteWidth);
@@ -167,70 +171,80 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 				RowAdd=SpriteWidth-TotalRowLength;
 
 				if (RightMargin>0)
-					ftcp += RightMargin;
+					current += RightMargin;
 
 				if (add>0)
-					ftcp += add+RowAdd;
+					current += add+RowAdd;
 			}
 		}
 		break;
 
+	// Something like RLE
+	// read base offset
+	// for each line
+	//     read type, set code and value
+	//     if code is 7
+	//       copy value pixels
+	//     else
+	//       set value pixels to code
 	case 2:
 		{
 			BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor));
 
 			for (unsigned int i=0; i<SpriteHeight; i++)
 			{
-				//BaseOffset = BaseOffsetor+RWEntries[i];
 				if (LeftMargin>0)
-					ftcp += LeftMargin;
+					current += LeftMargin;
 
 				TotalRowLength=0;
 
 				do
 				{
-					SegmentType=FDef[BaseOffset++];
+					unsigned char SegmentType=FDef[BaseOffset++];
 					unsigned char code = SegmentType / 32;
 					unsigned char value = (SegmentType & 31) + 1;
 					if (code==7)
 					{
-						memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], value);
-						ftcp += value;
+						memcpy(reinterpret_cast<char*>(ret->pixels)+current, &FDef[BaseOffset], value);
+						current += value;
 						BaseOffset += value;
 					}
 					else
 					{
-						memset(reinterpret_cast<char*>(ret->pixels)+ftcp, code, value);
-						ftcp += value;
+						memset(reinterpret_cast<char*>(ret->pixels)+current, code, value);
+						current += value;
 					}
 					TotalRowLength+=value;
 				}
 				while (TotalRowLength<SpriteWidth);
 
 				if (RightMargin>0)
-					ftcp += RightMargin;
+					current += RightMargin;
 
 				RowAdd=SpriteWidth-TotalRowLength;
 
 				if (add>0)
-					ftcp += add+RowAdd;
+					current += add+RowAdd;
 			}
 		}
 		break;
 
+	//combo of 1st and 2nd:
+	// offset for each line
+	// code and value combined in 1 byte
 	case 3:
 		{
 			for (unsigned int i=0; i<SpriteHeight; i++)
 			{
 				BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32)));
 				if (LeftMargin>0)
-					ftcp += LeftMargin;
+					current += LeftMargin;
 
 				TotalRowLength=0;
 
 				do
 				{
-					SegmentType=FDef[BaseOffset++];
+					unsigned char SegmentType=FDef[BaseOffset++];
 					unsigned char code = SegmentType / 32;
 					unsigned char value = (SegmentType & 31) + 1;
 
@@ -239,26 +253,26 @@ SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette 
 
 					if (code==7)
 					{
-						memcpy((ui8*)ret->pixels + ftcp, FDef + BaseOffset, len);
-						ftcp += len;
+						memcpy((ui8*)ret->pixels + current, FDef + BaseOffset, len);
+						current += len;
 						BaseOffset += len;
 					}
 					else
 					{
-						memset((ui8*)ret->pixels + ftcp, code, len);
-						ftcp += len;
+						memset((ui8*)ret->pixels + current, code, len);
+						current += len;
 					}
 					TotalRowLength+=( LeftMargin>=0 ? value : value+LeftMargin );
 				}
 				while (TotalRowLength<SpriteWidth);
 
 				if (RightMargin>0)
-					ftcp += RightMargin;
+					current += RightMargin;
 
 				RowAdd=SpriteWidth-TotalRowLength;
 
 				if (add>0)
-					ftcp += add+RowAdd;
+					current += add+RowAdd;
 			}
 		}
 		break;
@@ -286,12 +300,12 @@ CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 {
 	static SDL_Color H3Palette[8] = {{  0,   0,   0, 255},
 	                                 {  0,   0,   0, 192},
-	                                 {  0,   0,   0, 128},
+	/* 5 shadow colors */            {  0,   0,   0, 128},
 	                                 {  0,   0,   0,  64},
 	                                 {  0,   0,   0,  32},
 	                                 {255, 255,   0, 255},
-	                                 {255, 255,   0, 255},
-	                                 {255, 255,   0, 255}};//H3 palette for shadow\selection highlight
+	/* 3 selection highlight color */{255, 255,   0, 255},
+	                                 {255, 255,   0, 255}};
 	
 	data = spriteh->giveFile(Name, FILE_ANIMATION, &datasize);
 	if (!data)
@@ -323,9 +337,9 @@ CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 
 	for (unsigned int i=0; i<totalBlocks; i++)
 	{
-		unsigned int blockID = readNormalNr(data, it);
+		size_t blockID = readNormalNr(data, it);
 		it+=4;
-		unsigned int totalEntries = readNormalNr(data, it);
+		size_t totalEntries = readNormalNr(data, it);
 		it+=12;
 		//8 unknown bytes - skipping
 

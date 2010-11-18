@@ -5993,13 +5993,13 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	quit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(327, 332);
 
-	garr = new CGarrisonInt(pos.x+108, pos.y+60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
+	garr = new CGarrisonInt(108, 60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
 	updateGarrisons();
 }
 
 CHillFortWindow::~CHillFortWindow()
 {
-	delete garr;
+	
 }
 
 void CHillFortWindow::activate()
