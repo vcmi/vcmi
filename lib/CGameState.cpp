@@ -4080,6 +4080,10 @@ std::map<ui32,CGHeroInstance *> CGameState::unusedHeroesFromPool()
 	return pool;
 }
 
+void CGameState::buildGameLogicTree()
+{
+}
+
 const CStack * BattleInfo::getNextStack() const
 {
 	std::vector<const CStack *> hlp;

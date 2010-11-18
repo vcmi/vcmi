@@ -2140,34 +2140,41 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
-void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures)
+void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove)
 {
 	if (creatures.stacksCount() <= 0)
 		return;
 	CCreatureSet heroArmy = h->getArmy();
-	while (creatures.stacksCount())
+	std::set<int> takenSlots;
+	for (TSlots::const_iterator it = creatures.Slots().begin(); it != creatures.Slots().end(); it++)
 	{
-		int slot = heroArmy.getSlotFor(creatures.Slots().begin()->second.type->idNumber);
-		if (slot < 0)
-			break;
-		heroArmy.addToSlot(slot, creatures.slots.begin()->second);
-		creatures.slots.erase (creatures.slots.begin());
+		int slot = heroArmy.getSlotFor(it->second.type->idNumber);
+		if (slot >= 0)
+		{
+			heroArmy.addToSlot(slot, it->second); 	//move all matching creatures to hero's army
+			takenSlots.insert(it->first); //slot id
+		}
 	}
+	for (std::set<int>::iterator it = takenSlots.begin(); it != takenSlots.end(); it++)
+		creatures.eraseStack(*it); //delete them from used army
 
-	if (creatures.stacksCount() == 0) //all creatures can be moved to hero army - do that
+	SetGarrisons sg;
+	sg.garrs[h->id] = heroArmy;
+	sg.garrs[objid] = creatures;
+	sendAndApply (&sg);
+
+	if (remove) //show garrison window and let player pick remaining creatures
 	{
-		SetGarrisons sg;
-		sg.garrs[h->id] = heroArmy;
-		sendAndApply(&sg);
+		if (creatures.stacksCount()) //Pandora needs to exist until we close garrison window
+		{
+			showGarrisonDialog (objid, h->id, true, boost::bind(&CGameHandler::removeObject, this, objid));
+		}
+		else
+			removeObject(objid);
 	}
-	else //show garrison window and let player pick creatures
-	{
-		SetGarrisons sg;
-		sg.garrs[objid] = creatures;
-		sendAndApply (&sg);
+	else if (creatures.stacksCount())
 		showGarrisonDialog (objid, h->id, true, 0);
-		return;
-	}
+		
 }
 void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we could use ArmedInstance as well
 {
@@ -2662,8 +2669,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 	if(what==1) //swap
 	{
-		if ( (s1->tempOwner != player && S1.slots[p1].count)
-		  || (s2->tempOwner != player && S2.slots[p2].count))
+		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && S1.slots[p1].count) //why 254??
+		  || ((s2->tempOwner != player && s2->tempOwner != 254) && S2.slots[p2].count))
 		{
 			complain("Can't take troops from another player!");
 			return false;
@@ -2680,7 +2687,7 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	else if(what==2)//merge
 	{
 		if (( S1.slots[p1].type != S2.slots[p2].type && complain("Cannot merge different creatures stacks!"))
-			|| (s1->tempOwner != player && S2.slots[p2].count) && complain("Can't take troops from another player!"))
+		|| ((s1->tempOwner != player && s1->tempOwner != 254) && S2.slots[p2].count) && complain("Can't take troops from another player!"))
 			return false; 
 
 		S2.slots[p2].count += S1.slots[p1].count;

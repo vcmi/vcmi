@@ -2,7 +2,7 @@
 #include "CMessage.h"
 #include "SDL_ttf.h"
 #include "../hch/CDefHandler.h"
-#include "../hch/CAnimation.h"
+#include "CAnimation.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include "../hch/CLodHandler.h"

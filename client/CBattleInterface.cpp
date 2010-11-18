@@ -4,7 +4,7 @@
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
 #include "AdventureMapButton.h"
-#include "../hch/CAnimation.h"
+#include "CAnimation.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CDefHandler.h"
@@ -563,8 +563,8 @@ void CDefenceAnim::endAnim()
 	if(IDby!=-1)
 		owner->printConsoleAttacked(stackID, dmg, amountKilled, IDby);
 
-	const CStack * attacker = owner->curInt->cb->battleGetStackByID(IDby, false);
-	const CStack * attacked = owner->curInt->cb->battleGetStackByID(stackID, false);
+	//const CStack * attacker = owner->curInt->cb->battleGetStackByID(IDby, false);
+	//const CStack * attacked = owner->curInt->cb->battleGetStackByID(stackID, false);
 
 	CBattleAnimation::endAnim();
 
@@ -600,7 +600,7 @@ bool CBattleStackMoved::init()
 		endAnim();
 		return false;
 	}
-	bool twoTiles = movedStack->doubleWide();
+	//bool twoTiles = movedStack->doubleWide();
 	
 	Point begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
 	Point endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);

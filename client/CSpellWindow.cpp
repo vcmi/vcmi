@@ -709,7 +709,8 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 	if(down && mySpell != -1)
 	{
 		std::string dmgInfo;
-		int causedDmg = owner->myInt->cb->estimateSpellDamage( &CGI->spellh->spells[mySpell] );
+		const CGHeroInstance * hero = owner->myHero;
+		int causedDmg = owner->myInt->cb->estimateSpellDamage( &CGI->spellh->spells[mySpell], (hero ? hero : NULL));
 		if(causedDmg == 0)
 			dmgInfo = "";
 		else

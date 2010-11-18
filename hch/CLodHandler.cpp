@@ -91,19 +91,23 @@ unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType typ
 	if (ourEntry.offset<0) //file is in the sprites/ folder; no compression
 	{
 		int result;
-		unsigned char * outp = new unsigned char[ourEntry.realSize];
+		outp = new unsigned char[ourEntry.realSize];
 		FILE * f = fopen((myDir + "/" + ourEntry.realName).c_str(), "rb");
-		if (f) {
+		if (f)
+		{
 			result = fread(outp,1,ourEntry.realSize,f);
 			fclose(f);
-		} else
+		}
+		else
 			result = -1;
 		mutex->unlock();
-		if(result<0) {
+		if(result<0)
+		{
 			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry.name << std::endl;
 			delete[] outp;
 			return NULL;
-		} else
+		}
+		else
 			return outp;
 	}
 	else if (ourEntry.size==0) //file is not compressed

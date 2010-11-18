@@ -423,6 +423,7 @@ public:
 	const TeamState *getTeam(ui8 teamID) const;
 	const TeamState *getPlayerTeam(ui8 color) const;
 	void init(StartInfo * si, ui32 checksum, int Seed);
+	void buildGameLogicTree();
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>

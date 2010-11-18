@@ -13,8 +13,6 @@ vcmiclient_SOURCES =  \
 	../CThreadHelper.h \
 	../StartInfo.h \
 	../global.h \
-	../hch/CAnimation.h \
-	../hch/CAnimation.cpp \
 	../hch/CBuildingHandler.h \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
@@ -39,6 +37,8 @@ vcmiclient_SOURCES =  \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
+	CAnimation.h \
+	CAnimation.cpp \
 	CBattleInterface.cpp \
 	CBattleInterface.h \
 	CBitmapHandler.cpp \

@@ -120,13 +120,18 @@ int CCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) co
 	return caster->getSpellCost(sp);
 }
 
-int CCallback::estimateSpellDamage(const CSpell * sp) const
+int CCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
-	if(!gs->curB)
-		return 0;
-
+	if(!gs->curB) //no battle
+	{
+		if (hero) //but we see hero's spellbook
+			return gs->curB->calculateSpellDmg(sp, hero, NULL, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(2));
+		else
+			return 0; //mage guild
+	}
+	//gs->getHero(gs->currentPlayer)
 	const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
 	return gs->curB->calculateSpellDmg(sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(2));
 }

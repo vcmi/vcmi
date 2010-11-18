@@ -110,7 +110,7 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void showThievesGuildWindow(int requestingObjId){};
 	void giveResource(int player, int which, int val){};
-	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures) {};
+	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) {};
 	void takeCreatures (int objid, TSlots creatures){};
 	void changeCreatureType (int objid, TSlot slot, TCreature creature){};
 	void showCompInfo(ShowInInfobox * comp){};
