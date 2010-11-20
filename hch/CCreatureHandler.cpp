@@ -126,7 +126,7 @@ CCreature::CCreature()
 }
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
-	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	Bonus *added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
 }
 // void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
@@ -364,7 +364,7 @@ void CCreatureHandler::loadCreatures()
 		case '+': //add new ability
 			{
 				int creatureID;
-				Bonus nsf;
+				Bonus *nsf = new Bonus();
 				si32 buf;
 				std::string type;
 
@@ -392,15 +392,15 @@ void CCreatureHandler::loadCreatures()
 						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
 					break;
 				}
-				nsf.type = it->second;
+				nsf->type = it->second;
 
-				reader >> buf; nsf.val = buf;
-				reader >> buf; nsf.subtype = buf;
-				reader >> buf; nsf.additionalInfo = buf;
-				nsf.source = Bonus::CREATURE_ABILITY;
-				nsf.id = cre->idNumber;
-				nsf.duration = Bonus::ONE_BATTLE;
-				nsf.turnsRemain = 0;
+				reader >> buf; nsf->val = buf;
+				reader >> buf; nsf->subtype = buf;
+				reader >> buf; nsf->additionalInfo = buf;
+				nsf->source = Bonus::CREATURE_ABILITY;
+				nsf->id = cre->idNumber;
+				nsf->duration = Bonus::ONE_BATTLE;
+				nsf->turnsRemain = 0;
 
 				cre->addNewBonus(nsf);
 				break;

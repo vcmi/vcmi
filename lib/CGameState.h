@@ -236,7 +236,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
-	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	int lineToWallHex(int line) const; //returns hex with wall in given line
@@ -278,19 +278,19 @@ public:
 	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 
-	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	static inline Bonus *featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 	{
-		Bonus hb(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo));
-		hb.effectRange = limit;
-		hb.source = Bonus::CASTED_SPELL; //right?
+		Bonus *hb = makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo);
+		hb->effectRange = limit;
+		hb->source = Bonus::CASTED_SPELL; //right?
 		return hb;
 	}
 
-	static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
+	static inline Bonus *featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
 	{
-		Bonus ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
-		ret.valType = valType;
-		ret.source = Bonus::CASTED_SPELL; //right?
+		Bonus *ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
+		ret->valType = valType;
+		ret->source = Bonus::CASTED_SPELL; //right?
 		return ret;
 	}
 

@@ -3435,25 +3435,10 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const
+CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int position) const
 {
 	CStack * ret = new CStack(&base, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
-
-	//TODO: bonus na bitwê z limiterem
-
-//////////////////////////////////////////////////////////////////////////
-
-	//native terrain bonuses
-// 	int faction = ret->type->faction;
-// 	if(faction >= 0 && VLC->heroh->nativeTerrains[faction] == terrain)
-// 	{
-// 		ret->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE));
-// 		ret->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE));
-// 		ret->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE));
-// 	}
-// 
-// 	ret->position = position;
-
+ 	ret->position = position;
 	return ret;
 }
 

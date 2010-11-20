@@ -1478,7 +1478,7 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		else
 			pos = attackerLoose[army1->stacksCount()-1][k];
 
-		CStack * stack = curB->generateNewStack(i->second, stacks.size(), true, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		CStack * stack = curB->generateNewStack(i->second, stacks.size(), true, i->first, pos);
 		stacks.push_back(stack);
 	}
 	
@@ -1493,7 +1493,7 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		else
 			pos = defenderLoose[army2->stacksCount()-1][k];
 
-		CStack * stack = curB->generateNewStack(i->second, stacks.size(), false, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		CStack * stack = curB->generateNewStack(i->second, stacks.size(), false, i->first, pos);
 		stacks.push_back(stack);
 	}
 
@@ -1514,17 +1514,17 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 	{
 		if(hero1->getArt(13)) //ballista
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(146, 1, hero1), stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 52);
+			CStack * stack = curB->generateNewStack(CStackInstance(146, 1, hero1), stacks.size(), true, 255, 52);
 			stacks.push_back(stack);
 		}
 		if(hero1->getArt(14)) //ammo cart
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(148, 1, hero1), stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 18);
+			CStack * stack = curB->generateNewStack(CStackInstance(148, 1, hero1), stacks.size(), true, 255, 18);
 			stacks.push_back(stack);
 		}
 		if(hero1->getArt(15)) //first aid tent
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(147, 1, hero1), stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 154);
+			CStack * stack = curB->generateNewStack(CStackInstance(147, 1, hero1), stacks.size(), true, 255, 154);
 			stacks.push_back(stack);
 		}
 	}
@@ -1533,23 +1533,23 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		//defending hero shouldn't receive ballista (bug #551)
 		if(hero2->getArt(13) && !town) //ballista
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(146, 1, hero2),  stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 66);
+			CStack * stack = curB->generateNewStack(CStackInstance(146, 1, hero2),  stacks.size(), false, 255, 66);
 			stacks.push_back(stack);
 		}
 		if(hero2->getArt(14)) //ammo cart
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(148, 1, hero1), stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 32);
+			CStack * stack = curB->generateNewStack(CStackInstance(148, 1, hero1), stacks.size(), false, 255, 32);
 			stacks.push_back(stack);
 		}
 		if(hero2->getArt(15)) //first aid tent
 		{
-			CStack * stack = curB->generateNewStack(CStackInstance(147, 1, hero2), stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 168);
+			CStack * stack = curB->generateNewStack(CStackInstance(147, 1, hero2), stacks.size(), false, 255, 168);
 			stacks.push_back(stack);
 		}
 	}
 	if(town && hero1 && town->hasFort()) //catapult
 	{
-		CStack * stack = curB->generateNewStack(CStackInstance(145, 1, hero1), stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 120);
+		CStack * stack = curB->generateNewStack(CStackInstance(145, 1, hero1), stacks.size(), true, 255, 120);
 		stacks.push_back(stack);
 	}
 	//war machines added
@@ -1559,14 +1559,14 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		
 	case 3: //castle
 		{//lower tower / upper tower
-			CStack * stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -4);
+			CStack * stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -3);
+			stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, -3);
 			stacks.push_back(stack);
 		}
 	case 2: //citadel
 		{//main tower
-			CStack * stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -2);
+			CStack * stack = curB->generateNewStack(CStackInstance(149, 1, hero2), stacks.size(), false, 255, -2);
 			stacks.push_back(stack);
 		}
 	}
@@ -1676,8 +1676,7 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		}
 	}
 
-	//giving terrain premies for heroes & stacks
-
+	//giving terrain overalay premies
 	int bonusSubtype = -1;
 	switch(terType)
 	{
@@ -1703,86 +1702,47 @@ void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstanc
 		}
 
 		{ //common part for cases 9, 14, 15, 16, 17
-			const CGHeroInstance * cHero = NULL;
-			for(int i=0; i<2; ++i)
-			{
-				if(i == 0) cHero = hero1;
-				else cHero = hero2;
-
-				if(cHero == NULL) continue;
-
-				GiveBonus gs;
-				gs.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::OBJECT, 3, -1, "", bonusSubtype);
-				gs.id = cHero->id;
-
-				sendAndApply(&gs);
-			}
-
+			curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
 			break;
 		}
 
 	case 18: //holy ground
 		{
-			for(int g=0; g<stacks.size(); ++g) //+1 morale bonus for good creatures, -1 morale bonus for evil creatures
-			{
-				if (stacks[g]->type->isGood())
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
-				else if (stacks[g]->type->isEvil())
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
-			}
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
 			break;
 		}
 	case 19: //clover field
-		{
-			for(int g=0; g<stacks.size(); ++g)
-			{
-				if(stacks[g]->type->faction == -1) //+2 luck bonus for neutral creatures
-				{
-					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TERRAIN_OVERLAY));
-				}
-			}
+		{ //+2 luck bonus for neutral creatures
+			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureFactionLimiter(-1)));
 			break;
 		}
 	case 20: //evil fog
 		{
-			for(int g=0; g<stacks.size(); ++g) //-1 morale bonus for good creatures, +1 morale bonus for evil creatures
-			{
-				if (stacks[g]->type->isGood())
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY));
-				else if (stacks[g]->type->isEvil())
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
-			}
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
 			break;
 		}
 	case 22: //cursed ground
 		{
-			for(int g=0; g<stacks.size(); ++g) //no luck nor morale
-			{
-				stacks[g]->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-				stacks[g]->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			}
-
-			const CGHeroInstance * cHero = NULL;
-			for(int i=0; i<2; ++i) //blocking spells above level 1
-			{
-				if(i == 0) cHero = hero1;
-				else cHero = hero2;
-
-				if(cHero == NULL) continue;
-
-				GiveBonus gs;
-				gs.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::OBJECT, 1, -1, "", bonusSubtype);
-				gs.id = cHero->id;
-
-				sendAndApply(&gs);
-			}
-
+			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+			curB->addNewBonus(makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
 			break;
 		}
 	}
+	//overlay premies given
 
-	//premies given
+	//native terrain bonuses
+	int terrain = this->getTile(tile)->tertype;
+	if(town) //during siege always take premies for native terrain of faction
+		terrain = VLC->heroh->nativeTerrains[town->town->typeID];
 
+	ILimiter *nativeTerrain = new CreatureNativeTerrainLimiter(terrain);
+	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	//////////////////////////////////////////////////////////////////////////
 
 	//send info about battles
 	BattleStart bs;

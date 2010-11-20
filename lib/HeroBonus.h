@@ -4,6 +4,7 @@
 #include <list>
 #include <set>
 #include <boost/function.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 /*
  * HeroBonus.h, part of VCMI engine
@@ -229,14 +230,15 @@ struct DLL_EXPORT Bonus
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
 
-	ILimiter *limiter;
-	IPropagator *propagator;
+	boost::shared_ptr<ILimiter> limiter;
+	boost::shared_ptr<IPropagator> propagator;
 
 	std::string description; 
 
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE);
 	Bonus();
+	~Bonus();
 
 // 	//comparison
 // 	bool operator==(const HeroBonus &other)
@@ -294,6 +296,8 @@ struct DLL_EXPORT Bonus
 	const CSpell * sourceSpell() const;
 
 	std::string Description() const;
+
+	Bonus *addLimiter(ILimiter *Limiter); //returns this for convenient chain-calls
 };
 
 struct DLL_EXPORT stackExperience : public Bonus
@@ -337,6 +341,7 @@ class DLL_EXPORT IPropagator
 {
 public:
 	virtual ~IPropagator();
+	virtual CBonusSystemNode *getDestNode(CBonusSystemNode *source);
 };
 	
 class DLL_EXPORT ILimiter
@@ -405,8 +410,11 @@ public:
 	void attachTo(const CBonusSystemNode *parent);
 	void detachFrom(const CBonusSystemNode *parent);
 	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
-	void addNewBonus(const Bonus &b); //b will copied
+	//void addNewBonus(const Bonus &b); //b will copied
 	void removeBonus(Bonus *b);
+
+	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
+	CBonusSystemNode *whereToPropagate(Bonus *b);
 
 	void popBonuses(const CSelector &s);
 
@@ -432,16 +440,16 @@ namespace NBonus
 };
 
 //generates HeroBonus from given data
-inline Bonus makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+inline Bonus* makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
-	Bonus sf;
-	sf.type = type;
-	sf.duration = duration;
-	sf.source = source;
-	sf.turnsRemain = turnsRemain;
-	sf.subtype = subtype;
-	sf.val = value;
-	sf.additionalInfo = additionalInfo;
+	Bonus* sf = new Bonus();
+	sf->type = type;
+	sf->duration = duration;
+	sf->source = source;
+	sf->turnsRemain = turnsRemain;
+	sf->subtype = subtype;
+	sf->val = value;
+	sf->additionalInfo = additionalInfo;
 
 	return sf;
 }
@@ -497,7 +505,7 @@ public:
 	}
 };
 
-class CWillLastTurns
+class DLL_EXPORT CWillLastTurns
 {
 public:
 	int turnsRequested;
@@ -515,7 +523,7 @@ public:
 	}
 };
 
-class CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
+class DLL_EXPORT CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
 	const CCreature *creature;
@@ -532,14 +540,14 @@ public:
 	}
 };
 
-class HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
+class DLL_EXPORT HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
 {
 public:
 	TBonusType type;
 	TBonusSubtype subtype;
 	ui8 isSubtypeRelevant; //check for subtype only if this is true
 
-	HasAnotherBonusLimiter(TBonusType bonus);
+	HasAnotherBonusLimiter(TBonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
 
 	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
@@ -549,6 +557,53 @@ public:
 		h & type & subtype & isSubtypeRelevant;
 	}
 };
+
+class DLL_EXPORT CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain 
+{
+public:
+	si8 terrainType;
+	CreatureNativeTerrainLimiter();
+	CreatureNativeTerrainLimiter(int TerrainType);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & terrainType;
+	}
+};
+
+class DLL_EXPORT CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
+{
+public:
+	si8 faction;
+	CreatureFactionLimiter();
+	CreatureFactionLimiter(int TerrainType);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & faction;
+	}
+};
+
+class DLL_EXPORT CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
+{
+public:
+	si8 alignment;
+	CreatureAlignmentLimiter();
+	CreatureAlignmentLimiter(si8 Alignment);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & alignment;
+	}
+};
+
+const CCreature *retrieveCreature(const CBonusSystemNode *node);
 
 namespace Selector
 {

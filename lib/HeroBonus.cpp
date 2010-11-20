@@ -8,6 +8,8 @@
 #include <boost/assign/list_of.hpp>
 #include "CCreatureSet.h"
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/bind.hpp>
+#include "../hch/CHeroHandler.h"
 
 #define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)
@@ -99,49 +101,15 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 			out.push_back(i);
 }
 
-namespace HHLP
-{
-	class SourceComp
-	{
-	public:
-		Bonus::BonusSource src;
-		SourceComp(Bonus::BonusSource _src) : src(_src)
-		{
-		}
-		bool operator()(const Bonus * bon)
-		{
-			return bon->source == src;
-		}
-	};
-}
-
 
 void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
 {
-	std::remove_if(begin(), end(), HHLP::SourceComp(sourceType));
+	remove_if(Selector::sourceType(sourceType));
 }
 
 void BonusList::limit(const CBonusSystemNode &node)
 {
-limit_start:
-	for(iterator i = begin(); i != end(); i++)
-	{
-		Bonus *b = *i;
-		if(b->limiter && b->limiter->limit(b, node))
-		{
-			iterator toErase = i;
-			if(i != begin())
-			{
-				i--;
-				erase(toErase);
-			}
-			else
-			{
-				erase(toErase);
-				goto limit_start;
-			}
-		}
-	}
+	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, node, _1));
 }
 
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -358,27 +326,36 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
-void CBonusSystemNode::addNewBonus(const Bonus &b)
-{
-	addNewBonus(new Bonus(b));
-}
+// void CBonusSystemNode::addNewBonus(const Bonus &b)
+// {
+// 	addNewBonus(new Bonus(b));
+// }
 
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	exportedBonuses.push_back(b);
-
-	if(!b->propagator)
-		bonuses.push_back(b);
-	else
-	{
-		//prop
-	}
+	whereToPropagate(b)->bonuses.push_back(b);
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
 {
 	exportedBonuses -= b;
-	//TODO: prop
+	CBonusSystemNode *whereIsOurBonus = whereToPropagate(b);
+	whereIsOurBonus->bonuses -= b;
+	delNull(b);
+}
+
+CBonusSystemNode * CBonusSystemNode::whereToPropagate(Bonus *b)
+{
+	if(b->propagator)
+		return b->propagator->getDestNode(this);
+	else
+		return this;
+}
+
+bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
+{
+	return b->limiter && b->limiter->limit(b, *this);
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
@@ -445,8 +422,6 @@ Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si
 	turnsRemain = 0;
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
-	limiter = NULL;
-	propagator = NULL;
 	boost::algorithm::trim(description);
 }
 
@@ -456,8 +431,6 @@ Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/,
 	additionalInfo = -1;
 	turnsRemain = 0;
 	effectRange = NO_LIMIT;
-	limiter = NULL;
-	propagator = NULL;
 }
 
 Bonus::Bonus()
@@ -467,8 +440,16 @@ Bonus::Bonus()
 	turnsRemain = 0;
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
-	limiter = NULL;
-	propagator = NULL;
+}
+
+Bonus::~Bonus()
+{
+}
+
+Bonus * Bonus::addLimiter(ILimiter *Limiter)
+{
+	limiter.reset(Limiter);
+	return this;
 }
 
 CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second)
@@ -522,6 +503,19 @@ namespace Selector
 		dummy.type = type;
 		dummy.subtype = subtype;
 		return sel(&dummy);
+	}
+}
+
+const CCreature * retrieveCreature(const CBonusSystemNode *node)
+{
+	switch(node->nodeType)
+	{
+	case CBonusSystemNode::CREATURE:
+		return (static_cast<const CCreature *>(node));
+	case CBonusSystemNode::STACK:
+		return (static_cast<const CStackInstance *>(node))->type;
+	default:
+		return NULL;
 	}
 }
 
@@ -621,4 +615,66 @@ bool HasAnotherBonusLimiter::limit( const Bonus *b, const CBonusSystemNode &node
 IPropagator::~IPropagator()
 {
 
+}
+
+CBonusSystemNode * IPropagator::getDestNode(CBonusSystemNode *source)
+{
+	return source;
+}
+
+CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType) 
+	: terrainType(TerrainType)
+{
+}
+
+CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
+{
+
+}
+bool CreatureNativeTerrainLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+{
+	const CCreature *c = retrieveCreature(&node);
+	return !c || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
+}
+
+CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
+	: faction(Faction)
+{
+}
+
+CreatureFactionLimiter::CreatureFactionLimiter()
+{
+}
+bool CreatureFactionLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+{
+	const CCreature *c = retrieveCreature(&node);
+	return !c || c->faction != faction; //drop bonus for non-creatures or non-native residents
+}
+
+CreatureAlignmentLimiter::CreatureAlignmentLimiter()
+{
+}
+
+CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
+	: alignment(Alignment)
+{
+}
+
+bool CreatureAlignmentLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+{
+	const CCreature *c = retrieveCreature(&node);
+	if(!c) 
+		return true;
+	switch(alignment)
+	{
+	case GOOD:
+		return !c->isGood(); //if not good -> return true (drop bonus)
+	case NEUTRAL:
+		return c->isEvil() || c->isGood();
+	case EVIL:
+		return !c->isEvil();
+	default:
+		tlog1 << "Warning: illegal alignment in limiter!\n";
+		return true;
+	}
 }

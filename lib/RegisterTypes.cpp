@@ -75,6 +75,10 @@ void registerTypes1(Serializer &s)
 	//end of objects
 	s.template registerType<ILimiter>();
 	s.template registerType<CCreatureTypeLimiter>();
+	s.template registerType<HasAnotherBonusLimiter>();
+	s.template registerType<CreatureNativeTerrainLimiter>();
+	s.template registerType<CreatureFactionLimiter>();
+	s.template registerType<CreatureAlignmentLimiter>();
 }
 
 template<typename Serializer> DLL_EXPORT 

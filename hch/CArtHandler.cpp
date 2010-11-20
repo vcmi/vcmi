@@ -484,11 +484,11 @@ void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArti
 }
 void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter )
 {
-	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
-	added.valType = valType;
-	added.limiter = limiter;
+	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added->valType = valType;
+	added->limiter.reset(limiter);
 	if(type == Bonus::MORALE || Bonus::LUCK)
-		added.description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+		added->description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
 	artifacts[aid]->addNewBonus(added);
 }
 

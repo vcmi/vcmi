@@ -314,7 +314,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
-		h & monsters & heroesToBeat & artInstances; //hopefully serialization is now automagical?
+		h & monsters;
+		h & heroesToBeat;
+		h & artInstances; //hopefully serialization is now automagical?
 
 		//TODO: viccondetails
 		if(h.saving)

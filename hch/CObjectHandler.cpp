@@ -979,17 +979,17 @@ void CGHeroInstance::initObj()
 {
 	blockVisit = true;
 	speciality.growthsWithLevel = false;
-	Bonus bonus;
 
 	if(!type)
 		return; //TODO support prison
 
 	for (std::vector<SSpecialtyInfo>::const_iterator it = type->spec.begin(); it != type->spec.end(); it++)
 	{
-		bonus.val = it->val;
-		bonus.id = id; //from the hero, speciality has no unique id
-		bonus.duration = Bonus::PERMANENT;
-		bonus.source = Bonus::HERO_SPECIAL;
+		Bonus *bonus = new Bonus();
+		bonus->val = it->val;
+		bonus->id = id; //from the hero, speciality has no unique id
+		bonus->duration = Bonus::PERMANENT;
+		bonus->source = Bonus::HERO_SPECIAL;
 		switch (it->type)
 		{
 			case 1:// creature speciality
@@ -1010,139 +1010,139 @@ void CGHeroInstance::initObj()
 						}
 					}
 
-					bonus.limiter = new CCreatureTypeLimiter (specCreature, true); //with upgrades
-					bonus.type = Bonus::PRIMARY_SKILL; 
-					bonus.additionalInfo = it->additionalinfo;
-					bonus.valType = Bonus::ADDITIVE_VALUE;
+					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
+					bonus->type = Bonus::PRIMARY_SKILL; 
+					bonus->additionalInfo = it->additionalinfo;
+					bonus->valType = Bonus::ADDITIVE_VALUE;
 
-					bonus.subtype = PrimarySkill::ATTACK;
+					bonus->subtype = PrimarySkill::ATTACK;
 					speciality.addNewBonus(bonus);
 
-					bonus.subtype = PrimarySkill::DEFENSE;
+					bonus->subtype = PrimarySkill::DEFENSE;
 					speciality.addNewBonus(bonus);
 					//values will be calculated later
 
-					bonus.type = Bonus::STACKS_SPEED;
-					bonus.val = 1; //+1 speed
+					bonus->type = Bonus::STACKS_SPEED;
+					bonus->val = 1; //+1 speed
 					speciality.addNewBonus(bonus);
 				}
 				break;
 			case 2://secondary skill
 				speciality.growthsWithLevel = true;
-				bonus.type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
-				bonus.valType = Bonus::BASE_NUMBER; // to receive nonzero value
-				bonus.subtype = it->subtype; //skill id
-				bonus.val = it->val; //value per level, in percent
+				bonus->type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
+				bonus->valType = Bonus::BASE_NUMBER; // to receive nonzero value
+				bonus->subtype = it->subtype; //skill id
+				bonus->val = it->val; //value per level, in percent
 				speciality.addNewBonus(bonus);
 				switch (it->additionalinfo)
 				{
 					case 0: //normal
-						bonus.valType = Bonus::PERCENT_TO_BASE;
+						bonus->valType = Bonus::PERCENT_TO_BASE;
 						break;
 					case 1: //when it's navigation or there's no 'base' at all
-						bonus.valType = Bonus::PERCENT_TO_ALL;
+						bonus->valType = Bonus::PERCENT_TO_ALL;
 						break;
 				}
-				bonus.type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
+				bonus->type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
 				speciality.addNewBonus(bonus);
 				break;
 			case 3://spell damage bonus, level dependant but calculated elsehwere
-				bonus.type = Bonus::SPECIAL_SPELL_LEV;
-				bonus.subtype = it->subtype;
+				bonus->type = Bonus::SPECIAL_SPELL_LEV;
+				bonus->subtype = it->subtype;
 				speciality.addNewBonus(bonus);
 				break;
 			case 4://creature stat boost
 				switch (it->subtype)
 				{
 					case 1://attack
-						bonus.type = Bonus::PRIMARY_SKILL;
-						bonus.subtype = PrimarySkill::ATTACK;
+						bonus->type = Bonus::PRIMARY_SKILL;
+						bonus->subtype = PrimarySkill::ATTACK;
 						break;
 					case 2://defense
-						bonus.type = Bonus::PRIMARY_SKILL;
-						bonus.subtype = PrimarySkill::DEFENSE;
+						bonus->type = Bonus::PRIMARY_SKILL;
+						bonus->subtype = PrimarySkill::DEFENSE;
 						break;
 					case 3:
-						bonus.type = Bonus::CREATURE_DAMAGE;
-						bonus.subtype = 0; //both min and max
+						bonus->type = Bonus::CREATURE_DAMAGE;
+						bonus->subtype = 0; //both min and max
 						break;
 					case 4://hp
-						bonus.type = Bonus::STACK_HEALTH;
+						bonus->type = Bonus::STACK_HEALTH;
 						break;
 					case 5:
-						bonus.type = Bonus::STACKS_SPEED;
+						bonus->type = Bonus::STACKS_SPEED;
 						break;
 					default:
 						continue;
 				}
-				bonus.valType = Bonus::ADDITIVE_VALUE;
-				bonus.limiter = new CCreatureTypeLimiter (*VLC->creh->creatures[it->additionalinfo], true);
+				bonus->valType = Bonus::ADDITIVE_VALUE;
+				bonus->limiter.reset(new CCreatureTypeLimiter (*VLC->creh->creatures[it->additionalinfo], true));
 				speciality.addNewBonus(bonus);
 				break;
 			case 5://spell damage bonus in percent
-				bonus.type = Bonus::SPECIFIC_SPELL_DAMAGE;
-				bonus.valType = Bonus::BASE_NUMBER; // current spell system is screwed
-				bonus.subtype = it->subtype; //spell id
+				bonus->type = Bonus::SPECIFIC_SPELL_DAMAGE;
+				bonus->valType = Bonus::BASE_NUMBER; // current spell system is screwed
+				bonus->subtype = it->subtype; //spell id
 				speciality.addNewBonus(bonus);
 				break;
 			case 6://damage bonus for bless (Adela)
-				bonus.type = Bonus::SPECIAL_BLESS_DAMAGE;
-				bonus.subtype = it->subtype; //spell id if you ever wanted to use it otherwise
-				bonus.additionalInfo = it->additionalinfo; //damage factor
+				bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
+				bonus->subtype = it->subtype; //spell id if you ever wanted to use it otherwise
+				bonus->additionalInfo = it->additionalinfo; //damage factor
 				speciality.addNewBonus(bonus);
 				break;
 			case 7://maxed mastery for spell
-				bonus.type = Bonus::MAXED_SPELL;
-				bonus.subtype = it->subtype; //spell i
+				bonus->type = Bonus::MAXED_SPELL;
+				bonus->subtype = it->subtype; //spell i
 				speciality.addNewBonus(bonus);
 				break;
 			case 8://peculiar spells - enchantments
-				bonus.type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-				bonus.subtype = it->subtype; //spell id
-				bonus.additionalInfo = it->additionalinfo;//0, 1 for Coronius
+				bonus->type = Bonus::SPECIAL_PECULIAR_ENCHANT;
+				bonus->subtype = it->subtype; //spell id
+				bonus->additionalInfo = it->additionalinfo;//0, 1 for Coronius
 				speciality.addNewBonus(bonus);
 				break;
 			case 9://upgrade creatures
 			{
 				std::vector<CCreature*>* creatures = &VLC->creh->creatures;
-				bonus.type = Bonus::SPECIAL_UPGRADE;
-				bonus.subtype = it->subtype; //base id
-				bonus.additionalInfo = it->additionalinfo; //target id
+				bonus->type = Bonus::SPECIAL_UPGRADE;
+				bonus->subtype = it->subtype; //base id
+				bonus->additionalInfo = it->additionalinfo; //target id
 				speciality.addNewBonus(bonus);
 
 				for (std::set<ui32>::iterator i = (*creatures)[it->subtype]->upgrades.begin();
 					i != (*creatures)[it->subtype]->upgrades.end(); i++)
 				{
-					bonus.subtype = *i; //propagate for regular upgrades of base creature
+					bonus->subtype = *i; //propagate for regular upgrades of base creature
 					speciality.addNewBonus(bonus);
 				}
 				break;
 			}
 			case 10://resource generation
-				bonus.type = Bonus::GENERATE_RESOURCE;
-				bonus.subtype = it->subtype;
+				bonus->type = Bonus::GENERATE_RESOURCE;
+				bonus->subtype = it->subtype;
 				speciality.addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
 				cb->changeSecSkill(id, it->val, it->additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
-				bonus.type = Bonus::STACKS_SPEED;
+				bonus->type = Bonus::STACKS_SPEED;
 				speciality.addNewBonus(bonus);
 				break;
 			case 13://Dragon bonuses (Mutare)
-				bonus.type = Bonus::PRIMARY_SKILL;
-				bonus.valType = Bonus::ADDITIVE_VALUE;
+				bonus->type = Bonus::PRIMARY_SKILL;
+				bonus->valType = Bonus::ADDITIVE_VALUE;
 				switch (it->subtype)
 				{
 					case 1:
-						bonus.subtype = PrimarySkill::ATTACK;
+						bonus->subtype = PrimarySkill::ATTACK;
 						break;
 					case 2:
-						bonus.subtype = PrimarySkill::DEFENSE;
+						bonus->subtype = PrimarySkill::DEFENSE;
 						break;
 				}
-				bonus.limiter = new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE);
+				bonus->limiter.reset(new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
 				speciality.addNewBonus(bonus);
 				break;
 			default:
@@ -1247,9 +1247,9 @@ void CGHeroInstance::updateSkill(int which, int val)
 		}
 		else
 		{
-			Bonus bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER);
-			bonus.source = Bonus::SECONDARY_SKILL;
-			addNewBonus (bonus);
+			Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER);
+			bonus->source = Bonus::SECONDARY_SKILL;
+			addNewBonus(bonus);
 		}
 	}
 }
@@ -1506,7 +1506,7 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 
 void CGHeroInstance::pushPrimSkill(int which, int val)
 {
-	addNewBonus(Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
+	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
 
 // void CGHeroInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
@@ -2132,7 +2132,7 @@ void CGTownInstance::initObj()
 	//add special bonuses from buildings
 	if(subID == 4 && vstd::contains(builtBuildings, 17))
 	{
-		addNewBonus( Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
+		addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
 	}
 }
 

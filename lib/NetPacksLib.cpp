@@ -664,17 +664,17 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				case DOUBLE_GROWTH:
 					b->val = 100;
 					b->type = Bonus::CREATURE_GROWTH_PERCENT;
-					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
 					break;
 				case BONUS_GROWTH:
 					b->val = 5;
 					b->type = Bonus::CREATURE_GROWTH;
-					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
 					break;
 				case DEITYOFFIRE:
 					b->val = 15;
 					b->type = Bonus::CREATURE_GROWTH;
-					b->limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[42], true));
 					break;
 				case PLAGUE:
 					b->val = -100; //no basic creatures
@@ -985,8 +985,8 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			creID = 112; //air elemental
 			break;
 		}
-		const int3 & tile = gs->curB->tile;
-		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
+// 		const int3 & tile = gs->curB->tile;
+// 		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
 
 		int pos; //position of stack on the battlefield - to be calculated
 
@@ -1004,7 +1004,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, ter, pos);
+		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);
 		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 
