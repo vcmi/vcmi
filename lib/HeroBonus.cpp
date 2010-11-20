@@ -358,6 +358,24 @@ bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
 	return b->limiter && b->limiter->limit(b, *this);
 }
 
+bool CBonusSystemNode::weActAsBonusSourceOnly() const
+{
+	switch(nodeType)
+	{
+	case CREATURE:
+	case ARTIFACT:
+	case ARTIFACT_INSTANCE:
+		return true;
+	default:
+		return false;
+	}
+}
+
+TNodesVector & CBonusSystemNode::nodesOnWhichWePropagate()
+{
+	return weActAsBonusSourceOnly() ? children : parents;
+}
+
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	if(obj)

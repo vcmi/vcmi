@@ -225,6 +225,18 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 	return false;
 }
 
+TSlot CCreatureSet::findStack(const CStackInstance *stack) const
+{
+	if(!stack) 
+		return -1;
+
+	for(TSlots::const_iterator i = slots.begin(); i != slots.end(); ++i)
+		if(&i->second == stack)
+			return i->first;
+
+	return -1;
+}
+
 CStackInstance::CStackInstance()
 {
 	init();

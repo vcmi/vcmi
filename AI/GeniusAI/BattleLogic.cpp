@@ -138,7 +138,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			m_statHitPoints.push_back(std::pair<int, int>(id, hitPoints));
 			m_statMaxSpeed.push_back(std::pair<int, int>(id, stackHP));
 
-			totalEnemyDamage += (st->type->damageMax + st->type->damageMin) * st->count / 2;
+			totalEnemyDamage += (st->getCreature()->damageMax + st->getCreature()->damageMin) * st->count / 2;
 			totalEnemyHitPoints += hitPoints;
 
 			// calculate casualties
@@ -195,12 +195,12 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 
 			m_statCasualties.push_back(std::pair<int, SCreatureCasualties>(id, cs));
 
-			if (st->type->isShooting() && st->shots > 0)
+			if (st->getCreature()->isShooting() && st->shots > 0)
 			{
 				m_statDistanceFromShooters.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
 
-			if (currentStack->hasBonusOfType(Bonus::FLYING) || (currentStack->type->isShooting() && currentStack->shots > 0))
+			if (currentStack->hasBonusOfType(Bonus::FLYING) || (currentStack->getCreature()->isShooting() && currentStack->shots > 0))
 			{
 				m_statDistance.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
@@ -259,7 +259,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
 	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
-	if(currentStack->position < 0 || currentStack->type->idNumber == 147) //turret or first aid kit
+	if(currentStack->position < 0 || currentStack->getCreature()->idNumber == 147) //turret or first aid kit
 	{
 		return MakeDefend(stackID);
 	}
@@ -762,9 +762,9 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));
 		message += ", creature - ";
 		const CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
-		if (c && c->type)
+		if (c && c->getCreature())
 		{
-			message += c->type->nameRef;
+			message += c->getCreature()->nameRef;
 		}
 		else
 		{

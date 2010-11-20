@@ -73,6 +73,7 @@ public:
 	const CStackInstance& getStack(TSlot slot) const; 
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
 	int getAmount (TSlot slot) const;
+	TSlot findStack(const CStackInstance *stack) const; //-1 if none
 	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
 	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly

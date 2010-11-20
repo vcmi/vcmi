@@ -687,17 +687,22 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	return std::make_pair(path, dist[dest]);
 }
 
-CStack::CStack(const CStackInstance *base, int O, int I, bool AO, int S)
-	: CStackInstance(*base), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1),   
+CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
+	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1),   
 	counterAttacks(1)
 {
-	baseAmount = base->count;
+	count = baseAmount = base->count;
 	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
-	shots = type->shots;
+	shots = getCreature()->shots;
 	counterAttacks += valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 
 	//alive state indication
 	state.insert(ALIVE);
+}
+
+CStack::CStack() : base(NULL), ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1)
+{
+
 }
 
 ui32 CStack::Speed( int turn /*= 0*/ ) const
@@ -941,7 +946,7 @@ bool CStack::moved( int turn /*= 0*/ ) const
 
 bool CStack::doubleWide() const
 {
-	return type->doubleWide;
+	return getCreature()->doubleWide;
 }
 
 int CStack::occupiedHex() const
@@ -3079,7 +3084,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		minDmg = attacker->getMinDamage() * attacker->count, 
 		maxDmg = attacker->getMaxDamage() * attacker->count;
 
-	if(attacker->type->idNumber == 149) //arrow turret
+	if(attacker->getCreature()->idNumber == 149) //arrow turret
 	{
 		switch(attacker->position)
 		{
@@ -3094,7 +3099,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		}
 	}
 
-	if(attacker->hasBonusOfType(Bonus::SIEGE_WEAPON) && attacker->type->idNumber != 149) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
+	if(attacker->hasBonusOfType(Bonus::SIEGE_WEAPON) && attacker->getCreature()->idNumber != 149) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		minDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
 		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
@@ -3150,7 +3155,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 
 		for(unsigned int g=0; g<affectedIds.size(); ++g)
 		{
-			if(defender->type->idNumber == affectedIds[g])
+			if(defender->getCreature()->idNumber == affectedIds[g])
 			{
 				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->val];
 				break;
@@ -3209,7 +3214,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	}
 
 	//handling hate effect
-	if( attacker->hasBonusOfType(Bonus::HATE, defender->type->idNumber) )
+	if( attacker->hasBonusOfType(Bonus::HATE, defender->getCreature()->idNumber) )
 		additiveBonus += 0.5f;
 
 	//luck bonus
@@ -3316,7 +3321,7 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 		si32 killed = (st->alive() ? st->baseAmount - st->count : st->baseAmount);
 		amax(killed, 0);
 		if(killed)
-			casualties[!st->attackerOwned][st->type->idNumber] += killed;
+			casualties[!st->attackerOwned][st->getCreature()->idNumber] += killed;
 	}
 }
 
@@ -3361,8 +3366,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 	{
 		for(int it=0; it<stacks.size(); ++it)
 		{
-			if((s->id == 24 && !stacks[it]->type->isUndead()) //death ripple
-				|| (s->id == 25 && stacks[it]->type->isUndead()) //destroy undead
+			if((s->id == 24 && !stacks[it]->getCreature()->isUndead()) //death ripple
+				|| (s->id == 25 && stacks[it]->getCreature()->isUndead()) //destroy undead
 				|| (s->id == 26) //Armageddon
 				)
 			{
@@ -3558,7 +3563,7 @@ ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const C
 			ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
 
 		if (affectedCreature) //Hero specials like Solmyr, Deemer
-			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
+			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->getCreature()->level)) / 100.0f;
 	}
 	return ret;
 }
@@ -3659,7 +3664,7 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	if(our->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
 		return false;
 
-	if(our->type->idNumber == 145 && dst) //catapult cannot attack creatures
+	if(our->getCreature()->idNumber == 145 && dst) //catapult cannot attack creatures
 		return false;
 
 	if(our->hasBonusOfType(Bonus::SHOOTER)//it's shooter
@@ -4173,7 +4178,7 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 			else
 				p = 3;
 		}
-		else if(s->type->idNumber == 145  ||  s->type->idNumber == 149) //catapult and turrets are first
+		else if(s->getCreature()->idNumber == 145  ||  s->getCreature()->idNumber == 149) //catapult and turrets are first
 		{
 			p = 0;
 		}
@@ -4447,7 +4452,7 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 	switch(phase)
 	{
 	case 0: //catapult moves after turrets
-		return a->type->idNumber < b->type->idNumber; //catapult is 145 and turrets are 149
+		return a->getCreature()->idNumber < b->getCreature()->idNumber; //catapult is 145 and turrets are 149
 		//TODO? turrets order
 	case 1: //fastest first, upper slot first
 		{

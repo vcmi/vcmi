@@ -578,7 +578,7 @@ CCreature CCallback::battleGetCreature(int number)
 	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == number) //creature found
-			return *(gs->curB->stacks[h]->type);
+			return *(gs->curB->stacks[h]->getCreature());
 	}
 #ifndef __GNUC__
 	throw new std::exception("Cannot find the creature");

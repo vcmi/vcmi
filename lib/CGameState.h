@@ -250,10 +250,13 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	si8 canTeleportTo(int stackID, int destHex, int telportLevel); //determines if given stack can teleport to given place
 };
 
-class DLL_EXPORT CStack : public CStackInstance
+class DLL_EXPORT CStack : public CBonusSystemNode
 { 
 public:
+	const CStackInstance *base;
+
 	ui32 ID; //unique ID of stack
+	ui32 count;
 	ui32 baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
@@ -264,10 +267,10 @@ public:
 
 	std::set<ECombatInfo> state;
 	//overrides
-	const CCreature* getCreature() const {return type;}
+	const CCreature* getCreature() const {return base->type;}
 
 	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
-	CStack() : ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
+	CStack(); //c-tor
 	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
@@ -299,9 +302,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CStackInstance&>(*this);
+		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
+		const CArmedInstance *army = (base ? base->armyObj : NULL);
+		if(h.saving)
+		{
+			h & army & slot;
+		}
+		else
+		{
+			h & army & slot;
+			base = &army->getStack(slot);
+		}
+
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots;
+			& shots & count;
 	}
 	bool alive() const //determines if stack is alive
 	{

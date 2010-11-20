@@ -30,6 +30,7 @@ class IPropagator;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
+typedef std::vector<CBonusSystemNode *> TNodesVector;
 typedef boost::function<bool(const Bonus*)> CSelector;
 
 namespace PrimarySkill
@@ -361,7 +362,7 @@ public:
 	BonusList bonuses; //wielded bonuses (local and up-propagated here)
 	BonusList exportedBonuses;
 
-	std::vector<CBonusSystemNode *> parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	TNodesVector parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
 									children;
 
 	ui8 nodeType;
@@ -413,6 +414,8 @@ public:
 	//void addNewBonus(const Bonus &b); //b will copied
 	void removeBonus(Bonus *b);
 
+	TNodesVector &nodesOnWhichWePropagate();
+	bool weActAsBonusSourceOnly() const;
 	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 	CBonusSystemNode *whereToPropagate(Bonus *b);
 
@@ -425,7 +428,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE
+		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE
 	};
 };
 

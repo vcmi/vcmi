@@ -436,7 +436,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
 
 			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
-				|| (next->type->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
+				|| (next->getCreature()->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
 			{
 				BattleAction attack;
 				attack.actionType = 7;
@@ -458,7 +458,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
-			if(next->type->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //catapult, hero has no ballistics
+			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //catapult, hero has no ballistics
 			{
 				BattleAction attack;
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
@@ -473,7 +473,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
-			if(next->type->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(27) == 0)) //first aid tent, hero has no first aid
+			if(next->getCreature()->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(27) == 0)) //first aid tent, hero has no first aid
 			{
 				BattleAction heal;
 
@@ -3751,7 +3751,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 						) //nor occupy specified hex
 				) 
 			{
-				std::string problem = "We cannot move this stack to its destination " + curStack->type->namePl;
+				std::string problem = "We cannot move this stack to its destination " + curStack->getCreature()->namePl;
 				tlog3 << problem << std::endl;
 				complain(problem);
 				ok = false;

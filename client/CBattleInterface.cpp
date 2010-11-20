@@ -475,7 +475,7 @@ bool CDefenceAnim::init()
 		if(IDby != -1)
 		{
 			int attackerAnimType = owner->creAnims[IDby]->getType();
-			if( attackerAnimType == 11 && attackerAnimType == 12 && attackerAnimType == 13 && owner->creAnims[IDby]->getFrame() < attacker->type->attackClimaxFrame )
+			if( attackerAnimType == 11 && attackerAnimType == 12 && attackerAnimType == 13 && owner->creAnims[IDby]->getFrame() < attacker->getCreature()->attackClimaxFrame )
 				return false;
 		}
 
@@ -506,7 +506,7 @@ bool CDefenceAnim::init()
 	{		
 		for(std::list<SProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{
-			if(it->creID == attacker->type->idNumber)
+			if(it->creID == attacker->getCreature()->idNumber)
 			{
 				return false;
 			}
@@ -516,13 +516,13 @@ bool CDefenceAnim::init()
 	//initializing
 	if(killed)
 	{
-		CGI->soundh->playSound(battle_sound(attacked->type, killed));
+		CGI->soundh->playSound(battle_sound(attacked->getCreature(), killed));
 		owner->creAnims[stackID]->setType(5); //death
 	}
 	else
 	{
 		// TODO: this block doesn't seems correct if the unit is defending.
-		CGI->soundh->playSound(battle_sound(attacked->type, wince));
+		CGI->soundh->playSound(battle_sound(attacked->getCreature(), wince));
 		owner->creAnims[stackID]->setType(3); //getting hit
 	}
 
@@ -626,7 +626,7 @@ bool CBattleStackMoved::init()
 	//unit reversed
 
 	if(owner->moveSh <= 0)
-		owner->moveSh = CGI->soundh->playSound(battle_sound(movedStack->type, move), -1);
+		owner->moveSh = CGI->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
@@ -742,7 +742,7 @@ bool CBattleMoveStart::init()
 		return false;
 	}
 
-	CGI->soundh->playSound(battle_sound(movedStack->type, startMoving));
+	CGI->soundh->playSound(battle_sound(movedStack->getCreature(), startMoving));
 
 	return true;
 }
@@ -787,7 +787,7 @@ bool CBattleMoveEnd::init()
 		return false;
 	}
 
-	CGI->soundh->playSound(battle_sound(movedStack->type, endMoving));
+	CGI->soundh->playSound(battle_sound(movedStack->getCreature(), endMoving));
 
 	owner->creAnims[stackID]->setType(21);
 
@@ -828,9 +828,9 @@ void CBattleAttack::nextFrame()
 	if(owner->creAnims[stackID]->onFirstFrameInGroup())
 	{
 		if(shooting)
-			CGI->soundh->playSound(battle_sound(attackingStack->type, shoot));
+			CGI->soundh->playSound(battle_sound(attackingStack->getCreature(), shoot));
 		else
-			CGI->soundh->playSound(battle_sound(attackingStack->type, attack));
+			CGI->soundh->playSound(battle_sound(attackingStack->getCreature(), attack));
 	}
 	else if(owner->creAnims[stackID]->onLastFrameInGroup())
 	{
@@ -852,7 +852,7 @@ CBattleAttack::CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest,
 	attackingStack = owner->curInt->cb->battleGetStackByID(_stackID, false);
 
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
-	if(attackingStack->type->idNumber != 145) //catapult is allowed to attack not-creature
+	if(attackingStack->getCreature()->idNumber != 145) //catapult is allowed to attack not-creature
 	{
 		assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
 	}
@@ -981,7 +981,7 @@ bool CShootingAnim::init()
 		projectileAngle = -projectileAngle;
 
 	SProjectileInfo spi;
-	spi.creID = shooter->type->idNumber;
+	spi.creID = shooter->getCreature()->idNumber;
 	spi.reverse = !shooter->attackerOwned;
 
 	spi.step = 0;
@@ -1009,18 +1009,18 @@ bool CShootingAnim::init()
 
 	if(projectileAngle > straightAngle) //upper shot
 	{
-		spi.x = xycoord.x + 200 + shooter->type->upperRightMissleOffsetX;
-		spi.y = xycoord.y + 100 - shooter->type->upperRightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->getCreature()->upperRightMissleOffsetX;
+		spi.y = xycoord.y + 100 - shooter->getCreature()->upperRightMissleOffsetY;
 	}
 	else if(projectileAngle < -straightAngle) //lower shot
 	{
-		spi.x = xycoord.x + 200 + shooter->type->lowerRightMissleOffsetX;
-		spi.y = xycoord.y + 150 - shooter->type->lowerRightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->getCreature()->lowerRightMissleOffsetX;
+		spi.y = xycoord.y + 150 - shooter->getCreature()->lowerRightMissleOffsetY;
 	}
 	else //straight shot
 	{
-		spi.x = xycoord.x + 200 + shooter->type->rightMissleOffsetX;
-		spi.y = xycoord.y + 125 - shooter->type->rightMissleOffsetY;
+		spi.x = xycoord.x + 200 + shooter->getCreature()->rightMissleOffsetX;
+		spi.y = xycoord.y + 125 - shooter->getCreature()->rightMissleOffsetY;
 	}
 	spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / 40;
 	if(spi.lastStep == 0)
@@ -1273,25 +1273,25 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//loading projectiles for units
 	for(std::map<int, CStack>::iterator g = stacks.begin(); g != stacks.end(); ++g)
 	{
-		int creID = (g->second.type->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : g->second.type->idNumber; //id of creature whose shots should be loaded
-		if(g->second.type->isShooting() && CGI->creh->idToProjectile.find(creID) != CGI->creh->idToProjectile.end())
+		int creID = (g->second.getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : g->second.getCreature()->idNumber; //id of creature whose shots should be loaded
+		if(g->second.getCreature()->isShooting() && CGI->creh->idToProjectile.find(creID) != CGI->creh->idToProjectile.end())
 		{	
-			idToProjectile[g->second.type->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile.find(creID)->second);
+			idToProjectile[g->second.getCreature()->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile.find(creID)->second);
 
-			if(idToProjectile[g->second.type->idNumber]->ourImages.size() > 2) //add symmetric images
+			if(idToProjectile[g->second.getCreature()->idNumber]->ourImages.size() > 2) //add symmetric images
 			{
-				for(int k = idToProjectile[g->second.type->idNumber]->ourImages.size()-2; k > 1; --k)
+				for(int k = idToProjectile[g->second.getCreature()->idNumber]->ourImages.size()-2; k > 1; --k)
 				{
 					Cimage ci;
-					ci.bitmap = CSDL_Ext::rotate01(idToProjectile[g->second.type->idNumber]->ourImages[k].bitmap);
+					ci.bitmap = CSDL_Ext::rotate01(idToProjectile[g->second.getCreature()->idNumber]->ourImages[k].bitmap);
 					ci.groupNumber = 0;
 					ci.imName = std::string();
-					idToProjectile[g->second.type->idNumber]->ourImages.push_back(ci);
+					idToProjectile[g->second.getCreature()->idNumber]->ourImages.push_back(ci);
 				}
 			}
-			for(int s=0; s<idToProjectile[g->second.type->idNumber]->ourImages.size(); ++s) //alpha transforming
+			for(int s=0; s<idToProjectile[g->second.getCreature()->idNumber]->ourImages.size(); ++s) //alpha transforming
 			{
-				CSDL_Ext::alphaTransform(idToProjectile[g->second.type->idNumber]->ourImages[s].bitmap);
+				CSDL_Ext::alphaTransform(idToProjectile[g->second.getCreature()->idNumber]->ourImages[s].bitmap);
 			}
 		}
 	}
@@ -1794,7 +1794,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						}
 						//setting console text
 						char buf[500];
-						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->type->nameSing.c_str() : shere->type->namePl.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
 						mouseHoveredStack = shere->ID;
@@ -1822,7 +1822,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
 						//printing
-						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->count == 1 ? shere->type->nameSing.c_str() : shere->type->namePl.c_str(), sactive->shots, estDmg.str().c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), sactive->shots, estDmg.str().c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
 					}
@@ -1972,7 +1972,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
 						//printing
-						sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->count == 1 ? shere->type->nameSing.c_str() : shere->type->namePl.c_str(), estDmg.str().c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), estDmg.str().c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
 					}
@@ -2006,12 +2006,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					if(sactive->hasBonusOfType(Bonus::FLYING))
 					{
 						CGI->curh->changeGraphic(1,2);
-						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->count == 1 ? sactive->type->nameSing.c_str() : sactive->type->namePl.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
 					}
 					else
 					{
 						CGI->curh->changeGraphic(1,1);
-						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->count == 1 ? sactive->type->nameSing.c_str() : sactive->type->namePl.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
 					}
 
 					console->alterTxt = buf;
@@ -2076,7 +2076,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					CGI->curh->changeGraphic(3, 0);
 					//setting console text
 					char buf[500];
-					std::string creName = stackUnder->count > 1 ? stackUnder->type->namePl : stackUnder->type->nameSing;
+					std::string creName = stackUnder->count > 1 ? stackUnder->getCreature()->namePl : stackUnder->getCreature()->nameSing;
 						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
 					console->alterTxt = buf;
 					console->whoSetAlter = 0;
@@ -2236,7 +2236,7 @@ void CBattleInterface::newStack(int stackID)
 	}
 	else
 	{
-		creAnims[stackID] = new CCreatureAnimation(newStack->type->animDefName);	
+		creAnims[stackID] = new CCreatureAnimation(newStack->getCreature()->animDefName);	
 	}
 	creAnims[stackID]->setType(2);
 	creAnims[stackID]->pos = Rect(coords.x, coords.y, creAnims[newStack->ID]->fullWidth, creAnims[newStack->ID]->fullHeight);
@@ -2779,7 +2779,7 @@ void CBattleInterface::spellCast(BattleSpellCast * sc)
 			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 		}
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
-		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->type->namePl );
+		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
 		console->addText(text);
 	}
 	else
@@ -3154,17 +3154,17 @@ void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDb
 	const CStack * attacker = curInt->cb->battleGetStackByID(IDby, false);
 	const CStack * defender = curInt->cb->battleGetStackByID(ID, false);
 	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
-		(attacker->count > 1 ? attacker->type->namePl.c_str() : attacker->type->nameSing.c_str()),
+		(attacker->count > 1 ? attacker->getCreature()->namePl.c_str() : attacker->getCreature()->nameSing.c_str()),
 		dmg);
 	if(killed > 0)
 	{
 		if(killed > 1)
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender->type->namePl.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender->getCreature()->namePl.c_str());
 		}
 		else //killed == 1
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender->type->nameSing.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender->getCreature()->nameSing.c_str());
 		}
 	}
 
@@ -3334,7 +3334,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	if(txtid)
 	{
-		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->type->namePl.c_str() : stack->type->nameSing.c_str(), 0);
+		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), 0);
 		console->addText(txt);
 	}
 
@@ -3591,7 +3591,7 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		{
 			char tabh[160];
 			const CStack * attackedStack = myInterface->curInt->cb->battleGetStackByPos(myNumber);
-			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->type->nameSing : attackedStack->type->namePl;
+			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->getCreature()->nameSing : attackedStack->getCreature()->namePl;
 			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);
 			setAlterText = true;
@@ -3621,7 +3621,7 @@ void CBattleHex::clickRight(tribool down, bool previousState)
 		if(!myst.alive()) return;
 		if(down)
 		{
-			GH.pushInt(new CCreInfoWindow(myst));
+			GH.pushInt(new CCreInfoWindow(*myst.base));
 		}
 	}
 }
@@ -4207,13 +4207,13 @@ void CStackQueue::StackBox::showAll( SDL_Surface *to )
 		//SDL_UpdateRect(bg, 0, 0, 0, 0);
 		CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &genRect(bg->h, bg->w, pos.x, pos.y));
 		//blitAt(bg, pos, to);
-		blitAt(graphics->bigImgs[my->type->idNumber], pos.x +9, pos.y + 1, to);
+		blitAt(graphics->bigImgs[my->getCreature()->idNumber], pos.x +9, pos.y + 1, to);
 		printAtMiddleLoc(makeNumberShort(my->count), pos.w/2, pos.h - 12, FONT_MEDIUM, zwykly, to);
 	}
 	else
 	{
 		blitAt(graphics->smallImgs[-2], pos, to);
-		blitAt(graphics->smallImgs[my->type->idNumber], pos, to);
+		blitAt(graphics->smallImgs[my->getCreature()->idNumber], pos, to);
 		const SDL_Color &ownerColor = (my->owner == 255 ? *graphics->neutralColor : graphics->playerColors[my->owner]);
 		CSDL_Ext::drawBorder(to, pos, int3(ownerColor.r, ownerColor.g, ownerColor.b));
 		printAtMiddleLoc(makeNumberShort(my->count), pos.w/2, pos.h - 8, FONT_TINY, zwykly, to);

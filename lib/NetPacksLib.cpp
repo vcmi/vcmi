@@ -860,7 +860,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		bool hasAmmoCart = false;
 		BOOST_FOREACH(const CStack * st, gs->curB->stacks)
 		{
-			if(st->owner == attacker->owner && st->type->idNumber == 148 && st->alive())
+			if(st->owner == attacker->owner && st->getCreature()->idNumber == 148 && st->alive())
 			{
 				hasAmmoCart = true;
 				break;

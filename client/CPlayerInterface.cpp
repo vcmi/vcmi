@@ -698,7 +698,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl : stack->type->nameSing);
+			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing);
 			battleInt->displayEffect(20,stack->position);
 			battleInt->console->addText(hlp);
 		}
@@ -808,7 +808,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
-		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl.c_str() : stack->type->nameSing.c_str());
+		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
 		battleInt->displayEffect(18,stack->position);
 	}
