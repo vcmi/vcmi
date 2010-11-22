@@ -303,14 +303,28 @@ CBonusSystemNode::~CBonusSystemNode()
 
 }
 
-void CBonusSystemNode::attachTo(const CBonusSystemNode *parent)
+void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 {
+	assert(!vstd::contains(parents, parent));
+	parents.push_back(parent);
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		propagateBonus(b);
 
+	if(parent->weActAsBonusSourceOnly())
+	{
+
+	}
+
+	parent->newChildAttached(this);
 }
 
-void CBonusSystemNode::detachFrom(const CBonusSystemNode *parent)
+void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 {
+	assert(vstd::contains(parents, parent));
+	parents -= parent;
+	 //unpropagate bonus
 
+	parent->childDetached(this);
 }
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
@@ -334,7 +348,7 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	exportedBonuses.push_back(b);
-	whereToPropagate(b)->bonuses.push_back(b);
+	propagateBonus(b);
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
@@ -374,6 +388,23 @@ bool CBonusSystemNode::weActAsBonusSourceOnly() const
 TNodesVector & CBonusSystemNode::nodesOnWhichWePropagate()
 {
 	return weActAsBonusSourceOnly() ? children : parents;
+}
+
+void CBonusSystemNode::propagateBonus(Bonus * b)
+{
+	whereToPropagate(b)->bonuses.push_back(b);
+}
+
+void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
+{
+	assert(!vstd::contains(children, child));
+	children.push_back(child);
+}
+
+void CBonusSystemNode::childDetached(CBonusSystemNode *child)
+{
+	assert(vstd::contains(children, child));
+	children -= child;
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)

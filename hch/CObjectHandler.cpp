@@ -553,10 +553,10 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	}
 	TSlots::const_iterator i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
-	int ret = (i++)->second.valOfBonuses(Bonus::STACKS_SPEED);
+	int ret = (i++)->second->valOfBonuses(Bonus::STACKS_SPEED);
 	for (;i!=chi->Slots().end();i++)
 	{
-		ret = std::min(ret, i->second.valOfBonuses(Bonus::STACKS_SPEED));
+		ret = std::min(ret, i->second->valOfBonuses(Bonus::STACKS_SPEED));
 	}
 	return ret;
 }
@@ -893,7 +893,7 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 			}
 		}
 		else
-			dst->addStack(stackNo-warMachinesGiven, CStackInstance(creID, count));
+			dst->addStack(stackNo-warMachinesGiven, new CStackInstance(creID, count));
 	}
 }
 void CGHeroInstance::initHeroDefInfo()
@@ -1326,7 +1326,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
  * type and second value the amount. Both values are returned as -1 if necromancy
  * could not be applied.
  */
-CStackInstance CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
+CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
 	const ui8 necromancyLevel = getSecSkillLevel(12);
 
@@ -1365,10 +1365,10 @@ CStackInstance CGHeroInstance::calculateNecromancy (const BattleResult &battleRe
 		if (raisedUnits <= 0)
 			raisedUnits = 1;
 
-		return CStackInstance(raisedUnitType->idNumber, raisedUnits);
+		return CStackBasicDescriptor(raisedUnitType->idNumber, raisedUnits);
 	}
 
-	return CStackInstance();
+	return CStackBasicDescriptor();
 }
 
 /**
@@ -1376,7 +1376,7 @@ CStackInstance CGHeroInstance::calculateNecromancy (const BattleResult &battleRe
  * @param raisedStack Pair where the first element represents ID of the raised creature
  * and the second element the amount.
  */
-void CGHeroInstance::showNecromancyDialog(const CStackInstance &raisedStack) const
+void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const
 {
 	InfoWindow iw;
 	iw.soundID = soundBase::GENIE;
@@ -1587,7 +1587,7 @@ void CGDwelling::initObj()
 			creatures[0].second.push_back(crid);
 			hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
-				addStack(0, CStackInstance(crs, (crs->growth) * 3));
+				addStack(0, new CStackInstance(crs, (crs->growth) * 3));
 			if (getOwner() != 255)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
@@ -1602,8 +1602,8 @@ void CGDwelling::initObj()
 			creatures[2].second.push_back(116); //Gold Golem
 			creatures[3].second.push_back(117); //Diamond Golem
 			//guards
-			addStack(0, CStackInstance(116, 9));
-			addStack(1, CStackInstance(117, 6));
+			addStack(0, new CStackInstance(116, 9));
+			addStack(1, new CStackInstance(117, 6));
 		}
 		else if(subID == 0) // Elemental Conflux 
 		{
@@ -1612,7 +1612,7 @@ void CGDwelling::initObj()
 			creatures[2].second.push_back(113); //Earth Elemental
 			creatures[3].second.push_back(115); //Water Elemental
 			//guards
-			addStack(0, CStackInstance(113, 12));
+			addStack(0, new CStackInstance(113, 12));
 		}
 		else
 		{
@@ -1686,8 +1686,8 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.flags = BlockingDialog::ALLOW_CANCEL;
 		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
 		bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
-		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + Slots().begin()->second.getQuantityID()*3);
-		bd.text.addReplacement(Slots().begin()->second);
+		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + Slots().begin()->second->getQuantityID()*3);
+		bd.text.addReplacement(*Slots().begin()->second);
 		cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::wantsFight, this, h, _1));
 		return;
 	}
@@ -2159,34 +2159,36 @@ void CGTownInstance::newTurn() const
 
 		if (tempOwner == NEUTRAL_PLAYER) //garrison growth for neutral towns
 			{
-				TSlots slt = Slots(); //meh, waste of time
 				std::vector<ui8> nativeCrits; //slots
-				for (TSlots::const_iterator it = slt.begin(); it != slt.end(); it++)
+				for (TSlots::const_iterator it = Slots().begin(); it != Slots().end(); it++)
 				{
-					if (it->second.type->faction == subID) //native
+					if (it->second->type->faction == subID) //native
 					{
 						nativeCrits.push_back(it->first); //collect matching slots
 					}
 				}
 				if (nativeCrits.size())
 				{
-					int pos = nativeCrits[rand() % nativeCrits.size()];
-					if (rand()%100 < 90 || slt[pos].type->upgrades.empty()) //increase number if no upgrade avaliable
+					TSlot pos = nativeCrits[rand() % nativeCrits.size()];
+					const CCreature *c = getCreature(pos);
+					if (rand()%100 < 90 || c->upgrades.empty()) //increase number if no upgrade avaliable
 					{
 						SetGarrisons sg;
 						sg.garrs[id] = getArmy();
-						sg.garrs[id].slots[pos].count += slt[pos].type->growth;
+						sg.garrs[id].slots[pos]->count += c->growth;
 						cb->sendAndApply(&sg);	
 					}
 					else //upgrade
 					{
 						SetGarrisons sg; //somewhat better upgrade pack would come in handy
 						sg.garrs[id] = getArmy();
-						sg.garrs[id].setCreature(pos, *slt[pos].type->upgrades.begin(), slt[pos].count);
+						//////////////////////////////////////////////////////////////////////////
+						//sg.garrs[id].t (pos, *c->upgrades.begin(), );
+						//sg.garrs[id].setCreature(pos, *c->upgrades.begin(), slt[pos].count);
 						cb->sendAndApply(&sg);	
 					}
 				}
-				if ((stacksCount() < ARMY_SIZE && rand()%100 < 25) || slt.empty()) //add new stack
+				if ((stacksCount() < ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
 					int n, i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);	
 					{//no lower tiers or above current month
@@ -2840,7 +2842,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 const std::string & CGCreature::getHoverText() const
 {
 	MetaString ms;
-	int pom = slots.find(0)->second.getQuantityID();
+	int pom = slots.find(0)->second->getQuantityID();
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
@@ -2894,7 +2896,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			std::string tmp = VLC->generaltexth->advobtxt[90];
-			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(slots.find(0)->second.count));
+			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(getAmount(0)));
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creh->creatures[subID]->namePl);
 			ynd.text << tmp;
@@ -2952,8 +2954,8 @@ void CGCreature::initObj()
 		break;
 	}
 
-	slots[0].setType(subID);
-	si32 &amount = slots[0].count;
+	slots[0]->setType(subID);
+	TQuantity &amount = slots[0]->count;
 	CCreature &c = *VLC->creh->creatures[subID];
 	if(!amount)
 	{
@@ -2963,11 +2965,11 @@ void CGCreature::initObj()
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
 	}
 
-	temppower = slots[0].count * 1000;
+	temppower = slots[0]->count * 1000;
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (slots.begin()->second.count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
+	if (slots.begin()->second->count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
 		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
 		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
@@ -2979,7 +2981,7 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case 10:
-			slots[0].count = val;
+			slots[0]->count = val;
 			break;
 		case 11:
 			temppower = val;
@@ -3021,9 +3023,9 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			if(vstd::contains(myKindCres,i->second.type->idNumber))
-				count += i->second.count;
-			totalCount += i->second.count;
+			if(vstd::contains(myKindCres,i->second->type->idNumber))
+				count += i->second->count;
+			totalCount += i->second->count;
 		}
 
 		if(count*2 > totalCount)
@@ -3038,7 +3040,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			if(h->getSecSkillLevel(4) + sympathy + 1 >= character)
 				return 0; //join for free
 			else if(h->getSecSkillLevel(4) * 2  +  sympathy  +  1 >= character)
-				return VLC->creh->creatures[subID]->cost[6] * Slots().find(0)->second.count; //join for gold
+				return VLC->creh->creatures[subID]->cost[6] * getAmount(0); //join for gold
 		}
 	}
 
@@ -3177,7 +3179,7 @@ void CGMine::initObj()
 	{
 		//set guardians
 		int howManyTroglodytes = 100 + ran()%100;
-		CStackInstance troglodytes(70, howManyTroglodytes);
+		CStackInstance *troglodytes = new CStackInstance(70, howManyTroglodytes);
 		addStack(0, troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
@@ -3189,7 +3191,7 @@ void CGMine::initObj()
 		assert(possibleResources.size());
 		producedResource = possibleResources[ran()%possibleResources.size()];
 		tempOwner = NEUTRAL_PLAYER;
-		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes.getQuantityTXT(false) + " " + troglodytes.type->namePl;
+		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes->getQuantityTXT(false) + " " + troglodytes->type->namePl;
 	}
 	else
 	{
@@ -3453,7 +3455,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
 				{
 					CCreatureSet army = h->getArmy();
-					if (army.Slots().size() > 1 || army.Slots().begin()->second.count > 1)
+					if (army.Slots().size() > 1 || army.Slots().begin()->second->count > 1)
 					{ //we can't remove last unit
 						int targetstack = army.Slots().begin()->first; //slot numbers may vary
 						for(TSlots::const_reverse_iterator i = army.Slots().rbegin(); i != army.Slots().rend(); i++)
@@ -3463,18 +3465,17 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 								targetstack = (i->first);
 							}
 						}
-						CCreatureSet ourArmy;
-						ourArmy.addStack (targetstack, army.getStack(targetstack));
-						TQuantity tq = (double)(ourArmy.getAmount(targetstack))*0.5;
-						amax (tq, 1);
+						std::vector<CStackBasicDescriptor> cresToTake;
+						cresToTake.push_back(CStackBasicDescriptor(army.getStack(targetstack)));
+						cresToTake[0].count * 0.5;
+						amax (cresToTake[0].count, 1);
 
-						ourArmy.setStackCount (targetstack, tq);
 						InfoWindow iw;
 						iw.player = h->tempOwner;
 						iw.text.addTxt (MetaString::ADVOB_TXT, 168);
-						iw.components.push_back (Component(ourArmy.getStack(targetstack)));
+						iw.components.push_back (Component(cresToTake[0]));
 						cb->showInfoDialog(&iw);
-					    cb->takeCreatures (h->id, ourArmy.Slots());
+					    cb->takeCreatures (h->id, cresToTake);
 					}
 				}
 			}
@@ -3931,16 +3932,17 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			break;
 		case MISSION_ARMY:
 			{
-				TSlots::const_iterator it, cre;
+				std::vector<CStackBasicDescriptor>::const_iterator cre;
+				TSlots::const_iterator it;
 				ui32 count;
 				for (cre = m6creatures.begin(); cre != m6creatures.end(); ++cre)
 				{
 					for (count = 0, it = h->Slots().begin(); it !=  h->Slots().end(); ++it)
 					{
-						if (it->second.type == cre->second.type)
-							count += it->second.count;
+						if (it->second->type == cre->type)
+							count += it->second->count;
 					}
-					if (count < cre->second.count) //not enough creatures of this kind
+					if (count < cre->count) //not enough creatures of this kind
 						return false;
 				}
 			}
@@ -4010,7 +4012,7 @@ const std::string & CGSeerHut::getHoverText() const
 		switch (missionType)
 		{
 			case MISSION_LEVEL:
-				ms.addReplacement (m13489val);
+				ms.addReplacement(m13489val);
 				break;
 			case MISSION_PRIMARY_STAT:
 			{
@@ -4020,8 +4022,8 @@ const std::string & CGSeerHut::getHoverText() const
 					if (m2stats[i])
 					{
 						loot << "%d %s";
-						loot.addReplacement (m2stats[i]);
-						loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
+						loot.addReplacement(m2stats[i]);
+						loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 					}		
 				}
 				ms.addReplacement(loot.buildList());
@@ -4044,7 +4046,7 @@ const std::string & CGSeerHut::getHoverText() const
 					for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 					{
 						loot << "%s";
-						loot.addReplacement (MetaString::ART_NAMES, *it);
+						loot.addReplacement(MetaString::ART_NAMES, *it);
 					}
 					ms.addReplacement(loot.buildList());
 				}
@@ -4052,12 +4054,12 @@ const std::string & CGSeerHut::getHoverText() const
 			case MISSION_ARMY:
 				{
 					MetaString loot;
-					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+					for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
 					{
 						loot << "%s";
-						loot.addReplacement(it->second);
+						loot.addReplacement(*it);
 					}
-					ms.addReplacement	(loot.buildList());
+					ms.addReplacement(loot.buildList());
 				}
 				break;
 			case MISSION_RESOURCES:
@@ -4068,15 +4070,15 @@ const std::string & CGSeerHut::getHoverText() const
 						if (m7resources[i])
 						{
 							loot << "%d %s";
-							loot.addReplacement (m7resources[i]);
-							loot.addReplacement (MetaString::RES_NAMES, i);
+							loot.addReplacement(m7resources[i]);
+							loot.addReplacement(MetaString::RES_NAMES, i);
 						}
 					}
-					ms.addReplacement (loot.buildList());
+					ms.addReplacement(loot.buildList());
 				}
 				break;
 			case MISSION_PLAYER:
-				ms.addReplacement (VLC->generaltexth->colors[m13489val]);
+				ms.addReplacement(VLC->generaltexth->colors[m13489val]);
 				break;
 			default:
 				break;
@@ -4133,12 +4135,12 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						{
 							iw.components.push_back (Component (Component::PRIM_SKILL, i, m2stats[i], 0));
 							loot << "%d %s";
-							loot.addReplacement (m2stats[i]);
-							loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
+							loot.addReplacement(m2stats[i]);
+							loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 						}		
 					}
 					if (!isCustom)
-						iw.text.addReplacement (loot.buildList());
+						iw.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_KILL_HERO:
@@ -4161,7 +4163,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 							iw.text.addReplacement(stack);
 							if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
 							{
-								iw.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+								iw.text.addReplacement(VLC->generaltexth->arraytxt[147+checkDirection()]);
 							}
 						}
 					}
@@ -4173,7 +4175,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					{
 						iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 						loot << "%s";
-						loot.addReplacement (MetaString::ART_NAMES, *it);
+						loot.addReplacement(MetaString::ART_NAMES, *it);
 					}
 					if (!isCustom)
 						iw.text.addReplacement	(loot.buildList());
@@ -4182,11 +4184,11 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 				case MISSION_ARMY:
 				{
 					MetaString loot;
-					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+					for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
 					{
-						iw.components.push_back(Component(it->second));
+						iw.components.push_back(Component(*it));
 						loot << "%s";
-						loot.addReplacement(it->second);
+						loot.addReplacement(*it);
 					}
 					if (!isCustom)
 						iw.text.addReplacement	(loot.buildList());
@@ -4201,8 +4203,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						{
 							iw.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
 							loot << "%d %s";
-							loot.addReplacement (m7resources[i]);
-							loot.addReplacement (MetaString::RES_NAMES, i);
+							loot.addReplacement(m7resources[i]);
+							loot.addReplacement(MetaString::RES_NAMES, i);
 						}
 					}
 					if (!isCustom)
@@ -4244,12 +4246,12 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 							if (m2stats[i])
 							{
 								loot << "%d %s";
-								loot.addReplacement (m2stats[i]);
-								loot.addReplacement (VLC->generaltexth->primarySkillNames[i]);
+								loot.addReplacement(m2stats[i]);
+								loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 							}
 						}
 						if (!isCustom)
-							bd.text.addReplacement (loot.buildList());
+							bd.text.addReplacement(loot.buildList());
 					}
 					break;
 				case CQuest::MISSION_ART:
@@ -4258,22 +4260,22 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 					{
 						loot << "%s";
-						loot.addReplacement (MetaString::ART_NAMES, *it);
+						loot.addReplacement(MetaString::ART_NAMES, *it);
 					}
 					if (!isCustom)
-						bd.text.addReplacement (loot.buildList());
+						bd.text.addReplacement(loot.buildList());
 				}
 					break;
 				case CQuest::MISSION_ARMY:
 				{
 					MetaString loot;
-					for (TSlots::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+					for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
 					{
 						loot << "%s";
-						loot.addReplacement(it->second);
+						loot.addReplacement(*it);
 					}
 					if (!isCustom)
-						bd.text.addReplacement	(loot.buildList());
+						bd.text.addReplacement(loot.buildList());
 				}
 					break;
 				case CQuest::MISSION_RESOURCES:
@@ -4284,12 +4286,12 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						if (m7resources[i])
 						{
 							loot << "%d %s";
-							loot.addReplacement (m7resources[i]);
-							loot.addReplacement (MetaString::RES_NAMES, i);
+							loot.addReplacement(m7resources[i]);
+							loot.addReplacement(MetaString::RES_NAMES, i);
 						}
 					}
 					if (!isCustom)
-						bd.text.addReplacement (loot.buildList());
+						bd.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_KILL_HERO:
@@ -4306,13 +4308,13 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						bd.text.addReplacement(cb->gameState()->map->monsters[m13489val]->getArmy()[0]);
 						if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
 						{
-							bd.text.addReplacement (VLC->generaltexth->arraytxt[147+checkDirection()]);
+							bd.text.addReplacement(VLC->generaltexth->arraytxt[147+checkDirection()]);
 						}
 					}
 				}
 				case MISSION_PLAYER:
 					if (!isCustom)
-						bd.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
+						bd.text.addReplacement(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
 			
@@ -4662,7 +4664,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		CCreatureSet creatures;
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
-			if(i->second.type->idNumber == 10)
+			if(i->second->type->idNumber == 10)
 				creatures.slots.insert(*i);
 		}
 		if (creatures.slots.size())
@@ -5014,18 +5016,18 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		CCreatureSet ourArmy = creatures;
 		for(TSlots::const_iterator i = ourArmy.Slots().begin(); i != ourArmy.Slots().end(); i++)
 		{ //build list of joined creatures
-			iw.components.push_back(Component(i->second));
+			iw.components.push_back(Component(*i->second));
 			loot << "%s";
-			loot.addReplacement(i->second);
+			loot.addReplacement(*i->second);
 		}
 
-		if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second.count == 1)
+		if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second->count == 1)
 			iw.text.addTxt (MetaString::ADVOB_TXT, 185);
 		else
 			iw.text.addTxt (MetaString::ADVOB_TXT, 186);
 
-		iw.text.addReplacement (loot.buildList());
-		iw.text.addReplacement (h->name);
+		iw.text.addReplacement(loot.buildList());
+		iw.text.addReplacement(h->name);
 
 		cb->showInfoDialog(&iw);
 		cb->giveCreatures (id, h, ourArmy, true);
@@ -5409,7 +5411,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			if (ID == 22) //Corpse
 			{
 				iw.text << "%s";
-				iw.text.addReplacement (MetaString::ART_NAMES, bonusType);
+				iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 			}
 			break;
 		case 2: //res
@@ -5748,7 +5750,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		bd.soundID = soundBase::DANGER;
 		bd.text << VLC->generaltexth->advobtxt[banktext];
 		if (ID == 16)
-			bd.text.addReplacement (VLC->objh->creBanksNames[index]);
+			bd.text.addReplacement(VLC->objh->creBanksNames[index]);
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
 	}
 	else
@@ -5773,7 +5775,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		else
 		{
 			iw.text << VLC->generaltexth->advobtxt[33];
-			iw.text.addReplacement (VLC->objh->creBanksNames[index]);
+			iw.text.addReplacement(VLC->objh->creBanksNames[index]);
 		}
 		cb->showInfoDialog(&iw);
 	}
@@ -5853,8 +5855,8 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				{
 					iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
 					loot << "%d %s";
-					loot.addReplacement (iw.components.back().val);
-					loot.addReplacement (MetaString::RES_NAMES, iw.components.back().subtype);
+					loot.addReplacement(iw.components.back().val);
+					loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
 					cb->giveResource (h->getOwner(), it, bc->resources[it]);
 				}		
 			}
@@ -5864,7 +5866,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		{
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			loot << "%s";
-			loot.addReplacement (MetaString::ART_NAMES, *it);
+			loot.addReplacement(MetaString::ART_NAMES, *it);
 			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
 		//display loot
@@ -5873,8 +5875,8 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			if (textID == 34)
 			{
 				iw.text.addTxt(MetaString::ADVOB_TXT, 34);//Heaving defeated %s, you discover %s
-				iw.text.addReplacement (MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
-				iw.text.addReplacement (loot.buildList());
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
+				iw.text.addReplacement(loot.buildList());
 			}
 			else
 				iw.text.addTxt (MetaString::ADVOB_TXT, textID);
@@ -5893,20 +5895,20 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		}
 		for (TSlots::const_iterator i = ourArmy.Slots().begin(); i != ourArmy.Slots().end(); i++)
 		{
-			iw.components.push_back(Component(i->second));
+			iw.components.push_back(Component(*i->second));
 			loot << "%s";
-			loot.addReplacement (i->second);
+			loot.addReplacement(*i->second);
 		}
 
 		if (ourArmy.Slots().size())
 		{
-			if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second.count == 1)
+			if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second->count == 1)
 				iw.text.addTxt (MetaString::ADVOB_TXT, 185);
 			else
 				iw.text.addTxt (MetaString::ADVOB_TXT, 186);
 
-			iw.text.addReplacement (loot.buildList());
-			iw.text.addReplacement (h->name);
+			iw.text.addReplacement(loot.buildList());
+			iw.text.addReplacement(h->name);
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures (id, h, ourArmy, false);
 		}
@@ -6164,11 +6166,11 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		sg.garrs[h->id] = h->getArmy();
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			int drown = (int)(i->second.count * 0.3);
+			int drown = (int)(i->second->count * 0.3);
 			if(drown)
 			{
-				sg.garrs[h->id].setStackCount(i->first, i->second.count - drown);
-				xp += drown * i->second.type->valOfBonuses(Bonus::STACK_HEALTH);
+				sg.garrs[h->id].setStackCount(i->first, i->second->count - drown);
+				xp += drown * i->second->type->valOfBonuses(Bonus::STACK_HEALTH);
 			}
 		}
 
@@ -6528,14 +6530,15 @@ void CGLighthouse::giveBonusTo( ui8 player ) const
 
 void CArmedInstance::setArmy(const CCreatureSet &src)
 {
-	slots.clear();
-
-	for(TSlots::const_iterator i = src.Slots().begin(); i != src.Slots().end(); i++)
-	{
-		CStackInstance &inserted = slots[i->first];
-		inserted = i->second;
-		inserted.armyObj = this;
-	}
+	assert(0);
+// 	slots.clear();
+// 
+// 	for(TSlots::const_iterator i = src.Slots().begin(); i != src.Slots().end(); i++)
+// 	{
+// 		CStackInstance &inserted = slots[i->first];
+// 		inserted = i->second;
+// 		inserted.setArmyObj(this);
+// 	}
 }
 
 CCreatureSet& CArmedInstance::getArmy() const
@@ -6549,17 +6552,18 @@ void CArmedInstance::randomizeArmy(int type)
 	int max = VLC->creh->creatures.size();
 	for (TSlots::iterator j = slots.begin(); j != slots.end();j++)
 	{
-		if(j->second.idRand > max)
+		int randID = j->second->idRand;
+		if(randID > max)
 		{
-			if(j->second.idRand % 2)
-				j->second.setType(VLC->townh->towns[type].basicCreatures[(j->second.idRand-197) / 2 -1]);
+			if(randID % 2)
+				j->second->setType(VLC->townh->towns[type].basicCreatures[(randID-197) / 2 -1]);
 			else
-				j->second.setType(VLC->townh->towns[type].upgradedCreatures[(j->second.idRand-197) / 2 -1]);
+				j->second->setType(VLC->townh->towns[type].upgradedCreatures[(randID-197) / 2 -1]);
 
-			j->second.idRand = -1;
+			randID = -1;
 		}
 
-		assert(j->second.armyObj == this);
+		assert(j->second->armyObj == this);
 	}
 	return;
 }

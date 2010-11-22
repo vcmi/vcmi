@@ -542,9 +542,9 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	case 54: //probably more options will be needed
 		o = new CGCreature();
 		{
-			CStackInstance hlp;
+			//CStackInstance hlp;
 			CGCreature *cre = static_cast<CGCreature*>(o);
-			cre->slots[0] = hlp;
+			//cre->slots[0] = hlp;
 			cre->notGrowingTeam = cre->neverFlees = 0;
 			cre->character = 2;
 			cre->gainedArtifact = -1;
@@ -748,6 +748,9 @@ DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;
 	info->belligerents[0]->battle = info->belligerents[1]->battle = info;
+
+	BOOST_FOREACH(CStack *s, info->stacks)
+		s->attachTo(const_cast<CStackInstance*>(s->base));
 }
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
@@ -1198,7 +1201,7 @@ DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
 	gs->getPlayer(player)->currentSelection = id;
 }
 
-DLL_EXPORT Component::Component(const CStackInstance &stack)
+DLL_EXPORT Component::Component(const CStackBasicDescriptor &stack)
 	:id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
 

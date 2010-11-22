@@ -135,7 +135,8 @@ public:
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
-	DLL_EXPORT void addReplacement(const CStackInstance &stack); //adds sing or plural name;
+	DLL_EXPORT void addCreReplacement(TCreature id, TQuantity count); //adds sing or plural name;
+	DLL_EXPORT void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
 	DLL_EXPORT std::string buildList () const;
 	void clear()
 	{
@@ -760,7 +761,7 @@ struct Component : public CPack //2002 helper for object scrips informations
 	{
 		type = 2002;
 	}
-	DLL_EXPORT explicit Component(const CStackInstance &stack);
+	DLL_EXPORT explicit Component(const CStackBasicDescriptor &stack);
 	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
 	{

@@ -55,15 +55,15 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	//army
 	for (TSlots::const_iterator i = curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
 	{
-		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		blitAt(graphics->smallImgs[(*i).second->type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
-			SDL_itoa((*i).second.count,buf,10);
+			SDL_itoa((*i).second->count,buf,10);
 			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else
 		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count-1)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second->count-1)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 	}
 
@@ -114,11 +114,11 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	{
 		//if(!i->second.second)
 		//	continue;
-		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		blitAt(graphics->smallImgs[(*i).second->type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
 			// Show exact creature amount.
-			SDL_itoa((*i).second.count,buf,10);
+			SDL_itoa((*i).second->count,buf,10);
 			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else

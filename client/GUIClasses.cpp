@@ -369,7 +369,7 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 	
 	for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
 	{
-		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, &i->second);
+		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
 	}
 
 	for(int i=0; i<ret.size(); i++)
@@ -4416,7 +4416,7 @@ void CGarrisonWindow::show(SDL_Surface * to)
 	else
 	{
 		title = CGI->generaltexth->allTexts[35];
-		boost::algorithm::replace_first(title, "%s", garr->oup->Slots().begin()->second.type->namePl);
+		boost::algorithm::replace_first(title, "%s", garr->oup->Slots().begin()->second->type->namePl);
 	}
 
 	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);

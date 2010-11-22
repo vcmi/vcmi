@@ -237,6 +237,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
 	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	int lineToWallHex(int line) const; //returns hex with wall in given line
@@ -250,13 +251,12 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	si8 canTeleportTo(int stackID, int destHex, int telportLevel); //determines if given stack can teleport to given place
 };
 
-class DLL_EXPORT CStack : public CBonusSystemNode
+class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor
 { 
 public:
 	const CStackInstance *base;
 
 	ui32 ID; //unique ID of stack
-	ui32 count;
 	ui32 baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
@@ -267,10 +267,14 @@ public:
 
 	std::set<ECombatInfo> state;
 	//overrides
-	const CCreature* getCreature() const {return base->type;}
+	const CCreature* getCreature() const {return type;}
 
 	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
+	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S = 255); //c-tor
 	CStack(); //c-tor
+
+	void init(); //set initial (invalid) values
+	void postInit(); //used to finish initialization when inheriting creature parameters is working
 	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
@@ -314,6 +318,8 @@ public:
 			base = &army->getStack(slot);
 		}
 
+		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
 			& shots & count;
 	}

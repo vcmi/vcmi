@@ -16,22 +16,35 @@ typedef ui32 TCreature; //creature id
 
 const int ARMY_SIZE = 7;
 
+class DLL_EXPORT CStackBasicDescriptor
+{
+public:
+	const CCreature *type;
+	TQuantity count;
 
-class DLL_EXPORT CStackInstance : public CBonusSystemNode
+	CStackBasicDescriptor();
+	CStackBasicDescriptor(TCreature id, TQuantity Count);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & count;
+	}
+};
+
+class DLL_EXPORT CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor
 {
 public:
 	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
 
 	const CArmedInstance *armyObj; //stack must be part of some army, army must be part of some object
-	const CCreature *type;
-	TQuantity count;
 	ui32 experience; //TODO: handle
 	//TODO: stack artifacts
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & armyObj & type & count & experience;
+		h & static_cast<CStackBasicDescriptor&>(*this);
+		h & armyObj & experience;
 	}
 
 	//overrides CBonusSystemNode
@@ -44,26 +57,27 @@ public:
 	CStackInstance(TCreature id, TQuantity count, const CArmedInstance *ArmyObj = NULL);
 	CStackInstance(const CCreature *cre, TQuantity count);
 	void setType(int creID);
+	void setArmyObj(const CArmedInstance *ArmyObj);
 };
 
 
-typedef std::map<TSlot, CStackInstance> TSlots;
+typedef std::map<TSlot, CStackInstance*> TSlots;
 
 
 
 class DLL_EXPORT CCreatureSet //seven combined creatures
 {
 public:
-	TSlots slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
+	TSlots slots; //slots[slot_id]->> pair(creature_id,creature_quantity)
 	ui8 formation; //false - wide, true - tight
 
-	const CStackInstance operator[](TSlot slot) const; 
+	const CStackInstance &operator[](TSlot slot) const; 
 
 	const TSlots &Slots() const {return slots;}
 
 	void addToSlot(TSlot slot, TCreature cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addToSlot(TSlot slot, const CStackInstance &stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addStack(TSlot slot, const CStackInstance &stack); //adds new stack to the army, slot must be empty
+	void addToSlot(TSlot slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addStack(TSlot slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity); //slots 0 to 6, if quantity=0, erases stack
 	void clear();
 	void setFormation(bool tight);
@@ -85,6 +99,8 @@ public:
 	std::string getRoughAmount (TSlot slot) const; //rough size of specific stack
 	
 	bool contains(const CStackInstance *stack) const;
+
+	CArmedInstance *castToArmyObj();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

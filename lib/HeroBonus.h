@@ -408,9 +408,13 @@ public:
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 	Bonus *getBonus(const CSelector &selector);
 
-	void attachTo(const CBonusSystemNode *parent);
-	void detachFrom(const CBonusSystemNode *parent);
+	void attachTo(CBonusSystemNode *parent);
+	void detachFrom(CBonusSystemNode *parent);
 	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
+
+	void newChildAttached(CBonusSystemNode *child);
+	void childDetached(CBonusSystemNode *child);
+	void propagateBonus(Bonus * b);
 	//void addNewBonus(const Bonus &b); //b will copied
 	void removeBonus(Bonus *b);
 

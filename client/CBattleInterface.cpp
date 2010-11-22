@@ -3748,10 +3748,10 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		int bestPower = 0;
 		for(TSlots::const_iterator it = owner->army1.Slots().begin(); it!=owner->army1.Slots().end(); ++it)
 		{
-			if( it->second.type->AIValue > bestPower)
+			if( it->second->type->AIValue > bestPower)
 			{
-				bestPower = it->second.type->AIValue;
-				bestMonsterID = it->second.type->idNumber;
+				bestPower = it->second->type->AIValue;
+				bestMonsterID = it->second->type->idNumber;
 			}
 		}
 		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 21, 38));
@@ -3770,10 +3770,10 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		int bestPower = 0;
 		for(TSlots::const_iterator it = owner->army2.Slots().begin(); it!=owner->army2.Slots().end(); ++it)
 		{
-			if( it->second.type->AIValue > bestPower)
+			if( it->second->type->AIValue > bestPower)
 			{
-				bestPower = it->second.type->AIValue;
-				bestMonsterID = it->second.type->idNumber;
+				bestPower = it->second->type->AIValue;
+				bestMonsterID = it->second->type->idNumber;
 			}
 		}
 		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 392, 38));

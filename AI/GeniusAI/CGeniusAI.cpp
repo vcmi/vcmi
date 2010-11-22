@@ -748,7 +748,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
                j = ui.cost[ii].begin();
                j != ui.cost[ii].end();
                j++)
-					  if (hgs.resourceAmounts[j->first] < j->second * i->second.count)
+					  if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
 						  canUpgrade = false;
 		  }
 			
@@ -756,7 +756,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
 		  {
 			  cg.m_cb->upgradeCreature(h->h, i->first, ui.newID.back());
 			  cout << "upgrading hero's "
-             << i->second.type->namePl
+             << i->second->type->namePl
              << endl;
 		  }
 	  }
@@ -770,9 +770,9 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
          i = tcreatures.Slots().begin();
          i != tcreatures.Slots().end();
          i++) {
-		  if (i->second.type->AIValue < 
+		  if (i->second->type->AIValue < 
           weakestCreatureAIValue) {
-			  weakestCreatureAIValue  = i->second.type->AIValue;
+			  weakestCreatureAIValue  = i->second->type->AIValue;
 			  weakestCreatureStack    = i->first;
 		  }
     }
@@ -781,18 +781,18 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg,
         i != tcreatures.Slots().end();
         i++) { // For each town slot.
 		  hcreatures = h->h->getArmy();
-		  int hSlot = hcreatures.getSlotFor(i->second.type->idNumber);
+		  int hSlot = hcreatures.getSlotFor(i->second->type->idNumber);
 
 		  if (hSlot == -1)
         continue;
 		  cout << "giving hero "
-           << i->second.type->namePl
+           << i->second->type->namePl
            << endl;
 		  if (!hcreatures.slotEmpty(hSlot)) {
         // Can't take garrisonHero's last unit.
 			  if ( (i->first == weakestCreatureStack)
             && (town->garrisonHero != NULL) )
-				  cg.m_cb->splitStack(town, h->h, i->first, hSlot, i->second.count - 1);
+				  cg.m_cb->splitStack(town, h->h, i->first, hSlot, i->second->count - 1);
 			  else
           // TODO: the comment says that this code is not safe for the AI.
 				  cg.m_cb->mergeStacks(town, h->h, i->first, hSlot);
@@ -880,7 +880,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel& t,
           j = ui.cost[upgrade_serial].begin();
           j != ui.cost[upgrade_serial].end();
           j++)
-				if (hgs.resourceAmounts[j->first] < j->second * i->second.count)
+				if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
 					canAfford = false;
 			if (canAfford) {
 				TownObjective to(hgs,AIObjective::upgradeCreatures,&t,i->first,this);

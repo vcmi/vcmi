@@ -322,15 +322,21 @@ DLL_EXPORT std::string MetaString::buildList () const
 	return lista;
 }
 
-void MetaString::addReplacement(const CStackInstance &stack)
+
+void  MetaString::addCreReplacement(TCreature id, TQuantity count) //adds sing or plural name;
+{
+	assert(count);
+	if (count == 1)
+		addReplacement (CRE_SING_NAMES, id);
+	else
+		addReplacement (CRE_PL_NAMES, id);
+}
+
+void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 {
 	assert(stack.count); //valid count
 	assert(stack.type); //valid type
-
-	if (stack.count == 1)
-		addReplacement (CRE_SING_NAMES, stack.type->idNumber);
-	else
-		addReplacement (CRE_PL_NAMES, stack.type->idNumber);
+	addReplacement(stack.type->idNumber, stack.count);
 }
 
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
@@ -691,18 +697,49 @@ CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1),   
 	counterAttacks(1)
 {
+	assert(base);
+	type = base->type;
 	count = baseAmount = base->count;
-	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
-	shots = getCreature()->shots;
-	counterAttacks += valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
-
-	//alive state indication
-	state.insert(ALIVE);
 }
 
-CStack::CStack() : base(NULL), ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1)
+CStack::CStack()
 {
+	init();
+}
 
+CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
+	: ID(I), owner(O), slot(S), attackerOwned(AO), position(-1), counterAttacks(1)
+{
+	type = stack->type;
+	count = baseAmount = stack->count;
+}
+
+void CStack::init()
+{
+	base = NULL;
+	type = NULL;
+	ID = -1;
+	count = baseAmount = -1;
+	firstHPleft = -1;
+	owner = 255;
+	slot = 255;
+	attackerOwned = false;
+	position = -1;
+	counterAttacks = -1;
+}
+
+void CStack::postInit()
+{
+	assert(type);
+	assert(parents.size());
+
+	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
+	shots = getCreature()->shots;
+	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	state.insert(ALIVE);  //alive state indication
+
+
+	assert(firstHPleft > 0);
 }
 
 ui32 CStack::Speed( int turn /*= 0*/ ) const
@@ -1403,17 +1440,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					break;
 				case 1: //monster
 					{
-						CCreatureSet newArmy = hero->getArmy();
 						for(int i=0; i<ARMY_SIZE; i++)
 						{
-							if(newArmy.slotEmpty(i))
+							if(hero->slotEmpty(i))
 							{
-								newArmy.addToSlot(i, CStackInstance(curBonus.info2, curBonus.info3));
+								hero->addToSlot(i, curBonus.info2, curBonus.info3);
 								break;
 							}
 						}
-
-						hero->setArmy(newArmy);
 					}
 					break;
 				case 3: //artifact
@@ -3447,6 +3481,13 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, b
 	return ret;
 }
 
+CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, int position) const
+{
+	CStack * ret = new CStack(&base, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
+	ret->position = position;
+	return ret;
+}
+
 ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
 	ui32 ret = caster->getSpellCost(sp);
@@ -3713,8 +3754,8 @@ int CGameState::victoryCheck( ui8 player ) const
 						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->Slots().begin(); i!=ai->Slots().end(); ++i) //iterate through army
-							if(i->second.type->idNumber == map->victoryCondition.ID) //it's searched creature
-								total += i->second.count;
+							if(i->second->type->idNumber == map->victoryCondition.ID) //it's searched creature
+								total += i->second->count;
 					}
 				}
 
@@ -4006,7 +4047,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(TSlots::const_iterator it = g->second.heroes[b]->Slots().begin(); it != g->second.heroes[b]->Slots().end(); ++it)
 				{
-					int toCmp = it->second.type->idNumber; //ID of creature we should compare with the best one
+					int toCmp = it->second->type->idNumber; //ID of creature we should compare with the best one
 					if(bestCre == -1 || VLC->creh->creatures[bestCre]->AIValue < VLC->creh->creatures[toCmp]->AIValue)
 					{
 						bestCre = toCmp;
@@ -4552,7 +4593,7 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 		//hide info about hero stacks counts using descriptives names ids
 		for(TSlots::const_iterator i = army.Slots().begin(); i != army.Slots().end(); ++i)
 		{
-			army.setStackCount(i->first, i->second.getQuantityID()+1);
+			army.setStackCount(i->first, i->second->getQuantityID()+1);
 		}
 	}
 }

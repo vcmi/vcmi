@@ -62,7 +62,7 @@ public:
 	ui32 m13489val;
 	std::vector<ui32> m2stats;
 	std::vector<ui16> m5arts; //artifacts id
-	TSlots m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
+	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources;
 
 	std::string firstVisitText, nextVisitText, completedText;
@@ -349,8 +349,8 @@ public:
 	int getTotalStrength() const;
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = NULL) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
-	CStackInstance calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackInstance &raisedStack) const;
+	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
 
 	//////////////////////////////////////////////////////////////////////////
 
