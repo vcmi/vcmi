@@ -122,6 +122,40 @@ void SetAvailableHeroes::applyCl( CClient *cl )
 	//TODO: inform interface?
 }
 
+void ChangeStackCount::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+}
+
+void SetStackType::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+}
+
+void EraseStack::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+}
+
+void SwapStacks::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner,garrisonChanged,sl1.army);
+	if(sl1.army != sl2.army)
+		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner,garrisonChanged,sl2.army);
+}
+
+void InsertNewStack::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+}
+
+void RebalanceStacks::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(src.army->tempOwner,garrisonChanged,src.army);
+	if(src.army != dst.army)
+		INTERFACE_CALL_IF_PRESENT(dst.army->tempOwner,garrisonChanged,dst.army);
+}
+
 void GiveBonus::applyCl( CClient *cl )
 {
 	switch(who)

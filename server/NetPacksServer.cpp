@@ -22,6 +22,7 @@
  *
  */
 
+
 CGameState* CPackForServer::GS(CGameHandler *gh)
 {
 	return gh->gs;

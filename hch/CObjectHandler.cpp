@@ -1766,10 +1766,11 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 
 	int crid = creatures[0].second[0];
 	CCreature *crs = VLC->creh->creatures[crid];
+	TQuantity count = creatures[0].first;
 
 	if(crs->level == 1  &&  ID != 78) //first level - creatures are for free
 	{
-		if(creatures[0].first) //there are available creatures
+		if(count) //there are available creatures
 		{
 			int slot = h->getSlotFor(crid);
 			if(slot < 0) //no available slot
@@ -1787,19 +1788,16 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 				sac.creatures = creatures;
 				sac.creatures[0].first = 0;
 
-				SetGarrisons sg;
-				sg.garrs[h->id] = *h;
-				sg.garrs[h->id].addToSlot(slot, crid, creatures[0].first);
 
 				InfoWindow iw;
 				iw.player = h->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 423); //%d %s join your army.
-				iw.text.addReplacement(creatures[0].first);
+				iw.text.addReplacement(count);
 				iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
 
 				cb->showInfoDialog(&iw);
 				cb->sendAndApply(&sac);
-				cb->sendAndApply(&sg);
+				cb->addToSlot(StackLocation(h, slot), crs, count);
 			}
 		}
 		else //there no creatures
@@ -3102,20 +3100,21 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		if(cost)
 			cb->giveResource(h->tempOwner,6,-cost);
 
-		int slot = h->getSlotFor(subID);
-		if(slot >= 0) //there is place
-		{
-			//add creatures
-			SetGarrisons sg;
-			sg.garrs[h->id] = h->getArmy();
-			sg.garrs[h->id].addToSlot(slot, subID, getStackCount(0));
-			cb->sendAndApply(&sg);
-			cb->removeObject(id);
-		}
-		else
-		{
-			cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id)); //show garrison window and remove ourselves from map when player ends
-		}
+		cb->tryJoiningArmy(this, h, true);
+// 		int slot = h->getSlotFor(subID);
+// 		if(slot >= 0) //there is place
+// 		{
+// 			//add creatures
+// 			SetGarrisons sg;
+// 			sg.garrs[h->id] = h->getArmy();
+// 			sg.garrs[h->id].addToSlot(slot, subID, getStackCount(0));
+// 			cb->sendAndApply(&sg);
+// 			cb->removeObject(id);
+// 		}
+// 		else
+// 		{
+// 			cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id)); //show garrison window and remove ourselves from map when player ends
+// 		}
 	}
 }
 
@@ -6158,14 +6157,13 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		giveDummyBonus(h->id, Bonus::ONE_BATTLE);
 		int xp = 0;
-		SetGarrisons sg;
-		sg.garrs[h->id] = h->getArmy();
+
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			int drown = (int)(i->second->count * 0.3);
+			TQuantity drown = i->second->count * 0.3;
 			if(drown)
 			{
-				sg.garrs[h->id].setStackCount(i->first, i->second->count - drown);
+				cb->changeStackCount(StackLocation(h, i->first), -drown);
 				xp += drown * i->second->type->valOfBonuses(Bonus::STACK_HEALTH);
 			}
 		}
@@ -6174,7 +6172,6 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			iw.text.addTxt(11,132);
 			iw.text.addReplacement(xp);
-			cb->sendAndApply(&sg);
 		}
 		else
 		{
@@ -6182,6 +6179,8 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	cb->showInfoDialog(&iw);
+	//////////////////////////////////////////////////////////////////////////
+	///TODO: WHAT WITH EXP? 
 }
 
 //bool IShipyard::validLocation() const

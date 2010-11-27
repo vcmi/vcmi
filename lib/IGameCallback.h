@@ -90,10 +90,14 @@ public:
 	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) =0;
 	virtual void takeCreatures (int objid, TSlots creatures) =0;
 	virtual void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) =0;
-	virtual void changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
-	virtual void changeStackType(const StackLocation &sl, CCreature *c) =0;
-	virtual void insertNewStack(const StackLocation &sl, CCreature *c, TQuantity count) =0;
-	virtual void eraseStack(const StackLocation &sl) =0;
+	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
+	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
+	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
+	virtual bool eraseStack(const StackLocation &sl) =0;
+	virtual bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) =0;
+	virtual bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) =0; //makes new stack or increases count of already existing
+	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished) =0; //merges army from src do dst or opens a garrison window
+	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(int obj, int heroID)=0;
 	virtual void stopHeroVisitCastle(int obj, int heroID)=0;

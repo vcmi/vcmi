@@ -49,9 +49,16 @@ bool CCreatureSet::setCreature(TSlot slot, TCreature type, TQuantity quantity) /
 
 TSlot CCreatureSet::getSlotFor(TCreature creature, ui32 slotsAmount/*=7*/) const /*returns -1 if no slot available */
 {
+	return getSlotFor(VLC->creh->creatures[creature], slotsAmount);
+}
+
+TSlot CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount/*=ARMY_SIZE*/) const
+{
+	assert(c->valid());
 	for(TSlots::const_iterator i=slots.begin(); i!=slots.end(); ++i)
 	{
-		if(i->second->type->idNumber == creature)
+		assert(i->second->type->valid());
+		if(i->second->type == c)
 		{
 			return i->first; //if there is already such creature we return its slot id
 		}
@@ -317,6 +324,7 @@ CStackInstance * CCreatureSet::detachStack(TSlot slot)
 	if(CArmedInstance *armedObj = castToArmyObj())
 		ret->detachFrom(armedObj);
 
+	slots.erase(slot);
 	return ret;
 }
 
@@ -325,6 +333,24 @@ void CCreatureSet::setStackType(TSlot slot, const CCreature *type)
 	assert(vstd::contains(slots, slot));
 	CStackInstance *s = slots[slot];
 	s->setType(type->idNumber);
+}
+
+bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs) const
+{
+	std::set<const CCreature*> cres;
+
+	//get types of creatures that need their own slot
+	for(TSlots::const_iterator i = cs.slots.begin(); i != cs.slots.end(); i++)
+		cres.insert(i->second->type);
+	for(TSlots::const_iterator i = slots.begin(); i != slots.end(); i++)
+		cres.insert(i->second->type);
+
+	return cres.size() <= ARMY_SIZE;
+}
+
+bool CCreatureSet::hasStackAtSlot(TSlot slot) const
+{
+	return vstd::contains(slots, slot);
 }
 
 CStackInstance::CStackInstance()

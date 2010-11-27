@@ -736,12 +736,17 @@ struct StackLocation
 	}
 };
 
-struct ChangeStackCount : CPackForClient  //521
+struct CGarrisonOperationPack : CPackForClient
+{
+};
+
+struct ChangeStackCount : CGarrisonOperationPack  //521
 {
 	StackLocation sl;
 	TQuantity count;
 	ui8 absoluteValue; //if not -> count will be added (or subtracted if negative)
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -750,11 +755,12 @@ struct ChangeStackCount : CPackForClient  //521
 	}
 };
 
-struct SetStackType : CPackForClient  //522
+struct SetStackType : CGarrisonOperationPack  //522
 {
 	StackLocation sl;
 	CCreature *type;
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -763,10 +769,11 @@ struct SetStackType : CPackForClient  //522
 	}
 };
 
-struct EraseStack : CPackForClient  //523
+struct EraseStack : CGarrisonOperationPack  //523
 {
 	StackLocation sl;
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -775,10 +782,11 @@ struct EraseStack : CPackForClient  //523
 	}
 };
 
-struct SwapStacks : CPackForClient  //524
+struct SwapStacks : CGarrisonOperationPack  //524
 {
 	StackLocation sl1, sl2;
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -787,11 +795,12 @@ struct SwapStacks : CPackForClient  //524
 	}
 };
 
-struct InsertNewStack : CPackForClient  //525
+struct InsertNewStack : CGarrisonOperationPack //525
 {
 	StackLocation sl;
 	CStackInstance *stack;
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -801,11 +810,12 @@ struct InsertNewStack : CPackForClient  //525
 };
 
 //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
-struct RebalanceStacks : CPackForClient  //525
+struct RebalanceStacks : CGarrisonOperationPack  //525
 {
 	StackLocation src, dst;
 	TQuantity count;
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)

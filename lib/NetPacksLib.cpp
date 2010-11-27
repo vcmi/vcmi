@@ -625,7 +625,11 @@ DLL_EXPORT void EraseStack::applyGs( CGameState *gs )
 
 DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
 {
+	CStackInstance *s1 = sl1.army->detachStack(sl1.slot),
+		*s2 = sl2.army->detachStack(sl2.slot);
 
+	sl2.army->putStack(sl2.slot, s1);
+	sl1.army->putStack(sl1.slot, s2);
 }
 
 DLL_EXPORT void InsertNewStack::applyGs( CGameState *gs )

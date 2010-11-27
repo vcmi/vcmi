@@ -113,10 +113,14 @@ public:
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) {};
 	void takeCreatures (int objid, TSlots creatures){};
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures){};
-	void changeStackType(const StackLocation &sl, CCreature *c){};
-	void changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false){};
-	void insertNewStack(const StackLocation &sl, CCreature *c, TQuantity count){};
-	void eraseStack(const StackLocation &sl){};
+	bool changeStackType(const StackLocation &sl, CCreature *c){return false;};
+	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false){return false;};
+	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count){return false;};
+	bool eraseStack(const StackLocation &sl){return false;};
+	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2){return false;}
+	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count){return false;}
+	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished){}
+	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1){return false;}
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};
 	void stopHeroVisitCastle(int obj, int heroID){};

@@ -139,6 +139,11 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 	return vstd::contains(upgrades, anotherCre->idNumber);
 }
 
+bool CCreature::valid() const
+{
+	return this == VLC->creh->creatures[idNumber];
+}
+
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
 {
 	befi=i;

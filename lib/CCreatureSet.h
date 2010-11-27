@@ -106,6 +106,7 @@ public:
 	int getStackCount (TSlot slot) const;
 	TSlot findStack(const CStackInstance *stack) const; //-1 if none
 	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
+	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
 	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
 	bool slotEmpty(TSlot slot) const;
@@ -114,9 +115,10 @@ public:
 	int getArmyStrength() const; //sum of AI values of creatures
 	ui64 getPower (TSlot slot) const; //value of specific stack
 	std::string getRoughAmount (TSlot slot) const; //rough size of specific stack
+	bool hasStackAtSlot(TSlot slot) const;
 	
 	bool contains(const CStackInstance *stack) const;
-
+	bool canBeMergedWith(const CCreatureSet &cs) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

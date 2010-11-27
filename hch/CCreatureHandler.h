@@ -61,6 +61,8 @@ public:
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
+	bool valid() const;
+
 	void addBonus(int val, int type, int subtype = -1);
 	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
