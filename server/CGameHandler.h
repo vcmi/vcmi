@@ -138,7 +138,10 @@ public:
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove);
 	void takeCreatures (int objid, TSlots creatures);
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
-	void changeCreatureType (int objid, TSlot slot, TCreature creature);
+	void changeStackType(const StackLocation &sl, CCreature *c);
+	void changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
+	void insertNewStack(const StackLocation &sl, CCreature *c, TQuantity count);
+	void eraseStack(const StackLocation &sl);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);

@@ -109,7 +109,7 @@ void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
 
 void BonusList::limit(const CBonusSystemNode &node)
 {
-	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, node, _1));
+	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
 }
 
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -300,7 +300,13 @@ CBonusSystemNode::CBonusSystemNode()
 
 CBonusSystemNode::~CBonusSystemNode()
 {
+	while(parents.size())
+		detachFrom(parents.front());
 
+	if(children.size())
+	{
+		tlog2 << "Warning: an orphaned child!\n";
+	}
 }
 
 void CBonusSystemNode::attachTo(CBonusSystemNode *parent)

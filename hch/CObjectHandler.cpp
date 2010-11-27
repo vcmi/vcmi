@@ -893,7 +893,7 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 			}
 		}
 		else
-			dst->addStack(stackNo-warMachinesGiven, new CStackInstance(creID, count));
+			dst->putStack(stackNo-warMachinesGiven, new CStackInstance(creID, count));
 	}
 }
 void CGHeroInstance::initHeroDefInfo()
@@ -1587,7 +1587,7 @@ void CGDwelling::initObj()
 			creatures[0].second.push_back(crid);
 			hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
-				addStack(0, new CStackInstance(crs, (crs->growth) * 3));
+				putStack(0, new CStackInstance(crs, (crs->growth) * 3));
 			if (getOwner() != 255)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
@@ -1602,8 +1602,8 @@ void CGDwelling::initObj()
 			creatures[2].second.push_back(116); //Gold Golem
 			creatures[3].second.push_back(117); //Diamond Golem
 			//guards
-			addStack(0, new CStackInstance(116, 9));
-			addStack(1, new CStackInstance(117, 6));
+			putStack(0, new CStackInstance(116, 9));
+			putStack(1, new CStackInstance(117, 6));
 		}
 		else if(subID == 0) // Elemental Conflux 
 		{
@@ -1612,7 +1612,7 @@ void CGDwelling::initObj()
 			creatures[2].second.push_back(113); //Earth Elemental
 			creatures[3].second.push_back(115); //Water Elemental
 			//guards
-			addStack(0, new CStackInstance(113, 12));
+			putStack(0, new CStackInstance(113, 12));
 		}
 		else
 		{
@@ -2170,38 +2170,34 @@ void CGTownInstance::newTurn() const
 				if (nativeCrits.size())
 				{
 					TSlot pos = nativeCrits[rand() % nativeCrits.size()];
+					StackLocation sl(this, pos);
+
 					const CCreature *c = getCreature(pos);
 					if (rand()%100 < 90 || c->upgrades.empty()) //increase number if no upgrade avaliable
 					{
-						SetGarrisons sg;
-						sg.garrs[id] = getArmy();
-						sg.garrs[id].slots[pos]->count += c->growth;
-						cb->sendAndApply(&sg);	
+						cb->changeStackCount(sl, c->growth);
 					}
 					else //upgrade
 					{
-						SetGarrisons sg; //somewhat better upgrade pack would come in handy
-						sg.garrs[id] = getArmy();
-						//////////////////////////////////////////////////////////////////////////
-						//sg.garrs[id].t (pos, *c->upgrades.begin(), );
-						//sg.garrs[id].setCreature(pos, *c->upgrades.begin(), slt[pos].count);
-						cb->sendAndApply(&sg);	
+						cb->changeStackType(sl, VLC->creh->creatures[*c->upgrades.begin()]);
 					}
 				}
 				if ((stacksCount() < ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
-					int n, i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);	
+					int i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);
+					TCreature c = town->basicCreatures[i];
+					TSlot n = -1;
+					TQuantity count = creatureGrowth(i);
+
 					{//no lower tiers or above current month
 
-						if ((n = getSlotFor(town->basicCreatures[i], ARMY_SIZE))>=0)
+						if ((n = getSlotFor(c))>=0)
 						{ 
-							SetGarrisons sg;
-							sg.garrs[id] = getArmy();
+							StackLocation sl(this, n);
 							if (slotEmpty(n))
-								sg.garrs[id].setCreature (n, town->basicCreatures[i], creatureGrowth(i)); //if the stack is not yet present
-							else
-								sg.garrs[id].addToSlot(n, town->basicCreatures[i], creatureGrowth(i)); //add to existing
-							cb->sendAndApply(&sg);
+								cb->insertNewStack(sl, VLC->creh->creatures[c], count);
+							else //add to existing
+								cb->changeStackCount(sl, count);
 						}
 					}
 				}		
@@ -2896,7 +2892,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			std::string tmp = VLC->generaltexth->advobtxt[90];
-			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(getAmount(0)));
+			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(getStackCount(0)));
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creh->creatures[subID]->namePl);
 			ynd.text << tmp;
@@ -3040,7 +3036,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			if(h->getSecSkillLevel(4) + sympathy + 1 >= character)
 				return 0; //join for free
 			else if(h->getSecSkillLevel(4) * 2  +  sympathy  +  1 >= character)
-				return VLC->creh->creatures[subID]->cost[6] * getAmount(0); //join for gold
+				return VLC->creh->creatures[subID]->cost[6] * getStackCount(0); //join for gold
 		}
 	}
 
@@ -3112,7 +3108,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 			//add creatures
 			SetGarrisons sg;
 			sg.garrs[h->id] = h->getArmy();
-			sg.garrs[h->id].addToSlot(slot, subID, getAmount(0));
+			sg.garrs[h->id].addToSlot(slot, subID, getStackCount(0));
 			cb->sendAndApply(&sg);
 			cb->removeObject(id);
 		}
@@ -3180,7 +3176,7 @@ void CGMine::initObj()
 		//set guardians
 		int howManyTroglodytes = 100 + ran()%100;
 		CStackInstance *troglodytes = new CStackInstance(70, howManyTroglodytes);
-		addStack(0, troglodytes);
+		putStack(0, troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
 		std::vector<int> possibleResources;
@@ -4673,7 +4669,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 			iw.components.push_back(Component(Component::CREATURE,11,0,1));
 			for (TSlots::const_iterator i = creatures.slots.begin(); i != creatures.slots.end(); ++i)
 			{
-				cb->changeCreatureType(h->id, i->first, 11);
+				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[11]);
 			}
 		}
 		else
@@ -6525,20 +6521,6 @@ void CGLighthouse::giveBonusTo( ui8 player ) const
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.id = id;
 	cb->sendAndApply(&gb);
-
-}
-
-void CArmedInstance::setArmy(const CCreatureSet &src)
-{
-	assert(0);
-// 	slots.clear();
-// 
-// 	for(TSlots::const_iterator i = src.Slots().begin(); i != src.Slots().end(); i++)
-// 	{
-// 		CStackInstance &inserted = slots[i->first];
-// 		inserted = i->second;
-// 		inserted.setArmyObj(this);
-// 	}
 }
 
 CCreatureSet& CArmedInstance::getArmy() const

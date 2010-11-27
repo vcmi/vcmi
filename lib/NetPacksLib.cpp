@@ -178,7 +178,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	{
 		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]] : NULL);
 		if(h && army[i])
-			h->setArmy(*army[i]);
+			h->setToArmy(*army[i]);
 		p->availableHeroes.push_back(h);
 	}
 }
@@ -380,15 +380,15 @@ DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
 	{
 		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
-		ai->setArmy(i->second);
+		ai->setToArmy(i->second);
 		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setArmy(i->second);
+			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setToArmy(i->second);
 		else if(ai->ID==HEROI_TYPE)
 		{
 			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
 			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
 			if(t && h->inTownGarrison)
-				t->setArmy(i->second);
+			t->setToArmy(i->second);
 		}
 	}
 }
@@ -603,6 +603,38 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 	art->SetProperty (value); //init scroll, banner, commander art
 	art->Init(); //set bonuses for new instance
 	gs->map->artInstances.push_back(art);
+}
+
+DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
+{
+	if(absoluteValue)
+		sl.army->setStackCount(sl.slot, count);
+	else
+		sl.army->changeStackCount(sl.slot, count);
+}
+
+DLL_EXPORT void SetStackType::applyGs( CGameState *gs )
+{
+	sl.army->setStackType(sl.slot, type);
+}
+
+DLL_EXPORT void EraseStack::applyGs( CGameState *gs )
+{
+	sl.army->eraseStack(sl.slot);
+}
+
+DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
+{
+
+}
+
+DLL_EXPORT void InsertNewStack::applyGs( CGameState *gs )
+{
+	sl.army->putStack(sl.slot, stack);
+}
+
+DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
+{
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
@@ -1007,10 +1039,11 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, pos);
+		CStackInstance *csi = new CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill]); //deleted by d-tor of summoned stack
+		csi->setArmyObj(h);
+		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);
 		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
-
 		gs->curB->stacks.push_back(summonedStack);
 	}
 }

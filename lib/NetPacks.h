@@ -527,7 +527,8 @@ struct TryMoveHero : public CPackForClient //501
 	{
 		h & id & result & start & end & movePoints & fowRevealed & attackedFrom;
 	}
-}; 
+};
+
 struct SetGarrisons : public CPackForClient //502
 {
 	SetGarrisons(){type = 502;};
@@ -710,6 +711,106 @@ struct NewArtifact : public CPackForClient
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artid & value;
+	}
+};
+
+struct StackLocation
+{
+	CArmedInstance *army;
+	TSlot slot;
+
+	StackLocation()
+	{
+		army = NULL;
+		slot = -1;
+	}
+	StackLocation(const CArmedInstance *Army, TSlot Slot)
+	{
+		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot = Slot;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & army & slot;
+	}
+};
+
+struct ChangeStackCount : CPackForClient  //521
+{
+	StackLocation sl;
+	TQuantity count;
+	ui8 absoluteValue; //if not -> count will be added (or subtracted if negative)
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & count;
+	}
+};
+
+struct SetStackType : CPackForClient  //522
+{
+	StackLocation sl;
+	CCreature *type;
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & type;
+	}
+};
+
+struct EraseStack : CPackForClient  //523
+{
+	StackLocation sl;
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl;
+	}
+};
+
+struct SwapStacks : CPackForClient  //524
+{
+	StackLocation sl1, sl2;
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl1 & sl2;
+	}
+};
+
+struct InsertNewStack : CPackForClient  //525
+{
+	StackLocation sl;
+	CStackInstance *stack;
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & stack;
+	}
+};
+
+//moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
+struct RebalanceStacks : CPackForClient  //525
+{
+	StackLocation src, dst;
+	TQuantity count;
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & src & dst & count;
 	}
 };
 

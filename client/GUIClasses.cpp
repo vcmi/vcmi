@@ -2919,7 +2919,7 @@ void CTradeWindow::initSubs(bool Left)
 			switch(itemsType[1])
 			{
 			case CREATURE:
-				t->subtitle = boost::lexical_cast<std::string>(hero->getAmount(t->serial));
+				t->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(t->serial));
 				break;
 			case RESOURCE:
 				t->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(t->serial));
@@ -2992,7 +2992,7 @@ void CTradeWindow::removeItem(CTradeableItem * t)
 void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 {
 	BOOST_FOREACH(CTradeableItem *t, items[1])
-		if(!hero->getAmount(t->serial))
+		if(!hero->getStackCount(t->serial))
 			toRemove.insert(t);
 }
 
@@ -3225,7 +3225,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		if(itemsType[1] == RESOURCE)
 			newAmount = LOCPLINT->cb->getResourceAmount(hLeft->id);
 		else if(itemsType[1] ==  CREATURE)
-			newAmount = hero->getAmount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+			newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
 		else
 			assert(0);
 
@@ -3598,7 +3598,7 @@ void CAltarWindow::SacrificeAll()
 	{
 		bool movedAnything = false;
 		BOOST_FOREACH(CTradeableItem *t, items[1])
-			sacrificedUnits[t->serial] = hero->getAmount(t->serial);
+			sacrificedUnits[t->serial] = hero->getStackCount(t->serial);
 
 		sacrificedUnits[items[1].front()->serial]--;
 
@@ -3637,10 +3637,10 @@ void CAltarWindow::selectionChanged(bool side)
 
 	int stackCount = 0;
 	for (int i = 0; i < ARMY_SIZE; i++)
-		if(hero->getAmount(i) > sacrificedUnits[i])
+		if(hero->getStackCount(i) > sacrificedUnits[i])
 			stackCount++;
 
-	slider->setAmount(hero->getAmount(hLeft->serial) - (stackCount == 1));
+	slider->setAmount(hero->getStackCount(hLeft->serial) - (stackCount == 1));
 	slider->block(!slider->amount);
 	slider->value = sacrificedUnits[hLeft->serial];
 	max->block(!slider->amount);
@@ -5783,7 +5783,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	
 	for (int i=0; i<7; i++ )
 		if ( army->getCreature(i) )
-			items.push_back(new CItem(this, army->getAmount(i), i));
+			items.push_back(new CItem(this, army->getStackCount(i), i));
 			
 	all    = new AdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new AdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
@@ -6024,7 +6024,7 @@ void CHillFortWindow::updateGarrisons()
 			if (info.newID.size())//we have upgrades here - update costs
 				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
 				{
-					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getAmount(i) );
+					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getStackCount(i) );
 					costs[i].insert(pair);
 					totalSumm[pair.first] += pair.second;
 				}
@@ -6137,7 +6137,7 @@ std::string CHillFortWindow::getTextForSlot(int slot)
 		return "";
 
 	std::string str = CGI->generaltexth->allTexts[318];
-	int amount = hero->getAmount(slot);
+	int amount = hero->getStackCount(slot);
 	if ( amount == 1 )
 		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
 	else
@@ -6172,7 +6172,7 @@ int CHillFortWindow::getState(int slot)
 		return 1;
 
 	for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
-		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getAmount(slot))
+		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getStackCount(slot))
 			return 0;
 	return 2;//can upgrade
 }

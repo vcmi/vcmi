@@ -106,7 +106,7 @@ void readCreatureSet(CCreatureSet *out, const unsigned char * bufor, int &i, int
 		else
 			hlp->setType(creID);
 
-		out->addStack(ir, hlp);
+		out->putStack(ir, hlp);
 	}
 	i+=number*bytesPerCre;
 	

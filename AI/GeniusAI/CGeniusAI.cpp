@@ -317,7 +317,7 @@ float CGeniusAI::TownObjective::getValue() const
 	  case upgradeCreatures:
 		  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
 		  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
-		  howMany = whichTown->creaturesInGarrison.getAmount(which);
+		  howMany = whichTown->creaturesInGarrison.getStackCount(which);
 
 		  newID = ui.newID.back();
 		  int upgrade_serial = ui.newID.size() - 1;

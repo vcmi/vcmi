@@ -142,6 +142,12 @@ void registerTypes2(Serializer &s)
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
 	s.template registerType<NewArtifact>();
+	s.template registerType<ChangeStackCount>();
+	s.template registerType<SetStackType>();
+	s.template registerType<EraseStack>();
+	s.template registerType<SwapStacks>();
+	s.template registerType<InsertNewStack>();
+	s.template registerType<RebalanceStacks>();
 	s.template registerType<SetAvailableArtifacts>();
 
 	s.template registerType<SaveGame>();

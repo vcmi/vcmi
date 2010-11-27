@@ -322,7 +322,7 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 		if(vstd::contains(st->state, SUMMONED)) //don't take into account sumoned stacks
 			continue;
 
-		if(st->owner==color && !set.slotEmpty(st->slot) && st->count < set.getAmount(st->slot))
+		if(st->owner==color && !set.slotEmpty(st->slot) && st->count < set.getStackCount(st->slot))
 		{
 			if(st->alive())
 				ret.setStackCount(st->slot, st->count);
@@ -2694,8 +2694,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 			S1.slots[p1]->count -= val;
 		}
 
-		if ( (s1->tempOwner != player && S1.slots[p1]->count < s1->getArmy().getAmount(p1) )
-		  || (s2->tempOwner != player && S2.slots[p2]->count < s2->getArmy().getAmount(p2) ) )
+		if ( (s1->tempOwner != player && S1.slots[p1]->count < s1->getArmy().getStackCount(p1) )
+		  || (s2->tempOwner != player && S2.slots[p2]->count < s2->getArmy().getStackCount(p2) ) )
 		{
 			complain("Can't move troops of another player!");
 			return false;
@@ -3034,18 +3034,14 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	return true;
 }
 
-void CGameHandler::changeCreatureType (int objid, TSlot slot, TCreature creature)
+void CGameHandler::changeStackType(const StackLocation &sl, CCreature *c)
 {
-	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid]);
-	if (obj)
-	{
-		SetGarrisons sg;
-		sg.garrs[objid] = obj->getArmy();
-		sg.garrs[objid].slots[slot]->setType(creature);
-		sendAndApply(&sg);
-	}
-	else
-		tlog2 <<"Illegal call of changeCreatureType for non-armed instance!\n";	
+	assert(sl.army->getCreature(sl.slot));
+
+	SetStackType sst;
+	sst.sl = sl;
+	sst.type = c;
+	sendAndApply(&sst);	
 }
 
 bool CGameHandler::garrisonSwap( si32 tid )
@@ -5247,7 +5243,7 @@ bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance 
 
 bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count)
 {
-	int oldCount = hero->getAmount(slot);
+	int oldCount = hero->getStackCount(slot);
 	int newCount = oldCount - count;
 
 	if(oldCount < count)
@@ -5282,4 +5278,28 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	m->getOffer(art->id, 0, dmp, expToGive, ARTIFACT_EXP);
 	changePrimSkill(hero->id, 4, expToGive);
 	return true;
+}
+
+void CGameHandler::insertNewStack(const StackLocation &sl, CCreature *c, TQuantity count)
+{
+	InsertNewStack ins;
+	ins.sl = sl;
+	ins.stack = new CStackInstance(c, count);
+	sendAndApply(&ins);
+}
+
+void CGameHandler::eraseStack(const StackLocation &sl)
+{
+	EraseStack es;
+	es.sl = sl;
+	sendAndApply(&es);
+}
+
+void CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue /*= false*/)
+{
+	ChangeStackCount csc;
+	csc.sl = sl;
+	csc.count = count;
+	csc.absoluteValue = absoluteValue;
+	sendAndApply(&csc);
 }

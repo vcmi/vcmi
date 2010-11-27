@@ -37,6 +37,7 @@ class CArmedInstance;
 struct TerrainTile;
 struct PlayerState;
 class CTown;
+struct StackLocation;
 
 class DLL_EXPORT IGameCallback
 {
@@ -89,7 +90,10 @@ public:
 	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) =0;
 	virtual void takeCreatures (int objid, TSlots creatures) =0;
 	virtual void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) =0;
-	virtual void changeCreatureType (int objid, TSlot slot, TCreature creature) =0;
+	virtual void changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
+	virtual void changeStackType(const StackLocation &sl, CCreature *c) =0;
+	virtual void insertNewStack(const StackLocation &sl, CCreature *c, TQuantity count) =0;
+	virtual void eraseStack(const StackLocation &sl) =0;
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(int obj, int heroID)=0;
 	virtual void stopHeroVisitCastle(int obj, int heroID)=0;

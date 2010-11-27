@@ -1019,6 +1019,12 @@ std::vector<si32> CStack::activeSpells() const
 	return ret;
 }
 
+CStack::~CStack()
+{
+	if(vstd::contains(state, SUMMONED))
+		delNull(base);
+}
+
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;

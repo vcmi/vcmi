@@ -222,7 +222,6 @@ class DLL_EXPORT CArmedInstance: public CGObjectInstance, public CBonusSystemNod
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	void setArmy(const CCreatureSet &src);
 	CCreatureSet& getArmy() const;
 	void randomizeArmy(int type);
 
