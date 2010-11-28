@@ -53,7 +53,7 @@ public:
 };
 
 template <typename input> class condition
-{//determines selected object parameter with value using functor
+{//compares selected object parameter with value using functor. universal logic handler
 public:
 	input object; //what the fact is, or what it's like (CSelector)
 	si32 value;
@@ -74,9 +74,13 @@ public:
 protected:
 	std::set<std::pair<conType, input*>> cons; //conditions and matching facts
 	input decision;
-	virtual void canBeFired(); //if this data makes any sense for rule
-	virtual void fireRule(std::set<input*> &feed);
+	virtual void canBeFired(); //if this data makes any sense for rule - type check
+	virtual bool checkCondition(); //if condition is true or false
+	virtual bool checkCondition(std::set<input*> &feed);
 	virtual void fireRule(); //use paired conditions and facts by default
+	virtual void fireRule(ExpertSystemShell<input, conType> &system);
+	virtual void fireRule(std::set<input*> &feed);
+	virtual void refreshRule();
 	virtual void refreshRule(std::set<conType> &conditionSet); //in case conditions were erased
 public:
 	Rule(){fired = false; conditionCounter = 0; decision = NULL;};
@@ -124,21 +128,56 @@ public:
 	};
 	bool matchesFact(Bonus &fact);
 };
+
 class BonusHolder : public AIholder<Bonus>
 {
 public:
 	BonusHolder(Bonus &bonus){object = &bonus; aiValue = bonus.val;}
 	BonusHolder(Bonus &bonus, si32 val){object = &bonus; aiValue = val;}
 };
+
 class BonusRule : public Rule <BonusHolder, BonusCondition>
 {
 protected:
 	void fireRule();
 };
 
-bool greaterThan (int prop, si32 val)
+inline bool greaterThan (int prop, si32 val)
 {
 	if ((si32)prop > val)
 		return true;
 	return false;
 }
+inline bool lessThan (int prop, si32 val)
+{
+	if ((si32)prop < val)
+		return true;
+	return false;
+}
+inline bool eqal (int prop, si32 val)
+{
+	if ((si32)prop == val)
+		return true;
+	return false;
+}
+inline bool unequal (int prop, si32 val)
+{
+	if ((si32)prop != val)
+		return true;
+	return false;
+}
+inline bool present (int prop, si32 val=0)
+//inline bool present (int prop) //TODO: can we use function with less arguments?
+{
+	return(prop); //unfixable warning :(
+}
+
+class KnowledgeHandler///I'd opt for one omniscent knowledge manager, so no templates here
+{
+public:
+	std::list<BonusRule> knowledge; //permanent storage of rules
+
+	void parseKnowledge(std::string &filename){};
+	void addKnowledge(ExpertSystemShell<BRule,Bonus> &expert);
+	void addFacts(ExpertSystemShell<BRule,Bonus> &expert);
+};

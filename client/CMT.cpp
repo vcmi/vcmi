@@ -75,7 +75,6 @@ Point screenLT = Point(0, 0); //position of top left corner of the screen
 Point screenLTmax = Point(0, 0); //,maximal values for screenLT coordinates
 static boost::thread *mainGUIThread;
 
-
 SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
 std::queue<SDL_Event*> events;
@@ -427,6 +426,11 @@ void processCommand(const std::string &message)
 	else if(cn == "onlyai")
 	{
 		gOnlyAI = true;
+	}
+	else if (cn == "ai")
+	{
+		VLC->IS_AI_ENABLED = !VLC->IS_AI_ENABLED;
+		tlog4 << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
 	}
 	else if(cn == "mp" && adventureInt)
 	{

@@ -26,6 +26,7 @@ class CGeneralTextHandler;
 class DLL_EXPORT LibClasses
 {
 public:
+	bool IS_AI_ENABLED; //VLC is teh only object visible from both CMT and GeniusAI
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
@@ -45,7 +46,7 @@ public:
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh;
+		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh & IS_AI_ENABLED;;
 		if(!h.saving)
 		{
 			callWhenDeserializing();

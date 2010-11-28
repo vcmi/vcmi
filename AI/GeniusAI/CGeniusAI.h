@@ -28,11 +28,10 @@ class CGeniusAI : public CGlobalAI
 {
 private:
   // TODO: cb... come back, croach busters!?
-	ICallback*							          m_cb;
+	ICallback*							m_cb;
 	geniusai::BattleAI::CBattleLogic*	m_battleLogic;
 	geniusai::GeneralAI::CGeneralAI		m_generalAI;
-	geniusai::Priorities*				      m_priorities;
-
+	geniusai::Priorities*				m_priorities;
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?
 
@@ -71,7 +70,7 @@ private:
 		void update(CGeniusAI & ai);
 		CGeniusAI * AI;
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
-		std::vector<int> resourceAmounts;
+		std::vector<ui32> resourceAmounts;
 		std::vector<HeroModel> heroModels;
 		std::vector<TownModel> townModels;
 		std::set< AIObjectContainer > knownVisitableObjects;
@@ -110,7 +109,7 @@ private:
 	public:
 		HypotheticalGameState hgs;
 		int3 pos;
-		const CGObjectInstance * object;
+		const CGObjectInstance * object; //interactive object
 		mutable std::vector<HypotheticalGameState::HeroModel*> whoCanAchieve;
 		
 		//HeroObjective(){}
