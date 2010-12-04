@@ -715,7 +715,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 	return ret;
 }
 
-void CPlayerInterface::battleEnd(BattleResult *br)
+void CPlayerInterface::battleEnd(const BattleResult *br)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -736,7 +736,7 @@ void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackMoved(ID, dest, end, distance);
 }
-void CPlayerInterface::battleSpellCast(BattleSpellCast *sc)
+void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -746,7 +746,7 @@ void CPlayerInterface::battleSpellCast(BattleSpellCast *sc)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->spellCast(sc);
 }
-void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
+void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -756,7 +756,7 @@ void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleStacksEffectsSet(sse);
 }
-void CPlayerInterface::battleStacksAttacked(std::vector<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -769,7 +769,7 @@ void CPlayerInterface::battleStacksAttacked(std::vector<BattleStackAttacked> & b
 
 
 	std::vector<SStackAttackedInfo> arg;
-	for(std::vector<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
+	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
@@ -789,7 +789,7 @@ void CPlayerInterface::battleStacksAttacked(std::vector<BattleStackAttacked> & b
 
 	battleInt->stacksAreAttacked(arg);
 }
-void CPlayerInterface::battleAttack(BattleAttack *ba)
+void CPlayerInterface::battleAttack(const BattleAttack *ba)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -812,7 +812,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 
 	if(ba->shot())
 	{
-		for(std::vector<BattleStackAttacked>::iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
 			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked), i->stackAttacked);
 	}
 	else

@@ -1235,7 +1235,7 @@ void CGeniusAI::actionStarted(const BattleAction *action)
 /**
  * called when stack is performing attack
  */
-void CGeniusAI::battleAttack(BattleAttack* ba)
+void CGeniusAI::battleAttack(const BattleAttack* ba)
 {
 	DbgBox("\t\t\tCGeniusAI::battleAttack");
 }
@@ -1244,7 +1244,7 @@ void CGeniusAI::battleAttack(BattleAttack* ba)
 /**
  * called when stack receives damage (after battleAttack())
  */
-void CGeniusAI::battleStacksAttacked(std::set<BattleStackAttacked>& bsa)
+void CGeniusAI::battleStacksAttacked(const std::set<BattleStackAttacked>& bsa)
 {
 	DbgBox("\t\t\tCGeniusAI::battleStacksAttacked");
 }
@@ -1271,7 +1271,7 @@ void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 /**
  *
  */
-void CGeniusAI::battleEnd(BattleResult* br)
+void CGeniusAI::battleEnd(const BattleResult* br)
 {
 	switch (br->winner)
 	{
@@ -1280,7 +1280,7 @@ void CGeniusAI::battleEnd(BattleResult* br)
 		case 2:	tlog6 << "It's a draw." << std::endl; break;
 	};
 	tlog6 << "lost ";
-	for (std::map<ui32,si32>::iterator i = br->casualties[0].begin(); i != br->casualties[0].end(); i++)
+	for (std::map<ui32,si32>::const_iterator i = br->casualties[0].begin(); i != br->casualties[0].end(); i++)
 		tlog6 << i->second << " " << VLC->creh->creatures[i->first]->namePl << endl;
 				
 	delete m_battleLogic;
@@ -1322,7 +1322,7 @@ void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
 /**
  *
  */
-void CGeniusAI::battleSpellCast(BattleSpellCast *sc)
+void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
 {
 	DbgBox("\t\t\tCGeniusAI::battleSpellCast");
 }

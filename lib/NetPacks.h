@@ -1064,19 +1064,19 @@ struct BattleAttack : public CPackForClient//3006
 	ui32 stackAttacking;
 	ui8 flags;
 
-	bool shot()//distance attack - decrease number of shots
+	bool shot() const//distance attack - decrease number of shots
 	{
 		return flags & 1;
 	}
-	bool counter()//is it counterattack?
+	bool counter() const//is it counterattack?
 	{
 		return flags & 2;
 	}
-	bool lucky()
+	bool lucky() const
 	{
 		return flags & 4;
 	}
-	bool unlucky()
+	bool unlucky() const
 	{
 		//TODO: support?
 		return flags & 8;

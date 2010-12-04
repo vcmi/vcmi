@@ -2670,7 +2670,7 @@ void CBattleInterface::displayBattleFinished()
 	GH.pushInt(resWindow);
 }
 
-void CBattleInterface::spellCast(BattleSpellCast * sc)
+void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const CSpell &spell = CGI->spellh->spells[sc->id];
 
