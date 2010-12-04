@@ -347,16 +347,15 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 		setupBattle(curB, tile, army1, army2, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	}
 
-	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
 
 	//tactic round
 	{
-		NEW_ROUND;
 		if( (hero1 && hero1->getSecSkillLevel(19)>0) || 
 			( hero2 && hero2->getSecSkillLevel(19)>0)  )//someone has tactics
 		{
 			//TODO: tactic round (round -1)
+			NEW_ROUND;
 		}
 	}
 
@@ -402,7 +401,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				{
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
-					ba.actionType = 11;
+					ba.actionType = BattleAction::BAD_MORALE;
 					ba.additionalInfo = 1;
 					ba.side = !next->attackerOwned;
 					ba.stackNumber = next->ID;
@@ -419,7 +418,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				if(attackInfo.first != NULL)
 				{
 					BattleAction attack;
-					attack.actionType = 6;
+					attack.actionType = BattleAction::WALK_AND_ATTACK;
 					attack.side = !next->attackerOwned;
 					attack.stackNumber = next->ID;
 
@@ -430,6 +429,10 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 					checkForBattleEnd(stacks);
 				}
+				else
+				{
+					makeStackDoNothing(next);
+				}
 				continue;
 			}
 
@@ -439,7 +442,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				|| (next->type->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
 			{
 				BattleAction attack;
-				attack.actionType = 7;
+				attack.actionType = BattleAction::SHOOT;
 				attack.side = !next->attackerOwned;
 				attack.stackNumber = next->ID;
 
@@ -464,7 +467,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
 
 				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
-				attack.actionType = 9;
+				attack.actionType = BattleAction::CATAPULT;
 				attack.additionalInfo = 0;
 				attack.side = !next->attackerOwned;
 				attack.stackNumber = next->ID;
@@ -490,21 +493,15 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				if(possibleStacks.size() == 0)
 				{
 					//nothing to heal
-					BattleAction doNothing;
-					doNothing.actionType = 0;
-					doNothing.additionalInfo = 0;
-					doNothing.destinationTile = -1;
-					doNothing.side = !next->attackerOwned;
-					doNothing.stackNumber = next->ID;
-					sendAndApply(&StartAction(doNothing));
-					sendAndApply(&EndAction());
+					makeStackDoNothing(next);
+
 					continue;
 				}
 				else
 				{
 					//heal random creature
 					const CStack * toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
-					heal.actionType = 12;
+					heal.actionType = BattleAction::STACK_HEAL;
 					heal.additionalInfo = 0;
 					heal.destinationTile = toBeHealed->position;
 					heal.side = !next->attackerOwned;
@@ -5316,4 +5313,16 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	m->getOffer(art->id, 0, dmp, expToGive, ARTIFACT_EXP);
 	changePrimSkill(hero->id, 4, expToGive);
 	return true;
+}
+
+void CGameHandler::makeStackDoNothing(const CStack * next)
+{
+	BattleAction doNothing;
+	doNothing.actionType = 0;
+	doNothing.additionalInfo = 0;
+	doNothing.destinationTile = -1;
+	doNothing.side = !next->attackerOwned;
+	doNothing.stackNumber = next->ID;
+	sendAndApply(&StartAction(doNothing));
+	sendAndApply(&EndAction());
 }

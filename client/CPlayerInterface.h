@@ -212,8 +212,7 @@ public:
 	void battleSpellCast(BattleSpellCast *sc);
 	void battleStacksEffectsSet(SetStackEffect & sse); //called when a specific effect is set to stacks
 	void battleStacksAttacked(std::vector<BattleStackAttacked> & bsa);
-	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
-	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
+	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom); //called when stacks are healed / resurrected
 	void battleNewStackAppeared(int stackID); //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
 	void battleObstaclesRemoved(const std::set<si32> & removedObstacles); //called when a certain set  of obstacles is removed from batlefield; IDs of them are given

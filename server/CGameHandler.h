@@ -76,6 +76,8 @@ public:
 
 class CGameHandler : public IGameCallback
 {
+private:
+	void makeStackDoNothing(const CStack * next);
 public:
 	CVCMIServer *s;
 	std::map<int,CConnection*> connections; //player color -> connection to client with interface of that player
@@ -229,3 +231,5 @@ public:
 };
 
 #endif // __CGAMEHANDLER_H__
+
+void makeStackDoNothing();

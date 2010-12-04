@@ -537,7 +537,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	}
 }
 
-void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
+void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -552,9 +552,6 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	GH.pushInt(battleInt);
 }
 
-void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles) //called when battlefield is prepared, prior the battle beginning
-{
-}
 
 void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom)
 {

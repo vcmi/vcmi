@@ -41,7 +41,7 @@ ui8 side; //who made this action: false - left, true - right player
 /**
  *	Implementation of CBattleLogic class.
  */
-CBattleLogic::CBattleLogic(ICallback *cb,  const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
+CBattleLogic::CBattleLogic(ICallback *cb,  const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) :
 	m_iCurrentTurn(-2),
 	m_bIsAttacker(!side),
 	m_cb(cb),

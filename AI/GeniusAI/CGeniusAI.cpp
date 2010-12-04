@@ -1253,7 +1253,7 @@ void CGeniusAI::battleStacksAttacked(std::set<BattleStackAttacked>& bsa)
 /**
  * called by engine when battle starts; side=0 - left, side=1 - right
  */
-void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
+void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
   // TODO: Battle logic what...
 	assert(!m_battleLogic);
@@ -1331,11 +1331,11 @@ void CGeniusAI::battleSpellCast(BattleSpellCast *sc)
 /**
  * called when battlefield is prepared, prior the battle beginning
  */
-void CGeniusAI::battlefieldPrepared(int battlefieldType,
-                                    std::vector<CObstacle*> obstacles)
-{
-	DbgBox("CGeniusAI::battlefieldPrepared");
-}
+// void CGeniusAI::battlefieldPrepared(int battlefieldType,
+//                                     std::vector<CObstacle*> obstacles)
+// {
+// 	DbgBox("CGeniusAI::battlefieldPrepared");
+// }
 
 
 /**

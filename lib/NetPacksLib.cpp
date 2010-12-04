@@ -901,18 +901,20 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
-	if(ba.actionType != 1) //don't check for stack if it's custom action by hero
+	if(ba.actionType != BattleAction::HERO_SPELL) //don't check for stack if it's custom action by hero
 		assert(st);
 
 	switch(ba.actionType)
 	{
-	case 3:
+	case BattleAction::DEFEND:
 		st->state.insert(DEFENDING);
 		break;
-	case 8:
+	case BattleAction::WAIT:
 		st->state.insert(WAITING);
 		return;
-	case 0: case 2: case 6: case 7: case 9: case 10: case 11: case 12:
+	case BattleAction::NO_ACTION: case BattleAction::WALK: case BattleAction::WALK_AND_ATTACK:
+	case BattleAction::SHOOT: case BattleAction::CATAPULT: case BattleAction::MONSTER_SPELL:
+	case BattleAction::BAD_MORALE: case BattleAction::STACK_HEAL:
 		st->state.insert(MOVED);
 		break;
 	}
