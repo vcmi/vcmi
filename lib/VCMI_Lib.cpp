@@ -34,6 +34,7 @@ DLL_EXPORT CLogger tlog2(2);
 DLL_EXPORT CLogger tlog3(3);
 DLL_EXPORT CLogger tlog4(4);
 DLL_EXPORT CLogger tlog5(5);
+DLL_EXPORT CLogger tlog6(-2);
 
 DLL_EXPORT CConsoleHandler *console = NULL;
 DLL_EXPORT std::ostream *logfile = NULL
@@ -205,6 +206,8 @@ void LibClasses::init()
 	spellh = new CSpellHandler;
 	spellh->loadSpells();
 	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+
+	IS_AI_ENABLED = true;
 }
 
 void LibClasses::clear()

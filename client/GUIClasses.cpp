@@ -1676,7 +1676,7 @@ void CRecruitmentWindow::Buy()
 	int crid = creatures[which].ID,
 		dstslot = dst-> getSlotFor(crid);
 
-	if(dstslot < 0) //no available slot
+	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->convertMachineID(crid, true))) //no available slot
 	{
 		std::string txt;
 		if(dst->ID == HEROI_TYPE)

@@ -365,7 +365,7 @@ bool CCreatureSet::hasStackAtSlot(TSlot slot) const
 CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
 {
 	assert(0);
-	return cs;
+	return *this;
 }
 
 CStackInstance::CStackInstance()

@@ -45,11 +45,7 @@ template <typename ruleType, typename facts> template <typename cond> void Exper
 								++goalCounter;
 						}
 					}
-					matchedConditions = 0;
 					//modify set until something happens (hopefully!)
-					for (iF = factsToErase.begin(); iF != factsToErase.end(); iF++)
-						factList.erase(knowledge.find(*iF));
-					factsToErase.clear(); //TODO: what if fact is remembered by rule, yet already erased?
 					for (iF = factsToAdd.begin(); iF != factsToAdd.end(); iF++)
 						factList.insert(*iF);
 					if (factsToAdd.size())
@@ -58,6 +54,9 @@ template <typename ruleType, typename facts> template <typename cond> void Exper
 						factWasAdded = true;
 					}
 				}
+				for (iF = factsToErase.begin(); iF != factsToErase.end(); iF++) //remove facts discarded in this run
+						factList.erase(knowledge.find(*iF));
+				factsToErase.clear(); //erase only after all rules had a chance to trigger
 				for (ir = rulesToErase.begin(); ir != rulesToErase.end(); ir++)
 					knowledge.erase(knowledge.find(*ir));
 				rulesToErase.clear();
@@ -89,13 +88,13 @@ void BonusRule::fireRule()
 			case BonusCondition::duration:
 				if (!it->first.functor(it->second->object->duration, it->first.value)) return;
 			break;
-			case BonusCondition::source:
+			case BonusCondition::source: //likely to handle by selector
 				if (!it->first.functor(it->second->object->source, it->first.value)) return;
 			break;
 			case BonusCondition::id:
 				if (!it->first.functor(it->second->object->id, it->first.value)) return;
 			break;
-			case BonusCondition::valType:
+			case BonusCondition::valType: //ever needed?
 				if (!it->first.functor(it->second->object->valType, it->first.value)) return;
 			break;
 			case BonusCondition::additionalInfo:
@@ -110,11 +109,17 @@ void BonusRule::fireRule()
 	}
 	//TODO: add new fact or modify existing one
 }
+//TODO: find out why it does not compile
 //template <typename input, typename conType> void Rule<input, conType>::refreshRule(std::set<conType> &conditionSet)
 //{
 //	cons.clear();
 //	for (std::set<conType>::iterator it = conditionSet.begin(); it != conditionSet.end(); it++)
 //		cons.insert(std::make_pair<conType,input*>(*it, NULL)); //pointer to condition and null fact
+//}
+//template <typename input, typename conType> void Rule<input, conType>::refreshRule()
+//{
+//	for (std::set<std::pair<conType, input*>>::iterator it = cons.begin(); it != cons.end(); it++)
+//		*it->second = NULL;
 //}
 bool BonusCondition::matchesFact(Bonus &fact)
 {

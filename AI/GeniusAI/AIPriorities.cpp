@@ -100,11 +100,11 @@ void Priorities::fillFeatures(const CGeniusAI::HypotheticalGameState & hgs)
 
 float Priorities::getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay)
 {
-	if(resourceCosts.size()==0)return -1;
+	if(!resourceCosts.size())return -1;
 	//TODO: replace with ann
 	float cost = resourceCosts[0]/4.0+resourceCosts[1]/2.0+resourceCosts[2]/4.0+resourceCosts[3]/2.0+resourceCosts[4]/2.0+resourceCosts[5]/2.0+resourceCosts[6]/3000.0;
 	
-	if(moved!=NULL)						//TODO: multiply by importance of hero
+	if(moved)						//TODO: multiply by importance of hero
 		cost+=distOutOfTheWay/10000.0;
 	return cost;
 }
@@ -210,25 +210,24 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 			//objectNetworks[53][hobj->object->subID].feedForward(stateFeatures);
 		case 113://TODO: replace with value of skill for the hero
 			return 0;
-		case 103:case 58://TODO: replace with value of seeing x number of new tiles 
+		case 103: case 58://TODO: replace with value of seeing x number of new tiles 
 			return 0;
 		default:
-			if(objectNetworks[hobj->object->ID].size()!=0)
+			if (objectNetworks[hobj->object->ID].size())
 				return objectNetworks[hobj->object->ID][0].feedForward(stateFeatures);
-			cout << "don't know the value of ";
+			tlog6 << "don't know the value of ";
 			switch(obj.type)
 			{
 			case CGeniusAI::AIObjective::visit:
-				cout << "visiting " << hobj->object->ID;
+				tlog6 << "visiting " << hobj->object->ID;
 				break;
-			case CGeniusAI::AIObjective::attack:
-				cout << "attacking " << hobj->object->ID;
+				tlog6 << "attacking " << hobj->object->ID;
 				break;
 			case CGeniusAI::AIObjective::finishTurn:
 				obj.print();
 				break;
 			}
-			cout << endl;
+			tlog6 << endl;
 		}
 	}
 	else	//town objective
@@ -240,9 +239,9 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 				return buildingNetworks[tnObj->whichTown->t->subID][tnObj->which].feedForward(stateFeatures);
 			else
 			{
-				cout << "don't know the value of ";
+				tlog6 << "don't know the value of ";
 				obj.print();
-				cout << endl;
+				tlog6 << endl;
 			}
 
 		}

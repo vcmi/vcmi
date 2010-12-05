@@ -28,11 +28,10 @@ class CGeniusAI : public CGlobalAI
 {
 private:
   // TODO: cb... come back, croach busters!?
-	ICallback*							          m_cb;
+	ICallback*							m_cb;
 	geniusai::BattleAI::CBattleLogic*	m_battleLogic;
 	geniusai::GeneralAI::CGeneralAI		m_generalAI;
-	geniusai::Priorities*				      m_priorities;
-
+	geniusai::Priorities*				m_priorities;
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?
 
@@ -71,7 +70,7 @@ private:
 		void update(CGeniusAI & ai);
 		CGeniusAI * AI;
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
-		std::vector<int> resourceAmounts;
+		std::vector<ui32> resourceAmounts;
 		std::vector<HeroModel> heroModels;
 		std::vector<TownModel> townModels;
 		std::set< AIObjectContainer > knownVisitableObjects;
@@ -110,7 +109,7 @@ private:
 	public:
 		HypotheticalGameState hgs;
 		int3 pos;
-		const CGObjectInstance * object;
+		const CGObjectInstance * object; //interactive object
 		mutable std::vector<HypotheticalGameState::HeroModel*> whoCanAchieve;
 		
 		//HeroObjective(){}
@@ -202,14 +201,14 @@ public:
 	// battle
 	virtual void actionFinished(const BattleAction *action);//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction *action);//occurs BEFORE every action taken by any stack or by the hero
-	virtual void battleAttack(BattleAttack *ba); //called when stack is performing attack
-	virtual void battleStacksAttacked(std::set<BattleStackAttacked> & bsa); //called when stack receives damage (after battleAttack())
-	virtual void battleEnd(BattleResult *br);
+	virtual void battleAttack(const BattleAttack *ba); //called when stack is performing attack
+	virtual void battleStacksAttacked(const std::set<BattleStackAttacked> & bsa); //called when stack receives damage (after battleAttack())
+	virtual void battleEnd(const BattleResult *br);
 	virtual void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleStackMoved(int ID, int dest, int distance, bool end);
-	virtual void battleSpellCast(BattleSpellCast *sc);
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
-	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
+	virtual void battleSpellCast(const BattleSpellCast *sc);
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
+	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	//
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
 	virtual void battleStackAttacking(int ID, int dest);

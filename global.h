@@ -358,6 +358,7 @@ extern DLL_EXPORT CLogger tlog2; //magenta - major warnings
 extern DLL_EXPORT CLogger tlog3; //yellow - minor warnings
 extern DLL_EXPORT CLogger tlog4; //white - detailed log info
 extern DLL_EXPORT CLogger tlog5; //gray - minor log info
+extern DLL_EXPORT CLogger tlog6; //teal - AI info
 
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \

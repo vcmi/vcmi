@@ -2671,7 +2671,7 @@ void CBattleInterface::displayBattleFinished()
 	GH.pushInt(resWindow);
 }
 
-void CBattleInterface::spellCast(BattleSpellCast * sc)
+void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const CSpell &spell = CGI->spellh->spells[sc->id];
 
@@ -2820,7 +2820,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 void CBattleInterface::castThisSpell(int spellID)
 {
 	BattleAction * ba = new BattleAction;
-	ba->actionType = 1;
+	ba->actionType = BattleAction::HERO_SPELL;
 	ba->additionalInfo = spellID; //spell number
 	ba->destinationTile = -1;
 	ba->stackNumber = (attackingHeroInstance->tempOwner == curInt->playerID) ? -1 : -2;
@@ -3010,7 +3010,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	if(stack->count > 0 //don't print if stack is not alive
 		&& (!curInt->curAction
 			|| (curInt->curAction->stackNumber != ID //don't print if stack is currently taking an action
-				&& (curInt->curAction->actionType != 6  ||  stack->position != curInt->curAction->additionalInfo) //nor if it's an object of attack
+				&& (curInt->curAction->actionType != BattleAction::WALK_AND_ATTACK  ||  stack->position != curInt->curAction->additionalInfo) //nor if it's an object of attack
 				&& (curInt->curAction->destinationTile != stack->position) //nor if it's on destination tile for current action
 				)
 			)
@@ -3230,18 +3230,18 @@ void CBattleInterface::endAction(const BattleAction* action)
 // 	{
 // 		activate();
 // 	}
-	if(action->actionType == 1)
+	if(action->actionType == BattleAction::HERO_SPELL)
 	{
 		if(action->side)
 			defendingHero->setPhase(0);
 		else
 			attackingHero->setPhase(0);
 	}
-	if(action->actionType == 2 && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+	if(action->actionType == BattleAction::WALK && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CBattleMoveEnd(this, action->stackNumber, action->destinationTile), false));
 	}
-	if(action->actionType == 9) //catapult
+	if(action->actionType == BattleAction::CATAPULT) //catapult
 	{
 	}
 	queue->update();
@@ -3283,11 +3283,11 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 	else
 	{
-		assert(action->actionType == 1); //only cast spell is valid action without acting stack number
+		assert(action->actionType == BattleAction::HERO_SPELL); //only cast spell is valid action without acting stack number
 	}
 
-	if(action->actionType == 2 
-		|| (action->actionType == 6 && action->destinationTile != stack->position))
+	if(action->actionType == BattleAction::WALK 
+		|| (action->actionType == BattleAction::WALK_AND_ATTACK && action->destinationTile != stack->position))
 	{
 		moveStarted = true;
 		if(creAnims[action->stackNumber]->framesInGroup(20))
@@ -3301,7 +3301,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	char txt[400];
 
-	if(action->actionType == 1) //when hero casts spell
+	if(action->actionType == BattleAction::HERO_SPELL) //when hero casts spell
 	{
 		if(action->side)
 			defendingHero->setPhase(4);
@@ -3342,7 +3342,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 
 	//displaying heal animation
-	if (action->actionType == 12)
+	if (action->actionType == BattleAction::STACK_HEAL)
 	{
 		displayEffect(50, action->destinationTile);
 	}
