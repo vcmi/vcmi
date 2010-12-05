@@ -2087,7 +2087,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(st.type, &st, st.count);
+	init(st.type, &st, dynamic_cast<const CGHeroInstance*>(st.armyObj), st.count);
 
 	//print abilities text - if r-click popup
 	if(type)
@@ -2132,30 +2132,24 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 		}
 		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),216,237,"IOKAY.DEF",SDLK_RETURN);
 	}
-	else
-	{
-		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
-	}
-
-	//if we are displying window fo r stack in battle, there are several more things that we need to display
-	if(const CStack *battleStack = dynamic_cast<const CStack*>(&st))
-	{
-		//spell effects
-		int printed=0; //how many effect pics have been printed
-		std::vector<si32> spells = battleStack->activeSpells();
-		BOOST_FOREACH(si32 effect, spells)
-		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
-			++printed;
-			if(printed >= 3) //we can fit only 3 effects
-				break;
-		}
-		//print current health
-		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
-	}
 }
 
 
+
+CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
+	: type(Type), dismiss(0), upgrade(0), ok(0)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	const CCreature *cre = CGI->creh->creatures[Cid];
+	init(cre, NULL, NULL, creatureCount);
+}
+
+CCreInfoWindow::CCreInfoWindow(const CStack &st, int Type /*= 0*/)
+	: type(Type), dismiss(0), upgrade(0), ok(0)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init(st.getCreature(), &st, st.getMyHero(), st.count);
+}
 
 void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
 {
@@ -2172,15 +2166,11 @@ void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int
 	printTo(hlp, 276, 61 + nr*19, FONT_SMALL, zwykly, *bitmap);
 }
 
-void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
+//void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
+void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount)
 {
-	const CBonusSystemNode *finalNode = NULL;
-	if(stack)
-		finalNode = stack;
-	else
-		finalNode = cre;
-
 	c = cre;
+	if(!stackNode) stackNode = c;
 
 	bitmap = new CPicture("CRSTKPU.bmp");
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
@@ -2190,52 +2180,67 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 
 	count = boost::lexical_cast<std::string>(creatureCount);
 
-
 	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,*bitmap); //creature name
 	
-	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
+	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
 	if(c->shots)
 		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
 
 	//TODO
 	int dmgMultiply = 1;
-	if(stack && stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += stack->armyObj->Attack(); 
+	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		dmgMultiply += heroOwner->Attack(); 
 
-	printLine(3, CGI->generaltexth->allTexts[199], finalNode->getMinDamage() * dmgMultiply, finalNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
+	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
+	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
+	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
 	//setting morale
 	morale = new MoraleLuckBox(true);
 	morale->pos = genRect(42, 42, pos.x + 24, pos.y + 189);
-	morale->set(stack);
+	morale->set(stackNode);
 	//setting luck
 	luck = new MoraleLuckBox(false);
 	luck->pos =  genRect(42, 42, pos.x + 77, pos.y + 189);
-	luck->set(stack);
+	luck->set(stackNode);
 
 	//luck and morale
 	int luck = 3, morale = 3;
-	if(stack)
+	if(stackNode)
 	{
 		//add modifiers
-		luck += stack->LuckVal();
-		morale += stack->MoraleVal();
+		luck += stackNode->LuckVal();
+		morale += stackNode->MoraleVal();
 	}
 
 	blitAt(graphics->morale42->ourImages[morale].bitmap, 24, 189, *bitmap);
 	blitAt(graphics->luck42->ourImages[luck].bitmap, 77, 189, *bitmap);
+
+
+	if(!type)
+	{
+		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
+	}
+
+	//if we are displying window fo r stack in battle, there are several more things that we need to display
+	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
+	{
+		//spell effects
+		int printed=0; //how many effect pics have been printed
+		std::vector<si32> spells = battleStack->activeSpells();
+		BOOST_FOREACH(si32 effect, spells)
+		{
+			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
+			++printed;
+			if(printed >= 3) //we can fit only 3 effects
+				break;
+		}
+		//print current health
+		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
+	}
 }
 
-CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
-	: type(Type), dismiss(0), upgrade(0), ok(0)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	const CCreature *cre = CGI->creh->creatures[Cid];
-	init(cre, NULL, creatureCount);
-}
 
 CCreInfoWindow::~CCreInfoWindow()
 {

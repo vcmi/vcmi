@@ -542,19 +542,19 @@ int CCallback::battleGetPos(int stack)
 	return -1;
 }
 
-std::map<int, CStack> CCallback::battleGetStacks()
+std::vector<const CStack*> CCallback::battleGetStacks()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	std::map<int, CStack> ret;
+	std::vector<const CStack*> ret;
 	if(!gs->curB) //there is no battle
 	{
+		tlog2<<"battleGetStacks called when there is no battle!"<<std::endl;
 		return ret;
 	}
 
-	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
-	{
-		ret[gs->curB->stacks[g]->ID] = *(gs->curB->stacks[g]);
-	}
+	BOOST_FOREACH(const CStack *s, gs->curB->stacks)
+		ret.push_back(s);
+
 	return ret;
 }
 
@@ -1037,7 +1037,7 @@ InfoAboutTown::~InfoAboutTown()
 void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 {
 	obj = t;
-	army = t->getArmy();
+	army = ArmyDescriptor(t, detailed);
 	built = t->builded;
 	fortLevel = t->fortLevel();
 	name = t->name;
@@ -1053,21 +1053,14 @@ void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;
 	}
-	/*else
-	{
-		//hide info about hero stacks counts
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = slots.begin(); i != slots.end(); ++i)
-		{
-			i->second.second = 0;
-		}
-	}*/
+	//TODO: adjust undetailed info about army to our count of thieves guilds
 }
 
 void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
 {
 	obj = garr;
 	fortLevel = 0;
-	army = garr->getArmy();
+	army = ArmyDescriptor(garr, detailed);
 	name = CGI->generaltexth->names[33]; // "Garrison"
 	owner = garr->tempOwner;
 	built = false;

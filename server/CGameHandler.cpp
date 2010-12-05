@@ -310,27 +310,26 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	}
 }
 
-static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInfo *bat)
+void  CGameHandler::takeCasualties(const CArmedInstance *army, BattleInfo *bat)
 {
+	int color = army->tempOwner;
 	if(color == 254)
-		color = 255;
+		color = NEUTRAL_PLAYER;
 
-	CCreatureSet ret(set);
-	for(int i=0; i<bat->stacks.size();i++)
+	BOOST_FOREACH(CStack *st, bat->stacks)
 	{
-		CStack *st = bat->stacks[i];
 		if(vstd::contains(st->state, SUMMONED)) //don't take into account sumoned stacks
 			continue;
 
-		if(st->owner==color && !set.slotEmpty(st->slot) && st->count < set.getStackCount(st->slot))
+		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
 		{
+			StackLocation sl(army, st->slot);
 			if(st->alive())
-				ret.setStackCount(st->slot, st->count);
+				changeStackCount(sl, st->count, true);
 			else
-				ret.eraseStack(st->slot);
+				eraseStack(sl);
 		}
 	}
-	return ret;
 }
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
@@ -582,18 +581,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if(bEndArmy2 && bEndArmy2->tempOwner<PLAYER_LIMIT)
 		states.setFlag(bEndArmy2->tempOwner, &PlayerStatus::engagedIntoBattle, false);	
 
-	//casualties among heroes armies
-	SetGarrisons sg;
-	sg.garrs[bEndArmy1->id] = takeCasualties(bEndArmy1->tempOwner, *bEndArmy1, gs->curB);
-	sg.garrs[bEndArmy2->id] = takeCasualties(bEndArmy2->tempOwner, *bEndArmy2, gs->curB);
-	sendAndApply(&sg);
-
-	ui8 sides[2];
-	sides[0] = gs->curB->side1;
-	sides[1] = gs->curB->side2;
-
-	ui8 loser = sides[!battleResult.data->winner];
-
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
 	if (hero1)
@@ -602,6 +589,16 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		battleResult.data->exp[1] *= (100+hero2->getSecSkillLevel(21)*5)/100.0f;
 	sendAndApply(battleResult.data);
 
+	//casualties among heroes armies
+	takeCasualties(bEndArmy1, gs->curB);
+	takeCasualties(bEndArmy2, gs->curB);
+
+	ui8 sides[2];
+	sides[0] = gs->curB->side1;
+	sides[1] = gs->curB->side2;
+
+	ui8 loser = sides[!battleResult.data->winner];
+	
 	//if one hero has lost we will erase him
 	if(battleResult.data->winner!=0 && hero1)
 	{
@@ -645,7 +642,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			if (slot != -1) 
 			{
 				winnerHero->showNecromancyDialog(raisedStack);
-				sendAndApply(&sg);
 				addToSlot(StackLocation(winnerHero, slot), raisedStack.type, raisedStack.count);
 			}
 		}
@@ -2096,64 +2092,71 @@ void CGameHandler::giveResource(int player, int which, int val)
 }
 void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove)
 {
-	if (creatures.stacksCount() <= 0)
-		return;
-	CCreatureSet heroArmy = h->getArmy();
-	std::set<int> takenSlots;
-	for (TSlots::const_iterator it = creatures.Slots().begin(); it != creatures.Slots().end(); it++)
-	{
-		int slot = heroArmy.getSlotFor(it->second->type->idNumber);
-		if (slot >= 0)
-		{
-			heroArmy.addToSlot(slot, it->second); 	//move all matching creatures to hero's army
-			takenSlots.insert(it->first); //slot id
-		}
-	}
-	for (std::set<int>::iterator it = takenSlots.begin(); it != takenSlots.end(); it++)
-		creatures.eraseStack(*it); //delete them from used army
-
-	SetGarrisons sg;
-	sg.garrs[h->id] = heroArmy;
-	sg.garrs[objid] = creatures;
-	sendAndApply (&sg);
-
-	if (remove) //show garrison window and let player pick remaining creatures
-	{
-		if (creatures.stacksCount()) //Pandora needs to exist until we close garrison window
-		{
-			showGarrisonDialog (objid, h->id, true, boost::bind(&CGameHandler::removeObject, this, objid));
-		}
-		else
-			removeObject(objid);
-	}
-	else if (creatures.stacksCount())
-		showGarrisonDialog (objid, h->id, true, 0);
-		
-}
-void CGameHandler::takeCreatures (int objid, TSlots creatures) //probably we could use ArmedInstance as well
-{
-	if (creatures.size() <= 0)
-		return;
-	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
-	CCreatureSet newArmy = obj->getArmy();
-	while (creatures.size())
-	{
-		int slot = newArmy.getSlotFor(creatures.begin()->second->type->idNumber);
-		if (slot < 0)
-			break;
-		newArmy.slots[slot]->count -= creatures.begin()->second->count;
-		if (newArmy.getStack(slot).count < 1)
-			newArmy.eraseStack(slot);
-		creatures.erase(creatures.begin());
-	}
-	SetGarrisons sg;
-	sg.garrs[objid] = newArmy;
-	sendAndApply(&sg);
+	assert(0);
+// 	if (creatures.stacksCount() <= 0)
+// 		return;
+// 	CCreatureSet heroArmy = h->getArmy();
+// 	std::set<int> takenSlots;
+// 	for (TSlots::const_iterator it = creatures.Slots().begin(); it != creatures.Slots().end(); it++)
+// 	{
+// 		int slot = heroArmy.getSlotFor(it->second->type->idNumber);
+// 		if (slot >= 0)
+// 		{
+// 			heroArmy.addToSlot(slot, it->second); 	//move all matching creatures to hero's army
+// 			takenSlots.insert(it->first); //slot id
+// 		}
+// 	}
+// 	for (std::set<int>::iterator it = takenSlots.begin(); it != takenSlots.end(); it++)
+// 		creatures.eraseStack(*it); //delete them from used army
+// 
+// 	SetGarrisons sg;
+// 	sg.garrs[h->id] = heroArmy;
+// 	sg.garrs[objid] = creatures;
+// 	sendAndApply (&sg);
+// 
+// 	if (remove) //show garrison window and let player pick remaining creatures
+// 	{
+// 		if (creatures.stacksCount()) //Pandora needs to exist until we close garrison window
+// 		{
+// 			showGarrisonDialog (objid, h->id, true, boost::bind(&CGameHandler::removeObject, this, objid));
+// 		}
+// 		else
+// 			removeObject(objid);
+// 	}
+// 	else if (creatures.stacksCount())
+// 		showGarrisonDialog (objid, h->id, true, 0);
 }
 
 void CGameHandler::takeCreatures(int objid, std::vector<CStackBasicDescriptor> creatures)
 {
+	if (creatures.size() <= 0)
+		return;
+	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
 
+	BOOST_FOREACH(CStackBasicDescriptor &sbd, creatures)
+	{
+		TQuantity collected = 0;
+		while(collected < sbd.count)
+		{
+			TSlots::const_iterator i = obj->Slots().begin();
+			for(; i != obj->Slots().end(); i++)
+			{
+				if(i->second->type == sbd.type)
+				{
+					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much creatures as we can
+					changeStackCount(StackLocation(obj, i->first), take, false);
+					collected += take;
+					break;
+				}
+			}
+
+			if(i ==  obj->Slots().end()) //we went through the whole loop and haven't found appropriate creatures
+			{
+				complain("Unexpected failure during taking creatures!");
+				return;
+			}
+		}
+	}
 }
 
 void CGameHandler::showCompInfo(ShowInInfobox * comp)
@@ -2549,17 +2552,24 @@ void CGameHandler::sendToAllClients( CPackForClient * info )
 
 void CGameHandler::sendAndApply( CPackForClient * info )
 {
-	gs->apply(info);
 	sendToAllClients(info);
+	gs->apply(info);
 }
 
-void CGameHandler::sendAndApply( SetGarrisons * info )
+void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
 {
 	sendAndApply((CPackForClient*)info);
 	if(gs->map->victoryCondition.condition == gatherTroop)
-		for(std::map<ui32,CCreatureSet>::const_iterator i = info->garrs.begin(); i != info->garrs.end(); i++)
-			checkLossVictory(getObj(i->first)->tempOwner);
+		winLoseHandle(); 
 }
+
+// void CGameHandler::sendAndApply( SetGarrisons * info )
+// {
+// 	sendAndApply((CPackForClient*)info);
+// 	if(gs->map->victoryCondition.condition == gatherTroop)
+// 		for(std::map<ui32,CCreatureSet>::const_iterator i = info->garrs.begin(); i != info->garrs.end(); i++)
+// 			checkLossVictory(getObj(i->first)->tempOwner);
+// }
 
 void CGameHandler::sendAndApply( SetResource * info )
 {
@@ -2581,6 +2591,7 @@ void CGameHandler::sendAndApply( NewStructures * info )
 	if(gs->map->victoryCondition.condition == buildCity)
 		checkLossVictory(getTown(info->tid)->tempOwner);
 }
+
 void CGameHandler::save( const std::string &fname )
 {
 	{
@@ -5221,7 +5232,7 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 
 	InsertNewStack ins;
 	ins.sl = sl;
-	ins.stack = new CStackInstance(c, count);
+	ins.stack = CStackBasicDescriptor(c, count);
 	sendAndApply(&ins);
 	return true;
 }

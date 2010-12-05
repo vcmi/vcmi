@@ -375,23 +375,23 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
-DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
-{
-	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
-	{
-		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
-		ai->setToArmy(i->second);
-		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setToArmy(i->second);
-		else if(ai->ID==HEROI_TYPE)
-		{
-			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
-			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
-			if(t && h->inTownGarrison)
-			t->setToArmy(i->second);
-		}
-	}
-}
+// DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
+// {
+// 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
+// 	{
+// 		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
+// 		ai->setToArmy(i->second);
+// 		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
+// 			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setToArmy(i->second);
+// 		else if(ai->ID==HEROI_TYPE)
+// 		{
+// 			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
+// 			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
+// 			if(t && h->inTownGarrison)
+// 			t->setToArmy(i->second);
+// 		}
+// 	}
+// }
 
 DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 {
@@ -634,11 +634,43 @@ DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
 
 DLL_EXPORT void InsertNewStack::applyGs( CGameState *gs )
 {
-	sl.army->putStack(sl.slot, stack);
+	CStackInstance *s = new CStackInstance(stack.type, stack.count);
+	sl.army->putStack(sl.slot, s);
 }
 
 DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 {
+	const CCreature *srcType = src.army->getCreature(src.slot);
+	TQuantity srcCount = src.army->getStackCount(src.slot);
+
+	if(srcCount == count) //moving whole stack
+	{
+		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
+		{
+			assert(c == srcType);
+			src.army->eraseStack(src.slot);
+			dst.army->changeStackCount(dst.slot, count);
+		}
+		else //move stack to an empty slot
+		{
+			CStackInstance *stackDetached = src.army->detachStack(src.slot);
+			dst.army->putStack(dst.slot, stackDetached);
+		}
+	}
+	else
+	{
+		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
+		{
+			assert(c == srcType);
+			src.army->changeStackCount(src.slot, -count);
+			dst.army->changeStackCount(dst.slot, count);
+		}
+		else //split stack to an empty slot
+		{
+			src.army->changeStackCount(src.slot, -count);
+			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+		}
+	}
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
@@ -786,7 +818,20 @@ DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 	info->belligerents[0]->battle = info->belligerents[1]->battle = info;
 
 	BOOST_FOREACH(CStack *s, info->stacks)
-		s->attachTo(const_cast<CStackInstance*>(s->base));
+	{
+		if(s->base) //stack originating from "real" stack in garrison -> attach to it
+		{
+			s->attachTo(const_cast<CStackInstance*>(s->base));
+		}
+		else //attach directly to obj to which stack belongs and creature type
+		{
+			CArmedInstance *army = info->belligerents[!s->attackerOwned];
+			s->attachTo(army);
+			assert(s->type);
+			s->attachTo(const_cast<CCreature*>(s->type));
+		}
+		s->postInit();
+	}
 }
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )

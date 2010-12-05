@@ -308,12 +308,12 @@ void TryMoveHero::applyCl( CClient *cl )
 	}
 }
 
-void SetGarrisons::applyCl( CClient *cl )
-{
-	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
-		if(vstd::contains(cl->playerint,cl->getOwner(i->first)))
-			cl->playerint[cl->getOwner(i->first)]->garrisonChanged(cl->getObj(i->first));
-}
+// void SetGarrisons::applyCl( CClient *cl )
+// {
+// 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
+// 		if(vstd::contains(cl->playerint,cl->getOwner(i->first)))
+// 			cl->playerint[cl->getOwner(i->first)]->garrisonChanged(cl->getObj(i->first));
+// }
 
 void NewStructures::applyCl( CClient *cl )
 {

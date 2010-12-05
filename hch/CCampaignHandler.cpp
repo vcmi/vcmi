@@ -531,13 +531,12 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	//trimming creatures
 	BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 	{
-		CCreatureSet army = cgh->getArmy();
-		for (TSlots::iterator j = army.slots.begin(); j != army.slots.end(); j++)
+		for (TSlots::const_iterator j = cgh->Slots().begin(); j != cgh->Slots().end(); j++)
 		{
-			if (! (travelOptions.monstersKeptByHero[j->first / 8] & (1 << (j->first%8)) ))
+			if (!(travelOptions.monstersKeptByHero[j->first / 8] & (1 << (j->first%8)) ))
 			{
-				army.slots.erase(j);
-				j = army.slots.begin();
+				cgh->eraseStack(j->first);
+				j = cgh->Slots().begin();
 			}
 		}
 	}

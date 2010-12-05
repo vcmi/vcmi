@@ -105,7 +105,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<UpdateCampaignState>();
 	s.template registerType<RemoveObject>();
 	s.template registerType<TryMoveHero>();
-	s.template registerType<SetGarrisons>();
+	//s.template registerType<SetGarrisons>();
 	s.template registerType<NewStructures>();
 	s.template registerType<RazeStructures>();
 	s.template registerType<SetAvailableCreatures>();

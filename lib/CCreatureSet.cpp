@@ -295,6 +295,11 @@ CCreatureSet::CCreatureSet()
 	formation = false;
 }
 
+CCreatureSet::CCreatureSet(const CCreatureSet&)
+{
+	assert(0);
+}
+
 CCreatureSet::~CCreatureSet()
 {
 	clear();
@@ -322,7 +327,11 @@ CStackInstance * CCreatureSet::detachStack(TSlot slot)
 	CStackInstance *ret = slots[slot];
 
 	if(CArmedInstance *armedObj = castToArmyObj())
-		ret->detachFrom(armedObj);
+	{
+		ret->setArmyObj(NULL); //detaches from current armyobj
+	}
+
+	assert(!ret->armyObj); //we failed detaching?
 
 	slots.erase(slot);
 	return ret;
@@ -351,6 +360,12 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs) const
 bool CCreatureSet::hasStackAtSlot(TSlot slot) const
 {
 	return vstd::contains(slots, slot);
+}
+
+CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
+{
+	assert(0);
+	return cs;
 }
 
 CStackInstance::CStackInstance()
@@ -410,10 +425,9 @@ void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 	if(_armyObj)
 		detachFrom(const_cast<CArmedInstance*>(_armyObj));
 
+	_armyObj = ArmyObj;
 	if(ArmyObj)
 	{
-		_armyObj = ArmyObj;
-
 		attachTo(const_cast<CArmedInstance*>(_armyObj));
 	}
 }
@@ -446,6 +460,11 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 		return allowUnrandomized;
 }
 
+CStackInstance::~CStackInstance()
+{
+
+}
+
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
 	type = NULL;
@@ -454,6 +473,11 @@ CStackBasicDescriptor::CStackBasicDescriptor()
 
 CStackBasicDescriptor::CStackBasicDescriptor(TCreature id, TQuantity Count)
 	: type (VLC->creh->creatures[id]), count(Count)
+{
+}
+
+CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count)
+	: type(c), count(Count)
 {
 }
 

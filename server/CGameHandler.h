@@ -92,6 +92,7 @@ public:
 	bool isAllowedExchange(int id1, int id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, int dest); //returned value - travelled distance
+	void takeCasualties(const CArmedInstance *army, BattleInfo *bat);
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void checkLossVictory(ui8 player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
@@ -136,7 +137,6 @@ public:
 	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
 	void giveResource(int player, int which, int val);
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove);
-	void takeCreatures (int objid, TSlots creatures);
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
 	bool changeStackType(const StackLocation &sl, CCreature *c);
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
@@ -152,7 +152,6 @@ public:
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
 	void giveNewArtifact(int hid, int position);
-	void moveArtifact(int hid, int oldPosition, int destPos);
 	bool removeArtifact(CArtifact* art, int hid);
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used
@@ -223,7 +222,8 @@ public:
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info);
-	void sendAndApply(SetGarrisons * info);
+	void sendAndApply(CGarrisonOperationPack * info);
+	//void sendAndApply(SetGarrisons * info);
 	void sendAndApply(SetResource * info);
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);

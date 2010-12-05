@@ -26,6 +26,7 @@
 #include "../hch/CVideoHandler.h"
 #include "../hch/CTownHandler.h"
 #include <boost/assign/list_of.hpp>
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #ifndef __GNUC__
@@ -1138,12 +1139,12 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	curInt->battleInt = this;
 
 	//initializing armies
-	this->army1 = *army1;
-	this->army2 = *army2;
-	std::map<int, CStack> stacks = curInt->cb->battleGetStacks();
-	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
+	this->army1 = army1;
+	this->army2 = army2;
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks();
+	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		newStack(b->second.ID);
+		newStack(s->ID);
 	}
 
 	//preparing menu background and terrain
@@ -1264,34 +1265,33 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		bfield[h].myInterface = this;
 	}
 	//locking occupied positions on batlefield
-	for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) //stacks gained at top of this function
-	{
-		if(it->second.position >= 0) //turrets have position < 0
-			bfield[it->second.position].accessible = false;
-	}
+	BOOST_FOREACH(const CStack *s, stacks)  //stacks gained at top of this function
+		if(s->position >= 0) //turrets have position < 0
+			bfield[s->position].accessible = false;
 
 	//loading projectiles for units
-	for(std::map<int, CStack>::iterator g = stacks.begin(); g != stacks.end(); ++g)
+	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		int creID = (g->second.getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : g->second.getCreature()->idNumber; //id of creature whose shots should be loaded
-		if(g->second.getCreature()->isShooting() && CGI->creh->idToProjectile.find(creID) != CGI->creh->idToProjectile.end())
-		{	
-			idToProjectile[g->second.getCreature()->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile.find(creID)->second);
+		int creID = (s->getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : s->getCreature()->idNumber; //id of creature whose shots should be loaded
+		if(s->getCreature()->isShooting() && vstd::contains(CGI->creh->idToProjectile, creID))
+		{
+			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];
+			projectile = CDefHandler::giveDef(CGI->creh->idToProjectile[creID]);
 
-			if(idToProjectile[g->second.getCreature()->idNumber]->ourImages.size() > 2) //add symmetric images
+			if(projectile->ourImages.size() > 2) //add symmetric images
 			{
-				for(int k = idToProjectile[g->second.getCreature()->idNumber]->ourImages.size()-2; k > 1; --k)
+				for(int k = projectile->ourImages.size()-2; k > 1; --k)
 				{
 					Cimage ci;
-					ci.bitmap = CSDL_Ext::rotate01(idToProjectile[g->second.getCreature()->idNumber]->ourImages[k].bitmap);
+					ci.bitmap = CSDL_Ext::rotate01(projectile->ourImages[k].bitmap);
 					ci.groupNumber = 0;
 					ci.imName = std::string();
-					idToProjectile[g->second.getCreature()->idNumber]->ourImages.push_back(ci);
+					projectile->ourImages.push_back(ci);
 				}
 			}
-			for(int s=0; s<idToProjectile[g->second.getCreature()->idNumber]->ourImages.size(); ++s) //alpha transforming
+			for(int s=0; s<projectile->ourImages.size(); ++s) //alpha transforming
 			{
-				CSDL_Ext::alphaTransform(idToProjectile[g->second.getCreature()->idNumber]->ourImages[s].bitmap);
+				CSDL_Ext::alphaTransform(projectile->ourImages[s].bitmap);
 			}
 		}
 	}
@@ -1467,7 +1467,7 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::show(SDL_Surface * to)
 {
-	std::map<int, CStack> stacks = curInt->cb->battleGetStacks(); //used in a few places
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //used in a few places
 	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
@@ -1558,20 +1558,20 @@ void CBattleInterface::show(SDL_Surface * to)
 	////showing units //a lot of work...
 	std::vector<int> stackAliveByHex[BFIELD_SIZE];
 	//double loop because dead stacks should be printed first
-	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
+	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		if(creAnims.find(j->second.ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+		if(creAnims.find(s->ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[j->second.ID]->getType() != 5 && j->second.position >= 0) //don't show turrets here
-			stackAliveByHex[j->second.position].push_back(j->second.ID);
+		if(creAnims[s->ID]->getType() != 5 && s->position >= 0) //don't show turrets here
+			stackAliveByHex[s->position].push_back(s->ID);
 	}
 	std::vector<int> stackDeadByHex[BFIELD_SIZE];
-	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
+	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		if(creAnims.find(j->second.ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+		if(creAnims.find(s->ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[j->second.ID]->getType() == 5)
-			stackDeadByHex[j->second.position].push_back(j->second.ID);
+		if(creAnims[s->ID]->getType() == 5)
+			stackDeadByHex[s->position].push_back(s->ID);
 	}
 
 	//handle animations
@@ -1607,11 +1607,11 @@ void CBattleInterface::show(SDL_Surface * to)
 			activate();
 
 		//restoring good directions of stacks
-		for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
+		BOOST_FOREACH(const CStack *s, stacks)
 		{
-			if(creDir[it->second.ID] != bool(it->second.attackerOwned) && it->second.alive())
+			if(creDir[s->ID] != bool(s->attackerOwned) && s->alive())
 			{
-				addNewAnim(new CReverseAnim(this, it->second.ID, it->second.position, false));
+				addNewAnim(new CReverseAnim(this, s->ID, s->position, false));
 			}
 		}
 
@@ -1631,17 +1631,18 @@ void CBattleInterface::show(SDL_Surface * to)
 			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], animCount, false); //increment always when moving, never if stack died
 		}
 	}
-	std::vector<int> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
+	std::vector<const CStack *> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
 	{
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int curStackID = stackAliveByHex[b][v];
+			const CStack *s = LOCPLINT->cb->battleGetStackByID(curStackID, false); //TODO: dlaczego brak false psuje?
 			
-			if(!stacks[curStackID].hasBonusOfType(Bonus::FLYING) || creAnims[curStackID]->getType() != 0)
-				showAliveStack(curStackID, stacks, to);
+			if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[curStackID]->getType() != 0)
+				showAliveStack(s, to);
 			else
-				flyingStacks.push_back(curStackID);
+				flyingStacks.push_back(s);
 		}
 
 		//showing obstacles
@@ -1663,7 +1664,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 	
 	for(int b=0; b<flyingStacks.size(); ++b) //showing flyign stacks
-		showAliveStack(flyingStacks[b], stacks, to);
+		showAliveStack(flyingStacks[b], to);
 
 	//units shown
 
@@ -2279,23 +2280,23 @@ void CBattleInterface::stackAttacking(int ID, int dest, int attackedID)
 void CBattleInterface::newRoundFirst( int round )
 {
 	//handle regeneration
-	std::map<int, CStack> stacks = curInt->cb->battleGetStacks();
-	for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks();
+	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		//don't show animation when no HP is regenerated
-		if (it->second.firstHPleft == it->second.MaxHealth())
+		if (s->firstHPleft == s->MaxHealth())
 		{
 			continue;
 		}
 
-		if( it->second.hasBonusOfType(Bonus::HP_REGENERATION) && it->second.alive() )
-			displayEffect(74, it->second.position);
+		if( s->hasBonusOfType(Bonus::HP_REGENERATION) && s->alive() )
+			displayEffect(74, s->position);
 
-		if( it->second.hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0) && it->second.alive() )
-			displayEffect(4, it->second.position);
+		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0) && s->alive() )
+			displayEffect(4, s->position);
 
-		if( it->second.hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1) && it->second.alive() )
-			displayEffect(74, it->second.position);
+		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1) && s->alive() )
+			displayEffect(74, s->position);
 	}
 }
 
@@ -2967,12 +2968,12 @@ void CBattleInterface::endCastingSpell()
 	CGI->curh->changeGraphic(1, 6);
 }
 
-void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to)
+void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 {
+	int ID = stack->ID;
 	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 		return;
 
-	const CStack &curStack = stacks.find(ID)->second;
 	int animType = creAnims[ID]->getType();
 
 	int affectingSpeed = curInt->sysOpts.animSpeed;
@@ -3006,21 +3007,21 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, ID==activeStack, ID==mouseHoveredStack); //increment always when moving, never if stack died
 
 	//printing amount
-	if(curStack.count > 0 //don't print if stack is not alive
+	if(stack->count > 0 //don't print if stack is not alive
 		&& (!curInt->curAction
 			|| (curInt->curAction->stackNumber != ID //don't print if stack is currently taking an action
-				&& (curInt->curAction->actionType != 6  ||  curStack.position != curInt->curAction->additionalInfo) //nor if it's an object of attack
-				&& (curInt->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
+				&& (curInt->curAction->actionType != 6  ||  stack->position != curInt->curAction->additionalInfo) //nor if it's an object of attack
+				&& (curInt->curAction->destinationTile != stack->position) //nor if it's on destination tile for current action
 				)
 			)
-			&& !curStack.hasBonusOfType(Bonus::SIEGE_WEAPON) //and not a war machine...
+			&& !stack->hasBonusOfType(Bonus::SIEGE_WEAPON) //and not a war machine...
 	)
 	{
-		int xAdd = curStack.attackerOwned ? 220 : 202;
+		int xAdd = stack->attackerOwned ? 220 : 202;
 
 		//blitting amoutn background box
 		SDL_Surface *amountBG = NULL;
-		BonusList spellEffects = curStack.getSpellBonuses();
+		BonusList spellEffects = stack->getSpellBonuses();
 		if(!spellEffects.size())
 		{
 			amountBG = amountNormal;
@@ -3028,7 +3029,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 		else
 		{
 			int pos=0; //determining total positiveness of effects
-			std::vector<si32> spellIds = curStack.activeSpells();
+			std::vector<si32> spellIds = stack->activeSpells();
 			for(std::vector<si32>::const_iterator it = spellIds.begin(); it != spellIds.end(); it++)
 			{
 				pos += CGI->spellh->spells[ *it ].positiveness;
@@ -3049,7 +3050,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + 260));
 		//blitting amount
 		CSDL_Ext::printAtMiddle(
-			makeNumberShort(curStack.count),
+			makeNumberShort(stack->count),
 			creAnims[ID]->pos.x + xAdd + 15,
 			creAnims[ID]->pos.y + 260 + 5,
 			FONT_TINY,
@@ -3059,7 +3060,7 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	}
 }
 
-void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks)
+void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks)
 {
 	if(!siegeH)
 		return;
@@ -3094,18 +3095,20 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::map
 
 		if(posToSeek != -1)
 		{
-			int ID = -1;
-			for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
+			const CStack *turret = NULL;
+
+			BOOST_FOREACH(const CStack *s, stacks)
 			{
-				if(it->second.position == posToSeek)
+				if(s->position == posToSeek)
 				{
-					ID = it->second.ID;
+					turret = s;
 					break;
 				}
 			}
-			if(ID != -1)
+
+			if(turret)
 			{
-				showAliveStack(ID, stacks, to);
+				showAliveStack(turret, to);
 				//blitting creature cover
 				switch(posToSeek)
 				{
@@ -3621,7 +3624,7 @@ void CBattleHex::clickRight(tribool down, bool previousState)
 		if(!myst.alive()) return;
 		if(down)
 		{
-			GH.pushInt(new CCreInfoWindow(*myst.base));
+			GH.pushInt(new CCreInfoWindow(myst));
 		}
 	}
 }
@@ -3746,7 +3749,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(TSlots::const_iterator it = owner->army1.Slots().begin(); it!=owner->army1.Slots().end(); ++it)
+		for(TSlots::const_iterator it = owner->army1->Slots().begin(); it!=owner->army1->Slots().end(); ++it)
 		{
 			if( it->second->type->AIValue > bestPower)
 			{
@@ -3768,7 +3771,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		int bestMonsterID = -1;
 		int bestPower = 0;
-		for(TSlots::const_iterator it = owner->army2.Slots().begin(); it!=owner->army2.Slots().end(); ++it)
+		for(TSlots::const_iterator it = owner->army2->Slots().begin(); it!=owner->army2->Slots().end(); ++it)
 		{
 			if( it->second->type->AIValue > bestPower)
 			{

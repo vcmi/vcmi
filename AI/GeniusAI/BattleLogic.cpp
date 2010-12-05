@@ -4,6 +4,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
+#include <boost/foreach.hpp>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -72,8 +73,8 @@ void CBattleLogic::SetCurrentTurn(int turn)
 
 void CBattleLogic::MakeStatistics(int currentCreatureId)
 {
-	typedef std::map<int, CStack> map_stacks;
-	map_stacks allStacks = m_cb->battleGetStacks();
+	typedef std::vector<const CStack*> vector_stacks;
+	vector_stacks allStacks = m_cb->battleGetStacks();
 	const CStack *currentStack = m_cb->battleGetStackByID(currentCreatureId);
 	if(currentStack->position < 0) //turret
 	{
@@ -118,14 +119,13 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	int totalDamage = 0;
 	int totalHitPoints = 0;
 
-	for (map_stacks::const_iterator it = allStacks.begin(); it != allStacks.end(); ++it)
+	BOOST_FOREACH(const CStack *st, allStacks)
 	{
-		const CStack *st = &it->second;
 		const int stackHP = st->valOfBonuses(Bonus::STACK_HEALTH);
 
-		if ((it->second.attackerOwned != 0) != m_bIsAttacker)
+		if ((st->attackerOwned != 0) != m_bIsAttacker)
 		{
-			int id = it->first;
+			int id = st->ID;
 			if (st->count < 1)
 			{
 				continue;

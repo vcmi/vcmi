@@ -384,7 +384,7 @@ private:
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
 	CStackQueue *queue;
-	CCreatureSet army1, army2; //copy of initial armies (for result window)
+	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
@@ -407,8 +407,8 @@ private:
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
-	void showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to); //helper function for function show
-	void showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks); //helper function for show
+	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
+	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
 	void redrawBackgroundWithHexes(int activeStack);
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 

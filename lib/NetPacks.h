@@ -529,19 +529,20 @@ struct TryMoveHero : public CPackForClient //501
 	}
 };
 
-struct SetGarrisons : public CPackForClient //502
-{
-	SetGarrisons(){type = 502;};
-	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
+// struct SetGarrisons : public CPackForClient //502
+// {
+// 	SetGarrisons(){type = 502;};
+// 	void applyCl(CClient *cl);
+// 	DLL_EXPORT void applyGs(CGameState *gs);
+// 
+// 	std::map<ui32,CCreatureSet> garrs;
+// 
+// 	template <typename Handler> void serialize(Handler &h, const int version)
+// 	{
+// 		h & garrs;
+// 	}
+// }; 
 
-	std::map<ui32,CCreatureSet> garrs;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & garrs;
-	}
-}; 
 struct NewStructures : public CPackForClient //504
 {
 	NewStructures(){type = 504;};
@@ -598,7 +599,7 @@ struct SetHeroesInTown : public CPackForClient //508
 	{
 		h & tid & visiting & garrison;
 	}
-};  
+};
 struct SetHeroArtifacts : public CPackForClient //509
 {
 	SetHeroArtifacts(){type = 509;};
@@ -798,7 +799,7 @@ struct SwapStacks : CGarrisonOperationPack  //524
 struct InsertNewStack : CGarrisonOperationPack //525
 {
 	StackLocation sl;
-	CStackInstance *stack;
+	CStackBasicDescriptor stack;
 
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
@@ -810,7 +811,7 @@ struct InsertNewStack : CGarrisonOperationPack //525
 };
 
 //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
-struct RebalanceStacks : CGarrisonOperationPack  //525
+struct RebalanceStacks : CGarrisonOperationPack  //526
 {
 	StackLocation src, dst;
 	TQuantity count;

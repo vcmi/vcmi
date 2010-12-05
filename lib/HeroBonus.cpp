@@ -116,6 +116,7 @@ int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selec
 {
 	return valOfBonuses(Selector::type(type) && selector);
 }
+
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
 {
 	CSelector s = Selector::type(type);
@@ -124,6 +125,7 @@ int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) 
 
 	return valOfBonuses(s);
 }
+
 int CBonusSystemNode::valOfBonuses(const CSelector &selector) const
 {
 	BonusList hlp;
@@ -300,8 +302,7 @@ CBonusSystemNode::CBonusSystemNode()
 
 CBonusSystemNode::~CBonusSystemNode()
 {
-	while(parents.size())
-		detachFrom(parents.front());
+	detachFromAll();
 
 	if(children.size())
 	{
@@ -313,13 +314,13 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 {
 	assert(!vstd::contains(parents, parent));
 	parents.push_back(parent);
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
-		propagateBonus(b);
-
-	if(parent->weActAsBonusSourceOnly())
-	{
-
-	}
+// 	BOOST_FOREACH(Bonus *b, exportedBonuses)
+// 		propagateBonus(b);
+// 
+// 	if(parent->weActAsBonusSourceOnly())
+// 	{
+// 
+// 	}
 
 	parent->newChildAttached(this);
 }
@@ -413,6 +414,17 @@ void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 	children -= child;
 }
 
+void CBonusSystemNode::detachFromAll()
+{
+	while(parents.size())
+		detachFrom(parents.front());
+}
+
+bool CBonusSystemNode::isIndependentNode() const
+{
+	return parents.empty() && children.empty();
+}
+
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	if(obj)
@@ -466,7 +478,7 @@ std::string Bonus::Description() const
 		str << VLC->creh->creatures[id]->namePl;
 		break;
 	}
-	
+
 	return str.str();
 }
 

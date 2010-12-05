@@ -53,17 +53,17 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
 
 	//army
-	for (TSlots::const_iterator i = curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
+	for (ArmyDescriptor::const_iterator i = curh.army.begin(); i!=curh.army.end();i++)
 	{
-		blitAt(graphics->smallImgs[(*i).second->type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		blitAt(graphics->smallImgs[i->second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
-			SDL_itoa((*i).second->count,buf,10);
+			SDL_itoa((*i).second.count,buf,10);
 			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else
 		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second->count-1)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count-1)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 	}
 
@@ -110,15 +110,15 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
 
-	for (TSlots::const_iterator i=curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
+	for (ArmyDescriptor::const_iterator i=curh.army.begin(); i!=curh.army.end();i++)
 	{
 		//if(!i->second.second)
 		//	continue;
-		blitAt(graphics->smallImgs[(*i).second->type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
 			// Show exact creature amount.
-			SDL_itoa((*i).second->count,buf,10);
+			SDL_itoa((*i).second.count,buf,10);
 			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
 		}
 		else

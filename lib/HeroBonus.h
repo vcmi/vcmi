@@ -410,6 +410,7 @@ public:
 
 	void attachTo(CBonusSystemNode *parent);
 	void detachFrom(CBonusSystemNode *parent);
+	void detachFromAll();
 	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
 
 	void newChildAttached(CBonusSystemNode *child);
@@ -419,6 +420,7 @@ public:
 	void removeBonus(Bonus *b);
 
 	TNodesVector &nodesOnWhichWePropagate();
+	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool weActAsBonusSourceOnly() const;
 	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 	CBonusSystemNode *whereToPropagate(Bonus *b);
@@ -432,7 +434,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE
+		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO
 	};
 };
 

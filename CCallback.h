@@ -61,7 +61,7 @@ struct InfoAboutTown
 	CTown *tType;
 	bool built;
 
-	CCreatureSet army; //numbers of creatures are valid only if details
+	ArmyDescriptor army; //numbers of creatures are valid only if details
 
 	InfoAboutTown();
 	~InfoAboutTown();
@@ -166,7 +166,7 @@ public:
 	virtual const CStack * battleGetStackByPos(int pos, bool onlyAlive = true)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
+	virtual std::vector<const CStack*> battleGetStacks()=0; //returns stacks on battlefield
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
@@ -297,7 +297,7 @@ public:
 	const CStack * battleGetStackByPos(int pos, bool onlyAlive = true); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
-	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
+	std::vector<const CStack*> battleGetStacks(); //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
 	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID

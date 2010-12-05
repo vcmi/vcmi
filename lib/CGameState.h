@@ -68,6 +68,13 @@ namespace boost
 	class shared_mutex;
 }
 
+//numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionaly -1 - unknown)
+struct DLL_EXPORT ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
+{
+	ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	ArmyDescriptor();
+};
+
 struct DLL_EXPORT InfoAboutHero
 {
 private:
@@ -83,7 +90,8 @@ public:
 	const CHeroClass *hclass;
 	std::string name;
 	int portrait;
-	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
+
+	ArmyDescriptor army; 
 
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
@@ -285,6 +293,7 @@ public:
 	BonusList getSpellBonuses() const;
 	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
+	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise
 
 	static inline Bonus *featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 	{
@@ -307,6 +316,12 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		assert(isIndependentNode());
+		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CStackBasicDescriptor&>(*this);
+		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
+			& shots & count;
+
 		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
 		const CArmedInstance *army = (base ? base->armyObj : NULL);
 		if(h.saving)
@@ -316,13 +331,17 @@ public:
 		else
 		{
 			h & army & slot;
-			base = &army->getStack(slot);
+			if(!army || slot == -1 || !army->hasStackAtSlot(slot))
+			{
+				base = NULL;
+				tlog3 << type->nameSing << " don't have a base stack!\n";
+			}
+			else
+			{
+				base = &army->getStack(slot);
+			}
 		}
 
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & count;
 	}
 	bool alive() const //determines if stack is alive
 	{

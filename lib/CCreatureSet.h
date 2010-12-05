@@ -24,6 +24,7 @@ public:
 
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(TCreature id, TQuantity Count);
+	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -57,6 +58,8 @@ public:
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count);
 	CStackInstance(const CCreature *cre, TQuantity count);
+	~CStackInstance();
+
 	void setType(int creID);
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
@@ -71,6 +74,8 @@ typedef std::map<TSlot, CStackInstance*> TSlots;
 
 class DLL_EXPORT CCreatureSet //seven combined creatures
 {
+	CCreatureSet(const CCreatureSet&);;
+	CCreatureSet &operator=(const CCreatureSet&);
 public:
 	TSlots slots; //slots[slot_id]->> pair(creature_id,creature_quantity)
 	ui8 formation; //false - wide, true - tight

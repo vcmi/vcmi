@@ -25,6 +25,7 @@
  *
  */
 
+class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
 class CDefEssential;
@@ -879,8 +880,9 @@ public:
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	CCreInfoWindow(const CStackInstance &st, int Type = 0, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
+	CCreInfoWindow(const CStack &st, int Type = 0); //c-tor
 	CCreInfoWindow(int Cid, int Type, int creatureCount); //c-tor
-	void init(const CCreature *cre, const CStackInstance *stack, int creatureCount);
+	void init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	~CCreInfoWindow(); //d-tor
 	void activate();
@@ -892,10 +894,21 @@ public:
 	void show(SDL_Surface * to);
 };
 
+namespace Arts
+{
+	enum EPos
+	{
+		PRE_FIRST = -1, 
+		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
+		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
+		AFTER_LAST
+	};
+}
+
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:
-	ui16 slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
+	int slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
 	bool marked;
 	bool selectedNo;
@@ -914,6 +927,7 @@ public:
 	void userSelectedNo ();
 	~CArtPlace(); //d-tor
 };
+
 
 class CArtifactsOfHero : public CIntObject
 {

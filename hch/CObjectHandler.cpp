@@ -777,6 +777,7 @@ const CArtifact * CGHeroInstance::getArt(int pos) const
 CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)
 {
+	nodeType = HERO;
 	ID = HEROI_TYPE;
 	tacticFormationEnabled = inTownGarrison = false;
 	mana = movement = portrait = level = -1;
@@ -3449,28 +3450,27 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 			{
 				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
 				{
-					CCreatureSet army = h->getArmy();
-					if (army.Slots().size() > 1 || army.Slots().begin()->second->count > 1)
+					if (h->Slots().size() > 1 || h->Slots().begin()->second->count > 1)
 					{ //we can't remove last unit
-						int targetstack = army.Slots().begin()->first; //slot numbers may vary
-						for(TSlots::const_reverse_iterator i = army.Slots().rbegin(); i != army.Slots().rend(); i++)
+						TSlot targetstack = h->Slots().begin()->first; //slot numbers may vary
+						for(TSlots::const_reverse_iterator i = h->Slots().rbegin(); i != h->Slots().rend(); i++)
 						{
-							if (army.getPower(targetstack) > army.getPower(i->first))
+							if (h->getPower(targetstack) > h->getPower(i->first))
 							{
 								targetstack = (i->first);
 							}
 						}
-						std::vector<CStackBasicDescriptor> cresToTake;
-						cresToTake.push_back(CStackBasicDescriptor(army.getStack(targetstack)));
-						cresToTake[0].count * 0.5;
-						amax (cresToTake[0].count, 1);
+
+						TQuantity countToTake = h->getStackCount(targetstack) * 0.5;
+						amax(countToTake, 1);
+
 
 						InfoWindow iw;
 						iw.player = h->tempOwner;
 						iw.text.addTxt (MetaString::ADVOB_TXT, 168);
-						iw.components.push_back (Component(cresToTake[0]));
+						iw.components.push_back (Component(CStackBasicDescriptor(h->getCreature(targetstack), countToTake)));
 						cb->showInfoDialog(&iw);
-					    cb->takeCreatures (h->id, cresToTake);
+						cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 					}
 				}
 			}
@@ -4380,7 +4380,7 @@ int CGSeerHut::checkDirection() const
 			return 4;
 	}
 }
-void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
+void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 {
 	if (accept)
 	{
@@ -4393,7 +4393,7 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 				}
 				break;
 			case CQuest::MISSION_ARMY:
-					cb->takeCreatures (h->id, m6creatures);
+					cb->takeCreatures(h->id, m6creatures);
 				break;
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
@@ -4404,7 +4404,7 @@ void CGSeerHut::finishQuest (const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty (id,11,0); //no more mission avaliable	
+		cb->setObjProperty(id,11,0); //no more mission avaliable	
 		completeQuest(h); //make sure to remove QuestQuard at the very end	
 	}
 }
@@ -4453,11 +4453,11 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		}
 			break;
 		case 10:// creature
-		{
-			CCreatureSet creatures;
-			creatures.setCreature (0, rID, rVal);
-			cb->giveCreatures (id, h, creatures,false);
-		}
+			{
+				CCreatureSet creatures;
+				creatures.setCreature(0, rID, rVal);
+				cb->giveCreatures (id, h, creatures,false);
+			}
 			break;
 		default:
 			break;

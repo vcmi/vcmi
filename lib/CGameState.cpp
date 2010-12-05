@@ -708,7 +708,7 @@ CStack::CStack()
 }
 
 CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
-	: ID(I), owner(O), slot(S), attackerOwned(AO), position(-1), counterAttacks(1)
+	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1), counterAttacks(1)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -1021,8 +1021,21 @@ std::vector<si32> CStack::activeSpells() const
 
 CStack::~CStack()
 {
+	detachFromAll();
 	if(vstd::contains(state, SUMMONED))
 		delNull(base);
+}
+
+const CGHeroInstance * CStack::getMyHero() const
+{
+	if(base)
+		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
+	else //we are attached directly?
+		BOOST_FOREACH(const CBonusSystemNode *n, parents)
+			if(n->nodeType == HERO)
+				dynamic_cast<const CGHeroInstance *>(n);
+
+	return NULL;
 }
 
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
@@ -3482,14 +3495,18 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int position) const
 {
-	CStack * ret = new CStack(&base, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
+	int owner = attackerOwned ? side1 : side2;
+	assert(owner >= PLAYER_LIMIT  ||  base.armyObj && base.armyObj->tempOwner == owner);
+
+	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
  	ret->position = position;
 	return ret;
 }
 
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, int position) const
 {
-	CStack * ret = new CStack(&base, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
+	int owner = attackerOwned ? side1 : side2;
+	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	return ret;
 }
@@ -4578,7 +4595,7 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 	hclass = h->type->heroClass;
 	name = h->name;
 	portrait = h->portrait;
-	army = h->getArmy(); 
+	army = ArmyDescriptor(h, detailed);
 
 	if(detailed) 
 	{
@@ -4592,14 +4609,6 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 		for (int i = 0; i < PRIMARY_SKILLS ; i++)
 		{
 			details->primskills[i] = h->getPrimSkillLevel(i);
-		}
-	}
-	else
-	{
-		//hide info about hero stacks counts using descriptives names ids
-		for(TSlots::const_iterator i = army.Slots().begin(); i != army.Slots().end(); ++i)
-		{
-			army.setStackCount(i->first, i->second->getQuantityID()+1);
 		}
 	}
 }
@@ -4621,3 +4630,19 @@ InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
 }
 
 
+
+ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
+{
+	for(TSlots::const_iterator i = army->Slots().begin(); i != army->Slots().end(); i++)
+	{
+		if(detailed)
+			(*this)[i->first] = *i->second;
+		else
+			(*this)[i->first] = CStackBasicDescriptor(i->second->type, i->second->getQuantityID());
+	}
+}
+
+ArmyDescriptor::ArmyDescriptor()
+{
+
+}

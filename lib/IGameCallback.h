@@ -88,7 +88,7 @@ public:
 	virtual void showThievesGuildWindow(int requestingObjId) =0;
 	virtual void giveResource(int player, int which, int val)=0;
 	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove) =0;
-	virtual void takeCreatures (int objid, TSlots creatures) =0;
+	//virtual void takeCreatures (int objid, TSlots creatures) =0;
 	virtual void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
 	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
