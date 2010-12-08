@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CCallback.h"
+#include "hch/CCreatureHandler.h"
 #include "client/CGameInfo.h"
 #include "lib/CGameState.h"
 #include "client/CPlayerInterface.h"
@@ -34,13 +35,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-
-HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
-	:src(Src),dst(Dst),ho(Ho)
-{
-	owner = ho->getOwner();
-};
 
 template <ui16 N> bool isType(CPack *pack)
 {
@@ -500,12 +494,6 @@ std::vector<CObstacleInstance> CCallback::battleGetAllObstacles()
 		return std::vector<CObstacleInstance>();
 }
 
-int CCallback::battleGetStack(int pos, bool onlyAlive)
-{
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->battleGetStack(pos, onlyAlive);
-}
-
 const CStack* CCallback::battleGetStackByID(int ID, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -515,6 +503,7 @@ const CStack* CCallback::battleGetStackByID(int ID, bool onlyAlive)
 
 int CCallback::battleMakeAction(BattleAction* action)
 {
+	assert(action->actionType == BattleAction::HERO_SPELL);
 	MakeCustomAction mca(*action);
 	sendRequest(&mca);
 	return 0;
@@ -523,7 +512,7 @@ int CCallback::battleMakeAction(BattleAction* action)
 const CStack* CCallback::battleGetStackByPos(int pos, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return battleGetStackByID(battleGetStack(pos, onlyAlive), onlyAlive);
+	return battleGetStackByID(gs->battleGetStack(pos, onlyAlive), onlyAlive);
 }
 
 int CCallback::battleGetPos(int stack)
@@ -568,25 +557,6 @@ void CCallback::getStackQueue( std::vector<const CStack *> &out, int howMany )
 	gs->curB->getStackQueue(out, howMany);
 }
 
-CCreature CCallback::battleGetCreature(int number)
-{
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
-	if(!gs->curB)
-	{
-		tlog2<<"battleGetCreature called when there is no battle!"<<std::endl;
-	}
-	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
-	{
-		if(gs->curB->stacks[h]->ID == number) //creature found
-			return *(gs->curB->stacks[h]->type);
-	}
-#ifndef __GNUC__
-	throw new std::exception("Cannot find the creature");
-#else
-	throw new std::exception();
-#endif
-}
-
 std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -597,22 +567,6 @@ std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 	}
 	return gs->curB->getAccessibility(ID, addOccupiable);
 	//return gs->battleGetRange(ID);
-}
-
-bool CCallback::battleIsStackMine(int ID)
-{
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	if(!gs->curB)
-	{
-		tlog2<<"battleIsStackMine called when there is no battle!"<<std::endl;
-		return false;
-	}
-	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
-	{
-		if(gs->curB->stacks[h]->ID == ID) //creature found
-			return gs->curB->stacks[h]->owner == player;
-	}
-	return false;
 }
 
 bool CCallback::battleCanShoot(int ID, int dest)
@@ -939,16 +893,6 @@ void CCallback::dig( const CGObjectInstance *hero )
 	DigWithHero dwh;
 	dwh.id = hero->id;
 	sendRequest(&dwh);
-}
-
-si8 CCallback::battleGetStackMorale( int stackID )
-{
-	return gs->curB->getStack(stackID)->MoraleVal();
-}
-
-si8 CCallback::battleGetStackLuck( int stackID )
-{
-	return gs->curB->getStack(stackID)->LuckVal();
 }
 
 void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos)

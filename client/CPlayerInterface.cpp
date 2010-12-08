@@ -25,6 +25,7 @@
 #include "../lib/Connection.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/map.h"

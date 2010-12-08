@@ -9,6 +9,7 @@
 #include "../hch/CHeroHandler.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CMusicHandler.h"
 #include "CMessage.h"
 #include "CCursorHandler.h"
 #include "../CCallback.h"
@@ -3585,7 +3586,7 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{
-		if(myInterface->console->alterTxt.size() == 0 && myInterface->curInt->cb->battleGetStack(myNumber) != -1 &&
+		if(myInterface->console->alterTxt.size() == 0 && myInterface->curInt->cb->battleGetStackByID(myNumber) != NULL &&
 			myInterface->curInt->cb->battleGetStackByPos(myNumber)->owner != myInterface->curInt->playerID &&
 			myInterface->curInt->cb->battleGetStackByPos(myNumber)->alive())
 		{
@@ -3614,14 +3615,14 @@ void CBattleHex::clickLeft(tribool down, bool previousState)
 
 void CBattleHex::clickRight(tribool down, bool previousState)
 {
-	int stID = myInterface->curInt->cb->battleGetStack(myNumber); //id of stack being on this tile
-	if(hovered && strictHovered && stID!=-1)
+	const CStack * myst = myInterface->curInt->cb->battleGetStackByPos(myNumber); //stack info
+	if(hovered && strictHovered && myst!=NULL)
 	{
-		const CStack & myst = *myInterface->curInt->cb->battleGetStackByID(stID); //stack info
-		if(!myst.alive()) return;
+		
+		if(!myst->alive()) return;
 		if(down)
 		{
-			GH.pushInt(new CCreInfoWindow(myst));
+			GH.pushInt(new CCreInfoWindow(*myst));
 		}
 	}
 }

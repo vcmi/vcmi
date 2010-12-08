@@ -161,17 +161,13 @@ public:
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
 	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
-	virtual int battleGetStack(int pos, bool onlyAlive)=0; //returns ID of stack on the tile
 	virtual const CStack * battleGetStackByID(int ID, bool onlyAlive = true)=0; //returns stack info by given ID
 	virtual const CStack * battleGetStackByPos(int pos, bool onlyAlive = true)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
-	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
-	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
 	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
-	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
 	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
@@ -181,20 +177,8 @@ public:
 	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding to given side (0 - attacker, 1 - defender)
-	virtual si8 battleGetStackMorale(int stackID) =0; //returns morale of given stack
-	virtual si8 battleGetStackLuck(int stackID) =0; //returns luck of given stack
 	virtual si8 battleHasDistancePenalty(int stackID, int destHex) =0; //checks if given stack has distance penalty
 	virtual si8 battleHasWallPenalty(int stackID, int destHex) =0; //checks if given stack has wall penalty
-};
-
-struct HeroMoveDetails
-{
-	HeroMoveDetails(){};
-	HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho);
-	int3 src, dst; //source and destination points
-	CGHeroInstance * ho; //object instance of this hero
-	int owner, style; //style: 0 - normal move, 1 - teleport, 2 - instant jump
-	bool successful;
 };
 
 class CCallback : public ICallback
@@ -292,16 +276,13 @@ public:
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
-	int battleGetStack(int pos, bool onlyAlive = true); //returns ID of stack on the tile
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
 	const CStack * battleGetStackByPos(int pos, bool onlyAlive = true); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
-	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
 	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID
-	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	bool battleCanFlee(); //returns true if caller can flee from the battle
@@ -311,8 +292,6 @@ public:
 	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
-	si8 battleGetStackMorale(int stackID); //returns morale of given stack
-	si8 battleGetStackLuck(int stackID); //returns luck of given stack
 	si8 battleHasDistancePenalty(int stackID, int destHex); //checks if given stack has distance penalty
 	si8 battleHasWallPenalty(int stackID, int destHex); //checks if given stack has wall penalty
 	si8 battleCanTeleportTo(int stackID, int destHex, int telportLevel); //checks if teleportation of given stack to given position can take place

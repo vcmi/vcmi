@@ -12,6 +12,7 @@
 #include "CBattleInterface.h"
 #include "CPlayerInterface.h"
 #include "CMessage.h"
+#include "../hch/CMusicHandler.h"
 
 /*
  * AdventureMapButton.cpp, part of VCMI engine
