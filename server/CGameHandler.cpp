@@ -2087,7 +2087,7 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
-void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove)
+void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove)
 {
 	assert(0);
 // 	if (creatures.stacksCount() <= 0)

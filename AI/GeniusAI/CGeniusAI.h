@@ -61,7 +61,7 @@ private:
 			TownModel(const CGTownInstance *t);
 			const CGTownInstance *t;
 			std::vector<std::pair<ui32, std::vector<ui32> > > creaturesToRecruit;
-			CCreatureSet creaturesInGarrison;				//type, num
+			//CCreatureSet creaturesInGarrison;				//type, num
 			bool hasBuilt;
 		};
 		HypotheticalGameState(){}

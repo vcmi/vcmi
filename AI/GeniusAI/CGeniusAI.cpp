@@ -60,7 +60,7 @@ CGeniusAI::HypotheticalGameState::TownModel::TownModel(
 {
 	hasBuilt = static_cast<bool>(t->builded);
 	creaturesToRecruit = t->creatures;
-	creaturesInGarrison = t->getArmy();
+	//creaturesInGarrison = t->getArmy();
 }
 
 CGeniusAI::HypotheticalGameState::HypotheticalGameState(CGeniusAI& ai)
@@ -317,8 +317,8 @@ float CGeniusAI::TownObjective::getValue() const
 
 	 	 case upgradeCreatures:
 			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
-			  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
-			  howMany = whichTown->creaturesInGarrison.getStackCount(which);
+			  ID = whichTown->t->getCreature(which)->idNumber;
+			  howMany = whichTown->t->getStackCount(which);
 
 			newID = ui.newID.back();
 			int upgrade_serial = ui.newID.size() - 1;
@@ -425,7 +425,7 @@ void CGeniusAI::TownObjective::print() const
 
 		  case upgradeCreatures:
 			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo (whichTown->t, which);
-			  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+			  ID = whichTown->t->getCreature(which)->idNumber;
 			  tlog6 << "upgrade " << VLC->creh->creatures[ID]->namePl;
 			  //ui.cost	
 		  break;
@@ -746,8 +746,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 	{
 	  //upgrade hero's units
 		tlog6 << "visiting town" << endl;
-		CCreatureSet hcreatures = h->h->getArmy();
-		for (TSlots::const_iterator i = hcreatures.Slots().begin(); i != hcreatures.Slots().end(); i++)
+		for (TSlots::const_iterator i = h->h->Slots().begin(); i != h->h->Slots().end(); i++)
 		{ // For each hero slot.
 			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(h->h,i->first);
 
@@ -773,11 +772,10 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 	  }
 
 	  // Give town's units to hero.
-	  CCreatureSet tcreatures = town->getArmy();
 	  int weakestCreatureStack;
 	  int weakestCreatureAIValue = 99999; // we will lower it in the process
 
-	  for (TSlots::const_iterator i = tcreatures.Slots().begin(); i != tcreatures.Slots().end(); i++)
+	  for (TSlots::const_iterator i = town->Slots().begin(); i != town->Slots().end(); i++)
 	  {
 		  if (i->second->type->AIValue < weakestCreatureAIValue)
 		  {
@@ -785,15 +783,14 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 			  weakestCreatureStack    = i->first;
 		  }
 	  }
-	  for (TSlots::const_iterator i = tcreatures.Slots().begin(); i != tcreatures.Slots().end(); i++)\
+	  for (TSlots::const_iterator i = town->Slots().begin(); i != town->Slots().end(); i++)\
 	  { // For each town slot.
-		  hcreatures = h->h->getArmy();
-		  int hSlot = hcreatures.getSlotFor(i->second->type->idNumber);
+		  int hSlot = h->h->getSlotFor(i->second->type->idNumber);
 
 		  if (hSlot == -1)
 			continue;
 		  tlog6 << "giving hero " << i->second->type->namePl << endl;
-		  if (!hcreatures.slotEmpty(hSlot))
+		  if (!h->h->slotEmpty(hSlot))
 		  {
         // Can't take garrisonHero's last unit.
 			  if ( (i->first == weakestCreatureStack) && (town->garrisonHero != NULL) )
@@ -878,7 +875,7 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 	}
 
   // Upgrade creatures.
-	for (TSlots::const_iterator i = t.creaturesInGarrison.Slots().begin(); i != t.creaturesInGarrison.Slots().end(); i++)
+	for (TSlots::const_iterator i = t.t->Slots().begin(); i != t.t->Slots().end(); i++)
 	{
 		UpgradeInfo ui = m_cb->getUpgradeInfo(t.t, i->first);
 		if (ui.newID.size())
@@ -955,7 +952,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 
 		case upgradeCreatures:
 			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(whichTown->t, which);
-			ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+			ID = whichTown->t->getCreature(which)->idNumber;
 			newID = ui.newID.back();
 		// TODO: reduce resources in hgs
 			cg.m_cb->upgradeCreature(whichTown->t, which, newID);

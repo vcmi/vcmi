@@ -4456,7 +4456,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			{
 				CCreatureSet creatures;
 				creatures.setCreature(0, rID, rVal);
-				cb->giveCreatures (id, h, creatures,false);
+				cb->giveCreatures(id, h, creatures, false);
 			}
 			break;
 		default:

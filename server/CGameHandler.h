@@ -138,7 +138,7 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb);
 	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
 	void giveResource(int player, int which, int val);
-	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet creatures, bool remove);
+	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove);
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
 	bool changeStackType(const StackLocation &sl, CCreature *c);
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
