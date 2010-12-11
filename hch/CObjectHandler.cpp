@@ -1575,6 +1575,11 @@ void CGHeroInstance::initExp()
 	level = 1;
 }
 
+std::string CGHeroInstance::nodeName() const
+{
+	return "Hero " + name;
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -5008,24 +5013,23 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	if (creatures.Slots().size())
 	{ //this part is taken straight from creature bank
 		MetaString loot; 
-		CCreatureSet ourArmy = creatures;
-		for(TSlots::const_iterator i = ourArmy.Slots().begin(); i != ourArmy.Slots().end(); i++)
+		for(TSlots::const_iterator i = creatures.Slots().begin(); i != creatures.Slots().end(); i++)
 		{ //build list of joined creatures
 			iw.components.push_back(Component(*i->second));
 			loot << "%s";
 			loot.addReplacement(*i->second);
 		}
 
-		if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second->count == 1)
-			iw.text.addTxt (MetaString::ADVOB_TXT, 185);
+		if (creatures.Slots().size() == 1 && creatures.Slots().begin()->second->count == 1)
+			iw.text.addTxt(MetaString::ADVOB_TXT, 185);
 		else
-			iw.text.addTxt (MetaString::ADVOB_TXT, 186);
+			iw.text.addTxt(MetaString::ADVOB_TXT, 186);
 
 		iw.text.addReplacement(loot.buildList());
 		iw.text.addReplacement(h->name);
 
 		cb->showInfoDialog(&iw);
-		cb->giveCreatures (id, h, ourArmy, true);
+		cb->giveCreatures (id, h, creatures, true);
 		//boost::bind(&CGPandoraBox::endBattle, this, h, _1)
 	}
 	if(!afterBattle && message.size())

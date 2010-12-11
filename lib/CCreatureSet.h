@@ -64,6 +64,7 @@ public:
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	bool valid(bool allowUnrandomized) const;
+	virtual std::string nodeName() const OVERRIDE;
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);

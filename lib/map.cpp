@@ -777,10 +777,9 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	nt->garrisonHero = NULL;
 }
 
-void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i )
+CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i)
 {
-	CGHeroInstance * nhi = new CGHeroInstance;
-	nobj=nhi;
+	CGHeroInstance * nhi = new CGHeroInstance();
 
 	int identifier = 0;
 	if(version>RoE)
@@ -789,20 +788,20 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	}
 
 	ui8 owner = bufor[i++];
-	nobj->subID = readNormalNr(bufor,i, 1); ++i;	
+	nhi->subID = readNormalNr(bufor,i, 1); ++i;	
 	
 	for(unsigned int j=0; j<predefinedHeroes.size(); j++)
 	{
-		if(predefinedHeroes[j]->subID == nobj->subID)
+		if(predefinedHeroes[j]->subID == nhi->subID)
 		{
-			*nhi = *predefinedHeroes[j];
+			tlog0 << "Hero " << nhi->subID << " will be taken from the predefined heroes list.\n";
+			delete nhi;
+			nhi = predefinedHeroes[j];
 			break;
 		}
 	}
-	nobj->setOwner(owner);
+	nhi->setOwner(owner);
 
-	//(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
-	//delete nobj;
 	nhi->portrait = nhi->subID;
 
 	for(unsigned int j=0; j<disposedHeroes.size(); j++)
@@ -954,11 +953,8 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		}
 	}
 	i+=16;
-	nhi->moveDir = 4;
-	nhi->isStanding = true;
-	nhi->level = -1;
-	nhi->mana = -1;
-	nhi->movement = -1;
+
+	return nhi;
 }
 
 void Mapa::readRumors( const unsigned char * bufor, int &i)
@@ -1385,7 +1381,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			}
 		case 34: case 70: case 62: //34 - hero; 70 - random hero; 62 - prison
 			{
-				loadHero(nobj, bufor, i);
+				nobj = loadHero(bufor, i);
 				break;
 			}
 		case 4: //Arena

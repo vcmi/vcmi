@@ -1038,6 +1038,21 @@ const CGHeroInstance * CStack::getMyHero() const
 	return NULL;
 }
 
+std::string CStack::nodeName() const
+{
+	std::ostringstream oss;
+	oss << "Battle stack of " << count << " creatures of ";
+	if(type)
+		oss << type->namePl;
+	else
+		oss << "[UNDEFINED TYPE]";
+
+	oss << " from slot " << (int)slot;
+	if(base && base->armyObj)
+		oss << " of armyobj=" << base->armyObj->id;
+	return oss.str();
+}
+
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
@@ -4554,6 +4569,11 @@ PlayerState::PlayerState()
    enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
 {
 
+}
+
+std::string PlayerState::nodeName() const
+{
+	return "Player " + (color < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color] : boost::lexical_cast<std::string>(color));
 }
 
 // void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const

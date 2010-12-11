@@ -47,6 +47,8 @@
 #include "../StartInfo.h"
 #include "CPreGame.h"
 #include "../lib/HeroBonus.h"
+#include "../hch/CCreatureHandler.h"
+#include "../hch/CMusicHandler.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -4873,8 +4875,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 	{
 		if(curHero != hero)
 		{
-			delete	curHero;
-			hero = curHero = new CGHeroInstance(*hero);
+			//delete	curHero;
+			//hero = curHero = new CGHeroInstance(*hero);
 		}
 
 		// Compensate backpack pos if an artifact was insertad before it.
@@ -4923,8 +4925,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 	if(hero != curHero)
 	{
-		delete curHero;
-		curHero = new CGHeroInstance(*hero);
+// 		delete curHero;
+// 		curHero = new CGHeroInstance(*hero);
 	}
 
 	if (curHero->artifacts.size() > 0)

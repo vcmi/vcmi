@@ -23,6 +23,7 @@
  *
  */
 
+class CGameHandler;
 class CVCMIServer;
 class CGameState;
 struct StartInfo;
@@ -74,6 +75,16 @@ public:
 	}
 };
 
+struct CasualtiesAfterBattle
+{
+	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
+	enum {ERASE = -1};
+	std::vector<TStackAndItsNewCount> newStackCounts;
+
+	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
+	void takeFromArmy(CGameHandler *gh);
+};
+
 class CGameHandler : public IGameCallback
 {
 private:
@@ -94,7 +105,6 @@ public:
 	bool isAllowedExchange(int id1, int id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, int dest); //returned value - travelled distance
-	void takeCasualties(const CArmedInstance *army, BattleInfo *bat);
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void checkLossVictory(ui8 player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
@@ -138,12 +148,12 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb);
 	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
 	void giveResource(int player, int which, int val);
-	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove);
+	void giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove);
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
 	bool changeStackType(const StackLocation &sl, CCreature *c);
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count);
-	bool eraseStack(const StackLocation &sl);
+	bool eraseStack(const StackLocation &sl, bool forceRemoval = false);
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2);
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count);
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished);

@@ -110,13 +110,13 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void showThievesGuildWindow(int requestingObjId){};
 	void giveResource(int player, int which, int val){};
-	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove) {};
+	void giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) {};
 	void takeCreatures (int objid, TSlots creatures){};
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures){};
 	bool changeStackType(const StackLocation &sl, CCreature *c){return false;};
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false){return false;};
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count){return false;};
-	bool eraseStack(const StackLocation &sl){return false;};
+	bool eraseStack(const StackLocation &sl, bool forceRemoval = false){return false;};
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2){return false;}
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count){return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished){}

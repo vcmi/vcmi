@@ -87,13 +87,13 @@ public:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
 	virtual void showThievesGuildWindow(int requestingObjId) =0;
 	virtual void giveResource(int player, int which, int val)=0;
-	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove) =0;
+	virtual void giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	//virtual void takeCreatures (int objid, TSlots creatures) =0;
 	virtual void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
 	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
-	virtual bool eraseStack(const StackLocation &sl) =0;
+	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
 	virtual bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) =0;
 	virtual bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) =0; //makes new stack or increases count of already existing
 	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished) =0; //merges army from src do dst or opens a garrison window

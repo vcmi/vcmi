@@ -7,6 +7,7 @@
 #include "IGameCallback.h"
 #include "CGameState.h"
 #include "../hch/CGeneralTextHandler.h"
+#include <sstream>
 
 const CStackInstance &CCreatureSet::operator[](TSlot slot) const
 {
@@ -463,6 +464,20 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 CStackInstance::~CStackInstance()
 {
 
+}
+
+std::string CStackInstance::nodeName() const
+{
+	std::ostringstream oss;
+	oss << "Stack of " << count << " creatures of ";
+	if(type)
+		oss << type->namePl;
+	else if(idRand)
+		oss << "[no type, idRand=" << idRand << "]";
+	else
+		oss << "[UNDEFINED TYPE]";
+
+	return oss.str();
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

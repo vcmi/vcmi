@@ -26,6 +26,8 @@
 #include <cmath>
 #include <sstream>
 #include <boost/format.hpp>
+#include "../hch/CCreatureHandler.h"
+#include "../hch/CMusicHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 

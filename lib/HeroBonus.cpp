@@ -18,6 +18,8 @@
 	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
+#define BONUS_LOG_LINE(x) tlog0 << x << std::endl
+
 int DLL_EXPORT BonusList::totalValue() const
 {
 	int base = 0;
@@ -406,12 +408,14 @@ void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
 {
 	assert(!vstd::contains(children, child));
 	children.push_back(child);
+	BONUS_LOG_LINE(child->nodeName() << " #attached to# " << nodeName());
 }
 
 void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 {
 	assert(vstd::contains(children, child));
 	children -= child;
+	BONUS_LOG_LINE(child->nodeName() << " #detached from# " << nodeName());
 }
 
 void CBonusSystemNode::detachFromAll()
@@ -423,6 +427,11 @@ void CBonusSystemNode::detachFromAll()
 bool CBonusSystemNode::isIndependentNode() const
 {
 	return parents.empty() && children.empty();
+}
+
+std::string CBonusSystemNode::nodeName() const
+{
+	return std::string("Bonus system node of type ") + typeid(*this).name();
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)

@@ -293,7 +293,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void readPredefinedHeroes( const unsigned char * bufor, int &i);
 	void readHeader( const unsigned char * bufor, int &i);
 	void readRumors( const unsigned char * bufor, int &i);
-	void loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i);
+	CGObjectInstance *loadHero(const unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 

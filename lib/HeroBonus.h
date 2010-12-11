@@ -394,8 +394,8 @@ public:
 	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
 	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(int from, int id) const;
-	virtual ui32 getMinDamage() const; //used for stacks and creatures only
-	virtual ui32 getMaxDamage() const;
+	ui32 getMinDamage() const; //used for stacks and creatures only
+	ui32 getMaxDamage() const;
 
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
@@ -426,6 +426,7 @@ public:
 	CBonusSystemNode *whereToPropagate(Bonus *b);
 
 	void popBonuses(const CSelector &s);
+	virtual std::string nodeName() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

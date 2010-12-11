@@ -143,6 +143,7 @@ public:
 	ui8 daysWithoutCastle;
 
 	PlayerState();
+	std::string nodeName() const OVERRIDE;
 
 	//override
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
@@ -281,6 +282,7 @@ public:
 	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S = 255); //c-tor
 	CStack(); //c-tor
 	~CStack();
+	std::string nodeName() const OVERRIDE;
 
 	void init(); //set initial (invalid) values
 	void postInit(); //used to finish initialization when inheriting creature parameters is working

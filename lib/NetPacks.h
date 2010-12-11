@@ -752,7 +752,7 @@ struct ChangeStackCount : CGarrisonOperationPack  //521
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl & count;
+		h & sl & count & absoluteValue;
 	}
 };
 

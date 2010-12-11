@@ -310,28 +310,6 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	}
 }
 
-void  CGameHandler::takeCasualties(const CArmedInstance *army, BattleInfo *bat)
-{
-	int color = army->tempOwner;
-	if(color == 254)
-		color = NEUTRAL_PLAYER;
-
-	BOOST_FOREACH(CStack *st, bat->stacks)
-	{
-		if(vstd::contains(st->state, SUMMONED)) //don't take into account sumoned stacks
-			continue;
-
-		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
-		{
-			StackLocation sl(army, st->slot);
-			if(st->alive())
-				changeStackCount(sl, st->count, true);
-			else
-				eraseStack(sl);
-		}
-	}
-}
-
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
 {
 	battleEndCallback = new boost::function<void(BattleResult*)>(cb);
@@ -567,7 +545,6 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
-
 	BattleResultsApplied resultsApplied;
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
@@ -584,18 +561,16 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		battleResult.data->exp[0] *= (100+hero1->getSecSkillLevel(21)*5)/100.0f;//sholar skill
 	if (hero2)
 		battleResult.data->exp[1] *= (100+hero2->getSecSkillLevel(21)*5)/100.0f;
-	sendAndApply(battleResult.data);
-
-	//casualties among heroes armies
-	takeCasualties(bEndArmy1, gs->curB);
-	takeCasualties(bEndArmy2, gs->curB);
 
 	ui8 sides[2];
 	sides[0] = gs->curB->side1;
 	sides[1] = gs->curB->side2;
-
 	ui8 loser = sides[!battleResult.data->winner];
-	
+
+	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
+	sendAndApply(battleResult.data);
+	cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
+
 	//if one hero has lost we will erase him
 	if(battleResult.data->winner!=0 && hero1)
 	{
@@ -2087,7 +2062,7 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
-void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet &creatures, bool remove)
+void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
 {
 	assert(0);
 // 	if (creatures.stacksCount() <= 0)
@@ -3082,6 +3057,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 		intown.garrison = -1;
 		intown.visiting =  town->garrisonHero->id;
 		sendAndApply(&intown);
+		return true;
 	}
 	else if (town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
 	{
@@ -5246,13 +5222,14 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 	return true;
 }
 
-bool CGameHandler::eraseStack(const StackLocation &sl)
+bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval/* = false*/)
 {
 	if(!sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Cannot find a stack to erase");
 
 	if(sl.army->Slots().size() == 1 //from the last stack
-		&& sl.army->needsLastStack()) //that must be left
+		&& sl.army->needsLastStack() //that must be left
+		&& !forceRemoval) //ignore above conditions if we are forcing removal
 	{
 		COMPLAIN_RET("Cannot erase the last stack!");
 	}
@@ -5378,5 +5355,38 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 		ss.sl2 = sl2;
 		sendAndApply(&ss);
 		return true;
+	}
+}
+
+CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
+{
+	int color = army->tempOwner;
+	if(color == 254)
+		color = NEUTRAL_PLAYER;
+
+	BOOST_FOREACH(CStack *st, bat->stacks)
+	{
+		if(vstd::contains(st->state, SUMMONED)) //don't take into account sumoned stacks
+			continue;
+
+		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
+		{
+			StackLocation sl(army, st->slot);
+			if(st->alive())
+				newStackCounts.push_back(std::pair<StackLocation, int>(sl, st->count));
+			else
+				newStackCounts.push_back(std::pair<StackLocation, int>(sl, 0));
+		}
+	}
+}
+
+void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
+{
+	BOOST_FOREACH(TStackAndItsNewCount &ncount, newStackCounts)
+	{
+		if(ncount.second > 0)
+			gh->changeStackCount(ncount.first, ncount.second, true);
+		else
+			gh->eraseStack(ncount.first, true);
 	}
 }

@@ -369,6 +369,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+
+	virtual std::string nodeName() const OVERRIDE;
 	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
