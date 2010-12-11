@@ -641,7 +641,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
  */
 list<int> CBattleLogic::PerformBerserkAttack(int stackID, int &additionalInfo)
 {
-	CCreature c = m_cb->battleGetCreature(stackID);
+	const CStack * c = m_cb->battleGetStackByID(stackID);
 	// attack to make biggest damage
 	list<int> creatures;
 
@@ -658,7 +658,7 @@ list<int> CBattleLogic::PerformBerserkAttack(int stackID, int &additionalInfo)
 			}
 			for (creature_stat::const_iterator it2 = m_statDistance.begin(); it2 != m_statDistance.end(); ++it2)
 			{
-				if (it2->first == it->first && it2->second - 1 <= c.valOfBonuses(Bonus::STACKS_SPEED))
+				if (it2->first == it->first && it2->second - 1 <= c->getCreature()->valOfBonuses(Bonus::STACKS_SPEED))
 				{
 					creatures.push_front(it->first);
 				}

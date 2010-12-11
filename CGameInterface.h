@@ -5,7 +5,6 @@
 #include <vector>
 #include "lib/BattleAction.h"
 #include "client/FunctionList.h"
-#include "hch/CMusicHandler.h"
 
 /*
  * CGameInterface.h, part of VCMI engine
@@ -47,13 +46,6 @@ class CLoadFile;
 class CSaveFile;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
-
-class CObstacle
-{
-	int ID;
-	int position;
-	//TODO: add some kind of the blockmap
-};
 
 class CGameInterface
 {

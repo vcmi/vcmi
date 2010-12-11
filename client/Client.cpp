@@ -1,3 +1,4 @@
+#include "../hch/CMusicHandler.h"
 #include "../hch/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "../CConsoleHandler.h"

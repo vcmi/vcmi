@@ -17,6 +17,7 @@
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CCreatureHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
