@@ -24,6 +24,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <fstream>
+#include <boost/lexical_cast.hpp>
 #include <boost/system/system_error.hpp>
 
 /*
@@ -50,6 +51,7 @@ extern bool end2;
 #undef max
 #endif
 
+#define COMPLAIN_RET_IF(cond, txt) do {if(cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define NEW_ROUND 		BattleNextRound bnr;\
 		bnr.round = gs->curB->round + 1;\
@@ -2062,41 +2064,25 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
-void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
+
+void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
 {
-	assert(0);
-// 	if (creatures.stacksCount() <= 0)
-// 		return;
-// 	CCreatureSet heroArmy = h->getArmy();
-// 	std::set<int> takenSlots;
-// 	for (TSlots::const_iterator it = creatures.Slots().begin(); it != creatures.Slots().end(); it++)
-// 	{
-// 		int slot = heroArmy.getSlotFor(it->second->type->idNumber);
-// 		if (slot >= 0)
-// 		{
-// 			heroArmy.addToSlot(slot, it->second); 	//move all matching creatures to hero's army
-// 			takenSlots.insert(it->first); //slot id
-// 		}
-// 	}
-// 	for (std::set<int>::iterator it = takenSlots.begin(); it != takenSlots.end(); it++)
-// 		creatures.eraseStack(*it); //delete them from used army
-// 
-// 	SetGarrisons sg;
-// 	sg.garrs[h->id] = heroArmy;
-// 	sg.garrs[objid] = creatures;
-// 	sendAndApply (&sg);
-// 
-// 	if (remove) //show garrison window and let player pick remaining creatures
-// 	{
-// 		if (creatures.stacksCount()) //Pandora needs to exist until we close garrison window
-// 		{
-// 			showGarrisonDialog (objid, h->id, true, boost::bind(&CGameHandler::removeObject, this, objid));
-// 		}
-// 		else
-// 			removeObject(objid);
-// 	}
-// 	else if (creatures.stacksCount())
-// 		showGarrisonDialog (objid, h->id, true, 0);
+	boost::function<void()> removeOrNot = 0;
+	if(remove)
+		removeOrNot = boost::bind(&CGameHandler::removeObject, this, obj->id);
+
+	COMPLAIN_RET_IF(!creatures.stacksCount(), "Strange, giveCreatures called without args!");
+	COMPLAIN_RET_IF(obj->stacksCount(), "Cannot give creatures from not-cleared object!");
+	COMPLAIN_RET_IF(creatures.stacksCount() > ARMY_SIZE, "Too many stacks to give!");
+
+	//first we move creatures to give to make them army of object-source
+	for(int i = 0; creatures.stacksCount(); i++)
+	{
+		TSlots::const_iterator stack = creatures.Slots().begin();
+		addToSlot(StackLocation(obj, i), stack->second->type, stack->second->count);
+	}
+
+	tryJoiningArmy(obj, h, remove, false);
 }
 
 void CGameHandler::takeCreatures(int objid, std::vector<CStackBasicDescriptor> creatures)
@@ -2994,6 +2980,38 @@ bool CGameHandler::changeStackType(const StackLocation &sl, CCreature *c)
 	return true;
 }
 
+void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging) 
+{
+	assert(src->canBeMergedWith(*dst, allowMerging));
+	while(!src->stacksCount())//while there are unmoved creatures
+	{
+		TSlots::const_iterator i = src->Slots().begin(); //iterator to stack to move
+		StackLocation sl(src, i->first); //location of stack to move
+
+		TSlot pos = dst->getSlotFor(i->second->type);
+		if(pos < 0)
+		{
+			//try to merge two other stacks to make place
+			std::pair<TSlot, TSlot> toMerge;
+			if(dst->mergableStacks(toMerge, i->first) && allowMerging)
+			{
+				moveStack(StackLocation(dst, toMerge.first), StackLocation(dst, toMerge.second)); //merge toMerge.first into toMerge.second
+				assert(!dst->hasStackAtSlot(toMerge.first)); //we have now a new free slot
+				moveStack(sl, StackLocation(dst, toMerge.first)); //move stack to freed slot
+			}
+			else
+			{
+				complain("Unexpected failure during an attempt to move army from " + src->nodeName() + " to " + dst->nodeName() + "!");
+				return;
+			}
+		}
+		else
+		{
+			moveStack(sl, StackLocation(dst, pos));
+		}
+	}
+}
+
 bool CGameHandler::garrisonSwap( si32 tid )
 {
 	CGTownInstance *town = gs->getTown(tid);
@@ -3005,36 +3023,8 @@ bool CGameHandler::garrisonSwap( si32 tid )
 			complain("Cannot make garrison swap, not enough free slots!");
 			return false;
 		}
-
-		const CCreatureSet &cso = *town;
-		const CCreatureSet &csn = *town->visitingHero;
-
-		while(!cso.slots.empty())//while there are unmoved creatures
-		{
-			TSlots::const_iterator i = cso.slots.begin(); //iterator to stack to move
-			StackLocation sl(town, i->first); //location of stack to move
-
-			TSlot pos = csn.getSlotFor(i->second->type);
-			if(pos < 0)
-			{
-				//try to merge two other stacks to make place
-				std::pair<TSlot, TSlot> toMerge;
-				if(csn.mergableStacks(toMerge, i->first))
-				{
-					moveStack(StackLocation(town->visitingHero, toMerge.first), StackLocation(town->visitingHero, toMerge.second)); //merge toMerge.first into toMerge.second
-					moveStack(sl, StackLocation(town->visitingHero, toMerge.first)); //move stack to freed slot
-				}
-				else
-				{
-					complain("Unexpected failure during an attempt to merge town and visiting hero armies!");
-					return false;
-				}
-			}
-			else
-			{
-				moveStack(sl, StackLocation(town->visitingHero, pos));
-			}
-		}
+		
+		moveArmy(town, town->visitingHero, true);
 		
 		SetHeroesInTown intown;
 		intown.tid = tid;
@@ -5274,15 +5264,14 @@ bool CGameHandler::addToSlot(const StackLocation &sl, const CCreature *c, TQuant
 		changeStackCount(sl, count);
 	else
 	{
-		tlog1 << "Cannot add " << c->namePl << " to slot " << sl.slot << std::endl;
-		COMPLAIN_RET("Cannot add stack to slot!");
+		COMPLAIN_RET("Cannot add " + c->namePl + " to slot " + boost::lexical_cast<std::string>(sl.slot) + "!");
 	}
 	return true;
 }
 
-void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished)
+void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging)
 {
-	if(!dst->canBeMergedWith(*src))
+	if(!dst->canBeMergedWith(*src, allowMerging))
 	{
 		boost::function<void()> removeOrNot = 0;
 		if(removeObjWhenFinished) 
@@ -5291,22 +5280,7 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 	}
 	else //merge
 	{
-		while(src->slots.size()) //there are not moved cres
-		{
-			TSlots::const_iterator i = src->slots.begin();
-
-			TSlot dstSlot = dst->getSlotFor(i->second->type);
-			if(dstSlot >= 0) //there is place
-			{
-				moveStack(StackLocation(src, i->first), StackLocation(dst, dstSlot), i->second->count);
-			}
-			else
-			{
-				tlog1 << "Unexpected Failure on merging armies!\n";
-				return;
-			}
-		}
-
+		moveArmy(src, dst, allowMerging);
 		if(removeObjWhenFinished)
 			removeObject(src->id);
 	}

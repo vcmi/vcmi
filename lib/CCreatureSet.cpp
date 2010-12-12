@@ -345,17 +345,32 @@ void CCreatureSet::setStackType(TSlot slot, const CCreature *type)
 	s->setType(type->idNumber);
 }
 
-bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs) const
+bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks) const
 {
-	std::set<const CCreature*> cres;
+	if(!allowMergingStacks)
+	{
+		int freeSlots = stacksCount() - ARMY_SIZE;
+		std::set<const CCreature*> cresToAdd;
+		for(TSlots::const_iterator i = cs.slots.begin(); i != cs.slots.end(); i++)
+		{
+			TSlot dest = getSlotFor(i->second->type);
+			if(dest < 0 || hasStackAtSlot(dest))
+				cresToAdd.insert(i->second->type);
+		}
+		return cresToAdd.size() <= freeSlots;
+	}
+	else
+	{
+		std::set<const CCreature*> cres;
 
-	//get types of creatures that need their own slot
-	for(TSlots::const_iterator i = cs.slots.begin(); i != cs.slots.end(); i++)
-		cres.insert(i->second->type);
-	for(TSlots::const_iterator i = slots.begin(); i != slots.end(); i++)
-		cres.insert(i->second->type);
+		//get types of creatures that need their own slot
+		for(TSlots::const_iterator i = cs.slots.begin(); i != cs.slots.end(); i++)
+			cres.insert(i->second->type);
+		for(TSlots::const_iterator i = slots.begin(); i != slots.end(); i++)
+			cres.insert(i->second->type);
 
-	return cres.size() <= ARMY_SIZE;
+		return cres.size() <= ARMY_SIZE;
+	}
 }
 
 bool CCreatureSet::hasStackAtSlot(TSlot slot) const

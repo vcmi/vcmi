@@ -3106,7 +3106,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		if(cost)
 			cb->giveResource(h->tempOwner,6,-cost);
 
-		cb->tryJoiningArmy(this, h, true);
+		cb->tryJoiningArmy(this, h, true, false);
 // 		int slot = h->getSlotFor(subID);
 // 		if(slot >= 0) //there is place
 // 		{
@@ -4461,7 +4461,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			{
 				CCreatureSet creatures;
 				creatures.setCreature(0, rID, rVal);
-				cb->giveCreatures(id, h, creatures, false);
+				cb->giveCreatures(this, h, creatures, false);
 			}
 			break;
 		default:
@@ -5029,7 +5029,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		iw.text.addReplacement(h->name);
 
 		cb->showInfoDialog(&iw);
-		cb->giveCreatures (id, h, creatures, true);
+		cb->giveCreatures(this, h, creatures, true);
 		//boost::bind(&CGPandoraBox::endBattle, this, h, _1)
 	}
 	if(!afterBattle && message.size())
@@ -5909,7 +5909,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.text.addReplacement(loot.buildList());
 			iw.text.addReplacement(h->name);
 			cb->showInfoDialog(&iw);
-			cb->giveCreatures (id, h, ourArmy, false);
+			cb->giveCreatures(this, h, ourArmy, false);
 		}
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}

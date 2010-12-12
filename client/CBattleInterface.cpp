@@ -3589,7 +3589,7 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{
-		if(myInterface->console->alterTxt.size() == 0 && myInterface->curInt->cb->battleGetStackByID(myNumber) != NULL &&
+		if(myInterface->console->alterTxt.size() == 0 && myInterface->curInt->cb->battleGetStackByPos(myNumber) != NULL &&
 			myInterface->curInt->cb->battleGetStackByPos(myNumber)->owner != myInterface->curInt->playerID &&
 			myInterface->curInt->cb->battleGetStackByPos(myNumber)->alive())
 		{

@@ -110,7 +110,7 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void showThievesGuildWindow(int requestingObjId){};
 	void giveResource(int player, int which, int val){};
-	void giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) {};
+	void giveCreatures (const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) {};
 	void takeCreatures (int objid, TSlots creatures){};
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures){};
 	bool changeStackType(const StackLocation &sl, CCreature *c){return false;};
@@ -119,7 +119,7 @@ public:
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false){return false;};
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2){return false;}
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count){return false;}
-	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished){}
+	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging){}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1){return false;}
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};

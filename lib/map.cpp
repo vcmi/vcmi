@@ -1439,7 +1439,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				CStackInstance *hlp = new CStackInstance();
 				hlp->count =  readNormalNr(bufor,i, 2); i+=2;
 				//type will be set during initialization
-				cre->slots[0] = hlp;
+				cre->putStack(0, hlp);
 
 				cre->character = bufor[i]; ++i;
 				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury

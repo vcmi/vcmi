@@ -675,7 +675,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
+class DLL_EXPORT CGSeerHut : public CArmedInstance, public CQuest //army is used when giving reward
 {
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature

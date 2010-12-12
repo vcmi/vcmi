@@ -148,7 +148,7 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb);
 	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
 	void giveResource(int player, int which, int val);
-	void giveCreatures (int objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove);
+	void giveCreatures (const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove);
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
 	bool changeStackType(const StackLocation &sl, CCreature *c);
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
@@ -156,7 +156,7 @@ public:
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false);
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2);
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count);
-	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished);
+	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging);
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
@@ -221,6 +221,7 @@ public:
 	void engageIntoBattle( ui8 player );
 	bool dig(const CGHeroInstance *h);
 	bool castSpell(const CGHeroInstance *h, int spellID, const int3 &pos);
+	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

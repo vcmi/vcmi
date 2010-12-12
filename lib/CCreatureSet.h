@@ -124,7 +124,7 @@ public:
 	bool hasStackAtSlot(TSlot slot) const;
 	
 	bool contains(const CStackInstance *stack) const;
-	bool canBeMergedWith(const CCreatureSet &cs) const;
+	bool canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks = true) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
