@@ -2318,7 +2318,7 @@ void CGameHandler::giveNewArtifact(int hid, int position)
 
 	sendAndApply(&sha);
 }
-bool CGameHandler::removeArtifact(CArtifact* art, int hid)
+bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
 {
 	const CGHeroInstance* h = getHero(hid);
 
@@ -2327,12 +2327,12 @@ bool CGameHandler::removeArtifact(CArtifact* art, int hid)
 	sha.artifacts = h->artifacts;
 	sha.artifWorn = h->artifWorn;
 	
-	std::vector<CArtifact*>::iterator it;
+	std::vector<const CArtifact*>::iterator it;
 	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), art)) != sha.artifacts.end()) //it is in backpack
 		sha.artifacts.erase(it);
 	else //worn
 	{
-		std::map<ui16,CArtifact*>::iterator itr;
+		std::map<ui16, const CArtifact*>::iterator itr;
 		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
 		{
 			if (itr->second == art)
@@ -3329,7 +3329,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 			}
 
 			bool found = false;
-			for (std::map<ui16, CArtifact*>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it)
+			for (std::map<ui16, const CArtifact*>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it)
 			{
 				if (it->second->id == constituentID)
 				{ // Found possible constituent to substitute.
@@ -3388,7 +3388,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 				{
 					if (vstd::contains(sha.artifWorn, slotID) && sha.artifWorn[slotID]->id == 145)
 					{
-						sha.artifWorn[slotID]->id = constituentID;
+						const_cast<CArtifact*>(sha.artifWorn[slotID])->id = constituentID;
 						break;
 					}
 				}
@@ -5304,7 +5304,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, CArtifact* art)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const CArtifact* art)
 {
 	if(!removeArtifact(art, hero->id))
 		COMPLAIN_RET("Cannot find artifact to sacrifice!");

@@ -47,6 +47,8 @@
 #include "../StartInfo.h"
 #include "CPreGame.h"
 #include "../lib/HeroBonus.h"
+#include "../hch/CCreatureHandler.h"
+#include "../hch/CMusicHandler.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -3614,7 +3616,7 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(std::map<ui16,CArtifact*>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
+		for(std::map<ui16, const CArtifact*>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
 		{
 			if(i->second->id != 145) //ignore locks from assembled artifacts
 				moveFromSlotToAltar(i->first, NULL, i->second->id);

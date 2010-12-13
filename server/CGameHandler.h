@@ -147,7 +147,7 @@ public:
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
 	void giveNewArtifact(int hid, int position);
 	void moveArtifact(int hid, int oldPosition, int destPos);
-	bool removeArtifact(CArtifact* art, int hid);
+	bool removeArtifact(const CArtifact* art, int hid);
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
@@ -225,7 +225,7 @@ public:
 	void run(bool resume);
 	void newTurn();
 	void handleAfterAttackCasting( const BattleAttack & bat );
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, CArtifact* art);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const CArtifact* art);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

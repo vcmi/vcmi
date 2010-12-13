@@ -57,13 +57,13 @@ bool CArtifact::isModable () const
  * Checks whether the artifact fits at a given slot.
  * @param artifWorn A hero's set of worn artifacts.
  */
-bool CArtifact::fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slotID) const
+bool CArtifact::fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
 {
 	if (!vstd::contains(possibleSlots, slotID))
 		return false;
 
 	// Can't put an artifact in a locked slot.
-	std::map<ui16, CArtifact*>::const_iterator it = artifWorn.find(slotID);
+	std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.find(slotID);
 	if (it != artifWorn.end() && it->second->id == 145)
 		return false;
 
@@ -72,7 +72,7 @@ bool CArtifact::fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slotID
 	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
 	if (constituents != NULL)
 	{
-		std::map<ui16, CArtifact*> tempArtifWorn = artifWorn;
+		std::map<ui16, const CArtifact*> tempArtifWorn = artifWorn;
 		const ui16 ringSlots[] = {6, 7};
 		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
 		int rings = 0;
@@ -115,7 +115,7 @@ bool CArtifact::fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slotID
 	return true;
 }
 
-bool CArtifact::canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, ui32 artifactID) const
+bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
 {
 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
 		return false;
@@ -126,7 +126,7 @@ bool CArtifact::canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, u
 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
 	{
 		bool found = false;
-		for (std::map<ui16, CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
 		{
 			if (it->second->id == constituentID) 
 			{
@@ -752,16 +752,16 @@ void CArtHandler::clear()
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::equipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slotID, const CArtifact* newArtifact)
+void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art )
 {
 	unequipArtifact(artifWorn, slotID);
 
-	if (newArtifact) //false when artifact is NULL -> slot set to empty
+	if (art) //false when artifact is NULL -> slot set to empty
 	{
-		const CArtifact &artifact = *newArtifact;
+		const CArtifact &artifact = *art;
 
 		// Add artifact.
-		artifWorn[slotID] = const_cast<CArtifact*>(newArtifact);
+		artifWorn[slotID] = art;
 
 		// Add locks, in reverse order of being removed.
 		if (artifact.constituents != NULL) 
@@ -798,7 +798,7 @@ void CArtHandler::equipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slot
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::unequipArtifact(std::map<ui16, CArtifact*> &artifWorn, ui16 slotID)
+void CArtHandler::unequipArtifact(std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID)
 {
 	if (!vstd::contains(artifWorn, slotID))
 		return;

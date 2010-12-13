@@ -18,7 +18,9 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CCreatureHandler.h"
 #include "../lib/map.h"
+#include "../hch/CMusicHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -747,7 +749,7 @@ void CCastleInterface::enterBlacksmith(int ArtifactID)
 	}
 	int price = CGI->arth->artifacts[ArtifactID]->price;
 	bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
-	if(vstd::contains(hero->artifWorn,ui16(ArtifactID+9))) //hero already has machine
+	if( hero->hasArt(ui16(ArtifactID+9)) ) //hero already has machine
 		possible = false;
 	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
 }
