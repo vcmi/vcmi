@@ -2106,6 +2106,40 @@ void CPlayerInterface::sendCustomEvent( int code )
 	SDL_PushEvent(&event);
 }
 
+void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
+{
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stackChangedType(const StackLocation &location, const CCreature &newType)
+{
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksErased(const StackLocation &location)
+{
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
+{
+	garrisonChanged(loc1.army);
+	if(loc2.army != loc1.army)
+		garrisonChanged(loc2.army);
+}
+
+void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
+{
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
+{
+	garrisonChanged(src.army);
+	if(dst.army != src.army)
+		garrisonChanged(dst.army);
+}
+
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
 {
 	spellbookLastPageBattle = spellbokLastPageAdvmap = 0;

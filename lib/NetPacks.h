@@ -8,6 +8,7 @@
 #include "CCreatureSet.h"
 #include "CMapInfo.h"
 #include "../StartInfo.h"
+#include "ConstTransitivePtr.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -717,7 +718,7 @@ struct NewArtifact : public CPackForClient
 
 struct StackLocation
 {
-	CArmedInstance *army;
+	ConstTransitivePtr<CArmedInstance> army;
 	TSlot slot;
 
 	StackLocation()
@@ -730,7 +731,7 @@ struct StackLocation
 		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}
-
+	DLL_EXPORT const CStackInstance *getStack();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & army & slot;

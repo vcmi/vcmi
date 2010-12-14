@@ -605,6 +605,16 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 	gs->map->artInstances.push_back(art);
 }
 
+DLL_EXPORT const CStackInstance * StackLocation::getStack()
+{
+	if(!army->hasStackAtSlot(slot))
+	{
+		tlog2 << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot << std::endl;
+		return NULL;
+	}
+	return &army->getStack(slot);
+}
+
 DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
 {
 	if(absoluteValue)

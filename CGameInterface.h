@@ -42,8 +42,12 @@ struct PackageApplied;
 struct SetObjectProperty;
 struct CatapultAttack;
 struct BattleStacksRemoved;
+struct StackLocation;
+class CStackInstance;
+class CCreature;
 class CLoadFile;
 class CSaveFile;
+typedef TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
 
@@ -56,8 +60,19 @@ public:
 
 	virtual ~CGameInterface() {};
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
-	virtual void garrisonChanged(const CGObjectInstance * obj){};
+
+	//garrison operations
+	virtual void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute){}; //if absolute, change is the new count; otherwise count was modified by adding change
+	virtual void stackChangedType(const StackLocation &location, const CCreature &newType){}; //used eg. when upgrading creatures
+	virtual void stacksErased(const StackLocation &location){}; //stack removed from previously filled slot
+	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2){};
+	virtual void newStackInserted(const StackLocation &location, const CStackInstance &stack){}; //new stack inserted at given (previously empty position)
+	virtual void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count){}; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
+	//virtual void garrisonChanged(const CGObjectInstance * obj){};
+
+	//artifacts operations
 	virtual void heroArtifactSetChanged(const CGHeroInstance*hero){};
+
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};

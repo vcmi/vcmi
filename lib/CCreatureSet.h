@@ -9,12 +9,6 @@ class CCreature;
 class CGHeroInstance;
 class CArmedInstance;
 
-//a few typedefs for CCreatureSet
-typedef si32 TSlot;
-typedef si32 TQuantity; 
-typedef ui32 TCreature; //creature id
-
-const int ARMY_SIZE = 7;
 
 class DLL_EXPORT CStackBasicDescriptor
 {

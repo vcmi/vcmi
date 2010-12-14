@@ -80,6 +80,11 @@ enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFE
 class CGameInfo;
 extern CGameInfo* CGI; //game info for general use
 
+//a few typedefs for CCreatureSet
+typedef si32 TSlot;
+typedef si32 TQuantity; 
+typedef ui32 TCreature; //creature id
+const int ARMY_SIZE = 7;
 
 const int HEROI_TYPE = 34, 
 	TOWNI_TYPE = 98,

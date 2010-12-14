@@ -124,36 +124,36 @@ void SetAvailableHeroes::applyCl( CClient *cl )
 
 void ChangeStackCount::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stackChagedCount, sl, count, absoluteValue);
 }
 
 void SetStackType::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stackChangedType,sl, *type);
 }
 
 void EraseStack::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stacksErased,sl);
 }
 
 void SwapStacks::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner,garrisonChanged,sl1.army);
-	if(sl1.army != sl2.army)
-		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner,garrisonChanged,sl2.army);
+	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner,stacksSwapped, sl1, sl2);
+	if(sl1.army->tempOwner != sl2.army->tempOwner)
+		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner,stacksSwapped, sl1, sl2);
 }
 
 void InsertNewStack::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,garrisonChanged,sl.army);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,newStackInserted,sl, *sl.getStack());
 }
 
 void RebalanceStacks::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(src.army->tempOwner,garrisonChanged,src.army);
-	if(src.army != dst.army)
-		INTERFACE_CALL_IF_PRESENT(dst.army->tempOwner,garrisonChanged,dst.army);
+	INTERFACE_CALL_IF_PRESENT(src.army->tempOwner, stacksRebalanced, src, dst, count);
+	if(src.army->tempOwner != dst.army->tempOwner)
+		INTERFACE_CALL_IF_PRESENT(dst.army->tempOwner,stacksRebalanced, src, dst, count);
 }
 
 void GiveBonus::applyCl( CClient *cl )
