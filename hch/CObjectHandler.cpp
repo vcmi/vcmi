@@ -729,7 +729,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	return int(base + base*modifier) + bonus;
 }
 
-CArtifact* CGHeroInstance::getArtAtPos(ui16 pos) const
+const CArtifact* CGHeroInstance::getArtAtPos(ui16 pos) const
 {
 	if(pos<19)
 		if(vstd::contains(artifWorn,pos))
@@ -1419,7 +1419,7 @@ si32 CGHeroInstance::manaRegain() const
 
 si32 CGHeroInstance::getArtPos(int aid) const
 {
-	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+	for(std::map<ui16, const CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
 		if(i->second->id == aid)
 			return i->first;
 	return -1;
@@ -1452,10 +1452,10 @@ void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 
 bool CGHeroInstance::hasArt( ui32 aid ) const
 {
-	for(std::vector<CArtifact*>::const_iterator i = artifacts.begin(); i != artifacts.end(); i++)
+	for(std::vector<const CArtifact*>::const_iterator i = artifacts.begin(); i != artifacts.end(); i++)
 		if((*i)->id == aid)
 			return true;
-	for(std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+	for(std::map<ui16, const CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
 		if(i->second->id == aid)
 			return true;
 
@@ -6529,7 +6529,8 @@ void CGLighthouse::giveBonusTo( ui8 player ) const
 CCreatureSet& CArmedInstance::getArmy() const
 { //do not return itself by value, or it will xplode
 //	CCreatureSet set = *this; return set;
-	return *((CCreatureSet*)(this));
+	//WARNING! A DIRTY CONST_CAST! TO BE INVESTIGATED AND PROBABLY REMOVED!
+	return *(const_cast<CArmedInstance*>(this));
 }
 
 void CArmedInstance::randomizeArmy(int type)

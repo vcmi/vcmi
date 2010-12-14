@@ -29,8 +29,8 @@ public:
 	const std::string &Description() const; //getter
 	bool isBig () const;
 	bool isModable () const;
-	bool fitsAt (const std::map<ui16, CArtifact*> &artifWorn, ui16 slot) const;
-	bool canBeAssembledTo (const std::map<ui16, CArtifact*> &artifWorn, ui32 artifactID) const;
+	bool fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slot) const;
+	bool canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const;
 	void addBonusesTo (BonusList *otherBonuses) const;
 	void removeBonusesFrom (BonusList *otherBonuses) const;
 	virtual void SetProperty (int mod){};
@@ -134,8 +134,8 @@ public:
 	void getAllowed(std::vector<CArtifact*> &out, int flags);
 	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	void equipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art);
-	void unequipArtifact (std::map<ui16, CArtifact*> &artifWorn, ui16 slotID);
+	void equipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art);
+	void unequipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID);
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
