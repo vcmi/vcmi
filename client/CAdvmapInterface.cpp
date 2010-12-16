@@ -1188,7 +1188,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	//townList.init();
 	//townList.genList();
 
-	heroWindow = new CHeroWindow(LOCPLINT->playerID);
+	heroWindow = NULL;
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
@@ -1734,7 +1734,6 @@ void CAdvMapInt::setPlayer(int Player)
 	nextHero.setPlayerColor(player);
 	endTurn.setPlayerColor(player);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
-	heroWindow->setPlayer(player);
 
 	//heroList.updateHList();
 	//townList.genList();

@@ -601,6 +601,7 @@ struct SetHeroesInTown : public CPackForClient //508
 		h & tid & visiting & garrison;
 	}
 };
+
 struct SetHeroArtifacts : public CPackForClient //509
 {
 	SetHeroArtifacts(){type = 509;};
@@ -701,7 +702,7 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 	}
 };
 
-struct NewArtifact : public CPackForClient
+struct NewArtifact : public CPackForClient //520
 {
 	NewArtifact(){type = 520;};
 	//void applyCl(CClient *cl);
@@ -823,6 +824,71 @@ struct RebalanceStacks : CGarrisonOperationPack  //526
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & src & dst & count;
+	}
+};
+
+typedef CArtifact TTempArtInstance;
+typedef si32 TArtPos;
+
+struct ArtifactLocation
+{
+	ConstTransitivePtr<CGHeroInstance> hero;
+	TArtPos slot;
+
+	ArtifactLocation()
+	{
+		hero = NULL;
+		slot = -1;
+	}
+	ArtifactLocation(const CGHeroInstance *Hero, TArtPos Slot)
+	{
+		hero = const_cast<CGHeroInstance*>(Hero); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot = Slot;
+	}
+	DLL_EXPORT const TTempArtInstance *getArt();
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero & slot;
+	}
+};
+
+struct PutArtifact : CGarrisonOperationPack  //526
+{
+	ArtifactLocation al;
+	TTempArtInstance *art;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & src & dst & count;
+	}
+};
+
+struct EraseArtifact : CGarrisonOperationPack  //527
+{
+	ArtifactLocation al;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al;
+	}
+};
+
+struct MoveArtifact : CGarrisonOperationPack  //528
+{
+	ArtifactLocation src, dst;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & src & dst;
 	}
 };
 

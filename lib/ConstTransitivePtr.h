@@ -5,10 +5,7 @@ class ConstTransitivePtr
 {
 	T *ptr;
 public:
-	ConstTransitivePtr() 
-		: ptr(NULL)
-	{}
-	ConstTransitivePtr(T *Ptr)
+	ConstTransitivePtr(T *Ptr = NULL)
 		: ptr(Ptr) 
 	{}
 

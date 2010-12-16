@@ -941,8 +941,8 @@ void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	adventureInt->heroWindow = new CHeroWindow(hero);
 	adventureInt->heroWindow->setHero(hero);
-	adventureInt->heroWindow->quitButton->callback = boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
 	GH.pushInt(adventureInt->heroWindow);
 }
 

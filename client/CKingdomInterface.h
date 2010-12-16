@@ -61,7 +61,7 @@ class CKingdomInterface : public CGarrisonHolder
 		{
 		public:
 			CHeroItem * parent;
-			CArtPlace(CHeroItem * owner); //c-tor
+			CArtPlace(CHeroItem * owner, const Rect &r = Rect(0, 0, 44, 44)); //c-tor
 			void clickLeft(tribool down, bool previousState);
 			void clickRight(tribool down, bool previousState);
 			void activate();

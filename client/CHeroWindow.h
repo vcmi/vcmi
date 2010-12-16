@@ -29,16 +29,21 @@ class CHeroSwitcher : public CIntObject
 {
 public:
 	int id;
-	CHeroWindow * owner;
+
+	CHeroWindow * getOwner();
 	virtual void clickLeft(tribool down, bool previousState);
 
-	CHeroSwitcher();
+	CHeroSwitcher(int serial);
 };
+
+
 
 class CHeroWindow: public CWindowWithGarrison
 {
-	SDL_Surface * background, * curBack;
-	CStatusBar * ourBar; //heroWindow's statusBar
+	enum ELabel {};
+	std::map<ELabel, CLabel*> labels;
+	CPicture *background, *curBack;
+	CGStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics
 	CDefEssential *flags;
@@ -61,23 +66,18 @@ public:
 	const CGHeroInstance * curHero;
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
 		
-	CHighlightableButton *gar2button; //garrison / formation handling;
+	CHighlightableButton *tacticsButton; //garrison / formation handling;
 	CHighlightableButtonsGroup *formations;
 	int player;
-	CHeroWindow(int playerColor); //c-tor
+	CHeroWindow(const CGHeroInstance *hero); //c-tor
 	~CHeroWindow(); //d-tor
 	void setHero(const CGHeroInstance * hero); //sets main displayed hero
-	void activate(); //activates hero window;
-	void deactivate(); //activates hero window;
-	virtual void show(SDL_Surface * to); //shows hero window
-	void showAll(SDL_Surface * to){show(to);};
-	void redrawCurBack(); //redraws curBAck from scratch
-	void dispose(); //free resources not needed after closing windows and reset state
-	void quit(); //stops displaying hero window and disposes
+	void showAll(SDL_Surface * to); //shows and activates adv. map interface
+//		void redrawCurBack(); //redraws curBAck from scratch
+		void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
-	void switchHero(); //changes displayed hero
-	void setPlayer(int Player);
+		void switchHero(); //changes displayed hero
 
 	//friends
 	friend void CArtPlace::clickLeft(tribool down, bool previousState);

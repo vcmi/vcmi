@@ -815,7 +815,9 @@ public:
 	std::string text;
 
 	LRClickableAreaWText();
+	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
 	virtual ~LRClickableAreaWText();
+	void init();
 
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
@@ -827,6 +829,8 @@ public:
 	int baseType;
 	int bonusValue, type;
 	virtual void clickLeft(tribool down, bool previousState);
+
+	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
@@ -837,7 +841,7 @@ public:
 	void set(const CBonusSystemNode *node);
 	void showAll(SDL_Surface * to);
 
-	MoraleLuckBox(bool Morale);
+	MoraleLuckBox(bool Morale, const Rect &r);
 	~MoraleLuckBox();
 };
 
@@ -861,6 +865,7 @@ public:
 	const CGTownInstance * town;
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
+	LRClickableAreaOpenTown();
 };
 
 class CCreInfoWindow : public CIntObject
@@ -967,7 +972,7 @@ public:
 	void setSlotData (CArtPlace* artPlace, int slotID);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
-	CArtifactsOfHero(const Point& position); //c-tor
+	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;

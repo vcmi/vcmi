@@ -708,11 +708,9 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	char bufor[400];
 	for(int i=0; i<PRIMARY_SKILLS; i++)
 	{
-		primarySkills.push_back(new LRClickableAreaWTextComp());
-		primarySkills[i]->pos = genRect(45, 32, pos.x+77 + 36*i, pos.y+26);
+		primarySkills.push_back(new LRClickableAreaWTextComp(genRect(45, 32, pos.x+77 + 36*i, pos.y+26), SComponent::primskill));
 		primarySkills[i]->text = CGI->generaltexth->arraytxt[2+i];
 		primarySkills[i]->type = i;
-		primarySkills[i]->baseType = 0;
 		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[i].c_str());
 		primarySkills[i]->hoverText = std::string(bufor);
 	};
@@ -720,11 +718,8 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	experience->pos = genRect(33, 49, pos.x+322, pos.y+5);
 	experience->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new MoraleLuckBox(true);
-	morale->pos = genRect(20,32,pos.x+221,pos.y+52);
-
-	luck = new MoraleLuckBox(false);
-	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
+	morale = new MoraleLuckBox(true, genRect(20,32,pos.x+221,pos.y+52));
+	luck = new MoraleLuckBox(false, genRect(20,32,pos.x+221,pos.y+28));
 
 	spellPoints = new LRClickableAreaWText();
 	spellPoints->pos = genRect(33, 49, pos.x+270, pos.y+5);
@@ -736,25 +731,18 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 
 	for(int i=0; i<SKILL_PER_HERO; ++i)
 	{
-		secondarySkills.push_back(new LRClickableAreaWTextComp());
-		secondarySkills[i]->pos = genRect(32, 32, pos.x+410+i*37, pos.y+5);
-		secondarySkills[i]->baseType = 1;
-	};
+		secondarySkills.push_back(new LRClickableAreaWTextComp(genRect(32, 32, pos.x+410+i*37, pos.y+5), SComponent::secskill));
+	}
 
 	for (int i=0; i<18;i++)
 	{
-		artifacts.push_back(new CArtPlace(this));
-		artifacts[i]->pos = genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66);
-		artifacts[i]->baseType = SComponent::artifact;
-	};
+		artifacts.push_back(new CArtPlace(this, genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66)));
+	}
 
 	for (int i=0; i<8;i++)
 	{
-		backpack.push_back(new CArtPlace(this));
-		backpack[i]->pos = genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66);
-		backpack[i]->baseType = SComponent::artifact;
-	};
-
+		backpack.push_back(new CArtPlace(this, genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66)));
+	}
 }
 
 CKingdomInterface::CHeroItem::~CHeroItem()
@@ -1005,7 +993,8 @@ void CKingdomInterface::CHeroItem::deactivate()
 		secondarySkills[i]->deactivate();
 }
 
-CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner)
+CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner, const Rect &r)
+	: LRClickableAreaWTextComp(r, SComponent::artifact)
 {
 	parent = owner;
 	used = LCLICK | RCLICK | HOVER;
@@ -1043,6 +1032,7 @@ void CKingdomInterface::CHeroItem::CArtPlace::deactivate()
 
 
 CKingdomInterface::CTownItem::CCreaPlace::CCreaPlace()
+	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
 {
 	town = NULL;
 	used = LCLICK | RCLICK | HOVER;

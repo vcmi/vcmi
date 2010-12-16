@@ -2199,12 +2199,10 @@ void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNod
 	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
 	//setting morale
-	morale = new MoraleLuckBox(true);
-	morale->pos = genRect(42, 42, pos.x + 24, pos.y + 189);
+	morale = new MoraleLuckBox(true, genRect(42, 42, pos.x + 24, pos.y + 189));
 	morale->set(stackNode);
 	//setting luck
-	luck = new MoraleLuckBox(false);
-	luck->pos =  genRect(42, 42, pos.x + 77, pos.y + 189);
+	luck = new MoraleLuckBox(false, genRect(42, 42, pos.x + 77, pos.y + 189));
 	luck->set(stackNode);
 
 	//luck and morale
@@ -4482,10 +4480,10 @@ CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
 
 CRClickPopupInt::~CRClickPopupInt()
 {
-	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
-	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
-	if(LOCPLINT && inner == adventureInt->heroWindow)
-		adventureInt->heroWindow->dispose();
+// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
+// 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
+// 	if(LOCPLINT && inner == adventureInt->heroWindow)
+// 		adventureInt->heroWindow->dispose();
 
 	if(delInner)
 		delete inner;
@@ -4792,11 +4790,24 @@ void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 
 LRClickableAreaWText::LRClickableAreaWText()
 {
-	used = LCLICK | RCLICK | HOVER;
+	init();
+}
+
+LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
+{
+	init();
+	pos = Pos + pos;
+	hoverText = HoverText;
+	text = ClickText;
 }
 
 LRClickableAreaWText::~LRClickableAreaWText()
 {
+}
+
+void LRClickableAreaWText::init()
+{
+	used = LCLICK | RCLICK | HOVER;
 }
 
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
@@ -4806,6 +4817,11 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonusValue));
 		LOCPLINT->showInfoDialog(text, comp);
 	}
+}
+
+LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
+	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
+{
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
@@ -4858,6 +4874,11 @@ void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 {
 	if((!down) && previousState && town)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
+}
+
+LRClickableAreaOpenTown::LRClickableAreaOpenTown()
+	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
+{
 }
 
 void CArtifactsOfHero::SCommonPart::reset()
@@ -4942,7 +4963,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 void CArtifactsOfHero::dispose()
 {
-	delNull(curHero);
+	//delNull(curHero);
 	unmarkSlots(false);
 	CGI->curh->dragAndDropCursor(NULL);
 }
@@ -5078,9 +5099,15 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 	artPlace->hoverText = CGI->generaltexth->allTexts[507];
 }
 
-CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
-	curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
+CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
+ : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
 {
+	if(createCommonPart)
+	{
+		commonInfo = new CArtifactsOfHero::SCommonPart;
+		commonInfo->participants.insert(this);
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
 	artWorn.resize(19);
@@ -5442,12 +5469,10 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
-		morale[b] = new MoraleLuckBox(true);
-		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
+		morale[b] = new MoraleLuckBox(true, genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45));
 		morale[b]->set(heroInst[b]);
 		//setting luck
-		luck[b] = new MoraleLuckBox(false);
-		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
+		luck[b] = new MoraleLuckBox(false, genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45));
 		luck[b]->set(heroInst[b]);
 	}
 
@@ -6416,10 +6441,11 @@ void MoraleLuckBox::showAll(SDL_Surface * to)
 	blitAt(def->ourImages[bonusValue].bitmap, pos, to);
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale)
+MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r)
 	:morale(Morale)
 {
 	bonusValue = 0;
+	pos = r + pos;
 }
 
 MoraleLuckBox::~MoraleLuckBox()
