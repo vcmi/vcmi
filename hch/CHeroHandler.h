@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 
+#include "../lib/ConstTransitivePtr.h"
+
 /*
  * CHeroHandler.h, part of VCMI engine
  *
@@ -118,7 +120,7 @@ const int PUZZLES_PER_FACTION = 48;
 class DLL_EXPORT CHeroHandler
 {
 public:
-	std::vector<CHero*> heroes; //changed from nodrze
+	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	

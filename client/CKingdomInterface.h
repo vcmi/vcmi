@@ -118,7 +118,7 @@ public:
 	//objects list
 	int objSize, objPos;
 	CDefEssential *objPics;
-	std::map<int,std::pair<int, std::string*> > objList; //dwelling ID, count, hover text
+	std::map<int,std::pair<int, const std::string*> > objList; //dwelling ID, count, hover text
 	std::vector <HoverableArea* > ObjList;//list of dwellings
 	AdventureMapButton* ObjUp, *ObjDown, *ObjTop, *ObjBottom;//buttons for dwellings list
 

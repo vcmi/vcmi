@@ -232,7 +232,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	}
 	else //object id
 	{
-		return static_cast<const CGHeroInstance*>(gs->map->objects[val]);
+		return static_cast<const CGHeroInstance*>(+gs->map->objects[val]);
 	}
 	return NULL;
 }
@@ -599,7 +599,7 @@ const CGTownInstance *CCallback::battleGetDefendedTown()
 	if(!gs->curB || gs->curB->tid == -1)
 		return NULL;
 
-	return static_cast<const CGTownInstance *>(gs->map->objects[gs->curB->tid]);
+	return static_cast<const CGTownInstance *>(+gs->map->objects[gs->curB->tid]);
 }
 
 ui8 CCallback::battleGetWallState(int partOfWall)
@@ -705,7 +705,7 @@ std::vector < const CGObjectInstance * > CCallback::getFlaggableObjects(int3 pos
 
 	std::vector < const CGObjectInstance * > ret;
 
-	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
+	const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
 	for(size_t b=0; b<objs.size(); ++b)
 	{
 		if(objs[b].first->tempOwner!=254 && !((objs[b].first->defInfo->blockMap[pos.y - objs[b].first->pos.y + 5] >> (objs[b].first->pos.x - pos.x)) & 1))

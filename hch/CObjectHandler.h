@@ -23,6 +23,7 @@
  *
  */
 
+class CArtifactInstance;
 struct MetaString;
 struct BattleInfo;
 class IGameCallback;
@@ -266,6 +267,10 @@ public:
 	ui8 inTownGarrison; // if hero is in town garrison 
 	const CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 	const CGBoat *boat; //set to CGBoat when sailing
+	
+	std::vector<const CArtifactInstance*> gartifacts; //hero's artifacts from bag
+	std::map<ui16, const CArtifactInstance*> gartifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+
 	std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
@@ -764,8 +769,9 @@ public:
 class DLL_EXPORT CGArtifact : public CArmedInstance
 {
 public:
+	CArtifactInstance *art;
+
 	std::string message;
-	ui32 spell; //if it's spell scroll
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
@@ -775,7 +781,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & message & spell;
+		h & message & art;
 	}
 };
 

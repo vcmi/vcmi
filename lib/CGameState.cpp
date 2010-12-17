@@ -1157,7 +1157,7 @@ CGHeroInstance *CGameState::getHero(int objid)
 {
 	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=HEROI_TYPE)
 		return NULL;
-	return static_cast<CGHeroInstance *>(map->objects[objid]);
+	return static_cast<CGHeroInstance *>(+map->objects[objid]);
 }
 
 const CGHeroInstance * CGameState::getHero( int objid ) const
@@ -1247,13 +1247,13 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
 				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(+map->objects[i])->identifier == info->identifier)
 					{
 						randomizeObject(map->objects[i]); //we have to randomize the castle first
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(+map->objects[i])->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -1288,13 +1288,13 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
 				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(+map->objects[i])->identifier == info->identifier)
 					{
 						randomizeObject(map->objects[i]); //we have to randomize the castle first
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(+map->objects[i])->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -2180,7 +2180,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	{
 		map->objects[i]->initObj();
 		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
-			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
+			static_cast<CGHeroInstance*>(+map->objects[i])->initHero();
 	}
 	CGTeleport::postInit(); //pairing subterranean gates
 }
@@ -2242,7 +2242,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
 		return 12;
 
-	const std::vector <CGObjectInstance*> & objs = map->objects;
+	const std::vector <ConstTransitivePtr<CGObjectInstance> > & objs = map->objects;
 	for(int g=0; g<objs.size(); ++g)
 	{
 		if( !objs[g] || objs[g]->pos.x - tile.x < 0  ||  objs[g]->pos.x - tile.x >= 8  
@@ -3789,7 +3789,7 @@ int CGameState::victoryCheck( ui8 player ) const
 					const CArmedInstance *ai = NULL;
 					if(map->objects[i] 
 						&& map->objects[i]->tempOwner == player //object controlled by player
-						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
+						&&  (ai = dynamic_cast<const CArmedInstance*>(+map->objects[i]))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->Slots().begin(); i!=ai->Slots().end(); ++i) //iterate through army
 							if(i->second->type->idNumber == map->victoryCondition.ID) //it's searched creature

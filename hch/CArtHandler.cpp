@@ -12,6 +12,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
+#include "CSpellHandler.h"
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
 
@@ -171,6 +172,10 @@ int CArtifact::getArtClassSerial() const
 	return -1;
 }
 
+std::string CArtifact::nodeName() const
+{
+	return "Artifact: " + Name();
+}
 // void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
 // {
 // 	//combined artifact carries bonuses from its parts
@@ -199,7 +204,7 @@ CArtHandler::CArtHandler()
 
 CArtHandler::~CArtHandler()
 {
-	for (std::vector<CArtifact*>::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
+	for (std::vector< ConstTransitivePtr<CArtifact> >::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
 	{
 		delete (*it)->constituents;
 		delete (*it)->constituentOf;
@@ -436,7 +441,7 @@ void CArtHandler::erasePickedArt (si32 id)
 }
 ui16 CArtHandler::getRandomArt(int flags)
 {
-	std::vector<CArtifact*> out;
+	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out, flags);
 	ui16 id = out[ran() % out.size()]->id;
 	erasePickedArt (id);
@@ -444,12 +449,12 @@ ui16 CArtHandler::getRandomArt(int flags)
 }
 ui16 CArtHandler::getArtSync (ui32 rand, int flags)
 {
-	std::vector<CArtifact*> out;
+	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out, flags);
 	CArtifact *art = out[rand % out.size()];
 	return art->id;	
 }
-void CArtHandler::getAllowed(std::vector<CArtifact*> &out, int flags)
+void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags)
 {
 	if (flags & CArtifact::ART_TREASURE)
 		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
@@ -465,7 +470,7 @@ void CArtHandler::getAllowed(std::vector<CArtifact*> &out, int flags)
 		std::fill_n (out.begin(), 64, artifacts[2]); //magic
 	}
 }
-void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag)
+void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
 {
 	if (arts->empty()) //restock avaliable arts
 	{
@@ -853,4 +858,40 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 		if (allowed[i])
 			allowedArtifacts.push_back(artifacts[i]);
 	}
+}
+
+CArtifactInstance::CArtifactInstance()
+{
+	init();
+}
+
+CArtifactInstance::CArtifactInstance( CArtifact *Art)
+{
+	init();
+	setType(Art);
+
+}
+
+void CArtifactInstance::setType( CArtifact *Art )
+{
+	art = Art;
+	attachTo(Art);
+}
+
+std::string CArtifactInstance::nodeName() const
+{
+	return "Artifact instance of " + (art ? art->Name() : std::string("uninitialized")) + " type";
+}
+
+CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
+{
+	CArtifactInstance *ret = new CArtifactInstance(VLC->arth->artifacts[93]);
+	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, s->id	);
+	ret->addNewBonus(b);
+	return ret;
+}
+
+void CArtifactInstance::init()
+{
+	art = NULL;
 }

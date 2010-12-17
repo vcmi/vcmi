@@ -405,6 +405,6 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 	registerVectoredType(&lib->heroh->heroes, &CHero::ID);
 	registerVectoredType(&lib->creh->creatures, &CCreature::idNumber);
 	registerVectoredType(&lib->arth->artifacts, &CArtifact::id);
-	registerVectoredType(&gs->map->artInstances, &IModableArt::ID);
+	registerVectoredType(&gs->map->artInstances, &CArtifactInstance::id);
 	smartVectorMembersSerialization = true;
 }

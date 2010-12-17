@@ -184,6 +184,7 @@ struct DLL_EXPORT Bonus
 	enum BonusSource
 	{
 		ARTIFACT, 
+		ARTIFACT_INSTANCE, 
 		OBJECT, 
 		CASTED_SPELL,
 		CREATURE_ABILITY,
@@ -404,6 +405,7 @@ public:
 	ui16 MaxHealth() const; //get max HP of stack with all modifiers
 
 
+	const Bonus *getBonus(const CSelector &selector) const;
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 	Bonus *getBonus(const CSelector &selector);

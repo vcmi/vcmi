@@ -102,7 +102,7 @@ public:
 	CMapHandler(); //c-tor
 	~CMapHandler(); //d-tor
 
-	std::pair<SDL_Surface *, bool> getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap); //returns appropriate bitmap and info if alpha blitting is necessary
+	std::pair<SDL_Surface *, bool> getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap) const; //returns appropriate bitmap and info if alpha blitting is necessary
 
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
@@ -118,7 +118,7 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	void terrainRect(int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode);
+	void terrainRect(int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode) const;
 	void updateWater();
 	unsigned char getHeroFrameNum(unsigned char dir, bool isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper

@@ -463,8 +463,8 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-	for(i=1;i<=10;i++)
-		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
+	for(i = 1; i <= CRE_LEVELS; i++)
+		levelCreatures[i];
 
 	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
 	ifs.open(DATA_DIR "/config/monsters.txt");

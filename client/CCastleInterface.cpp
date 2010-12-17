@@ -56,7 +56,7 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 	}
 }
 
-CBuildingRect::CBuildingRect(Structure *Str)
+CBuildingRect::CBuildingRect(const Structure *Str)
 	:CShowableAnim(0, 0, Str->defName, CShowableAnim::FLAG_BASE),
 	moi(false), str(Str)
 {
@@ -901,7 +901,7 @@ void CCastleInterface::recreateBuildings()
 		{
 			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
 			{
-				Structure * st = CGI->townh->structures[town->subID][*i];
+				const Structure * st = CGI->townh->structures[town->subID][*i];
 				if(st->group<0) //no group - just add it
 				{
 					buildings.push_back(new CBuildingRect(st));
@@ -1777,7 +1777,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	for(int i=0;i<fortSize; i++)
 	{
 		int dwelling;// ID of buiding with this creature
-		CCreature *c;
+		const CCreature *c;
 		bool present = true;
 		if ( i < CREATURES_PER_TOWN )
 		{
@@ -1925,7 +1925,7 @@ void CMageGuildScreen::close()
 	GH.popIntTotally(this);
 }
 
-CMageGuildScreen::Scroll::Scroll(CSpell *Spell)
+CMageGuildScreen::Scroll::Scroll(const CSpell *Spell)
 	:spell(Spell)
 {
 	used = LCLICK | RCLICK | HOVER;

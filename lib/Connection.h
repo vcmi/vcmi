@@ -23,6 +23,8 @@
 #include <boost/mpl/identity.hpp>
 #include <boost/any.hpp>
 
+#include "ConstTransitivePtr.h"
+
 const ui32 version = 727;
 class CConnection;
 class CGObjectInstance;
@@ -232,10 +234,10 @@ struct SerializationLevel
 template <typename T>
 struct VectorisedObjectInfo
 {
-	const std::vector<T*> *vector;	//pointer to the appropriate vector
+	const std::vector<ConstTransitivePtr<T> > *vector;	//pointer to the appropriate vector
 	const si32 T::*idPtr;			//pointer to the field representing the position in the vector
 
-	VectorisedObjectInfo(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
 		:vector(Vector), idPtr(IdPtr)
 	{
 	}
@@ -256,6 +258,11 @@ public:
 
 	template <typename T>
 	void registerVectoredType(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	{
+		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
+	}
+	template <typename T>
+	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
 	{
 		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
 	}
@@ -290,7 +297,7 @@ public:
 
 		assert(oInfo.vector);
 		assert(oInfo.vector->size() > id);
-		return (*oInfo.vector)[id];
+		return const_cast<T*>(+(*oInfo.vector)[id]);
 	}
 
 	template <typename T>

@@ -91,6 +91,7 @@ const int HEROI_TYPE = 34,
 	CREI_TYPE = 54,
 	EVENTI_TYPE = 26;
 
+const int CRE_LEVELS = 10;
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
 const int ALL_PLAYERS = 255; //bitfield
@@ -166,6 +167,28 @@ enum EAlignment
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
+
+
+//a normal std::map with consted operator[] for sanity
+template<typename KeyT, typename ValT>
+class bmap : public std::map<KeyT, ValT>
+{
+public:
+	const ValT & operator[](KeyT key) const
+	{
+		const_iterator it = find(*this, key);
+		return it->second;
+	}
+	ValT & operator[](KeyT key) 
+	{
+		return static_cast<std::map<KeyT, ValT> &>(*this)[key];
+	}	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<std::map<KeyT, ValT> &>(*this);
+	}
+};
+
 namespace vstd
 {
 	template <typename Container, typename Item>
@@ -175,6 +198,11 @@ namespace vstd
 	}
 	template <typename V, typename Item, typename Item2>
 	bool contains(const std::map<Item,V> & c, const Item2 &i) //returns true if map c contains item i
+	{
+		return c.find(i)!=c.end();
+	}
+	template <typename V, typename Item, typename Item2>
+	bool contains(const bmap<Item,V> & c, const Item2 &i) //returns true if map c contains item i
 	{
 		return c.find(i)!=c.end();
 	}

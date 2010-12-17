@@ -413,7 +413,7 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 }
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid]);
+	CGDwelling *dw = dynamic_cast<CGDwelling*>(+gs->map->objects[tid]);
 	assert(dw);
 	dw->creatures = creatures;
 }
@@ -581,28 +581,28 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 }
 DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 {
-	IModableArt * art;
-
-	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
-	switch (itr->second)
-	{
-			case 1:
-				art = new CScroll;
-				break;
-			case 2:
-				art = new CCustomizableArt;
-				break;
-			case 3:
-				art = new CCommanderArt;
-				break;
-			default:
-				tlog1<<"unhandled customizable artifact!\n";
-	};
-	*art = *static_cast<IModableArt*>(VLC->arth->artifacts[artid]); //copy properties
-	art->ID = gs->map->artInstances.size();
-	art->SetProperty (value); //init scroll, banner, commander art
-	art->Init(); //set bonuses for new instance
-	gs->map->artInstances.push_back(art);
+// 	IModableArt * art;
+// 
+// 	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
+// 	switch (itr->second)
+// 	{
+// 			case 1:
+// 				art = new CScroll;
+// 				break;
+// 			case 2:
+// 				art = new CCustomizableArt;
+// 				break;
+// 			case 3:
+// 				art = new CCommanderArt;
+// 				break;
+// 			default:
+// 				tlog1<<"unhandled customizable artifact!\n";
+// 	};
+// 	*art = *static_cast<IModableArt*>(+VLC->arth->artifacts[artid]); //copy properties
+// 	art->ID = gs->map->artInstances.size();
+// 	art->SetProperty (value); //init scroll, banner, commander art
+// 	art->Init(); //set bonuses for new instance
+// 	gs->map->artInstances.push_back(art);
 }
 
 DLL_EXPORT const CStackInstance * StackLocation::getStack()
@@ -687,7 +687,7 @@ DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
 	if(id >= 0)
 	{
-		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id]))
+		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(+gs->map->objects[id]))
 		{
 			bm->artifacts = arts;
 		}

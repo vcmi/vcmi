@@ -254,7 +254,7 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 		ObjList[i]->hoverText = "";
 
 	int skipCount=0, curPos=objPos<0?(-objPos):0;
-	for (std::map<int,std::pair<int, std::string*> >::iterator it=objList.begin(); it!= objList.end(); it++)
+	for (std::map<int,std::pair<int, const std::string*> >::iterator it=objList.begin(); it!= objList.end(); it++)
 	{
 		if (skipCount<objPos)//we will show only objects from objPos
 		{

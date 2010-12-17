@@ -199,7 +199,7 @@ void CGameHandler::levelUpHero(int ID, int skill)
 
 void CGameHandler::levelUpHero(int ID)
 {
-	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
+	CGHeroInstance *hero = static_cast<CGHeroInstance *>(+gs->map->objects[ID]);
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1)) // no more level-ups
 		return;
 		
@@ -2198,49 +2198,49 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 }
 void CGameHandler::giveNewArtifact(int hid, int position)
 {
-	const CGHeroInstance* h = getHero(hid);
-	CArtifact * art = gs->map->artInstances.back(); //we use it only to immediatelly equip new artifact
-
-	SetHeroArtifacts sha;
-	sha.hid = hid;
-	sha.artifacts = h->artifacts;
-	sha.artifWorn = h->artifWorn;
-
-	if(position<0)
-	{
-		if(position == -2)
-		{
-			int i;
-			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
-			{
-				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
-				{
-					//we've found a free suitable slot
-					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], art);
-					break;
-				}
-			}
-			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
-				sha.artifacts.push_back(art);
-		}
-		else if (!art->isBig()) //should be -1 => put artifact into backpack
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-	else
-	{
-		if(!vstd::contains(sha.artifWorn,ui16(position)))
-		{
-			VLC->arth->equipArtifact(sha.artifWorn, position, art);
-		}
-		else if (!art->isBig())
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-
-	sendAndApply(&sha);
+// 	const CGHeroInstance* h = getHero(hid);
+// 	CArtifact * art = gs->map->artInstances.back(); //we use it only to immediatelly equip new artifact
+// 
+// 	SetHeroArtifacts sha;
+// 	sha.hid = hid;
+// 	sha.artifacts = h->artifacts;
+// 	sha.artifWorn = h->artifWorn;
+// 
+// 	if(position<0)
+// 	{
+// 		if(position == -2)
+// 		{
+// 			int i;
+// 			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
+// 			{
+// 				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
+// 				{
+// 					//we've found a free suitable slot
+// 					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], art);
+// 					break;
+// 				}
+// 			}
+// 			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
+// 				sha.artifacts.push_back(art);
+// 		}
+// 		else if (!art->isBig()) //should be -1 => put artifact into backpack
+// 		{
+// 			sha.artifacts.push_back(art);
+// 		}
+// 	}
+// 	else
+// 	{
+// 		if(!vstd::contains(sha.artifWorn,ui16(position)))
+// 		{
+// 			VLC->arth->equipArtifact(sha.artifWorn, position, art);
+// 		}
+// 		else if (!art->isBig())
+// 		{
+// 			sha.artifacts.push_back(art);
+// 		}
+// 	}
+// 
+// 	sendAndApply(&sha);
 }
 bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
 {
@@ -2585,8 +2585,8 @@ void CGameHandler::close()
 
 bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1]),
-		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2]);
+	CArmedInstance *s1 = static_cast<CArmedInstance*>(+gs->map->objects[id1]),
+		*s2 = static_cast<CArmedInstance*>(+gs->map->objects[id2]);
 	CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 
@@ -2688,7 +2688,7 @@ int CGameHandler::getPlayerAt( CConnection *c ) const
 
 bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id]);
+	CArmedInstance *s1 = static_cast<CArmedInstance*>(+gs->map->objects[id]);
 	if(!vstd::contains(s1->slots,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
@@ -2701,7 +2701,7 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 
 bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 {
-	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
+	CGTownInstance * t = static_cast<CGTownInstance*>(+gs->map->objects[tid]);
 	CBuilding * b = VLC->buildh->buildings[t->subID][bid];
 
 	if( !force && gs->canBuildStructure(t,bid) != 7)
@@ -2811,7 +2811,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 bool CGameHandler::razeStructure (si32 tid, si32 bid)
 {
 ///incomplete, simply erases target building
-	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
+	CGTownInstance * t = static_cast<CGTownInstance*>(+gs->map->objects[tid]);
 	if (t->builtBuildings.find(bid) == t->builtBuildings.end())
 		return false;
 	RazeStructures rs;
@@ -2840,7 +2840,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 
 bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 fromLvl )
 {
-	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid]);
+	const CGDwelling *dw = static_cast<CGDwelling*>(+gs->map->objects[objid]);
 	const CArmedInstance *dst = NULL;
 	const CCreature *c = VLC->creh->creatures[crid];
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
@@ -2929,7 +2929,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 
 bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 {
-	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid]);
+	CArmedInstance *obj = static_cast<CArmedInstance*>(+gs->map->objects[objid]);
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
@@ -4704,7 +4704,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 		for (std::vector<CGHeroInstance*>::const_iterator i = hlp.begin(); i != hlp.end(); i++) //eliminate heroes
 			removeObject((*i)->id);
 
-		for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
+		for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 		{
 			if(*i  &&  (*i)->tempOwner == player)
 				setOwner((**i).id,NEUTRAL_PLAYER);
@@ -4848,7 +4848,7 @@ void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, In
 
 bool CGameHandler::dig( const CGHeroInstance *h )
 {
-	for (std::vector<CGObjectInstance*>::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
+	for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 	{
 		if(*i && (*i)->ID == 124  &&  (*i)->pos == h->getPosition())
 		{

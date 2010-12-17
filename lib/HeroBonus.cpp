@@ -164,6 +164,11 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 	return NULL;
 }
 
+const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
+{
+	return (const_cast<CBonusSystemNode*>(this))->getBonus(selector);
+}
+
 void CBonusSystemNode::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
 {
 	getModifiersWDescr(out, Selector::typeSybtype(type, subtype));

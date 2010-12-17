@@ -1,6 +1,7 @@
 #ifndef __CGAMEINFO_H__
 #define __CGAMEINFO_H__
 #include "../global.h"
+#include "../lib/ConstTransitivePtr.h"
 
 
 /*
@@ -38,20 +39,21 @@ struct Mapa;
 */
 class CGameInfo
 {
-	/*const*/ CGameState * state; //don't touch it in client's code
+	CGameState * state; //don't touch it in client's code
 public:
-	/*const*/ CArtHandler * arth;
-	/*const*/ CHeroHandler * heroh;
-	/*const*/ CCreatureHandler * creh;
-	/*const*/ CSpellHandler * spellh;
-	/*const*/ CMapHandler * mh;
-	/*const*/ CBuildingHandler * buildh;
-	/*const*/ CObjectHandler * objh;
+	CArtHandler * arth;
+	CHeroHandler * heroh;
+	CCreatureHandler * creh;
+	CSpellHandler * spellh;
+	CObjectHandler * objh;
+	CDefObjInfoHandler * dobjinfo;
+	CGeneralTextHandler * generaltexth;
+	CMapHandler * mh;
+	CBuildingHandler * buildh;
 	CSoundHandler * soundh;
 	CMusicHandler * musich;
-	/*const*/ CDefObjInfoHandler * dobjinfo;
-	/*const*/ CTownHandler * townh;
-	/*const*/ CGeneralTextHandler * generaltexth;
+	CTownHandler * townh;
+	//CTownHandler * townh;
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;
 	CVideoPlayer * videoh;
@@ -64,7 +66,15 @@ public:
 	CGameInfo();
 };
 
-
+//	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
+// public:
+// 	ConstTransitivePtr<CArtHandler> arth;
+// 	ConstTransitivePtr<CHeroHandler> heroh;
+// 	ConstTransitivePtr<CCreatureHandler> creh;
+// 	ConstTransitivePtr<CSpellHandler> spellh;
+// 	ConstTransitivePtr<CObjectHandler> objh;
+// 	ConstTransitivePtr<CDefObjInfoHandler> dobjinfo;
+// 	ConstTransitivePtr<CGeneralTextHandler> generaltexth;
 
 
 

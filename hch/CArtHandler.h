@@ -4,8 +4,8 @@
 #include "../lib/HeroBonus.h"
 #include <set>
 #include <list>
-#include <string>
-#include <vector>
+
+#include "../lib/ConstTransitivePtr.h"
 
 /*
  * CArtHandler.h, part of VCMI engine
@@ -36,6 +36,7 @@ public:
 	virtual void SetProperty (int mod){};
 	virtual void Init(){};
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
+	std::string nodeName() const OVERRIDE;
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
@@ -55,6 +56,28 @@ public:
 
 	//override
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+};
+
+class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
+{
+public:
+	ConstTransitivePtr<CArtifact> art; 
+	si32 id; //id of the instance
+
+	CArtifactInstance();
+	CArtifactInstance(CArtifact *Art);
+
+	void init();
+	std::string nodeName() const OVERRIDE;
+	void setType(CArtifact *Art);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CBonusSystemNode&>(*this);
+		h & art & id;
+	}
+
+	static CArtifactInstance *createScroll(const CSpell *s);
 };
 
 class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
@@ -118,7 +141,7 @@ class DLL_EXPORT CArtHandler //handles artifacts
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
-	std::vector<CArtifact *> artifacts;
+	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 	std::map<ui32, ui8> modableArtifacts; //1-scroll, 2-banner, 3-commander art with progressive bonus
@@ -130,8 +153,8 @@ public:
 	void clearHlpLists();
 	ui16 getRandomArt (int flags);
 	ui16 getArtSync (ui32 rand, int flags);
-	void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag);
-	void getAllowed(std::vector<CArtifact*> &out, int flags);
+	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
+	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (si32 id);
 	bool isBigArtifact (ui32 artID) {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void equipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art);

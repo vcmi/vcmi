@@ -148,7 +148,7 @@ soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 		return it->second;
 }
 
-void CSoundHandler::initCreaturesSounds(std::vector<CCreature*> &creatures)
+void CSoundHandler::initCreaturesSounds(std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
 	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");
@@ -172,7 +172,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature*> &creatures)
 		{
 			int id = -1;
 
-			std::map<std::string,int>::iterator i = CGI->creh->nameToID.find(cname);
+			bmap<std::string,int>::const_iterator i = CGI->creh->nameToID.find(cname);
 			if(i != CGI->creh->nameToID.end())
 				id = i->second;
 			else
@@ -238,7 +238,7 @@ void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
 
 		if (str.good() || (str.eof() && soundfile != ""))
 		{
-			CSpell &s = CGI->spellh->spells[spellid];
+			const CSpell &s = CGI->spellh->spells[spellid];
 
 			if (s.soundID != soundBase::invalid)
 				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;

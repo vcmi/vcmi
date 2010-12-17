@@ -54,7 +54,7 @@ const CGTownInstance* IGameCallback::getTown(int objid)
 {
 	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
-		return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid]);
+		return dynamic_cast<const CGTownInstance*>(+gs->map->objects[objid]);
 	else
 		return NULL;
 }

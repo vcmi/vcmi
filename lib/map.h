@@ -14,6 +14,8 @@
 #include "../hch/CDefObjInfoHandler.h"
 #endif
 
+#include "ConstTransitivePtr.h"
+
 /*
  * map.h, part of VCMI engine
  *
@@ -24,6 +26,7 @@
  *
  */
 
+class CArtifactInstance;
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -276,10 +279,10 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	int3 grailPos;
 	int grailRadious;
 
-	std::vector<CGObjectInstance*> objects;
+	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
-	std::vector<IModableArt *> artInstances; //stores single scrolls
+	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
 	std::map<ui16, CGCreature*> monsters;
 	std::map<ui16, CGHeroInstance*> heroesToBeat;
 
@@ -298,7 +301,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
 	void checkForObjectives();
-
+	void addNewArtifactInstance(CArtifactInstance *art);
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);
 	Mapa(std::string filename); //creates map structure from .h3m file
@@ -411,9 +414,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			{
 				if(!objects[i]) continue;
 				if(objects[i]->ID == HEROI_TYPE)
-					heroes.push_back(static_cast<CGHeroInstance*>(objects[i]));
+					heroes.push_back(static_cast<CGHeroInstance*>(+objects[i]));
 				else if(objects[i]->ID == TOWNI_TYPE)
-					towns.push_back(static_cast<CGTownInstance*>(objects[i]));
+					towns.push_back(static_cast<CGTownInstance*>(+objects[i]));
 
 				addBlockVisTiles(objects[i]); //recreate blockvis map
 			}

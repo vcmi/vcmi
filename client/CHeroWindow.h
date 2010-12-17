@@ -42,7 +42,7 @@ class CHeroWindow: public CWindowWithGarrison
 {
 	enum ELabel {};
 	std::map<ELabel, CLabel*> labels;
-	CPicture *background, *curBack;
+	CPicture *background;
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics

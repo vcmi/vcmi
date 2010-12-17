@@ -11,6 +11,7 @@
 #include "../hch/CCreatureHandler.h"
 #include <boost/bind.hpp>
 #include <assert.h>
+#include "../hch/CSpellHandler.h"
 
 /*
  * map.cpp, part of VCMI engine
@@ -1558,11 +1559,24 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					}
 					i+=4;
 				}
+
+				CArtifactInstance *innerArt = NULL;
 				if(defInfo->id==93)
 				{
-					art->spell = readNormalNr(bufor,i); 
+					int spellID = readNormalNr(bufor,i); 
 					i+=4;
+					innerArt = CArtifactInstance::createScroll(&VLC->spellh->spells[spellID]);
 				}
+				else if(art->ID == 5) //specific artifact
+				{
+					innerArt = new CArtifactInstance(VLC->arth->artifacts[art->subID]);
+				}
+				else
+				{
+					innerArt = new CArtifactInstance();
+				}
+				art->art = innerArt;
+				addNewArtifactInstance(innerArt);
 				break;
 			}
 		case 76: case 79: //random resource; resource
@@ -2085,6 +2099,12 @@ void Mapa::checkForObjectives()
 		assert(objs.size());
 		lossCondition.obj = objs.front();
 	}
+}
+
+void Mapa::addNewArtifactInstance( CArtifactInstance *art )
+{
+	art->id = artInstances.size();
+	artInstances.push_back(art);
 }
 
 LossCondition::LossCondition()

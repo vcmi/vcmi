@@ -1105,7 +1105,7 @@ void CGHeroInstance::initObj()
 				break;
 			case 9://upgrade creatures
 			{
-				std::vector<CCreature*>* creatures = &VLC->creh->creatures;
+				std::vector< ConstTransitivePtr<CCreature> >* creatures = &VLC->creh->creatures;
 				bonus->type = Bonus::SPECIAL_UPGRADE;
 				bonus->subtype = it->subtype; //base id
 				bonus->additionalInfo = it->additionalinfo; //target id
@@ -1161,7 +1161,7 @@ void CGHeroInstance::UpdateSpeciality()
 {
 	if (speciality.growthsWithLevel)
 	{
-		std::vector<CCreature*>* creatures = &VLC->creh->creatures;
+		std::vector< ConstTransitivePtr<CCreature> > & creatures = VLC->creh->creatures;
 
 		BOOST_FOREACH(Bonus *it, speciality.bonuses)
 		{
@@ -1171,14 +1171,14 @@ void CGHeroInstance::UpdateSpeciality()
 					it->val = (speciality.valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, it->subtype) * level);
 					break; //use only hero skills as bonuses to avoid feedback loop
 				case Bonus::PRIMARY_SKILL: //for crearures, that is
-					int creLevel = (*creatures)[it->additionalInfo]->level;
+					int creLevel = creatures[it->additionalInfo]->level;
 					if(!creLevel)
 					{
 						if(it->additionalInfo == 146)
 							creLevel = 5; //treat ballista as 5-level
 						else
 						{
-							tlog2 << "Warning: unknown level of " << (*creatures)[it->additionalInfo]->namePl << std::endl;
+							tlog2 << "Warning: unknown level of " << creatures[it->additionalInfo]->namePl << std::endl;
 							continue;
 						}
 					}
@@ -1188,10 +1188,10 @@ void CGHeroInstance::UpdateSpeciality()
 					switch (it->subtype)
 					{
 						case PrimarySkill::ATTACK:
-							param = (*creatures)[it->additionalInfo]->attack;
+							param = creatures[it->additionalInfo]->attack;
 							break;
 						case PrimarySkill::DEFENSE:
-							param = (*creatures)[it->additionalInfo]->defence;
+							param = creatures[it->additionalInfo]->defence;
 							break;
 					}
 					it->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
@@ -3014,7 +3014,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		std::set<ui32> myKindCres; //what creatures are the same kind as we
 		myKindCres.insert(subID); //we
 		myKindCres.insert(VLC->creh->creatures[subID]->upgrades.begin(),VLC->creh->creatures[subID]->upgrades.end()); //our upgrades
-		for(std::vector<CCreature*>::iterator i=VLC->creh->creatures.begin(); i!=VLC->creh->creatures.end(); i++)
+		for(std::vector<ConstTransitivePtr<CCreature> >::iterator i=VLC->creh->creatures.begin(); i!=VLC->creh->creatures.end(); i++)
 			if(vstd::contains((*i)->upgrades, (ui32) id)) //it's our base creatures
 				myKindCres.insert((*i)->idNumber);
 
@@ -3616,9 +3616,12 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 			}
 			break;
 			case 93:
-				iw.components.push_back (Component(Component::SPELL, spell,0,0));
-				iw.text.addTxt (MetaString::ADVOB_TXT,135);
-				iw.text.addReplacement(MetaString::SPELL_NAME, spell);
+				{
+					int spellID = art->getBonus(Selector::type(Bonus::SPELL))->subtype;
+					iw.components.push_back (Component(Component::SPELL, spellID,0,0));
+					iw.text.addTxt (MetaString::ADVOB_TXT,135);
+					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
+				}
 			break;
 
 		}
@@ -3648,7 +3651,7 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 		if (ID == 93) //scroll
 		{
 			NewArtifact na;
-			na.value = spell;
+			//na.value = spell;
 			na.artid = subID;
 			cb->sendAndApply(&na);
 			cb->giveNewArtifact(h->id, -2);

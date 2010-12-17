@@ -70,7 +70,6 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	garr = NULL;
-	curBack = NULL;
 	curHero = NULL;
 	player = hero->tempOwner;
 
@@ -181,7 +180,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	{
 		delete garr;
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		garr = new CGarrisonInt(80, 493, 8, Point(), curBack->bg, Point(16,486), curHero);
+		garr = new CGarrisonInt(80, 493, 8, Point(), background->bg, Point(16,486), curHero);
 	}
 
 	AdventureMapButton * split = NULL;
@@ -320,10 +319,10 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	}
 	 
 	//morale and luck printing
-	blitAt(graphics->luck42->ourImages[curHero->LuckVal()+3].bitmap, 239, 182, to);
-	blitAt(graphics->morale42->ourImages[curHero->MoraleVal()+3].bitmap, 181, 182, to);
+	blitAtLoc(graphics->luck42->ourImages[curHero->LuckVal()+3].bitmap, 239, 182, to);
+	blitAtLoc(graphics->morale42->ourImages[curHero->MoraleVal()+3].bitmap, 181, 182, to);
 	 
-	blitAt(flags->ourImages[player].bitmap, 606, 8, to);
+	blitAtLoc(flags->ourImages[player].bitmap, 606, 8, to);
 	 
 	//hero list blitting
 	 
@@ -334,7 +333,7 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 		// Only display heroes that are not in garrison
 	 		continue;
 	 
-	 	blitAt(graphics->portraitSmall[cur->portrait], 611, 87+pos*54, to);
+	 	blitAtLoc(graphics->portraitSmall[cur->portrait], 611, 87+pos*54, to);
 	 	//printing yellow border
 	 	if(cur->name == curHero->name)
 	 	{
@@ -354,13 +353,13 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	//secondary skills
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
-	 	blitAt(graphics->abils44->ourImages[curHero->secSkills[v].first*3+3+curHero->secSkills[v].second-1].bitmap, v%2 ? 161 : 18, 276 + 48 * (v/2), to);
+	 	blitAtLoc(graphics->abils44->ourImages[curHero->secSkills[v].first*3+3+curHero->secSkills[v].second-1].bitmap, v%2 ? 161 : 18, 276 + 48 * (v/2), to);
 	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], v%2 ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, zwykly, to);
 	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], v%2 ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, zwykly, to);
 	}
 	 
 	//printing special ability
-	blitAt(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, to);
+	blitAtLoc(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, to);
 	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, tytulowy, to);
 	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, zwykly, to);
 	 

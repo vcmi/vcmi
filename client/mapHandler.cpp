@@ -419,7 +419,10 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode)
+void CMapHandler::terrainRect(int3 top_tile, unsigned char anim,
+	const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap,
+	bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect,
+	int moveX, int moveY, bool puzzleMode) const
 {
 	// Width and height of the portion of the map to process. Units in tiles.
 	unsigned int dx = tilesW;
@@ -778,7 +781,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
-std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap )
+std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap ) const
 {
 	static const int visBitmaps[256] = {-1, 34, -1, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 3, 25, 12, 12, 3, 25, 12, 12,
 		9, 9, 6, 6, 9, 9, 6, 6, 35, 34, 4, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 26, 49, 28, 28, 26, 49, 28,
