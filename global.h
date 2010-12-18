@@ -78,7 +78,7 @@ enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
 enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING};
 
 class CGameInfo;
-extern CGameInfo* CGI; //game info for general use
+extern const CGameInfo* CGI; //game info for general use
 
 //a few typedefs for CCreatureSet
 typedef si32 TSlot;

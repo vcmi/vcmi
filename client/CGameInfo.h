@@ -41,7 +41,7 @@ class CGameInfo
 {
 	CGameState * state; //don't touch it in client's code
 public:
-	CArtHandler * arth;
+	ConstTransitivePtr<CArtHandler> arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	CSpellHandler * spellh;
@@ -50,13 +50,13 @@ public:
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
 	CBuildingHandler * buildh;
-	CSoundHandler * soundh;
-	CMusicHandler * musich;
+	mutable CSoundHandler * soundh;
+	mutable CMusicHandler * musich;
 	CTownHandler * townh;
 	//CTownHandler * townh;
-	CConsoleHandler * consoleh;
-	CCursorHandler * curh;
-	CVideoPlayer * videoh;
+	mutable CConsoleHandler * consoleh;
+	mutable CCursorHandler * curh;
+	mutable CVideoPlayer * videoh;
 
 	void setFromLib();
 
@@ -68,7 +68,7 @@ public:
 
 //	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
 // public:
-// 	ConstTransitivePtr<CArtHandler> arth;
+// 	
 // 	ConstTransitivePtr<CHeroHandler> heroh;
 // 	ConstTransitivePtr<CCreatureHandler> creh;
 // 	ConstTransitivePtr<CSpellHandler> spellh;

@@ -138,7 +138,7 @@ void init()
 	tlog0<<"Initializing screen and sound handling: "<<tmh.getDif()<<std::endl;
 
 	initDLL(::console,logfile);
-	CGI->setFromLib();
+	const_cast<CGameInfo*>(CGI)->setFromLib();
 	CGI->soundh->initCreaturesSounds(CGI->creh->creatures);
 	CGI->soundh->initSpellsSounds(CGI->spellh->spells);
 	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
@@ -610,7 +610,7 @@ static void listenForEvents()
 				client = NULL;
 
 				delete CGI->dobjinfo;
-				CGI->dobjinfo = new CDefObjInfoHandler;
+				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
 				CGI->dobjinfo->load();
 
 				GH.curInt = CGP;

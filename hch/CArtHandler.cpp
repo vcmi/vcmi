@@ -757,7 +757,7 @@ void CArtHandler::clear()
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art )
+void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art ) const
 {
 	unequipArtifact(artifWorn, slotID);
 
@@ -803,7 +803,7 @@ void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui
  * @param artifWorn A hero's set of worn artifacts.
  * @param bonuses Optional list of bonuses to update.
  */
-void CArtHandler::unequipArtifact(std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID)
+void CArtHandler::unequipArtifact(std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
 {
 	if (!vstd::contains(artifWorn, slotID))
 		return;

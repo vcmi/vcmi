@@ -232,7 +232,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	}
 	else //object id
 	{
-		return static_cast<const CGHeroInstance*>(+gs->map->objects[val]);
+		return static_cast<const CGHeroInstance*>(gs->map->objects[val].get());
 	}
 	return NULL;
 }
@@ -599,7 +599,7 @@ const CGTownInstance *CCallback::battleGetDefendedTown()
 	if(!gs->curB || gs->curB->tid == -1)
 		return NULL;
 
-	return static_cast<const CGTownInstance *>(+gs->map->objects[gs->curB->tid]);
+	return static_cast<const CGTownInstance *>(gs->map->objects[gs->curB->tid].get());
 }
 
 ui8 CCallback::battleGetWallState(int partOfWall)

@@ -21,11 +21,11 @@ public:
 	{
 		return ptr;
 	}
-	T* operator+()
+	T* get()
 	{
 		return ptr;
 	}
-	const T* operator+() const
+	const T* get() const
 	{
 		return ptr;
 	}

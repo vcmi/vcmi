@@ -199,7 +199,7 @@ void CGameHandler::levelUpHero(int ID, int skill)
 
 void CGameHandler::levelUpHero(int ID)
 {
-	CGHeroInstance *hero = static_cast<CGHeroInstance *>(+gs->map->objects[ID]);
+	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1)) // no more level-ups
 		return;
 		
@@ -2585,8 +2585,8 @@ void CGameHandler::close()
 
 bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(+gs->map->objects[id1]),
-		*s2 = static_cast<CArmedInstance*>(+gs->map->objects[id2]);
+	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1].get()),
+		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2].get());
 	CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 
@@ -2688,7 +2688,7 @@ int CGameHandler::getPlayerAt( CConnection *c ) const
 
 bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(+gs->map->objects[id]);
+	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id].get());
 	if(!vstd::contains(s1->slots,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
@@ -2701,7 +2701,7 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 
 bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 {
-	CGTownInstance * t = static_cast<CGTownInstance*>(+gs->map->objects[tid]);
+	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
 	CBuilding * b = VLC->buildh->buildings[t->subID][bid];
 
 	if( !force && gs->canBuildStructure(t,bid) != 7)
@@ -2811,7 +2811,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 bool CGameHandler::razeStructure (si32 tid, si32 bid)
 {
 ///incomplete, simply erases target building
-	CGTownInstance * t = static_cast<CGTownInstance*>(+gs->map->objects[tid]);
+	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
 	if (t->builtBuildings.find(bid) == t->builtBuildings.end())
 		return false;
 	RazeStructures rs;
@@ -2840,7 +2840,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 
 bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 fromLvl )
 {
-	const CGDwelling *dw = static_cast<CGDwelling*>(+gs->map->objects[objid]);
+	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid].get());
 	const CArmedInstance *dst = NULL;
 	const CCreature *c = VLC->creh->creatures[crid];
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
@@ -2929,7 +2929,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 
 bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 {
-	CArmedInstance *obj = static_cast<CArmedInstance*>(+gs->map->objects[objid]);
+	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid].get());
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;

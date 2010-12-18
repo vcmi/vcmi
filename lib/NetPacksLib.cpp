@@ -413,7 +413,7 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 }
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(+gs->map->objects[tid]);
+	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid].get());
 	assert(dw);
 	dw->creatures = creatures;
 }
@@ -687,7 +687,7 @@ DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
 	if(id >= 0)
 	{
-		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(+gs->map->objects[id]))
+		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id].get()))
 		{
 			bm->artifacts = arts;
 		}

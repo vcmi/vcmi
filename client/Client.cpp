@@ -207,10 +207,10 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	tlog0 << "Removed GUI." << std::endl;
 
 	delete CGI->mh;
-	CGI->mh = NULL;
+	const_cast<CGameInfo*>(CGI)->mh = NULL;
 
 	delete CGI->state;
-	CGI->state = NULL;
+	const_cast<CGameInfo*>(CGI)->state = NULL;
 	tlog0 << "Deleted mapHandler and gameState." << std::endl;
 
 	LOCPLINT = NULL;
@@ -244,7 +244,7 @@ void CClient::loadGame( const std::string & fname )
 	{
 		char sig[8];
 		CMapHeader dum;
-		CGI->mh = new CMapHandler();
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		StartInfo *si;
 
 		CLoadFile lf(fname + ".vlgm1");
@@ -252,14 +252,14 @@ void CClient::loadGame( const std::string & fname )
 		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
 		
 		lf >> *VLC;
-		CGI->setFromLib();
+		const_cast<CGameInfo*>(CGI)->setFromLib();
 		tlog0 <<"Reading handlers: "<<tmh.getDif()<<std::endl;
 
 		lf >> gs;
 		tlog0 <<"Reading gamestate: "<<tmh.getDif()<<std::endl;
 
-		CGI->state = gs;
-		CGI->mh->map = gs->map;
+		const_cast<CGameInfo*>(CGI)->state = gs;
+		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
 		initVillagesCapitols(gs->map);
@@ -339,7 +339,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 
 	timeHandler tmh;
-	CGI->state = new CGameState();
+	const_cast<CGameInfo*>(CGI)->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	CConnection &c(*serv);
 	////////////////////////////////////////////////////
@@ -368,7 +368,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	gs->scenarioOps = si;
 	gs->init(si, sum, seed);
 
-	CGI->mh = new CMapHandler();
+	const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 	CGI->mh->map = gs->map;
 	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;

@@ -12,7 +12,7 @@
  *
  */
 
-CGameInfo * CGI; //game info for general use
+const CGameInfo * CGI; //game info for general use
 
 CGameInfo::CGameInfo()
 {

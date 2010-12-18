@@ -297,7 +297,7 @@ public:
 
 		assert(oInfo.vector);
 		assert(oInfo.vector->size() > id);
-		return const_cast<T*>(+(*oInfo.vector)[id]);
+		return const_cast<T*>((*oInfo.vector)[id].get());
 	}
 
 	template <typename T>
