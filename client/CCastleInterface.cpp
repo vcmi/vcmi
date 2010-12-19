@@ -435,7 +435,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	recreateIcons();
 	cityBg = BitmapHandler::loadBitmap(graphics->townBgs[town->subID]);
 	bicons = CDefHandler::giveDefEss(graphics->buildingPics[town->subID]);
-	CGI->musich->playMusic(CGI->musich->townMusics[town->subID], -1);
+	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
 }
 
 CCastleInterface::~CCastleInterface()
@@ -475,7 +475,7 @@ void CCastleInterface::close()
 	}
 	LOCPLINT->castleInt = NULL;
 	GH.popIntTotally(this);
-	CGI->musich->stopMusic(5000);
+	CCS->musich->stopMusic(5000);
 }
 
 void CCastleInterface::splitF()

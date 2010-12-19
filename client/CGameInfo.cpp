@@ -13,6 +13,7 @@
  */
 
 const CGameInfo * CGI; //game info for general use
+CClientState * CCS;
 
 CGameInfo::CGameInfo()
 {

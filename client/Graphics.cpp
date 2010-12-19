@@ -20,6 +20,8 @@
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CCreatureHandler.h"
 #include "CBitmapHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -718,6 +720,16 @@ void Graphics::loadFonts()
 	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
 	for(int i = 0; i < FONTS_NUMBER; i++)
 		fonts[i] = loadFont(fontnames[i]);
+}
+
+CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
+{
+	return advmapobjGraphics[obj->defInfo->id][obj->defInfo->subid];
+}
+
+CDefEssential * Graphics::getDef( const CGDefInfo * info )
+{
+	return advmapobjGraphics[info->id][info->subid];
 }
 
 Font::Font(unsigned char *Data)

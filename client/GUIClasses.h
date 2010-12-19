@@ -1051,7 +1051,7 @@ private:
 	AdventureMapButton * quitb;
 	CResDataBar * resdatabar;
 
-	std::vector<std::pair<SDL_Surface *, SPuzzleInfo *> > puzzlesToPullBack;
+	std::vector<std::pair<SDL_Surface *, const SPuzzleInfo *> > puzzlesToPullBack;
 	ui8 animCount;
 
 public:

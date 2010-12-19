@@ -518,13 +518,13 @@ bool CDefenceAnim::init()
 	//initializing
 	if(killed)
 	{
-		CGI->soundh->playSound(battle_sound(attacked->getCreature(), killed));
+		CCS->soundh->playSound(battle_sound(attacked->getCreature(), killed));
 		owner->creAnims[stackID]->setType(5); //death
 	}
 	else
 	{
 		// TODO: this block doesn't seems correct if the unit is defending.
-		CGI->soundh->playSound(battle_sound(attacked->getCreature(), wince));
+		CCS->soundh->playSound(battle_sound(attacked->getCreature(), wince));
 		owner->creAnims[stackID]->setType(3); //getting hit
 	}
 
@@ -628,7 +628,7 @@ bool CBattleStackMoved::init()
 	//unit reversed
 
 	if(owner->moveSh <= 0)
-		owner->moveSh = CGI->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
+		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stackID]->pos.x, posY = owner->creAnims[stackID]->pos.y; // for precise calculations ;]
@@ -716,7 +716,7 @@ void CBattleStackMoved::endAnim()
 
 	if(owner->moveSh >= 0)
 	{
-		CGI->soundh->stopSound(owner->moveSh);
+		CCS->soundh->stopSound(owner->moveSh);
 		owner->moveSh = -1;
 	}
 
@@ -744,7 +744,7 @@ bool CBattleMoveStart::init()
 		return false;
 	}
 
-	CGI->soundh->playSound(battle_sound(movedStack->getCreature(), startMoving));
+	CCS->soundh->playSound(battle_sound(movedStack->getCreature(), startMoving));
 
 	return true;
 }
@@ -789,7 +789,7 @@ bool CBattleMoveEnd::init()
 		return false;
 	}
 
-	CGI->soundh->playSound(battle_sound(movedStack->getCreature(), endMoving));
+	CCS->soundh->playSound(battle_sound(movedStack->getCreature(), endMoving));
 
 	owner->creAnims[stackID]->setType(21);
 
@@ -811,7 +811,7 @@ void CBattleMoveEnd::endAnim()
 	if(owner->creAnims[stackID]->getType() != 5)
 		owner->creAnims[stackID]->setType(2); //resetting to default
 
-	CGI->curh->show();
+	CCS->curh->show();
 	delete this;
 }
 
@@ -830,9 +830,9 @@ void CBattleAttack::nextFrame()
 	if(owner->creAnims[stackID]->onFirstFrameInGroup())
 	{
 		if(shooting)
-			CGI->soundh->playSound(battle_sound(attackingStack->getCreature(), shoot));
+			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), shoot));
 		else
-			CGI->soundh->playSound(battle_sound(attackingStack->getCreature(), attack));
+			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), attack));
 	}
 	else if(owner->creAnims[stackID]->onLastFrameInGroup())
 	{
@@ -1507,7 +1507,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			if(spellToCast) //when casting spell
 			{
 				//calculating spell schoold level
-				const CSpell & spToCast =  CGI->spellh->spells[spellToCast->additionalInfo];
+				const CSpell & spToCast =  *CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 schoolLevel = 0;
 				if( curInt->cb->battleGetStackByID(activeStack)->attackerOwned )
 				{
@@ -1768,7 +1768,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		if(myNumber == -1)
 		{
-			CGI->curh->changeGraphic(1, 6);
+			CCS->curh->changeGraphic(1, 6);
 			if(console->whoSetAlter == 0)
 			{
 				console->alterTxt = "";
@@ -1787,12 +1787,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						if(sactive->hasBonusOfType(Bonus::HEALER))
 						{
 							//display the possibility to heal this creature
-							CGI->curh->changeGraphic(1,17);
+							CCS->curh->changeGraphic(1,17);
 						}
 						else
 						{
 							//info about creature
-							CGI->curh->changeGraphic(1,5);
+							CCS->curh->changeGraphic(1,5);
 						}
 						//setting console text
 						char buf[500];
@@ -1811,11 +1811,11 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
 							curInt->cb->battleHasWallPenalty(activeStack, myNumber))
 						{
-							CGI->curh->changeGraphic(1,15);
+							CCS->curh->changeGraphic(1,15);
 						}
 						else
 						{
-							CGI->curh->changeGraphic(1,3);
+							CCS->curh->changeGraphic(1,3);
 						}
 						//setting console text
 						char buf[500];
@@ -1830,7 +1830,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					}
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
-						CCursorHandler *cursor = CGI->curh;
+						CCursorHandler *cursor = CCS->curh;
 						const CBattleHex &hoveredHex = bfield[myNumber];
 
 						const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
@@ -1980,20 +1980,20 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					}
 					else //unavailable enemy
 					{
-						CGI->curh->changeGraphic(1,0);
+						CCS->curh->changeGraphic(1,0);
 						console->alterTxt = "";
 						console->whoSetAlter = 0;
 					}
 				}
 				else if( sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber) ) //catapulting
 				{
-					CGI->curh->changeGraphic(1,16);
+					CCS->curh->changeGraphic(1,16);
 					console->alterTxt = "";
 					console->whoSetAlter = 0;
 				}
 				else //empty unavailable tile
 				{
-					CGI->curh->changeGraphic(1,0);
+					CCS->curh->changeGraphic(1,0);
 					console->alterTxt = "";
 					console->whoSetAlter = 0;
 				}
@@ -2007,12 +2007,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					char buf[500];
 					if(sactive->hasBonusOfType(Bonus::FLYING))
 					{
-						CGI->curh->changeGraphic(1,2);
+						CCS->curh->changeGraphic(1,2);
 						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
 					}
 					else
 					{
-						CGI->curh->changeGraphic(1,1);
+						CCS->curh->changeGraphic(1,1);
 						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
 					}
 
@@ -2035,7 +2035,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		if(myNumber == -1)
 		{
-			CGI->curh->changeGraphic(1, 0);
+			CCS->curh->changeGraphic(1, 0);
 			//setting console text
 			console->alterTxt = CGI->generaltexth->allTexts[23];
 			console->whoSetAlter = 0;
@@ -2065,28 +2065,28 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			switch(spellSelMode)
 			{
 			case 0:
-				CGI->curh->changeGraphic(3, 0);
+				CCS->curh->changeGraphic(3, 0);
 				//setting console text
 				char buf[500];
-				sprintf(buf, CGI->generaltexth->allTexts[26].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str());
+				sprintf(buf, CGI->generaltexth->allTexts[26].c_str(), CGI->spellh->spells[spellToCast->additionalInfo]->name.c_str());
 				console->alterTxt = buf;
 				console->whoSetAlter = 0;
 				break;
 			case 1: case 2: case 3:
 				if( whichCase )
 				{
-					CGI->curh->changeGraphic(3, 0);
+					CCS->curh->changeGraphic(3, 0);
 					//setting console text
 					char buf[500];
 					std::string creName = stackUnder->count > 1 ? stackUnder->getCreature()->namePl : stackUnder->getCreature()->nameSing;
-						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo]->name.c_str(), creName.c_str());
 					console->alterTxt = buf;
 					console->whoSetAlter = 0;
 					break;
 				}
 				else
 				{
-					CGI->curh->changeGraphic(1, 0);
+					CCS->curh->changeGraphic(1, 0);
 					//setting console text
 					console->alterTxt = CGI->generaltexth->allTexts[23];
 					console->whoSetAlter = 0;
@@ -2095,11 +2095,11 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			case 4: //TODO: implement this case
 				if( blockedByObstacle(myNumber) )
 				{
-					CGI->curh->changeGraphic(3, 0);
+					CCS->curh->changeGraphic(3, 0);
 				}
 				else
 				{
-					CGI->curh->changeGraphic(1, 0);
+					CCS->curh->changeGraphic(1, 0);
 				}
 				break;
 			}
@@ -2120,7 +2120,7 @@ void CBattleInterface::bOptionsf()
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
-	CGI->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(0,0);
 
 	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
 	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
@@ -2166,7 +2166,7 @@ void CBattleInterface::bFleef()
 void CBattleInterface::reallyFlee()
 {
 	giveCommand(4,0,0);
-	CGI->curh->changeGraphic(0, 0);
+	CCS->curh->changeGraphic(0, 0);
 }
 
 void CBattleInterface::bAutofightf()
@@ -2180,7 +2180,7 @@ void CBattleInterface::bSpellf()
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
-	CGI->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(0,0);
 
 	const CGHeroInstance * chi = NULL;
 	if(attackingHeroInstance->tempOwner == curInt->playerID)
@@ -2423,7 +2423,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				if(!blockedByObstacle(whichOne))
 					allowCasting = false;
 			case 5: //teleport
-				const CSpell *s = &CGI->spellh->spells[spellToCast->additionalInfo];
+				const CSpell *s = CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 skill = getActiveHero()->getSpellSchoolLevel(s); //skill level
 				if (!curInt->cb->battleCanTeleportTo(activeStack, whichOne, skill))
 				{
@@ -2446,7 +2446,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			{
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				{
-					CGI->curh->changeGraphic(1, 6); //cursor should be changed
+					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 					if(curInt->cb->battleGetStackByID(activeStack)->doubleWide())
 					{
 						std::vector<int> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
@@ -2469,14 +2469,14 @@ void CBattleInterface::hexLclicked(int whichOne)
 			else if(dest->owner != actSt->owner
 				&& curInt->cb->battleCanShoot(activeStack, whichOne) ) //shooting
 			{
-				CGI->curh->changeGraphic(1, 6); //cursor should be changed
+				CCS->curh->changeGraphic(1, 6); //cursor should be changed
 				giveCommand(7,whichOne,activeStack);
 			}
 			else if(dest->owner != actSt->owner) //attacking
 			{
 				const CStack * actStack = curInt->cb->battleGetStackByID(activeStack);
 				int attackFromHex = -1; //hex from which we will attack chosen stack
-				switch(CGI->curh->number)
+				switch(CCS->curh->number)
 				{
 				case 12: //from bottom right
 					{
@@ -2622,7 +2622,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				{
 					giveCommand(6, attackFromHex, activeStack, whichOne);
 					
-					CGI->curh->changeGraphic(1, 6); //cursor should be changed
+					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 				}
 
 			}
@@ -2630,7 +2630,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			{
 				giveCommand(12, whichOne, activeStack); //command healing
 
-				CGI->curh->changeGraphic(1, 6); //cursor should be changed
+				CCS->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}
 	}
@@ -2664,17 +2664,17 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 
 void CBattleInterface::displayBattleFinished()
 {
-	CGI->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(0,0);
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-	CGI->musich->stopMusic();
+	CCS->musich->stopMusic();
 	resWindow = new CBattleResultWindow(*bresult, temp_rect, this);
 	GH.pushInt(resWindow);
 }
 
 void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
-	const CSpell &spell = CGI->spellh->spells[sc->id];
+	const CSpell &spell = *CGI->spellh->spells[sc->id];
 
 	//spell opening battle is cast when no stack is active
 	if(sc->castedByHero && ( activeStack == -1 || sc->side == !curInt->cb->battleGetStackByID(activeStack)->attackerOwned) )
@@ -2682,8 +2682,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
 
-	if (spell.soundID != soundBase::invalid)
-		CGI->soundh->playSound(spell.soundID);
+	if (vstd::contains(CCS->soundh->spellSounds, &spell))
+		CCS->soundh->playSound(CCS->soundh->spellSounds[&spell]);
 
 	switch(sc->id)
 	{
@@ -2780,7 +2780,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 		}
-		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
+		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
 		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
 		console->addText(text);
 	}
@@ -2795,7 +2795,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 		}
-		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id].name);
+		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
 		console->addText(text);
 	}
 	if(sc->dmgToDisplay != 0)
@@ -2810,7 +2810,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
 	for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
 	{
-		displayEffect(CGI->spellh->spells[sse.effect.id].mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
+		displayEffect(CGI->spellh->spells[sse.effect.id]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
 	}
 	if (activeStack != -1) //it can be -1 when a creature casts effect
 	{
@@ -2831,7 +2831,7 @@ void CBattleInterface::castThisSpell(int spellID)
 
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
-	const CSpell & spell = CGI->spellh->spells[spellID];
+	const CSpell & spell = *CGI->spellh->spells[spellID];
 	spellSelMode = 0;
 	if(spell.attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
 	{
@@ -2898,7 +2898,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	}
 	else
 	{
-		CGI->curh->changeGraphic(3, 0); 
+		CCS->curh->changeGraphic(3, 0); 
 	}
 }
 
@@ -2966,7 +2966,7 @@ void CBattleInterface::endCastingSpell()
 	delete spellToCast;
 	spellToCast = NULL;
 	spellDestSelectMode = false;
-	CGI->curh->changeGraphic(1, 6);
+	CCS->curh->changeGraphic(1, 6);
 }
 
 void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
@@ -3033,7 +3033,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 			std::vector<si32> spellIds = stack->activeSpells();
 			for(std::vector<si32>::const_iterator it = spellIds.begin(); it != spellIds.end(); it++)
 			{
-				pos += CGI->spellh->spells[ *it ].positiveness;
+				pos += CGI->spellh->spells[ *it ]->positiveness;
 			}
 			if(pos > 0)
 			{
@@ -3453,7 +3453,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 			if(myOwner->bfield[it].hovered && myOwner->bfield[it].strictHovered)
 				return;
 		}
-		CGI->curh->changeGraphic(0,0);
+		CCS->curh->changeGraphic(0,0);
 
 		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), myHero, myOwner->curInt);
 		GH.pushInt(spellWindow);
@@ -3821,11 +3821,11 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			case 2: text = 302; break;
 		}
 
-		CGI->musich->playMusic(musicBase::winBattle);
+		CCS->musich->playMusic(musicBase::winBattle);
 		#ifdef _WIN32
-			CGI->videoh->open(VIDEO_WIN);
+			CCS->videoh->open(VIDEO_WIN);
 		#else
-			CGI->videoh->open(VIDEO_WIN, true);
+			CCS->videoh->open(VIDEO_WIN, true);
 		#endif
 		std::string str = CGI->generaltexth->allTexts[text];
 		
@@ -3844,22 +3844,22 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		{
 		case 0: //normal victory
 		{
-			CGI->musich->playMusic(musicBase::loseCombat);
-			CGI->videoh->open(VIDEO_LOSE_BATTLE_START);
+			CCS->musich->playMusic(musicBase::loseCombat);
+			CCS->videoh->open(VIDEO_LOSE_BATTLE_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, FONT_SMALL, zwykly, background);
 			break;
 		}
 		case 1: //flee
 		{
-			CGI->musich->playMusic(musicBase::retreatBattle);
-			CGI->videoh->open(VIDEO_RETREAT_START);
+			CCS->musich->playMusic(musicBase::retreatBattle);
+			CCS->videoh->open(VIDEO_RETREAT_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, FONT_SMALL, zwykly, background);
 			break;
 		}
 		case 2: //surrender
 		{
-			CGI->musich->playMusic(musicBase::surrenderBattle);
-			CGI->videoh->open(VIDEO_SURRENDER);
+			CCS->musich->playMusic(musicBase::surrenderBattle);
+			CCS->videoh->open(VIDEO_SURRENDER);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 220, FONT_SMALL, zwykly, background);
 			break;
 		}
@@ -3889,7 +3889,7 @@ void CBattleResultWindow::show(SDL_Surface *to)
 	if(!to)
 		to = screen;
 
-	CGI->videoh->update(107, 70, background, false, true);
+	CCS->videoh->update(107, 70, background, false, true);
 
 	SDL_BlitSurface(background, NULL, to, &pos);
 	exit->show(to);
@@ -3900,7 +3900,7 @@ void CBattleResultWindow::bExitf()
 	CPlayerInterface * intTmp = owner->curInt;
 	GH.popInts(2); //first - we; second - battle interface
 	intTmp->showingDialog->setn(false);
-	CGI->videoh->close();
+	CCS->videoh->close();
 }
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)

@@ -446,7 +446,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
 {
 	waitWhileDialog();
-	CGI->soundh->playSound(soundBase::heroNewLevel);
+	CCS->soundh->playSound(soundBase::heroNewLevel);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
@@ -530,7 +530,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	switch(what)
 	{
 	case 1:
-		CGI->soundh->playSound(soundBase::newBuilding);
+		CCS->soundh->playSound(soundBase::newBuilding);
 		castleInt->addBuilding(buildingID);
 		break;
 	case 2:
@@ -550,7 +550,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	CGI->musich->playMusicFromSet(CGI->musich->battleMusics, -1);
+	CCS->musich->playMusicFromSet(CCS->musich->battleMusics, -1);
 	GH.pushInt(battleInt);
 }
 
@@ -839,7 +839,7 @@ void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	CGI->soundh->playSoundFromSet(CGI->soundh->pickupSounds);
+	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 
 	adventureInt->infoBar.showComp(&comp,4000);
 }
@@ -862,7 +862,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	temp->setDelComps(delComps);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
-		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
 		GH.pushInt(temp);
 	}
@@ -887,7 +887,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	
 	stopMovement();
-	CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if(!selection && cancel) //simple yes/no dialog
 	{
@@ -1067,14 +1067,14 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 #if 0
 			// TODO
 			if (hero is flying && sh == -1)
-				sh = CGI->soundh->playSound(soundBase::horseFlying, -1);
+				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
 				newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
 				if (newTerrain != currentTerrain) {
-					CGI->soundh->stopSound(sh);
-					sh = CGI->soundh->playSound(CGI->soundh->horseSounds[newTerrain], -1);
+					CCS->soundh->stopSound(sh);
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
 					currentTerrain = newTerrain;
 				}
 			}
@@ -1095,7 +1095,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				break;
 		}
 
-		CGI->soundh->stopSound(sh);
+		CCS->soundh->stopSound(sh);
 		cb->recalculatePaths();
 	}
 
@@ -1265,7 +1265,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 		&& LOCPLINT->castleInt
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
-		CGI->soundh->playSound(soundBase::newBuilding);
+		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->recreateBuildings();
 	}
 }
@@ -1329,9 +1329,9 @@ void CPlayerInterface::update()
 	else
 		GH.simpleRedraw();
 
-	CGI->curh->draw1();
+	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
-	CGI->curh->draw2();
+	CCS->curh->draw2();
 
 	screenLTmax = Point(conf.cc.resx - screen->w, conf.cc.resy - screen->h);
 
@@ -1862,14 +1862,14 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;
-	CGI->musich->setVolume(newVolume);
+	CCS->musich->setVolume(newVolume);
 	settingsChanged();
 }
 
 void SystemOptions::setSoundVolume( int newVolume )
 {
 	soundVolume = newVolume;
-	CGI->soundh->setVolume(newVolume);
+	CCS->soundh->setVolume(newVolume);
 	settingsChanged();
 }
 
@@ -1897,10 +1897,10 @@ void SystemOptions::settingsChanged()
 
 void SystemOptions::apply()
 {
-	if(CGI->musich->getVolume() != musicVolume)
-		CGI->musich->setVolume(musicVolume);
-	if(CGI->soundh->getVolume() != soundVolume)
-		CGI->soundh->setVolume(soundVolume);
+	if(CCS->musich->getVolume() != musicVolume)
+		CCS->musich->setVolume(musicVolume);
+	if(CCS->soundh->getVolume() != soundVolume)
+		CCS->soundh->setVolume(soundVolume);
 
 	settingsChanged();
 }
@@ -1980,9 +1980,9 @@ void CPlayerInterface::acceptTurn()
 	 * NEWDAY. And we don't play NEWMONTH. */
 	int day = cb->getDate(1);
 	if (day != 1)
-		CGI->soundh->playSound(soundBase::newDay);
+		CCS->soundh->playSound(soundBase::newDay);
 	else
-		CGI->soundh->playSound(soundBase::newWeek);
+		CCS->soundh->playSound(soundBase::newWeek);
 
 	adventureInt->infoBar.newDay(day);
 

@@ -2394,7 +2394,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	cs1.learn = true;
 	cs1.hid = toHero;//giving spells to first hero
 		for(std::set<ui32>::const_iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
-			if ( h2Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
+			if ( h2Lvl >= VLC->spellh->spells[*it]->level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
 				cs1.spells.insert(*it);//spell to learn
 
 	ChangeSpells cs2;
@@ -2402,7 +2402,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	cs2.hid = fromHero;
 
 	for(std::set<ui32>::const_iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
-		if ( h1Lvl >= VLC->spellh->spells[*it].level && !vstd::contains(h1->spells, *it))
+		if ( h1Lvl >= VLC->spellh->spells[*it]->level && !vstd::contains(h1->spells, *it))
 			cs2.spells.insert(*it);
 			
 	if (cs1.spells.size() || cs2.spells.size())//create a message
@@ -3954,7 +3954,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		cs.learn = 1;
 		for(int i=0;i<VLC->spellh->spells.size();i++)
 		{
-			if(!VLC->spellh->spells[i].creatureAbility)
+			if(!VLC->spellh->spells[i]->creatureAbility)
 				cs.spells.insert(i);
 		}
 
@@ -4160,7 +4160,7 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor,
 	const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower )
 {
-	CSpell *spell = &VLC->spellh->spells[spellID];
+	const CSpell *spell = VLC->spellh->spells[spellID];
 
 	BattleSpellCast sc;
 	sc.side = casterSide;
@@ -4343,7 +4343,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				return false;
 			}
 
-			const CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
+			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
 			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all
@@ -4937,7 +4937,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 
 bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &pos)
 {
-	const CSpell *s = &VLC->spellh->spells[spellID];
+	const CSpell *s = VLC->spellh->spells[spellID];
 	int cost = h->getSpellCost(s);
 	int schoolLevel = h->getSpellSchoolLevel(s);
 

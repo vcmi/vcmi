@@ -238,7 +238,7 @@ void IGameCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
 	CSpell *spell;
 	for (int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
-		spell = &(VLC->spellh->spells[i]);
+		spell = VLC->spellh->spells[i];
 		if (isAllowed (0, spell->id) && spell->level == level)
 		{
 			out.push_back(spell->id);

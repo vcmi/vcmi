@@ -188,7 +188,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
-		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
+		CCS->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
 		HLP::adjustMousePos(sEvent);
 		handleMouseMotion(sEvent);
 	}

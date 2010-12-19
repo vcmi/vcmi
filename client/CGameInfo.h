@@ -31,6 +31,18 @@ class CCursorHandler;
 class CGameState;
 class CVideoPlayer;
 
+
+//a class for non-mechanical client GUI classes
+class CClientState
+{
+public:
+	CSoundHandler * soundh;
+	CMusicHandler * musich;
+	CConsoleHandler * consoleh;
+	CCursorHandler * curh;
+	CVideoPlayer * videoh;
+};
+
 struct Mapa;
 
 /*
@@ -42,21 +54,16 @@ class CGameInfo
 	CGameState * state; //don't touch it in client's code
 public:
 	ConstTransitivePtr<CArtHandler> arth;
-	CHeroHandler * heroh;
-	CCreatureHandler * creh;
-	CSpellHandler * spellh;
-	CObjectHandler * objh;
-	CDefObjInfoHandler * dobjinfo;
+	ConstTransitivePtr<CHeroHandler> heroh;
+	ConstTransitivePtr<CCreatureHandler> creh;
+	ConstTransitivePtr<CSpellHandler> spellh;
+	ConstTransitivePtr<CObjectHandler> objh;
+	ConstTransitivePtr<CDefObjInfoHandler> dobjinfo;
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
 	CBuildingHandler * buildh;
-	mutable CSoundHandler * soundh;
-	mutable CMusicHandler * musich;
 	CTownHandler * townh;
 	//CTownHandler * townh;
-	mutable CConsoleHandler * consoleh;
-	mutable CCursorHandler * curh;
-	mutable CVideoPlayer * videoh;
 
 	void setFromLib();
 
@@ -69,11 +76,6 @@ public:
 //	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
 // public:
 // 	
-// 	ConstTransitivePtr<CHeroHandler> heroh;
-// 	ConstTransitivePtr<CCreatureHandler> creh;
-// 	ConstTransitivePtr<CSpellHandler> spellh;
-// 	ConstTransitivePtr<CObjectHandler> objh;
-// 	ConstTransitivePtr<CDefObjInfoHandler> dobjinfo;
 // 	ConstTransitivePtr<CGeneralTextHandler> generaltexth;
 
 

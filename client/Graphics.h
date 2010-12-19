@@ -24,6 +24,9 @@ class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
+class CGObjectInstance;
+class CGDefInfo;
+
 typedef struct _TTF_Font TTF_Font; //from SDL_ttf.h
 
 class Graphics
@@ -62,6 +65,10 @@ public:
 	std::map<std::string, CDefEssential*> mapObjectDefs; //pointers to loaded defs (key is filename, uppercase)
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
+
+	std::map<int, std::map<int, CDefEssential *> > advmapobjGraphics;
+	CDefEssential * getDef(const CGObjectInstance * obj);
+	CDefEssential * getDef(const CGDefInfo * info);
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border

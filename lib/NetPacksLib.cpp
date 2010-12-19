@@ -1013,11 +1013,11 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		int spellCost = 0;
 		if(gs->curB)
 		{
-			spellCost = gs->curB->getSpellCost(&VLC->spellh->spells[id], h);
+			spellCost = gs->curB->getSpellCost(VLC->spellh->spells[id], h);
 		}
 		else
 		{
-			spellCost = VLC->spellh->spells[id].costs[skill];
+			spellCost = VLC->spellh->spells[id]->costs[skill];
 		}
 		h->mana -= spellCost;
 		if(h->mana < 0) h->mana = 0;
@@ -1040,7 +1040,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 				//WTF?
 				for (BonusList::iterator it = remainingEff.begin(); it != remainingEff.end(); it++)
 				{
-					if (onlyHelpful && VLC->spellh->spells[ (*it)->id ].positiveness != 1)
+					if (onlyHelpful && VLC->spellh->spells[ (*it)->id ]->positiveness != 1)
 					{
 						remainingEff.push_back(*it);
 					}
@@ -1100,7 +1100,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStackInstance *csi = new CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill]); //deleted by d-tor of summoned stack
+		CStackInstance *csi = new CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id]->powers[skill]); //deleted by d-tor of summoned stack
 		csi->setArmyObj(h);
 		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);
@@ -1215,7 +1215,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			
 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
 			{
-				if(VLC->spellh->spells[(*it)->id].positiveness < 0)
+				if(VLC->spellh->spells[(*it)->id]->positiveness < 0)
 				{
 					changedStack->bonuses.erase(it);
 				}

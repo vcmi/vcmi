@@ -469,7 +469,7 @@ int NBonus::getCount(const CBonusSystemNode *obj, int from, int id)
 const CSpell * Bonus::sourceSpell() const
 {
 	if(source == SPELL_EFFECT)
-		return &VLC->spellh->spells[id];
+		return VLC->spellh->spells[id];
 	return NULL;
 }
 

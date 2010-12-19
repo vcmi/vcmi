@@ -79,6 +79,8 @@ enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFE
 
 class CGameInfo;
 extern const CGameInfo* CGI; //game info for general use
+class CClientState;
+extern CClientState * CCS;
 
 //a few typedefs for CCreatureSet
 typedef si32 TSlot;
@@ -176,7 +178,7 @@ class bmap : public std::map<KeyT, ValT>
 public:
 	const ValT & operator[](KeyT key) const
 	{
-		const_iterator it = find(*this, key);
+		const_iterator it = find(key);
 		return it->second;
 	}
 	ValT & operator[](KeyT key) 

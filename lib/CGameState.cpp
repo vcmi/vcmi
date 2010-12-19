@@ -166,7 +166,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SPELL_NAME)
 	{
-		dst = VLC->spellh->spells[ser].name;
+		dst = VLC->spellh->spells[ser]->name;
 	}
 	else if(type == CRE_SING_NAMES)
 	{
@@ -784,7 +784,7 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 
 void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
 {
-// 	si32 power = VLC->spellh->spells[sse.id].powers[sse.val];
+// 	si32 power = VLC->spellh->spells[sse.id]->powers[sse.val];
 // 	Bonus * bonus = getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, sse.id));
 // 	if (bonus)
 // 	{
@@ -921,7 +921,7 @@ void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
 // 		sf.back().id = sse.id;
 // 		break;
 // 	case 56: //frenzy
-// 		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56].powers[sse.val]/100.0, sse.turnsRemain));
+// 		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56]->powers[sse.val]/100.0, sse.turnsRemain));
 // 		sf.back().id = sse.id;
 // 		break;
 // 	case 58: //counterstrike
@@ -1643,10 +1643,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		randomizeObject(obj);
-		if(obj->ID==EVENTI_TYPE)
-		{
-			obj->defInfo->handler=NULL;
-		}
 		obj->hoverName = VLC->generaltexth->names[obj->ID];
 
 		//handle Favouring Winds - mark tiles under it
@@ -2088,7 +2084,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		CSpell *s;
 		for(unsigned int z=0; z<vti->obligatorySpells.size();z++)
 		{
-			s = &VLC->spellh->spells[vti->obligatorySpells[z]];
+			s = VLC->spellh->spells[vti->obligatorySpells[z]];
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -2098,11 +2094,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			int sel = -1;
 
 			for(unsigned int ps=0;ps<vti->possibleSpells.size();ps++)
-				total += VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+				total += VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
 			int r = (total)? ran()%total : -1;
 			for(unsigned int ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+				r -= VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
 				if(r<0)
 				{
 					sel = ps;
@@ -2112,7 +2108,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			if(sel<0)
 				sel=0;
 
-			CSpell *s = &VLC->spellh->spells[vti->possibleSpells[sel]];
+			CSpell *s = VLC->spellh->spells[vti->possibleSpells[sel]];
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -3225,7 +3221,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 		{
 			if(defender->getCreature()->idNumber == affectedIds[g])
 			{
-				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->val];
+				attackDefenceDifference += VLC->spellh->spells[55]->powers[attacker->getEffect(55)->val];
 				break;
 			}
 		}
@@ -3302,7 +3298,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	}
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
-		multBonus *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->val]); //the second factor is 1 or 0
+		multBonus *= 0.8f * float(VLC->spellh->spells[42]->powers[attacker->getEffect(42)->val]); //the second factor is 1 or 0
 	}
 
 	class HLP
@@ -3342,12 +3338,12 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
-		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->val];
+		minDmg -= VLC->spellh->spells[42]->powers[attacker->getEffect(42)->val];
 		returnedVal = std::make_pair(int(minDmg), int(minDmg));
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
-		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->val];
+		maxDmg += VLC->spellh->spells[41]->powers[attacker->getEffect(41)->val];
 		returnedVal =  std::make_pair(int(maxDmg), int(maxDmg));
 	}
 	else
@@ -3453,8 +3449,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 				attackedCres.insert(st);
 		}
 	}
-	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_1") != std::string::npos
-		|| VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	else if(VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET_1") != std::string::npos
+		|| VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
 		if(skillLevel < 3)  /*not expert */
 		{
@@ -3467,8 +3463,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			for(int it=0; it<stacks.size(); ++it)
 			{
 				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((VLC->spellh->spells[s->id].positiveness >= 0 && stacks[it]->owner == attackerOwner)
-					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != attackerOwner )
+				if((VLC->spellh->spells[s->id]->positiveness >= 0 && stacks[it]->owner == attackerOwner)
+					||(VLC->spellh->spells[s->id]->positiveness <= 0 && stacks[it]->owner != attackerOwner )
 					)
 				{
 					if(!onlyAlive || stacks[it]->alive())
@@ -3477,7 +3473,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			}
 		} //if(caster->getSpellSchoolLevel(s) < 3)
 	}
-	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+	else if(VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
 	{
 		CStack * st = getStackT(destinationTile, onlyAlive);
 		if(st)

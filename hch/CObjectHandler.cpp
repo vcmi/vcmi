@@ -914,7 +914,6 @@ void CGHeroInstance::initHeroDefInfo()
 		defInfo->coverageMap[i] = 0;
 		defInfo->shadowCoverage[i] = 0;
 	}
-	defInfo->handler=NULL;
 	defInfo->blockMap[5] = 253;
 	defInfo->visitMap[5] = 2;
 	defInfo->coverageMap[4] = defInfo->coverageMap[5] = 224;
@@ -4915,10 +4914,10 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	{
 		std::set<ui32> spellsToGive;
 		iw.components.clear();
-		std::vector<CSpell> * sp = &VLC->spellh->spells;
+		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
 		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
 		{
-			if ((*sp)[*i].level <= h->getSecSkillLevel(7) + 2) //enough wisdom
+			if ((*sp)[*i]->level <= h->getSecSkillLevel(7) + 2) //enough wisdom
 			{
 				iw.components.push_back(Component(Component::SPELL,*i,0,0));
 				spellsToGive.insert(*i);
@@ -5201,7 +5200,7 @@ const std::string & CGShrine::getHoverText() const
 	if(hasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s",VLC->spellh->spells[spell].name);
+		boost::algorithm::replace_first(hoverName,"%s",VLC->spellh->spells[spell]->name);
 		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 		if(h && vstd::contains(h->spells,spell)) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
@@ -5247,7 +5246,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	int ssl = h->getSecSkillLevel(bid); //current sec skill level, used if bonusType == 1
 	if((type == 1
 			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid) || (VLC->spellh->spells[bid].level > h->getSecSkillLevel(7) + 2)
+		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid) || (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(7) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = 0;

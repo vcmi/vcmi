@@ -271,7 +271,7 @@ void CMenuScreen::showAll( SDL_Surface * to )
 void CMenuScreen::show( SDL_Surface * to )
 {
 	CIntObject::show(to);
-	CGI->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
+	CCS->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
 }
 
 void CMenuScreen::moveTo( CMenuScreen *next )
@@ -329,9 +329,9 @@ void CGPreGame::update()
 	if (GH.listInt.size() == 0)
 	{
 	#ifdef _WIN32
-		CGI->videoh->open("ACREDIT.SMK");
+		CCS->videoh->open("ACREDIT.SMK");
 	#else
-		CGI->videoh->open("ACREDIT.SMK", true, false);
+		CCS->videoh->open("ACREDIT.SMK", true, false);
 	#endif
 		GH.pushInt(scrs[CMenuScreen::mainMenu]);
 	}
@@ -339,9 +339,9 @@ void CGPreGame::update()
 	if(SEL)
 		SEL->update();
 
-	CGI->curh->draw1();
+	CCS->curh->draw1();
 	SDL_Flip(screen);
-	CGI->curh->draw2();
+	CCS->curh->draw2();
 	screenLTmax = Point(800 - screen->w, 600 - screen->h);
 	GH.topInt()->show(screen);
 	GH.updateTime();
@@ -2858,7 +2858,7 @@ void CBonusSelection::updateBonusSelection()
 			case 0: //spell
 				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[715];
-				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
 			case 1: //monster
 				surfToDuplicate = de->ourImages[bonDescs[i].info2 + 2].bitmap;
@@ -2895,7 +2895,7 @@ void CBonusSelection::updateBonusSelection()
 			case 4: //spell scroll
 				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[716];
-				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
 			case 5: //primary skill
 				{

@@ -30,7 +30,6 @@ bool CGDefInfo::isVisitable() const
 }
 CGDefInfo::CGDefInfo()
 {
-	handler = NULL;
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
 
 	width = height = -1;
@@ -59,7 +58,6 @@ void CDefObjInfoHandler::load()
 	for(int hh=0; hh<objNumber; ++hh)
 	{
 		CGDefInfo* nobj = new CGDefInfo();
-		nobj->handler = NULL;
 		std::string dump;
 		inp>>nobj->name;
 		
@@ -132,19 +130,17 @@ void CDefObjInfoHandler::load()
 		static const char *holeDefs[] = {"AVLHOLD0.DEF", "AVLHLDS0.DEF", "AVLHOLG0.DEF", "AVLHLSN0.DEF",
 			"AVLHOLS0.DEF", "AVLHOLR0.DEF", "AVLHOLX0.DEF", "AVLHOLL0.DEF"};
 
-		CGDefInfo *& tmp = gobjs[124][i];
 		if(i)
 		{
-			tmp = new CGDefInfo;
-			*tmp = *gobjs[124][0];
+			gobjs[124][i] = new CGDefInfo(*gobjs[124][0]);
+			gobjs[124][i]->name = holeDefs[i];
 		}
-		tmp->name = holeDefs[i];
 	}
 }
  
 CDefObjInfoHandler::~CDefObjInfoHandler()
 {
-	for(std::map<int,std::map<int,CGDefInfo*> >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
-		for(std::map<int,CGDefInfo*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
+	for(bmap<int,bmap<int, ConstTransitivePtr<CGDefInfo> > >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
+		for(bmap<int, ConstTransitivePtr<CGDefInfo> >::iterator j=i->second.begin(); j!=i->second.end(); j++)
 			delete j->second;
 }

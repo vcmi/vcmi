@@ -142,7 +142,7 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 
 	if (down) 
 	{
-		CGI->soundh->playSound(soundBase::button);
+		CCS->soundh->playSound(soundBase::button);
 		state = 1;
 	} 
 	else if(hoverable && hovered)
@@ -295,7 +295,7 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 		return;
 	if (down) 
 	{
-		CGI->soundh->playSound(soundBase::button);
+		CCS->soundh->playSound(soundBase::button);
 		state = 1;
 	} 
 	else

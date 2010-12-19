@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include "../global.h"
+#include "../lib/ConstTransitivePtr.h"
 
 /*
  * CDefObjInfoHandler.h, part of VCMI engine
@@ -30,7 +31,6 @@ public:
 		 terrainMenu; //in which menus in map editor object will be showed
 	si32 width, height; //tiles
 	si32 type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
-	CDefEssential * handler;
 	si32 printPriority;
 	bool isVisitable() const;
 	bool operator<(const CGDefInfo& por) const
@@ -51,8 +51,8 @@ void fetchInfoFromMSK();
 class DLL_EXPORT CDefObjInfoHandler
 {
 public:
-	std::map<int,std::map<int,CGDefInfo*> > gobjs;
-	std::map<int,CGDefInfo*> castles;
+	bmap<int, bmap<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
+	bmap<int, ConstTransitivePtr<CGDefInfo> > castles;
 
 	void load();
 	~CDefObjInfoHandler();

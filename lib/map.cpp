@@ -1565,7 +1565,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				{
 					int spellID = readNormalNr(bufor,i); 
 					i+=4;
-					innerArt = CArtifactInstance::createScroll(&VLC->spellh->spells[spellID]);
+					innerArt = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
 				}
 				else if(art->ID == 5) //specific artifact
 				{

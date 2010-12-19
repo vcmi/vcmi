@@ -12,6 +12,7 @@
 #include "../lib/VCMI_Lib.h"
 #endif
 #include "../lib/CCreatureSet.h"
+#include "../lib/ConstTransitivePtr.h"
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -1116,7 +1117,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CPlayersVisited&>(*this);
-		h & players;
 	}
 };
 
@@ -1229,7 +1229,7 @@ class DLL_EXPORT CObjectHandler
 {
 public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
-	std::map <ui32, std::vector <BankConfig*> > banksInfo; //[index][preset]
+	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
 

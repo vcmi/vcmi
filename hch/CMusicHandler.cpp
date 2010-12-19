@@ -29,7 +29,7 @@ static boost::bimap<soundBase::soundID, std::string> sounds;
 
 // Not pretty, but there's only one music handler object in the game.
 static void musicFinishedCallbackC(void) {
-	CGI->musich->musicFinishedCallback();
+	CCS->musich->musicFinishedCallback();
 }
 
 void CAudioBase::init()
@@ -148,7 +148,7 @@ soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 		return it->second;
 }
 
-void CSoundHandler::initCreaturesSounds(std::vector<ConstTransitivePtr< CCreature> > &creatures)
+void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
 	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");
@@ -222,7 +222,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<ConstTransitivePtr< CCreatur
 	}*/
 }
 
-void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
+void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
 	tlog5 << "\t\tReading config/sp_sounds.txt" << std::endl;
 	std::ifstream ifs(DATA_DIR "/config/sp_sounds.txt");
@@ -238,12 +238,14 @@ void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
 
 		if (str.good() || (str.eof() && soundfile != ""))
 		{
-			const CSpell &s = CGI->spellh->spells[spellid];
+			const CSpell *s = CGI->spellh->spells[spellid];
 
-			if (s.soundID != soundBase::invalid)
+			if (vstd::contains(spellSounds, s))
+			{
 				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;
+			}
 			
-			s.soundID = getSoundID(soundfile);
+			spellSounds[s] = getSoundID(soundfile);
 		}
 	}
 	ifs.close();

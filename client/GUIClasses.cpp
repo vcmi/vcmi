@@ -653,7 +653,7 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignmen
 
 CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 
 	free=Free;
 	bitmap=Bitmap;
@@ -679,12 +679,12 @@ void CInfoPopup::show(SDL_Surface * to)
 }
 CInfoPopup::~CInfoPopup()
 {
-	CGI->curh->show();
+	CCS->curh->show();
 }
 
 void CInfoPopup::init(int x, int y)
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 
 	pos.x = x;
 	pos.y = y;
@@ -745,8 +745,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = oss.str();
 		break;
 	case spell:
-		description = CGI->spellh->spells[Subtype].descriptions[Val];
-		subtitle = CGI->spellh->spells[Subtype].name;
+		description = CGI->spellh->spells[Subtype]->descriptions[Val];
+		subtitle = CGI->spellh->spells[Subtype]->name;
 		break;
 	case creature:
 		subtitle = (Val? boost::lexical_cast<std::string>(Val) + " " : "") + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
@@ -1899,7 +1899,7 @@ void CRecruitmentWindow::initCres()
 
 			cur.amount = dwelling->creatures[i].first;
 			cur.ID = dwelling->creatures[i].second[j];
-			CCreature * cre= CGI->creh->creatures[cur.ID];
+			const CCreature * cre= CGI->creh->creatures[cur.ID];
 
 			for(int k=0; k<cre->cost.size(); k++)
 				if(cre->cost[k])
@@ -2638,7 +2638,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->commonInfo->srcSlotID = 19 + vstd::findPos(aw->hero->artifacts, const_cast<CArtifact*>(movedArt));
 
 				aw->arts->commonInfo->destAOH = aw->arts;
-				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->id].bitmap);
+				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->id].bitmap);
 
 				id = -1;
 				subtitle = "";
@@ -3909,7 +3909,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	{
 		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].second),CGI->generaltexth->zelp[326+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+359, i*11);
 	}
-	musicVolume->select(CGI->musich->getVolume(), 1);
+	musicVolume->select(CCS->musich->getVolume(), 1);
 	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, &owner->sysOpts, _1);
 
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
@@ -3917,7 +3917,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	{
 		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].second),CGI->generaltexth->zelp[336+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+425, i*11);
 	}
-	effectsVolume->select(CGI->soundh->getVolume(), 1);
+	effectsVolume->select(CCS->soundh->getVolume(), 1);
 	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, &owner->sysOpts, _1);
 }
 
@@ -4065,9 +4065,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
 	}
 
 #ifdef _WIN32
-	CGI->videoh->open("TAVERN.BIK");
+	CCS->videoh->open("TAVERN.BIK");
 #else
-	CGI->videoh->open("tavern.mjpg", true, false);
+	CCS->videoh->open("tavern.mjpg", true, false);
 #endif
 }
 
@@ -4086,7 +4086,7 @@ void CTavernWindow::thievesguildb()
 
 CTavernWindow::~CTavernWindow()
 {
-	CGI->videoh->close();
+	CCS->videoh->close();
 }
 
 void CTavernWindow::close()
@@ -4098,7 +4098,7 @@ void CTavernWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 
-	CGI->videoh->update(pos.x+70, pos.y+56, to, true, false);
+	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
 	{
 		HeroPortrait *sel = selected ? h2 : h1;
@@ -4473,7 +4473,7 @@ void CRClickPopupInt::show(SDL_Surface * to)
 
 CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 	inner = our;
 	delInner = deleteInt;
 }
@@ -4488,7 +4488,7 @@ CRClickPopupInt::~CRClickPopupInt()
 	if(delInner)
 		delete inner;
 
-	CGI->curh->show();
+	CCS->curh->show();
 }
 
 CArtPlace::CArtPlace(const CArtifact* Art)
@@ -4671,7 +4671,7 @@ void CArtPlace::select ()
 
 	int backpackCorrection = -(slotID - 19 < ourOwner->backpackPos);
 
-	CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->id].bitmap);
+	CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->id].bitmap);
 
 	ourOwner->commonInfo->srcArtifact = ourArt;
 	ourOwner->commonInfo->srcSlotID = slotID;
@@ -4701,7 +4701,7 @@ void CArtPlace::select ()
  */
 void CArtPlace::deselect ()
 {
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 	ourOwner->unmarkSlots();
 }
 
@@ -4886,7 +4886,7 @@ void CArtifactsOfHero::SCommonPart::reset()
 	destAOH = srcAOH = NULL;
 	destArtifact = srcArtifact = NULL;
 	destSlotID = srcSlotID = -1;
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
@@ -4928,7 +4928,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 				commonInfo->destArtifact = NULL;
 				commonInfo->destSlotID = -1;
 
-				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
+				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
 				markPossibleSlots(commonInfo->srcArtifact);
 			} 
 			else if (commonInfo->destAOH != NULL) 
@@ -4965,7 +4965,7 @@ void CArtifactsOfHero::dispose()
 {
 	//delNull(curHero);
 	unmarkSlots(false);
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::scrollBackpack(int dir)
@@ -5317,7 +5317,7 @@ void CExchangeWindow::show(SDL_Surface * to)
 
 void CExchangeWindow::questlog(int whichHero)
 {
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CExchangeWindow::prepareBackground()

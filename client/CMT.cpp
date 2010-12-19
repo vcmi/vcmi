@@ -128,10 +128,10 @@ void init()
 	//initializing audio
 	// Note: because of interface button range, volume can only be a
 	// multiple of 11, from 0 to 99.
-	CGI->soundh = new CSoundHandler;
-	CGI->soundh->init();
-	CGI->soundh->setVolume(GDefaultOptions.soundVolume);
-	CGI->musich = new CMusicHandler;
+	CCS->soundh = new CSoundHandler;
+	CCS->soundh->init();
+	CCS->soundh->setVolume(GDefaultOptions.soundVolume);
+	CCS->musich = new CMusicHandler;
 	//CGI->musich->init();
 	//CGI->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
@@ -139,14 +139,14 @@ void init()
 
 	initDLL(::console,logfile);
 	const_cast<CGameInfo*>(CGI)->setFromLib();
-	CGI->soundh->initCreaturesSounds(CGI->creh->creatures);
-	CGI->soundh->initSpellsSounds(CGI->spellh->spells);
+	CCS->soundh->initCreaturesSounds(CGI->creh->creatures);
+	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
 	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 
 	pomtime.getDif();
-	CGI->curh = new CCursorHandler;
-	CGI->curh->initCursor();
-	CGI->curh->show();
+	CCS->curh = new CCursorHandler;
+	CCS->curh->initCursor();
+	CCS->curh->show();
 	tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
 	pomtime.getDif();
 	graphics = new Graphics();
@@ -247,8 +247,9 @@ int main(int argc, char** argv)
 	tlog0 << NAME << std::endl;
 
 	srand ( time(NULL) );
-	//CPG=NULL;
-	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
+	
+	CCS = new CClientState;
+	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 	{
@@ -261,7 +262,7 @@ int main(int argc, char** argv)
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
 
 	// Initialize video
-	CGI->videoh = new CVideoPlayer;
+	CCS->videoh = new CVideoPlayer;
 	tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
 
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -272,7 +273,7 @@ int main(int argc, char** argv)
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-	CGI->musich->playMusic(musicBase::mainMenu, -1);
+	CCS->musich->playMusic(musicBase::mainMenu, -1);
 
 	GH.curInt = new CGPreGame; //will set CGP pointer to itself
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
@@ -474,9 +475,9 @@ void processCommand(const std::string &message)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CGI->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
+	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
 	{
-		CGI->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
+		CCS->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
 	}
 }
 
@@ -611,7 +612,7 @@ static void listenForEvents()
 
 				delete CGI->dobjinfo;
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
-				CGI->dobjinfo->load();
+				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
@@ -675,7 +676,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		break;
 	}
 
-	CGI->musich->stopMusic();
+	CCS->musich->stopMusic();
 	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 
