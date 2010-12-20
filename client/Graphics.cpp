@@ -1,6 +1,6 @@
 #include "../stdafx.h"
 #include "Graphics.h"
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 #include "SDL_Extensions.h"
 #include <SDL_ttf.h>
 #include <boost/assign/std/vector.hpp> 
@@ -12,16 +12,16 @@
 #include <boost/assign/std/vector.hpp>
 #include "../CThreadHelper.h"
 #include "CGameInfo.h"
-#include "../hch/CLodHandler.h"
+#include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -288,6 +288,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadWallPositions,this);
+	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
 	tasks += GET_SURFACE(heroInGarrison,"TOWNQKGH.bmp");
@@ -730,6 +731,26 @@ CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 CDefEssential * Graphics::getDef( const CGDefInfo * info )
 {
 	return advmapobjGraphics[info->id][info->subid];
+}
+
+void Graphics::loadErmuToPicture()
+{
+	//loading ERMU to picture
+	std::ifstream etp(DATA_DIR "/config/ERMU_to_picture.txt");
+
+	assert(etp.is_open());
+
+	for(int g=0; g<44; ++g)
+	{
+		for (int b=0; b<ARRAY_COUNT(ERMUtoPicture); ++b)
+		{
+			std::string buf;
+			etp >> buf;
+			ERMUtoPicture[b][g] = buf;
+		}
+	}
+
+	etp.close();
 }
 
 Font::Font(unsigned char *Data)

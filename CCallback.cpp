@@ -1,24 +1,24 @@
 #include "stdafx.h"
 #include "CCallback.h"
-#include "hch/CCreatureHandler.h"
+#include "lib/CCreatureHandler.h"
 #include "client/CGameInfo.h"
 #include "lib/CGameState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
 #include "lib/map.h"
-#include "hch/CBuildingHandler.h"
-#include "hch/CDefObjInfoHandler.h"
-#include "hch/CGeneralTextHandler.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CObjectHandler.h"
+#include "lib/CBuildingHandler.h"
+#include "lib/CDefObjInfoHandler.h"
+#include "lib/CGeneralTextHandler.h"
+#include "lib/CHeroHandler.h"
+#include "lib/CObjectHandler.h"
 #include "lib/Connection.h"
 #include "lib/NetPacks.h"
 #include "client/mapHandler.h"
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
-#include "hch/CSpellHandler.h"
-#include "hch/CArtHandler.h"
+#include "lib/CSpellHandler.h"
+#include "lib/CArtHandler.h"
 #ifdef min
 #undef min
 #endif
@@ -463,7 +463,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 
 	if(town->tempOwner!=player)
 		return false;
-	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
+	const CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
 	for(int i=0;i<b->resources.size();i++)
 		if(b->resources[i] > gs->players[player].resources[i])
 			return false; //lack of resources

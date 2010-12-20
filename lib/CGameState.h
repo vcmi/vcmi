@@ -4,7 +4,7 @@
 #include <cassert>
 
 #ifndef _MSC_VER
-#include "../hch/CCreatureHandler.h"
+#include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "map.h"
 #endif
@@ -434,10 +434,10 @@ class DLL_EXPORT CGameState
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	CCampaignState *campaign;
+	ConstTransitivePtr<CCampaignState> campaign;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
-	BattleInfo *curB; //current battle
+	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<Mapa> map;
 	bmap<ui8, PlayerState> players; //ID <-> player state

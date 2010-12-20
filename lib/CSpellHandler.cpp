@@ -2,7 +2,6 @@
 #include "../stdafx.h"
 #include "CSpellHandler.h"
 #include "CLodHandler.h"
-#include "CSoundBase.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <cctype>

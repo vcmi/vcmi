@@ -10,8 +10,8 @@
 #include <list>
 #include "../global.h"
 #ifndef _MSC_VER
-#include "../hch/CObjectHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "CObjectHandler.h"
+#include "CDefObjInfoHandler.h"
 #endif
 
 #include "ConstTransitivePtr.h"

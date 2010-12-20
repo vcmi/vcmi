@@ -3,8 +3,8 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
-#include "../../hch/CBuildingHandler.h"
-#include "../../hch/CHeroHandler.h"
+#include "../../lib/CBuildingHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/NetPacks.h"
 #include "AIPriorities.h"
@@ -840,8 +840,8 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 	if (!t.hasBuilt)
 	{
     // m_cb->getCBuildingsByID(t.t);
-		std::map<int, CBuilding*> thisTownsBuildings = VLC->buildh->buildings[t.t->subID];
-		for (std::map<int, CBuilding*>::iterator i = thisTownsBuildings.begin(); i != thisTownsBuildings.end(); i++)
+		bmap<int, ConstTransitivePtr<CBuilding> > thisTownsBuildings = VLC->buildh->buildings[t.t->subID];
+		for (bmap<int, ConstTransitivePtr<CBuilding> >::iterator i = thisTownsBuildings.begin(); i != thisTownsBuildings.end(); i++)
 		{
 			if (m_cb->canBuildStructure(t.t, i->first) == 7)
 			{

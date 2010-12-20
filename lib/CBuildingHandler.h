@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 
+#include "../lib/ConstTransitivePtr.h"
+
 /*
  * CBuildingHandler.h, part of VCMI engine
  *
@@ -37,9 +39,8 @@ public:
 class DLL_EXPORT CBuildingHandler
 {
 public:
-	std::vector< std::map<int, CBuilding*> > buildings; ///< vector by castle ID, second the building ID (in ERM-U format)
-	std::map<int, std::pair<std::string,std::vector< std::vector< std::vector<int> > > > > hall; //map<castle ID, pair<hall bg name, std::vector< std::vector<building id> >[5]> - external vector is the vector of buildings in the row, internal is the list of buildings for the specific slot
-	std::map<int, std::string> ERMUtoPicture[F_NUMBER]; //maps building ID to it's picture's name for each town type
+	std::vector< bmap<int, ConstTransitivePtr<CBuilding> > > buildings; ///< vector by castle ID, second the building ID (in ERM-U format)
+	bmap<int, std::pair<std::string,std::vector< std::vector< std::vector<int> > > > > hall; //map<castle ID, pair<hall bg name, std::vector< std::vector<building id> >[5]> - external vector is the vector of buildings in the row, internal is the list of buildings for the specific slot
 
 	void loadBuildings(); //main loader
 	~CBuildingHandler(); //d-tor
@@ -47,7 +48,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & buildings & hall & ERMUtoPicture;
+		h & buildings & hall;
 	}
 };
 

@@ -12,11 +12,11 @@
 #include "CConfigHandler.h"
 #include "CSpellWindow.h"
 #include "Graphics.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CTownHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CTownHandler.h"
 #include "../lib/map.h"
 #include "mapHandler.h"
 #include "../stdafx.h"
@@ -27,9 +27,9 @@
 #include <sstream>
 #include "CPreGame.h"
 #include "../lib/VCMI_Lib.h"
-#include "../hch/CSpellHandler.h"
+#include "../lib/CSpellHandler.h"
 #include <boost/foreach.hpp>
-#include "../hch/CSoundBase.h"
+#include "CSoundBase.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)

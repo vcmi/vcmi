@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 #include <map>
 #include "Graphics.h"
 #include "GUIBase.h"

@@ -5,7 +5,7 @@
 
 #include "CSoundBase.h"
 #include "CMusicBase.h"
-#include "CCreatureHandler.h"
+#include "../lib/CCreatureHandler.h"
 
 
 /*

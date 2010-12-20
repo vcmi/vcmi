@@ -7,8 +7,8 @@
 #pragma warning (disable: 4100 4251 4245 4018 4081)
 #include "../../global.h"
 #include "../../CCallback.h"
-#include "../../hch/CCreatureHandler.h"
-#include "../../hch/CObjectHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/CObjectHandler.h"
 #pragma warning (default: 4100 4251 4245 4018 4081)
 
 #pragma warning (disable: 4100)

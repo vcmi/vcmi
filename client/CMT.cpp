@@ -23,16 +23,16 @@
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
 #include "CAdvmapInterface.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CVideoHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CMusicHandler.h"
-#include "../hch/CVideoHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CGeneralTextHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "CVideoHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "CMusicHandler.h"
+#include "CVideoHandler.h"
+#include "../lib/CLodHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
 #include "CConfigHandler.h"
@@ -42,13 +42,13 @@
 #include <cstdlib>
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CObjectHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
 #include <boost/foreach.hpp>
-#include "../hch/CDefObjInfoHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 
 #if __MINGW32__
 #undef main

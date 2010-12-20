@@ -10,17 +10,17 @@
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
 #include "CAnimation.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CCampaignHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CMusicHandler.h"
-#include "../hch/CVideoHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CCampaignHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "CMusicHandler.h"
+#include "CVideoHandler.h"
 #include <cmath>
 #include "Graphics.h"
 //#include <boost/thread.hpp>
@@ -36,9 +36,9 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdlib>
 #include "CMessage.h"
-#include "../hch/CSpellHandler.h" /*for campaign bonuses*/
-#include "../hch/CArtHandler.h" /*for campaign bonuses*/
-#include "../hch/CBuildingHandler.h" /*for campaign bonuses*/
+#include "../lib/CSpellHandler.h" /*for campaign bonuses*/
+#include "../lib/CArtHandler.h" /*for campaign bonuses*/
+#include "../lib/CBuildingHandler.h" /*for campaign bonuses*/
 #include "CBitmapHandler.h"
 #include "Client.h"
 #include "../lib/NetPacks.h"
@@ -2881,7 +2881,7 @@ void CBonusSelection::updateBonusSelection()
 					}
 					assert(faction != -1);
 
-					std::string bldgBitmapName = CGI->buildh->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
+					std::string bldgBitmapName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
 					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
 
 					freeDuplicatedSurface = true;

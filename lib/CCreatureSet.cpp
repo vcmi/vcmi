@@ -1,12 +1,12 @@
 #define VCMI_DLL
 #include "CCreatureSet.h"
-#include "../hch/CCreatureHandler.h"
+#include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include <assert.h>
-#include "../hch/CObjectHandler.h"
+#include "CObjectHandler.h"
 #include "IGameCallback.h"
 #include "CGameState.h"
-#include "../hch/CGeneralTextHandler.h"
+#include "CGeneralTextHandler.h"
 #include <sstream>
 
 const CStackInstance &CCreatureSet::operator[](TSlot slot) const

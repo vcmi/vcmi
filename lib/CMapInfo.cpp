@@ -3,7 +3,7 @@
 #include "CMapInfo.h"
 #include "../StartInfo.h"
 #include "map.h"
-#include "../hch/CCampaignHandler.h"
+#include "CCampaignHandler.h"
 
 void CMapInfo::countPlayers()
 {

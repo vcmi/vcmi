@@ -10,17 +10,17 @@
 #include "SDL_Extensions.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "../lib/map.h"
-#include "../hch/CMusicHandler.h"
+#include "CMusicHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -28,8 +28,8 @@
 #include <cmath>
 #include <sstream>
 #include <boost/format.hpp>
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CMusicHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "CMusicHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -159,7 +159,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	{
 		int bid = hordeToDwellingID(str->ID);
 
-		CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
+		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		assert(bld);
 
 		CInfoPopup *vinya = new CInfoPopup();
@@ -1248,7 +1248,7 @@ void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
 		CInfoPopup *mess = new CInfoPopup();
 		mess->free = true;
 		CCastleInterface * ci=LOCPLINT->castleInt;
-		CBuilding *bld = CGI->buildh->buildings[ci->town->subID][bid];
+		const CBuilding *bld = CGI->buildh->buildings[ci->town->subID][bid];
 		mess->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,bld->Description(),
 			LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,
@@ -1443,7 +1443,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	boxes.resize(5);
 	for(size_t i=0;i<5;i++) //for each row
 	{
-		std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[owner->town->subID].second;
+		const std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[owner->town->subID].second;
 
 		for(size_t j=0; j<boxList[i].size();j++) //for each box
 		{
@@ -1897,7 +1897,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
 			{
-				spells.push_back( new Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
+				spells.push_back( new Scroll(CGI->spellh->spells[owner->town->spells[i][j]]));
 				spells[spells.size()-1]->pos = positions[i][j];
 				blitAt(graphics->spellscr->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],*bg);
 			}

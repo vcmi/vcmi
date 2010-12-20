@@ -2,14 +2,14 @@
 #include "HeroBonus.h"
 #include <boost/foreach.hpp>
 #include "VCMI_Lib.h"
-#include "../hch/CSpellHandler.h"
+#include "CSpellHandler.h"
 #include <sstream>
-#include "../hch/CCreatureHandler.h"
+#include "CCreatureHandler.h"
 #include <boost/assign/list_of.hpp>
 #include "CCreatureSet.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/bind.hpp>
-#include "../hch/CHeroHandler.h"
+#include "CHeroHandler.h"
 
 #define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)

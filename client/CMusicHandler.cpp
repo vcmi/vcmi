@@ -9,8 +9,8 @@
 
 #include "CSndHandler.h"
 #include "CMusicHandler.h"
-#include "CCreatureHandler.h"
-#include "CSpellHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "../lib/CSpellHandler.h"
 #include "../client/CGameInfo.h"
 
 /*

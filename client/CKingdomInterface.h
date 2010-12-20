@@ -5,7 +5,7 @@
 #include "../global.h"
 #include "GUIBase.h"
 #include "GUIClasses.h"
-#include "../hch/CMusicBase.h"
+#include "CMusicBase.h"
 class AdventureMapButton;
 class CHighlightableButtonsGroup;
 class CResDataBar;

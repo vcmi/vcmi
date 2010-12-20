@@ -1,6 +1,6 @@
 #include "../lib/NetPacks.h"
 #include "CGameHandler.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/map.h"
 

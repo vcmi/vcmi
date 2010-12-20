@@ -6,7 +6,6 @@
 #include <map>
 #include <set>
 
-#include "CSoundBase.h"
 #include "../lib/HeroBonus.h"
 #include "../lib/CGameState.h"
 #include "../lib/CCreatureSet.h"

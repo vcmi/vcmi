@@ -7,6 +7,7 @@
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
+#include "../client/CSoundBase.h"
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
@@ -14,14 +15,13 @@
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
-#include "CSoundBase.h"
 #include "CCreatureHandler.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/IGameCallback.h"
-#include "../lib/CGameState.h"
-#include "../lib/NetPacks.h"
+#include "VCMI_Lib.h"
+#include "IGameCallback.h"
+#include "CGameState.h"
+#include "NetPacks.h"
 #include "../StartInfo.h"
-#include "../lib/map.h"
+#include "map.h"
 #include <sstream>
 #include <SDL_stdinc.h>
 #include <boost/foreach.hpp>
@@ -1652,7 +1652,7 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 			{
 				if (tempOwner != NEUTRAL_PLAYER)
 				{
-					std::vector<CGDwelling *>* dwellings = &cb->gameState()->players[tempOwner].dwellings;
+					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
 				if (val != NEUTRAL_PLAYER) //can new owner be neutral?
@@ -1952,7 +1952,7 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	{
 		ret *= (100.0f + cb->gameState()->players[tempOwner].valOfBonuses
 			(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT)))/100; //Statue of Legion
-		for (std::vector<CGDwelling*>::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
+		for (std::vector<ConstTransitivePtr<CGDwelling> >::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
 		{ //+1 for each dwelling
 			if (VLC->creh->creatures[creid]->idNumber == (*it)->creatures[0].second[0])
 				++ret;
@@ -2275,7 +2275,7 @@ void CGTownInstance::removeCapitols (ui8 owner) const
 	if (hasCapitol()) // search if there's an older capitol
 	{ 
 		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
-		for (std::vector<CGTownInstance*>::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
+		for (std::vector<ConstTransitivePtr<CGTownInstance> >::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
 		{ 
 			if (*i != this && (*i)->hasCapitol()) 
 			{ 

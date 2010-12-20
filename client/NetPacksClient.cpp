@@ -4,15 +4,15 @@
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
 #include "../lib/Connection.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CObjectHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
 #include "../lib/VCMIDirs.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CSoundBase.h"
+#include "../lib/CSpellHandler.h"
+#include "CSoundBase.h"
 #include "mapHandler.h"
 #include "GUIClasses.h"
 #include <boost/bind.hpp>
@@ -22,7 +22,7 @@
 #include "CConfigHandler.h"
 #include "SDL_Extensions.h"
 #include "CBattleInterface.h"
-#include "../hch/CCampaignHandler.h"
+#include "../lib/CCampaignHandler.h"
 
 //macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 	\

@@ -3,9 +3,9 @@
 #include "Connection.h"
 #include "NetPacks.h"
 #include "VCMI_Lib.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
+#include "CObjectHandler.h"
+#include "CHeroHandler.h"
+#include "CTownHandler.h"
 /*
  * RegisterTypes.cpp, part of VCMI engine
  *

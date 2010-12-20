@@ -3,16 +3,16 @@
 #include "CAdvmapInterface.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CTownHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CTownHandler.h"
 #include "../CCallback.h"
 #include "CConfigHandler.h"
 #include "Graphics.h"
 #include "CBattleInterface.h"
 #include "CPlayerInterface.h"
 #include "CMessage.h"
-#include "../hch/CMusicHandler.h"
+#include "CMusicHandler.h"
 
 /*
  * AdventureMapButton.cpp, part of VCMI engine

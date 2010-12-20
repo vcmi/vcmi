@@ -7,7 +7,7 @@
 #include <SDL.h>
 #include "CAnimation.h"
 #include "GUIBase.h"
-#include "../hch/CMusicBase.h"
+#include "CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;

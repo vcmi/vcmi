@@ -2,13 +2,13 @@
 #include "IGameCallback.h"
 #include "../lib/CGameState.h"
 #include "../lib/map.h"
-#include "../hch/CObjectHandler.h"
+#include "CObjectHandler.h"
 #include "../StartInfo.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CSpellHandler.h"
+#include "CArtHandler.h"
+#include "CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/random/linear_congruential.hpp>
-#include "../hch/CTownHandler.h"
+#include "CTownHandler.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine

@@ -2,9 +2,9 @@
 #include "SDL.h"
 #include "CDefHandler.h"
 #include <sstream>
-#include "CLodHandler.h"
+#include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
-#include "../client/CBitmapHandler.h"
+#include "CBitmapHandler.h"
 
 /*
  * CDefHandler.cpp, part of VCMI engine

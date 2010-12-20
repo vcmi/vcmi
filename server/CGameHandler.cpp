@@ -1,20 +1,21 @@
-#include "../hch/CCampaignHandler.h"
+#include "../lib/CCampaignHandler.h"
 #include "../StartInfo.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
 #include "../lib/VCMIDirs.h"
+#include "../client/CSoundBase.h"
 #include "CGameHandler.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
@@ -4685,7 +4686,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	{
 		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
 
-		for (std::map<ui8,PlayerState>::const_iterator i = gs->players.begin(); i!=gs->players.end(); i++)
+		for (bmap<ui8,PlayerState>::const_iterator i = gs->players.begin(); i!=gs->players.end(); i++)
 		{
 			if(i->first < PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
 			{

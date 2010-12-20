@@ -1,17 +1,17 @@
 #define VCMI_DLL
 #include "../stdafx.h"
 #include "map.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "CObjectHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "VCMI_Lib.h"
 #include <zlib.h>
 #include <boost/crc.hpp>
-#include "../hch/CLodHandler.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "CLodHandler.h"
+#include "CArtHandler.h"
+#include "CCreatureHandler.h"
 #include <boost/bind.hpp>
 #include <assert.h>
-#include "../hch/CSpellHandler.h"
+#include "CSpellHandler.h"
 
 /*
  * map.cpp, part of VCMI engine
