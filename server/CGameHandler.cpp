@@ -933,7 +933,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[CREATURES_PER_TOWN].second.clear();//remove old one
 			
-			const std::vector<CGDwelling *> &dwellings = gs->getPlayer(town->tempOwner)->dwellings;
+			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = gs->getPlayer(town->tempOwner)->dwellings;
 			if (dwellings.empty())//no dwellings - just remove
 			{
 				sendAndApply(&ssi);
@@ -1008,7 +1008,7 @@ void CGameHandler::newTurn()
 	else
 		n.specialWeek = NewTurn::NO_ACTION; //don't remove bonuses
 
-	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
 
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
@@ -1079,7 +1079,7 @@ void CGameHandler::newTurn()
 	//      townID,    creatureID, amount
 	std::map<si32, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
 	
-	for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+	for(std::vector<ConstTransitivePtr<CGTownInstance> >::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 	{
 		ui8 player = (*j)->tempOwner;
 		if(gs->getDate(1)==7) //first day of week
@@ -1176,7 +1176,7 @@ void CGameHandler::newTurn()
 		n2.day = gs->day;
 		n2.resetBuilded = true;
 
-		for(std::vector<CGTownInstance *>::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+		for(std::vector<ConstTransitivePtr<CGTownInstance> >::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
 		{
 			SetAvailableCreatures sac;
 			sac.tid = (**j).id;
@@ -3559,7 +3559,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	}
 
 
-	CGHeroInstance *nh = p->availableHeroes[hid];
+	const CGHeroInstance *nh = p->availableHeroes[hid];
 	assert(nh);
 
 	HeroRecruited hr;
@@ -3570,7 +3570,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	sendAndApply(&hr);
 
 
-	std::map<ui32,CGHeroInstance *> pool = gs->unusedHeroesFromPool();
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes[!hid];
 	const CGHeroInstance *newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
@@ -4700,8 +4700,8 @@ void CGameHandler::checkLossVictory( ui8 player )
 	}
 	else //player lost -> all his objects become unflagged (neutral)
 	{
-		std::vector<CGHeroInstance*> hlp = p->heroes;
-		for (std::vector<CGHeroInstance*>::const_iterator i = hlp.begin(); i != hlp.end(); i++) //eliminate heroes
+		std::vector<ConstTransitivePtr<CGHeroInstance> > hlp = p->heroes;
+		for (std::vector<ConstTransitivePtr<CGHeroInstance> >::const_iterator i = hlp.begin(); i != hlp.end(); i++) //eliminate heroes
 			removeObject((*i)->id);
 
 		for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs

@@ -266,7 +266,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	if(obj->ID==HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-		std::vector<CGHeroInstance*>::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
+		std::vector<ConstTransitivePtr<CGHeroInstance> >::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
 		gs->map->heroes.erase(nitr);
 		int player = h->tempOwner;
 		nitr = std::find(gs->getPlayer(player)->heroes.begin(), gs->getPlayer(player)->heroes.end(), h);

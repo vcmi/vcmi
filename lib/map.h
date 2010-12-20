@@ -269,22 +269,22 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	TerrainTile*** terrain; 
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
-	std::vector<CGHeroInstance*> predefinedHeroes;
-	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
+	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
+	std::vector<ConstTransitivePtr<CGDefInfo> > defy; // list of .def files with definitions from .h3m (may be custom)
 	std::vector<ui8> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
-	std::list<CMapEvent*> events;
+	std::list<ConstTransitivePtr<CMapEvent> > events;
 
 	int3 grailPos;
 	int grailRadious;
 
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
-	std::vector<CGHeroInstance*> heroes;
-	std::vector<CGTownInstance*> towns;
+	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
+	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
-	std::map<ui16, CGCreature*> monsters;
-	std::map<ui16, CGHeroInstance*> heroesToBeat;
+	bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
+	bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
 
 	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 

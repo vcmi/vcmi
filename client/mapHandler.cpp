@@ -294,7 +294,7 @@ void CMapHandler::initObjectRects()
 		}
 	}
 }
-static void processDef (CGDefInfo* def)
+static void processDef (const CGDefInfo* def)
 {
 	if(def->id == EVENTI_TYPE)
 	{
@@ -335,11 +335,11 @@ static void processDef (CGDefInfo* def)
 		CSDL_Ext::alphaTransform(ourDef->ourImages[yy].bitmap);
 	}
 }
-void CMapHandler::initHeroDef(CGHeroInstance * h)
+void CMapHandler::initHeroDef(const CGHeroInstance * h)
 {
 	graphics->advmapobjGraphics[h->defInfo->id][h->defInfo->subid] = graphics->flags1[0];
-	h->defInfo->width =graphics->getDef(h)->ourImages[0].bitmap->w/32;
-	h->defInfo->height = graphics->getDef(h)->ourImages[0].bitmap->h/32;
+// 	h->defInfo->width =graphics->getDef(h)->ourImages[0].bitmap->w/32;
+// 	h->defInfo->height = graphics->getDef(h)->ourImages[0].bitmap->h/32;
 }
 void CMapHandler::init()
 {

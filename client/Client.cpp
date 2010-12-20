@@ -173,7 +173,7 @@ void initVillagesCapitols(Mapa * map)
 	ifs>>ccc;
 	for(int i=0;i<ccc*2;i++)
 	{
-		CGDefInfo *n;
+		const CGDefInfo *n;
 		if(i<ccc)
 		{
 			n = CGI->state->villages[i];
@@ -182,11 +182,11 @@ void initVillagesCapitols(Mapa * map)
 		else 
 			n = CGI->state->capitols[i%ccc];
 
-		ifs >> n->name;
+		ifs >> const_cast<CGDefInfo*>(n)->name;
 		if(!n)
 			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
 		else
-			map->defy.push_back(n);
+			map->defy.push_back(const_cast<CGDefInfo*>(n));
 	}
 }
 
@@ -364,7 +364,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
-	gs = CGI->state;
+	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
 	gs->init(si, sum, seed);
 
@@ -399,7 +399,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		playerint[color]->init(cb);
 	}
 
-	serv->addStdVecItems(CGI->state);
+	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
 	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);

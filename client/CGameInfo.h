@@ -51,7 +51,7 @@ struct Mapa;
 */
 class CGameInfo
 {
-	CGameState * state; //don't touch it in client's code
+	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
 public:
 	ConstTransitivePtr<CArtHandler> arth;
 	ConstTransitivePtr<CHeroHandler> heroh;
@@ -73,7 +73,7 @@ public:
 	CGameInfo();
 };
 
-//	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
+//	
 // public:
 // 	
 // 	ConstTransitivePtr<CGeneralTextHandler> generaltexth;

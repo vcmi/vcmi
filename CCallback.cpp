@@ -158,7 +158,7 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode =
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if (!mode)
 	{
-		const std::vector<CGTownInstance *> &towns = gs->players[gs->currentPlayer].towns;
+		const std::vector<ConstTransitivePtr<CGTownInstance> > &towns = gs->players[gs->currentPlayer].towns;
 		if(val < towns.size())
 			return towns[val];
 		else 

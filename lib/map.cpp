@@ -516,7 +516,7 @@ Mapa::~Mapa()
 		}
 		delete [] terrain;
 	}
-	for(std::list<CMapEvent*>::iterator i = events.begin(); i != events.end(); i++)
+	for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
 		delete *i;
 }
 
@@ -1287,6 +1287,15 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 	}
 }
 
+class _HERO_SORTER
+{
+public:
+	bool operator()(const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+	{
+		return a->subID < b->subID;
+	}
+};
+
 void Mapa::readObjects( const unsigned char * bufor, int &i)
 {
 	int howManyObjs = readNormalNr(bufor,i, 4); i+=4;
@@ -1934,7 +1943,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			heroes.push_back(static_cast<CGHeroInstance*>(nobj));
 	}
 
-	std::sort(heroes.begin(), heroes.end(), boost::bind(&CGHeroInstance::subID, _1) < boost::bind(&CGHeroInstance::subID, _2));
+	std::sort(heroes.begin(), heroes.end(), _HERO_SORTER());
 }
 
 void Mapa::readEvents( const unsigned char * bufor, int &i )

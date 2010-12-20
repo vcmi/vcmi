@@ -21,6 +21,8 @@
 #include "../tchar_amigaos4.h"
 #endif
 
+#include "ConstTransitivePtr.h"
+
 
 /*
  * CGameState.h, part of VCMI engine
@@ -131,12 +133,11 @@ public:
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
-	//std::vector<std::vector<std::vector<ui8> > > * fogOfWarMap; //pointer to team's fog of war
 	std::vector<si32> resources;
-	std::vector<CGHeroInstance *> heroes;
-	std::vector<CGTownInstance *> towns;
-	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
-	std::vector<CGDwelling *> dwellings; //used for town growth
+	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
+	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
+	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
+	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 
 	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
@@ -432,24 +433,24 @@ struct DLL_EXPORT CPathsInfo
 class DLL_EXPORT CGameState
 {
 public:
-	StartInfo* scenarioOps, *initialOpts; //second one is a copy of settings received from pregame (not randomized)
+	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	CCampaignState *campaign;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
 	BattleInfo *curB; //current battle
 	ui32 day; //total number of days in game
-	Mapa * map;
-	std::map<ui8, PlayerState> players; //ID <-> player state
-	std::map<ui8, TeamState> teams; //ID <-> team state
-	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
+	ConstTransitivePtr<Mapa> map;
+	bmap<ui8, PlayerState> players; //ID <-> player state
+	bmap<ui8, TeamState> teams; //ID <-> team state
+	bmap<int, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
 
 	struct DLL_EXPORT HeroesPool
 	{
-		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
-		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
+		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
+		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass = NULL) const;
+		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -496,7 +497,7 @@ public:
 	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
 	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	std::map<ui32,CGHeroInstance *> unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

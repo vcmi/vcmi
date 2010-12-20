@@ -1053,7 +1053,7 @@ std::string CStack::nodeName() const
 	return oss.str();
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
 
@@ -1067,7 +1067,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 
 	if(native)
 	{
-		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
+		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
 				&& i->second->type->heroType/2 == town->typeID)
@@ -1089,7 +1089,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 	{
 		int sum=0, r;
 
-		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
+		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
 				&& !bannedClass || i->second->type->heroClass != bannedClass)
@@ -1921,7 +1921,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					break;
 				}
 			}
-			std::vector<CGHeroInstance *> & heroes = players[humanPlayer].heroes;
+			std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = players[humanPlayer].heroes;
 
 			if (chosenBonus.info1 == 0xFFFD) //most powerful
 			{
@@ -3952,7 +3952,7 @@ struct statsHLP
 
 	static const CGHeroInstance * findBestHero(CGameState * gs, int color)
 	{
-		std::vector<CGHeroInstance *> &h = gs->players[color].heroes;
+		std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
 		if(!h.size())
 			return NULL;
 		//best hero will be that with highest exp
@@ -4140,11 +4140,11 @@ int CGameState::lossCheck( ui8 player ) const
 	return false;
 }
 
-std::map<ui32,CGHeroInstance *> CGameState::unusedHeroesFromPool()
+bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
 {
-	std::map<ui32,CGHeroInstance *> pool = hpool.heroesPool;
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
 	for ( std::map<ui8, PlayerState>::iterator i = players.begin() ; i != players.end();i++)
-		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+		for(std::vector< ConstTransitivePtr<CGHeroInstance> >::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
 			if(*j)
 				pool.erase((**j).subID);
 
