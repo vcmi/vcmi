@@ -1456,6 +1456,364 @@ CGameState::~CGameState()
 	capitols.clear();
 }
 
+namespace CGH
+{
+	using namespace std;
+	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
+	{
+		for(int j=0; j<7; ++j)
+		{
+			std::vector<int> pom;
+			for(int g=0; g<j+1; ++g)
+			{
+				int hlp; input>>hlp;
+				pom.push_back(hlp);
+			}
+			dest.push_back(pom);
+		}
+	}
+}
+
+BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
+{
+	CMP_stack cmpst;
+	BattleInfo *curB = new BattleInfo;
+	curB->side1 = armies[0]->tempOwner;
+	curB->side2 = armies[1]->tempOwner;
+	if(curB->side2 == 254) 
+		curB->side2 = 255;
+
+	std::vector<CStack*> & stacks = (curB->stacks);
+
+	curB->tile = tile;
+	curB->belligerents[0] = const_cast<CArmedInstance*>(armies[0]);
+	curB->belligerents[1] = const_cast<CArmedInstance*>(armies[1]);
+	curB->heroes[0] = const_cast<CGHeroInstance*>(heroes[0]);
+	curB->heroes[1] = const_cast<CGHeroInstance*>(heroes[1]);
+	curB->round = -2;
+	curB->activeStack = -1;
+
+	if(town)
+	{
+		curB->tid = town->id;
+		curB->siege = town->fortLevel();
+	}
+	else
+	{
+		curB->tid = -1;
+		curB->siege = 0;
+	}
+
+	//reading battleStartpos
+	std::ifstream positions;
+	positions.open(DATA_DIR "/config/battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
+	if(!positions.is_open())
+	{
+		tlog1<<"Unable to open battleStartpos.txt!"<<std::endl;
+	}
+	std::string dump;
+	positions>>dump; positions>>dump;
+	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
+	CGH::readItTo(positions, attackerLoose);
+	positions>>dump;
+	CGH::readItTo(positions, defenderLoose);
+	positions>>dump;
+	positions>>dump;
+	CGH::readItTo(positions, attackerTight);
+	positions>>dump;
+	CGH::readItTo(positions, defenderTight);
+	positions>>dump;
+	positions>>dump;
+	CGH::readItTo(positions, attackerCreBank);
+	positions>>dump;
+	CGH::readItTo(positions, defenderCreBank);
+	positions.close();
+	//battleStartpos read
+
+	int k = 0; //stack serial 
+	for(TSlots::const_iterator i = armies[0]->Slots().begin(); i!=armies[0]->Slots().end(); i++, k++)
+	{
+		int pos;
+		if(creatureBank)
+			pos = attackerCreBank[armies[0]->stacksCount()-1][k];
+		else if(armies[0]->formation)
+			pos = attackerTight[armies[0]->stacksCount()-1][k];
+		else
+			pos = attackerLoose[armies[0]->stacksCount()-1][k];
+
+		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), true, i->first, pos);
+		stacks.push_back(stack);
+	}
+
+	k = 0;
+	for(TSlots::const_iterator i = armies[1]->Slots().begin(); i!=armies[1]->Slots().end(); i++, k++)
+	{
+		int pos;
+		if(creatureBank)
+			pos = defenderCreBank[armies[1]->stacksCount()-1][k];
+		else if(armies[1]->formation)
+			pos = defenderTight[armies[1]->stacksCount()-1][k];
+		else
+			pos = defenderLoose[armies[1]->stacksCount()-1][k];
+
+		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), false, i->first, pos);
+		stacks.push_back(stack);
+	}
+
+	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
+	{
+		if((stacks[g]->position%17)==1 && stacks[g]->doubleWide() && stacks[g]->attackerOwned)
+		{
+			stacks[g]->position += 1;
+		}
+		else if((stacks[g]->position%17)==15 && stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
+		{
+			stacks[g]->position -= 1;
+		}
+	}
+
+	//adding war machines
+	if(heroes[0])
+	{
+		if(heroes[0]->getArt(13)) //ballista
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), stacks.size(), true, 255, 52);
+			stacks.push_back(stack);
+		}
+		if(heroes[0]->getArt(14)) //ammo cart
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), true, 255, 18);
+			stacks.push_back(stack);
+		}
+		if(heroes[0]->getArt(15)) //first aid tent
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), true, 255, 154);
+			stacks.push_back(stack);
+		}
+	}
+	if(heroes[1])
+	{
+		//defending hero shouldn't receive ballista (bug #551)
+		if(heroes[1]->getArt(13) && !town) //ballista
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  stacks.size(), false, 255, 66);
+			stacks.push_back(stack);
+		}
+		if(heroes[1]->getArt(14)) //ammo cart
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), false, 255, 32);
+			stacks.push_back(stack);
+		}
+		if(heroes[1]->getArt(15)) //first aid tent
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), false, 255, 168);
+			stacks.push_back(stack);
+		}
+	}
+	if(town && heroes[0] && town->hasFort()) //catapult
+	{
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), stacks.size(), true, 255, 120);
+		stacks.push_back(stack);
+	}
+	//war machines added
+
+	switch(curB->siege) //adding towers
+	{
+
+	case 3: //castle
+		{//lower tower / upper tower
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -4);
+			stacks.push_back(stack);
+			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -3);
+			stacks.push_back(stack);
+		}
+	case 2: //citadel
+		{//main tower
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -2);
+			stacks.push_back(stack);
+		}
+	}
+
+	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+
+	//seting up siege
+	if(town && town->hasFort())
+	{
+		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
+		{
+			curB->si.wallState[b] = 1;
+		}
+	}
+
+	//randomize obstacles
+	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
+	{
+		bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
+		std::vector<int> possibleObstacles;
+
+		for(int i=0; i<BFIELD_SIZE; ++i)
+		{
+			if(i%17 < 4 || i%17 > 12)
+			{
+				obAv[i] = false;
+			}
+			else
+			{
+				obAv[i] = true;
+			}
+		}
+
+		for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
+		{
+			if(g->second.allowedTerrains[terType-1] == '1') //we need to take terType with -1 because terrain ids start from 1 and allowedTerrains array is indexed from 0
+			{
+				possibleObstacles.push_back(g->first);
+			}
+		}
+
+		srand(time(NULL));
+		if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
+		{
+			int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
+			while(toBlock>0)
+			{
+				CObstacleInstance coi;
+				coi.uniqueID = curB->obstacles.size();
+				coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
+				coi.pos = rand()%BFIELD_SIZE;
+				std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
+				bool badObstacle = false;
+				for(int b=0; b<block.size(); ++b)
+				{
+					if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
+					{
+						badObstacle = true;
+						break;
+					}
+				}
+				if(badObstacle) continue;
+				//obstacle can be placed
+				curB->obstacles.push_back(coi);
+				for(int b=0; b<block.size(); ++b)
+				{
+					if(block[b] >= 0 && block[b] < BFIELD_SIZE)
+						obAv[block[b]] = false;
+				}
+				toBlock -= block.size();
+			}
+		}
+	}
+
+// 	//giving building bonuses, if siege and we have harrisoned hero
+// 	if (town)
+// 	{
+// 		if (heroes[1])
+// 		{
+// 			for (int i=0; i<4; i++)
+// 			{
+// 				int val = town->defenceBonus(i);
+// 				if (val)
+// 				{
+// 					GiveBonus gs;
+// 					gs.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::OBJECT, val, -1, "", i);
+// 					gs.id = heroes[1]->id;
+// 					sendAndApply(&gs);
+// 				}
+// 			}
+// 		}
+// 		else//if we don't have hero - apply separately, if hero present - will be taken from hero bonuses
+// 		{
+// 			if(town->subID == 0  &&  vstd::contains(town->builtBuildings,22)) //castle, brotherhood of sword built
+// 				for(int g=0; g<stacks.size(); ++g)
+// 					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
+// 
+// 			else if(vstd::contains(town->builtBuildings,5)) //tavern is built
+// 				for(int g=0; g<stacks.size(); ++g)
+// 					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TOWN_STRUCTURE));
+// 
+// 			if(town->subID == 1  &&  vstd::contains(town->builtBuildings,21)) //rampart, fountain of fortune is present
+// 				for(int g=0; g<stacks.size(); ++g)
+// 					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
+// 		}
+// 	}
+
+	//giving terrain overalay premies
+	int bonusSubtype = -1;
+	switch(terType)
+	{
+	case 9: //magic plains
+		{
+			bonusSubtype = 0;
+		}
+	case 14: //fiery fields
+		{
+			if(bonusSubtype == -1) bonusSubtype = 1;
+		}
+	case 15: //rock lands
+		{
+			if(bonusSubtype == -1) bonusSubtype = 8;
+		}
+	case 16: //magic clouds
+		{
+			if(bonusSubtype == -1) bonusSubtype = 2;
+		}
+	case 17: //lucid pools
+		{
+			if(bonusSubtype == -1) bonusSubtype = 4;
+		}
+
+		{ //common part for cases 9, 14, 15, 16, 17
+			curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
+			break;
+		}
+
+	case 18: //holy ground
+		{
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
+			break;
+		}
+	case 19: //clover field
+		{ //+2 luck bonus for neutral creatures
+			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureFactionLimiter(-1)));
+			break;
+		}
+	case 20: //evil fog
+		{
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
+			break;
+		}
+	case 22: //cursed ground
+		{
+			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
+			curB->addNewBonus(makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
+			break;
+		}
+	}
+	//overlay premies given
+
+	//native terrain bonuses
+	if(town) //during siege always take premies for native terrain of faction
+		terrain = VLC->heroh->nativeTerrains[town->town->typeID];
+
+	ILimiter *nativeTerrain = new CreatureNativeTerrainLimiter(terrain);
+	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	//////////////////////////////////////////////////////////////////////////
+
+	return curB;
+}
+
+BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
+{
+	int terrain = map->getTile(tile).tertype;
+	int terType = battleGetBattlefieldType(tile);
+	return ::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+}
+
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 {
 	struct HLP
@@ -1561,6 +1919,35 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
 			map = new Mapa();
 			map->initFromBytes((const unsigned char*)mapContent.c_str());
+		}
+		break;
+	case StartInfo::DUEL:
+		{
+			int3 tile;
+			int terType = TerrainTile::grass;
+			int terrain = 15;
+			const CArmedInstance *armies[2];
+			const CGHeroInstance *heroes[2];
+			const CGTownInstance *town = NULL;
+			CGHeroInstance *h = new CGHeroInstance();
+			h->subID = 1;
+			h->initHero(1);
+			h->initObj();
+			//h->putStack(0, new CStackInstance(34, 5));
+
+			CGCreature *c = new CGCreature();
+			c->putStack(0, new CStackInstance(70, 6));
+			c->subID = 34;
+			c->initObj();
+
+			heroes[0] = h;
+			heroes[1] = NULL;
+
+			armies[0] = h;
+			armies[1] = c;
+
+			curB = ::setupBattle(tile, terrain, terType, armies, heroes, false, town);
+			return;
 		}
 		break;
 	default:

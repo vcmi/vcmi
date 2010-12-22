@@ -367,37 +367,53 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
 	gs->init(si, sum, seed);
-
-	const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-	CGI->mh->map = gs->map;
-	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
-	CGI->mh->init();
-	initVillagesCapitols(gs->map);
-	pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
-	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+
+	if(!gs->map)
+	{
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+		CGI->mh->map = gs->map;
+		tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
+		CGI->mh->init();
+		initVillagesCapitols(gs->map);
+		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
+		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+	}
 
 	int humanPlayers = 0;
 	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
 		ui8 color = it->first;
+		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-		CCallback *cb = new CCallback(gs,color,this);
-		if(!it->second.human) 
+		if(si->mode != StartInfo::DUEL)
 		{
-			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+			CCallback *cb = new CCallback(gs,color,this);
+			if(!it->second.human) 
+			{
+				playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+			}
+			else 
+			{
+				playerint[color] = new CPlayerInterface(color);
+				humanPlayers++;
+			}
+
+			playerint[color]->init(cb);
 		}
-		else 
+		else
 		{
-			playerint[color] = new CPlayerInterface(color);
-			humanPlayers++;
+			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
+			battleints[color] = CAIHandler::getNewBattleAI(cb,conf.cc.defaultAI);
+			battleints[color]->init(cbc);
 		}
-		gs->currentPlayer = color;
-		playerint[color]->init(cb);
 	}
+
+	playerint[254] = new CPlayerInterface(-1);
+	playerint[254]->init(new CCallback(gs, -1, this));
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);

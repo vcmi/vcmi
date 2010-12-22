@@ -1,7 +1,5 @@
+#include "stdafx.h"
 #include "../lib/CCampaignHandler.h"
-#include <iostream>
-#include <string>
-#include <boost/asio.hpp>
 #include "../global.h"
 #include "../lib/Connection.h"
 #include "../lib/CArtHandler.h"
@@ -18,9 +16,6 @@
 #include <tchar.h>
 #endif
 #include "CVCMIServer.h"
-#include <boost/crc.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
 #include "../StartInfo.h"
 #include "../lib/map.h"
 #include "../lib/CLodHandler.h" 
@@ -28,8 +23,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
-#include <boost/thread.hpp>
-#include <boost/foreach.hpp>
 #include "../lib/CMapInfo.h"
 
 std::string NAME_AFFIX = "server";

@@ -473,19 +473,19 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 	return true;
 }
 
-int CCallback::battleGetBattlefieldType()
+int CBattleCallback::battleGetBattlefieldType()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->battleGetBattlefieldType();
 }
 
-int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
+int CBattleCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
 {
 	//TODO - write
 	return -1;
 }
 
-std::vector<CObstacleInstance> CCallback::battleGetAllObstacles()
+std::vector<CObstacleInstance> CBattleCallback::battleGetAllObstacles()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(gs->curB)
@@ -494,14 +494,14 @@ std::vector<CObstacleInstance> CCallback::battleGetAllObstacles()
 		return std::vector<CObstacleInstance>();
 }
 
-const CStack* CCallback::battleGetStackByID(int ID, bool onlyAlive)
+const CStack* CBattleCallback::battleGetStackByID(int ID, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB) return NULL;
 	return gs->curB->getStack(ID, onlyAlive);
 }
 
-int CCallback::battleMakeAction(BattleAction* action)
+int CBattleCallback::battleMakeAction(BattleAction* action)
 {
 	assert(action->actionType == BattleAction::HERO_SPELL);
 	MakeCustomAction mca(*action);
@@ -509,13 +509,13 @@ int CCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-const CStack* CCallback::battleGetStackByPos(int pos, bool onlyAlive)
+const CStack* CBattleCallback::battleGetStackByPos(int pos, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return battleGetStackByID(gs->battleGetStack(pos, onlyAlive), onlyAlive);
 }
 
-int CCallback::battleGetPos(int stack)
+int CBattleCallback::battleGetPos(int stack)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
@@ -531,7 +531,7 @@ int CCallback::battleGetPos(int stack)
 	return -1;
 }
 
-std::vector<const CStack*> CCallback::battleGetStacks()
+std::vector<const CStack*> CBattleCallback::battleGetStacks()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<const CStack*> ret;
@@ -547,7 +547,7 @@ std::vector<const CStack*> CCallback::battleGetStacks()
 	return ret;
 }
 
-void CCallback::getStackQueue( std::vector<const CStack *> &out, int howMany )
+void CBattleCallback::getStackQueue( std::vector<const CStack *> &out, int howMany )
 {
 	if(!gs->curB)
 	{
@@ -557,7 +557,7 @@ void CCallback::getStackQueue( std::vector<const CStack *> &out, int howMany )
 	gs->curB->getStackQueue(out, howMany);
 }
 
-std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
+std::vector<int> CBattleCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
@@ -569,7 +569,7 @@ std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 	//return gs->battleGetRange(ID);
 }
 
-bool CCallback::battleCanShoot(int ID, int dest)
+bool CBattleCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
@@ -578,7 +578,7 @@ bool CCallback::battleCanShoot(int ID, int dest)
 	return gs->battleCanShoot(ID, dest);
 }
 
-bool CCallback::battleCanCastSpell()
+bool CBattleCallback::battleCanCastSpell()
 {
 	if(!gs->curB) //there is no battle
 		return false;
@@ -589,12 +589,12 @@ bool CCallback::battleCanCastSpell()
 		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1] && gs->curB->heroes[1]->getArt(17);
 }
 
-bool CCallback::battleCanFlee()
+bool CBattleCallback::battleCanFlee()
 {
 	return gs->battleCanFlee(player);
 }
 
-const CGTownInstance *CCallback::battleGetDefendedTown()
+const CGTownInstance *CBattleCallback::battleGetDefendedTown()
 {
 	if(!gs->curB || gs->curB->tid == -1)
 		return NULL;
@@ -602,7 +602,7 @@ const CGTownInstance *CCallback::battleGetDefendedTown()
 	return static_cast<const CGTownInstance *>(gs->map->objects[gs->curB->tid].get());
 }
 
-ui8 CCallback::battleGetWallState(int partOfWall)
+ui8 CBattleCallback::battleGetWallState(int partOfWall)
 {
 	if(!gs->curB || gs->curB->siege == 0)
 	{
@@ -611,7 +611,7 @@ ui8 CCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
-int CCallback::battleGetWallUnderHex(int hex)
+int CBattleCallback::battleGetWallUnderHex(int hex)
 {
 	if(!gs->curB || gs->curB->siege == 0)
 	{
@@ -620,7 +620,7 @@ int CCallback::battleGetWallUnderHex(int hex)
 	return gs->curB->hexToWallPart(hex);
 }
 
-std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defenderID)
+std::pair<ui32, ui32> CBattleCallback::battleEstimateDamage(int attackerID, int defenderID)
 {
 	if(!gs->curB)
 		return std::make_pair(0, 0);
@@ -644,7 +644,7 @@ std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defend
 	return gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0, false);
 }
 
-ui8 CCallback::battleGetSiegeLevel()
+ui8 CBattleCallback::battleGetSiegeLevel()
 {
 	if(!gs->curB)
 		return 0;
@@ -652,12 +652,25 @@ ui8 CCallback::battleGetSiegeLevel()
 	return gs->curB->siege;
 }
 
-const CGHeroInstance * CCallback::battleGetFightingHero(ui8 side) const
+const CGHeroInstance * CBattleCallback::battleGetFightingHero(ui8 side) const
 {
 	if(!gs->curB)
 		return 0;
 
 	return gs->curB->heroes[side];
+}
+
+template <typename T>
+void CBattleCallback::sendRequest(const T* request)
+{
+	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
+	if(waitTillRealize)
+		cl->waitingRequest.set(true);
+
+	*cl->serv << request;
+
+	if(waitTillRealize)
+		cl->waitingRequest.waitWhileTrue();
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
@@ -822,21 +835,8 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-template <typename T>
-void CCallback::sendRequest(const T* request)
-{
-	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
-	if(waitTillRealize)
-		cl->waitingRequest.set(true);
-
-	*cl->serv << request;
-
-	if(waitTillRealize)
-		cl->waitingRequest.waitWhileTrue();
-}
-
 CCallback::CCallback( CGameState * GS, int Player, CClient *C ) 
-	:gs(GS), cl(C), player(Player)
+	:CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
 }
@@ -909,17 +909,17 @@ bool CCallback::hasAccess(int playerId) const
 	return gs->getPlayerRelations( playerId, player ) ||  player < 0;
 }
 
-si8 CCallback::battleHasDistancePenalty( int stackID, int destHex )
+si8 CBattleCallback::battleHasDistancePenalty( int stackID, int destHex )
 {
 	return gs->curB->hasDistancePenalty(stackID, destHex);
 }
 
-si8 CCallback::battleHasWallPenalty( int stackID, int destHex )
+si8 CBattleCallback::battleHasWallPenalty( int stackID, int destHex )
 {
 	return gs->curB->hasWallPenalty(stackID, destHex);
 }
 
-si8 CCallback::battleCanTeleportTo(int stackID, int destHex, int telportLevel)
+si8 CBattleCallback::battleCanTeleportTo(int stackID, int destHex, int telportLevel)
 {
 	return gs->curB->canTeleportTo(stackID, destHex, telportLevel);
 }
@@ -1019,4 +1019,16 @@ void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
 		details->goldIncome = -1;
 		details->hallLevel = -1;
 	}
+}
+
+bool CBattleCallback::hasAccess( int playerId ) const
+{
+	return playerId == player || player < 0;
+}
+
+CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
+{
+	gs = GS;
+	player = Player;
+	cl = C;
 }

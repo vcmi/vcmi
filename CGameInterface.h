@@ -18,6 +18,7 @@
 
 using namespace boost::logic;
 class CCallback;
+class IBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
@@ -47,18 +48,46 @@ class CStackInstance;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
-typedef TQuantity;
+typedef si32 TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
 
-class CGameInterface
+class CBattleGameInterface
 {
 public:
 	bool human;
 	int playerID;
 	std::string dllName;
 
-	virtual ~CGameInterface() {};
+	virtual ~CBattleGameInterface() {};
+
+	virtual void init(IBattleCallback * CB){};
+
+	//battle call-ins
+	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
+	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
+	virtual void battleEnd(const BattleResult *br){};
+	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
+	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
+	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
+	virtual void battleSpellCast(const BattleSpellCast *sc){};
+	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
+	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
+	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
+	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
+	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
+	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
+	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
+};
+
+class CGameInterface : public CBattleGameInterface
+{
+public:
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
 
 	//garrison operations
@@ -113,32 +142,13 @@ public:
 	virtual void gameOver(ui8 player, bool victory){}; //player lost or won the game
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
-
-	//battle call-ins
-	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
-	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
-	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
-	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
-	virtual void battleEnd(const BattleResult *br){};
-	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
-	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
-	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
-	virtual void battleSpellCast(const BattleSpellCast *sc){};
-	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
-	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
-	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
-	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
-	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
-	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
-	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 };
+
 class CAIHandler
 {
 public:
 	static CGlobalAI * getNewAI(CCallback * cb, std::string dllname);
+	static CBattleGameInterface * getNewBattleAI(CCallback * cb, std::string dllname);
 };
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {

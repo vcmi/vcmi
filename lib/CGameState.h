@@ -171,7 +171,7 @@ public:
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & players & fogOfWarMap;
+		h & id & players & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 
@@ -498,6 +498,8 @@ public:
 	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
+
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

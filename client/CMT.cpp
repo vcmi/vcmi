@@ -43,6 +43,7 @@
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
 #include "../lib/CObjectHandler.h"
+#include <boost/program_options.hpp>
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -53,6 +54,8 @@
 #if __MINGW32__
 #undef main
 #endif
+
+namespace po = boost::program_options;
 
 /*
  * CMT.cpp, part of VCMI engine
@@ -89,6 +92,7 @@ void dispose();
 void playIntro();
 static void listenForEvents();
 void requestChangingResolution();
+void startGame(StartInfo * options, CConnection *serv = NULL);
 
 #ifndef _WIN32
 #ifndef _GNU_SOURCE
@@ -160,7 +164,6 @@ void init()
 	//tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 }
 
-#ifndef _WIN32
 static void prog_version(void)
 {
 	printf("%s\n", NAME_VER);
@@ -180,7 +183,6 @@ static void prog_help(const char *progname)
 	printf("  -h, --help        display this help and exit\n");
 	printf("  -v, --version     display version information and exit\n");
 }
-#endif
 
 
 #ifdef _WIN32
@@ -189,50 +191,42 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+	tlog0 << "Starting... " << std::endl;      
+	po::options_description opts("Allowed options");
+	opts.add_options()
+		("help,h", "display help and exit")
+		("version,v", "display version information and exit")
+		("battle,b", "runs game in duel mode (battle-only");
 
-#ifndef _WIN32
-	struct option long_options[] = {
-		{ "help", 0, NULL, 'h' },
-		{ "version", 0, NULL, 'v' },
-		{ NULL, 0, NULL, 0 }
-	};
-
-	while(1) {
-		int c;
-        int option_index;
-
-        c = getopt_long (argc, argv, "hv",
-                         long_options, &option_index);
-
-		if (c == EOF)
-            break;
-        else if (c == '?')
-            return -1;
-
-		switch(c) {
-		case 'h':
-			prog_help(argv[0]);
-			return 0;
-			break;
-
-		case 'v':
-			prog_version();
-			return 0;
-			break;
+	po::variables_map vm;
+	if(argc > 1)
+	{
+		try
+		{
+			po::store(po::parse_command_line(argc, argv, opts), vm);
+		}
+		catch(std::exception &e) 
+		{
+			tlog1 << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
 
-	if (optind < argc) {
-		printf ("Extra arguments: %s\n", argv[optind++]);
-		return 1;
+	po::notify(vm);
+	if(vm.count("help"))
+	{
+		prog_help(0);
+		return 0;
 	}
-#endif
+	if(vm.count("version"))
+	{
+		prog_version();
+		return 0;
+	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv("SDL_VIDEO_WINDOW_POS");
 	putenv("SDL_VIDEO_CENTERED=1");
 
-	tlog0 << "Starting... " << std::endl;
 	timeHandler total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
@@ -267,15 +261,26 @@ int main(int argc, char** argv)
 
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
-	playIntro();
+
+	if(!vm.count("battle"))
+		playIntro();
+
 	SDL_FillRect(screen,NULL,0);
 	SDL_Flip(screen);
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-	CCS->musich->playMusic(musicBase::mainMenu, -1);
-
-	GH.curInt = new CGPreGame; //will set CGP pointer to itself
+	if(!vm.count("battle"))
+	{
+		CCS->musich->playMusic(musicBase::mainMenu, -1);
+		GH.curInt = new CGPreGame; //will set CGP pointer to itself
+	}
+	else
+	{
+		StartInfo *si = new StartInfo();
+		si->mode = StartInfo::DUEL;
+		startGame(si);
+	}
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
 	listenForEvents();
 
@@ -667,6 +672,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	{
 	case StartInfo::NEW_GAME:
 	case StartInfo::CAMPAIGN:
+	case StartInfo::DUEL:
 		client->newGame(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:

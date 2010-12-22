@@ -18,6 +18,7 @@
  *
  */
 
+class CBattleGameInterface;
 struct StartInfo;
 class CGameState;
 class CGameInterface;
@@ -61,6 +62,7 @@ public:
 	CCallback *cb;
 	std::set<CCallback*> callbacks; //callbacks given to player interfaces
 	std::map<ui8,CGameInterface *> playerint;
+	std::map<ui8,CBattleGameInterface *> battleints;
 	bool hotSeat;
 	CConnection *serv;
 	BattleAction *curbaction;

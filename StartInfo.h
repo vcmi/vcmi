@@ -52,7 +52,7 @@ struct PlayerSettings
 
 struct StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
+	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, INVALID = 255};
 
 	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible

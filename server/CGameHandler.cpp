@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "../lib/CCampaignHandler.h"
 #include "../StartInfo.h"
 #include "../lib/CArtHandler.h"
@@ -17,16 +18,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
-#include <boost/bind.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <fstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/system/system_error.hpp>
+
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -313,237 +305,16 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	}
 }
 
-void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
+void CGameHandler::startBattle( const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town /*= NULL*/ )
 {
 	battleEndCallback = new boost::function<void(BattleResult*)>(cb);
-	bEndArmy1 = army1;
-	bEndArmy2 = army2;
+	bEndArmy1 = armies[0];
+	bEndArmy2 = armies[1];
 	{
-		BattleInfo *curB = new BattleInfo;
-		curB->side1 = army1->tempOwner;
-		curB->side2 = army2->tempOwner;
-		if(curB->side2 == 254) 
-			curB->side2 = 255;
-		setupBattle(curB, tile, army1, army2, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+		setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	}
 
-	//TODO: pre-tactic stuff, call scripts etc.
-
-	//tactic round
-	{
-		if( (hero1 && hero1->getSecSkillLevel(19)>0) || 
-			( hero2 && hero2->getSecSkillLevel(19)>0)  )//someone has tactics
-		{
-			//TODO: tactic round (round -1)
-			NEW_ROUND;
-		}
-	}
-
-	//spells opening battle
-	if (hero1 && hero1->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
-	{
-		BonusList bl;
-		hero1->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus *b, bl)
-		{
-			handleSpellCasting(b->subtype, 3, -1, 0, hero1->tempOwner, NULL, hero2, b->val);
-		}
-	}
-	if (hero2 && hero2->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
-	{
-		BonusList bl;
-		hero2->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus *b, bl)
-		{
-			handleSpellCasting(b->subtype, 3, -1, 1, hero2->tempOwner, NULL, hero1, b->val);
-		}
-	}
-
-	//main loop
-	while(!battleResult.get()) //till the end of the battle ;]
-	{
-		NEW_ROUND;
-		std::vector<CStack*> & stacks = (gs->curB->stacks);
-		const BattleInfo & curB = *gs->curB;
-
-		//stack loop
-		const CStack *next;
-		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
-		{
-
-			//check for bad morale => freeze
-			int nextStackMorale = next->MoraleVal();
-			if( nextStackMorale < 0 &&
-				!(NBonus::hasOfType(hero1, Bonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, Bonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses)
-				)
-			{
-				if( rand()%24   <   -2 * nextStackMorale)
-				{
-					//unit loses its turn - empty freeze action
-					BattleAction ba;
-					ba.actionType = BattleAction::BAD_MORALE;
-					ba.additionalInfo = 1;
-					ba.side = !next->attackerOwned;
-					ba.stackNumber = next->ID;
-					sendAndApply(&StartAction(ba));
-					sendAndApply(&EndAction());
-					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
-					continue;
-				}
-			}
-
-			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
-			{
-				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
-				if(attackInfo.first != NULL)
-				{
-					BattleAction attack;
-					attack.actionType = BattleAction::WALK_AND_ATTACK;
-					attack.side = !next->attackerOwned;
-					attack.stackNumber = next->ID;
-
-					attack.additionalInfo = attackInfo.first->position;
-					attack.destinationTile = attackInfo.second;
-
-					makeBattleAction(attack);
-
-					checkForBattleEnd(stacks);
-				}
-				else
-				{
-					makeStackDoNothing(next);
-				}
-				continue;
-			}
-
-			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
-
-			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
-				|| (next->getCreature()->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
-			{
-				BattleAction attack;
-				attack.actionType = BattleAction::SHOOT;
-				attack.side = !next->attackerOwned;
-				attack.stackNumber = next->ID;
-
-				for(int g=0; g<gs->curB->stacks.size(); ++g)
-				{
-					if(gs->curB->stacks[g]->owner != next->owner && gs->curB->stacks[g]->alive())
-					{
-						attack.destinationTile = gs->curB->stacks[g]->position;
-						break;
-					}
-				}
-
-				makeBattleAction(attack);
-
-				checkForBattleEnd(stacks);
-				continue;
-			}
-
-			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //catapult, hero has no ballistics
-			{
-				BattleAction attack;
-				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
-
-				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
-				attack.actionType = BattleAction::CATAPULT;
-				attack.additionalInfo = 0;
-				attack.side = !next->attackerOwned;
-				attack.stackNumber = next->ID;
-
-				makeBattleAction(attack);
-				continue;
-			}
-
-			if(next->getCreature()->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(27) == 0)) //first aid tent, hero has no first aid
-			{
-				BattleAction heal;
-
-				std::vector< const CStack * > possibleStacks;
-				for (int v=0; v<gs->curB->stacks.size(); ++v)
-				{
-					const CStack * cstack = gs->curB->stacks[v];
-					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->alive()) //it's friendly and not fully healthy
-					{
-						possibleStacks.push_back(cstack);
-					}
-				}
-
-				if(possibleStacks.size() == 0)
-				{
-					//nothing to heal
-					makeStackDoNothing(next);
-
-					continue;
-				}
-				else
-				{
-					//heal random creature
-					const CStack * toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
-					heal.actionType = BattleAction::STACK_HEAL;
-					heal.additionalInfo = 0;
-					heal.destinationTile = toBeHealed->position;
-					heal.side = !next->attackerOwned;
-					heal.stackNumber = next->ID;
-
-					makeBattleAction(heal);
-
-				}
-				continue;
-			}
-
-			int numberOfAsks = 1;
-			bool breakOuter = false;
-			do 
-			{//ask interface and wait for answer
-				if(!battleResult.get())
-				{
-					BattleSetActiveStack sas;
-					sas.stack = next->ID;
-					sendAndApply(&sas);
-					boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-					while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
-						battleMadeAction.cond.wait(lock);
-					battleMadeAction.data = false;
-				}
-
-				if(battleResult.get()) //don't touch it, battle could be finished while waiting got action
-				{
-					breakOuter = true;
-					break;
-				}
-
-				//we're after action, all results applied
-				checkForBattleEnd(stacks); //check if this action ended the battle
-
-				//check for good morale
-				nextStackMorale = next->MoraleVal();
-				if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
-					&& !vstd::contains(next->state,DEFENDING)
-					&& !vstd::contains(next->state,WAITING)
-					&&  next->alive()
-					&&  nextStackMorale > 0
-					&& !(NBonus::hasOfType(hero1, Bonus::BLOCK_MORALE) || NBonus::hasOfType(hero2, Bonus::BLOCK_MORALE)) //checking if heroes have (or don't have) morale blocking bonuses
-				)
-				{
-					if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
-						++numberOfAsks; //move this stack once more
-				}
-
-				--numberOfAsks;
-			} while (numberOfAsks > 0);
-
-			if (breakOuter)
-			{
-				break;
-			}
-			
-		}
-	}
-
-	endBattle(tile, hero1, hero2);
-
+	runBattle();
 }
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
@@ -1294,7 +1065,10 @@ void CGameHandler::run(bool resume)
 		ui8 pom;
 		//ui32 seed;
 		if(!resume)
-			(*cc) << gs->initialOpts << gs->map->checksum << gs->seed; // gs->scenarioOps
+		{
+			ui32 sum = gs->map ? gs->map->checksum : 612;
+			(*cc) << gs->initialOpts << sum << gs->seed; // gs->scenarioOps
+		}
 
 		(*cc) >> quantity; //how many players will be handled at that client
 
@@ -1319,6 +1093,12 @@ void CGameHandler::run(bool resume)
 				pom.insert(j->first);
 
 		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
+	}
+
+	if(gs->scenarioOps->mode == StartInfo::DUEL)
+	{
+		runBattle();
+		return;
 	}
 
 	while (!end2)
@@ -1382,336 +1162,13 @@ namespace CGH
 	}
 }
 
-void CGameHandler::setupBattle(BattleInfo * curB, int3 tile, const CArmedInstance *army1, const CArmedInstance *army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town)
+void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	battleResult.set(NULL);
-	std::vector<CStack*> & stacks = (curB->stacks);
-
-	curB->tile = tile;
-	curB->belligerents[0] = const_cast<CArmedInstance*>(army1);
-	curB->belligerents[1] = const_cast<CArmedInstance*>(army2);
-	curB->heroes[0] = const_cast<CGHeroInstance*>(hero1);
-	curB->heroes[1] = const_cast<CGHeroInstance*>(hero2);
-	curB->round = -2;
-	curB->activeStack = -1;
-
-	if(town)
-	{
-		curB->tid = town->id;
-		curB->siege = town->fortLevel();
-	}
-	else
-	{
-		curB->tid = -1;
-		curB->siege = 0;
-	}
-
-	//reading battleStartpos
-	std::ifstream positions;
-	positions.open(DATA_DIR "/config/battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
-	if(!positions.is_open())
-	{
-		tlog1<<"Unable to open battleStartpos.txt!"<<std::endl;
-	}
-	std::string dump;
-	positions>>dump; positions>>dump;
-	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
-	CGH::readItTo(positions, attackerLoose);
-	positions>>dump;
-	CGH::readItTo(positions, defenderLoose);
-	positions>>dump;
-	positions>>dump;
-	CGH::readItTo(positions, attackerTight);
-	positions>>dump;
-	CGH::readItTo(positions, defenderTight);
-	positions>>dump;
-	positions>>dump;
-	CGH::readItTo(positions, attackerCreBank);
-	positions>>dump;
-	CGH::readItTo(positions, defenderCreBank);
-	positions.close();
-	//battleStartpos read
-
-	int k = 0; //stack serial 
-	for(TSlots::const_iterator i = army1->Slots().begin(); i!=army1->Slots().end(); i++, k++)
-	{
-		int pos;
-		if(creatureBank)
-			pos = attackerCreBank[army1->stacksCount()-1][k];
-		else if(army1->formation)
-			pos = attackerTight[army1->stacksCount()-1][k];
-		else
-			pos = attackerLoose[army1->stacksCount()-1][k];
-
-		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), true, i->first, pos);
-		stacks.push_back(stack);
-	}
-	
-	k = 0;
-	for(TSlots::const_iterator i = army2->Slots().begin(); i!=army2->Slots().end(); i++, k++)
-	{
-		int pos;
-		if(creatureBank)
-			pos = defenderCreBank[army2->stacksCount()-1][k];
-		else if(army2->formation)
-			pos = defenderTight[army2->stacksCount()-1][k];
-		else
-			pos = defenderLoose[army2->stacksCount()-1][k];
-
-		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), false, i->first, pos);
-		stacks.push_back(stack);
-	}
-
-	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
-	{
-		if((stacks[g]->position%17)==1 && stacks[g]->doubleWide() && stacks[g]->attackerOwned)
-		{
-			stacks[g]->position += 1;
-		}
-		else if((stacks[g]->position%17)==15 && stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
-		{
-			stacks[g]->position -= 1;
-		}
-	}
-
-	//adding war machines
-	if(hero1)
-	{
-		if(hero1->getArt(13)) //ballista
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), stacks.size(), true, 255, 52);
-			stacks.push_back(stack);
-		}
-		if(hero1->getArt(14)) //ammo cart
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), true, 255, 18);
-			stacks.push_back(stack);
-		}
-		if(hero1->getArt(15)) //first aid tent
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), true, 255, 154);
-			stacks.push_back(stack);
-		}
-	}
-	if(hero2)
-	{
-		//defending hero shouldn't receive ballista (bug #551)
-		if(hero2->getArt(13) && !town) //ballista
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  stacks.size(), false, 255, 66);
-			stacks.push_back(stack);
-		}
-		if(hero2->getArt(14)) //ammo cart
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), false, 255, 32);
-			stacks.push_back(stack);
-		}
-		if(hero2->getArt(15)) //first aid tent
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), false, 255, 168);
-			stacks.push_back(stack);
-		}
-	}
-	if(town && hero1 && town->hasFort()) //catapult
-	{
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), stacks.size(), true, 255, 120);
-		stacks.push_back(stack);
-	}
-	//war machines added
-
-	switch(curB->siege) //adding towers
-	{
-		
-	case 3: //castle
-		{//lower tower / upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -4);
-			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -3);
-			stacks.push_back(stack);
-		}
-	case 2: //citadel
-		{//main tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -2);
-			stacks.push_back(stack);
-		}
-	}
-
-	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
-
-	//seting up siege
-	if(town && town->hasFort())
-	{
-		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
-		{
-			curB->si.wallState[b] = 1;
-		}
-	}
-	
-	int terType = gs->battleGetBattlefieldType(tile);
-
-	//randomize obstacles
-	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
-	{
-		bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
-		std::vector<int> possibleObstacles;
-
-		for(int i=0; i<BFIELD_SIZE; ++i)
-		{
-			if(i%17 < 4 || i%17 > 12)
-			{
-				obAv[i] = false;
-			}
-			else
-			{
-				obAv[i] = true;
-			}
-		}
-
-		for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
-		{
-			if(g->second.allowedTerrains[terType-1] == '1') //we need to take terType with -1 because terrain ids start from 1 and allowedTerrains array is indexed from 0
-			{
-				possibleObstacles.push_back(g->first);
-			}
-		}
-
-		srand(time(NULL));
-		if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
-		{
-			int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
-			while(toBlock>0)
-			{
-				CObstacleInstance coi;
-				coi.uniqueID = curB->obstacles.size();
-				coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
-				coi.pos = rand()%BFIELD_SIZE;
-				std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
-				bool badObstacle = false;
-				for(int b=0; b<block.size(); ++b)
-				{
-					if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
-					{
-						badObstacle = true;
-						break;
-					}
-				}
-				if(badObstacle) continue;
-				//obstacle can be placed
-				curB->obstacles.push_back(coi);
-				for(int b=0; b<block.size(); ++b)
-				{
-					if(block[b] >= 0 && block[b] < BFIELD_SIZE)
-						obAv[block[b]] = false;
-				}
-				toBlock -= block.size();
-			}
-		}
-	}
-
-	//giving building bonuses, if siege and we have harrisoned hero
-	if (town)
-	{
-		if (hero2)
-		{
-			for (int i=0; i<4; i++)
-			{
-				int val = town->defenceBonus(i);
-				if (val)
-				{
-					GiveBonus gs;
-					gs.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::OBJECT, val, -1, "", i);
-					gs.id = hero2->id;
-					sendAndApply(&gs);
-				}
-			}
-		}
-		else//if we don't have hero - apply separately, if hero present - will be taken from hero bonuses
-		{
-			if(town->subID == 0  &&  vstd::contains(town->builtBuildings,22)) //castle, brotherhood of sword built
-				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
-
-			else if(vstd::contains(town->builtBuildings,5)) //tavern is built
-				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TOWN_STRUCTURE));
-
-			if(town->subID == 1  &&  vstd::contains(town->builtBuildings,21)) //rampart, fountain of fortune is present
-				for(int g=0; g<stacks.size(); ++g)
-					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
-		}
-	}
-
-	//giving terrain overalay premies
-	int bonusSubtype = -1;
-	switch(terType)
-	{
-	case 9: //magic plains
-		{
-			bonusSubtype = 0;
-		}
-	case 14: //fiery fields
-		{
-			if(bonusSubtype == -1) bonusSubtype = 1;
-		}
-	case 15: //rock lands
-		{
-			if(bonusSubtype == -1) bonusSubtype = 8;
-		}
-	case 16: //magic clouds
-		{
-			if(bonusSubtype == -1) bonusSubtype = 2;
-		}
-	case 17: //lucid pools
-		{
-			if(bonusSubtype == -1) bonusSubtype = 4;
-		}
-
-		{ //common part for cases 9, 14, 15, 16, 17
-			curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
-			break;
-		}
-
-	case 18: //holy ground
-		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
-			break;
-		}
-	case 19: //clover field
-		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureFactionLimiter(-1)));
-			break;
-		}
-	case 20: //evil fog
-		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(new CreatureAlignmentLimiter(EVIL)));
-			break;
-		}
-	case 22: //cursed ground
-		{
-			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			curB->addNewBonus(makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
-			break;
-		}
-	}
-	//overlay premies given
-
-	//native terrain bonuses
-	int terrain = this->getTile(tile)->tertype;
-	if(town) //during siege always take premies for native terrain of faction
-		terrain = VLC->heroh->nativeTerrains[town->town->typeID];
-
-	ILimiter *nativeTerrain = new CreatureNativeTerrainLimiter(terrain);
-	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
-	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
-	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
-	//////////////////////////////////////////////////////////////////////////
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = curB;
+	bs.info = gs->setupBattle(tile, armies, heroes, creatureBank,	town);
 	sendAndApply(&bs);
 }
 
@@ -2285,7 +1742,14 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	if(army2->tempOwner < PLAYER_LIMIT)
 		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
-	boost::thread(boost::bind(&CGameHandler::startBattle, this, army1, army2, tile, hero1, hero2, creatureBank, cb, town));
+	const CArmedInstance *armies[2];
+	armies[0] = army1;
+	armies[1] = army2;
+	const CGHeroInstance*heroes[2];
+	heroes[0] = hero1;
+	heroes[1] = hero2;
+
+	boost::thread(boost::bind(&CGameHandler::startBattle, this, armies, tile, heroes, creatureBank, cb, town));
 }
 
 void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb, bool creatureBank )
@@ -5333,6 +4797,226 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 	}
 }
 
+void CGameHandler::runBattle()
+{
+	assert(gs->curB);
+	//TODO: pre-tactic stuff, call scripts etc.
+
+	//tactic round
+	{
+		if( (gs->curB->heroes[0] && gs->curB->heroes[0]->getSecSkillLevel(19)>0) || 
+			( gs->curB->heroes[1] && gs->curB->heroes[1]->getSecSkillLevel(19)>0)  )//someone has tactics
+		{
+			//TODO: tactic round (round -1)
+			NEW_ROUND;
+		}
+	}
+
+	//spells opening battle
+	if (gs->curB->heroes[0] && gs->curB->heroes[0]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+	{
+		BonusList bl;
+		gs->curB->heroes[0]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
+		BOOST_FOREACH (Bonus *b, bl)
+		{
+			handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[0]->tempOwner, NULL, gs->curB->heroes[1], b->val);
+		}
+	}
+	if (gs->curB->heroes[1] && gs->curB->heroes[1]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+	{
+		BonusList bl;
+		gs->curB->heroes[1]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
+		BOOST_FOREACH (Bonus *b, bl)
+		{
+			handleSpellCasting(b->subtype, 3, -1, 1, gs->curB->heroes[1]->tempOwner, NULL, gs->curB->heroes[0], b->val);
+		}
+	}
+
+	//main loop
+	while(!battleResult.get()) //till the end of the battle ;]
+	{
+		NEW_ROUND;
+		std::vector<CStack*> & stacks = (gs->curB->stacks);
+		const BattleInfo & curB = *gs->curB;
+
+		//stack loop
+		const CStack *next;
+		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
+		{
+
+			//check for bad morale => freeze
+			int nextStackMorale = next->MoraleVal();
+			if( nextStackMorale < 0 &&
+				!(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
+				)
+			{
+				if( rand()%24   <   -2 * nextStackMorale)
+				{
+					//unit loses its turn - empty freeze action
+					BattleAction ba;
+					ba.actionType = BattleAction::BAD_MORALE;
+					ba.additionalInfo = 1;
+					ba.side = !next->attackerOwned;
+					ba.stackNumber = next->ID;
+					sendAndApply(&StartAction(ba));
+					sendAndApply(&EndAction());
+					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
+					continue;
+				}
+			}
+
+			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
+			{
+				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
+				if(attackInfo.first != NULL)
+				{
+					BattleAction attack;
+					attack.actionType = BattleAction::WALK_AND_ATTACK;
+					attack.side = !next->attackerOwned;
+					attack.stackNumber = next->ID;
+
+					attack.additionalInfo = attackInfo.first->position;
+					attack.destinationTile = attackInfo.second;
+
+					makeBattleAction(attack);
+
+					checkForBattleEnd(stacks);
+				}
+				else
+				{
+					makeStackDoNothing(next);
+				}
+				continue;
+			}
+
+			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
+
+			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
+				|| (next->getCreature()->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(20) == 0))) //ballista, hero has no artillery
+			{
+				BattleAction attack;
+				attack.actionType = BattleAction::SHOOT;
+				attack.side = !next->attackerOwned;
+				attack.stackNumber = next->ID;
+
+				for(int g=0; g<gs->curB->stacks.size(); ++g)
+				{
+					if(gs->curB->stacks[g]->owner != next->owner && gs->curB->stacks[g]->alive())
+					{
+						attack.destinationTile = gs->curB->stacks[g]->position;
+						break;
+					}
+				}
+
+				makeBattleAction(attack);
+
+				checkForBattleEnd(stacks);
+				continue;
+			}
+
+			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //catapult, hero has no ballistics
+			{
+				BattleAction attack;
+				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
+
+				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
+				attack.actionType = BattleAction::CATAPULT;
+				attack.additionalInfo = 0;
+				attack.side = !next->attackerOwned;
+				attack.stackNumber = next->ID;
+
+				makeBattleAction(attack);
+				continue;
+			}
+
+			if(next->getCreature()->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(27) == 0)) //first aid tent, hero has no first aid
+			{
+				BattleAction heal;
+
+				std::vector< const CStack * > possibleStacks;
+				for (int v=0; v<gs->curB->stacks.size(); ++v)
+				{
+					const CStack * cstack = gs->curB->stacks[v];
+					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->alive()) //it's friendly and not fully healthy
+					{
+						possibleStacks.push_back(cstack);
+					}
+				}
+
+				if(possibleStacks.size() == 0)
+				{
+					//nothing to heal
+					makeStackDoNothing(next);
+
+					continue;
+				}
+				else
+				{
+					//heal random creature
+					const CStack * toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
+					heal.actionType = BattleAction::STACK_HEAL;
+					heal.additionalInfo = 0;
+					heal.destinationTile = toBeHealed->position;
+					heal.side = !next->attackerOwned;
+					heal.stackNumber = next->ID;
+
+					makeBattleAction(heal);
+
+				}
+				continue;
+			}
+
+			int numberOfAsks = 1;
+			bool breakOuter = false;
+			do 
+			{//ask interface and wait for answer
+				if(!battleResult.get())
+				{
+					BattleSetActiveStack sas;
+					sas.stack = next->ID;
+					sendAndApply(&sas);
+					boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+					while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
+						battleMadeAction.cond.wait(lock);
+					battleMadeAction.data = false;
+				}
+
+				if(battleResult.get()) //don't touch it, battle could be finished while waiting got action
+				{
+					breakOuter = true;
+					break;
+				}
+
+				//we're after action, all results applied
+				checkForBattleEnd(stacks); //check if this action ended the battle
+
+				//check for good morale
+				nextStackMorale = next->MoraleVal();
+				if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
+					&& !vstd::contains(next->state,DEFENDING)
+					&& !vstd::contains(next->state,WAITING)
+					&&  next->alive()
+					&&  nextStackMorale > 0
+					&& !(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
+					)
+				{
+					if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
+						++numberOfAsks; //move this stack once more
+				}
+
+				--numberOfAsks;
+			} while (numberOfAsks > 0);
+
+			if (breakOuter)
+			{
+				break;
+			}
+
+		}
+	}
+
+	endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+}
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
 	int color = army->tempOwner;

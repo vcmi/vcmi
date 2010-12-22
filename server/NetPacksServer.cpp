@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "../lib/NetPacks.h"
 #include "CGameHandler.h"
 #include "../lib/CObjectHandler.h"
