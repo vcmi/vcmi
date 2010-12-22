@@ -48,7 +48,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../libs; ../;E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
