@@ -148,6 +148,7 @@ public:
 	
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void updatePaths();
+	void battleStarted(const BattleInfo * info);
 
 	//////////////////////////////////////////////////////////////////////////
 

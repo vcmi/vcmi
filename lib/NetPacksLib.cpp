@@ -825,23 +825,7 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;
-	info->belligerents[0]->battle = info->belligerents[1]->battle = info;
-
-	BOOST_FOREACH(CStack *s, info->stacks)
-	{
-		if(s->base) //stack originating from "real" stack in garrison -> attach to it
-		{
-			s->attachTo(const_cast<CStackInstance*>(s->base));
-		}
-		else //attach directly to obj to which stack belongs and creature type
-		{
-			CArmedInstance *army = info->belligerents[!s->attackerOwned];
-			s->attachTo(army);
-			assert(s->type);
-			s->attachTo(const_cast<CCreature*>(s->type));
-		}
-		s->postInit();
-	}
+	gs->curB->localInit();
 }
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )

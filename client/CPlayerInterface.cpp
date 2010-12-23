@@ -95,6 +95,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(int Player)
 {
+	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
@@ -140,6 +141,12 @@ CPlayerInterface::~CPlayerInterface()
 void CPlayerInterface::init(ICallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
+	if(observerInDuelMode)
+	{
+
+		return;
+	}
+
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
 
@@ -1318,13 +1325,13 @@ void CPlayerInterface::update()
 	}
 
 	//in some conditions we may receive calls before selection is initialized - we must ignore them
-	if(!adventureInt->selection && GH.topInt() == adventureInt)
+	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
 		return;
 
 	GH.updateTime();
 	GH.handleEvents();
 
-	if(!adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
+	if(adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();

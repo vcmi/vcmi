@@ -259,6 +259,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	si8 sameSideOfWall(int pos1, int pos2); //determines if given positions are on the same side of wall
 	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos
 	si8 canTeleportTo(int stackID, int destHex, int telportLevel); //determines if given stack can teleport to given place
+	void localInit();
 };
 
 class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor

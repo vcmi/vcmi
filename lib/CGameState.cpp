@@ -1947,6 +1947,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			armies[1] = c;
 
 			curB = ::setupBattle(tile, terrain, terType, armies, heroes, false, town);
+			curB->localInit();
 			return;
 		}
 		break;
@@ -4793,6 +4794,28 @@ si8 BattleInfo::getDistance( int hex1, int hex2 )
 	int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
 		yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);
 	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
+}
+
+void BattleInfo::localInit()
+{
+	belligerents[0]->battle = belligerents[1]->battle = this;
+	//TODO: attach battle to belligerents
+
+	BOOST_FOREACH(CStack *s, stacks)
+	{
+		if(s->base) //stack originating from "real" stack in garrison -> attach to it
+		{
+			s->attachTo(const_cast<CStackInstance*>(s->base));
+		}
+		else //attach directly to obj to which stack belongs and creature type
+		{
+			CArmedInstance *army = belligerents[!s->attackerOwned];
+			s->attachTo(army);
+			assert(s->type);
+			s->attachTo(const_cast<CCreature*>(s->type));
+		}
+		s->postInit();
+	}
 }
 
 int3 CPath::startPos() const

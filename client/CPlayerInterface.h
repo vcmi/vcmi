@@ -112,6 +112,8 @@ extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores de
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 public:
+	bool observerInDuelMode;
+
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 

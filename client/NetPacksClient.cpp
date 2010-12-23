@@ -481,41 +481,19 @@ void GarrisonDialog::applyCl(CClient *cl)
 
 void BattleStart::applyCl( CClient *cl )
 {
-	CPlayerInterface * att, * def;
-	if(vstd::contains(cl->playerint, info->side1) && cl->playerint[info->side1]->human)
-		att = static_cast<CPlayerInterface*>( cl->playerint[info->side1] );
-	else
-		att = NULL;
-
-	if(vstd::contains(cl->playerint, info->side2) && cl->playerint[info->side2]->human)
-		def = static_cast<CPlayerInterface*>( cl->playerint[info->side2] );
-	else
-		def = NULL;
-
-
-	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2), att, def);
-
-	if(vstd::contains(cl->playerint,info->side1))
-		cl->playerint[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
-
-	if(vstd::contains(cl->playerint,info->side2))
-		cl->playerint[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	cl->battleStarted(info);
 }
 
 void BattleNextRound::applyFirstCl(CClient *cl)
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleNewRoundFirst(round);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleNewRoundFirst(round);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleNewRoundFirst,round);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleNewRoundFirst,round);
 }
 
 void BattleNextRound::applyCl( CClient *cl )
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleNewRound(round);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleNewRound(round);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleNewRound,round);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleNewRound,round);
 }
 
 void BattleSetActiveStack::applyCl( CClient *cl )

@@ -33,6 +33,7 @@
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
+#include "CBattleInterface.h"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
 
@@ -369,7 +370,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	gs->init(si, sum, seed);
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 
-	if(!gs->map)
+	if(gs->map)
 	{
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
@@ -412,8 +413,14 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		}
 	}
 
-	playerint[254] = new CPlayerInterface(-1);
-	playerint[254]->init(new CCallback(gs, -1, this));
+	if(si->mode == StartInfo::DUEL)
+	{
+		CPlayerInterface *p = new CPlayerInterface(-1);
+		p->observerInDuelMode = true;
+		playerint[254] = p;
+		p->init(new CCallback(gs, -1, this));
+		battleStarted(gs->curB);
+	}
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
@@ -528,6 +535,30 @@ void CClient::stopConnection()
 		delete connectionHandler;
 		connectionHandler = NULL;
 	}
+}
+
+void CClient::battleStarted(const BattleInfo * info)
+{
+	CPlayerInterface * att, * def;
+	if(vstd::contains(playerint, info->side1) && playerint[info->side1]->human)
+		att = static_cast<CPlayerInterface*>( playerint[info->side1] );
+	else
+		att = NULL;
+
+	if(vstd::contains(playerint, info->side2) && playerint[info->side2]->human)
+		def = static_cast<CPlayerInterface*>( playerint[info->side2] );
+	else
+		def = NULL;
+
+
+	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
+
+	if(vstd::contains(playerint,info->side1))
+		playerint[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
+	if(vstd::contains(playerint,info->side2))
+		playerint[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(playerint,254))
+		playerint[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
