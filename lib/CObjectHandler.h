@@ -246,6 +246,13 @@ public:
 class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator
 {
 public:
+	enum SecondarySkill
+	{
+		PATHFINDING = 0, ARCHERY, LOGISTICS, SCOUTING, DIPLOMACY, NAVIGATION, LEADERSHIP, WISDOM, MYSTICISM,
+		LUCK, BALLISTICS, EAGLE_EYE, NECROMANCY, ESTATES, FIRE_MAGIC, AIR_MAGIC, WATER_MAGIC, EARTH_MAGIC,
+		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
+		FIRST_AID
+	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -338,8 +345,8 @@ public:
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
 	TModDescr getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
-	void setSecSkillLevel(int which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
+	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 
 	int maxMovePoints(bool onLand) const;
 

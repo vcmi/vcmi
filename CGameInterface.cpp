@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CGameInterface.h"
+#include "lib/CGameState.h"
 
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -69,4 +70,11 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 CBattleGameInterface * CAIHandler::getNewBattleAI( CCallback * cb, std::string dllname )
 {
 	return createAnyAI<CBattleGameInterface>(cb, dllname, "GetNewBattleAI");
+}
+
+BattleAction CGlobalAI::activeStack( const CStack * stack )
+{
+	BattleAction ba; ba.actionType = BattleAction::DEFEND;
+	ba.stackNumber = stack->ID;
+	return ba;
 }

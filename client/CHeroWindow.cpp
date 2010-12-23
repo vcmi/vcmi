@@ -201,7 +201,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	for(size_t g=0; g<std::min(secSkillAreas.size(),hero->secSkills.size()); ++g)
 	{
 		int skill = hero->secSkills[g].first,
-			level = hero->getSecSkillLevel(hero->secSkills[g].first);
+			level = hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(hero->secSkills[g].first));
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
@@ -232,7 +232,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 	dismissButton->block(!!hero->visitedTown || noDismiss);
 
-	if(hero->getSecSkillLevel(19) == 0)
+	if(hero->getSecSkillLevel(CGHeroInstance::TACTICS) == 0)
 		tacticsButton->block(true);
 	else
 	{

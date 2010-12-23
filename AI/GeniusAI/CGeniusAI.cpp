@@ -1305,7 +1305,7 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
+void CGeniusAI::battleStackMoved(int ID, THex dest, int distance, bool end)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
@@ -1338,13 +1338,13 @@ void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID,
-                                 int dest,
-                                 bool startMoving,
-                                 bool endMoving)
-{
-	DbgBox("\t\t\tCGeniusAI::battleStackMoved");
-}
+// void CGeniusAI::battleStackMoved(int ID,
+//                                  THex dest,
+//                                  bool startMoving,
+//                                  bool endMoving)
+// {
+// 	DbgBox("\t\t\tCGeniusAI::battleStackMoved");
+// }
 
 
 /**
@@ -1372,15 +1372,25 @@ void CGeniusAI::battleStackIsAttacked(int ID,
 /**
  * called when it's turn of that stack
  */
-BattleAction CGeniusAI::activeStack(int stackID)
+BattleAction CGeniusAI::activeStack(const CStack * stack)
 {
 	std::string message("\t\t\tCGeniusAI::activeStack stackID(");
 
-	message += boost::lexical_cast<std::string>(stackID);
+	message += boost::lexical_cast<std::string>(stack->ID);
 	message += ")";
 	DbgBox(message.c_str());
 
-	BattleAction bact = m_battleLogic->MakeDecision(stackID);
+	BattleAction bact = m_battleLogic->MakeDecision(stack->ID);
 	assert(m_cb->battleGetStackByID(bact.stackNumber));
 	return bact;
-};
+}
+
+
+//WTF?!? why is this needed?!?!?!
+BattleAction CGlobalAI::activeStack( const CStack * stack )
+{
+	BattleAction ba; ba.actionType = BattleAction::DEFEND;
+	ba.stackNumber = stack->ID;
+	return ba;
+}
+

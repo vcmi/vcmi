@@ -16,6 +16,7 @@ typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 typedef si64 expType;
 typedef ui16 spelltype;
+typedef ui16 THex; //for battle stacks' positions
 #include "int3.h"
 #include <map>
 #include <vector>

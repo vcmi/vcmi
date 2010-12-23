@@ -158,7 +158,7 @@ public:
 	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
 	int getLastIndex(std::string namePrefix);
 
-	//overloaded funcs from CGameInterface
+	//overridden funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, int buildingID, int what) OVERRIDE; //what: 1 - built, 2 - demolished
 	void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) OVERRIDE; //if absolute, change is the new count; otherwise count was modified by adding change
 	void stackChangedType(const StackLocation &location, const CCreature &newType) OVERRIDE; //used eg. when upgrading creatures
@@ -208,19 +208,18 @@ public:
 	//for battles
 	void actionFinished(const BattleAction* action) OVERRIDE;//occurs AFTER action taken by active stack or by the hero
 	void actionStarted(const BattleAction* action) OVERRIDE;//occurs BEFORE action taken by active stack or by the hero
-	BattleAction activeStack(int stackID) OVERRIDE; //called when it's turn of that stack
+	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack
 	void battleAttack(const BattleAttack *ba) OVERRIDE; //stack performs attack
 	void battleEnd(const BattleResult *br) OVERRIDE; //end of battle
-	//void battleResultQuited();
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(int ID, int dest, int distance, bool end) OVERRIDE;
+	void battleStackMoved(int ID, THex dest, int distance, bool end) OVERRIDE;
 	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
 	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE; //called when a specific effect is set to stacks
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE;
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom) OVERRIDE; //called when stacks are healed / resurrected
-	void battleNewStackAppeared(int stackID) OVERRIDE; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
+	void battleNewStackAppeared(const CStack * stack) OVERRIDE; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
 	void battleObstaclesRemoved(const std::set<si32> & removedObstacles) OVERRIDE; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 	void battleCatapultAttacked(const CatapultAttack & ca) OVERRIDE; //called when catapult makes an attack
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield

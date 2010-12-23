@@ -229,8 +229,8 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	const CStack * getStack(int stackID, bool onlyAlive = true) const;
-	CStack * getStackT(int tileID, bool onlyAlive = true);
-	const CStack * getStackT(int tileID, bool onlyAlive = true) const;
+	CStack * getStackT(THex tileID, bool onlyAlive = true);
+	const CStack * getStackT(THex tileID, bool onlyAlive = true) const;
 	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit=-1) const; //send pointer to at least 187 allocated bytes
 	static bool isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
 	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
@@ -238,9 +238,9 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::vector<int> getAccessibility(int stackID, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(int ID); //returns true if there is neighboring enemy stack
-	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
+	static signed char mutualPosition(THex hex1, THex hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
-	static si8 getDistance(int hex1, int hex2); //returns distance between given hexes
+	static si8 getDistance(THex hex1, THex hex2); //returns distance between given hexes
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting)
 	std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
@@ -272,7 +272,7 @@ public:
 	ui32 firstHPleft; //HP of first creature in stack
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
-	si16 position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
+	THex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
 

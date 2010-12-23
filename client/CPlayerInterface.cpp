@@ -600,7 +600,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	}
 }
 
-void CPlayerInterface::battleNewStackAppeared(int stackID)
+void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -608,7 +608,7 @@ void CPlayerInterface::battleNewStackAppeared(int stackID)
 	}
 
 	//changing necessary things in battle interface
-	battleInt->newStack(stackID);
+	battleInt->newStack(stack);
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
@@ -652,7 +652,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
-		battleInt->stackRemoved(*it);
+		battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
 	}
 }
 
@@ -692,14 +692,13 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	battleInt->endAction(action);
 }
 
-BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
+BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
 
 	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-		const CStack *stack = cb->battleGetStackByID(stackID);
 		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
@@ -708,7 +707,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 			battleInt->console->addText(hlp);
 		}
 
-		b->stackActivated(stackID);
+		b->stackActivated(stack);
 	}
 	//wait till BattleInterface sets its command
 	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
@@ -735,7 +734,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end)
+void CPlayerInterface::battleStackMoved(int ID, THex dest, int distance, bool end)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -819,14 +818,18 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	}
 	//TODO: bad luck?
 
+	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+
 	if(ba->shot())
 	{
 		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
-			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked), i->stackAttacked);
+		{
+			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
+			battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
+		}
 	}
 	else
 	{//WARNING: does not support multiple attacked creatures
-		const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 		int shift = 0;
 		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
@@ -838,7 +841,8 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 			else
 				shift = -1;
 		}
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, ba->bsa.begin()->stackAttacked );
+		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
+		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
 }
 

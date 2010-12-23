@@ -393,7 +393,7 @@ const CStack * BattleInfo::getStack(int stackID, bool onlyAlive) const
 	return const_cast<BattleInfo * const>(this)->getStack(stackID, onlyAlive);
 }
 
-CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
+CStack * BattleInfo::getStackT(THex tileID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
@@ -410,7 +410,7 @@ CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 	return NULL;
 }
 
-const CStack * BattleInfo::getStackT(int tileID, bool onlyAlive) const
+const CStack * BattleInfo::getStackT(THex tileID, bool onlyAlive) const
 {
 	return const_cast<BattleInfo * const>(this)->getStackT(tileID, onlyAlive);
 }
@@ -639,7 +639,7 @@ bool BattleInfo::isStackBlocked(int ID)
 	return false;
 }
 
-signed char BattleInfo::mutualPosition(int hex1, int hex2)
+signed char BattleInfo::mutualPosition(THex hex1, THex hex2)
 {
 	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
 		return 0;
@@ -1864,7 +1864,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					}
 					break;
 				case 6: //sec skills
-					hero->setSecSkillLevel(curBonus.info2, curBonus.info3, true);
+					hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(curBonus.info2), curBonus.info3, true);
 					break;
 				}
 			}
@@ -4789,7 +4789,7 @@ si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
 // 	}
 // }
 
-si8 BattleInfo::getDistance( int hex1, int hex2 )
+si8 BattleInfo::getDistance( THex hex1, THex hex2 )
 {
 	int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
 		yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);

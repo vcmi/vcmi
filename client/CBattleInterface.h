@@ -91,7 +91,7 @@ class CSpellEffectAnim : public CBattleAnimation
 {
 private:
 	ui32 effect;
-	int destTile;
+	THex destTile;
 	std::string customAnim;
 	int x, y, dx, dy;
 	bool Vflip;
@@ -100,7 +100,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, int _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false);
+	CSpellEffectAnim(CBattleInterface * _owner, ui32 _effect, THex _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false);
 	CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false);
 };
 
@@ -110,8 +110,8 @@ public:
 	int stackID; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, int stack);
-	static bool isToReverseHlp(int hexFrom, int hexTo, bool curDir); //helper for isToReverse
-	static bool isToReverse(int hexFrom, int hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
+	static bool isToReverseHlp(THex hexFrom, THex hexTo, bool curDir); //helper for isToReverse
+	static bool isToReverse(THex hexFrom, THex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 };
 
 class CReverseAnim : public CBattleStackAnimation
@@ -119,14 +119,14 @@ class CReverseAnim : public CBattleStackAnimation
 private:
 	int partOfAnim; //1 - first, 2 - second
 	bool secondPartSetup;
-	int hex;
+	THex hex;
 public:
 	bool priority; //true - high, false - low
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CReverseAnim(CBattleInterface * _owner, int stack, int dest, bool _priority);
+	CReverseAnim(CBattleInterface * _owner, int stack, THex dest, bool _priority);
 };
 
 class CDefenceAnim : public CBattleStackAnimation
@@ -149,7 +149,7 @@ public:
 class CBattleStackMoved : public CBattleStackAnimation
 {
 private:
-	int destHex; //destination
+	THex destHex; //destination
 	bool endMoving; //if this is end of move
 	int distance;
 	float stepX, stepY; //how far stack is moved in one frame
@@ -161,7 +161,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CBattleStackMoved(CBattleInterface * _owner, int _number, int _destHex, bool _endMoving, int _distance);
+	CBattleStackMoved(CBattleInterface * _owner, int _number, THex _destHex, bool _endMoving, int _distance);
 };
 
 class CBattleMoveStart : public CBattleStackAnimation
@@ -177,20 +177,20 @@ public:
 class CBattleMoveEnd : public CBattleStackAnimation
 {
 private:
-	int destinationTile;
+	THex destinationTile;
 public:
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CBattleMoveEnd(CBattleInterface * _owner, int stack, int destTile);
+	CBattleMoveEnd(CBattleInterface * _owner, int stack, THex destTile);
 };
 
 class CBattleAttack : public CBattleStackAnimation
 {
 protected:
 	int IDby; //attacked stack
-	int dest; //atacked hex
+	THex dest; //atacked hex
 	int posShiftDueToDist;
 	bool shooting;
 	int group; //if shooting is true, print this animation group
@@ -203,7 +203,7 @@ public:
 	bool checkInitialConditions();
 
 
-	CBattleAttack(CBattleInterface * _owner, int _stackID, int _dest, int _attackedID);
+	CBattleAttack(CBattleInterface * _owner, int _stackID, THex _dest, int _attackedID);
 };
 
 class CMeleeAttack : public CBattleAttack
@@ -213,7 +213,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CMeleeAttack(CBattleInterface * _owner, int attacker, int _dest, int _attackedID);
+	CMeleeAttack(CBattleInterface * _owner, int attacker, THex _dest, int _attackedID);
 };
 
 class CShootingAnim : public CBattleAttack
@@ -226,7 +226,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CShootingAnim(CBattleInterface * _owner, int attacker, int _dest, int _attackedID, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
+	CShootingAnim(CBattleInterface * _owner, int attacker, THex _dest, int _attackedID, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
 };
 
 //end of battle animation handlers
@@ -491,17 +491,15 @@ public:
 
 	//call-ins
 	void startAction(const BattleAction* action);
-	void newStack(int stackID); //new stack appeared on battlefield
-	void stackRemoved(int stackID); //stack disappeared from batlefiled
-	//void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
-	void stackActivated(int number); //active stack has been changed
+	void newStack(const CStack * stack); //new stack appeared on battlefield
+	void stackRemoved(const CStack * stack); //stack disappeared from batlefiled
+	void stackActivated(const CStack * stack); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(int ID, int dest, int attackedID); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(const CStack * attacker, THex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
-	void stackIsShooting(int ID, int dest, int attackedID); //called when stack with id ID is shooting to hex dest
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end

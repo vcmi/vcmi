@@ -591,7 +591,7 @@ unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainT
 	else 
 	{
 		ret = type->heroClass->terrCosts[from.tertype];
-		ret = std::max(ret - 25*unsigned(getSecSkillLevel(0)), 100u); //reduce 25% of terrain penalty for each pathfinding level
+		ret = std::max(ret - 25*unsigned(getSecSkillLevel(CGHeroInstance::PATHFINDING)), 100u); //reduce 25% of terrain penalty for each pathfinding level
 	}
 	return ret;
 }
@@ -660,7 +660,7 @@ int CGHeroInstance::getPrimSkillLevel(int id) const
 	return ret;
 }
 
-ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
+ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)
 		if(secSkills[i].first==ID)
@@ -668,7 +668,7 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 	return 0;
 }
 
-void CGHeroInstance::setSecSkillLevel(int which, int val, bool abs)
+void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 {
 	if(getSecSkillLevel(which) == 0)
 	{
@@ -1277,7 +1277,9 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 #define TRY_SCHOOL(schoolName, schoolMechanicsId, schoolOutId)	\
 	if(spell-> schoolName)									\
 	{															\
-		int thisSchool = std::max<int>(getSecSkillLevel(14 + (schoolMechanicsId)), valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
+		int thisSchool = std::max<int>(getSecSkillLevel( \
+			static_cast<CGHeroInstance::SecondarySkill>(14 + (schoolMechanicsId))), \
+			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
 		if(thisSchool > skill)									\
 		{														\
 			skill = thisSchool;									\
@@ -1328,7 +1330,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	const ui8 necromancyLevel = getSecSkillLevel(12);
+	const ui8 necromancyLevel = getSecSkillLevel(CGHeroInstance::NECROMANCY);
 
 	// Hero knows necromancy.
 	if (necromancyLevel > 0) 
@@ -1405,7 +1407,7 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadious() const
 {
-	return 5 + getSecSkillLevel(3) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
+	return 5 + getSecSkillLevel(CGHeroInstance::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
 }
 
 si32 CGHeroInstance::manaRegain() const
@@ -2515,7 +2517,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case 100: //give exp
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
-				val = val*(100+h->getSecSkillLevel(21)*5)/100.0f;
+				val = val*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(id,subid,val,0));
@@ -2582,7 +2584,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case 41://library of enlightenment
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
-				if(h->level  <  10 - 2*h->getSecSkillLevel(4)) //not enough level
+				if(h->level  <  10 - 2*h->getSecSkillLevel(CGHeroInstance::DIPLOMACY)) //not enough level
 				{
 					InfoWindow iw;
 					iw.soundID = sound;
@@ -2810,7 +2812,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 					case 5://academy of battle scholars
 						what = 4;
-						val = 1000*(100+h->getSecSkillLevel(21)*5)/100.0f;
+						val = 1000*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
 						break;
@@ -3033,12 +3035,12 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			sympathy++;
 		
 
-		int charisma = factor + h->getSecSkillLevel(4) + sympathy;
+		int charisma = factor + h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy;
 		if(charisma >= character) //creatures might join...
 		{
-			if(h->getSecSkillLevel(4) + sympathy + 1 >= character)
+			if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy + 1 >= character)
 				return 0; //join for free
-			else if(h->getSecSkillLevel(4) * 2  +  sympathy  +  1 >= character)
+			else if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
 				return VLC->creh->creatures[subID]->cost[6] * getStackCount(0); //join for gold
 		}
 	}
@@ -3864,7 +3866,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(2,6,val1,0));
-				int expVal = val2*(100+h->getSecSkillLevel(21)*5)/100.0f;
+				int expVal = val2*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 				sd.components.push_back(Component(5,0,expVal, 0));
 				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
@@ -3885,7 +3887,7 @@ void CGPickable::chosen( int which, int heroID ) const
 		cb->giveResource(cb->getOwner(heroID),6,val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(heroID, 4, val2*(100+h->getSecSkillLevel(21)*5)/100.0f);
+		cb->changePrimSkill(heroID, 4, val2*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f);
 		break;
 	default:
 		throw std::string("Unhandled treasure choice");
@@ -4322,7 +4324,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			
 			switch (rewardType)
 			{
-				case 1: bd.components.push_back (Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(21)*5)/100.0f, 0));
+				case 1: bd.components.push_back (Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f, 0));
 					break;
 				case 2: bd.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
 					break;
@@ -4421,7 +4423,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 	{
 		case 1: //experience
 		{
-			int expVal = rVal*(100+h->getSecSkillLevel(21)*5)/100.0f;
+			int expVal = rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 			cb->changePrimSkill(h->id, 4, expVal, false);
 			break;
 		}
@@ -4502,7 +4504,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	if(!hasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 
-	if(h->getSecSkillLevel(ability)) //you alredy know this skill
+	if(h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //you alredy know this skill
 	{
 		iw.text << std::pair<ui8,ui32>(11,172);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
@@ -4531,7 +4533,7 @@ const std::string & CGWitchHut::getHoverText() const
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
 		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-		if(h && h->getSecSkillLevel(ability)) //hero knows that ability
+		if(h && h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;
@@ -4874,7 +4876,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
-		expType expVal = gainedExp*(100+h->getSecSkillLevel(21)*5)/100.0f;
+		expType expVal = gainedExp*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 		getText(iw,afterBattle,175,h);
 
 		if(expVal)
@@ -4899,7 +4901,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		//give sec skills
 		for(int i=0; i<abilities.size(); i++)
 		{
-			int curLev = h->getSecSkillLevel(abilities[i]);
+			int curLev = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(abilities[i]));
 
 			if( (curLev  &&  curLev < abilityLevels[i])
 				|| (h->secSkills.size() < SKILL_PER_HERO) )
@@ -4917,7 +4919,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
 		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
 		{
-			if ((*sp)[*i]->level <= h->getSecSkillLevel(7) + 2) //enough wisdom
+			if ((*sp)[*i]->level <= h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2) //enough wisdom
 			{
 				iw.components.push_back(Component(Component::SPELL,*i,0,0));
 				spellsToGive.insert(*i);
@@ -5156,7 +5158,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
-	else if(ID == 90  &&  !h->getSecSkillLevel(7)) //it's third level spell and hero doesn't have wisdom
+	else if(ID == 90  &&  !h->getSecSkillLevel(CGHeroInstance::WISDOM)) //it's third level spell and hero doesn't have wisdom
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}
@@ -5243,10 +5245,11 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	int type = bonusType;
 	int bid = bonusID;
 	//check if the bonus if applicable, if not - give primary skill (always possible)
-	int ssl = h->getSecSkillLevel(bid); //current sec skill level, used if bonusType == 1
+	int ssl = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
 	if((type == 1
 			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid) || (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(7) + 2)
+		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
+		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = 0;
@@ -5976,7 +5979,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
 		if (!h->getArt(17))						
 			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
-		else if (h->getSecSkillLevel(7) < 3)	
+		else if (h->getSecSkillLevel(CGHeroInstance::WISDOM) < 3)	
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{

@@ -2304,7 +2304,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 	{
-		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
+		comps.push_back(new CSelectableComponent(SComponent::secskill44, skills[i],
+			hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
+			boost::bind(&CLevelWindow::selectionChanged,this,i)));
 		comps.back()->assignedKeys.insert(SDLK_1 + i);
 	}
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
@@ -3734,7 +3736,7 @@ void CAltarWindow::calcTotalExp()
 			val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
-	val *=(100+hero->getSecSkillLevel(21)*5)/100.0f;
+	val *=(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
@@ -5866,7 +5868,7 @@ void CUniversityWindow::CItem::hover(bool on)
 
 int CUniversityWindow::CItem::state()
 {
-	if (parent->hero->getSecSkillLevel(ID))//hero know this skill
+	if (parent->hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ID)))//hero know this skill
 		return 1;
 	if (parent->hero->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
 		return 0;

@@ -116,7 +116,7 @@ void CClient::waitForMoveAndSend(int color)
 {
 	try
 	{
-		BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
+		BattleAction ba = playerint[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
 		*serv << &MakeAction(ba);
 		return;
 	}HANDLE_EXCEPTION

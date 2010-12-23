@@ -164,7 +164,7 @@ CKingdomInterface::CKingdomInterface()
 	incomesVal[7] = incomesVal[6]*1000;//gold mines -> total income
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size();i++)
-		switch(heroes[i]->getSecSkillLevel(13))//some heroes may have estates
+		switch(heroes[i]->getSecSkillLevel(CGHeroInstance::ESTATES))//some heroes may have estates
 		{
 		case 1: //basic
 			incomesVal[7] += 125;

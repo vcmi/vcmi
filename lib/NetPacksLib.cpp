@@ -77,7 +77,7 @@ DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
-	hero->setSecSkillLevel(which, val, abs);
+	hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(which), val, abs);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )

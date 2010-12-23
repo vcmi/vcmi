@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "StupidAI.h"
+#include "../../lib/CGameState.h"
 
 CStupidAI::CStupidAI(void)
 {
@@ -25,10 +26,10 @@ void CStupidAI::actionStarted( const BattleAction *action )
 
 }
 
-BattleAction CStupidAI::activeStack( int stackID )
+BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	BattleAction ba;
-	ba.DEFEND;
-	ba.stackNumber = stackID;
+	ba.actionType = BattleAction::DEFEND;
+	ba.stackNumber = stack->ID;
 	return ba;
 }
