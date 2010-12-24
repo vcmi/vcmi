@@ -479,7 +479,7 @@ int CBattleCallback::battleGetBattlefieldType()
 	return gs->battleGetBattlefieldType();
 }
 
-int CBattleCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
+int CBattleCallback::battleGetObstaclesAtTile(THex tile) //returns bitfield 
 {
 	//TODO - write
 	return -1;

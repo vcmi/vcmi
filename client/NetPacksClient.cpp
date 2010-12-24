@@ -522,8 +522,9 @@ void BattleResult::applyFirstCl( CClient *cl )
 
 void BattleStackMoved::applyFirstCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStackMoved,stack,tile,distance,ending);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStackMoved,stack,tile,distance,ending);
+	const CStack * movedStack = GS(cl)->curB->getStack(stack);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStackMoved,movedStack,tile,distance,ending);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStackMoved,movedStack,tile,distance,ending);
 }
 
 void BattleStackAttacked::applyCl( CClient *cl )

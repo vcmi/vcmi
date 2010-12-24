@@ -734,7 +734,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(int ID, THex dest, int distance, bool end)
+void CPlayerInterface::battleStackMoved(const CStack * stack, THex dest, int distance, bool end)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -742,7 +742,7 @@ void CPlayerInterface::battleStackMoved(int ID, THex dest, int distance, bool en
 	}
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->stackMoved(ID, dest, end, distance);
+	battleInt->stackMoved(stack, dest, end, distance);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
@@ -779,13 +779,14 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	std::vector<SStackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
+		const CStack *defender = cb->battleGetStackByID(i->stackAttacked, false);
+		const CStack *attacker = cb->battleGetStackByID(i->attackerID, false);
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
-			const CStack *stack = cb->battleGetStackByID(i->stackAttacked, false);
-			if (stack != NULL)
-				battleInt->displayEffect(i->effect, stack->position);
+			if (defender != NULL)
+				battleInt->displayEffect(i->effect, defender->position);
 		}
-		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, i->attackerID, LOCPLINT->curAction->actionType==7, i->killed()};
+		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
 
 	}

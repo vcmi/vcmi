@@ -75,7 +75,7 @@ public:
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	//battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
+	virtual int battleGetObstaclesAtTile(THex tile)=0; //returns bitfield
 	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
 	virtual const CStack * battleGetStackByID(int ID, bool onlyAlive = true)=0; //returns stack info by given ID
 	virtual const CStack * battleGetStackByPos(int pos, bool onlyAlive = true)=0; //returns stack info by given pos
@@ -201,7 +201,7 @@ protected:
 public:
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	int battleGetObstaclesAtTile(int tile); //returns bitfield
+	int battleGetObstaclesAtTile(THex tile); //returns bitfield
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
 	const CStack * battleGetStackByPos(int pos, bool onlyAlive = true); //returns stack info by given pos

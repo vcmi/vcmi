@@ -36,10 +36,10 @@ class CBattleInterface;
 
 struct SStackAttackedInfo
 {
-	int ID; //id of attacked stack
+	const CStack * defender; //attacked stack
 	int dmg; //damage dealt
 	int amountKilled; //how many creatures in stack has been killed
-	int IDby; //ID of attacking stack
+	const CStack * attacker; //attacking stack
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
 };
@@ -107,9 +107,9 @@ public:
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
-	int stackID; //id of stack whose animation it is
+	const CStack * stack; //id of stack whose animation it is
 
-	CBattleStackAnimation(CBattleInterface * _owner, int stack);
+	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
 	static bool isToReverseHlp(THex hexFrom, THex hexTo, bool curDir); //helper for isToReverse
 	static bool isToReverse(THex hexFrom, THex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 };
@@ -126,7 +126,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CReverseAnim(CBattleInterface * _owner, int stack, THex dest, bool _priority);
+	CReverseAnim(CBattleInterface * _owner, const CStack * stack, THex dest, bool _priority);
 };
 
 class CDefenceAnim : public CBattleStackAnimation
@@ -135,7 +135,7 @@ private:
 	//std::vector<SStackAttackedInfo> attackedInfos;
 	int dmg; //damage dealt
 	int amountKilled; //how many creatures in stack has been killed
-	int IDby; //ID of attacking stack
+	const CStack * attacker; //attacking stack
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
 public:
@@ -161,7 +161,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CBattleStackMoved(CBattleInterface * _owner, int _number, THex _destHex, bool _endMoving, int _distance);
+	CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, THex _destHex, bool _endMoving, int _distance);
 };
 
 class CBattleMoveStart : public CBattleStackAnimation
@@ -171,7 +171,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CBattleMoveStart(CBattleInterface * _owner, int stack);
+	CBattleMoveStart(CBattleInterface * _owner, const CStack * _stack);
 };
 
 class CBattleMoveEnd : public CBattleStackAnimation
@@ -183,13 +183,12 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CBattleMoveEnd(CBattleInterface * _owner, int stack, THex destTile);
+	CBattleMoveEnd(CBattleInterface * _owner, const CStack * _stack, THex destTile);
 };
 
 class CBattleAttack : public CBattleStackAnimation
 {
 protected:
-	int IDby; //attacked stack
 	THex dest; //atacked hex
 	int posShiftDueToDist;
 	bool shooting;
@@ -203,7 +202,7 @@ public:
 	bool checkInitialConditions();
 
 
-	CBattleAttack(CBattleInterface * _owner, int _stackID, THex _dest, int _attackedID);
+	CBattleAttack(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * defender);
 };
 
 class CMeleeAttack : public CBattleAttack
@@ -213,7 +212,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CMeleeAttack(CBattleInterface * _owner, int attacker, THex _dest, int _attackedID);
+	CMeleeAttack(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * _attacked);
 };
 
 class CShootingAnim : public CBattleAttack
@@ -226,7 +225,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CShootingAnim(CBattleInterface * _owner, int attacker, THex _dest, int _attackedID, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
+	CShootingAnim(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0); //last param only for catapult attacks
 };
 
 //end of battle animation handlers
@@ -391,8 +390,8 @@ private:
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
-	int activeStack; //number of active stack; -1 - no one
-	int stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; -1 of none
+	const CStack * activeStack; //number of active stack; NULL - no one
+	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
 	std::vector<int> shadedHexes; //hexes available for active stack
@@ -409,8 +408,8 @@ private:
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
-	void redrawBackgroundWithHexes(int activeStack);
-	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
+	void redrawBackgroundWithHexes(const CStack * activeStack);
+	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker);
 
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
@@ -494,7 +493,7 @@ public:
 	void newStack(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(const CStack * stack); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
-	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack * attacker, THex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
