@@ -19,12 +19,13 @@
 	typedef std::string TColor;
 	#define	_kill_thread(a) pthread_cancel(a)
 	typedef pthread_t ThreadHandle;
-	#define CONSOLE_GREEN "\x1b[1;40;32m"
-	#define CONSOLE_RED "\x1b[1;40;32m"
-	#define CONSOLE_MAGENTA "\x1b[1;40;35m"
-	#define CONSOLE_YELLOW "\x1b[1;40;32m"
-	#define CONSOLE_WHITE "\x1b[1;40;39m"
-	#define CONSOLE_GRAY "\x1b[0;40;39m"
+	#define CONSOLE_GREEN "\x1b[1;32m"
+	#define CONSOLE_RED "\x1b[1;32m"
+	#define CONSOLE_MAGENTA "\x1b[1;35m"
+	#define CONSOLE_YELLOW "\x1b[1;32m"
+	#define CONSOLE_WHITE "\x1b[1;39m"
+	#define CONSOLE_GRAY "\x1b[1;30m"
+	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <windows.h>
