@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "StupidAI.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/BattleState.h"
 
 CStupidAI::CStupidAI(void)
 	: side(-1), cb(NULL)

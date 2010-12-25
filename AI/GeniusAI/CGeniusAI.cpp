@@ -3,6 +3,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
+#include "../../lib/BattleState.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/VCMI_Lib.h"

@@ -11,6 +11,7 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"

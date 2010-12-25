@@ -23,6 +23,9 @@
 #include "SDL_Extensions.h"
 #include "CBattleInterface.h"
 #include "../lib/CCampaignHandler.h"
+#include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
+
 
 //macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 	\

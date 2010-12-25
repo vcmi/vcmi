@@ -25,6 +25,7 @@
 #include "../lib/Connection.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/BattleState.h"
 #include "CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"

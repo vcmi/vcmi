@@ -6,6 +6,7 @@
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../StartInfo.h"
+#include "../lib/BattleState.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"

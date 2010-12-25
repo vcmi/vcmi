@@ -26,6 +26,10 @@ struct SSpecialtyInfo
 	si32 val;
 	si32 subtype;
 	si32 additionalinfo;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & val & subtype & additionalinfo;
+	}
 };
 
 class DLL_EXPORT CHero
@@ -52,7 +56,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & lowStack & highStack & refTypeStack	& heroType & startingSpell & heroClass;
+		h & name & ID & lowStack & highStack & refTypeStack	& heroClass & heroType & secSkillsInit & spec & startingSpell & sex;
 	}
 };
 

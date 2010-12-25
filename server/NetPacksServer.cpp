@@ -4,6 +4,8 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/map.h"
+#include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))

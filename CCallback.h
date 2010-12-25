@@ -43,6 +43,7 @@ class CMapHeader;
 struct CGPathNode;
 struct CGPath;
 class CGGarrison;
+class CObstacleInstance;
 
 struct InfoAboutTown
 {

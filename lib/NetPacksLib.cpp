@@ -15,6 +15,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include "CGameState.h"
+#include "BattleState.h"
 
 #undef min
 #undef max

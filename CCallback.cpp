@@ -3,6 +3,7 @@
 #include "lib/CCreatureHandler.h"
 #include "client/CGameInfo.h"
 #include "lib/CGameState.h"
+#include "lib/BattleState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
 #include "lib/map.h"

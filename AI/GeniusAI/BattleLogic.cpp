@@ -1,4 +1,5 @@
 #include "BattleLogic.h"
+#include "../../lib/BattleState.h"
 #include <math.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>

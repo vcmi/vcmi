@@ -13,7 +13,7 @@
 #include "CMessage.h"
 #include "CCursorHandler.h"
 #include "../CCallback.h"
-#include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"

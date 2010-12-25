@@ -1,7 +1,6 @@
 #ifndef __NETPACKS_H__
 #define __NETPACKS_H__
 #include "../global.h"
-#include "CGameState.h"
 #include "BattleAction.h"
 #include "HeroBonus.h"
 #include <set>
@@ -27,6 +26,7 @@ class CConnection;
 class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
+class CGObjectInstance;
 //class CMapInfo;
 
 struct CPack
