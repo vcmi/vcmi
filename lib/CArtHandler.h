@@ -60,6 +60,7 @@ public:
 
 class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
 {
+	void init();
 public:
 	ConstTransitivePtr<CArtifact> art; 
 	si32 id; //id of the instance
@@ -67,7 +68,6 @@ public:
 	CArtifactInstance();
 	CArtifactInstance(CArtifact *Art);
 
-	void init();
 	std::string nodeName() const OVERRIDE;
 	void setType(CArtifact *Art);
 
@@ -78,6 +78,12 @@ public:
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
+};
+
+class DLL_EXPORT CCombinedArtifactInstance : public CArtifactInstance
+{
+public:
+
 };
 
 class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner

@@ -29,6 +29,14 @@
 		if(vstd::contains(cl->playerint,player))		\
 			cl->playerint[player]->function(__VA_ARGS__);
 
+#define BATTLE_INTERFACE_CALL_IF_PRESENT(player,function,...) 	\
+		if(vstd::contains(cl->battleints,player))		\
+			cl->battleints[player]->function(__VA_ARGS__);
+
+#define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 	\
+	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, function, __VA_ARGS__) \
+	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, function, __VA_ARGS__) \
+	BATTLE_INTERFACE_CALL_IF_PRESENT(254, function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
  *
@@ -486,14 +494,12 @@ void BattleStart::applyCl( CClient *cl )
 
 void BattleNextRound::applyFirstCl(CClient *cl)
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleNewRoundFirst,round);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleNewRoundFirst,round);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewRoundFirst,round);
 }
 
 void BattleNextRound::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleNewRound,round);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleNewRound,round);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewRound,round);
 }
 
 void BattleSetActiveStack::applyCl( CClient *cl )
@@ -508,23 +514,19 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 	{
 		playerToCall = activated->owner;
 	}
-	if( vstd::contains(cl->playerint, playerToCall) )
+	if( vstd::contains(cl->battleints, playerToCall) )
 		boost::thread( boost::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
 }
 
 void BattleResult::applyFirstCl( CClient *cl )
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleEnd(this);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleEnd(this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleEnd,this);
 }
 
 void BattleStackMoved::applyFirstCl( CClient *cl )
 {
 	const CStack * movedStack = GS(cl)->curB->getStack(stack);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStackMoved,movedStack,tile,distance,ending);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStackMoved,movedStack,tile,distance,ending);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStackMoved,movedStack,tile,distance,ending);
 }
 
 void BattleStackAttacked::applyCl( CClient *cl )
@@ -532,16 +534,12 @@ void BattleStackAttacked::applyCl( CClient *cl )
 	std::vector<BattleStackAttacked> bsa;
 	bsa.push_back(*this);
 
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,bsa);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,bsa);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,bsa);
 }
 
 void BattleAttack::applyFirstCl( CClient *cl )
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleAttack(this);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleAttack(this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleAttack,this);
 	for (int g=0; g<bsa.size(); ++g)
 	{
 		for (int z=0; z<bsa[g].healedStacks.size(); ++z)
@@ -553,59 +551,39 @@ void BattleAttack::applyFirstCl( CClient *cl )
 
 void BattleAttack::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,bsa);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,bsa);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,bsa);
 }
 
 void StartAction::applyFirstCl( CClient *cl )
 {
 	cl->curbaction = new BattleAction(ba);
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->actionStarted(&ba);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->actionStarted(&ba);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionStarted, &ba);
 }
 
 void BattleSpellCast::applyCl( CClient *cl )
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleSpellCast(this);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleSpellCast(this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleSpellCast,this);
 
 	if(id >= 66 && id <= 69) //elemental summoning
 	{
-		if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-			cl->playerint[GS(cl)->curB->side1]->battleNewStackAppeared(GS(cl)->curB->stacks[GS(cl)->curB->stacks.size() - 1]);
-		if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-			cl->playerint[GS(cl)->curB->side2]->battleNewStackAppeared(GS(cl)->curB->stacks[GS(cl)->curB->stacks.size() - 1]);
+		BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewStackAppeared,GS(cl)->curB->stacks.back());
 	}
 }
 
 void SetStackEffect::applyCl( CClient *cl )
 {
-	BattleSpellCast sc;
-	sc.id = effect.id;
-	sc.side = 3; //doesn't matter
-	sc.skill = effect.val;
-
 	//informing about effects
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleStacksEffectsSet(*this);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleStacksEffectsSet(*this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksEffectsSet,*this);
 }
 
 void StacksInjured::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,stacks);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,stacks);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,stacks);
 }
 
 void BattleResultsApplied::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(player1,battleResultsApplied);
-	INTERFACE_CALL_IF_PRESENT(player2,battleResultsApplied);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleResultsApplied);
 }
 
 void StacksHealedOrResurrected::applyCl( CClient *cl )
@@ -615,29 +593,25 @@ void StacksHealedOrResurrected::applyCl( CClient *cl )
 	{
 		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
 	}
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
 }
 
 void ObstaclesRemoved::applyCl( CClient *cl )
 {
 	//inform interfaces about removed obstacles
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleObstaclesRemoved, obstacles);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleObstaclesRemoved, obstacles);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleObstaclesRemoved, obstacles);
 }
 
 void CatapultAttack::applyCl( CClient *cl )
 {
 	//inform interfaces about catapult attack
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleCatapultAttacked, *this);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleCatapultAttacked, *this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleCatapultAttacked, *this);
 }
 
 void BattleStacksRemoved::applyCl( CClient *cl )
 {
 	//inform interfaces about removed stacks
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksRemoved, *this);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksRemoved, *this);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksRemoved, *this);
 }
 
 CGameState* CPackForClient::GS( CClient *cl )
@@ -647,8 +621,7 @@ CGameState* CPackForClient::GS( CClient *cl )
 
 void EndAction::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,actionFinished,cl->curbaction);
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,actionFinished,cl->curbaction);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionFinished, cl->curbaction);
 
 	delete cl->curbaction;
 	cl->curbaction = NULL;

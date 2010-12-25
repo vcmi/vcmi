@@ -476,7 +476,14 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 int CBattleCallback::battleGetBattlefieldType()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->battleGetBattlefieldType();
+	//return gs->battleGetBattlefieldType();
+
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetBattlefieldType called when there is no battle!"<<std::endl;
+		return -1;
+	}
+	return gs->curB->battlefieldType;
 }
 
 int CBattleCallback::battleGetObstaclesAtTile(THex tile) //returns bitfield 

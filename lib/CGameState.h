@@ -212,11 +212,12 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::vector<CObstacleInstance> obstacles;
 	ui8 castSpells[2]; //[0] - attacker, [1] - defender
 	SiegeInfo si;
+	si32 battlefieldType;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & belligerents & obstacles
-			& castSpells & si;
+			& castSpells & si & battlefieldType;
 		h & heroes;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}

@@ -2993,7 +2993,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 		}
 	}
 
-	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, ID==activeStack->ID, ID==mouseHoveredStack); //increment always when moving, never if stack died
+	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack); //increment always when moving, never if stack died
 
 	//printing amount
 	if(stack->count > 0 //don't print if stack is not alive

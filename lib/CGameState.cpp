@@ -1041,7 +1041,7 @@ const CGHeroInstance * CStack::getMyHero() const
 std::string CStack::nodeName() const
 {
 	std::ostringstream oss;
-	oss << "Battle stack of " << count << " creatures of ";
+	oss << "Battle stack [" << ID << "]: " << count << " creatures of ";
 	if(type)
 		oss << type->namePl;
 	else
@@ -1486,6 +1486,7 @@ BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInsta
 	std::vector<CStack*> & stacks = (curB->stacks);
 
 	curB->tile = tile;
+	curB->battlefieldType = terType;
 	curB->belligerents[0] = const_cast<CArmedInstance*>(armies[0]);
 	curB->belligerents[1] = const_cast<CArmedInstance*>(armies[1]);
 	curB->heroes[0] = const_cast<CGHeroInstance*>(heroes[0]);
@@ -1930,12 +1931,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			const CGHeroInstance *heroes[2];
 			const CGTownInstance *town = NULL;
 			CGHeroInstance *h = new CGHeroInstance();
+			h->setOwner(0);
 			h->subID = 1;
 			h->initHero(1);
 			h->initObj();
 			//h->putStack(0, new CStackInstance(34, 5));
 
 			CGCreature *c = new CGCreature();
+			c->setOwner(1);
 			c->putStack(0, new CStackInstance(70, 6));
 			c->subID = 34;
 			c->initObj();

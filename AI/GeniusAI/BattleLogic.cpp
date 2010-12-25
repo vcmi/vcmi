@@ -261,7 +261,7 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
 	if(currentStack->position < 0 || currentStack->getCreature()->idNumber == 147) //turret or first aid kit
 	{
-		return MakeDefend(stackID);
+		return BattleAction::makeDefend(currentStack);
 	}
 	MakeStatistics(stackID);
 
@@ -285,11 +285,11 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 	if (additionalInfo == -1 || creatures.empty())
 	{
 		// defend
-		return MakeDefend(stackID);
+		return BattleAction::makeDefend(currentStack);
 	}
 	else if (additionalInfo == -2)
 	{
-		return MakeWait(stackID);
+		return BattleAction::makeWait(currentStack);
 	}
 
 	list<int>::iterator it, eit;
@@ -472,26 +472,6 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 	return fields;
 }
 
-BattleAction CBattleLogic::MakeDefend(int stackID)
-{
-	BattleAction ba;
-	ba.side = m_side;
-	ba.actionType = action_defend;
-	ba.stackNumber = stackID;
-	ba.additionalInfo = -1;
-	return ba;
-}
-
-BattleAction CBattleLogic::MakeWait(int stackID)
-{
-	BattleAction ba;
-	ba.side = m_side;
-	ba.actionType = action_wait;
-	ba.stackNumber = stackID;
-	ba.additionalInfo = -1;
-	return ba;
-}
-
 BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 {
 	const CStack *attackerStack = m_cb->battleGetStackByID(attackerID),
@@ -501,19 +481,12 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 	//don't attack ourselves
 	if(destinationStack->attackerOwned == !m_side)
 	{
-		return MakeDefend(attackerID);
+		return BattleAction::makeDefend(attackerStack);
 	}
 
-	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))
+	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))	// shoot
 	{
-		// shoot
-		BattleAction ba;
-		ba.side = m_side;
-		ba.additionalInfo = -1;
-		ba.actionType = action_shoot; // shoot
-		ba.stackNumber = attackerID;
-		ba.destinationTile = (ui16)m_cb->battleGetPos(destinationID);
-		return ba;
+		return BattleAction::makeShotAttack(attackerStack, destinationStack);
 	}
 	else
 	{
@@ -522,7 +495,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(destinationID), m_cb->battleGetStackByID(attackerID));
 		if (av_tiles.size() < 1)
 		{
-			return MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 		}
 
 		// get the best tile - now the nearest
@@ -549,7 +522,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 
 		if(fields.size() == 0)
 		{
-			return MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 		}
 
 		BattleAction ba;
@@ -566,7 +539,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		else if(BattleInfo::mutualPosition(dest_tile, destStackPos-1) != -1)
 			ba.additionalInfo = destStackPos-1;
 		else
-			MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 
 		int nearest_dist = m_battleHelper.InfiniteDistance;
 		int nearest_pos = -1;

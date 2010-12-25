@@ -116,7 +116,8 @@ void CClient::waitForMoveAndSend(int color)
 {
 	try
 	{
-		BattleAction ba = playerint[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
+		assert(vstd::contains(battleints, color));
+		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
 		*serv << &MakeAction(ba);
 		return;
 	}HANDLE_EXCEPTION
@@ -402,13 +403,14 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 				playerint[color] = new CPlayerInterface(color);
 				humanPlayers++;
 			}
+			battleints[color] = playerint[color];
 
 			playerint[color]->init(cb);
 		}
 		else
 		{
 			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
-			battleints[color] = CAIHandler::getNewBattleAI(cb,conf.cc.defaultAI);
+			battleints[color] = CAIHandler::getNewBattleAI(cb,"StupidAI");
 			battleints[color]->init(cbc);
 		}
 	}
@@ -417,16 +419,21 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	{
 		CPlayerInterface *p = new CPlayerInterface(-1);
 		p->observerInDuelMode = true;
-		playerint[254] = p;
+		battleints[254] = playerint[254] = p;
+		GH.curInt = p;
 		p->init(new CCallback(gs, -1, this));
 		battleStarted(gs->curB);
+	}
+	else
+	{
+		playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
+		playerint[255]->init(new CCallback(gs,255,this));
 	}
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
-	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
-	playerint[255]->init(new CCallback(gs,255,this));
+
 }
 
 template <typename Handler>
@@ -553,12 +560,12 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
 
-	if(vstd::contains(playerint,info->side1))
-		playerint[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
-	if(vstd::contains(playerint,info->side2))
-		playerint[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
-	if(vstd::contains(playerint,254))
-		playerint[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(battleints,info->side1))
+		battleints[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
+	if(vstd::contains(battleints,info->side2))
+		battleints[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(battleints,254))
+		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

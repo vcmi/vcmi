@@ -107,14 +107,6 @@ private:
 	 */
 	std::vector<int> GetAvailableHexesForAttacker(const CStack *defender, const CStack *attacker = NULL);
 	/**
-	 * Just make defend action.
-	 */
-	BattleAction MakeDefend(int stackID);
-	/**
-	 * Just make wait action.
-	 */
-	BattleAction MakeWait(int stackID);
-	/**
 	 * Make an attack action if it's possible.
 	 * If it's not possible then function returns defend action.
 	 */
