@@ -33,13 +33,13 @@ void CStupidAI::actionStarted( const BattleAction *action )
 BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	print("activeStack called");
-	return BattleAction::makeDefend(stack);
 	if(stack->position % 17  <  5) //move army little towards enemy
 	{
-		THex dest = stack->position + side*2 - 1;
-		print(stack->nodeName() << "will be moved to " + boost::lexical_cast<std::string>(dest));
-		return BattleAction::makeMove(stack, ); 
+		THex dest = stack->position + !side*2 - 1;
+		print(stack->nodeName() + "will be moved to " + boost::lexical_cast<std::string>(dest));
+		return BattleAction::makeMove(stack, dest); 
 	}
+	return BattleAction::makeDefend(stack);
 }
 
 void CStupidAI::battleAttack(const BattleAttack *ba)
