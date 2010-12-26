@@ -212,8 +212,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	delete CGI->mh;
 	const_cast<CGameInfo*>(CGI)->mh = NULL;
 
-	delete CGI->state;
-	const_cast<CGameInfo*>(CGI)->state = NULL;
+	const_cast<CGameInfo*>(CGI)->state.dellNull();
 	tlog0 << "Deleted mapHandler and gameState." << std::endl;
 
 	LOCPLINT = NULL;

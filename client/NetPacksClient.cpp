@@ -167,6 +167,19 @@ void RebalanceStacks::applyCl( CClient *cl )
 		INTERFACE_CALL_IF_PRESENT(dst.army->tempOwner,stacksRebalanced, src, dst, count);
 }
 
+void PutArtifact::applyCl( CClient *cl )
+{
+
+}
+
+void EraseArtifact::applyCl( CClient *cl )
+{
+}
+
+void MoveArtifact::applyCl( CClient *cl )
+{
+}
+
 void GiveBonus::applyCl( CClient *cl )
 {
 	switch(who)

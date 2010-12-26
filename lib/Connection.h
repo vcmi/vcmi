@@ -420,10 +420,13 @@ public:
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;
  			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
  			{
- 				*this << getIdFromVectorItem<VType>(*info, data);
- 				return;
+				si32 id = getIdFromVectorItem<VType>(*info, data);
+				*this << id;
+				if(id != -1) //vector id is enough
+ 					return;
  			}
  		}
+
 
 		if(smartPointerSerialization)
 		{
@@ -686,10 +689,13 @@ public:
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
 			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
 			{
-				ui32 id;
+				si32 id;
 				*this >> id;
-				data = static_cast<T>(getVectorItemFromId(*info, id));
-				return;
+				if(id != -1)
+				{
+					data = static_cast<T>(getVectorItemFromId(*info, id));
+					return;
+				}
 			}
 		}
 

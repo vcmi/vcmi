@@ -18,7 +18,6 @@ CClientState * CCS;
 CGameInfo::CGameInfo()
 {
 	mh = NULL;
-	state = NULL;
 }
 
 void CGameInfo::setFromLib()

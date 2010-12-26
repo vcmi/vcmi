@@ -13,6 +13,9 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
 #include "CSpellHandler.h"
+#include "CObjectHandler.h"
+#include "NetPacks.h"
+
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
 
@@ -874,13 +877,13 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 
 void CArtifactInstance::setType( CArtifact *Art )
 {
-	art = Art;
+	artType = Art;
 	attachTo(Art);
 }
 
 std::string CArtifactInstance::nodeName() const
 {
-	return "Artifact instance of " + (art ? art->Name() : std::string("uninitialized")) + " type";
+	return "Artifact instance of " + (artType ? artType->Name() : std::string("uninitialized")) + " type";
 }
 
 CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
@@ -893,5 +896,68 @@ CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 
 void CArtifactInstance::init()
 {
-	art = NULL;
+	id = -1;
+}
+
+int CArtifactInstance::firstAvailableSlot(const CGHeroInstance *h) const
+{
+	BOOST_FOREACH(ui16 slot, artType->possibleSlots)
+	{
+		if(artType->fitsAt(h->artifWorn, slot))
+		{
+			//we've found a free suitable slot.
+			return slot;
+		}
+	}
+
+	//if haven't find proper slot, use backpack
+	return firstBackpackSlot(h);
+}
+
+int CArtifactInstance::firstBackpackSlot(const CGHeroInstance *h) const
+{
+	if(!artType->isBig()) //discard big artifact
+		return Arts::BACKPACK_START + h->artifactsInBackpack.size();
+
+	return -1;
+}
+
+bool CArtifactInstance::canBePutAt(const ArtifactLocation &al) const
+{
+	if(!vstd::contains(artType->possibleSlots, al.slot))
+		return false;
+
+	//simple artifact -> test if slot is free [combined artifacts have this function overridden]
+	return al.hero->isPositionFree(al.slot);
+}
+
+void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
+{
+	assert(canBePutAt(ArtifactLocation(h, slot)));
+
+	ArtSlotInfo &asi = slot < Arts::BACKPACK_START 
+						? h->artifactsWorn[slot]
+						: *h->artifactsInBackpack.insert(h->artifactsInBackpack.begin() + slot - Arts::BACKPACK_START, ArtSlotInfo());
+
+	asi.artifact = this;
+	asi.locked = false;
+
+	h->attachTo(this);
+}
+
+void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
+{
+	assert(h->CArtifactSet::getArt(slot) == this);
+	if(slot < Arts::BACKPACK_START)
+	{
+		h->artifactsWorn.erase(slot);
+		h->detachFrom(this);
+	}
+	else
+	{
+		slot -= Arts::BACKPACK_START;
+		h->artifactsInBackpack.erase(h->artifactsInBackpack.begin() + slot);
+	}
+
+	//TODO delete me?
 }

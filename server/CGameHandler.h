@@ -128,60 +128,67 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
 	//get info
-	int getCurrentPlayer();
-	int getSelectedHero();
+	int getCurrentPlayer() OVERRIDE;
+	int getSelectedHero() OVERRIDE;
 
 
 	//do sth
-	void changeSpells(int hid, bool give, const std::set<ui32> &spells);
-	bool removeObject(int objid);
-	void setBlockVis(int objid, bool bv);
-	void setOwner(int objid, ui8 owner);
-	void setHoverName(int objid, MetaString * name);
-	void setObjProperty(int objid, int prop, si64 val);
-	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed 
-	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
-	void changePrimSkill(int ID, int which, si64 val, bool abs=false);
-	void changeSecSkill(int ID, int which, int val, bool abs=false); 
-	void showInfoDialog(InfoWindow *iw);
-	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback);
-	ui32 showBlockingDialog(BlockingDialog *iw); //synchronous version of above
-	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb);
-	void showThievesGuildWindow(int requestingObjId); //TODO: make something more general?
-	void giveResource(int player, int which, int val);
-	void giveCreatures (const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove);
-	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures);
-	bool changeStackType(const StackLocation &sl, CCreature *c);
-	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false);
-	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count);
-	bool eraseStack(const StackLocation &sl, bool forceRemoval = false);
-	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2);
-	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count);
-	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging);
-	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1);
-	void showCompInfo(ShowInInfobox * comp);
-	void heroVisitCastle(int obj, int heroID);
-	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
-	void stopHeroVisitCastle(int obj, int heroID);
-	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
-	void giveNewArtifact(int hid, int position);
-	bool removeArtifact(const CArtifact* art, int hid);
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL); //use hero=NULL for no hero
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
-	void setAmount(int objid, ui32 val);
-	bool teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker = 255);
-	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255);
+	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE;
+	bool removeObject(int objid) OVERRIDE;
+	void setBlockVis(int objid, bool bv) OVERRIDE;
+	void setOwner(int objid, ui8 owner) OVERRIDE;
+	void setHoverName(int objid, MetaString * name) OVERRIDE;
+	void setObjProperty(int objid, int prop, si64 val) OVERRIDE;
+	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE;
+	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE; 
+	void showInfoDialog(InfoWindow *iw) OVERRIDE;
+	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
+	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
+	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
+	void showThievesGuildWindow(int requestingObjId) OVERRIDE; //TODO: make something more general?
+	void giveResource(int player, int which, int val) OVERRIDE;
+
+	void giveCreatures (const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
+	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) OVERRIDE;
+	bool changeStackType(const StackLocation &sl, CCreature *c) OVERRIDE;
+	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) OVERRIDE;
+	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE;
+	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) OVERRIDE;
+	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) OVERRIDE;
+	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE;
+	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE;
+	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE;
+
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos) OVERRIDE;
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE;
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE; 
+	void removeArtifact(const ArtifactLocation &al) OVERRIDE;
+	void moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
+
+	void showCompInfo(ShowInInfobox * comp) OVERRIDE;
+	void heroVisitCastle(int obj, int heroID) OVERRIDE;
+	void stopHeroVisitCastle(int obj, int heroID) OVERRIDE;
+	bool removeArtifact(const CArtifact* art, int hid) OVERRIDE;
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL) OVERRIDE; //use hero=NULL for no hero
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) OVERRIDE; //for hero<=>neutral army
+	void setAmount(int objid, ui32 val) OVERRIDE;
+	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255) OVERRIDE;
+	void giveHeroBonus(GiveBonus * bonus) OVERRIDE;
+	void setMovePoints(SetMovePoints * smp) OVERRIDE;
+	void setManaPoints(int hid, int val) OVERRIDE;
+	void giveHero(int id, int player) OVERRIDE;
+	void changeObjPos(int objid, int3 newPos, ui8 flags) OVERRIDE;
+	void heroExchange(si32 hero1, si32 hero2) OVERRIDE;
+	//////////////////////////////////////////////////////////////////////////
+	void useScholarSkill(si32 hero1, si32 hero2);
+	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);
 	bool tryAttackingGuard(const int3 &guardPos, const CGHeroInstance * h);
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
-	void giveHeroBonus(GiveBonus * bonus);
-	void setMovePoints(SetMovePoints * smp);
-	void setManaPoints(int hid, int val);
-	void giveHero(int id, int player);
-	void changeObjPos(int objid, int3 newPos, ui8 flags);
-	void useScholarSkill(si32 hero1, si32 hero2);
-	void heroExchange(si32 hero1, si32 hero2);
-	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);
+	bool teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker = 255);
+	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
+	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed 
+	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, int Seed);

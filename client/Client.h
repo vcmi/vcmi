@@ -112,6 +112,7 @@ public:
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void showThievesGuildWindow(int requestingObjId){};
 	void giveResource(int player, int which, int val){};
+
 	void giveCreatures (const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) {};
 	void takeCreatures (int objid, TSlots creatures){};
 	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures){};
@@ -123,11 +124,18 @@ public:
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count){return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging){}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1){return false;}
+
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos) OVERRIDE {};
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE {};
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE {}; 
+	void removeArtifact(const ArtifactLocation &al) OVERRIDE {};
+	void moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {};
+
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};
 	void stopHeroVisitCastle(int obj, int heroID){};
-	void giveHeroArtifact(int artid, int hid, int position){}; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
-	void giveNewArtifact(int hid, int position){};
+	//void giveHeroArtifact(int artid, int hid, int position){}; 
+	//void giveNewArtifact(int hid, int position){};
 	bool removeArtifact(const CArtifact* art, int hid){return false;};
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL){}; //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false){}; //if any of armies is hero, hero will be used

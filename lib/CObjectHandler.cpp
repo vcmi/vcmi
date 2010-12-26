@@ -3593,9 +3593,16 @@ void CGArtifact::initObj()
 {
 	blockVisit = true;
 	if(ID == 5)
+	{
 		hoverName = VLC->arth->artifacts[subID]->Name();
+		if(!storedArtifact->artType)
+			storedArtifact->setType(VLC->arth->artifacts[subID]);
+	}
 	if(ID == 93)
 		subID = 1;
+
+	assert(storedArtifact->artType);
+	assert(storedArtifact->parents.size());
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
@@ -3618,7 +3625,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 			break;
 			case 93:
 				{
-					int spellID = art->getBonus(Selector::type(Bonus::SPELL))->subtype;
+					int spellID = storedArtifact->getBonus(Selector::type(Bonus::SPELL))->subtype;
 					iw.components.push_back (Component(Component::SPELL, spellID,0,0));
 					iw.text.addTxt (MetaString::ADVOB_TXT,135);
 					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
@@ -3647,23 +3654,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if (VLC->arth->artifacts[subID]->isModable())
-	{//TODO: create new instance, initialize it
-		if (ID == 93) //scroll
-		{
-			NewArtifact na;
-			//na.value = spell;
-			na.artid = subID;
-			cb->sendAndApply(&na);
-			cb->giveNewArtifact(h->id, -2);
-		}
-		else
-			cb->giveNewArtifact(h->id, -2);; //nothing / zero / empty by default
-	}
-	else
-	{
-		cb->giveHeroArtifact(subID,h->id,-2);
-	}
+	cb->giveHeroArtifact(h, storedArtifact, -2);
 	cb->removeObject(id);
 }
 
@@ -3822,7 +3813,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				//TODO: what if no space in backpack?
 				iw.components.push_back(Component(4, val2, 1, 0));
 				iw.text.addReplacement(MetaString::ART_NAMES, val2);
-				cb->giveHeroArtifact(val2,h->id,-2);
+				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val2],-2);
 			}
 			cb->showInfoDialog(&iw);
 			break;
@@ -3836,7 +3827,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.components.push_back(Component(4,val1,1,0));
 			iw.text.addTxt(MetaString::ADVOB_TXT, 125);
 			iw.text.addReplacement(MetaString::ART_NAMES, val1);
-			cb->giveHeroArtifact(val1,h->id,-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],-2);
 			cb->showInfoDialog(&iw);
 			break;
 		}
@@ -3850,7 +3841,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(type) //there is an artifact
 			{
-				cb->giveHeroArtifact(val1,h->id,-2);
+				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],-2);
 				InfoWindow iw;
 				iw.soundID = soundBase::treasure;
 				iw.player = h->tempOwner;
@@ -4452,7 +4443,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changeSecSkill(h->id, rID, rVal, false);
 			break;
 		case 8: // artifact
-			cb->giveHeroArtifact(rID, h->id, -2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],-2);
 			break;
 		case 9:// spell
 		{
@@ -5009,7 +5000,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 			cb->giveResource(h->getOwner(),i,resources[i]);
 
 	for(int i=0; i<artifacts.size(); i++)
-		cb->giveHeroArtifact(artifacts[i],h->id,-2);
+		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],-2);
 
 	iw.components.clear();
 	iw.text.clear();
@@ -5410,7 +5401,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			break;
 		case 1: //art
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
-			cb->giveHeroArtifact(bonusType,h->id,-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
 			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 			if (ID == 22) //Corpse
 			{
@@ -5532,7 +5523,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
-			cb->giveHeroArtifact(bonusType,h->id,-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
 		}		
 		
 		if(!h->hasBonusFrom(Bonus::OBJECT,ID)) //we don't have modifier from this object yet
@@ -5871,7 +5862,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, *it);
-			cb->giveHeroArtifact (*it, h->id ,-2);
+			cb->giveHeroNewArtifact (h, VLC->arth->artifacts[*it], -2);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -6934,4 +6925,60 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 	ow.id2 = h->id;
 	ow.window = OpenWindow::UNIVERSITY_WINDOW;
 	cb->sendAndApply(&ow);
+}
+
+const CArtifactInstance* CArtifactSet::getArt(ui16 pos) const
+{
+	if(const ArtSlotInfo *si = getSlot(pos))
+	{
+		if(si->artifact && !si->locked)
+			return si->artifact;
+	}
+
+	return NULL;
+}
+
+si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
+{
+	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
+		if(i->second.artifact->artType->id == aid)
+			return i->first;
+
+	if(onlyWorn)
+		return -1;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+		if(artifactsInBackpack[i].artifact->artType->id == aid)
+			return Arts::BACKPACK_START + i;
+
+	return -1;
+}
+
+bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= true*/) const
+{
+	return getArtPos(aid, onlyWorn) != -1;
+}
+
+const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
+{
+	if(vstd::contains(artifactsWorn, pos))
+		return &artifactsWorn[pos];
+	if(pos >= Arts::AFTER_LAST )
+	{
+		int backpackPos = (int)pos - Arts::BACKPACK_START;
+		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
+			return NULL;
+		else
+			return &artifactsInBackpack[backpackPos];
+	}
+
+	return NULL;
+}
+
+bool CArtifactSet::isPositionFree(ui16 pos) const
+{
+	if(const ArtSlotInfo *s = getSlot(pos))
+		return !s->artifact && !s->locked;
+
+	return true; //no slot means not used
 }

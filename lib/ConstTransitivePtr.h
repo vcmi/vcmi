@@ -1,9 +1,14 @@
 #pragma once
 
+class CGameHandler;
+
 template <typename T>
 class ConstTransitivePtr
 {
 	T *ptr;
+	ConstTransitivePtr(const T *Ptr)
+		: ptr(const_cast<T*>(Ptr)) 
+	{}
 public:
 	ConstTransitivePtr(T *Ptr = NULL)
 		: ptr(Ptr) 
@@ -42,8 +47,16 @@ public:
 		return ptr;
 	}
 
+	void dellNull()
+	{
+		delete ptr;
+		ptr = NULL;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ptr;
 	}
+
+	friend CGameHandler;
 };

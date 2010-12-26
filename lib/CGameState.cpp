@@ -759,13 +759,9 @@ int CGameState::getDate(int mode) const
 CGameState::CGameState()
 {
 	mx = new boost::shared_mutex();
-	map = NULL;
-	curB = NULL;
-	scenarioOps = NULL;
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
 	objCaller = new CObjectCallersHandler;
-	campaign = NULL;
 }
 CGameState::~CGameState()
 {

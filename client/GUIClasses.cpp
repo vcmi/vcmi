@@ -49,6 +49,7 @@
 #include "../lib/HeroBonus.h"
 #include "../lib/CCreatureHandler.h"
 #include "CMusicHandler.h"
+#include "../lib/BattleState.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine

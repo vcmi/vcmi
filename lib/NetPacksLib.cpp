@@ -178,7 +178,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 
 	for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
 	{
-		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]] : NULL);
+		CGHeroInstance *h = (hid[i]>=0 ?  (CGHeroInstance*)gs->hpool.heroesPool[hid[i]] : NULL);
 		if(h && army[i])
 			h->setToArmy(*army[i]);
 		p->availableHeroes.push_back(h);
@@ -294,7 +294,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		CGCreature *cre = static_cast<CGCreature*>(obj);
 		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
 	}
-	gs->map->objects[id] = NULL;
+	gs->map->objects[id].dellNull();
 }
 
 static int getDir(int3 src, int3 dst)
@@ -583,28 +583,12 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 }
 DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 {
-// 	IModableArt * art;
-// 
-// 	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
-// 	switch (itr->second)
-// 	{
-// 			case 1:
-// 				art = new CScroll;
-// 				break;
-// 			case 2:
-// 				art = new CCustomizableArt;
-// 				break;
-// 			case 3:
-// 				art = new CCommanderArt;
-// 				break;
-// 			default:
-// 				tlog1<<"unhandled customizable artifact!\n";
-// 	};
-// 	*art = *static_cast<IModableArt*>(+VLC->arth->artifacts[artid]); //copy properties
-// 	art->ID = gs->map->artInstances.size();
-// 	art->SetProperty (value); //init scroll, banner, commander art
-// 	art->Init(); //set bonuses for new instance
-// 	gs->map->artInstances.push_back(art);
+	assert(!vstd::contains(gs->map->artInstances, art));
+	art->id = gs->map->artInstances.size();
+	gs->map->artInstances.push_back(art);
+
+	assert(!art->parents.size());
+	art->attachTo(art->artType);
 }
 
 DLL_EXPORT const CStackInstance * StackLocation::getStack()
@@ -615,6 +599,24 @@ DLL_EXPORT const CStackInstance * StackLocation::getStack()
 		return NULL;
 	}
 	return &army->getStack(slot);
+}
+
+DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
+{
+	const ArtSlotInfo *s = getSlot();
+	if(s && !s->locked && s->artifact)
+		return s->artifact;
+}
+
+DLL_EXPORT CArtifactInstance *ArtifactLocation::getArt()
+{
+	const ArtifactLocation *t = this;
+	return const_cast<CArtifactInstance*>(t->getArt());
+}
+
+DLL_EXPORT const ArtSlotInfo *ArtifactLocation::getSlot() const
+{
+	return hero->getSlot(slot);
 }
 
 DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
@@ -683,6 +685,24 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
 		}
 	}
+}
+
+DLL_EXPORT void PutArtifact::applyGs( CGameState *gs )
+{
+	assert(art->canBePutAt(al));
+	art->putAt(al.hero, al.slot);
+}
+
+DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )
+{
+	CArtifactInstance *a = al.getArt();
+	assert(a);
+	a->removeFrom(al.hero, al.slot);
+}
+
+DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
+{
+
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
@@ -904,8 +924,7 @@ void BattleResult::applyGs( CGameState *gs )
 		h->bonuses.remove_if(Bonus::OneBattle);
 
 	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;
-	delete gs->curB;
-	gs->curB = NULL;
+	gs->curB.dellNull();
 }
 
 void BattleStackMoved::applyGs( CGameState *gs )

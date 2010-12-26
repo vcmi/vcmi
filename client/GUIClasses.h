@@ -899,17 +899,6 @@ public:
 	void show(SDL_Surface * to);
 };
 
-namespace Arts
-{
-	enum EPos
-	{
-		PRE_FIRST = -1, 
-		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
-		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
-		AFTER_LAST
-	};
-}
-
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:

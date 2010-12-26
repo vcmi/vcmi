@@ -1584,7 +1584,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				{
 					innerArt = new CArtifactInstance();
 				}
-				art->art = innerArt;
+				art->storedArtifact = innerArt;
 				addNewArtifactInstance(innerArt);
 				break;
 			}

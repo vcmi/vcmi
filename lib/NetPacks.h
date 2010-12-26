@@ -27,7 +27,9 @@ class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
 class CGObjectInstance;
+class CArtifactInstance;
 //class CMapInfo;
+struct ArtSlotInfo;
 
 struct CPack
 {
@@ -708,12 +710,11 @@ struct NewArtifact : public CPackForClient //520
 	//void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	si32 artid;
-	si32 value; //initializing parameter
+	ConstTransitivePtr<CArtifactInstance> art;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artid & value;
+		h & art;
 	}
 };
 
@@ -724,7 +725,6 @@ struct StackLocation
 
 	StackLocation()
 	{
-		army = NULL;
 		slot = -1;
 	}
 	StackLocation(const CArmedInstance *Army, TSlot Slot)
@@ -827,7 +827,6 @@ struct RebalanceStacks : CGarrisonOperationPack  //526
 	}
 };
 
-typedef CArtifact TTempArtInstance;
 typedef si32 TArtPos;
 
 struct ArtifactLocation
@@ -837,7 +836,6 @@ struct ArtifactLocation
 
 	ArtifactLocation()
 	{
-		hero = NULL;
 		slot = -1;
 	}
 	ArtifactLocation(const CGHeroInstance *Hero, TArtPos Slot)
@@ -845,7 +843,9 @@ struct ArtifactLocation
 		hero = const_cast<CGHeroInstance*>(Hero); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}
-	DLL_EXPORT const TTempArtInstance *getArt();
+	DLL_EXPORT const CArtifactInstance *getArt() const;
+	DLL_EXPORT CArtifactInstance *getArt();
+	DLL_EXPORT const ArtSlotInfo *getSlot() const;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hero & slot;
@@ -855,14 +855,14 @@ struct ArtifactLocation
 struct PutArtifact : CGarrisonOperationPack  //526
 {
 	ArtifactLocation al;
-	TTempArtInstance *art;
+	ConstTransitivePtr<CArtifactInstance> art;
 
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & src & dst & count;
+		h & al & art;
 	}
 };
 

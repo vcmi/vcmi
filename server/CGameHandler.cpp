@@ -1609,98 +1609,7 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 	vc.tid = obj;
 	sendAndApply(&vc);
 }
-void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
-{
-	const CGHeroInstance* h = getHero(hid);
-	CArtifact * const art = VLC->arth->artifacts[artid];
 
-	SetHeroArtifacts sha;
-	sha.hid = hid;
-	sha.artifacts = h->artifacts;
-	sha.artifWorn = h->artifWorn;
-
-	if(position<0)
-	{
-		if(position == -2)
-		{
-			int i;
-			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
-			{
-				if(art->fitsAt(sha.artifWorn, art->possibleSlots[i]))
-				{
-					//we've found a free suitable slot.
-					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], VLC->arth->artifacts[artid]);
-					break;
-				}
-			}
-			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
-				sha.artifacts.push_back(art);
-		}
-		else if (!art->isBig()) //should be -1 => put artifact into backpack
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-	else
-	{
-		if(art->fitsAt(sha.artifWorn, ui16(position)))
-		{
-			VLC->arth->equipArtifact(sha.artifWorn, position, art);
-		}
-		else if (!art->isBig())
-		{
-			sha.artifacts.push_back(art);
-		}
-	}
-
-	sendAndApply(&sha);
-}
-void CGameHandler::giveNewArtifact(int hid, int position)
-{
-// 	const CGHeroInstance* h = getHero(hid);
-// 	CArtifact * art = gs->map->artInstances.back(); //we use it only to immediatelly equip new artifact
-// 
-// 	SetHeroArtifacts sha;
-// 	sha.hid = hid;
-// 	sha.artifacts = h->artifacts;
-// 	sha.artifWorn = h->artifWorn;
-// 
-// 	if(position<0)
-// 	{
-// 		if(position == -2)
-// 		{
-// 			int i;
-// 			for(i=0; i<art->possibleSlots.size(); i++) //try to put artifact into first available slot
-// 			{
-// 				if( !vstd::contains(sha.artifWorn, art->possibleSlots[i]) )
-// 				{
-// 					//we've found a free suitable slot
-// 					VLC->arth->equipArtifact(sha.artifWorn, art->possibleSlots[i], art);
-// 					break;
-// 				}
-// 			}
-// 			if(i == art->possibleSlots.size() && !art->isBig()) //if haven't find proper slot, use backpack or discard big artifact
-// 				sha.artifacts.push_back(art);
-// 		}
-// 		else if (!art->isBig()) //should be -1 => put artifact into backpack
-// 		{
-// 			sha.artifacts.push_back(art);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		if(!vstd::contains(sha.artifWorn,ui16(position)))
-// 		{
-// 			VLC->arth->equipArtifact(sha.artifWorn, position, art);
-// 		}
-// 		else if (!art->isBig())
-// 		{
-// 			sha.artifacts.push_back(art);
-// 		}
-// 	}
-// 
-// 	sendAndApply(&sha);
-}
 bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
 {
 	const CGHeroInstance* h = getHero(hid);
@@ -1735,6 +1644,10 @@ bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
 	return true;
 }
 
+void CGameHandler::removeArtifact(const ArtifactLocation &al)
+{
+
+}
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
 {
 	engageIntoBattle(army1->tempOwner);
@@ -1976,6 +1889,7 @@ void CGameHandler::sendToAllClients( CPackForClient * info )
 
 void CGameHandler::sendAndApply( CPackForClient * info )
 {
+	//TODO? mutex
 	sendToAllClients(info);
 	gs->apply(info);
 }
@@ -2370,16 +2284,20 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 	
 	if(warMachine)
 	{
+		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
+		if(!h)
+			COMPLAIN_RET("Only hero can buy war machines");
+
 		switch(crid)
 		{
 		case 146:
-			giveHeroArtifact(4, dst->id, 13);
+			giveHeroNewArtifact(h, VLC->arth->artifacts[4], Arts::MACH1);
 			break;
 		case 147:
-			giveHeroArtifact(6, dst->id, 15);
+			giveHeroNewArtifact(h, VLC->arth->artifacts[6], Arts::MACH3);
 			break;
 		case 148:
-			giveHeroArtifact(5, dst->id, 14);
+			giveHeroNewArtifact(h, VLC->arth->artifacts[5], Arts::MACH2);
 			break;
 		default:
 			complain("This war machine cannot be recruited!");
@@ -2770,13 +2688,14 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	if(aid==0) //spellbook
 	{
 		if(!vstd::contains(town->builtBuildings,si32(0)) && complain("Cannot buy a spellbook, no mage guild in the town!")
-			|| getResource(hero->getOwner(),6)<500 && complain("Cannot buy a spellbook, not enough gold!") 
-			|| hero->getArt(17) && complain("Cannot buy a spellbook, hero already has a one!")
+			|| getResource(hero->getOwner(), Res::GOLD) < SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") 
+			|| hero->getArt(Arts::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!")
 			)
 			return false;
 
-		giveResource(hero->getOwner(),6,-500);
-		giveHeroArtifact(0,hid,17);
+		giveResource(hero->getOwner(),Res::GOLD,-SPELLBOOK_GOLD_COST);
+		giveHeroNewArtifact(hero, VLC->arth->artifacts[0], Arts::SPELLBOOK);
+		assert(hero->getArt(Arts::SPELLBOOK));
 		giveSpells(town,hero);
 		return true;
 	}
@@ -2785,7 +2704,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 		int price = VLC->arth->artifacts[aid]->price;
 		if(vstd::contains(hero->artifWorn,ui16(9+aid)) && complain("Hero already has this machine!")
 			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
-			|| gs->getPlayer(hero->getOwner())->resources[6] < price  && complain("Not enough gold!")  //no gold
+			|| gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price  && complain("Not enough gold!")  //no gold
 			|| (!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(22) ) )
 			&& town->town->warMachine!= aid ) &&  complain("This machine is unavailable here!") ) 
 		{
@@ -2793,7 +2712,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 		}
 
 		giveResource(hero->getOwner(),6,-price);
-		giveHeroArtifact(aid,hid,9+aid);
+		giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], 9+aid);
 		return true;
 	}
 	return false;
@@ -2847,7 +2766,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 
 	sendAndApply(&saa);
 
-	giveHeroArtifact(aid, h->id, -2);
+	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], -2);
 	return true;
 }
 
@@ -4347,7 +4266,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 		iw.text.addTxt(MetaString::ART_NAMES, 2);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroArtifact(2, h->id, -1); //give grail
+		giveHeroNewArtifact(h, VLC->arth->artifacts[2], -1); //give grail
 		sendAndApply(&iw);
 
 		iw.text.clear();
@@ -5018,6 +4937,61 @@ void CGameHandler::runBattle()
 
 	endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
 }
+
+void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos)
+{
+	assert(a->artType);
+	ArtifactLocation al;
+	al.hero = h;
+
+	int slot = -1;
+	if(pos < 0)
+	{
+		if(pos == -2)
+			slot = a->firstAvailableSlot(h);
+		else
+			slot = a->firstBackpackSlot(h);
+	}
+	else
+	{
+		slot = pos;
+	}
+
+	al.slot = slot;
+
+	if(slot < 0 || !a->canBePutAt(al))
+	{	
+		complain("Cannot put artifact in that slot!");
+		return;
+	}
+
+	putArtifact(al, a);
+}
+void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstance *a)
+{
+	PutArtifact pa;
+	pa.art = a;
+	pa.al = al;
+	sendAndApply(&pa);
+}
+
+void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
+{
+
+}
+
+void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
+{
+	CArtifactInstance *a = NULL;
+	a->artType = artType; //NOT via settype -> all bonus-related stuff must be done by NewArtifact apply
+	
+	NewArtifact na;
+	na.art = a;
+	sendAndApply(&na);
+
+	giveHeroArtifact(h, a, pos);
+}
+
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
 	int color = army->tempOwner;
@@ -5026,7 +5000,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 
 	BOOST_FOREACH(CStack *st, bat->stacks)
 	{
-		if(vstd::contains(st->state, SUMMONED)) //don't take into account sumoned stacks
+		if(vstd::contains(st->state, SUMMONED)) //don't take into account summoned stacks
 			continue;
 
 		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))

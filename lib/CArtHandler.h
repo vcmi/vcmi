@@ -18,6 +18,8 @@
  */
 class CDefHandler;
 class CArtifact;
+class CGHeroInstance;
+struct ArtifactLocation;
 
 class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
 {
@@ -62,7 +64,7 @@ class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
 {
 	void init();
 public:
-	ConstTransitivePtr<CArtifact> art; 
+	ConstTransitivePtr<CArtifact> artType; 
 	si32 id; //id of the instance
 
 	CArtifactInstance();
@@ -71,10 +73,17 @@ public:
 	std::string nodeName() const OVERRIDE;
 	void setType(CArtifact *Art);
 
+	int firstAvailableSlot(const CGHeroInstance *h) const;
+	int firstBackpackSlot(const CGHeroInstance *h) const;
+	bool canBePutAt(const ArtifactLocation &al) const;
+
+	void putAt(CGHeroInstance *h, ui16 slot);
+	void removeFrom(CGHeroInstance *h, ui16 slot);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & art & id;
+		h & artType & id;
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
