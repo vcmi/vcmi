@@ -151,6 +151,7 @@ namespace Arts
 		AFTER_LAST
 	};
 	const ui16 BACKPACK_START = 19;
+	const int LOCK_ID = 145;
 }
 
 enum EAlignment

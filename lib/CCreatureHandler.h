@@ -64,6 +64,7 @@ public:
 	bool valid() const;
 
 	void addBonus(int val, int type, int subtype = -1);
+	std::string nodeName() const OVERRIDE;
 	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>

@@ -144,6 +144,11 @@ bool CCreature::valid() const
 	return this == VLC->creh->creatures[idNumber];
 }
 
+std::string CCreature::nodeName() const
+{
+	return "Type of creature " + namePl;
+}
+
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
 {
 	befi=i;

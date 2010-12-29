@@ -267,8 +267,12 @@ public:
 	const ArtSlotInfo *getSlot(ui16 pos) const;
 	const CArtifactInstance* getArt(ui16 pos) const; //NULL - no artifact
 	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	bool hasArt(ui32 aid, bool onlyWorn = true) const; //checks if hero possess artifact of given id (either in backack or worn)
+	si32 getArtPos(const CArtifactInstance *art) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
 	bool isPositionFree(ui16 pos) const;
+	si32 getArtTypeId(ui16 pos) const;
+
+	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -384,10 +388,10 @@ public:
 
 	int maxMovePoints(bool onLand) const;
 
-	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
-	const CArtifact * getArt(int pos) const;
-	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
+// 	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
+// 	const CArtifact * getArt(int pos) const;
+// 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+// 	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
 
 	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest

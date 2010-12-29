@@ -68,6 +68,7 @@ class CGGarrison;
 class CStackInstance;
 class IMarket;
 class CTextBox;
+class CArtifactInstance;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -582,7 +583,7 @@ class CTradeWindow : public CIntObject //base for markets and altar of sacrifice
 public:
 	enum EType
 	{
-		RESOURCE, PLAYER, ARTIFACT, CREATURE, CREATURE_PLACEHOLDER,ARTIFACT_PLACEHOLDER
+		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
 	};
 	class CTradeableItem : public CIntObject
 	{
@@ -592,6 +593,13 @@ public:
 		int serial;
 		bool left;
 		std::string subtitle; //empty if default
+
+		void *hlp; //holds ptr to artifact instance id type artifact 
+
+		const CArtifactInstance *getArtInstance() const;
+		const CArtifact *getArt() const;
+		void setArtInstance(const CArtifactInstance *art) const;
+		void setArt(const CArtifact *artT) const;
 
 		CFunctionList<void()> callback;
 		bool downSelection;
@@ -905,10 +913,10 @@ public:
 	int slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
 	bool marked;
-	bool selectedNo;
 	CArtifactsOfHero * ourOwner;
-	const CArtifact * ourArt;
-	CArtPlace(const CArtifact * Art); //c-tor
+	const CArtifactInstance * ourArt;
+
+	CArtPlace(const CArtifactInstance * Art); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void select ();
@@ -916,16 +924,18 @@ public:
 	void activate();
 	void deactivate();
 	void showAll(SDL_Surface * to);
-	bool fitsHere (const CArtifact * art) const; //returns true if given artifact can be placed here
+	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 	bool locked () const;
-	void userSelectedNo ();
+
+	void setMeAsDest(bool backpackAsVoid = true);
+
 	~CArtPlace(); //d-tor
 };
 
 
 class CArtifactsOfHero : public CIntObject
 {
-	CGHeroInstance * curHero; //local copy of hero on which we operate
+	const CGHeroInstance * curHero; //local copy of hero on which we operate
 
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
@@ -935,12 +945,12 @@ public:
 	struct SCommonPart
 	{
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
-		const CArtifact * srcArtifact;    // Held artifact.
+		const CArtifactInstance * srcArtifact;    // Held artifact.
 		const CArtifactsOfHero * srcAOH;  // Following two needed to uniquely identify the source.
 		int srcSlotID;                    //
 		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
 		int destSlotID;	                  // Needed to determine what kind of action was last taken in setHero
-		const CArtifact * destArtifact;   // For swapping.
+		const CArtifactInstance * destArtifact;   // For swapping.
 
 		void reset();
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
@@ -951,12 +961,14 @@ public:
 	bool allowedAssembling;
 	std::multiset<int> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
 
+	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
+
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
 
 	void safeRedraw();
-	void markPossibleSlots (const CArtifact* art);
+	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true);
 	void setSlotData (CArtPlace* artPlace, int slotID);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);

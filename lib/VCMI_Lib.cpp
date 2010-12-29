@@ -207,7 +207,7 @@ void LibClasses::init()
 	spellh->loadSpells();
 	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 
-	IS_AI_ENABLED = true;
+	IS_AI_ENABLED = false;
 }
 
 void LibClasses::clear()

@@ -75,7 +75,11 @@ public:
 
 	int firstAvailableSlot(const CGHeroInstance *h) const;
 	int firstBackpackSlot(const CGHeroInstance *h) const;
-	bool canBePutAt(const ArtifactLocation &al) const;
+
+	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
+	virtual bool canBeDisassembled() const;
+
+	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
 
 	void putAt(CGHeroInstance *h, ui16 slot);
 	void removeFrom(CGHeroInstance *h, ui16 slot);
@@ -92,7 +96,8 @@ public:
 class DLL_EXPORT CCombinedArtifactInstance : public CArtifactInstance
 {
 public:
-
+	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
+	bool canBeDisassembled() const OVERRIDE;
 };
 
 class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner

@@ -773,7 +773,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 	for (int i=0; i<artifacts.size(); i++)
 	{
-		artifacts[i]->type = hero->getArtAtPos(i)->id;
+		artifacts[i]->type = hero->getArtTypeId(i);
 		if (artifacts[i]->type<0 || artifacts[i]->type == 145 )
 			artifacts[i]->hoverText = CGI->generaltexth->heroscrn[11];
 		else
@@ -785,7 +785,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 	for (int i=0; i<backpack.size(); i++)
 	{
-		backpack[i]->type = hero->getArtAtPos(19+i)->id;
+		backpack[i]->type = hero->getArtTypeId(19+i);
 		if (backpack[i]->type<0)
 			backpack[i]->hoverText ="";
 		else
@@ -836,7 +836,7 @@ void CKingdomInterface::CHeroItem::scrollArts(int move)
 	backpackPos = ( backpackPos + move + hero->artifacts.size()) % hero->artifacts.size();
 	for (int i=0; i<backpack.size(); i++)
 	{
-		backpack[i]->type = hero->getArtAtPos(19+(backpackPos + i)%hero->artifacts.size())->id;
+		backpack[i]->type = hero->getArtTypeId(19+(backpackPos + i)%hero->artifacts.size());
 		if (backpack[i]->type<0)
 			backpack[i]->hoverText ="";
 		else
@@ -901,7 +901,7 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 		case 0://equipped arts
 			for (int i = iter ; i<iter+9;i++)
 			{
-				int artID = hero->getArtAtPos(i)->id;
+				int artID = hero->getArtTypeId(i);
 				if (artID>=0)
 					blitAt(graphics->artDefs->ourImages[artID].bitmap,pos.x+268+48*(i%9),pos.y+66,to);
 			}

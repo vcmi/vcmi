@@ -663,7 +663,7 @@ int CGHeroInstance::getPrimSkillLevel(int id) const
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)
-		if(secSkills[i].first==ID)
+		if(secSkills[i].first == skill)
 			return secSkills[i].second;
 	return 0;
 }
@@ -727,25 +727,6 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 5) / 100.0f;
 	}
 	return int(base + base*modifier) + bonus;
-}
-
-const CArtifact* CGHeroInstance::getArtAtPos(ui16 pos) const
-{
-	if(pos<19)
-		if(vstd::contains(artifWorn,pos))
-			return artifWorn.find(pos)->second;
-		else
-			return NULL;
-	else
-		if(pos-19 < artifacts.size())
-			return artifacts[pos-19];
-		else 
-			return NULL;
-}
-
-const CArtifact * CGHeroInstance::getArt(int pos) const
-{
-	return getArtAtPos(pos);
 }
 
 // int CGHeroInstance::getSpellSecLevel(int spell) const
@@ -1418,14 +1399,6 @@ si32 CGHeroInstance::manaRegain() const
 	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 
-si32 CGHeroInstance::getArtPos(int aid) const
-{
-	for(std::map<ui16, const CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(i->second->id == aid)
-			return i->first;
-	return -1;
-}
-
 /**
  * Places an artifact in hero's backpack. If it's a big artifact equips it
  * or discards it if it cannot be equipped.
@@ -1449,18 +1422,6 @@ void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 	{
 		artifacts.push_back(artifact);
 	}
-}
-
-bool CGHeroInstance::hasArt( ui32 aid ) const
-{
-	for(std::vector<const CArtifact*>::const_iterator i = artifacts.begin(); i != artifacts.end(); i++)
-		if((*i)->id == aid)
-			return true;
-	for(std::map<ui16, const CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(i->second->id == aid)
-			return true;
-
-	return false;
 }
 
 int CGHeroInstance::getBoatType() const
@@ -4389,7 +4350,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_ART:
 				for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 				{
-					cb->removeArtifact(VLC->arth->artifacts[*it], h->id);
+					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(*it, false)));
 				}
 				break;
 			case CQuest::MISSION_ARMY:
@@ -6938,6 +6899,17 @@ const CArtifactInstance* CArtifactSet::getArt(ui16 pos) const
 	return NULL;
 }
 
+// if(pos<19)
+// 	if(vstd::contains(artifWorn,pos))
+// 		return artifWorn.find(pos)->second;
+// 	else
+// 		return NULL;
+// else
+// 	if(pos-19 < artifacts.size())
+// 		return artifacts[pos-19];
+// 	else 
+// 		return NULL;
+
 si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
 {
 	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
@@ -6954,7 +6926,20 @@ si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
 	return -1;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= true*/) const
+si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
+{
+	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
+		if(i->second.artifact == art)
+			return i->first;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+		if(artifactsInBackpack[i].artifact == art)
+			return Arts::BACKPACK_START + i;
+
+	return -1;
+}
+
+bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
 {
 	return getArtPos(aid, onlyWorn) != -1;
 }
@@ -6981,4 +6966,20 @@ bool CArtifactSet::isPositionFree(ui16 pos) const
 		return !s->artifact && !s->locked;
 
 	return true; //no slot means not used
+}
+
+si32 CArtifactSet::getArtTypeId(ui16 pos) const
+{
+	const CArtifactInstance * const a = getArt(pos);
+	if(!a)
+	{
+		tlog2 << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)\n";
+		return -1;
+	}
+	return a->artType->id;
+}
+
+CArtifactSet::~CArtifactSet()
+{
+
 }

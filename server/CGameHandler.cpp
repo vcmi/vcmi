@@ -1610,43 +1610,46 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 	sendAndApply(&vc);
 }
 
-bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
-{
-	const CGHeroInstance* h = getHero(hid);
-
-	SetHeroArtifacts sha;
-	sha.hid = hid;
-	sha.artifacts = h->artifacts;
-	sha.artifWorn = h->artifWorn;
-	
-	std::vector<const CArtifact*>::iterator it;
-	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), art)) != sha.artifacts.end()) //it is in backpack
-		sha.artifacts.erase(it);
-	else //worn
-	{
-		std::map<ui16, const CArtifact*>::iterator itr;
-		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
-		{
-			if (itr->second == art)
-			{
-				VLC->arth->unequipArtifact(sha.artifWorn, itr->first);
-				break;
-			}
-		}
-
-		if(itr == sha.artifWorn.end())
-		{
-			tlog2 << "Cannot find artifact to remove!\n";
-			return false;
-		}
-	}
-	sendAndApply(&sha);
-	return true;
-}
+// bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
+// {
+// 	const CGHeroInstance* h = getHero(hid);
+// 
+// 	SetHeroArtifacts sha;
+// 	sha.hid = hid;
+// 	sha.artifacts = h->artifacts;
+// 	sha.artifWorn = h->artifWorn;
+// 	
+// 	std::vector<const CArtifact*>::iterator it;
+// 	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), art)) != sha.artifacts.end()) //it is in backpack
+// 		sha.artifacts.erase(it);
+// 	else //worn
+// 	{
+// 		std::map<ui16, const CArtifact*>::iterator itr;
+// 		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
+// 		{
+// 			if (itr->second == art)
+// 			{
+// 				VLC->arth->unequipArtifact(sha.artifWorn, itr->first);
+// 				break;
+// 			}
+// 		}
+// 
+// 		if(itr == sha.artifWorn.end())
+// 		{
+// 			tlog2 << "Cannot find artifact to remove!\n";
+// 			return false;
+// 		}
+// 	}
+// 	sendAndApply(&sha);
+// 	return true;
+// }
 
 void CGameHandler::removeArtifact(const ArtifactLocation &al)
 {
-
+	assert(al.getArt());
+	EraseArtifact ea;
+	ea.al = al;
+	sendAndApply(&ea);
 }
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
 {
@@ -1656,10 +1659,10 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	if(army2->tempOwner < PLAYER_LIMIT)
 		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
-	const CArmedInstance *armies[2];
+	static const CArmedInstance *armies[2];
 	armies[0] = army1;
 	armies[1] = army2;
-	const CGHeroInstance*heroes[2];
+	static const CGHeroInstance*heroes[2];
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
@@ -2098,7 +2101,8 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 			return false;
 		}
 
-		removeArtifact(VLC->arth->artifacts[2], t->visitingHero->id);
+		//remove grail
+		removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
 	}
 
 	NewStructures ns;
@@ -2450,103 +2454,97 @@ bool CGameHandler::garrisonSwap( si32 tid )
 }
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
-bool CGameHandler::swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
+// Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
+bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
 {
 	CGHeroInstance *srcHero = gs->getHero(srcHeroID);
 	CGHeroInstance *destHero = gs->getHero(destHeroID);
+	ArtifactLocation src(srcHero, srcSlot), dst(destHero, destSlot);
 
 	// Make sure exchange is even possible between the two heroes.
-	if (distance(srcHero->pos,destHero->pos) > 1.5 )
-		return false;
+	if(!isAllowedExchange(srcHeroID, destHeroID))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	const CArtifact *srcArtifact = srcHero->getArt(srcSlot);
-	const CArtifact *destArtifact = destHero->getArt(destSlot);
+	const CArtifactInstance *srcArtifact = src.getArt();
+	const CArtifactInstance *destArtifact = dst.getArt();
 
 	if (srcArtifact == NULL)
-	{
-		complain("No artifact to swap!");
-		return false;
-	}
-	
+		COMPLAIN_RET("No artifact to move!");
 	if (destArtifact && srcHero->tempOwner != destHero->tempOwner)
-	{
-		complain("Can't take artifact from hero of another player!");
-		return false;
-	}
+		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
-	SetHeroArtifacts sha;
-	sha.hid = srcHeroID;
-	sha.artifacts = srcHero->artifacts;
-	sha.artifWorn = srcHero->artifWorn;
 
-	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
-	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) 
-	{
-		sha.setArtAtPos(srcSlot, NULL);
-		if (!vstd::contains(sha.artifWorn, destSlot))
-			destArtifact = NULL;
-	}
+
+// 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
+// 	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) 
+// 	{
+// 		sha.setArtAtPos(srcSlot, NULL);
+// 		if (!vstd::contains(sha.artifWorn, destSlot))
+// 			destArtifact = NULL;
+// 	}
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if ((!srcArtifact || destSlot < 19)
-		&& (srcArtifact && !srcArtifact->fitsAt(srcHeroID == destHeroID ? sha.artifWorn : destHero->artifWorn, destSlot)))
+	if ((!srcArtifact || destSlot < Arts::BACKPACK_START)
+		&& srcArtifact && !srcArtifact->canBePutAt(dst))
+		COMPLAIN_RET("Cannot swap artifacts!");
+
+	if ((srcArtifact && srcArtifact->artType->id == Arts::LOCK_ID) || (destArtifact && destArtifact->artType->id == Arts::LOCK_ID)) 
+		COMPLAIN_RET("Cannot move artifact locks.");
+
+	if (destSlot >= Arts::BACKPACK_START && srcArtifact->artType->isBig()) 
+		COMPLAIN_RET("Cannot put big artifacts in backpack!");
+	if (srcSlot == Arts::MACH4 || destSlot == Arts::MACH4) 
+		COMPLAIN_RET("Cannot move catapult!");
+
+	//moving art to backpack is always allowed (we've ruled out exceptions)
+	if(destSlot >= Arts::BACKPACK_START)
 	{
-		complain("Cannot swap artifacts!");
-		return false;
+		moveArtifact(src, dst);
+	}
+	else //moving art to another slot
+	{
+		if(destArtifact) //old artifact must be removed first
+		{
+			moveArtifact(dst, ArtifactLocation(destHero, destHero->artifactsInBackpack.size()-1));
+		}
+		moveArtifact(src, dst);
 	}
 
-	if ((srcArtifact && srcArtifact->id == 145) || (destArtifact && destArtifact->id == 145)) 
-	{
-		complain("Cannot move artifact locks.");
-		return false;
-	}
-
-	if (destSlot >= 19 && srcArtifact->isBig()) 
-	{
-		complain("Cannot put big artifacts in backpack!");
-		return false;
-	}
-
-	if (srcSlot == 16 || destSlot == 16) 
-	{
-		complain("Cannot move catapult!");
-		return false;
-	}
-
-	// If dest does not fit in src, put it in dest's backpack instead.
-	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
-		sha.setArtAtPos(destSlot, NULL);
-	const bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
-	if (srcHeroID == destHeroID && destArtifact)
-		sha.setArtAtPos(destSlot, destArtifact);
-
-	sha.setArtAtPos(srcSlot, NULL);
-	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
-		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact : NULL);
-
-	// Internal hero artifact arrangement.
-	if(srcHero == destHero) 
-	{
-		// Correction for destination from removing source artifact in backpack.
-		if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
-			destSlot--;
-
-		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
-	}
-	if (srcHeroID != destHeroID) 
-	{
-		// Exchange between two different heroes.
-		SetHeroArtifacts sha2;
-		sha2.hid = destHeroID;
-		sha2.artifacts = destHero->artifacts;
-		sha2.artifWorn = destHero->artifWorn;
-		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact : NULL);
-		if (!destFits)
-			sha2.setArtAtPos(sha2.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
-		sendAndApply(&sha2);
-	}
-	sendAndApply(&sha);
+// 
+// 	// If dest does not fit in src, put it in dest's backpack instead.
+// 	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
+// 		sha.setArtAtPos(destSlot, NULL);
+// 	const bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
+// 	if (srcHeroID == destHeroID && destArtifact)
+// 		sha.setArtAtPos(destSlot, destArtifact);
+// 
+// 	sha.setArtAtPos(srcSlot, NULL);
+// 	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
+// 		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact : NULL);
+// 
+// 	// Internal hero artifact arrangement.
+// 	if(srcHero == destHero) 
+// 	{
+// 		// Correction for destination from removing source artifact in backpack.
+// 		if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
+// 			destSlot--;
+// 
+// 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
+// 	}
+// 	if (srcHeroID != destHeroID) 
+// 	{
+// 		// Exchange between two different heroes.
+// 		SetHeroArtifacts sha2;
+// 		sha2.hid = destHeroID;
+// 		sha2.artifacts = destHero->artifacts;
+// 		sha2.artifWorn = destHero->artifWorn;
+// 		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact : NULL);
+// 		if (!destFits)
+// 			sha2.setArtAtPos(sha2.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
+// 		sendAndApply(&sha2);
+// 	}
+// 	sendAndApply(&sha);
 	return true;
 }
 
@@ -2566,8 +2564,8 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 	}
 
 	CGHeroInstance *hero = gs->getHero(heroID);
-	const CArtifact *destArtifact = hero->getArt(artifactSlot);
-
+	const CArtifactInstance *destArtifact = hero->getArt(artifactSlot);
+	/*
 	SetHeroArtifacts sha;
 	sha.hid = heroID;
 	sha.artifacts = hero->artifacts;
@@ -2678,7 +2676,8 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 
 	sendAndApply(&sha);
 
-	return true;
+	return true;*/
+	return false;
 }
 
 bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
@@ -2711,7 +2710,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 			return false;
 		}
 
-		giveResource(hero->getOwner(),6,-price);
+		giveResource(hero->getOwner(),Res::GOLD,-price);
 		giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], 9+aid);
 		return true;
 	}
@@ -4562,13 +4561,19 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const CArtifact* art)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot)
 {
-	if(!removeArtifact(art, hero->id))
+	ArtifactLocation al(hero, slot);
+	const CArtifactInstance *a = al.getArt();
+
+	if(!a)
 		COMPLAIN_RET("Cannot find artifact to sacrifice!");
 
+
 	int dmp, expToGive;
-	m->getOffer(art->id, 0, dmp, expToGive, ARTIFACT_EXP);
+	m->getOffer(hero->getArtTypeId(slot), 0, dmp, expToGive, ARTIFACT_EXP);
+
+	removeArtifact(al);
 	changePrimSkill(hero->id, 4, expToGive);
 	return true;
 }
@@ -4977,7 +4982,10 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 
 void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
 {
-
+	MoveArtifact ma;
+	ma.src = al1;
+	ma.dst = al2;
+	sendAndApply(&ma);
 }
 
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
@@ -4987,7 +4995,7 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 	
 	NewArtifact na;
 	na.art = a;
-	sendAndApply(&na);
+	sendAndApply(&na); // -> updates a!!!
 
 	giveHeroArtifact(h, a, pos);
 }

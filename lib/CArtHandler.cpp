@@ -922,13 +922,23 @@ int CArtifactInstance::firstBackpackSlot(const CGHeroInstance *h) const
 	return -1;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation &al) const
+bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
+	if(al.slot >= Arts::BACKPACK_START)
+	{
+		if(artType->isBig())
+			return false;
+		
+		//TODO backpack limit
+		return true;
+	}
+
 	if(!vstd::contains(artType->possibleSlots, al.slot))
 		return false;
 
-	//simple artifact -> test if slot is free [combined artifacts have this function overridden]
-	return al.hero->isPositionFree(al.slot);
+	if(!assumeDestRemoved) //test if slot is free
+		return al.hero->isPositionFree(al.slot);
+	return true;
 }
 
 void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
@@ -960,4 +970,37 @@ void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 	}
 
 	//TODO delete me?
+}
+
+bool CArtifactInstance::canBeDisassembled() const
+{
+	return false;
+}
+
+std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CGHeroInstance *h) const
+{
+	std::vector<const CArtifact *> ret;
+	if(!artType->constituentOf)
+		return ret;
+
+	BOOST_FOREACH(ui32 combination, *artType->constituentOf) 
+	{
+		if (artType->canBeAssembledTo(h->artifWorn, combination)) 
+		{
+			ret.push_back(VLC->arth->artifacts[combination]);
+		}
+	}
+
+	return ret;
+}
+
+bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
+{
+	return CArtifactInstance::canBePutAt(al, assumeDestRemoved);
+	//TODO look for place for constituents
+}
+
+bool CCombinedArtifactInstance::canBeDisassembled() const
+{
+	return true;
 }

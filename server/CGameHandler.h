@@ -168,7 +168,7 @@ public:
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE;
 	void heroVisitCastle(int obj, int heroID) OVERRIDE;
 	void stopHeroVisitCastle(int obj, int heroID) OVERRIDE;
-	bool removeArtifact(const CArtifact* art, int hid) OVERRIDE;
+	//bool removeArtifact(const CArtifact* art, int hid) OVERRIDE;
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL) OVERRIDE; //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) OVERRIDE; //for hero<=>neutral army
@@ -212,7 +212,7 @@ public:
 	bool buyArtifact( ui32 hid, si32 aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, int rid, int aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
-	bool swapArtifacts(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
+	bool moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);
@@ -252,7 +252,7 @@ public:
 	void run(bool resume);
 	void newTurn();
 	void handleAfterAttackCasting( const BattleAttack & bat );
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const CArtifact* art);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

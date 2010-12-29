@@ -69,6 +69,7 @@ CHeroSwitcher::CHeroSwitcher(int serial)
 CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	artifs = NULL;
 	garr = NULL;
 	curHero = NULL;
 	player = hero->tempOwner;
@@ -162,6 +163,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 	if(hero == curHero)
 	{
+		tlog3 << "Spurious call to CHeroWindow::setHero\n";
 		return;
 	}
 
@@ -180,13 +182,15 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	{
 		delete garr;
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		garr = new CGarrisonInt(80, 493, 8, Point(), background->bg, Point(16,486), curHero);
+		garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
+		artifs = new CArtifactsOfHero(Point(-65, -8), true);
+		artifs->setHero(hero);
 	}
 
 	AdventureMapButton * split = NULL;
 	{
 		BLOCK_CAPTURING;
-		split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
+		split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), 604, 527, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
 	}
 	boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 	garr->addSplitBtn(split);
@@ -326,14 +330,14 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 
 	//hero list blitting
 	 
-	for(int pos=0, g=0; g<LOCPLINT->wanderingHeroes.size(); ++g)
+	for(int slotPos=0, g=0; g<LOCPLINT->wanderingHeroes.size(); ++g)
 	{
 	 	const CGHeroInstance * cur = LOCPLINT->wanderingHeroes[g];
 	 	if (cur->inTownGarrison)
 	 		// Only display heroes that are not in garrison
 	 		continue;
 	 
-	 	blitAtLoc(graphics->portraitSmall[cur->portrait], 611, 87+pos*54, to);
+	 	blitAtLoc(graphics->portraitSmall[cur->portrait], 611, 87+slotPos*54, to);
 	 	//printing yellow border
 	 	if(cur->name == curHero->name)
 	 	{
@@ -341,13 +345,11 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 		{
 	 			for(int h=0; h<graphics->portraitSmall[cur->portrait]->h; ++h)
 	 				if(f==0 || h==0 || f==graphics->portraitSmall[cur->portrait]->w-1 || h==graphics->portraitSmall[cur->portrait]->h-1)
-	 				{
-	 					CSDL_Ext::SDL_PutPixelWithoutRefresh(to, 611+f, 87+pos*54+h, 240, 220, 120);
-	 				}
+	 					CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + 611+f, pos.y + 87+slotPos*54+h, 240, 220, 120);
 	 		}
 	 	}
 	 
-	 	pos ++;
+	 	slotPos ++;
 	}
 	 
 	//secondary skills

@@ -604,8 +604,17 @@ DLL_EXPORT const CStackInstance * StackLocation::getStack()
 DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
 {
 	const ArtSlotInfo *s = getSlot();
-	if(s && !s->locked && s->artifact)
-		return s->artifact;
+	if(s && s->artifact)
+	{
+		if(!s->locked)
+			return s->artifact;
+		else
+		{
+			tlog3 << "ArtifactLocation::getArt: That location is locked!\n";
+			return NULL;
+		}
+	}
+	return NULL;
 }
 
 DLL_EXPORT CArtifactInstance *ArtifactLocation::getArt()
