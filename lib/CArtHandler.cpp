@@ -875,6 +875,12 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 
 }
 
+CArtifactInstance::CArtifactInstance(int aid)
+{
+	init();
+	setType(VLC->arth->artifacts[aid]);
+}
+
 void CArtifactInstance::setType( CArtifact *Art )
 {
 	artType = Art;
@@ -947,7 +953,7 @@ void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 
 	ArtSlotInfo &asi = slot < Arts::BACKPACK_START 
 						? h->artifactsWorn[slot]
-						: *h->artifactsInBackpack.insert(h->artifactsInBackpack.begin() + slot - Arts::BACKPACK_START, ArtSlotInfo());
+						: *h->artifactsInBackpack.insert(h->artifactsInBackpack.begin() + (slot - Arts::BACKPACK_START), ArtSlotInfo());
 
 	asi.artifact = this;
 	asi.locked = false;

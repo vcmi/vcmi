@@ -2489,7 +2489,7 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 		&& srcArtifact && !srcArtifact->canBePutAt(dst))
 		COMPLAIN_RET("Cannot swap artifacts!");
 
-	if ((srcArtifact && srcArtifact->artType->id == Arts::LOCK_ID) || (destArtifact && destArtifact->artType->id == Arts::LOCK_ID)) 
+	if ((srcArtifact && srcArtifact->artType->id == Arts::ID_LOCK) || (destArtifact && destArtifact->artType->id == Arts::ID_LOCK)) 
 		COMPLAIN_RET("Cannot move artifact locks.");
 
 	if (destSlot >= Arts::BACKPACK_START && srcArtifact->artType->isBig()) 

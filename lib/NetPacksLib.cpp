@@ -699,7 +699,8 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 DLL_EXPORT void PutArtifact::applyGs( CGameState *gs )
 {
 	assert(art->canBePutAt(al));
-	art->putAt(al.hero, al.slot);
+	al.hero->putArtifact(al.slot, art);
+	//art->putAt(al.hero, al.slot);
 }
 
 DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )

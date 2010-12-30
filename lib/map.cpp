@@ -848,52 +848,7 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i)
 		readCreatureSet(nhi, bufor, i, 7, version > RoE);
 
 	nhi->formation =bufor[i]; ++i; //formation
-	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
-	int artmask = version == RoE ? 0xff : 0xffff;
-	int artidlen = version == RoE ? 1 : 2;
-	if(artSet)
-	{
-		for(int pom=0;pom<16;pom++)
-		{
-			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id != artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, pom, VLC->arth->artifacts[id]);
-		}
-		//misc5 art //17
-		if(version>=SoD)
-		{
-			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[id]);
-			else
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[3]); //catapult by default
-		}
-		//spellbook
-		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-		if(id!=artmask)
-			VLC->arth->equipArtifact(nhi->artifWorn, 17, VLC->arth->artifacts[id]);
-		//19 //???what is that? gap in file or what? - it's probably fifth slot..
-		if(version>RoE)
-		{
-			id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 18, VLC->arth->artifacts[id]);
-		}
-		else
-			i+=1;
-		//bag artifacts //20
-		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-		if(amount > 0)
-		{
-			for(int ss = 0; ss < amount; ++ss)
-			{
-				id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-				if(id != artmask)
-					nhi->giveArtifact(id);
-			}
-		}
-	} //artifacts
-
+	loadArtifactsOfHero(bufor, i, nhi);
 	nhi->patrol.patrolRadious = readNormalNr(bufor,i, 1); ++i;
 	if(nhi->patrol.patrolRadious == 0xff)
 		nhi->patrol.patrolling = false;
@@ -1089,50 +1044,9 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 						cgh->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
 					}
 				}
-				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
-				int artmask = version == RoE ? 0xff : 0xffff;
-				int artidlen = version == RoE ? 1 : 2;
-				if(artSet)
-				{
-					for(int pom=0;pom<16;pom++)
-					{
-						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, pom, VLC->arth->artifacts[id]);
-					}
-					//misc5 art //17
-					if(version>=SoD)
-					{
-						i+=2;
-						//int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						//if(id!=artmask)
-						//	spec->artifWorn[16] = id;
-					}
-					//spellbook
-					int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						VLC->arth->equipArtifact(cgh->artifWorn, 17, VLC->arth->artifacts[id]);
-					//19 //???what is that? gap in file or what? - it's probably fifth slot..
-					if(version>RoE)
-					{
-						id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, 18, VLC->arth->artifacts[id]);
-					}
-					else
-						i+=1;
-					//bag artifacts //20
-					int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-					if(amount>0)
-					{
-						for(int ss=0; ss<amount; ++ss)
-						{
-							id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-							if(id!=artmask)
-								cgh->giveArtifact(id);
-						}
-					}
-				} //artifacts
+
+				loadArtifactsOfHero(bufor, i, cgh);
+
 				if(readChar(bufor,i))//customBio
 					cgh->biography = readString(bufor,i);
 				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female    //FIXME:unused?
@@ -1578,14 +1492,13 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				}
 				else if(art->ID == 5) //specific artifact
 				{
-					innerArt = new CArtifactInstance(VLC->arth->artifacts[art->subID]);
+					innerArt = createArt(art->subID);
 				}
 				else
 				{
-					innerArt = new CArtifactInstance();
+					innerArt = createArt(-1);
 				}
 				art->storedArtifact = innerArt;
-				addNewArtifactInstance(innerArt);
 				break;
 			}
 		case 76: case 79: //random resource; resource
@@ -2114,6 +2027,61 @@ void Mapa::addNewArtifactInstance( CArtifactInstance *art )
 {
 	art->id = artInstances.size();
 	artInstances.push_back(art);
+}
+
+bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i)
+{
+	const int artmask = version == RoE ? 0xff : 0xffff;
+	const int artidlen = version == RoE ? 1 : 2;
+
+	int aid = readNormalNr(bufor,i, artidlen); i+=artidlen;
+	bool isArt  =  aid != artmask;
+	if(isArt)
+		h->putArtifact(slot, createArt(aid));
+
+	return isArt;
+}
+
+void Mapa::loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInstance * nhi)
+{
+	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+	if(artSet)
+	{
+		for(int pom=0;pom<16;pom++)
+			loadArtifactToSlot(nhi, pom, bufor, i);
+
+		//misc5 art //17
+		if(version >= SoD)
+		{
+			if(!loadArtifactToSlot(nhi, Arts::MACH4, bufor, i))
+				nhi->putArtifact(Arts::MACH4, createArt(Arts::ID_CATAPULT)); //catapult by default
+		}
+
+		loadArtifactToSlot(nhi, Arts::SPELLBOOK, bufor, i);
+
+		//19 //???what is that? gap in file or what? - it's probably fifth slot..
+		if(version > RoE)
+			loadArtifactToSlot(nhi, Arts::MISC5, bufor, i);
+		else
+			i+=1;
+
+		//bag artifacts //20
+		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
+		for(int ss = 0; ss < amount; ++ss)
+			loadArtifactToSlot(nhi, Arts::BACKPACK_START + ss, bufor, i);
+	} //artifacts
+}
+
+CArtifactInstance * Mapa::createArt(int aid)
+{
+	CArtifactInstance *a = NULL;
+	if(aid >= 0)
+		a = new CArtifactInstance(aid);
+	else
+		a = new CArtifactInstance();
+
+	this->addNewArtifactInstance(a);
+	return a;
 }
 
 LossCondition::LossCondition()

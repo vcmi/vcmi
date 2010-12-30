@@ -272,6 +272,7 @@ public:
 	bool isPositionFree(ui16 pos) const;
 	si32 getArtTypeId(ui16 pos) const;
 
+
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -407,6 +408,8 @@ public:
 	void initHero(); 
 	void initHero(int SUBID); 
 
+	void putArtifact(ui16 pos, CArtifactInstance *art);
+	void putInBackpack(CArtifactInstance *art);
 	void initExp();
 	void initArmy(CCreatureSet *dst = NULL);
 	void giveArtifact (ui32 aid);

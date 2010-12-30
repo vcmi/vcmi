@@ -790,12 +790,12 @@ void CGHeroInstance::initHero()
 	else //remove placeholder
 		spells -= 0xffffffff;
 
-	if(!vstd::contains(artifWorn, 16) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set
-	{
-		VLC->arth->equipArtifact(artifWorn, 17, VLC->arth->artifacts[0]); //give spellbook
-	}
-	VLC->arth->equipArtifact(artifWorn, 16, VLC->arth->artifacts[3]); //everyone has a catapult
+	if(!getArt(Arts::MACH4) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set -> use default rules for spellbook
+		putArtifact(Arts::SPELLBOOK, new CArtifactInstance(0));
 
+	if(!getArt(Arts::MACH4))
+		putArtifact(Arts::MACH4, new CArtifactInstance(3)); //everyone has a catapult
+	
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
 	if(!hasBonus(Selector::sourceType(Bonus::HERO_BASE_SKILL)))
@@ -861,18 +861,26 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 		if(creID>=145 && creID<=149) //war machine
 		{
 			warMachinesGiven++;
+			if(dst != this)
+				continue;
+
+			int slot = -1, aid = -1;
 			switch (creID)
 			{
 			case 145: //catapult
-				VLC->arth->equipArtifact(artifWorn, 16, VLC->arth->artifacts[3]);
+				slot = Arts::MACH4;
+				aid = 3;
 				break;
 			default:
-				VLC->arth->equipArtifact(
-					artifWorn,
-					9+CArtHandler::convertMachineID(creID,true),
-					  VLC->arth->artifacts[CArtHandler::convertMachineID(creID,true)]);
+				aid = CArtHandler::convertMachineID(creID,true);
+				slot = 9 + aid;
 				break;
 			}
+
+			if(!getArt(slot))
+				putArtifact(slot, new CArtifactInstance(aid));
+			else
+				tlog3 << "Hero " << name << " already has artifact at " << slot << ", ommiting giving " << aid << std::endl;
 		}
 		else
 			dst->putStack(stackNo-warMachinesGiven, new CStackInstance(creID, count));
@@ -1540,6 +1548,17 @@ void CGHeroInstance::initExp()
 std::string CGHeroInstance::nodeName() const
 {
 	return "Hero " + name;
+}
+
+void CGHeroInstance::putArtifact(ui16 pos, CArtifactInstance *art)
+{
+	assert(!getArt(pos));
+	art->putAt(this, pos);
+}
+
+void CGHeroInstance::putInBackpack(CArtifactInstance *art)
+{
+	putArtifact(art->firstBackpackSlot(this), art);
 }
 
 void CGDwelling::initObj()

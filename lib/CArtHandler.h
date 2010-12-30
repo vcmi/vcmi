@@ -69,6 +69,7 @@ public:
 
 	CArtifactInstance();
 	CArtifactInstance(CArtifact *Art);
+	CArtifactInstance(int aid);
 
 	std::string nodeName() const OVERRIDE;
 	void setType(CArtifact *Art);
