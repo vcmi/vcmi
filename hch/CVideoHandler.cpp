@@ -555,6 +555,13 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 #else
 
+//Workaround for compile error in ffmpeg (UINT_64C was not declared)
+#define __STDC_CONSTANT_MACROS
+#ifdef _STDINT_H
+#undef _STDINT_H
+#endif
+#include <stdint.h>
+
 #include <../client/SDL_framerate.h>
 
 extern "C" {

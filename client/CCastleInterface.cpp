@@ -801,6 +801,8 @@ void CCastleInterface::townChange()
 {
 	const CGTownInstance * nt = LOCPLINT->towns[townlist->selected];
 	int tpos = townlist->selected - townlist->from;
+	if ( nt == town )
+		return;
 	GH.popIntTotally(this);
 	GH.pushInt(new CCastleInterface(nt, tpos));
 }

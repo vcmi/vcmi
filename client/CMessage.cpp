@@ -102,11 +102,13 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
-	for (int i=0; i<h; i+=background->h)//background
+	for (int i=0; i<w; i+=background->w)//background
 	{
-		for (int j=0; j<w; j+=background->w)
+		for (int j=0; j<h; j+=background->h)
 		{
-			CSDL_Ext::blitSurface(background,&genRect(background->h,background->w,0,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
+			Rect srcR(0,0,background->w, background->h);
+			Rect dstR(i,j,w,h);
+			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
 		}
 	}
 	drawBorder(playerColor, ret, w, h);
@@ -486,31 +488,41 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {	
+	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor];
 	//obwodka I-szego rzedu pozioma //border of 1st series, horizontal
-	for (int i=0; i<w-piecesOfBox[playerColor][6]->w; i+=piecesOfBox[playerColor][6]->w)
+	for (int i=0; i<w-box[6]->w; i+=box[6]->w)
 	{
-		CSDL_Ext::blitSurface
-			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,x+i,y+0));
-		CSDL_Ext::blitSurface
-			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h+1));
+		Rect dstR(x+i, y, box[6]->w, box[6]->h);
+		CSDL_Ext::blitSurface(box[6], NULL, ret, &dstR);
+		
+		int currY = y+h-box[7]->h+1;
+		dstR=Rect(x+i, currY, box[7]->w, box[7]->h);
+
+		CSDL_Ext::blitSurface(box[7], NULL, ret, &dstR);
 	}
 	//obwodka I-szego rzedu pionowa  //border of 1st series, vertical
-	for (int i=0; i<h-piecesOfBox[playerColor][4]->h; i+=piecesOfBox[playerColor][4]->h)
+	for (int i=0; i<h-box[4]->h; i+=box[4]->h)
 	{
-		CSDL_Ext::blitSurface
-			(piecesOfBox[playerColor][4],NULL,ret,&genRect(piecesOfBox[playerColor][4]->h,piecesOfBox[playerColor][4]->w,x+0,y+i));
-		CSDL_Ext::blitSurface
-			(piecesOfBox[playerColor][5],NULL,ret,&genRect(piecesOfBox[playerColor][5]->h,piecesOfBox[playerColor][5]->w,x+w-piecesOfBox[playerColor][5]->w,y+i));
+		Rect dstR(x, y+i, box[4]->w, box[4]->h);
+		CSDL_Ext::blitSurface(box[4], NULL, ret, &dstR);
+		
+		int currX = x+w-box[5]->w;
+		dstR=Rect(currX, y+i, box[5]->w, box[5]->h);
+
+		CSDL_Ext::blitSurface(box[5], NULL, ret, &dstR);
 	}
 	//corners
-	CSDL_Ext::blitSurface
-		(piecesOfBox[playerColor][0],NULL,ret,&genRect(piecesOfBox[playerColor][0]->h,piecesOfBox[playerColor][0]->w,x+0,y+0));
-	CSDL_Ext::blitSurface
-		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,x+w-piecesOfBox[playerColor][1]->w,y+0));
-	CSDL_Ext::blitSurface
-		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,x+0,y+h-piecesOfBox[playerColor][2]->h+1));
-	CSDL_Ext::blitSurface
-		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,x+w-piecesOfBox[playerColor][3]->w,y+h-piecesOfBox[playerColor][3]->h+1));
+	Rect dstR(x, y, box[0]->w, box[0]->h);
+	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
+
+	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
+	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
+
+	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
+	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
+
+	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
+	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
 }
 
 ComponentResolved::ComponentResolved()
@@ -526,7 +538,7 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 	comp = Comp;
 	img = comp->getImg();
 	std::vector<std::string> brtext = CMessage::breakText(comp->subtitle,13); //text 
-	txt = CMessage::drawText(&brtext,txtFontHeight,FONT_MEDIUM);
+	txt = CMessage::drawText(&brtext,txtFontHeight,FONT_SMALL);
 
 	//calculate dimensions
 	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, txtFontHeight);
@@ -610,26 +622,25 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 		{
 			totalw += (inter) * ((comps)[i].size() - 1);
 		}
-
-		curh+=maxh/2;
-		int compX, compY;
-
+		
+		int middleh = curh + maxh/2;//axis for image aligment
 		int curw = (ret->w/2)-(totalw/2);
+
 		for(size_t j=0;j<(comps)[i].size();j++)
 		{
 			ComponentResolved *cur = (comps)[i][j];
 
 			//blit img
-			compX = curw + ( cur->comp->pos.w - cur->comp->getImg()->w ) / 2;
-			compY = curh - cur->comp->getImg()->h / 2;
-			blitAt(cur->img, compX, compY, ret);
-			cur->comp->pos.x = compX;
-			cur->comp->pos.y = compY;
+			int imgX = curw + ( cur->comp->pos.w - cur->comp->getImg()->w ) / 2;
+			int imgY = middleh - cur->comp->getImg()->h / 2;
+			blitAt(cur->img, imgX, imgY, ret);
+			cur->comp->pos.x = imgX;
+			cur->comp->pos.y = imgY;
 
 			//blit subtitle
-			compX += cur->comp->getImg()->w/2;
-			compY  = curh + maxh / 2 + COMPONENT_TO_SUBTITLE;
-			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, compY, ret, compX );
+			int textX = imgX + cur->comp->getImg()->w/2;
+			int textY = middleh + cur->comp->getImg()->h /2 + COMPONENT_TO_SUBTITLE;
+			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, textY, ret, textX );
 
 			//if there is subsequent component blit "or"
 			curw += cur->comp->pos.w;
@@ -638,12 +649,13 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 				if(_or)
 				{
 					curw+=inter;
-					blitAt(_or,curw,curh-(_or->h/2),ret);
+					blitAt(_or,curw,middleh-(_or->h/2),ret);
 					curw+=_or->w;
 				}
 				curw+=inter;
 			}
+			amax(curh, textY);
 		}
-		curh = compY+BETWEEN_COMPS_ROWS;
+		curh += BETWEEN_COMPS_ROWS;
 	}
 }

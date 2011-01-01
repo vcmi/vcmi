@@ -308,54 +308,33 @@ inline void CCreatureAnimation::putPixel(
 	const unsigned char & animCount
 ) const
 {	
-    if(palc!=0)
+	if(palc!=0)
 	{
 		Uint8 * p = (Uint8*)dest->pixels + ftcp*dest->format->BytesPerPixel;
 		if(palc > 7) //normal color
 		{
 			ColorPutter<bpp, 0>::PutColor(p, color.R, color.G, color.B);
 		}
-		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //dark yellow border
+		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //selection highlight
 		{
 			if(blueBorder)
 				ColorPutter<bpp, 0>::PutColor(p, 0, 0x0f + animCount, 0x0f + animCount);
 			else
 				ColorPutter<bpp, 0>::PutColor(p, 0x0f + animCount, 0x0f + animCount, 0);
 		}
-		else if((yellowBorder || blueBorder) && (palc == 5)) //yellow border
+		else if (palc == 5) //selection highlight or transparent
 		{
 			if(blueBorder)
 				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldnt it be reversed? its bgr instead of rgb
-			else
+			else if (yellowBorder)
 				ColorPutter<bpp, 0>::PutColor(p, color.R - 0xf0 + animCount, color.G - 0xf0 + animCount, color.B);
 		}
-		else if(palc < 5) //shadow
-		{ 
+		else //shadow
+		{
+			//determining transparency value, 255 or 0 should be already filtered
 			Uint16 alpha;
-			switch(color.G)
-			{
-			case 0:
-				alpha = 128;
-				break;
-			case 50:
-				alpha = 50+32;
-				break;
-			case 100:
-				alpha = 100+64;
-				break;
-			case 125:
-				alpha = 125+64;
-				break;
-			case 128:
-				alpha = 128+64;
-				break;
-			case 150:
-				alpha = 150+64;
-				break;
-			default:
-				alpha = 255;
-				break;
-			}
+			static Uint16 colToAlpha[8] = {255,192,128,128,128,255,128,192};
+			alpha = colToAlpha[palc];
 
 			if(bpp != 3 && bpp != 4)
 			{

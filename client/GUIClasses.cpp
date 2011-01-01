@@ -3487,7 +3487,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		{
 			BLOCK_CAPTURING;
-			arts = new CArtifactsOfHero(Point(-267,-10));
+			arts = new CArtifactsOfHero(Point(pos.x-363, pos.y-12));
 			arts->commonInfo = new CArtifactsOfHero::SCommonPart;
 			arts->commonInfo->participants.insert(arts);
 			arts->setHero(Hero);
@@ -5858,7 +5858,10 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 		        break;
 		case 2: bar = parent->green;
 		        break;
+		default:bar = NULL;
+		        break;
 	}
+	assert(bar);
 	
 	blitAtLoc(bar->bg, -28, -22, to);
 	blitAtLoc(bar->bg, -28,  48, to);

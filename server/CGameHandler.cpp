@@ -4554,8 +4554,13 @@ void CGameHandler::handleTimeEvents()
 
 		if(ev->nextOccurence)
 		{
+			gs->map->events.pop_front();
+
 			ev->firstOccurence += ev->nextOccurence;
-			gs->map->events.sort(evntCmp);
+			std::list<CMapEvent*>::iterator it = gs->map->events.begin();
+			while ( it !=gs->map->events.end() && **it <= *ev )
+				it++;
+			gs->map->events.insert(it, ev);
 		}
 		else
 		{
@@ -4616,8 +4621,13 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 
 		if(ev->nextOccurence)
 		{
+			town->events.pop_front();
+
 			ev->firstOccurence += ev->nextOccurence;
-			town->events.sort(evntCmp);
+			std::list<CCastleEvent*>::iterator it = town->events.begin();
+			while ( it !=town->events.end() &&  **it <= *ev )
+				it++;
+			town->events.insert(it, ev);
 		}
 		else
 		{

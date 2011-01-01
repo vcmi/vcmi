@@ -212,6 +212,10 @@ public:
 	{
 		return firstOccurence < b.firstOccurence;
 	}
+	bool operator<=(const CMapEvent &b) const
+	{
+		return firstOccurence <= b.firstOccurence;
+	}
 };
 
 class DLL_EXPORT CCastleEvent: public CMapEvent

@@ -232,7 +232,5 @@ void CConsoleHandler::end()
 
 void CConsoleHandler::start()
 {
-#ifdef _WIN32
 	thread = new boost::thread(boost::bind(&CConsoleHandler::run,console));
-#endif
 }
