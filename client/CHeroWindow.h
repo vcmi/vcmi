@@ -38,7 +38,7 @@ public:
 
 
 
-class CHeroWindow: public CWindowWithGarrison
+class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 {
 	enum ELabel {};
 	std::map<ELabel, CLabel*> labels;
@@ -51,8 +51,6 @@ class CHeroWindow: public CWindowWithGarrison
 	//buttons
 	//AdventureMapButton * gar4button; //splitting
 	std::vector<CHeroSwitcher *> heroListMi; //new better list of heroes
-
-	CArtifactsOfHero * artifs;
 
 	//clickable areas
 	LRClickableAreaWText * portraitArea;
@@ -71,7 +69,8 @@ public:
 	int player;
 	CHeroWindow(const CGHeroInstance *hero); //c-tor
 	~CHeroWindow(); //d-tor
-	void setHero(const CGHeroInstance * hero); //sets main displayed hero
+
+	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
 	void showAll(SDL_Surface * to); //shows and activates adv. map interface
 //		void redrawCurBack(); //redraws curBAck from scratch
 		void quit(); //stops displaying hero window and disposes

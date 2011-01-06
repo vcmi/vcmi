@@ -166,7 +166,11 @@ public:
 	void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) OVERRIDE;
 	void newStackInserted(const StackLocation &location, const CStackInstance &stack) OVERRIDE; //new stack inserted at given (previously empty position)
 	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) OVERRIDE; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
-	void heroArtifactSetChanged(const CGHeroInstance* hero) OVERRIDE;
+
+	void artifactPut(const ArtifactLocation &al);
+	void artifactRemoved(const ArtifactLocation &al);
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE;
 	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;

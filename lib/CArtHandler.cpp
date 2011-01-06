@@ -958,7 +958,8 @@ void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 	asi.artifact = this;
 	asi.locked = false;
 
-	h->attachTo(this);
+	if(slot < Arts::BACKPACK_START)
+		h->attachTo(this);
 }
 
 void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)

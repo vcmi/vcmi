@@ -1189,7 +1189,6 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	//townList.init();
 	//townList.genList();
 
-	heroWindow = NULL;
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
@@ -1203,7 +1202,6 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
-	delete heroWindow;
 
 	for(int i=0; i<gems.size(); i++)
 		delete gems[i];

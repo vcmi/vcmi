@@ -169,15 +169,19 @@ void RebalanceStacks::applyCl( CClient *cl )
 
 void PutArtifact::applyCl( CClient *cl )
 {
-
+	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactPut, al);
 }
 
 void EraseArtifact::applyCl( CClient *cl )
 {
+	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactRemoved, al);
 }
 
 void MoveArtifact::applyCl( CClient *cl )
 {
+	INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
+	if(src.hero->tempOwner != dst.hero->tempOwner)
+		INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
 }
 
 void GiveBonus::applyCl( CClient *cl )
@@ -394,13 +398,15 @@ void SetHeroesInTown::applyCl( CClient *cl )
 
 void SetHeroArtifacts::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->getHero(hid);
-	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
-	if(!player)
-		return;
+	tlog1 << "SetHeroArtifacts :(\n";
+// 
+// 	CGHeroInstance *h = GS(cl)->getHero(hid);
+// 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
+// 	if(!player)
+// 		return;
 
 	//h->recreateArtBonuses();
-	player->heroArtifactSetChanged(h);
+	//player->heroArtifactSetChanged(h);
 
 // 	BOOST_FOREACH(Bonus bonus, gained)
 // 	{

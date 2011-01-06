@@ -1190,6 +1190,21 @@ void CGHeroInstance::UpdateSpeciality()
 }
 void CGHeroInstance::updateSkill(int which, int val)
 {
+	if(which == LEADERSHIP || which == LUCK)
+	{
+		bool luck = which == LUCK;
+		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
+
+		Bonus *b = getBonus(Selector::type(type[luck]) && Selector::sourceType(Bonus::SECONDARY_SKILL));
+		if(!b)
+		{
+			b = new Bonus(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
+			addNewBonus(b);
+		}
+		else
+			b->val = +val;
+	}
+
 	int skillVal = 0;
 	switch (which)
 	{

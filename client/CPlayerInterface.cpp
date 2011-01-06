@@ -46,6 +46,7 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include "../StartInfo.h"
+#include <boost/foreach.hpp>
 
 #ifdef min
 #undef min
@@ -508,7 +509,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	{
 		if((*i)->type & IShowActivable::WITH_GARRISON)
 		{
-			CGarrisonHolder *cgh = static_cast<CGarrisonHolder*>(*i);
+			CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
 			cgh->updateGarrisons();
 		}
 		else if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
@@ -954,11 +955,9 @@ void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	adventureInt->heroWindow = new CHeroWindow(hero);
-	adventureInt->heroWindow->setHero(hero);
-	GH.pushInt(adventureInt->heroWindow);
+	GH.pushInt(new CHeroWindow(hero));
 }
-
+/*
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -997,7 +996,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 	}
 
 	updateInfo(hero);
-}
+}*/
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
@@ -2121,21 +2120,25 @@ void CPlayerInterface::sendCustomEvent( int code )
 
 void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stackChangedType(const StackLocation &location, const CCreature &newType)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stacksErased(const StackLocation &location)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(loc1.army);
 	if(loc2.army != loc1.army)
 		garrisonChanged(loc2.army);
@@ -2143,14 +2146,35 @@ void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocat
 
 void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	garrisonChanged(src.army);
 	if(dst.army != src.army)
 		garrisonChanged(dst.army);
+}
+
+void CPlayerInterface::artifactPut(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
+void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
+void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactMoved(src, dst);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

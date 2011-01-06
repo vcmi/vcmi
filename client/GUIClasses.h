@@ -25,6 +25,7 @@
  *
  */
 
+struct ArtifactLocation;
 class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
@@ -214,7 +215,7 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
 	~CGarrisonSlot(); //d-tor
 };
@@ -907,6 +908,15 @@ public:
 	void show(SDL_Surface * to);
 };
 
+class CWindowWithArtifacts : public virtual CIntObject
+{
+public:
+	std::vector<CArtifactsOfHero *> artSets;
+
+	CWindowWithArtifacts();
+	~CWindowWithArtifacts();
+};
+
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:
@@ -932,7 +942,6 @@ public:
 	~CArtPlace(); //d-tor
 };
 
-
 class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero; //local copy of hero on which we operate
@@ -944,13 +953,19 @@ class CArtifactsOfHero : public CIntObject
 public:
 	struct SCommonPart
 	{
+		struct Artpos
+		{
+			int slotID;
+			const CArtifactsOfHero * AOH;
+			const CArtifactInstance *art;
+
+			Artpos();
+			void clear();
+			void setTo(const CArtPlace *place, bool dontTakeBackpack);
+			bool operator==(const ArtifactLocation &al) const;
+		} src, dst;
+
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
-		const CArtifactInstance * srcArtifact;    // Held artifact.
-		const CArtifactsOfHero * srcAOH;  // Following two needed to uniquely identify the source.
-		int srcSlotID;                    //
-		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
-		int destSlotID;	                  // Needed to determine what kind of action was last taken in setHero
-		const CArtifactInstance * destArtifact;   // For swapping.
 
 		void reset();
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
@@ -962,6 +977,8 @@ public:
 	std::multiset<int> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	CArtPlace *getArtPlace(int slot);
 
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state

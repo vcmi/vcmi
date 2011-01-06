@@ -2486,8 +2486,8 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
 	if ((!srcArtifact || destSlot < Arts::BACKPACK_START)
-		&& srcArtifact && !srcArtifact->canBePutAt(dst))
-		COMPLAIN_RET("Cannot swap artifacts!");
+		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
+		COMPLAIN_RET("Cannot move artifact!");
 
 	if ((srcArtifact && srcArtifact->artType->id == Arts::ID_LOCK) || (destArtifact && destArtifact->artType->id == Arts::ID_LOCK)) 
 		COMPLAIN_RET("Cannot move artifact locks.");
@@ -2496,6 +2496,16 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 		COMPLAIN_RET("Cannot put big artifacts in backpack!");
 	if (srcSlot == Arts::MACH4 || destSlot == Arts::MACH4) 
 		COMPLAIN_RET("Cannot move catapult!");
+
+	if(dst.slot >= Arts::BACKPACK_START)
+		amin(dst.slot, Arts::BACKPACK_START + dst.hero->artifactsInBackpack.size());
+
+ 	// Correction for destination from removing source artifact in backpack.
+ 	if (src.slot >= 19 && dst.slot >= 19 && src.slot < dst.slot)
+ 		dst.slot--;
+
+	if (src.slot == dst.slot)
+		COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
 	//moving art to backpack is always allowed (we've ruled out exceptions)
 	if(destSlot >= Arts::BACKPACK_START)
@@ -2506,7 +2516,7 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 	{
 		if(destArtifact) //old artifact must be removed first
 		{
-			moveArtifact(dst, ArtifactLocation(destHero, destHero->artifactsInBackpack.size()-1));
+			moveArtifact(dst, ArtifactLocation(destHero, destHero->artifactsInBackpack.size() + Arts::BACKPACK_START));
 		}
 		moveArtifact(src, dst);
 	}
@@ -2526,9 +2536,6 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 // 	// Internal hero artifact arrangement.
 // 	if(srcHero == destHero) 
 // 	{
-// 		// Correction for destination from removing source artifact in backpack.
-// 		if (srcSlot >= 19 && destSlot >= 19 && srcSlot < destSlot)
-// 			destSlot--;
 // 
 // 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
 // 	}

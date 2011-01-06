@@ -52,6 +52,7 @@ class CSaveFile;
 typedef si32 TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
+struct ArtifactLocation;
 
 class CBattleGameInterface
 {
@@ -100,7 +101,9 @@ public:
 	//virtual void garrisonChanged(const CGObjectInstance * obj){};
 
 	//artifacts operations
-	virtual void heroArtifactSetChanged(const CGHeroInstance*hero){};
+	virtual void artifactPut(const ArtifactLocation &al){};
+	virtual void artifactRemoved(const ArtifactLocation &al){};
+	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
 
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
