@@ -129,7 +129,7 @@ const CStack * BattleInfo::getStackT(THex tileID, bool onlyAlive) const
 	return const_cast<BattleInfo * const>(this)->getStackT(tileID, onlyAlive);
 }
 
-void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit) const
+void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<THex> & occupyable, bool flying, const CStack * stackToOmmit) const
 {
 	memset(accessibility, 1, BFIELD_SIZE); //initialize array with trues
 
@@ -142,7 +142,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
+		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit->ID || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
 			continue;
 
 		accessibility[stacks[g]->position] = false;
@@ -174,8 +174,9 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 			accessibility[permanentlyLocked[b]] = false;
 		}
 
-		static const std::pair<int, int> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
-			{std::make_pair(2, 182), std::make_pair(3, 130), std::make_pair(4, 62), std::make_pair(5, 29)};
+		static const std::pair<int, THex> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
+			{std::make_pair(2, THex(182)), std::make_pair(3, THex(130)),
+			std::make_pair(4, THex(62)), std::make_pair(5, THex(29))};
 		for(int b=0; b<ARRAY_COUNT(lockedIfNotDestroyed); ++b)
 		{
 			if(si.wallState[lockedIfNotDestroyed[b].first] < 3)
@@ -194,12 +195,12 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	//occupyability
 	if(addOccupiable && twoHex)
 	{
-		std::set<int> rem; //tiles to unlock
+		std::set<THex> rem; //tiles to unlock
 		for(int h=0; h<BFIELD_HEIGHT; ++h)
 		{
 			for(int w=1; w<BFIELD_WIDTH-1; ++w)
 			{
-				int hex = h * BFIELD_WIDTH + w;
+				THex hex(w, h);
 				if(!isAccessible(hex, accessibility, twoHex, attackerOwned, flying, true)
 					&& (attackerOwned ? isAccessible(hex+1, accessibility, twoHex, attackerOwned, flying, true) : isAccessible(hex-1, accessibility, twoHex, attackerOwned, flying, true) )
 					)
@@ -230,7 +231,7 @@ bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool a
 	}
 }
 
-void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
+void BattleInfo::makeBFS(THex start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
 	for(int b=0; b<BFIELD_SIZE; ++b)
@@ -238,14 +239,14 @@ void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *
 	for(int g=0; g<BFIELD_SIZE; ++g)
 		dists[g] = 100000000;	
 	
-	std::queue< std::pair<int, bool> > hexq; //bfs queue <hex, accessible> (second filed used only if fillPredecessors is true)
+	std::queue< std::pair<THex, bool> > hexq; //bfs queue <hex, accessible> (second filed used only if fillPredecessors is true)
 	hexq.push(std::make_pair(start, true));
 	dists[hexq.front().first] = 0;
 	int curNext = -1; //for bfs loop only (helper var)
 	while(!hexq.empty()) //bfs loop
 	{
-		std::pair<int, bool> curHex = hexq.front();
-		std::vector<int> neighbours = neighbouringTiles(curHex.first);
+		std::pair<THex, bool> curHex = hexq.front();
+		std::vector<THex> neighbours = curHex.first.neighbouringTiles();
 		hexq.pop();
 		for(unsigned int nr=0; nr<neighbours.size(); nr++)
 		{
@@ -268,34 +269,33 @@ void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *
 	}
 };
 
-std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) const
+std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOccupiable) const
 {
-	std::vector<int> ret;
+	std::vector<THex> ret;
 	bool ac[BFIELD_SIZE];
-	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
 
-	if(s->position < 0) //turrets
-		return std::vector<int>();
+	if(stack->position < 0) //turrets
+		return std::vector<THex>();
 
-	std::set<int> occupyable;
+	std::set<THex> occupyable;
 
-	getAccessibilityMap(ac, s->doubleWide(), s->attackerOwned, addOccupiable, occupyable, s->hasBonusOfType(Bonus::FLYING), stackID);
+	getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, addOccupiable, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
 
 	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(s->position, ac, pr, dist, s->doubleWide(), s->attackerOwned, s->hasBonusOfType(Bonus::FLYING), false);
+	makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
-	if(s->doubleWide())
+	if(stack->doubleWide())
 	{
 		if(!addOccupiable)
 		{
-			std::vector<int> rem;
+			std::vector<THex> rem;
 			for(int b=0; b<BFIELD_SIZE; ++b)
 			{
 				//don't take into account most left and most right columns of hexes
 				if( b % BFIELD_WIDTH == 0 || b % BFIELD_WIDTH == BFIELD_WIDTH - 1 )
 					continue;
 
-				if( ac[b] && !(s->attackerOwned ? ac[b-1] : ac[b+1]) )
+				if( ac[b] && !(stack->attackerOwned ? ac[b-1] : ac[b+1]) )
 				{
 					rem.push_back(b);
 				}
@@ -308,16 +308,16 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) c
 
 			//removing accessibility for side hexes
 			for(int v=0; v<BFIELD_SIZE; ++v)
-				if(s->attackerOwned ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
+				if(stack->attackerOwned ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
 					ac[v] = false;
 		}
 	}
 	
 	for (int i=0; i < BFIELD_SIZE ; ++i) {
 		if(
-			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->doubleWide(), s->attackerOwned, s->hasBonusOfType(Bonus::FLYING), true) ) )//we can reach it
-			|| (vstd::contains(occupyable, i) && ( dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) &&
-				ac[i + (s->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
+			( ( !addOccupiable && dist[i] <= stack->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= stack->Speed() && isAccessible(i, ac, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), true) ) )//we can reach it
+			|| (vstd::contains(occupyable, i) && ( dist[ i + (stack->attackerOwned ? 1 : -1 ) ] <= stack->Speed() ) &&
+				ac[i + (stack->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
 			)
 		{
 			ret.push_back(i);
@@ -326,65 +326,35 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) c
 
 	return ret;
 }
-bool BattleInfo::isStackBlocked(int ID)
+bool BattleInfo::isStackBlocked(const CStack * stack)
 {
-	CStack *our = getStack(ID);
-	if(our->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
+	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
 		return false;
 
 	for(unsigned int i=0; i<stacks.size();i++)
 	{
 		if( !stacks[i]->alive()
-			|| stacks[i]->owner==our->owner
+			|| stacks[i]->owner==stack->owner
 		  )
 			continue; //we omit dead and allied stacks
 		if(stacks[i]->doubleWide())
 		{
-			if( mutualPosition(stacks[i]->position, our->position) >= 0  
-			  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
+			if( THex::mutualPosition(stacks[i]->position, stack->position) >= 0  
+			  || THex::mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), stack->position) >= 0)
 				return true;
 		}
 		else
 		{
-			if( mutualPosition(stacks[i]->position, our->position) >= 0 )
+			if( THex::mutualPosition(stacks[i]->position, stack->position) >= 0 )
 				return true;
 		}
 	}
 	return false;
 }
 
-signed char BattleInfo::mutualPosition(THex hex1, THex hex2)
-{
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
-		return 0;
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
-		return 1;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
-		return 5;
-	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
-		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
-		return 4;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
-		return 3;
-	return -1;
-}
 
-std::vector<int> BattleInfo::neighbouringTiles(int hex)
-{
-#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%BFIELD_WIDTH!=16) && hlp%BFIELD_WIDTH) ret.push_back(hlp);}
-	std::vector<int> ret;
-	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 18 : 17 ));
-	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 17 : 16 ));
-	CHECK_AND_PUSH(hex - 1);
-	CHECK_AND_PUSH(hex + 1);
-	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 16 : 17 ));
-	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 17 : 18 ));
-#undef CHECK_AND_PUSH
-	return ret;
-}
 std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned)
-{							
+{
 	int predecessor[BFIELD_SIZE]; //for getting the Path
 	int dist[BFIELD_SIZE]; //calculated distances
 
@@ -585,7 +555,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 
 	//wall / distance penalty + advanced air shield
 	if (shooting && !NBonus::hasOfType(attackerHero, Bonus::NO_SHOTING_PENALTY) && (
-		hasDistancePenalty(attacker->ID, defender->position) || hasWallPenalty(attacker->ID, defender->position) ||
+		hasDistancePenalty(attacker, defender->position) || hasWallPenalty(attacker, defender->position) ||
 		HLP::hasAdvancedAirShield(defender) )
 		)
 	{
@@ -780,7 +750,7 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) 
 	return ret + manaReduction + manaIncrease;
 }
 
-int BattleInfo::hexToWallPart(int hex) const
+int BattleInfo::hexToWallPart(THex hex) const
 {
 	if(siege == 0) //there is no battle!
 		return -1;
@@ -808,9 +778,9 @@ int BattleInfo::lineToWallHex( int line ) const
 std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
 {	
 	bool ac[BFIELD_SIZE];
-	std::set<int> occupyable;
+	std::set<THex> occupyable;
 
-	getAccessibilityMap(ac, closest->doubleWide(), closest->attackerOwned, false, occupyable, closest->hasBonusOfType(Bonus::FLYING), closest->ID);
+	getAccessibilityMap(ac, closest->doubleWide(), closest->attackerOwned, false, occupyable, closest->hasBonusOfType(Bonus::FLYING), closest);
 
 	int predecessor[BFIELD_SIZE], dist[BFIELD_SIZE];
 	makeBFS(closest->position, ac, predecessor, dist, closest->doubleWide(), closest->attackerOwned, closest->hasBonusOfType(Bonus::FLYING), true);
@@ -1051,15 +1021,13 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 	}
 }
 
-si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
+si8 BattleInfo::hasDistancePenalty( const CStack * stack, THex destHex )
 {
-	const CStack * stack = getStack(stackID);
-
 	struct HLP
 	{
-		static bool lowerAnalyze(const CStack * stack, int hex)
+		static bool lowerAnalyze(const CStack * stack, THex hex)
 		{
-			int distance = BattleInfo::getDistance(hex, stack->position);
+			int distance = THex::getDistance(hex, stack->position);
 
 			//I hope it's approximately correct
 			return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
@@ -1085,13 +1053,12 @@ si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
 	return stackLeft != destLeft;
 }
 
-si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
+si8 BattleInfo::hasWallPenalty( const CStack* stack, THex destHex )
 {
 	if (siege == 0)
 	{
 		return false;
 	}
-	const CStack * stack = getStack(stackID);
 	if (stack->hasBonusOfType(Bonus::NO_WALL_PENALTY))
 	{
 		return false;
@@ -1100,18 +1067,17 @@ si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
 	return !sameSideOfWall(stack->position, destHex);
 }
 
-si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
+si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLevel)
 {
 	bool ac[BFIELD_SIZE];
-	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
 
-	std::set<int> occupyable;
+	std::set<THex> occupyable;
 
-	getAccessibilityMap(ac, s->doubleWide(), s->attackerOwned, false, occupyable, s->hasBonusOfType(Bonus::FLYING), stackID);
+	getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
 
 	if (siege && telportLevel < 2) //check for wall
 	{
-		return ac[destHex] && sameSideOfWall(s->position, destHex);
+		return ac[destHex] && sameSideOfWall(stack->position, destHex);
 	}
 	else
 	{
@@ -1141,11 +1107,103 @@ si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
 // 	}
 // }
 
-si8 BattleInfo::getDistance( THex hex1, THex hex2 )
+bool BattleInfo::battleCanShoot(const CStack * stack, THex dest)
 {
-	int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
-		yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);
-	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
+	const CStack *dst = getStackT(dest);
+
+	if(!stack || !dst) return false;
+
+	const CGHeroInstance * stackHero = battleGetOwner(stack);
+
+	if(stack->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
+		return false;
+
+	if(stack->getCreature()->idNumber == 145 && dst) //catapult cannot attack creatures
+		return false;
+
+	if(stack->hasBonusOfType(Bonus::SHOOTER)//it's shooter
+		&& stack->owner != dst->owner
+		&& dst->alive()
+		&& (!isStackBlocked(stack)  ||  NBonus::hasOfType(stackHero, Bonus::FREE_SHOOTING))
+		&& stack->shots
+		)
+		return true;
+	return false;
+}
+
+bool BattleInfo::battleCanFlee(int player)
+{
+	if (player == side1)
+	{
+		if (!heroes[0])
+			return false;//current player have no hero
+	}
+	else
+	{
+		if (!heroes[1])
+			return false;
+	}
+
+	if( ( heroes[0] && heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE) ) //eg. one of heroes is wearing shakles of war
+		|| ( heroes[1] && heroes[1]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE)))
+		return false;
+
+	if (player == side2 && siege //defender in siege
+		&& !(town->subID == 6 && vstd::contains(town->builtBuildings, 17)))//without escape tunnel
+		return false;
+
+	return true;
+}
+
+const CStack * BattleInfo::battleGetStack(THex pos, bool onlyAlive)
+{
+	for(unsigned int g=0; g<stacks.size(); ++g)
+	{
+		if((stacks[g]->position == pos 
+			|| (stacks[g]->doubleWide() 
+			&&( (stacks[g]->attackerOwned && stacks[g]->position-1 == pos) 
+			||	(!stacks[g]->attackerOwned && stacks[g]->position+1 == pos)	)
+			))
+			&& (!onlyAlive || stacks[g]->alive())
+			)
+			return stacks[g];
+	}
+	return NULL;
+}
+
+const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack)
+{
+	return heroes[!stack->attackerOwned];
+}
+
+si8 BattleInfo::battleMaxSpellLevel()
+{
+// 	if(!curB) //there is not battle
+// 	{
+// 		tlog1 << "si8 CGameState::maxSpellLevel() call when there is no battle!" << std::endl;
+// 		throw "si8 CGameState::maxSpellLevel() call when there is no battle!";
+// 	}
+
+	si8 levelLimit = SPELL_LEVELS;
+
+	const CGHeroInstance *h1 =  heroes[0];
+	if(h1)
+	{
+		BOOST_FOREACH(const Bonus *i, h1->bonuses)
+			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
+				amin(levelLimit, i->val);
+	}
+
+	const CGHeroInstance *h2 = heroes[1];
+	if(h2)
+	{
+
+		BOOST_FOREACH(const Bonus *i, h2->bonuses)
+			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
+				amin(levelLimit, i->val);
+	}
+
+	return levelLimit;
 }
 
 void BattleInfo::localInit()
@@ -1210,12 +1268,12 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 
 	if(town)
 	{
-		curB->tid = town->id;
+		curB->town = town;
 		curB->siege = town->fortLevel();
 	}
 	else
 	{
-		curB->tid = -1;
+		curB->town = NULL;
 		curB->siege = 0;
 	}
 
@@ -1279,11 +1337,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	{
 		if((stacks[g]->position%17)==1 && stacks[g]->doubleWide() && stacks[g]->attackerOwned)
 		{
-			stacks[g]->position += 1;
+			stacks[g]->position += THex::RIGHT;
 		}
 		else if((stacks[g]->position%17)==15 && stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
 		{
-			stacks[g]->position -= 1;
+			stacks[g]->position += THex::LEFT;
 		}
 	}
 
@@ -1527,7 +1585,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
-	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1),   
+	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),   
 	counterAttacks(1)
 {
 	assert(base);
@@ -1541,7 +1599,7 @@ CStack::CStack()
 }
 
 CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
-	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1), counterAttacks(1)
+	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -1557,7 +1615,7 @@ void CStack::init()
 	owner = 255;
 	slot = 255;
 	attackerOwned = false;
-	position = -1;
+	position = THex();
 	counterAttacks = -1;
 }
 

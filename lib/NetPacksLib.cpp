@@ -615,6 +615,7 @@ DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
 		}
 	}
 	return NULL;
+	return NULL;
 }
 
 DLL_EXPORT CArtifactInstance *ArtifactLocation::getArt()
@@ -1105,7 +1106,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		int pos; //position of stack on the battlefield - to be calculated
 
 		bool ac[BFIELD_SIZE];
-		std::set<int> occupyable;
+		std::set<THex> occupyable;
 		bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 		bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
 		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
@@ -1194,7 +1195,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
-		std::vector<int> access = gs->curB->getAccessibility(changedStack->ID, true);
+		std::vector<THex> access = gs->curB->getAccessibility(changedStack, true);
 		bool acc[BFIELD_SIZE];
 		for(int h=0; h<BFIELD_SIZE; ++h)
 			acc[h] = false;

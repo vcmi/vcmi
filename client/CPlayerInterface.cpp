@@ -834,10 +834,10 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	else
 	{//WARNING: does not support multiple attacked creatures
 		int shift = 0;
-		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && THex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = BattleInfo::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = BattleInfo::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = THex::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = THex::getDistance(curAction->destinationTile - 1, attacker->position);
 
 			if( distp < distm )
 				shift = 1;

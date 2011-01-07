@@ -1542,51 +1542,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	CGTeleport::postInit(); //pairing subterranean gates
 }
 
-bool CGameState::battleCanFlee(int player)
-{
-	if(!curB) //there is no battle
-		return false;
-
-	if (player == curB->side1)
-	{
-		if (!curB->heroes[0])
-			return false;//current player have no hero
-	}
-	else
-	{
-		if (!curB->heroes[1])
-			return false;
-	}
-
-	if( ( curB->heroes[0] && curB->heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE) ) //eg. one of heroes is wearing shakles of war
-		|| ( curB->heroes[1] && curB->heroes[1]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE)))
-		return false;
-
-	if (player == curB->side2 && curB->siege //defender in siege
-		&& !(getTown(curB->tid)->subID == 6 && vstd::contains(getTown(curB->tid)->builtBuildings, 17)))//without escape tunnel
-		return false;
-
-	return true;
-}
-
-int CGameState::battleGetStack(int pos, bool onlyAlive)
-{
-	if(!curB)
-		return -1;
-	for(unsigned int g=0; g<curB->stacks.size(); ++g)
-	{
-		if((curB->stacks[g]->position == pos 
-			  || (curB->stacks[g]->doubleWide() 
-					&&( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) 
-					||	(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)	)
-			 ))
-			 && (!onlyAlive || curB->stacks[g]->alive())
-		  )
-			return curB->stacks[g]->ID;
-	}
-	return -1;
-}
-
 int CGameState::battleGetBattlefieldType(int3 tile)
 {
 	if(tile==int3() && curB)
@@ -1657,14 +1612,6 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	default:
 		return -1;
 	}
-}
-
-const CGHeroInstance * CGameState::battleGetOwner(int stackID)
-{
-	if(!curB)
-		return NULL;
-
-	return curB->heroes[!curB->getStack(stackID)->attackerOwned];
 }
 
 std::set<std::pair<int, int> > costDiff(const std::vector<ui32> &a, const std::vector<ui32> &b, const int modifier = 100) //modifer %
@@ -2503,63 +2450,7 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 	}
 	return true;
 }
-si8 CGameState::battleMaxSpellLevel()
-{
-	if(!curB) //there is not battle
-	{
-		tlog1 << "si8 CGameState::maxSpellLevel() call when there is no battle!" << std::endl;
-		throw "si8 CGameState::maxSpellLevel() call when there is no battle!";
-	}
 
-	si8 levelLimit = SPELL_LEVELS;
-
-	const CGHeroInstance *h1 =  curB->heroes[0];
-	if(h1)
-	{
-		BOOST_FOREACH(const Bonus *i, h1->bonuses)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
-	}
-
-	const CGHeroInstance *h2 = curB->heroes[1];
-	if(h2)
-	{
-
-		BOOST_FOREACH(const Bonus *i, h2->bonuses)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
-	}
-
-	return levelLimit;
-}
-
-bool CGameState::battleCanShoot(int ID, int dest)
-{
-	if(!curB)
-		return false;
-
-	const CStack *our = curB->getStack(ID),
-		*dst = curB->getStackT(dest);
-
-	if(!our || !dst) return false;
-
-	const CGHeroInstance * ourHero = battleGetOwner(our->ID);
-
-	if(our->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
-		return false;
-
-	if(our->getCreature()->idNumber == 145 && dst) //catapult cannot attack creatures
-		return false;
-
-	if(our->hasBonusOfType(Bonus::SHOOTER)//it's shooter
-		&& our->owner != dst->owner
-		&& dst->alive()
-		&& (!curB->isStackBlocked(ID)  ||  NBonus::hasOfType(ourHero, Bonus::FREE_SHOOTING))
-		&& our->shots
-		)
-		return true;
-	return false;
-}
 
 int CGameState::victoryCheck( ui8 player ) const
 {

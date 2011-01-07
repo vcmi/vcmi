@@ -7,6 +7,7 @@
 #include <boost/logic/tribool.hpp>
 using boost::logic::tribool;
 #include <boost/cstdint.hpp>
+#include <assert.h>
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
 typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
 typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
@@ -17,7 +18,8 @@ typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 typedef si64 expType;
 typedef ui16 spelltype;
-typedef ui16 THex; //for battle stacks' positions
+
+
 #include "int3.h"
 #include <map>
 #include <vector>
@@ -125,6 +127,161 @@ const int BFIELD_HEIGHT = 11;
 const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 
 const int SPELLBOOK_GOLD_COST = 500;
+
+
+//for battle stacks' positions
+struct THex
+{
+	enum EDir{RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT};
+
+	si16 hex;
+
+	THex() : hex(-1) {}
+	THex(si16 _hex) : hex(_hex)
+	{
+		assert(hex >= 0 && hex < BFIELD_SIZE);
+	}
+	operator si16() const
+	{
+		return hex;
+	}
+
+	template<typename inttype>
+	THex(inttype x, inttype y)
+	{
+		setXY(x, y);
+	}
+
+	template<typename inttype>
+	THex(std::pair<inttype, inttype> xy)
+	{
+		setXY(xy);
+	}
+
+	template<typename inttype>
+	void setX(inttype x)
+	{
+		setXY(x, getY());
+	}
+
+	template<typename inttype>
+	void setY(inttype y)
+	{
+		setXY(getX(), y);
+	}
+
+	void setXY(si16 x, si16 y)
+	{
+		assert(x >= 0 && x < BFIELD_WIDTH && y >= 0  && y < BFIELD_HEIGHT);
+		hex = x + y * BFIELD_WIDTH;
+	}
+
+	template<typename inttype>
+	void setXY(std::pair<inttype, inttype> xy)
+	{
+		setXY(xy.first, xy.second);
+	}
+
+	si16 getY() const
+	{
+		return hex/BFIELD_WIDTH;
+	}
+
+	si16 getX() const
+	{
+		int pos = hex - getY() * BFIELD_WIDTH;
+		return pos;
+	}
+
+	std::pair<si16, si16> getXY() const
+	{
+		return std::make_pair(getX(), getY());
+	}
+
+	//moving to direction
+	void operator+=(EDir dir)
+	{
+		si16 x = getX(),
+			y = getY();
+
+		switch(dir)
+		{
+		case TOP_LEFT:
+			setXY(y%2 ? x-1 : x, y-1);
+		case TOP_RIGHT:
+			setXY(y%2 ? x : x+1, y-1);
+		case RIGHT:
+			setXY(x+1, y);
+		case BOTTOM_RIGHT:
+			setXY(y%2 ? x : x+1, y+1);
+		case BOTTOM_LEFT:
+			setXY(y%2 ? x-1 : x, y+1);
+		case LEFT:
+			setXY(x-1, y);
+		default:
+			throw std::string("Disaster: wrong direction in THex::operator+=!\n");
+		}
+	}
+
+	//generates new THex moved by given dir
+	THex operator+(EDir dir) const
+	{
+		THex ret(*this);
+		ret += dir;
+		return ret;
+	}
+
+	std::vector<THex> neighbouringTiles() const
+	{
+		std::vector<THex> ret;
+		const int WN = BFIELD_WIDTH;
+		checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret);
+		checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret);
+		checkAndPush(hex - 1, ret);
+		checkAndPush(hex + 1, ret);
+		checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), ret);
+		checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), ret);
+
+		return ret;
+	}
+
+	//returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
+	static signed char mutualPosition(THex hex1, THex hex2)
+	{
+		if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
+			return 0;
+		if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
+			return 1;
+		if(hex2 == hex1 - 1 && hex1%17 != 0) //left
+			return 5;
+		if(hex2 == hex1 + 1 && hex1%17 != 16) //right
+			return 2;
+		if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
+			return 4;
+		if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
+			return 3;
+		return -1;
+	}
+	//returns distance between given hexes
+	static si8 getDistance(THex hex1, THex hex2)
+	{
+		int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
+			yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);
+		return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hex;
+	}
+private:
+	static void checkAndPush(int tile, std::vector<THex> & ret)
+	{
+		if( tile>=0 && tile<BFIELD_SIZE && (tile%BFIELD_WIDTH != (BFIELD_WIDTH - 1)) && (tile%BFIELD_WIDTH != 0) )
+			ret.push_back(THex(tile));
+	}
+
+};
 
 enum EMarketMode
 {

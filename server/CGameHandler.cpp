@@ -476,7 +476,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.flags |= 4;
 	}
 
-	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance, bat.lucky());//counting dealt damage
+	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky());//counting dealt damage
 	
 	
 	int dmg = bsa->damageAmount;
@@ -584,7 +584,7 @@ int CGameHandler::moveStack(int stack, int dest)
 
 	//initing necessary tables
 	bool accessibility[BFIELD_SIZE];
-	std::vector<int> accessible = gs->curB->getAccessibility(curStack->ID, false);
+	std::vector<THex> accessible = gs->curB->getAccessibility(curStack, false);
 	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		accessibility[b] = false;
@@ -613,7 +613,7 @@ int CGameHandler::moveStack(int stack, int dest)
 		return 0;
 
 	bool accessibilityWithOccupyable[BFIELD_SIZE];
-	std::vector<int> accOc = gs->curB->getAccessibility(curStack->ID, true);
+	std::vector<THex> accOc = gs->curB->getAccessibility(curStack, true);
 	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		accessibilityWithOccupyable[b] = false;
@@ -3042,7 +3042,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case 4: //retreat/flee
 		{
-			if( !gs->battleCanFlee(ba.side ? gs->curB->side2 : gs->curB->side1) )
+			if( !gs->curB->battleCanFlee(ba.side ? gs->curB->side2 : gs->curB->side1) )
 				break;
 			//TODO: remove retreating hero from map and place it in recruitment list
 			BattleResult *br = new BattleResult;
@@ -3097,13 +3097,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 
 			if( !(
-				(BattleInfo::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
+				(THex::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
 				|| (curStack->doubleWide()									//back <=> front
-					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
+					&& THex::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
 				|| (stackAtEnd->doubleWide()									//front <=> back
-					&& BattleInfo::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+					&& THex::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
 				|| (stackAtEnd->doubleWide() && curStack->doubleWide()//back <=> back
-					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+					&& THex::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
 				)
 				)
 			{
@@ -3156,7 +3156,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*destStack= gs->curB->getStackT(ba.destinationTile);
-			if( !gs->battleCanShoot(ba.stackNumber, ba.destinationTile) )
+			if( !gs->curB->battleCanShoot(curStack, ba.destinationTile) )
 				break;
 
 			sendAndApply(&StartAction(ba)); //start shooting
@@ -3742,7 +3742,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 				|| (gs->curB->castSpells[ba.side]) //spell has been cast
 				|| (NBonus::hasOfType(secondHero, Bonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
-				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
+				|| (gs->curB->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
 				tlog2 << "Spell cannot be cast!\n";
@@ -4821,7 +4821,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
+			const CGHeroInstance * curOwner = gs->curB->battleGetOwner(next);
 
 			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::BALLISTICS) == 0)) //arrow turret, hero has no ballistics
 				|| (next->getCreature()->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0))) //ballista, hero has no artillery

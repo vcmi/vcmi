@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "StupidAI.h"
 #include "../../lib/BattleState.h"
+#include "../../CCallback.h"
 
 CStupidAI::CStupidAI(void)
 	: side(-1), cb(NULL)
@@ -33,12 +34,38 @@ void CStupidAI::actionStarted( const BattleAction *action )
 BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	print("activeStack called");
+	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
+	std::vector<const CStack *> avEnemies;
+	for(int g=0; g<avHexes.size(); ++g)
+	{
+		const CStack * enemy = cb->battleGetStackByPos(avHexes[g]);
+		if (enemy)
+		{
+			avEnemies.push_back(enemy);
+		}
+	}
+
+
 	if(stack->position % 17  <  5) //move army little towards enemy
 	{
 		THex dest = stack->position + !side*2 - 1;
 		print(stack->nodeName() + "will be moved to " + boost::lexical_cast<std::string>(dest));
 		return BattleAction::makeMove(stack, dest); 
 	}
+
+	if(avEnemies.size())
+	{
+		const CStack * enemy = avEnemies[0];
+		//shooting
+		if (cb->battleCanShoot(stack, enemy->position))
+		{
+			return BattleAction::makeShotAttack(stack, enemy);
+		}
+
+		//melee
+		return BattleAction::makeMeleeAttack(stack, enemy, avHexes);
+	}
+
 	return BattleAction::makeDefend(stack);
 }
 

@@ -517,10 +517,10 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-const CStack* CBattleCallback::battleGetStackByPos(int pos, bool onlyAlive)
+const CStack* CBattleCallback::battleGetStackByPos(THex pos, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return battleGetStackByID(gs->battleGetStack(pos, onlyAlive), onlyAlive);
+	return gs->curB->battleGetStack(pos, onlyAlive);
 }
 
 int CBattleCallback::battleGetPos(int stack)
@@ -565,25 +565,25 @@ void CBattleCallback::getStackQueue( std::vector<const CStack *> &out, int howMa
 	gs->curB->getStackQueue(out, howMany);
 }
 
-std::vector<int> CBattleCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
+std::vector<THex> CBattleCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
-		return std::vector<int>();
+		return std::vector<THex>();
 	}
-	return gs->curB->getAccessibility(ID, addOccupiable);
+	return gs->curB->getAccessibility(stack, addOccupiable);
 	//return gs->battleGetRange(ID);
 }
 
-bool CBattleCallback::battleCanShoot(int ID, int dest)
+bool CBattleCallback::battleCanShoot(const CStack * stack, THex dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
 	if(!gs->curB) return false;
 
-	return gs->battleCanShoot(ID, dest);
+	return gs->curB->battleCanShoot(stack, dest);
 }
 
 bool CBattleCallback::battleCanCastSpell()
@@ -599,15 +599,15 @@ bool CBattleCallback::battleCanCastSpell()
 
 bool CBattleCallback::battleCanFlee()
 {
-	return gs->battleCanFlee(player);
+	return gs->curB->battleCanFlee(player);
 }
 
 const CGTownInstance *CBattleCallback::battleGetDefendedTown()
 {
-	if(!gs->curB || gs->curB->tid == -1)
+	if(!gs->curB || gs->curB->town == NULL)
 		return NULL;
 
-	return static_cast<const CGTownInstance *>(gs->map->objects[gs->curB->tid].get());
+	return gs->curB->town;
 }
 
 ui8 CBattleCallback::battleGetWallState(int partOfWall)
@@ -649,7 +649,7 @@ std::pair<ui32, ui32> CBattleCallback::battleEstimateDamage(int attackerID, int 
 	const CStack * attacker = gs->curB->getStack(attackerID, false),
 		* defender = gs->curB->getStack(defenderID);
 
-	return gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0, false);
+	return gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker, defender->position), 0, false);
 }
 
 ui8 CBattleCallback::battleGetSiegeLevel()
@@ -917,19 +917,19 @@ bool CCallback::hasAccess(int playerId) const
 	return gs->getPlayerRelations( playerId, player ) ||  player < 0;
 }
 
-si8 CBattleCallback::battleHasDistancePenalty( int stackID, int destHex )
+si8 CBattleCallback::battleHasDistancePenalty( const CStack * stack, THex destHex )
 {
-	return gs->curB->hasDistancePenalty(stackID, destHex);
+	return gs->curB->hasDistancePenalty(stack, destHex);
 }
 
-si8 CBattleCallback::battleHasWallPenalty( int stackID, int destHex )
+si8 CBattleCallback::battleHasWallPenalty( const CStack * stack, THex destHex )
 {
-	return gs->curB->hasWallPenalty(stackID, destHex);
+	return gs->curB->hasWallPenalty(stack, destHex);
 }
 
-si8 CBattleCallback::battleCanTeleportTo(int stackID, int destHex, int telportLevel)
+si8 CBattleCallback::battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel)
 {
-	return gs->curB->canTeleportTo(stackID, destHex, telportLevel);
+	return gs->curB->canTeleportTo(stack, destHex, telportLevel);
 }
 
 int CCallback::getPlayerStatus(int player) const

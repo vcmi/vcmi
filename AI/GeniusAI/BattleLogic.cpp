@@ -485,7 +485,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		return BattleAction::makeDefend(attackerStack);
 	}
 
-	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))	// shoot
+	if (m_cb->battleCanShoot(attackerStack, destinationStack->position))	// shoot
 	{
 		return BattleAction::makeShotAttack(attackerStack, destinationStack);
 	}
@@ -519,7 +519,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		std::vector<int> fields = m_cb->battleGetAvailableHexes(attackerID, false);
+		std::vector<THex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
 
 		if(fields.size() == 0)
 		{
@@ -533,11 +533,11 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		ba.destinationTile = static_cast<ui16>(dest_tile);
 		//simplified checking for possibility of attack (previous was too simplified)
 		int destStackPos = m_cb->battleGetPos(destinationID);
-		if(BattleInfo::mutualPosition(dest_tile, destStackPos) != -1)
+		if(THex::mutualPosition(dest_tile, destStackPos) != -1)
 			ba.additionalInfo = destStackPos;
-		else if(BattleInfo::mutualPosition(dest_tile, destStackPos+1) != -1)
+		else if(THex::mutualPosition(dest_tile, destStackPos+1) != -1)
 			ba.additionalInfo = destStackPos+1;
-		else if(BattleInfo::mutualPosition(dest_tile, destStackPos-1) != -1)
+		else if(THex::mutualPosition(dest_tile, destStackPos-1) != -1)
 			ba.additionalInfo = destStackPos-1;
 		else
 			return BattleAction::makeDefend(attackerStack);
@@ -574,7 +574,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		for (std::vector<int>::const_iterator it = fields.begin(); it != fields.end(); ++it)
+		for (std::vector<THex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
 		{
 			if (*it == dest_tile)
 			{

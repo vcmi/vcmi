@@ -603,7 +603,7 @@ bool CBattleStackMoved::init()
 	Point begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
 	Point endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
 
-	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
+	int mutPos = THex::mutualPosition(curStackPos, destHex);
 	
 	//reverse unit if necessary
 	if((begPosition.x > endPosition.x) && owner->creDir[stack->ID] == true)
@@ -879,9 +879,9 @@ bool CMeleeAttack::init()
 	int reversedShift = 0; //shift of attacking stack's position due to reversing
 	if(attackingStack->attackerOwned)
 	{
-		if(attackingStack->doubleWide() && BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
+		if(attackingStack->doubleWide() && THex::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
 		{
-			if(BattleInfo::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+			if(THex::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
 				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
 			}
@@ -889,9 +889,9 @@ bool CMeleeAttack::init()
 	}
 	else //if(astack->attackerOwned)
 	{
-		if(attackingStack->doubleWide() && BattleInfo::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
+		if(attackingStack->doubleWide() && THex::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
 		{
-			if(BattleInfo::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+			if(THex::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
 			{
 				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
 			}
@@ -912,7 +912,7 @@ bool CMeleeAttack::init()
 
 	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
 
-	int mutPos = BattleInfo::mutualPosition(attackingStackPosBeforeReturn + reversedShift, dest);
+	int mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + reversedShift, dest);
 	switch(mutPos) //attack direction
 	{
 	case 0: case 1: case 2: case 3: case 4: case 5:
@@ -1792,10 +1792,10 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						}
 						
 					}
-					else if(curInt->cb->battleCanShoot(activeStack->ID,myNumber)) //we can shoot enemy
+					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
-						if(curInt->cb->battleHasDistancePenalty(activeStack->ID, myNumber) ||
-							curInt->cb->battleHasWallPenalty(activeStack->ID, myNumber))
+						if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
+							curInt->cb->battleHasWallPenalty(activeStack, myNumber))
 						{
 							CCS->curh->changeGraphic(1,15);
 						}
@@ -2336,7 +2336,7 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 {
 	for(size_t b=0; b<shadedHexes.size(); ++b)
 	{
-		if(BattleInfo::mutualPosition(shadedHexes[b], number) != -1 || shadedHexes[b] == number)
+		if(THex::mutualPosition(shadedHexes[b], number) != -1 || shadedHexes[b] == number)
 			return true;
 	}
 	return false;
@@ -2417,7 +2417,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			case 5: //teleport
 				const CSpell *s = CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 skill = getActiveHero()->getSpellSchoolLevel(s); //skill level
-				if (!curInt->cb->battleCanTeleportTo(activeStack->ID, whichOne, skill))
+				if (!curInt->cb->battleCanTeleportTo(activeStack, whichOne, skill))
 				{
 					allowCasting = false;
 				}
@@ -2441,7 +2441,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 					if(activeStack->doubleWide())
 					{
-						std::vector<int> acc = curInt->cb->battleGetAvailableHexes(activeStack->ID, false);
+						std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = whichOne + (activeStack->attackerOwned ? 1 : -1);
 						if(vstd::contains(acc, whichOne))
 							giveCommand(2,whichOne,activeStack->ID);
@@ -2459,7 +2459,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				}
 			}
 			else if(dest->owner != actSt->owner
-				&& curInt->cb->battleCanShoot(activeStack->ID, whichOne) ) //shooting
+				&& curInt->cb->battleCanShoot(activeStack, whichOne) ) //shooting
 			{
 				CCS->curh->changeGraphic(1, 6); //cursor should be changed
 				giveCommand(7,whichOne,activeStack->ID);
@@ -2510,7 +2510,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						if(actStack->doubleWide() && !actStack->attackerOwned)
 						{
-							std::vector<int> acc = curInt->cb->battleGetAvailableHexes(activeStack->ID, false);
+							std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 							if(vstd::contains(acc, whichOne))
 								attackFromHex = whichOne - 1;
 							else
@@ -2562,7 +2562,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						if(actStack->doubleWide() && actStack->attackerOwned)
 						{
-							std::vector<int> acc = curInt->cb->battleGetAvailableHexes(activeStack->ID, false);
+							std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 							if(vstd::contains(acc, whichOne))
 								attackFromHex = whichOne + 1;
 							else
@@ -3120,7 +3120,7 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 
 void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 {
-	shadedHexes = curInt->cb->battleGetAvailableHexes(activeStack->ID, true);
+	shadedHexes = curInt->cb->battleGetAvailableHexes(activeStack, true);
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
