@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
+#include "NetPacks.h"
 
 /*
  * BattleState.h, part of VCMI engine
@@ -326,7 +327,7 @@ std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOcc
 
 	return ret;
 }
-bool BattleInfo::isStackBlocked(const CStack * stack)
+bool BattleInfo::isStackBlocked(const CStack * stack) const
 {
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
 		return false;
@@ -377,11 +378,11 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	return std::make_pair(path, dist[dest]);
 }
 
-std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
+TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky ) const
 {
 	float additiveBonus=1.0f, multBonus=1.0f,
-		minDmg = attacker->getMinDamage() * attacker->count, 
-		maxDmg = attacker->getMaxDamage() * attacker->count;
+		minDmg = attacker->getMinDamage() * attackerCount, 
+		maxDmg = attacker->getMaxDamage() * attackerCount;
 
 	if(attacker->getCreature()->idNumber == 149) //arrow turret
 	{
@@ -569,7 +570,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	minDmg *= additiveBonus * multBonus;
 	maxDmg *= additiveBonus * multBonus;
 
-	std::pair<ui32, ui32> returnedVal;
+	TDmgRange returnedVal;
 
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
@@ -593,9 +594,14 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, con
 	return returnedVal;
 }
 
+TDmgRange BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky) const
+{
+	return calculateDmgRange(attacker, defender, attacker->count, defender->count, attackerHero, defendingHero, shooting, charge, lucky);
+}
+
 ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
 {
-	std::pair<ui32, ui32> range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky);
+	TDmgRange range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky);
 
 	if(range.first != range.second)
 	{
@@ -1021,7 +1027,7 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 	}
 }
 
-si8 BattleInfo::hasDistancePenalty( const CStack * stack, THex destHex )
+si8 BattleInfo::hasDistancePenalty( const CStack * stack, THex destHex ) const
 {
 	struct HLP
 	{
@@ -1042,7 +1048,7 @@ si8 BattleInfo::hasDistancePenalty( const CStack * stack, THex destHex )
 
 }
 
-si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
+si8 BattleInfo::sameSideOfWall(int pos1, int pos2) const
 {
 	int wallInStackLine = lineToWallHex(pos1/BFIELD_WIDTH);
 	int wallInDestLine = lineToWallHex(pos2/BFIELD_WIDTH);
@@ -1053,7 +1059,7 @@ si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
 	return stackLeft != destLeft;
 }
 
-si8 BattleInfo::hasWallPenalty( const CStack* stack, THex destHex )
+si8 BattleInfo::hasWallPenalty( const CStack* stack, THex destHex ) const
 {
 	if (siege == 0)
 	{
@@ -1067,7 +1073,7 @@ si8 BattleInfo::hasWallPenalty( const CStack* stack, THex destHex )
 	return !sameSideOfWall(stack->position, destHex);
 }
 
-si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLevel)
+si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLevel) const
 {
 	bool ac[BFIELD_SIZE];
 
@@ -1107,7 +1113,7 @@ si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLev
 // 	}
 // }
 
-bool BattleInfo::battleCanShoot(const CStack * stack, THex dest)
+bool BattleInfo::battleCanShoot(const CStack * stack, THex dest) const
 {
 	const CStack *dst = getStackT(dest);
 
@@ -1131,7 +1137,7 @@ bool BattleInfo::battleCanShoot(const CStack * stack, THex dest)
 	return false;
 }
 
-bool BattleInfo::battleCanFlee(int player)
+bool BattleInfo::battleCanFlee(int player) const
 {
 	if (player == side1)
 	{
@@ -1171,12 +1177,12 @@ const CStack * BattleInfo::battleGetStack(THex pos, bool onlyAlive)
 	return NULL;
 }
 
-const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack)
+const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 {
 	return heroes[!stack->attackerOwned];
 }
 
-si8 BattleInfo::battleMaxSpellLevel()
+si8 BattleInfo::battleMaxSpellLevel() const
 {
 // 	if(!curB) //there is not battle
 // 	{
@@ -1942,6 +1948,55 @@ std::string CStack::nodeName() const
 	if(base && base->armyObj)
 		oss << " of armyobj=" << base->armyObj->id;
 	return oss.str();
+}
+
+void CStack::prepareAttacked(BattleStackAttacked &bsa) const
+{
+	bsa.killedAmount = bsa.damageAmount / MaxHealth();
+	unsigned damageFirst = bsa.damageAmount % MaxHealth();
+
+	if( firstHPleft <= damageFirst )
+	{
+		bsa.killedAmount++;
+		bsa.newHP = firstHPleft + MaxHealth() - damageFirst;
+	}
+	else
+	{
+		bsa.newHP = firstHPleft - damageFirst;
+	}
+
+	if(count <= bsa.killedAmount) //stack killed
+	{
+		bsa.newAmount = 0;
+		bsa.flags |= 1;
+		bsa.killedAmount = count; //we cannot kill more creatures than we have
+	}
+	else
+	{
+		bsa.newAmount = count - bsa.killedAmount;
+	}
+}
+
+bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defender, THex attackerPos /*= THex::INVALID*/, THex defenderPos /*= THex::INVALID*/)
+{
+	if (!attackerPos.isValid())
+	{
+		attackerPos = attacker->position;
+	}
+	if (!defenderPos.isValid())
+	{
+		defenderPos = defender->position;
+	}
+
+	return
+		(THex::mutualPosition(attackerPos, defenderPos) >= 0)						//front <=> front
+		|| (attacker->doubleWide()									//back <=> front
+		&& THex::mutualPosition(attackerPos + (attacker->attackerOwned ? -1 : 1), defenderPos) >= 0)
+		|| (defender->doubleWide()									//front <=> back
+		&& THex::mutualPosition(attackerPos, defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0)
+		|| (defender->doubleWide() && attacker->doubleWide()//back <=> back
+		&& THex::mutualPosition(attackerPos + (attacker->attackerOwned ? -1 : 1), defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0);
+		
 }
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )

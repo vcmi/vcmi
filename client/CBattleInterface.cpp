@@ -913,6 +913,10 @@ bool CMeleeAttack::init()
 	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
 
 	int mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + reversedShift, dest);
+	if(mutPos == -1 && attackedStack->doubleWide())
+	{
+		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + reversedShift, attackedStack->occupiedHex());
+	}
 	switch(mutPos) //attack direction
 	{
 	case 0: case 1: case 2: case 3: case 4: case 5:
@@ -920,6 +924,8 @@ bool CMeleeAttack::init()
 		break;
 	default:
 		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" reversed shift: "<<reversedShift<<std::endl;
+		group = 11;
+		break;
 	}
 
 	return true;
@@ -1129,7 +1135,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks();
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false);
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		newStack(s);
@@ -1455,7 +1461,7 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::show(SDL_Surface * to)
 {
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //used in a few places
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false); //used in a few places
 	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
@@ -1806,7 +1812,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						//setting console text
 						char buf[500];
 						//calculating estimated dmg
-						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive->ID, shere->ID);
+						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
 						//printing
@@ -1956,7 +1962,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						//setting console info
 						char buf[500];
 						//calculating estimated dmg
-						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive->ID, shere->ID);
+						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
 						std::ostringstream estDmg;
 						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
 						//printing
@@ -2273,7 +2279,7 @@ void CBattleInterface::stackAttacking( const CStack * attacker, THex dest, const
 void CBattleInterface::newRoundFirst( int round )
 {
 	//handle regeneration
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks();
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false);
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		//don't show animation when no HP is regenerated

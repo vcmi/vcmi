@@ -30,34 +30,18 @@ BattleAction BattleAction::makeDefend(const CStack *stack)
 	return ba;
 }
 
-BattleAction BattleAction::makeMeleeAttack( const CStack *stack, const CStack * attacked, std::vector<THex> reachableByAttacker )
+
+BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, THex attackFrom /*= THex::INVALID*/)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
 	ba.actionType = WALK_AND_ATTACK;
 	ba.stackNumber = stack->ID;
-	ba.destinationTile = -1;
-	for (int g=0; g<reachableByAttacker.size(); ++g)
-	{
-		if (THex::mutualPosition(reachableByAttacker[g], attacked->position) >= 0 )
-		{
-			ba.destinationTile = reachableByAttacker[g];
-			break;
-		}
-	}
-
-	if (ba.destinationTile == -1)
-	{
-		//we couldn't determine appropriate pos
-		//TODO: should we throw an exception?
-		return makeDefend(stack);
-	}
-
+	ba.destinationTile = attackFrom;
 	ba.additionalInfo = attacked->position;
-
 	return ba;
-}
 
+}
 BattleAction BattleAction::makeWait(const CStack *stack)
 {
 	BattleAction ba;

@@ -21,7 +21,7 @@ class CStack;
 class CArmedInstance;
 class CGTownInstance;
 class CStackInstance;
-
+struct BattleStackAttacked;
 
 struct DLL_EXPORT CObstacleInstance
 {
@@ -84,10 +84,11 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<THex> getAccessibility(const CStack * stack, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
 
-	bool isStackBlocked(const CStack * stack); //returns true if there is neighboring enemy stack
+	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting)
-	std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
+	TDmgRange calculateDmgRange( const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
+	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
@@ -100,16 +101,16 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
-	si8 hasDistancePenalty(const CStack * stackID, THex destHex); //determines if given stack has distance penalty shooting given pos
-	si8 sameSideOfWall(int pos1, int pos2); //determines if given positions are on the same side of wall
-	si8 hasWallPenalty(const CStack * stack, THex destHex); //determines if given stack has wall penalty shooting given pos
-	si8 canTeleportTo(const CStack * stack, THex destHex, int telportLevel); //determines if given stack can teleport to given place
-	bool battleCanShoot(const CStack * stack, THex dest); //determines if stack with given ID shoot at the selected destination
+	si8 hasDistancePenalty(const CStack * stackID, THex destHex) const; //determines if given stack has distance penalty shooting given pos
+	si8 sameSideOfWall(int pos1, int pos2) const; //determines if given positions are on the same side of wall
+	si8 hasWallPenalty(const CStack * stack, THex destHex) const; //determines if given stack has wall penalty shooting given pos
+	si8 canTeleportTo(const CStack * stack, THex destHex, int telportLevel) const; //determines if given stack can teleport to given place
+	bool battleCanShoot(const CStack * stack, THex dest) const; //determines if stack with given ID shoot at the selected destination
 
-	bool battleCanFlee(int player); //returns true if player can flee from the battle
+	bool battleCanFlee(int player) const; //returns true if player can flee from the battle
 	const CStack * battleGetStack(THex pos, bool onlyAlive); //returns stack at given tile
-	const CGHeroInstance * battleGetOwner(const CStack * stack); //returns hero that owns given stack; NULL if none
-	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
+	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; NULL if none
+	si8 battleMaxSpellLevel() const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	void localInit();
 	static BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
 };
@@ -167,8 +168,12 @@ public:
 		return ret;
 	}
 
+	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, THex attackerPos = THex::INVALID, THex defenderPos = THex::INVALID);
+
 	bool doubleWide() const;
 	int occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
+
+	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -82,16 +82,17 @@ public:
 	virtual const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual std::vector<const CStack*> battleGetStacks()=0; //returns stacks on battlefield
+	virtual std::vector<const CStack*> battleGetStacks(bool onlyAlive = true)=0; //returns stacks on battlefield
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
 	virtual std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
+	virtual std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, int * predecessors = NULL)=0; //returns vector of distances to [dest hex number]
 	virtual bool battleCanShoot(const CStack * stack, THex dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
 	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
 	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
 	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	virtual int battleGetWallUnderHex(int hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	virtual TDmgRange battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg = NULL)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding to given side (0 - attacker, 1 - defender)
 	virtual si8 battleHasDistancePenalty(const CStack * stack, THex destHex) =0; //checks if given stack has distance penalty
@@ -209,16 +210,17 @@ public:
 	const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true) OVERRIDE; //returns stack info by given pos
 	int battleGetPos(int stack) OVERRIDE; //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
-	std::vector<const CStack*> battleGetStacks() OVERRIDE; //returns stacks on battlefield
+	std::vector<const CStack*> battleGetStacks(bool onlyAlive = true) OVERRIDE; //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ) OVERRIDE; //returns vector of stack in order of their move sequence
 	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable) OVERRIDE; //reutrns numbers of hexes reachable by creature with id ID
+	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, int * predecessors = NULL) OVERRIDE; //returns vector of distances to [dest hex number]; if predecessors is not null, it must point to BFIELD_SIZE * sizeof(int) of allocated memory
 	bool battleCanShoot(const CStack * stack, THex dest) OVERRIDE; //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell() OVERRIDE; //returns true, if caller can cast a spell
 	bool battleCanFlee() OVERRIDE; //returns true if caller can flee from the battle
 	const CGTownInstance * battleGetDefendedTown() OVERRIDE; //returns defended town if current battle is a siege, NULL instead
 	ui8 battleGetWallState(int partOfWall) OVERRIDE; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetWallUnderHex(int hex) OVERRIDE; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID) OVERRIDE; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	TDmgRange battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg = NULL) OVERRIDE; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	ui8 battleGetSiegeLevel() OVERRIDE; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const OVERRIDE; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
 	si8 battleHasDistancePenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has distance penalty

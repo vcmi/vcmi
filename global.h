@@ -18,7 +18,7 @@ typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 typedef si64 expType;
 typedef ui16 spelltype;
-
+typedef std::pair<ui32, ui32> TDmgRange;
 
 #include "int3.h"
 #include <map>
@@ -132,18 +132,24 @@ const int SPELLBOOK_GOLD_COST = 500;
 //for battle stacks' positions
 struct THex
 {
+	static const si16 INVALID = -1;
 	enum EDir{RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT};
 
 	si16 hex;
 
-	THex() : hex(-1) {}
+	THex() : hex(INVALID) {}
 	THex(si16 _hex) : hex(_hex)
 	{
-		assert(hex >= 0 && hex < BFIELD_SIZE);
+		//assert(isValid());
 	}
 	operator si16() const
 	{
 		return hex;
+	}
+
+	bool isValid() const
+	{
+		return hex >= 0 && hex < BFIELD_SIZE;
 	}
 
 	template<typename inttype>
@@ -208,18 +214,25 @@ struct THex
 		{
 		case TOP_LEFT:
 			setXY(y%2 ? x-1 : x, y-1);
+			break;
 		case TOP_RIGHT:
 			setXY(y%2 ? x : x+1, y-1);
+			break;
 		case RIGHT:
 			setXY(x+1, y);
+			break;
 		case BOTTOM_RIGHT:
 			setXY(y%2 ? x : x+1, y+1);
+			break;
 		case BOTTOM_LEFT:
 			setXY(y%2 ? x-1 : x, y+1);
+			break;
 		case LEFT:
 			setXY(x-1, y);
+			break;
 		default:
 			throw std::string("Disaster: wrong direction in THex::operator+=!\n");
+			break;
 		}
 	}
 

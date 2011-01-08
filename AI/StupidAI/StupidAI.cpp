@@ -2,6 +2,13 @@
 #include "StupidAI.h"
 #include "../../lib/BattleState.h"
 #include "../../CCallback.h"
+#include <boost/foreach.hpp>
+#include <boost/bind.hpp>
+#include "../../lib/CCreatureHandler.h"
+#include <algorithm>
+#include <boost/thread.hpp>
+
+IBattleCallback * cbc;
 
 CStupidAI::CStupidAI(void)
 	: side(-1), cb(NULL)
@@ -18,7 +25,7 @@ CStupidAI::~CStupidAI(void)
 void CStupidAI::init( IBattleCallback * CB )
 {
 	print("init called, saving ptr to IBattleCallback");
-	cb = CB;
+	cbc = cb = CB;
 }
 
 void CStupidAI::actionFinished( const BattleAction *action )
@@ -31,39 +38,121 @@ void CStupidAI::actionStarted( const BattleAction *action )
 	print("actionStarted called");
 }
 
+struct EnemyInfo
+{
+	const CStack * s;
+	int adi, adr;
+	std::vector<THex> attackFrom; //for melee fight
+	EnemyInfo(const CStack * _s) : s(_s)
+	{}
+	void calcDmg(const CStack * ourStack)
+	{
+		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
+		adi = (dmg.first + dmg.second) / 2;
+		adr = (retal.first + retal.second) / 2;
+	}
+
+	bool operator==(const EnemyInfo& ei) const
+	{
+		return s == ei.s;
+	}
+};
+
+bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2) 
+{
+	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
+}
+
+int distToNearestNeighbour(THex hex, const std::vector<int> & dists, THex *chosenHex = NULL)
+{
+	int ret = 1000000;
+	BOOST_FOREACH(THex n, hex.neighbouringTiles())
+	{
+		if(dists[n] >= 0 && dists[n] < ret)
+		{
+			ret = dists[n];
+			if(chosenHex)
+				*chosenHex = n;
+		}
+	}
+
+	return ret;
+}
+
+bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const std::vector<int> & dists)
+{
+	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
+}
+
+static bool willSecondHexBlockMoreEnemyShooters(const THex &h1, const THex &h2)
+{
+	int shooters[2] = {0}; //count of shooters on hexes
+
+	for(int i = 0; i < 2; i++)
+		BOOST_FOREACH(THex neighbour, (i ? h2 : h1).neighbouringTiles())
+			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
+				if(s->getCreature()->isShooting())
+						shooters[i]++;
+
+	return shooters[0] < shooters[1];
+}
+
 BattleAction CStupidAI::activeStack( const CStack * stack )
 {
+	boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called");
 	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
-	std::vector<const CStack *> avEnemies;
-	for(int g=0; g<avHexes.size(); ++g)
+	std::vector<int> dists = cb->battleGetDistances(stack);
+	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
+
+	BOOST_FOREACH(const CStack *s, cb->battleGetStacks())
 	{
-		const CStack * enemy = cb->battleGetStackByPos(avHexes[g]);
-		if (enemy)
+		if(s->owner != stack->owner)
 		{
-			avEnemies.push_back(enemy);
+			if(cb->battleCanShoot(stack, s->position))
+			{
+				enemiesShootable.push_back(s);
+			}
+			else
+			{
+				BOOST_FOREACH(THex hex, avHexes)
+				{
+					if(CStack::isMeleeAttackPossible(stack, s, hex))
+					{
+						std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
+						if(i == enemiesReachable.end())
+						{
+							enemiesReachable.push_back(s);
+							i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
+						}
+
+						i->attackFrom.push_back(hex);
+					}
+				}
+
+				if(!vstd::contains(enemiesReachable, s))
+					enemiesUnreachable.push_back(s);
+			}
 		}
 	}
 
-
-	if(stack->position % 17  <  5) //move army little towards enemy
+	if(enemiesShootable.size())
 	{
-		THex dest = stack->position + !side*2 - 1;
-		print(stack->nodeName() + "will be moved to " + boost::lexical_cast<std::string>(dest));
-		return BattleAction::makeMove(stack, dest); 
+		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
+		return BattleAction::makeShotAttack(stack, ei.s);
 	}
-
-	if(avEnemies.size())
+	else if(enemiesReachable.size())
 	{
-		const CStack * enemy = avEnemies[0];
-		//shooting
-		if (cb->battleCanShoot(stack, enemy->position))
+		const EnemyInfo &ei= *std::max_element(enemiesReachable.begin(), enemiesReachable.end(), &isMoreProfitable);
+		return BattleAction::makeMeleeAttack(stack, ei.s, *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters));
+	}
+	else
+	{
+		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
+		if(distToNearestNeighbour(ei.s->position, dists) < BFIELD_SIZE)
 		{
-			return BattleAction::makeShotAttack(stack, enemy);
+			return goTowards(stack, ei.s->position);
 		}
-
-		//melee
-		return BattleAction::makeMeleeAttack(stack, enemy, avHexes);
 	}
 
 	return BattleAction::makeDefend(stack);
@@ -149,3 +238,28 @@ void CStupidAI::print(const std::string &text) const
 {
 	tlog0 << "CStupidAI [" << this <<"]: " << text << std::endl;
 }
+
+BattleAction CStupidAI::goTowards(const CStack * stack, THex hex)
+{
+	THex realDest = hex;
+	int predecessors[BFIELD_SIZE];
+	std::vector<int> dists = cb->battleGetDistances(stack, hex);
+	if(distToNearestNeighbour(hex, dists, &realDest) > BFIELD_SIZE)
+	{
+		print("goTowards: Cannot reach");
+		return BattleAction::makeDefend(stack);
+	}
+
+	dists = cb->battleGetDistances(stack, realDest, predecessors);
+	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
+
+	while(1)
+	{
+		assert(realDest.isValid());
+		if(vstd::contains(avHexes, hex))
+			return BattleAction::makeMove(stack, hex);
+
+		hex = predecessors[hex];
+	}
+}
+

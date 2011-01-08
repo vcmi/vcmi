@@ -25,7 +25,7 @@ struct DLL_EXPORT BattleAction
 	};
 	ui8 actionType; //use ActionType enum for values
 		//10 = Monster casts a spell (i.e. Faerie Dragons)	11 - Bad morale freeze	12 - stacks heals another stack
-	ui16 destinationTile;
+	THex destinationTile;
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -36,7 +36,7 @@ struct DLL_EXPORT BattleAction
 
 	static BattleAction makeDefend(const CStack *stack);
 	static BattleAction makeWait(const CStack *stack);
-	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, std::vector<THex> reachableByAttacker);
+	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, THex attackFrom = THex::INVALID);
 	static BattleAction makeShotAttack(const CStack *shooter, const CStack *target);
 	static BattleAction makeMove(const CStack *stack, THex dest);
 };

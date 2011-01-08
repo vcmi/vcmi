@@ -539,7 +539,7 @@ int CBattleCallback::battleGetPos(int stack)
 	return -1;
 }
 
-std::vector<const CStack*> CBattleCallback::battleGetStacks()
+std::vector<const CStack*> CBattleCallback::battleGetStacks(bool onlyAlive /*= true*/)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<const CStack*> ret;
@@ -550,7 +550,8 @@ std::vector<const CStack*> CBattleCallback::battleGetStacks()
 	}
 
 	BOOST_FOREACH(const CStack *s, gs->curB->stacks)
-		ret.push_back(s);
+		if(s->alive()  ||  !onlyAlive)
+			ret.push_back(s);
 
 	return ret;
 }
@@ -628,12 +629,13 @@ int CBattleCallback::battleGetWallUnderHex(int hex)
 	return gs->curB->hexToWallPart(hex);
 }
 
-std::pair<ui32, ui32> CBattleCallback::battleEstimateDamage(int attackerID, int defenderID)
+TDmgRange CBattleCallback::battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg)
 {
 	if(!gs->curB)
 		return std::make_pair(0, 0);
 
 	const CGHeroInstance * attackerHero, * defenderHero;
+	bool shooting = battleCanShoot(attacker, defender->position);
 
 	if(gs->curB->side1 == player)
 	{
@@ -646,10 +648,27 @@ std::pair<ui32, ui32> CBattleCallback::battleEstimateDamage(int attackerID, int 
 		defenderHero = gs->curB->heroes[0];
 	}
 
-	const CStack * attacker = gs->curB->getStack(attackerID, false),
-		* defender = gs->curB->getStack(defenderID);
+	TDmgRange ret = gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, shooting, 0, false);
 
-	return gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker, defender->position), 0, false);
+	if(retaliationDmg)
+	{
+		if(shooting)
+		{
+			retaliationDmg->first = retaliationDmg->second = 0;
+		}
+		else
+		{
+			ui32 TDmgRange::* pairElems[] = {&TDmgRange::first, &TDmgRange::second};
+			for (int i=0; i<2; ++i)
+			{
+				BattleStackAttacked bsa;
+				bsa.damageAmount = ret.*pairElems[i];
+				retaliationDmg->*pairElems[!i] = gs->curB->calculateDmgRange(defender, attacker, bsa.newAmount, attacker->count, attackerHero, defenderHero, false, false, false).*pairElems[!i];
+			}
+		}
+	}
+	
+	return ret;
 }
 
 ui8 CBattleCallback::battleGetSiegeLevel()
@@ -1040,3 +1059,30 @@ CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
 	player = Player;
 	cl = C;
 }
+
+std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex hex /*= THex::INVALID*/, int * predecessors /*= NULL*/)
+{
+	if(!hex.isValid())
+		hex = stack->position;
+
+	std::vector<int> ret;
+	bool ac[BFIELD_SIZE];
+	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
+	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
+
+	for(int i=0; i<BFIELD_SIZE; ++i)
+	{
+		if(pr[i] == -1)
+			ret.push_back(-1);
+		else
+			ret.push_back(dist[i]);
+	}
+
+	if(predecessors)
+	{
+		memcpy(predecessors, pr, BFIELD_SIZE * sizeof(int));
+	}
+
+	return ret;
+}
+

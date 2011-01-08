@@ -905,11 +905,12 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			h->subID = 1;
 			h->initHero(1);
 			h->initObj();
-			//h->putStack(0, new CStackInstance(34, 5));
+			h->setCreature(0, 110, 1);
 
 			CGCreature *c = new CGCreature();
 			c->setOwner(1);
-			c->putStack(0, new CStackInstance(70, 6));
+			c->putStack(0, new CStackInstance(69, 6));
+			c->putStack(1, new CStackInstance(11, 3));
 			c->subID = 34;
 			c->initObj();
 

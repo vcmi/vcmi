@@ -19,7 +19,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
-
+#include <boost/format.hpp>
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -309,8 +309,6 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 void CGameHandler::startBattle( const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town /*= NULL*/ )
 {
 	battleEndCallback = new boost::function<void(BattleResult*)>(cb);
-	bEndArmy1 = armies[0];
-	bEndArmy2 = armies[1];
 	{
 		setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	}
@@ -321,6 +319,9 @@ void CGameHandler::startBattle( const CArmedInstance *armies[2], int3 tile, cons
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
 	BattleResultsApplied resultsApplied;
+
+	const CArmedInstance *bEndArmy1 = gs->curB->belligerents[0];
+	const CArmedInstance *bEndArmy2 = gs->curB->belligerents[0];
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
 
@@ -425,33 +426,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	delete battleResult.data;
 }
 
-void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, const CStack *def)
-{	
-	bsa.killedAmount = bsa.damageAmount / def->MaxHealth();
-	unsigned damageFirst = bsa.damageAmount % def->MaxHealth();
-
-	if( def->firstHPleft <= damageFirst )
-	{
-		bsa.killedAmount++;
-		bsa.newHP = def->firstHPleft + def->MaxHealth() - damageFirst;
-	}
-	else
-	{
-		bsa.newHP = def->firstHPleft - damageFirst;
-	}
-
-	if(def->count <= bsa.killedAmount) //stack killed
-	{
-		bsa.newAmount = 0;
-		bsa.flags |= 1;
-		bsa.killedAmount = def->count; //we cannot kill more creatures than we have
-	}
-	else
-	{
-		bsa.newAmount = def->count - bsa.killedAmount;
-	}
-}
-
 void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance)
 {
 	bat.bsa.clear();
@@ -480,7 +454,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	
 	
 	int dmg = bsa->damageAmount;
-	prepareAttacked(*bsa, def);
+	def->prepareAttacked(*bsa);
 
 	//life drain handling
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN))
@@ -515,7 +489,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bsa->effect = 11;
 
 		bsa->damageAmount = (dmg * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
-		prepareAttacked(*bsa, att);
+		att->prepareAttacked(*bsa);
 	}
 
 }
@@ -3026,21 +3000,21 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	bool ok = true;
 	switch(ba.actionType)
 	{
-	case 2: //walk
+	case BattleAction::WALK: //walk
 		{
 			sendAndApply(&StartAction(ba)); //start movement
 			moveStack(ba.stackNumber,ba.destinationTile); //move
 			sendAndApply(&EndAction());
 			break;
 		}
-	case 3: //defend
-	case 8: //wait
+	case BattleAction::DEFEND: //defend
+	case BattleAction::WAIT: //wait
 		{
 			sendAndApply(&StartAction(ba));
 			sendAndApply(&EndAction());
 			break;
 		}
-	case 4: //retreat/flee
+	case BattleAction::RETREAT: //retreat/flee
 		{
 			if( !gs->curB->battleCanFlee(ba.side ? gs->curB->side2 : gs->curB->side1) )
 				break;
@@ -3053,7 +3027,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			battleResult.set(br);
 			break;
 		}
-	case 6: //walk or attack
+	case BattleAction::WALK_AND_ATTACK: //walk or attack
 		{
 			sendAndApply(&StartAction(ba)); //start movement and attack
 			int startingPos = gs->curB->getStack(ba.stackNumber)->position;
@@ -3075,37 +3049,20 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if(curStack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
+			if(stackAtEnd && curStack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
 			{
 				stackAtEnd = NULL;
 			}
 
 			if(!stackAtEnd)
 			{
-				std::ostringstream problem;
-				problem << "There is no stack on " << ba.additionalInfo << " tile (no attack)!";
-				std::string probl = problem.str();
-				tlog3 << probl << std::endl;
-				complain(probl);
+				complain(boost::str(boost::format("walk and attack error: no stack at additionalInfo tile (%d)!\n") % ba.additionalInfo));
 				ok = false;
 				sendAndApply(&EndAction());
 				break;
 			}
 
-			ui16 curpos = curStack->position, 
-				enemypos = stackAtEnd->position;
-
-
-			if( !(
-				(THex::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
-				|| (curStack->doubleWide()									//back <=> front
-					&& THex::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
-				|| (stackAtEnd->doubleWide()									//front <=> back
-					&& THex::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
-				|| (stackAtEnd->doubleWide() && curStack->doubleWide()//back <=> back
-					&& THex::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
-				)
-				)
+			if( !CStack::isMeleeAttackPossible(curStack, stackAtEnd) )
 			{
 				tlog3 << "Attack cannot be performed!";
 				sendAndApply(&EndAction());
@@ -3152,7 +3109,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&EndAction());
 			break;
 		}
-	case 7: //shoot
+	case BattleAction::SHOOT: //shoot
 		{
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*destStack= gs->curB->getStackT(ba.destinationTile);
@@ -3180,7 +3137,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&EndAction());
 			break;
 		}
-	case 9: //catapult
+	case BattleAction::CATAPULT: //catapult
 		{
 			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
@@ -3282,7 +3239,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&EndAction());
 			break;
 		}
-	case 12: //healing
+		case BattleAction::STACK_HEAL: //healing
 		{
 			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
@@ -3609,7 +3566,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
-				prepareAttacked(bsa,*it);
+				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 			}
 			if(!si.stacks.empty())
