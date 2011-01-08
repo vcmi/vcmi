@@ -494,6 +494,7 @@ public:
 	void stackRemoved(const CStack * stack); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
 	void stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance); //stack with id number moved to destHex
+	void waitForAnims();
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack * attacker, THex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );

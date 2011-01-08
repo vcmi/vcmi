@@ -99,7 +99,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const THex &h1, const THex &h2)
 
 BattleAction CStupidAI::activeStack( const CStack * stack )
 {
-	boost::this_thread::sleep(boost::posix_time::seconds(2));
+	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called");
 	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
 	std::vector<int> dists = cb->battleGetDistances(stack);

@@ -318,6 +318,7 @@ void CGameHandler::startBattle( const CArmedInstance *armies[2], int3 tile, cons
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
+	bool duel = gs->initialOpts->mode == StartInfo::DUEL;
 	BattleResultsApplied resultsApplied;
 
 	const CArmedInstance *bEndArmy1 = gs->curB->belligerents[0];
@@ -325,11 +326,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
 
-	//unblock engaged players
-	if(bEndArmy1->tempOwner<PLAYER_LIMIT)
-		states.setFlag(bEndArmy1->tempOwner, &PlayerStatus::engagedIntoBattle, false);
-	if(bEndArmy2 && bEndArmy2->tempOwner<PLAYER_LIMIT)
-		states.setFlag(bEndArmy2->tempOwner, &PlayerStatus::engagedIntoBattle, false);	
+	if(!duel)
+	{
+		//unblock engaged players
+		if(bEndArmy1->tempOwner<PLAYER_LIMIT)
+			states.setFlag(bEndArmy1->tempOwner, &PlayerStatus::engagedIntoBattle, false);
+		if(bEndArmy2 && bEndArmy2->tempOwner<PLAYER_LIMIT)
+			states.setFlag(bEndArmy2->tempOwner, &PlayerStatus::engagedIntoBattle, false);	
+	}
 
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
@@ -345,25 +349,29 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
 	sendAndApply(battleResult.data);
-	cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
 
-	//if one hero has lost we will erase him
-	if(battleResult.data->winner!=0 && hero1)
+	if(!duel)
 	{
-		RemoveObject ro(hero1->id);
-		sendAndApply(&ro);
-	}
-	if(battleResult.data->winner!=1 && hero2)
-	{
-		RemoveObject ro(hero2->id);
-		sendAndApply(&ro);
-	}
+		cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
 
-	//give exp
-	if(battleResult.data->exp[0] && hero1)
-		changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
-	if(battleResult.data->exp[1] && hero2)
-		changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
+		//if one hero has lost we will erase him
+		if(battleResult.data->winner!=0 && hero1)
+		{
+			RemoveObject ro(hero1->id);
+			sendAndApply(&ro);
+		}
+		if(battleResult.data->winner!=1 && hero2)
+		{
+			RemoveObject ro(hero2->id);
+			sendAndApply(&ro);
+		}
+
+		//give exp
+		if(battleResult.data->exp[0] && hero1)
+			changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
+		if(battleResult.data->exp[1] && hero2)
+			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
+	}
 
 	sendAndApply(&resultsApplied);
 
@@ -372,6 +380,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		(*battleEndCallback)(battleResult.data);
 		delete battleEndCallback;
 		battleEndCallback = 0;
+	}
+
+
+	if(duel)
+	{
+		CSaveFile resultFile("result.vdrst");
+		resultFile << battleResult.data;
+		return;
 	}
 
 	// Necromancy if applicable.
@@ -645,6 +661,7 @@ CGameHandler::CGameHandler(void)
 	applier = new CApplier<CBaseForGHApply>;
 	registerTypes3(*applier);
 	visitObjectAfterVictory = false; 
+	battleEndCallback = NULL;
 }
 
 CGameHandler::~CGameHandler(void)
@@ -1934,6 +1951,12 @@ void CGameHandler::save( const std::string &fname )
 void CGameHandler::close()
 {
 	tlog0 << "We have been requested to close.\n";	
+
+	if(gs->initialOpts->mode == StartInfo::DUEL)
+	{
+		exit(0);
+	}
+
 	//BOOST_FOREACH(CConnection *cc, conns)
 	//	if(cc && cc->socket && cc->socket->is_open())
 	//		cc->socket->close();

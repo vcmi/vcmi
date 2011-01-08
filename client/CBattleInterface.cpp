@@ -2254,6 +2254,7 @@ void CBattleInterface::stackActivated(const CStack * stack)
 void CBattleInterface::stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance)
 {
 	addNewAnim(new CBattleStackMoved(this, stack, destHex, endMoving, distance));
+	waitForAnims();
 }
 
 void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos)
@@ -2262,6 +2263,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 	{
 		addNewAnim(new CDefenceAnim(attackedInfos[h], this));
 	}
+	waitForAnims();
 }
 
 void CBattleInterface::stackAttacking( const CStack * attacker, THex dest, const CStack * attacked, bool shooting )
@@ -2274,6 +2276,7 @@ void CBattleInterface::stackAttacking( const CStack * attacker, THex dest, const
 	{
 		addNewAnim(new CMeleeAttack(this, attacker, dest, attacked));
 	}
+	waitForAnims();
 }
 
 void CBattleInterface::newRoundFirst( int round )
@@ -2297,6 +2300,7 @@ void CBattleInterface::newRoundFirst( int round )
 		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1) && s->alive() )
 			displayEffect(74, s->position);
 	}
+	waitForAnims();
 }
 
 void CBattleInterface::newRound(int number)
@@ -2645,6 +2649,7 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 		siegeH->walls[it->first.first + 2] = BitmapHandler::loadBitmap(
 			siegeH->getSiegeName(it->first.first + 2, curInt->cb->battleGetWallState(it->first.first)) );
 	}
+	waitForAnims();
 }
 
 void CBattleInterface::battleFinished(const BattleResult& br)
@@ -2798,6 +2803,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
 		console->addText(dmgInfo);
 	}
+	waitForAnims();
 }
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
@@ -3343,6 +3349,12 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 }
 
+void CBattleInterface::waitForAnims()
+{
+	LOCPLINT->pim->unlock();
+	animsAreDisplayed.waitWhileTrue();
+	LOCPLINT->pim->lock();
+}
 
 void CBattleHero::show(SDL_Surface *to)
 {
@@ -3891,6 +3903,11 @@ void CBattleResultWindow::show(SDL_Surface *to)
 
 void CBattleResultWindow::bExitf()
 {
+	if(LOCPLINT->cb->getStartInfo()->mode == StartInfo::DUEL)
+	{
+		std::exit(0);
+	}
+
 	CPlayerInterface * intTmp = owner->curInt;
 	GH.popInts(2); //first - we; second - battle interface
 	intTmp->showingDialog->setn(false);

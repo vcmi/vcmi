@@ -605,7 +605,15 @@ void StacksInjured::applyCl( CClient *cl )
 
 void BattleResultsApplied::applyCl( CClient *cl )
 {
-	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(254, battleResultsApplied);
+	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
+	{
+		cl->terminate = true;
+		CloseServer cs;
+		*cl->serv << &cs;
+	}
 }
 
 void StacksHealedOrResurrected::applyCl( CClient *cl )

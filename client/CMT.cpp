@@ -490,9 +490,9 @@ void playIntro()
 
 void dispose()
 {
-	delete logfile;
 	if (console)
 		delete console;
+	delete logfile;
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
