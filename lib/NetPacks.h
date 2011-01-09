@@ -1159,7 +1159,8 @@ struct BattleResult : public CPackForClient//3003
 
 struct BattleStackMoved : public CPackForClient//3004
 {
-	ui32 stack, tile;
+	ui32 stack;
+	THex tile;
 	ui8 ending, distance, teleporting;
 	BattleStackMoved(){type = 3004;};
 	void applyFirstCl(CClient *cl);

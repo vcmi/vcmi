@@ -242,7 +242,7 @@ void CStupidAI::print(const std::string &text) const
 BattleAction CStupidAI::goTowards(const CStack * stack, THex hex)
 {
 	THex realDest = hex;
-	int predecessors[BFIELD_SIZE];
+	THex predecessors[BFIELD_SIZE];
 	std::vector<int> dists = cb->battleGetDistances(stack, hex);
 	if(distToNearestNeighbour(hex, dists, &realDest) > BFIELD_SIZE)
 	{

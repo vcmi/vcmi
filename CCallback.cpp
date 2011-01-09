@@ -523,20 +523,20 @@ const CStack* CBattleCallback::battleGetStackByPos(THex pos, bool onlyAlive)
 	return gs->curB->battleGetStack(pos, onlyAlive);
 }
 
-int CBattleCallback::battleGetPos(int stack)
+THex CBattleCallback::battleGetPos(int stack)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetPos called when there is no battle!"<<std::endl;
-		return -1;
+		return THex::INVALID;
 	}
 	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		if(gs->curB->stacks[g]->ID == stack)
 			return gs->curB->stacks[g]->position;
 	}
-	return -1;
+	return THex::INVALID;
 }
 
 std::vector<const CStack*> CBattleCallback::battleGetStacks(bool onlyAlive /*= true*/)
@@ -592,7 +592,7 @@ bool CBattleCallback::battleCanCastSpell()
 	if(!gs->curB) //there is no battle
 		return false;
 
-	if(gs->curB->side1 == player)
+	if(gs->curB->sides[0] == player)
 		return gs->curB->castSpells[0] == 0 && gs->curB->heroes[0] && gs->curB->heroes[0]->getArt(17);
 	else
 		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1] && gs->curB->heroes[1]->getArt(17);
@@ -620,7 +620,7 @@ ui8 CBattleCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
-int CBattleCallback::battleGetWallUnderHex(int hex)
+int CBattleCallback::battleGetWallUnderHex(THex hex)
 {
 	if(!gs->curB || gs->curB->siege == 0)
 	{
@@ -637,7 +637,7 @@ TDmgRange CBattleCallback::battleEstimateDamage(const CStack * attacker, const C
 	const CGHeroInstance * attackerHero, * defenderHero;
 	bool shooting = battleCanShoot(attacker, defender->position);
 
-	if(gs->curB->side1 == player)
+	if(gs->curB->sides[0] == player)
 	{
 		attackerHero = gs->curB->heroes[0];
 		defenderHero = gs->curB->heroes[1];
@@ -1060,14 +1060,15 @@ CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
 	cl = C;
 }
 
-std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex hex /*= THex::INVALID*/, int * predecessors /*= NULL*/)
+std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex hex /*= THex::INVALID*/, THex * predecessors /*= NULL*/)
 {
 	if(!hex.isValid())
 		hex = stack->position;
 
 	std::vector<int> ret;
 	bool ac[BFIELD_SIZE];
-	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
+	THex pr[BFIELD_SIZE];
+	int dist[BFIELD_SIZE];
 	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
 	for(int i=0; i<BFIELD_SIZE; ++i)
@@ -1080,7 +1081,7 @@ std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex 
 
 	if(predecessors)
 	{
-		memcpy(predecessors, pr, BFIELD_SIZE * sizeof(int));
+		memcpy(predecessors, pr, BFIELD_SIZE * sizeof(THex));
 	}
 
 	return ret;

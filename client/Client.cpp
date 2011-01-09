@@ -547,23 +547,23 @@ void CClient::stopConnection()
 void CClient::battleStarted(const BattleInfo * info)
 {
 	CPlayerInterface * att, * def;
-	if(vstd::contains(playerint, info->side1) && playerint[info->side1]->human)
-		att = static_cast<CPlayerInterface*>( playerint[info->side1] );
+	if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
+		att = static_cast<CPlayerInterface*>( playerint[info->sides[0]] );
 	else
 		att = NULL;
 
-	if(vstd::contains(playerint, info->side2) && playerint[info->side2]->human)
-		def = static_cast<CPlayerInterface*>( playerint[info->side2] );
+	if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
+		def = static_cast<CPlayerInterface*>( playerint[info->sides[1]] );
 	else
 		def = NULL;
 
 
 	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
 
-	if(vstd::contains(battleints,info->side1))
-		battleints[info->side1]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
-	if(vstd::contains(battleints,info->side2))
-		battleints[info->side2]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(battleints,info->sides[0]))
+		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
+	if(vstd::contains(battleints,info->sides[1]))
+		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 	if(vstd::contains(battleints,254))
 		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }

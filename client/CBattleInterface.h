@@ -190,7 +190,6 @@ class CBattleAttack : public CBattleStackAnimation
 {
 protected:
 	THex dest; //atacked hex
-	int posShiftDueToDist;
 	bool shooting;
 	int group; //if shooting is true, print this animation group
 	const CStack * attackedStack;

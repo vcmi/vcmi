@@ -876,54 +876,44 @@ bool CMeleeAttack::init()
 		return false;
 	}
 
-	int reversedShift = 0; //shift of attacking stack's position due to reversing
-	if(attackingStack->attackerOwned)
-	{
-		if(attackingStack->doubleWide() && THex::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
-		{
-			if(THex::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-			{
-				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
-			}
-		}
-	}
-	else //if(astack->attackerOwned)
-	{
-		if(attackingStack->doubleWide() && THex::mutualPosition(attackingStackPosBeforeReturn, dest) == -1)
-		{
-			if(THex::mutualPosition(attackingStackPosBeforeReturn + (attackingStack->attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
-			{
-				reversedShift = (attackingStack->attackerOwned ? -1 : 1);
-			}
-		}
+	bool toReverse = isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
 
-	}
-
-	//reversing stack if necessary
-	if(isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	if(toReverse)
 	{
+
 		owner->addNewAnim(new CReverseAnim(owner, stack, attackingStackPosBeforeReturn, true));
 		return false;
 	}
 	//reversed
 
 	shooting = false;
-	posShiftDueToDist = reversedShift;
 
 	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
 
-	int mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + reversedShift, dest);
+	int revShiftattacker = (attackingStack->attackerOwned ? -1 : 1);
+
+	int mutPos = THex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackedStack->doubleWide())
 	{
-		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + reversedShift, attackedStack->occupiedHex());
+		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->position);
 	}
+	if (mutPos == -1 && attackedStack->doubleWide())
+	{
+		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn, attackedStack->occupiedHex());
+	}
+	if (mutPos == -1 && attackedStack->doubleWide() && attackingStack->doubleWide())
+	{
+		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->occupiedHex());
+	}
+
+
 	switch(mutPos) //attack direction
 	{
 	case 0: case 1: case 2: case 3: case 4: case 5:
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
-		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" reversed shift: "<<reversedShift<<std::endl;
+		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos<<std::endl;
 		group = 11;
 		break;
 	}
@@ -1041,7 +1031,6 @@ bool CShootingAnim::init()
 
 	//attack aniamtion
 
-	posShiftDueToDist = 0;
 	shooting = true;
 
 	if(projectileAngle > straightAngle) //upper shot

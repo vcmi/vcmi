@@ -37,8 +37,8 @@
 			cl->battleints[player]->function(__VA_ARGS__);
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 	\
-	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, function, __VA_ARGS__) \
-	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, function, __VA_ARGS__) \
+	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->sides[0], function, __VA_ARGS__) \
+	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->sides[1], function, __VA_ARGS__) \
 	BATTLE_INTERFACE_CALL_IF_PRESENT(254, function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
@@ -530,7 +530,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 	int playerToCall = -1; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
-		playerToCall = ( GS(cl)->curB->side1 == activated->owner ? GS(cl)->curB->side2 : GS(cl)->curB->side1 );
+		playerToCall = ( GS(cl)->curB->sides[0] == activated->owner ? GS(cl)->curB->sides[1] : GS(cl)->curB->sides[0] );
 	}
 	else
 	{

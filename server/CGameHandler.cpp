@@ -322,7 +322,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	BattleResultsApplied resultsApplied;
 
 	const CArmedInstance *bEndArmy1 = gs->curB->belligerents[0];
-	const CArmedInstance *bEndArmy2 = gs->curB->belligerents[0];
+	const CArmedInstance *bEndArmy2 = gs->curB->belligerents[1];
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
 
@@ -343,8 +343,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		battleResult.data->exp[1] *= (100+hero2->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 
 	ui8 sides[2];
-	sides[0] = gs->curB->side1;
-	sides[1] = gs->curB->side2;
+	for(int i=0; i<2; ++i)
+	{
+		sides[i] = gs->curB->sides[i];
+	}
 	ui8 loser = sides[!battleResult.data->winner];
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
@@ -616,7 +618,7 @@ int CGameHandler::moveStack(int stack, int dest)
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasBonusOfType(Bonus::FLYING), curStack->doubleWide(), curStack->attackerOwned);
+	std::pair< std::vector<THex>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasBonusOfType(Bonus::FLYING), curStack->doubleWide(), curStack->attackerOwned);
 
 	ret = path.second;
 
@@ -3039,7 +3041,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::RETREAT: //retreat/flee
 		{
-			if( !gs->curB->battleCanFlee(ba.side ? gs->curB->side2 : gs->curB->side1) )
+			if( !gs->curB->battleCanFlee(ba.side ? gs->curB->sides[1] : gs->curB->sides[0]) )
 				break;
 			//TODO: remove retreating hero from map and place it in recruitment list
 			BattleResult *br = new BattleResult;

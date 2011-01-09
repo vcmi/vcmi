@@ -216,7 +216,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	}
 }
 
-bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos)
+bool BattleInfo::isAccessible(THex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos)
 {
 	if(flying && !lastPos)
 		return true;
@@ -232,7 +232,7 @@ bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool a
 	}
 }
 
-void BattleInfo::makeBFS(THex start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
+void BattleInfo::makeBFS(THex start, bool *accessibility, THex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
 	for(int b=0; b<BFIELD_SIZE; ++b)
@@ -282,7 +282,8 @@ std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOcc
 
 	getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, addOccupiable, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
 
-	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
+	THex pr[BFIELD_SIZE];
+	int dist[BFIELD_SIZE];
 	makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
 	if(stack->doubleWide())
@@ -354,21 +355,21 @@ bool BattleInfo::isStackBlocked(const CStack * stack) const
 }
 
 
-std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned)
+std::pair< std::vector<THex>, int > BattleInfo::getPath(THex start, THex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned)
 {
-	int predecessor[BFIELD_SIZE]; //for getting the Path
+	THex predecessor[BFIELD_SIZE]; //for getting the Path
 	int dist[BFIELD_SIZE]; //calculated distances
 
 	makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned, flyingCreature, false);
 	
 	if(predecessor[dest] == -1) //cannot reach destination
 	{
-		return std::make_pair(std::vector<int>(), 0);
+		return std::make_pair(std::vector<THex>(), 0);
 	}
 
 	//making the Path
-	std::vector<int> path;
-	int curElem = dest;
+	std::vector<THex> path;
+	THex curElem = dest;
 	while(curElem != start)
 	{
 		path.push_back(curElem);
@@ -630,7 +631,7 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile )
+std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillLevel, ui8 attackerOwner, THex destinationTile )
 {
 	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, skillLevel);
 	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
@@ -715,9 +716,9 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int position) const
+CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const
 {
-	int owner = attackerOwned ? side1 : side2;
+	int owner = attackerOwned ? sides[0] : sides[1];
 	assert(owner >= PLAYER_LIMIT  ||  base.armyObj && base.armyObj->tempOwner == owner);
 
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
@@ -725,9 +726,9 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, b
 	return ret;
 }
 
-CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, int position) const
+CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const
 {
-	int owner = attackerOwned ? side1 : side2;
+	int owner = attackerOwned ? sides[0] : sides[1];
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	return ret;
@@ -781,14 +782,15 @@ int BattleInfo::lineToWallHex( int line ) const
 	return lineToHex[line];
 }
 
-std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
+std::pair<const CStack *, THex> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
 {	
 	bool ac[BFIELD_SIZE];
 	std::set<THex> occupyable;
 
 	getAccessibilityMap(ac, closest->doubleWide(), closest->attackerOwned, false, occupyable, closest->hasBonusOfType(Bonus::FLYING), closest);
 
-	int predecessor[BFIELD_SIZE], dist[BFIELD_SIZE];
+	THex predecessor[BFIELD_SIZE];
+	int dist[BFIELD_SIZE];
 	makeBFS(closest->position, ac, predecessor, dist, closest->doubleWide(), closest->attackerOwned, closest->hasBonusOfType(Bonus::FLYING), true);
 
 	std::vector< std::pair< std::pair<int, int>, const CStack *> > stackPairs; //pairs <<distance, hex>, stack>
@@ -828,7 +830,7 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 		return std::make_pair(minPair.second, predecessor[minPair.first.second]);
 	}
 
-	return std::make_pair<const CStack * , int>(NULL, -1);
+	return std::make_pair<const CStack * , THex>(NULL, THex::INVALID);
 }
 ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
 {
@@ -1139,7 +1141,7 @@ bool BattleInfo::battleCanShoot(const CStack * stack, THex dest) const
 
 bool BattleInfo::battleCanFlee(int player) const
 {
-	if (player == side1)
+	if (player == sides[0])
 	{
 		if (!heroes[0])
 			return false;//current player have no hero
@@ -1154,7 +1156,7 @@ bool BattleInfo::battleCanFlee(int player) const
 		|| ( heroes[1] && heroes[1]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE)))
 		return false;
 
-	if (player == side2 && siege //defender in siege
+	if (player == sides[1] && siege //defender in siege
 		&& !(town->subID == 6 && vstd::contains(town->builtBuildings, 17)))//without escape tunnel
 		return false;
 
@@ -1256,10 +1258,10 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 {
 	CMP_stack cmpst;
 	BattleInfo *curB = new BattleInfo;
-	curB->side1 = armies[0]->tempOwner;
-	curB->side2 = armies[1]->tempOwner;
-	if(curB->side2 == 254) 
-		curB->side2 = 255;
+	curB->sides[0] = armies[0]->tempOwner;
+	curB->sides[1] = armies[1]->tempOwner;
+	if(curB->sides[1] == 254) 
+		curB->sides[1] = 255;
 
 	std::vector<CStack*> & stacks = (curB->stacks);
 
@@ -1883,7 +1885,7 @@ bool CStack::doubleWide() const
 	return getCreature()->doubleWide;
 }
 
-int CStack::occupiedHex() const
+THex CStack::occupiedHex() const
 {
 	if (doubleWide())
 	{
@@ -1894,7 +1896,7 @@ int CStack::occupiedHex() const
 	} 
 	else
 	{
-		return -1;
+		return THex::INVALID;
 	}
 }
 BonusList CStack::getSpellBonuses() const
