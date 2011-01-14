@@ -5,6 +5,7 @@
 #include <algorithm> //std::find
 #include <string> //std::find
 #include <boost/logic/tribool.hpp>
+#include <boost/unordered_set.hpp>
 using boost::logic::tribool;
 #include <boost/cstdint.hpp>
 #include <assert.h>
@@ -400,7 +401,12 @@ namespace vstd
 		return c.find(i)!=c.end();
 	}
 	template <typename V, typename Item, typename Item2>
-	bool contains(const bmap<Item,V> & c, const Item2 &i) //returns true if map c contains item i
+	bool contains(const bmap<Item,V> & c, const Item2 &i) //returns true if bmap c contains item i
+	{
+		return c.find(i)!=c.end();
+	}
+	template <typename Item>
+	bool contains(const boost::unordered_set<Item> & c, const Item &i) //returns true if unordered set c contains item i
 	{
 		return c.find(i)!=c.end();
 	}

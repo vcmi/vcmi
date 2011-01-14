@@ -6,6 +6,7 @@
 #include <fstream>
 #include <set>
 #include <map>
+#include <boost/unordered_set.hpp>
 
 /*
  * CLodhandler.h, part of VCMI engine
@@ -52,6 +53,7 @@ enum LodFileType{
 	FILE_OTHER
 };
 
+
 struct Entry
 {
 	// Info extracted from LOD file
@@ -62,12 +64,6 @@ struct Entry
 		size;	//and with
 	LodFileType type;// file type determined by extension
 
-	bool operator<(const Entry & comp) const
-	{
-		return type==comp.type ? name<comp.name
-		                       : type<comp.type;
-	}
-	
 	bool operator == (const Entry & comp) const
 	{
 		return (type==comp.type || comp.type== FILE_ANY) && name==comp.name;
@@ -76,6 +72,18 @@ struct Entry
 	Entry(std::string con, LodFileType TYPE): name(con), type(TYPE){};
 	Entry(std::string con): name(con){};
 	Entry(){};
+};
+
+template<>
+struct boost::hash<Entry> : public std::unary_function<Entry, std::size_t> {
+private:
+	boost::hash<std::string> stringHasher;
+public:
+	std::size_t operator()(Entry const& en) const
+	{
+		//do NOT improve this hash function as we need same-name hash collisions for find to work properly
+		return stringHasher(en.name);
+	}
 };
 
 class DLL_EXPORT CLodHandler
@@ -88,12 +96,11 @@ class DLL_EXPORT CLodHandler
 	std::string myDir; //load files from this dir instead of .lod file
 
 	void initEntry(Entry &e, const std::string name);
-	Entry getEntry(const std::string name, LodFileType);
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 
 public:
 
-	std::set<Entry> entries;
+	boost::unordered_set<Entry> entries;
 
 	CLodHandler();
 	~CLodHandler();
