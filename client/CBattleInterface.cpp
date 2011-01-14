@@ -1589,15 +1589,6 @@ void CBattleInterface::show(SDL_Surface * to)
 		if(!active)
 			activate();
 
-		//restoring good directions of stacks
-		BOOST_FOREACH(const CStack *s, stacks)
-		{
-			if(creDir[s->ID] != bool(s->attackerOwned) && s->alive())
-			{
-				addNewAnim(new CReverseAnim(this, s, s->position, false));
-			}
-		}
-
 		//activation of next stack
 		if(pendingAnims.size() == 0 && stackToActivate != NULL)
 		{
@@ -3233,6 +3224,20 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if(action->actionType == BattleAction::CATAPULT) //catapult
 	{
 	}
+
+	//check if we should reverse stacks
+	std::vector<const CStack *> stacks;
+	stacks.push_back(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
+	stacks.push_back(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
+
+	BOOST_FOREACH(const CStack *s, stacks)
+	{
+		if(s && creDir[s->ID] != bool(s->attackerOwned) && s->alive())
+		{
+			addNewAnim(new CReverseAnim(this, s, s->position, false));
+		}
+	}
+
 	queue->update();
 }
 
