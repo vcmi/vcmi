@@ -1665,6 +1665,11 @@ void CCreaturePic::show(SDL_Surface *to)
 	CIntObject::show(to);
 }
 
+void CCreaturePic::showAll(SDL_Surface *to)
+{
+	show(to);
+}
+
 void CRecruitmentWindow::close()
 {
 	GH.popIntTotally(this);
@@ -2471,7 +2476,7 @@ CObjectListWindow::~CObjectListWindow()
 void CObjectListWindow::elementSelected()
 {
 	boost::function<void(int)> toCall = onSelect;//save
-	int where = items[slider->value];      //required variables
+	int where = items[selected];      //required variables
 	GH.popIntTotally(this);//then destroy window
 	toCall(where);//and send selected object
 }

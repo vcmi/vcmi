@@ -446,6 +446,7 @@ public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
 	~CCreaturePic(); //d-tor
 	void show(SDL_Surface *to); //prints creature on screen
+	void showAll(SDL_Surface *to);
 	
 };
 

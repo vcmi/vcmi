@@ -17,8 +17,6 @@
 
 #ifndef _WIN32
 	typedef std::string TColor;
-	#define	_kill_thread(a) pthread_cancel(a)
-	typedef pthread_t ThreadHandle;
 	#define CONSOLE_GREEN "\x1b[1;32m"
 	#define CONSOLE_RED "\x1b[1;32m"
 	#define CONSOLE_MAGENTA "\x1b[1;35m"
@@ -33,10 +31,8 @@
 	#pragma comment(lib, "dbghelp.lib")
 
 	typedef WORD TColor;
-	#define _kill_thread(a) TerminateThread(a,0)
 	HANDLE handleIn;
 	HANDLE handleOut;
-	typedef void* ThreadHandle;
 	#define CONSOLE_GREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
 	#define CONSOLE_RED FOREGROUND_RED | FOREGROUND_INTENSITY
 	#define CONSOLE_MAGENTA FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
@@ -186,12 +182,23 @@ void CConsoleHandler::setColor(int level)
 
 int CConsoleHandler::run()
 {
-	char buffer[5000];
-	while(true)
+	//disabling sync to make in_avail() work (othervice always returns 0)
+	std::ios::sync_with_stdio(false);
+	std::string buffer;
+
+	while ( std::cin.good() )
 	{
-		std::cin.getline(buffer, 5000);
-		if(cb && *cb)
-			(*cb)(buffer);
+		//check if we have some unreaded symbols
+		if (std::cin.rdbuf()->in_avail())
+		{
+			if ( getline(std::cin, buffer).good() )
+				if ( cb && *cb )
+					(*cb)(buffer);
+		}
+		else
+			boost::this_thread::sleep(boost::posix_time::millisec(100));
+
+		boost::this_thread::interruption_point();
 	}
 	return -1;
 }
@@ -222,8 +229,7 @@ CConsoleHandler::~CConsoleHandler()
 void CConsoleHandler::end()
 {
 	if (thread) {
-		ThreadHandle th = (ThreadHandle)thread->native_handle();
-		_kill_thread(th);
+		thread->interrupt();
 		thread->join();
 		delete thread;
 		thread = NULL;

@@ -2753,7 +2753,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				}
 				break;
 			case 5: //Mana Vortex
-				if (visitors.empty() && h->mana <= h->manaLimit())
+				if (visitors.empty() && h->mana <= h->manaLimit() * 2)
 				{
 					cb->setManaPoints (heroID, 2 * h->manaLimit()); 
 					cb->setObjProperty (id, ObjProperty::VISITED, true);

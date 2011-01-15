@@ -5244,8 +5244,38 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 		
 	case TOWN_PORTAL: //Town Portal 
 		{
-			//TODO: check if given position is valid
-			moveHero(h->id,pos,1);
+			if (!gs->map->isInTheMap(pos))
+				COMPLAIN_RET("Destination tile not present!")
+			TerrainTile tile = gs->map->getTile(pos);
+			if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != TOWNI_TYPE )
+				COMPLAIN_RET("Town not found for Town Portal!");
+			
+			CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
+			if (town->tempOwner != h->tempOwner)
+				COMPLAIN_RET("Can't teleport to another player!");
+			if (town->visitingHero)
+				COMPLAIN_RET("Can't teleport to occupied town!");
+			
+			if (h->getSpellSchoolLevel(s) < 2)
+			{
+				double dist = town->pos.dist2d(h->pos);
+				int nearest = town->id; //nearest town's ID
+				BOOST_FOREACH(const CGTownInstance * currTown, gs->getPlayer(h->tempOwner)->towns)
+				{
+					double curDist = currTown->pos.dist2d(h->pos);
+					if (nearest == -1 || curDist < dist)
+					{
+						nearest = town->id;
+						dist = curDist;
+					}
+				}
+				if (town->id != nearest)
+					COMPLAIN_RET("This hero can only teleport to nearest town!")
+			}
+			if (h->visitedTown)
+				stopHeroVisitCastle(town->id, h->id);
+			if (moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1));
+				heroVisitCastle(town->id, h->id);
 		}
 		break;
 

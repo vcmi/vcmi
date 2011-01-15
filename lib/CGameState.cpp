@@ -3578,7 +3578,9 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 
 	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
 	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50)(77, 10);
+
+	//FIXME: what point of dmgMultipliers map? all damage multipliers are already present in CSpell::power
+	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 25)(24, 5)(25, 10)(26, 50)(77, 10);
 
 	//check if spell really does damage - if not, return 0
 	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())

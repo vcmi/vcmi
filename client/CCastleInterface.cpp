@@ -347,6 +347,7 @@ void CHeroGSlot::show(SDL_Surface * to)
 
 CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastleInterface * Owner)
 {
+	used = LCLICK | HOVER;
 	owner = Owner;
 	pos.x = x;
 	pos.y = y;
