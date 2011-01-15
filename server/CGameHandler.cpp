@@ -3811,7 +3811,7 @@ void CGameHandler::handleTimeEvents()
 			gs->map->events.pop_front();
 
 			ev->firstOccurence += ev->nextOccurence;
-			std::list<CMapEvent*>::iterator it = gs->map->events.begin();
+			std::list<ConstTransitivePtr<CMapEvent> >::iterator it = gs->map->events.begin();
 			while ( it !=gs->map->events.end() && **it <= *ev )
 				it++;
 			gs->map->events.insert(it, ev);
