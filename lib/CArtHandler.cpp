@@ -1001,6 +1001,12 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CG
 	return ret;
 }
 
+void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
+{
+	removeFrom(src.hero, src.slot);
+	putAt(dst.hero, dst.slot);
+}
+
 bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
 	return CArtifactInstance::canBePutAt(al, assumeDestRemoved);

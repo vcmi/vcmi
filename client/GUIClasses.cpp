@@ -4583,7 +4583,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		{
 			if(inBackpack) // Backpack destination.
 			{
-				if(slotID == ourOwner->commonInfo->src.slotID + 1) //next slot (our is not visible, so visually same as "old" place) to the art -> make nothing, return artifact to slot
+				if(srcInBackpack && slotID == ourOwner->commonInfo->src.slotID + 1) //next slot (our is not visible, so visually same as "old" place) to the art -> make nothing, return artifact to slot
 				{
 					deselect();
 				}
@@ -4603,9 +4603,12 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 					default:
 						setMeAsDest();
 						amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + Arts::BACKPACK_START);
-						if(!ourArt && srcInBackpack && srcInSameHero) //cannot move from backpack to AFTER backpack
-							ourOwner->commonInfo->dst.slotID--;		  //combined with amin above it will guarantee that dest is at most the last artifact
-						
+						if(srcInBackpack && srcInSameHero)
+						{
+							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with amin above it will guarantee that dest is at most the last artifact
+							  || ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
+								ourOwner->commonInfo->dst.slotID--;
+						}
 						if(srcInSameHero && ourOwner->commonInfo->dst.slotID == ourOwner->commonInfo->src.slotID) //we came to src == dst
 							deselect();
 						else

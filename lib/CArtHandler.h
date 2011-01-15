@@ -84,6 +84,7 @@ public:
 
 	void putAt(CGHeroInstance *h, ui16 slot);
 	void removeFrom(CGHeroInstance *h, ui16 slot);
+	void move(ArtifactLocation &src, ArtifactLocation &dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -716,9 +716,8 @@ DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
 	CArtifactInstance *a = src.getArt();
 	if(dst.slot < Arts::BACKPACK_START)
 		assert(!dst.getArt());
-
-	a->removeFrom(src.hero, src.slot);
-	a->putAt(dst.hero, dst.slot);
+	
+	a->move(src, dst);
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
