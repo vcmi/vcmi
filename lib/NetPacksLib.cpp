@@ -713,8 +713,10 @@ DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )
 
 DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
 {
-	assert(!dst.getArt());
 	CArtifactInstance *a = src.getArt();
+	if(dst.slot < Arts::BACKPACK_START)
+		assert(!dst.getArt());
+
 	a->removeFrom(src.hero, src.slot);
 	a->putAt(dst.hero, dst.slot);
 }

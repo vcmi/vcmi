@@ -2499,9 +2499,9 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 	if(dst.slot >= Arts::BACKPACK_START)
 		amin(dst.slot, Arts::BACKPACK_START + dst.hero->artifactsInBackpack.size());
 
- 	// Correction for destination from removing source artifact in backpack.
- 	if (src.slot >= 19 && dst.slot >= 19 && src.slot < dst.slot)
- 		dst.slot--;
+//  	// Correction for destination from removing source artifact in backpack.
+//  	if (src.slot >= 19 && dst.slot >= 19 && src.slot < dst.slot)
+//  		dst.slot--;
 
 	if (src.slot == dst.slot)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
@@ -3089,9 +3089,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if( !CStack::isMeleeAttackPossible(curStack, stackAtEnd) )
 			{
-				tlog3 << "Attack cannot be performed!";
+				complain("Attack cannot be performed!");
 				sendAndApply(&EndAction());
 				ok = false;
+				break;
 			}
 
 			//attack
@@ -4979,12 +4980,12 @@ void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
 {
-	CArtifactInstance *a = NULL;
-	a->artType = artType; //NOT via settype -> all bonus-related stuff must be done by NewArtifact apply
+	CArtifactInstance *a = new CArtifactInstance();
+	a->artType = artType; //*NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
 	
 	NewArtifact na;
 	na.art = a;
-	sendAndApply(&na); // -> updates a!!!
+	sendAndApply(&na); // -> updates a!!!, will create a on other machines
 
 	giveHeroArtifact(h, a, pos);
 }

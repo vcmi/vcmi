@@ -700,7 +700,7 @@ public:
 	void SacrificeBackpack();
 
 	void putOnAltar(int backpackIndex);
-	bool putOnAltar(CTradeableItem* altarSlot, int artID);
+	bool putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art);
 	void makeDeal();
 	void showAll(SDL_Surface * to);
 
@@ -719,7 +719,7 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, int artID);
+	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
 };
 
 class CSystemOptionsWindow : public CIntObject
@@ -922,6 +922,7 @@ class CArtPlace: public LRClickableAreaWTextComp
 public:
 	int slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
+	bool picked;
 	bool marked;
 	CArtifactsOfHero * ourOwner;
 	const CArtifactInstance * ourArt;
@@ -938,6 +939,7 @@ public:
 	bool locked () const;
 
 	void setMeAsDest(bool backpackAsVoid = true);
+	void setArtifact(const CArtifactInstance *art);
 
 	~CArtPlace(); //d-tor
 };
@@ -974,7 +976,7 @@ public:
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
-	std::multiset<int> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
+	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
@@ -1011,7 +1013,7 @@ public:
 	~CGarrisonWindow(); //d-tor
 };
 
-class CExchangeWindow : public CWindowWithGarrison
+class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 {
 	CStatusBar * ourBar; //internal statusbar
 

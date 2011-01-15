@@ -48,6 +48,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 	if(!down)
 	{
 		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
+		if(!buf)
+			return;
 		GH.popIntTotally(getOwner());
 		GH.pushInt(new CHeroWindow(buf));
 	}

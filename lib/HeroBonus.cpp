@@ -10,6 +10,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/bind.hpp>
 #include "CHeroHandler.h"
+#include "CGeneralTextHandler.h"
 
 #define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)
@@ -171,7 +172,7 @@ const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
 
 void CBonusSystemNode::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
 {
-	getModifiersWDescr(out, Selector::typeSybtype(type, subtype));
+	getModifiersWDescr(out, subtype != -1 ? Selector::typeSybtype(type, subtype) : Selector::type(type));
 }
 
 void CBonusSystemNode::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
@@ -490,6 +491,9 @@ std::string Bonus::Description() const
 	{
 	case CREATURE_ABILITY:
 		str << VLC->creh->creatures[id]->namePl;
+		break;
+	case SECONDARY_SKILL:
+		str << VLC->generaltexth->skillName[id] << " secondary skill";
 		break;
 	}
 

@@ -44,6 +44,7 @@
 #include "CMessage.h"
 #include "../lib/CObjectHandler.h"
 #include <boost/program_options.hpp>
+#include "../lib/CArtHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -306,10 +307,7 @@ void processCommand(const std::string &message)
 	readed.str(message);
 	std::string cn; //command name
 	readed >> cn;
-	int3 src, dst;
 
-//	int heronum;//TODO use me
-	int3 dest;
 
 	if(LOCPLINT && LOCPLINT->cingconsole)
 		LOCPLINT->cingconsole->print(message);
@@ -470,6 +468,19 @@ void processCommand(const std::string &message)
 				printInfoAboutIntObject(obj, 0);
 			else
 				tlog4 << typeid(*obj).name() << std::endl;
+		}
+	}
+	else if(cn=="tell")
+	{
+		std::string what;
+		int id1, id2;
+		readed >> what >> id1 >> id2;
+		if(what == "hs")
+		{
+			BOOST_FOREACH(const CGHeroInstance *h, LOCPLINT->cb->getHeroesInfo())
+				if(h->type->ID == id1)
+					if(const CArtifactInstance *a = h->getArt(id2))
+						tlog4 << a->nodeName();
 		}
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
