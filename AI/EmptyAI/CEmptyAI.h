@@ -1,6 +1,8 @@
 #include "../../AI_Base.h"
 #include "../../CCallback.h"
 
+struct HeroMoveDetails;
+
 class CEmptyAI : public CGlobalAI
 {
 	ICallback * cb;

@@ -42,17 +42,16 @@ private:
 		ui32 TopMargin;
 	};
 
-	unsigned int type;
-	unsigned char * data;
-	int datasize;
-	BMPPalette * colors;
-
 	//offset[group][frame] - offset of frame data in file
 	std::vector< std::vector <size_t> > offset;
 
 	//sorted list of offsets used to determine size
 	std::set <size_t> offList;
 
+	unsigned char * data;
+	BMPPalette * colors;
+	int datasize;
+	unsigned int type;
 
 public:
 	CDefFile(std::string Name);
@@ -88,32 +87,32 @@ private:
 		//surface for this entry
 		SDL_Surface * surf;
 
-		//bitfield, location of image data: 1 - def, 2 - file#9.*, 4 - file#9#2.*
-		unsigned char source;
+		//data for CompressedAnim
+		unsigned char * data;
 
 		//reference count, changed by loadFrame \ unloadFrame
 		size_t refCount;
 
-		//data for CompressedAnim
-		unsigned char * data;
-
 		//size of compressed data, unused for def files
 		size_t dataSize;
 
+		//bitfield, location of image data: 1 - def, 2 - file#9.*, 4 - file#9#2.*
+		unsigned char source;
+
 		AnimEntry();
 	};
-
-	//animation file name
-	std::string name;
-
-	//if true all frames will be stored in compressed state
-	const bool compressed;
 
 	//palette from def file, used only for compressed anim
 	BMPPalette * defPalette;
 
 	//entries[group][position], store all info regarding frames
 	std::vector< std::vector <AnimEntry> > entries;
+
+	//animation file name
+	std::string name;
+
+	//if true all frames will be stored in compressed state
+	const bool compressed;
 
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(CDefFile * file, size_t frame, size_t group);

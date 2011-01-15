@@ -81,8 +81,8 @@ class CKingdomInterface : public CGarrisonHolder
 		LRClickableAreaWText * speciality;
 		std::vector<LRClickableAreaWTextComp *> primarySkills;
 		std::vector<LRClickableAreaWTextComp *> secondarySkills;
-		std::vector<LRClickableAreaWTextComp *> artifacts;
-		std::vector<LRClickableAreaWTextComp *> backpack;
+		std::vector<CArtPlace *> artifacts;
+		std::vector<CArtPlace *> backpack;
 		CHighlightableButtonsGroup * artButtons;
 		void setHero(const CGHeroInstance * newHero);//change hero and update info
 		void scrollArts(int move);//moving backpack, receiving distance

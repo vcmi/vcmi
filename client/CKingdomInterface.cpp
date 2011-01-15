@@ -733,7 +733,7 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	{
 		secondarySkills.push_back(new LRClickableAreaWTextComp(genRect(32, 32, pos.x+410+i*37, pos.y+5), SComponent::secskill));
 	}
-
+/*
 	for (int i=0; i<18;i++)
 	{
 		artifacts.push_back(new CArtPlace(this, genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66)));
@@ -742,7 +742,7 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	for (int i=0; i<8;i++)
 	{
 		backpack.push_back(new CArtPlace(this, genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66)));
-	}
+	}*/
 }
 
 CKingdomInterface::CHeroItem::~CHeroItem()
@@ -899,21 +899,21 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 	{//arts
 		case 1:iter = 9;//misc. arts, spellbook, war machines
 		case 0://equipped arts
-			for (int i = iter ; i<iter+9;i++)
+			/*for (int i = iter ; i<iter+9;i++)
 			{
 				int artID = hero->getArtTypeId(i);
 				if (artID>=0)
 					blitAt(graphics->artDefs->ourImages[artID].bitmap,pos.x+268+48*(i%9),pos.y+66,to);
-			}
+			}*/
 			break;
 		case 2:
 			artLeft->show(to);
 			artRight->show(to);
 			int max = hero->artifacts.size();
 			iter = std::min(8, max);
-			for (size_t it = 0 ; it<iter;it++)
+			/*for (size_t it = 0 ; it<iter;it++)
 				blitAt(graphics->artDefs->ourImages[hero->artifacts[(it+backpackPos)%max]->id].bitmap,pos.x+293+48*it,pos.y+66,to);
-			break;
+			*/break;
 	}
 	show(to);
 }
@@ -934,7 +934,7 @@ void CKingdomInterface::CHeroItem::activate()
 	if (!hero)
 		return;
 	artButtons->activate();
-	garr->activate();
+	garr->activate();/*
 	if ( artGroup == 2 )
 	{
 		artLeft->activate();
@@ -946,7 +946,7 @@ void CKingdomInterface::CHeroItem::activate()
 	{
 		for (size_t i=artGroup*9; i<9+artGroup*9;i++)
 			artifacts[i]->activate();
-	}
+	}*/
 	portrait->activate();
 	experience->activate();
 	morale->activate();
@@ -966,7 +966,7 @@ void CKingdomInterface::CHeroItem::deactivate()
 	if (!hero)
 		return;
 	artButtons->deactivate();
-	garr->deactivate();
+	garr->deactivate();/*
 	if ( artGroup == 2 )
 	{
 		artLeft->deactivate();
@@ -978,7 +978,7 @@ void CKingdomInterface::CHeroItem::deactivate()
 	{
 		for (size_t i=artGroup*9; i<9+artGroup*9;i++)
 			artifacts[i]->deactivate();
-	}
+	}*/
 
 	portrait->deactivate();
 	experience->deactivate();

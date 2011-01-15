@@ -298,14 +298,16 @@ BMPPalette * CDefFile::getPalette()
 
 CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 {
-	static SDL_Color H3Palette[8] = {{  0,   0,   0, 255},
-	                                 {  0,   0,   0, 192},
-	/* 5 shadow colors */            {  0,   0,   0, 128},
-	                                 {  0,   0,   0,  64},
-	                                 {  0,   0,   0,  32},
-	                                 {255, 255,   0, 255},
-	/* 3 selection highlight color */{255, 255,   0, 255},
-	                                 {255, 255,   0, 255}};
+	//First 8 colors in def palette used for transparency
+	static SDL_Color H3Palette[8] = {
+	{  0,   0,   0, 255},// 100% - transparency
+	{  0,   0,   0, 192},//  75% - shadow border, 
+	{  0,   0,   0, 128},// TODO: find exact value
+	{  0,   0,   0, 128},// TODO: for transparency
+	{  0,   0,   0, 128},//  50% - shadow body
+	{  0,   0,   0, 255},// 100% - selection highlight
+	{  0,   0,   0, 128},//  50% - shadow body   below selection
+	{  0,   0,   0, 192}};// 75% - shadow border below selection
 	
 	data = spriteh->giveFile(Name, FILE_ANIMATION, &datasize);
 	if (!data)
