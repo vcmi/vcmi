@@ -3,7 +3,6 @@
 #include "CBattleInterface.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
-#include "CKingdomInterface.h"
 #include "CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
