@@ -6372,7 +6372,7 @@ CThievesGuildWindow::~CThievesGuildWindow()
 void MoraleLuckBox::set(const CBonusSystemNode *node)
 {
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
-	const int noneTxtId[] = {77, 108}; //I don't know why we have separate "none" texts for luck and morale...
+	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
 	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
 	const int componentType[] = {SComponent::luck, SComponent::morale};
 	const int hoverTextBase[] = {7, 4};
@@ -6397,7 +6397,7 @@ void MoraleLuckBox::set(const CBonusSystemNode *node)
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 	if (!mrl.size())
-		text += CGI->generaltexth->arraytxt[noneTxtId[morale]];
+		text += CGI->generaltexth->arraytxt[noneTxtId];
 	else
 	{
 		if (node->nodeType == CBonusSystemNode::STACK &&

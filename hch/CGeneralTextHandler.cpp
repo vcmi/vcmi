@@ -393,6 +393,7 @@ void CGeneralTextHandler::load()
 	for(int hh=0; hh<45; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
+		trimQuotation(tmp);
 		jktexts.push_back(tmp);
 	}
 
@@ -402,6 +403,14 @@ void CGeneralTextHandler::load()
 	{
 		loadToIt(tmp, strin, itr, 3);
 		tavernInfo.push_back(tmp);
+	}
+	
+	itr = 0;
+	strin = bitmaph->getTextFile("TURNDUR.TXT");
+	for(int hh=0; hh<11; ++hh)
+	{
+		loadToIt(tmp, strin, itr, 3);
+		turnDurations.push_back(tmp);
 	}
 
 	itr = 0;
@@ -491,13 +500,7 @@ void CGeneralTextHandler::load()
 	for (i = 0; i < 2; ++i) //gap description
 		loadToIt(dump,buf,it,3);
 	seerNames.resize(48);
-	for (i = 0; i < 14; ++i) //additional tabs
-	{
-		loadToIt(seerNames[i], buf, it, 4);
-		loadToIt(dump, buf, it, 3);
-	}
-	
-	for (i = 14; i < 48; ++i)
+	for (i = 0; i < 48; ++i)
 		loadToIt(seerNames[i], buf, it, 3);
 
 	//campaigns

@@ -272,8 +272,6 @@ int main(int argc, char** argv)
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-	CGI->musich->playMusic(musicBase::mainMenu, -1);
-
 	GH.curInt = new CGPreGame; //will set CGP pointer to itself
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
 	listenForEvents();

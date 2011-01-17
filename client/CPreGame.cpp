@@ -226,8 +226,8 @@ CMenuScreen::CMenuScreen( EState which )
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
 			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
+			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
 		}
@@ -236,8 +236,8 @@ CMenuScreen::CMenuScreen( EState which )
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZLOADGAM.bmp"), 114, 312, true);
 			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CGPreGame::openSel, CGP, loadGame, MULTI_HOT_SEAT), 568, 120, "ZTMULTI.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CGPreGame::openSel, CGP, loadGame, MULTI_HOT_SEAT), 568, 120, "ZTMULTI.DEF", SDLK_m);
+			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
 		}
@@ -328,6 +328,7 @@ void CGPreGame::update()
 {
 	if (GH.listInt.size() == 0)
 	{
+		CGI->musich->playMusic(musicBase::mainMenu, -1);
 	#ifdef _WIN32
 		CGI->videoh->open("ACREDIT.SMK");
 	#else
@@ -1574,7 +1575,10 @@ void InfoCard::showAll( SDL_Surface * to )
 				printToLoc((static_cast<const CMapInfo*>(SEL->current))->date,308,34, FONT_SMALL, zwykly, to);
 
 			//print flags
-			int fx=64, ex=244, myT;
+			int fx = 34  + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[390].c_str());
+			int ex = 200 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
+			
+			int myT;
 
 			if(playerColor >= 0)
 				myT = SEL->current->mapHeader->players[playerColor].team;
@@ -1712,7 +1716,8 @@ void InfoCard::setChat(bool activateChat)
 	GH.totalRedraw();
 }
 
-OptionsTab::OptionsTab()
+OptionsTab::OptionsTab():
+	turnDuration(NULL)
 {
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTBK.bmp"), 0, 0, true);
@@ -1737,16 +1742,8 @@ void OptionsTab::showAll( SDL_Surface * to )
 	printAtMiddleWBLoc(CGI->generaltexth->allTexts[519], 273, 102, FONT_SMALL, 10, tytulowy, to); //Starting Hero
 	printAtMiddleWBLoc(CGI->generaltexth->allTexts[520], 349, 102, FONT_SMALL, 10, tytulowy, to); //Starting Bonus
 	printAtMiddleLoc(CGI->generaltexth->allTexts[521], 222, 538, FONT_SMALL, tytulowy, to); // Player Turn Duration
-
-
-	if(SEL->sInfo.turnTime)
-	{
-		std::ostringstream os;
-		os << (int)SEL->sInfo.turnTime << " Minutes";
-		printAtMiddleLoc(os.str(), 319,559, FONT_SMALL, zwykly, to);
-	}
-	else
-		printAtMiddleLoc("Unlimited",319,559, FONT_SMALL, zwykly, to);
+	if (turnDuration)
+		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->value], 319,559, FONT_SMALL, zwykly, to);//Turn duration value
 }
 
 void OptionsTab::nextCastle( int player, int dir )
@@ -2089,7 +2086,7 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 {
 	CIntObject::showAll(to);
 	printAtMiddleLoc(s.name, 55, 10, FONT_SMALL, zwykly, to);
-	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 6, zwykly, to);
+	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 8, zwykly, to);
 }
 
 void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
@@ -2622,7 +2619,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	mapDesc = new CTextBox("", Rect(480, 280, 286, 117), 1);
 
 	//bonus choosing
-	printAtLoc(CGI->generaltexth->allTexts[71], 510, 431, FONT_MEDIUM, zwykly, background); //Choose a bonus:
+	printAtMiddleLoc(CGI->generaltexth->allTexts[71], 562, 438, FONT_MEDIUM, zwykly, background); //Choose a bonus:
 	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
@@ -2658,7 +2655,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	SDL_FreeSurface(panel);
 
 	//difficulty
-	printAtLoc("Difficulty", 691, 431, FONT_MEDIUM, zwykly, background); //Difficulty
+	printAtMiddleLoc(CGI->generaltexth->allTexts[492], 715, 438, FONT_MEDIUM, zwykly, background); //Difficulty
 	{//difficulty pics
 		for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
 		{
@@ -2805,7 +2802,9 @@ void CBonusSelection::show( SDL_Surface * to )
 	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
 
 	//flags
-	int fx=530, ex=674, myT;
+	int fx = 496  + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[390].c_str());
+	int ex = 629 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
+	int myT;
 	myT = ourHeader->players[playerColor].team;
 	for (std::map<int, PlayerSettings>::const_iterator i = sInfo.playerInfos.begin(); i != sInfo.playerInfos.end(); i++)
 	{
