@@ -2376,8 +2376,9 @@ const CGHeroInstance * CBattleInterface::getActiveHero()
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	const CStack * actSt = activeStack;
+	const CStack* dest = curInt->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 	if( ((whichOne%BFIELD_WIDTH)!=0 && (whichOne%BFIELD_WIDTH)!=(BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
-		|| (actSt->hasBonusOfType(Bonus::CATAPULT) && !spellDestSelectMode )
+		|| (actSt->hasBonusOfType(Bonus::CATAPULT) && !spellDestSelectMode || dest ) //enemy's first aid tent can stand there and we want to shoot it
 		)
 	{
 		if(!myTurn)
@@ -2423,7 +2424,6 @@ void CBattleInterface::hexLclicked(int whichOne)
 		}
 		else //we don't cast any spell
 		{
-			const CStack* dest = curInt->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
