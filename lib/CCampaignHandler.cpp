@@ -522,7 +522,9 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			{
 				BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 				{
-					cgh->artifacts -= VLC->arth->artifacts[g];
+					tlog1 << "TODO TODO TODO - take artifacts from hero\n";
+					//TODO how was that supposed to work with worn artifacts?
+					//cgh->artifactsInBackpack -= VLC->arth->artifacts[g];
 				}
 			}
 		}

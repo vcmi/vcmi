@@ -1190,7 +1190,7 @@ void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 
 void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h )
 {
-	if(!vstd::contains(h->artifWorn,17))
+	if(!h->hasSpellbook())
 		return; //hero hasn't spellbok
 	ChangeSpells cs;
 	cs.hid = h->id;
@@ -1759,7 +1759,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	}
 
 	int ScholarLevel = h1->getSecSkillLevel(CGHeroInstance::SCHOLAR);//heroes can trade up to this level
-	if (!ScholarLevel || !vstd::contains(h1->artifWorn,17) || !vstd::contains(h2->artifWorn,17) )
+	if (!ScholarLevel || !h1->hasSpellbook() || !h2->hasSpellbook() )
 		return;//no scholar skill or no spellbook
 
 	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(CGHeroInstance::WISDOM)+2),
@@ -2707,7 +2707,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
 		int price = VLC->arth->artifacts[aid]->price;
-		if(vstd::contains(hero->artifWorn,ui16(9+aid)) && complain("Hero already has this machine!")
+		if(hero->getArt(9+aid) && complain("Hero already has this machine!")
 			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
 			|| gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price  && complain("Not enough gold!")  //no gold
 			|| (!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(22) ) )
@@ -3326,7 +3326,6 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	{
 		SetMana sm;
 		ChangeSpells cs;
-		SetHeroArtifacts sha;
 
 		CGHeroInstance *h = gs->getHero(gs->getPlayer(player)->currentSelection);
 		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
@@ -3344,15 +3343,8 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		//give mana
 		sm.val = 999;
 
-		if(!h->getArt(17)) //hero doesn't have spellbook
-		{
-			//give spellbook
-			sha.hid = h->id;
-			sha.artifacts = h->artifacts;
-			sha.artifWorn = h->artifWorn;
-			VLC->arth->equipArtifact(sha.artifWorn, 17, 0);
-			sendAndApply(&sha);
-		}
+		if(!h->hasSpellbook()) //hero doesn't have spellbook
+			giveHeroNewArtifact(h, VLC->arth->artifacts[0], Arts::SPELLBOOK); //give spellbook
 
 		sendAndApply(&cs);
 		sendAndApply(&sm);
@@ -3381,14 +3373,13 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
 		if(!hero) return;
-		SetHeroArtifacts sha;
-		sha.hid = hero->id;
-		sha.artifacts = hero->artifacts;
-		sha.artifWorn = hero->artifWorn;
-		VLC->arth->equipArtifact(sha.artifWorn, 13, VLC->arth->artifacts[4]);
-		VLC->arth->equipArtifact(sha.artifWorn, 14, VLC->arth->artifacts[5]);
-		VLC->arth->equipArtifact(sha.artifWorn, 15, VLC->arth->artifacts[6]);
-		sendAndApply(&sha);
+
+		if(!hero->getArt(Arts::MACH1))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[4], Arts::MACH1);
+		if(!hero->getArt(Arts::MACH2))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[5], Arts::MACH2);
+		if(!hero->getArt(Arts::MACH3))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[6], Arts::MACH3);
 	}
 	else if(message == "vcminahar") //1000000 movement points
 	{
@@ -3440,16 +3431,19 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
 		if(!hero) return;
-		SetHeroArtifacts sha;
-		sha.hid = hero->id;
-		sha.artifacts = hero->artifacts;
-		sha.artifWorn = hero->artifWorn;
-		sha.artifacts.push_back(VLC->arth->artifacts[2]); //grail
 		for (int g=7; g<=140; ++g)
-		{
-			sha.artifacts.push_back(VLC->arth->artifacts[g]);
-		}
-		sendAndApply(&sha);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], -1);
+
+// 		SetHeroArtifacts sha;
+// 		sha.hid = hero->id;
+// 		sha.artifacts = hero->artifacts;
+// 		sha.artifWorn = hero->artifWorn;
+// 		sha.artifacts.push_back(VLC->arth->artifacts[2]); //grail
+// 		for (int g=7; g<=140; ++g)
+// 		{
+// 			sha.artifacts.push_back(VLC->arth->artifacts[g]);
+// 		}
+// 		sendAndApply(&sha);
 	}
 	else
 		cheated = false;
@@ -5037,7 +5031,11 @@ void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
 {
-	CArtifactInstance *a = new CArtifactInstance();
+	CArtifactInstance *a = NULL;
+	if(artType->constituents)
+		a = new CArtifactInstance();
+	else
+		a = new CCombinedArtifactInstance();
 	a->artType = artType; //*NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
 	
 	NewArtifact na;

@@ -511,7 +511,7 @@ void CCastleInterface::buildingClicked(int building)
 				else //both heroes present, use the visiting one
 					h = town->visitingHero;
 
-				if(h && !vstd::contains(h->artifWorn,ui16(17))) //hero doesn't have spellbok
+				if(h && !h->hasSpellbook()) //hero doesn't have spellbok
 				{
 					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
 					{

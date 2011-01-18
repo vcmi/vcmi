@@ -79,6 +79,9 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CreatureNativeTerrainLimiter>();
 	s.template registerType<CreatureFactionLimiter>();
 	s.template registerType<CreatureAlignmentLimiter>();
+
+	s.template registerType<CArtifactInstance>();
+	s.template registerType<CCombinedArtifactInstance>();
 }
 
 template<typename Serializer> DLL_EXPORT 
@@ -110,7 +113,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<RazeStructures>();
 	s.template registerType<SetAvailableCreatures>();
 	s.template registerType<SetHeroesInTown>();
-	s.template registerType<SetHeroArtifacts>();
+	//s.template registerType<SetHeroArtifacts>();
 	s.template registerType<HeroRecruited>();
 	s.template registerType<GiveHero>();
 	s.template registerType<NewTurn>();

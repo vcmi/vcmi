@@ -3516,9 +3516,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		printAtMiddle(CGI->generaltexth->allTexts[478], 302, 423, FONT_SMALL, tytulowy, *bg); //%s's Creatures
 
 		sacrificeAll = new AdventureMapButton(CGI->generaltexth->zelp[571],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
-		sacrificeAll->block(!hero->artifacts.size() && !hero->artifWorn.size());
+		sacrificeAll->block(!hero->artifactsInBackpack.size() && !hero->artifactsWorn.size());
 		sacrificeBackpack = new AdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
-		sacrificeBackpack->block(!hero->artifacts.size());
+		sacrificeBackpack->block(!hero->artifactsInBackpack.size());
 
 		slider = NULL;
 		max = NULL;
@@ -4189,9 +4189,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		hoverName = CGI->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->name);
 
-		int artifs = h->artifWorn.size() + h->artifacts.size();
+		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
-			if(vstd::contains(h->artifWorn,i)) 
+			if(vstd::contains(h->artifactsWorn,i)) 
 				artifs--;
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
@@ -4997,8 +4997,8 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 // 	}
 
 	curHero = hero;
-	if (curHero->artifacts.size() > 0)
-		backpackPos %= curHero->artifacts.size();
+	if (curHero->artifactsInBackpack.size() > 0)
+		backpackPos %= curHero->artifactsInBackpack.size();
 	else
 		backpackPos = 0;
 
@@ -5269,12 +5269,18 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		}
 		else
 		{
-			commonInfo->src.art = src.getArt();
-			commonInfo->src.slotID = src.slot;
+			commonInfo->src.art = dst.getArt();
+			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[src.getArt()->artType->id].bitmap);
+			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[dst.getArt()->artType->id].bitmap);
 			markPossibleSlots(dst.getArt());
 		}
+	}
+	else if(src.slot >= Arts::BACKPACK_START && src.slot < commonInfo->src.slotID && src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
+	{
+		int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
+		commonInfo->src.slotID--;
+		assert(commonInfo->src.valid());
 	}
 	else
 	{
@@ -6937,4 +6943,10 @@ bool CArtifactsOfHero::SCommonPart::Artpos::operator==(const ArtifactLocation &a
 
 	//assert(al.getArt() == art);
 	return ret;
+}
+
+bool CArtifactsOfHero::SCommonPart::Artpos::valid()
+{
+	assert(AOH && art);
+	return art == AOH->curHero->getArt(slotID);
 }

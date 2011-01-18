@@ -766,8 +766,8 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		garr = NULL;
 	}
 	char bufor[4000];
-	artLeft->block(hero->artifacts.size() <= 8);
-	artRight->block(hero->artifacts.size() <= 8);
+	artLeft->block(hero->artifactsInBackpack.size() <= 8);
+	artRight->block(hero->artifactsInBackpack.size() <= 8);
 	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), parent->slots->ourImages[parent->PicCount].bitmap,
 		Point(6,78), hero, NULL, true, true, true);
 
@@ -833,10 +833,10 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 void CKingdomInterface::CHeroItem::scrollArts(int move)
 {
-	backpackPos = ( backpackPos + move + hero->artifacts.size()) % hero->artifacts.size();
+	backpackPos = ( backpackPos + move + hero->artifactsInBackpack.size()) % hero->artifactsInBackpack.size();
 	for (int i=0; i<backpack.size(); i++)
 	{
-		backpack[i]->type = hero->getArtTypeId(19+(backpackPos + i)%hero->artifacts.size());
+		backpack[i]->type = hero->getArtTypeId(19+(backpackPos + i)%hero->artifactsInBackpack.size());
 		if (backpack[i]->type<0)
 			backpack[i]->hoverText ="";
 		else
@@ -909,7 +909,7 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 		case 2:
 			artLeft->show(to);
 			artRight->show(to);
-			int max = hero->artifacts.size();
+			int max = hero->artifactsInBackpack.size();
 			iter = std::min(8, max);
 			/*for (size_t it = 0 ; it<iter;it++)
 				blitAt(graphics->artDefs->ourImages[hero->artifacts[(it+backpackPos)%max]->id].bitmap,pos.x+293+48*it,pos.y+66,to);

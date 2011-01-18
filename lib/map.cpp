@@ -2037,8 +2037,12 @@ bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char *
 	int aid = readNormalNr(bufor,i, artidlen); i+=artidlen;
 	bool isArt  =  aid != artmask;
 	if(isArt)
-		h->putArtifact(slot, createArt(aid));
-
+	{
+		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= Arts::BACKPACK_START)
+			tlog3 << "Warning: A big artifact (war machine) in hero's backpack, ignoring...\n";
+		else
+			h->putArtifact(slot, createArt(aid));
+	}
 	return isArt;
 }
 
@@ -2068,7 +2072,7 @@ void Mapa::loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInsta
 		//bag artifacts //20
 		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
 		for(int ss = 0; ss < amount; ++ss)
-			loadArtifactToSlot(nhi, Arts::BACKPACK_START + ss, bufor, i);
+			loadArtifactToSlot(nhi, Arts::BACKPACK_START + nhi->artifactsInBackpack.size(), bufor, i);
 	} //artifacts
 }
 
@@ -2076,7 +2080,7 @@ CArtifactInstance * Mapa::createArt(int aid)
 {
 	CArtifactInstance *a = NULL;
 	if(aid >= 0)
-		a = new CArtifactInstance(aid);
+		a = CArtifactInstance::createNewArtifactInstance(aid);
 	else
 		a = new CArtifactInstance();
 

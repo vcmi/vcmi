@@ -965,6 +965,7 @@ public:
 			Artpos();
 			void clear();
 			void setTo(const CArtPlace *place, bool dontTakeBackpack);
+			bool valid();
 			bool operator==(const ArtifactLocation &al) const;
 		} src, dst;
 

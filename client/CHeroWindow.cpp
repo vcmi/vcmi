@@ -162,7 +162,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	}
 
 	assert(hero == curHero);
-	assert(hero->tempOwner == LOCPLINT->playerID); //for now we won't show hero windows for non-our heroes
+	assert(hero->tempOwner == LOCPLINT->playerID || hero->tempOwner == NEUTRAL_PLAYER); //for now we won't show hero windows for non-our heroes
 
 	specArea->text = CGI->generaltexth->hTxts[hero->subID].longBonus;
 

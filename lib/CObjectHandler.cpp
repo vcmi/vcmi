@@ -791,10 +791,10 @@ void CGHeroInstance::initHero()
 		spells -= 0xffffffff;
 
 	if(!getArt(Arts::MACH4) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set -> use default rules for spellbook
-		putArtifact(Arts::SPELLBOOK, new CArtifactInstance(0));
+		putArtifact(Arts::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 
 	if(!getArt(Arts::MACH4))
-		putArtifact(Arts::MACH4, new CArtifactInstance(3)); //everyone has a catapult
+		putArtifact(Arts::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
 	
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
@@ -878,7 +878,7 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 			}
 
 			if(!getArt(slot))
-				putArtifact(slot, new CArtifactInstance(aid));
+				putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
 				tlog3 << "Hero " << name << " already has artifact at " << slot << ", ommiting giving " << aid << std::endl;
 		}
@@ -1429,22 +1429,24 @@ si32 CGHeroInstance::manaRegain() const
 void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 {
 	CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
-
-	if (artifact->isBig()) 
-	{
-		for (std::vector<ui16>::const_iterator it = artifact->possibleSlots.begin(); it != artifact->possibleSlots.end(); ++it) 
-		{
-			if (!vstd::contains(artifWorn, *it)) 
-			{
-				VLC->arth->equipArtifact(artifWorn, *it, artifact);
-				break;
-			}
-		}
-	} 
-	else 
-	{
-		artifacts.push_back(artifact);
-	}
+	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
+	ai->putAt(this, ai->firstAvailableSlot(this));
+// 
+// 	if (artifact->isBig()) 
+// 	{
+// 		for (std::vector<ui16>::const_iterator it = artifact->possibleSlots.begin(); it != artifact->possibleSlots.end(); ++it) 
+// 		{
+// 			if (!vstd::contains(artifWorn, *it)) 
+// 			{
+// 				VLC->arth->equipArtifact(artifWorn, *it, artifact);
+// 				break;
+// 			}
+// 		}
+// 	} 
+// 	else 
+// 	{
+// 		artifacts.push_back(artifact);
+// 	}
 }
 
 int CGHeroInstance::getBoatType() const
@@ -1574,6 +1576,11 @@ void CGHeroInstance::putArtifact(ui16 pos, CArtifactInstance *art)
 void CGHeroInstance::putInBackpack(CArtifactInstance *art)
 {
 	putArtifact(art->firstBackpackSlot(this), art);
+}
+
+bool CGHeroInstance::hasSpellbook() const
+{
+	return getArt(Arts::SPELLBOOK);
 }
 
 void CGDwelling::initObj()

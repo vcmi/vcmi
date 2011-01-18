@@ -288,6 +288,8 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		gs->hpool.heroesPool[h->subID] = h;
 		if(!vstd::contains(gs->hpool.pavailable, h->subID))
 			gs->hpool.pavailable[h->subID] = 0xff;
+
+		return;
 	}
 	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
 	{
@@ -443,48 +445,48 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
-{
-	CGHeroInstance *h = gs->getHero(hid);
-	for(std::map<ui16, const CArtifact*>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
-		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
-			unequiped.push_back(i->second);
-
-	for(std::map<ui16, const CArtifact*>::iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
-		{
-			equiped.push_back(i->second);
-		}
-
-	//update hero data
-	h->artifacts = artifacts;
-	h->artifWorn = artifWorn;
-}
-
-DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
-{
-	if(!art)
-	{
-		if(pos<19)
-			VLC->arth->unequipArtifact(artifWorn, pos);
-		else if (pos - 19 < artifacts.size())
-			artifacts.erase(artifacts.begin() + (pos - 19));
-	}
-	else
-	{
-		if (pos < 19) 
-		{
-			VLC->arth->equipArtifact(artifWorn, pos, art);
-		} 
-		else // Goes into the backpack.
-		{ 
-			if(pos - 19 < artifacts.size())
-				artifacts.insert(artifacts.begin() + (pos - 19), art);
-			else
-				artifacts.push_back(art);
-		}
-	}
-}
+// DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
+// {
+// 	CGHeroInstance *h = gs->getHero(hid);
+// 	for(std::map<ui16, const CArtifact*>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
+// 		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
+// 			unequiped.push_back(i->second);
+// 
+// 	for(std::map<ui16, const CArtifact*>::iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+// 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
+// 		{
+// 			equiped.push_back(i->second);
+// 		}
+// 
+// 	//update hero data
+// 	h->artifacts = artifacts;
+// 	h->artifWorn = artifWorn;
+// }
+// 
+// DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
+// {
+// 	if(!art)
+// 	{
+// 		if(pos<19)
+// 			VLC->arth->unequipArtifact(artifWorn, pos);
+// 		else if (pos - 19 < artifacts.size())
+// 			artifacts.erase(artifacts.begin() + (pos - 19));
+// 	}
+// 	else
+// 	{
+// 		if (pos < 19) 
+// 		{
+// 			VLC->arth->equipArtifact(artifWorn, pos, art);
+// 		} 
+// 		else // Goes into the backpack.
+// 		{ 
+// 			if(pos - 19 < artifacts.size())
+// 				artifacts.insert(artifacts.begin() + (pos - 19), art);
+// 			else
+// 				artifacts.push_back(art);
+// 		}
+// 	}
+// }
 
 
 DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
@@ -588,7 +590,7 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 	gs->map->artInstances.push_back(art);
 
 	assert(!art->parents.size());
-	art->attachTo(art->artType);
+	art->setType(art->artType);
 }
 
 DLL_EXPORT const CStackInstance * StackLocation::getStack()

@@ -32,7 +32,7 @@ public:
 	bool isBig () const;
 	bool isModable () const;
 	bool fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slot) const;
-	bool canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const;
+	//bool canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const;
 	void addBonusesTo (BonusList *otherBonuses) const;
 	void removeBonusesFrom (BonusList *otherBonuses) const;
 	virtual void SetProperty (int mod){};
@@ -49,7 +49,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CBonusSystemNode&>(*this);;
+		h & static_cast<CBonusSystemNode&>(*this);
 		h & name & description & price & possibleSlots & constituents & constituentOf & aClass & id;
 	}
 
@@ -62,14 +62,16 @@ public:
 
 class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
 {
+protected:
 	void init();
+	CArtifactInstance(CArtifact *Art);
 public:
+	CArtifactInstance();
+
 	ConstTransitivePtr<CArtifact> artType; 
 	si32 id; //id of the instance
 
-	CArtifactInstance();
-	CArtifactInstance(CArtifact *Art);
-	CArtifactInstance(int aid);
+	//CArtifactInstance(int aid);
 
 	std::string nodeName() const OVERRIDE;
 	void setType(CArtifact *Art);
@@ -79,7 +81,6 @@ public:
 
 	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
 	virtual bool canBeDisassembled() const;
-
 	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
 
 	void putAt(CGHeroInstance *h, ui16 slot);
@@ -93,13 +94,40 @@ public:
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
+	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
+	static CArtifactInstance *createNewArtifactInstance(int aid);
 };
 
 class DLL_EXPORT CCombinedArtifactInstance : public CArtifactInstance
 {
+	CCombinedArtifactInstance(CArtifact *Art);
 public:
+	struct ConstituentInfo
+	{
+		ConstTransitivePtr<CArtifactInstance> art;
+		si16 slot;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & art & slot;
+		}
+
+		ConstituentInfo(CArtifactInstance *art = NULL, ui16 slot = -1);
+	};
+
+	std::vector<ConstituentInfo> constituentsInfo;
+
 	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
 	bool canBeDisassembled() const OVERRIDE;
+
+	CCombinedArtifactInstance();
+	void createConstituents();
+
+	friend class CArtifactInstance;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifactInstance&>(*this);
+		h & constituentsInfo;
+	}
 };
 
 class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner

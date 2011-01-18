@@ -396,27 +396,27 @@ void SetHeroesInTown::applyCl( CClient *cl )
 		cl->playerint[t->tempOwner]->heroInGarrisonChange(t);
 }
 
-void SetHeroArtifacts::applyCl( CClient *cl )
-{
-	tlog1 << "SetHeroArtifacts :(\n";
+// void SetHeroArtifacts::applyCl( CClient *cl )
+// {
+// 	tlog1 << "SetHeroArtifacts :(\n";
+// // 
+// // 	CGHeroInstance *h = GS(cl)->getHero(hid);
+// // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
+// // 	if(!player)
+// // 		return;
 // 
-// 	CGHeroInstance *h = GS(cl)->getHero(hid);
-// 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
-// 	if(!player)
-// 		return;
-
-	//h->recreateArtBonuses();
-	//player->heroArtifactSetChanged(h);
-
-// 	BOOST_FOREACH(Bonus bonus, gained)
-// 	{
-// 		player->heroBonusChanged(h,bonus,true);
-// 	}
-// 	BOOST_FOREACH(Bonus bonus, lost)
-// 	{
-// 		player->heroBonusChanged(h,bonus,false);
-// 	}
-}
+// 	//h->recreateArtBonuses();
+// 	//player->heroArtifactSetChanged(h);
+// 
+// // 	BOOST_FOREACH(Bonus bonus, gained)
+// // 	{
+// // 		player->heroBonusChanged(h,bonus,true);
+// // 	}
+// // 	BOOST_FOREACH(Bonus bonus, lost)
+// // 	{
+// // 		player->heroBonusChanged(h,bonus,false);
+// // 	}
+// }
 
 void HeroRecruited::applyCl( CClient *cl )
 {

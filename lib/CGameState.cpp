@@ -1379,11 +1379,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
  				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = k->second.heroes[0];
-				std::vector<ui16>::iterator slot = vstd::findFirstNot (hero->artifWorn, toGive->possibleSlots);
-				if(slot != toGive->possibleSlots.end())
-					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive);
-				else
- 					hero->giveArtifact(toGive->id);
+ 				hero->giveArtifact(toGive->id);
 			}
 		}
 	}
@@ -2675,7 +2671,7 @@ struct statsHLP
 		int ret = 0;
 		for(int g=0; g<ps->heroes.size(); ++g)
 		{
-			ret += ps->heroes[g]->artifacts.size() + ps->heroes[g]->artifWorn.size();
+			ret += ps->heroes[g]->artifactsInBackpack.size() + ps->heroes[g]->artifactsWorn.size();
 		}
 		return ret;
 	}

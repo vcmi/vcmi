@@ -119,31 +119,31 @@ bool CArtifact::fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 
 	return true;
 }
 
-bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
-{
-	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
-		return false;
-
-	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
-	assert(artifact.constituents);
-
-	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
-	{
-		bool found = false;
-		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
-		{
-			if (it->second->id == constituentID) 
-			{
-				found = true;
-				break;
-			}
-		}
-		if (!found)
-			return false;
-	}
-
-	return true;
-}
+// bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
+// {
+// 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
+// 		return false;
+// 
+// 	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
+// 	assert(artifact.constituents);
+// 
+// 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+// 	{
+// 		bool found = false;
+// 		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+// 		{
+// 			if (it->second->id == constituentID) 
+// 			{
+// 				found = true;
+// 				break;
+// 			}
+// 		}
+// 		if (!found)
+// 			return false;
+// 	}
+// 
+// 	return true;
+// }
 
 CArtifact::CArtifact()
 {
@@ -875,11 +875,11 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 
 }
 
-CArtifactInstance::CArtifactInstance(int aid)
-{
-	init();
-	setType(VLC->arth->artifacts[aid]);
-}
+// CArtifactInstance::CArtifactInstance(int aid)
+// {
+// 	init();
+// 	setType(VLC->arth->artifacts[aid]);
+// }
 
 void CArtifactInstance::setType( CArtifact *Art )
 {
@@ -909,7 +909,7 @@ int CArtifactInstance::firstAvailableSlot(const CGHeroInstance *h) const
 {
 	BOOST_FOREACH(ui16 slot, artType->possibleSlots)
 	{
-		if(artType->fitsAt(h->artifWorn, slot))
+		if(canBePutAt(ArtifactLocation(h, slot))) //if(artType->fitsAt(h->artifWorn, slot))
 		{
 			//we've found a free suitable slot.
 			return slot;
@@ -987,15 +987,27 @@ bool CArtifactInstance::canBeDisassembled() const
 std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CGHeroInstance *h) const
 {
 	std::vector<const CArtifact *> ret;
-	if(!artType->constituentOf)
+	if(!artType->constituentOf //not a part of combined artifact
+		|| artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	BOOST_FOREACH(ui32 combination, *artType->constituentOf) 
+	BOOST_FOREACH(ui32 possibleCombinedArt, *artType->constituentOf) 
 	{
-		if (artType->canBeAssembledTo(h->artifWorn, combination)) 
+		const CArtifact * const artifact = VLC->arth->artifacts[possibleCombinedArt];
+		assert(artifact->constituents);
+		bool possible = true;
+
+		BOOST_FOREACH(ui32 constituentID, *artifact->constituents) //check if all constituents are available
 		{
-			ret.push_back(VLC->arth->artifacts[combination]);
+			if(!h->hasArt(constituentID, true)) //constituent must be equipped
+			{
+				possible = false;
+				break;
+			}
 		}
+
+		if(possible)
+			ret.push_back(artifact);
 	}
 
 	return ret;
@@ -1007,6 +1019,19 @@ void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
 	putAt(dst.hero, dst.slot);
 }
 
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
+{
+	if(!Art->constituents)
+		return new CArtifactInstance(Art);
+	else
+		return new CCombinedArtifactInstance(Art);
+}
+
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
+{
+	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
+}
+
 bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
 	return CArtifactInstance::canBePutAt(al, assumeDestRemoved);
@@ -1016,4 +1041,32 @@ bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assu
 bool CCombinedArtifactInstance::canBeDisassembled() const
 {
 	return true;
+}
+
+CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
+	: CArtifactInstance(Art)
+{
+}
+
+CCombinedArtifactInstance::CCombinedArtifactInstance()
+{
+
+}
+
+void CCombinedArtifactInstance::createConstituents()
+{
+	assert(artType);
+	assert(artType->constituents);
+
+	BOOST_FOREACH(ui32 a, *artType->constituents)
+	{
+		constituentsInfo.push_back(ConstituentInfo(CArtifactInstance::createNewArtifactInstance(a)));
+	}
+}
+
+
+CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ui16 Slot /*= -1*/)
+{
+	art = Art;
+	slot = Slot;
 }
