@@ -4897,17 +4897,20 @@ void CGameHandler::runBattle()
 			{
 				BattleAction heal;
 
-				std::vector< const CStack * > possibleStacks;
+				std::vector< const CStack * > possibleStacks, secondPriority;
 				for (int v=0; v<gs->curB->stacks.size(); ++v)
 				{
 					const CStack * cstack = gs->curB->stacks[v];
 					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->alive()) //it's friendly and not fully healthy
 					{
-						possibleStacks.push_back(cstack);
+						if (cstack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+							secondPriority.push_back(cstack);
+						else
+							possibleStacks.push_back(cstack);
 					}
 				}
 
-				if(possibleStacks.size() == 0)
+				if(possibleStacks.size() == 0 && secondPriority.size() == 0)
 				{
 					//nothing to heal
 					makeStackDoNothing(next);
@@ -4917,7 +4920,12 @@ void CGameHandler::runBattle()
 				else
 				{
 					//heal random creature
-					const CStack * toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
+					const CStack * toBeHealed = NULL;
+					if (possibleStacks.size() > 0)
+						toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
+					else
+						toBeHealed = secondPriority[ rand()%secondPriority.size() ];
+					
 					heal.actionType = BattleAction::STACK_HEAL;
 					heal.additionalInfo = 0;
 					heal.destinationTile = toBeHealed->position;

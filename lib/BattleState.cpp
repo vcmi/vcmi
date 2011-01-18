@@ -1345,11 +1345,12 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 
 	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
 	{
-		if((stacks[g]->position%17)==1 && stacks[g]->doubleWide() && stacks[g]->attackerOwned)
+		//we should do that for creature bank too
+		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
 		{
 			stacks[g]->position += THex::RIGHT;
 		}
-		else if((stacks[g]->position%17)==15 && stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
+		else if(stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
 		{
 			stacks[g]->position += THex::LEFT;
 		}

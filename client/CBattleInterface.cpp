@@ -893,7 +893,7 @@ bool CMeleeAttack::init()
 	int revShiftattacker = (attackingStack->attackerOwned ? -1 : 1);
 
 	int mutPos = THex::mutualPosition(attackingStackPosBeforeReturn, dest);
-	if(mutPos == -1 && attackedStack->doubleWide())
+	if(mutPos == -1 && attackingStack->doubleWide())
 	{
 		mutPos = THex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->position);
 	}
