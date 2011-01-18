@@ -179,7 +179,8 @@ struct DLL_EXPORT Bonus
 		N_TURNS = 16, //used during battles, after battle bonus is always removed
 		N_DAYS = 32,
 		UNITL_BEING_ATTACKED = 64,/*removed after attack and counterattacks are performed*/
-		UNTIL_ATTACK = 128 /*removed after attack and counterattacks are performed*/
+		UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
+		STACK_GETS_TURN = 256 /*removed when stack gets its turn - used for defensive stance*/
 	};
 	enum BonusSource
 	{
@@ -197,7 +198,8 @@ struct DLL_EXPORT Bonus
 		HERO_SPECIAL,
 		ARMY,
 		CAMPAIGN_BONUS,
-		SPECIAL_WEEK
+		SPECIAL_WEEK,
+		OTHER /*used for defensive stance*/
 	};
 
 	enum LimitEffect
@@ -218,7 +220,7 @@ struct DLL_EXPORT Bonus
 		INDEPENDENT_MAX //used for SPELL bonus
 	};
 
-	ui8 duration; //uses BonusDuration values
+	ui16 duration; //uses BonusDuration values
 	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
 
 	TBonusType type; //uses BonusType values - says to what is this bonus - 1 byte
@@ -270,6 +272,10 @@ struct DLL_EXPORT Bonus
 	static bool OneBattle(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_BATTLE;
+	}
+	static bool UntilGetsTurn(const Bonus *hb)
+	{
+		return hb->duration & Bonus::STACK_GETS_TURN;
 	}
 	static bool UntilAttack(const Bonus *hb)
 	{

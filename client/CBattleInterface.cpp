@@ -2788,10 +2788,29 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
+	if(sse.effect.id != -1) //can be -1 for defensive stance effect
 	{
-		displayEffect(CGI->spellh->spells[sse.effect.id]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
+		for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
+		{
+			displayEffect(CGI->spellh->spells[sse.effect.id]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
+		}
 	}
+	else if (sse.effect.source == Bonus::OTHER && sse.effect.type == Bonus::PRIMARY_SKILL && sse.stacks.size() == 1)
+	{
+		//defensive stance (I hope)
+		const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
+		int txtid = 120;
+
+		if(stack->count != 1)
+			txtid++; //move to plural text
+
+		char txt[4000];
+		int val = stack->Defense() - (stack->Defense() * 100 )/ (100 + sse.effect.val);
+		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
+		console->addText(txt);
+	}
+
+
 	if (activeStack != NULL) //it can be -1 when a creature casts effect
 	{
 		redrawBackgroundWithHexes(activeStack);
@@ -3313,14 +3332,11 @@ void CBattleInterface::startAction(const BattleAction* action)
 	int txtid = 0;
 	switch(action->actionType)
 	{
-	case 3: //defend
-		txtid = 120;
-		break;
-	case 8: //wait
+	case BattleAction::WAIT:
 		txtid = 136;
 		break;
-	case 11: //bad morale
-		txtid = -34; //negative -> no separate singular/plural form		
+	case BattleAction::BAD_MORALE:
+		txtid = -34; //negative -> no separate singular/plural form
 		displayEffect(30,stack->position);
 		break;
 	}

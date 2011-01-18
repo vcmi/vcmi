@@ -3033,6 +3033,15 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			break;
 		}
 	case BattleAction::DEFEND: //defend
+		{
+			//defensive stance
+			SetStackEffect sse;
+			sse.effect = Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
+			sse.stacks.push_back(ba.stackNumber);
+			sendAndApply(&sse);
+
+			//don't break - we share code with next case
+		}
 	case BattleAction::WAIT: //wait
 		{
 			sendAndApply(&StartAction(ba));
