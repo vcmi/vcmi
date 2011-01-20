@@ -435,7 +435,7 @@ int CGObjectInstance::getSightRadious() const
 {
 	return 3;
 }
-void CGObjectInstance::getSightTiles(std::set<int3> &tiles) const //returns reference to the set
+void CGObjectInstance::getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const //returns reference to the set
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }

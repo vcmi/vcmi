@@ -16,6 +16,7 @@
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
@@ -520,6 +521,15 @@ public:
 		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
+	template <typename T, typename U>
+	void saveSerializable(const boost::unordered_set<T, U> &data)
+	{
+		boost::unordered_set<T, U> &d = const_cast<boost::unordered_set<T, U> &>(data);
+		boost::uint32_t length = d.size();
+		*this << length;
+		for(typename boost::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
+			*this << *i;
+	}
 	template <typename T>
 	void saveSerializable(const std::list<T> &data)
 	{
@@ -771,6 +781,17 @@ public:
 	}
 	template <typename T>
 	void loadSerializable(std::set<T> &data)
+	{
+		READ_CHECK_U32(length);
+		T ins;
+		for(ui32 i=0;i<length;i++)
+		{
+			*this >> ins;
+			data.insert(ins);
+		}
+	}
+	template <typename T, typename U>
+	void loadSerializable(boost::unordered_set<T, U> &data)
 	{
 		READ_CHECK_U32(length);
 		T ins;

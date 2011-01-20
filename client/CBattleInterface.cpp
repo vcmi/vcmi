@@ -3245,9 +3245,9 @@ void CBattleInterface::endAction(const BattleAction* action)
 	}
 
 	//check if we should reverse stacks
-	std::vector<const CStack *> stacks;
-	stacks.push_back(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
-	stacks.push_back(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
+	std::set<const CStack *> stacks;
+	stacks.insert(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
+	stacks.insert(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
 
 	BOOST_FOREACH(const CStack *s, stacks)
 	{

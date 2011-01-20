@@ -1,5 +1,6 @@
 #ifndef __NETPACKS_H__
 #define __NETPACKS_H__
+#include <boost/unordered_set.hpp>
 #include "../global.h"
 #include "BattleAction.h"
 #include "HeroBonus.h"
@@ -8,6 +9,7 @@
 #include "CMapInfo.h"
 #include "../StartInfo.h"
 #include "ConstTransitivePtr.h"
+#include "../int3.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -330,7 +332,8 @@ struct SetMana : public CPackForClient //110
 	{
 		h & val & hid;
 	}
-}; 
+};
+
 struct SetMovePoints : public CPackForClient //111
 {
 	SetMovePoints(){type = 111;};
@@ -343,14 +346,15 @@ struct SetMovePoints : public CPackForClient //111
 	{
 		h & val & hid;
 	}
-}; 
+};
+
 struct FoWChange : public CPackForClient //112
 {
 	FoWChange(){type = 112;};
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	std::set<int3> tiles;
+	boost::unordered_set<int3, struct ShashInt3 > tiles;
 	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -521,7 +525,7 @@ struct TryMoveHero : public CPackForClient //501
 	ui32 id, movePoints;
 	ui8 result; //uses EResult
 	int3 start, end; //h3m format
-	std::set<int3> fowRevealed; //revealed tiles
+	boost::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
 	int3 attackedFrom; // Set when stepping into endangered tile.
 
 	bool humanKnows; //used locally during applying to client

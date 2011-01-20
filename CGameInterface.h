@@ -128,8 +128,8 @@ public:
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
-	virtual void tileHidden(const std::set<int3> &pos){};
-	virtual void tileRevealed(const std::set<int3> &pos){};
+	virtual void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos){};
+	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL){}; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void yourTurn(){};

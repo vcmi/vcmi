@@ -96,7 +96,7 @@ int IGameCallback::getHeroCount( int player, bool includeGarrisoned )
 	return ret;
 }
 
-void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ )
+void IGameCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ )
 {
 	if(player >= PLAYER_LIMIT)
 	{
@@ -126,7 +126,7 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 	}
 }
 
-void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int level, int surface )
+void IGameCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int player/*=-1*/, int level, int surface )
 {
 	if(player >= PLAYER_LIMIT)
 	{

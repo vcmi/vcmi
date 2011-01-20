@@ -150,7 +150,7 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 		team->fogOfWarMap[t.x][t.y][t.z] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		std::set<int3> tilesRevealed;
+		boost::unordered_set<int3, ShashInt3> tilesRevealed;
 		for (size_t i = 0; i < gs->map->objects.size(); i++)
 		{
 			if (gs->map->objects[i])

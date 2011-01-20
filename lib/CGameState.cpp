@@ -1335,7 +1335,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		{
 			if( !vstd::contains(k->second.players, obj->tempOwner)) continue; //not a flagged object
 
-			std::set<int3> tiles;
+			boost::unordered_set<int3, ShashInt3> tiles;
 			obj->getSightTiles(tiles);
 			BOOST_FOREACH(int3 tile, tiles)
 			{

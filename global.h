@@ -363,6 +363,7 @@ enum EAlignment
 	#define DLL_EXPORT DLL_F_IMPORT
 #endif
 
+
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 

@@ -13,6 +13,7 @@
 #endif
 #include "../lib/CCreatureSet.h"
 #include "../lib/ConstTransitivePtr.h"
+#include <boost/unordered_set.hpp>
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -157,7 +158,7 @@ public:
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
-	void getSightTiles(std::set<int3> &tiles) const; //returns reference to the set
+	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
 	int getOwner() const;
 	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles

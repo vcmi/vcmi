@@ -192,8 +192,8 @@ public:
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) OVERRIDE;
 	void showTavernWindow(const CGObjectInstance *townOrTavern) OVERRIDE;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) OVERRIDE; //called when a hero casts a spell
-	void tileHidden(const std::set<int3> &pos) OVERRIDE; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::set<int3> &pos) OVERRIDE; //called when fog of war disappears from given tiles
+	void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when given tiles become hidden under fog of war
+	void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) OVERRIDE;
 	void availableArtifactsChanged(const CGBlackMarket *bm = NULL) OVERRIDE; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn() OVERRIDE;

@@ -933,19 +933,19 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 }
 
-void CPlayerInterface::tileRevealed(const std::set<int3> &pos)
+void CPlayerInterface::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.showTile(*i);
 	if(pos.size())
 		GH.totalRedraw();
 }
 
-void CPlayerInterface::tileHidden(const std::set<int3> &pos)
+void CPlayerInterface::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.hideTile(*i);
 	if(pos.size())
 		GH.totalRedraw();
