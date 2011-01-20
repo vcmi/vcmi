@@ -888,7 +888,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 
 		//remove effects and restore only those with remaining turns in duration
 		BonusList tmpEffects = s->bonuses;
-		s->bonuses.removeSpells(Bonus::CASTED_SPELL);
+		s->bonuses.removeSpells(Bonus::SPELL_EFFECT);
 
 		BOOST_FOREACH(Bonus *it, tmpEffects)
 		{
@@ -1072,7 +1072,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 					}
 					
 				}
-				s->bonuses.removeSpells(Bonus::CASTED_SPELL); //removing all effects
+				s->bonuses.removeSpells(Bonus::SPELL_EFFECT); //removing all effects
 				s->bonuses = remainingEff; //assigning effects that should remain
 
 				//removing all features from spells
@@ -1135,27 +1135,17 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 	}
 }
 
-void actualizeEffect(CStack * s, Bonus & ef)
+void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 {
-	//actualizing effects vector
-	BOOST_FOREACH(Bonus *it, s->bonuses)
-	{
-		if(it->id == ef.id)
-		{
-			it->turnsRemain = std::max(it->turnsRemain, ef.turnsRemain);
-		}
-	}
 	//actualizing features vector
-	BonusList sf;
-	s->stackEffectToFeature(sf, ef);
 
-	BOOST_FOREACH(const Bonus *fromEffect, sf)
+	BOOST_FOREACH(const Bonus &fromEffect, ef)
 	{
 		BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
 		{
-			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect->type && stackBonus->subtype == fromEffect->subtype)
+			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
 			{
-				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
+				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, fromEffect.turnsRemain);
 			}
 		}
 	}
@@ -1169,14 +1159,12 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(effect.id == 42 || !s->hasBonus(Selector::source(Bonus::CASTED_SPELL, effect.id)))//disrupting ray or not on the list - just add	
+			int id = effect.begin()->id; //effects' source ID
+			if(id == 47 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id)))//disrupting ray or not on the list - just add	
 			{
-				s->addNewBonus(new Bonus(effect));
-				BonusList sf;
-				s->stackEffectToFeature(sf, effect);
-				BOOST_FOREACH(Bonus *fromEffect, sf)
+				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{
-					s->addNewBonus(fromEffect);
+					s->addNewBonus( new Bonus(fromEffect));
 				}
 			}
 			else //just actualize

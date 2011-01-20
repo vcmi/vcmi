@@ -2788,26 +2788,32 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	if(sse.effect.id != -1) //can be -1 for defensive stance effect
+	int effID = sse.effect.back().id;
+	if(effID != -1) //can be -1 for defensive stance effect
 	{
 		for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
 		{
-			displayEffect(CGI->spellh->spells[sse.effect.id]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
+			displayEffect(CGI->spellh->spells[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
 		}
 	}
-	else if (sse.effect.source == Bonus::OTHER && sse.effect.type == Bonus::PRIMARY_SKILL && sse.stacks.size() == 1)
+	else if (sse.stacks.size() == 1 && sse.effect.size() == 1)
 	{
-		//defensive stance (I hope)
-		const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
-		int txtid = 120;
+		const Bonus & bns = sse.effect.back();
+		if (bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
+		{
+			//defensive stance (I hope)
+			const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
+			int txtid = 120;
 
-		if(stack->count != 1)
-			txtid++; //move to plural text
+			if(stack->count != 1)
+				txtid++; //move to plural text
 
-		char txt[4000];
-		int val = stack->Defense() - (stack->Defense() * 100 )/ (100 + sse.effect.val);
-		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
-		console->addText(txt);
+			char txt[4000];
+			int val = stack->Defense() - (stack->Defense() * 100 )/ (100 + bns.val);
+			sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
+			console->addText(txt);
+		}
+		
 	}
 
 

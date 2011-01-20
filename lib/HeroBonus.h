@@ -184,10 +184,9 @@ struct DLL_EXPORT Bonus
 	};
 	enum BonusSource
 	{
-		ARTIFACT, 
-		ARTIFACT_INSTANCE, 
-		OBJECT, 
-		CASTED_SPELL,
+		ARTIFACT,
+		ARTIFACT_INSTANCE,
+		OBJECT,
 		CREATURE_ABILITY,
 		TERRAIN_NATIVE,
 		TERRAIN_OVERLAY,
@@ -458,19 +457,26 @@ namespace NBonus
 };
 
 //generates HeroBonus from given data
-inline Bonus* makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
-	Bonus* sf = new Bonus();
-	sf->type = type;
-	sf->duration = duration;
-	sf->source = source;
-	sf->turnsRemain = turnsRemain;
-	sf->subtype = subtype;
-	sf->val = value;
-	sf->additionalInfo = additionalInfo;
+	Bonus sf;
+	sf.type = type;
+	sf.duration = duration;
+	sf.source = source;
+	sf.turnsRemain = turnsRemain;
+	sf.subtype = subtype;
+	sf.val = value;
+	sf.additionalInfo = additionalInfo;
 
 	return sf;
 }
+
+//generates HeroBonus from given data
+inline Bonus * makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+{
+	return new Bonus(makeFeatureVal(type, duration, subtype, value, source, turnsRemain, additionalInfo));
+}
+
 
 class DLL_EXPORT CSelectorsConjunction
 {

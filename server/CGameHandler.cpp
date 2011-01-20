@@ -3037,7 +3037,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			//defensive stance
 			SetStackEffect sse;
-			sse.effect = Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
+			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL) );
 			sse.stacks.push_back(ba.stackNumber);
 			sendAndApply(&sse);
 
@@ -3644,9 +3644,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 					continue;
 				sse.stacks.push_back((*it)->ID);
 			}
-			sse.effect.id = spellID;
-			sse.effect.val = spellLvl;
-			sse.effect.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
+			Bonus pseudoBonus;
+			pseudoBonus.id = spellID;
+			pseudoBonus.val = spellLvl;
+			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
+			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
 			break;
@@ -4444,7 +4446,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				COMPLAIN_RET("Destination tile doesn't exist!");
 			if(!h->movement)
 				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
-			if(h->getBonusesCount(Bonus::CASTED_SPELL, Spells::DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
+			if(h->getBonusesCount(Bonus::SPELL_EFFECT, Spells::DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -4456,7 +4458,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::CASTED_SPELL, 0, Spells::DIMENSION_DOOR);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, Spells::DIMENSION_DOOR);
 			sendAndApply(&gb);
 			
 			if(!dest->isClear(curr)) //wrong dest tile
@@ -4489,7 +4491,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::CASTED_SPELL, 0, Spells::FLY, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, Spells::FLY, subtype);
 			sendAndApply(&gb);
 		}
 		break;
@@ -4499,7 +4501,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::CASTED_SPELL, 0, Spells::FLY, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, Spells::FLY, subtype);
 			sendAndApply(&gb);
 		}
 		break;

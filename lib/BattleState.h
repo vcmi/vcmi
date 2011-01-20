@@ -148,23 +148,23 @@ public:
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
 	BonusList getSpellBonuses() const;
-	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
+	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise
 
-	static inline Bonus *featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 	{
-		Bonus *hb = makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo);
-		hb->effectRange = limit;
-		hb->source = Bonus::CASTED_SPELL; //right?
+		Bonus hb = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo);
+		hb.effectRange = limit;
+		hb.source = Bonus::SPELL_EFFECT;
 		return hb;
 	}
 
-	static inline Bonus *featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
+	static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
 	{
-		Bonus *ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
-		ret->valType = valType;
-		ret->source = Bonus::CASTED_SPELL; //right?
+		Bonus ret = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain);
+		ret.valType = valType;
+		ret.source = Bonus::SPELL_EFFECT;
 		return ret;
 	}
 
