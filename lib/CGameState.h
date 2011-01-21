@@ -247,6 +247,42 @@ struct DLL_EXPORT CPathsInfo
 	~CPathsInfo();
 };
 
+struct DLL_EXPORT DuelParameters
+{
+	si32 terType, bfieldType;
+	struct SideSettings
+	{
+		struct StackSettings
+		{
+			si32 type;
+			si32 count;
+			template <typename Handler> void serialize(Handler &h, const int version)
+			{
+				h & type & count;
+			}
+
+			StackSettings();
+			StackSettings(si32 Type, si32 Count);
+		} stacks[ARMY_SIZE];
+
+		si32 heroId; //-1 if none
+		std::set<si32> spells;
+
+		SideSettings();
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & stacks & heroId & spells;
+		}
+	} sides[2];
+
+	DuelParameters();
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & terType & bfieldType & sides;
+	}
+};
+
+
 class BattleInfo;
 
 class DLL_EXPORT CGameState

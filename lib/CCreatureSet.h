@@ -72,7 +72,7 @@ class DLL_EXPORT CCreatureSet //seven combined creatures
 	CCreatureSet(const CCreatureSet&);;
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
-	TSlots slots; //slots[slot_id]->> pair(creature_id,creature_quantity)
+	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
 	ui8 formation; //false - wide, true - tight
 
 	CCreatureSet();
@@ -80,7 +80,7 @@ public:
 
 	const CStackInstance &operator[](TSlot slot) const; 
 
-	const TSlots &Slots() const {return slots;}
+	const TSlots &Slots() const {return stacks;}
 
 	void addToSlot(TSlot slot, TCreature cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(TSlot slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
@@ -122,11 +122,11 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & slots & formation;
+		h & stacks & formation;
 	}
 	operator bool() const
 	{
-		return slots.size() > 0;
+		return stacks.size() > 0;
 	}
 	void sweep();
 };

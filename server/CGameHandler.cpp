@@ -389,7 +389,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if(duel)
 	{
 		CSaveFile resultFile("result.vdrst");
-		resultFile << battleResult.data;
+		resultFile << *battleResult.data;
 		return;
 	}
 
@@ -1981,8 +1981,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 	if(what==1) //swap
 	{
-		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && S1.slots[p1]->count) //why 254??
-		  || ((s2->tempOwner != player && s2->tempOwner != 254) && S2.slots[p2]->count))
+		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && S1.stacks[p1]->count) //why 254??
+		  || ((s2->tempOwner != player && s2->tempOwner != 254) && S2.stacks[p2]->count))
 		{
 			complain("Can't take troops from another player!");
 			return false;
@@ -1992,46 +1992,46 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	}
 	else if(what==2)//merge
 	{
-		if (( S1.slots[p1]->type != S2.slots[p2]->type && complain("Cannot merge different creatures stacks!"))
-		|| ((s1->tempOwner != player && s1->tempOwner != 254) && S2.slots[p2]->count) && complain("Can't take troops from another player!"))
+		if (( S1.stacks[p1]->type != S2.stacks[p2]->type && complain("Cannot merge different creatures stacks!"))
+		|| ((s1->tempOwner != player && s1->tempOwner != 254) && S2.stacks[p2]->count) && complain("Can't take troops from another player!"))
 			return false; 
 
 		moveStack(sl1, sl2);
 	}
 	else if(what==3) //split
 	{
-		if ( (s1->tempOwner != player && S1.slots[p1]->count < s1->getArmy().getStackCount(p1) )
-			|| (s2->tempOwner != player && S2.slots[p2]->count < s2->getArmy().getStackCount(p2) ) )
+		if ( (s1->tempOwner != player && S1.stacks[p1]->count < s1->getArmy().getStackCount(p1) )
+			|| (s2->tempOwner != player && S2.stacks[p2]->count < s2->getArmy().getStackCount(p2) ) )
 		{
 			complain("Can't move troops of another player!");
 			return false;
 		}
 
 		//general conditions checking
-		if((!vstd::contains(S1.slots,p1) && complain("no creatures to split"))
+		if((!vstd::contains(S1.stacks,p1) && complain("no creatures to split"))
 			|| (val<1  && complain("no creatures to split"))  )
 		{
 			return false;
 		}
 
 
-		if(vstd::contains(S2.slots,p2))	 //dest. slot not free - it must be "rebalancing"...
+		if(vstd::contains(S2.stacks,p2))	 //dest. slot not free - it must be "rebalancing"...
 		{
-			int total = S1.slots[p1]->count + S2.slots[p2]->count;
+			int total = S1.stacks[p1]->count + S2.stacks[p2]->count;
 			if( (total < val   &&   complain("Cannot split that stack, not enough creatures!"))
-				|| (S2.slots[p2]->type != S1.slots[p1]->type && complain("Cannot rebalance different creatures stacks!"))
+				|| (S2.stacks[p2]->type != S1.stacks[p1]->type && complain("Cannot rebalance different creatures stacks!"))
 			)
 			{
 				return false; 
 			}
 			
-			moveStack(sl1, sl2, val - S2.slots[p2]->count);
+			moveStack(sl1, sl2, val - S2.stacks[p2]->count);
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
 		}
 		else //split one stack to the two
 		{
-			if(S1.slots[p1]->count < val)//not enough creatures
+			if(S1.stacks[p1]->count < val)//not enough creatures
 			{
 				complain("Cannot split that stack, not enough creatures!");
 				return false; 
@@ -2072,7 +2072,7 @@ int CGameHandler::getPlayerAt( CConnection *c ) const
 bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 {
 	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id].get());
-	if(!vstd::contains(s1->slots,pos))
+	if(!vstd::contains(s1->stacks,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
 		return false;
@@ -2321,7 +2321,7 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
-	int crQuantity = obj->slots[pos]->count;
+	int crQuantity = obj->stacks[pos]->count;
 	int newIDpos= vstd::findPos(ui.newID, upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible

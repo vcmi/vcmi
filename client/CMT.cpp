@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("battle,b", "runs game in duel mode (battle-only");
+		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only");
 
 	po::variables_map vm;
 	if(argc > 1)
@@ -280,6 +280,7 @@ int main(int argc, char** argv)
 	{
 		StartInfo *si = new StartInfo();
 		si->mode = StartInfo::DUEL;
+		si->mapname = vm["battle"].as<std::string>();
 		si->playerInfos[0].color = 0;
 		si->playerInfos[1].color = 1;
 		startGame(si);

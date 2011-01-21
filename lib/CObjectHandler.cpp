@@ -2845,7 +2845,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 const std::string & CGCreature::getHoverText() const
 {
 	MetaString ms;
-	int pom = slots.find(0)->second->getQuantityID();
+	int pom = stacks.find(0)->second->getQuantityID();
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
@@ -2957,8 +2957,8 @@ void CGCreature::initObj()
 		break;
 	}
 
-	slots[0]->setType(subID);
-	TQuantity &amount = slots[0]->count;
+	stacks[0]->setType(subID);
+	TQuantity &amount = stacks[0]->count;
 	CCreature &c = *VLC->creh->creatures[subID];
 	if(!amount)
 	{
@@ -2968,11 +2968,11 @@ void CGCreature::initObj()
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
 	}
 
-	temppower = slots[0]->count * 1000;
+	temppower = stacks[0]->count * 1000;
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (slots.begin()->second->count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
+	if (stacks.begin()->second->count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
 		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
 		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
@@ -2984,7 +2984,7 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case 10:
-			slots[0]->count = val;
+			stacks[0]->count = val;
 			break;
 		case 11:
 			temppower = val;
@@ -4662,13 +4662,13 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
 			if(i->second->type->idNumber == 10)
-				creatures.slots.insert(*i);
+				creatures.stacks.insert(*i);
 		}
-		if (creatures.slots.size())
+		if (creatures.stacks.size())
 		{
 			messageID = 138;
 			iw.components.push_back(Component(Component::CREATURE,11,0,1));
-			for (TSlots::const_iterator i = creatures.slots.begin(); i != creatures.slots.end(); ++i)
+			for (TSlots::const_iterator i = creatures.stacks.begin(); i != creatures.stacks.end(); ++i)
 			{
 				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[11]);
 			}
@@ -6534,7 +6534,7 @@ CCreatureSet& CArmedInstance::getArmy() const
 void CArmedInstance::randomizeArmy(int type)
 {
 	int max = VLC->creh->creatures.size();
-	for (TSlots::iterator j = slots.begin(); j != slots.end();j++)
+	for (TSlots::iterator j = stacks.begin(); j != stacks.end();j++)
 	{
 		int randID = j->second->idRand;
 		if(randID > max)

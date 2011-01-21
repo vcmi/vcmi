@@ -894,34 +894,67 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		break;
 	case StartInfo::DUEL:
 		{
-			int3 tile;
-			int terType = TerrainTile::grass;
-			int terrain = 15;
-			const CArmedInstance *armies[2];
-			const CGHeroInstance *heroes[2];
-			const CGTownInstance *town = NULL;
-			CGHeroInstance *h = new CGHeroInstance();
-			h->setOwner(0);
-			h->subID = 1;
-			h->initHero(1);
-			h->initObj();
-			h->setCreature(0, 110, 1);
-			h->setCreature(1, 69, 1);
+			bool success = false;
+			DuelParameters dp;
+			try
+			{
+				CLoadFile lf(scenarioOps->mapname);
+				lf >> dp;
+				success = true;
+			}
+			catch(...)
+			{}
 
-			CGCreature *c = new CGCreature();
-			c->setOwner(1);
-			c->putStack(0, new CStackInstance(69, 6));
-			c->putStack(1, new CStackInstance(11, 3));
-			c->subID = 34;
-			c->initObj();
 
-			heroes[0] = h;
-			heroes[1] = NULL;
+			const CArmedInstance *armies[2] = {0};
+			const CGHeroInstance *heroes[2] = {0};
+			CGTownInstance *town = NULL;
 
-			armies[0] = h;
-			armies[1] = c;
+			for(int i = 0; i < 2; i++)
+			{
+				CArmedInstance *obj = NULL;
+				if(dp.sides[i].heroId >= 0)
+				{
+					CGHeroInstance *h = new CGHeroInstance();
+					armies[i] = heroes[i] = h;
+					obj = h;
+					h->subID = dp.sides[i].heroId;
+					h->initHero(h->subID);
+				}
+				else
+				{
+					CGCreature *c = new CGCreature();
+					armies[i] = obj = c;
+					c->subID = 34;
+					
+				}
 
-			curB = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, false, town);
+				obj->initObj();
+				obj->setOwner(i);
+
+				for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
+				{
+					int cre = dp.sides[i].stacks[j].type, count = dp.sides[i].stacks[j].count;
+					if(!count && obj->hasStackAtSlot(j)
+						|| count)
+						obj->setCreature(j, cre, count);
+				}
+			}
+
+
+// 			h->setCreature(0, 110, 1);
+// 			h->setCreature(1, 69, 1);
+// 
+// 			CGHeroInstance *h = new CGHeroInstance();
+// 
+// 			CGCreature *c = new CGCreature();
+// 			c->setOwner(1);
+// 			c->putStack(0, new CStackInstance(69, 6));
+// 			c->putStack(1, new CStackInstance(11, 3));
+// 			c->subID = 34;
+// 			c->initObj();
+
+			curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
 			curB->localInit();
 			return;
 		}
@@ -3068,4 +3101,25 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 ArmyDescriptor::ArmyDescriptor()
 {
 
+}
+
+DuelParameters::SideSettings::StackSettings::StackSettings()
+	: type(-1), count(0)
+{
+}
+
+DuelParameters::SideSettings::StackSettings::StackSettings(si32 Type, si32 Count)
+	: type(Type), count(Count)
+{
+}
+
+DuelParameters::SideSettings::SideSettings()
+{
+	heroId = -1;
+}
+
+DuelParameters::DuelParameters()
+{
+	terType = TerrainTile::dirt;
+	bfieldType = 15;
 }
