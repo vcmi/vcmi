@@ -197,7 +197,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				for(size_t i = 0; i<owner->splitButtons.size(); i++)
 					owner->splitButtons[i]->block(true);
 
-				show(screen2);
+				redraw();
 				refr = true;
 			}
 			else 
@@ -262,7 +262,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				{ 
 					if(creature)
 						owner->highlighted = this;
-					show(screen2);
+					redraw();
 					refr = true;
 				}
 			}
@@ -276,7 +276,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				for(size_t i = 0; i<owner->splitButtons.size(); i++)
 					owner->splitButtons[i]->block(false);
 			}
-			show(screen2);
+			redraw();
 			refr = true;
 		}
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar

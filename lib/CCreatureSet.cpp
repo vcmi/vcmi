@@ -402,7 +402,7 @@ CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count)
 	: armyObj(_armyObj)
 {
 	init();
-	type = cre;
+	setType(cre);
 	count = Count;
 }
 

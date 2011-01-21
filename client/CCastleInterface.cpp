@@ -772,7 +772,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	statusbar->show(to);
 	resdatabar->draw(to);
 
-	garr->show(to);
+	garr->showAll(to);
 	//draw creatures icons and their growths
 	for(size_t i=0;i<creainfo.size();i++)
 		creainfo[i]->show(to);
