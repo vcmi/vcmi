@@ -170,6 +170,8 @@ public:
 	void artifactPut(const ArtifactLocation &al);
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactAssembled(const ArtifactLocation &al);
+	void artifactDisassembled(const ArtifactLocation &al);
 
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE;

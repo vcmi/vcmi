@@ -103,6 +103,8 @@ public:
 	//artifacts operations
 	virtual void artifactPut(const ArtifactLocation &al){};
 	virtual void artifactRemoved(const ArtifactLocation &al){};
+	virtual void artifactAssembled(const ArtifactLocation &al){};
+	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
 
 	virtual void heroCreated(const CGHeroInstance*){};

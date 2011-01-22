@@ -2176,6 +2176,16 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 				aoh->artifactMoved(src, dst);
 }
 
+void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
+void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
 {
 	spellbookLastPageBattle = spellbokLastPageAdvmap = 0;

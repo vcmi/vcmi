@@ -12,6 +12,7 @@
 #include <boost/bind.hpp>
 #include <assert.h>
 #include "CSpellHandler.h"
+#include <boost/foreach.hpp>
 
 /*
  * map.cpp, part of VCMI engine
@@ -1490,9 +1491,9 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					i+=4;
 					innerArt = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
 				}
-				else if(art->ID == 5) //specific artifact
+				else if(defInfo->id == 5) //specific artifact
 				{
-					innerArt = createArt(art->subID);
+					innerArt = createArt(defInfo->subid);
 				}
 				else
 				{
@@ -2084,7 +2085,15 @@ CArtifactInstance * Mapa::createArt(int aid)
 	else
 		a = new CArtifactInstance();
 
-	this->addNewArtifactInstance(a);
+	addNewArtifactInstance(a);
+	if(a->artType && a->artType->constituents) //TODO make it nicer
+	{
+		CCombinedArtifactInstance *comb = dynamic_cast<CCombinedArtifactInstance*>(a);
+		BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, comb->constituentsInfo)
+		{
+			addNewArtifactInstance(ci.art);
+		}
+	}
 	return a;
 }
 

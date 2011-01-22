@@ -6940,6 +6940,10 @@ const CArtifactInstance* CArtifactSet::getArt(ui16 pos) const
 	return NULL;
 }
 
+CArtifactInstance* CArtifactSet::getArt(ui16 pos)
+{
+	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos));
+}
 // if(pos<19)
 // 	if(vstd::contains(artifWorn,pos))
 // 		return artifWorn.find(pos)->second;
@@ -7023,4 +7027,34 @@ si32 CArtifactSet::getArtTypeId(ui16 pos) const
 CArtifactSet::~CArtifactSet()
 {
 
+}
+
+ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ui16 slot)
+{
+	assert(!vstd::contains(artifactsWorn, slot));
+	ArtSlotInfo &ret = slot < Arts::BACKPACK_START 
+		? artifactsWorn[slot]
+		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - Arts::BACKPACK_START), ArtSlotInfo());
+
+	return ret;
+}
+
+void CArtifactSet::setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked)
+{
+	ArtSlotInfo &asi = retreiveNewArtSlot(slot);
+	asi.artifact = art;
+	asi.locked = locked;
+}
+
+void CArtifactSet::eraseArtSlot(ui16 slot)
+{
+	if(slot < Arts::BACKPACK_START)
+	{
+		artifactsWorn.erase(slot);
+	}
+	else
+	{
+		slot -= Arts::BACKPACK_START;
+		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
+	}
 }

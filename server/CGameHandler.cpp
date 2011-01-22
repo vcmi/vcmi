@@ -2565,13 +2565,24 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
  */
 bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo)
 {
-	if (artifactSlot < 0 || artifactSlot > 18) {
-		complain("Illegal artifact slot.");
-		return false;
-	}
 
 	CGHeroInstance *hero = gs->getHero(heroID);
 	const CArtifactInstance *destArtifact = hero->getArt(artifactSlot);
+
+	if(!destArtifact)
+		COMPLAIN_RET("assembleArtifacts: there is no such artifact instance!");
+
+	CArtifact *combinedArt = VLC->arth->artifacts[assembleTo];
+	if(!combinedArt->constituents)
+		COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
+	if(!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
+		COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+
+	AssembledArtifact aa;
+	aa.al = ArtifactLocation(hero, artifactSlot);
+	aa.builtArt = combinedArt;
+
+	CCombinedArtifactInstance *assembliedArt = new CCombinedArtifactInstance();
 	/*
 	SetHeroArtifacts sha;
 	sha.hid = heroID;

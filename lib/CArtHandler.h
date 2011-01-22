@@ -81,10 +81,10 @@ public:
 
 	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
 	virtual bool canBeDisassembled() const;
-	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
+	virtual void putAt(CGHeroInstance *h, ui16 slot);
+	virtual void removeFrom(CGHeroInstance *h, ui16 slot);
 
-	void putAt(CGHeroInstance *h, ui16 slot);
-	void removeFrom(CGHeroInstance *h, ui16 slot);
+	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
 	void move(ArtifactLocation &src, ArtifactLocation &dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -118,11 +118,17 @@ public:
 
 	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
 	bool canBeDisassembled() const OVERRIDE;
+	void putAt(CGHeroInstance *h, ui16 slot) OVERRIDE;
+	void removeFrom(CGHeroInstance *h, ui16 slot) OVERRIDE;
+
+	void createConstituents();
+	void addAsConstituent(CArtifactInstance *art, int slot);
+	CArtifactInstance *figureMainConstituent(ui16 slot); //main constituent is replcaed with us (combined art), not lock
 
 	CCombinedArtifactInstance();
-	void createConstituents();
 
 	friend class CArtifactInstance;
+	friend class AssembledArtifact;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifactInstance&>(*this);

@@ -124,10 +124,10 @@ DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
 
 	if(learn)
 		BOOST_FOREACH(ui32 sid, spells)
-		hero->spells.insert(sid);
+			hero->spells.insert(sid);
 	else
 		BOOST_FOREACH(ui32 sid, spells)
-		hero->spells.erase(sid);
+			hero->spells.erase(sid);
 }
 
 DLL_EXPORT void SetMana::applyGs( CGameState *gs )
@@ -586,8 +586,7 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
-	art->id = gs->map->artInstances.size();
-	gs->map->artInstances.push_back(art);
+	gs->map->addNewArtifactInstance(art);
 
 	assert(!art->parents.size());
 	art->setType(art->artType);
@@ -718,8 +717,36 @@ DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
 	CArtifactInstance *a = src.getArt();
 	if(dst.slot < Arts::BACKPACK_START)
 		assert(!dst.getArt());
-	
+
 	a->move(src, dst);
+}
+
+DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
+{
+	CGHeroInstance *h = al.hero;
+	const CArtifactInstance *transformedArt = al.getArt();
+	assert(transformedArt);
+	assert(vstd::contains(transformedArt->assemblyPossibilities(al.hero), builtArt));
+
+	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
+	//retreive all constituents
+	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
+	{
+		int pos = h->getArtPos(constituentID);
+		assert(pos >= 0);
+		CArtifactInstance *constituentInstance = h->getArt(pos);
+
+		//move constituent from hero to be part of new, combined artifact
+		constituentInstance->removeFrom(h, pos);
+		combinedArt->addAsConstituent(constituentInstance, pos);
+	}
+
+	//put new combined artifacts
+	combinedArt->putAt(h, al.slot);
+}
+
+DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
+{
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )

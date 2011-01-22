@@ -547,6 +547,12 @@ t1 & abetw(t1 &a, const t2 &b, const t3 &c) //makes a to fit the range <b, c>
 	return a;
 }
 
+template <typename t1, typename t2, typename t3>
+bool isbetw(const t1 &a, const t2 &b, const t3 &c) //checks if a is between b and c
+{
+	return a > b && a < c;
+}
+
 template <typename T> 
 void delNull(T* &ptr) //deleted pointer and sets it to NULL
 {

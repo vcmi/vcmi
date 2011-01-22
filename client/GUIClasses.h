@@ -925,6 +925,7 @@ public:
 
 	bool picked;
 	bool marked;
+	bool locked;
 	CArtifactsOfHero * ourOwner;
 	const CArtifactInstance * ourArt;
 
@@ -937,7 +938,6 @@ public:
 	void deactivate();
 	void showAll(SDL_Surface * to);
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
-	bool locked () const;
 
 	void setMeAsDest(bool backpackAsVoid = true);
 	void setArtifact(const CArtifactInstance *art);

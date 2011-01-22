@@ -4532,7 +4532,7 @@ CRClickPopupInt::~CRClickPopupInt()
 }
 
 CArtPlace::CArtPlace(const CArtifactInstance* Art)
-	: marked(false), ourArt(Art), picked(false)
+	: marked(false), ourArt(Art), picked(false), locked(false)
 {
 }
 
@@ -4647,7 +4647,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked() && text.size())  //if there is no description or it's a lock, do nothing ;]
+	if(down && ourArt && !locked && text.size())  //if there is no description or it's a lock, do nothing ;]
 	{
 		if (slotID < 19) 
 		{
@@ -4695,7 +4695,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
  */
 void CArtPlace::select ()
 {
-	if (locked())
+	if (locked)
 		return;
 
 	picked = true;
@@ -4741,7 +4741,10 @@ void CArtPlace::deactivate()
 void CArtPlace::showAll(SDL_Surface *to)
 {
 	if (ourArt && !picked)
-		blitAt(graphics->artDefs->ourImages[ourArt->artType->id].bitmap, pos.x, pos.y, to);
+	{
+		int graphic = locked ? 145 : ourArt->artType->id;
+		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
+	}
 
 	if(marked && active)
 	{
@@ -4779,11 +4782,6 @@ CArtPlace::~CArtPlace()
 	deactivate();
 }
 
-bool CArtPlace::locked() const
-{
-	return ourArt && ourArt->id == 145;
-}
-
 void CArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
 {
 	ourOwner->commonInfo->dst.setTo(this, backpackAsVoid);
@@ -4800,7 +4798,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	else
 	{
 		text = ourArt->artType->Description();
-		if (locked()) // Locks should appear as empty.
+		if (locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];
 		else
 			hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
@@ -5113,7 +5111,14 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 
 	artPlace->picked = false;
 	artPlace->slotID = slotID;
-	artPlace->setArtifact(curHero->getArt(slotID));
+	
+	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
+	{
+		artPlace->setArtifact(asi->artifact);
+		artPlace->locked = asi->locked;
+	}
+	else
+		artPlace->setArtifact(NULL);
 } 
 
 /**

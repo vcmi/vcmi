@@ -951,13 +951,7 @@ void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 {
 	assert(canBePutAt(ArtifactLocation(h, slot)));
 
-	ArtSlotInfo &asi = slot < Arts::BACKPACK_START 
-						? h->artifactsWorn[slot]
-						: *h->artifactsInBackpack.insert(h->artifactsInBackpack.begin() + (slot - Arts::BACKPACK_START), ArtSlotInfo());
-
-	asi.artifact = this;
-	asi.locked = false;
-
+	h->setNewArtSlot(slot, this, false);
 	if(slot < Arts::BACKPACK_START)
 		h->attachTo(this);
 }
@@ -965,16 +959,9 @@ void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 {
 	assert(h->CArtifactSet::getArt(slot) == this);
+	h->eraseArtSlot(slot);
 	if(slot < Arts::BACKPACK_START)
-	{
-		h->artifactsWorn.erase(slot);
 		h->detachFrom(this);
-	}
-	else
-	{
-		slot -= Arts::BACKPACK_START;
-		h->artifactsInBackpack.erase(h->artifactsInBackpack.begin() + slot);
-	}
 
 	//TODO delete me?
 }
@@ -1024,7 +1011,11 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 	if(!Art->constituents)
 		return new CArtifactInstance(Art);
 	else
-		return new CCombinedArtifactInstance(Art);
+	{
+		CCombinedArtifactInstance * ret = new CCombinedArtifactInstance(Art);
+		ret->createConstituents();
+		return ret;
+	}
 }
 
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
@@ -1060,10 +1051,96 @@ void CCombinedArtifactInstance::createConstituents()
 
 	BOOST_FOREACH(ui32 a, *artType->constituents)
 	{
-		constituentsInfo.push_back(ConstituentInfo(CArtifactInstance::createNewArtifactInstance(a)));
+		addAsConstituent(CArtifactInstance::createNewArtifactInstance(a), -1);
 	}
 }
 
+void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, int slot)
+{
+	assert(vstd::contains(*artType->constituents, art->artType->id));
+	assert(art->parents.size() == 1  &&  art->parents.front() == art->artType);
+	constituentsInfo.push_back(ConstituentInfo(art, slot));
+	art->attachTo(this);
+}
+
+void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
+{
+	if(slot >= Arts::BACKPACK_START)
+	{
+		CArtifactInstance::putAt(h, slot);
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+			ci.slot = -1;
+	}
+	else
+	{
+		CArtifactInstance *mainConstituent = figureMainConstituent(slot); //it'll be replaced with combined artifact, not a lock
+
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(ci.art != mainConstituent)
+			{
+				int pos = -1;
+				if(isbetw(ci.slot, 0, Arts::BACKPACK_START)  &&  ci.art->canBePutAt(ArtifactLocation(h, ci.slot))) //there is a valid suggestion where to place lock 
+					pos = ci.slot;
+				else
+					ci.slot = pos = ci.art->firstAvailableSlot(h);
+
+				assert(pos < Arts::BACKPACK_START);
+				h->setNewArtSlot(pos, ci.art, true); //sets as lock
+			}
+			else
+			{
+				ci.slot = -1;
+				CArtifactInstance::putAt(h, slot); //puts combined art (this)
+			}
+		}
+	}
+}
+
+void CCombinedArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
+{
+	if(slot >= Arts::BACKPACK_START)
+	{
+		CArtifactInstance::removeFrom(h, slot);
+	}
+	else
+	{
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(ci.slot >= 0)
+			{
+				h->eraseArtSlot(ci.slot);
+				ci.slot = -1;
+			}
+			else
+			{
+				//main constituent
+				CArtifactInstance::removeFrom(h, slot);
+			}
+		}
+	}
+}
+
+CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(ui16 slot)
+{
+	CArtifactInstance *mainConstituent = NULL; //it'll be replaced with combined artifact, not a lock
+	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		if(ci.slot == slot)
+			mainConstituent = ci.art;
+
+	if(!mainConstituent)
+	{
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(vstd::contains(ci.art->artType->possibleSlots, slot))
+			{
+				mainConstituent = ci.art;
+			}
+		}
+	}
+
+	return mainConstituent;
+}
 
 CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ui16 Slot /*= -1*/)
 {

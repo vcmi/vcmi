@@ -746,6 +746,10 @@ struct StackLocation
 struct CGarrisonOperationPack : CPackForClient
 {
 };
+struct CArtifactOperationPack : CPackForClient
+{
+};
+
 
 struct ChangeStackCount : CGarrisonOperationPack  //521
 {
@@ -856,7 +860,7 @@ struct ArtifactLocation
 	}
 };
 
-struct PutArtifact : CGarrisonOperationPack  //526
+struct PutArtifact : CArtifactOperationPack  //526
 {
 	ArtifactLocation al;
 	ConstTransitivePtr<CArtifactInstance> art;
@@ -870,7 +874,7 @@ struct PutArtifact : CGarrisonOperationPack  //526
 	}
 };
 
-struct EraseArtifact : CGarrisonOperationPack  //527
+struct EraseArtifact : CArtifactOperationPack  //527
 {
 	ArtifactLocation al;
 
@@ -883,7 +887,7 @@ struct EraseArtifact : CGarrisonOperationPack  //527
 	}
 };
 
-struct MoveArtifact : CGarrisonOperationPack  //528
+struct MoveArtifact : CArtifactOperationPack  //528
 {
 	ArtifactLocation src, dst;
 
@@ -893,6 +897,35 @@ struct MoveArtifact : CGarrisonOperationPack  //528
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & src & dst;
+	}
+};
+
+struct AssembledArtifact : CArtifactOperationPack  //529
+{
+	ArtifactLocation al; //where assembly will be put
+	CArtifact *builtArt;
+	//std::vector<CArtifactInstance *> constituents;
+
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al & builtArt/* & constituents*/;
+	}
+};
+
+struct DisassembledArtifact : CArtifactOperationPack  //530
+{
+	ArtifactLocation al;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al;
 	}
 };
 

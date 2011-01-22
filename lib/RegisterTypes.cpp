@@ -155,6 +155,8 @@ void registerTypes2(Serializer &s)
 	s.template registerType<PutArtifact>();
 	s.template registerType<EraseArtifact>();
 	s.template registerType<MoveArtifact>();
+	s.template registerType<AssembledArtifact>();
+	s.template registerType<DisassembledArtifact>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
