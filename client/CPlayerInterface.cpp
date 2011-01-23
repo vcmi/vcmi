@@ -2179,11 +2179,19 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactAssembled(al);
 }
 
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactDisassembled(al);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

@@ -803,6 +803,11 @@ SComponent::SComponent(const Component &c)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
 
+SComponent::SComponent()
+{
+	img = NULL;
+}
+
 SComponent::~SComponent()
 {
 	if (free && img)
@@ -4665,7 +4670,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination->id),
 						0);
 
-					if(assemblyPossibilities.size())
+					if(assemblyPossibilities.size() > 2)
 					{
 						tlog3 << "More than one possibility of assembling... taking only first\n";
 						break;
@@ -5239,12 +5244,12 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 
 void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
-	if(src.hero == curHero)
+	if(src.hero == curHero && src.slot >= Arts::BACKPACK_START)
 		setSlotData(getArtPlace(src.slot), src.slot);
-	if(dst.hero == curHero)
+	if(dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
 		setSlotData(getArtPlace(dst.slot), dst.slot);
-
-	updateParentWindow();
+	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
+		updateWornSlots();
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
@@ -5311,6 +5316,26 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 	}
 
 	return NULL;
+}
+
+void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
+{
+	if(al.hero == curHero)
+		updateWornSlots();
+}
+
+void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
+{
+	if(al.hero == curHero)
+		updateWornSlots();
+}
+
+void CArtifactsOfHero::updateWornSlots()
+{
+	for(int i = 0; i < Arts::BACKPACK_START; i++)
+		setSlotData(getArtPlace(i), i);
+
+	updateParentWindow();
 }
 
 void CExchangeWindow::close()

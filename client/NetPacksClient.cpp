@@ -186,16 +186,12 @@ void MoveArtifact::applyCl( CClient *cl )
 
 void AssembledArtifact::applyCl( CClient *cl )
 {
-// 	INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
-// 	if(src.hero->tempOwner != dst.hero->tempOwner)
-// 		INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
+	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactAssembled, al);
 }
 
 void DisassembledArtifact::applyCl( CClient *cl )
 {
-// 	INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
-// 	if(src.hero->tempOwner != dst.hero->tempOwner)
-// 		INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
+	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactDisassembled, al);
 }
 
 void GiveBonus::applyCl( CClient *cl )

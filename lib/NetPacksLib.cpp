@@ -747,6 +747,19 @@ DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
 
 DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
 {
+	CGHeroInstance *h = al.hero;
+	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
+	assert(disassembled);
+
+	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
+	disassembled->removeFrom(h, al.slot);
+	BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, constituents)
+	{
+		ci.art->detachFrom(disassembled);
+		ci.art->putAt(h, ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
+	}
+
+	delNull(disassembled);
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )

@@ -170,7 +170,7 @@ public:
 	void init(Etype Type, int Subtype, int Val);
 	SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
 	SComponent(const Component &c); //c-tor
-	SComponent(){}; //c-tor
+	SComponent();; //c-tor
 	virtual ~SComponent(); //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
@@ -982,6 +982,8 @@ public:
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactAssembled(const ArtifactLocation &al);
+	void artifactDisassembled(const ArtifactLocation &al);
 	CArtPlace *getArtPlace(int slot);
 
 	void setHero(const CGHeroInstance * hero);
@@ -992,6 +994,7 @@ public:
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true);
 	void setSlotData (CArtPlace* artPlace, int slotID);
+	void updateWornSlots ();
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor

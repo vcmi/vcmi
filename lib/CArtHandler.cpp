@@ -942,9 +942,7 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRe
 	if(!vstd::contains(artType->possibleSlots, al.slot))
 		return false;
 
-	if(!assumeDestRemoved) //test if slot is free
-		return al.hero->isPositionFree(al.slot);
-	return true;
+	return al.hero->isPositionFree(al.slot, assumeDestRemoved);
 }
 
 void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
@@ -968,7 +966,7 @@ void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 
 bool CArtifactInstance::canBeDisassembled() const
 {
-	return false;
+	return artType->constituents && artType->constituentOf->size();
 }
 
 std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CGHeroInstance *h) const
@@ -1074,6 +1072,7 @@ void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 	else
 	{
 		CArtifactInstance *mainConstituent = figureMainConstituent(slot); //it'll be replaced with combined artifact, not a lock
+		CArtifactInstance::putAt(h, slot); //puts combined art (this)
 
 		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
 		{
@@ -1091,7 +1090,6 @@ void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 			else
 			{
 				ci.slot = -1;
-				CArtifactInstance::putAt(h, slot); //puts combined art (this)
 			}
 		}
 	}

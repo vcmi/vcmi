@@ -7005,10 +7005,10 @@ const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
 	return NULL;
 }
 
-bool CArtifactSet::isPositionFree(ui16 pos) const
+bool CArtifactSet::isPositionFree(ui16 pos, bool onlyLockCheck /*= false*/) const
 {
 	if(const ArtSlotInfo *s = getSlot(pos))
-		return !s->artifact && !s->locked;
+		return (onlyLockCheck || !s->artifact) && !s->locked;
 
 	return true; //no slot means not used
 }
