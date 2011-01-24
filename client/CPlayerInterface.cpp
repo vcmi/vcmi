@@ -352,6 +352,9 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	wanderingHeroes -= hero;
+	if(vstd::contains(paths, hero)) 
+		paths.erase(hero);
+
 	adventureInt->heroList.updateHList(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
