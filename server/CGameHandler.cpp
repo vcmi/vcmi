@@ -5061,7 +5061,7 @@ void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
 {
 	CArtifactInstance *a = NULL;
-	if(artType->constituents)
+	if(!artType->constituents)
 		a = new CArtifactInstance();
 	else
 		a = new CCombinedArtifactInstance();
