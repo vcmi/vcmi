@@ -438,6 +438,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bonuses & nodeType;
+		h & exportedBonuses;
+		//h & parents & children;
 	}
 
 	enum ENodeTypes

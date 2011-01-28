@@ -368,19 +368,17 @@ struct SetAvailableHeroes : public CPackForClient //113
 	{
 		type = 113;
 		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
-			army[i] = NULL;
+			army[i].clear();
 	}
 	~SetAvailableHeroes()
 	{
-		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
-			delete army[i];
 	}
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
 	si32 hid[AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
-	CCreatureSet *army[AVAILABLE_HEROES_PER_PLAYER];
+	CSimpleArmy army[AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & hid & army;

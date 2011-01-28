@@ -307,9 +307,10 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
 	CArtifactInstance *createArt(int aid);
+	void addNewArtifactInstance(CArtifactInstance *art);
+	void eraseArtifactInstance(CArtifactInstance *art);
 
 	void checkForObjectives();
-	void addNewArtifactInstance(CArtifactInstance *art);
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);
 	Mapa(std::string filename); //creates map structure from .h3m file

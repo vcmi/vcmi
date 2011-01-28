@@ -306,19 +306,18 @@ CCreatureSet::~CCreatureSet()
 	clear();
 }
 
-void CCreatureSet::setToArmy(CCreatureSet &src)
+void CCreatureSet::setToArmy(CSimpleArmy &src)
 {
 	clear();
 	while(src)
 	{
-		TSlots::iterator i = src.stacks.begin();
+		TSimpleSlots::iterator i = src.army.begin();
 
-		assert(i->second->type);
-		assert(i->second->valid(false));
-		assert(i->second->armyObj == NULL);
+		assert(i->second.type);
+		assert(i->second.count);
 
-		putStack(i->first, i->second);
-		src.stacks.erase(i);
+		putStack(i->first, new CStackInstance(i->second.type, i->second.count));
+		src.army.erase(i);
 	}
 }
 
@@ -523,4 +522,21 @@ DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & 
 		str << sth.idRand;
 
 	return str;
+}
+
+void CSimpleArmy::clear()
+{
+	army.clear();
+}
+
+CSimpleArmy::operator bool() const
+{
+	return army.size();
+}
+
+bool CSimpleArmy::setCreature(TSlot slot, TCreature cre, TQuantity count)
+{
+	assert(!vstd::contains(army, slot));
+	army[slot] = CStackBasicDescriptor(cre, count);
+	return true;
 }

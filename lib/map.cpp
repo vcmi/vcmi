@@ -2097,6 +2097,12 @@ CArtifactInstance * Mapa::createArt(int aid)
 	return a;
 }
 
+void Mapa::eraseArtifactInstance(CArtifactInstance *art)
+{
+	assert(artInstances[art->id] == art);
+	artInstances[art->id].dellNull();
+}
+
 LossCondition::LossCondition()
 {
 	obj = NULL;

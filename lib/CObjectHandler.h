@@ -418,7 +418,7 @@ public:
 	void putArtifact(ui16 pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
 	void initExp();
-	void initArmy(CCreatureSet *dst = NULL);
+	void initArmy(IArmyDescriptor *dst = NULL);
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);

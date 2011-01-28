@@ -64,10 +64,31 @@ public:
 DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
 
 typedef std::map<TSlot, CStackInstance*> TSlots;
+typedef std::map<TSlot, CStackBasicDescriptor> TSimpleSlots;
 
+class IArmyDescriptor
+{
+public:
+	virtual void clear() = 0;
+	virtual bool setCreature(TSlot slot, TCreature cre, TQuantity count) = 0;
+};
 
+//simplified version of CCreatureSet
+class DLL_EXPORT CSimpleArmy : public IArmyDescriptor
+{
+public:
+	TSimpleSlots army;
+	void clear() OVERRIDE;
+	bool setCreature(TSlot slot, TCreature cre, TQuantity count) OVERRIDE;
+	operator bool() const;
 
-class DLL_EXPORT CCreatureSet //seven combined creatures
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & army;
+	}
+};
+
+class DLL_EXPORT CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet&);;
 	CCreatureSet &operator=(const CCreatureSet&);
@@ -84,7 +105,7 @@ public:
 
 	void addToSlot(TSlot slot, TCreature cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(TSlot slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void clear();
+	void clear() OVERRIDE;
 	void setFormation(bool tight);
 	CArmedInstance *castToArmyObj();
 
@@ -98,8 +119,8 @@ public:
 
 	//derivative 
 	void changeStackCount(TSlot slot, TQuantity toAdd); //stack must exist!
-	bool setCreature (TSlot slot, TCreature type, TQuantity quantity); //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
-	void setToArmy(CCreatureSet &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
+	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
+	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 	
 	const CStackInstance& getStack(TSlot slot) const; 
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;

@@ -180,7 +180,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	{
 		CGHeroInstance *h = (hid[i]>=0 ?  (CGHeroInstance*)gs->hpool.heroesPool[hid[i]] : NULL);
 		if(h && army[i])
-			h->setToArmy(*army[i]);
+			h->setToArmy(army[i]);
 		p->availableHeroes.push_back(h);
 	}
 }
@@ -729,6 +729,7 @@ DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
 	assert(vstd::contains(transformedArt->assemblyPossibilities(al.hero), builtArt));
 
 	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
+	gs->map->addNewArtifactInstance(combinedArt);
 	//retreive all constituents
 	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
 	{
@@ -739,6 +740,8 @@ DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
 		//move constituent from hero to be part of new, combined artifact
 		constituentInstance->removeFrom(h, pos);
 		combinedArt->addAsConstituent(constituentInstance, pos);
+		if(!vstd::contains(combinedArt->artType->possibleSlots, al.slot) && vstd::contains(combinedArt->artType->possibleSlots, pos))
+			al.slot = pos;
 	}
 
 	//put new combined artifacts
@@ -755,11 +758,11 @@ DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
 	disassembled->removeFrom(h, al.slot);
 	BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, constituents)
 	{
-		ci.art->detachFrom(disassembled);
+		disassembled->detachFrom(ci.art);
 		ci.art->putAt(h, ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
 	}
 
-	delNull(disassembled);
+	gs->map->eraseArtifactInstance(disassembled);
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )

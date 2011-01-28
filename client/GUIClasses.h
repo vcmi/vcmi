@@ -130,6 +130,7 @@ public:
 	bool delInner;
 
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CRClickPopupInt(IShowActivable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
@@ -580,7 +581,16 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-class CTradeWindow : public CIntObject //base for markets and altar of sacrifice
+class CWindowWithArtifacts : public virtual CIntObject
+{
+public:
+	std::vector<CArtifactsOfHero *> artSets;
+
+	CWindowWithArtifacts();
+	~CWindowWithArtifacts();
+};
+
+class CTradeWindow : public CWindowWithArtifacts //base for markets and altar of sacrifice
 {
 public:
 	enum EType
@@ -596,12 +606,11 @@ public:
 		bool left;
 		std::string subtitle; //empty if default
 
-		void *hlp; //holds ptr to artifact instance id type artifact 
-
+		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact 
 		const CArtifactInstance *getArtInstance() const;
-		const CArtifact *getArt() const;
-		void setArtInstance(const CArtifactInstance *art) const;
-		void setArt(const CArtifact *artT) const;
+// 		const CArtifact *getArt() const;
+// 		void setArtInstance(const CArtifactInstance *art) const;
+// 		void setArt(const CArtifact *artT) const;
 
 		CFunctionList<void()> callback;
 		bool downSelection;
@@ -907,15 +916,6 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void deactivate();
 	void show(SDL_Surface * to);
-};
-
-class CWindowWithArtifacts : public virtual CIntObject
-{
-public:
-	std::vector<CArtifactsOfHero *> artSets;
-
-	CWindowWithArtifacts();
-	~CWindowWithArtifacts();
 };
 
 class CArtPlace: public LRClickableAreaWTextComp

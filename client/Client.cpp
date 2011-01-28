@@ -428,6 +428,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	{
 		playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
 		playerint[255]->init(new CCallback(gs,255,this));
+		battleints[255] = playerint[255];
 	}
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);

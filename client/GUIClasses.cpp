@@ -2630,7 +2630,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
-	CTradeWindow *mw = static_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 	if(down)
 	{
@@ -2638,23 +2638,21 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art;
-			if(movedArt)
+			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
 			{
 				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this, movedArt);
 			}
 			else if(const CArtifactInstance *art = getArtInstance())
 			{
-				movedArt = art;
 				aw->arts->commonInfo->src.AOH = aw->arts;
-				aw->arts->commonInfo->src.art = movedArt;
+				aw->arts->commonInfo->src.art = art;
 				aw->arts->commonInfo->src.slotID = aw->hero->getArtPos(art);
-				aw->arts->markPossibleSlots(movedArt);
+				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->artType->id].bitmap);
+				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[art->artType->id].bitmap);
 
-				aw->arts->artifactsOnAltar.erase(movedArt);
+				aw->arts->artifactsOnAltar.erase(art);
 				id = -1;
 				subtitle = "";
 				aw->deal->block(!aw->arts->artifactsOnAltar.size());
@@ -2788,25 +2786,25 @@ const CArtifactInstance * CTradeWindow::CTradeableItem::getArtInstance() const
 	}
 }
 
-const CArtifact * CTradeWindow::CTradeableItem::getArt() const
-{
-	return NULL;
-}
-
-void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art) const
-{
-
-}
-
-void CTradeWindow::CTradeableItem::setArt(const CArtifact *artT) const
-{
-
-}
+// const CArtifact * CTradeWindow::CTradeableItem::getArt() const
+// {
+// 	return NULL;
+// }
+// 
+// void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art) const
+// {
+// 
+// }
+// 
+// void CTradeWindow::CTradeableItem::setArt(const CArtifact *artT) const
+// {
+// 
+// }
 
 CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
 	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
 {
-	type = BLOCK_ADV_HOTKEYS;
+	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 	initTypes();
 }
@@ -3537,6 +3535,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 			arts->recActions = 255;
 			arts->allowedAssembling = false;
 			addChild(arts);
+			artSets.push_back(arts);
 		}
 
 		initItems(false);
@@ -3873,6 +3872,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->id = artID;
 	altarSlot->subtitle = boost::lexical_cast<std::string>(val);
+	altarSlot->hlp = art;
 
 	deal->block(false);
 	return true;
@@ -3880,14 +3880,23 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 
 void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
+	int freeBackpackSlot = hero->artifactsInBackpack.size() + Arts::BACKPACK_START;
 	if(arts->commonInfo->src.art)
 	{
-		arts->commonInfo->dst.slotID = 65500;
+		arts->commonInfo->dst.slotID = freeBackpackSlot;
 		arts->commonInfo->dst.AOH = arts;
 	}
 
 	if(putOnAltar(altarSlot, art))
-		LOCPLINT->cb->swapArtifacts(hero, slotID, hero, 65500);
+	{
+		if(slotID < Arts::BACKPACK_START)
+			LOCPLINT->cb->swapArtifacts(hero, slotID, hero, freeBackpackSlot);
+		else
+		{
+			arts->commonInfo->src.clear();
+			arts->commonInfo->dst.clear();
+		}
+	}
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
@@ -4536,6 +4545,11 @@ CRClickPopupInt::~CRClickPopupInt()
 	CCS->curh->show();
 }
 
+void CRClickPopupInt::showAll(SDL_Surface * to)
+{
+	inner->showAll(to);
+}
+
 CArtPlace::CArtPlace(const CArtifactInstance* Art)
 	: marked(false), ourArt(Art), picked(false), locked(false)
 {
@@ -4704,7 +4718,7 @@ void CArtPlace::select ()
 		return;
 
 	picked = true;
-	//int backpackCorrection = -(slotID - 19 < ourOwner->backpackPos);
+	//int backpackCorrection = -(slotID - Arts::BACKPACK_START < ourOwner->backpackPos);
 
 	CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->artType->id].bitmap);
 	ourOwner->commonInfo->src.setTo(this, false);
@@ -5297,9 +5311,18 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		tlog1 << "Unexpected artifact movement...\n";
 	}
 
+ 	int shift = 0;
+// 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
+// 		shift++;
+// 
+ 	if(src.slot < Arts::BACKPACK_START  &&  dst.slot - Arts::BACKPACK_START < backpackPos)
+		shift++;
+	if(dst.slot < Arts::BACKPACK_START  &&  src.slot - Arts::BACKPACK_START < backpackPos)
+ 		shift--;
+
 	if( src.hero == curHero && src.slot >= Arts::BACKPACK_START
 	 || dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
-		scrollBackpack(0); //update backpack slots
+		scrollBackpack(shift); //update backpack slots
 }
 
 CArtPlace * CArtifactsOfHero::getArtPlace(int slot)

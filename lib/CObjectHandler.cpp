@@ -836,7 +836,7 @@ void CGHeroInstance::initHero()
 		mana = manaLimit();
 }
 
-void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
+void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 {
 	if(!dst)
 		dst = this;
@@ -883,7 +883,7 @@ void CGHeroInstance::initArmy(CCreatureSet *dst /*= NULL*/)
 				tlog3 << "Hero " << name << " already has artifact at " << slot << ", ommiting giving " << aid << std::endl;
 		}
 		else
-			dst->putStack(stackNo-warMachinesGiven, new CStackInstance(creID, count));
+			dst->setCreature(stackNo-warMachinesGiven, creID, count);
 	}
 }
 void CGHeroInstance::initHeroDefInfo()

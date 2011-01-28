@@ -80,6 +80,17 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CreatureFactionLimiter>();
 	s.template registerType<CreatureAlignmentLimiter>();
 
+	s.template registerType<CBonusSystemNode>();
+	s.template registerType<CArtifact>();
+	s.template registerType<CCreature>();
+	s.template registerType<CStackInstance>();
+	s.template registerType<PlayerState>();
+	s.template registerType<TeamState>();
+	s.template registerType<CGameState>();
+	s.template registerType<CGHeroInstance::HeroSpecial>();
+	s.template registerType<CArmedInstance>();
+	s.template registerType<CStack>();
+	s.template registerType<BattleInfo>();
 	s.template registerType<CArtifactInstance>();
 	s.template registerType<CCombinedArtifactInstance>();
 }

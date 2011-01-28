@@ -430,8 +430,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sah.hid[0] = loserHero->subID;
 		if(result == 1) //retreat
 		{
-			sah.army[0] = new CCreatureSet();
-			sah.army[0]->addToSlot(0, VLC->creh->nameToID[loserHero->type->refTypeStack[0]],1);
+			sah.army[0].clear();
+			sah.army[0].setCreature(0, VLC->creh->nameToID[loserHero->type->refTypeStack[0]],1);
 		}
 
 		if(const CGHeroInstance *another =  getPlayerState(loser)->availableHeroes[1])
@@ -799,7 +799,7 @@ void CGameHandler::newTurn()
 				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, i->first, getNativeTown(i->first), pool, banned)) //first hero - native if possible, second hero -> any other class
 				{
 					sah.hid[j] = h->subID;
-					h->initArmy(sah.army[j] = new CCreatureSet());
+					h->initArmy(&sah.army[j]);
 					banned = h->type->heroClass;
 				}
 				else
@@ -2994,8 +2994,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	if(newHero)
 	{
 		sah.hid[hid] = newHero->subID;
-		sah.army[hid] = new CCreatureSet();
-		sah.army[hid]->addToSlot(0, VLC->creh->nameToID[newHero->type->refTypeStack[0]],1);
+		sah.army[hid].clear();
+		sah.army[hid].setCreature(0, VLC->creh->nameToID[newHero->type->refTypeStack[0]],1);
 	}
 	else
 		sah.hid[hid] = -1;
