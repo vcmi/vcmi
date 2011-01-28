@@ -215,7 +215,9 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	const_cast<CGameInfo*>(CGI)->state.dellNull();
 	tlog0 << "Deleted mapHandler and gameState." << std::endl;
 
+	CPlayerInterface * oldInt = LOCPLINT;
 	LOCPLINT = NULL;
+	oldInt->pim->unlock();
 	while (!playerint.empty())
 	{
 		CGameInterface *pint = playerint.begin()->second;
@@ -520,20 +522,15 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv) 
+	if (serv) //request closing connection
 	{
 		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		*serv << &CloseServer();
 		tlog0 << "Sent closing signal to the server\n";
-
-		serv->close();
-		delete serv;
-		serv = NULL;
-		tlog3 << "Our socket has been closed." << std::endl;
 	}
 
-	if(connectionHandler)
+	if(connectionHandler)//end connection handler
 	{
 		if(connectionHandler->get_id() != boost::this_thread::get_id())
 			connectionHandler->join();
@@ -542,6 +539,14 @@ void CClient::stopConnection()
 
 		delete connectionHandler;
 		connectionHandler = NULL;
+	}
+
+	if (serv) //and delete connection
+	{
+		serv->close();
+		delete serv;
+		serv = NULL;
+		tlog3 << "Our socket has been closed." << std::endl;
 	}
 }
 

@@ -149,27 +149,14 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 		{
 			/* We have a long line. Try to do a nice line break, if
 			 * possible. We backtrack on the line until we find a
-			 * suitable character. */
+			 * suitable character.
+			 * Note: Cyrillic symbols have indexes 220-255 so we need
+			 * to use unsigned char for comparison
+			 */
 			int pos = z-1;
+			while(pos > 0 &&  ((unsigned char)text[pos]) > ' ' )
+				pos --;
 
-			// Do not break an ellipsis, backtrack until whitespace.
-			if (text[pos] == '.' && text[z] == '.') 
-			{
-				while (pos != 0 && text[pos] != ' ')
-					pos--;
-			} 
-			else 
-			{
-			/* TODO: boost should have a nice method to do that. */
-				while(pos > 0 && text[pos]>' ')
-					/*  text[pos] != ' ' && 
-					  text[pos] != ',' &&
-					  text[pos] != '.' &&
-					  text[pos] != ';' &&
-					  text[pos] != '!' &&
-					  text[pos] != '?')*/
-					pos --;
-			}
 			if (pos > 0)
 				z = pos+1;
 		}
