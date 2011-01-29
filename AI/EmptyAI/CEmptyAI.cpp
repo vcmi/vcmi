@@ -17,7 +17,7 @@ void CEmptyAI::heroKilled(const CGHeroInstance *)
 void CEmptyAI::heroCreated(const CGHeroInstance *)
 {
 }
-void CEmptyAI::heroMoved(const HeroMoveDetails &)
+void CEmptyAI::heroMoved(const TryMoveHero& TMH)
 {
 }
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)

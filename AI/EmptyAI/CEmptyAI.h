@@ -11,7 +11,7 @@ public:
 	void yourTurn();
 	void heroKilled(const CGHeroInstance *);
 	void heroCreated(const CGHeroInstance *);
-	void heroMoved(const HeroMoveDetails &);
+	void heroMoved(const TryMoveHero&);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};
 	void tileRevealed(int3 pos){};
