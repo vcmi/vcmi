@@ -17,13 +17,14 @@ struct Bonus;
 template <typename fact> class AIholder;
 template <typename input, typename output> class Rule;
 typedef Rule<Bonus, Bonus> BRule;
+typedef boost::function<bool(int, si32)> TLogic;
 bool greaterThan (int prop, si32 val);
 
 enum conditionType {LESS_THAN, EQUAL, GREATER_THAN, UNEQUAL, PRESENT};
 
 template <typename ruleType, typename fact> class ExpertSystemShell
 {
-	enum runType {ANY_GOAL, TRESHOLD, FULL};
+	enum runType {ANY_GOAL, TRESHOLD, FULL}; //Treshold - stop when received decision has high AI value
 private:
 	ICallback* m_cb;
 protected:
@@ -53,12 +54,12 @@ public:
 };
 
 template <typename input> class condition
-{//compares selected object parameter with value using functor. universal logic handler
+{//compares selected object parameter with value using functor. universal (?) logic handler
 public:
 	input object; //what the fact is, or what it's like (CSelector)
 	si32 value;
 	ui8 parameter;
-	boost::function<bool(int,si32)> functor; //value of selected parameter, condition value
+	TLogic functor; //value of selected parameter, condition value
 
 	condition(){object = NULL; value = 0; parameter = 0; functor = greaterThan;};
 
@@ -142,7 +143,7 @@ protected:
 	void fireRule();
 };
 
-inline bool greaterThan (int prop, si32 val)
+inline bool greaterThan (int prop, si32 val) //does it make any sense to keep functors inline?
 {
 	if ((si32)prop > val)
 		return true;
@@ -171,6 +172,21 @@ inline bool present (int prop, si32 val=0)
 {
 	return(prop); //unfixable warning :(
 }
+
+class LogicConjunction
+{
+	const TLogic first, second; //TODO: universal argument list of functions?
+public:
+	LogicConjunction(const TLogic First, const TLogic Second)
+		:first(First), second(Second)
+	{
+	}
+	bool operator()(int prop, si32 val) const
+	{
+		return first(prop,val) && second(prop,val); //TODO: 
+	}
+};
+TLogic operator&&(const TLogic &first, const TLogic &second);
 
 class KnowledgeHandler///I'd opt for one omniscent knowledge manager, so no templates here
 {

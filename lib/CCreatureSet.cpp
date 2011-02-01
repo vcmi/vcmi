@@ -277,6 +277,56 @@ void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*=
 	else
 		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
 }
+std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
+{
+	std::map<TBonusType, std::pair<std::string, std::string>>::iterator it = VLC->generaltexth->stackBonuses.find(bonus->type);
+	if (it != VLC->generaltexth->stackBonuses.end())
+	{
+		std::string text;
+		if (description)
+		{
+			text = it->second.second;
+			switch (bonus->type)
+			{
+				//no additional modifiers needed
+				case Bonus::FLYING:
+				case Bonus::UNLIMITED_RETALIATIONS:
+				case Bonus::SHOOTER:
+				case Bonus::FREE_SHOOTING:
+				case Bonus::NO_SHOTING_PENALTY:
+				case Bonus::NO_MELEE_PENALTY:
+				case Bonus::NO_DISTANCE_PENALTY:
+				case Bonus::NO_OBSTACLES_PENALTY:
+				case Bonus::JOUSTING: //TODO: percent bonus?
+				case Bonus::RETURN_AFTER_STRIKE:
+				case Bonus::BLOCKS_RETALIATION:
+				case Bonus::TWO_HEX_ATTACK_BREATH:
+				case Bonus::THREE_HEADED_ATTACK:
+				case Bonus::ATTACKS_ALL_ADJACENT:
+				case Bonus::FULL_HP_REGENERATION:
+				case Bonus::LIFE_DRAIN: //TODO: chance, hp percentage?
+				case Bonus::SELF_MORALE:
+				case Bonus::SELF_LUCK:
+				case Bonus::FEAR:
+				case Bonus::FEARLESS:
+				case Bonus::CHARGE_IMMUNITY:
+				case Bonus::HEALER:
+				case Bonus::CATAPULT:
+				case Bonus::DRAGON_NATURE:
+				case Bonus::NON_LIVING:
+				case Bonus::UNDEAD:
+				break;
+			}
+		}
+		else
+		{
+			text = it->second.first;
+		}
+		return text;
+	}
+	else
+		return "";
+}
 
 std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
 {

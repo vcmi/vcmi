@@ -109,6 +109,11 @@ void BonusRule::fireRule()
 	}
 	//TODO: add new fact or modify existing one
 }
+
+TLogic operator&&(const TLogic &first, const TLogic &second)
+{
+	return LogicConjunction(first, second);
+}
 //TODO: find out why it does not compile
 //template <typename input, typename conType> void Rule<input, conType>::refreshRule(std::set<conType> &conditionSet)
 //{

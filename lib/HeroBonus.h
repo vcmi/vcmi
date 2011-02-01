@@ -15,10 +15,6 @@
  *
  */
 
-
-typedef ui8 TBonusType;
-typedef si32 TBonusSubtype;
-
 class CCreature;
 class CSpell;
 struct Bonus;
@@ -363,7 +359,8 @@ public:
 	int getBonusesCount(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	int valOfBonuses(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	bool hasBonus(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;  //out: pairs<modifier value, modifier description>
+	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;  //out: pairs<modifier value, modifier description>* 
+	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
 
 	//////////////////////////////////////////////////////////////////////////
 	//legacy interface 
