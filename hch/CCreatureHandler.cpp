@@ -467,11 +467,6 @@ void CCreatureHandler::loadCreatures()
 		{
 			int id, lvl;
 			ifs >> id >> lvl;
-			if(lvl>0)
-			{
-				creatures[id]->level = lvl;
-				levelCreatures[lvl].push_back(creatures[id]);
-			}
 		}
 	}
 	ifs.close();
@@ -579,6 +574,27 @@ void CCreatureHandler::loadCreatures()
 		inp3 >> factionToTurretCreature[g];
 	}
 	inp3.close();
+
+	//reading creature ability names
+	ifs.open(DATA_DIR "/config/bonusnames.txt");
+	{
+		std::string buf2, buf3, line;
+		int i;
+		std::map<std::string,int>::const_iterator it;
+		getline(ifs, line); //skip 1st line
+		while(!ifs.eof())
+		{
+			getline(ifs, buf, '\t');
+			getline(ifs, buf2, '\t');
+			getline(ifs, buf3);
+			it = bonusNameMap.find(buf);
+			if (it != bonusNameMap.end())
+				stackBonuses[it->second] = std::pair<std::string, std::string>(buf2,buf3);
+			else
+				tlog2 << "Bonus " << buf << " not recognized, ingoring\n";
+		}
+	}
+	ifs.close();
 }
 
 void CCreatureHandler::loadAnimationInfo()

@@ -1,27 +1,41 @@
-"Bonus"	"Name (24 characters?)"	"Description"
-"FLYING"	"Fly"	"Can Fly (ignores obstacles)"
-"UNLIMITED_RETALIATIONS"	"Unlimited retaliations"	"May retaliate any number of attacks"
-"SHOOTER"	"Ranged"	"Creature can make a Ranged Attack"
-"FREE_SHOOTING"	"Shoot Close"	"Can make a Ranged Attack in Close Combat"
-"NO_SHOTING_PENALTY"	"?"	"???"
-"NO_MELEE_PENALTY"	"No melee penalty"	"Creature has no Melee Penalty"
-"NO_DISTANCE_PENALTY"	"No distance penalty"	"Does full ranged damage from any distance"
-"NO_OBSTACLES_PENALTY"	"No obstacle penalty"	"Creature has no Obstacle Penalty"
-"JOUSTING"	"Champion"	"Champion Distance Bonus (+5% damage per square travelled)"
-"RETURN_AFTER_STRIKE"	"Attack and Return"	"Returns to starting position after making a melee attack"
-"BLOCKS_RETALIATION"	"No retaliation"	"Enemy cannot Retaliate"
-"TWO_HEX_ATTACK_BREATH"	"Breath"	"Creature has a Breath Attack (2-hex range)"
-"THREE_HEADED_ATTACK"	"Three-headed attack"	"Creature attacks three adjacent units"
-"ATTACKS_ALL_ADJACENT"	"Attack all around"	"Creature attacks all adjacent enemies"
-"FULL_HP_REGENERATION"	"Regeneration"	"May Regenerate full Health"
-"LIFE_DRAIN"	"Drain life"	"Drains life equal to damage dealt"
-"SELF_MORALE"	"Positive morale"	"Always has Positive Morale"
-"SELF_LUCK"	"Positive luck"	"Always has Positive Luck"
-"FEAR"	"Fear"	"Has a chance to cause Fear on an enemy stack"
-"FEARLESS"	"Fearless"	"Immune to Fear ability"
-"CHARGE_IMMUNITY"	"Immune to Charge"	"Immune to Champion charge bonus"
-"HEALER"	"Healer"	"Heals allied units"
-"CATAPULT "	"Catapult"	"Attacks siege walls"
-"DRAGON_NATURE"	"Dragon"	"Creature has a Dragon Nature"
-"NON_LIVING"	"Non living"	"Creature is immune to effects affecting Living units"
-"UNDEAD"	"Undead"	"Creature is Undead"
+Bonus	Name (24 characters?)	Description
+FLYING	Fly	Can Fly (ignores obstacles)
+UNLIMITED_RETALIATIONS	Unlimited retaliations	May retaliate any number of attacks
+SHOOTER	Ranged	Creature can make a Ranged Attack
+FREE_SHOOTING	Shoot Close	Can make a Ranged Attack in Close Combat
+NO_SHOTING_PENALTY	?	???
+NO_MELEE_PENALTY	No melee penalty	Creature has no Melee Penalty
+NO_DISTANCE_PENALTY	No distance penalty	Does full ranged damage from any distance
+NO_OBSTACLES_PENALTY	No obstacle penalty	Creature has no Obstacle Penalty
+JOUSTING	Champion	Champion Distance Bonus (+5% damage per square travelled)
+RETURN_AFTER_STRIKE	Attack and Return	Returns to starting position after making a melee attack
+BLOCKS_RETALIATION	No retaliation	Enemy cannot Retaliate
+TWO_HEX_ATTACK_BREATH	Breath	Creature has a Breath Attack (2-hex range)
+THREE_HEADED_ATTACK	Three-headed attack	Creature attacks three adjacent units
+ATTACKS_ALL_ADJACENT	Attack all around	Creature attacks all adjacent enemies
+FULL_HP_REGENERATION	Regeneration	May Regenerate full Health
+LIFE_DRAIN	Drain life	Drains life equal to damage dealt
+SELF_MORALE	Positive morale	Always has Positive Morale
+SELF_LUCK	Positive luck	Always has Positive Luck
+FEAR	Fear	Has a chance to cause Fear on an enemy stack
+FEARLESS	Fearless	Immune to Fear ability
+CHARGE_IMMUNITY	Immune to Charge	Immune to Champion charge bonus
+HEALER	Healer	Heals allied units
+CATAPULT 	Catapult	Attacks siege walls
+DRAGON_NATURE	Dragon	Creature has a Dragon Nature
+NON_LIVING	Non living	Creature is immune to effects affecting Living units
+UNDEAD	Undead	Creature is Undead
+HATE	Hates %s	Does more damage to %s
+DOUBLE_DAMAGE_CHANCE	Death Blow	Has %d% chance to deal double damage
+MAGIC_RESISTANCE	Magic Resistance	Has %d% chance to resist enemy spell
+SPELL_DAMAGE_REDUCTION	Spell Resistance	Damage from spells reduced 50%.
+LEVEL_SPELL_IMMUNITY	Spell immunity 1-%d	Immune to spells levels 1-%d
+HP_REGENERATION	Regeneration	Heals %d hit points every round
+SPELL_IMMUNITY	Immune to %s	Immune to %s spell
+ENEMY_DEFENCE_REDUCTION	Reduces Enemy Defense	Reduces Enemy Defense by %d% for this attack
+MAGIC_MIRROR	Magic Mirror	Has %d% chance to redirect offensive spell back to enemy
+ADDITIONAL_RETALIATION	Additional retaliations	May Retaliate %d extra times
+CHANGES_SPELL_COST_FOR_ALLY	Reduce Casting Cost 	Reduce Casting Cost of allied hero spells by %d
+CHANGES_SPELL_COST_FOR_ENEMY	Magic Damper	Increase Casting Cost of enemy hero spells by %d
+MANA_CHANNELING	Magic Channel	%d% mana spent by enemy is transfered to your hero
+SPELL_AFTER_ATTACK	Caster - %s	%d% chance to cast %s after attack

@@ -74,9 +74,6 @@ public:
 	std::vector <std::vector <std::string> > skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
 	std::vector<std::string> levels;
 
-	//bonuses
-	std::map<TBonusType, std::pair<std::string, std::string>> stackBonuses; // bonus => name, description
-
 	//campaigns
 	std::vector <std::string> campaignMapNames;
 	std::vector < std::vector <std::string> > campaignRegionNames;
