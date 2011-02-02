@@ -467,6 +467,11 @@ void CCreatureHandler::loadCreatures()
 		{
 			int id, lvl;
 			ifs >> id >> lvl;
+			if(lvl>0) 
+ 	        { 
+	 	        creatures[id]->level = lvl; 
+	            levelCreatures[lvl].push_back(creatures[id]); 
+ 	        } 
 		}
 	}
 	ifs.close();
