@@ -189,7 +189,8 @@ struct DLL_EXPORT Bonus
 		HERO_SPECIAL,
 		ARMY,
 		CAMPAIGN_BONUS,
-		SPECIAL_WEEK
+		SPECIAL_WEEK,
+		STACK_EXPERIENCE
 	};
 
 	enum LimitEffect
@@ -292,7 +293,7 @@ struct DLL_EXPORT Bonus
 
 struct DLL_EXPORT stackExperience : public Bonus
 {
-	std::vector<ui32> expBonuses; // variations for levels 1-10, copied to val field;
+	std::vector<si32> expBonuses; // variations for levels 1-10, copied to val field;
 	bool enable; //if true - turns ability on / off for zero value
 
 	template <typename Handler> void serialize(Handler &h, const int version)

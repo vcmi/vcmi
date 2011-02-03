@@ -600,6 +600,47 @@ void CCreatureHandler::loadCreatures()
 		}
 	}
 	ifs.close();
+
+	if (STACK_EXP) 	//reading default stack experience bonuses
+	{
+		buf = bitmaph->getTextFile("CREXPBON.TXT");
+		int it = 0, creid;
+		commonBonuses.resize(8); //8 tiers
+		stackExperience b;
+		b.expBonuses.resize(10);
+		b.source = Bonus::STACK_EXPERIENCE;
+
+		loadToIt (dump2, buf, it, 3); //ignore first line
+		loadToIt (dump2, buf, it, 4); //ignore index
+		loadStackExp(b, buf, it);
+		loadToIt (dump2, buf, it, 4); //crop comment
+		for (i = 0; i < 8; ++i)
+		{
+			commonBonuses[i].push_back(b);//health bonus common for all
+			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
+			{
+				loadToIt (dump2, buf, it, 4); //ignore index
+				loadStackExp(b, buf, it);
+				commonBonuses[i].push_back(b);
+				loadToIt (dump2, buf, it, 3); //crop comment
+			}
+		}
+		do //parse everything that's left
+		{
+			loadToIt(creid, buf, it, 4); //get index
+			loadStackExp(b, buf, it);
+			creatures[creid]->bonuses.push_back(b); //experience list is common for creatures of that type
+			loadToIt (dump2, buf, it, 3); //crop comment
+		}
+		while (it < buf.size());
+		for (std::vector<CCreature*>::iterator i = creatures.begin(); i != creatures.end(); i++)
+		{
+			if (it = (*i)->level < 7)
+				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), (*i)->bonuses.begin());
+			else
+				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), (*i)->bonuses.begin()); //common for tiers 8+
+		}
+	} //end of stack experience
 }
 
 void CCreatureHandler::loadAnimationInfo()
@@ -670,6 +711,40 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 			break;
 	}
 	i+=2;
+}
+
+void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int & it) //help function for parsing CREXPBON.txt, assuming all its details are already defined
+{
+	std::string buf, mod;
+	loadToIt(buf, src, it, 4);
+	loadToIt(mod, src, it, 4);
+	switch (buf[0])
+	{
+		case 'H':
+			b.type = Bonus::STACK_HEALTH;
+			break;
+		case 'A':
+			b.type = Bonus::PRIMARY_SKILL;
+			b.subtype = PrimarySkill::ATTACK;
+			break;
+		case 'D':
+			b.type = Bonus::PRIMARY_SKILL;
+			b.subtype = PrimarySkill::DEFENSE;
+			break;
+		case 'M': //Max damage
+			b.type = Bonus::CREATURE_DAMAGE;
+			b.subtype = 2;
+			break;
+		case 'm': //Min damage
+			b.type = Bonus::CREATURE_DAMAGE;
+			b.subtype = 1;
+			break;
+	}
+	loadToIt (b.val, src, it, 4); //basic value, not particularly useful but existent
+	for (int i = 0; i < 10; ++i)
+	{
+		loadToIt (b.expBonuses[i], src, it, 4); //vector must have length 10
+	}
 }
 
 CCreatureHandler::~CCreatureHandler()

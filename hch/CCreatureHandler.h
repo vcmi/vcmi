@@ -110,12 +110,13 @@ public:
 	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
 	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
-	//bonus names and descriptions
 	std::map<TBonusType, std::pair<std::string, std::string>> stackBonuses; // bonus => name, description
+	std::vector<BonusList> commonBonuses; // levels 1-8 from CREXPBON.txt
 
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+	void loadStackExp(stackExperience & b, std::string & src, int & it);
 
 	bool isGood (si8 faction) const;
 	bool isEvil (si8 faction) const;
