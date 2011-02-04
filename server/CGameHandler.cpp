@@ -2142,14 +2142,15 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		ns.bid.insert(29);
 	else if (t->subID == 4 && bid == 17) //veil of darkness
 	{
-		GiveBonus gb(GiveBonus::TOWN);
-		gb.bonus.type = Bonus::DARKNESS;
-		gb.bonus.val = 20;
-		gb.id = t->id;
-		gb.bonus.duration = Bonus::PERMANENT;
-		gb.bonus.source = Bonus::TOWN_STRUCTURE;
-		gb.bonus.id = 17;
-		sendAndApply(&gb);
+		//handled via town->reacreateBonuses in apply
+// 		GiveBonus gb(GiveBonus::TOWN);
+// 		gb.bonus.type = Bonus::DARKNESS;
+// 		gb.bonus.val = 20;
+// 		gb.id = t->id;
+// 		gb.bonus.duration = Bonus::PERMANENT;
+// 		gb.bonus.source = Bonus::TOWN_STRUCTURE;
+// 		gb.bonus.id = 17;
+// 		sendAndApply(&gb);
 	}
 	else if ( t->subID == 5 && bid == 22 )
 	{
@@ -2204,14 +2205,14 @@ bool CGameHandler::razeStructure (si32 tid, si32 bid)
 	rs.destroyed = t->destroyed + 1;
 	sendAndApply(&rs);
 //TODO: Remove dwellers
-	if (t->subID == 4 && bid == 17) //Veil of Darkness
-	{
-		RemoveBonus rb(RemoveBonus::TOWN);
-		rb.whoID = t->id;
-		rb.source = Bonus::TOWN_STRUCTURE;
-		rb.id = 17;
-		sendAndApply(&rb);
-	}
+// 	if (t->subID == 4 && bid == 17) //Veil of Darkness
+// 	{
+// 		RemoveBonus rb(RemoveBonus::TOWN);
+// 		rb.whoID = t->id;
+// 		rb.source = Bonus::TOWN_STRUCTURE;
+// 		rb.id = 17;
+// 		sendAndApply(&rb);
+// 	}
 	return true;
 }
 
@@ -2371,7 +2372,7 @@ bool CGameHandler::changeStackType(const StackLocation &sl, CCreature *c)
 void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging) 
 {
 	assert(src->canBeMergedWith(*dst, allowMerging));
-	while(!src->stacksCount())//while there are unmoved creatures
+	while(src->stacksCount())//while there are unmoved creatures
 	{
 		TSlots::const_iterator i = src->Slots().begin(); //iterator to stack to move
 		StackLocation sl(src, i->first); //location of stack to move
@@ -2437,7 +2438,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 		sendAndApply(&intown);
 		return true;
 	}
-	else if (town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
+	else if(!!town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
 	{
 		SetHeroesInTown intown;
 		intown.tid = tid;
@@ -3480,7 +3481,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures)
+static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner)
 {
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
@@ -3518,11 +3519,11 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 		
 
 		//non-negative spells on friendly stacks should always succeed, unless immune
-		if(sp->positiveness >= 0 && (*it)->owner == caster->tempOwner)
+		if(sp->positiveness >= 0 && (*it)->owner == casterSideOwner)
 			continue;
 
 		const CGHeroInstance * bonusHero; //hero we should take bonuses from
-		if(caster && (*it)->owner == caster->tempOwner)
+		if((*it)->owner == casterSideOwner)
 			bonusHero = caster;
 		else
 			bonusHero = hero2;
@@ -3582,7 +3583,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	}
 
 	//checking if creatures resist
-	sc.resisted = calculateResistedStacks(spell, caster, secHero, attackedCres);
+	sc.resisted = calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor);
 
 	//calculating dmg to display
 	for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)

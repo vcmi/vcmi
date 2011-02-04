@@ -321,7 +321,6 @@ public:
 	const TeamState *getTeam(ui8 teamID) const;
 	const TeamState *getPlayerTeam(ui8 color) const;
 	void init(StartInfo * si, ui32 checksum, int Seed);
-	void buildGameLogicTree();
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
@@ -350,6 +349,7 @@ public:
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
 
+	void buildBonusSystemTree();
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

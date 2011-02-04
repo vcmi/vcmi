@@ -46,6 +46,10 @@ public:
 	{
 		return ptr;
 	}
+	const T*operator=(T *t)
+	{
+		return ptr = t;
+	}
 
 	void dellNull()
 	{

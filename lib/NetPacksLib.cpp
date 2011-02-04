@@ -86,36 +86,11 @@ DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
+
 	if(start())
-	{
-		if(garrison())
-		{
-			t->garrisonHero = h;
-			h->visitedTown = t;
-			h->inTownGarrison = true;
-		}
-		else
-		{
-			t->visitingHero = h;
-			h->visitedTown = t;
-			h->inTownGarrison = false;
-		}
-	}
+		t->setVisitingHero(h);
 	else
-	{
-		if(garrison())
-		{
-			t->garrisonHero = NULL;
-			h->visitedTown = NULL;
-			h->inTownGarrison = false;
-		}
-		else
-		{
-			t->visitingHero = NULL;
-			h->visitedTown = NULL;
-			h->inTownGarrison = false;
-		}
-	}
+		t->setVisitingHero(NULL);
 }
 
 DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
@@ -379,24 +354,6 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
-// DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
-// {
-// 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
-// 	{
-// 		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
-// 		ai->setToArmy(i->second);
-// 		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-// 			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setToArmy(i->second);
-// 		else if(ai->ID==HEROI_TYPE)
-// 		{
-// 			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
-// 			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
-// 			if(t && h->inTownGarrison)
-// 			t->setToArmy(i->second);
-// 		}
-// 	}
-// }
-
 DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
@@ -405,6 +362,7 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 		t->builtBuildings.insert(id);
 	}
 	t->builded = builded;
+	t->recreateBuildingsBonuses();
 }
 DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 {
@@ -414,7 +372,9 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 		t->builtBuildings.erase(id);
 	}
 	t->destroyed = destroyed; //yeaha
+	t->recreateBuildingsBonuses();
 }
+
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
 	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid].get());
@@ -429,71 +389,34 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 	CGHeroInstance *v  = gs->getHero(visiting), 
 		*g = gs->getHero(garrison);
 
-	t->visitingHero = v;
-	t->garrisonHero = g;
+	bool newVisitorComesFromGarrison = v && v == t->garrisonHero;
+	bool newGarrisonComesFromVisiting = g && g == t->visitingHero;
+
+	if(newVisitorComesFromGarrison)
+		t->setGarrisonedHero(NULL);
+	if(newGarrisonComesFromVisiting)
+		t->setVisitingHero(NULL);
+	if(!newGarrisonComesFromVisiting || v)
+		t->setVisitingHero(v);
+	if(!newVisitorComesFromGarrison || g)
+		t->setGarrisonedHero(g);
+
 	if(v)
 	{
-		v->visitedTown = t;
-		v->inTownGarrison = false;
 		gs->map->addBlockVisTiles(v);
 	}
 	if(g)
 	{
-		g->visitedTown = t;
-		g->inTownGarrison = true;
 		gs->map->removeBlockVisTiles(g);
 	}
 }
-
-// DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
-// {
-// 	CGHeroInstance *h = gs->getHero(hid);
-// 	for(std::map<ui16, const CArtifact*>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
-// 		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
-// 			unequiped.push_back(i->second);
-// 
-// 	for(std::map<ui16, const CArtifact*>::iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-// 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
-// 		{
-// 			equiped.push_back(i->second);
-// 		}
-// 
-// 	//update hero data
-// 	h->artifacts = artifacts;
-// 	h->artifWorn = artifWorn;
-// }
-// 
-// DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
-// {
-// 	if(!art)
-// 	{
-// 		if(pos<19)
-// 			VLC->arth->unequipArtifact(artifWorn, pos);
-// 		else if (pos - 19 < artifacts.size())
-// 			artifacts.erase(artifacts.begin() + (pos - 19));
-// 	}
-// 	else
-// 	{
-// 		if (pos < 19) 
-// 		{
-// 			VLC->arth->equipArtifact(artifWorn, pos, art);
-// 		} 
-// 		else // Goes into the backpack.
-// 		{ 
-// 			if(pos - 19 < artifacts.size())
-// 				artifacts.insert(artifacts.begin() + (pos - 19), art);
-// 			else
-// 				artifacts.push_back(art);
-// 		}
-// 	}
-// }
-
 
 DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 {
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
 	CGTownInstance *t = gs->getTown(tid);
+	PlayerState *p = gs->getPlayer(player);
 	h->setOwner(player);
 	h->pos = tile;
 	h->movement =  h->maxMovePoints(true);
@@ -509,16 +432,15 @@ DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
-	gs->getPlayer(h->getOwner())->heroes.push_back(h);
+	p->heroes.push_back(h);
+	h->attachTo(p);
 	h->initObj();
 	gs->map->addBlockVisTiles(h);
 
 	if(t)
 	{
-		t->visitingHero = h;
-		h->visitedTown = t;
+		t->setVisitingHero(h);
 	}
-	h->inTownGarrison = false;
 }
 
 DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
@@ -702,7 +624,6 @@ DLL_EXPORT void PutArtifact::applyGs( CGameState *gs )
 {
 	assert(art->canBePutAt(al));
 	al.hero->putArtifact(al.slot, art);
-	//art->putAt(al.hero, al.slot);
 }
 
 DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )

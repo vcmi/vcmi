@@ -41,7 +41,7 @@ bool CCreatureSet::setCreature(TSlot slot, TCreature type, TQuantity quantity) /
 		return true;
 	}
 
-	if(vstd::contains(stacks, slot)) //remove old creature
+	if(hasStackAtSlot(slot)) //remove old creature
 		eraseStack(slot);
 
 	putStack(slot, new CStackInstance(type, quantity));
@@ -132,7 +132,7 @@ void CCreatureSet::addToSlot(TSlot slot, TCreature cre, TQuantity count, bool al
 {
 	const CCreature *c = VLC->creh->creatures[cre];
 
-	if(!vstd::contains(stacks, slot))
+	if(!hasStackAtSlot(slot))
 	{
 		setCreature(slot, cre, count);
 	}
@@ -150,7 +150,7 @@ void CCreatureSet::addToSlot(TSlot slot, CStackInstance *stack, bool allowMergin
 {
 	assert(stack->valid(true));
 
-	if(!vstd::contains(stacks, slot))
+	if(!hasStackAtSlot(slot))
 	{
 		putStack(slot, stack);
 	}
@@ -176,7 +176,7 @@ bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
 
 bool CCreatureSet::slotEmpty(TSlot slot) const
 {
-	return !vstd::contains(stacks, slot);
+	return !hasStackAtSlot(slot);
 }
 
 bool CCreatureSet::needsLastStack() const
@@ -213,9 +213,10 @@ void CCreatureSet::setFormation(bool tight)
 
 void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
-	assert(vstd::contains(stacks, slot));
+	assert(hasStackAtSlot(slot));
 	assert(count > 0);
 	stacks[slot]->count = count;
+	armyChanged();
 }
 
 void CCreatureSet::clear()
@@ -228,15 +229,15 @@ void CCreatureSet::clear()
 
 const CStackInstance& CCreatureSet::getStack(TSlot slot) const
 {
-	assert(vstd::contains(stacks, slot));
+	assert(hasStackAtSlot(slot));
 	return *stacks.find(slot)->second;
 }
 
 void CCreatureSet::eraseStack(TSlot slot)
 {
-	assert(vstd::contains(stacks, slot));
-	delNull(stacks[slot]);
-	stacks.erase(slot);
+	assert(hasStackAtSlot(slot));
+	CStackInstance *toErase = detachStack(slot);
+	delNull(toErase);
 }
 
 bool CCreatureSet::contains(const CStackInstance *stack) const
@@ -270,9 +271,10 @@ CArmedInstance * CCreatureSet::castToArmyObj()
 
 void CCreatureSet::putStack(TSlot slot, CStackInstance *stack)
 {
-	assert(!vstd::contains(stacks, slot));
+	assert(!hasStackAtSlot(slot));
 	stacks[slot] = stack;
 	stack->setArmyObj(castToArmyObj());
+	armyChanged();
 }
 
 void CCreatureSet::joinStack(TSlot slot, CStackInstance * stack)
@@ -323,7 +325,7 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 
 CStackInstance * CCreatureSet::detachStack(TSlot slot)
 {
-	assert(vstd::contains(stacks, slot));
+	assert(hasStackAtSlot(slot));
 	CStackInstance *ret = stacks[slot];
 
 	if(CArmedInstance *armedObj = castToArmyObj())
@@ -332,16 +334,17 @@ CStackInstance * CCreatureSet::detachStack(TSlot slot)
 	}
 
 	assert(!ret->armyObj); //we failed detaching?
-
 	stacks.erase(slot);
+	armyChanged();
 	return ret;
 }
 
 void CCreatureSet::setStackType(TSlot slot, const CCreature *type)
 {
-	assert(vstd::contains(stacks, slot));
+	assert(hasStackAtSlot(slot));
 	CStackInstance *s = stacks[slot];
 	s->setType(type->idNumber);
+	armyChanged();
 }
 
 bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks) const
@@ -381,6 +384,10 @@ CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
 {
 	assert(0);
 	return *this;
+}
+
+void CCreatureSet::armyChanged()
+{
 }
 
 CStackInstance::CStackInstance()
@@ -492,6 +499,12 @@ std::string CStackInstance::nodeName() const
 		oss << "[UNDEFINED TYPE]";
 
 	return oss.str();
+}
+
+void CStackInstance::deserializationFix()
+{
+	setType(type);
+	setArmyObj(armyObj);
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

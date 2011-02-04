@@ -84,7 +84,7 @@ void SetSecSkill::applyCl( CClient *cl )
 
 void HeroVisitCastle::applyCl( CClient *cl )
 {
-	if(start() && !garrison() && vstd::contains(cl->playerint,GS(cl)->getHero(hid)->tempOwner))
+	if(start() && vstd::contains(cl->playerint,GS(cl)->getHero(hid)->tempOwner))
 	{
 		cl->playerint[GS(cl)->getHero(hid)->tempOwner]->heroVisitsTown(GS(cl)->getHero(hid),GS(cl)->getTown(tid));
 	}

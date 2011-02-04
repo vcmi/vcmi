@@ -74,6 +74,7 @@ public:
 	//CArtifactInstance(int aid);
 
 	std::string nodeName() const OVERRIDE;
+	void deserializationFix();
 	void setType(CArtifact *Art);
 
 	int firstAvailableSlot(const CGHeroInstance *h) const;
@@ -126,6 +127,8 @@ public:
 	CArtifactInstance *figureMainConstituent(ui16 slot); //main constituent is replcaed with us (combined art), not lock
 
 	CCombinedArtifactInstance();
+
+	void deserializationFix();
 
 	friend class CArtifactInstance;
 	friend class AssembledArtifact;

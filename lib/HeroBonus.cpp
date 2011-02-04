@@ -315,6 +315,8 @@ CBonusSystemNode::~CBonusSystemNode()
 	if(children.size())
 	{
 		tlog2 << "Warning: an orphaned child!\n";
+		while(children.size())
+			children.front()->detachFrom(this);
 	}
 }
 
@@ -438,6 +440,11 @@ bool CBonusSystemNode::isIndependentNode() const
 std::string CBonusSystemNode::nodeName() const
 {
 	return std::string("Bonus system node of type ") + typeid(*this).name();
+}
+
+void CBonusSystemNode::deserializationFix()
+{
+	tlog2 << "Deserialization fix called on bare CBSN? Shouldn't be...\n";
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)

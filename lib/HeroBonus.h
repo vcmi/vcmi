@@ -434,6 +434,7 @@ public:
 
 	void popBonuses(const CSelector &s);
 	virtual std::string nodeName() const;
+	void deserializationFix();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

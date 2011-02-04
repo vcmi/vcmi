@@ -1319,7 +1319,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		}
 		break;
 	case SDLK_SPACE:
-		if(town->visitingHero && town->garrisonHero)
+		if(!!town->visitingHero && town->garrisonHero)
 		{
 			LOCPLINT->cb->swapGarrisonHero(town);
 		}
@@ -1331,7 +1331,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 
 void CCastleInterface::splitClicked()
 {
-	if(town->visitingHero && town->garrisonHero && (hslotdown.highlight || hslotup.highlight))
+	if(!!town->visitingHero && town->garrisonHero && (hslotdown.highlight || hslotup.highlight))
 	{
 		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}

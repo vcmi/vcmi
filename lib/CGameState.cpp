@@ -941,19 +941,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				}
 			}
 
-
-// 			h->setCreature(0, 110, 1);
-// 			h->setCreature(1, 69, 1);
-// 
-// 			CGHeroInstance *h = new CGHeroInstance();
-// 
-// 			CGCreature *c = new CGCreature();
-// 			c->setOwner(1);
-// 			c->putStack(0, new CStackInstance(69, 6));
-// 			c->putStack(1, new CStackInstance(11, 3));
-// 			c->subID = 34;
-// 			c->initObj();
-
 			curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
 			curB->localInit();
 			return;
@@ -1069,32 +1056,19 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	/*********give starting hero****************************************/
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==CMapHeader::RoE))
+		const PlayerInfo &p = map->players[i];
+		bool generateHero = (p.generateHeroAtMainTown && p.hasMainTown)  ||  (p.hasMainTown && map->version==CMapHeader::RoE);
+		if(generateHero && vstd::contains(scenarioOps->playerInfos, i))
 		{
-			int3 hpos = map->players[i].posOfMainTown;
-			hpos.x+=1;// hpos.y+=1;
-			if (scenarioOps->playerInfos.find(i) == scenarioOps->playerInfos.end())
-			{
-				continue;
-			}
+			int3 hpos = p.posOfMainTown;
+			hpos.x+=1;
 
-			int h=pickHero(i);
+			int h = pickHero(i);
 			if(scenarioOps->playerInfos[i].hero == -1)
 				scenarioOps->playerInfos[i].hero = h;
 
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
-			hpos = map->players[i].posOfMainTown;hpos.x+=2;
-			for(unsigned int o=0;o<map->towns.size();o++) //find main town
-			{
-				if(map->towns[o]->pos == hpos)
-				{
-					map->towns[o]->visitingHero = nnn;
-					nnn->visitedTown = map->towns[o];
-					nnn->inTownGarrison = false;
-					break;
-				}
-			}
 			nnn->initHero();
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
@@ -1533,24 +1507,31 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 	}
 
+	objCaller->preInit();
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
+	{
+		obj->initObj();
+		if(obj->ID == 62) //prison also needs to initialize hero
+			static_cast<CGHeroInstance*>(obj)->initHero();
+	}
+	CGTeleport::postInit(); //pairing subterranean gates
+
+	buildBonusSystemTree();
+
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;
 
 		//init visiting and garrisoned heroes
-		for(unsigned int l=0; l<k->second.heroes.size();l++)
+		BOOST_FOREACH(CGHeroInstance *h, k->second.heroes)
 		{ 
-			CGHeroInstance *h = k->second.heroes[l];
-			for(unsigned int m=0; m<k->second.towns.size();m++)
+			BOOST_FOREACH(CGTownInstance *t, k->second.towns)
 			{
-				CGTownInstance *t = k->second.towns[m];
 				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
 				if(vistile == h->pos || h->pos==t->pos)
 				{
-					t->visitingHero = h;
-					h->visitedTown = t;
-					h->inTownGarrison = false;
+					t->setVisitingHero(h);
 					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
 					{
 						map->removeBlockVisTiles(h);
@@ -1562,15 +1543,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			}
 		}
 	}
-
-	objCaller->preInit();
-	for(unsigned int i=0; i<map->objects.size(); i++)
-	{
-		map->objects[i]->initObj();
-		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
-			static_cast<CGHeroInstance*>(map->objects[i].get())->initHero();
-	}
-	CGTeleport::postInit(); //pairing subterranean gates
 }
 
 int CGameState::battleGetBattlefieldType(int3 tile)
@@ -2882,8 +2854,46 @@ bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool
 	return pool;
 }
 
-void CGameState::buildGameLogicTree()
+void CGameState::buildBonusSystemTree()
 {
+	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
+	{
+		TeamState *t = &k->second;
+		t->attachTo(&globalEffects);
+
+		BOOST_FOREACH(ui8 teamMember, k->second.players)
+		{
+			PlayerState *p = getPlayer(teamMember);
+			assert(p);
+			p->attachTo(t);
+		}
+
+	}
+
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
+	{
+		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
+		{
+			CBonusSystemNode *whereToAttach = armed->tempOwner < PLAYER_LIMIT 
+				? getPlayer(armed->tempOwner)
+				: &globalEffects;
+
+			if(armed->ID == TOWNI_TYPE)
+			{
+				CGTownInstance *town = static_cast<CGTownInstance*>(armed);
+				town->townAndVis.attachTo(whereToAttach);
+			}
+			else
+				armed->attachTo(whereToAttach);
+		}
+	}
+
+	BOOST_FOREACH(CGTownInstance *t, map->towns)
+	{
+		t->deserializationFix();
+	}
+	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact 
+	// are provided on initializing / deserializing
 }
 
 int3 CPath::startPos() const

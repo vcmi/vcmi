@@ -227,6 +227,9 @@ public:
 
 	CCreatureSet& getArmy() const;
 	void randomizeArmy(int type);
+	void updateMoraleBonusFromArmy();
+
+	void armyChanged() OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
@@ -432,6 +435,7 @@ public:
 
 
 	virtual std::string nodeName() const OVERRIDE;
+	void deserializationFix();
 	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -556,14 +560,19 @@ public:
 	}
 };
 
+class DLL_EXPORT CTownAndVisitingHero : public CBonusSystemNode
+{
+};
+
 class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
 public:
+	CTownAndVisitingHero townAndVis;
 	CTown * town;
 	std::string name; // name of town
 	si32 builded; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
-	const CGHeroInstance * garrisonHero, *visitingHero;
+	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
@@ -586,10 +595,16 @@ public:
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 			(*i)->town = this;
 
-		h & town;
+		h & town & townAndVis;
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 	//////////////////////////////////////////////////////////////////////////
+
+	std::string nodeName() const OVERRIDE;
+	void deserializationFix();
+	void recreateBuildingsBonuses();
+	void setVisitingHero(CGHeroInstance *h);
+	void setGarrisonedHero(CGHeroInstance *h);
 // 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 // 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////

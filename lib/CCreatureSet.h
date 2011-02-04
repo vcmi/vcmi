@@ -59,6 +59,7 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	bool valid(bool allowUnrandomized) const;
 	virtual std::string nodeName() const OVERRIDE;
+	void deserializationFix();
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
@@ -98,6 +99,7 @@ public:
 
 	CCreatureSet();
 	virtual ~CCreatureSet();
+	virtual void armyChanged();
 
 	const CStackInstance &operator[](TSlot slot) const; 
 
@@ -110,14 +112,14 @@ public:
 	CArmedInstance *castToArmyObj();
 
 	//basic operations
-	void eraseStack(TSlot slot); //slot must be occupied
 	void putStack(TSlot slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
-	void joinStack(TSlot slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
 	void setStackCount(TSlot slot, TQuantity count); //stack must exist!
-	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else)
+	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(TSlot slot, const CCreature *type);
 
 	//derivative 
+	void eraseStack(TSlot slot); //slot must be occupied
+	void joinStack(TSlot slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
 	void changeStackCount(TSlot slot, TQuantity toAdd); //stack must exist!
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.

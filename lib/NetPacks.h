@@ -287,17 +287,17 @@ struct HeroVisitCastle : public CPackForClient //108
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	ui8 flags; //1 - start, 2 - garrison
+	ui8 flags; //1 - start
 	ui32 tid, hid;
 
 	bool start() //if hero is entering castle (if false - leaving)
 	{
 		return flags & 1;
 	}
-	bool garrison() //if hero is entering/leaving garrison (if false - it's only visiting hero)
-	{
-		return flags & 2;
-	}
+// 	bool garrison() //if hero is entering/leaving garrison (if false - it's only visiting hero)
+// 	{
+// 		return flags & 2;
+// 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & flags & tid & hid;

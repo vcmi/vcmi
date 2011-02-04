@@ -271,34 +271,6 @@ CGObjectInstance::~CGObjectInstance()
 	//	delete state;
 	//state=NULL;
 }
-//CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
-//{
-//	pos = right.pos;
-//	ID = right.ID;
-//	subID = right.subID;
-//	id	= right.id;
-//	defInfo = right.defInfo;
-//	info = right.info;
-//	blockVisit = right.blockVisit;
-//	//state = new CLuaObjectScript(right.state->);
-//	//*state = *right.state;
-//	//state = right.state;
-//	tempOwner = right.tempOwner;
-//}
-//CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
-//{
-//	pos = right.pos;
-//	ID = right.ID;
-//	subID = right.subID;
-//	id	= right.id;
-//	defInfo = right.defInfo;
-//	info = right.info;
-//	blockVisit = right.blockVisit;
-//	//state = new CLuaObjectScript();
-//	//*state = *right.state;
-//	tempOwner = right.tempOwner;
-//	return *this;
-//}
 
 const std::string & CGObjectInstance::getHoverText() const
 {
@@ -1431,22 +1403,6 @@ void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 	CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
 	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
 	ai->putAt(this, ai->firstAvailableSlot(this));
-// 
-// 	if (artifact->isBig()) 
-// 	{
-// 		for (std::vector<ui16>::const_iterator it = artifact->possibleSlots.begin(); it != artifact->possibleSlots.end(); ++it) 
-// 		{
-// 			if (!vstd::contains(artifWorn, *it)) 
-// 			{
-// 				VLC->arth->equipArtifact(artifWorn, *it, artifact);
-// 				break;
-// 			}
-// 		}
-// 	} 
-// 	else 
-// 	{
-// 		artifacts.push_back(artifact);
-// 	}
 }
 
 int CGHeroInstance::getBoatType() const
@@ -1476,21 +1432,6 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 {
 	return sp->costs[getSpellSchoolLevel(sp)];
 }
-
-// void CGHeroInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	CArmedInstance::getParents(out, root);
-// 
-// 	if((root == this || contains(static_cast<const CStackInstance *>(root))) &&  visitedTown && !dynamic_cast<const PlayerState*>(root))
-// 	{
-// 			out.insert(visitedTown);
-// 	}
-// 
-// 	for (std::map<ui16,CArtifact*>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-// 		out.insert(i->second);
-// 
-// 	out.insert(&speciality);
-// }
 
 void CGHeroInstance::pushPrimSkill(int which, int val)
 {
@@ -1581,6 +1522,15 @@ void CGHeroInstance::putInBackpack(CArtifactInstance *art)
 bool CGHeroInstance::hasSpellbook() const
 {
 	return getArt(Arts::SPELLBOOK);
+}
+
+void CGHeroInstance::deserializationFix()
+{
+	for(bmap<ui16, ArtSlotInfo>::iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
+		if(i->second.artifact && !i->second.locked)
+			attachTo(i->second.artifact);
+
+	attachTo(&speciality);
 }
 
 void CGDwelling::initObj()
@@ -2008,9 +1958,7 @@ CGTownInstance::CGTownInstance()
 {
 	builded=-1;
 	destroyed=-1;
-	garrisonHero=NULL;
 	town=NULL;
-	visitingHero = NULL;
 }
 
 CGTownInstance::~CGTownInstance()
@@ -2137,10 +2085,8 @@ void CGTownInstance::initObj()
 			break;
 	}
 	//add special bonuses from buildings
-	if(subID == 4 && vstd::contains(builtBuildings, 17))
-	{
-		addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17) );
-	}
+
+	recreateBuildingsBonuses();
 }
 
 void CGTownInstance::newTurn() const
@@ -2241,27 +2187,6 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 {
 	if(result->winner == 0)
 	{
-		if (hasBonusOfType(Bonus::DARKNESS))
-		{
-			//TODO: Make some 'change owner' function for bonus, or bonuses independent of player
-			/*
-			RemoveBonus rb(RemoveBonus::PLAYER);
-			rb.whoID = getOwner();
-			rb.source = Bonus::TOWN_STRUCTURE;
-			rb.id = id;
-			cb->sendAndApply(&rb);
-
-			GiveBonus gb(GiveBonus::PLAYER);
-			gb.bonus.type = Bonus::DARKNESS;
-			gb.bonus.val = 20;
-			gb.id = h->tempOwner;
-			gb.bonus.duration = Bonus::PERMANENT;
-			gb.bonus.source = Bonus::TOWN_STRUCTURE;
-			gb.bonus.id = id;
-			cb->sendAndApply(&gb);
-			*/
-		}
-
 		removeCapitols (h->getOwner());
 		cb->setOwner (id, h->tempOwner); //give control after checkout is done
 		FoWChange fw;
@@ -2269,8 +2194,6 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 		fw.mode = 1;
 		getSightTiles (fw.tiles); //update visibility for castle structures
 		cb->sendAndApply (&fw);
-
-
 	}
 }
 
@@ -2304,33 +2227,6 @@ int CGTownInstance::getBoatType() const
 	else //neutral
 		return 2;
 }
-
-// void CGTownInstance::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	CArmedInstance::getParents(out, root);
-// 	if(root == this  &&  visitingHero && visitingHero != root)
-// 		out.insert(visitingHero);
-// }
-
-// void CGTownInstance::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	CArmedInstance::getBonuses(out, selector, root);
-// 	//TODO eliminate by moving structures effects to bonus system
-// 
-// 	if(Selector::matchesType(selector, Bonus::LUCK))
-// 	{
-// 		if(subID == 1  &&  vstd::contains(builtBuildings,21)) //rampart, fountain of fortune
-// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 21, VLC->generaltexth->buildings[1][21].first + " +2"));
-// 	}
-// 
-// 	if(Selector::matchesType(selector, Bonus::MORALE))
-// 	{
-// 		if(subID == 0  &&  vstd::contains(builtBuildings,22)) //castle, brotherhood of sword built
-// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 22, VLC->generaltexth->buildings[0][22].first + " +2"));
-// 		else if(vstd::contains(builtBuildings,5)) //tavern is built
-// 			out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +1, 5, VLC->generaltexth->buildings[0][5].first + " +1"));
-// 	}
-// }
 
 int CGTownInstance::getMarketEfficiency() const
 {
@@ -2388,6 +2284,83 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 	}
 	else
 		return IMarket::availableItemsIds(mode);
+}
+
+std::string CGTownInstance::nodeName() const
+{
+	return "Town (" + (town ? town->Name() : "unknown") + ") of " +  name;
+}
+
+void CGTownInstance::deserializationFix()
+{
+	attachTo(&townAndVis);
+	if(visitingHero)
+		visitingHero->attachTo(&townAndVis);
+	if(garrisonHero)
+		garrisonHero->attachTo(this);
+}
+
+void CGTownInstance::recreateBuildingsBonuses()
+{
+	bonuses.remove_if(Selector::sourceType(Bonus::TOWN_STRUCTURE)); //TODO memory leak
+
+	if(subID == 4 && vstd::contains(builtBuildings, 17))
+		addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::DARKNESS, Bonus::TOWN_STRUCTURE, 20, 17));
+
+	if(subID == 1  &&  vstd::contains(builtBuildings,21)) //rampart, fountain of fortune
+	 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::LUCK, Bonus::TOWN_STRUCTURE, +2, 21, VLC->generaltexth->buildings[1][21].first + " +2"));
+
+	if(subID == 0  &&  vstd::contains(builtBuildings,22)) //castle, brotherhood of sword built
+	 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +2, 22, VLC->generaltexth->buildings[0][22].first + " +2"));
+	else if(vstd::contains(builtBuildings,5)) //tavern is built
+	 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::TOWN_STRUCTURE, +1, 5, VLC->generaltexth->buildings[0][5].first + " +1"));
+}
+
+void CGTownInstance::setVisitingHero(CGHeroInstance *h)
+{
+	assert(!!visitingHero == !h);
+	if(h)
+	{
+		PlayerState *p = cb->gameState()->getPlayer(h->tempOwner);
+		assert(p);
+		h->detachFrom(p);
+		h->attachTo(&townAndVis);
+		visitingHero = h;
+		h->visitedTown = this;
+		h->inTownGarrison = false;
+	}
+	else
+	{
+		PlayerState *p = cb->gameState()->getPlayer(visitingHero->tempOwner);
+		visitingHero->visitedTown = NULL;
+		visitingHero->detachFrom(&townAndVis);
+		visitingHero->attachTo(p);
+		visitingHero = NULL;
+	}
+}
+
+void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
+{
+	assert(!!garrisonHero == !h);
+	if(h)
+	{
+		PlayerState *p = cb->gameState()->getPlayer(h->tempOwner);
+		assert(p);
+		h->detachFrom(p);
+		h->attachTo(this);
+		garrisonHero = h;
+		h->visitedTown = this;
+		h->inTownGarrison = true;
+	}
+	else
+	{
+		PlayerState *p = cb->gameState()->getPlayer(garrisonHero->tempOwner);
+		garrisonHero->visitedTown = NULL;
+		garrisonHero->inTownGarrison = false;
+		garrisonHero->detachFrom(this);
+		garrisonHero->attachTo(p);
+		garrisonHero = NULL;
+	}
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
@@ -6584,50 +6557,63 @@ CArmedInstance::CArmedInstance()
 // 		}
 // 	}
 // 
-// 	if(Selector::matchesType(selector, Bonus::MORALE))
-// 	{
-// 		//number of alignments and presence of undead
-// 		if(contains(dynamic_cast<const CStackInstance*>(root)))
-// 		{
-// 			bool archangelInArmy = false;
-// 			bool canMix = hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX);
-// 			std::set<si8> factions;
-// 			for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
-// 			{
-// 				// Take Angelic Alliance troop-mixing freedom of non-evil, non-Conflux units into account.
-// 				const si8 faction = i->second.type->faction;
-// 				if (canMix
-// 					&& ((faction >= 0 && faction <= 2) || faction == 6 || faction == 7))
-// 				{
-// 					factions.insert(0); // Insert a single faction of the affected group, Castle will do.
-// 				}
-// 				else
-// 				{
-// 					factions.insert(faction);
-// 				}
-// 
-// 				if(i->second.type->idNumber == 13)
-// 					archangelInArmy = true;
-// 			}
-// 
-// 			if(factions.size() == 1)
-// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, +1, id, VLC->generaltexth->arraytxt[115]));//All troops of one alignment +1
-// 			else
-// 			{
-// 				int fcountModifier = 2-factions.size();
-// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, fcountModifier, id, boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % fcountModifier)));//Troops of %d alignments %d
-// 			}
-// 
-// 			if(vstd::contains(factions,4))
-// 				out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
-// 		}
-// 	}
+
 // }
 
 int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
 {
 	//if (tempOwner != NEUTRAL_PLAYER)
 	return cb->gameState()->players[tempOwner].valOfBonuses(selector);
+}
+
+void CArmedInstance::updateMoraleBonusFromArmy()
+{
+	if(!validTypes(false)) //object not randomized, don't bother
+		return;
+
+	Bonus *b = bonuses.getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
+	if(!b)
+	{
+		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		addNewBonus(b);
+	}
+
+	//number of alignments and presence of undead
+	bool canMix = hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX);
+	std::set<si8> factions;
+	for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
+	{
+	 	// Take Angelic Alliance troop-mixing freedom of non-evil, non-Conflux units into account.
+	 	const si8 faction = i->second->type->faction;
+	 	if (canMix
+	 		&& ((faction >= 0 && faction <= 2) || faction == 6 || faction == 7))
+	 	{
+	 		factions.insert(0); // Insert a single faction of the affected group, Castle will do.
+	 	}
+	 	else
+	 	{
+	 		factions.insert(faction);
+	 	}
+	}
+	 
+	if(factions.size() == 1)
+	{
+		b->val = +1;
+		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
+	}
+	else
+	{
+	 	b->val = 2-factions.size();
+		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % b->val); //Troops of %d alignments %d
+	}
+	 
+// 	if(vstd::contains(factions,4))
+// 	 	out.push_back(Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, id, VLC->generaltexth->arraytxt[116]));//Undead in group -1
+}
+
+void CArmedInstance::armyChanged()
+{
+	updateMoraleBonusFromArmy();
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const

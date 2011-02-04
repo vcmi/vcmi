@@ -699,7 +699,7 @@ void CArtHandler::addBonuses()
 
 	//Angelic Alliance
 	giveArtBonus(129, Bonus::NONEVIL_ALIGNMENT_MIX, 0);
-	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
+	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 48); // Prayer
 
 	//Cloak of the Undead King
 	giveArtBonus(130, Bonus::IMPROVED_NECROMANCY, 0);
@@ -894,8 +894,8 @@ std::string CArtifactInstance::nodeName() const
 
 CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 {
-	CArtifactInstance *ret = new CArtifactInstance(VLC->arth->artifacts[93]);
-	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, s->id	);
+	CArtifactInstance *ret = new CArtifactInstance(VLC->arth->artifacts[1]);
+	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, 1, s->id);
 	ret->addNewBonus(b);
 	return ret;
 }
@@ -1019,6 +1019,11 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
 {
 	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
+}
+
+void CArtifactInstance::deserializationFix()
+{
+	setType(artType);
 }
 
 bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
@@ -1160,6 +1165,12 @@ CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(ui16 slot)
 	}
 
 	return mainConstituent;
+}
+
+void CCombinedArtifactInstance::deserializationFix()
+{
+	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		attachTo(ci.art);
 }
 
 CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ui16 Slot /*= -1*/)
