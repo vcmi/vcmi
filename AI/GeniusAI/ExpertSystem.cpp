@@ -14,9 +14,9 @@
 
 template <typename ruleType, typename facts> template <typename cond> void ExpertSystemShell<ruleType, facts>::DataDrivenReasoning(runType type)
 {
-	std::set<ruleType>::iterator ir;
+	std::vector<ruleType>::iterator ir;
 	std::list<fact>::iterator iF;
-	std::set<std::pair<cond, input*>>::iterator ic;
+	std::vector<std::pair<cond, input*>>::iterator ic;
 	bool factWasAdded = false; //carry it over inner loop
 	switch (type)
 	{
@@ -72,7 +72,7 @@ template <typename ruleType, typename facts> template <typename cond> void Exper
 }
 void BonusRule::fireRule()
 {
-	for (std::set<std::pair<BonusCondition, BonusHolder*>>::iterator it = cons.begin(); it != cons.end(); it++)
+	for (std::vector<std::pair<BonusCondition, BonusHolder*>>::iterator it = cons.begin(); it != cons.end(); it++)
 	{
 		switch (it->first.parameter)
 		{ //compare fact with condition
@@ -114,18 +114,26 @@ TLogic operator&&(const TLogic &first, const TLogic &second)
 {
 	return LogicConjunction(first, second);
 }
-//TODO: find out why it does not compile
-//template <typename input, typename conType> void Rule<input, conType>::refreshRule(std::set<conType> &conditionSet)
-//{
-//	cons.clear();
-//	for (std::set<conType>::iterator it = conditionSet.begin(); it != conditionSet.end(); it++)
-//		cons.insert(std::make_pair<conType,input*>(*it, NULL)); //pointer to condition and null fact
-//}
-//template <typename input, typename conType> void Rule<input, conType>::refreshRule()
-//{
-//	for (std::set<std::pair<conType, input*>>::iterator it = cons.begin(); it != cons.end(); it++)
-//		*it->second = NULL;
-//}
+TLogic operator||(const TLogic &first, const TLogic &second)
+{
+	return LogicAlternative(first, second);
+}
+template <typename input, typename conType> void Rule<input, conType>::refreshRule(std::vector<conType> &conditionSet)
+{//replace conditions with new vector
+	cons.clear();
+	std::pair <conType,input*> para;
+	para.second = NULL;
+	for (std::vector<conType>::iterator it = conditionSet.begin(); it != conditionSet.end(); it++)
+	{
+		para.first = *it;
+		cons.push_back(para); //pointer to condition and null fact
+	}
+}
+template <typename input, typename conType> void Rule<input, conType>::refreshRule()
+{//clear matching facts
+	for (std::vector<std::pair<conType, input*>>::iterator it = cons.begin(); it != cons.end(); it++)
+		it->second = NULL;
+}
 bool BonusCondition::matchesFact(Bonus &fact)
 {
 	if (object(fact)) //Bonus(fact) matches local Selector(object)
