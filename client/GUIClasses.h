@@ -237,14 +237,16 @@ public:
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
 	     twoRows,//slots will be placed in 2 rows
-		 ourUp,ourDown;//player owns up or down army
+		 owned[2];//player owns up or down army [0] upper, [1] lower
 
-	const CCreatureSet *set1; //top set of creatures
-	const CCreatureSet *set2; //bottom set of creatures
+// 	const CCreatureSet *set1; //top set of creatures
+// 	const CCreatureSet *set2; //bottom set of creatures
 
 	std::vector<CGarrisonSlot*> slotsUp, slotsDown; //slots of upper and lower garrison
-	const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
+	const CArmedInstance *armedObjs[2]; //[0] is upper, [1] is down
+	//const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
+	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(AdventureMapButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
 	
@@ -1006,14 +1008,11 @@ public:
 class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
-	SDL_Surface *bg; //background surface
+	CPicture *bg; //background surface
 	AdventureMapButton *quit;
 
 	void close();
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to){show(to);};
+	void showAll(SDL_Surface * to);
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
 	~CGarrisonWindow(); //d-tor
 };

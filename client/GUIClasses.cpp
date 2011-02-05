@@ -112,7 +112,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				else if(owner->oup && owner->oup->ID == TOWNI_TYPE)
+				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == TOWNI_TYPE)
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
@@ -156,12 +156,12 @@ void CGarrisonSlot::hover (bool on)
 
 const CArmedInstance * CGarrisonSlot::getObj()
 {
-	return 	(!upg)?(owner->oup):(owner->odown);
+	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
 }
 
 bool CGarrisonSlot::our()
 {
-	return 	upg?(owner->ourDown):(owner->ourUp);
+	return 	upg?(owner->owned[1]):(owner->owned[0]);
 }
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
@@ -246,15 +246,15 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 					else if(creature != owner->highlighted->creature) //swap
 					{
 						LOCPLINT->cb->swapCreatures(
-							(!upg)?(owner->oup):(owner->odown),
-							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							ID,owner->highlighted->ID);
 					}
 					else //merge
 					{
 						LOCPLINT->cb->mergeStacks(
-							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
-							(!upg)?(owner->oup):(owner->odown),
+							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							owner->highlighted->ID,ID);
 					}
 				}
@@ -353,6 +353,7 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 			blitAt(imgs[-1],pos,to);
 	}
 }
+
 CGarrisonInt::~CGarrisonInt()
 {/*
 	for(size_t i = 0; i<splitButtons.size(); i++)
@@ -401,11 +402,11 @@ void CGarrisonInt::createSlots()
 		w = 58;
 	}
 
-	if(set1)
-		createSet(slotsUp, set1, 0, 0, w+interx, 0);
+	if(armedObjs[0])
+		createSet(slotsUp, armedObjs[0], 0, 0, w+interx, 0);
 
-	if(set2)
-		createSet (slotsDown, set2, garOffset.x, garOffset.y, w+interx, 1);
+	if(armedObjs[1])
+		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, w+interx, 1);
 }
 
 void CGarrisonInt::deleteSlots()
@@ -451,26 +452,18 @@ void CGarrisonInt::splitClick()
 }
 void CGarrisonInt::splitStacks(int am2)
 {
-	LOCPLINT->cb->splitStack(
-		(highlighted->upg)?(odown):(oup),
-		(pb)?(odown):(oup),
-		highlighted->ID,
-		p2,
-		am2);
-
+	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, am2);
 }
+
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
                             SDL_Surface *&pomsur, const Point& SurOffset, 
                             const CArmedInstance *s1, const CArmedInstance *s2, 
                             bool _removableUnits, bool smallImgs, bool _twoRows )
-
-	:interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
-	 smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows), oup(s1), odown(s2)
+	: interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
+	smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows)
 {
-	ourUp =  s1?(s1->tempOwner == LOCPLINT->playerID || s1->tempOwner == 254):false; //254 - neutral objects (pandora, banks)
-	ourDown = s2?(s2->tempOwner == LOCPLINT->playerID || s2->tempOwner == 254):false;
-	set1 = LOCPLINT->cb->getGarrison(s1);
-	set2 = LOCPLINT->cb->getGarrison(s2);
+	setArmy(s1, false);
+	setArmy(s2, true);
 	pos.x += x;
 	pos.y += y;
 	createSlots();
@@ -483,6 +476,12 @@ void CGarrisonInt::activate()
 			splitButtons[i]->block(!highlighted);
 
 	CIntObject::activate();
+}
+
+void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
+{
+	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == 254) : false; //254 - neutral objects (pandora, banks)
+	armedObjs[bottomGarrison] = army;
 }
 
 CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
@@ -3629,7 +3628,7 @@ void CAltarWindow::makeDeal()
 		}
 
 		arts->commonInfo->reset();
-		arts->scrollBackpack(0);
+		//arts->scrollBackpack(0);
 		deal->block(true);
 	}
 
@@ -4451,58 +4450,42 @@ void CGarrisonWindow::close()
 	GH.popIntTotally(this);
 }
 
-void CGarrisonWindow::activate()
-{
-	quit->activate();
-	garr->activate();
-}
-
-void CGarrisonWindow::deactivate()
-{
-	quit->deactivate();
-	garr->deactivate();
-}
-
-void CGarrisonWindow::show(SDL_Surface * to)
-{
-	blitAt(bg,pos,to);
-	quit->show(to);
-	garr->show(to);
-
-	std::string title;
-	if (garr->odown->tempOwner == garr->oup->tempOwner)
-		title = CGI->generaltexth->allTexts[709];
-	else
-	{
-		title = CGI->generaltexth->allTexts[35];
-		boost::algorithm::replace_first(title, "%s", garr->oup->Slots().begin()->second->type->namePl);
-	}
-
-	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);
-	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
-	printAtMiddle(title,pos.x+275,pos.y+30,FONT_BIG,tytulowy,to);
-}
-
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
 {
-	bg = BitmapHandler::loadBitmap("GARRISON.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos.x = screen->w/2 - bg->w/2;
-	pos.y = screen->h/2 - bg->h/2;
-	pos.w = screen->w;
-	pos.h = screen->h;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	bg = new CPicture("GARRISON.bmp");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	pos = bg->center();
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down, removableUnits);
-	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
-	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
+	garr = new CGarrisonInt(92, 127, 4, Point(0,96), bg->bg, Point(93,127), up, down, removableUnits);
+	{
+		AdventureMapButton *split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
+		removeChild(split);
+		garr->addSplitBtn(split);
+	}
+	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
 }
 
 CGarrisonWindow::~CGarrisonWindow()
 {
-	SDL_FreeSurface(bg);
-	delete quit;
-	delete garr;
+}
+
+void CGarrisonWindow::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+
+	std::string title;
+	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
+		title = CGI->generaltexth->allTexts[709];
+	else
+	{
+		title = CGI->generaltexth->allTexts[35];
+		boost::algorithm::replace_first(title, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
+	}
+
+	blitAtLoc(graphics->flags->ourImages[garr->armedObjs[1]->getOwner()].bitmap,28,124,to);
+	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
+	printAtMiddleLoc(title,275,30,FONT_BIG,tytulowy,to);
 }
 
 IShowActivable::IShowActivable()

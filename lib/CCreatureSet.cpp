@@ -328,7 +328,7 @@ CStackInstance * CCreatureSet::detachStack(TSlot slot)
 	assert(hasStackAtSlot(slot));
 	CStackInstance *ret = stacks[slot];
 
-	if(CArmedInstance *armedObj = castToArmyObj())
+	//if(CArmedInstance *armedObj = castToArmyObj())
 	{
 		ret->setArmyObj(NULL); //detaches from current armyobj
 	}

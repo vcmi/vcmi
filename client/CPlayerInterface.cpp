@@ -487,10 +487,13 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	{
 		c->garr->highlighted = NULL;
 		c->hslotup.hero = town->garrisonHero;
-		c->garr->odown = c->hslotdown.hero = town->visitingHero;
-		c->garr->set2 = town->visitingHero;
-		c->garr->ourUp = LOCPLINT->playerID==(town->garrisonHero ? town->garrisonHero->tempOwner : town->tempOwner);
-		c->garr->ourDown = (town->visitingHero ? LOCPLINT->playerID==town->visitingHero->tempOwner : false);
+		c->hslotdown.hero = town->visitingHero;
+		const CArmedInstance *upperArmy = town;
+		if(town->garrisonHero)
+			upperArmy = town->garrisonHero;
+
+		c->garr->setArmy(upperArmy, 0);
+		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
 	}
 	GH.totalRedraw();
