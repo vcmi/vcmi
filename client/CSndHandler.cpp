@@ -46,6 +46,7 @@ void CMediaHandler::extract(int index, std::string dstfile) //saves selected fil
 
 void CMediaHandler::extract(std::string srcfile, std::string dstfile, bool caseSens) //saves selected file
 {
+	srcfile.erase(srcfile.find_last_of('.'));
 	if (caseSens)
 	{
 		for (size_t i=0;i<entries.size();++i)

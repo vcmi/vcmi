@@ -2,7 +2,7 @@
 #include "../vcmi/CCallback.h"
 #include "../vcmi/lib/HeroBonus.h"
 #include <boost/bind.hpp>
-#include <set>
+#include <vector>
 
 /*
  * ExpertSystem.h, part of VCMI engine
@@ -17,21 +17,22 @@ struct Bonus;
 template <typename fact> class AIholder;
 template <typename input, typename output> class Rule;
 typedef Rule<Bonus, Bonus> BRule;
+typedef boost::function<bool(int, si32)> TLogic;
 bool greaterThan (int prop, si32 val);
 
 enum conditionType {LESS_THAN, EQUAL, GREATER_THAN, UNEQUAL, PRESENT};
 
 template <typename ruleType, typename fact> class ExpertSystemShell
 {
-	enum runType {ANY_GOAL, TRESHOLD, FULL};
+	enum runType {ANY_GOAL, TRESHOLD, FULL}; //Treshold - stop when received decision has high AI value
 private:
 	ICallback* m_cb;
 protected:
-	std::set<ruleType> knowledge;
-	std::set<ruleType*> rulesToErase;
-	std::set<ruleType*> rulesToAdd;
-	std::set<fact*> factsToErase;
-	std::set<fact*> factsToAdd;
+	std::vector<ruleType> knowledge;
+	std::vector<ruleType*> rulesToErase;
+	std::vector<ruleType*> rulesToAdd;
+	std::vector<fact*> factsToErase;
+	std::vector<fact*> factsToAdd;
 	ui16 goalCounter; //count / evaluate achieved goals for runType
 public:
 	ExpertSystemShell(){goalCounter = 0;};
@@ -53,12 +54,12 @@ public:
 };
 
 template <typename input> class condition
-{//compares selected object parameter with value using functor. universal logic handler
+{//compares selected object parameter with value using functor. universal (?) logic handler
 public:
 	input object; //what the fact is, or what it's like (CSelector)
 	si32 value;
 	ui8 parameter;
-	boost::function<bool(int,si32)> functor; //value of selected parameter, condition value
+	TLogic functor; //value of selected parameter, condition value
 
 	condition(){object = NULL; value = 0; parameter = 0; functor = greaterThan;};
 
@@ -72,16 +73,16 @@ public:
 	bool fired; //if conditions of rule were met and it produces some output
 	ui8 conditionCounter;
 protected:
-	std::set<std::pair<conType, input*>> cons; //conditions and matching facts
+	std::vector<std::pair<conType, input*>> cons; //conditions and matching facts
 	input decision;
 	virtual void canBeFired(); //if this data makes any sense for rule - type check
 	virtual bool checkCondition(); //if condition is true or false
-	virtual bool checkCondition(std::set<input*> &feed);
+	virtual bool checkCondition(std::vector<input*> &feed);
 	virtual void fireRule(); //use paired conditions and facts by default
 	virtual void fireRule(ExpertSystemShell<input, conType> &system);
-	virtual void fireRule(std::set<input*> &feed);
+	virtual void fireRule(std::vector<input*> &feed);
 	virtual void refreshRule();
-	virtual void refreshRule(std::set<conType> &conditionSet); //in case conditions were erased
+	virtual void refreshRule(std::vector<conType> &conditionSet); //in case conditions were erased
 public:
 	Rule(){fired = false; conditionCounter = 0; decision = NULL;};
 	template <typename givenInput> bool matchesInput() //if condition and data match type
@@ -142,7 +143,7 @@ protected:
 	void fireRule();
 };
 
-inline bool greaterThan (int prop, si32 val)
+inline bool greaterThan (int prop, si32 val) //does it make any sense to keep functors inline?
 {
 	if ((si32)prop > val)
 		return true;
@@ -171,6 +172,36 @@ inline bool present (int prop, si32 val=0)
 {
 	return(prop); //unfixable warning :(
 }
+
+class LogicConjunction
+{
+	const TLogic first, second; //TODO: universal argument list of functions?
+public:
+	LogicConjunction(const TLogic First, const TLogic Second)
+		:first(First), second(Second)
+	{
+	}
+	bool operator()(int prop, si32 val) const
+	{
+		return first(prop,val) && second(prop,val);
+	}
+};
+TLogic operator&&(const TLogic &first, const TLogic &second);
+
+class LogicAlternative
+{
+	const TLogic first, second;
+public:
+	LogicAlternative(const TLogic First, const TLogic Second)
+		:first(First), second(Second)
+	{
+	}
+	bool operator()(int prop, si32 val) const
+	{
+		return first(prop,val) || second(prop,val); 
+	}
+};
+TLogic operator||(const TLogic &first, const TLogic &second);
 
 class KnowledgeHandler///I'd opt for one omniscent knowledge manager, so no templates here
 {
