@@ -1,6 +1,7 @@
 #include "CKingdomInterface.h"
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
+#include "CPlayerInterface.h"
 #include "../CCallback.h"
 #include "../global.h"
 #include "CConfigHandler.h"

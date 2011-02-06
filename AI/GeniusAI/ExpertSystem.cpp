@@ -136,7 +136,7 @@ template <typename input, typename conType> void Rule<input, conType>::refreshRu
 }
 bool BonusCondition::matchesFact(Bonus &fact)
 {
-	if (object(fact)) //Bonus(fact) matches local Selector(object)
+	if (object(&fact)) //Bonus(fact) matches local Selector(object)
 		return true;
 	return false;
 }
