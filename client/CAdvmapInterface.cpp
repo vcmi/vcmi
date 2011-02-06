@@ -7,6 +7,7 @@
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CMessage.h"
+#include "CPlayerInterface.h"
 #include "SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "CConfigHandler.h"

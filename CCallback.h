@@ -227,8 +227,8 @@ public:
 	si8 battleHasWallPenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has wall penalty
 	si8 battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel) OVERRIDE; //checks if teleportation of given stack to given position can take place
 
-	friend CCallback;
-	friend CClient;
+	friend class CCallback;
+	friend class CClient;
 };
 
 class CCallback : public ICallback, public CBattleCallback

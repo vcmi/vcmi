@@ -3,7 +3,7 @@
 
 #include "FontBase.h"
 #include "../global.h"
-#include <SDL.h>
+//#include <SDL.h>
 #include <boost/function.hpp>
 
 /*
@@ -15,7 +15,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
+ 
+struct SDL_Surface;
 enum EWindowType {infoOnly, infoOK, yesOrNO};
 class CPreGame;
 class MapSel;

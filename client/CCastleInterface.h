@@ -1,14 +1,10 @@
 #ifndef __CCASTLEINTERFACE_H__
 #define __CCASTLEINTERFACE_H__
 
-
-
 #include "../global.h"
-#include <SDL.h>
 #include "CAnimation.h"
 #include "GUIBase.h"
-#include "CMusicBase.h"
-//#include "boost/tuple/tuple.hpp"
+
 class CGTownInstance;
 class CTownHandler;
 class CHallInterface;
@@ -37,14 +33,11 @@ class CMinorResDataBar;
 class CBuildingRect : public CShowableAnim
 {
 public:
-	bool moi; //motion interested is active
 	const Structure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
 	CBuildingRect(const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
-	void activate();
-	void deactivate();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
 	void clickLeft(tribool down, bool previousState);
@@ -119,7 +112,6 @@ public:
 	AdventureMapButton *exit;
 	AdventureMapButton *split;
 
-	musicBase::musicID musicID;
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
@@ -198,7 +190,7 @@ public:
 	CHallInterface(CCastleInterface * owner); //c-tor
 	~CHallInterface(); //d-tor
 	void close();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };
@@ -228,6 +220,7 @@ public:
 	~CFortScreen(); //d-tor
 	void close();
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };
@@ -240,7 +233,7 @@ public:
 	public:
 		const CSpell *spell;
 
-		Scroll(const  CSpell *Spell);
+		Scroll(const CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
@@ -264,6 +257,7 @@ class CBlacksmithDialog : public CIntObject
 public:
 	AdventureMapButton *buy, *cancel;
 	CPicture *bmp; //background
+	CPicture *animBG;
 	CCreatureAnim * anim;
 
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid); //c-tor

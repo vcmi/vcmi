@@ -42,6 +42,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/aclocal/m4/ax_boost_base.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_filesystem.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_iostreams.m4 \
+	$(top_srcdir)/aclocal/m4/ax_boost_program_options.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_system.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_thread.m4 \
 	$(top_srcdir)/aclocal/m4/libtool.m4 \
@@ -128,6 +129,7 @@ BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_FILESYSTEM_LIB = @BOOST_FILESYSTEM_LIB@
 BOOST_IOSTREAMS_LIB = @BOOST_IOSTREAMS_LIB@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_PROGRAM_OPTIONS_LIB = @BOOST_PROGRAM_OPTIONS_LIB@
 BOOST_SYSTEM_LIB = @BOOST_SYSTEM_LIB@
 BOOST_THREAD_LIB = @BOOST_THREAD_LIB@
 CC = @CC@

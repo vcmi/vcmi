@@ -1,15 +1,13 @@
-#include <iostream>
-#include <sstream>
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
-#include "SDL.h"
 #include "SDL_image.h"
 
+#include "../lib/CLodHandler.h"
 #include "CBitmapHandler.h"
+#include "Graphics.h"
 #include "CAnimation.h"
 #include "SDL_Extensions.h"
-#include "../lib/CLodHandler.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine
@@ -23,303 +21,101 @@
 
 extern DLL_EXPORT CLodHandler *spriteh;
 
+typedef std::map <size_t, std::vector <std::string> > source_map;
+typedef std::map<size_t, IImage* > image_map;
+typedef std::map<size_t, image_map > group_map;
+
+class SDLImageLoader
+{
+	SDLImage * image;
+	ui8 * lineStart;
+	ui8 * position;
+public:
+	//load size raw pixels from data
+	inline void Load(size_t size, const ui8 * data);
+	//set size pixels to color
+	inline void Load(size_t size, ui8 color=0);
+	inline void EndLine();
+	//init image with these sizes and palette
+	inline void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
+
+	SDLImageLoader(SDLImage * Img);
+	~SDLImageLoader();
+};
+
+class CompImageLoader
+{
+	CompImage * image;
+	ui8 *position;
+	ui8 *entry;
+	unsigned int currentLine;
+	
+	inline ui8 typeOf(ui8 color);
+	inline void NewEntry(ui8 color, size_t size);
+	inline void NewEntry(const ui8 * &data, size_t size);
+	
+public:
+	//load size raw pixels from data
+	inline void Load(size_t size, const ui8 * data);
+	//set size pixels to color
+	inline void Load(size_t size, ui8 color=0);
+	inline void EndLine();
+	//init image with these sizes and palette
+	inline void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
+
+	CompImageLoader(CompImage * Img);
+	~CompImageLoader();
+};
+
+//Small internal class for parsing texts
+class TextParser
+{
+	int type;
+	size_t position;
+	std::string text;
+public:
+	TextParser(const std::string &name);
+	int getType() const;
+	void parseFile(std::map<size_t, std::vector <std::string> > &result);
+};
+
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
 
-bool CDefFile::haveFrame(size_t frame, size_t group) const
+size_t getPaletteSize(int type)
 {
-	if (offset.size() > group)
-		if (offset[group].size() > frame)
-			return true;
-
-	return false;
+	switch (type)
+	{
+		case 66: return 32;
+		case 71: return 4;
+		default: return 20;
+	}
 }
 
-SDL_Surface *  CDefFile::loadFrame(size_t frame, size_t group) const
-{
-	if (haveFrame(frame, group))
-		return loadFrame(( unsigned char * )data+offset[group][frame], colors);
-	return NULL;
-}
-
-SDL_Surface * CDefFile::loadFrame (const unsigned char * FDef, const BMPPalette * palette)
-{
-	SDL_Surface * ret=NULL;
-
-	unsigned int DefFormat, // format in which pixel data of sprite is encoded
-	             FullHeight,FullWidth, // full width and height of sprite including borders
-	             SpriteWidth, SpriteHeight, // width and height of encoded sprite
-
-	             TotalRowLength,
-	             RowAdd, add,
-	             BaseOffset;
-
-	int LeftMargin, RightMargin, // position of 1st stored in sprite pixel on surface
-	    TopMargin, BottomMargin;
-
-	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
-
-	DefFormat = SDL_SwapLE32(sd.defType2);
-	FullWidth = SDL_SwapLE32(sd.FullWidth);
-	FullHeight = SDL_SwapLE32(sd.FullHeight);
-	SpriteWidth = SDL_SwapLE32(sd.SpriteWidth);
-	SpriteHeight = SDL_SwapLE32(sd.SpriteHeight);
-	LeftMargin = SDL_SwapLE32(sd.LeftMargin);
-	TopMargin = SDL_SwapLE32(sd.TopMargin);
-	RightMargin = FullWidth - SpriteWidth - LeftMargin;
-	BottomMargin = FullHeight - SpriteHeight - TopMargin;
-
-	if (LeftMargin<0)
-		SpriteWidth+=LeftMargin;
-	if (RightMargin<0)
-		SpriteWidth+=RightMargin;
-
-	// Note: this looks bogus because we allocate only FullWidth, not FullWidth+add
-	add = 4 - FullWidth%4;
-	if (add==4)
-		add=0;
-
-	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
-
-	BaseOffset = sizeof(SSpriteDef);
-	int BaseOffsetor = BaseOffset;
-
-	for (int i=0; i<256; ++i)
-	{
-		SDL_Color pr;
-		pr.r = palette[i].R;
-		pr.g = palette[i].G;
-		pr.b = palette[i].B;
-		pr.unused = palette[i].F;
-		(*(ret->format->palette->colors+i))=pr;
-	}
-
-	// If there's a margin anywhere, just blank out the whole surface.
-	if (TopMargin > 0 || BottomMargin > 0 || LeftMargin > 0 || RightMargin > 0)
-	{
-		memset( reinterpret_cast<char*>(ret->pixels), 0, FullHeight*FullWidth);
-	}
-
-	int current=0;//current pixel on output surface
-
-	// Skip top margin
-	if (TopMargin > 0)
-		current += TopMargin*(FullWidth+add);
-
-	switch (DefFormat)
-	{
-	//pixel data is not compressed, copy each line to surface
-	case 0:
-		{
-			for (unsigned int i=0; i<SpriteHeight; i++)
-			{
-				if (LeftMargin>0)
-					current += LeftMargin;
-
-				memcpy(reinterpret_cast<char*>(ret->pixels)+current, &FDef[BaseOffset], SpriteWidth);
-				current += SpriteWidth;
-				BaseOffset += SpriteWidth;
-
-				if (RightMargin>0)
-					current += RightMargin;
-			}
-		}
-		break;
-
-	// RLE encoding:
-	// read offset of pixel data of each line
-	// for each line
-	//     read type and size
-	//     if type is 0xff
-	//         no encoding, copy to output
-	//     else
-	//        RLE: set size pixels to type
-	//   do this until all line is parsed
-	case 1:
-		{
-			//for each line we have offset of pixel data
-			const unsigned int * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+BaseOffset);
-			BaseOffset += sizeof(int) * SpriteHeight;
-
-			for (unsigned int i=0; i<SpriteHeight; i++)
-			{
-				BaseOffset=BaseOffsetor + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
-				if (LeftMargin>0)
-					current += LeftMargin;
-
-				TotalRowLength=0;
-				do
-				{
-					unsigned char SegmentType=FDef[BaseOffset++];
-					unsigned int  SegmentLength=FDef[BaseOffset++] + 1;
-
-					if (SegmentType==0xFF)
-					{
-						memcpy(reinterpret_cast<char*>(ret->pixels)+current, FDef + BaseOffset, SegmentLength);
-						BaseOffset+=SegmentLength;
-					}
-					else
-					{
-						memset(reinterpret_cast<char*>(ret->pixels)+current, SegmentType, SegmentLength);
-					}
-					current += SegmentLength;
-					TotalRowLength += SegmentLength;
-				}
-				while (TotalRowLength<SpriteWidth);
-
-				RowAdd=SpriteWidth-TotalRowLength;
-
-				if (RightMargin>0)
-					current += RightMargin;
-
-				if (add>0)
-					current += add+RowAdd;
-			}
-		}
-		break;
-
-	// Something like RLE
-	// read base offset
-	// for each line
-	//     read type, set code and value
-	//     if code is 7
-	//       copy value pixels
-	//     else
-	//       set value pixels to code
-	case 2:
-		{
-			BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor));
-
-			for (unsigned int i=0; i<SpriteHeight; i++)
-			{
-				if (LeftMargin>0)
-					current += LeftMargin;
-
-				TotalRowLength=0;
-
-				do
-				{
-					unsigned char SegmentType=FDef[BaseOffset++];
-					unsigned char code = SegmentType / 32;
-					unsigned char value = (SegmentType & 31) + 1;
-					if (code==7)
-					{
-						memcpy(reinterpret_cast<char*>(ret->pixels)+current, &FDef[BaseOffset], value);
-						current += value;
-						BaseOffset += value;
-					}
-					else
-					{
-						memset(reinterpret_cast<char*>(ret->pixels)+current, code, value);
-						current += value;
-					}
-					TotalRowLength+=value;
-				}
-				while (TotalRowLength<SpriteWidth);
-
-				if (RightMargin>0)
-					current += RightMargin;
-
-				RowAdd=SpriteWidth-TotalRowLength;
-
-				if (add>0)
-					current += add+RowAdd;
-			}
-		}
-		break;
-
-	//combo of 1st and 2nd:
-	// offset for each line
-	// code and value combined in 1 byte
-	case 3:
-		{
-			for (unsigned int i=0; i<SpriteHeight; i++)
-			{
-				BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32)));
-				if (LeftMargin>0)
-					current += LeftMargin;
-
-				TotalRowLength=0;
-
-				do
-				{
-					unsigned char SegmentType=FDef[BaseOffset++];
-					unsigned char code = SegmentType / 32;
-					unsigned char value = (SegmentType & 31) + 1;
-
-					int len = std::min<unsigned int>(value, SpriteWidth - TotalRowLength) - std::max(0, -LeftMargin);
-					amax(len, 0);
-
-					if (code==7)
-					{
-						memcpy((ui8*)ret->pixels + current, FDef + BaseOffset, len);
-						current += len;
-						BaseOffset += len;
-					}
-					else
-					{
-						memset((ui8*)ret->pixels + current, code, len);
-						current += len;
-					}
-					TotalRowLength+=( LeftMargin>=0 ? value : value+LeftMargin );
-				}
-				while (TotalRowLength<SpriteWidth);
-
-				if (RightMargin>0)
-					current += RightMargin;
-
-				RowAdd=SpriteWidth-TotalRowLength;
-
-				if (add>0)
-					current += add+RowAdd;
-			}
-		}
-		break;
-
-	default:
-		throw std::string("Unknown sprite format.");
-		break;
-	}
-
-	SDL_Color *col = ret->format->palette->colors;
-	
-	Uint32 keycol = SDL_MapRGBA(ret->format, col[0].r, col[0].b, col[0].g, col[0].unused);
-	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
-	return ret;
-};
-
-BMPPalette * CDefFile::getPalette()
-{
-	BMPPalette * ret = new BMPPalette[256];
-	memcpy(ret, colors, sizeof(BMPPalette)*256);
-	return ret;
-}
-
-CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
+CDefFile::CDefFile(std::string Name):
+	data(NULL),
+	palette(NULL)
 {
 	//First 8 colors in def palette used for transparency
-	static SDL_Color H3Palette[8] = {
-	{  0,   0,   0, 255},// 100% - transparency
-	{  0,   0,   0, 192},//  75% - shadow border, 
-	{  0,   0,   0, 128},// TODO: find exact value
-	{  0,   0,   0, 128},// TODO: for transparency
-	{  0,   0,   0, 128},//  50% - shadow body
-	{  0,   0,   0, 255},// 100% - selection highlight
-	{  0,   0,   0, 128},//  50% - shadow body   below selection
-	{  0,   0,   0, 192}};// 75% - shadow border below selection
-	
-	data = spriteh->giveFile(Name, FILE_ANIMATION, &datasize);
-	if (!data)
+	static SDL_Color H3Palette[8] =
 	{
-		tlog0<<"Error: file "<< Name <<" not found\n";
-		return;
-	}
+		{   0,   0,   0,   0},// 100% - transparency
+		{   0,   0,   0, 192},//  75% - shadow border,
+		{   0,   0,   0, 128},// TODO: find exact value
+		{   0,   0,   0, 128},// TODO: for transparency
+		{   0,   0,   0, 128},//  50% - shadow body
+		{   0,   0,   0,   0},// 100% - selection highlight
+		{   0,   0,   0, 128},//  50% - shadow body   below selection
+		{   0,   0,   0, 192} // 75% - shadow border below selection
+	};
 
-	colors = new BMPPalette[256];
+	data = spriteh->giveFile(Name, FILE_ANIMATION);
+	palette = new SDL_Color[256];
 	int it = 0;
 
-	type = readNormalNr(data, it); it+=4;
+	unsigned int type = readNormalNr(data, it);
+	it+=4;
 	//int width  = readNormalNr(data, it); it+=4;//not used
 	//int height = readNormalNr(data, it); it+=4;
 	it+=8;
@@ -328,14 +124,12 @@ CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 
 	for (unsigned int i= 0; i<256; i++)
 	{
-		colors[i].R = data[it++];
-		colors[i].G = data[it++];
-		colors[i].B = data[it++];
-		colors[i].F = 0;
+		palette[i].r = data[it++];
+		palette[i].g = data[it++];
+		palette[i].b = data[it++];
+		palette[i].unused = 255;
 	}
-	memcpy(colors, H3Palette, (type == 66)? 32:20);//initialize shadow\selection colors
-
-	offList.insert(datasize);
+	memcpy(palette, H3Palette, getPaletteSize(type));//initialize shadow\selection colors
 
 	for (unsigned int i=0; i<totalBlocks; i++)
 	{
@@ -348,215 +142,781 @@ CDefFile::CDefFile(std::string Name):data(NULL),colors(NULL)
 		//13 bytes for name of every frame in this block - not used, skipping
 		it+= 13 * totalEntries;
 
-		offset.resize(std::max(blockID+1, offset.size()));
-
 		for (unsigned int j=0; j<totalEntries; j++)
 		{
 			size_t currOffset = readNormalNr(data, it);
 			offset[blockID].push_back(currOffset);
-			offList.insert(currOffset);
 			it += 4;
 		}
 	}
 }
-unsigned char * CDefFile::getFrame(size_t frame, size_t group) const
+
+template<class ImageLoader>
+void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 {
-	if (offset.size() > group)
+	std::map<size_t, std::vector <size_t> >::const_iterator it;
+	it = offset.find(group);
+	assert (it != offset.end());
+
+	const ui8 * FDef = data+it->second[frame];
+
+	const SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
+	SSpriteDef sprite;
+
+	//sprite.size = SDL_SwapLE32(sd.size);//unused
+	sprite.format = SDL_SwapLE32(sd.format);
+	sprite.fullWidth = SDL_SwapLE32(sd.fullWidth);
+	sprite.fullHeight = SDL_SwapLE32(sd.fullHeight);
+	sprite.width = SDL_SwapLE32(sd.width);
+	sprite.height = SDL_SwapLE32(sd.height);
+	sprite.leftMargin = SDL_SwapLE32(sd.leftMargin);
+	sprite.topMargin = SDL_SwapLE32(sd.topMargin);
+
+	unsigned int currentOffset = sizeof(SSpriteDef);
+	unsigned int BaseOffset =    sizeof(SSpriteDef);
+
+	loader.init(Point(sprite.width, sprite.height),
+	            Point(sprite.leftMargin, sprite.topMargin),
+	            Point(sprite.fullWidth, sprite.fullHeight), palette);
+
+	switch (sprite.format)
 	{
-		if (offset[group].size() > frame)
+	case 0:
 		{
-			size_t offs = offset[group][frame];
-
-			std::set<size_t>::iterator it = offList.find(offs);
-
-			if (it == offList.end() || ++it == offList.end())
-				tlog0<<"Error: offset not found!\n";
-
-			size_t size = *it - offs;
-
-			unsigned char * ret = new unsigned char[size];
-			memcpy(ret, data+offs, size);
-			return ret;
+			//pixel data is not compressed, copy data to surface
+			for (unsigned int i=0; i<sprite.height; i++)
+			{
+				loader.Load(sprite.width, FDef[currentOffset]);
+				currentOffset += sprite.width;
+				loader.EndLine();
+			}
+			break;
 		}
+	case 1:
+		{
+			//for each line we have offset of pixel data
+			const ui32 * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+currentOffset);
+			currentOffset += sizeof(ui32) * sprite.height;
+
+			for (unsigned int i=0; i<sprite.height; i++)
+			{
+				//get position of the line
+				currentOffset=BaseOffset + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
+				unsigned int TotalRowLength = 0;
+
+				while (TotalRowLength<sprite.width)
+				{
+					unsigned char type=FDef[currentOffset++];
+					unsigned int length=FDef[currentOffset++] + 1;
+
+					if (type==0xFF)//Raw data
+					{
+						loader.Load(length, FDef + currentOffset);
+						currentOffset+=length;
+					}
+					else// RLE
+					{
+						loader.Load(length, type);
+					}
+					TotalRowLength += length;
+				}
+
+				loader.EndLine();
+			}
+			break;
+		}
+	case 2:
+		{
+			currentOffset = BaseOffset + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffset));
+
+			for (unsigned int i=0; i<sprite.height; i++)
+			{
+				unsigned int TotalRowLength=0;
+
+				while (TotalRowLength<sprite.width)
+				{
+					unsigned char SegmentType=FDef[currentOffset++];
+					unsigned char code = SegmentType / 32;
+					unsigned char length = (SegmentType & 31) + 1;
+
+					if (code==7)//Raw data
+					{
+						loader.Load(length, FDef[currentOffset]);
+						currentOffset += length;
+					}
+					else//RLE
+					{
+						loader.Load(length, code);
+					}
+					TotalRowLength+=length;
+				}
+				loader.EndLine();
+			}
+			break;
+		}
+	case 3:
+		{
+			for (unsigned int i=0; i<sprite.height; i++)
+			{
+				currentOffset = BaseOffset + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffset+i*2*(sprite.width/32)));
+				unsigned int TotalRowLength=0;
+
+				while (TotalRowLength<sprite.width)
+				{
+					unsigned char segment = FDef[currentOffset++];
+					unsigned char code = segment / 32;
+					unsigned char length = (segment & 31) + 1;
+
+					if (code==7)//Raw data
+					{
+						loader.Load(length, FDef + currentOffset);
+						currentOffset += length;
+					}
+					else//RLE
+					{
+						loader.Load(length, code);
+					}
+					TotalRowLength += length;
+				}
+				loader.EndLine();
+			}
+			break;
+		}
+	default:
+		tlog0<<"Error: unsupported format of def file:"<<sprite.format<<"\n";
+		break;
 	}
-	return NULL;
-}
+};
 
 CDefFile::~CDefFile()
 {
-	offset.clear();
-	offList.clear();
 	delete[] data;
-	delete[] colors;
+	delete[] palette;
 }
 
-bool CDefFile::loaded() const
+const std::map<size_t, std::vector <size_t> > * CDefFile::getEntries() const
 {
-	return data != NULL;
+	return &offset;
+}
+
+/*************************************************************************
+ *  Classes for image loaders - helpers for loading from def files       *
+ *************************************************************************/
+
+SDLImageLoader::SDLImageLoader(SDLImage * Img):
+	image(Img),
+	lineStart(NULL),
+	position(NULL)
+{
+}
+
+void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal)
+{
+	//Init image
+	image->surf = SDL_CreateRGBSurface(SDL_SWSURFACE, SpriteSize.x, SpriteSize.y, 8, 0, 0, 0, 0);
+	image->margins  = Margins;
+	image->fullSize = FullSize;
+
+	//Prepare surface
+	SDL_SetColors(image->surf, pal, 0, 256);
+	SDL_LockSurface(image->surf);
+
+	lineStart = position = (ui8*)image->surf->pixels;
+}
+
+inline void SDLImageLoader::Load(size_t size, const ui8 * data)
+{
+	if (size)
+	{
+		memcpy((void *)position, data, size);
+		position += size;
+	}
+}
+
+inline void SDLImageLoader::Load(size_t size, ui8 color)
+{
+	if (size)
+	{
+		memset((void *)position, color, size);
+		position += size;
+	}
+}
+
+inline void SDLImageLoader::EndLine()
+{
+	lineStart += image->surf->pitch;
+	position = lineStart;
+}
+
+SDLImageLoader::~SDLImageLoader()
+{
+	SDL_UnlockSurface(image->surf);
+	SDL_SetColorKey(image->surf, SDL_SRCCOLORKEY, 0);
+	//TODO: RLE if compressed and bpp>1
+}
+
+////////////////////////////////////////////////////////////////////////////////
+ 
+CompImageLoader::CompImageLoader(CompImage * Img):
+	image(Img),
+	position(NULL),
+	entry(NULL),
+	currentLine(0)
+{
+	
+}
+
+void CompImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal)
+{
+	image->sprite = Rect(Margins, SpriteSize);
+	image->fullSize = FullSize;
+	if (SpriteSize.x && SpriteSize.y)
+	{
+		image->palette = new SDL_Color[256];
+		memcpy((void*)image->palette, (void*)pal, 256*sizeof(SDL_Color));
+		//Allocate enought space for worst possible case,  c-style malloc used due to resizing after load
+		image->surf = (ui8*)malloc(SpriteSize.x*SpriteSize.y*3);
+		image->line = new unsigned int[SpriteSize.y+1];
+		image->line[0] = 0;
+		position = image->surf;
+	}
+}
+
+inline void CompImageLoader::NewEntry(ui8 color, size_t size)
+{
+	assert(color != 0xff);
+	assert(size && size<256);
+	entry = position;
+	entry[0] = color;
+	entry[1] = size;
+	position +=2;
+}
+
+inline void CompImageLoader::NewEntry(const ui8 * &data, size_t size)
+{
+	assert(size && size<256);
+	entry = position;
+	entry[0] = 0xff;
+	entry[1] = size;
+	position +=2;
+	memcpy(position, data, size);
+	position+=size;
+	data+=size;
+}
+
+inline ui8 CompImageLoader::typeOf(ui8 color)
+{
+	if (color == 0)
+		return 0;
+	if (image->palette[color].unused != 255)
+		return 1;
+	return 2;
+}
+
+inline void CompImageLoader::Load(size_t size, const ui8 * data)
+{
+	while (size)
+	{
+		//Try to compress data
+		while(true)
+		{
+			ui8 color = data[0];
+			if (color != 0xff)
+			{
+				size_t runLength = 1;
+				while (runLength < size && color == data[runLength])
+					runLength++;
+
+				if (runLength > 1)//Row of one color found - use RLE
+				{
+					Load(runLength, color);
+					data += runLength;
+					size -= runLength;
+					if (!size)
+						return;
+				}
+				else
+					break;
+			}
+			else
+				break;
+		}
+		//Select length for new raw entry
+		size_t runLength = 1;
+		ui8 color = data[0];
+		ui8 type = typeOf(color);
+		ui8 color2;
+		ui8 type2;
+		
+		if (size > 1)
+		{
+			do
+			{
+				color2 = data[runLength];
+				type2 = typeOf(color2);
+				runLength++;
+			}
+			//While we have data of this type and different colors
+			while ((runLength < size) && (type == type2) && ( (color2 != 0xff) || (color2 != color)));
+		}
+		size -= runLength;
+
+		//add data to last entry
+		if (entry && entry[0] == 0xff && type == typeOf(entry[2]))
+		{
+			size_t toCopy = std::min<size_t>(runLength, 255 - entry[1]);
+			runLength -= toCopy;
+			entry[1] += toCopy;
+			memcpy(position, data, toCopy);
+			data+=toCopy;
+			position+=toCopy;
+		}
+		//Create new entries
+		while (runLength > 255)
+		{
+			NewEntry(data, 255);
+			runLength -= 255;
+		}
+		if (runLength)
+			NewEntry(data, runLength);
+	}
+}
+
+inline void CompImageLoader::Load(size_t size, ui8 color)
+{
+	if (!size)
+		return;
+	if (color==0xff)
+	{
+		ui8* tmpbuf = new ui8[size];
+		memset((void*)tmpbuf, color, size);
+		Load(size, tmpbuf);
+		delete [] tmpbuf;
+		return;
+	}
+	//Current entry is RLE with same color as new block
+	if (entry && entry[0] == color)
+	{
+		size_t toCopy = std::min<size_t>(size, 255 - entry[1]);
+		entry[1] = 255;
+		size -= toCopy;
+		entry[1] += toCopy;
+	}
+	//Create new entries
+	while (size > 255)
+	{
+		NewEntry(color, 255);
+		size -= 255;
+	}
+	if (size)
+		NewEntry(color, size);
+}
+
+void CompImageLoader::EndLine()
+{
+	currentLine++;
+	image->line[currentLine] = position - image->surf;
+	entry = NULL;
+
+}
+
+CompImageLoader::~CompImageLoader()
+{
+	if (!image->surf)
+		return;
+
+	ui8* newPtr = (ui8*)realloc((void*)image->surf, position - image->surf);
+	if (newPtr)
+		image->surf = newPtr;
+}
+
+/*************************************************************************
+ *  Classes for images, support loading from file and drawing on surface *
+ *************************************************************************/
+
+IImage::IImage():
+	refCount(1)
+{
+
+}
+
+bool IImage::decreaseRef()
+{
+	refCount--;
+	return refCount <= 0;
+}
+
+void IImage::increaseRef()
+{
+	refCount++;
+}
+
+SDLImage::SDLImage(CDefFile *data, size_t frame, size_t group, bool compressed):
+	surf(NULL)
+{
+	SDLImageLoader loader(this);
+	data->loadFrame(frame, group, loader);
+}
+
+SDLImage::SDLImage(SDL_Surface * from, bool extraRef):
+	margins(0,0)
+{
+	surf = from;
+	if (extraRef)
+		surf->refcount++;
+	fullSize.x = surf->w;
+	fullSize.y = surf->h;
+}
+
+SDLImage::SDLImage(std::string filename, bool compressed):
+	margins(0,0)
+{
+	int size;
+	unsigned char * pic = spriteh->giveFile(filename, FILE_GRAPHICS, &size);
+	surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
+	fullSize.x = surf->w;
+	fullSize.y = surf->h;
+	delete [] pic;
+}
+
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
+{
+	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
+	//TODO: rotation and scaling
+	if (src)
+	{
+		sourceRect = sourceRect & *src;
+	}
+	Rect destRect(posX, posY, surf->w, surf->h);
+	destRect += sourceRect.topLeft();
+	sourceRect -= margins;
+	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
+}
+
+void SDLImage::playerColored(int player)
+{
+	graphics->blueToPlayersAdv(surf, player);
+}
+
+int SDLImage::width() const
+{
+	return fullSize.x;
+}
+
+int SDLImage::height() const
+{
+	return fullSize.y;
+}
+
+SDLImage::~SDLImage()
+{
+	SDL_FreeSurface(surf);
+}
+
+CompImage::CompImage(const CDefFile *data, size_t frame, size_t group):
+	surf(NULL),
+	line(NULL),
+	palette(NULL)
+	
+{
+	CompImageLoader loader(this);
+	data->loadFrame(frame, group, loader);
+}
+
+CompImage::CompImage(SDL_Surface * surf)
+{
+	//TODO
+	assert(0);
+}
+
+void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
+{
+	if (!surf)
+		return;
+	Rect sourceRect(sprite);
+	//TODO: rotation and scaling
+	if (src)
+		sourceRect = sourceRect & *src;
+	//Limit source rect to sizes of surface
+	sourceRect = sourceRect & Rect(0, 0, where->w, where->h);
+
+	//Starting point on SDL surface
+	Point dest(posX+sourceRect.x, posY+sourceRect.y);
+	sourceRect -= sprite.topLeft();
+
+	for (int currY = 0; currY <sourceRect.h; currY++)
+	{
+		ui8* data = surf + line[currY+sourceRect.y];
+		ui8 type = *(data++);
+		ui8 size = *(data++);
+		int currX = sourceRect.x;
+
+		//Skip blocks until starting position reached
+		while ( currX > size )
+		{
+			currX -= size;
+			if (type == 0xff)
+				data += size;
+			type = *(data++);
+			size = *(data++);
+		}
+		//This block will be shown partially - calculate size\position
+		size -= currX;
+		if (type == 0xff)
+			data += currX;
+
+		currX = 0;
+		ui8 bpp = where->format->BytesPerPixel;
+		
+		//Calculate position for blitting: pixels + Y + X
+		ui8* blitPos = (ui8*) where->pixels;
+		blitPos += (dest.y + currY) * where->pitch;
+		blitPos += dest.x * bpp;
+
+		//Blit block that must be fully visible
+		while (currX + size < sourceRect.w)
+		{
+			//blit block, pointers will be incremented if needed
+			BlitBlockWithBpp(bpp, type, size, data, blitPos);
+
+			currX += size;
+			type = *(data++);
+			size = *(data++);
+		}
+		//Blit last, semi-visible block
+		size = sourceRect.w - currX;
+		BlitBlockWithBpp(bpp, type, size, data, blitPos);
+	}
+}
+
+void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
+{
+	switch (bpp)
+	{
+	case 2: BlitBlock<2>(type, size, data, dest);
+			break;
+
+	case 3: BlitBlock<3>(type, size, data, dest);
+			break;
+
+	case 4: BlitBlock<4>(type, size, data, dest);
+			break;
+	default:
+			assert(0);
+			break;
+	}
+}
+
+//Blit one block from RLE-d surface
+template<int bpp>
+void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
+{
+	//Raw data
+	if (type == 0xff)
+	{
+		ui8 color = *data;
+		if (palette[color].unused == 255)
+		{
+			//Put row of RGB data
+			for (int i=0; i<size; i++)
+				ColorPutter<bpp, 1>::PutColor(dest, palette[*(data++)]);
+		}
+		else
+		{
+			//Put row of RGBA data
+			for (int i=0; i<size; i++)
+				ColorPutter<bpp, 1>::PutColorAlpha(dest, palette[*(data++)]);
+			
+		}
+	}
+	//RLE-d sequence
+	else
+	{
+		switch (palette[type].unused)
+		{
+			case 0:
+			{
+				//Skip row
+				dest += size*bpp;
+				break;
+			}
+			case 255:
+			{
+				//Put RGB row
+				//FIXME: can be optimized
+				for (int i=0; i<size; i++)
+					ColorPutter<bpp, 1>::PutColor(dest, palette[type]);
+				break;
+			}
+			default:
+			{
+				//Put RGBA row
+				//FIXME: can be optimized
+				for (int i=0; i<size; i++)
+					ColorPutter<bpp, 1>::PutColorAlpha(dest, palette[type]);
+				break;
+			}
+		}
+	}
+}
+
+
+void CompImage::playerColored(int player)
+{
+	SDL_Color *pal = NULL;
+	if(player < PLAYER_LIMIT && player >= 0)
+	{
+		pal = graphics->playerColorPalette + 32*player;
+	}
+	else if(player == 255 || player == -1)
+	{
+		pal = graphics->neutralColorPalette;
+	}
+	else
+		assert(0);
+
+	for(int i=0; i<32; ++i)
+	{
+		palette[224+i].r = pal[i].r;
+		palette[224+i].g = pal[i].g;
+		palette[224+i].b = pal[i].b;
+		palette[224+i].unused = pal[i].unused;
+	}
+}
+
+int CompImage::width() const
+{
+	return fullSize.x;
+}
+
+int CompImage::height() const
+{
+	return fullSize.y;
+}
+
+CompImage::~CompImage()
+{
+	free(surf);
+	delete [] line;
+	delete [] palette;
 }
 
 /*************************************************************************
  *  CAnimation for animations handling, can load part of file if needed  *
  *************************************************************************/
 
-CAnimation::AnimEntry::AnimEntry():
-	surf(NULL),
-	source(0),
-	refCount(0),
-	data(NULL),
-	dataSize(0)
+TextParser::TextParser(const std::string &name):
+	type(0),
+	position(std::string::npos)
 {
+	if (!spriteh->haveFile(name, FILE_TEXT))
+		return;
+	text = spriteh->getTextFile(name);
+	position = text.find('\n');
+	std::string typeStr = text.substr(0, position);
+	boost::algorithm::trim(typeStr);
+	if (typeStr == "Replace")
+		type = 1;
+	else if (typeStr == "Append")
+		type = 2;
+}
 
+int TextParser::getType() const
+{
+	return type;
+}
+
+void TextParser::parseFile(std::map<size_t, std::vector <std::string> > &result)
+{
+	while (position != std::string::npos)
+	{
+		size_t lineStart = position+1;
+		position = text.find('\n', lineStart);
+		std::string buf = text.substr(lineStart, position-lineStart);
+		size_t currentBlock = atoi(buf.c_str());
+
+		while (position != std::string::npos)
+		{
+			lineStart = position+1;
+			position = text.find('\n', lineStart);
+			std::string res = text.substr(lineStart, position-lineStart);
+			boost::algorithm::trim(res);
+			if (res.empty())
+				break;
+			result[currentBlock].push_back(res);
+		}
+	}
 }
 
 bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 {
-	if (groupSize(group) <= frame)
+	if (size(group) <= frame)
 	{
 		printError(frame, group, "LoadFrame");
 		return false;
 	}
-	AnimEntry &e = entries[group][frame];
 
-	if (e.surf || e.data)
+	IImage *image = getImage(frame, group, false);
+	if (image)
 	{
-		e.refCount++;
+		image->increaseRef();
 		return true;
 	}
 
-	if (e.source & 6)//load frame with SDL_Image
-	{
-		int size;
-		unsigned char * pic = NULL;
-
-		std::ostringstream str;
-		if ( e.source & 2 )
-			str << name << '#' << (group+1) << '#' << (frame+1); // file#12#34.*
-		else
-			str << name << '#' << (frame+1);//file#34.*
-
-		pic = spriteh->giveFile(str.str(), FILE_GRAPHICS, &size);
-		if (pic)
-		{
-			if (compressed)
-			{
-				e.data = pic;
-				e.dataSize = size;
-			}
-			else
-			{
-				e.surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
-				delete [] pic;
-			}
-		}
-	}
-	else if (file && e.source & 1)//try to get image from def
+	//try to get image from def
+	if (source[group][frame].empty())
 	{
 		if (compressed)
-			e.data = file->getFrame(frame, group);
+			images[group][frame] = new CompImage(file, frame, group);
 		else
-			e.surf = file->loadFrame(frame, group);
+			images[group][frame] = new SDLImage(file, frame, group);
 	}
-
-	if (!(e.surf || e.data))
-		return false;//failed to load
-
-	e.refCount++;
-	return true;
-}
-
-bool CAnimation::unloadFrame(size_t frame, size_t group)
-{
-	if (groupSize(group) > frame && entries[group][frame].refCount)
+	else //load from separate file
 	{
-		AnimEntry &e = entries[group][frame];
-		if (--e.refCount)//not last ref
-			return true;
-
-		SDL_FreeSurface(e.surf);
-		delete [] e.data;
-
-		e.surf = NULL;
-		e.data = NULL;
+		//TODO: compressed images
+		images[group][frame] = new SDLImage(source[group][frame].c_str());
 		return true;
 	}
 	return false;
 }
 
-void CAnimation::decompress(AnimEntry &entry)
+bool CAnimation::unloadFrame(size_t frame, size_t group)
 {
-	if (entry.source & 6)//load frame with SDL_Image
-		entry.surf = IMG_Load_RW( SDL_RWFromMem((void*)entry.data, entry.dataSize), 1);
-
-	else if (entry.source & 1)
-		entry.surf = CDefFile::loadFrame(entry.data, defPalette);
+	IImage *image = getImage(frame, group, false);
+	if (image)
+	{
+		//decrease ref count for image and delete if needed
+		if (image->decreaseRef())
+		{
+			delete image;
+			images[group].erase(frame);
+		}
+		if (images[group].empty())
+			images.erase(group);
+		return true;
+	}
+	return false;
 }
 
 void CAnimation::init(CDefFile * file)
 {
-	if (compressed)
-		defPalette = file->getPalette();
+	TextParser txtFile(name);
 
-	for (size_t group = 0; ; group++)
+	if ( txtFile.getType() != 1 )
 	{
-		std::vector<AnimEntry> toAdd;
+		const std::map<size_t, std::vector <size_t> > * defEntries = file->getEntries();
 
-		for (size_t frame = 0; ; frame++)
-		{
-			unsigned char res=0;
-
-			{
-				std::ostringstream str;
-				str << name << '#' << (group+1) << '#' << (frame+1); // format: file#12#34.*
-				if (spriteh->haveFile(str.str()))
-					res |= 2;
-			}
-
-			if (group == 0)
-			{
-				std::ostringstream str;
-				str << name << '#' << (frame+1);// format: file#34.*
-				if ( spriteh->haveFile(str.str()))
-					res |=4;
-			}
-
-			if (file)//we have def too. try to get image from def
-			{
-				if (file->haveFrame(frame, group))
-					res |=1;
-			}
-
-			if (res)
-			{
-				toAdd.push_back(AnimEntry());
-				toAdd.back().source = res;
-			}
-			else
-				break;
-		}
-		if (!toAdd.empty())
-		{
-			entries.push_back(toAdd);
-		}
-		else
-		{
-			entries.resize(entries.size()+1);
-			if (group > 21)
-				break;//FIXME: crude workaround: if some groups are not present
-				      //(common for creatures) parser will exit before reaching them
-		}
+		for (std::map<size_t, std::vector <size_t> >::const_iterator mapIt = defEntries->begin(); mapIt!=defEntries->end(); ++mapIt)
+			source[mapIt->first].resize(mapIt->second.size());
 	}
+	txtFile.parseFile(source);
 }
 
 CDefFile * CAnimation::getFile() const
 {
-	CDefFile * file = new CDefFile(name);
-	if (!file->loaded())
-	{
-		delete file;
-		return NULL;
-	}
-	return file;
+	if (spriteh->haveFile(name, FILE_ANIMATION))
+		return new CDefFile(name);
+	return NULL;
 }
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
@@ -567,13 +927,12 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
 	name(Name),
-	compressed(Compressed),
-	defPalette(NULL)
+	compressed(Compressed)
 {
-	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-	int dotPos = name.find_last_of('.');
-	if ( dotPos != -1 )
+	size_t dotPos = name.find_last_of('.');
+	if ( dotPos!=-1 )
 		name.erase(dotPos);
+	std::transform(name.begin(), name.end(), name.begin(), toupper);
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
@@ -581,112 +940,80 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 
 CAnimation::CAnimation():
 	name(""),
-	compressed(false),
-	defPalette(NULL)
+	compressed(false)
 {
 
 }
 
 CAnimation::~CAnimation()
 {
-	delete [] defPalette;
-	for (size_t i = 0; i < entries.size(); i++)
-		for (size_t j = 0; j < entries.at(i).size(); j++)
-		{
-			delete [] entries[i][j].data;
-			if (entries[i][j].surf)
-				SDL_FreeSurface(entries[i][j].surf);
-		}
+	for (group_map::iterator group = images.begin(); group != images.end(); ++group )
+		for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
+			delete image->second;
 }
 
-void CAnimation::add(SDL_Surface * surf, bool shared, size_t group)
+void CAnimation::setCustom(IImage * newImage, size_t frame, size_t group)
 {
-	if (!surf)
-		return;
+	assert(newImage);
 
-	if (entries.size() <= group)
-		entries.resize(group+1);
+	IImage * oldImage = getImage(frame,group,false);
+	if (oldImage);
+	delete oldImage;
+	images[group][frame] = newImage;
 
-	if (shared)
-		surf->refcount++;
-
-	entries[group].push_back(AnimEntry());
-	entries[group].back().refCount = 1;
-	entries[group].back().surf = surf;
+	if (source[group].size() <= frame)
+		source[group].resize(frame+1);
 }
 
-void CAnimation::removeDecompressed(size_t frame, size_t group)
+IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
 {
-	AnimEntry &e = entries[group][frame];
-	if (e.surf && e.data)
+	group_map::const_iterator groupIter = images.find(group);
+	if (groupIter != images.end())
 	{
-		SDL_FreeSurface(e.surf);
-		e.surf = NULL;
+		image_map::const_iterator imageIter = groupIter->second.find(frame);
+		if (imageIter != groupIter->second.end())
+			return imageIter->second;
 	}
-}
-
-SDL_Surface * CAnimation::image(size_t frame)
-{
-	size_t group=0;
-	while (group<entries.size() && frame > entries[group].size())
-		frame -= entries[group].size();
-
-	if (group <entries.size() && frame < entries[group].size())
-		return image(frame, group);
+	if (verbose)
+		printError(frame, group, "GetImage");
 	return NULL;
-}
-
-SDL_Surface * CAnimation::image(size_t frame, size_t group)
-{
-	if ( groupSize(group) > frame )
-	{
-		AnimEntry &e = entries[group][frame];
-		if (!e.surf && e.data)
-			decompress(e);
-		return e.surf;
-	}
-
-	printError(frame, group, "GetImage");
-	return NULL;
-}
-
-void CAnimation::clear()
-{
-	unload();
-	entries.clear();
 }
 
 void CAnimation::load()
 {
 	CDefFile * file = getFile();
 
-	for (size_t group = 0; group<entries.size(); group++)
-		for (size_t frame = 0; frame<entries[group].size(); frame++)
-			loadFrame(file, frame, group);
+	for (source_map::iterator group = source.begin(); group != source.end(); ++group )
+		for (size_t image=0; image < group->second.size(); image++)
+			loadFrame(file, image, group->first);
 
 	delete file;
 }
 
 void CAnimation::unload()
 {
-	for (size_t group = 0; group<entries.size(); group++)
-		for (size_t frame = 0; frame<entries[group].size(); frame++)
-			unloadFrame(frame, group);
+	for (source_map::iterator group = source.begin(); group != source.end(); ++group )
+		for (size_t image=0; image < group->second.size(); image++)
+			unloadFrame(image, group->first);
+
 }
 
 void CAnimation::loadGroup(size_t group)
 {
 	CDefFile * file = getFile();
 
-	for (size_t frame = 0; frame<groupSize(group); frame++)
-		loadFrame(file, frame, group);
+	if (vstd::contains(source, group))
+		for (size_t image=0; image < source[group].size(); image++)
+			loadFrame(file, image, group);
+
 	delete file;
 }
 
 void CAnimation::unloadGroup(size_t group)
 {
-	for (size_t frame = 0; frame<groupSize(group); frame++)
-		unloadFrame(frame, group);
+	if (vstd::contains(source, group))
+		for (size_t image=0; image < source[group].size(); image++)
+			unloadFrame(image, group);
 }
 
 void CAnimation::load(size_t frame, size_t group)
@@ -701,52 +1028,36 @@ void CAnimation::unload(size_t frame, size_t group)
 	unloadFrame(frame, group);
 }
 
-void CAnimation::load(std::vector <std::pair <size_t, size_t> > frames)
-{
-	CDefFile * file = getFile();
-	for (size_t i=0; i<frames.size(); i++)
-		loadFrame(file, frames[i].second, frames[i].first);
-	delete file;
-}
-
-void CAnimation::unload(std::vector <std::pair <size_t, size_t> > frames)
-{
-	for (size_t i=0; i<frames.size(); i++)
-		unloadFrame(frames[i].second, frames[i].first);
-}
-
 void CAnimation::fixButtonPos()
 {
-	if ( groupSize(0) > 1 )
-		std::swap(entries[0][1].surf, entries[0][0].surf);
+	group_map::iterator groupIter = images.find(0);
+	if (groupIter != images.end())
+	{
+		image_map::iterator first = groupIter->second.find(0),
+		                    second = groupIter->second.find(1);
+		if (first != second)
+		{
+			std::swap (first->second, second->second);
+		}
+	}
 }
 
-size_t CAnimation::groupSize(size_t group) const
+size_t CAnimation::size(size_t group) const
 {
-	if (entries.size() > group)
-		return entries[group].size();
-
+	source_map::const_iterator iter = source.find(group);
+	if (iter != source.end())
+		return iter->second.size();
 	return 0;
 }
 
-size_t CAnimation::size() const
-{
-	size_t ret=0;
-	for (size_t i=0; i<entries.size(); i++)
-	{
-		ret += entries[i].size();
-	}
-	return ret;
-}
-/*
 CAnimImage::CAnimImage(int x, int y, std::string name, size_t Frame, size_t Group):
 	anim(name),
 	frame(Frame),
 	group(Group)
 {
 	anim.load(frame, group);
-	pos.w = anim.image(frame, group)->w;
-	pos.h = anim.image(frame, group)->h;
+	pos.w = anim.getImage(frame, group)->width();
+	pos.h = anim.getImage(frame, group)->height();
 }
 
 CAnimImage::~CAnimImage()
@@ -754,16 +1065,16 @@ CAnimImage::~CAnimImage()
 
 }
 
-void CAnimImage::show(SDL_Surface *to)
+void CAnimImage::showAll(SDL_Surface *to)
 {
-	blitAtLoc(anim.image(frame, group), 0,0, to);
+	anim.getImage(frame, group)->draw(to);
 }
 
 void CAnimImage::setFrame(size_t Frame, size_t Group)
 {
 	if (frame == Frame && group==Group)
 		return;
-	if (anim.groupSize(Group) > Frame)
+	if (anim.size(Group) > Frame)
 	{
 		anim.unload(frame, group);
 		anim.load(Frame, Group);
@@ -771,25 +1082,25 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		group = Group;
 	}
 }
-*/
+
 CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags, unsigned int Delay, size_t Group):
-	anim(name, Flags),
+	anim(name, Flags & USE_RLE),
 	group(Group),
 	frame(0),
 	first(0),
-	flags(Flags),
 	frameDelay(Delay),
 	value(0),
+	flags(Flags),
 	xOffset(0),
 	yOffset(0)
 {
-	pos.x+=x;
-	pos.y+=y;
-
 	anim.loadGroup(group);
-	last = anim.groupSize(group);
-	pos.w = anim.image(0, group)->w;
-	pos.h = anim.image(0, group)->h;
+	last = anim.size(group);
+
+	pos.w = anim.getImage(0, group)->width();
+	pos.h = anim.getImage(0, group)->height();
+	pos.x+= x;
+	pos.y+= y;
 }
 
 CShowableAnim::~CShowableAnim()
@@ -799,7 +1110,7 @@ CShowableAnim::~CShowableAnim()
 
 bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 {
-	size_t max = anim.groupSize(Group);
+	size_t max = anim.size(Group);
 
 	if (max>to)
 		max = to;
@@ -818,7 +1129,7 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 
 bool CShowableAnim::set(size_t Group)
 {
-	if (anim.groupSize(Group)== 0)
+	if (anim.size(Group)== 0)
 		return false;
 	if (group != Group)
 	{
@@ -826,7 +1137,7 @@ bool CShowableAnim::set(size_t Group)
 		anim.unloadGroup(group);
 		first = 0;
 		group = Group;
-		last = anim.groupSize(Group);
+		last = anim.size(Group);
 	}
 	frame = value = 0;
 	return true;
@@ -840,96 +1151,80 @@ void CShowableAnim::reset()
 		callback();
 }
 
-void CShowableAnim::movePic( int byX, int byY)
+void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 {
-	xOffset += byX;
-	yOffset += byY;
+	xOffset = posX;
+	yOffset = posY;
+	pos.w = width;
+	pos.h = height;
 }
 
 void CShowableAnim::show(SDL_Surface *to)
 {
-	if ( flags & FLAG_BASE && frame != first)
-		blitImage(anim.image(first, group), to);
-	blitImage(anim.image(frame, group), to);
-	
+	if ( flags & BASE && frame != first)
+		blitImage(first, group, to);
+	blitImage(frame, group, to);
+
 	if ( ++value == frameDelay )
 	{
 		value = 0;
-		if (flags & FLAG_COMPRESSED)
-			anim.removeDecompressed(frame, group);
 		if ( ++frame == last)
 			reset();
 	}
-
 }
 
 void CShowableAnim::showAll(SDL_Surface *to)
 {
-	show(to);
+	if ( flags & BASE && frame != first)
+		blitImage(first, group, to);
+	blitImage(frame, group, to);
 }
 
-void CShowableAnim::blitImage(SDL_Surface *what, SDL_Surface *to)
+void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 {
-	assert(what);
-	//TODO: SDL RLE?
-	SDL_Rect dstRect=genRect(pos.h, pos.w, pos.x, pos.y);
-	SDL_Rect srcRect;
-	
-	srcRect.x = xOffset;
-	srcRect.y = yOffset;
-	srcRect.w = pos.w;
-	srcRect.h = pos.h;
-	
-	/*if ( flags & FLAG_ROTATED )
-	{} //TODO: rotate surface
-	else */
-	if (flags & FLAG_ALPHA && what->format->BytesPerPixel == 1) //alpha on 8-bit surf - use custom blitter
-		CSDL_Ext::blit8bppAlphaTo24bpp(what, &srcRect, to, &dstRect);
-	else
-		CSDL_Ext::blitSurface(what, &srcRect, to, &dstRect);
+	assert(to);
+	Rect src( xOffset, yOffset, pos.w, pos.h);
+	IImage * img = anim.getImage(frame, group);
+	img->draw(to, pos.x-xOffset, pos.y-yOffset, &src);
 }
 
-void CShowableAnim::rotate(bool on)
+void CShowableAnim::rotate(bool on, bool vertical)
 {
+	unsigned char flag = vertical? VERTICAL_FLIP:HORIZONTAL_FLIP;
 	if (on)
-		flags |= FLAG_ROTATED;
+		flags |= flag;
 	else
-		flags &= ~FLAG_ROTATED;
+		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, unsigned char flags, EAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, unsigned char flags, EAnimType type):
 	CShowableAnim(x,y,name,flags,3,type)
 {
-	if (flags & FLAG_PREVIEW)
-		callback = boost::bind(&CCreatureAnim::loopPreview,this);
+	xOffset = picPos.x;
+	yOffset = picPos.y;
+	if (picPos.w)
+		pos.w = picPos.w;
+	if (picPos.h)
+		pos.h = picPos.h;
 };
 
 void CCreatureAnim::loopPreview()
 {
 	std::vector<EAnimType> available;
-	if (anim.groupSize(ANIM_HOLDING))
-		available.push_back(ANIM_HOLDING);
-
-	if (anim.groupSize(ANIM_HITTED))
-		available.push_back(ANIM_HITTED);
-
-	if (anim.groupSize(ANIM_DEFENCE))
-		available.push_back(ANIM_DEFENCE);
-
-	if (anim.groupSize(ANIM_ATTACK_FRONT))
-		available.push_back(ANIM_ATTACK_FRONT);
-
-	if (anim.groupSize(ANIM_CAST_FRONT))
-		available.push_back(ANIM_CAST_FRONT);
+	static const EAnimType previewList[] = {HOLDING, HITTED, DEFENCE, ATTACK_FRONT, CAST_FRONT};
+	
+	for (size_t i=0; i<5; i++)
+		if (anim.size(previewList[i]))
+			available.push_back(previewList[i]);
 
 	size_t rnd = rand()%(available.size()*2);
 
 	if (rnd >= available.size())
 	{
-		if ( anim.groupSize(ANIM_MOVING) == 0 )//no moving animation present
-			addLast( ANIM_HOLDING );
+		if ( anim.size(MOVING) == 0 )//no moving animation present
+			addLast( HOLDING );
 		else
-			addLast( ANIM_MOVING ) ;
+			addLast( MOVING ) ;
 	}
 	else
 		addLast(available[rnd]);
@@ -937,15 +1232,15 @@ void CCreatureAnim::loopPreview()
 
 void CCreatureAnim::addLast(EAnimType newType)
 {
-	if (type != ANIM_MOVING && newType == ANIM_MOVING)//starting moving - play init sequence
+	if (type != MOVING && newType == MOVING)//starting moving - play init sequence
 	{
-		queue.push( ANIM_MOVE_START );
+		queue.push( MOVE_START );
 	}
-	else if (type == ANIM_MOVING && newType != ANIM_MOVING )//previous anim was moving - finish it
+	else if (type == MOVING && newType != MOVING )//previous anim was moving - finish it
 	{
-		queue.push( ANIM_MOVE_END);
+		queue.push( MOVE_END );
 	}
-	if (newType == ANIM_TURN_L || newType == ANIM_TURN_R)
+	if (newType == TURN_L || newType == TURN_R)
 		queue.push(newType);
 
 	queue.push(newType);
@@ -954,12 +1249,12 @@ void CCreatureAnim::addLast(EAnimType newType)
 void CCreatureAnim::reset()
 {
 	//if we are in the middle of rotation - set flag
-	if (type == ANIM_TURN_L && !queue.empty() && queue.front() == ANIM_TURN_L)
-		flags |= FLAG_ROTATED;
-	if (type == ANIM_TURN_R && !queue.empty() && queue.front() == ANIM_TURN_R)
-		flags &= ~FLAG_ROTATED;
+	if (type == TURN_L && !queue.empty() && queue.front() == TURN_L)
+		rotate(true);
+	if (type == TURN_R && !queue.empty() && queue.front() == TURN_R)
+		rotate(false);
 
-	while (!queue.empty())//FIXME: remove dublication
+	while (!queue.empty())
 	{
 		EAnimType at = queue.front();
 		queue.pop();
@@ -975,7 +1270,13 @@ void CCreatureAnim::reset()
 		if (set(at))
 			return;
 	}
-	tlog0<<"Warning: next sequence is not found for animation!\n";
+	set(type);
+	tlog0<<"Warning: next sequence was not found for animation!\n";
+}
+
+void CCreatureAnim::startPreview()
+{
+	callback = boost::bind(&CCreatureAnim::loopPreview,this);
 }
 
 void CCreatureAnim::clearAndSet(EAnimType type)

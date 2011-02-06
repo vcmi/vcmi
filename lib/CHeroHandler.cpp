@@ -135,7 +135,7 @@ int CObstacleInfo::getMaxBlocked(int hex) const
 CHeroHandler::~CHeroHandler()
 {
 	for (int i = 0; i < heroes.size(); i++)
-		delete heroes[i];
+		heroes[i].dellNull();
 
 	for (int i = 0; i < heroClasses.size(); i++)
 		delete heroClasses[i];

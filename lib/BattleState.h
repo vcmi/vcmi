@@ -3,6 +3,8 @@
 #include "../global.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
+#include "CObjectHandler.h"
+#include "CCreatureHandler.h"
 
 #include "ConstTransitivePtr.h"
 
@@ -112,7 +114,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; NULL if none
 	si8 battleMaxSpellLevel() const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	void localInit();
-	static BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
+	static BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
 };
 
 class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor

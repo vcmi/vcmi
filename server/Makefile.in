@@ -41,6 +41,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/aclocal/m4/ax_boost_base.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_filesystem.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_iostreams.m4 \
+	$(top_srcdir)/aclocal/m4/ax_boost_program_options.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_system.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_thread.m4 \
 	$(top_srcdir)/aclocal/m4/libtool.m4 \
@@ -56,10 +57,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_vcmiserver_OBJECTS = vcmiserver-CGameHandler.$(OBJEXT) \
+am_vcmiserver_OBJECTS = vcmiserver-CConsoleHandler.$(OBJEXT) \
+	vcmiserver-CGameHandler.$(OBJEXT) \
 	vcmiserver-CVCMIServer.$(OBJEXT) \
 	vcmiserver-NetPacksServer.$(OBJEXT) \
-	vcmiserver-CMapInfo.$(OBJEXT)
+	vcmiserver-stdafx.$(OBJEXT)
 vcmiserver_OBJECTS = $(am_vcmiserver_OBJECTS)
 vcmiserver_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
 AM_V_lt = $(am__v_lt_$(V))
@@ -127,6 +129,7 @@ BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_FILESYSTEM_LIB = @BOOST_FILESYSTEM_LIB@
 BOOST_IOSTREAMS_LIB = @BOOST_IOSTREAMS_LIB@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_PROGRAM_OPTIONS_LIB = @BOOST_PROGRAM_OPTIONS_LIB@
 BOOST_SYSTEM_LIB = @BOOST_SYSTEM_LIB@
 BOOST_THREAD_LIB = @BOOST_THREAD_LIB@
 CC = @CC@
@@ -247,13 +250,15 @@ vcmiserver_LDADD = $(top_builddir)/lib/libvcmi.la
 vcmiserver_CXXFLAGS = @SDL_CXXFLAGS@
 vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_SOURCES = \
+	../CConsoleHandler.cpp \
+	../CConsoleHandler.h \
 	CGameHandler.cpp \
 	CGameHandler.h \
 	CVCMIServer.cpp \
 	CVCMIServer.h \
 	NetPacksServer.cpp \
-	../lib/CMapInfo.cpp \
-	../lib/CMapInfo.h
+	stdafx.cpp \
+	stdafx.h
 
 all: all-am
 
@@ -342,10 +347,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CConsoleHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CGameHandler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CMapInfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CVCMIServer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-NetPacksServer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-stdafx.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -370,6 +376,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+vcmiserver-CConsoleHandler.o: ../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CConsoleHandler.o -MD -MP -MF $(DEPDIR)/vcmiserver-CConsoleHandler.Tpo -c -o vcmiserver-CConsoleHandler.o `test -f '../CConsoleHandler.cpp' || echo '$(srcdir)/'`../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CConsoleHandler.Tpo $(DEPDIR)/vcmiserver-CConsoleHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CConsoleHandler.cpp' object='vcmiserver-CConsoleHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CConsoleHandler.o `test -f '../CConsoleHandler.cpp' || echo '$(srcdir)/'`../CConsoleHandler.cpp
+
+vcmiserver-CConsoleHandler.obj: ../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CConsoleHandler.obj -MD -MP -MF $(DEPDIR)/vcmiserver-CConsoleHandler.Tpo -c -o vcmiserver-CConsoleHandler.obj `if test -f '../CConsoleHandler.cpp'; then $(CYGPATH_W) '../CConsoleHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../CConsoleHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CConsoleHandler.Tpo $(DEPDIR)/vcmiserver-CConsoleHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CConsoleHandler.cpp' object='vcmiserver-CConsoleHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CConsoleHandler.obj `if test -f '../CConsoleHandler.cpp'; then $(CYGPATH_W) '../CConsoleHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../CConsoleHandler.cpp'; fi`
 
 vcmiserver-CGameHandler.o: CGameHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CGameHandler.o -MD -MP -MF $(DEPDIR)/vcmiserver-CGameHandler.Tpo -c -o vcmiserver-CGameHandler.o `test -f 'CGameHandler.cpp' || echo '$(srcdir)/'`CGameHandler.cpp
@@ -419,21 +441,21 @@ vcmiserver-NetPacksServer.obj: NetPacksServer.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-NetPacksServer.obj `if test -f 'NetPacksServer.cpp'; then $(CYGPATH_W) 'NetPacksServer.cpp'; else $(CYGPATH_W) '$(srcdir)/NetPacksServer.cpp'; fi`
 
-vcmiserver-CMapInfo.o: ../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CMapInfo.o -MD -MP -MF $(DEPDIR)/vcmiserver-CMapInfo.Tpo -c -o vcmiserver-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CMapInfo.Tpo $(DEPDIR)/vcmiserver-CMapInfo.Po
+vcmiserver-stdafx.o: stdafx.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-stdafx.o -MD -MP -MF $(DEPDIR)/vcmiserver-stdafx.Tpo -c -o vcmiserver-stdafx.o `test -f 'stdafx.cpp' || echo '$(srcdir)/'`stdafx.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-stdafx.Tpo $(DEPDIR)/vcmiserver-stdafx.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiserver-CMapInfo.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='stdafx.cpp' object='vcmiserver-stdafx.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-stdafx.o `test -f 'stdafx.cpp' || echo '$(srcdir)/'`stdafx.cpp
 
-vcmiserver-CMapInfo.obj: ../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CMapInfo.obj -MD -MP -MF $(DEPDIR)/vcmiserver-CMapInfo.Tpo -c -o vcmiserver-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CMapInfo.Tpo $(DEPDIR)/vcmiserver-CMapInfo.Po
+vcmiserver-stdafx.obj: stdafx.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-stdafx.obj -MD -MP -MF $(DEPDIR)/vcmiserver-stdafx.Tpo -c -o vcmiserver-stdafx.obj `if test -f 'stdafx.cpp'; then $(CYGPATH_W) 'stdafx.cpp'; else $(CYGPATH_W) '$(srcdir)/stdafx.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-stdafx.Tpo $(DEPDIR)/vcmiserver-stdafx.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiserver-CMapInfo.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='stdafx.cpp' object='vcmiserver-stdafx.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-stdafx.obj `if test -f 'stdafx.cpp'; then $(CYGPATH_W) 'stdafx.cpp'; else $(CYGPATH_W) '$(srcdir)/stdafx.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

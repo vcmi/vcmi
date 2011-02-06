@@ -378,8 +378,7 @@ class bmap : public std::map<KeyT, ValT>
 public:
 	const ValT & operator[](KeyT key) const
 	{
-		const_iterator it = find(key);
-		return it->second;
+		return find(key)->second;
 	}
 	ValT & operator[](KeyT key) 
 	{

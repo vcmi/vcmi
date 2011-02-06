@@ -7,6 +7,7 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
+#include "CPlayerInterface.h"
 #include "SDL_Extensions.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
@@ -57,35 +58,22 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 }
 
 CBuildingRect::CBuildingRect(const Structure *Str)
-	:CShowableAnim(0, 0, Str->defName, CShowableAnim::FLAG_BASE),
-	moi(false), str(Str)
+	:CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE | CShowableAnim::USE_RLE),
+	str(Str)
 {
-
+	used |= LCLICK | RCLICK | HOVER;
 	pos.x += str->pos.x + LOCPLINT->castleInt->pos.x;
 	pos.y += str->pos.y + LOCPLINT->castleInt->pos.y;
 
-	if(str->ID == 33 && str->townID == 4) //little 'hack' for estate in necropolis - background color is not always the first color in the palette
-		for(size_t i=0; i<anim.groupSize(0);i++)
-			SDL_SetColorKey(anim.image(i,0), SDL_SRCCOLORKEY,
-			      *((char*)(anim.image(i,0)->pixels)));
+	if (!str->borderName.empty())
+		border = BitmapHandler::loadBitmap(str->borderName, true);
+	else
+		border = NULL;
 
-	if(Str->ID<0  || (Str->ID>=27 && Str->ID<=29))
-	{
-		area = border = NULL;
-		return;
-	}
-
-	border = BitmapHandler::loadBitmap(str->borderName, true);
-	if (!border)
-	{
-		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
-	}
-
-	area = BitmapHandler::loadBitmap(str->areaName);
-	if (!area)
-	{
-		tlog2 << "Warning: no area for "<<Str->ID<<std::endl;
-	}
+	if (!str->areaName.empty())
+		area = BitmapHandler::loadBitmap(str->areaName);
+	else
+		area = NULL;
 }
 
 CBuildingRect::~CBuildingRect()
@@ -95,22 +83,7 @@ CBuildingRect::~CBuildingRect()
 	if(area)
 		SDL_FreeSurface(area);
 }
-void CBuildingRect::activate()
-{
-	activateHover();
-	activateLClick();
-	activateRClick();
 
-}
-void CBuildingRect::deactivate()
-{
-	deactivateHover();
-	deactivateLClick();
-	deactivateRClick();
-	if(moi)
-		deactivateMouseMove();
-	moi=false;
-}
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
 {
 	if(str->pos.z != p2.str->pos.z)
@@ -123,15 +96,14 @@ void CBuildingRect::hover(bool on)
 	//Hoverable::hover(on);
 	if(on)
 	{
-		if(!moi)
-			activateMouseMove();
-		moi = true;
+		if(!(active & MOVE))
+			changeUsedEvents(MOVE, true, true);
 	}
 	else
 	{
-		if(moi)
-			deactivateMouseMove();
-		moi = false;
+		if(active & MOVE)
+			changeUsedEvents(MOVE, false, true);
+
 		if(LOCPLINT->castleInt->hBuild == this)
 		{
 			LOCPLINT->castleInt->hBuild = NULL;
@@ -179,13 +151,16 @@ void CBuildingRect::show(SDL_Surface *to)
 {
 	CShowableAnim::show(to);
 
-	if(LOCPLINT->castleInt->hBuild == this && border) //if this this higlighted structure and has border we'll blit it
+	if(LOCPLINT->castleInt->hBuild == this && border)
 		blitAtLoc(border,0,0,to);
 }
 
 void CBuildingRect::showAll(SDL_Surface *to)
 {
-	show(to);
+	CShowableAnim::showAll(to);
+
+	if(LOCPLINT->castleInt->hBuild == this && border && !active)
+		blitAtLoc(border,0,0,to);
 }
 
 std::string getBuildingSubtitle(int tid, int bid)//hover text for building
@@ -765,8 +740,8 @@ void CCastleInterface::enterHall()
 
 void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 {
-	blitAt(cityBg,pos,to);
 	blitAt(townInt,pos.x,pos.y+374,to);
+	blitAt(cityBg,pos,to);
 	adventureInt->resdatabar.draw(to);
 	townlist->draw(to);
 	statusbar->show(to);
@@ -792,8 +767,11 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	market->show(to);
 	fort->show(to);
 	hall->show(to);
-	show(to);
-
+	for(size_t i=0;i<buildings.size();i++)
+	{
+		buildings[i]->showAll(to);
+	}
+	statusbar->show(to);//refreshing statusbar
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 	exit->show(to);
@@ -812,13 +790,10 @@ void CCastleInterface::townChange()
 
 void CCastleInterface::show(SDL_Surface * to)
 {
-	blitAt(cityBg,pos,to);
-
-
 	//blit buildings
 	for(size_t i=0;i<buildings.size();i++)
 	{
-		buildings[i]->showAll(to);
+		buildings[i]->show(to);
 	}
 	statusbar->show(to);//refreshing statusbar
 }
@@ -1502,7 +1477,7 @@ void CHallInterface::close()
 {
 	GH.popInts(LOCPLINT->castleInt->winMode == 2? 2 : 1 );
 }
-void CHallInterface::show(SDL_Surface * to)
+void CHallInterface::showAll(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	LOCPLINT->castleInt->statusbar->show(to);
@@ -1700,14 +1675,23 @@ CFortScreen::~CFortScreen()
 
 void CFortScreen::show( SDL_Surface * to)
 {
-	blitAt(bg,pos,to);
 	for (int i=0; i<crePics.size(); i++)
 	{
 		crePics[i]->show(to);
 	}
+}
+
+void CFortScreen::showAll( SDL_Surface * to)
+{
+	blitAt(bg,pos,to);
+	for (int i=0; i<crePics.size(); i++)
+	{
+		crePics[i]->showAll(to);
+	}
 	exit->show(to);
 	resdatabar->show(to);
 	GH.statusbar->show(to);
+	
 }
 
 void CFortScreen::activate()
@@ -1906,7 +1890,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 			}
 			else
 			{
-				blitAt(scrolls.image(1),positions[i][j],*bg);
+				scrolls.getImage(0)->draw(*bg, positions[i][j].x, positions[i][j].y);
 			}
 		}
 	}
@@ -1973,20 +1957,20 @@ void CMageGuildScreen::Scroll::hover(bool on)
 CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-//	SDL_SetColorKey(bg2,SDL_SRCCOLORKEY,SDL_MapRGB(bg2->format,0,255,255));
 	bmp = new CPicture("TPSMITH");
 	bmp->colorizeAndConvert(LOCPLINT->playerID);
 	
 	pos = bmp->center();
 	
-	SDL_Surface *bg = BitmapHandler::loadBitmap("TPSMITBK.bmp");
-	blitAt(bg,64,50,*bmp);
-	SDL_FreeSurface(bg);
+	animBG = new CPicture("TPSMITBK", 64, 50);
+	animBG->needRefresh = true;
 
-	CCreatureAnim cra(170, 120, CGI->creh->creatures[creMachineID]->animDefName);
+	anim = new CCreatureAnim(64, 50, CGI->creh->creatures[creMachineID]->animDefName, Rect());
+	anim->clipRect(113,125,200,150);
+	anim->startPreview();
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID]->nameSing.c_str()); //build a new ...
-	printAtMiddle(pom,165,28,FONT_MEDIUM,tytulowy,*bmp);
+	printAtMiddle(pom,165,28,FONT_BIG,tytulowy,*bmp);
 	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,*bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid]->price,pom,10);
 	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,*bmp);

@@ -629,7 +629,7 @@ static void listenForEvents()
 				delete client;
 				client = NULL;
 
-				delete CGI->dobjinfo;
+				delete CGI->dobjinfo.get();
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 

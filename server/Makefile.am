@@ -4,10 +4,12 @@ vcmiserver_LDADD = $(top_builddir)/lib/libvcmi.la
 vcmiserver_CXXFLAGS = @SDL_CXXFLAGS@
 vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_SOURCES = \
+	../CConsoleHandler.cpp \
+	../CConsoleHandler.h \
 	CGameHandler.cpp \
 	CGameHandler.h \
 	CVCMIServer.cpp \
 	CVCMIServer.h \
 	NetPacksServer.cpp \
-	../lib/CMapInfo.cpp \
-	../lib/CMapInfo.h
+	stdafx.cpp \
+	stdafx.h

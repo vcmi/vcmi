@@ -41,6 +41,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/aclocal/m4/ax_boost_base.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_filesystem.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_iostreams.m4 \
+	$(top_srcdir)/aclocal/m4/ax_boost_program_options.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_system.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_thread.m4 \
 	$(top_srcdir)/aclocal/m4/libtool.m4 \
@@ -57,13 +58,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
+	vcmiclient-CConsoleHandler.$(OBJEXT) \
 	vcmiclient-CGameInterface.$(OBJEXT) \
 	vcmiclient-CThreadHelper.$(OBJEXT) \
-	vcmiclient-CDefHandler.$(OBJEXT) \
-	vcmiclient-CMusicHandler.$(OBJEXT) \
-	vcmiclient-CSndHandler.$(OBJEXT) \
-	vcmiclient-CVideoHandler.$(OBJEXT) \
-	vcmiclient-CMapInfo.$(OBJEXT) \
 	vcmiclient-AdventureMapButton.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
 	vcmiclient-CAnimation.$(OBJEXT) \
@@ -73,19 +70,22 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CConfigHandler.$(OBJEXT) \
 	vcmiclient-CCreatureAnimation.$(OBJEXT) \
 	vcmiclient-CCursorHandler.$(OBJEXT) \
+	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
 	vcmiclient-CHeroWindow.$(OBJEXT) \
 	vcmiclient-CKingdomInterface.$(OBJEXT) \
-	vcmiclient-CMT.$(OBJEXT) vcmiclient-CMessage.$(OBJEXT) \
+	vcmiclient-Client.$(OBJEXT) vcmiclient-CMessage.$(OBJEXT) \
+	vcmiclient-CMT.$(OBJEXT) vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CPlayerInterface.$(OBJEXT) \
-	vcmiclient-CPreGame.$(OBJEXT) \
-	vcmiclient-CSpellWindow.$(OBJEXT) vcmiclient-Client.$(OBJEXT) \
-	vcmiclient-GUIBase.$(OBJEXT) vcmiclient-GUIClasses.$(OBJEXT) \
-	vcmiclient-Graphics.$(OBJEXT) \
+	vcmiclient-CPreGame.$(OBJEXT) vcmiclient-CSndHandler.$(OBJEXT) \
+	vcmiclient-CSpellWindow.$(OBJEXT) \
+	vcmiclient-CVideoHandler.$(OBJEXT) \
+	vcmiclient-Graphics.$(OBJEXT) vcmiclient-GUIBase.$(OBJEXT) \
+	vcmiclient-GUIClasses.$(OBJEXT) \
+	vcmiclient-mapHandler.$(OBJEXT) \
 	vcmiclient-NetPacksClient.$(OBJEXT) \
 	vcmiclient-SDL_Extensions.$(OBJEXT) \
-	vcmiclient-SDL_framerate.$(OBJEXT) \
-	vcmiclient-mapHandler.$(OBJEXT)
+	vcmiclient-SDL_framerate.$(OBJEXT)
 vcmiclient_OBJECTS = $(am_vcmiclient_OBJECTS)
 vcmiclient_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
 AM_V_lt = $(am__v_lt_$(V))
@@ -153,6 +153,7 @@ BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_FILESYSTEM_LIB = @BOOST_FILESYSTEM_LIB@
 BOOST_IOSTREAMS_LIB = @BOOST_IOSTREAMS_LIB@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_PROGRAM_OPTIONS_LIB = @BOOST_PROGRAM_OPTIONS_LIB@
 BOOST_SYSTEM_LIB = @BOOST_SYSTEM_LIB@
 BOOST_THREAD_LIB = @BOOST_THREAD_LIB@
 CC = @CC@
@@ -269,45 +270,24 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@
 vcmiclient_CXXFLAGS = @SDL_CXXFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES = \
-	../AI_Base.h \
 	../CCallback.cpp \
 	../CCallback.h \
+	../CConsoleHandler.cpp \
+	../CConsoleHandler.h \
 	../CGameInterface.cpp \
 	../CGameInterface.h \
 	../CThreadHelper.cpp \
 	../CThreadHelper.h \
-	../StartInfo.h \
-	../global.h \
-	../hch/CBuildingHandler.h \
-	../hch/CDefHandler.cpp \
-	../hch/CDefHandler.h \
-	../hch/CHeroHandler.h \
-	../hch/CMusicBase.h \
-	../hch/CMusicHandler.cpp \
-	../hch/CMusicHandler.h \
-	../hch/CObjectHandler.h \
-	../hch/CSndHandler.cpp \
-	../hch/CSndHandler.h \
-	../hch/CSoundBase.h \
-	../hch/CVideoHandler.cpp \
-	../hch/CVideoHandler.h \
-	../lib/CMapInfo.cpp \
-	../lib/CMapInfo.h \
-	../int3.h \
-	../nodrze.h \
-	../stdafx.h \
-	../tchar_amigaos4.h \
-	../timeHandler.h \
 	AdventureMapButton.cpp \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
-	CAnimation.h \
 	CAnimation.cpp \
+	CAnimation.h \
 	CBattleInterface.cpp \
 	CBattleInterface.h \
 	CBitmapHandler.cpp \
@@ -320,38 +300,48 @@ vcmiclient_SOURCES = \
 	CCreatureAnimation.h \
 	CCursorHandler.cpp \
 	CCursorHandler.h \
+	CDefHandler.cpp \
+	CDefHandler.h \
 	CGameInfo.cpp \
 	CGameInfo.h \
 	CHeroWindow.cpp \
 	CHeroWindow.h \
 	CKingdomInterface.cpp \
 	CKingdomInterface.h \
-	CMT.cpp \
+	Client.cpp \
+	Client.h \
 	CMessage.cpp \
 	CMessage.h \
+	CMT.cpp \
+	CMusicBase.h \
+	CMusicHandler.cpp \
+	CMusicHandler.h \
 	CPlayerInterface.cpp \
 	CPlayerInterface.h \
 	CPreGame.cpp \
 	CPreGame.h \
+	CSndHandler.cpp \
+	CSndHandler.h \
+	CSoundBase.h \
 	CSpellWindow.cpp \
 	CSpellWindow.h \
-	Client.cpp \
-	Client.h \
+	CVideoHandler.cpp \
+	CVideoHandler.h \
 	FontBase.h \
 	FunctionList.h \
+	Graphics.cpp \
+	Graphics.h \
 	GUIBase.cpp \
 	GUIBase.h \
 	GUIClasses.cpp \
 	GUIClasses.h \
-	Graphics.cpp \
-	Graphics.h \
+	mapHandler.cpp \
+	mapHandler.h \
 	NetPacksClient.cpp \
 	SDL_Extensions.cpp \
 	SDL_Extensions.h \
 	SDL_framerate.cpp \
-	SDL_framerate.h \
-	mapHandler.cpp \
-	mapHandler.h
+	SDL_framerate.h
 
 all: all-am
 
@@ -448,6 +438,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCallback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCastleInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConfigHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConsoleHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCursorHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CDefHandler.Po@am__quote@
@@ -456,7 +447,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CHeroWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CKingdomInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMapInfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMessage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMusicHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPlayerInterface.Po@am__quote@
@@ -514,6 +504,22 @@ vcmiclient-CCallback.obj: ../CCallback.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCallback.obj `if test -f '../CCallback.cpp'; then $(CYGPATH_W) '../CCallback.cpp'; else $(CYGPATH_W) '$(srcdir)/../CCallback.cpp'; fi`
 
+vcmiclient-CConsoleHandler.o: ../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CConsoleHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CConsoleHandler.Tpo -c -o vcmiclient-CConsoleHandler.o `test -f '../CConsoleHandler.cpp' || echo '$(srcdir)/'`../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CConsoleHandler.Tpo $(DEPDIR)/vcmiclient-CConsoleHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CConsoleHandler.cpp' object='vcmiclient-CConsoleHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CConsoleHandler.o `test -f '../CConsoleHandler.cpp' || echo '$(srcdir)/'`../CConsoleHandler.cpp
+
+vcmiclient-CConsoleHandler.obj: ../CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CConsoleHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CConsoleHandler.Tpo -c -o vcmiclient-CConsoleHandler.obj `if test -f '../CConsoleHandler.cpp'; then $(CYGPATH_W) '../CConsoleHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../CConsoleHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CConsoleHandler.Tpo $(DEPDIR)/vcmiclient-CConsoleHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CConsoleHandler.cpp' object='vcmiclient-CConsoleHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CConsoleHandler.obj `if test -f '../CConsoleHandler.cpp'; then $(CYGPATH_W) '../CConsoleHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../CConsoleHandler.cpp'; fi`
+
 vcmiclient-CGameInterface.o: ../CGameInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CGameInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CGameInterface.Tpo -c -o vcmiclient-CGameInterface.o `test -f '../CGameInterface.cpp' || echo '$(srcdir)/'`../CGameInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CGameInterface.Tpo $(DEPDIR)/vcmiclient-CGameInterface.Po
@@ -545,86 +551,6 @@ vcmiclient-CThreadHelper.obj: ../CThreadHelper.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CThreadHelper.cpp' object='vcmiclient-CThreadHelper.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CThreadHelper.obj `if test -f '../CThreadHelper.cpp'; then $(CYGPATH_W) '../CThreadHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/../CThreadHelper.cpp'; fi`
-
-vcmiclient-CDefHandler.o: ../hch/CDefHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.o `test -f '../hch/CDefHandler.cpp' || echo '$(srcdir)/'`../hch/CDefHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefHandler.Tpo $(DEPDIR)/vcmiclient-CDefHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CDefHandler.cpp' object='vcmiclient-CDefHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefHandler.o `test -f '../hch/CDefHandler.cpp' || echo '$(srcdir)/'`../hch/CDefHandler.cpp
-
-vcmiclient-CDefHandler.obj: ../hch/CDefHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.obj `if test -f '../hch/CDefHandler.cpp'; then $(CYGPATH_W) '../hch/CDefHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CDefHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefHandler.Tpo $(DEPDIR)/vcmiclient-CDefHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CDefHandler.cpp' object='vcmiclient-CDefHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefHandler.obj `if test -f '../hch/CDefHandler.cpp'; then $(CYGPATH_W) '../hch/CDefHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CDefHandler.cpp'; fi`
-
-vcmiclient-CMusicHandler.o: ../hch/CMusicHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMusicHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMusicHandler.Tpo -c -o vcmiclient-CMusicHandler.o `test -f '../hch/CMusicHandler.cpp' || echo '$(srcdir)/'`../hch/CMusicHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMusicHandler.Tpo $(DEPDIR)/vcmiclient-CMusicHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CMusicHandler.cpp' object='vcmiclient-CMusicHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMusicHandler.o `test -f '../hch/CMusicHandler.cpp' || echo '$(srcdir)/'`../hch/CMusicHandler.cpp
-
-vcmiclient-CMusicHandler.obj: ../hch/CMusicHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMusicHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMusicHandler.Tpo -c -o vcmiclient-CMusicHandler.obj `if test -f '../hch/CMusicHandler.cpp'; then $(CYGPATH_W) '../hch/CMusicHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CMusicHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMusicHandler.Tpo $(DEPDIR)/vcmiclient-CMusicHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CMusicHandler.cpp' object='vcmiclient-CMusicHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMusicHandler.obj `if test -f '../hch/CMusicHandler.cpp'; then $(CYGPATH_W) '../hch/CMusicHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CMusicHandler.cpp'; fi`
-
-vcmiclient-CSndHandler.o: ../hch/CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.o `test -f '../hch/CSndHandler.cpp' || echo '$(srcdir)/'`../hch/CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CSndHandler.cpp' object='vcmiclient-CSndHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.o `test -f '../hch/CSndHandler.cpp' || echo '$(srcdir)/'`../hch/CSndHandler.cpp
-
-vcmiclient-CSndHandler.obj: ../hch/CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.obj `if test -f '../hch/CSndHandler.cpp'; then $(CYGPATH_W) '../hch/CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CSndHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CSndHandler.cpp' object='vcmiclient-CSndHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.obj `if test -f '../hch/CSndHandler.cpp'; then $(CYGPATH_W) '../hch/CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CSndHandler.cpp'; fi`
-
-vcmiclient-CVideoHandler.o: ../hch/CVideoHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.o `test -f '../hch/CVideoHandler.cpp' || echo '$(srcdir)/'`../hch/CVideoHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.o `test -f '../hch/CVideoHandler.cpp' || echo '$(srcdir)/'`../hch/CVideoHandler.cpp
-
-vcmiclient-CVideoHandler.obj: ../hch/CVideoHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
-
-vcmiclient-CMapInfo.o: ../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMapInfo.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMapInfo.Tpo -c -o vcmiclient-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMapInfo.Tpo $(DEPDIR)/vcmiclient-CMapInfo.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiclient-CMapInfo.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMapInfo.o `test -f '../lib/CMapInfo.cpp' || echo '$(srcdir)/'`../lib/CMapInfo.cpp
-
-vcmiclient-CMapInfo.obj: ../lib/CMapInfo.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMapInfo.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMapInfo.Tpo -c -o vcmiclient-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMapInfo.Tpo $(DEPDIR)/vcmiclient-CMapInfo.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../lib/CMapInfo.cpp' object='vcmiclient-CMapInfo.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMapInfo.obj `if test -f '../lib/CMapInfo.cpp'; then $(CYGPATH_W) '../lib/CMapInfo.cpp'; else $(CYGPATH_W) '$(srcdir)/../lib/CMapInfo.cpp'; fi`
 
 vcmiclient-AdventureMapButton.o: AdventureMapButton.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapButton.o -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo -c -o vcmiclient-AdventureMapButton.o `test -f 'AdventureMapButton.cpp' || echo '$(srcdir)/'`AdventureMapButton.cpp
@@ -770,6 +696,22 @@ vcmiclient-CCursorHandler.obj: CCursorHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCursorHandler.obj `if test -f 'CCursorHandler.cpp'; then $(CYGPATH_W) 'CCursorHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CCursorHandler.cpp'; fi`
 
+vcmiclient-CDefHandler.o: CDefHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.o `test -f 'CDefHandler.cpp' || echo '$(srcdir)/'`CDefHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefHandler.Tpo $(DEPDIR)/vcmiclient-CDefHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CDefHandler.cpp' object='vcmiclient-CDefHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefHandler.o `test -f 'CDefHandler.cpp' || echo '$(srcdir)/'`CDefHandler.cpp
+
+vcmiclient-CDefHandler.obj: CDefHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.obj `if test -f 'CDefHandler.cpp'; then $(CYGPATH_W) 'CDefHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CDefHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefHandler.Tpo $(DEPDIR)/vcmiclient-CDefHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CDefHandler.cpp' object='vcmiclient-CDefHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefHandler.obj `if test -f 'CDefHandler.cpp'; then $(CYGPATH_W) 'CDefHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CDefHandler.cpp'; fi`
+
 vcmiclient-CGameInfo.o: CGameInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CGameInfo.o -MD -MP -MF $(DEPDIR)/vcmiclient-CGameInfo.Tpo -c -o vcmiclient-CGameInfo.o `test -f 'CGameInfo.cpp' || echo '$(srcdir)/'`CGameInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CGameInfo.Tpo $(DEPDIR)/vcmiclient-CGameInfo.Po
@@ -818,21 +760,21 @@ vcmiclient-CKingdomInterface.obj: CKingdomInterface.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CKingdomInterface.obj `if test -f 'CKingdomInterface.cpp'; then $(CYGPATH_W) 'CKingdomInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/CKingdomInterface.cpp'; fi`
 
-vcmiclient-CMT.o: CMT.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMT.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMT.Tpo -c -o vcmiclient-CMT.o `test -f 'CMT.cpp' || echo '$(srcdir)/'`CMT.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMT.Tpo $(DEPDIR)/vcmiclient-CMT.Po
+vcmiclient-Client.o: Client.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Client.o -MD -MP -MF $(DEPDIR)/vcmiclient-Client.Tpo -c -o vcmiclient-Client.o `test -f 'Client.cpp' || echo '$(srcdir)/'`Client.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Client.Tpo $(DEPDIR)/vcmiclient-Client.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMT.cpp' object='vcmiclient-CMT.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Client.cpp' object='vcmiclient-Client.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMT.o `test -f 'CMT.cpp' || echo '$(srcdir)/'`CMT.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Client.o `test -f 'Client.cpp' || echo '$(srcdir)/'`Client.cpp
 
-vcmiclient-CMT.obj: CMT.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMT.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMT.Tpo -c -o vcmiclient-CMT.obj `if test -f 'CMT.cpp'; then $(CYGPATH_W) 'CMT.cpp'; else $(CYGPATH_W) '$(srcdir)/CMT.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMT.Tpo $(DEPDIR)/vcmiclient-CMT.Po
+vcmiclient-Client.obj: Client.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Client.obj -MD -MP -MF $(DEPDIR)/vcmiclient-Client.Tpo -c -o vcmiclient-Client.obj `if test -f 'Client.cpp'; then $(CYGPATH_W) 'Client.cpp'; else $(CYGPATH_W) '$(srcdir)/Client.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Client.Tpo $(DEPDIR)/vcmiclient-Client.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMT.cpp' object='vcmiclient-CMT.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Client.cpp' object='vcmiclient-Client.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMT.obj `if test -f 'CMT.cpp'; then $(CYGPATH_W) 'CMT.cpp'; else $(CYGPATH_W) '$(srcdir)/CMT.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Client.obj `if test -f 'Client.cpp'; then $(CYGPATH_W) 'Client.cpp'; else $(CYGPATH_W) '$(srcdir)/Client.cpp'; fi`
 
 vcmiclient-CMessage.o: CMessage.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMessage.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMessage.Tpo -c -o vcmiclient-CMessage.o `test -f 'CMessage.cpp' || echo '$(srcdir)/'`CMessage.cpp
@@ -849,6 +791,38 @@ vcmiclient-CMessage.obj: CMessage.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMessage.cpp' object='vcmiclient-CMessage.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMessage.obj `if test -f 'CMessage.cpp'; then $(CYGPATH_W) 'CMessage.cpp'; else $(CYGPATH_W) '$(srcdir)/CMessage.cpp'; fi`
+
+vcmiclient-CMT.o: CMT.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMT.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMT.Tpo -c -o vcmiclient-CMT.o `test -f 'CMT.cpp' || echo '$(srcdir)/'`CMT.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMT.Tpo $(DEPDIR)/vcmiclient-CMT.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMT.cpp' object='vcmiclient-CMT.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMT.o `test -f 'CMT.cpp' || echo '$(srcdir)/'`CMT.cpp
+
+vcmiclient-CMT.obj: CMT.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMT.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMT.Tpo -c -o vcmiclient-CMT.obj `if test -f 'CMT.cpp'; then $(CYGPATH_W) 'CMT.cpp'; else $(CYGPATH_W) '$(srcdir)/CMT.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMT.Tpo $(DEPDIR)/vcmiclient-CMT.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMT.cpp' object='vcmiclient-CMT.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMT.obj `if test -f 'CMT.cpp'; then $(CYGPATH_W) 'CMT.cpp'; else $(CYGPATH_W) '$(srcdir)/CMT.cpp'; fi`
+
+vcmiclient-CMusicHandler.o: CMusicHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMusicHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMusicHandler.Tpo -c -o vcmiclient-CMusicHandler.o `test -f 'CMusicHandler.cpp' || echo '$(srcdir)/'`CMusicHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMusicHandler.Tpo $(DEPDIR)/vcmiclient-CMusicHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMusicHandler.cpp' object='vcmiclient-CMusicHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMusicHandler.o `test -f 'CMusicHandler.cpp' || echo '$(srcdir)/'`CMusicHandler.cpp
+
+vcmiclient-CMusicHandler.obj: CMusicHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMusicHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMusicHandler.Tpo -c -o vcmiclient-CMusicHandler.obj `if test -f 'CMusicHandler.cpp'; then $(CYGPATH_W) 'CMusicHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CMusicHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMusicHandler.Tpo $(DEPDIR)/vcmiclient-CMusicHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CMusicHandler.cpp' object='vcmiclient-CMusicHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMusicHandler.obj `if test -f 'CMusicHandler.cpp'; then $(CYGPATH_W) 'CMusicHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CMusicHandler.cpp'; fi`
 
 vcmiclient-CPlayerInterface.o: CPlayerInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CPlayerInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CPlayerInterface.Tpo -c -o vcmiclient-CPlayerInterface.o `test -f 'CPlayerInterface.cpp' || echo '$(srcdir)/'`CPlayerInterface.cpp
@@ -882,6 +856,22 @@ vcmiclient-CPreGame.obj: CPreGame.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CPreGame.obj `if test -f 'CPreGame.cpp'; then $(CYGPATH_W) 'CPreGame.cpp'; else $(CYGPATH_W) '$(srcdir)/CPreGame.cpp'; fi`
 
+vcmiclient-CSndHandler.o: CSndHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.o `test -f 'CSndHandler.cpp' || echo '$(srcdir)/'`CSndHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CSndHandler.cpp' object='vcmiclient-CSndHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.o `test -f 'CSndHandler.cpp' || echo '$(srcdir)/'`CSndHandler.cpp
+
+vcmiclient-CSndHandler.obj: CSndHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.obj `if test -f 'CSndHandler.cpp'; then $(CYGPATH_W) 'CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CSndHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CSndHandler.cpp' object='vcmiclient-CSndHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.obj `if test -f 'CSndHandler.cpp'; then $(CYGPATH_W) 'CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CSndHandler.cpp'; fi`
+
 vcmiclient-CSpellWindow.o: CSpellWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSpellWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSpellWindow.Tpo -c -o vcmiclient-CSpellWindow.o `test -f 'CSpellWindow.cpp' || echo '$(srcdir)/'`CSpellWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSpellWindow.Tpo $(DEPDIR)/vcmiclient-CSpellWindow.Po
@@ -898,21 +888,37 @@ vcmiclient-CSpellWindow.obj: CSpellWindow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSpellWindow.obj `if test -f 'CSpellWindow.cpp'; then $(CYGPATH_W) 'CSpellWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/CSpellWindow.cpp'; fi`
 
-vcmiclient-Client.o: Client.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Client.o -MD -MP -MF $(DEPDIR)/vcmiclient-Client.Tpo -c -o vcmiclient-Client.o `test -f 'Client.cpp' || echo '$(srcdir)/'`Client.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Client.Tpo $(DEPDIR)/vcmiclient-Client.Po
+vcmiclient-CVideoHandler.o: CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.o `test -f 'CVideoHandler.cpp' || echo '$(srcdir)/'`CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Client.cpp' object='vcmiclient-Client.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CVideoHandler.cpp' object='vcmiclient-CVideoHandler.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Client.o `test -f 'Client.cpp' || echo '$(srcdir)/'`Client.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.o `test -f 'CVideoHandler.cpp' || echo '$(srcdir)/'`CVideoHandler.cpp
 
-vcmiclient-Client.obj: Client.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Client.obj -MD -MP -MF $(DEPDIR)/vcmiclient-Client.Tpo -c -o vcmiclient-Client.obj `if test -f 'Client.cpp'; then $(CYGPATH_W) 'Client.cpp'; else $(CYGPATH_W) '$(srcdir)/Client.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Client.Tpo $(DEPDIR)/vcmiclient-Client.Po
+vcmiclient-CVideoHandler.obj: CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.obj `if test -f 'CVideoHandler.cpp'; then $(CYGPATH_W) 'CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CVideoHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Client.cpp' object='vcmiclient-Client.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Client.obj `if test -f 'Client.cpp'; then $(CYGPATH_W) 'Client.cpp'; else $(CYGPATH_W) '$(srcdir)/Client.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f 'CVideoHandler.cpp'; then $(CYGPATH_W) 'CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CVideoHandler.cpp'; fi`
+
+vcmiclient-Graphics.o: Graphics.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Graphics.o -MD -MP -MF $(DEPDIR)/vcmiclient-Graphics.Tpo -c -o vcmiclient-Graphics.o `test -f 'Graphics.cpp' || echo '$(srcdir)/'`Graphics.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Graphics.Tpo $(DEPDIR)/vcmiclient-Graphics.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Graphics.cpp' object='vcmiclient-Graphics.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.o `test -f 'Graphics.cpp' || echo '$(srcdir)/'`Graphics.cpp
+
+vcmiclient-Graphics.obj: Graphics.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Graphics.obj -MD -MP -MF $(DEPDIR)/vcmiclient-Graphics.Tpo -c -o vcmiclient-Graphics.obj `if test -f 'Graphics.cpp'; then $(CYGPATH_W) 'Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/Graphics.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Graphics.Tpo $(DEPDIR)/vcmiclient-Graphics.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Graphics.cpp' object='vcmiclient-Graphics.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.obj `if test -f 'Graphics.cpp'; then $(CYGPATH_W) 'Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/Graphics.cpp'; fi`
 
 vcmiclient-GUIBase.o: GUIBase.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIBase.o -MD -MP -MF $(DEPDIR)/vcmiclient-GUIBase.Tpo -c -o vcmiclient-GUIBase.o `test -f 'GUIBase.cpp' || echo '$(srcdir)/'`GUIBase.cpp
@@ -946,21 +952,21 @@ vcmiclient-GUIClasses.obj: GUIClasses.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-GUIClasses.obj `if test -f 'GUIClasses.cpp'; then $(CYGPATH_W) 'GUIClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/GUIClasses.cpp'; fi`
 
-vcmiclient-Graphics.o: Graphics.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Graphics.o -MD -MP -MF $(DEPDIR)/vcmiclient-Graphics.Tpo -c -o vcmiclient-Graphics.o `test -f 'Graphics.cpp' || echo '$(srcdir)/'`Graphics.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Graphics.Tpo $(DEPDIR)/vcmiclient-Graphics.Po
+vcmiclient-mapHandler.o: mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Graphics.cpp' object='vcmiclient-Graphics.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.o `test -f 'Graphics.cpp' || echo '$(srcdir)/'`Graphics.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
 
-vcmiclient-Graphics.obj: Graphics.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Graphics.obj -MD -MP -MF $(DEPDIR)/vcmiclient-Graphics.Tpo -c -o vcmiclient-Graphics.obj `if test -f 'Graphics.cpp'; then $(CYGPATH_W) 'Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/Graphics.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Graphics.Tpo $(DEPDIR)/vcmiclient-Graphics.Po
+vcmiclient-mapHandler.obj: mapHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Graphics.cpp' object='vcmiclient-Graphics.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.obj `if test -f 'Graphics.cpp'; then $(CYGPATH_W) 'Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/Graphics.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
 
 vcmiclient-NetPacksClient.o: NetPacksClient.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-NetPacksClient.o -MD -MP -MF $(DEPDIR)/vcmiclient-NetPacksClient.Tpo -c -o vcmiclient-NetPacksClient.o `test -f 'NetPacksClient.cpp' || echo '$(srcdir)/'`NetPacksClient.cpp
@@ -1009,22 +1015,6 @@ vcmiclient-SDL_framerate.obj: SDL_framerate.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_framerate.cpp' object='vcmiclient-SDL_framerate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_framerate.obj `if test -f 'SDL_framerate.cpp'; then $(CYGPATH_W) 'SDL_framerate.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_framerate.cpp'; fi`
-
-vcmiclient-mapHandler.o: mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.o `test -f 'mapHandler.cpp' || echo '$(srcdir)/'`mapHandler.cpp
-
-vcmiclient-mapHandler.obj: mapHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-mapHandler.Tpo $(DEPDIR)/vcmiclient-mapHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mapHandler.cpp' object='vcmiclient-mapHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-mapHandler.obj `if test -f 'mapHandler.cpp'; then $(CYGPATH_W) 'mapHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/mapHandler.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

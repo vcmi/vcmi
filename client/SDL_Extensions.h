@@ -22,8 +22,9 @@
 //A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
 #ifdef _MSC_VER
 	#define STRONG_INLINE __forceinline
+#elif __GNUC__
+	#define STRONG_INLINE __attribute__((always_inline))
 #else
-	//TODO: GCC counterpart?
 	#define STRONG_INLINE inline
 #endif
 
@@ -88,7 +89,8 @@ inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const in
 	return ret;
 }
 
-
+//TODO: inlining will work only if functions are defined in each compilation unit (like placing them in headers)
+//however here PutColor defined in SDL_Extensions.cpp, but used in CAnimation.cpp and CCreatureAnimation.cpp
 template<int bpp, int incrementPtr>
 struct ColorPutter
 {

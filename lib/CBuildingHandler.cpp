@@ -150,7 +150,7 @@ CBuildingHandler::~CBuildingHandler()
 {
 	for(std::vector< bmap<int, ConstTransitivePtr<CBuilding> > >::iterator i=buildings.begin(); i!=buildings.end(); i++)
 		for(std::map<int, ConstTransitivePtr<CBuilding> >::iterator j=i->begin(); j!=i->end(); j++)
-			delete j->second;
+			j->second.dellNull();
 }
 
 static std::string emptyStr = "";

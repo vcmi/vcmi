@@ -766,8 +766,8 @@ CGameState::CGameState()
 CGameState::~CGameState()
 {
 	delete mx;
-	delete map;
-	delete curB;
+	map.dellNull();
+	curB.dellNull();
 	//delete scenarioOps; //TODO: fix for loading ind delete
 	//delete initialOpts;
 	delete applierGs;

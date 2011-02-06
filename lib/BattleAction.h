@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #ifndef __BATTLEACTION_H__
 #define __BATTLEACTION_H__
 

@@ -135,6 +135,13 @@ struct Rect : public SDL_Rect
 		w = W;
 		h = H;
 	}
+	Rect(const Point &position, const Point &size) //c-tor
+	{
+		x = position.x;
+		y = position.y;
+		w = size.x;
+		h = size.y;
+	}
 	Rect(const SDL_Rect & r) //c-tor
 	{
 		x = r.x;
@@ -465,6 +472,7 @@ public:
 	SDL_Surface *bg;
 	Rect *srcRect; //if NULL then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
+	bool needRefresh;//Surface needs to be displayed each frame
 
 	operator SDL_Surface*()
 	{
@@ -480,6 +488,7 @@ public:
 
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
 	~CPicture();
+	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void convertToScreenBPP();
 	void colorizeAndConvert(int player);

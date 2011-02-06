@@ -513,7 +513,8 @@ void CIntObject::tick()
 
 CIntObject::CIntObject()
 {
-	pressedL = pressedR = hovered = captureAllKeys = strongInterest = toNextTick = active = used = 0;
+	pressedL = pressedR = hovered = captureAllKeys = strongInterest = false;
+	toNextTick = active = used = 0;
 
 	recActions = defActions = GH.defActionsDef;
 
@@ -849,6 +850,7 @@ CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 
 CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
 {
+	needRefresh = false;
 	srcRect = new Rect(SrcRect);
 	pos.x += x;
 	pos.y += y;
@@ -865,7 +867,14 @@ CPicture::~CPicture()
 
 void CPicture::init()
 {
+	needRefresh = false;
 	srcRect = NULL;
+}
+
+void CPicture::show( SDL_Surface * to )
+{
+	if (needRefresh)
+		showAll(to);
 }
 
 void CPicture::showAll( SDL_Surface * to )

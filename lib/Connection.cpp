@@ -13,6 +13,7 @@
 //for smart objs serialization over net
 #include "../lib/CMapInfo.h"
 #include "../StartInfo.h"
+#include "BattleState.h"
 #include "CGameState.h"
 #include "map.h"
 #include "CObjectHandler.h"

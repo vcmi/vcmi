@@ -62,5 +62,5 @@ public:
 		h & ptr;
 	}
 
-	friend CGameHandler;
+	friend class CGameHandler;
 };

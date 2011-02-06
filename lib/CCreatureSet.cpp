@@ -446,7 +446,7 @@ void CStackInstance::setType(const CCreature *c)
 }
 std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 {
-	std::map<TBonusType, std::pair<std::string, std::string>>::iterator it = VLC->creh->stackBonuses.find(bonus->type);
+	std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = VLC->creh->stackBonuses.find(bonus->type);
 	if (it != VLC->creh->stackBonuses.end())
 	{
 		std::string text;

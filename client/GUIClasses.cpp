@@ -14,6 +14,7 @@
 #include "SDL_framerate.h"
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
+#include "CPlayerInterface.h"
 #include "Graphics.h"
 #include "CAnimation.h"
 #include "../lib/CArtHandler.h"
@@ -1640,39 +1641,24 @@ int CTownList::size()
 }
 
 CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
-:c(cre),big(Big)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.x+=x;
 	pos.y+=y;
 	
-	x = 225 - (c->isDoubleWide()?63:78);
-	y = 225 - (big?75:65);
-	
-	anim = new CCreatureAnim(0,0, cre->animDefName);
-	anim->movePic(x,y);
-	anim->pos.w = 100;
-	anim->pos.h = big?130:120;
+	if(Big)
+		bg = new CPicture(graphics->backgrounds[cre->faction],0,0,false);
+	else
+		bg = new CPicture(graphics->backgroundsm[cre->faction],0,0,false);
+	bg->needRefresh = true;
+	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
+	anim->clipRect(cre->doubleWide?170:150, 155, bg->pos.w, bg->pos.h);
+	anim->startPreview();
 }
 
 CCreaturePic::~CCreaturePic()
 {
 	
-}
-
-void CCreaturePic::show(SDL_Surface *to)
-{
-	if(big)
-		blitAtLoc(graphics->backgrounds[c->faction],0,0,to);
-	else
-		blitAtLoc(graphics->backgroundsm[c->faction],0,0,to);
-
-	CIntObject::show(to);
-}
-
-void CCreaturePic::showAll(SDL_Surface *to)
-{
-	show(to);
 }
 
 void CRecruitmentWindow::close()

@@ -207,7 +207,7 @@ static CApplier<CBaseForPGApply> *applier = NULL;
 
 CMenuScreen::CMenuScreen( EState which )
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION;//FIXME: Memory leak in buttons? Images on them definitely were not freed after game start
 	bgAd = NULL;
 
 	switch(which)
@@ -2845,11 +2845,9 @@ void CBonusSelection::updateBonusSelection()
 
 		for(int i = 0; i < bonDescs.size(); i++)
 		{
-			SDL_Surface *notSelected, *selected;
-
 			CDefEssential * de = CDefHandler::giveDefEss(bonDefs[bonDescs[i].type]);
 			SDL_Surface * surfToDuplicate = NULL;
-			bool freeDuplicatedSurface = false;
+			bool createNewRef = true;
 
 			std::string desc;
 			switch(bonDescs[i].type)
@@ -2883,7 +2881,7 @@ void CBonusSelection::updateBonusSelection()
 					std::string bldgBitmapName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
 					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
 
-					freeDuplicatedSurface = true;
+					createNewRef = false;
 				}
 				break;
 			case 3: //artifact
@@ -2997,23 +2995,18 @@ void CBonusSelection::updateBonusSelection()
 
 			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, bonDefs[bonDescs[i].type], i));
 
-			notSelected = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format, surfToDuplicate->flags);
-			selected = SDL_ConvertSurface(notSelected, notSelected->format, notSelected->flags);
-
-			//printing yellow border
+			//create separate surface with yellow border
+			SDL_Surface * selected = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format, surfToDuplicate->flags);
 			blitAt(twcp->ourImages[1].bitmap, 0, 0, selected);
 
-			//moving surfaces into button
-			bonuses->buttons.back()->imgs[0]->clear();
-			bonuses->buttons.back()->imgs[0]->add(notSelected);
-			bonuses->buttons.back()->imgs[0]->add(selected);
+			//replace images on button with new ones
+			delete bonuses->buttons.back()->imgs[0];
+			bonuses->buttons.back()->imgs[0] = new CAnimation();
+			bonuses->buttons.back()->imgs[0]->setCustom(new SDLImage(surfToDuplicate, createNewRef), 0);
+			bonuses->buttons.back()->imgs[0]->setCustom(new SDLImage(selected, false), 1);
 
 			//cleaning
 			delete de;
-			if(freeDuplicatedSurface)
-			{
-				SDL_FreeSurface(surfToDuplicate);
-			}
 		}
 	}
 	if (bonuses->buttons.size() > 0)

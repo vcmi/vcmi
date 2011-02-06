@@ -2,7 +2,7 @@
 #define __CHEROWINDOW_H__
 
 
-#include "CPlayerInterface.h"
+//#include "CPlayerInterface.h"
 
 /*
  * CHeroWindow.h, part of VCMI engine

@@ -444,16 +444,12 @@ public:
 class CCreaturePic : public CIntObject //draws picture with creature on background, use Animated=true to get animation
 {
 private:
-	const CCreature *c; //which creature's picture
-	bool big; //big => 100x130; !big => 100x120
+	CPicture *bg; //background
 	CCreatureAnim *anim; //displayed animation
 	
 public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
 	~CCreaturePic(); //d-tor
-	void show(SDL_Surface *to); //prints creature on screen
-	void showAll(SDL_Surface *to);
-	
 };
 
 class CRecruitmentWindow : public CIntObject

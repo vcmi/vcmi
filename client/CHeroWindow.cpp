@@ -12,6 +12,7 @@
 #include "Graphics.h"
 #include "CSpellWindow.h"
 #include "CConfigHandler.h"
+#include "CPlayerInterface.h"
 #include "../global.h"
 #include "../lib/CArtHandler.h"
 #include "CDefHandler.h"

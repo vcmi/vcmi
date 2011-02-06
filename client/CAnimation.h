@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include <queue>
-#include <set>
+#include <map>
 
 #include "../global.h"
 #include "GUIBase.h"
@@ -22,96 +22,160 @@
  */
 
 struct SDL_Surface;
-struct BMPPalette;
+class SDLImageLoader;
+class CompImageLoader;
 
-//class for def loading, methods are based on CDefHandler
-//after loading will store general info (palette and frame offsets) and pointer to file itself
+/*
+ * class for def loading, methods are based on CDefHandler
+ * after loading will store general info (palette and frame offsets) and pointer to file itself
+ */
 class CDefFile
 {
 private:
 
 	struct SSpriteDef
 	{
-		ui32 prSize;
-		ui32 defType2;
-		ui32 FullWidth;
-		ui32 FullHeight;
-		ui32 SpriteWidth;
-		ui32 SpriteHeight;
-		ui32 LeftMargin;
-		ui32 TopMargin;
+		ui32 size;
+		ui32 format;    /// format in which pixel data is stored
+		ui32 fullWidth; /// full width and height of frame, including borders
+		ui32 fullHeight;
+		ui32 width;     /// width and height of pixel data, borders excluded
+		ui32 height;
+		si32 leftMargin;
+		si32 topMargin;
 	};
-
 	//offset[group][frame] - offset of frame data in file
-	std::vector< std::vector <size_t> > offset;
-
-	//sorted list of offsets used to determine size
-	std::set <size_t> offList;
+	std::map<size_t, std::vector <size_t> > offset;
 
 	unsigned char * data;
-	BMPPalette * colors;
-	int datasize;
-	unsigned int type;
+	SDL_Color * palette;
 
 public:
 	CDefFile(std::string Name);
 	~CDefFile();
 
-	//true if file was opened correctly
-	bool loaded() const;
-
-	//get copy of palette to unpack compressed animation
-	BMPPalette * getPalette();
-
-	//true if frame is present in it
-	bool haveFrame(size_t frame, size_t group) const;
-
-	//get copy of binary data
-	unsigned char * getFrame(size_t frame, size_t group) const;
-
 	//load frame as SDL_Surface
-	SDL_Surface * loadFrame(size_t frame, size_t group) const ;
+	template<class ImageLoader>
+	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
 
-	//static version of previous one for calling from compressed anim
-	static SDL_Surface * loadFrame(const unsigned char * FDef, const BMPPalette * palette);
+	const std::map<size_t, std::vector <size_t> > * getEntries() const;
 };
 
-// Class for handling animation.
+/*
+ * Base class for images, can be used for non-animation pictures as well
+ */
+class IImage
+{
+	int refCount;
+public:
+
+	//draws image on surface "where" at position
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const=0;
+
+	//decrease ref count, returns true if image can be deleted (refCount <= 0)
+	bool decreaseRef();
+	void increaseRef();
+
+	//Change palette to specific player
+	virtual void playerColored(int player)=0;
+	virtual int width() const=0;
+	virtual int height() const=0;
+	IImage();
+	virtual ~IImage() {};
+};
+
+/*
+ * Wrapper around SDL_Surface
+ */
+class SDLImage : public IImage
+{
+public:
+	//Surface without empty borders
+	SDL_Surface * surf;
+	//size of left and top borders
+	Point margins;
+	//total size including borders
+	Point fullSize;
+
+public:
+	//Load image from def file
+	SDLImage(CDefFile *data, size_t frame, size_t group=0, bool compressed=false);
+	//Load from bitmap file
+	SDLImage(std::string filename, bool compressed=false);
+	//Create using existing surface, extraRef will increase refcount on SDL_Surface
+	SDLImage(SDL_Surface * from, bool extraRef);
+	~SDLImage();
+
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const;
+	void playerColored(int player);
+	int width() const;
+	int height() const;
+
+	friend class SDLImageLoader;
+};
+
+/*
+ *  RLE-compressed image data for 8-bit images with alpha-channel, currently far from finished
+ *  primary purpose is not high compression ratio but fast drawing.
+ *  Consist of repeatable segments with format similar to H3 def compression:
+ *  1st byte:
+ *  if (byte == 0xff)
+ *  	raw data, opaque and semi-transparent data always in separate blocks
+ *  else
+ *  	RLE-compressed image data with this color
+ *  2nd byte = size of segment
+ *  raw data (if any)
+ */
+class CompImage : public IImage
+{
+	//x,y - margins, w,h - sprite size
+	Rect sprite;
+	//total size including borders
+	Point fullSize;
+
+	//RLE-d data
+	ui8 * surf;
+	//array of offsets for each line
+	unsigned int * line;
+	//palette
+	SDL_Color *palette;
+
+	//Used internally to blit one block of data
+	template<int bpp>
+	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const;
+	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const;
+
+public:
+	//Load image from def file
+	CompImage(const CDefFile *data, size_t frame, size_t group=0);
+	//TODO: load image from SDL_Surface
+	CompImage(SDL_Surface * surf);
+	~CompImage();
+
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const;
+	void playerColored(int player);
+	int width() const;
+	int height() const;
+
+	friend class CompImageLoader;
+};
+
+/*
+ * Class for handling animation.
+ */
 class CAnimation
 {
 private:
+	//source[group][position] - file with this frame, if string is empty - image located in def file
+	std::map<size_t, std::vector <std::string> > source;
 
-	//internal structure to hold all data of specific frame
-	struct AnimEntry
-	{
-		//surface for this entry
-		SDL_Surface * surf;
-
-		//data for CompressedAnim
-		unsigned char * data;
-
-		//reference count, changed by loadFrame \ unloadFrame
-		size_t refCount;
-
-		//size of compressed data, unused for def files
-		size_t dataSize;
-
-		//bitfield, location of image data: 1 - def, 2 - file#9.*, 4 - file#9#2.*
-		unsigned char source;
-
-		AnimEntry();
-	};
-
-	//palette from def file, used only for compressed anim
-	BMPPalette * defPalette;
-
-	//entries[group][position], store all info regarding frames
-	std::vector< std::vector <AnimEntry> > entries;
+	//bitmap[group][position], store objects with loaded bitmaps
+	std::map<size_t, std::map<size_t, IImage* > > images;
 
 	//animation file name
 	std::string name;
 
-	//if true all frames will be stored in compressed state
+	//if true all frames will be stored in compressed (RLE) state
 	const bool compressed;
 
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
@@ -119,9 +183,6 @@ private:
 
 	//unloadFrame, returns true if image has been unloaded ( either deleted or decreased refCount)
 	bool unloadFrame(size_t frame, size_t group);
-
-	//decompress entry data
-	void decompress(AnimEntry &entry);
 
 	//initialize animation from file
 	void init(CDefFile * file);
@@ -138,21 +199,12 @@ public:
 	CAnimation();
 	~CAnimation();
 
-	//add custom surface to the end of specific group. If shared==true surface needs to be deleted
-	//somewhere outside of CAnim as well (SDL_Surface::refcount will be increased)
-	void add(SDL_Surface * surf, bool shared=false, size_t group=0);
+	//add custom surface to the selected position.
+	//Known issue: IImage should not be used in another CAnimation (results in crash othervice)
+	void setCustom(IImage * newImage, size_t frame, size_t group=0);
 
-	//removes all surfaces which have compressed data
-	void removeDecompressed(size_t frame, size_t group);
-
-	//get pointer to surface, this function ignores groups (like ourImages in DefHandler)
-	SDL_Surface * image (size_t frame);
-
-	//get pointer to surface, from specific group
-	SDL_Surface * image(size_t frame, size_t group);
-
-	//removes all frames as well as their entries
-	void clear();
+	//get pointer to image from specific group, NULL if not found
+	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
 
 	//all available frames
 	void load  ();
@@ -166,26 +218,22 @@ public:
 	void load  (size_t frame, size_t group=0);
 	void unload(size_t frame, size_t group=0);
 
-	//list of frames (first = group ID, second = frame ID)
-	void load  (std::vector <std::pair <size_t, size_t> > frames);
-	void unload(std::vector <std::pair <size_t, size_t> > frames);
-
 	//helper to fix frame order on some buttons
 	void fixButtonPos();
 
-	//size of specific group, 0 if not present
-	size_t groupSize(size_t group) const;
-
-	//total count of frames in whole anim
-	size_t size() const;
+	//total count of frames in group (including not loaded)
+	size_t size(size_t group=0) const;
 };
+
 /*
-//Class for displaying one image from animation
+ * Class for displaying one image from animation
+ */
 class CAnimImage: public CIntObject
 {
 private:
 	CAnimation anim;
-	size_t frame;//displayed frame/group
+	//displayed frame/group
+	size_t frame;
 	size_t group;
 
 public:
@@ -194,38 +242,37 @@ public:
 
 	//change displayed frame on this one
 	void setFrame(size_t Frame, size_t Group=0);
-	void show(SDL_Surface *to);
-	//TODO: showAll();
+	void showAll(SDL_Surface *to);
 };
-*/
-//Base class for displaying animation, used as superclass for different animations
+
+/*
+ * Base class for displaying animation, used as superclass for different animations
+ */
 class CShowableAnim: public CIntObject
 {
 public:
 	enum EFlags
 	{
-		FLAG_BASE=1,       //base frame will be blitted before current one
-		FLAG_COMPRESSED=2, //animations will be loaded in compressed state
-		FLAG_ROTATED=4,    //will be displayed rotated
-		FLAG_ALPHA=8,      //if image is 8bbp it will be printed with transparency (0=opaque, 255=transparent)
-		FLAG_USERLE=16,    //not used for now, enable RLE compression from SDL
-		FLAG_PREVIEW=32    //for creatures only: several animation (move, attack, defence...) will be randomly selected
+		BASE=1,            //base frame will be blitted before current one
+		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
+		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
+		USE_RLE=8,         //RLE-d version, support full alpha-channel for 8-bit images
 	};
-
 protected:
 	CAnimation anim;
+
 	size_t group, frame;//current frame
 
 	size_t first, last; //animation range
 
-	unsigned char flags;//flags from EFlags enum
-
+	//TODO: replace with time delay(needed for battles)
 	unsigned int frameDelay;//delay in frames of each image
-
 	unsigned int value;//how many times current frame was showed
 
+	unsigned char flags;//Flags from EFlags enum
+
 	//blit image with optional rotation, fitting into rect, etc
-	void blitImage(SDL_Surface *what, SDL_Surface *to);
+	void blitImage(size_t frame, size_t group, SDL_Surface *to);
 
 	//For clipping in rect, offsets of picture coordinates
 	int xOffset, yOffset;
@@ -234,18 +281,18 @@ public:
 	//called when next animation sequence is required
 	boost::function<void()> callback;
 
-	CShowableAnim(int x, int y, std::string name, unsigned char flags, unsigned int Delay=4, size_t Group=0);
+	CShowableAnim(int x, int y, std::string name, unsigned char flags=0, unsigned int Delay=4, size_t Group=0);
 	~CShowableAnim();
 
 	//set animation to group or part of group
 	bool set(size_t Group);
 	bool set(size_t Group, size_t from, size_t to=-1);
 
-	//set rotation flag
-	void rotate(bool on);
+	//set rotation flags
+	void rotate(bool on, bool vertical=false);
 
 	//move displayed part of picture (if picture is clipped to rect)
-	void movePic( int byX, int byY);
+	void clipRect(int posX, int posY, int width, int height);
 
 	//set frame to first, call callback
 	virtual void reset();
@@ -255,41 +302,44 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
+/*
+ *
+ */
 class CCreatureAnim: public CShowableAnim
 {
 public:
 
 	enum EAnimType // list of creature animations, numbers were taken from def files
 	{
-		ANIM_MOVING=0, //will automatically add MOVE_START and MOVE_END to queue
-		ANIM_MOUSEON=1,
-		ANIM_HOLDING=2,
-		ANIM_HITTED=3,
-		ANIM_DEFENCE=4,
-		ANIM_DEATH=5,
-		//ANIM_DEATH2=6, //unused?
-		ANIM_TURN_L=7, //will automatically play second part of anim and rotate creature
-		ANIM_TURN_R=8, //same
-		//ANIM_TURN_L2=9, //identical to previous?
-		//ANIM_TURN_R2=10,
-		ANIM_ATTACK_UP=11,
-		ANIM_ATTACK_FRONT=12,
-		ANIM_ATTACK_DOWN=13,
-		ANIM_SHOOT_UP=14,
-		ANIM_SHOOT_FRONT=15,
-		ANIM_SHOOT_DOWN=16,
-		ANIM_CAST_UP=17,
-		ANIM_CAST_FRONT=18,
-		ANIM_CAST_DOWN=19,
-		ANIM_2HEX_ATTACK_UP=17,
-		ANIM_2HEX_ATTACK_FRONT=18,
-		ANIM_2HEX_ATTACK_DOWN=19,
-		ANIM_MOVE_START=20, //no need to use this two directly - ANIM_MOVING will be enought
-		ANIM_MOVE_END=21
+		MOVING=0, //will automatically add MOVE_START and MOVE_END to queue
+		MOUSEON=1,
+		HOLDING=2,
+		HITTED=3,
+		DEFENCE=4,
+		DEATH=5,
+		//DEATH2=6, //unused?
+		TURN_L=7, //will automatically play second part of anim and rotate creature
+		TURN_R=8, //same
+		//TURN_L2=9, //identical to previous?
+		//TURN_R2=10,
+		ATTACK_UP=11,
+		ATTACK_FRONT=12,
+		ATTACK_DOWN=13,
+		SHOOT_UP=14,
+		SHOOT_FRONT=15,
+		SHOOT_DOWN=16,
+		CAST_UP=17,
+		CAST_FRONT=18,
+		CAST_DOWN=19,
+		DHEX_ATTACK_UP=17,
+		DHEX_ATTACK_FRONT=18,
+		DHEX_ATTACK_DOWN=19,
+		MOVE_START=20, //no need to use this two directly - MOVING will be enought
+		MOVE_END=21
 	};
 
 private:
-	// queue of animations waiting to be displayed
+	//queue of animations waiting to be displayed
 	std::queue<EAnimType> queue;
 
 	//this funcction is used as callback if preview flag was set during construction
@@ -302,11 +352,13 @@ public:
 	//add sequence to the end of queue
 	void addLast(EAnimType newType);
 
+	void startPreview();
+
 	//clear queue and set animation to this sequence
 	void clearAndSet(EAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, unsigned char flags=FLAG_COMPRESSED | FLAG_ALPHA | FLAG_PREVIEW,
-	              EAnimType type=ANIM_HOLDING);
+	CCreatureAnim(int x, int y, std::string name, Rect picPos,
+	              unsigned char flags= USE_RLE, EAnimType = HOLDING );
 
 };
 

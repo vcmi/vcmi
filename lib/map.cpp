@@ -518,7 +518,7 @@ Mapa::~Mapa()
 		delete [] terrain;
 	}
 	for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
-		delete *i;
+		i->dellNull();
 }
 
 CGHeroInstance * Mapa::getHero(int ID, int mode)

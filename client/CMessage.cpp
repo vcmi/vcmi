@@ -61,6 +61,8 @@ void CMessage::init()
 	{
 		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
+			//FIXME: memory leak. Use SDL_Surface::refcount++ for each required surface
+			//that should not be deleted by CDefHandler destructor
 			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			std::vector<SDL_Surface *> n;
 			piecesOfBox.push_back(n);
@@ -417,7 +419,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 		// Compute total width of buttons
 		bw = 20*(ret->buttons.size()-1); // space between all buttons
 		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
-			bw+=ret->buttons[i]->imgs[0]->image(0)->w; 
+			bw+=ret->buttons[i]->imgs[0]->getImage(0)->width(); 
 		winSize.second += 20 + //before button
 		ok->ourImages[0].bitmap->h; //button	
 	}
@@ -454,13 +456,13 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	{
 		// Position the buttons at the bottom of the window
 		bw = (ret->bitmap->w/2) - (bw/2);
-		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0]->image(0)->h;
+		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0]->getImage(0)->height();
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
 			ret->buttons[i]->pos.x = bw + ret->pos.x;
 			ret->buttons[i]->pos.y = curh + ret->pos.y;
-			bw += ret->buttons[i]->imgs[0]->image(0)->w + 20;
+			bw += ret->buttons[i]->imgs[0]->getImage(0)->width() + 20;
 		}
 	}
 	for(size_t i=0; i<ret->components.size(); i++)
@@ -553,7 +555,7 @@ ComponentsToBlit::~ComponentsToBlit()
 ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, SDL_Surface* _or)
 {
 	w = h = 0;
-	if(!SComps.size())
+	if(SComps.empty())
 		return;
 
 	comps.resize(1);

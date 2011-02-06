@@ -52,13 +52,13 @@ void CButtonBase::show(SDL_Surface * to)
 	int img = std::min(state+bitmapOffset,int(imgs[curimg]->size()-1));
 	img = std::max(0, img);
 
-	SDL_Surface *toBlit = imgs[curimg]->image(img);
+	IImage *toBlit = imgs[curimg]->getImage(img);
 
 	if (abs)
 	{
 		if(toBlit)
 		{
-			blitAt(toBlit,pos.x,pos.y,to);
+			toBlit->draw(to, pos.x, pos.y);
 		}
 		else
 		{
@@ -72,7 +72,7 @@ void CButtonBase::show(SDL_Surface * to)
 	}
 	else
 	{
-		blitAt(toBlit,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+		toBlit->draw(to, pos.x+ourObj->pos.x,pos.y+ourObj->pos.y);
 	}
 }
 
@@ -239,8 +239,8 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 
 	pos.x += x;
 	pos.y += y;
-	pos.w = imgs[curimg]->image(0)->w;
-	pos.h = imgs[curimg]->image(0)->h  -1;
+	pos.w = imgs[curimg]->getImage(0)->width();
+	pos.h = imgs[curimg]->getImage(0)->height() -1;
 }
 
 void AdventureMapButton::block( ui8 on )
@@ -269,7 +269,7 @@ void AdventureMapButton::setPlayerColor(int player)
 	for(size_t i =0; i<imgs.size();i++)
 		for(size_t j=0;j<imgs[i]->size();j++)
 		{
-			graphics->blueToPlayersAdv(imgs[i]->image(j),player);
+			imgs[i]->getImage(j)->playerColored(player);
 		}
 }
 
@@ -599,20 +599,19 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 
 	if(style == 0)
 	{
-		CAnimation * pics = new CAnimation(horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF");
-		pics->load();
+		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
 		
-		left->imgs.push_back(new CAnimation());
-		right->imgs.push_back(new CAnimation());
-		slider->imgs.push_back(new CAnimation());
-		
-		left->imgs.back()->add(pics->image(0), true);
-		left->imgs.back()->add(pics->image(1), true);
-		right->imgs.back()->add(pics->image(2), true);
-		right->imgs.back()->add(pics->image(3), true);
-		slider->imgs.back()->add(pics->image(4), true);
-		
-		delete pics;
+		left->imgs.push_back(new CAnimation(name));
+		left->imgs.back()->load();
+		left->bitmapOffset = 0;
+
+		right->imgs.push_back(new CAnimation(name));
+		right->imgs.back()->load();
+		right->bitmapOffset = 2;
+
+		slider->imgs.push_back(new CAnimation(name));
+		slider->imgs.back()->load();
+		slider->bitmapOffset = 4;
 	}
 	else
 	{

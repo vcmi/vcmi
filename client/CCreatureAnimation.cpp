@@ -240,7 +240,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB ))
 						{
 							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
-							putPixel<bpp>(dest, xB + yB*dest->w, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
+							putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
 						}
 					}
 					ftcp++; //increment pos
@@ -300,7 +300,8 @@ CCreatureAnimation::~CCreatureAnimation()
 template<int bpp>
 inline void CCreatureAnimation::putPixel(
 	SDL_Surface * dest,
-	const int & ftcp,
+	const int & ftcpX,
+	const int & ftcpY,
 	const BMPPalette & color,
 	const unsigned char & palc,
 	const bool & yellowBorder,
@@ -310,7 +311,7 @@ inline void CCreatureAnimation::putPixel(
 {	
 	if(palc!=0)
 	{
-		Uint8 * p = (Uint8*)dest->pixels + ftcp*dest->format->BytesPerPixel;
+		Uint8 * p = (Uint8*)dest->pixels + ftcpX*dest->format->BytesPerPixel + ftcpY*dest->pitch;
 		if(palc > 7) //normal color
 		{
 			ColorPutter<bpp, 0>::PutColor(p, color.R, color.G, color.B);
@@ -332,9 +333,8 @@ inline void CCreatureAnimation::putPixel(
 		else //shadow
 		{
 			//determining transparency value, 255 or 0 should be already filtered
-			Uint16 alpha;
 			static Uint16 colToAlpha[8] = {255,192,128,128,128,255,128,192};
-			alpha = colToAlpha[palc];
+			Uint16 alpha = colToAlpha[palc];
 
 			if(bpp != 3 && bpp != 4)
 			{

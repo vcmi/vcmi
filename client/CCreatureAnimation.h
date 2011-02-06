@@ -49,7 +49,8 @@ private:
 	template<int bpp>
 	void putPixel(
                 SDL_Surface * dest,
-                const int & ftcp,
+                const int & ftcpX,
+                const int & ftcpY,
                 const BMPPalette & color,
                 const unsigned char & palc,
                 const bool & yellowBorder,

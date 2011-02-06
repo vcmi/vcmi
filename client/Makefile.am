@@ -1,44 +1,23 @@
 bin_PROGRAMS = vcmiclient
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@
 vcmiclient_CXXFLAGS = @SDL_CXXFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
-	../AI_Base.h \
 	../CCallback.cpp \
 	../CCallback.h \
+	../CConsoleHandler.cpp \
+	../CConsoleHandler.h \
 	../CGameInterface.cpp \
 	../CGameInterface.h \
 	../CThreadHelper.cpp \
 	../CThreadHelper.h \
-	../StartInfo.h \
-	../global.h \
-	../hch/CBuildingHandler.h \
-	../hch/CDefHandler.cpp \
-	../hch/CDefHandler.h \
-	../hch/CHeroHandler.h \
-	../hch/CMusicBase.h \
-	../hch/CMusicHandler.cpp \
-	../hch/CMusicHandler.h \
-	../hch/CObjectHandler.h \
-	../hch/CSndHandler.cpp \
-	../hch/CSndHandler.h \
-	../hch/CSoundBase.h \
-	../hch/CVideoHandler.cpp \
-	../hch/CVideoHandler.h \
-	../lib/CMapInfo.cpp \
-	../lib/CMapInfo.h \
-	../int3.h \
-	../nodrze.h \
-	../stdafx.h \
-	../tchar_amigaos4.h \
-	../timeHandler.h \
 	AdventureMapButton.cpp \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
-	CAnimation.h \
 	CAnimation.cpp \
+	CAnimation.h \
 	CBattleInterface.cpp \
 	CBattleInterface.h \
 	CBitmapHandler.cpp \
@@ -51,35 +30,45 @@ vcmiclient_SOURCES =  \
 	CCreatureAnimation.h \
 	CCursorHandler.cpp \
 	CCursorHandler.h \
+	CDefHandler.cpp \
+	CDefHandler.h \
 	CGameInfo.cpp \
 	CGameInfo.h \
 	CHeroWindow.cpp \
 	CHeroWindow.h \
 	CKingdomInterface.cpp \
 	CKingdomInterface.h \
-	CMT.cpp \
+	Client.cpp \
+	Client.h \
 	CMessage.cpp \
 	CMessage.h \
+	CMT.cpp \
+	CMusicBase.h \
+	CMusicHandler.cpp \
+	CMusicHandler.h \
 	CPlayerInterface.cpp \
 	CPlayerInterface.h \
 	CPreGame.cpp \
 	CPreGame.h \
+	CSndHandler.cpp \
+	CSndHandler.h \
+	CSoundBase.h \
 	CSpellWindow.cpp \
 	CSpellWindow.h \
-	Client.cpp \
-	Client.h \
+	CVideoHandler.cpp \
+	CVideoHandler.h \
 	FontBase.h \
 	FunctionList.h \
+	Graphics.cpp \
+	Graphics.h \
 	GUIBase.cpp \
 	GUIBase.h \
 	GUIClasses.cpp \
 	GUIClasses.h \
-	Graphics.cpp \
-	Graphics.h \
+	mapHandler.cpp \
+	mapHandler.h \
 	NetPacksClient.cpp \
 	SDL_Extensions.cpp \
 	SDL_Extensions.h \
 	SDL_framerate.cpp \
-	SDL_framerate.h \
-	mapHandler.cpp \
-	mapHandler.h
+	SDL_framerate.h

@@ -144,5 +144,5 @@ CDefObjInfoHandler::~CDefObjInfoHandler()
 {
 	for(bmap<int,bmap<int, ConstTransitivePtr<CGDefInfo> > >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
 		for(bmap<int, ConstTransitivePtr<CGDefInfo> >::iterator j=i->second.begin(); j!=i->second.end(); j++)
-			delete j->second;
+			j->second.dellNull();
 }

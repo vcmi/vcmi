@@ -73,11 +73,13 @@ struct Entry
 	Entry(std::string con): name(con){};
 	Entry(){};
 };
-
+namespace boost
+{
 template<>
-struct boost::hash<Entry> : public std::unary_function<Entry, std::size_t> {
+struct hash<Entry> : public std::unary_function<Entry, std::size_t>
+{
 private:
-	boost::hash<std::string> stringHasher;
+	hash<std::string> stringHasher;
 public:
 	std::size_t operator()(Entry const& en) const
 	{
@@ -85,6 +87,8 @@ public:
 		return stringHasher(en.name);
 	}
 };
+
+}
 
 class DLL_EXPORT CLodHandler
 {
