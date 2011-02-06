@@ -16,12 +16,15 @@
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/any.hpp>
+
+#include "ConstTransitivePtr.h"
 
 const ui32 version = 727;
 class CConnection;
@@ -232,10 +235,10 @@ struct SerializationLevel
 template <typename T>
 struct VectorisedObjectInfo
 {
-	const std::vector<T*> *vector;	//pointer to the appropriate vector
+	const std::vector<ConstTransitivePtr<T> > *vector;	//pointer to the appropriate vector
 	const si32 T::*idPtr;			//pointer to the field representing the position in the vector
 
-	VectorisedObjectInfo(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
 		:vector(Vector), idPtr(IdPtr)
 	{
 	}
@@ -256,6 +259,11 @@ public:
 
 	template <typename T>
 	void registerVectoredType(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	{
+		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
+	}
+	template <typename T>
+	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
 	{
 		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
 	}
@@ -290,7 +298,7 @@ public:
 
 		assert(oInfo.vector);
 		assert(oInfo.vector->size() > id);
-		return (*oInfo.vector)[id];
+		return const_cast<T*>((*oInfo.vector)[id].get());
 	}
 
 	template <typename T>
@@ -413,10 +421,13 @@ public:
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;
  			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
  			{
- 				*this << getIdFromVectorItem<VType>(*info, data);
- 				return;
+				si32 id = getIdFromVectorItem<VType>(*info, data);
+				*this << id;
+				if(id != -1) //vector id is enough
+ 					return;
  			}
  		}
+
 
 		if(smartPointerSerialization)
 		{
@@ -488,6 +499,12 @@ public:
 		const_cast<T&>(data).serialize(*this,version);
 	}
 	template <typename T>
+	void saveSerializable(const boost::shared_ptr<T> &data)
+	{
+		T *internalPtr = data.get();
+		*this << internalPtr;
+	}
+	template <typename T>
 	void saveSerializable(const std::vector<T> &data)
 	{
 		boost::uint32_t length = data.size();
@@ -502,6 +519,15 @@ public:
 		boost::uint32_t length = d.size();
 		*this << length;
 		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
+			*this << *i;
+	}
+	template <typename T, typename U>
+	void saveSerializable(const boost::unordered_set<T, U> &data)
+	{
+		boost::unordered_set<T, U> &d = const_cast<boost::unordered_set<T, U> &>(data);
+		boost::uint32_t length = d.size();
+		*this << length;
+		for(typename boost::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
 	template <typename T>
@@ -673,10 +699,13 @@ public:
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
 			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
 			{
-				ui32 id;
+				si32 id;
 				*this >> id;
-				data = static_cast<T>(getVectorItemFromId(*info, id));
-				return;
+				if(id != -1)
+				{
+					data = static_cast<T>(getVectorItemFromId(*info, id));
+					return;
+				}
 			}
 		}
 
@@ -736,6 +765,13 @@ public:
 
 
 	template <typename T>
+	void loadSerializable(boost::shared_ptr<T> &data)
+	{
+		T *internalPtr;
+		*this >> internalPtr;
+		data.reset(internalPtr);
+	}
+	template <typename T>
 	void loadSerializable(std::vector<T> &data)
 	{
 		READ_CHECK_U32(length);
@@ -745,6 +781,17 @@ public:
 	}
 	template <typename T>
 	void loadSerializable(std::set<T> &data)
+	{
+		READ_CHECK_U32(length);
+		T ins;
+		for(ui32 i=0;i<length;i++)
+		{
+			*this >> ins;
+			data.insert(ins);
+		}
+	}
+	template <typename T, typename U>
+	void loadSerializable(boost::unordered_set<T, U> &data)
 	{
 		READ_CHECK_U32(length);
 		T ins;
@@ -896,5 +943,7 @@ public:
 	}
 
 };
+
+#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving) deserializationFix();
 
 #endif // __CONNECTION_H__

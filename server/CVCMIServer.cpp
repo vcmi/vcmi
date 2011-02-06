@@ -1,35 +1,28 @@
-#include "../hch/CCampaignHandler.h"
-#include <iostream>
-#include <string>
-#include <boost/asio.hpp>
+#include "stdafx.h"
+#include "../lib/CCampaignHandler.h"
 #include "../global.h"
 #include "../lib/Connection.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "zlib.h"
 #ifndef __GNUC__
 #include <tchar.h>
 #endif
 #include "CVCMIServer.h"
-#include <boost/crc.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
 #include "../StartInfo.h"
 #include "../lib/map.h"
-#include "../hch/CLodHandler.h" 
+#include "../lib/CLodHandler.h" 
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
-#include <boost/thread.hpp>
-#include <boost/foreach.hpp>
 #include "../lib/CMapInfo.h"
 
 std::string NAME_AFFIX = "server";

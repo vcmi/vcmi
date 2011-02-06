@@ -25,6 +25,8 @@
  *
  */
 
+struct ArtifactLocation;
+class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
 class CDefEssential;
@@ -67,6 +69,7 @@ class CGGarrison;
 class CStackInstance;
 class IMarket;
 class CTextBox;
+class CArtifactInstance;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -127,6 +130,7 @@ public:
 	bool delInner;
 
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CRClickPopupInt(IShowActivable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
@@ -167,7 +171,7 @@ public:
 	void init(Etype Type, int Subtype, int Val);
 	SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
 	SComponent(const Component &c); //c-tor
-	SComponent(){}; //c-tor
+	SComponent();; //c-tor
 	virtual ~SComponent(); //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
@@ -212,7 +216,7 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
 	~CGarrisonSlot(); //d-tor
 };
@@ -233,14 +237,16 @@ public:
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
 	     twoRows,//slots will be placed in 2 rows
-		 ourUp,ourDown;//player owns up or down army
+		 owned[2];//player owns up or down army [0] upper, [1] lower
 
-	const CCreatureSet *set1; //top set of creatures
-	const CCreatureSet *set2; //bottom set of creatures
+// 	const CCreatureSet *set1; //top set of creatures
+// 	const CCreatureSet *set2; //bottom set of creatures
 
 	std::vector<CGarrisonSlot*> slotsUp, slotsDown; //slots of upper and lower garrison
-	const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
+	const CArmedInstance *armedObjs[2]; //[0] is upper, [1] is down
+	//const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
+	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(AdventureMapButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
 	
@@ -577,12 +583,21 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-class CTradeWindow : public CIntObject //base for markets and altar of sacrifice
+class CWindowWithArtifacts : public virtual CIntObject
+{
+public:
+	std::vector<CArtifactsOfHero *> artSets;
+
+	CWindowWithArtifacts();
+	~CWindowWithArtifacts();
+};
+
+class CTradeWindow : public CWindowWithArtifacts //base for markets and altar of sacrifice
 {
 public:
 	enum EType
 	{
-		RESOURCE, PLAYER, ARTIFACT, CREATURE, CREATURE_PLACEHOLDER,ARTIFACT_PLACEHOLDER
+		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
 	};
 	class CTradeableItem : public CIntObject
 	{
@@ -592,6 +607,12 @@ public:
 		int serial;
 		bool left;
 		std::string subtitle; //empty if default
+
+		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact 
+		const CArtifactInstance *getArtInstance() const;
+// 		const CArtifact *getArt() const;
+// 		void setArtInstance(const CArtifactInstance *art) const;
+// 		void setArt(const CArtifact *artT) const;
 
 		CFunctionList<void()> callback;
 		bool downSelection;
@@ -691,7 +712,7 @@ public:
 	void SacrificeBackpack();
 
 	void putOnAltar(int backpackIndex);
-	bool putOnAltar(CTradeableItem* altarSlot, int artID);
+	bool putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art);
 	void makeDeal();
 	void showAll(SDL_Surface * to);
 
@@ -710,7 +731,7 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, int artID);
+	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
 };
 
 class CSystemOptionsWindow : public CIntObject
@@ -815,7 +836,9 @@ public:
 	std::string text;
 
 	LRClickableAreaWText();
+	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
 	virtual ~LRClickableAreaWText();
+	void init();
 
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
@@ -827,6 +850,8 @@ public:
 	int baseType;
 	int bonusValue, type;
 	virtual void clickLeft(tribool down, bool previousState);
+
+	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
@@ -837,7 +862,7 @@ public:
 	void set(const CBonusSystemNode *node);
 	void showAll(SDL_Surface * to);
 
-	MoraleLuckBox(bool Morale);
+	MoraleLuckBox(bool Morale, const Rect &r);
 	~MoraleLuckBox();
 };
 
@@ -861,6 +886,7 @@ public:
 	const CGTownInstance * town;
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
+	LRClickableAreaOpenTown();
 };
 
 class CCreInfoWindow : public CIntObject
@@ -880,8 +906,9 @@ public:
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	CCreInfoWindow(const CStackInstance &st, int Type = 0, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
+	CCreInfoWindow(const CStack &st, int Type = 0); //c-tor
 	CCreInfoWindow(int Cid, int Type, int creatureCount); //c-tor
-	void init(const CCreature *cre, const CStackInstance *stack, int creatureCount);
+	void init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	~CCreInfoWindow(); //d-tor
 	void activate();
@@ -896,13 +923,15 @@ public:
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:
-	ui16 slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
+	int slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
+	bool picked;
 	bool marked;
-	bool selectedNo;
+	bool locked;
 	CArtifactsOfHero * ourOwner;
-	const CArtifact * ourArt;
-	CArtPlace(const CArtifact * Art); //c-tor
+	const CArtifactInstance * ourArt;
+
+	CArtPlace(const CArtifactInstance * Art); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void select ();
@@ -910,15 +939,17 @@ public:
 	void activate();
 	void deactivate();
 	void showAll(SDL_Surface * to);
-	bool fitsHere (const CArtifact * art) const; //returns true if given artifact can be placed here
-	bool locked () const;
-	void userSelectedNo ();
+	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
+
+	void setMeAsDest(bool backpackAsVoid = true);
+	void setArtifact(const CArtifactInstance *art);
+
 	~CArtPlace(); //d-tor
 };
 
 class CArtifactsOfHero : public CIntObject
 {
-	CGHeroInstance * curHero; //local copy of hero on which we operate
+	const CGHeroInstance * curHero; //local copy of hero on which we operate
 
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
@@ -927,13 +958,20 @@ class CArtifactsOfHero : public CIntObject
 public:
 	struct SCommonPart
 	{
+		struct Artpos
+		{
+			int slotID;
+			const CArtifactsOfHero * AOH;
+			const CArtifactInstance *art;
+
+			Artpos();
+			void clear();
+			void setTo(const CArtPlace *place, bool dontTakeBackpack);
+			bool valid();
+			bool operator==(const ArtifactLocation &al) const;
+		} src, dst;
+
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
-		const CArtifact * srcArtifact;    // Held artifact.
-		const CArtifactsOfHero * srcAOH;  // Following two needed to uniquely identify the source.
-		int srcSlotID;                    //
-		const CArtifactsOfHero * destAOH; // For swapping. (i.e. changing what is held)
-		int destSlotID;	                  // Needed to determine what kind of action was last taken in setHero
-		const CArtifact * destArtifact;   // For swapping.
 
 		void reset();
 	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
@@ -942,19 +980,26 @@ public:
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
-	std::multiset<int> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
+	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
+
+	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactAssembled(const ArtifactLocation &al);
+	void artifactDisassembled(const ArtifactLocation &al);
+	CArtPlace *getArtPlace(int slot);
 
 	void setHero(const CGHeroInstance * hero);
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
 
 	void safeRedraw();
-	void markPossibleSlots (const CArtifact* art);
+	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true);
 	void setSlotData (CArtPlace* artPlace, int slotID);
+	void updateWornSlots ();
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
-	CArtifactsOfHero(const Point& position); //c-tor
+	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;
@@ -963,19 +1008,16 @@ public:
 class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
-	SDL_Surface *bg; //background surface
+	CPicture *bg; //background surface
 	AdventureMapButton *quit;
 
 	void close();
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to){show(to);};
+	void showAll(SDL_Surface * to);
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
 	~CGarrisonWindow(); //d-tor
 };
 
-class CExchangeWindow : public CWindowWithGarrison
+class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 {
 	CStatusBar * ourBar; //internal statusbar
 
@@ -1033,7 +1075,7 @@ private:
 	AdventureMapButton * quitb;
 	CResDataBar * resdatabar;
 
-	std::vector<std::pair<SDL_Surface *, SPuzzleInfo *> > puzzlesToPullBack;
+	std::vector<std::pair<SDL_Surface *, const SPuzzleInfo *> > puzzlesToPullBack;
 	ui8 animCount;
 
 public:

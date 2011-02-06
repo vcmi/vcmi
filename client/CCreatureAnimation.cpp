@@ -1,5 +1,5 @@
 #include "CCreatureAnimation.h"
-#include "../hch/CLodHandler.h"
+#include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <assert.h>
 #include "SDL_Extensions.h"

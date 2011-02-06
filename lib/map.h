@@ -10,9 +10,11 @@
 #include <list>
 #include "../global.h"
 #ifndef _MSC_VER
-#include "../hch/CObjectHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "CObjectHandler.h"
+#include "CDefObjInfoHandler.h"
 #endif
+
+#include "ConstTransitivePtr.h"
 
 /*
  * map.h, part of VCMI engine
@@ -24,6 +26,7 @@
  *
  */
 
+class CArtifactInstance;
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -270,22 +273,22 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	TerrainTile*** terrain; 
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
-	std::vector<CGHeroInstance*> predefinedHeroes;
-	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
+	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
+	std::vector<ConstTransitivePtr<CGDefInfo> > defy; // list of .def files with definitions from .h3m (may be custom)
 	std::vector<ui8> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
-	std::list<CMapEvent*> events;
+	std::list<ConstTransitivePtr<CMapEvent> > events;
 
 	int3 grailPos;
 	int grailRadious;
 
-	std::vector<CGObjectInstance*> objects;
-	std::vector<CGHeroInstance*> heroes;
-	std::vector<CGTownInstance*> towns;
-	std::vector<IModableArt *> artInstances; //stores single scrolls
-	std::map<ui16, CGCreature*> monsters;
-	std::map<ui16, CGHeroInstance*> heroesToBeat;
+	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
+	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
+	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
+	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
+	bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
+	bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
 
 	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 
@@ -297,12 +300,17 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void readPredefinedHeroes( const unsigned char * bufor, int &i);
 	void readHeader( const unsigned char * bufor, int &i);
 	void readRumors( const unsigned char * bufor, int &i);
-	void loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i);
+	CGObjectInstance *loadHero(const unsigned char * bufor, int &i);
+	void loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInstance * nhi);
+	bool loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
-	void checkForObjectives();
+	CArtifactInstance *createArt(int aid);
+	void addNewArtifactInstance(CArtifactInstance *art);
+	void eraseArtifactInstance(CArtifactInstance *art);
 
+	void checkForObjectives();
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);
 	Mapa(std::string filename); //creates map structure from .h3m file
@@ -318,7 +326,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
-		h & monsters & heroesToBeat & artInstances; //hopefully serialization is now automagical?
+		h & monsters;
+		h & heroesToBeat;
+		h & artInstances; //hopefully serialization is now automagical?
 
 		//TODO: viccondetails
 		if(h.saving)
@@ -413,9 +423,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			{
 				if(!objects[i]) continue;
 				if(objects[i]->ID == HEROI_TYPE)
-					heroes.push_back(static_cast<CGHeroInstance*>(objects[i]));
+					heroes.push_back(static_cast<CGHeroInstance*>(+objects[i]));
 				else if(objects[i]->ID == TOWNI_TYPE)
-					towns.push_back(static_cast<CGTownInstance*>(objects[i]));
+					towns.push_back(static_cast<CGTownInstance*>(+objects[i]));
 
 				addBlockVisTiles(objects[i]); //recreate blockvis map
 			}

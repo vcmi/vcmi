@@ -144,30 +144,12 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 
-	//loading ERMU to picture
-	std::ifstream etp(DATA_DIR "/config/ERMU_to_picture.txt");
-
-	assert(etp.is_open());
-
-	for(int g=0; g<44; ++g)
-	{
-		for (int b=0; b<ARRAY_COUNT(ERMUtoPicture); ++b)
-		{
-			std::string buf;
-			etp >> buf;
-			ERMUtoPicture[b][g] = buf;
-		}
-	}
-
-	etp.close();
-
-
 }
 
 CBuildingHandler::~CBuildingHandler()
 {
-	for(std::vector< std::map<int, CBuilding*> >::iterator i=buildings.begin(); i!=buildings.end(); i++)
-		for(std::map<int, CBuilding*>::iterator j=i->begin(); j!=i->end(); j++)
+	for(std::vector< bmap<int, ConstTransitivePtr<CBuilding> > >::iterator i=buildings.begin(); i!=buildings.end(); i++)
+		for(std::map<int, ConstTransitivePtr<CBuilding> >::iterator j=i->begin(); j!=i->end(); j++)
 			delete j->second;
 }
 

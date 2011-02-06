@@ -1,10 +1,10 @@
 #include "CSpellWindow.h"
 #include "Graphics.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CVideoHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "CVideoHandler.h"
 #include "CAdvmapInterface.h"
 #include "CBattleInterface.h"
 #include "CGameInfo.h"
@@ -79,7 +79,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 	//initializing castable spells
 	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
 	{
-		if( !CGI->spellh->spells[v].creatureAbility && myHero->canCastThisSpell(&CGI->spellh->spells[v]) )
+		if( !CGI->spellh->spells[v]->creatureAbility && myHero->canCastThisSpell(CGI->spellh->spells[v]) )
 			mySpells.insert(v);
 	}
 
@@ -91,7 +91,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 
 	for(std::set<ui32>::const_iterator g = mySpells.begin(); g!=mySpells.end(); ++g)
 	{
-		const CSpell &s = CGI->spellh->spells[*g];
+		const CSpell &s = *CGI->spellh->spells[*g];
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
@@ -355,8 +355,8 @@ class SpellbookSpellSorter
 public:
 	bool operator()(const int & a, const int & b)
 	{
-		CSpell A = CGI->spellh->spells[a];
-		CSpell B = CGI->spellh->spells[b];
+		const CSpell & A = *CGI->spellh->spells[a];
+		const CSpell & B = *CGI->spellh->spells[b];
 		if(A.level<B.level)
 			return true;
 		if(A.level>B.level)
@@ -386,11 +386,11 @@ void CSpellWindow::computeSpellsPerArea()
 	std::vector<ui32> spellsCurSite;
 	for(std::set<ui32>::const_iterator it = mySpells.begin(); it != mySpells.end(); ++it)
 	{
-		if(CGI->spellh->spells[*it].combatSpell ^ !battleSpellsOnly
-			&& ((CGI->spellh->spells[*it].air && selectedTab == 0) || 
-				(CGI->spellh->spells[*it].fire && selectedTab == 1) ||
-				(CGI->spellh->spells[*it].water && selectedTab == 2) ||
-				(CGI->spellh->spells[*it].earth && selectedTab == 3) ||
+		if(CGI->spellh->spells[*it]->combatSpell ^ !battleSpellsOnly
+			&& ((CGI->spellh->spells[*it]->air && selectedTab == 0) || 
+				(CGI->spellh->spells[*it]->fire && selectedTab == 1) ||
+				(CGI->spellh->spells[*it]->water && selectedTab == 2) ||
+				(CGI->spellh->spells[*it]->earth && selectedTab == 3) ||
 				selectedTab == 4 )
 			)
 		{
@@ -505,12 +505,12 @@ void CSpellWindow::deactivate()
 
 void CSpellWindow::turnPageLeft()
 {
-	CGI->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
+	CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
 }
 
 void CSpellWindow::turnPageRight()
 {
-	CGI->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
+	CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
 }
 
 void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
@@ -594,7 +594,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && mySpell!=-1)
 	{
-		const CSpell *sp = &CGI->spellh->spells[mySpell];
+		const CSpell *sp = CGI->spellh->spells[mySpell];
 
 		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -661,7 +661,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						return;
 					}
 
-					if (h->getSpellSchoolLevel(&CGI->spellh->spells[spell]) < 2) //not advanced or expert - teleport to nearest available city
+					if (h->getSpellSchoolLevel(CGI->spellh->spells[spell]) < 2) //not advanced or expert - teleport to nearest available city
 					{
 						int nearest = -1; //nearest town's ID
 						double dist = -1;
@@ -720,7 +720,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 	{
 		std::string dmgInfo;
 		const CGHeroInstance * hero = owner->myHero;
-		int causedDmg = owner->myInt->cb->estimateSpellDamage( &CGI->spellh->spells[mySpell], (hero ? hero : NULL));
+		int causedDmg = owner->myInt->cb->estimateSpellDamage( CGI->spellh->spells[mySpell], (hero ? hero : NULL));
 		if(causedDmg == 0)
 			dmgInfo = "";
 		else
@@ -731,8 +731,8 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 
 		SDL_Surface *spellBox = CMessage::drawBoxTextBitmapSub(
 			owner->myInt->playerID,
-			CGI->spellh->spells[mySpell].descriptions[schoolLevel] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
-			CGI->spellh->spells[mySpell].name,30,30);
+			CGI->spellh->spells[mySpell]->descriptions[schoolLevel] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
+			CGI->spellh->spells[mySpell]->name,30,30);
 		CInfoPopup *vinya = new CInfoPopup(spellBox, true);
 		GH.pushInt(vinya);
 	}
@@ -746,7 +746,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 		if(on)
 		{
 			std::ostringstream ss;
-			ss<<CGI->spellh->spells[mySpell].name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->spells[mySpell].level]<<")";
+			ss<<CGI->spellh->spells[mySpell]->name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->spells[mySpell]->level]<<")";
 			owner->statusBar->print(ss.str());
 		}
 		else
@@ -761,7 +761,7 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = &CGI->spellh->spells[mySpell];
+	const CSpell * spell = CGI->spellh->spells[mySpell];
 
 	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
@@ -794,7 +794,7 @@ void CSpellWindow::SpellArea::setSpell(int spellID)
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = &CGI->spellh->spells[mySpell];
+	const CSpell * spell = CGI->spellh->spells[mySpell];
 	schoolLevel = owner->myHero->getSpellSchoolLevel(spell, &whichSchool);
 	spellCost = owner->myInt->cb->getSpellCost(spell, owner->myHero);
 }

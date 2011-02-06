@@ -3,8 +3,9 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
-#include "../../hch/CBuildingHandler.h"
-#include "../../hch/CHeroHandler.h"
+#include "../../lib/BattleState.h"
+#include "../../lib/CBuildingHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/NetPacks.h"
 #include "AIPriorities.h"
@@ -60,7 +61,7 @@ CGeniusAI::HypotheticalGameState::TownModel::TownModel(
 {
 	hasBuilt = static_cast<bool>(t->builded);
 	creaturesToRecruit = t->creatures;
-	creaturesInGarrison = t->getArmy();
+	//creaturesInGarrison = t->getArmy();
 }
 
 CGeniusAI::HypotheticalGameState::HypotheticalGameState(CGeniusAI& ai)
@@ -315,10 +316,10 @@ float CGeniusAI::TownObjective::getValue() const
 				resourceCosts[i] = creature->cost[i]*howMany;
 			break;
 
-		case upgradeCreatures:
-			UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
-			ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
-			howMany = whichTown->creaturesInGarrison.getAmount(which);
+	 	 case upgradeCreatures:
+			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
+			  ID = whichTown->t->getCreature(which)->idNumber;
+			  howMany = whichTown->t->getStackCount(which);
 
 			newID = ui.newID.back();
 			int upgrade_serial = ui.newID.size() - 1;
@@ -425,7 +426,7 @@ void CGeniusAI::TownObjective::print() const
 
 		  case upgradeCreatures:
 			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo (whichTown->t, which);
-			  ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+			  ID = whichTown->t->getCreature(which)->idNumber;
 			  tlog6 << "upgrade " << VLC->creh->creatures[ID]->namePl;
 			  //ui.cost	
 		  break;
@@ -746,8 +747,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 	{
 	  //upgrade hero's units
 		tlog6 << "visiting town" << endl;
-		CCreatureSet hcreatures = h->h->getArmy();
-		for (TSlots::const_iterator i = hcreatures.Slots().begin(); i != hcreatures.Slots().end(); i++)
+		for (TSlots::const_iterator i = h->h->Slots().begin(); i != h->h->Slots().end(); i++)
 		{ // For each hero slot.
 			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(h->h,i->first);
 
@@ -759,7 +759,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 				for (int ii = 0; ii < ui.cost.size(); ii++) // Can afford the upgrade?
 				{
 					for (j = ui.cost[ii].begin(); j != ui.cost[ii].end(); j++)
-						if (hgs.resourceAmounts[j->first] < j->second * i->second.count)
+						if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
 							canUpgrade = false;
 				}
 			}
@@ -767,37 +767,35 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 			{
 				cg.m_cb->upgradeCreature(h->h, i->first, ui.newID.back());
 				tlog6 << "upgrading hero's "
-						<< i->second.type->namePl
+						<< i->second->type->namePl
 						<< endl;
 			}
 	  }
 
 	  // Give town's units to hero.
-	  CCreatureSet tcreatures = town->getArmy();
 	  int weakestCreatureStack;
 	  int weakestCreatureAIValue = 99999; // we will lower it in the process
 
-	  for (TSlots::const_iterator i = tcreatures.Slots().begin(); i != tcreatures.Slots().end(); i++)
+	  for (TSlots::const_iterator i = town->Slots().begin(); i != town->Slots().end(); i++)
 	  {
-		  if (i->second.type->AIValue < weakestCreatureAIValue)
+		  if (i->second->type->AIValue < weakestCreatureAIValue)
 		  {
-			  weakestCreatureAIValue  = i->second.type->AIValue;
+			  weakestCreatureAIValue  = i->second->type->AIValue;
 			  weakestCreatureStack    = i->first;
 		  }
 	  }
-	  for (TSlots::const_iterator i = tcreatures.Slots().begin(); i != tcreatures.Slots().end(); i++)\
+	  for (TSlots::const_iterator i = town->Slots().begin(); i != town->Slots().end(); i++)\
 	  { // For each town slot.
-		  hcreatures = h->h->getArmy();
-		  int hSlot = hcreatures.getSlotFor(i->second.type->idNumber);
+		  int hSlot = h->h->getSlotFor(i->second->type->idNumber);
 
 		  if (hSlot == -1)
 			continue;
-		  tlog6 << "giving hero " << i->second.type->namePl << endl;
-		  if (!hcreatures.slotEmpty(hSlot))
+		  tlog6 << "giving hero " << i->second->type->namePl << endl;
+		  if (!h->h->slotEmpty(hSlot))
 		  {
         // Can't take garrisonHero's last unit.
 			  if ( (i->first == weakestCreatureStack) && (town->garrisonHero != NULL) )
-				  cg.m_cb->splitStack(town, h->h, i->first, hSlot, i->second.count - 1);
+				  cg.m_cb->splitStack(town, h->h, i->first, hSlot, i->second->count - 1);
 			  else
           // TODO: the comment says that this code is not safe for the AI.
 				  cg.m_cb->mergeStacks(town, h->h, i->first, hSlot);
@@ -843,8 +841,8 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 	if (!t.hasBuilt)
 	{
     // m_cb->getCBuildingsByID(t.t);
-		std::map<int, CBuilding*> thisTownsBuildings = VLC->buildh->buildings[t.t->subID];
-		for (std::map<int, CBuilding*>::iterator i = thisTownsBuildings.begin(); i != thisTownsBuildings.end(); i++)
+		bmap<int, ConstTransitivePtr<CBuilding> > thisTownsBuildings = VLC->buildh->buildings[t.t->subID];
+		for (bmap<int, ConstTransitivePtr<CBuilding> >::iterator i = thisTownsBuildings.begin(); i != thisTownsBuildings.end(); i++)
 		{
 			if (m_cb->canBuildStructure(t.t, i->first) == 7)
 			{
@@ -878,7 +876,7 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 	}
 
   // Upgrade creatures.
-	for (TSlots::const_iterator i = t.creaturesInGarrison.Slots().begin(); i != t.creaturesInGarrison.Slots().end(); i++)
+	for (TSlots::const_iterator i = t.t->Slots().begin(); i != t.t->Slots().end(); i++)
 	{
 		UpgradeInfo ui = m_cb->getUpgradeInfo(t.t, i->first);
 		if (ui.newID.size())
@@ -888,7 +886,7 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 			int upgrade_serial = ui.newID.size() - 1;
 			for (std::set< std::pair<int, int> >::iterator j = ui.cost[upgrade_serial].begin(); j != ui.cost[upgrade_serial].end(); j++)
 			{
-				if (hgs.resourceAmounts[j->first] < j->second * i->second.count)
+				if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
 					canAfford = false;
 			}
 			if (canAfford)
@@ -955,7 +953,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 
 		case upgradeCreatures:
 			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(whichTown->t, which);
-			ID = whichTown->creaturesInGarrison.getCreature(which)->idNumber;
+			ID = whichTown->t->getCreature(which)->idNumber;
 			newID = ui.newID.back();
 		// TODO: reduce resources in hgs
 			cg.m_cb->upgradeCreature(whichTown->t, which, newID);
@@ -1308,7 +1306,7 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
+void CGeniusAI::battleStackMoved(int ID, THex dest, int distance, bool end)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
@@ -1341,13 +1339,13 @@ void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID,
-                                 int dest,
-                                 bool startMoving,
-                                 bool endMoving)
-{
-	DbgBox("\t\t\tCGeniusAI::battleStackMoved");
-}
+// void CGeniusAI::battleStackMoved(int ID,
+//                                  THex dest,
+//                                  bool startMoving,
+//                                  bool endMoving)
+// {
+// 	DbgBox("\t\t\tCGeniusAI::battleStackMoved");
+// }
 
 
 /**
@@ -1375,15 +1373,25 @@ void CGeniusAI::battleStackIsAttacked(int ID,
 /**
  * called when it's turn of that stack
  */
-BattleAction CGeniusAI::activeStack(int stackID)
+BattleAction CGeniusAI::activeStack(const CStack * stack)
 {
 	std::string message("\t\t\tCGeniusAI::activeStack stackID(");
 
-	message += boost::lexical_cast<std::string>(stackID);
+	message += boost::lexical_cast<std::string>(stack->ID);
 	message += ")";
 	DbgBox(message.c_str());
 
-	BattleAction bact = m_battleLogic->MakeDecision(stackID);
+	BattleAction bact = m_battleLogic->MakeDecision(stack->ID);
 	assert(m_cb->battleGetStackByID(bact.stackNumber));
 	return bact;
-};
+}
+
+
+//WTF?!? why is this needed?!?!?!
+BattleAction CGlobalAI::activeStack( const CStack * stack )
+{
+	BattleAction ba; ba.actionType = BattleAction::DEFEND;
+	ba.stackNumber = stack->ID;
+	return ba;
+}
+

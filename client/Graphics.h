@@ -24,6 +24,9 @@ class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
+class CGObjectInstance;
+class CGDefInfo;
+
 typedef struct _TTF_Font TTF_Font; //from SDL_ttf.h
 
 class Graphics
@@ -62,6 +65,10 @@ public:
 	std::map<std::string, CDefEssential*> mapObjectDefs; //pointers to loaded defs (key is filename, uppercase)
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
+
+	std::map<int, std::map<int, CDefEssential *> > advmapobjGraphics;
+	CDefEssential * getDef(const CGObjectInstance * obj);
+	CDefEssential * getDef(const CGDefInfo * info);
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
@@ -71,6 +78,7 @@ public:
 	std::vector< std::string > buildingPics;//filenames of def with building images (used rarely, too big to keep them loaded)
 	std::vector< std::string > townBgs;//backgrounds of town
 	std::vector< std::string > guildBgs;// name of bitmaps with imgs for mage guild screen
+	std::map<int, std::string> ERMUtoPicture[F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
@@ -91,6 +99,7 @@ public:
 	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
 	void loadHeroPortraits();
 	void loadWallPositions();
+	void loadErmuToPicture();
 	SDL_Surface * drawHeroInfoWin(const InfoAboutHero &curh);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
 	SDL_Surface * drawTownInfoWin(const InfoAboutTown & curh);

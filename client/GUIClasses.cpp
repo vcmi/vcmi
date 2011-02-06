@@ -16,14 +16,14 @@
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
 #include "CAnimation.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CTownHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CTownHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/map.h"
 #include "mapHandler.h"
@@ -43,12 +43,13 @@
 #include "../lib/NetPacks.h"
 #include "CSpellWindow.h"
 #include "CHeroWindow.h"
-#include "../hch/CVideoHandler.h"
+#include "CVideoHandler.h"
 #include "../StartInfo.h"
 #include "CPreGame.h"
 #include "../lib/HeroBonus.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CMusicHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "CMusicHandler.h"
+#include "../lib/BattleState.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -111,7 +112,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				else if(owner->oup && owner->oup->ID == TOWNI_TYPE)
+				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == TOWNI_TYPE)
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
@@ -155,12 +156,12 @@ void CGarrisonSlot::hover (bool on)
 
 const CArmedInstance * CGarrisonSlot::getObj()
 {
-	return 	(!upg)?(owner->oup):(owner->odown);
+	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
 }
 
 bool CGarrisonSlot::our()
 {
-	return 	upg?(owner->ourDown):(owner->ourUp);
+	return 	upg?(owner->owned[1]):(owner->owned[0]);
 }
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
@@ -196,7 +197,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				for(size_t i = 0; i<owner->splitButtons.size(); i++)
 					owner->splitButtons[i]->block(true);
 
-				show(screen2);
+				redraw();
 				refr = true;
 			}
 			else 
@@ -245,15 +246,15 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 					else if(creature != owner->highlighted->creature) //swap
 					{
 						LOCPLINT->cb->swapCreatures(
-							(!upg)?(owner->oup):(owner->odown),
-							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							ID,owner->highlighted->ID);
 					}
 					else //merge
 					{
 						LOCPLINT->cb->mergeStacks(
-							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
-							(!upg)?(owner->oup):(owner->odown),
+							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							owner->highlighted->ID,ID);
 					}
 				}
@@ -261,7 +262,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				{ 
 					if(creature)
 						owner->highlighted = this;
-					show(screen2);
+					redraw();
 					refr = true;
 				}
 			}
@@ -275,7 +276,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				for(size_t i = 0; i<owner->splitButtons.size(); i++)
 					owner->splitButtons[i]->block(false);
 			}
-			show(screen2);
+			redraw();
 			refr = true;
 		}
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar
@@ -325,7 +326,7 @@ CGarrisonSlot::~CGarrisonSlot()
 	if(active)
 		deactivate();
 }
-void CGarrisonSlot::show(SDL_Surface * to)
+void CGarrisonSlot::showAll(SDL_Surface * to)
 {
 	std::map<int,SDL_Surface*> &imgs = (owner->smallIcons ? graphics->smallImgs : graphics->bigImgs);
 	if(creature)
@@ -352,6 +353,7 @@ void CGarrisonSlot::show(SDL_Surface * to)
 			blitAt(imgs[-1],pos,to);
 	}
 }
+
 CGarrisonInt::~CGarrisonInt()
 {/*
 	for(size_t i = 0; i<splitButtons.size(); i++)
@@ -371,7 +373,7 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 	
 	for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
 	{
-		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, &i->second);
+		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
 	}
 
 	for(int i=0; i<ret.size(); i++)
@@ -400,11 +402,11 @@ void CGarrisonInt::createSlots()
 		w = 58;
 	}
 
-	if(set1)
-		createSet(slotsUp, set1, 0, 0, w+interx, 0);
+	if(armedObjs[0])
+		createSet(slotsUp, armedObjs[0], 0, 0, w+interx, 0);
 
-	if(set2)
-		createSet (slotsDown, set2, garOffset.x, garOffset.y, w+interx, 1);
+	if(armedObjs[1])
+		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, w+interx, 1);
 }
 
 void CGarrisonInt::deleteSlots()
@@ -450,26 +452,18 @@ void CGarrisonInt::splitClick()
 }
 void CGarrisonInt::splitStacks(int am2)
 {
-	LOCPLINT->cb->splitStack(
-		(highlighted->upg)?(odown):(oup),
-		(pb)?(odown):(oup),
-		highlighted->ID,
-		p2,
-		am2);
-
+	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, am2);
 }
+
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
                             SDL_Surface *&pomsur, const Point& SurOffset, 
                             const CArmedInstance *s1, const CArmedInstance *s2, 
                             bool _removableUnits, bool smallImgs, bool _twoRows )
-
-	:interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
-	 smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows), oup(s1), odown(s2)
+	: interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
+	smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows)
 {
-	ourUp =  s1?(s1->tempOwner == LOCPLINT->playerID || s1->tempOwner == 254):false; //254 - neutral objects (pandora, banks)
-	ourDown = s2?(s2->tempOwner == LOCPLINT->playerID || s2->tempOwner == 254):false;
-	set1 = LOCPLINT->cb->getGarrison(s1);
-	set2 = LOCPLINT->cb->getGarrison(s2);
+	setArmy(s1, false);
+	setArmy(s2, true);
 	pos.x += x;
 	pos.y += y;
 	createSlots();
@@ -482,6 +476,12 @@ void CGarrisonInt::activate()
 			splitButtons[i]->block(!highlighted);
 
 	CIntObject::activate();
+}
+
+void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
+{
+	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == 254) : false; //254 - neutral objects (pandora, banks)
+	armedObjs[bottomGarrison] = army;
 }
 
 CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
@@ -653,7 +653,7 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignmen
 
 CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 
 	free=Free;
 	bitmap=Bitmap;
@@ -679,12 +679,12 @@ void CInfoPopup::show(SDL_Surface * to)
 }
 CInfoPopup::~CInfoPopup()
 {
-	CGI->curh->show();
+	CCS->curh->show();
 }
 
 void CInfoPopup::init(int x, int y)
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 
 	pos.x = x;
 	pos.y = y;
@@ -745,8 +745,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = oss.str();
 		break;
 	case spell:
-		description = CGI->spellh->spells[Subtype].descriptions[Val];
-		subtitle = CGI->spellh->spells[Subtype].name;
+		description = CGI->spellh->spells[Subtype]->descriptions[Val];
+		subtitle = CGI->spellh->spells[Subtype]->name;
 		break;
 	case creature:
 		subtitle = (Val? boost::lexical_cast<std::string>(Val) + " " : "") + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
@@ -800,6 +800,11 @@ SComponent::SComponent(const Component &c)
 
 	if(c.id==2 && c.when==-1)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+}
+
+SComponent::SComponent()
+{
+	img = NULL;
 }
 
 SComponent::~SComponent()
@@ -1904,7 +1909,7 @@ void CRecruitmentWindow::initCres()
 
 			cur.amount = dwelling->creatures[i].first;
 			cur.ID = dwelling->creatures[i].second[j];
-			CCreature * cre= CGI->creh->creatures[cur.ID];
+			const CCreature * cre= CGI->creh->creatures[cur.ID];
 
 			for(int k=0; k<cre->cost.size(); k++)
 				if(cre->cost[k])
@@ -2094,7 +2099,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(st.type, &st, st.count);
+	init(st.type, &st, dynamic_cast<const CGHeroInstance*>(st.armyObj), st.count);
 
 	//print abilities text - if r-click popup
 	if(type)
@@ -2139,30 +2144,24 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 		}
 		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),216,237,"IOKAY.DEF",SDLK_RETURN);
 	}
-	else
-	{
-		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
-	}
-
-	//if we are displying window fo r stack in battle, there are several more things that we need to display
-	if(const CStack *battleStack = dynamic_cast<const CStack*>(&st))
-	{
-		//spell effects
-		int printed=0; //how many effect pics have been printed
-		std::vector<si32> spells = battleStack->activeSpells();
-		BOOST_FOREACH(si32 effect, spells)
-		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
-			++printed;
-			if(printed >= 3) //we can fit only 3 effects
-				break;
-		}
-		//print current health
-		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
-	}
 }
 
 
+
+CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
+	: type(Type), dismiss(0), upgrade(0), ok(0)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	const CCreature *cre = CGI->creh->creatures[Cid];
+	init(cre, NULL, NULL, creatureCount);
+}
+
+CCreInfoWindow::CCreInfoWindow(const CStack &st, int Type /*= 0*/)
+	: type(Type), dismiss(0), upgrade(0), ok(0)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init(st.getCreature(), &st, st.getMyHero(), st.count);
+}
 
 void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
 {
@@ -2179,15 +2178,11 @@ void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int
 	printTo(hlp, 276, 61 + nr*19, FONT_SMALL, zwykly, *bitmap);
 }
 
-void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
+//void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
+void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount)
 {
-	const CBonusSystemNode *finalNode = NULL;
-	if(stack)
-		finalNode = stack;
-	else
-		finalNode = cre;
-
 	c = cre;
+	if(!stackNode) stackNode = c;
 
 	bitmap = new CPicture("CRSTKPU.bmp");
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
@@ -2197,52 +2192,65 @@ void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int
 
 	count = boost::lexical_cast<std::string>(creatureCount);
 
-
 	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,*bitmap); //creature name
 	
-	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), finalNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
+	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
 	if(c->shots)
 		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
 
 	//TODO
 	int dmgMultiply = 1;
-	if(stack && stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += stack->armyObj->Attack(); 
+	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		dmgMultiply += heroOwner->Attack(); 
 
-	printLine(3, CGI->generaltexth->allTexts[199], finalNode->getMinDamage() * dmgMultiply, finalNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), finalNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), finalNode->valOfBonuses(Bonus::STACKS_SPEED));
+	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
+	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
+	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
 	//setting morale
-	morale = new MoraleLuckBox(true);
-	morale->pos = genRect(42, 42, pos.x + 24, pos.y + 189);
-	morale->set(stack);
+	morale = new MoraleLuckBox(true, genRect(42, 42, 24, 189));
+	morale->set(stackNode);
 	//setting luck
-	luck = new MoraleLuckBox(false);
-	luck->pos =  genRect(42, 42, pos.x + 77, pos.y + 189);
-	luck->set(stack);
+	luck = new MoraleLuckBox(false, genRect(42, 42, 77, 189));
+	luck->set(stackNode);
 
 	//luck and morale
 	int luck = 3, morale = 3;
-	if(stack)
+	if(stackNode)
 	{
 		//add modifiers
-		luck += stack->LuckVal();
-		morale += stack->MoraleVal();
+		luck += stackNode->LuckVal();
+		morale += stackNode->MoraleVal();
 	}
 
 	blitAt(graphics->morale42->ourImages[morale].bitmap, 24, 189, *bitmap);
 	blitAt(graphics->luck42->ourImages[luck].bitmap, 77, 189, *bitmap);
+
+
+	if(!type)
+	{
+		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
+	}
+
+	//if we are displying window fo r stack in battle, there are several more things that we need to display
+	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
+	{
+		//spell effects
+		int printed=0; //how many effect pics have been printed
+		std::vector<si32> spells = battleStack->activeSpells();
+		BOOST_FOREACH(si32 effect, spells)
+		{
+			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
+			++printed;
+			if(printed >= 3) //we can fit only 3 effects
+				break;
+		}
+		//print current health
+		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
+	}
 }
 
-CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
-	: type(Type), dismiss(0), upgrade(0), ok(0)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	const CCreature *cre = CGI->creh->creatures[Cid];
-	init(cre, NULL, creatureCount);
-}
 
 CCreInfoWindow::~CCreInfoWindow()
 {
@@ -2306,7 +2314,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 	{
-		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
+		comps.push_back(new CSelectableComponent(SComponent::secskill44, skills[i],
+			hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
+			boost::bind(&CLevelWindow::selectionChanged,this,i)));
 		comps.back()->assignedKeys.insert(SDLK_1 + i);
 	}
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
@@ -2606,7 +2616,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		if(downSelection)
 			posToSubCenter.y += 8;
 		break;
-	case ARTIFACT:
+	case ARTIFACT_TYPE:
 		posToSubCenter = Point(19, 58);
 		break;
 	}
@@ -2619,7 +2629,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
-	CTradeWindow *mw = static_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 	if(down)
 	{
@@ -2627,26 +2637,24 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			const CArtifact *movedArt = aw->arts->commonInfo->srcArtifact;
-			if(movedArt)
+			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
 			{
-				aw->moveFromSlotToAltar(aw->arts->commonInfo->srcSlotID, this, movedArt->id);
+				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this, movedArt);
 			}
-			else if(id >= 0)
+			else if(const CArtifactInstance *art = getArtInstance())
 			{
-				movedArt = CGI->arth->artifacts[id];
-				aw->arts->commonInfo->srcAOH = aw->arts;
-				aw->arts->commonInfo->srcArtifact = movedArt;
-				aw->arts->commonInfo->srcSlotID = 19 + vstd::findPos(aw->hero->artifacts, const_cast<CArtifact*>(movedArt));
+				aw->arts->commonInfo->src.AOH = aw->arts;
+				aw->arts->commonInfo->src.art = art;
+				aw->arts->commonInfo->src.slotID = aw->hero->getArtPos(art);
+				aw->arts->markPossibleSlots(art);
 
-				aw->arts->commonInfo->destAOH = aw->arts;
-				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[movedArt->id].bitmap);
+				//aw->arts->commonInfo->dst.AOH = aw->arts;
+				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[art->artType->id].bitmap);
 
+				aw->arts->artifactsOnAltar.erase(art);
 				id = -1;
 				subtitle = "";
-				aw->arts->artifactsOnAltar.erase(movedArt->id);
 				aw->deal->block(!aw->arts->artifactsOnAltar.size());
-				aw->arts->markPossibleSlots(movedArt);
 			}
 
 			aw->calcTotalExp();
@@ -2678,7 +2686,7 @@ SDL_Surface * CTradeWindow::CTradeableItem::getSurface()
 		return graphics->resources32->ourImages[id].bitmap;
 	case PLAYER:
 		return graphics->flags->ourImages[id].bitmap;
-	case ARTIFACT:
+	case ARTIFACT_TYPE:
 	case ARTIFACT_PLACEHOLDER:
 		return id >= 0 ? graphics->artDefs->ourImages[id].bitmap : NULL;
 	case CREATURE:
@@ -2736,7 +2744,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case CREATURE_PLACEHOLDER:
 			//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->creatures[id]->namePl));
 			break;
-		case ARTIFACT:
+		case ARTIFACT_TYPE:
 		case ARTIFACT_PLACEHOLDER:
 			if(id >= 0)
 				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
@@ -2758,17 +2766,44 @@ std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
 			return CGI->creh->creatures[id]->nameSing;
 		else
 			return CGI->creh->creatures[id]->namePl;
-	case ARTIFACT:
+	case ARTIFACT_TYPE:
 		return CGI->arth->artifacts[id]->Name();
 	}
 	assert(0);
 	return "";
 }
 
+const CArtifactInstance * CTradeWindow::CTradeableItem::getArtInstance() const
+{
+	switch(type)
+	{
+	case ARTIFACT_PLACEHOLDER:
+	case ARTIFACT_INSTANCE:
+		return (const CArtifactInstance *)hlp;
+	default:
+		return NULL;
+	}
+}
+
+// const CArtifact * CTradeWindow::CTradeableItem::getArt() const
+// {
+// 	return NULL;
+// }
+// 
+// void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art) const
+// {
+// 
+// }
+// 
+// void CTradeWindow::CTradeableItem::setArt(const CArtifact *artT) const
+// {
+// 
+// }
+
 CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
 	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
 {
-	type = BLOCK_ADV_HOTKEYS;
+	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 	initTypes();
 }
@@ -2791,14 +2826,14 @@ void CTradeWindow::initTypes()
 		break;
 	case RESOURCE_ARTIFACT:
 		itemsType[1] = RESOURCE;
-		itemsType[0] = ARTIFACT;
+		itemsType[0] = ARTIFACT_TYPE;
 		break;
 	case CREATURE_EXP:
 		itemsType[1] = CREATURE;
 		itemsType[0] = CREATURE_PLACEHOLDER;
 		break;
 	case ARTIFACT_EXP:
-		itemsType[1] = ARTIFACT;
+		itemsType[1] = ARTIFACT_TYPE;
 		itemsType[0] = ARTIFACT_PLACEHOLDER;
 		break;
 	}
@@ -2868,7 +2903,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 					ids->push_back(i);
 			break;
 
-		case ARTIFACT:
+		case ARTIFACT_TYPE:
 			ids = new std::vector<int>(market->availableItemsIds(mode));
 			break;
 		}
@@ -2926,7 +2961,7 @@ void CTradeWindow::initSubs(bool Left)
 			switch(itemsType[1])
 			{
 			case CREATURE:
-				t->subtitle = boost::lexical_cast<std::string>(hero->getAmount(t->serial));
+				t->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(t->serial));
 				break;
 			case RESOURCE:
 				t->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(t->serial));
@@ -2999,7 +3034,7 @@ void CTradeWindow::removeItem(CTradeableItem * t)
 void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 {
 	BOOST_FOREACH(CTradeableItem *t, items[1])
-		if(!hero->getAmount(t->serial))
+		if(!hero->getStackCount(t->serial))
 			toRemove.insert(t);
 }
 
@@ -3232,7 +3267,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		if(itemsType[1] == RESOURCE)
 			newAmount = LOCPLINT->cb->getResourceAmount(hLeft->id);
 		else if(itemsType[1] ==  CREATURE)
-			newAmount = hero->getAmount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+			newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
 		else
 			assert(0);
 
@@ -3317,7 +3352,7 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 		{
 		case RESOURCE:
 			return boost::lexical_cast<std::string>( slider->value * r2 );
-		case ARTIFACT:
+		case ARTIFACT_TYPE:
 			return (deal->blocked ? "0" : "1");
 		case PLAYER:
 			return (hRight ? CGI->generaltexth->capColors[hRight->id] : "");
@@ -3345,7 +3380,7 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		{
 		case RESOURCE:
 			return Point(410, 446);
-		case ARTIFACT:
+		case ARTIFACT_TYPE:
 			return Point(425, 447);
 		case PLAYER:
 			return Point(417, 451);
@@ -3391,7 +3426,7 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 		dy = 98;
 		assert(!Right);
 		break;
-	case ARTIFACT://45,123
+	case ARTIFACT_TYPE://45,123
 		x = 340-289;
 		y = 180;
 		w = 44;
@@ -3483,9 +3518,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		printAtMiddle(CGI->generaltexth->allTexts[478], 302, 423, FONT_SMALL, tytulowy, *bg); //%s's Creatures
 
 		sacrificeAll = new AdventureMapButton(CGI->generaltexth->zelp[571],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
-		sacrificeAll->block(!hero->artifacts.size() && !hero->artifWorn.size());
+		sacrificeAll->block(!hero->artifactsInBackpack.size() && !hero->artifactsWorn.size());
 		sacrificeBackpack = new AdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
-		sacrificeBackpack->block(!hero->artifacts.size());
+		sacrificeBackpack->block(!hero->artifactsInBackpack.size());
 
 		slider = NULL;
 		max = NULL;
@@ -3499,6 +3534,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 			arts->recActions = 255;
 			arts->allowedAssembling = false;
 			addChild(arts);
+			artSets.push_back(arts);
 		}
 
 		initItems(false);
@@ -3579,9 +3615,9 @@ void CAltarWindow::makeDeal()
 	}
 	else
 	{
-		BOOST_FOREACH(int artID, arts->artifactsOnAltar) //sacrifice each artifact on the list
+		BOOST_FOREACH(const CArtifactInstance *art, arts->artifactsOnAltar) //sacrifice each artifact on the list
 		{
-			LOCPLINT->cb->trade(market->o, mode, artID, -1, 1, hero);
+			LOCPLINT->cb->trade(market->o, mode, hero->getArtPos(art), -1, 1, hero);
 		}
 		arts->artifactsOnAltar.clear();
 
@@ -3592,7 +3628,7 @@ void CAltarWindow::makeDeal()
 		}
 
 		arts->commonInfo->reset();
-		arts->scrollBackpack(0);
+		//arts->scrollBackpack(0);
 		deal->block(true);
 	}
 
@@ -3605,7 +3641,7 @@ void CAltarWindow::SacrificeAll()
 	{
 		bool movedAnything = false;
 		BOOST_FOREACH(CTradeableItem *t, items[1])
-			sacrificedUnits[t->serial] = hero->getAmount(t->serial);
+			sacrificedUnits[t->serial] = hero->getStackCount(t->serial);
 
 		sacrificedUnits[items[1].front()->serial]--;
 
@@ -3621,10 +3657,10 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(std::map<ui16, const CArtifact*>::const_iterator i = hero->artifWorn.begin(); i != hero->artifWorn.end(); i++)
+		for(std::map<ui16, ArtSlotInfo>::const_iterator i = hero->artifactsWorn.begin(); i != hero->artifactsWorn.end(); i++)
 		{
-			if(i->second->id != 145) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, NULL, i->second->id);
+			if(i->second.artifact->artType->id != 145) //ignore locks from assembled artifacts
+				moveFromSlotToAltar(i->first, NULL, i->second.artifact);
 		}
 
 		SacrificeBackpack();
@@ -3644,10 +3680,10 @@ void CAltarWindow::selectionChanged(bool side)
 
 	int stackCount = 0;
 	for (int i = 0; i < ARMY_SIZE; i++)
-		if(hero->getAmount(i) > sacrificedUnits[i])
+		if(hero->getStackCount(i) > sacrificedUnits[i])
 			stackCount++;
 
-	slider->setAmount(hero->getAmount(hLeft->serial) - (stackCount == 1));
+	slider->setAmount(hero->getStackCount(hLeft->serial) - (stackCount == 1));
 	slider->block(!slider->amount);
 	slider->value = sacrificedUnits[hLeft->serial];
 	max->block(!slider->amount);
@@ -3729,14 +3765,14 @@ void CAltarWindow::calcTotalExp()
 	}
 	else
 	{
-		for(std::multiset<int>::const_iterator i = arts->artifactsOnAltar.begin(); i != arts->artifactsOnAltar.end(); i++)
+		BOOST_FOREACH(const CArtifactInstance *art, arts->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
-			market->getOffer(*i, 0, dmp, valOfArt, mode);
-			val += valOfArt * arts->artifactsOnAltar.count(*i);
+			market->getOffer(art->artType->id, 0, dmp, valOfArt, mode);
+			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
-	val *=(100+hero->getSecSkillLevel(21)*5)/100.0f;
+	val *=(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
@@ -3773,18 +3809,20 @@ int CAltarWindow::firstFreeSlot()
 
 void CAltarWindow::SacrificeBackpack()
 {
-	std::multiset<int> toOmmit = arts->artifactsOnAltar;
+	std::multiset<const CArtifactInstance *> toOmmit = arts->artifactsOnAltar;
 
-	for (int i = 0; i < hero->artifacts.size(); i++)
+	for (int i = 0; i < hero->artifactsInBackpack.size(); i++)
 	{
-		if(vstd::contains(toOmmit, hero->artifacts[i]->id))
+
+		if(vstd::contains(toOmmit, hero->artifactsInBackpack[i].artifact))
 		{
-			toOmmit -= hero->artifacts[i]->id;
+			toOmmit -= hero->artifactsInBackpack[i].artifact;
 			continue;
 		}
 
-		putOnAltar(NULL, hero->artifacts[i]->id);
+		putOnAltar(NULL, hero->artifactsInBackpack[i].artifact);
 	}
+
 	arts->scrollBackpack(0);
 	calcTotalExp();
 }
@@ -3797,20 +3835,24 @@ void CAltarWindow::artifactPicked()
 void CAltarWindow::showAll(SDL_Surface * to)
 {
 	CTradeWindow::showAll(to);
-	if(mode == ARTIFACT_EXP && arts && arts->commonInfo->srcArtifact)
+	if(mode == ARTIFACT_EXP && arts && arts->commonInfo->src.art)
 	{
-		blitAtLoc(graphics->artDefs->ourImages[arts->commonInfo->srcArtifact->id].bitmap, 281, 442, to);
+		blitAtLoc(graphics->artDefs->ourImages[arts->commonInfo->src.art->artType->id].bitmap, 281, 442, to);
 
 		int dmp, val;
-		market->getOffer(arts->commonInfo->srcArtifact->id, 0, dmp, val, ARTIFACT_EXP);
+		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, ARTIFACT_EXP);
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, zwykly, to);
 	}
 }
 
-bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, int artID)
+bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
+	int artID = art->artType->id;
 	if(artID != 1 && artID < 7) //special art
+	{
+		tlog2 << "Cannot put special artifact on altar!\n";
 		return false;
+	}
 
 	if(!altarSlot)
 	{
@@ -3826,24 +3868,34 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, int artID)
 	int dmp, val;
 	market->getOffer(artID, 0, dmp, val, ARTIFACT_EXP);
 
-	arts->artifactsOnAltar.insert(artID);
+	arts->artifactsOnAltar.insert(art);
 	altarSlot->id = artID;
 	altarSlot->subtitle = boost::lexical_cast<std::string>(val);
+	altarSlot->hlp = art;
 
 	deal->block(false);
 	return true;
 }
 
-void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, int artID)
+void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
-	if(arts->commonInfo->srcArtifact)
+	int freeBackpackSlot = hero->artifactsInBackpack.size() + Arts::BACKPACK_START;
+	if(arts->commonInfo->src.art)
 	{
-		arts->commonInfo->destSlotID = 65500;
-		arts->commonInfo->destAOH = arts;
+		arts->commonInfo->dst.slotID = freeBackpackSlot;
+		arts->commonInfo->dst.AOH = arts;
 	}
 
-	if(putOnAltar(altarSlot, artID))
-		LOCPLINT->cb->swapArtifacts(hero, slotID, hero, 65500);
+	if(putOnAltar(altarSlot, art))
+	{
+		if(slotID < Arts::BACKPACK_START)
+			LOCPLINT->cb->swapArtifacts(hero, slotID, hero, freeBackpackSlot);
+		else
+		{
+			arts->commonInfo->src.clear();
+			arts->commonInfo->dst.clear();
+		}
+	}
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
@@ -3911,7 +3963,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	{
 		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].second),CGI->generaltexth->zelp[326+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+359, i*11);
 	}
-	musicVolume->select(CGI->musich->getVolume(), 1);
+	musicVolume->select(CCS->musich->getVolume(), 1);
 	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, &owner->sysOpts, _1);
 
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
@@ -3919,7 +3971,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	{
 		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].second),CGI->generaltexth->zelp[336+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+425, i*11);
 	}
-	effectsVolume->select(CGI->soundh->getVolume(), 1);
+	effectsVolume->select(CCS->soundh->getVolume(), 1);
 	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, &owner->sysOpts, _1);
 }
 
@@ -4067,9 +4119,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
 	}
 
 #ifdef _WIN32
-	CGI->videoh->open("TAVERN.BIK");
+	CCS->videoh->open("TAVERN.BIK");
 #else
-	CGI->videoh->open("tavern.mjpg", true, false);
+	CCS->videoh->open("tavern.mjpg", true, false);
 #endif
 }
 
@@ -4088,7 +4140,7 @@ void CTavernWindow::thievesguildb()
 
 CTavernWindow::~CTavernWindow()
 {
-	CGI->videoh->close();
+	CCS->videoh->close();
 }
 
 void CTavernWindow::close()
@@ -4100,7 +4152,7 @@ void CTavernWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 
-	CGI->videoh->update(pos.x+70, pos.y+56, to, true, false);
+	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
 	{
 		HeroPortrait *sel = selected ? h2 : h1;
@@ -4131,8 +4183,7 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(down && h)
 	{
-		adventureInt->heroWindow->setHero(h);
-		GH.pushInt(new CRClickPopupInt(adventureInt->heroWindow,false));
+		GH.pushInt(new CRClickPopupInt(new CHeroWindow(h), true));
 	}
 }
 
@@ -4151,9 +4202,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		hoverName = CGI->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->name);
 
-		int artifs = h->artifWorn.size() + h->artifacts.size();
+		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
-			if(vstd::contains(h->artifWorn,i)) 
+			if(vstd::contains(h->artifactsWorn,i)) 
 				artifs--;
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
@@ -4399,58 +4450,42 @@ void CGarrisonWindow::close()
 	GH.popIntTotally(this);
 }
 
-void CGarrisonWindow::activate()
-{
-	quit->activate();
-	garr->activate();
-}
-
-void CGarrisonWindow::deactivate()
-{
-	quit->deactivate();
-	garr->deactivate();
-}
-
-void CGarrisonWindow::show(SDL_Surface * to)
-{
-	blitAt(bg,pos,to);
-	quit->show(to);
-	garr->show(to);
-
-	std::string title;
-	if (garr->odown->tempOwner == garr->oup->tempOwner)
-		title = CGI->generaltexth->allTexts[709];
-	else
-	{
-		title = CGI->generaltexth->allTexts[35];
-		boost::algorithm::replace_first(title, "%s", garr->oup->Slots().begin()->second.type->namePl);
-	}
-
-	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);
-	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
-	printAtMiddle(title,pos.x+275,pos.y+30,FONT_BIG,tytulowy,to);
-}
-
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
 {
-	bg = BitmapHandler::loadBitmap("GARRISON.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos.x = screen->w/2 - bg->w/2;
-	pos.y = screen->h/2 - bg->h/2;
-	pos.w = screen->w;
-	pos.h = screen->h;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	bg = new CPicture("GARRISON.bmp");
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	pos = bg->center();
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down, removableUnits);
-	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
-	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
+	garr = new CGarrisonInt(92, 127, 4, Point(0,96), bg->bg, Point(93,127), up, down, removableUnits);
+	{
+		AdventureMapButton *split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
+		removeChild(split);
+		garr->addSplitBtn(split);
+	}
+	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
 }
 
 CGarrisonWindow::~CGarrisonWindow()
 {
-	SDL_FreeSurface(bg);
-	delete quit;
-	delete garr;
+}
+
+void CGarrisonWindow::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+
+	std::string title;
+	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
+		title = CGI->generaltexth->allTexts[709];
+	else
+	{
+		title = CGI->generaltexth->allTexts[35];
+		boost::algorithm::replace_first(title, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
+	}
+
+	blitAtLoc(graphics->flags->ourImages[garr->armedObjs[1]->getOwner()].bitmap,28,124,to);
+	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
+	printAtMiddleLoc(title,275,30,FONT_BIG,tytulowy,to);
 }
 
 IShowActivable::IShowActivable()
@@ -4475,26 +4510,31 @@ void CRClickPopupInt::show(SDL_Surface * to)
 
 CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
 {
-	CGI->curh->hide();
+	CCS->curh->hide();
 	inner = our;
 	delInner = deleteInt;
 }
 
 CRClickPopupInt::~CRClickPopupInt()
 {
-	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
-	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
-	if(LOCPLINT && inner == adventureInt->heroWindow)
-		adventureInt->heroWindow->dispose();
+// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
+// 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
+// 	if(LOCPLINT && inner == adventureInt->heroWindow)
+// 		adventureInt->heroWindow->dispose();
 
 	if(delInner)
 		delete inner;
 
-	CGI->curh->show();
+	CCS->curh->show();
 }
 
-CArtPlace::CArtPlace(const CArtifact* Art)
-	: marked(false), ourArt(Art)
+void CRClickPopupInt::showAll(SDL_Surface * to)
+{
+	inner->showAll(to);
+}
+
+CArtPlace::CArtPlace(const CArtifactInstance* Art)
+	: marked(false), ourArt(Art), picked(false), locked(false)
 {
 }
 
@@ -4509,11 +4549,14 @@ void CArtPlace::activate()
 void CArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
+	bool inBackpack = slotID >= Arts::BACKPACK_START, 
+		srcInBackpack = ourOwner->commonInfo->src.slotID >= Arts::BACKPACK_START,
+		srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
 	
 	// If clicked on spellbook, open it only if no artifact is held at the moment.
-	if(ourArt && !down && previousState && !ourOwner->commonInfo->srcAOH)
+	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
-		if(ourArt->id == 0)
+		if(ourArt->artType->id == 0)
 		{
 			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
 			GH.pushInt(spellWindow);
@@ -4522,15 +4565,15 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 	if (!down && previousState)
 	{
-		if(ourArt && ourArt->id == 0)
+		if(ourArt && ourArt->id == 0) //spellbook
 			return; //this is handled separately
 
-		if(!ourOwner->commonInfo->srcAOH) //nothing has been clicked
+		if(!ourOwner->commonInfo->src.AOH) //nothing has been clicked
 		{
 			if(ourArt  //to prevent selecting empty slots (bugfix to what GrayFace reported)
 				&&  ourOwner->curHero->tempOwner == LOCPLINT->playerID)//can't take art from another player
 			{
-				if(ourArt->id == 3) //catapult cannot be highlighted
+				if(ourArt->artType->id == 3) //catapult cannot be highlighted
 				{
 					std::vector<SComponent *> catapult(1, new SComponent(SComponent::artifact, 3, 0));
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
@@ -4539,69 +4582,66 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				select();
 			}
 		}
-		else //perform artifact substitution
+		else if(ourArt == ourOwner->commonInfo->src.art) //restore previously picked artifact
 		{
-			if (slotID >= 19) // Backpack destination.
+			deselect();
+		}
+		else //perform artifact transition
+		{
+			if(inBackpack) // Backpack destination.
 			{
-				const CArtifact * cur = ourOwner->commonInfo->srcArtifact;
-
-				switch(cur->id)
+				if(srcInBackpack && slotID == ourOwner->commonInfo->src.slotID + 1) //next slot (our is not visible, so visually same as "old" place) to the art -> make nothing, return artifact to slot
 				{
-				case 3:
-					//should not happen, catapult cannot be selected
-					assert(cur->id != 3);
-					break;
-				case 4: case 5: case 6:
+					deselect();
+				}
+				else
+				{
+					const CArtifact * const cur = ourOwner->commonInfo->src.art->artType;
+
+					switch(cur->id)
 					{
-						std::string text = CGI->generaltexth->allTexts[153];
-						boost::algorithm::replace_first(text, "%s", cur->Name());
-						LOCPLINT->showInfoDialog(text);
+					case 3:
+						//should not happen, catapult cannot be selected
+						assert(cur->id != 3);
+						break;
+					case 4: case 5: case 6: //war machines cannot go to backpack
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
+						break;
+					default:
+						setMeAsDest();
+						amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + Arts::BACKPACK_START);
+						if(srcInBackpack && srcInSameHero)
+						{
+							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with amin above it will guarantee that dest is at most the last artifact
+							  || ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
+								ourOwner->commonInfo->dst.slotID--;
+						}
+						if(srcInSameHero && ourOwner->commonInfo->dst.slotID == ourOwner->commonInfo->src.slotID) //we came to src == dst
+							deselect();
+						else
+							ourOwner->realizeCurrentTransaction();
+						break;
 					}
-					break;
-				default:
-					ourOwner->commonInfo->destAOH = ourOwner;
-					ourOwner->commonInfo->destSlotID = slotID;
-					ourOwner->commonInfo->destArtifact = NULL;
-
-					// Correction for backpack position when src lies before dest.
-					ourOwner->commonInfo->destSlotID +=
-						(ourOwner->commonInfo->srcAOH == ourOwner
-						&& ourOwner->commonInfo->srcSlotID >= 19
-						&& ourOwner->commonInfo->srcSlotID <= slotID);
-
-					LOCPLINT->cb->swapArtifacts(
-						ourOwner->commonInfo->srcAOH->curHero,
-						ourOwner->commonInfo->srcSlotID,
-						ourOwner->curHero,
-						ourOwner->commonInfo->destSlotID);
-
-					break;
 				}
 			}
 			//check if swap is possible
-			else if (this->fitsHere(ourOwner->commonInfo->srcArtifact) &&
+			else if (fitsHere(ourOwner->commonInfo->src.art) &&
 				(!ourArt || ourOwner->curHero->tempOwner == LOCPLINT->playerID))
 			{
-				ourOwner->commonInfo->destAOH = ourOwner;
-				ourOwner->commonInfo->destSlotID = slotID;
-				ourOwner->commonInfo->destArtifact = ourArt;
+				setMeAsDest();
+// 
+// 				// Special case when the dest artifact can't be fit into the src slot.
+// 				//CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
+// 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->src.AOH;
+// 				ui16 srcSlotID = ourOwner->commonInfo->src.slotID;
+// 				if (ourArt && srcSlotID < 19 && !ourArt->canBePutAt(ArtifactLocation(srcAOH->curHero, srcSlotID))) 
+// 				{
+// 					// Put dest artifact into owner's backpack.
+// 					ourOwner->commonInfo->src.AOH = ourOwner;
+// 					ourOwner->commonInfo->src.slotID = ourOwner->curHero->artifacts.size() + 19;
+// 				}
 
-				// Special case when the dest artifact can't be fit into the src slot.
-				CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
-				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->srcAOH;
-				ui16 srcSlotID = ourOwner->commonInfo->srcSlotID;
-				if (ourArt && srcSlotID < 19 && !ourArt->fitsAt(srcAOH->curHero->artifWorn, srcSlotID)) 
-				{
-					// Put dest artifact into owner's backpack.
-					ourOwner->commonInfo->srcAOH = ourOwner;
-					ourOwner->commonInfo->srcSlotID = ourOwner->curHero->artifacts.size() + 19;
-				}
-
-				LOCPLINT->cb->swapArtifacts(
-						srcAOH->curHero,
-						srcSlotID,
-						ourOwner->curHero,
-						slotID);
+				ourOwner->realizeCurrentTransaction();
 			}
 		}
 	}
@@ -4609,43 +4649,40 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked() && text.size())  //if there is no description or it's a lock, do nothing ;]
+	if(down && ourArt && !locked && text.size())  //if there is no description or it's a lock, do nothing ;]
 	{
 		if (slotID < 19) 
 		{
-			selectedNo = false;
 			if(ourOwner->allowedAssembling)
 			{
+				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
+
 				// If the artifact can be assembled, display dialog.
-				if (ourArt->constituentOf != NULL) 
+				BOOST_FOREACH(const CArtifact *combination, assemblyPossibilities) 
 				{
-					BOOST_FOREACH(ui32 combination, *ourArt->constituentOf) 
+					LOCPLINT->showArtifactAssemblyDialog(
+						ourArt->artType->id,
+						combination->id,
+						true,
+						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination->id),
+						0);
+
+					if(assemblyPossibilities.size() > 2)
 					{
-						if (ourArt->canBeAssembledTo(ourOwner->curHero->artifWorn, combination)) 
-						{
-							LOCPLINT->showArtifactAssemblyDialog(
-								ourArt->id,
-								combination,
-								true,
-								boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination),
-								boost::bind(&CArtPlace::userSelectedNo, this));
-							if (!selectedNo)
-								return;
-						}
+						tlog3 << "More than one possibility of assembling... taking only first\n";
+						break;
 					}
 				}
 
 				// Otherwise if the artifact can be diasassembled, display dialog.
-				if (ourArt->constituents != NULL) 
+				if(ourArt->canBeDisassembled())
 				{
 					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->id,
+						ourArt->artType->id,
 						0,
 						false,
 						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
-						boost::bind(&CArtPlace::userSelectedNo, this));
-					if (!selectedNo)
-						return;
+						0);
 				}
 			}
 		}
@@ -4656,42 +4693,22 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 }
 
 /**
- * Helper function to catch when a user selects no in an artifact assembly dialog.
- */
-void CArtPlace::userSelectedNo ()
-{
-	selectedNo = true;
-}
-
-/**
  * Selects artifact slot so that the containing artifact looks like it's picked up.
  */
 void CArtPlace::select ()
 {
-	if (locked())
+	if (locked)
 		return;
 
-	int backpackCorrection = -(slotID - 19 < ourOwner->backpackPos);
+	picked = true;
+	//int backpackCorrection = -(slotID - Arts::BACKPACK_START < ourOwner->backpackPos);
 
-	CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->id].bitmap);
-
-	ourOwner->commonInfo->srcArtifact = ourArt;
-	ourOwner->commonInfo->srcSlotID = slotID;
-	ourOwner->commonInfo->srcAOH = ourOwner;
-
-	// Temporarily remove artifact from hero.
-	if (slotID < 19)
-		CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
-	else
-		ourOwner->curHero->artifacts.erase(ourOwner->curHero->artifacts.begin() + (slotID - 19));
+	CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->artType->id].bitmap);
+	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
-	//ourOwner->curHero->recreateArtBonuses();
 
-
-	if (slotID >= 19)
-		ourOwner->scrollBackpack(backpackCorrection);
-	else
-		ourOwner->eraseSlotData(this, slotID);
+	if(slotID >= Arts::BACKPACK_START)
+		ourOwner->scrollBackpack(0); //will update slots
 
 	// Update the hero bonuses.
 	ourOwner->updateParentWindow();
@@ -4703,8 +4720,16 @@ void CArtPlace::select ()
  */
 void CArtPlace::deselect ()
 {
-	CGI->curh->dragAndDropCursor(NULL);
+	picked = false;
+	CCS->curh->dragAndDropCursor(NULL);
 	ourOwner->unmarkSlots();
+	ourOwner->commonInfo->src.clear();
+	if(slotID >= Arts::BACKPACK_START)
+		ourOwner->scrollBackpack(0); //will update slots
+
+
+	ourOwner->updateParentWindow();
+	ourOwner->safeRedraw();
 }
 
 void CArtPlace::deactivate()
@@ -4717,8 +4742,11 @@ void CArtPlace::deactivate()
 
 void CArtPlace::showAll(SDL_Surface *to)
 {
-	if (ourArt)
-		blitAt(graphics->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
+	if (ourArt && !picked)
+	{
+		int graphic = locked ? 145 : ourArt->artType->id;
+		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
+	}
 
 	if(marked && active)
 	{
@@ -4738,7 +4766,7 @@ void CArtPlace::showAll(SDL_Surface *to)
 	}
 }
 
-bool CArtPlace::fitsHere(const CArtifact * art) const
+bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 {
 	// You can place 'no artifact' anywhere.
 	if(!art)
@@ -4748,7 +4776,7 @@ bool CArtPlace::fitsHere(const CArtifact * art) const
 	if (slotID >= 19)
 		return !CGI->arth->isBigArtifact(art->id);
 
-	return art->fitsAt(ourOwner->curHero->artifWorn, slotID);
+	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
 }
 
 CArtPlace::~CArtPlace()
@@ -4756,9 +4784,27 @@ CArtPlace::~CArtPlace()
 	deactivate();
 }
 
-bool CArtPlace::locked() const
+void CArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
 {
-	return ourArt && ourArt->id == 145;
+	ourOwner->commonInfo->dst.setTo(this, backpackAsVoid);
+}
+
+void CArtPlace::setArtifact(const CArtifactInstance *art)
+{
+	ourArt = art;
+	if(!art)
+	{
+		text = std::string();
+		hoverText = CGI->generaltexth->allTexts[507];
+	}
+	else
+	{
+		text = ourArt->artType->Description();
+		if (locked) // Locks should appear as empty.
+			hoverText = CGI->generaltexth->allTexts[507];
+		else
+			hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
+	}
 }
 
 void HoverableArea::hover (bool on)
@@ -4792,11 +4838,24 @@ void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 
 LRClickableAreaWText::LRClickableAreaWText()
 {
-	used = LCLICK | RCLICK | HOVER;
+	init();
+}
+
+LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
+{
+	init();
+	pos = Pos + pos;
+	hoverText = HoverText;
+	text = ClickText;
 }
 
 LRClickableAreaWText::~LRClickableAreaWText()
 {
+}
+
+void LRClickableAreaWText::init()
+{
+	used = LCLICK | RCLICK | HOVER;
 }
 
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
@@ -4806,6 +4865,11 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonusValue));
 		LOCPLINT->showInfoDialog(text, comp);
 	}
+}
+
+LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
+	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
+{
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
@@ -4860,77 +4924,81 @@ void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
+LRClickableAreaOpenTown::LRClickableAreaOpenTown()
+	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
+{
+}
+
 void CArtifactsOfHero::SCommonPart::reset()
 {
-	destAOH = srcAOH = NULL;
-	destArtifact = srcArtifact = NULL;
-	destSlotID = srcSlotID = -1;
-	CGI->curh->dragAndDropCursor(NULL);
+	src.clear();
+	dst.clear();
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
-	// An update is made, rather than initialization.
-	if (curHero && curHero->id == hero->id) 
-	{
-		if(curHero != hero)
-		{
-			delete	curHero;
-			hero = curHero = new CGHeroInstance(*hero);
-		}
+// 	// An update is made, rather than initialization.
+// 	if (curHero && curHero->id == hero->id) 
+// 	{
+// 		if(curHero != hero)
+// 		{
+// 			//delete	curHero;
+// 			curHero = hero; //was: creating a copy
+// 		}
+// 
+// 		// Compensate backpack pos if an artifact was insertad before it.
+// 		if (commonInfo->dst.slotID >= 19 && commonInfo->destAOH == this
+// 			&& commonInfo->dst.slotID - 19 < backpackPos)
+// 		{
+// 			backpackPos++;
+// 		}
+// 
+// 		if (updateState && commonInfo->srcAOH == this) 
+// 		{
+// 			// A swap was made, make the replaced artifact the current selected.
+// 			if (commonInfo->dst.slotID < 19 && commonInfo->destArtifact) 
+// 			{
+// // 				// Temporarily remove artifact from hero.
+// // 				if (commonInfo->srcSlotID < 19)
+// // 					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
+// // 				else
+// // 					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
+// 
+// 				updateParentWindow(); //TODO: evil! but does the thing
+// 
+// 				// Source <- Dest
+// 				commonInfo->srcArtifact = commonInfo->destArtifact;
+// 
+// 				// Reset destination parameters.
+// 				commonInfo->dst.clear();
+// 
+// 				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
+// 				markPossibleSlots(commonInfo->srcArtifact);
+// 			} 
+// 			else if (commonInfo->destAOH != NULL) 
+// 			{
+// 				// Reset all parameters.
+// 				commonInfo->reset();
+// 				unmarkSlots();
+// 			}
+// 		}
+// 	} 
+// 	else 
+// 	{
+// 		commonInfo->reset();
+// 	}
+// 
+// 	if(hero != curHero)
+// 	{
+// // 		delete curHero;
+// 		// 		curHero = new CGHeroInstance(*hero);
+// 		curHero = hero; //was: creating a copy
+// 	}
 
-		// Compensate backpack pos if an artifact was insertad before it.
-		if (commonInfo->destSlotID >= 19 && commonInfo->destAOH == this
-			&& commonInfo->destSlotID - 19 < backpackPos)
-		{
-			backpackPos++;
-		}
-
-		if (updateState && commonInfo->srcAOH == this) 
-		{
-			// A swap was made, make the replaced artifact the current selected.
-			if (commonInfo->destSlotID < 19 && commonInfo->destArtifact) 
-			{
-				// Temporarily remove artifact from hero.
-				if (commonInfo->srcSlotID < 19)
-					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
-				else
-					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-
-				updateParentWindow(); //TODO: evil! but does the thing
-
-				// Source <- Dest
-				commonInfo->srcArtifact = commonInfo->destArtifact;
-
-				// Reset destination parameters.
-				commonInfo->destAOH = NULL;
-				commonInfo->destArtifact = NULL;
-				commonInfo->destSlotID = -1;
-
-				CGI->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
-				markPossibleSlots(commonInfo->srcArtifact);
-			} 
-			else if (commonInfo->destAOH != NULL) 
-			{
-				// Reset all parameters.
-				commonInfo->reset();
-				unmarkSlots();
-			}
-		}
-	} 
-	else 
-	{
-		commonInfo->reset();
-	}
-
-	if(hero != curHero)
-	{
-		delete curHero;
-		curHero = new CGHeroInstance(*hero);
-	}
-
-	if (curHero->artifacts.size() > 0)
-		backpackPos %= curHero->artifacts.size();
+	curHero = hero;
+	if (curHero->artifactsInBackpack.size() > 0)
+		backpackPos %= curHero->artifactsInBackpack.size();
 	else
 		backpackPos = 0;
 
@@ -4942,61 +5010,57 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 void CArtifactsOfHero::dispose()
 {
-	delNull(curHero);
+	//delNull(curHero);
 	unmarkSlots(false);
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CArtifactsOfHero::scrollBackpack(int dir)
 {
+	int artsInBackpack = curHero->artifactsInBackpack.size();
 	backpackPos += dir;
-	if (curHero->artifacts.size() > 0) 
-	{
-		if (backpackPos < 0) // No guarantee of modulus behavior with negative operands.
-		{ 
-			do 
-			{
-				backpackPos += curHero->artifacts.size();
-			} while (backpackPos < 0);
-		} 
-		else 
-		{
-			backpackPos %= curHero->artifacts.size();
-		}
-	}
+	if(backpackPos < 0)// No guarantee of modulus behavior with negative operands -> we keep it positive
+		backpackPos += artsInBackpack;
 
-	std::multiset<int> toOmmit = artifactsOnAltar;
-	int ommited = 0;
+	if(artsInBackpack)
+		backpackPos %= artsInBackpack;
+
+	std::multiset<const CArtifactInstance *> toOmit = artifactsOnAltar;
+	if(commonInfo->src.art) //if we picked an art from backapck, its slot has to be omitted
+		toOmit.insert(commonInfo->src.art);
+	
+	int omitedSoFar = 0;
 
 	//set new data
 	size_t s = 0;
-	for( ; s < curHero->artifacts.size(); ++s) 
+	for( ; s < artsInBackpack; ++s) 
 	{
 
-		if (s < curHero->artifacts.size())
+		if (s < artsInBackpack)
 		{
-			int slotID = 19 + (s + backpackPos)%curHero->artifacts.size();
-			const CArtifact *art = curHero->getArt(slotID);
+			int slotID = 19 + (s + backpackPos)%artsInBackpack;
+			const CArtifactInstance *art = curHero->getArt(slotID);
 			assert(art);
-			if(!vstd::contains(toOmmit, art->id))
-			{
-				if(s - ommited < 5)
-					setSlotData(backpack[s-ommited], slotID);
+			if(!vstd::contains(toOmit, art))
+			{ 
+				if(s - omitedSoFar < 5)
+					setSlotData(backpack[s-omitedSoFar], slotID);
 			}
 			else
 			{
-				toOmmit -= art->id;
-				ommited ++;
+				toOmit -= art;
+				omitedSoFar++;
 				continue;
 			}
 		}
 	}
-	for( ; s - ommited < 5; s++)
-		eraseSlotData(backpack[s-ommited], 19 + s);
+	for( ; s - omitedSoFar < 5; s++)
+		eraseSlotData(backpack[s-omitedSoFar], 19 + s);
 
 	//blocking scrolling if there is not enough artifacts to scroll
-	leftArtRoll->block(curHero->artifacts.size() - ommited <= backpack.size());
-	rightArtRoll->block(curHero->artifacts.size() - ommited <= backpack.size());
+	bool scrollingPossible = artsInBackpack - omitedSoFar > backpack.size();
+	leftArtRoll->block(!scrollingPossible);
+	rightArtRoll->block(!scrollingPossible);
 
 	safeRedraw();
 
@@ -5007,21 +5071,12 @@ void CArtifactsOfHero::scrollBackpack(int dir)
  *
  * @param art Artifact checked against.
  */
-void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
+void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 {
-	for (std::set<CArtifactsOfHero *>::iterator it = commonInfo->participants.begin();
-		it != commonInfo->participants.end();
-		++it)
-	{
-		for (int i = 0; i < (*it)->artWorn.size(); i++) 
-		{
-			if ((*it)->artWorn[i]->fitsHere(art))
-				(*it)->artWorn[i]->marked = true;
-			else
-				(*it)->artWorn[i]->marked = false;
-		}
-	}
-
+	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
+		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
+			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
+	
 	safeRedraw();
 }
 
@@ -5030,15 +5085,16 @@ void CArtifactsOfHero::markPossibleSlots (const CArtifact* art)
  */
 void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 {
-	if(!commonInfo) return;
-	for (std::set<CArtifactsOfHero *>::iterator it = commonInfo->participants.begin();
-		it != commonInfo->participants.end();
-		++it)
+	if(commonInfo)
 	{
-		for (int i = 0; i < (*it)->artWorn.size(); i++) 
-		{
-			(*it)->artWorn[i]->marked = false;
-		}
+		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
+			BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
+			place->marked = false;
+	}
+	else
+	{
+		BOOST_FOREACH(CArtPlace *place, artWorn)
+			place->marked = false;
 	}
 
 	if(withRedraw)
@@ -5048,39 +5104,44 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 /**
  * Assigns an artifacts to an artifact place depending on it's new slot ID.
  */
-void CArtifactsOfHero::setSlotData (CArtPlace* artPlace, int slotID)
+void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 {
-	artPlace->slotID = slotID;
-	artPlace->ourArt = curHero->getArt(slotID);
-
-	if (artPlace->ourArt) 
+	if(!artPlace && slotID >= Arts::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
-		artPlace->text = artPlace->ourArt->Description();
-		if (artPlace->locked()) // Locks should appear as empty.
-			artPlace->hoverText = CGI->generaltexth->allTexts[507];
-		else
-			artPlace->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1].c_str()) % artPlace->ourArt->Name().c_str());
-	} 
-	else 
-	{
-		eraseSlotData(artPlace, slotID);
+		return;
 	}
-}
+
+	artPlace->picked = false;
+	artPlace->slotID = slotID;
+	
+	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
+	{
+		artPlace->setArtifact(asi->artifact);
+		artPlace->locked = asi->locked;
+	}
+	else
+		artPlace->setArtifact(NULL);
+} 
 
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
  */
 void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 {
+	artPlace->picked = false;
 	artPlace->slotID = slotID;
-	artPlace->ourArt = NULL;
-	artPlace->text = std::string();
-	artPlace->hoverText = CGI->generaltexth->allTexts[507];
+	artPlace->setArtifact(NULL);
 }
 
-CArtifactsOfHero::CArtifactsOfHero(const Point &position) :
-	curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
+CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
+ : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
 {
+	if(createCommonPart)
+	{
+		commonInfo = new CArtifactsOfHero::SCommonPart;
+		commonInfo->participants.insert(this);
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
 	artWorn.resize(19);
@@ -5133,11 +5194,7 @@ void CArtifactsOfHero::updateParentWindow()
 		if(updateState)
 			chw->curHero = curHero;
 		else
-		{
-			chw->deactivate();
-			chw->setHero(curHero);
-			chw->activate();
-		}
+			chw->update(curHero, true);
 	} 
 	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
 	{
@@ -5172,6 +5229,119 @@ void CArtifactsOfHero::safeRedraw()
 		parent->redraw();
 	else 
 		redraw();
+}
+
+void CArtifactsOfHero::realizeCurrentTransaction()
+{
+	assert(commonInfo->src.AOH);
+	assert(commonInfo->dst.AOH);
+	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH->curHero, commonInfo->src.slotID, 
+								commonInfo->dst.AOH->curHero, commonInfo->dst.slotID);
+}
+
+void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
+{
+	if(src.hero == curHero && src.slot >= Arts::BACKPACK_START)
+		setSlotData(getArtPlace(src.slot), src.slot);
+	if(dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
+		setSlotData(getArtPlace(dst.slot), dst.slot);
+	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
+		updateWornSlots();
+
+	if(commonInfo->src == src) //artifact was taken from us
+	{
+		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + Arts::BACKPACK_START);
+		commonInfo->reset();
+		unmarkSlots();
+	}
+	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
+	{
+		assert(dst.slot >= Arts::BACKPACK_START);
+		commonInfo->reset();
+
+		CArtPlace *ap = NULL;
+		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
+		{
+			if(aoh->curHero == dst.hero)
+			{
+				commonInfo->src.AOH = aoh;
+				if(ap = aoh->getArtPlace(dst.slot))
+					break;
+			}
+		}
+
+		if(ap)
+		{
+			ap->select();
+		}
+		else
+		{
+			commonInfo->src.art = dst.getArt();
+			commonInfo->src.slotID = dst.slot;
+			assert(commonInfo->src.AOH);
+			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[dst.getArt()->artType->id].bitmap);
+			markPossibleSlots(dst.getArt());
+		}
+	}
+	else if(src.slot >= Arts::BACKPACK_START && src.slot < commonInfo->src.slotID && src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
+	{
+		int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
+		commonInfo->src.slotID--;
+		assert(commonInfo->src.valid());
+	}
+	else
+	{
+		tlog1 << "Unexpected artifact movement...\n";
+	}
+
+ 	int shift = 0;
+// 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
+// 		shift++;
+// 
+ 	if(src.slot < Arts::BACKPACK_START  &&  dst.slot - Arts::BACKPACK_START < backpackPos)
+		shift++;
+	if(dst.slot < Arts::BACKPACK_START  &&  src.slot - Arts::BACKPACK_START < backpackPos)
+ 		shift--;
+
+	if( src.hero == curHero && src.slot >= Arts::BACKPACK_START
+	 || dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
+		scrollBackpack(shift); //update backpack slots
+}
+
+CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
+{
+	if(slot < Arts::BACKPACK_START)
+	{
+		return artWorn[slot];
+	}
+	else
+	{
+		BOOST_FOREACH(CArtPlace *ap, backpack)
+			if(ap->slotID == slot)
+				return ap;
+	}
+
+	return NULL;
+}
+
+void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
+{
+	if(al.hero == curHero)
+		updateWornSlots();
+}
+
+void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
+{
+	if(al.hero == curHero)
+		updateWornSlots();
+}
+
+void CArtifactsOfHero::updateWornSlots()
+{
+	for(int i = 0; i < Arts::BACKPACK_START; i++)
+		setSlotData(getArtPlace(i), i);
+
+	updateParentWindow();
 }
 
 void CExchangeWindow::close()
@@ -5290,7 +5460,7 @@ void CExchangeWindow::show(SDL_Surface * to)
 
 void CExchangeWindow::questlog(int whichHero)
 {
-	CGI->curh->dragAndDropCursor(NULL);
+	CCS->curh->dragAndDropCursor(NULL);
 }
 
 void CExchangeWindow::prepareBackground()
@@ -5375,7 +5545,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-
+	
 	artifs[0] = new CArtifactsOfHero(Point(pos.x + -334, pos.y + 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
@@ -5385,6 +5555,8 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	artifs[1]->commonInfo->participants.insert(artifs[1]);
 	artifs[1]->setHero(heroInst[1]);
 
+	artSets.push_back(artifs[0]);
+	artSets.push_back(artifs[1]);
 
 	//primary skills
 	for(int g=0; g<4; ++g)
@@ -5442,12 +5614,10 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
-		morale[b] = new MoraleLuckBox(true);
-		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
+		morale[b] = new MoraleLuckBox(true, genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45));
 		morale[b]->set(heroInst[b]);
 		//setting luck
-		luck[b] = new MoraleLuckBox(false);
-		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
+		luck[b] = new MoraleLuckBox(false, genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45));
 		luck[b]->set(heroInst[b]);
 	}
 
@@ -5790,7 +5960,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	
 	for (int i=0; i<7; i++ )
 		if ( army->getCreature(i) )
-			items.push_back(new CItem(this, army->getAmount(i), i));
+			items.push_back(new CItem(this, army->getStackCount(i), i));
 			
 	all    = new AdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new AdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
@@ -5841,7 +6011,7 @@ void CUniversityWindow::CItem::hover(bool on)
 
 int CUniversityWindow::CItem::state()
 {
-	if (parent->hero->getSecSkillLevel(ID))//hero know this skill
+	if (parent->hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ID)))//hero know this skill
 		return 1;
 	if (parent->hero->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
 		return 0;
@@ -6034,7 +6204,7 @@ void CHillFortWindow::updateGarrisons()
 			if (info.newID.size())//we have upgrades here - update costs
 				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
 				{
-					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getAmount(i) );
+					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getStackCount(i) );
 					costs[i].insert(pair);
 					totalSumm[pair.first] += pair.second;
 				}
@@ -6147,7 +6317,7 @@ std::string CHillFortWindow::getTextForSlot(int slot)
 		return "";
 
 	std::string str = CGI->generaltexth->allTexts[318];
-	int amount = hero->getAmount(slot);
+	int amount = hero->getStackCount(slot);
 	if ( amount == 1 )
 		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
 	else
@@ -6182,7 +6352,7 @@ int CHillFortWindow::getState(int slot)
 		return 1;
 
 	for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
-		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getAmount(slot))
+		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getStackCount(slot))
 			return 0;
 	return 2;//can upgrade
 }
@@ -6416,13 +6586,16 @@ void MoraleLuckBox::set(const CBonusSystemNode *node)
 void MoraleLuckBox::showAll(SDL_Surface * to)
 {
 	CDefEssential *def = morale ? graphics->morale42 : graphics->luck42;
-	blitAt(def->ourImages[bonusValue].bitmap, pos, to);
+	SDL_Surface *img = def->ourImages[bonusValue + 3].bitmap;
+	
+	blitAt(img, Rect(img).centerIn(pos), to); //put img in the center of our pos
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale)
+MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r)
 	:morale(Morale)
 {
 	bonusValue = 0;
+	pos = r + pos;
 }
 
 MoraleLuckBox::~MoraleLuckBox()
@@ -6764,4 +6937,52 @@ void CFocusable::moveFocus()
 			break;;
 		}
 	}
+}
+
+CWindowWithArtifacts::CWindowWithArtifacts()
+{
+	type |= WITH_ARTIFACTS;
+}
+
+CWindowWithArtifacts::~CWindowWithArtifacts()
+{
+}
+
+void CArtifactsOfHero::SCommonPart::Artpos::clear()
+{
+	slotID = -1;
+	AOH = NULL;
+	art = NULL;
+}
+
+CArtifactsOfHero::SCommonPart::Artpos::Artpos()
+{
+	clear();
+}
+
+void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CArtPlace *place, bool dontTakeBackpack)
+{
+	slotID = place->slotID;
+	AOH = place->ourOwner;
+
+	if(slotID >= 19 && dontTakeBackpack)
+		art = NULL;
+	else
+		art = place->ourArt;
+}
+
+bool CArtifactsOfHero::SCommonPart::Artpos::operator==(const ArtifactLocation &al) const
+{
+	if(!AOH)
+		return false;
+	bool ret = al.hero == AOH->curHero  &&  al.slot == slotID;
+
+	//assert(al.getArt() == art);
+	return ret;
+}
+
+bool CArtifactsOfHero::SCommonPart::Artpos::valid()
+{
+	assert(AOH && art);
+	return art == AOH->curHero->getArt(slotID);
 }

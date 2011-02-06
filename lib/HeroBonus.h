@@ -4,6 +4,7 @@
 #include <list>
 #include <set>
 #include <boost/function.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 /*
  * HeroBonus.h, part of VCMI engine
@@ -20,11 +21,13 @@ class CSpell;
 struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
+class IPropagator;
 
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
-typedef boost::function<bool(const Bonus&)> CSelector;
+typedef std::vector<CBonusSystemNode *> TNodesVector;
+typedef boost::function<bool(const Bonus*)> CSelector;
 
 namespace PrimarySkill
 {
@@ -172,13 +175,14 @@ struct DLL_EXPORT Bonus
 		N_TURNS = 16, //used during battles, after battle bonus is always removed
 		N_DAYS = 32,
 		UNITL_BEING_ATTACKED = 64,/*removed after attack and counterattacks are performed*/
-		UNTIL_ATTACK = 128 /*removed after attack and counterattacks are performed*/
+		UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
+		STACK_GETS_TURN = 256 /*removed when stack gets its turn - used for defensive stance*/
 	};
 	enum BonusSource
 	{
-		ARTIFACT, 
-		OBJECT, 
-		CASTED_SPELL,
+		ARTIFACT,
+		ARTIFACT_INSTANCE,
+		OBJECT,
 		CREATURE_ABILITY,
 		TERRAIN_NATIVE,
 		TERRAIN_OVERLAY,
@@ -190,7 +194,8 @@ struct DLL_EXPORT Bonus
 		ARMY,
 		CAMPAIGN_BONUS,
 		SPECIAL_WEEK,
-		STACK_EXPERIENCE
+		STACK_EXPERIENCE,
+		OTHER /*used for defensive stance*/
 	};
 
 	enum LimitEffect
@@ -211,7 +216,7 @@ struct DLL_EXPORT Bonus
 		INDEPENDENT_MAX //used for SPELL bonus
 	};
 
-	ui8 duration; //uses BonusDuration values
+	ui16 duration; //uses BonusDuration values
 	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
 
 	TBonusType type; //uses BonusType values - says to what is this bonus - 1 byte
@@ -225,13 +230,15 @@ struct DLL_EXPORT Bonus
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
 
-	ILimiter *limiter;
+	boost::shared_ptr<ILimiter> limiter;
+	boost::shared_ptr<IPropagator> propagator;
 
 	std::string description; 
 
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
 	Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE);
 	Bonus();
+	~Bonus();
 
 // 	//comparison
 // 	bool operator==(const HeroBonus &other)
@@ -250,25 +257,29 @@ struct DLL_EXPORT Bonus
 		h & duration & type & subtype & source & val & id & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
 	}
 
-	static bool OneDay(const Bonus &hb)
+	static bool OneDay(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_DAY;
+		return hb->duration & Bonus::ONE_DAY;
 	}
-	static bool OneWeek(const Bonus &hb)
+	static bool OneWeek(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_WEEK;
+		return hb->duration & Bonus::ONE_WEEK;
 	}
-	static bool OneBattle(const Bonus &hb)
+	static bool OneBattle(const Bonus *hb)
 	{
-		return hb.duration & Bonus::ONE_BATTLE;
+		return hb->duration & Bonus::ONE_BATTLE;
 	}
-	static bool UntilAttack(const Bonus &hb)
+	static bool UntilGetsTurn(const Bonus *hb)
 	{
-		return hb.duration & Bonus::UNTIL_ATTACK;
+		return hb->duration & Bonus::STACK_GETS_TURN;
 	}
-	static bool UntilBeingAttacked(const Bonus &hb)
+	static bool UntilAttack(const Bonus *hb)
 	{
-		return hb.duration & Bonus::UNITL_BEING_ATTACKED;
+		return hb->duration & Bonus::UNTIL_ATTACK;
+	}
+	static bool UntilBeingAttacked(const Bonus *hb)
+	{
+		return hb->duration & Bonus::UNITL_BEING_ATTACKED;
 	}
 	static bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{
@@ -289,6 +300,8 @@ struct DLL_EXPORT Bonus
 	const CSpell * sourceSpell() const;
 
 	std::string Description() const;
+
+	Bonus *addLimiter(ILimiter *Limiter); //returns this for convenient chain-calls
 };
 
 struct DLL_EXPORT stackExperience : public Bonus
@@ -305,7 +318,7 @@ struct DLL_EXPORT stackExperience : public Bonus
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-class BonusList : public std::list<Bonus>
+class BonusList : public std::list<Bonus*>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
@@ -322,18 +335,25 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<std::list<Bonus>&>(*this);
+		h & static_cast<std::list<Bonus*>&>(*this);
 	}
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
+class DLL_EXPORT IPropagator
+{
+public:
+	virtual ~IPropagator();
+	virtual CBonusSystemNode *getDestNode(CBonusSystemNode *source);
+};
+	
 class DLL_EXPORT ILimiter
 {
 public:
 	virtual ~ILimiter();
 
-	virtual bool limit(const Bonus &b, const CBonusSystemNode &node) const; //return true to drop the bonus
+	virtual bool limit(const Bonus *b, const CBonusSystemNode &node) const; //return true to drop the bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
@@ -342,7 +362,12 @@ public:
 class DLL_EXPORT CBonusSystemNode
 {
 public:
-	BonusList bonuses;
+	BonusList bonuses; //wielded bonuses (local and up-propagated here)
+	BonusList exportedBonuses;
+
+	TNodesVector parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
+									children;
+
 	ui8 nodeType;
 
 	CBonusSystemNode();
@@ -351,19 +376,21 @@ public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
-	virtual void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
-	virtual void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-	BonusList getBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-	BonusList getBonuses(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int getBonusesCount(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int valOfBonuses(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	bool hasBonus(const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;  //out: pairs<modifier value, modifier description>* 
 	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
 
 	//////////////////////////////////////////////////////////////////////////
+	//interface
+	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(const CSelector &selector) const;
+	int valOfBonuses(const CSelector &selector) const;
+	bool hasBonus(const CSelector &selector) const;
+	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	BonusList getBonuses(const CSelector &selector) const;
+
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
@@ -371,8 +398,8 @@ public:
 	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
 	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(int from, int id) const;
-	virtual ui32 getMinDamage() const; //used for stacks and creatures only
-	virtual ui32 getMaxDamage() const;
+	ui32 getMinDamage() const; //used for stacks and creatures only
+	ui32 getMaxDamage() const;
 
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
@@ -381,18 +408,42 @@ public:
 	ui16 MaxHealth() const; //get max HP of stack with all modifiers
 
 
+	const Bonus *getBonus(const CSelector &selector) const;
 	//non-const interface
-	void getParents(TNodes &out, const CBonusSystemNode *root = NULL);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 	Bonus *getBonus(const CSelector &selector);
+
+	void attachTo(CBonusSystemNode *parent);
+	void detachFrom(CBonusSystemNode *parent);
+	void detachFromAll();
+	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
+
+	void newChildAttached(CBonusSystemNode *child);
+	void childDetached(CBonusSystemNode *child);
+	void propagateBonus(Bonus * b);
+	//void addNewBonus(const Bonus &b); //b will copied
+	void removeBonus(Bonus *b);
+
+	TNodesVector &nodesOnWhichWePropagate();
+	bool isIndependentNode() const; //node is independent when it has no parents nor children
+	bool weActAsBonusSourceOnly() const;
+	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
+	CBonusSystemNode *whereToPropagate(Bonus *b);
+
+	void popBonuses(const CSelector &s);
+	virtual std::string nodeName() const;
+	void deserializationFix();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bonuses & nodeType;
+		h & exportedBonuses;
+		//h & parents & children;
 	}
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE
+		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO
 	};
 };
 
@@ -407,7 +458,7 @@ namespace NBonus
 };
 
 //generates HeroBonus from given data
-inline Bonus makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
 	Bonus sf;
 	sf.type = type;
@@ -421,6 +472,13 @@ inline Bonus makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32
 	return sf;
 }
 
+//generates HeroBonus from given data
+inline Bonus * makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+{
+	return new Bonus(makeFeatureVal(type, duration, subtype, value, source, turnsRemain, additionalInfo));
+}
+
+
 class DLL_EXPORT CSelectorsConjunction
 {
 	const CSelector first, second;
@@ -429,7 +487,7 @@ public:
 		:first(First), second(Second)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return first(bonus) && second(bonus);
 	}
@@ -444,7 +502,7 @@ public:
 		:first(First), second(Second)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return first(bonus) || second(bonus);
 	}
@@ -461,9 +519,9 @@ public:
 		: ptr(Ptr), val(Val)
 	{
 	}
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
-		return bonus.*ptr == val;
+		return bonus->*ptr == val;
 	}
 	CSelectFieldEqual& operator()(const T &setVal)
 	{
@@ -472,16 +530,16 @@ public:
 	}
 };
 
-class CWillLastTurns
+class DLL_EXPORT CWillLastTurns
 {
 public:
 	int turnsRequested;
 
-	bool operator()(const Bonus &bonus) const
+	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus.duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
-			|| bonus.turnsRemain > turnsRequested;	
+			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| bonus->turnsRemain > turnsRequested;	
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{
@@ -490,7 +548,7 @@ public:
 	}
 };
 
-class CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
+class DLL_EXPORT CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
 	const CCreature *creature;
@@ -499,7 +557,7 @@ public:
 	CCreatureTypeLimiter();
 	CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades = true);
 
-	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -507,23 +565,70 @@ public:
 	}
 };
 
-class HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
+class DLL_EXPORT HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
 {
 public:
 	TBonusType type;
 	TBonusSubtype subtype;
 	ui8 isSubtypeRelevant; //check for subtype only if this is true
 
-	HasAnotherBonusLimiter(TBonusType bonus);
+	HasAnotherBonusLimiter(TBonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
 
-	bool limit(const Bonus &b, const CBonusSystemNode &node) const;
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & type & subtype & isSubtypeRelevant;
 	}
 };
+
+class DLL_EXPORT CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain 
+{
+public:
+	si8 terrainType;
+	CreatureNativeTerrainLimiter();
+	CreatureNativeTerrainLimiter(int TerrainType);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & terrainType;
+	}
+};
+
+class DLL_EXPORT CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
+{
+public:
+	si8 faction;
+	CreatureFactionLimiter();
+	CreatureFactionLimiter(int TerrainType);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & faction;
+	}
+};
+
+class DLL_EXPORT CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
+{
+public:
+	si8 alignment;
+	CreatureAlignmentLimiter();
+	CreatureAlignmentLimiter(si8 Alignment);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & alignment;
+	}
+};
+
+const CCreature *retrieveCreature(const CBonusSystemNode *node);
 
 namespace Selector
 {

@@ -3,9 +3,9 @@
 #include "Connection.h"
 #include "NetPacks.h"
 #include "VCMI_Lib.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
+#include "CObjectHandler.h"
+#include "CHeroHandler.h"
+#include "CTownHandler.h"
 /*
  * RegisterTypes.cpp, part of VCMI engine
  *
@@ -75,6 +75,24 @@ void registerTypes1(Serializer &s)
 	//end of objects
 	s.template registerType<ILimiter>();
 	s.template registerType<CCreatureTypeLimiter>();
+	s.template registerType<HasAnotherBonusLimiter>();
+	s.template registerType<CreatureNativeTerrainLimiter>();
+	s.template registerType<CreatureFactionLimiter>();
+	s.template registerType<CreatureAlignmentLimiter>();
+
+	s.template registerType<CBonusSystemNode>();
+	s.template registerType<CArtifact>();
+	s.template registerType<CCreature>();
+	s.template registerType<CStackInstance>();
+	s.template registerType<PlayerState>();
+	s.template registerType<TeamState>();
+	s.template registerType<CGameState>();
+	s.template registerType<CGHeroInstance::HeroSpecial>();
+	s.template registerType<CArmedInstance>();
+	s.template registerType<CStack>();
+	s.template registerType<BattleInfo>();
+	s.template registerType<CArtifactInstance>();
+	s.template registerType<CCombinedArtifactInstance>();
 }
 
 template<typename Serializer> DLL_EXPORT 
@@ -101,12 +119,12 @@ void registerTypes2(Serializer &s)
 	s.template registerType<UpdateCampaignState>();
 	s.template registerType<RemoveObject>();
 	s.template registerType<TryMoveHero>();
-	s.template registerType<SetGarrisons>();
+	//s.template registerType<SetGarrisons>();
 	s.template registerType<NewStructures>();
 	s.template registerType<RazeStructures>();
 	s.template registerType<SetAvailableCreatures>();
 	s.template registerType<SetHeroesInTown>();
-	s.template registerType<SetHeroArtifacts>();
+	//s.template registerType<SetHeroArtifacts>();
 	s.template registerType<HeroRecruited>();
 	s.template registerType<GiveHero>();
 	s.template registerType<NewTurn>();
@@ -138,7 +156,18 @@ void registerTypes2(Serializer &s)
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
 	s.template registerType<NewArtifact>();
+	s.template registerType<ChangeStackCount>();
+	s.template registerType<SetStackType>();
+	s.template registerType<EraseStack>();
+	s.template registerType<SwapStacks>();
+	s.template registerType<InsertNewStack>();
+	s.template registerType<RebalanceStacks>();
 	s.template registerType<SetAvailableArtifacts>();
+	s.template registerType<PutArtifact>();
+	s.template registerType<EraseArtifact>();
+	s.template registerType<MoveArtifact>();
+	s.template registerType<AssembledArtifact>();
+	s.template registerType<DisassembledArtifact>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();

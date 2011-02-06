@@ -149,6 +149,7 @@ struct Rect : public SDL_Rect
 		h = surf->h;
 	}
 
+	Rect centerIn(const Rect &r);
 	static Rect createCentered(int w, int h);
 	static Rect around(const Rect &r, int width = 1); //creates rect around another
 
@@ -300,7 +301,7 @@ public:
 class IShowActivable : public IShowable, public IActivable
 {
 public:
-	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2};
+	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2, WITH_ARTIFACTS = 4};
 	int type; //bin flags using etype
 	IShowActivable();
 	virtual ~IShowActivable(){}; //d-tor
@@ -435,7 +436,7 @@ public:
 	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };
 
-class CGarrisonHolder : public CIntObject// to unify updating garrisons via PlayerInterface
+class CGarrisonHolder : public virtual CIntObject// to unify updating garrisons via PlayerInterface
 {
 public:
 	CGarrisonHolder();

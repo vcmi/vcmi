@@ -12,12 +12,12 @@
  *
  */
 
-CGameInfo * CGI; //game info for general use
+const CGameInfo * CGI; //game info for general use
+CClientState * CCS;
 
 CGameInfo::CGameInfo()
 {
 	mh = NULL;
-	state = NULL;
 }
 
 void CGameInfo::setFromLib()

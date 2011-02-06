@@ -60,16 +60,6 @@ std::string readString(const unsigned char * bufor, int &i)
 	return ret;
 }
 
-Entry CLodHandler::getEntry(const std::string name, LodFileType type)
-{
-	Entry ret;
-	std::set<Entry>::iterator it = entries.find(Entry(name, type));
-	
-	if (it!=entries.end())
-		ret = *it;
-	return ret;
-}
-
 unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType type, int * length)
 {
 	std::string fname = defName;
@@ -77,13 +67,18 @@ unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType typ
 	int dotPos = fname.find_last_of('.');
 	if ( dotPos != -1 )
 		fname.erase(dotPos);
-		
-	Entry ourEntry = getEntry(fname, type);
-	if(!vstd::contains(entries, ourEntry)) //nothing's been found
+
+	int count = entries.size();
+
+	boost::unordered_set<Entry>::const_iterator en_it = entries.find(Entry(fname, type));
+	
+	if(en_it == entries.end()) //nothing's been found
 	{
 		tlog1 << "Cannot find file: " << fname << std::endl;
 		return NULL;
 	}
+	Entry ourEntry = *en_it;
+
 	if(length) *length = ourEntry.realSize;
 	mutex->lock();
 

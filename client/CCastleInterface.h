@@ -7,7 +7,7 @@
 #include <SDL.h>
 #include "CAnimation.h"
 #include "GUIBase.h"
-#include "../hch/CMusicBase.h"
+#include "CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;
@@ -38,10 +38,10 @@ class CBuildingRect : public CShowableAnim
 {
 public:
 	bool moi; //motion interested is active
-	Structure* str;
+	const Structure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
-	CBuildingRect(Structure *Str); //c-tor
+	CBuildingRect(const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
 	void activate();
 	void deactivate();
@@ -238,9 +238,9 @@ public:
 	class Scroll : public CIntObject
 	{
 	public:
-		CSpell *spell;
+		const CSpell *spell;
 
-		Scroll(CSpell *Spell);
+		Scroll(const  CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);

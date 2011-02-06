@@ -2,13 +2,13 @@
 #include "IGameCallback.h"
 #include "../lib/CGameState.h"
 #include "../lib/map.h"
-#include "../hch/CObjectHandler.h"
+#include "CObjectHandler.h"
 #include "../StartInfo.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CSpellHandler.h"
+#include "CArtHandler.h"
+#include "CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/random/linear_congruential.hpp>
-#include "../hch/CTownHandler.h"
+#include "CTownHandler.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -54,7 +54,7 @@ const CGTownInstance* IGameCallback::getTown(int objid)
 {
 	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
-		return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid]);
+		return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid].get());
 	else
 		return NULL;
 }
@@ -96,7 +96,7 @@ int IGameCallback::getHeroCount( int player, bool includeGarrisoned )
 	return ret;
 }
 
-void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ )
+void IGameCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ )
 {
 	if(player >= PLAYER_LIMIT)
 	{
@@ -126,7 +126,7 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 	}
 }
 
-void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int level, int surface )
+void IGameCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int player/*=-1*/, int level, int surface )
 {
 	if(player >= PLAYER_LIMIT)
 	{
@@ -238,7 +238,7 @@ void IGameCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
 	CSpell *spell;
 	for (int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
-		spell = &(VLC->spellh->spells[i]);
+		spell = VLC->spellh->spells[i];
 		if (isAllowed (0, spell->id) && spell->level == level)
 		{
 			out.push_back(spell->id);

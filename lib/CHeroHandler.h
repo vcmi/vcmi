@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 
+#include "../lib/ConstTransitivePtr.h"
+
 /*
  * CHeroHandler.h, part of VCMI engine
  *
@@ -24,6 +26,10 @@ struct SSpecialtyInfo
 	si32 val;
 	si32 subtype;
 	si32 additionalinfo;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & val & subtype & additionalinfo;
+	}
 };
 
 class DLL_EXPORT CHero
@@ -50,7 +56,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & lowStack & highStack & refTypeStack	& heroType & startingSpell & heroClass;
+		h & name & ID & lowStack & highStack & refTypeStack	& heroClass & heroType & secSkillsInit & spec & startingSpell & sex;
 	}
 };
 
@@ -118,7 +124,7 @@ const int PUZZLES_PER_FACTION = 48;
 class DLL_EXPORT CHeroHandler
 {
 public:
-	std::vector<CHero*> heroes; //changed from nodrze
+	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	

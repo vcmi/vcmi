@@ -393,7 +393,7 @@ void CGeneralTextHandler::load()
 	for(int hh=0; hh<45; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
-		trimQuotation(tmp);
+		trimQuotation(tmp); 
 		jktexts.push_back(tmp);
 	}
 
@@ -404,7 +404,7 @@ void CGeneralTextHandler::load()
 		loadToIt(tmp, strin, itr, 3);
 		tavernInfo.push_back(tmp);
 	}
-	
+
 	itr = 0;
 	strin = bitmaph->getTextFile("TURNDUR.TXT");
 	for(int hh=0; hh<11; ++hh)

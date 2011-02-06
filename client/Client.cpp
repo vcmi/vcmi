@@ -1,19 +1,20 @@
-#include "../hch/CMusicHandler.h"
-#include "../hch/CCampaignHandler.h"
+#include "CMusicHandler.h"
+#include "../lib/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "../CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../StartInfo.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CSpellHandler.h"
+#include "../lib/BattleState.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "../lib/CSpellHandler.h"
 #include "../lib/Connection.h"
 #include "../lib/Interprocess.h"
 #include "../lib/NetPacks.h"
@@ -33,6 +34,7 @@
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
+#include "CBattleInterface.h"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
 
@@ -115,7 +117,8 @@ void CClient::waitForMoveAndSend(int color)
 {
 	try
 	{
-		BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
+		assert(vstd::contains(battleints, color));
+		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
 		*serv << &MakeAction(ba);
 		return;
 	}HANDLE_EXCEPTION
@@ -173,7 +176,7 @@ void initVillagesCapitols(Mapa * map)
 	ifs>>ccc;
 	for(int i=0;i<ccc*2;i++)
 	{
-		CGDefInfo *n;
+		const CGDefInfo *n;
 		if(i<ccc)
 		{
 			n = CGI->state->villages[i];
@@ -182,11 +185,11 @@ void initVillagesCapitols(Mapa * map)
 		else 
 			n = CGI->state->capitols[i%ccc];
 
-		ifs >> n->name;
+		ifs >> const_cast<CGDefInfo*>(n)->name;
 		if(!n)
 			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
 		else
-			map->defy.push_back(n);
+			map->defy.push_back(const_cast<CGDefInfo*>(n));
 	}
 }
 
@@ -207,10 +210,9 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	tlog0 << "Removed GUI." << std::endl;
 
 	delete CGI->mh;
-	CGI->mh = NULL;
+	const_cast<CGameInfo*>(CGI)->mh = NULL;
 
-	delete CGI->state;
-	CGI->state = NULL;
+	const_cast<CGameInfo*>(CGI)->state.dellNull();
 	tlog0 << "Deleted mapHandler and gameState." << std::endl;
 
 	CPlayerInterface * oldInt = LOCPLINT;
@@ -246,7 +248,7 @@ void CClient::loadGame( const std::string & fname )
 	{
 		char sig[8];
 		CMapHeader dum;
-		CGI->mh = new CMapHandler();
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		StartInfo *si;
 
 		CLoadFile lf(fname + ".vlgm1");
@@ -254,14 +256,14 @@ void CClient::loadGame( const std::string & fname )
 		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
 		
 		lf >> *VLC;
-		CGI->setFromLib();
+		const_cast<CGameInfo*>(CGI)->setFromLib();
 		tlog0 <<"Reading handlers: "<<tmh.getDif()<<std::endl;
 
 		lf >> gs;
 		tlog0 <<"Reading gamestate: "<<tmh.getDif()<<std::endl;
 
-		CGI->state = gs;
-		CGI->mh->map = gs->map;
+		const_cast<CGameInfo*>(CGI)->state = gs;
+		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
 		initVillagesCapitols(gs->map);
@@ -341,7 +343,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 
 	timeHandler tmh;
-	CGI->state = new CGameState();
+	const_cast<CGameInfo*>(CGI)->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	CConnection &c(*serv);
 	////////////////////////////////////////////////////
@@ -366,46 +368,75 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
-	gs = CGI->state;
+	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
 	gs->init(si, sum, seed);
-
-	CGI->mh = new CMapHandler();
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-	CGI->mh->map = gs->map;
-	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
-	CGI->mh->init();
-	initVillagesCapitols(gs->map);
-	pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
-	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+
+	if(gs->map)
+	{
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+		CGI->mh->map = gs->map;
+		tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
+		CGI->mh->init();
+		initVillagesCapitols(gs->map);
+		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
+		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+	}
 
 	int humanPlayers = 0;
 	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
 		ui8 color = it->first;
+		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-		CCallback *cb = new CCallback(gs,color,this);
-		if(!it->second.human) 
+		if(si->mode != StartInfo::DUEL)
 		{
-			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+			CCallback *cb = new CCallback(gs,color,this);
+			if(!it->second.human) 
+			{
+				playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+			}
+			else 
+			{
+				playerint[color] = new CPlayerInterface(color);
+				humanPlayers++;
+			}
+			battleints[color] = playerint[color];
+
+			playerint[color]->init(cb);
 		}
-		else 
+		else
 		{
-			playerint[color] = new CPlayerInterface(color);
-			humanPlayers++;
+			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
+			battleints[color] = CAIHandler::getNewBattleAI(cb,"StupidAI");
+			battleints[color]->init(cbc);
 		}
-		gs->currentPlayer = color;
-		playerint[color]->init(cb);
 	}
 
-	serv->addStdVecItems(CGI->state);
+	if(si->mode == StartInfo::DUEL)
+	{
+		CPlayerInterface *p = new CPlayerInterface(-1);
+		p->observerInDuelMode = true;
+		battleints[254] = playerint[254] = p;
+		GH.curInt = p;
+		p->init(new CCallback(gs, -1, this));
+		battleStarted(gs->curB);
+	}
+	else
+	{
+		playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
+		playerint[255]->init(new CCallback(gs,255,this));
+		battleints[255] = playerint[255];
+	}
+
+	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
-	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
-	playerint[255]->init(new CCallback(gs,255,this));
+
 }
 
 template <typename Handler>
@@ -517,6 +548,30 @@ void CClient::stopConnection()
 		serv = NULL;
 		tlog3 << "Our socket has been closed." << std::endl;
 	}
+}
+
+void CClient::battleStarted(const BattleInfo * info)
+{
+	CPlayerInterface * att, * def;
+	if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
+		att = static_cast<CPlayerInterface*>( playerint[info->sides[0]] );
+	else
+		att = NULL;
+
+	if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
+		def = static_cast<CPlayerInterface*>( playerint[info->sides[1]] );
+	else
+		def = NULL;
+
+
+	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
+
+	if(vstd::contains(battleints,info->sides[0]))
+		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
+	if(vstd::contains(battleints,info->sides[1]))
+		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(battleints,254))
+		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

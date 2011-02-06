@@ -10,17 +10,17 @@
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
 #include "CAnimation.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CCampaignHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CMusicHandler.h"
-#include "../hch/CVideoHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CCampaignHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "CMusicHandler.h"
+#include "CVideoHandler.h"
 #include <cmath>
 #include "Graphics.h"
 //#include <boost/thread.hpp>
@@ -36,9 +36,9 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdlib>
 #include "CMessage.h"
-#include "../hch/CSpellHandler.h" /*for campaign bonuses*/
-#include "../hch/CArtHandler.h" /*for campaign bonuses*/
-#include "../hch/CBuildingHandler.h" /*for campaign bonuses*/
+#include "../lib/CSpellHandler.h" /*for campaign bonuses*/
+#include "../lib/CArtHandler.h" /*for campaign bonuses*/
+#include "../lib/CBuildingHandler.h" /*for campaign bonuses*/
 #include "CBitmapHandler.h"
 #include "Client.h"
 #include "../lib/NetPacks.h"
@@ -271,7 +271,7 @@ void CMenuScreen::showAll( SDL_Surface * to )
 void CMenuScreen::show( SDL_Surface * to )
 {
 	CIntObject::show(to);
-	CGI->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
+	CCS->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
 }
 
 void CMenuScreen::moveTo( CMenuScreen *next )
@@ -328,11 +328,11 @@ void CGPreGame::update()
 {
 	if (GH.listInt.size() == 0)
 	{
-		CGI->musich->playMusic(musicBase::mainMenu, -1);
+		CCS->musich->playMusic(musicBase::mainMenu, -1);
 	#ifdef _WIN32
-		CGI->videoh->open("ACREDIT.SMK");
+		CCS->videoh->open("ACREDIT.SMK");
 	#else
-		CGI->videoh->open("ACREDIT.SMK", true, false);
+		CCS->videoh->open("ACREDIT.SMK", true, false);
 	#endif
 		GH.pushInt(scrs[CMenuScreen::mainMenu]);
 	}
@@ -340,9 +340,9 @@ void CGPreGame::update()
 	if(SEL)
 		SEL->update();
 
-	CGI->curh->draw1();
+	CCS->curh->draw1();
 	SDL_Flip(screen);
-	CGI->curh->draw2();
+	CCS->curh->draw2();
 	screenLTmax = Point(800 - screen->w, 600 - screen->h);
 	GH.topInt()->show(screen);
 	GH.updateTime();
@@ -2857,7 +2857,7 @@ void CBonusSelection::updateBonusSelection()
 			case 0: //spell
 				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[715];
-				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
 			case 1: //monster
 				surfToDuplicate = de->ourImages[bonDescs[i].info2 + 2].bitmap;
@@ -2880,7 +2880,7 @@ void CBonusSelection::updateBonusSelection()
 					}
 					assert(faction != -1);
 
-					std::string bldgBitmapName = CGI->buildh->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
+					std::string bldgBitmapName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
 					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
 
 					freeDuplicatedSurface = true;
@@ -2894,7 +2894,7 @@ void CBonusSelection::updateBonusSelection()
 			case 4: //spell scroll
 				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[716];
-				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2].name);
+				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
 			case 5: //primary skill
 				{

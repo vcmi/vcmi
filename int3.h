@@ -82,6 +82,7 @@ public:
 	{
 		h & x & y & z;
 	}
+	
 };
 inline std::istream & operator>>(std::istream & str, int3 & dest)
 {
@@ -92,5 +93,16 @@ inline std::ostream & operator<<(std::ostream & str, const int3 & sth)
 {
 	return str<<sth.x<<' '<<sth.y<<' '<<sth.z;
 }
+
+struct ShashInt3
+{
+	size_t operator()(int3 const& pos) const
+	{
+		size_t ret = ::boost::hash<int>()(pos.x);
+		boost::hash_combine(ret, pos.y);
+		boost::hash_combine(ret, pos.z);
+		return ret;
+	}
+};
 
 #endif // __INT3_H__

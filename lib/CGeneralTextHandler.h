@@ -36,7 +36,7 @@ public:
 	std::vector<std::string> overview;//text for Kingdom Overview window
 	std::vector<std::string> colors; //names of player colors ("red",...)
 	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
-	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
+	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited) 
 
 	//artifacts
 	std::vector<std::string> artifEvents;

@@ -6,10 +6,10 @@
 #include <map>
 #include <set>
 
-#include "CSoundBase.h"
 #include "../lib/HeroBonus.h"
 #include "../lib/CGameState.h"
 #include "../lib/CCreatureSet.h"
+#include "../lib/ConstTransitivePtr.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -61,8 +61,11 @@ public:
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
+	bool valid() const;
+
 	void addBonus(int val, int type, int subtype = -1);
-	void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
+	std::string nodeName() const OVERRIDE;
+	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen &ranGen)
@@ -102,15 +105,15 @@ public:
 	CBonusSystemNode *globalEffects;
 	std::set<int> notUsedMonsters;
 	std::set<TCreature> doubledCreatures; //they get double week
-	std::vector<CCreature*> creatures; //creature ID -> creature info
-	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
-	std::map<std::string,int> nameToID;
-	std::map<int,std::string> idToProjectile;
-	std::map<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
+	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
+	bmap<int,std::vector<ConstTransitivePtr< CCreature> > > levelCreatures; //level -> list of creatures
+	bmap<std::string,int> nameToID;
+	bmap<int,std::string> idToProjectile;
+	bmap<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
 	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
 	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
-	std::map<TBonusType, std::pair<std::string, std::string>> stackBonuses; // bonus => name, description
+	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
 	std::vector<BonusList> commonBonuses; // levels 1-8 from CREXPBON.txt
 
 	void loadCreatures();

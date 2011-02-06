@@ -177,8 +177,6 @@ public:
 
 	const CSpell *spellBeingCasted; //NULL if none
 
-	CHeroWindow * heroWindow;
-
 	const CArmedInstance *selection; //currently selected town/hero
 
 	//functions bound to buttons

@@ -126,7 +126,7 @@ public:
 	bool operator+=(T * co); //add
 	bool operator+=(T co); //add
 	bool operator-=(T co); //remove
-	bool operator-=(T * co); //remove
+	bool operator-=(T * co); //ve
 	T* operator%(T * co); // search and return pointer
 	bool operator&(T co); // check if exist
 	bool operator&(T * co); // check if exist

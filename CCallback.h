@@ -43,6 +43,7 @@ class CMapHeader;
 struct CGPathNode;
 struct CGPath;
 class CGGarrison;
+class CObstacleInstance;
 
 struct InfoAboutTown
 {
@@ -61,7 +62,7 @@ struct InfoAboutTown
 	CTown *tType;
 	bool built;
 
-	CCreatureSet army; //numbers of creatures are valid only if details
+	ArmyDescriptor army; //numbers of creatures are valid only if details
 
 	InfoAboutTown();
 	~InfoAboutTown();
@@ -69,10 +70,39 @@ struct InfoAboutTown
 	void initFromGarrison(const CGGarrison *garr, bool detailed);
 };
 
-class ICallback
+class IBattleCallback
 {
 public:
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
+	//battle
+	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	virtual int battleGetObstaclesAtTile(THex tile)=0; //returns bitfield
+	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
+	virtual const CStack * battleGetStackByID(int ID, bool onlyAlive = true)=0; //returns stack info by given ID
+	virtual const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true)=0; //returns stack info by given pos
+	virtual THex battleGetPos(int stack)=0; //returns position (tile ID) of stack
+	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
+	virtual std::vector<const CStack*> battleGetStacks(bool onlyAlive = true)=0; //returns stacks on battlefield
+	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
+	virtual std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
+	virtual std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL)=0; //returns vector of distances to [dest hex number]
+	virtual bool battleCanShoot(const CStack * stack, THex dest)=0; //returns true if unit with id ID can shoot to dest
+	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
+	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
+	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
+	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
+	virtual int battleGetWallUnderHex(THex hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	virtual TDmgRange battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg = NULL)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
+	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding to given side (0 - attacker, 1 - defender)
+	virtual si8 battleHasDistancePenalty(const CStack * stack, THex destHex) =0; //checks if given stack has distance penalty
+	virtual si8 battleHasWallPenalty(const CStack * stack, THex destHex) =0; //checks if given stack has wall penalty
+	virtual si8 battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel) =0; //checks if teleportation of given stack to given position can take place
+};
+
+class ICallback : public virtual IBattleCallback
+{
+public:
 	//hero
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
@@ -156,44 +186,59 @@ public:
 	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTileInfo(int3 tile) const = 0;
 	virtual int getPlayerRelations(ui8 color1, ui8 color2) const =0;// 0 = enemy, 1 = ally, 2 = same player 
-
-//battle
-	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
-	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
-	virtual const CStack * battleGetStackByID(int ID, bool onlyAlive = true)=0; //returns stack info by given ID
-	virtual const CStack * battleGetStackByPos(int pos, bool onlyAlive = true)=0; //returns stack info by given pos
-	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
-	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
-	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
-	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
-	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
-	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
-	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
-	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
-	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	virtual int battleGetWallUnderHex(int hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
-	virtual const CGHeroInstance * battleGetFightingHero(ui8 side) const =0; //returns hero corresponding to given side (0 - attacker, 1 - defender)
-	virtual si8 battleHasDistancePenalty(int stackID, int destHex) =0; //checks if given stack has distance penalty
-	virtual si8 battleHasWallPenalty(int stackID, int destHex) =0; //checks if given stack has wall penalty
 };
 
-class CCallback : public ICallback
+class CBattleCallback : public virtual IBattleCallback
 {
 private:
-	CCallback(CGameState * GS, int Player, CClient *C);;
 	CGameState * gs;
-	CClient *cl;
-	bool isVisible(int3 pos, int Player) const;
-	bool isVisible(const CGObjectInstance *obj, int Player) const;
-	template <typename T> void sendRequest(const T*request);
+	CBattleCallback(CGameState *GS, int Player, CClient *C);
+
 
 protected:
-	bool hasAccess(int playerId) const;
+	template <typename T> void sendRequest(const T*request);
+	CClient *cl;
+	virtual bool hasAccess(int playerId) const;
 	int player;
+
+public:
+	//battle
+	int battleGetBattlefieldType() OVERRIDE; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	int battleGetObstaclesAtTile(THex tile) OVERRIDE; //returns bitfield
+	std::vector<CObstacleInstance> battleGetAllObstacles() OVERRIDE; //returns all obstacles on the battlefield
+	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) OVERRIDE; //returns stack info by given ID
+	const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true) OVERRIDE; //returns stack info by given pos
+	THex battleGetPos(int stack) OVERRIDE; //returns position (tile ID) of stack
+	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
+	std::vector<const CStack*> battleGetStacks(bool onlyAlive = true) OVERRIDE; //returns stacks on battlefield
+	void getStackQueue( std::vector<const CStack *> &out, int howMany ) OVERRIDE; //returns vector of stack in order of their move sequence
+	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable) OVERRIDE; //reutrns numbers of hexes reachable by creature with id ID
+	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL) OVERRIDE; //returns vector of distances to [dest hex number]; if predecessors is not null, it must point to BFIELD_SIZE * sizeof(int) of allocated memory
+	bool battleCanShoot(const CStack * stack, THex dest) OVERRIDE; //returns true if unit with id ID can shoot to dest
+	bool battleCanCastSpell() OVERRIDE; //returns true, if caller can cast a spell
+	bool battleCanFlee() OVERRIDE; //returns true if caller can flee from the battle
+	const CGTownInstance * battleGetDefendedTown() OVERRIDE; //returns defended town if current battle is a siege, NULL instead
+	ui8 battleGetWallState(int partOfWall) OVERRIDE; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
+	int battleGetWallUnderHex(THex hex) OVERRIDE; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	TDmgRange battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg = NULL) OVERRIDE; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	ui8 battleGetSiegeLevel() OVERRIDE; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
+	const CGHeroInstance * battleGetFightingHero(ui8 side) const OVERRIDE; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
+	si8 battleHasDistancePenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has distance penalty
+	si8 battleHasWallPenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has wall penalty
+	si8 battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel) OVERRIDE; //checks if teleportation of given stack to given position can take place
+
+	friend CCallback;
+	friend CClient;
+};
+
+class CCallback : public ICallback, public CBattleCallback
+{
+private:
+	CCallback(CGameState * GS, int Player, CClient *C);
+	bool isVisible(int3 pos, int Player) const;
+	bool isVisible(const CGObjectInstance *obj, int Player) const;
+protected:
+	virtual bool hasAccess(int playerId) const OVERRIDE;
 
 public:
 //commands
@@ -272,29 +317,6 @@ public:
 	int getPlayerStatus(int player) const;
 	int getPlayerRelations(ui8 color1, ui8 color2) const;// 0 = enemy, 1 = ally, 2 = same player 
 
-	//battle
-	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	int battleGetObstaclesAtTile(int tile); //returns bitfield
-	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
-	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
-	const CStack * battleGetStackByPos(int pos, bool onlyAlive = true); //returns stack info by given pos
-	int battleGetPos(int stack); //returns position (tile ID) of stack
-	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
-	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
-	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
-	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID
-	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
-	bool battleCanCastSpell(); //returns true, if caller can cast a spell
-	bool battleCanFlee(); //returns true if caller can flee from the battle
-	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead
-	ui8 battleGetWallState(int partOfWall); //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	int battleGetWallUnderHex(int hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
-	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding ot given side (0 - attacker, 1 - defender)
-	si8 battleHasDistancePenalty(int stackID, int destHex); //checks if given stack has distance penalty
-	si8 battleHasWallPenalty(int stackID, int destHex); //checks if given stack has wall penalty
-	si8 battleCanTeleportTo(int stackID, int destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

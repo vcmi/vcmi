@@ -12,6 +12,10 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
+#include "CSpellHandler.h"
+#include "CObjectHandler.h"
+#include "NetPacks.h"
+
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
 
@@ -47,99 +51,99 @@ bool CArtifact::isBig () const
 {
 	return VLC->arth->isBigArtifact(id);
 }
+// 
+// bool CArtifact::isModable () const
+// {
+// 	return (bool)dynamic_cast<const IModableArt *>(this);
+// }
 
-bool CArtifact::isModable () const
-{
-	return (bool)dynamic_cast<const IModableArt *>(this);
-}
+// /**
+//  * Checks whether the artifact fits at a given slot.
+//  * @param artifWorn A hero's set of worn artifacts.
+//  */
+// bool CArtifact::fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
+// {
+// 	if (!vstd::contains(possibleSlots, slotID))
+// 		return false;
+// 
+// 	// Can't put an artifact in a locked slot.
+// 	std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.find(slotID);
+// 	if (it != artifWorn.end() && it->second->id == 145)
+// 		return false;
+// 
+// 	// Check if a combination artifact fits.
+// 	// TODO: Might want a more general algorithm?
+// 	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
+// 	if (constituents != NULL)
+// 	{
+// 		std::map<ui16, const CArtifact*> tempArtifWorn = artifWorn;
+// 		const ui16 ringSlots[] = {6, 7};
+// 		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
+// 		int rings = 0;
+// 		int misc = 0;
+// 
+// 		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
+// 
+// 		BOOST_FOREACH(ui32 constituentID, *constituents) 
+// 		{
+// 			const CArtifact& constituent = *VLC->arth->artifacts[constituentID];
+// 			const int slot = constituent.possibleSlots[0];
+// 
+// 			if (slot == 6 || slot == 7)
+// 				rings++;
+// 			else if ((slot >= 9 && slot <= 12) || slot == 18)
+// 				misc++;
+// 			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
+// 				return false;
+// 		}
+// 
+// 		// Ensure enough ring slots are free
+// 		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) 
+// 		{
+// 			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
+// 				rings--;
+// 		}
+// 		if (rings > 0)
+// 			return false;
+// 
+// 		// Ensure enough misc slots are free.
+// 		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) 
+// 		{
+// 			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
+// 				misc--;
+// 		}
+// 		if (misc > 0)
+// 			return false;
+// 	}
+// 
+// 	return true;
+// }
 
-/**
- * Checks whether the artifact fits at a given slot.
- * @param artifWorn A hero's set of worn artifacts.
- */
-bool CArtifact::fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
-{
-	if (!vstd::contains(possibleSlots, slotID))
-		return false;
-
-	// Can't put an artifact in a locked slot.
-	std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.find(slotID);
-	if (it != artifWorn.end() && it->second->id == 145)
-		return false;
-
-	// Check if a combination artifact fits.
-	// TODO: Might want a more general algorithm?
-	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
-	if (constituents != NULL)
-	{
-		std::map<ui16, const CArtifact*> tempArtifWorn = artifWorn;
-		const ui16 ringSlots[] = {6, 7};
-		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
-		int rings = 0;
-		int misc = 0;
-
-		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
-
-		BOOST_FOREACH(ui32 constituentID, *constituents) 
-		{
-			const CArtifact& constituent = *VLC->arth->artifacts[constituentID];
-			const int slot = constituent.possibleSlots[0];
-
-			if (slot == 6 || slot == 7)
-				rings++;
-			else if ((slot >= 9 && slot <= 12) || slot == 18)
-				misc++;
-			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
-				return false;
-		}
-
-		// Ensure enough ring slots are free
-		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) 
-		{
-			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
-				rings--;
-		}
-		if (rings > 0)
-			return false;
-
-		// Ensure enough misc slots are free.
-		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) 
-		{
-			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
-				misc--;
-		}
-		if (misc > 0)
-			return false;
-	}
-
-	return true;
-}
-
-bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
-{
-	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
-		return false;
-
-	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
-	assert(artifact.constituents);
-
-	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
-	{
-		bool found = false;
-		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
-		{
-			if (it->second->id == constituentID) 
-			{
-				found = true;
-				break;
-			}
-		}
-		if (!found)
-			return false;
-	}
-
-	return true;
-}
+// bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
+// {
+// 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
+// 		return false;
+// 
+// 	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
+// 	assert(artifact.constituents);
+// 
+// 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+// 	{
+// 		bool found = false;
+// 		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+// 		{
+// 			if (it->second->id == constituentID) 
+// 			{
+// 				found = true;
+// 				break;
+// 			}
+// 		}
+// 		if (!found)
+// 			return false;
+// 	}
+// 
+// 	return true;
+// }
 
 CArtifact::CArtifact()
 {
@@ -171,21 +175,25 @@ int CArtifact::getArtClassSerial() const
 	return -1;
 }
 
-void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+std::string CArtifact::nodeName() const
 {
-	//combined artifact carries bonuses from its parts
-	if(constituents)
-	{
-		BOOST_FOREACH(ui32 id, *constituents)
-			out.insert(VLC->arth->artifacts[id]);
-	}
+	return "Artifact: " + Name();
 }
+// void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	//combined artifact carries bonuses from its parts
+// 	if(constituents)
+// 	{
+// 		BOOST_FOREACH(ui32 id, *constituents)
+// 			out.insert(VLC->arth->artifacts[id]);
+// 	}
+// }
 
-void CScroll::Init()
-{
-	bonuses.push_back (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
-	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
-}
+// void CScroll::Init()
+// {
+// // 	addNewBonus (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
+// // 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
+// }
 
 CArtHandler::CArtHandler()
 {
@@ -194,12 +202,12 @@ CArtHandler::CArtHandler()
 	// War machines are the default big artifacts.
 	for (ui32 i = 3; i <= 6; i++)
 		bigArtifacts.insert(i);
-	modableArtifacts = boost::assign::map_list_of(1, 1)(146,3)(147,3)(148,3)(150,3)(151,3)(152,3)(154,3)(156,2);
+	//modableArtifacts = boost::assign::map_list_of(1, 1)(146,3)(147,3)(148,3)(150,3)(151,3)(152,3)(154,3)(156,2);
 }
 
 CArtHandler::~CArtHandler()
 {
-	for (std::vector<CArtifact*>::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
+	for (std::vector< ConstTransitivePtr<CArtifact> >::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
 	{
 		delete (*it)->constituents;
 		delete (*it)->constituentOf;
@@ -223,24 +231,24 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	std::map<ui32,ui8>::iterator itr;
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
-		CArtifact *art;
-		if ((itr = modableArtifacts.find(i)) != modableArtifacts.end())
-		{
-			switch (itr->second)
-			{
-				case 1:
-					art = new CScroll;
-					break;
-				case 2:
-					art = new CCustomizableArt;
-					break;
-				case 3:
-					art = new CCommanderArt;
-					break;
-			};
-		}
-		else
-			art = new CArtifact;
+		CArtifact *art = new CArtifact();
+// 		if ((itr = modableArtifacts.find(i)) != modableArtifacts.end())
+// 		{
+// 			switch (itr->second)
+// 			{
+// 			case 1:
+// 				art = new CScroll;
+// 				break;
+// 			case 2:
+// 				art = new CCustomizableArt;
+// 				break;
+// 			case 3:
+// 				art = new CCommanderArt;
+// 				break;
+// 			};
+// 		}
+// 		else
+//			art = new CArtifact;
 
 		CArtifact &nart = *art;
 		nart.id=i;
@@ -436,7 +444,7 @@ void CArtHandler::erasePickedArt (si32 id)
 }
 ui16 CArtHandler::getRandomArt(int flags)
 {
-	std::vector<CArtifact*> out;
+	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out, flags);
 	ui16 id = out[ran() % out.size()]->id;
 	erasePickedArt (id);
@@ -444,12 +452,12 @@ ui16 CArtHandler::getRandomArt(int flags)
 }
 ui16 CArtHandler::getArtSync (ui32 rand, int flags)
 {
-	std::vector<CArtifact*> out;
+	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out, flags);
 	CArtifact *art = out[rand % out.size()];
 	return art->id;	
 }
-void CArtHandler::getAllowed(std::vector<CArtifact*> &out, int flags)
+void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags)
 {
 	if (flags & CArtifact::ART_TREASURE)
 		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
@@ -465,7 +473,7 @@ void CArtHandler::getAllowed(std::vector<CArtifact*> &out, int flags)
 		std::fill_n (out.begin(), 64, artifacts[2]); //magic
 	}
 }
-void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> *arts, int flag)
+void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
 {
 	if (arts->empty()) //restock avaliable arts
 	{
@@ -484,12 +492,12 @@ void CArtHandler::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArti
 }
 void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter )
 {
-	Bonus added(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
-	added.valType = valType;
-	added.limiter = limiter;
+	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added->valType = valType;
+	added->limiter.reset(limiter);
 	if(type == Bonus::MORALE || Bonus::LUCK)
-		added.description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
-	artifacts[aid]->bonuses.push_back(added);
+		added->description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+	artifacts[aid]->addNewBonus(added);
 }
 
 void CArtHandler::addBonuses()
@@ -691,7 +699,7 @@ void CArtHandler::addBonuses()
 
 	//Angelic Alliance
 	giveArtBonus(129, Bonus::NONEVIL_ALIGNMENT_MIX, 0);
-	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
+	giveArtBonus(129, Bonus::OPENING_BATTLE_SPELL, 10, 48); // Prayer
 
 	//Cloak of the Undead King
 	giveArtBonus(130, Bonus::IMPROVED_NECROMANCY, 0);
@@ -746,95 +754,95 @@ void CArtHandler::clear()
 
 }
 
-/**
- * Locally equips an artifact to a hero's worn slots. Unequips an already present artifact.
- * Does not test if the operation is legal.
- * @param artifWorn A hero's set of worn artifacts.
- * @param bonuses Optional list of bonuses to update.
- */
-void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art )
-{
-	unequipArtifact(artifWorn, slotID);
-
-	if (art) //false when artifact is NULL -> slot set to empty
-	{
-		const CArtifact &artifact = *art;
-
-		// Add artifact.
-		artifWorn[slotID] = art;
-
-		// Add locks, in reverse order of being removed.
-		if (artifact.constituents != NULL) 
-		{
-			bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
-
-			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
-			{
-				const CArtifact &constituent = *artifacts[constituentID];
-
-				if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
-				{
-					destConsumed = true;
-				} 
-				else 
-				{
-					BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
-					{
-						if (!vstd::contains(artifWorn, slot)) 
-						{
-							artifWorn[slot] = VLC->arth->artifacts[145]; //lock
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-/**
- * Locally unequips an artifact from a hero's worn slots.
- * Does not test if the operation is legal.
- * @param artifWorn A hero's set of worn artifacts.
- * @param bonuses Optional list of bonuses to update.
- */
-void CArtHandler::unequipArtifact(std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID)
-{
-	if (!vstd::contains(artifWorn, slotID))
-		return;
-
-	const CArtifact &artifact = *artifWorn[slotID];
-
-	// Remove artifact, if it's not already removed.
-	artifWorn.erase(slotID);
-
-	// Remove locks, in reverse order of being added.
-	if (artifact.constituents != NULL) 
-	{
-		bool destConsumed = false;
-
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
-		{
-			const CArtifact &constituent = *artifacts[constituentID];
-
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
-			{
-				destConsumed = true;
-			} 
-			else 
-			{
-				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) 
-				{
-					if (vstd::contains(artifWorn, slot) && artifWorn[slot]->id == 145) 
-					{
-						artifWorn.erase(slot);
-						break;
-					}
-				}
-			}
-		}
-	}
-}
+// /**
+//  * Locally equips an artifact to a hero's worn slots. Unequips an already present artifact.
+//  * Does not test if the operation is legal.
+//  * @param artifWorn A hero's set of worn artifacts.
+//  * @param bonuses Optional list of bonuses to update.
+//  */
+// void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art ) const
+// {
+// 	unequipArtifact(artifWorn, slotID);
+// 
+// 	if (art) //false when artifact is NULL -> slot set to empty
+// 	{
+// 		const CArtifact &artifact = *art;
+// 
+// 		// Add artifact.
+// 		artifWorn[slotID] = art;
+// 
+// 		// Add locks, in reverse order of being removed.
+// 		if (artifact.constituents != NULL) 
+// 		{
+// 			bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
+// 
+// 			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+// 			{
+// 				const CArtifact &constituent = *artifacts[constituentID];
+// 
+// 				if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+// 				{
+// 					destConsumed = true;
+// 				} 
+// 				else 
+// 				{
+// 					BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
+// 					{
+// 						if (!vstd::contains(artifWorn, slot)) 
+// 						{
+// 							artifWorn[slot] = VLC->arth->artifacts[145]; //lock
+// 							break;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+// 
+// /**
+//  * Locally unequips an artifact from a hero's worn slots.
+//  * Does not test if the operation is legal.
+//  * @param artifWorn A hero's set of worn artifacts.
+//  * @param bonuses Optional list of bonuses to update.
+//  */
+// void CArtHandler::unequipArtifact(std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
+// {
+// 	if (!vstd::contains(artifWorn, slotID))
+// 		return;
+// 
+// 	const CArtifact &artifact = *artifWorn[slotID];
+// 
+// 	// Remove artifact, if it's not already removed.
+// 	artifWorn.erase(slotID);
+// 
+// 	// Remove locks, in reverse order of being added.
+// 	if (artifact.constituents != NULL) 
+// 	{
+// 		bool destConsumed = false;
+// 
+// 		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+// 		{
+// 			const CArtifact &constituent = *artifacts[constituentID];
+// 
+// 			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+// 			{
+// 				destConsumed = true;
+// 			} 
+// 			else 
+// 			{
+// 				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) 
+// 				{
+// 					if (vstd::contains(artifWorn, slot) && artifWorn[slot]->id == 145) 
+// 					{
+// 						artifWorn.erase(slot);
+// 						break;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 void CArtHandler::clearHlpLists()
 {
@@ -853,4 +861,320 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 		if (allowed[i])
 			allowedArtifacts.push_back(artifacts[i]);
 	}
+}
+
+CArtifactInstance::CArtifactInstance()
+{
+	init();
+}
+
+CArtifactInstance::CArtifactInstance( CArtifact *Art)
+{
+	init();
+	setType(Art);
+
+}
+
+// CArtifactInstance::CArtifactInstance(int aid)
+// {
+// 	init();
+// 	setType(VLC->arth->artifacts[aid]);
+// }
+
+void CArtifactInstance::setType( CArtifact *Art )
+{
+	artType = Art;
+	attachTo(Art);
+}
+
+std::string CArtifactInstance::nodeName() const
+{
+	return "Artifact instance of " + (artType ? artType->Name() : std::string("uninitialized")) + " type";
+}
+
+CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
+{
+	CArtifactInstance *ret = new CArtifactInstance(VLC->arth->artifacts[1]);
+	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, 1, s->id);
+	ret->addNewBonus(b);
+	return ret;
+}
+
+void CArtifactInstance::init()
+{
+	id = -1;
+}
+
+int CArtifactInstance::firstAvailableSlot(const CGHeroInstance *h) const
+{
+	BOOST_FOREACH(ui16 slot, artType->possibleSlots)
+	{
+		if(canBePutAt(ArtifactLocation(h, slot))) //if(artType->fitsAt(h->artifWorn, slot))
+		{
+			//we've found a free suitable slot.
+			return slot;
+		}
+	}
+
+	//if haven't find proper slot, use backpack
+	return firstBackpackSlot(h);
+}
+
+int CArtifactInstance::firstBackpackSlot(const CGHeroInstance *h) const
+{
+	if(!artType->isBig()) //discard big artifact
+		return Arts::BACKPACK_START + h->artifactsInBackpack.size();
+
+	return -1;
+}
+
+bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
+{
+	if(al.slot >= Arts::BACKPACK_START)
+	{
+		if(artType->isBig())
+			return false;
+		
+		//TODO backpack limit
+		return true;
+	}
+
+	if(!vstd::contains(artType->possibleSlots, al.slot))
+		return false;
+
+	return al.hero->isPositionFree(al.slot, assumeDestRemoved);
+}
+
+void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
+{
+	assert(canBePutAt(ArtifactLocation(h, slot)));
+
+	h->setNewArtSlot(slot, this, false);
+	if(slot < Arts::BACKPACK_START)
+		h->attachTo(this);
+}
+
+void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
+{
+	assert(h->CArtifactSet::getArt(slot) == this);
+	h->eraseArtSlot(slot);
+	if(slot < Arts::BACKPACK_START)
+		h->detachFrom(this);
+
+	//TODO delete me?
+}
+
+bool CArtifactInstance::canBeDisassembled() const
+{
+	return artType->constituents && artType->constituentOf->size();
+}
+
+std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CGHeroInstance *h) const
+{
+	std::vector<const CArtifact *> ret;
+	if(!artType->constituentOf //not a part of combined artifact
+		|| artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
+		return ret;
+
+	BOOST_FOREACH(ui32 possibleCombinedArt, *artType->constituentOf) 
+	{
+		const CArtifact * const artifact = VLC->arth->artifacts[possibleCombinedArt];
+		assert(artifact->constituents);
+		bool possible = true;
+
+		BOOST_FOREACH(ui32 constituentID, *artifact->constituents) //check if all constituents are available
+		{
+			if(!h->hasArt(constituentID, true)) //constituent must be equipped
+			{
+				possible = false;
+				break;
+			}
+		}
+
+		if(possible)
+			ret.push_back(artifact);
+	}
+
+	return ret;
+}
+
+void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
+{
+	removeFrom(src.hero, src.slot);
+	putAt(dst.hero, dst.slot);
+}
+
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
+{
+	if(!Art->constituents)
+		return new CArtifactInstance(Art);
+	else
+	{
+		CCombinedArtifactInstance * ret = new CCombinedArtifactInstance(Art);
+		ret->createConstituents();
+		return ret;
+	}
+}
+
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
+{
+	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
+}
+
+void CArtifactInstance::deserializationFix()
+{
+	setType(artType);
+}
+
+bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
+{
+	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(al, assumeDestRemoved);
+	if(!canMainArtifactBePlaced)
+		return false; //no is no...
+	if(al.slot >= Arts::BACKPACK_START)
+		return true; //we can always remove combined art to the backapck
+
+
+	assert(artType->constituents);
+	std::vector<ConstituentInfo> constituentsToBePlaced = constituentsInfo; //we'll remove constituents from that list, as we find a suitable slot for them
+	
+	//we iterate over all active slots and check if constituents fits them
+	for (int i = 0; i < Arts::BACKPACK_START; i++)
+	{
+		for(std::vector<ConstituentInfo>::iterator art = constituentsToBePlaced.begin(); art != constituentsToBePlaced.end(); art++)
+		{
+			if(art->art->canBePutAt(ArtifactLocation(al.hero, i), i == al.slot)) // i == al.slot because we can remove already worn artifact only from that slot  that is our main destination
+			{
+				constituentsToBePlaced.erase(art);
+				break;
+			}
+		}
+	}
+
+	return constituentsToBePlaced.empty();
+}
+
+bool CCombinedArtifactInstance::canBeDisassembled() const
+{
+	return true;
+}
+
+CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
+	: CArtifactInstance(Art)
+{
+}
+
+CCombinedArtifactInstance::CCombinedArtifactInstance()
+{
+
+}
+
+void CCombinedArtifactInstance::createConstituents()
+{
+	assert(artType);
+	assert(artType->constituents);
+
+	BOOST_FOREACH(ui32 a, *artType->constituents)
+	{
+		addAsConstituent(CArtifactInstance::createNewArtifactInstance(a), -1);
+	}
+}
+
+void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, int slot)
+{
+	assert(vstd::contains(*artType->constituents, art->artType->id));
+	assert(art->parents.size() == 1  &&  art->parents.front() == art->artType);
+	constituentsInfo.push_back(ConstituentInfo(art, slot));
+	attachTo(art);
+}
+
+void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
+{
+	if(slot >= Arts::BACKPACK_START)
+	{
+		CArtifactInstance::putAt(h, slot);
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+			ci.slot = -1;
+	}
+	else
+	{
+		CArtifactInstance *mainConstituent = figureMainConstituent(slot); //it'll be replaced with combined artifact, not a lock
+		CArtifactInstance::putAt(h, slot); //puts combined art (this)
+
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(ci.art != mainConstituent)
+			{
+				int pos = -1;
+				if(isbetw(ci.slot, 0, Arts::BACKPACK_START)  &&  ci.art->canBePutAt(ArtifactLocation(h, ci.slot))) //there is a valid suggestion where to place lock 
+					pos = ci.slot;
+				else
+					ci.slot = pos = ci.art->firstAvailableSlot(h);
+
+				assert(pos < Arts::BACKPACK_START);
+				h->setNewArtSlot(pos, ci.art, true); //sets as lock
+			}
+			else
+			{
+				ci.slot = -1;
+			}
+		}
+	}
+}
+
+void CCombinedArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
+{
+	if(slot >= Arts::BACKPACK_START)
+	{
+		CArtifactInstance::removeFrom(h, slot);
+	}
+	else
+	{
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(ci.slot >= 0)
+			{
+				h->eraseArtSlot(ci.slot);
+				ci.slot = -1;
+			}
+			else
+			{
+				//main constituent
+				CArtifactInstance::removeFrom(h, slot);
+			}
+		}
+	}
+}
+
+CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(ui16 slot)
+{
+	CArtifactInstance *mainConstituent = NULL; //it'll be replaced with combined artifact, not a lock
+	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		if(ci.slot == slot)
+			mainConstituent = ci.art;
+
+	if(!mainConstituent)
+	{
+		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		{
+			if(vstd::contains(ci.art->artType->possibleSlots, slot))
+			{
+				mainConstituent = ci.art;
+			}
+		}
+	}
+
+	return mainConstituent;
+}
+
+void CCombinedArtifactInstance::deserializationFix()
+{
+	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
+		attachTo(ci.art);
+}
+
+CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ui16 Slot /*= -1*/)
+{
+	art = Art;
+	slot = Slot;
 }

@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine

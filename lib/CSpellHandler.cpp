@@ -2,7 +2,6 @@
 #include "../stdafx.h"
 #include "CSpellHandler.h"
 #include "CLodHandler.h"
-#include "CSoundBase.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <cctype>
@@ -217,10 +216,10 @@ void CSpellHandler::loadSpells()
 	{
 		if(spells.size()==81)
 			break;
-		CSpell nsp; //new currently being read spell
+		CSpell * nsp = new CSpell; //new currently being read spell
 
-		loadToIt(nsp.name,buf,i,4);
-		if(nsp.name == std::string(""))
+		loadToIt(nsp->name,buf,i,4);
+		if(nsp->name == std::string(""))
 		{
 			if(ifHit == 0)
 			{
@@ -232,50 +231,49 @@ void CSpellHandler::loadSpells()
 			}
 			for(int z=0; z<3; ++z)
 				loadToIt(pom,buf,i,3);
-			loadToIt(nsp.name,buf,i,4);
+			loadToIt(nsp->name,buf,i,4);
 			++ifHit;
 		}
 
-		loadToIt(nsp.abbName,buf,i,4);
-		loadToIt(nsp.level,buf,i,4);
+		loadToIt(nsp->abbName,buf,i,4);
+		loadToIt(nsp->level,buf,i,4);
 		loadToIt(pom,buf,i,4);
-		nsp.earth = startsWithX(pom);
+		nsp->earth = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.water = startsWithX(pom);
+		nsp->water = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.fire = startsWithX(pom);
+		nsp->fire = startsWithX(pom);
 		loadToIt(pom,buf,i,4);
-		nsp.air = startsWithX(pom);
+		nsp->air = startsWithX(pom);
 
-		nsp.costs.resize(4);
+		nsp->costs.resize(4);
 		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp.costs[z],buf,i,4);
-		loadToIt(nsp.power,buf,i,4);
-		nsp.powers.resize(4);
+			loadToIt(nsp->costs[z],buf,i,4);
+		loadToIt(nsp->power,buf,i,4);
+		nsp->powers.resize(4);
 		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp.powers[z],buf,i,4);
+			loadToIt(nsp->powers[z],buf,i,4);
 
-		nsp.probabilities.resize(9);
+		nsp->probabilities.resize(9);
 		for (int z = 0; z < 9 ; z++)
-			loadToIt(nsp.probabilities[z],buf,i,4);
+			loadToIt(nsp->probabilities[z],buf,i,4);
 
-		nsp.AIVals.resize(4);
+		nsp->AIVals.resize(4);
 		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp.AIVals[z],buf,i,4);
+			loadToIt(nsp->AIVals[z],buf,i,4);
 
-		nsp.descriptions.resize(4);
+		nsp->descriptions.resize(4);
 		for (int z = 0; z < 4 ; z++)
 		{
-			loadToIt(nsp.descriptions[z],buf,i,4);
-			boost::algorithm::replace_all(nsp.descriptions[z],"\"","");
+			loadToIt(nsp->descriptions[z],buf,i,4);
+			boost::algorithm::replace_all(nsp->descriptions[z],"\"","");
 		}
 
-		loadToIt(nsp.attributes,buf,i,3);
-		nsp.id = spells.size();
-		nsp.combatSpell = combSpells;
-		nsp.creatureAbility = creatureAbility;
-		nsp.mainEffectAnim = -1;
-		nsp.soundID = soundBase::invalid;
+		loadToIt(nsp->attributes,buf,i,3);
+		nsp->id = spells.size();
+		nsp->combatSpell = combSpells;
+		nsp->creatureAbility = creatureAbility;
+		nsp->mainEffectAnim = -1;
 		spells.push_back(nsp);
 	}
 	//loading of additional spell traits
@@ -297,13 +295,13 @@ void CSpellHandler::loadSpells()
 		{
 			int buf;
 			ast >> buf;
-			spells[spellID].positiveness = buf;
+			spells[spellID]->positiveness = buf;
 			ast >> buf;
-			spells[spellID].mainEffectAnim = buf;
+			spells[spellID]->mainEffectAnim = buf;
 
-			spells[spellID].range.resize(4);
+			spells[spellID]->range.resize(4);
 			for(int g=0; g<4; ++g)
-				ast>>spells[spellID].range[g];
+				ast>>spells[spellID]->range[g];
 			ast>>spellID;
 		}
 	}

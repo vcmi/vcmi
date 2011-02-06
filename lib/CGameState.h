@@ -4,7 +4,7 @@
 #include <cassert>
 
 #ifndef _MSC_VER
-#include "../hch/CCreatureHandler.h"
+#include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "map.h"
 #endif
@@ -20,6 +20,8 @@
 #else
 #include "../tchar_amigaos4.h"
 #endif
+
+#include "ConstTransitivePtr.h"
 
 
 /*
@@ -68,6 +70,13 @@ namespace boost
 	class shared_mutex;
 }
 
+//numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionaly -1 - unknown)
+struct DLL_EXPORT ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
+{
+	ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	ArmyDescriptor();
+};
+
 struct DLL_EXPORT InfoAboutHero
 {
 private:
@@ -83,7 +92,8 @@ public:
 	const CHeroClass *hclass;
 	std::string name;
 	int portrait;
-	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
+
+	ArmyDescriptor army; 
 
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
@@ -123,22 +133,22 @@ public:
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
-	//std::vector<std::vector<std::vector<ui8> > > * fogOfWarMap; //pointer to team's fog of war
 	std::vector<si32> resources;
-	std::vector<CGHeroInstance *> heroes;
-	std::vector<CGTownInstance *> towns;
-	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
-	std::vector<CGDwelling *> dwellings; //used for town growth
+	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
+	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
+	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
+	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 
 	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
 	ui8 daysWithoutCastle;
 
 	PlayerState();
+	std::string nodeName() const OVERRIDE;
 
 	//override
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
+	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -161,163 +171,13 @@ public:
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & players & fogOfWarMap;
+		h & id & players & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 
 };
 
-struct DLL_EXPORT CObstacleInstance
-{
-	int uniqueID;
-	int ID; //ID of obstacle (defines type of it)
-	int pos; //position on battlefield
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ID & pos & uniqueID;
-	}
-};
 
-//only for use in BattleInfo
-struct DLL_EXPORT SiegeInfo
-{
-	ui8 wallState[8]; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; 1 - intact, 2 - damaged, 3 - destroyed
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & wallState;
-	}
-};
-
-struct DLL_EXPORT BattleInfo : public CBonusSystemNode
-{
-	ui8 side1, side2; //side1 - attacker, side2 - defender
-	si32 round, activeStack;
-	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
-	si32 tid; //used during town siege - id of attacked town; -1 if not town defence
-	int3 tile; //for background and bonuses
-	CGHeroInstance *heroes[2];
-	CArmedInstance *belligerents[2]; //may be same as heroes
-	std::vector<CStack*> stacks;
-	std::vector<CObstacleInstance> obstacles;
-	ui8 castSpells[2]; //[0] - attacker, [1] - defender
-	SiegeInfo si;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & belligerents & obstacles
-			& castSpells & si;
-		h & heroes;
-		h & static_cast<CBonusSystemNode&>(*this);
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	//////////////////////////////////////////////////////////////////////////
-
-	const CStack * getNextStack() const; //which stack will have turn after current one
-	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
-	CStack * getStack(int stackID, bool onlyAlive = true);
-	const CStack * getStack(int stackID, bool onlyAlive = true) const;
-	CStack * getStackT(int tileID, bool onlyAlive = true);
-	const CStack * getStackT(int tileID, bool onlyAlive = true) const;
-	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit=-1) const; //send pointer to at least 187 allocated bytes
-	static bool isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
-	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
-	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	std::vector<int> getAccessibility(int stackID, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
-
-	bool isStackBlocked(int ID); //returns true if there is neighboring enemy stack
-	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
-	static std::vector<int> neighbouringTiles(int hex);
-	static si8 getDistance(int hex1, int hex2); //returns distance between given hexes
-	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting)
-	std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
-	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
-	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile); //calculates stack affected by given spell
-	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
-	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
-	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	int lineToWallHex(int line) const; //returns hex with wall in given line
-	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
-	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
-	si8 hasDistancePenalty(int stackID, int destHex); //determines if given stack has distance penalty shooting given pos
-	si8 sameSideOfWall(int pos1, int pos2); //determines if given positions are on the same side of wall
-	si8 hasWallPenalty(int stackID, int destHex); //determines if given stack has wall penalty shooting given pos
-	si8 canTeleportTo(int stackID, int destHex, int telportLevel); //determines if given stack can teleport to given place
-};
-
-class DLL_EXPORT CStack : public CStackInstance
-{ 
-public:
-	ui32 ID; //unique ID of stack
-	ui32 baseAmount;
-	ui32 firstHPleft; //HP of first creature in stack
-	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
-	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
-	si16 position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
-	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
-	si16 shots; //how many shots left
-
-	std::set<ECombatInfo> state;
-	//overrides
-	const CCreature* getCreature() const {return type;}
-
-	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
-	CStack() : ID(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
-	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
-	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
-	bool willMove(int turn = 0) const; //if stack has remaining move this turn
-	bool moved(int turn = 0) const; //if stack was already moved this turn
-	bool canMove(int turn = 0) const; //if stack can move
-	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
-	BonusList getSpellBonuses() const;
-	void stackEffectToFeature(BonusList & sf, const Bonus & sse);
-	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
-
-	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
-	{
-		Bonus hb(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo));
-		hb.effectRange = limit;
-		hb.source = Bonus::CASTED_SPELL; //right?
-		return hb;
-	}
-
-	static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
-	{
-		Bonus ret(makeFeature(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain));
-		ret.valType = valType;
-		ret.source = Bonus::CASTED_SPELL; //right?
-		return ret;
-	}
-
-	bool doubleWide() const;
-	int occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CStackInstance&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots;
-	}
-	bool alive() const //determines if stack is alive
-	{
-		return vstd::contains(state,ALIVE);
-	}
-};
-
-class DLL_EXPORT CMP_stack
-{
-	int phase; //rules of which phase will be used
-	int turn;
-public:
-
-	bool operator ()(const CStack* a, const CStack* b);
-	CMP_stack(int Phase = 1, int Turn = 0);
-};
 
 struct UpgradeInfo
 {
@@ -387,27 +247,65 @@ struct DLL_EXPORT CPathsInfo
 	~CPathsInfo();
 };
 
+struct DLL_EXPORT DuelParameters
+{
+	si32 terType, bfieldType;
+	struct SideSettings
+	{
+		struct StackSettings
+		{
+			si32 type;
+			si32 count;
+			template <typename Handler> void serialize(Handler &h, const int version)
+			{
+				h & type & count;
+			}
+
+			StackSettings();
+			StackSettings(si32 Type, si32 Count);
+		} stacks[ARMY_SIZE];
+
+		si32 heroId; //-1 if none
+		std::set<si32> spells;
+
+		SideSettings();
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & stacks & heroId & spells;
+		}
+	} sides[2];
+
+	DuelParameters();
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & terType & bfieldType & sides;
+	}
+};
+
+
+class BattleInfo;
+
 class DLL_EXPORT CGameState
 {
 public:
-	StartInfo* scenarioOps, *initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	CCampaignState *campaign;
+	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
+	ConstTransitivePtr<CCampaignState> campaign;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
-	BattleInfo *curB; //current battle
+	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
-	Mapa * map;
-	std::map<ui8, PlayerState> players; //ID <-> player state
-	std::map<ui8, TeamState> teams; //ID <-> team state
-	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
+	ConstTransitivePtr<Mapa> map;
+	bmap<ui8, PlayerState> players; //ID <-> player state
+	bmap<ui8, TeamState> teams; //ID <-> team state
+	bmap<int, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
 
 	struct DLL_EXPORT HeroesPool
 	{
-		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
-		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
+		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
+		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass = NULL) const;
+		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -432,12 +330,7 @@ public:
 	CGTownInstance *getTown(int objid);
 	const CGHeroInstance *getHero(int objid) const;
 	const CGTownInstance *getTown(int objid) const;
-	bool battleCanFlee(int player); //returns true if player can flee from the battle
-	int battleGetStack(int pos, bool onlyAlive); //returns ID of stack at given tile
 	int battleGetBattlefieldType(int3 tile = int3());//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	const CGHeroInstance * battleGetOwner(int stackID); //returns hero that owns given stack; NULL if none
-	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
-	bool battleCanShoot(int ID, int dest); //determines if stack with given ID shoot at the selected destination
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	int getPlayerRelations(ui8 color1, ui8 color2);// 0 = enemy, 1 = ally, 2 = same player
 	//float getMarketEfficiency(int player, int mode=0);
@@ -453,7 +346,10 @@ public:
 	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
 	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	std::map<ui32,CGHeroInstance *> unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
+
+	void buildBonusSystemTree();
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

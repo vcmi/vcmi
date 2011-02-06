@@ -1,19 +1,19 @@
 #define VCMI_DLL
-#include "../hch/CCampaignHandler.h"
+#include "CCampaignHandler.h"
 #include <algorithm>
 #include <queue>
 #include <fstream>
 #include "CGameState.h"
 #include <boost/random/linear_congruential.hpp>
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "CDefObjInfoHandler.h"
+#include "CArtHandler.h"
+#include "CBuildingHandler.h"
+#include "CGeneralTextHandler.h"
+#include "CTownHandler.h"
+#include "CSpellHandler.h"
+#include "CHeroHandler.h"
+#include "CObjectHandler.h"
+#include "CCreatureHandler.h"
 //#include "../lib/IGameCallback.h"
 #include "VCMI_Lib.h"
 #include "Connection.h"
@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <numeric>
 #include "CMapInfo.h"
+#include "BattleState.h"
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -166,7 +167,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SPELL_NAME)
 	{
-		dst = VLC->spellh->spells[ser].name;
+		dst = VLC->spellh->spells[ser]->name;
 	}
 	else if(type == CRE_SING_NAMES)
 	{
@@ -322,15 +323,21 @@ DLL_EXPORT std::string MetaString::buildList () const
 	return lista;
 }
 
-void MetaString::addReplacement(const CStackInstance &stack)
+
+void  MetaString::addCreReplacement(TCreature id, TQuantity count) //adds sing or plural name;
+{
+	assert(count);
+	if (count == 1)
+		addReplacement (CRE_SING_NAMES, id);
+	else
+		addReplacement (CRE_PL_NAMES, id);
+}
+
+void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 {
 	assert(stack.count); //valid count
 	assert(stack.type); //valid type
-
-	if (stack.count == 1)
-		addReplacement (CRE_SING_NAMES, stack.type->idNumber);
-	else
-		addReplacement (CRE_PL_NAMES, stack.type->idNumber);
+	addReplacement(stack.type->idNumber, stack.count);
 }
 
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
@@ -372,612 +379,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	return nobj;
 }
 
-CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
-{
-	for(unsigned int g=0; g<stacks.size(); ++g)
-	{
-		if(stacks[g]->ID == stackID && (!onlyAlive || stacks[g]->alive()))
-			return stacks[g];
-	}
-	return NULL;
-}
-
-const CStack * BattleInfo::getStack(int stackID, bool onlyAlive) const
-{
-	return const_cast<BattleInfo * const>(this)->getStack(stackID, onlyAlive);
-}
-
-CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
-{
-	for(unsigned int g=0; g<stacks.size(); ++g)
-	{
-		if(stacks[g]->position == tileID 
-			|| (stacks[g]->doubleWide() && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
-			|| (stacks[g]->doubleWide() && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
-		{
-			if(!onlyAlive || stacks[g]->alive())
-			{
-				return stacks[g];
-			}
-		}
-	}
-	return NULL;
-}
-
-const CStack * BattleInfo::getStackT(int tileID, bool onlyAlive) const
-{
-	return const_cast<BattleInfo * const>(this)->getStackT(tileID, onlyAlive);
-}
-
-void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit) const
-{
-	memset(accessibility, 1, BFIELD_SIZE); //initialize array with trues
-
-	//removing accessibility for side columns of hexes
-	for(int v = 0; v < BFIELD_SIZE; ++v)
-	{
-		if( v % BFIELD_WIDTH == 0 || v % BFIELD_WIDTH == (BFIELD_WIDTH - 1) )
-			accessibility[v] = false;
-	}
-
-	for(unsigned int g=0; g<stacks.size(); ++g)
-	{
-		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
-			continue;
-
-		accessibility[stacks[g]->position] = false;
-		if(stacks[g]->doubleWide()) //if it's a double hex creature
-		{
-			if(stacks[g]->attackerOwned)
-				accessibility[stacks[g]->position-1] = false;
-			else
-				accessibility[stacks[g]->position+1] = false;
-		}
-	}
-	//obstacles
-	for(unsigned int b=0; b<obstacles.size(); ++b)
-	{
-		std::vector<int> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
-		for(unsigned int c=0; c<blocked.size(); ++c)
-		{
-			if(blocked[c] >=0 && blocked[c] < BFIELD_SIZE)
-				accessibility[blocked[c]] = false;
-		}
-	}
-
-	//walls
-	if(siege > 0)
-	{
-		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 165};
-		for(int b=0; b<ARRAY_COUNT(permanentlyLocked); ++b)
-		{
-			accessibility[permanentlyLocked[b]] = false;
-		}
-
-		static const std::pair<int, int> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
-			{std::make_pair(2, 182), std::make_pair(3, 130), std::make_pair(4, 62), std::make_pair(5, 29)};
-		for(int b=0; b<ARRAY_COUNT(lockedIfNotDestroyed); ++b)
-		{
-			if(si.wallState[lockedIfNotDestroyed[b].first] < 3)
-			{
-				accessibility[lockedIfNotDestroyed[b].second] = false;
-			}
-		}
-
-		//gate
-		if(attackerOwned && si.wallState[7] < 3) //if it attacker's unit and gate is not destroyed
-		{
-			accessibility[95] = accessibility[96] = false; //block gate's hexes
-		}
-	}
-
-	//occupyability
-	if(addOccupiable && twoHex)
-	{
-		std::set<int> rem; //tiles to unlock
-		for(int h=0; h<BFIELD_HEIGHT; ++h)
-		{
-			for(int w=1; w<BFIELD_WIDTH-1; ++w)
-			{
-				int hex = h * BFIELD_WIDTH + w;
-				if(!isAccessible(hex, accessibility, twoHex, attackerOwned, flying, true)
-					&& (attackerOwned ? isAccessible(hex+1, accessibility, twoHex, attackerOwned, flying, true) : isAccessible(hex-1, accessibility, twoHex, attackerOwned, flying, true) )
-					)
-					rem.insert(hex);
-			}
-		}
-		occupyable = rem;
-		/*for(std::set<int>::const_iterator it = rem.begin(); it != rem.end(); ++it)
-		{
-			accessibility[*it] = true;
-		}*/
-	}
-}
-
-bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos)
-{
-	if(flying && !lastPos)
-		return true;
-
-	if(twoHex)
-	{
-		//if given hex is accessible and appropriate adjacent one is free too
-		return accessibility[hex] && accessibility[hex + (attackerOwned ? -1 : 1 )];
-	}
-	else
-	{
-		return accessibility[hex];
-	}
-}
-
-void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
-{
-	//inits
-	for(int b=0; b<BFIELD_SIZE; ++b)
-		predecessor[b] = -1;
-	for(int g=0; g<BFIELD_SIZE; ++g)
-		dists[g] = 100000000;	
-	
-	std::queue< std::pair<int, bool> > hexq; //bfs queue <hex, accessible> (second filed used only if fillPredecessors is true)
-	hexq.push(std::make_pair(start, true));
-	dists[hexq.front().first] = 0;
-	int curNext = -1; //for bfs loop only (helper var)
-	while(!hexq.empty()) //bfs loop
-	{
-		std::pair<int, bool> curHex = hexq.front();
-		std::vector<int> neighbours = neighbouringTiles(curHex.first);
-		hexq.pop();
-		for(unsigned int nr=0; nr<neighbours.size(); nr++)
-		{
-			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
-			bool accessible = isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex.first]+1 == dists[curNext]);
-			if( dists[curHex.first]+1 >= dists[curNext] )
-				continue;
-			if(accessible && curHex.second)
-			{
-				hexq.push(std::make_pair(curNext, true));
-				dists[curNext] = dists[curHex.first] + 1;
-			}
-			else if(fillPredecessors && !(accessible && !curHex.second))
-			{
-				hexq.push(std::make_pair(curNext, false));
-				dists[curNext] = dists[curHex.first] + 1;
-			}
-			predecessor[curNext] = curHex.first;
-		}
-	}
-};
-
-std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) const
-{
-	std::vector<int> ret;
-	bool ac[BFIELD_SIZE];
-	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
-
-	if(s->position < 0) //turrets
-		return std::vector<int>();
-
-	std::set<int> occupyable;
-
-	getAccessibilityMap(ac, s->doubleWide(), s->attackerOwned, addOccupiable, occupyable, s->hasBonusOfType(Bonus::FLYING), stackID);
-
-	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(s->position, ac, pr, dist, s->doubleWide(), s->attackerOwned, s->hasBonusOfType(Bonus::FLYING), false);
-
-	if(s->doubleWide())
-	{
-		if(!addOccupiable)
-		{
-			std::vector<int> rem;
-			for(int b=0; b<BFIELD_SIZE; ++b)
-			{
-				//don't take into account most left and most right columns of hexes
-				if( b % BFIELD_WIDTH == 0 || b % BFIELD_WIDTH == BFIELD_WIDTH - 1 )
-					continue;
-
-				if( ac[b] && !(s->attackerOwned ? ac[b-1] : ac[b+1]) )
-				{
-					rem.push_back(b);
-				}
-			}
-
-			for(unsigned int g=0; g<rem.size(); ++g)
-			{
-				ac[rem[g]] = false;
-			}
-
-			//removing accessibility for side hexes
-			for(int v=0; v<BFIELD_SIZE; ++v)
-				if(s->attackerOwned ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
-					ac[v] = false;
-		}
-	}
-	
-	for (int i=0; i < BFIELD_SIZE ; ++i) {
-		if(
-			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->doubleWide(), s->attackerOwned, s->hasBonusOfType(Bonus::FLYING), true) ) )//we can reach it
-			|| (vstd::contains(occupyable, i) && ( dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) &&
-				ac[i + (s->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
-			)
-		{
-			ret.push_back(i);
-		}
-	}
-
-	return ret;
-}
-bool BattleInfo::isStackBlocked(int ID)
-{
-	CStack *our = getStack(ID);
-	if(our->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
-		return false;
-
-	for(unsigned int i=0; i<stacks.size();i++)
-	{
-		if( !stacks[i]->alive()
-			|| stacks[i]->owner==our->owner
-		  )
-			continue; //we omit dead and allied stacks
-		if(stacks[i]->doubleWide())
-		{
-			if( mutualPosition(stacks[i]->position, our->position) >= 0  
-			  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
-				return true;
-		}
-		else
-		{
-			if( mutualPosition(stacks[i]->position, our->position) >= 0 )
-				return true;
-		}
-	}
-	return false;
-}
-
-signed char BattleInfo::mutualPosition(int hex1, int hex2)
-{
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
-		return 0;
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
-		return 1;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
-		return 5;
-	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
-		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
-		return 4;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
-		return 3;
-	return -1;
-}
-
-std::vector<int> BattleInfo::neighbouringTiles(int hex)
-{
-#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%BFIELD_WIDTH!=16) && hlp%BFIELD_WIDTH) ret.push_back(hlp);}
-	std::vector<int> ret;
-	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 18 : 17 ));
-	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 17 : 16 ));
-	CHECK_AND_PUSH(hex - 1);
-	CHECK_AND_PUSH(hex + 1);
-	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 16 : 17 ));
-	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 17 : 18 ));
-#undef CHECK_AND_PUSH
-	return ret;
-}
-std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned)
-{							
-	int predecessor[BFIELD_SIZE]; //for getting the Path
-	int dist[BFIELD_SIZE]; //calculated distances
-
-	makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned, flyingCreature, false);
-	
-	if(predecessor[dest] == -1) //cannot reach destination
-	{
-		return std::make_pair(std::vector<int>(), 0);
-	}
-
-	//making the Path
-	std::vector<int> path;
-	int curElem = dest;
-	while(curElem != start)
-	{
-		path.push_back(curElem);
-		curElem = predecessor[curElem];
-	}
-
-	return std::make_pair(path, dist[dest]);
-}
-
-CStack::CStack(const CStackInstance *base, int O, int I, bool AO, int S)
-	: CStackInstance(*base), ID(I), owner(O), slot(S), attackerOwned(AO), position(-1),   
-	counterAttacks(1)
-{
-	baseAmount = base->count;
-	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
-	shots = type->shots;
-	counterAttacks += valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
-
-	//alive state indication
-	state.insert(ALIVE);
-}
-
-ui32 CStack::Speed( int turn /*= 0*/ ) const
-{
-	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON) && Selector::turns(turn))) //war machines cannot move
-		return 0;
-
-	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED) && Selector::turns(turn));
-
-	int percentBonus = 0;
-	BOOST_FOREACH(const Bonus &b, bonuses)
-	{
-		if(b.type == Bonus::STACKS_SPEED)
-		{
-			percentBonus += b.additionalInfo;
-		}
-	}
-
-	speed = ((100 + percentBonus) * speed)/100;
-
-	//bind effect check
-	if(getEffect(72)) 
-	{
-		return 0;
-	}
-
-	return speed;
-}
-
-const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
-{
-	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
-	{
-		if(it->source == Bonus::SPELL_EFFECT && it->id == id)
-		{
-			if(!turn || it->turnsRemain > turn)
-				return &(*it);
-		}
-	}
-	return NULL;
-}
-
-void CStack::stackEffectToFeature(BonusList & sf, const Bonus & sse)
-{
-	si32 power = VLC->spellh->spells[sse.id].powers[sse.val];
-	Bonus * bonus = getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, sse.id));
-	if (bonus)
-	{
-		switch(bonus->additionalInfo)
-		{
-			case 0: //normal
-				switch(type->level)
-				{
-					case 1: case 2:
-						power += 3; //it doesn't necessarily make sense for some spells, use it wisely
-					break;
-					case 3: case 4:
-						power += 2;
-					break;
-					case 5: case 6:
-						power += 1;
-					break;
-				}
-			break;
-			case 1: //only Coronius as yet
-				power = std::max(5 - type->level, 0);
-			break;
-		}
-	}
-
-	switch(sse.id)
-	{
-	case 27: //shield 
-		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 28: //air shield
-		sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 29: //fire shield
-		sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 30: //protection from air
-		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 31: //protection from fire
-		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 32: //protection from water
-		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 33: //protection from earth
-		sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 34: //anti-magic
-		sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 41: //bless
-		if (hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, 41)) //TODO: better handling of bonus percentages
-		{
-			int damagePercent = dynamic_cast<const CGHeroInstance*>(armyObj)->level * valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / type->level;
-			sf.push_back(featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, sse.turnsRemain));
-			sf.back().id = sse.id;
-			sf.back().valType = Bonus::PERCENT_TO_ALL;
-		}
-		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 42: //curse
-		sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
-		sf.back().id = sse.id;
-		break;
-	case 43: //bloodlust
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
-		sf.back().id = sse.id;
-		break;
-	case 44: //precision
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
-		sf.back().id = sse.id;
-		break;
-	case 45: //weakness
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 46: //stone skin
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 47: //disrupting ray
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 48: //prayer
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 49: //mirth
-		sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 50: //sorrow
-		sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 51: //fortune
-		sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 52: //misfortune
-		sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 53: //haste
-		sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 54: //slow
-		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
-		sf.back().id = sse.id;
-		break;
-	case 55: //slayer
-		if (bonus) //Coronius
-		{
-			sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-			sf.back().id = sse.id;
-		}
-		sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 56: //frenzy
-		sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56].powers[sse.val]/100.0, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 58: //counterstrike
-		sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 59: //bersek
-		sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 60: //hypnotize
-		sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.val, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 61: //forgetfulness
-		sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.val, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	case 62: //blind
-		sf.push_back(makeFeature(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().id = sse.id;
-		sf.push_back(makeFeature(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().id = sse.id;
-		break;
-	}
-}
-
-ui8 CStack::howManyEffectsSet(ui16 id) const
-{
-	ui8 ret = 0;
-	for (BonusList::const_iterator it = bonuses.begin(); it != bonuses.end(); it++)
-		if(it->source == Bonus::SPELL_EFFECT && it->id == id) //effect found
-		{
-			++ret;
-		}
-	return ret;
-}
-
-bool CStack::willMove(int turn /*= 0*/) const
-{
-	return ( turn ? true : !vstd::contains(state, DEFENDING) )
-		&& !moved(turn)
-		&& canMove(turn);
-}
-
-bool CStack::canMove( int turn /*= 0*/ ) const
-{
-	return alive()
-		&& !hasBonus(Selector::type(Bonus::NOT_ACTIVE) && Selector::turns(turn)); //eg. Ammo Cart or blinded creature
-}
-
-bool CStack::moved( int turn /*= 0*/ ) const
-{
-	if(!turn)
-		return vstd::contains(state, MOVED);
-	else
-		return false;
-}
-
-bool CStack::doubleWide() const
-{
-	return type->doubleWide;
-}
-
-int CStack::occupiedHex() const
-{
-	if (doubleWide())
-	{
-		if (attackerOwned)
-			return position - 1;
-		else
-			return position + 1;
-	} 
-	else
-	{
-		return -1;
-	}
-}
-BonusList CStack::getSpellBonuses() const
-{
-	return getBonuses(Selector::sourceTypeSel(Bonus::CASTED_SPELL));
-}
-
-std::vector<si32> CStack::activeSpells() const
-{
-	std::vector<si32> ret;
-
-	BonusList spellEffects = getSpellBonuses();
-	for(BonusList::const_iterator it = spellEffects.begin(); it != spellEffects.end(); it++)
-	{
-		if (!vstd::contains(ret, it->id)) //do not duplicate spells with multiple effects
-			ret.push_back(it->id);
-	}
-
-	return ret;
-}
-
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available, const CHeroClass *bannedClass /*= NULL*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
 
@@ -991,7 +393,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 
 	if(native)
 	{
-		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
+		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
 				&& i->second->type->heroType/2 == town->typeID)
@@ -1013,7 +415,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 	{
 		int sum=0, r;
 
-		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
+		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
 				&& !bannedClass || i->second->type->heroClass != bannedClass)
@@ -1081,7 +483,7 @@ CGHeroInstance *CGameState::getHero(int objid)
 {
 	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=HEROI_TYPE)
 		return NULL;
-	return static_cast<CGHeroInstance *>(map->objects[objid]);
+	return static_cast<CGHeroInstance *>(map->objects[objid].get());
 }
 
 const CGHeroInstance * CGameState::getHero( int objid ) const
@@ -1171,13 +573,13 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
 				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 					{
 						randomizeObject(map->objects[i]); //we have to randomize the castle first
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -1212,13 +614,13 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				for(unsigned int i=0;i<map->objects.size();i++)
 				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 					{
 						randomizeObject(map->objects[i]); //we have to randomize the castle first
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -1357,13 +759,9 @@ int CGameState::getDate(int mode) const
 CGameState::CGameState()
 {
 	mx = new boost::shared_mutex();
-	map = NULL;
-	curB = NULL;
-	scenarioOps = NULL;
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
 	objCaller = new CObjectCallersHandler;
-	campaign = NULL;
 }
 CGameState::~CGameState()
 {
@@ -1378,6 +776,13 @@ CGameState::~CGameState()
 	//TODO: delete properly that definfos
 	villages.clear();
 	capitols.clear();
+}
+
+BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
+{
+	int terrain = map->getTile(tile).tertype;
+	int terType = battleGetBattlefieldType(tile);
+	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
 void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
@@ -1398,17 +803,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					break;
 				case 1: //monster
 					{
-						CCreatureSet newArmy = hero->getArmy();
 						for(int i=0; i<ARMY_SIZE; i++)
 						{
-							if(newArmy.slotEmpty(i))
+							if(hero->slotEmpty(i))
 							{
-								newArmy.addToSlot(i, CStackInstance(curBonus.info2, curBonus.info3));
+								hero->addToSlot(i, curBonus.info2, curBonus.info3);
 								break;
 							}
 						}
-
-						hero->setArmy(newArmy);
 					}
 					break;
 				case 3: //artifact
@@ -1427,13 +829,13 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 							{
 								continue;
 							}
-							Bonus bb(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, si->whichMapInCampaign, g);
-							hero->bonuses.push_back(bb);
+							Bonus *bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, si->whichMapInCampaign, g);
+							hero->addNewBonus(bb);
 						}
 					}
 					break;
 				case 6: //sec skills
-					hero->setSecSkillLevel(curBonus.info2, curBonus.info3, true);
+					hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(curBonus.info2), curBonus.info3, true);
 					break;
 				}
 			}
@@ -1488,6 +890,60 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
 			map = new Mapa();
 			map->initFromBytes((const unsigned char*)mapContent.c_str());
+		}
+		break;
+	case StartInfo::DUEL:
+		{
+			bool success = false;
+			DuelParameters dp;
+			try
+			{
+				CLoadFile lf(scenarioOps->mapname);
+				lf >> dp;
+				success = true;
+			}
+			catch(...)
+			{}
+
+
+			const CArmedInstance *armies[2] = {0};
+			const CGHeroInstance *heroes[2] = {0};
+			CGTownInstance *town = NULL;
+
+			for(int i = 0; i < 2; i++)
+			{
+				CArmedInstance *obj = NULL;
+				if(dp.sides[i].heroId >= 0)
+				{
+					CGHeroInstance *h = new CGHeroInstance();
+					armies[i] = heroes[i] = h;
+					obj = h;
+					h->subID = dp.sides[i].heroId;
+					h->initHero(h->subID);
+				}
+				else
+				{
+					CGCreature *c = new CGCreature();
+					armies[i] = obj = c;
+					c->subID = 34;
+					
+				}
+
+				obj->initObj();
+				obj->setOwner(i);
+
+				for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
+				{
+					int cre = dp.sides[i].stacks[j].type, count = dp.sides[i].stacks[j].count;
+					if(!count && obj->hasStackAtSlot(j)
+						|| count)
+						obj->setCreature(j, cre, count);
+				}
+			}
+
+			curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
+			curB->localInit();
+			return;
 		}
 		break;
 	default:
@@ -1570,10 +1026,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		randomizeObject(obj);
-		if(obj->ID==EVENTI_TYPE)
-		{
-			obj->defInfo->handler=NULL;
-		}
 		obj->hoverName = VLC->generaltexth->names[obj->ID];
 
 		//handle Favouring Winds - mark tiles under it
@@ -1604,32 +1056,19 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	/*********give starting hero****************************************/
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==CMapHeader::RoE))
+		const PlayerInfo &p = map->players[i];
+		bool generateHero = (p.generateHeroAtMainTown && p.hasMainTown)  ||  (p.hasMainTown && map->version==CMapHeader::RoE);
+		if(generateHero && vstd::contains(scenarioOps->playerInfos, i))
 		{
-			int3 hpos = map->players[i].posOfMainTown;
-			hpos.x+=1;// hpos.y+=1;
-			if (scenarioOps->playerInfos.find(i) == scenarioOps->playerInfos.end())
-			{
-				continue;
-			}
+			int3 hpos = p.posOfMainTown;
+			hpos.x+=1;
 
-			int h=pickHero(i);
+			int h = pickHero(i);
 			if(scenarioOps->playerInfos[i].hero == -1)
 				scenarioOps->playerInfos[i].hero = h;
 
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
-			hpos = map->players[i].posOfMainTown;hpos.x+=2;
-			for(unsigned int o=0;o<map->towns.size();o++) //find main town
-			{
-				if(map->towns[o]->pos == hpos)
-				{
-					map->towns[o]->visitingHero = nnn;
-					nnn->visitedTown = map->towns[o];
-					nnn->inTownGarrison = false;
-					break;
-				}
-			}
 			nnn->initHero();
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
@@ -1852,7 +1291,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					break;
 				}
 			}
-			std::vector<CGHeroInstance *> & heroes = players[humanPlayer].heroes;
+			std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = players[humanPlayer].heroes;
 
 			if (chosenBonus.info1 == 0xFFFD) //most powerful
 			{
@@ -1903,7 +1342,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		{
 			if( !vstd::contains(k->second.players, obj->tempOwner)) continue; //not a flagged object
 
-			std::set<int3> tiles;
+			boost::unordered_set<int3, ShashInt3> tiles;
 			obj->getSightTiles(tiles);
 			BOOST_FOREACH(int3 tile, tiles)
 			{
@@ -1947,11 +1386,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
  				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = k->second.heroes[0];
-				std::vector<ui16>::iterator slot = vstd::findFirstNot (hero->artifWorn, toGive->possibleSlots);
-				if(slot != toGive->possibleSlots.end())
-					VLC->arth->equipArtifact(hero->artifWorn, *slot, toGive);
-				else
- 					hero->giveArtifact(toGive->id);
+ 				hero->giveArtifact(toGive->id);
 			}
 		}
 	}
@@ -2015,7 +1450,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		CSpell *s;
 		for(unsigned int z=0; z<vti->obligatorySpells.size();z++)
 		{
-			s = &VLC->spellh->spells[vti->obligatorySpells[z]];
+			s = VLC->spellh->spells[vti->obligatorySpells[z]];
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -2025,11 +1460,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			int sel = -1;
 
 			for(unsigned int ps=0;ps<vti->possibleSpells.size();ps++)
-				total += VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+				total += VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
 			int r = (total)? ran()%total : -1;
 			for(unsigned int ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+				r -= VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
 				if(r<0)
 				{
 					sel = ps;
@@ -2039,7 +1474,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			if(sel<0)
 				sel=0;
 
-			CSpell *s = &VLC->spellh->spells[vti->possibleSpells[sel]];
+			CSpell *s = VLC->spellh->spells[vti->possibleSpells[sel]];
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -2072,24 +1507,31 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 	}
 
+	objCaller->preInit();
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
+	{
+		obj->initObj();
+		if(obj->ID == 62) //prison also needs to initialize hero
+			static_cast<CGHeroInstance*>(obj)->initHero();
+	}
+	CGTeleport::postInit(); //pairing subterranean gates
+
+	buildBonusSystemTree();
+
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;
 
 		//init visiting and garrisoned heroes
-		for(unsigned int l=0; l<k->second.heroes.size();l++)
+		BOOST_FOREACH(CGHeroInstance *h, k->second.heroes)
 		{ 
-			CGHeroInstance *h = k->second.heroes[l];
-			for(unsigned int m=0; m<k->second.towns.size();m++)
+			BOOST_FOREACH(CGTownInstance *t, k->second.towns)
 			{
-				CGTownInstance *t = k->second.towns[m];
 				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
 				if(vistile == h->pos || h->pos==t->pos)
 				{
-					t->visitingHero = h;
-					h->visitedTown = t;
-					h->inTownGarrison = false;
+					t->setVisitingHero(h);
 					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
 					{
 						map->removeBlockVisTiles(h);
@@ -2101,60 +1543,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			}
 		}
 	}
-
-	objCaller->preInit();
-	for(unsigned int i=0; i<map->objects.size(); i++)
-	{
-		map->objects[i]->initObj();
-		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
-			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
-	}
-	CGTeleport::postInit(); //pairing subterranean gates
-}
-
-bool CGameState::battleCanFlee(int player)
-{
-	if(!curB) //there is no battle
-		return false;
-
-	if (player == curB->side1)
-	{
-		if (!curB->heroes[0])
-			return false;//current player have no hero
-	}
-	else
-	{
-		if (!curB->heroes[1])
-			return false;
-	}
-
-	if( ( curB->heroes[0] && curB->heroes[0]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE) ) //eg. one of heroes is wearing shakles of war
-		|| ( curB->heroes[1] && curB->heroes[1]->hasBonusOfType(Bonus::ENEMY_CANT_ESCAPE)))
-		return false;
-
-	if (player == curB->side2 && curB->siege //defender in siege
-		&& !(getTown(curB->tid)->subID == 6 && vstd::contains(getTown(curB->tid)->builtBuildings, 17)))//without escape tunnel
-		return false;
-
-	return true;
-}
-
-int CGameState::battleGetStack(int pos, bool onlyAlive)
-{
-	if(!curB)
-		return -1;
-	for(unsigned int g=0; g<curB->stacks.size(); ++g)
-	{
-		if((curB->stacks[g]->position == pos 
-			  || (curB->stacks[g]->doubleWide() 
-					&&( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) 
-					||	(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)	)
-			 ))
-			 && (!onlyAlive || curB->stacks[g]->alive())
-		  )
-			return curB->stacks[g]->ID;
-	}
-	return -1;
 }
 
 int CGameState::battleGetBattlefieldType(int3 tile)
@@ -2169,7 +1557,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
 		return 12;
 
-	const std::vector <CGObjectInstance*> & objs = map->objects;
+	const std::vector <ConstTransitivePtr<CGObjectInstance> > & objs = map->objects;
 	for(int g=0; g<objs.size(); ++g)
 	{
 		if( !objs[g] || objs[g]->pos.x - tile.x < 0  ||  objs[g]->pos.x - tile.x >= 8  
@@ -2229,14 +1617,6 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	}
 }
 
-const CGHeroInstance * CGameState::battleGetOwner(int stackID)
-{
-	if(!curB)
-		return NULL;
-
-	return curB->heroes[!curB->getStack(stackID)->attackerOwned];
-}
-
 std::set<std::pair<int, int> > costDiff(const std::vector<ui32> &a, const std::vector<ui32> &b, const int modifier = 100) //modifer %
 {
 	std::set<std::pair<int, int> > ret;
@@ -2262,7 +1642,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	else if(h)
 	{	//hero speciality
 		BonusList lista = h->speciality.getBonuses(Selector::typeSybtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
-		for (BonusList::iterator it = lista.begin(); it != lista.end(); it++)
+		BOOST_FOREACH(const Bonus *it, lista)
 		{
 			ui16 nid = it->additionalInfo;
 			if (nid != base->idNumber) //in very specific case the upgrade is avaliable by default (?)
@@ -3073,615 +2453,7 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 	}
 	return true;
 }
-std::pair<ui32, ui32> BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
-{
-	float additiveBonus=1.0f, multBonus=1.0f,
-		minDmg = attacker->getMinDamage() * attacker->count, 
-		maxDmg = attacker->getMaxDamage() * attacker->count;
 
-	if(attacker->type->idNumber == 149) //arrow turret
-	{
-		switch(attacker->position)
-		{
-		case -2: //keep
-			minDmg = 15;
-			maxDmg = 15;
-			break;
-		case -3: case -4: //turrets
-			minDmg = 7.5f;
-			maxDmg = 7.5f;
-			break;
-		}
-	}
-
-	if(attacker->hasBonusOfType(Bonus::SIEGE_WEAPON) && attacker->type->idNumber != 149) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
-	{ //minDmg and maxDmg are multiplied by hero attack + 1
-		minDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
-		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
-	}
-
-	int attackDefenceDifference = 0;
-	if(attacker->hasBonusOfType(Bonus::GENERAL_ATTACK_REDUCTION))
-	{
-		float multAttackReduction = attacker->valOfBonuses(Bonus::GENERAL_ATTACK_REDUCTION, -1024) / 100.0f;
-		attackDefenceDifference = attacker->Attack() * multAttackReduction;
-	}
-	else
-	{
-		attackDefenceDifference = attacker->Attack();
-	}
-
-	if(attacker->hasBonusOfType(Bonus::ENEMY_DEFENCE_REDUCTION))
-	{
-		float multDefenceReduction = (100.0f - attacker->valOfBonuses(Bonus::ENEMY_DEFENCE_REDUCTION, -1024)) / 100.0f;
-		attackDefenceDifference -= defender->Defense() * multDefenceReduction;
-	}
-	else
-	{
-		attackDefenceDifference -= defender->Defense();
-	}
-
-	//calculating total attack/defense skills modifier
-
-	if(shooting) //precision handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSybtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)).totalValue();
-	else //bloodlust handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSybtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)).totalValue();
-
-
-	if(attacker->getEffect(55)) //slayer handling
-	{
-		std::vector<int> affectedIds;
-		int spLevel = attacker->getEffect(55)->val;
-
-		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
-		{
-			BOOST_FOREACH(const Bonus &b, VLC->creh->creatures[g]->bonuses)
-			{
-				if ( (b.type == Bonus::KING3 && spLevel >= 3) || //expert
-					(b.type == Bonus::KING2 && spLevel >= 2) || //adv +
-					(b.type == Bonus::KING1 && spLevel >= 0) ) //none or basic +
-				{
-					affectedIds.push_back(g);
-					break;
-				}
-			}
-		}
-
-		for(unsigned int g=0; g<affectedIds.size(); ++g)
-		{
-			if(defender->type->idNumber == affectedIds[g])
-			{
-				attackDefenceDifference += VLC->spellh->spells[55].powers[attacker->getEffect(55)->val];
-				break;
-			}
-		}
-	}
-
-	//bonus from attack/defense skills
-	if(attackDefenceDifference < 0) //decreasing dmg
-	{
-		float dec = 0.025f * (-attackDefenceDifference);
-		if(dec > 0.7f)
-		{
-			multBonus *= 0.3f; //1.0 - 0.7
-		}
-		else
-		{
-			multBonus *= 1.0f - dec;
-		}
-	}
-	else //increasing dmg
-	{
-		float inc = 0.05f * attackDefenceDifference;
-		if(inc > 4.0f)
-		{
-			additiveBonus += 4.0f;
-		}
-		else
-		{
-			additiveBonus += inc;
-		}
-	}
-	
-
-	//applying jousting bonus
-	if( attacker->hasBonusOfType(Bonus::JOUSTING) && !defender->hasBonusOfType(Bonus::CHARGE_IMMUNITY) )
-		additiveBonus += charge * 0.05f;
-
-	
-	//handling secondary abilities and artifacts giving premies to them
-	if(attackerHero)
-	{
-		if(shooting)
-		{
-			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
-		}
-		else
-		{
-			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 22) / 100.0f;
-		}
-	}
-
-	if(defendingHero)
-	{
-		multBonus *= (std::max(0, 100-defendingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 23))) / 100.0f;
-	}
-
-	//handling hate effect
-	if( attacker->hasBonusOfType(Bonus::HATE, defender->type->idNumber) )
-		additiveBonus += 0.5f;
-
-	//luck bonus
-	if (lucky)
-	{
-		additiveBonus += 1.0f;
-	}
-
-	//handling spell effects
-	if(!shooting && defender->hasBonusOfType(Bonus::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
-	{
-		multBonus *= float(defender->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 0)) / 100.0f;
-	}
-	else if(shooting && defender->hasBonusOfType(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) //eg. air shield
-	{
-		multBonus *= float(defender->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0f;
-	}
-	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
-	{
-		multBonus *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->val]); //the second factor is 1 or 0
-	}
-
-	class HLP
-	{
-	public:
-		static bool hasAdvancedAirShield(const CStack * stack)
-		{
-			for (BonusList::const_iterator it = stack->bonuses.begin(); it != stack->bonuses.end(); it++)
-			{
-				if (it->source == Bonus::SPELL_EFFECT && it->id == 28 && it->val >= 2)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-	};
-
-	//wall / distance penalty + advanced air shield
-	if (shooting && !NBonus::hasOfType(attackerHero, Bonus::NO_SHOTING_PENALTY) && (
-		hasDistancePenalty(attacker->ID, defender->position) || hasWallPenalty(attacker->ID, defender->position) ||
-		HLP::hasAdvancedAirShield(defender) )
-		)
-	{
-		multBonus *= 0.5;
-	}
-	if (!shooting && attacker->hasBonusOfType(Bonus::SHOOTER) && !attacker->hasBonusOfType(Bonus::NO_MELEE_PENALTY))
-	{
-		multBonus *= 0.5;
-	}
-
-	minDmg *= additiveBonus * multBonus;
-	maxDmg *= additiveBonus * multBonus;
-
-	std::pair<ui32, ui32> returnedVal;
-
-	if(attacker->getEffect(42)) //curse handling (rest)
-	{
-		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->val];
-		returnedVal = std::make_pair(int(minDmg), int(minDmg));
-	}
-	else if(attacker->getEffect(41)) //bless handling
-	{
-		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->val];
-		returnedVal =  std::make_pair(int(maxDmg), int(maxDmg));
-	}
-	else
-	{
-		returnedVal =  std::make_pair(int(minDmg), int(maxDmg));
-	}
-
-	//damage cannot be less than 1
-	amax(returnedVal.first, 1);
-	amax(returnedVal.second, 1);
-
-	return returnedVal;
-}
-
-ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
-{
-	std::pair<ui32, ui32> range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky);
-
-	if(range.first != range.second)
-	{
-		int valuesToAverage[10];
-		int howManyToAv = std::min<ui32>(10, attacker->count);
-		for (int g=0; g<howManyToAv; ++g)
-		{
-			valuesToAverage[g] = range.first  +  rand() % (range.second - range.first + 1);
-		}
-
-		return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
-	}
-	else
-		return range.first;
-}
-
-void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
-{
-	for(unsigned int i=0; i<stacks.size();i++)//setting casualties
-	{
-		const CStack * const st = stacks[i];
-		si32 killed = (st->alive() ? st->baseAmount - st->count : st->baseAmount);
-		amax(killed, 0);
-		if(killed)
-			casualties[!st->attackerOwned][st->type->idNumber] += killed;
-	}
-}
-
-si8 CGameState::battleMaxSpellLevel()
-{
-	if(!curB) //there is not battle
-	{
-		tlog1 << "si8 CGameState::maxSpellLevel() call when there is no battle!" << std::endl;
-		throw "si8 CGameState::maxSpellLevel() call when there is no battle!";
-	}
-
-	si8 levelLimit = SPELL_LEVELS;
-
-	const CGHeroInstance *h1 =  curB->heroes[0];
-	if(h1)
-	{
-		for(std::list<Bonus>::const_iterator i = h1->bonuses.begin(); i != h1->bonuses.end(); i++)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
-	}
-
-	const CGHeroInstance *h2 = curB->heroes[1];
-	if(h2)
-	{
-		for(std::list<Bonus>::const_iterator i = h2->bonuses.begin(); i != h2->bonuses.end(); i++)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
-	}
-
-	return levelLimit;
-}
-
-std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillLevel, ui8 attackerOwner, int destinationTile )
-{
-	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, skillLevel);
-	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
-
-	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
-
-	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and Armageddon
-	{
-		for(int it=0; it<stacks.size(); ++it)
-		{
-			if((s->id == 24 && !stacks[it]->type->isUndead()) //death ripple
-				|| (s->id == 25 && stacks[it]->type->isUndead()) //destroy undead
-				|| (s->id == 26) //Armageddon
-				)
-			{
-				if(stacks[it]->alive())
-					attackedCres.insert(stacks[it]);
-			}
-		}
-	}
-	else if (s->range[skillLevel].size() > 1) //custom many-hex range
-	{
-		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
-		{
-			CStack * st = getStackT(*it, onlyAlive);
-			if(st)
-				attackedCres.insert(st);
-		}
-	}
-	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_1") != std::string::npos
-		|| VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
-	{
-		if(skillLevel < 3)  /*not expert */
-		{
-			CStack * st = getStackT(destinationTile, onlyAlive);
-			if(st)
-				attackedCres.insert(st);
-		}
-		else
-		{
-			for(int it=0; it<stacks.size(); ++it)
-			{
-				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((VLC->spellh->spells[s->id].positiveness >= 0 && stacks[it]->owner == attackerOwner)
-					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != attackerOwner )
-					)
-				{
-					if(!onlyAlive || stacks[it]->alive())
-						attackedCres.insert(stacks[it]);
-				}
-			}
-		} //if(caster->getSpellSchoolLevel(s) < 3)
-	}
-	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
-	{
-		CStack * st = getStackT(destinationTile, onlyAlive);
-		if(st)
-			attackedCres.insert(st);
-	}
-	else //custom range from attackedHexes
-	{
-		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
-		{
-			CStack * st = getStackT(*it, onlyAlive);
-			if(st)
-				attackedCres.insert(st);
-		}
-	}
-	return attackedCres;
-}
-
-int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower )
-{
-	if(!caster) //TODO: something better
-		return std::max(5, usedSpellPower);
-	switch(spell->id)
-	{
-	case 56: //frenzy
-		return 1;
-	default: //other spells
-		return caster->getPrimSkillLevel(2) + caster->valOfBonuses(Bonus::SPELL_DURATION);
-	}
-}
-
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const
-{
-	CStack * ret = new CStack(&base, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
-
-	//native terrain bonuses
-	int faction = ret->type->faction;
-	if(faction >= 0 && VLC->heroh->nativeTerrains[faction] == terrain)
-	{
-		ret->bonuses.push_back(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE));
-		ret->bonuses.push_back(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE));
-		ret->bonuses.push_back(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE));
-	}
-
-	ret->position = position;
-
-	return ret;
-}
-
-ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
-{
-	ui32 ret = caster->getSpellCost(sp);
-
-	//checking for friendly stacks reducing cost of the spell and
-	//enemy stacks increasing it
-	si32 manaReduction = 0;
-	si32 manaIncrease = 0;
-	for(int g=0; g<stacks.size(); ++g)
-	{
-		if( stacks[g]->owner == caster->tempOwner && stacks[g]->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ALLY) )
-		{
-			amin(manaReduction, stacks[g]->valOfBonuses(Bonus::CHANGES_SPELL_COST_FOR_ALLY));
-		}
-		if( stacks[g]->owner != caster->tempOwner && stacks[g]->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ENEMY) )
-		{
-			amax(manaIncrease, stacks[g]->valOfBonuses(Bonus::CHANGES_SPELL_COST_FOR_ENEMY));
-		}
-	}
-
-	return ret + manaReduction + manaIncrease;
-}
-
-int BattleInfo::hexToWallPart(int hex) const
-{
-	if(siege == 0) //there is no battle!
-		return -1;
-
-	static const std::pair<int, int> attackable[] = //potentially attackable parts of wall
-	{std::make_pair(50, 0), std::make_pair(183, 1), std::make_pair(182, 2), std::make_pair(130, 3),
-	std::make_pair(62, 4), std::make_pair(29, 5), std::make_pair(12, 6), std::make_pair(95, 7), std::make_pair(96, 7)};
-
-	for(int g = 0; g < ARRAY_COUNT(attackable); ++g)
-	{
-		if(attackable[g].first == hex)
-			return attackable[g].second;
-	}
-
-	return -1; //not found!
-}
-
-int BattleInfo::lineToWallHex( int line ) const
-{
-	static const int lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
-
-	return lineToHex[line];
-}
-
-std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
-{	
-	bool ac[BFIELD_SIZE];
-	std::set<int> occupyable;
-
-	getAccessibilityMap(ac, closest->doubleWide(), closest->attackerOwned, false, occupyable, closest->hasBonusOfType(Bonus::FLYING), closest->ID);
-
-	int predecessor[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(closest->position, ac, predecessor, dist, closest->doubleWide(), closest->attackerOwned, closest->hasBonusOfType(Bonus::FLYING), true);
-
-	std::vector< std::pair< std::pair<int, int>, const CStack *> > stackPairs; //pairs <<distance, hex>, stack>
-	for(int g=0; g<BFIELD_SIZE; ++g)
-	{
-		const CStack * atG = getStackT(g);
-		if(!atG || atG->ID == closest->ID) //if there is not stack or we are the closest one
-			continue;
-		if(boost::logic::indeterminate(attackerOwned) || atG->attackerOwned == attackerOwned)
-		{
-			if(predecessor[g] == -1) //TODO: is it really the best solution?
-				continue;
-			stackPairs.push_back( std::make_pair( std::make_pair(dist[predecessor[g]], g), atG) );
-		}
-	}
-
-	if(stackPairs.size() > 0)
-	{
-		std::vector< std::pair< std::pair<int, int>, const CStack *> > minimalPairs;
-		minimalPairs.push_back(stackPairs[0]);
-	
-		for(int b=1; b<stackPairs.size(); ++b)
-		{
-			if(stackPairs[b].first.first < minimalPairs[0].first.first)
-			{
-				minimalPairs.clear();
-				minimalPairs.push_back(stackPairs[b]);
-			}
-			else if(stackPairs[b].first.first == minimalPairs[0].first.first)
-			{
-				minimalPairs.push_back(stackPairs[b]);
-			}
-		}
-
-		std::pair< std::pair<int, int>, const CStack *> minPair = minimalPairs[minimalPairs.size()/2];
-
-		return std::make_pair(minPair.second, predecessor[minPair.first.second]);
-	}
-
-	return std::make_pair<const CStack * , int>(NULL, -1);
-}
-ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 25)) / 100.0f; //sorcery
-		ret *= (100.f + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0f;
-
-		if(sp->air)
-			ret *= (100.0f + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0f;
-		else if(sp->fire) //only one type of bonus for Magic Arrow
-			ret *= (100.0f + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0f;
-		else if(sp->water)
-			ret *= (100.0f + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0f;
-		else if(sp->earth)
-			ret *= (100.0f + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0f;
-
-		if (affectedCreature) //Hero specials like Solmyr, Deemer
-			ret *= (100.f + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->type->level)) / 100.0f;
-	}
-	return ret;
-}
-
-ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
-{
-	ui32 ret = 0; //value to return
-
-	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
-	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
-
-	//FIXME: what point of dmgMultipliers map? all damage multipliers are already present in CSpell::power
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 25)(24, 5)(25, 10)(26, 50)(77, 10);
-
-	//check if spell really does damage - if not, return 0
-	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
-		return 0;
-
-	ret = usedSpellPower * dmgMultipliers[sp->id];
-	ret += sp->powers[spellSchoolLevel];
-
-	//affected creature-specific part
-	if(affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
-			ret /= 100;
-		}
-		else if(sp->fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
-			ret /= 100;
-		}
-		else if(sp->water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
-			ret /= 100;
-		}
-		else if (sp->earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
-			ret /= 100;
-		}
-		//general spell dmg reduction
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-		//dmg increasing
-		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
-			ret /= 100;
-		}
-	}
-	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
-	return ret;
-}
-
-ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const
-{
-	int powerPerLevel;
-	bool resurrect;
-	switch(spell->id)
-	{
-	case 37: //cure
-		{
-			powerPerLevel = 5;
-			resurrect = false;
-			break;
-		}
-	case 38: //resurrection
-	case 39: //animate dead
-		{
-			powerPerLevel = 50;
-			resurrect = true;
-			break;
-		}
-	}
-	int healedHealth = caster->getPrimSkillLevel(2) * powerPerLevel + spell->powers[caster->getSpellSchoolLevel(spell)];
-	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
-
-bool CGameState::battleCanShoot(int ID, int dest)
-{
-	if(!curB)
-		return false;
-
-	const CStack *our = curB->getStack(ID),
-		*dst = curB->getStackT(dest);
-
-	if(!our || !dst) return false;
-
-	const CGHeroInstance * ourHero = battleGetOwner(our->ID);
-
-	if(our->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
-		return false;
-
-	if(our->type->idNumber == 145 && dst) //catapult cannot attack creatures
-		return false;
-
-	if(our->hasBonusOfType(Bonus::SHOOTER)//it's shooter
-		&& our->owner != dst->owner
-		&& dst->alive()
-		&& (!curB->isStackBlocked(ID)  ||  NBonus::hasOfType(ourHero, Bonus::FREE_SHOOTING))
-		&& our->shots
-		)
-		return true;
-	return false;
-}
 
 int CGameState::victoryCheck( ui8 player ) const
 {
@@ -3716,11 +2488,11 @@ int CGameState::victoryCheck( ui8 player ) const
 					const CArmedInstance *ai = NULL;
 					if(map->objects[i] 
 						&& map->objects[i]->tempOwner == player //object controlled by player
-						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i]))) //contains army
+						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i].get()))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->Slots().begin(); i!=ai->Slots().end(); ++i) //iterate through army
-							if(i->second.type->idNumber == map->victoryCondition.ID) //it's searched creature
-								total += i->second.count;
+							if(i->second->type->idNumber == map->victoryCondition.ID) //it's searched creature
+								total += i->second->count;
 					}
 				}
 
@@ -3883,7 +2655,7 @@ struct statsHLP
 
 	static const CGHeroInstance * findBestHero(CGameState * gs, int color)
 	{
-		std::vector<CGHeroInstance *> &h = gs->players[color].heroes;
+		std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
 		if(!h.size())
 			return NULL;
 		//best hero will be that with highest exp
@@ -3904,7 +2676,7 @@ struct statsHLP
 		int ret = 0;
 		for(int g=0; g<ps->heroes.size(); ++g)
 		{
-			ret += ps->heroes[g]->artifacts.size() + ps->heroes[g]->artifWorn.size();
+			ret += ps->heroes[g]->artifactsInBackpack.size() + ps->heroes[g]->artifactsWorn.size();
 		}
 		return ret;
 	}
@@ -4012,7 +2784,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(TSlots::const_iterator it = g->second.heroes[b]->Slots().begin(); it != g->second.heroes[b]->Slots().end(); ++it)
 				{
-					int toCmp = it->second.type->idNumber; //ID of creature we should compare with the best one
+					int toCmp = it->second->type->idNumber; //ID of creature we should compare with the best one
 					if(bestCre == -1 || VLC->creh->creatures[bestCre]->AIValue < VLC->creh->creatures[toCmp]->AIValue)
 					{
 						bestCre = toCmp;
@@ -4071,268 +2843,57 @@ int CGameState::lossCheck( ui8 player ) const
 	return false;
 }
 
-std::map<ui32,CGHeroInstance *> CGameState::unusedHeroesFromPool()
+bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
 {
-	std::map<ui32,CGHeroInstance *> pool = hpool.heroesPool;
+	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
 	for ( std::map<ui8, PlayerState>::iterator i = players.begin() ; i != players.end();i++)
-		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+		for(std::vector< ConstTransitivePtr<CGHeroInstance> >::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
 			if(*j)
 				pool.erase((**j).subID);
 
 	return pool;
 }
 
-const CStack * BattleInfo::getNextStack() const
+void CGameState::buildBonusSystemTree()
 {
-	std::vector<const CStack *> hlp;
-	getStackQueue(hlp, 1, -1);
-
-	if(hlp.size())
-		return hlp[0];
-	else
-		return NULL;
-}
-
-static const CStack *takeStack(std::vector<const CStack *> &st, int &curside, int turn)
-{
-	const CStack *ret = NULL;
-	unsigned i, //fastest stack
-		j; //fastest stack of the other side
-	for(i = 0; i < st.size(); i++)
-		if(st[i])
-			break;
-
-	//no stacks left
-	if(i == st.size())
-		return NULL;
-
-	const CStack *fastest = st[i], *other = NULL;
-	int bestSpeed = fastest->Speed(turn);
-
-	if(fastest->attackerOwned != curside)
+	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
 	{
-		ret = fastest;
-	}
-	else
-	{
-		for(j = i + 1; j < st.size(); j++)
+		TeamState *t = &k->second;
+		t->attachTo(&globalEffects);
+
+		BOOST_FOREACH(ui8 teamMember, k->second.players)
 		{
-			if(!st[j]) continue;
-			if(st[j]->attackerOwned != curside || st[j]->Speed(turn) != bestSpeed)
-				break;
+			PlayerState *p = getPlayer(teamMember);
+			assert(p);
+			p->attachTo(t);
 		}
 
-		if(j >= st.size())
-		{
-			ret = fastest;
-		}
-		else
-		{
-			other = st[j];
-			if(other->Speed(turn) != bestSpeed)
-				ret = fastest;
-			else
-				ret = other;
-		}
 	}
 
-	assert(ret);
-	if(ret == fastest)
-		st[i] = NULL;
-	else
-		st[j] = NULL;
-
-	curside = ret->attackerOwned;
-	return ret;
-}
-
-void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int turn /*= 0*/, int lastMoved /*= -1*/ ) const
-{
-	//we'll split creatures with remaining movement to 4 parts
-	std::vector<const CStack *> phase[4]; //0 - turrets/catapult, 1 - normal (unmoved) creatures, other war machines, 2 - waited cres that had morale, 3 - rest of waited cres
-	int toMove = 0; //how many stacks still has move
-	const CStack *active = getStack(activeStack);
-
-	//active stack hasn't taken any action yet - must be placed at the beginning of queue, no matter what
-	if(!turn && active && active->willMove() && !vstd::contains(active->state, WAITING))
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
-		out.push_back(active);
-		if(out.size() == howMany)
-			return;
-	}
-
-
-	for(unsigned int i=0; i<stacks.size(); ++i)
-	{
-		const CStack * const s = stacks[i];
-		if(turn <= 0 && !s->willMove() //we are considering current round and stack won't move
-			|| turn > 0 && !s->canMove(turn) //stack won't be able to move in later rounds
-			|| turn <= 0 && s == active && out.size() && s == out.front()) //it's active stack already added at the beginning of queue
+		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
 		{
-			continue;
-		}
+			CBonusSystemNode *whereToAttach = armed->tempOwner < PLAYER_LIMIT 
+				? getPlayer(armed->tempOwner)
+				: &globalEffects;
 
-		int p = -1; //in which phase this tack will move?
-		if(turn <= 0 && vstd::contains(s->state, WAITING)) //consider waiting state only for ongoing round
-		{
-			if(vstd::contains(s->state, HAD_MORALE))
-				p = 2;
-			else
-				p = 3;
-		}
-		else if(s->type->idNumber == 145  ||  s->type->idNumber == 149) //catapult and turrets are first
-		{
-			p = 0;
-		}
-		else
-		{
-			p = 1;
-		}
-
-		phase[p].push_back(s);
-		toMove++;
-	}
-
-	for(int i = 0; i < 4; i++)
-		std::sort(phase[i].begin(), phase[i].end(), CMP_stack(i, turn > 0 ? turn : 0));
-
-	for(size_t i = 0; i < phase[0].size() && i < howMany; i++)
-		out.push_back(phase[0][i]);
-
-	if(out.size() == howMany)
-		return;
-
-	if(lastMoved == -1)
-	{
-		if(active)
-		{
-			if(out.size() && out.front() == active)
-				lastMoved = active->attackerOwned;
-			else
-				lastMoved = active->attackerOwned;
-		}
-		else
-		{
-			lastMoved = 0;
-		}
-	}
-
-	int pi = 1;
-	while(out.size() < howMany)
-	{
-		const CStack *hlp = takeStack(phase[pi], lastMoved, turn);
-		if(!hlp)
-		{
-			pi++;
-			if(pi > 3)
+			if(armed->ID == TOWNI_TYPE)
 			{
-				//if(turn != 2)
-					getStackQueue(out, howMany, turn + 1, lastMoved);
-				return;
+				CGTownInstance *town = static_cast<CGTownInstance*>(armed);
+				town->townAndVis.attachTo(whereToAttach);
 			}
-		}
-		else
-		{
-			out.push_back(hlp);
-		}
-	}
-}
-
-si8 BattleInfo::hasDistancePenalty( int stackID, int destHex )
-{
-	const CStack * stack = getStack(stackID);
-
-	struct HLP
-	{
-		static bool lowerAnalyze(const CStack * stack, int hex)
-		{
-			int distance = BattleInfo::getDistance(hex, stack->position);
-
-			//I hope it's approximately correct
-			return distance > 10 && !stack->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY);
-		}
-	};
-	const CStack * dstStack = getStackT(destHex, false);
-
-	if (dstStack->doubleWide())
-		return HLP::lowerAnalyze(stack, destHex) && HLP::lowerAnalyze(stack, dstStack->occupiedHex());
-	else
-		return HLP::lowerAnalyze(stack, destHex);
-	
-}
-
-si8 BattleInfo::sameSideOfWall(int pos1, int pos2)
-{
-	int wallInStackLine = lineToWallHex(pos1/BFIELD_WIDTH);
-	int wallInDestLine = lineToWallHex(pos2/BFIELD_WIDTH);
-
-	bool stackLeft = pos1 < wallInStackLine;
-	bool destLeft = pos2 < wallInDestLine;
-
-	return stackLeft != destLeft;
-}
-
-si8 BattleInfo::hasWallPenalty( int stackID, int destHex )
-{
-	if (siege == 0)
-	{
-		return false;
-	}
-	const CStack * stack = getStack(stackID);
-	if (stack->hasBonusOfType(Bonus::NO_WALL_PENALTY))
-	{
-		return false;
-	}
-
-	return !sameSideOfWall(stack->position, destHex);
-}
-
-si8 BattleInfo::canTeleportTo(int stackID, int destHex, int telportLevel)
-{
-	bool ac[BFIELD_SIZE];
-	const CStack *s = getStack(stackID, false); //this function is called from healedOrResurrected, so our stack can be dead
-
-	std::set<int> occupyable;
-
-	getAccessibilityMap(ac, s->doubleWide(), s->attackerOwned, false, occupyable, s->hasBonusOfType(Bonus::FLYING), stackID);
-
-	if (siege && telportLevel < 2) //check for wall
-	{
-		return ac[destHex] && sameSideOfWall(s->position, destHex);
-	}
-	else
-	{
-		return ac[destHex];
-	}
-
-}
-
-void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	CBonusSystemNode::getBonuses(out, selector, root);
-
-	const CStack *dest = dynamic_cast<const CStack*>(root);
-	if (!dest)
-		return;
-
-	//TODO: make it in clean way
-	if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
-	{
-		BOOST_FOREACH(const CStack *s, stacks)
-		{
-			if(s->owner == dest->owner)
-				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
 			else
-				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ENEMY_ARMY), this);
+				armed->attachTo(whereToAttach);
 		}
 	}
-}
 
-si8 BattleInfo::getDistance( int hex1, int hex2 )
-{
-	int xDst = std::abs(hex1 % BFIELD_WIDTH - hex2 % BFIELD_WIDTH),
-		yDst = std::abs(hex1 / BFIELD_WIDTH - hex2 / BFIELD_WIDTH);
-	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
+	BOOST_FOREACH(CGTownInstance *t, map->towns)
+	{
+		t->deserializationFix();
+	}
+	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact 
+	// are provided on initializing / deserializing
 }
 
 int3 CPath::startPos() const
@@ -4449,44 +3010,6 @@ void CGPath::convert( ui8 mode )
 	}
 }
 
-bool CMP_stack::operator()( const CStack* a, const CStack* b )
-{
-	switch(phase)
-	{
-	case 0: //catapult moves after turrets
-		return a->type->idNumber < b->type->idNumber; //catapult is 145 and turrets are 149
-		//TODO? turrets order
-	case 1: //fastest first, upper slot first
-		{
-			int as = a->Speed(turn), bs = b->Speed(turn);
-			if(as != bs)
-				return as > bs;
-			else
-				return a->slot < b->slot;
-		}
-	case 2: //fastest last, upper slot first
-		//TODO: should be replaced with order of receiving morale!
-	case 3: //fastest last, upper slot first
-		{
-			int as = a->Speed(turn), bs = b->Speed(turn);
-			if(as != bs)
-				return as < bs;
-			else
-				return a->slot < b->slot;
-		}
-	default:
-		assert(0);
-		return false;
-	}
-
-}
-
-CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
-{
-	phase = Phase;
-	turn = Turn;
-}
-
 PlayerState::PlayerState() 
  : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0), 
    enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
@@ -4494,19 +3017,24 @@ PlayerState::PlayerState()
 
 }
 
-void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+std::string PlayerState::nodeName() const
 {
-	return; //no loops possible
+	return "Player " + (color < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color] : boost::lexical_cast<std::string>(color));
 }
 
-void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
-	{
-		if (*it != root)
-			(*it)->getBonuses(out, selector, this);
-	}
-}
+// void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	return; //no loops possible
+// }
+// 
+// void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
+// 	{
+// 		if (*it != root)
+// 			(*it)->getBonuses(out, selector, this);
+// 	}
+// }
 
 InfoAboutHero::InfoAboutHero()
 {
@@ -4533,7 +3061,7 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 	hclass = h->type->heroClass;
 	name = h->name;
 	portrait = h->portrait;
-	army = h->getArmy(); 
+	army = ArmyDescriptor(h, detailed);
 
 	if(detailed) 
 	{
@@ -4547,14 +3075,6 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 		for (int i = 0; i < PRIMARY_SKILLS ; i++)
 		{
 			details->primskills[i] = h->getPrimSkillLevel(i);
-		}
-	}
-	else
-	{
-		//hide info about hero stacks counts using descriptives names ids
-		for(TSlots::const_iterator i = army.Slots().begin(); i != army.Slots().end(); ++i)
-		{
-			army.setStackCount(i->first, i->second.getQuantityID()+1);
 		}
 	}
 }
@@ -4576,3 +3096,40 @@ InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
 }
 
 
+
+ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
+{
+	for(TSlots::const_iterator i = army->Slots().begin(); i != army->Slots().end(); i++)
+	{
+		if(detailed)
+			(*this)[i->first] = *i->second;
+		else
+			(*this)[i->first] = CStackBasicDescriptor(i->second->type, i->second->getQuantityID());
+	}
+}
+
+ArmyDescriptor::ArmyDescriptor()
+{
+
+}
+
+DuelParameters::SideSettings::StackSettings::StackSettings()
+	: type(-1), count(0)
+{
+}
+
+DuelParameters::SideSettings::StackSettings::StackSettings(si32 Type, si32 Count)
+	: type(Type), count(Count)
+{
+}
+
+DuelParameters::SideSettings::SideSettings()
+{
+	heroId = -1;
+}
+
+DuelParameters::DuelParameters()
+{
+	terType = TerrainTile::dirt;
+	bfieldType = 15;
+}

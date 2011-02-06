@@ -5,7 +5,7 @@
 
 #include "CSoundBase.h"
 #include "CMusicBase.h"
-#include "CCreatureHandler.h"
+#include "../lib/CCreatureHandler.h"
 
 
 /*
@@ -80,8 +80,8 @@ public:
 	void init();
 	void release();
 
-	void initCreaturesSounds(std::vector<CCreature*> &creatures);
-	void initSpellsSounds(std::vector<CSpell> &spells);
+	void initCreaturesSounds(const std::vector<ConstTransitivePtr<CCreature> > &creatures);
+	void initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells);
 	void setVolume(unsigned int percent);
 
 	// Sounds
@@ -89,6 +89,7 @@ public:
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
 	std::vector <struct CreaturesBattleSounds> CBattleSounds;
+	std::map<const CSpell*, soundBase::soundID> spellSounds;
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
@@ -96,7 +97,7 @@ public:
 };
 
 // Helper
-#define battle_sound(creature,what_sound) CGI->soundh->CBattleSounds[(creature)->idNumber].what_sound
+#define battle_sound(creature,what_sound) CCS->soundh->CBattleSounds[(creature)->idNumber].what_sound
 
 class CMusicHandler: public CAudioBase
 {

@@ -9,7 +9,7 @@
 #include "CBitmapHandler.h"
 #include "CAnimation.h"
 #include "SDL_Extensions.h"
-#include "../hch/CLodHandler.h"
+#include "../lib/CLodHandler.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine

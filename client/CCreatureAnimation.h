@@ -3,7 +3,7 @@
 
 
 #include "../global.h"
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 #include "GUIBase.h"
 #include "../client/CBitmapHandler.h"
 

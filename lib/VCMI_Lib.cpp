@@ -1,16 +1,16 @@
 #define VCMI_DLL
 #include "../global.h"
 #include "VCMI_Lib.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CGeneralTextHandler.h"
+#include "CArtHandler.h"
+#include "CCreatureHandler.h"
+#include "CDefObjInfoHandler.h"
+#include "CHeroHandler.h"
+#include "CLodHandler.h"
+#include "CObjectHandler.h"
+#include "CTownHandler.h"
+#include "CBuildingHandler.h"
+#include "CSpellHandler.h"
+#include "CGeneralTextHandler.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -207,7 +207,7 @@ void LibClasses::init()
 	spellh->loadSpells();
 	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 
-	IS_AI_ENABLED = true;
+	IS_AI_ENABLED = false;
 }
 
 void LibClasses::clear()

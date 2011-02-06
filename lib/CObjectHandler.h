@@ -12,6 +12,8 @@
 #include "../lib/VCMI_Lib.h"
 #endif
 #include "../lib/CCreatureSet.h"
+#include "../lib/ConstTransitivePtr.h"
+#include <boost/unordered_set.hpp>
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -23,6 +25,7 @@
  *
  */
 
+class CArtifactInstance;
 struct MetaString;
 struct BattleInfo;
 class IGameCallback;
@@ -62,7 +65,7 @@ public:
 	ui32 m13489val;
 	std::vector<ui32> m2stats;
 	std::vector<ui16> m5arts; //artifacts id
-	TSlots m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
+	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources;
 
 	std::string firstVisitText, nextVisitText, completedText;
@@ -155,7 +158,7 @@ public:
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
-	void getSightTiles(std::set<int3> &tiles) const; //returns reference to the set
+	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
 	int getOwner() const;
 	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
@@ -222,14 +225,16 @@ class DLL_EXPORT CArmedInstance: public CGObjectInstance, public CBonusSystemNod
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	void setArmy(const CCreatureSet &src);
 	CCreatureSet& getArmy() const;
 	void randomizeArmy(int type);
+	void updateMoraleBonusFromArmy();
+
+	void armyChanged() OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
@@ -242,9 +247,59 @@ public:
 	}
 };
 
-class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator
+struct DLL_EXPORT ArtSlotInfo
+{
+	ConstTransitivePtr<CArtifactInstance> artifact;
+	ui8 locked; //if locked, then artifact points to the combined artifact
+
+	ArtSlotInfo()
+	{
+		locked = false;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artifact & locked;
+	}
+};
+
+class DLL_EXPORT CArtifactSet
 {
 public:
+	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
+	bmap<ui16, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+
+	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);
+	void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
+	void eraseArtSlot(ui16 slot);
+
+	const ArtSlotInfo *getSlot(ui16 pos) const;
+	const CArtifactInstance* getArt(ui16 pos) const; //NULL - no artifact
+	CArtifactInstance* getArt(ui16 pos); //NULL - no artifact
+	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	si32 getArtPos(const CArtifactInstance *art) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
+	bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
+	si32 getArtTypeId(ui16 pos) const;
+
+
+	virtual ~CArtifactSet();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artifactsInBackpack & artifactsWorn;
+	}
+};
+
+class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
+{
+public:
+	enum SecondarySkill
+	{
+		PATHFINDING = 0, ARCHERY, LOGISTICS, SCOUTING, DIPLOMACY, NAVIGATION, LEADERSHIP, WISDOM, MYSTICISM,
+		LUCK, BALLISTICS, EAGLE_EYE, NECROMANCY, ESTATES, FIRE_MAGIC, AIR_MAGIC, WATER_MAGIC, EARTH_MAGIC,
+		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
+		FIRST_AID
+	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -267,9 +322,12 @@ public:
 	ui8 inTownGarrison; // if hero is in town garrison 
 	const CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 	const CGBoat *boat; //set to CGBoat when sailing
-	std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
-	std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	
+
+	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
+	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
+
 
 	struct DLL_EXPORT Patrol
 	{
@@ -281,6 +339,7 @@ public:
 			h & patrolling & patrolRadious;
 		}
 	} patrol;
+
 	struct DLL_EXPORT HeroSpecial : CBonusSystemNode
 	{
 		bool growthsWithLevel;
@@ -298,15 +357,16 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CArtifactSet&>(*this);
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & artifacts & artifWorn & spells & patrol & moveDir;
+			& sex & inTownGarrison & /*artifacts & artifWorn & */spells & patrol & moveDir;
 
 		h & type & speciality;
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
@@ -317,6 +377,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	
+	bool hasSpellbook() const;
 	EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
@@ -333,15 +394,15 @@ public:
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
 	TModDescr getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
-	void setSecSkillLevel(int which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
+	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 
 	int maxMovePoints(bool onLand) const;
 
-	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
-	const CArtifact * getArt(int pos) const;
-	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
+// 	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
+// 	const CArtifact * getArt(int pos) const;
+// 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+// 	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
 
 	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
@@ -349,16 +410,18 @@ public:
 	int getTotalStrength() const;
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = NULL) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
-	CStackInstance calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackInstance &raisedStack) const;
+	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
 
 	//////////////////////////////////////////////////////////////////////////
 
 	void initHero(); 
 	void initHero(int SUBID); 
 
+	void putArtifact(ui16 pos, CArtifactInstance *art);
+	void putInBackpack(CArtifactInstance *art);
 	void initExp();
-	void initArmy(CCreatureSet *dst = NULL);
+	void initArmy(IArmyDescriptor *dst = NULL);
 	void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
@@ -370,6 +433,9 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+
+	virtual std::string nodeName() const OVERRIDE;
+	void deserializationFix();
 	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -494,14 +560,19 @@ public:
 	}
 };
 
+class DLL_EXPORT CTownAndVisitingHero : public CBonusSystemNode
+{
+};
+
 class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
 public:
+	CTownAndVisitingHero townAndVis;
 	CTown * town;
 	std::string name; // name of town
 	si32 builded; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
-	const CGHeroInstance * garrisonHero, *visitingHero;
+	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
@@ -524,12 +595,18 @@ public:
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 			(*i)->town = this;
 
-		h & town;
+		h & town & townAndVis;
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 	//////////////////////////////////////////////////////////////////////////
-	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+
+	std::string nodeName() const OVERRIDE;
+	void deserializationFix();
+	void recreateBuildingsBonuses();
+	void setVisitingHero(CGHeroInstance *h);
+	void setGarrisonedHero(CGHeroInstance *h);
+// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
@@ -674,7 +751,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
+class DLL_EXPORT CGSeerHut : public CArmedInstance, public CQuest //army is used when giving reward
 {
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
@@ -763,8 +840,9 @@ public:
 class DLL_EXPORT CGArtifact : public CArmedInstance
 {
 public:
+	CArtifactInstance *storedArtifact;
 	std::string message;
-	ui32 spell; //if it's spell scroll
+
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
@@ -774,7 +852,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & message & spell;
+		h & message & storedArtifact;
 	}
 };
 
@@ -1109,7 +1187,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CPlayersVisited&>(*this);
-		h & players;
 	}
 };
 
@@ -1222,7 +1299,7 @@ class DLL_EXPORT CObjectHandler
 {
 public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
-	std::map <ui32, std::vector <BankConfig*> > banksInfo; //[index][preset]
+	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
 

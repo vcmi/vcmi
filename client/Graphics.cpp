@@ -1,6 +1,6 @@
 #include "../stdafx.h"
 #include "Graphics.h"
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 #include "SDL_Extensions.h"
 #include <SDL_ttf.h>
 #include <boost/assign/std/vector.hpp> 
@@ -12,14 +12,16 @@
 #include <boost/assign/std/vector.hpp>
 #include "../CThreadHelper.h"
 #include "CGameInfo.h"
-#include "../hch/CLodHandler.h"
+#include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -53,9 +55,9 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
 
 	//army
-	for (TSlots::const_iterator i = curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
+	for (ArmyDescriptor::const_iterator i = curh.army.begin(); i!=curh.army.end();i++)
 	{
-		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		blitAt(graphics->smallImgs[i->second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		if(curh.details)
 		{
 			SDL_itoa((*i).second.count,buf,10);
@@ -110,7 +112,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
 
-	for (TSlots::const_iterator i=curh.army.Slots().begin(); i!=curh.army.Slots().end();i++)
+	for (ArmyDescriptor::const_iterator i=curh.army.begin(); i!=curh.army.end();i++)
 	{
 		//if(!i->second.second)
 		//	continue;
@@ -286,6 +288,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadWallPositions,this);
+	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
 	tasks += GET_SURFACE(heroInGarrison,"TOWNQKGH.bmp");
@@ -718,6 +721,36 @@ void Graphics::loadFonts()
 	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
 	for(int i = 0; i < FONTS_NUMBER; i++)
 		fonts[i] = loadFont(fontnames[i]);
+}
+
+CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
+{
+	return advmapobjGraphics[obj->defInfo->id][obj->defInfo->subid];
+}
+
+CDefEssential * Graphics::getDef( const CGDefInfo * info )
+{
+	return advmapobjGraphics[info->id][info->subid];
+}
+
+void Graphics::loadErmuToPicture()
+{
+	//loading ERMU to picture
+	std::ifstream etp(DATA_DIR "/config/ERMU_to_picture.txt");
+
+	assert(etp.is_open());
+
+	for(int g=0; g<44; ++g)
+	{
+		for (int b=0; b<ARRAY_COUNT(ERMUtoPicture); ++b)
+		{
+			std::string buf;
+			etp >> buf;
+			ERMUtoPicture[b][g] = buf;
+		}
+	}
+
+	etp.close();
 }
 
 Font::Font(unsigned char *Data)

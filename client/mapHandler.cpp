@@ -3,21 +3,21 @@
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include <cstdlib>
-#include "../hch/CLodHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 #include <algorithm>
 #include "../lib/CGameState.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CTownHandler.h"
 #include "Graphics.h"
 #include <iomanip>
 #include <sstream>
-#include "../hch/CObjectHandler.h"
+#include "../lib/CObjectHandler.h"
 #include "../lib/map.h"
-#include "../hch/CDefHandler.h"
+#include "CDefHandler.h"
 #include "CConfigHandler.h"
 #include <boost/assign/list_of.hpp>
-#include "../hch/CGeneralTextHandler.h"
+#include "../lib/CGeneralTextHandler.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -294,55 +294,57 @@ void CMapHandler::initObjectRects()
 		}
 	}
 }
-static void processDef (CGDefInfo* def)
+static void processDef (const CGDefInfo* def)
 {
 	if(def->id == EVENTI_TYPE)
+	{
 		return;
+	}
 
-	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten
+	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten 
 	{
 		if(def->name.size())
 		{
 			if(vstd::contains(graphics->mapObjectDefs, def->name))
 			{
-				def->handler = graphics->mapObjectDefs[def->name];
+				const_cast<CGDefInfo*>(def)->handler = graphics->mapObjectDefs[def->name];
 			}
 			else
 			{
-				graphics->mapObjectDefs[def->name] = def->handler = CDefHandler::giveDefEss(def->name);
+				graphics->mapObjectDefs[def->name] = const_cast<CGDefInfo*>(def)->handler = CDefHandler::giveDefEss(def->name);
 			}
 		}
 		else
 		{
 			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
-			def->handler = NULL;
+			const_cast<CGDefInfo*>(def)->handler = NULL;
 			return;
 		}
 
-// 		def->width = def->handler->ourImages[0].bitmap->w/32;
-// 		def->height = def->handler->ourImages[0].bitmap->h/32;
+ 		const_cast<CGDefInfo*>(def)->width = def->handler->ourImages[0].bitmap->w/32;
+ 		const_cast<CGDefInfo*>(def)->height = def->handler->ourImages[0].bitmap->h/32;
 	}
-
-	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
-	if(pom && def->id!=TOWNI_TYPE)
-	{
-		pom->handler = def->handler;
-		pom->width = pom->handler->ourImages[0].bitmap->w/32;
-		pom->height = pom->handler->ourImages[0].bitmap->h/32;
-	}
-	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE)
-		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
-
+	
+	CGDefInfo* pom = const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[def->id][def->subid]; 
+	if(pom && def->id!=TOWNI_TYPE) 
+	{ 
+		pom->handler = def->handler; 
+		pom->width = pom->handler->ourImages[0].bitmap->w/32; 
+		pom->height = pom->handler->ourImages[0].bitmap->h/32; 
+	} 
+	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE) 
+		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl; 
+	
 	//alpha transformation
 	for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
 	{
 		CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
 	}
 }
-void CMapHandler::initHeroDef(CGHeroInstance * h)
+void CMapHandler::initHeroDef(const CGHeroInstance * h)
 {
-	h->defInfo->handler = graphics->flags1[0];
-	h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32;
+	h->defInfo->handler = graphics->flags1[0]; 
+	h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32; 
 	h->defInfo->height = h->defInfo->handler->ourImages[0].bitmap->h/32;
 }
 void CMapHandler::init()
@@ -350,9 +352,9 @@ void CMapHandler::init()
 	timeHandler th;
 	th.getDif();
 
-	CGI->dobjinfo->gobjs[8][0]->handler = graphics->boatAnims[0];
-	CGI->dobjinfo->gobjs[8][1]->handler = graphics->boatAnims[1];
-	CGI->dobjinfo->gobjs[8][2]->handler = graphics->boatAnims[2];
+	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][0]->handler = graphics->boatAnims[0]; 
+	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][1]->handler = graphics->boatAnims[1]; 
+	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][2]->handler = graphics->boatAnims[2];
 
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
@@ -385,7 +387,7 @@ void CMapHandler::init()
 
 	for(int i=0;i<map->heroes.size();i++)
 	{
-		if(!map->heroes[i]->defInfo->handler)
+		if( !map->heroes[i]->defInfo->handler )
 		{
 			initHeroDef(map->heroes[i]);
 		}
@@ -419,7 +421,10 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode)
+void CMapHandler::terrainRect(int3 top_tile, unsigned char anim,
+	const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap,
+	bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect,
+	int moveX, int moveY, bool puzzleMode) const
 {
 	// Width and height of the portion of the map to process. Units in tiles.
 	unsigned int dx = tilesW;
@@ -778,7 +783,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vect
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
-std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap )
+std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap ) const
 {
 	static const int visBitmaps[256] = {-1, 34, -1, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 3, 25, 12, 12, 3, 25, 12, 12,
 		9, 9, 6, 6, 9, 9, 6, 6, 35, 34, 4, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 26, 49, 28, 28, 26, 49, 28,

@@ -108,7 +108,7 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 {
 	int index;
 	srcName.erase(srcName.find_last_of('.'));
-	
+
 	std::map<std::string, int>::iterator fit;
 	if ((fit = fimap.find(srcName)) != fimap.end())
 	{
@@ -128,15 +128,15 @@ CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
 	for (unsigned int i=0; i<numFiles; i++, se++)
 	{
 		Entry entry;
-//		char *p;
+		//		char *p;
 
 		// Reassemble the filename, drop extension
 		entry.name = se->filename;
-//		entry.name += '.';
-//		p = se->filename;
-//		while(*p) p++;
-//		p++;
-//		entry.name += p;
+		//		entry.name += '.';
+		//		p = se->filename;
+		//		while(*p) p++;
+		//		p++;
+		//		entry.name += p;
 
 		entry.offset = SDL_SwapLE32(se->offset);
 		entry.size = SDL_SwapLE32(se->size);

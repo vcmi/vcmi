@@ -12,6 +12,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
+#include <boost/foreach.hpp>
 
 using namespace boost::assign;
 extern CLodHandler * bitmaph;
@@ -78,17 +79,17 @@ bool CCreature::isDoubleWide() const
 
 bool CCreature::isFlying() const
 {
-	return vstd::contains(bonuses, Bonus::FLYING);
+	return hasBonusOfType(Bonus::FLYING);
 }
 
 bool CCreature::isShooting() const
 {
-	return vstd::contains(bonuses, Bonus::SHOOTER);
+	return hasBonusOfType(Bonus::SHOOTER);
 }
 
 bool CCreature::isUndead() const
 {
-	return vstd::contains(bonuses, Bonus::UNDEAD);
+	return hasBonusOfType(Bonus::UNDEAD);
 }
 
 /**
@@ -126,17 +127,27 @@ CCreature::CCreature()
 }
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
-	Bonus added(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
-	bonuses.push_back(added);
+	Bonus *added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	addNewBonus(added);
 }
-void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-{
-	out.insert (VLC->creh->globalEffects);
-}
+// void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
+// {
+// 	out.insert (VLC->creh->globalEffects);
+// }
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {
 	//TODO upgrade of upgrade?
 	return vstd::contains(upgrades, anotherCre->idNumber);
+}
+
+bool CCreature::valid() const
+{
+	return this == VLC->creh->creatures[idNumber];
+}
+
+std::string CCreature::nodeName() const
+{
+	return "Type of creature " + namePl;
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
@@ -312,12 +323,12 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.bonuses.back().effectRange = Bonus::ONLY_ALLIED_ARMY;
+				ncre.bonuses.back()->effectRange = Bonus::ONLY_ALLIED_ARMY;
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
 			{
 				ncre.addBonus(-1, Bonus::MORALE);;
-				ncre.bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+				ncre.bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
 				ncre.addBonus(0, Bonus::KING1);
@@ -364,7 +375,7 @@ void CCreatureHandler::loadCreatures()
 		case '+': //add new ability
 			{
 				int creatureID;
-				Bonus nsf;
+				Bonus *nsf = new Bonus();
 				si32 buf;
 				std::string type;
 
@@ -380,29 +391,29 @@ void CCreatureHandler::loadCreatures()
 						cre->doubleWide = true;
 					else if(type == "ENEMY_MORALE_DECREASING")
 					{
-						cre->addBonus(-1, Bonus::MORALE);;
-						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->addBonus(-1, Bonus::MORALE);
+						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else if(type == "ENEMY_LUCK_DECREASING")
 					{
-						cre->addBonus(-1, Bonus::LUCK);;
-						cre->bonuses.back().effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->addBonus(-1, Bonus::LUCK);
+						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else
 						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
 					break;
 				}
-				nsf.type = it->second;
+				nsf->type = it->second;
 
-				reader >> buf; nsf.val = buf;
-				reader >> buf; nsf.subtype = buf;
-				reader >> buf; nsf.additionalInfo = buf;
-				nsf.source = Bonus::CREATURE_ABILITY;
-				nsf.id = cre->idNumber;
-				nsf.duration = Bonus::ONE_BATTLE;
-				nsf.turnsRemain = 0;
+				reader >> buf; nsf->val = buf;
+				reader >> buf; nsf->subtype = buf;
+				reader >> buf; nsf->additionalInfo = buf;
+				nsf->source = Bonus::CREATURE_ABILITY;
+				nsf->id = cre->idNumber;
+				nsf->duration = Bonus::ONE_BATTLE;
+				nsf->turnsRemain = 0;
 
-				cre->bonuses += nsf;
+				cre->addNewBonus(nsf);
 				break;
 			}
 		case '-': //remove ability
@@ -424,7 +435,8 @@ void CCreatureHandler::loadCreatures()
 
 				Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
 
-				creatures[creatureID]->bonuses -= ecf;
+				Bonus *b = creatures[creatureID]->getBonus(Selector::type(ecf));
+				creatures[creatureID]->removeBonus(b);
 				break;
 			}
 		case '0': //end reading
@@ -457,8 +469,8 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-	for(i=1;i<=10;i++)
-		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
+	for(i = 1; i <= CRE_LEVELS; i++)
+		levelCreatures[i];
 
 	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
 	ifs.open(DATA_DIR "/config/monsters.txt");
@@ -467,11 +479,11 @@ void CCreatureHandler::loadCreatures()
 		{
 			int id, lvl;
 			ifs >> id >> lvl;
-			if(lvl>0) 
- 	        { 
-	 	        creatures[id]->level = lvl; 
-	            levelCreatures[lvl].push_back(creatures[id]); 
- 	        } 
+			if(lvl>0)
+			{
+				creatures[id]->level = lvl;
+				levelCreatures[lvl].push_back(creatures[id]);
+			}
 		}
 	}
 	ifs.close();
@@ -604,7 +616,8 @@ void CCreatureHandler::loadCreatures()
 	if (STACK_EXP) 	//reading default stack experience bonuses
 	{
 		buf = bitmaph->getTextFile("CREXPBON.TXT");
-		int it = 0, creid;
+		int it = 0;
+		si32 creid = -1;
 		commonBonuses.resize(8); //8 tiers
 		stackExperience b;
 		b.expBonuses.resize(10);
@@ -616,12 +629,12 @@ void CCreatureHandler::loadCreatures()
 		loadToIt (dump2, buf, it, 4); //crop comment
 		for (i = 0; i < 8; ++i)
 		{
-			commonBonuses[i].push_back(b);//health bonus common for all
+			commonBonuses[i].push_back(new stackExperience(b));//health bonus common for all
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
 			{
 				loadToIt (dump2, buf, it, 4); //ignore index
 				loadStackExp(b, buf, it);
-				commonBonuses[i].push_back(b);
+				commonBonuses[i].push_back(new stackExperience(b));
 				loadToIt (dump2, buf, it, 3); //crop comment
 			}
 		}
@@ -629,17 +642,17 @@ void CCreatureHandler::loadCreatures()
 		{
 			loadToIt(creid, buf, it, 4); //get index
 			loadStackExp(b, buf, it);
-			creatures[creid]->bonuses.push_back(b); //experience list is common for creatures of that type
+			creatures[creid]->bonuses.push_back(new stackExperience(b)); //experience list is common for creatures of that type
 			loadToIt (dump2, buf, it, 3); //crop comment
-		}
-		while (it < buf.size());
-		for (std::vector<CCreature*>::iterator i = creatures.begin(); i != creatures.end(); i++)
-		{
-			if (it = (*i)->level < 7)
-				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), (*i)->bonuses.begin());
-			else
-				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), (*i)->bonuses.begin()); //common for tiers 8+
-		}
+		} while (it < buf.size());
+
+ 		BOOST_FOREACH(CCreature *c, creatures)
+ 		{
+ 			if (it = c->level < 7)
+ 				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), c->bonuses.begin());
+ 			else
+ 				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), c->bonuses.begin()); //common for tiers 8+
+ 		}
 	} //end of stack experience
 }
 
@@ -720,25 +733,25 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 	loadToIt(mod, src, it, 4);
 	switch (buf[0])
 	{
-		case 'H':
-			b.type = Bonus::STACK_HEALTH;
-			break;
-		case 'A':
-			b.type = Bonus::PRIMARY_SKILL;
-			b.subtype = PrimarySkill::ATTACK;
-			break;
-		case 'D':
-			b.type = Bonus::PRIMARY_SKILL;
-			b.subtype = PrimarySkill::DEFENSE;
-			break;
-		case 'M': //Max damage
-			b.type = Bonus::CREATURE_DAMAGE;
-			b.subtype = 2;
-			break;
-		case 'm': //Min damage
-			b.type = Bonus::CREATURE_DAMAGE;
-			b.subtype = 1;
-			break;
+	case 'H':
+		b.type = Bonus::STACK_HEALTH;
+		break;
+	case 'A':
+		b.type = Bonus::PRIMARY_SKILL;
+		b.subtype = PrimarySkill::ATTACK;
+		break;
+	case 'D':
+		b.type = Bonus::PRIMARY_SKILL;
+		b.subtype = PrimarySkill::DEFENSE;
+		break;
+	case 'M': //Max damage
+		b.type = Bonus::CREATURE_DAMAGE;
+		b.subtype = 2;
+		break;
+	case 'm': //Min damage
+		b.type = Bonus::CREATURE_DAMAGE;
+		b.subtype = 1;
+		break;
 	}
 	loadToIt (b.val, src, it, 4); //basic value, not particularly useful but existent
 	for (int i = 0; i < 10; ++i)

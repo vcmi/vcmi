@@ -1,20 +1,22 @@
 #define VCMI_DLL
 #include "NetPacks.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CObjectHandler.h"
+#include "CGeneralTextHandler.h"
+#include "CDefObjInfoHandler.h"
+#include "CArtHandler.h"
+#include "CHeroHandler.h"
+#include "CObjectHandler.h"
 #include "VCMI_Lib.h"
 #include "map.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "CSpellHandler.h"
+#include "CCreatureHandler.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include "CGameState.h"
+#include "BattleState.h"
 
 #undef min
 #undef max
@@ -77,43 +79,18 @@ DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
-	hero->setSecSkillLevel(which, val, abs);
+	hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(which), val, abs);
 }
 
 DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
+
 	if(start())
-	{
-		if(garrison())
-		{
-			t->garrisonHero = h;
-			h->visitedTown = t;
-			h->inTownGarrison = true;
-		}
-		else
-		{
-			t->visitingHero = h;
-			h->visitedTown = t;
-			h->inTownGarrison = false;
-		}
-	}
+		t->setVisitingHero(h);
 	else
-	{
-		if(garrison())
-		{
-			t->garrisonHero = NULL;
-			h->visitedTown = NULL;
-			h->inTownGarrison = false;
-		}
-		else
-		{
-			t->visitingHero = NULL;
-			h->visitedTown = NULL;
-			h->inTownGarrison = false;
-		}
-	}
+		t->setVisitingHero(NULL);
 }
 
 DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
@@ -122,10 +99,10 @@ DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
 
 	if(learn)
 		BOOST_FOREACH(ui32 sid, spells)
-		hero->spells.insert(sid);
+			hero->spells.insert(sid);
 	else
 		BOOST_FOREACH(ui32 sid, spells)
-		hero->spells.erase(sid);
+			hero->spells.erase(sid);
 }
 
 DLL_EXPORT void SetMana::applyGs( CGameState *gs )
@@ -148,7 +125,7 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 		team->fogOfWarMap[t.x][t.y][t.z] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		std::set<int3> tilesRevealed;
+		boost::unordered_set<int3, ShashInt3> tilesRevealed;
 		for (size_t i = 0; i < gs->map->objects.size(); i++)
 		{
 			if (gs->map->objects[i])
@@ -176,42 +153,35 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 
 	for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
 	{
-		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]] : NULL);
+		CGHeroInstance *h = (hid[i]>=0 ?  (CGHeroInstance*)gs->hpool.heroesPool[hid[i]] : NULL);
 		if(h && army[i])
-			h->setArmy(*army[i]);
+			h->setToArmy(army[i]);
 		p->availableHeroes.push_back(h);
 	}
 }
 
 DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 {
-	BonusList *bonuses = NULL;
+	CBonusSystemNode *cbsn = NULL;
 	switch(who)
 	{
 	case HERO:
-		{
-			CGHeroInstance *h = gs->getHero(id);
-			assert(h);
-			bonuses = &h->bonuses;
-		}
+		cbsn = gs->getHero(id);
 		break;
 	case PLAYER:
-		{
-			PlayerState *p = gs->getPlayer(id);
-			assert(p);
-			bonuses = &p->bonuses;
-		}
+		cbsn = gs->getPlayer(id);
 		break;
 	case TOWN:
-		{
-			CGTownInstance *t = gs->getTown(id);
-			assert(t);
-			bonuses = &t->bonuses;
-		}
+		cbsn = gs->getTown(id);
+		break;
 	}
 
-	bonuses->push_back(bonus);
-	std::string &descr = bonuses->back().description;
+	assert(cbsn);
+
+	Bonus *b = new Bonus(bonus);
+	cbsn->addNewBonus(b);
+
+	std::string &descr = b->description;
 
 	if(!bdescr.message.size() 
 		&& bonus.source == Bonus::OBJECT 
@@ -248,13 +218,13 @@ DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
 
 DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 {
-	std::list<Bonus> &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
+	BonusList &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
 
-	for(std::list<Bonus>::iterator i = bonuses.begin(); i != bonuses.end(); i++)
+	for(BonusList::iterator i = bonuses.begin(); i != bonuses.end(); i++)
 	{
-		if(i->source == source && i->id == id)
+		if((*i)->source == source && (*i)->id == id)
 		{
-			bonus = *i; //backup bonus (to show to interfaces later)
+			bonus = **i; //backup bonus (to show to interfaces later)
 			bonuses.erase(i);
 			break;
 		}
@@ -273,7 +243,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	if(obj->ID==HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-		std::vector<CGHeroInstance*>::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
+		std::vector<ConstTransitivePtr<CGHeroInstance> >::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
 		gs->map->heroes.erase(nitr);
 		int player = h->tempOwner;
 		nitr = std::find(gs->getPlayer(player)->heroes.begin(), gs->getPlayer(player)->heroes.end(), h);
@@ -293,13 +263,15 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		gs->hpool.heroesPool[h->subID] = h;
 		if(!vstd::contains(gs->hpool.pavailable, h->subID))
 			gs->hpool.pavailable[h->subID] = 0xff;
+
+		return;
 	}
 	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
 	{
 		CGCreature *cre = static_cast<CGCreature*>(obj);
 		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
 	}
-	gs->map->objects[id] = NULL;
+	gs->map->objects[id].dellNull();
 }
 
 static int getDir(int3 src, int3 dst)
@@ -382,24 +354,6 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
-DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
-{
-	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
-	{
-		CArmedInstance *ai = static_cast<CArmedInstance*>(gs->map->objects[i->first]);
-		ai->setArmy(i->second);
-		if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-			const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->setArmy(i->second);
-		else if(ai->ID==HEROI_TYPE)
-		{
-			CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
-			CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown);
-			if(t && h->inTownGarrison)
-				t->setArmy(i->second);
-		}
-	}
-}
-
 DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
@@ -408,6 +362,7 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 		t->builtBuildings.insert(id);
 	}
 	t->builded = builded;
+	t->recreateBuildingsBonuses();
 }
 DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 {
@@ -417,10 +372,12 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 		t->builtBuildings.erase(id);
 	}
 	t->destroyed = destroyed; //yeaha
+	t->recreateBuildingsBonuses();
 }
+
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid]);
+	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid].get());
 	assert(dw);
 	dw->creatures = creatures;
 }
@@ -432,71 +389,34 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 	CGHeroInstance *v  = gs->getHero(visiting), 
 		*g = gs->getHero(garrison);
 
-	t->visitingHero = v;
-	t->garrisonHero = g;
+	bool newVisitorComesFromGarrison = v && v == t->garrisonHero;
+	bool newGarrisonComesFromVisiting = g && g == t->visitingHero;
+
+	if(newVisitorComesFromGarrison)
+		t->setGarrisonedHero(NULL);
+	if(newGarrisonComesFromVisiting)
+		t->setVisitingHero(NULL);
+	if(!newGarrisonComesFromVisiting || v)
+		t->setVisitingHero(v);
+	if(!newVisitorComesFromGarrison || g)
+		t->setGarrisonedHero(g);
+
 	if(v)
 	{
-		v->visitedTown = t;
-		v->inTownGarrison = false;
 		gs->map->addBlockVisTiles(v);
 	}
 	if(g)
 	{
-		g->visitedTown = t;
-		g->inTownGarrison = true;
 		gs->map->removeBlockVisTiles(g);
 	}
 }
-
-DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
-{
-	CGHeroInstance *h = gs->getHero(hid);
-	for(std::map<ui16, const CArtifact*>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
-		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
-			unequiped.push_back(i->second);
-
-	for(std::map<ui16, const CArtifact*>::iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
-		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
-		{
-			equiped.push_back(i->second);
-		}
-
-	//update hero data
-	h->artifacts = artifacts;
-	h->artifWorn = artifWorn;
-}
-
-DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, const CArtifact* art)
-{
-	if(!art)
-	{
-		if(pos<19)
-			VLC->arth->unequipArtifact(artifWorn, pos);
-		else if (pos - 19 < artifacts.size())
-			artifacts.erase(artifacts.begin() + (pos - 19));
-	}
-	else
-	{
-		if (pos < 19) 
-		{
-			VLC->arth->equipArtifact(artifWorn, pos, art);
-		} 
-		else // Goes into the backpack.
-		{ 
-			if(pos - 19 < artifacts.size())
-				artifacts.insert(artifacts.begin() + (pos - 19), art);
-			else
-				artifacts.push_back(art);
-		}
-	}
-}
-
 
 DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 {
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
 	CGTownInstance *t = gs->getTown(tid);
+	PlayerState *p = gs->getPlayer(player);
 	h->setOwner(player);
 	h->pos = tile;
 	h->movement =  h->maxMovePoints(true);
@@ -512,16 +432,15 @@ DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
-	gs->getPlayer(h->getOwner())->heroes.push_back(h);
+	p->heroes.push_back(h);
+	h->attachTo(p);
 	h->initObj();
 	gs->map->addBlockVisTiles(h);
 
 	if(t)
 	{
-		t->visitingHero = h;
-		h->visitedTown = t;
+		t->setVisitingHero(h);
 	}
-	h->inTownGarrison = false;
 }
 
 DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
@@ -549,9 +468,9 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	case 54: //probably more options will be needed
 		o = new CGCreature();
 		{
-			CStackInstance hlp;
+			//CStackInstance hlp;
 			CGCreature *cre = static_cast<CGCreature*>(o);
-			cre->slots[0] = hlp;
+			//cre->slots[0] = hlp;
 			cre->notGrowingTeam = cre->neverFlees = 0;
 			cre->character = 2;
 			cre->gainedArtifact = -1;
@@ -588,35 +507,190 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 }
 DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 {
-	IModableArt * art;
+	assert(!vstd::contains(gs->map->artInstances, art));
+	gs->map->addNewArtifactInstance(art);
 
-	std::map<ui32,ui8>::iterator itr = VLC->arth->modableArtifacts.find(artid);
-	switch (itr->second)
+	assert(!art->parents.size());
+	art->setType(art->artType);
+}
+
+DLL_EXPORT const CStackInstance * StackLocation::getStack()
+{
+	if(!army->hasStackAtSlot(slot))
 	{
-			case 1:
-				art = new CScroll;
-				break;
-			case 2:
-				art = new CCustomizableArt;
-				break;
-			case 3:
-				art = new CCommanderArt;
-				break;
-			default:
-				tlog1<<"unhandled customizable artifact!\n";
-	};
-	*art = *static_cast<IModableArt*>(VLC->arth->artifacts[artid]); //copy properties
-	art->ID = gs->map->artInstances.size();
-	art->SetProperty (value); //init scroll, banner, commander art
-	art->Init(); //set bonuses for new instance
-	gs->map->artInstances.push_back(art);
+		tlog2 << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot << std::endl;
+		return NULL;
+	}
+	return &army->getStack(slot);
+}
+
+DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
+{
+	const ArtSlotInfo *s = getSlot();
+	if(s && s->artifact)
+	{
+		if(!s->locked)
+			return s->artifact;
+		else
+		{
+			tlog3 << "ArtifactLocation::getArt: That location is locked!\n";
+			return NULL;
+		}
+	}
+	return NULL;
+	return NULL;
+}
+
+DLL_EXPORT CArtifactInstance *ArtifactLocation::getArt()
+{
+	const ArtifactLocation *t = this;
+	return const_cast<CArtifactInstance*>(t->getArt());
+}
+
+DLL_EXPORT const ArtSlotInfo *ArtifactLocation::getSlot() const
+{
+	return hero->getSlot(slot);
+}
+
+DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
+{
+	if(absoluteValue)
+		sl.army->setStackCount(sl.slot, count);
+	else
+		sl.army->changeStackCount(sl.slot, count);
+}
+
+DLL_EXPORT void SetStackType::applyGs( CGameState *gs )
+{
+	sl.army->setStackType(sl.slot, type);
+}
+
+DLL_EXPORT void EraseStack::applyGs( CGameState *gs )
+{
+	sl.army->eraseStack(sl.slot);
+}
+
+DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
+{
+	CStackInstance *s1 = sl1.army->detachStack(sl1.slot),
+		*s2 = sl2.army->detachStack(sl2.slot);
+
+	sl2.army->putStack(sl2.slot, s1);
+	sl1.army->putStack(sl1.slot, s2);
+}
+
+DLL_EXPORT void InsertNewStack::applyGs( CGameState *gs )
+{
+	CStackInstance *s = new CStackInstance(stack.type, stack.count);
+	sl.army->putStack(sl.slot, s);
+}
+
+DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
+{
+	const CCreature *srcType = src.army->getCreature(src.slot);
+	TQuantity srcCount = src.army->getStackCount(src.slot);
+
+	if(srcCount == count) //moving whole stack
+	{
+		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
+		{
+			assert(c == srcType);
+			src.army->eraseStack(src.slot);
+			dst.army->changeStackCount(dst.slot, count);
+		}
+		else //move stack to an empty slot
+		{
+			CStackInstance *stackDetached = src.army->detachStack(src.slot);
+			dst.army->putStack(dst.slot, stackDetached);
+		}
+	}
+	else
+	{
+		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
+		{
+			assert(c == srcType);
+			src.army->changeStackCount(src.slot, -count);
+			dst.army->changeStackCount(dst.slot, count);
+		}
+		else //split stack to an empty slot
+		{
+			src.army->changeStackCount(src.slot, -count);
+			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+		}
+	}
+}
+
+DLL_EXPORT void PutArtifact::applyGs( CGameState *gs )
+{
+	assert(art->canBePutAt(al));
+	al.hero->putArtifact(al.slot, art);
+}
+
+DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )
+{
+	CArtifactInstance *a = al.getArt();
+	assert(a);
+	a->removeFrom(al.hero, al.slot);
+}
+
+DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
+{
+	CArtifactInstance *a = src.getArt();
+	if(dst.slot < Arts::BACKPACK_START)
+		assert(!dst.getArt());
+
+	a->move(src, dst);
+}
+
+DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
+{
+	CGHeroInstance *h = al.hero;
+	const CArtifactInstance *transformedArt = al.getArt();
+	assert(transformedArt);
+	assert(vstd::contains(transformedArt->assemblyPossibilities(al.hero), builtArt));
+
+	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
+	gs->map->addNewArtifactInstance(combinedArt);
+	//retreive all constituents
+	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
+	{
+		int pos = h->getArtPos(constituentID);
+		assert(pos >= 0);
+		CArtifactInstance *constituentInstance = h->getArt(pos);
+
+		//move constituent from hero to be part of new, combined artifact
+		constituentInstance->removeFrom(h, pos);
+		combinedArt->addAsConstituent(constituentInstance, pos);
+		if(!vstd::contains(combinedArt->artType->possibleSlots, al.slot) && vstd::contains(combinedArt->artType->possibleSlots, pos))
+			al.slot = pos;
+	}
+
+	//put new combined artifacts
+	combinedArt->putAt(h, al.slot);
+}
+
+DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
+{
+	CGHeroInstance *h = al.hero;
+	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
+	assert(disassembled);
+
+	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
+	disassembled->removeFrom(h, al.slot);
+	BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, constituents)
+	{
+		disassembled->detachFrom(ci.art);
+		ci.art->putAt(h, ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
+	}
+
+	gs->map->eraseArtifactInstance(disassembled);
 }
 
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
 	if(id >= 0)
 	{
-		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id]))
+		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id].get()))
 		{
 			bm->artifacts = arts;
 		}
@@ -654,50 +728,45 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 
 	if (specialWeek != NO_ACTION) //first pack applied, reset all effects and aplly new
 	{
-		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-			h->bonuses.remove_if(Bonus::OneDay);
+		//TODO? won't work for battles lasting several turns (not an issue now but...)
+		gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
 
 		if(gs->getDate(1)) //new week, Monday that is
 		{
-			for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-				i->second.bonuses.remove_if(Bonus::OneWeek);
-			BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-				h->bonuses.remove_if(Bonus::OneWeek);
+			gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
 
-			gs->globalEffects.bonuses.remove_if(Bonus::OneWeek);
-
-			Bonus b;
-			b.duration = Bonus::ONE_WEEK;
-			b.source = Bonus::SPECIAL_WEEK;
-			b.effectRange = Bonus::NO_LIMIT;
-			b.valType = Bonus::BASE_NUMBER; //certainly not intuitive
+			Bonus *b = new Bonus();
+			b->duration = Bonus::ONE_WEEK;
+			b->source = Bonus::SPECIAL_WEEK;
+			b->effectRange = Bonus::NO_LIMIT;
+			b->valType = Bonus::BASE_NUMBER; //certainly not intuitive
 			switch (specialWeek)
 			{
 				case DOUBLE_GROWTH:
-					b.val = 100;
-					b.type = Bonus::CREATURE_GROWTH_PERCENT;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->val = 100;
+					b->type = Bonus::CREATURE_GROWTH_PERCENT;
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
 					break;
 				case BONUS_GROWTH:
-					b.val = 5;
-					b.type = Bonus::CREATURE_GROWTH;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false);
+					b->val = 5;
+					b->type = Bonus::CREATURE_GROWTH;
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
 					break;
 				case DEITYOFFIRE:
-					b.val = 15;
-					b.type = Bonus::CREATURE_GROWTH;
-					b.limiter = new CCreatureTypeLimiter(*VLC->creh->creatures[42], true);
+					b->val = 15;
+					b->type = Bonus::CREATURE_GROWTH;
+					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[42], true));
 					break;
 				case PLAGUE:
-					b.val = -100; //no basic creatures
-					b.type = Bonus::CREATURE_GROWTH_PERCENT;
+					b->val = -100; //no basic creatures
+					b->type = Bonus::CREATURE_GROWTH_PERCENT;
 					break;
 				default:
-					b.val = 0;
+					b->val = 0;
 
 			}
-			if (b.val)
-				gs->globalEffects.bonuses.push_back(b);
+			if (b->val)
+				gs->globalEffects.addNewBonus(b);
 		}
 	}
 	else //second pack is applied
@@ -709,8 +778,6 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 				i->second.daysWithoutCastle = 0;
 			else
 				i->second.daysWithoutCastle++;
-
-			i->second.bonuses.remove_if(Bonus::OneDay);
 		}
 		if(resetBuilded) //reset amount of structures set in this turn in towns
 		{
@@ -761,7 +828,7 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;
-	info->belligerents[0]->battle = info->belligerents[1]->battle = info;
+	gs->curB->localInit();
 }
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
@@ -785,29 +852,30 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 
 		//remove effects and restore only those with remaining turns in duration
 		BonusList tmpEffects = s->bonuses;
-		s->bonuses.removeSpells(Bonus::CASTED_SPELL);
-		for (BonusList::iterator it = tmpEffects.begin(); it != tmpEffects.end(); it++)
+		s->bonuses.removeSpells(Bonus::SPELL_EFFECT);
+
+		BOOST_FOREACH(Bonus *it, tmpEffects)
 		{
 			it->turnsRemain--;
 			if(it->turnsRemain > 0)
-				s->bonuses.push_back(*it);
+				s->addNewBonus(it);
 		}
 
 		//the same as above for features
 		BonusList tmpFeatures = s->bonuses;
 		s->bonuses.clear();
 
-		BOOST_FOREACH(Bonus &b, tmpFeatures)
+		BOOST_FOREACH(Bonus *b, tmpFeatures)
 		{
-			if((b.duration & Bonus::N_TURNS) != 0)
+			if((b->duration & Bonus::N_TURNS) != 0)
 			{
-				b.turnsRemain--;
-				if(b.turnsRemain > 0)
-					s->bonuses.push_back(b);
+				b->turnsRemain--;
+				if(b->turnsRemain > 0)
+					s->addNewBonus(b);
 			}
 			else
 			{
-				s->bonuses.push_back(b);
+				s->addNewBonus(b);
 			}
 		}
 	}
@@ -817,6 +885,10 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 {
 	gs->curB->activeStack = stack;
 	CStack *st = gs->curB->getStack(stack);
+
+	//remove bonuses that last until when stack gets new turn
+	st->bonuses.remove_if(Bonus::UntilGetsTurn);
+
 	if(vstd::contains(st->state,MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(HAD_MORALE);
 }
@@ -837,8 +909,7 @@ void BattleResult::applyGs( CGameState *gs )
 		h->bonuses.remove_if(Bonus::OneBattle);
 
 	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;
-	delete gs->curB;
-	gs->curB = NULL;
+	gs->curB.dellNull();
 }
 
 void BattleStackMoved::applyGs( CGameState *gs )
@@ -873,7 +944,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		bool hasAmmoCart = false;
 		BOOST_FOREACH(const CStack * st, gs->curB->stacks)
 		{
-			if(st->owner == attacker->owner && st->type->idNumber == 148 && st->alive())
+			if(st->owner == attacker->owner && st->getCreature()->idNumber == 148 && st->alive())
 			{
 				hasAmmoCart = true;
 				break;
@@ -932,11 +1003,11 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		int spellCost = 0;
 		if(gs->curB)
 		{
-			spellCost = gs->curB->getSpellCost(&VLC->spellh->spells[id], h);
+			spellCost = gs->curB->getSpellCost(VLC->spellh->spells[id], h);
 		}
 		else
 		{
-			spellCost = VLC->spellh->spells[id].costs[skill];
+			spellCost = VLC->spellh->spells[id]->costs[skill];
 		}
 		h->mana -= spellCost;
 		if(h->mana < 0) h->mana = 0;
@@ -956,25 +1027,26 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 			{
 				BonusList remainingEff;
+				//WTF?
 				for (BonusList::iterator it = remainingEff.begin(); it != remainingEff.end(); it++)
 				{
-					if (onlyHelpful && VLC->spellh->spells[ it->id ].positiveness != 1)
+					if (onlyHelpful && VLC->spellh->spells[ (*it)->id ]->positiveness != 1)
 					{
 						remainingEff.push_back(*it);
 					}
 					
 				}
-				s->bonuses.removeSpells(Bonus::CASTED_SPELL); //removing all effects
+				s->bonuses.removeSpells(Bonus::SPELL_EFFECT); //removing all effects
 				s->bonuses = remainingEff; //assigning effects that should remain
 
 				//removing all features from spells
 				BonusList tmpFeatures = s->bonuses;
 				s->bonuses.clear();
-				BOOST_FOREACH(Bonus &b, tmpFeatures)
+				BOOST_FOREACH(Bonus *b, tmpFeatures)
 				{
-					const CSpell *sp = b.sourceSpell();
-					if(sp && sp->positiveness != 1) //if(b.source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
-						s->bonuses.push_back(b);
+					const CSpell *sp = b->sourceSpell();
+					if(sp && sp->positiveness != 1) //if(b->source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
+						s->addNewBonus(b);
 				}
 			}
 		}
@@ -999,15 +1071,15 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			creID = 112; //air elemental
 			break;
 		}
-		const int3 & tile = gs->curB->tile;
-		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
+// 		const int3 & tile = gs->curB->tile;
+// 		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
 
 		int pos; //position of stack on the battlefield - to be calculated
 
 		bool ac[BFIELD_SIZE];
-		std::set<int> occupyable;
+		std::set<THex> occupyable;
 		bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
-		bool flying = vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
+		bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
 		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
 		for(int g=0; g<BFIELD_SIZE; ++g)
 		{
@@ -1018,35 +1090,26 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStack * summonedStack = gs->curB->generateNewStack(CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], h), gs->curB->stacks.size(), !side, 255, ter, pos);
+		CStackInstance *csi = new CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id]->powers[skill]); //deleted by d-tor of summoned stack
+		csi->setArmyObj(h);
+		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);
-		//summonedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
-
+		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		gs->curB->stacks.push_back(summonedStack);
 	}
 }
 
-void actualizeEffect(CStack * s, Bonus & ef)
+void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 {
-	//actualizing effects vector
-	for (BonusList::iterator it = s->bonuses.begin(); it != s->bonuses.end(); it++)
-	{
-		if(it->id == ef.id)
-		{
-			it->turnsRemain = std::max(it->turnsRemain, ef.turnsRemain);
-		}
-	}
 	//actualizing features vector
-	BonusList sf;
-	s->stackEffectToFeature(sf, ef);
 
-	BOOST_FOREACH(const Bonus &fromEffect, sf)
+	BOOST_FOREACH(const Bonus &fromEffect, ef)
 	{
-		BOOST_FOREACH(Bonus &stackBonus, s->bonuses) //TODO: optimize
+		BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
 		{
-			if(stackBonus.source == Bonus::SPELL_EFFECT && stackBonus.type == fromEffect.type && stackBonus.subtype == fromEffect.subtype)
+			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
 			{
-				stackBonus.turnsRemain = std::max(stackBonus.turnsRemain, ef.turnsRemain);
+				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, fromEffect.turnsRemain);
 			}
 		}
 	}
@@ -1060,14 +1123,12 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(effect.id == 42 || !s->hasBonus(Selector::source(Bonus::CASTED_SPELL, effect.id)))//disrupting ray or not on the list - just add	
+			int id = effect.begin()->id; //effects' source ID
+			if(id == 47 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id)))//disrupting ray or not on the list - just add	
 			{
-				s->bonuses.push_back(effect);
-				BonusList sf;
-				s->stackEffectToFeature(sf, effect);
-				BOOST_FOREACH(const Bonus &fromEffect, sf)
+				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{
-					s->bonuses.push_back(fromEffect);
+					s->addNewBonus( new Bonus(fromEffect));
 				}
 			}
 			else //just actualize
@@ -1093,7 +1154,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
-		std::vector<int> access = gs->curB->getAccessibility(changedStack->ID, true);
+		std::vector<THex> access = gs->curB->getAccessibility(changedStack, true);
 		bool acc[BFIELD_SIZE];
 		for(int h=0; h<BFIELD_SIZE; ++h)
 			acc[h] = false;
@@ -1111,7 +1172,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			changedStack->state.insert(ALIVE);
 			if(healedStacks[g].lowLevelResurrection)
 				changedStack->state.insert(SUMMONED);
-				//changedStack->bonuses.push_back( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
+				//changedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		}
 		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
 		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
@@ -1129,9 +1190,10 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		//removal of negative effects
 		if(resurrected)
 		{
+			
 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
 			{
-				if(VLC->spellh->spells[it->id].positiveness < 0)
+				if(VLC->spellh->spells[(*it)->id]->positiveness < 0)
 				{
 					changedStack->bonuses.erase(it);
 				}
@@ -1141,12 +1203,12 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			BonusList tmpFeatures = changedStack->bonuses;
 			changedStack->bonuses.clear();
 
-			BOOST_FOREACH(Bonus &b, tmpFeatures)
+			BOOST_FOREACH(Bonus *b, tmpFeatures)
 			{
-				const CSpell *s = b.sourceSpell();
+				const CSpell *s = b->sourceSpell();
 				if(s && s->positiveness >= 0)
 				{
-					changedStack->bonuses.push_back(b);
+					changedStack->addNewBonus(b);
 				}
 			}
 		}
@@ -1211,7 +1273,7 @@ DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
 	gs->getPlayer(player)->currentSelection = id;
 }
 
-DLL_EXPORT Component::Component(const CStackInstance &stack)
+DLL_EXPORT Component::Component(const CStackBasicDescriptor &stack)
 	:id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
 

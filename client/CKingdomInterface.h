@@ -5,7 +5,7 @@
 #include "../global.h"
 #include "GUIBase.h"
 #include "GUIClasses.h"
-#include "../hch/CMusicBase.h"
+#include "CMusicBase.h"
 class AdventureMapButton;
 class CHighlightableButtonsGroup;
 class CResDataBar;
@@ -61,7 +61,7 @@ class CKingdomInterface : public CGarrisonHolder
 		{
 		public:
 			CHeroItem * parent;
-			CArtPlace(CHeroItem * owner); //c-tor
+			CArtPlace(CHeroItem * owner, const Rect &r = Rect(0, 0, 44, 44)); //c-tor
 			void clickLeft(tribool down, bool previousState);
 			void clickRight(tribool down, bool previousState);
 			void activate();
@@ -118,7 +118,7 @@ public:
 	//objects list
 	int objSize, objPos;
 	CDefEssential *objPics;
-	std::map<int,std::pair<int, std::string*> > objList; //dwelling ID, count, hover text
+	std::map<int,std::pair<int, const std::string*> > objList; //dwelling ID, count, hover text
 	std::vector <HoverableArea* > ObjList;//list of dwellings
 	AdventureMapButton* ObjUp, *ObjDown, *ObjTop, *ObjBottom;//buttons for dwellings list
 

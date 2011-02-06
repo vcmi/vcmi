@@ -1,8 +1,11 @@
+#include "stdafx.h"
 #include "../lib/NetPacks.h"
 #include "CGameHandler.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/map.h"
+#include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
@@ -21,6 +24,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 
 CGameState* CPackForServer::GS(CGameHandler *gh)
 {
@@ -108,7 +112,7 @@ bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
 bool ExchangeArtifacts::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid1);//second hero can be ally
-	return gh->swapArtifacts(hid1,hid2,slot1,slot2);
+	return gh->moveArtifact(hid1,hid2,slot1,slot2);
 }
 
 bool AssembleArtifacts::applyGh( CGameHandler *gh )
@@ -166,7 +170,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
 	case ARTIFACT_EXP:
-		return gh->sacrificeArtifact(m, hero, hero->getArtAtPos(r1));
+		return gh->sacrificeArtifact(m, hero, r1);
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}

@@ -52,11 +52,11 @@ struct PlayerSettings
 
 struct StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
+	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, INVALID = 255};
 
 	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible
-	std::map<int, PlayerSettings> playerInfos; //color indexed
+	bmap<int, PlayerSettings> playerInfos; //color indexed
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	ui8 whichMapInCampaign; //used only for mode CAMPAIGN
@@ -71,7 +71,7 @@ struct StartInfo
 
 	PlayerSettings *getPlayersSettings(const ui8 nameID)
 	{
-		for(std::map<int, PlayerSettings>::iterator it=playerInfos.begin(); it != playerInfos.end(); ++it)
+		for(bmap<int, PlayerSettings>::iterator it=playerInfos.begin(); it != playerInfos.end(); ++it)
 			if(it->second.human == nameID)
 				return &it->second;
 

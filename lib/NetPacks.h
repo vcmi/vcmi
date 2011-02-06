@@ -1,13 +1,15 @@
 #ifndef __NETPACKS_H__
 #define __NETPACKS_H__
+#include <boost/unordered_set.hpp>
 #include "../global.h"
-#include "CGameState.h"
 #include "BattleAction.h"
 #include "HeroBonus.h"
 #include <set>
 #include "CCreatureSet.h"
 #include "CMapInfo.h"
 #include "../StartInfo.h"
+#include "ConstTransitivePtr.h"
+#include "../int3.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -26,7 +28,10 @@ class CConnection;
 class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
+class CGObjectInstance;
+class CArtifactInstance;
 //class CMapInfo;
+struct ArtSlotInfo;
 
 struct CPack
 {
@@ -135,7 +140,8 @@ public:
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
-	DLL_EXPORT void addReplacement(const CStackInstance &stack); //adds sing or plural name;
+	DLL_EXPORT void addCreReplacement(TCreature id, TQuantity count); //adds sing or plural name;
+	DLL_EXPORT void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
 	DLL_EXPORT std::string buildList () const;
 	void clear()
 	{
@@ -281,17 +287,17 @@ struct HeroVisitCastle : public CPackForClient //108
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	ui8 flags; //1 - start, 2 - garrison
+	ui8 flags; //1 - start
 	ui32 tid, hid;
 
 	bool start() //if hero is entering castle (if false - leaving)
 	{
 		return flags & 1;
 	}
-	bool garrison() //if hero is entering/leaving garrison (if false - it's only visiting hero)
-	{
-		return flags & 2;
-	}
+// 	bool garrison() //if hero is entering/leaving garrison (if false - it's only visiting hero)
+// 	{
+// 		return flags & 2;
+// 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & flags & tid & hid;
@@ -326,7 +332,8 @@ struct SetMana : public CPackForClient //110
 	{
 		h & val & hid;
 	}
-}; 
+};
+
 struct SetMovePoints : public CPackForClient //111
 {
 	SetMovePoints(){type = 111;};
@@ -339,14 +346,15 @@ struct SetMovePoints : public CPackForClient //111
 	{
 		h & val & hid;
 	}
-}; 
+};
+
 struct FoWChange : public CPackForClient //112
 {
 	FoWChange(){type = 112;};
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	std::set<int3> tiles;
+	boost::unordered_set<int3, struct ShashInt3 > tiles;
 	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -360,19 +368,17 @@ struct SetAvailableHeroes : public CPackForClient //113
 	{
 		type = 113;
 		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
-			army[i] = NULL;
+			army[i].clear();
 	}
 	~SetAvailableHeroes()
 	{
-		for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
-			delete army[i];
 	}
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
 	si32 hid[AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
-	CCreatureSet *army[AVAILABLE_HEROES_PER_PLAYER];
+	CSimpleArmy army[AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & hid & army;
@@ -517,7 +523,7 @@ struct TryMoveHero : public CPackForClient //501
 	ui32 id, movePoints;
 	ui8 result; //uses EResult
 	int3 start, end; //h3m format
-	std::set<int3> fowRevealed; //revealed tiles
+	boost::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
 	int3 attackedFrom; // Set when stepping into endangered tile.
 
 	bool humanKnows; //used locally during applying to client
@@ -526,20 +532,22 @@ struct TryMoveHero : public CPackForClient //501
 	{
 		h & id & result & start & end & movePoints & fowRevealed & attackedFrom;
 	}
-}; 
-struct SetGarrisons : public CPackForClient //502
-{
-	SetGarrisons(){type = 502;};
-	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
+};
 
-	std::map<ui32,CCreatureSet> garrs;
+// struct SetGarrisons : public CPackForClient //502
+// {
+// 	SetGarrisons(){type = 502;};
+// 	void applyCl(CClient *cl);
+// 	DLL_EXPORT void applyGs(CGameState *gs);
+// 
+// 	std::map<ui32,CCreatureSet> garrs;
+// 
+// 	template <typename Handler> void serialize(Handler &h, const int version)
+// 	{
+// 		h & garrs;
+// 	}
+// }; 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & garrs;
-	}
-}; 
 struct NewStructures : public CPackForClient //504
 {
 	NewStructures(){type = 504;};
@@ -596,26 +604,27 @@ struct SetHeroesInTown : public CPackForClient //508
 	{
 		h & tid & visiting & garrison;
 	}
-};  
-struct SetHeroArtifacts : public CPackForClient //509
-{
-	SetHeroArtifacts(){type = 509;};
-	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
-	DLL_EXPORT void setArtAtPos(ui16 pos, const CArtifact* art);
+};
 
-	si32 hid;
-	std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
-	std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & hid & artifacts & artifWorn;
-	}
-
-	std::vector<const CArtifact*> equiped, unequiped; //used locally
-	BonusList gained, lost; //used locally as hlp when applying
-};   
+// struct SetHeroArtifacts : public CPackForClient //509
+// {
+// 	SetHeroArtifacts(){type = 509;};
+// 	void applyCl(CClient *cl);
+// 	DLL_EXPORT void applyGs(CGameState *gs);
+// 	DLL_EXPORT void setArtAtPos(ui16 pos, const CArtifact* art);
+// 
+// 	si32 hid;
+// 	std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
+// 	std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+// 
+// 	template <typename Handler> void serialize(Handler &h, const int version)
+// 	{
+// 		h & hid & artifacts & artifWorn;
+// 	}
+// 
+// 	std::vector<const CArtifact*> equiped, unequiped; //used locally
+// 	BonusList gained, lost; //used locally as hlp when applying
+// };   
 
 struct HeroRecruited : public CPackForClient //515
 {
@@ -697,18 +706,224 @@ struct SetAvailableArtifacts  : public CPackForClient //519
 	}
 };
 
-struct NewArtifact : public CPackForClient
+struct NewArtifact : public CPackForClient //520
 {
 	NewArtifact(){type = 520;};
 	//void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
-	si32 artid;
-	si32 value; //initializing parameter
+	ConstTransitivePtr<CArtifactInstance> art;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artid & value;
+		h & art;
+	}
+};
+
+struct StackLocation
+{
+	ConstTransitivePtr<CArmedInstance> army;
+	TSlot slot;
+
+	StackLocation()
+	{
+		slot = -1;
+	}
+	StackLocation(const CArmedInstance *Army, TSlot Slot)
+	{
+		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot = Slot;
+	}
+	DLL_EXPORT const CStackInstance *getStack();
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & army & slot;
+	}
+};
+
+struct CGarrisonOperationPack : CPackForClient
+{
+};
+struct CArtifactOperationPack : CPackForClient
+{
+};
+
+
+struct ChangeStackCount : CGarrisonOperationPack  //521
+{
+	StackLocation sl;
+	TQuantity count;
+	ui8 absoluteValue; //if not -> count will be added (or subtracted if negative)
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & count & absoluteValue;
+	}
+};
+
+struct SetStackType : CGarrisonOperationPack  //522
+{
+	StackLocation sl;
+	CCreature *type;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & type;
+	}
+};
+
+struct EraseStack : CGarrisonOperationPack  //523
+{
+	StackLocation sl;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl;
+	}
+};
+
+struct SwapStacks : CGarrisonOperationPack  //524
+{
+	StackLocation sl1, sl2;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl1 & sl2;
+	}
+};
+
+struct InsertNewStack : CGarrisonOperationPack //525
+{
+	StackLocation sl;
+	CStackBasicDescriptor stack;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & sl & stack;
+	}
+};
+
+//moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
+struct RebalanceStacks : CGarrisonOperationPack  //526
+{
+	StackLocation src, dst;
+	TQuantity count;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & src & dst & count;
+	}
+};
+
+typedef si32 TArtPos;
+
+struct ArtifactLocation
+{
+	ConstTransitivePtr<CGHeroInstance> hero;
+	TArtPos slot;
+
+	ArtifactLocation()
+	{
+		slot = -1;
+	}
+	ArtifactLocation(const CGHeroInstance *Hero, TArtPos Slot)
+	{
+		hero = const_cast<CGHeroInstance*>(Hero); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot = Slot;
+	}
+	DLL_EXPORT const CArtifactInstance *getArt() const;
+	DLL_EXPORT CArtifactInstance *getArt();
+	DLL_EXPORT const ArtSlotInfo *getSlot() const;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero & slot;
+	}
+};
+
+struct PutArtifact : CArtifactOperationPack  //526
+{
+	ArtifactLocation al;
+	ConstTransitivePtr<CArtifactInstance> art;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al & art;
+	}
+};
+
+struct EraseArtifact : CArtifactOperationPack  //527
+{
+	ArtifactLocation al;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al;
+	}
+};
+
+struct MoveArtifact : CArtifactOperationPack  //528
+{
+	ArtifactLocation src, dst;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & src & dst;
+	}
+};
+
+struct AssembledArtifact : CArtifactOperationPack  //529
+{
+	ArtifactLocation al; //where assembly will be put
+	CArtifact *builtArt;
+	//std::vector<CArtifactInstance *> constituents;
+
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al & builtArt/* & constituents*/;
+	}
+};
+
+struct DisassembledArtifact : CArtifactOperationPack  //530
+{
+	ArtifactLocation al;
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & al;
 	}
 };
 
@@ -760,7 +975,7 @@ struct Component : public CPack //2002 helper for object scrips informations
 	{
 		type = 2002;
 	}
-	DLL_EXPORT explicit Component(const CStackInstance &stack);
+	DLL_EXPORT explicit Component(const CStackBasicDescriptor &stack);
 	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
 	{
@@ -979,7 +1194,8 @@ struct BattleResult : public CPackForClient//3003
 
 struct BattleStackMoved : public CPackForClient//3004
 {
-	ui32 stack, tile;
+	ui32 stack;
+	THex tile;
 	ui8 ending, distance, teleporting;
 	BattleStackMoved(){type = 3004;};
 	void applyFirstCl(CClient *cl);
@@ -1142,7 +1358,7 @@ struct SetStackEffect : public CPackForClient //3010
 	void applyCl(CClient *cl);
 
 	std::vector<ui32> stacks; //affected stacks (IDs)
-	Bonus effect; //type of effect
+	std::vector<Bonus> effect; //bonuses to apply
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect;

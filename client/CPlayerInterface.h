@@ -112,6 +112,8 @@ extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores de
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 public:
+	bool observerInDuelMode;
+
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 
@@ -156,70 +158,81 @@ public:
 	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
 	int getLastIndex(std::string namePrefix);
 
-	//overloaded funcs from CGameInterface
-	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
-	void garrisonChanged(const CGObjectInstance * obj);
-	void heroArtifactSetChanged(const CGHeroInstance* hero);
-	void heroCreated(const CGHeroInstance* hero);
-	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
-	void heroInGarrisonChange(const CGTownInstance *town);
-	void heroMoved(const TryMoveHero & details);
-	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val);
-	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val);
-	void heroManaPointsChanged(const CGHeroInstance * hero);
-	void heroMovePointsChanged(const CGHeroInstance * hero);
-	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
-	void receivedResource(int type, int val);
-	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID);
-	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level);
-	void showShipyardDialog(const IShipyard *obj); //obj may be town or shipyard; 
-	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd);
-	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
-	void showPuzzleMap();
-	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor);
-	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor);
-	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor);
-	void showTavernWindow(const CGObjectInstance *townOrTavern);
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID); //called when a hero casts a spell
-	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles
-	void newObject(const CGObjectInstance * obj);
-	void availableArtifactsChanged(const CGBlackMarket *bm = NULL); //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
-	void yourTurn();
-	void availableCreaturesChanged(const CGDwelling *town);
-	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain);//if gain hero received bonus, else he lost it
-	void playerBonusChanged(const Bonus &bonus, bool gain);
-	void requestRealized(PackageApplied *pa);
-	void heroExchangeStarted(si32 hero1, si32 hero2);
-	void centerView (int3 pos, int focusTime);
-	void objectPropertyChanged(const SetObjectProperty * sop);
-	void objectRemoved(const CGObjectInstance *obj);
-	void gameOver(ui8 player, bool victory);
-	void serialize(COSer<CSaveFile> &h, const int version); //saving
-	void serialize(CISer<CLoadFile> &h, const int version); //loading
+	//overridden funcs from CGameInterface
+	void buildChanged(const CGTownInstance *town, int buildingID, int what) OVERRIDE; //what: 1 - built, 2 - demolished
+	void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) OVERRIDE; //if absolute, change is the new count; otherwise count was modified by adding change
+	void stackChangedType(const StackLocation &location, const CCreature &newType) OVERRIDE; //used eg. when upgrading creatures
+	void stacksErased(const StackLocation &location) OVERRIDE; //stack removed from previously filled slot
+	void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) OVERRIDE;
+	void newStackInserted(const StackLocation &location, const CStackInstance &stack) OVERRIDE; //new stack inserted at given (previously empty position)
+	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) OVERRIDE; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
+
+	void artifactPut(const ArtifactLocation &al);
+	void artifactRemoved(const ArtifactLocation &al);
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactAssembled(const ArtifactLocation &al);
+	void artifactDisassembled(const ArtifactLocation &al);
+
+	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
+	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE;
+	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;
+	void heroMoved(const TryMoveHero & details) OVERRIDE;
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;
+	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) OVERRIDE;
+	void heroManaPointsChanged(const CGHeroInstance * hero) OVERRIDE;
+	void heroMovePointsChanged(const CGHeroInstance * hero) OVERRIDE;
+	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) OVERRIDE;
+	void receivedResource(int type, int val) OVERRIDE;
+	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) OVERRIDE;
+	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
+	void showShipyardDialog(const IShipyard *obj) OVERRIDE; //obj may be town or shipyard; 
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) OVERRIDE;
+	void showPuzzleMap() OVERRIDE;
+	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
+	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
+	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) OVERRIDE;
+	void showTavernWindow(const CGObjectInstance *townOrTavern) OVERRIDE;
+	void advmapSpellCast(const CGHeroInstance * caster, int spellID) OVERRIDE; //called when a hero casts a spell
+	void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when given tiles become hidden under fog of war
+	void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when fog of war disappears from given tiles
+	void newObject(const CGObjectInstance * obj) OVERRIDE;
+	void availableArtifactsChanged(const CGBlackMarket *bm = NULL) OVERRIDE; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
+	void yourTurn() OVERRIDE;
+	void availableCreaturesChanged(const CGDwelling *town) OVERRIDE;
+	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) OVERRIDE;//if gain hero received bonus, else he lost it
+	void playerBonusChanged(const Bonus &bonus, bool gain) OVERRIDE;
+	void requestRealized(PackageApplied *pa) OVERRIDE;
+	void heroExchangeStarted(si32 hero1, si32 hero2) OVERRIDE;
+	void centerView (int3 pos, int focusTime) OVERRIDE;
+	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
+	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;
+	void gameOver(ui8 player, bool victory) OVERRIDE;
+	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
+	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 
 	//for battles
-	void actionFinished(const BattleAction* action);//occurs AFTER action taken by active stack or by the hero
-	void actionStarted(const BattleAction* action);//occurs BEFORE action taken by active stack or by the hero
-	BattleAction activeStack(int stackID); //called when it's turn of that stack
-	void battleAttack(const BattleAttack *ba); //stack performs attack
-	void battleEnd(const BattleResult *br); //end of battle
-	//void battleResultQuited();
-	void battleNewRoundFirst(int round); //called at the beginning of each turn before changes are applied; used for HP regen handling
-	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(int ID, int dest, int distance, bool end);
-	void battleSpellCast(const BattleSpellCast *sc);
-	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa);
-	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom); //called when stacks are healed / resurrected
-	void battleNewStackAppeared(int stackID); //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
-	void battleObstaclesRemoved(const std::set<si32> & removedObstacles); //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
-	void battleCatapultAttacked(const CatapultAttack & ca); //called when catapult makes an attack
-	void battleStacksRemoved(const BattleStacksRemoved & bsr); //called when certain stack is completely removed from battlefield
+	void actionFinished(const BattleAction* action) OVERRIDE;//occurs AFTER action taken by active stack or by the hero
+	void actionStarted(const BattleAction* action) OVERRIDE;//occurs BEFORE action taken by active stack or by the hero
+	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack
+	void battleAttack(const BattleAttack *ba) OVERRIDE; //stack performs attack
+	void battleEnd(const BattleResult *br) OVERRIDE; //end of battle
+	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied; used for HP regen handling
+	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleStackMoved(const CStack * stack, THex dest, int distance, bool end) OVERRIDE;
+	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
+	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE; //called when a specific effect is set to stacks
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE;
+	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE; //called by engine when battle starts; side=0 - left, side=1 - right
+	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom) OVERRIDE; //called when stacks are healed / resurrected
+	void battleNewStackAppeared(const CStack * stack) OVERRIDE; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
+	void battleObstaclesRemoved(const std::set<si32> & removedObstacles) OVERRIDE; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
+	void battleCatapultAttacked(const CatapultAttack & ca) OVERRIDE; //called when catapult makes an attack
+	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield
 
 	//-------------//
+	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
+	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)

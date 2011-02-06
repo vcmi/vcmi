@@ -10,17 +10,17 @@
 #include "SDL_Extensions.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CCreatureHandler.h"
 #include "../lib/map.h"
-#include "../hch/CMusicHandler.h"
+#include "CMusicHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -28,6 +28,8 @@
 #include <cmath>
 #include <sstream>
 #include <boost/format.hpp>
+#include "../lib/CCreatureHandler.h"
+#include "CMusicHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -54,7 +56,7 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 	}
 }
 
-CBuildingRect::CBuildingRect(Structure *Str)
+CBuildingRect::CBuildingRect(const Structure *Str)
 	:CShowableAnim(0, 0, Str->defName, CShowableAnim::FLAG_BASE),
 	moi(false), str(Str)
 {
@@ -157,7 +159,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	{
 		int bid = hordeToDwellingID(str->ID);
 
-		CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
+		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		assert(bld);
 
 		CInfoPopup *vinya = new CInfoPopup();
@@ -434,7 +436,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	recreateIcons();
 	cityBg = BitmapHandler::loadBitmap(graphics->townBgs[town->subID]);
 	bicons = CDefHandler::giveDefEss(graphics->buildingPics[town->subID]);
-	CGI->musich->playMusic(CGI->musich->townMusics[town->subID], -1);
+	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
 }
 
 CCastleInterface::~CCastleInterface()
@@ -474,7 +476,7 @@ void CCastleInterface::close()
 	}
 	LOCPLINT->castleInt = NULL;
 	GH.popIntTotally(this);
-	CGI->musich->stopMusic(5000);
+	CCS->musich->stopMusic(5000);
 }
 
 void CCastleInterface::splitF()
@@ -509,7 +511,7 @@ void CCastleInterface::buildingClicked(int building)
 				else //both heroes present, use the visiting one
 					h = town->visitingHero;
 
-				if(h && !vstd::contains(h->artifWorn,ui16(17))) //hero doesn't have spellbok
+				if(h && !h->hasSpellbook()) //hero doesn't have spellbok
 				{
 					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
 					{
@@ -770,7 +772,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	statusbar->show(to);
 	resdatabar->draw(to);
 
-	garr->show(to);
+	garr->showAll(to);
 	//draw creatures icons and their growths
 	for(size_t i=0;i<creainfo.size();i++)
 		creainfo[i]->show(to);
@@ -902,7 +904,7 @@ void CCastleInterface::recreateBuildings()
 		{
 			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
 			{
-				Structure * st = CGI->townh->structures[town->subID][*i];
+				const Structure * st = CGI->townh->structures[town->subID][*i];
 				if(st->group<0) //no group - just add it
 				{
 					buildings.push_back(new CBuildingRect(st));
@@ -1160,7 +1162,7 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 				ch = ci->town->visitingHero;
 			};
 			if (bl.size())
-				summ+=AddToString (CGI->arth->artifacts[bl.front().id]->Name()+" %+d", descr, bl.totalValue());
+				summ+=AddToString (CGI->arth->artifacts[bl.front()->id]->Name()+" %+d", descr, bl.totalValue());
 
 			//TODO: player bonuses
 
@@ -1249,7 +1251,7 @@ void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
 		CInfoPopup *mess = new CInfoPopup();
 		mess->free = true;
 		CCastleInterface * ci=LOCPLINT->castleInt;
-		CBuilding *bld = CGI->buildh->buildings[ci->town->subID][bid];
+		const CBuilding *bld = CGI->buildh->buildings[ci->town->subID][bid];
 		mess->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,bld->Description(),
 			LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,
@@ -1317,7 +1319,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		}
 		break;
 	case SDLK_SPACE:
-		if(town->visitingHero && town->garrisonHero)
+		if(!!town->visitingHero && town->garrisonHero)
 		{
 			LOCPLINT->cb->swapGarrisonHero(town);
 		}
@@ -1329,7 +1331,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 
 void CCastleInterface::splitClicked()
 {
-	if(town->visitingHero && town->garrisonHero && (hslotdown.highlight || hslotup.highlight))
+	if(!!town->visitingHero && town->garrisonHero && (hslotdown.highlight || hslotup.highlight))
 	{
 		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}
@@ -1444,7 +1446,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	boxes.resize(5);
 	for(size_t i=0;i<5;i++) //for each row
 	{
-		std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[owner->town->subID].second;
+		const std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[owner->town->subID].second;
 
 		for(size_t j=0; j<boxList[i].size();j++) //for each box
 		{
@@ -1778,7 +1780,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	for(int i=0;i<fortSize; i++)
 	{
 		int dwelling;// ID of buiding with this creature
-		CCreature *c;
+		const CCreature *c;
 		bool present = true;
 		if ( i < CREATURES_PER_TOWN )
 		{
@@ -1898,7 +1900,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
 			{
-				spells.push_back( new Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
+				spells.push_back( new Scroll(CGI->spellh->spells[owner->town->spells[i][j]]));
 				spells[spells.size()-1]->pos = positions[i][j];
 				blitAt(graphics->spellscr->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],*bg);
 			}
@@ -1926,7 +1928,7 @@ void CMageGuildScreen::close()
 	GH.popIntTotally(this);
 }
 
-CMageGuildScreen::Scroll::Scroll(CSpell *Spell)
+CMageGuildScreen::Scroll::Scroll(const CSpell *Spell)
 	:spell(Spell)
 {
 	used = LCLICK | RCLICK | HOVER;

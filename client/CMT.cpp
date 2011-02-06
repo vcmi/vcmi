@@ -23,16 +23,16 @@
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
 #include "CAdvmapInterface.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CVideoHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CMusicHandler.h"
-#include "../hch/CVideoHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CGeneralTextHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "CVideoHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "CMusicHandler.h"
+#include "CVideoHandler.h"
+#include "../lib/CLodHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
 #include "CConfigHandler.h"
@@ -42,17 +42,21 @@
 #include <cstdlib>
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CObjectHandler.h"
+#include <boost/program_options.hpp>
+#include "../lib/CArtHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
 #include <boost/foreach.hpp>
-#include "../hch/CDefObjInfoHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 
 #if __MINGW32__
 #undef main
 #endif
+
+namespace po = boost::program_options;
 
 /*
  * CMT.cpp, part of VCMI engine
@@ -89,6 +93,7 @@ void dispose();
 void playIntro();
 static void listenForEvents();
 void requestChangingResolution();
+void startGame(StartInfo * options, CConnection *serv = NULL);
 
 #ifndef _WIN32
 #ifndef _GNU_SOURCE
@@ -128,25 +133,25 @@ void init()
 	//initializing audio
 	// Note: because of interface button range, volume can only be a
 	// multiple of 11, from 0 to 99.
-	CGI->soundh = new CSoundHandler;
-	CGI->soundh->init();
-	CGI->soundh->setVolume(GDefaultOptions.soundVolume);
-	CGI->musich = new CMusicHandler;
+	CCS->soundh = new CSoundHandler;
+	CCS->soundh->init();
+	CCS->soundh->setVolume(GDefaultOptions.soundVolume);
+	CCS->musich = new CMusicHandler;
 	//CGI->musich->init();
 	//CGI->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 	tlog0<<"Initializing screen and sound handling: "<<tmh.getDif()<<std::endl;
 
 	initDLL(::console,logfile);
-	CGI->setFromLib();
-	CGI->soundh->initCreaturesSounds(CGI->creh->creatures);
-	CGI->soundh->initSpellsSounds(CGI->spellh->spells);
+	const_cast<CGameInfo*>(CGI)->setFromLib();
+	CCS->soundh->initCreaturesSounds(CGI->creh->creatures);
+	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
 	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 
 	pomtime.getDif();
-	CGI->curh = new CCursorHandler;
-	CGI->curh->initCursor();
-	CGI->curh->show();
+	CCS->curh = new CCursorHandler;
+	CCS->curh->initCursor();
+	CCS->curh->show();
 	tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
 	pomtime.getDif();
 	graphics = new Graphics();
@@ -160,7 +165,6 @@ void init()
 	//tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 }
 
-#ifndef _WIN32
 static void prog_version(void)
 {
 	printf("%s\n", NAME_VER);
@@ -180,7 +184,6 @@ static void prog_help(const char *progname)
 	printf("  -h, --help        display this help and exit\n");
 	printf("  -v, --version     display version information and exit\n");
 }
-#endif
 
 
 #ifdef _WIN32
@@ -189,50 +192,42 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+	tlog0 << "Starting... " << std::endl;      
+	po::options_description opts("Allowed options");
+	opts.add_options()
+		("help,h", "display help and exit")
+		("version,v", "display version information and exit")
+		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only");
 
-#ifndef _WIN32
-	struct option long_options[] = {
-		{ "help", 0, NULL, 'h' },
-		{ "version", 0, NULL, 'v' },
-		{ NULL, 0, NULL, 0 }
-	};
-
-	while(1) {
-		int c;
-        int option_index;
-
-        c = getopt_long (argc, argv, "hv",
-                         long_options, &option_index);
-
-		if (c == EOF)
-            break;
-        else if (c == '?')
-            return -1;
-
-		switch(c) {
-		case 'h':
-			prog_help(argv[0]);
-			return 0;
-			break;
-
-		case 'v':
-			prog_version();
-			return 0;
-			break;
+	po::variables_map vm;
+	if(argc > 1)
+	{
+		try
+		{
+			po::store(po::parse_command_line(argc, argv, opts), vm);
+		}
+		catch(std::exception &e) 
+		{
+			tlog1 << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
 
-	if (optind < argc) {
-		printf ("Extra arguments: %s\n", argv[optind++]);
-		return 1;
+	po::notify(vm);
+	if(vm.count("help"))
+	{
+		prog_help(0);
+		return 0;
 	}
-#endif
+	if(vm.count("version"))
+	{
+		prog_version();
+		return 0;
+	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv("SDL_VIDEO_WINDOW_POS");
 	putenv("SDL_VIDEO_CENTERED=1");
 
-	tlog0 << "Starting... " << std::endl;
 	timeHandler total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
@@ -247,8 +242,9 @@ int main(int argc, char** argv)
 	tlog0 << NAME << std::endl;
 
 	srand ( time(NULL) );
-	//CPG=NULL;
-	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
+	
+	CCS = new CClientState;
+	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 	{
@@ -261,18 +257,34 @@ int main(int argc, char** argv)
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
 
 	// Initialize video
-	CGI->videoh = new CVideoPlayer;
+	CCS->videoh = new CVideoPlayer;
 	tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
 
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
-	playIntro();
+
+	if(!vm.count("battle"))
+		playIntro();
+
 	SDL_FillRect(screen,NULL,0);
 	SDL_Flip(screen);
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-	GH.curInt = new CGPreGame; //will set CGP pointer to itself
+	if(!vm.count("battle"))
+	{
+		CCS->musich->playMusic(musicBase::mainMenu, -1);
+		GH.curInt = new CGPreGame; //will set CGP pointer to itself
+	}
+	else
+	{
+		StartInfo *si = new StartInfo();
+		si->mode = StartInfo::DUEL;
+		si->mapname = vm["battle"].as<std::string>();
+		si->playerInfos[0].color = 0;
+		si->playerInfos[1].color = 1;
+		startGame(si);
+	}
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
 	listenForEvents();
 
@@ -296,10 +308,7 @@ void processCommand(const std::string &message)
 	readed.str(message);
 	std::string cn; //command name
 	readed >> cn;
-	int3 src, dst;
 
-//	int heronum;//TODO use me
-	int3 dest;
 
 	if(LOCPLINT && LOCPLINT->cingconsole)
 		LOCPLINT->cingconsole->print(message);
@@ -462,6 +471,19 @@ void processCommand(const std::string &message)
 				tlog4 << typeid(*obj).name() << std::endl;
 		}
 	}
+	else if(cn=="tell")
+	{
+		std::string what;
+		int id1, id2;
+		readed >> what >> id1 >> id2;
+		if(what == "hs")
+		{
+			BOOST_FOREACH(const CGHeroInstance *h, LOCPLINT->cb->getHeroesInfo())
+				if(h->type->ID == id1)
+					if(const CArtifactInstance *a = h->getArt(id2))
+						tlog4 << a->nodeName();
+		}
+	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
 		PlayerMessage pm(LOCPLINT->playerID,message);
@@ -472,17 +494,17 @@ void processCommand(const std::string &message)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CGI->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
+	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
 	{
-		CGI->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
+		CCS->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
 	}
 }
 
 void dispose()
 {
-	delete logfile;
 	if (console)
 		delete console;
+	delete logfile;
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
@@ -608,8 +630,8 @@ static void listenForEvents()
 				client = NULL;
 
 				delete CGI->dobjinfo;
-				CGI->dobjinfo = new CDefObjInfoHandler;
-				CGI->dobjinfo->load();
+				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
+				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
@@ -664,6 +686,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	{
 	case StartInfo::NEW_GAME:
 	case StartInfo::CAMPAIGN:
+	case StartInfo::DUEL:
 		client->newGame(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:
@@ -673,7 +696,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		break;
 	}
 
-	CGI->musich->stopMusic();
+	CCS->musich->stopMusic();
 	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 

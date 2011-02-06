@@ -1,16 +1,18 @@
 #define VCMI_DLL
 #include "../stdafx.h"
 #include "map.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
+#include "CObjectHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "VCMI_Lib.h"
 #include <zlib.h>
 #include <boost/crc.hpp>
-#include "../hch/CLodHandler.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "CLodHandler.h"
+#include "CArtHandler.h"
+#include "CCreatureHandler.h"
 #include <boost/bind.hpp>
 #include <assert.h>
+#include "CSpellHandler.h"
+#include <boost/foreach.hpp>
 
 /*
  * map.cpp, part of VCMI engine
@@ -82,13 +84,12 @@ static unsigned char reverse(unsigned char arg)
 	return ret;
 }
 
-static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
+void readCreatureSet(CCreatureSet *out, const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
 	const int bytesPerCre = version ? 4 : 3,
 		idBytes = version ? 2 : 1,
 		maxID = version ? 0xffff : 0xff;
 
-	CCreatureSet ret;
 	for(int ir=0;ir < number; ir++)
 	{
 		int creID = readNormalNr(bufor,i+ir*bytesPerCre, idBytes);
@@ -96,24 +97,24 @@ static CCreatureSet readCreatureSet(const unsigned char * bufor, int &i, int num
 		if(creID == maxID) //empty slot
 			continue;
 
-		CStackInstance hlp;
-		hlp.count = count;
+		CStackInstance *hlp = new CStackInstance();
+		hlp->count = count;
 
 		if(creID > maxID - 0xf)
 		{
 			creID = maxID + 1 - creID + VLC->creh->creatures.size();//this will happen when random object has random army
-			hlp.idRand = creID;
+			hlp->idRand = creID;
 		}
 		else
-			hlp.setType(creID);
+			hlp->setType(creID);
 
-		ret.slots[ir] = hlp;
+		out->putStack(ir, hlp);
 	}
 	i+=number*bytesPerCre;
 	
-	ret.validTypes(true);
-	return ret;
+	out->validTypes(true);
 }
+
 CMapHeader::CMapHeader(const unsigned char *map)
 {
 	int i=0;
@@ -516,7 +517,7 @@ Mapa::~Mapa()
 		}
 		delete [] terrain;
 	}
-	for(std::list<CMapEvent*>::iterator i = events.begin(); i != events.end(); i++)
+	for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
 		delete *i;
 }
 
@@ -654,7 +655,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	if(readChar(bufor,i)) //has name
 		nt->name = readString(bufor,i);
 	if(readChar(bufor,i))//true if garrison isn't empty
-		nt->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+		readCreatureSet(nt, bufor, i, 7, version > RoE);
 	nt->formation = bufor[i]; ++i;
 	if(readChar(bufor,i)) //custom buildings info
 	{
@@ -778,10 +779,9 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	nt->garrisonHero = NULL;
 }
 
-void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int &i )
+CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i)
 {
-	CGHeroInstance * nhi = new CGHeroInstance;
-	nobj=nhi;
+	CGHeroInstance * nhi = new CGHeroInstance();
 
 	int identifier = 0;
 	if(version>RoE)
@@ -790,20 +790,20 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	}
 
 	ui8 owner = bufor[i++];
-	nobj->subID = readNormalNr(bufor,i, 1); ++i;	
+	nhi->subID = readNormalNr(bufor,i, 1); ++i;	
 	
 	for(unsigned int j=0; j<predefinedHeroes.size(); j++)
 	{
-		if(predefinedHeroes[j]->subID == nobj->subID)
+		if(predefinedHeroes[j]->subID == nhi->subID)
 		{
-			*nhi = *predefinedHeroes[j];
+			tlog0 << "Hero " << nhi->subID << " will be taken from the predefined heroes list.\n";
+			delete nhi;
+			nhi = predefinedHeroes[j];
 			break;
 		}
 	}
-	nobj->setOwner(owner);
+	nhi->setOwner(owner);
 
-	//(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
-	//delete nobj;
 	nhi->portrait = nhi->subID;
 
 	for(unsigned int j=0; j<disposedHeroes.size(); j++)
@@ -846,55 +846,10 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		}
 	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
-		nhi->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+		readCreatureSet(nhi, bufor, i, 7, version > RoE);
 
 	nhi->formation =bufor[i]; ++i; //formation
-	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
-	int artmask = version == RoE ? 0xff : 0xffff;
-	int artidlen = version == RoE ? 1 : 2;
-	if(artSet)
-	{
-		for(int pom=0;pom<16;pom++)
-		{
-			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id != artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, pom, VLC->arth->artifacts[id]);
-		}
-		//misc5 art //17
-		if(version>=SoD)
-		{
-			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[id]);
-			else
-				VLC->arth->equipArtifact(nhi->artifWorn, 16, VLC->arth->artifacts[3]); //catapult by default
-		}
-		//spellbook
-		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-		if(id!=artmask)
-			VLC->arth->equipArtifact(nhi->artifWorn, 17, VLC->arth->artifacts[id]);
-		//19 //???what is that? gap in file or what? - it's probably fifth slot..
-		if(version>RoE)
-		{
-			id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-			if(id!=artmask)
-				VLC->arth->equipArtifact(nhi->artifWorn, 18, VLC->arth->artifacts[id]);
-		}
-		else
-			i+=1;
-		//bag artifacts //20
-		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-		if(amount > 0)
-		{
-			for(int ss = 0; ss < amount; ++ss)
-			{
-				id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-				if(id != artmask)
-					nhi->giveArtifact(id);
-			}
-		}
-	} //artifacts
-
+	loadArtifactsOfHero(bufor, i, nhi);
 	nhi->patrol.patrolRadious = readNormalNr(bufor,i, 1); ++i;
 	if(nhi->patrol.patrolRadious == 0xff)
 		nhi->patrol.patrolling = false;
@@ -955,11 +910,8 @@ void Mapa::loadHero( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		}
 	}
 	i+=16;
-	nhi->moveDir = 4;
-	nhi->isStanding = true;
-	nhi->level = -1;
-	nhi->mana = -1;
-	nhi->movement = -1;
+
+	return nhi;
 }
 
 void Mapa::readRumors( const unsigned char * bufor, int &i)
@@ -1093,50 +1045,9 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 						cgh->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
 					}
 				}
-				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
-				int artmask = version == RoE ? 0xff : 0xffff;
-				int artidlen = version == RoE ? 1 : 2;
-				if(artSet)
-				{
-					for(int pom=0;pom<16;pom++)
-					{
-						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, pom, VLC->arth->artifacts[id]);
-					}
-					//misc5 art //17
-					if(version>=SoD)
-					{
-						i+=2;
-						//int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						//if(id!=artmask)
-						//	spec->artifWorn[16] = id;
-					}
-					//spellbook
-					int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						VLC->arth->equipArtifact(cgh->artifWorn, 17, VLC->arth->artifacts[id]);
-					//19 //???what is that? gap in file or what? - it's probably fifth slot..
-					if(version>RoE)
-					{
-						id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							VLC->arth->equipArtifact(cgh->artifWorn, 18, VLC->arth->artifacts[id]);
-					}
-					else
-						i+=1;
-					//bag artifacts //20
-					int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-					if(amount>0)
-					{
-						for(int ss=0; ss<amount; ++ss)
-						{
-							id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-							if(id!=artmask)
-								cgh->giveArtifact(id);
-						}
-					}
-				} //artifacts
+
+				loadArtifactsOfHero(bufor, i, cgh);
+
 				if(readChar(bufor,i))//customBio
 					cgh->biography = readString(bufor,i);
 				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female    //FIXME:unused?
@@ -1291,6 +1202,15 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 	}
 }
 
+class _HERO_SORTER
+{
+public:
+	bool operator()(const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+	{
+		return a->subID < b->subID;
+	}
+};
+
 void Mapa::readObjects( const unsigned char * bufor, int &i)
 {
 	int howManyObjs = readNormalNr(bufor,i, 4); i+=4;
@@ -1329,7 +1249,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					}
 					if(bufor[i++])
 					{
-						evnt->setArmy(readCreatureSet(bufor, i, 7, version > RoE)); 
+						readCreatureSet(evnt, bufor, i, 7, version > RoE); 
 					}
 					i+=4;
 				}
@@ -1373,7 +1293,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				}
 
 				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
-				evnt->creatures = readCreatureSet(bufor,i,gcre,(version>RoE));
+				readCreatureSet(&evnt->creatures, bufor,i,gcre,(version>RoE));
 
 				i+=8;
 				evnt->availableFor = readNormalNr(bufor,i, 1); ++i;
@@ -1386,7 +1306,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			}
 		case 34: case 70: case 62: //34 - hero; 70 - random hero; 62 - prison
 			{
-				loadHero(nobj, bufor, i);
+				nobj = loadHero(bufor, i);
 				break;
 			}
 		case 4: //Arena
@@ -1441,10 +1361,10 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					monsters[cre->identifier] = cre;
 				}
 
-				CStackInstance hlp;
-				hlp.count =  readNormalNr(bufor,i, 2); i+=2;
+				CStackInstance *hlp = new CStackInstance();
+				hlp->count =  readNormalNr(bufor,i, 2); i+=2;
 				//type will be set during initialization
-				cre->slots[0] = hlp;
+				cre->putStack(0, hlp);
 
 				cre->character = bufor[i]; ++i;
 				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
@@ -1535,7 +1455,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = gar;
 				nobj->setOwner(bufor[i++]);
 				i+=3;
-				gar->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+				readCreatureSet(gar, bufor, i, 7, version > RoE);
 				if(version > RoE)
 				{
 					gar->removableUnits = bufor[i]; ++i;
@@ -1559,15 +1479,27 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					bool areGuards = bufor[i]; ++i;
 					if(areGuards)
 					{
-						art->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+						readCreatureSet(art, bufor, i, 7, version > RoE);
 					}
 					i+=4;
 				}
+
+				CArtifactInstance *innerArt = NULL;
 				if(defInfo->id==93)
 				{
-					art->spell = readNormalNr(bufor,i); 
+					int spellID = readNormalNr(bufor,i); 
 					i+=4;
+					innerArt = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
 				}
+				else if(defInfo->id == 5) //specific artifact
+				{
+					innerArt = createArt(defInfo->subid);
+				}
+				else
+				{
+					innerArt = createArt(-1);
+				}
+				art->storedArtifact = innerArt;
 				break;
 			}
 		case 76: case 79: //random resource; resource
@@ -1581,7 +1513,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					res->message = readString(bufor,i);
 					if(bufor[i++])
 					{
-						res->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+						readCreatureSet(res, bufor, i, 7, version > RoE);
 					}
 					i+=4;
 				}
@@ -1635,7 +1567,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					box->message = readString(bufor,i);
 					if(bufor[i++])
 					{
-						box->setArmy(readCreatureSet(bufor, i, 7, version > RoE));
+						readCreatureSet(box, bufor, i, 7, version > RoE);
 					}
 					i+=4;
 				}
@@ -1684,7 +1616,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					box->spells.push_back(readNormalNr(bufor,i, 1)); ++i;
 				}
 				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
-				box->creatures = readCreatureSet(bufor,i,gcre,(version>RoE));
+				readCreatureSet(&box->creatures, bufor,i,gcre,(version>RoE));
 				i+=8;
 				break;
 			}
@@ -1925,7 +1857,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			heroes.push_back(static_cast<CGHeroInstance*>(nobj));
 	}
 
-	std::sort(heroes.begin(), heroes.end(), boost::bind(&CGHeroInstance::subID, _1) < boost::bind(&CGHeroInstance::subID, _2));
+	std::sort(heroes.begin(), heroes.end(), _HERO_SORTER());
 }
 
 void Mapa::readEvents( const unsigned char * bufor, int &i )
@@ -2015,11 +1947,11 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	case 6:
 		{
 			int typeNumber = bufor[i]; ++i;
+			guard->m6creatures.resize(typeNumber);
 			for(int hh=0; hh<typeNumber; ++hh)
 			{
-				ui32 creType = readNormalNr(bufor,i, 2); i+=2;
-				ui32 creNumb = readNormalNr(bufor,i, 2); i+=2;
-				guard->m6creatures[hh] = CStackInstance(creType,creNumb);
+				guard->m6creatures[hh].type = VLC->creh->creatures[readNormalNr(bufor,i, 2)]; i+=2;
+				guard->m6creatures[hh].count = readNormalNr(bufor,i, 2); i+=2;
 			}
 			break;
 		}
@@ -2090,6 +2022,85 @@ void Mapa::checkForObjectives()
 		assert(objs.size());
 		lossCondition.obj = objs.front();
 	}
+}
+
+void Mapa::addNewArtifactInstance( CArtifactInstance *art )
+{
+	art->id = artInstances.size();
+	artInstances.push_back(art);
+}
+
+bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i)
+{
+	const int artmask = version == RoE ? 0xff : 0xffff;
+	const int artidlen = version == RoE ? 1 : 2;
+
+	int aid = readNormalNr(bufor,i, artidlen); i+=artidlen;
+	bool isArt  =  aid != artmask;
+	if(isArt)
+	{
+		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= Arts::BACKPACK_START)
+			tlog3 << "Warning: A big artifact (war machine) in hero's backpack, ignoring...\n";
+		else
+			h->putArtifact(slot, createArt(aid));
+	}
+	return isArt;
+}
+
+void Mapa::loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInstance * nhi)
+{
+	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+	if(artSet)
+	{
+		for(int pom=0;pom<16;pom++)
+			loadArtifactToSlot(nhi, pom, bufor, i);
+
+		//misc5 art //17
+		if(version >= SoD)
+		{
+			if(!loadArtifactToSlot(nhi, Arts::MACH4, bufor, i))
+				nhi->putArtifact(Arts::MACH4, createArt(Arts::ID_CATAPULT)); //catapult by default
+		}
+
+		loadArtifactToSlot(nhi, Arts::SPELLBOOK, bufor, i);
+
+		//19 //???what is that? gap in file or what? - it's probably fifth slot..
+		if(version > RoE)
+			loadArtifactToSlot(nhi, Arts::MISC5, bufor, i);
+		else
+			i+=1;
+
+		//bag artifacts //20
+		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
+		for(int ss = 0; ss < amount; ++ss)
+			loadArtifactToSlot(nhi, Arts::BACKPACK_START + nhi->artifactsInBackpack.size(), bufor, i);
+	} //artifacts
+}
+
+CArtifactInstance * Mapa::createArt(int aid)
+{
+	CArtifactInstance *a = NULL;
+	if(aid >= 0)
+		a = CArtifactInstance::createNewArtifactInstance(aid);
+	else
+		a = new CArtifactInstance();
+
+	addNewArtifactInstance(a);
+	if(a->artType && a->artType->constituents) //TODO make it nicer
+	{
+		CCombinedArtifactInstance *comb = dynamic_cast<CCombinedArtifactInstance*>(a);
+		BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, comb->constituentsInfo)
+		{
+			addNewArtifactInstance(ci.art);
+		}
+	}
+	return a;
+}
+
+void Mapa::eraseArtifactInstance(CArtifactInstance *art)
+{
+	assert(artInstances[art->id] == art);
+	artInstances[art->id].dellNull();
 }
 
 LossCondition::LossCondition()

@@ -7,7 +7,7 @@
 
 #ifndef _MSC_VER
 #include "../lib/RegisterTypes.cpp"
-#include "../hch/CObjectHandler.h"
+#include "CObjectHandler.h"
 #endif
 
 //for smart objs serialization over net
@@ -15,13 +15,13 @@
 #include "../StartInfo.h"
 #include "CGameState.h"
 #include "map.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CCreatureHandler.h"
+#include "CObjectHandler.h"
+#include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CCampaignHandler.h"
+#include "CArtHandler.h"
+#include "CHeroHandler.h"
+#include "CTownHandler.h"
+#include "CCampaignHandler.h"
 #include "NetPacks.h"
 
 
@@ -405,6 +405,6 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 	registerVectoredType(&lib->heroh->heroes, &CHero::ID);
 	registerVectoredType(&lib->creh->creatures, &CCreature::idNumber);
 	registerVectoredType(&lib->arth->artifacts, &CArtifact::id);
-	registerVectoredType(&gs->map->artInstances, &IModableArt::ID);
+	registerVectoredType(&gs->map->artInstances, &CArtifactInstance::id);
 	smartVectorMembersSerialization = true;
 }

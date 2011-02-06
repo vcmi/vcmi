@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CGameInterface.h"
+#include "lib/BattleState.h"
 
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -18,17 +19,18 @@
  *
  */
 
-CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
+template<typename rett>
+rett * createAnyAI(CCallback * cb, std::string dllname, std::string methodName)
 {
 	char temp[50];
-	CGlobalAI * ret=NULL;
-	CGlobalAI*(*getAI)(); 
+	rett * ret=NULL;
+	rett*(*getAI)(); 
 	void(*getName)(char*); 
 
 	std::string dllPath;
 
 #ifdef _WIN32
-	dllPath = "AI/"+dllname+".dll";
+	dllPath = LIB_DIR "/" +dllname+".dll";
 	HINSTANCE dll = LoadLibraryA(dllPath.c_str());
 	if (!dll)
 	{
@@ -37,7 +39,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	}
 	//int len = dllname.size()+1;
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
-	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
+	getAI = (rett*(*)())GetProcAddress(dll,methodName.c_str());
 #else
 	dllPath = LIB_DIR "/" + dllname + ".so";
 	void *dll = dlopen(dllPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
@@ -47,7 +49,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 		throw new std::string("Cannot open AI library");
 	}
 	getName = (void(*)(char*))dlsym(dll,"GetAiName");
-	getAI = (CGlobalAI*(*)())dlsym(dll,"GetNewAI");
+	getAI = (rett*(*)())dlsym(dll,methodName.c_str());
 #endif
 	getName(temp);
 	tlog0 << "Loaded AI named " << temp << std::endl;
@@ -58,4 +60,21 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 
 	ret->dllName = dllname;	 
 	return ret;
+}
+
+CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
+{
+	return createAnyAI<CGlobalAI>(cb, dllname, "GetNewAI");
+}
+
+CBattleGameInterface * CAIHandler::getNewBattleAI( CCallback * cb, std::string dllname )
+{
+	return createAnyAI<CBattleGameInterface>(cb, dllname, "GetNewBattleAI");
+}
+
+BattleAction CGlobalAI::activeStack( const CStack * stack )
+{
+	BattleAction ba; ba.actionType = BattleAction::DEFEND;
+	ba.stackNumber = stack->ID;
+	return ba;
 }

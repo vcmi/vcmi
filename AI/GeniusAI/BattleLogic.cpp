@@ -1,9 +1,11 @@
 #include "BattleLogic.h"
+#include "../../lib/BattleState.h"
 #include <math.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
+#include <boost/foreach.hpp>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -72,8 +74,8 @@ void CBattleLogic::SetCurrentTurn(int turn)
 
 void CBattleLogic::MakeStatistics(int currentCreatureId)
 {
-	typedef std::map<int, CStack> map_stacks;
-	map_stacks allStacks = m_cb->battleGetStacks();
+	typedef std::vector<const CStack*> vector_stacks;
+	vector_stacks allStacks = m_cb->battleGetStacks(false);
 	const CStack *currentStack = m_cb->battleGetStackByID(currentCreatureId);
 	if(currentStack->position < 0) //turret
 	{
@@ -118,14 +120,13 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	int totalDamage = 0;
 	int totalHitPoints = 0;
 
-	for (map_stacks::const_iterator it = allStacks.begin(); it != allStacks.end(); ++it)
+	BOOST_FOREACH(const CStack *st, allStacks)
 	{
-		const CStack *st = &it->second;
 		const int stackHP = st->valOfBonuses(Bonus::STACK_HEALTH);
 
-		if ((it->second.attackerOwned != 0) != m_bIsAttacker)
+		if ((st->attackerOwned != 0) != m_bIsAttacker)
 		{
-			int id = it->first;
+			int id = st->ID;
 			if (st->count < 1)
 			{
 				continue;
@@ -138,7 +139,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			m_statHitPoints.push_back(std::pair<int, int>(id, hitPoints));
 			m_statMaxSpeed.push_back(std::pair<int, int>(id, stackHP));
 
-			totalEnemyDamage += (st->type->damageMax + st->type->damageMin) * st->count / 2;
+			totalEnemyDamage += (st->getCreature()->damageMax + st->getCreature()->damageMin) * st->count / 2;
 			totalEnemyHitPoints += hitPoints;
 
 			// calculate casualties
@@ -195,12 +196,12 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 
 			m_statCasualties.push_back(std::pair<int, SCreatureCasualties>(id, cs));
 
-			if (st->type->isShooting() && st->shots > 0)
+			if (st->getCreature()->isShooting() && st->shots > 0)
 			{
 				m_statDistanceFromShooters.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
 
-			if (currentStack->hasBonusOfType(Bonus::FLYING) || (currentStack->type->isShooting() && currentStack->shots > 0))
+			if (currentStack->hasBonusOfType(Bonus::FLYING) || (currentStack->getCreature()->isShooting() && currentStack->shots > 0))
 			{
 				m_statDistance.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
@@ -259,9 +260,9 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
 	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
-	if(currentStack->position < 0 || currentStack->type->idNumber == 147) //turret or first aid kit
+	if(currentStack->position < 0 || currentStack->getCreature()->idNumber == 147) //turret or first aid kit
 	{
-		return MakeDefend(stackID);
+		return BattleAction::makeDefend(currentStack);
 	}
 	MakeStatistics(stackID);
 
@@ -285,11 +286,11 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 	if (additionalInfo == -1 || creatures.empty())
 	{
 		// defend
-		return MakeDefend(stackID);
+		return BattleAction::makeDefend(currentStack);
 	}
 	else if (additionalInfo == -2)
 	{
-		return MakeWait(stackID);
+		return BattleAction::makeWait(currentStack);
 	}
 
 	list<int>::iterator it, eit;
@@ -472,26 +473,6 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 	return fields;
 }
 
-BattleAction CBattleLogic::MakeDefend(int stackID)
-{
-	BattleAction ba;
-	ba.side = m_side;
-	ba.actionType = action_defend;
-	ba.stackNumber = stackID;
-	ba.additionalInfo = -1;
-	return ba;
-}
-
-BattleAction CBattleLogic::MakeWait(int stackID)
-{
-	BattleAction ba;
-	ba.side = m_side;
-	ba.actionType = action_wait;
-	ba.stackNumber = stackID;
-	ba.additionalInfo = -1;
-	return ba;
-}
-
 BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 {
 	const CStack *attackerStack = m_cb->battleGetStackByID(attackerID),
@@ -501,19 +482,12 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 	//don't attack ourselves
 	if(destinationStack->attackerOwned == !m_side)
 	{
-		return MakeDefend(attackerID);
+		return BattleAction::makeDefend(attackerStack);
 	}
 
-	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))
+	if (m_cb->battleCanShoot(attackerStack, destinationStack->position))	// shoot
 	{
-		// shoot
-		BattleAction ba;
-		ba.side = m_side;
-		ba.additionalInfo = -1;
-		ba.actionType = action_shoot; // shoot
-		ba.stackNumber = attackerID;
-		ba.destinationTile = (ui16)m_cb->battleGetPos(destinationID);
-		return ba;
+		return BattleAction::makeShotAttack(attackerStack, destinationStack);
 	}
 	else
 	{
@@ -522,7 +496,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(destinationID), m_cb->battleGetStackByID(attackerID));
 		if (av_tiles.size() < 1)
 		{
-			return MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 		}
 
 		// get the best tile - now the nearest
@@ -545,11 +519,11 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		std::vector<int> fields = m_cb->battleGetAvailableHexes(attackerID, false);
+		std::vector<THex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
 
 		if(fields.size() == 0)
 		{
-			return MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 		}
 
 		BattleAction ba;
@@ -559,14 +533,14 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		ba.destinationTile = static_cast<ui16>(dest_tile);
 		//simplified checking for possibility of attack (previous was too simplified)
 		int destStackPos = m_cb->battleGetPos(destinationID);
-		if(BattleInfo::mutualPosition(dest_tile, destStackPos) != -1)
+		if(THex::mutualPosition(dest_tile, destStackPos) != -1)
 			ba.additionalInfo = destStackPos;
-		else if(BattleInfo::mutualPosition(dest_tile, destStackPos+1) != -1)
+		else if(THex::mutualPosition(dest_tile, destStackPos+1) != -1)
 			ba.additionalInfo = destStackPos+1;
-		else if(BattleInfo::mutualPosition(dest_tile, destStackPos-1) != -1)
+		else if(THex::mutualPosition(dest_tile, destStackPos-1) != -1)
 			ba.additionalInfo = destStackPos-1;
 		else
-			MakeDefend(attackerID);
+			return BattleAction::makeDefend(attackerStack);
 
 		int nearest_dist = m_battleHelper.InfiniteDistance;
 		int nearest_pos = -1;
@@ -600,7 +574,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		for (std::vector<int>::const_iterator it = fields.begin(); it != fields.end(); ++it)
+		for (std::vector<THex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
 		{
 			if (*it == dest_tile)
 			{
@@ -762,9 +736,9 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));
 		message += ", creature - ";
 		const CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
-		if (c && c->type)
+		if (c && c->getCreature())
 		{
-			message += c->type->nameRef;
+			message += c->getCreature()->nameRef;
 		}
 		else
 		{

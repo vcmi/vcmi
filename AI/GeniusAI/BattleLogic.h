@@ -7,8 +7,8 @@
 #pragma warning (disable: 4100 4251 4245 4018 4081)
 #include "../../global.h"
 #include "../../CCallback.h"
-#include "../../hch/CCreatureHandler.h"
-#include "../../hch/CObjectHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/CObjectHandler.h"
 #pragma warning (default: 4100 4251 4245 4018 4081)
 
 #pragma warning (disable: 4100)
@@ -106,14 +106,6 @@ private:
 	 * Helper function. It's used for performing an attack action.
 	 */
 	std::vector<int> GetAvailableHexesForAttacker(const CStack *defender, const CStack *attacker = NULL);
-	/**
-	 * Just make defend action.
-	 */
-	BattleAction MakeDefend(int stackID);
-	/**
-	 * Just make wait action.
-	 */
-	BattleAction MakeWait(int stackID);
 	/**
 	 * Make an attack action if it's possible.
 	 * If it's not possible then function returns defend action.

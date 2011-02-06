@@ -2,8 +2,8 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CLodHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CLodHandler.h"
 #include <sstream>
 #include <boost/thread.hpp>
 

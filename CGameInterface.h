@@ -18,6 +18,7 @@
 
 using namespace boost::logic;
 class CCallback;
+class IBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
@@ -42,22 +43,70 @@ struct PackageApplied;
 struct SetObjectProperty;
 struct CatapultAttack;
 struct BattleStacksRemoved;
+struct StackLocation;
+class CStackInstance;
+class CStack;
+class CCreature;
 class CLoadFile;
 class CSaveFile;
+typedef si32 TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
+struct ArtifactLocation;
 
-class CGameInterface
+class CBattleGameInterface
 {
 public:
 	bool human;
 	int playerID;
 	std::string dllName;
 
-	virtual ~CGameInterface() {};
+	virtual ~CBattleGameInterface() {};
+
+	virtual void init(IBattleCallback * CB){};
+
+	//battle call-ins
+	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
+	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
+	virtual void battleEnd(const BattleResult *br){};
+	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
+	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
+	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	virtual void battleStackMoved(const CStack * stack, THex dest, int distance, bool end){};
+	virtual void battleSpellCast(const BattleSpellCast *sc){};
+	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
+	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
+	virtual void battleNewStackAppeared(const CStack * stack){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
+	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
+	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
+	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
+};
+
+class CGameInterface : public CBattleGameInterface
+{
+public:
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
-	virtual void garrisonChanged(const CGObjectInstance * obj){};
-	virtual void heroArtifactSetChanged(const CGHeroInstance*hero){};
+
+	//garrison operations
+	virtual void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute){}; //if absolute, change is the new count; otherwise count was modified by adding change
+	virtual void stackChangedType(const StackLocation &location, const CCreature &newType){}; //used eg. when upgrading creatures
+	virtual void stacksErased(const StackLocation &location){}; //stack removed from previously filled slot
+	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2){};
+	virtual void newStackInserted(const StackLocation &location, const CStackInstance &stack){}; //new stack inserted at given (previously empty position)
+	virtual void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count){}; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
+	//virtual void garrisonChanged(const CGObjectInstance * obj){};
+
+	//artifacts operations
+	virtual void artifactPut(const ArtifactLocation &al){};
+	virtual void artifactRemoved(const ArtifactLocation &al){};
+	virtual void artifactAssembled(const ArtifactLocation &al){};
+	virtual void artifactDisassembled(const ArtifactLocation &al){};
+	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
+
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};
@@ -81,8 +130,8 @@ public:
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
-	virtual void tileHidden(const std::set<int3> &pos){};
-	virtual void tileRevealed(const std::set<int3> &pos){};
+	virtual void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos){};
+	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL){}; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void yourTurn(){};
@@ -98,44 +147,25 @@ public:
 	virtual void gameOver(ui8 player, bool victory){}; //player lost or won the game
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
-
-	//battle call-ins
-	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
-	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
-	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
-	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
-	virtual void battleEnd(const BattleResult *br){};
-	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
-	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
-	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
-	virtual void battleSpellCast(const BattleSpellCast *sc){};
-	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
-	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
-	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
-	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
-	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
-	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
-	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 };
+
 class CAIHandler
 {
 public:
 	static CGlobalAI * getNewAI(CCallback * cb, std::string dllname);
+	static CBattleGameInterface * getNewBattleAI(CCallback * cb, std::string dllname);
 };
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	//CGlobalAI();
-	virtual void yourTurn(){};
+	virtual void yourTurn() OVERRIDE{};
 	virtual void heroKilled(const CGHeroInstance*){};
-	virtual void heroCreated(const CGHeroInstance*){};
-	virtual void battleStackMoved(int ID, int dest, int distance){};
-	virtual void battleStackAttacking(int ID, int dest){};
-	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting){};
-	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
+	virtual void heroCreated(const CGHeroInstance*) OVERRIDE{};
+	virtual void battleStackMoved(const CStack * stack, THex dest, int distance, bool end) OVERRIDE{};
+	virtual void battleStackAttacking(int ID, int dest) {};
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE{};
+	virtual BattleAction activeStack(const CStack * stack) OVERRIDE;
 };
 
 #endif // __CGAMEINTERFACE_H__

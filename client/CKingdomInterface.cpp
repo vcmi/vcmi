@@ -10,15 +10,15 @@
 #include "CMessage.h"
 #include "SDL_Extensions.h"
 #include "Graphics.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CDefHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CObjectHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CCreatureHandler.h"
-#include "../hch/CHeroHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
+#include "CDefHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CCreatureHandler.h"
+#include "../lib/CHeroHandler.h"
 #include "../lib/map.h"
 #include "../lib/NetPacks.h"
 #include <boost/algorithm/string/replace.hpp>
@@ -164,7 +164,7 @@ CKingdomInterface::CKingdomInterface()
 	incomesVal[7] = incomesVal[6]*1000;//gold mines -> total income
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size();i++)
-		switch(heroes[i]->getSecSkillLevel(13))//some heroes may have estates
+		switch(heroes[i]->getSecSkillLevel(CGHeroInstance::ESTATES))//some heroes may have estates
 		{
 		case 1: //basic
 			incomesVal[7] += 125;
@@ -254,7 +254,7 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 		ObjList[i]->hoverText = "";
 
 	int skipCount=0, curPos=objPos<0?(-objPos):0;
-	for (std::map<int,std::pair<int, std::string*> >::iterator it=objList.begin(); it!= objList.end(); it++)
+	for (std::map<int,std::pair<int, const std::string*> >::iterator it=objList.begin(); it!= objList.end(); it++)
 	{
 		if (skipCount<objPos)//we will show only objects from objPos
 		{
@@ -708,11 +708,9 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	char bufor[400];
 	for(int i=0; i<PRIMARY_SKILLS; i++)
 	{
-		primarySkills.push_back(new LRClickableAreaWTextComp());
-		primarySkills[i]->pos = genRect(45, 32, pos.x+77 + 36*i, pos.y+26);
+		primarySkills.push_back(new LRClickableAreaWTextComp(genRect(45, 32, pos.x+77 + 36*i, pos.y+26), SComponent::primskill));
 		primarySkills[i]->text = CGI->generaltexth->arraytxt[2+i];
 		primarySkills[i]->type = i;
-		primarySkills[i]->baseType = 0;
 		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[i].c_str());
 		primarySkills[i]->hoverText = std::string(bufor);
 	};
@@ -720,11 +718,8 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 	experience->pos = genRect(33, 49, pos.x+322, pos.y+5);
 	experience->hoverText = CGI->generaltexth->heroscrn[9];
 
-	morale = new MoraleLuckBox(true);
-	morale->pos = genRect(20,32,pos.x+221,pos.y+52);
-
-	luck = new MoraleLuckBox(false);
-	luck->pos = genRect(20,32,pos.x+221,pos.y+28);
+	morale = new MoraleLuckBox(true, genRect(20,32,pos.x+221,pos.y+52));
+	luck = new MoraleLuckBox(false, genRect(20,32,pos.x+221,pos.y+28));
 
 	spellPoints = new LRClickableAreaWText();
 	spellPoints->pos = genRect(33, 49, pos.x+270, pos.y+5);
@@ -736,25 +731,18 @@ CKingdomInterface::CHeroItem::CHeroItem(int num, CKingdomInterface * Owner)
 
 	for(int i=0; i<SKILL_PER_HERO; ++i)
 	{
-		secondarySkills.push_back(new LRClickableAreaWTextComp());
-		secondarySkills[i]->pos = genRect(32, 32, pos.x+410+i*37, pos.y+5);
-		secondarySkills[i]->baseType = 1;
-	};
+		secondarySkills.push_back(new LRClickableAreaWTextComp(genRect(32, 32, pos.x+410+i*37, pos.y+5), SComponent::secskill));
+	}
 /*
 	for (int i=0; i<18;i++)
 	{
-		artifacts.push_back(new CArtPlace(this));
-		artifacts[i]->pos = genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66);
-		artifacts[i]->baseType = SComponent::artifact;
-	};
+		artifacts.push_back(new CArtPlace(this, genRect(44, 44, pos.x+268+(i%9)*48, pos.y+66)));
+	}
 
 	for (int i=0; i<8;i++)
 	{
-		backpack.push_back(new CArtPlace(this));
-		backpack[i]->pos = genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66);
-		backpack[i]->baseType = SComponent::artifact;
-	};*/
-
+		backpack.push_back(new CArtPlace(this, genRect(44, 44, pos.x+293+(i%9)*48, pos.y+66)));
+	}*/
 }
 
 CKingdomInterface::CHeroItem::~CHeroItem()
@@ -778,14 +766,14 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 		garr = NULL;
 	}
 	char bufor[4000];
-	artLeft->block(hero->artifacts.size() <= 8);
-	artRight->block(hero->artifacts.size() <= 8);
+	artLeft->block(hero->artifactsInBackpack.size() <= 8);
+	artRight->block(hero->artifactsInBackpack.size() <= 8);
 	garr = new CGarrisonInt(pos.x+6, pos.y+78, 4, Point(), parent->slots->ourImages[parent->PicCount].bitmap,
 		Point(6,78), hero, NULL, true, true, true);
 
 	for (int i=0; i<artifacts.size(); i++)
 	{
-		artifacts[i]->type = hero->getArtAtPos(i)->id;
+		artifacts[i]->type = hero->getArtTypeId(i);
 		if (artifacts[i]->type<0 || artifacts[i]->type == 145 )
 			artifacts[i]->hoverText = CGI->generaltexth->heroscrn[11];
 		else
@@ -797,7 +785,7 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 	for (int i=0; i<backpack.size(); i++)
 	{
-		backpack[i]->type = hero->getArtAtPos(19+i)->id;
+		backpack[i]->type = hero->getArtTypeId(19+i);
 		if (backpack[i]->type<0)
 			backpack[i]->hoverText ="";
 		else
@@ -845,10 +833,10 @@ void CKingdomInterface::CHeroItem::setHero(const CGHeroInstance * newHero)
 
 void CKingdomInterface::CHeroItem::scrollArts(int move)
 {
-	backpackPos = ( backpackPos + move + hero->artifacts.size()) % hero->artifacts.size();
+	backpackPos = ( backpackPos + move + hero->artifactsInBackpack.size()) % hero->artifactsInBackpack.size();
 	for (int i=0; i<backpack.size(); i++)
 	{
-		backpack[i]->type = hero->getArtAtPos(19+(backpackPos + i)%hero->artifacts.size())->id;
+		backpack[i]->type = hero->getArtTypeId(19+(backpackPos + i)%hero->artifactsInBackpack.size());
 		if (backpack[i]->type<0)
 			backpack[i]->hoverText ="";
 		else
@@ -913,7 +901,7 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 		case 0://equipped arts
 			/*for (int i = iter ; i<iter+9;i++)
 			{
-				int artID = hero->getArtAtPos(i)->id;
+				int artID = hero->getArtTypeId(i);
 				if (artID>=0)
 					blitAt(graphics->artDefs->ourImages[artID].bitmap,pos.x+268+48*(i%9),pos.y+66,to);
 			}*/
@@ -921,7 +909,7 @@ void CKingdomInterface::CHeroItem::showAll(SDL_Surface * to)
 		case 2:
 			artLeft->show(to);
 			artRight->show(to);
-			int max = hero->artifacts.size();
+			int max = hero->artifactsInBackpack.size();
 			iter = std::min(8, max);
 			/*for (size_t it = 0 ; it<iter;it++)
 				blitAt(graphics->artDefs->ourImages[hero->artifacts[(it+backpackPos)%max]->id].bitmap,pos.x+293+48*it,pos.y+66,to);
@@ -1005,7 +993,8 @@ void CKingdomInterface::CHeroItem::deactivate()
 		secondarySkills[i]->deactivate();
 }
 
-CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner)
+CKingdomInterface::CHeroItem::CArtPlace::CArtPlace(CHeroItem * owner, const Rect &r)
+	: LRClickableAreaWTextComp(r, SComponent::artifact)
 {
 	parent = owner;
 	used = LCLICK | RCLICK | HOVER;
@@ -1043,6 +1032,7 @@ void CKingdomInterface::CHeroItem::CArtPlace::deactivate()
 
 
 CKingdomInterface::CTownItem::CCreaPlace::CCreaPlace()
+	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
 {
 	town = NULL;
 	used = LCLICK | RCLICK | HOVER;

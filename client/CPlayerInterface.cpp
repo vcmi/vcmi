@@ -16,15 +16,16 @@
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
 #include "Graphics.h"
-#include "../hch/CArtHandler.h"
-#include "../hch/CGeneralTextHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "../hch/CLodHandler.h"
-#include "../hch/CObjectHandler.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CLodHandler.h"
+#include "../lib/CObjectHandler.h"
 #include "../lib/Connection.h"
-#include "../hch/CSpellHandler.h"
-#include "../hch/CTownHandler.h"
-#include "../hch/CMusicHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/BattleState.h"
+#include "CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/map.h"
@@ -44,6 +45,7 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include "../StartInfo.h"
+#include <boost/foreach.hpp>
 
 #ifdef min
 #undef min
@@ -94,6 +96,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(int Player)
 {
+	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
@@ -139,6 +142,12 @@ CPlayerInterface::~CPlayerInterface()
 void CPlayerInterface::init(ICallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
+	if(observerInDuelMode)
+	{
+
+		return;
+	}
+
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
 
@@ -243,7 +252,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	bool directlyAttackingCreature =
 		CGI->mh->map->isInTheMap(details.attackedFrom)
-		&& adventureInt->terrain.currentPath->nodes.size() == 3;
+		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
+		&& adventureInt->terrain.currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
@@ -342,6 +352,9 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	wanderingHeroes -= hero;
+	if(vstd::contains(paths, hero)) 
+		paths.erase(hero);
+
 	adventureInt->heroList.updateHList(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
@@ -444,7 +457,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
 {
 	waitWhileDialog();
-	CGI->soundh->playSound(soundBase::heroNewLevel);
+	CCS->soundh->playSound(soundBase::heroNewLevel);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
@@ -474,10 +487,13 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	{
 		c->garr->highlighted = NULL;
 		c->hslotup.hero = town->garrisonHero;
-		c->garr->odown = c->hslotdown.hero = town->visitingHero;
-		c->garr->set2 = town->visitingHero;
-		c->garr->ourUp = LOCPLINT->playerID==(town->garrisonHero ? town->garrisonHero->tempOwner : town->tempOwner);
-		c->garr->ourDown = (town->visitingHero ? LOCPLINT->playerID==town->visitingHero->tempOwner : false);
+		c->hslotdown.hero = town->visitingHero;
+		const CArmedInstance *upperArmy = town;
+		if(town->garrisonHero)
+			upperArmy = town->garrisonHero;
+
+		c->garr->setArmy(upperArmy, 0);
+		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
 	}
 	GH.totalRedraw();
@@ -498,7 +514,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	{
 		if((*i)->type & IShowActivable::WITH_GARRISON)
 		{
-			CGarrisonHolder *cgh = static_cast<CGarrisonHolder*>(*i);
+			CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
 			cgh->updateGarrisons();
 		}
 		else if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
@@ -528,7 +544,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	switch(what)
 	{
 	case 1:
-		CGI->soundh->playSound(soundBase::newBuilding);
+		CCS->soundh->playSound(soundBase::newBuilding);
 		castleInt->addBuilding(buildingID);
 		break;
 	case 2:
@@ -548,7 +564,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	CGI->musich->playMusicFromSet(CGI->musich->battleMusics, -1);
+	CCS->musich->playMusicFromSet(CCS->musich->battleMusics, -1);
 	GH.pushInt(battleInt);
 }
 
@@ -591,7 +607,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	}
 }
 
-void CPlayerInterface::battleNewStackAppeared(int stackID)
+void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -599,7 +615,7 @@ void CPlayerInterface::battleNewStackAppeared(int stackID)
 	}
 
 	//changing necessary things in battle interface
-	battleInt->newStack(stackID);
+	battleInt->newStack(stack);
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
@@ -643,7 +659,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
-		battleInt->stackRemoved(*it);
+		battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
 	}
 }
 
@@ -683,23 +699,22 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	battleInt->endAction(action);
 }
 
-BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
+BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
 
 	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-		const CStack *stack = cb->battleGetStackByID(stackID);
 		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl : stack->type->nameSing);
+			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing);
 			battleInt->displayEffect(20,stack->position);
 			battleInt->console->addText(hlp);
 		}
 
-		b->stackActivated(stackID);
+		b->stackActivated(stack);
 	}
 	//wait till BattleInterface sets its command
 	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
@@ -726,7 +741,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end)
+void CPlayerInterface::battleStackMoved(const CStack * stack, THex dest, int distance, bool end)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -734,7 +749,7 @@ void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end
 	}
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->stackMoved(ID, dest, end, distance);
+	battleInt->stackMoved(stack, dest, end, distance);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
@@ -771,13 +786,14 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	std::vector<SStackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
+		const CStack *defender = cb->battleGetStackByID(i->stackAttacked, false);
+		const CStack *attacker = cb->battleGetStackByID(i->attackerID, false);
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
-			const CStack *stack = cb->battleGetStackByID(i->stackAttacked, false);
-			if (stack != NULL)
-				battleInt->displayEffect(i->effect, stack->position);
+			if (defender != NULL)
+				battleInt->displayEffect(i->effect, defender->position);
 		}
-		SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, i->attackerID, LOCPLINT->curAction->actionType==7, i->killed()};
+		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
 
 	}
@@ -804,32 +820,37 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
-		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->type->namePl.c_str() : stack->type->nameSing.c_str());
+		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
 		battleInt->displayEffect(18,stack->position);
 	}
 	//TODO: bad luck?
 
+	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+
 	if(ba->shot())
 	{
 		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
-			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked), i->stackAttacked);
+		{
+			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
+			battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
+		}
 	}
 	else
 	{//WARNING: does not support multiple attacked creatures
-		const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 		int shift = 0;
-		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && THex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = BattleInfo::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = BattleInfo::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = THex::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = THex::getDistance(curAction->destinationTile - 1, attacker->position);
 
 			if( distp < distm )
 				shift = 1;
 			else
 				shift = -1;
 		}
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, ba->bsa.begin()->stackAttacked );
+		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
+		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
 }
 
@@ -837,7 +858,7 @@ void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	CGI->soundh->playSoundFromSet(CGI->soundh->pickupSounds);
+	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 
 	adventureInt->infoBar.showComp(&comp,4000);
 }
@@ -860,7 +881,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	temp->setDelComps(delComps);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
-		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
 		GH.pushInt(temp);
 	}
@@ -885,7 +906,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	
 	stopMovement();
-	CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if(!selection && cancel) //simple yes/no dialog
 	{
@@ -918,19 +939,19 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 }
 
-void CPlayerInterface::tileRevealed(const std::set<int3> &pos)
+void CPlayerInterface::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.showTile(*i);
 	if(pos.size())
 		GH.totalRedraw();
 }
 
-void CPlayerInterface::tileHidden(const std::set<int3> &pos)
+void CPlayerInterface::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.hideTile(*i);
 	if(pos.size())
 		GH.totalRedraw();
@@ -939,11 +960,9 @@ void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	adventureInt->heroWindow->setHero(hero);
-	adventureInt->heroWindow->quitButton->callback = boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
-	GH.pushInt(adventureInt->heroWindow);
+	GH.pushInt(new CHeroWindow(hero));
 }
-
+/*
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -982,7 +1001,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 	}
 
 	updateInfo(hero);
-}
+}*/
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
@@ -1065,14 +1084,14 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 #if 0
 			// TODO
 			if (hero is flying && sh == -1)
-				sh = CGI->soundh->playSound(soundBase::horseFlying, -1);
+				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
 				newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
 				if (newTerrain != currentTerrain) {
-					CGI->soundh->stopSound(sh);
-					sh = CGI->soundh->playSound(CGI->soundh->horseSounds[newTerrain], -1);
+					CCS->soundh->stopSound(sh);
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
 					currentTerrain = newTerrain;
 				}
 			}
@@ -1093,7 +1112,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				break;
 		}
 
-		CGI->soundh->stopSound(sh);
+		CCS->soundh->stopSound(sh);
 		cb->recalculatePaths();
 	}
 
@@ -1263,7 +1282,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 		&& LOCPLINT->castleInt
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
-		CGI->soundh->playSound(soundBase::newBuilding);
+		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->recreateBuildings();
 	}
 }
@@ -1316,20 +1335,20 @@ void CPlayerInterface::update()
 	}
 
 	//in some conditions we may receive calls before selection is initialized - we must ignore them
-	if(!adventureInt->selection && GH.topInt() == adventureInt)
+	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
 		return;
 
 	GH.updateTime();
 	GH.handleEvents();
 
-	if(!adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
+	if(adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();
 
-	CGI->curh->draw1();
+	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
-	CGI->curh->draw2();
+	CCS->curh->draw2();
 
 	screenLTmax = Point(conf.cc.resx - screen->w, conf.cc.resy - screen->h);
 
@@ -1860,14 +1879,14 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;
-	CGI->musich->setVolume(newVolume);
+	CCS->musich->setVolume(newVolume);
 	settingsChanged();
 }
 
 void SystemOptions::setSoundVolume( int newVolume )
 {
 	soundVolume = newVolume;
-	CGI->soundh->setVolume(newVolume);
+	CCS->soundh->setVolume(newVolume);
 	settingsChanged();
 }
 
@@ -1895,10 +1914,10 @@ void SystemOptions::settingsChanged()
 
 void SystemOptions::apply()
 {
-	if(CGI->musich->getVolume() != musicVolume)
-		CGI->musich->setVolume(musicVolume);
-	if(CGI->soundh->getVolume() != soundVolume)
-		CGI->soundh->setVolume(soundVolume);
+	if(CCS->musich->getVolume() != musicVolume)
+		CCS->musich->setVolume(musicVolume);
+	if(CCS->soundh->getVolume() != soundVolume)
+		CCS->soundh->setVolume(soundVolume);
 
 	settingsChanged();
 }
@@ -1978,9 +1997,9 @@ void CPlayerInterface::acceptTurn()
 	 * NEWDAY. And we don't play NEWMONTH. */
 	int day = cb->getDate(1);
 	if (day != 1)
-		CGI->soundh->playSound(soundBase::newDay);
+		CCS->soundh->playSound(soundBase::newDay);
 	else
-		CGI->soundh->playSound(soundBase::newWeek);
+		CCS->soundh->playSound(soundBase::newWeek);
 
 	adventureInt->infoBar.newDay(day);
 
@@ -2102,6 +2121,83 @@ void CPlayerInterface::sendCustomEvent( int code )
 	event.type = SDL_USEREVENT;
 	event.user.code = code;
 	SDL_PushEvent(&event);
+}
+
+void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stackChangedType(const StackLocation &location, const CCreature &newType)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksErased(const StackLocation &location)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(loc1.army);
+	if(loc2.army != loc1.army)
+		garrisonChanged(loc2.army);
+}
+
+void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(location.army);
+}
+
+void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	garrisonChanged(src.army);
+	if(dst.army != src.army)
+		garrisonChanged(dst.army);
+}
+
+void CPlayerInterface::artifactPut(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
+void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+
+void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactMoved(src, dst);
+}
+
+void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactAssembled(al);
+}
+
+void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactDisassembled(al);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

@@ -522,7 +522,9 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			{
 				BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 				{
-					cgh->artifacts -= VLC->arth->artifacts[g];
+					tlog1 << "TODO TODO TODO - take artifacts from hero\n";
+					//TODO how was that supposed to work with worn artifacts?
+					//cgh->artifactsInBackpack -= VLC->arth->artifacts[g];
 				}
 			}
 		}
@@ -531,13 +533,12 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	//trimming creatures
 	BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 	{
-		CCreatureSet army = cgh->getArmy();
-		for (TSlots::iterator j = army.slots.begin(); j != army.slots.end(); j++)
+		for (TSlots::const_iterator j = cgh->Slots().begin(); j != cgh->Slots().end(); j++)
 		{
-			if (! (travelOptions.monstersKeptByHero[j->first / 8] & (1 << (j->first%8)) ))
+			if (!(travelOptions.monstersKeptByHero[j->first / 8] & (1 << (j->first%8)) ))
 			{
-				army.slots.erase(j);
-				j = army.slots.begin();
+				cgh->eraseStack(j->first);
+				j = cgh->Slots().begin();
 			}
 		}
 	}
