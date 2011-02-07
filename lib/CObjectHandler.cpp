@@ -2825,20 +2825,24 @@ const std::string & CGCreature::getHoverText() const
 
 	if(const CGHeroInstance *selHero = cb->getSelectedHero(cb->getCurrentPlayer()))
 	{
-		hoverName += "\n\n Threat: ";
+		std::vector<std::string> * texts = &VLC->generaltexth->threat;
+		hoverName += "\n\n ";
+		hoverName += (*texts)[0];
+		int choice;
 		float ratio = ((float)getArmyStrength() / selHero->getTotalStrength());
-		if (ratio < 0.1) hoverName += "Effortless";
-		else if (ratio < 0.25) hoverName += "Very Weak";
-		else if (ratio < 0.6) hoverName += "Weak";
-		else if (ratio < 0.9) hoverName += "A bit weaker";
-		else if (ratio < 1.1) hoverName += "Equal";
-		else if (ratio < 1.3) hoverName += "A bit stronger";
-		else if (ratio < 1.8) hoverName += "Strong";
-		else if (ratio < 2.5) hoverName += "Very Strong";
-		else if (ratio < 4) hoverName += "Challenging";
-		else if (ratio < 8) hoverName += "Overpowering";
-		else if (ratio < 20) hoverName += "Deadly";
-		else hoverName += "Impossible";
+		if (ratio < 0.1) choice = 1;
+		else if (ratio < 0.25) choice = 2;
+		else if (ratio < 0.6) choice = 3;
+		else if (ratio < 0.9) choice = 4;
+		else if (ratio < 1.1) choice = 5;
+		else if (ratio < 1.3) choice = 6;
+		else if (ratio < 1.8) choice = 7;
+		else if (ratio < 2.5) choice = 8;
+		else if (ratio < 4) choice = 9;
+		else if (ratio < 8) choice = 10;
+		else if (ratio < 20) choice = 11;
+		else choice = 12;
+		hoverName += (*texts)[choice];
 	}
 	return hoverName;
 }

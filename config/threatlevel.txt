@@ -1,0 +1,14 @@
+
+Threat: 
+Effortless
+Very Weak
+Weak
+A bit weaker
+Equal
+A bit stronger
+Strong
+Very Strong
+Challenging
+Overpowering
+Deadly
+Impossible

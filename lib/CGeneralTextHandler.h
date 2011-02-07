@@ -68,6 +68,7 @@ public:
 	std::vector <std::vector <std::vector <std::string> > >  quests; //[quest][type][index]
 	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
 	std::vector<std::string> seerNames;
+	std::vector<std::string> threat; //power rating for neutral stacks
 
 	//sec skills
 	std::vector <std::string>  skillName;

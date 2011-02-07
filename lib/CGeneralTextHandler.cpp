@@ -533,6 +533,15 @@ void CGeneralTextHandler::load()
 			}
 		} while (nameBuf.size());
 	}
+
+	std::ifstream ifs(DATA_DIR "/config/threatlevel.txt", std::ios::in | std::ios::binary);
+	getline(ifs, buf); //skip 1st line
+	for (int i = 0; i < 13; ++i)
+	{
+		getline(ifs, buf);
+		threat.push_back(buf);
+		tlog1 << buf << "\n";
+	}
 }
 
 
