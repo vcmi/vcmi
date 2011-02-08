@@ -540,7 +540,6 @@ void CGeneralTextHandler::load()
 	{
 		getline(ifs, buf);
 		threat.push_back(buf);
-		tlog1 << buf << "\n";
 	}
 }
 

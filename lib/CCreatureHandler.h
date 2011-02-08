@@ -120,6 +120,7 @@ public:
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	void loadStackExp(stackExperience & b, std::string & src, int & it);
+	void loadMindImmunity(stackExperience & b, std::string & src, int & it); //multiple bonuses at once
 
 	bool isGood (si8 faction) const;
 	bool isEvil (si8 faction) const;

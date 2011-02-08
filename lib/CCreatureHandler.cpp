@@ -622,6 +622,8 @@ void CCreatureHandler::loadCreatures()
 		stackExperience b;
 		b.expBonuses.resize(10);
 		b.source = Bonus::STACK_EXPERIENCE;
+		b.additionalInfo = 0;
+		b.enable = false; //Bonuses are always active by default
 
 		loadToIt (dump2, buf, it, 3); //ignore first line
 		loadToIt (dump2, buf, it, 4); //ignore index
@@ -641,6 +643,7 @@ void CCreatureHandler::loadCreatures()
 		do //parse everything that's left
 		{
 			loadToIt(creid, buf, it, 4); //get index
+			b.id = creid; //id = this particular creature ID
 			loadStackExp(b, buf, it);
 			creatures[creid]->bonuses.push_back(new stackExperience(b)); //experience list is common for creatures of that type
 			loadToIt (dump2, buf, it, 3); //crop comment
@@ -752,11 +755,122 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 		b.type = Bonus::CREATURE_DAMAGE;
 		b.subtype = 1;
 		break;
+	case 'S':
+		b.type = Bonus::STACKS_SPEED; break;
+
+	case 'b':
+		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
+	case 'C':
+		b.type = Bonus::CHANGES_SPELL_COST_FOR_ALLY; break;
+	case 'e':
+		b.type = Bonus::DOUBLE_DAMAGE_CHANCE; break;
+	case 'g':
+		b.type = Bonus::SPELL_DAMAGE_REDUCTION; break;
+
+	case 'f': //on-off skill
+		b.enable = true; //sometimes format is: 2 -> 0, 1 -> 1
+		switch (mod[0])
+		{
+			case 'A':
+				b.type = Bonus::ATTACKS_ALL_ADJACENT; break;
+			case 'b':
+				b.type = Bonus::RETURN_AFTER_STRIKE; break;
+			case 'B':
+				b.type = Bonus::TWO_HEX_ATTACK_BREATH; break;
+			case 'c':
+				b.type = Bonus::JOUSTING; break;
+			case 'D':
+				b.type = Bonus::ADDITIONAL_ATTACK; break;
+			case 'f':
+				b.type = Bonus::FEARLESS; break;
+			case 'F':
+				b.type = Bonus::FLYING; break;
+			case 'm':
+				b.type = Bonus::SELF_MORALE; break;
+			case 'M':
+				b.type = Bonus::NO_MORALE; break;
+			case 'p': //Mind spells
+			case 'P':
+				{
+					loadMindImmunity(b, src, it);
+					return;
+				}
+				return;
+			case 'r': //TODO: Rebirth on/off? makes sense?
+				break;
+			case 'R':
+				b.type = Bonus::BLOCKS_RETALIATION; break;
+			case 's':
+				b.type = Bonus::FREE_SHOOTING; break;
+			case 'u':
+				b.type = Bonus::SPELL_RESISTANCE_AURA; break;
+				break;
+			case 'U':
+				b.type = Bonus::UNDEAD; break;
+			default:
+			tlog3 << "Not parsed bonus " << buf << mod << "\n";
+				break;
+		}
+		break;
+	case 'i':
+		b.enable = true;
+		b.type = Bonus::NO_DISTANCE_PENALTY;
+		break;
+	case 'o':
+		b.enable = true;
+		b.type = Bonus::NO_OBSTACLES_PENALTY;
+		break;
+	default:
+		tlog3 << "Not parsed bonus " << buf << mod << "\n";
+		break;
+	}
+	switch (mod[0])
+	{
+		case '+':
+		case '=': //should we allow percent values to stack or pick highest?
+			b.valType = Bonus::BASE_NUMBER;
+			break;
 	}
 	loadToIt (b.val, src, it, 4); //basic value, not particularly useful but existent
 	for (int i = 0; i < 10; ++i)
 	{
 		loadToIt (b.expBonuses[i], src, it, 4); //vector must have length 10
+	}
+	if (b.enable) //switch 2 to 0
+	{
+		if (b.val == 2)
+			b.val = 0;
+		for (int i = 0; i < 10; ++i)
+		{
+			if (b.expBonuses[i] == 2)
+				b.expBonuses[i] = 0;
+			else break; //higher levels are rarely disabled?
+		}
+	}
+}
+
+void CCreatureHandler::loadMindImmunity(stackExperience & b, std::string & src, int & it)
+{
+	CCreature * cre = creatures[b.id]; //odd workaround
+
+	b.type = Bonus::SPELL_IMMUNITY;
+	b.val = Bonus::BASE_NUMBER;
+	std::vector<si32> values;
+	values.resize(10);
+	si32 val;
+
+	loadToIt (val, src, it, 4); //basic value
+	for (int i = 0; i < 10; ++i)
+	{
+		loadToIt (values[i], src, it, 4);
+		if (values[i] = 2)
+			values[i] = 0;
+	}
+	std::vector<int> mindSpells = getMindSpells();
+	for (int g=0; g < mindSpells.size(); ++g)
+	{
+		b.subtype = mindSpells[g];
+		cre->bonuses.push_back(new stackExperience(b));
 	}
 }
 
