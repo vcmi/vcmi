@@ -649,13 +649,13 @@ void CCreatureHandler::loadCreatures()
 			loadToIt (dump2, buf, it, 3); //crop comment
 		} while (it < buf.size());
 
- 		BOOST_FOREACH(CCreature *c, creatures)
- 		{
- 			if (it = c->level < 7)
- 				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), c->bonuses.begin());
- 			else
- 				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), c->bonuses.begin()); //common for tiers 8+
- 		}
+//  		BOOST_FOREACH(CCreature *c, creatures)
+//  		{
+//  			if (it = c->level < 7)
+//  				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), c->bonuses.begin());
+//  			else
+//  				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), c->bonuses.begin()); //common for tiers 8+
+//  		}
 	} //end of stack experience
 }
 

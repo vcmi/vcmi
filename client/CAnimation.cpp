@@ -195,7 +195,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	case 1:
 		{
 			//for each line we have offset of pixel data
-			const ui32 * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+currentOffset);
+			const ui32 * RWEntriesLoc = reinterpret_cast<const ui32 *>(FDef+currentOffset);
 			currentOffset += sizeof(ui32) * sprite.height;
 
 			for (unsigned int i=0; i<sprite.height; i++)
