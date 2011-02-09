@@ -21,11 +21,11 @@ FEAR	Fear	Has a chance to cause Fear on an enemy stack
 FEARLESS	Fearless	Immune to Fear ability
 CHARGE_IMMUNITY	Immune to Charge	Immune to Champion charge bonus
 HEALER	Healer	Heals allied units
-CATAPULT 	Catapult	Attacks siege walls
+CATAPULT	Catapult	Attacks siege walls
 DRAGON_NATURE	Dragon	Creature has a Dragon Nature
 NON_LIVING	Non living	Creature is immune to effects affecting Living units
 UNDEAD	Undead	Creature is Undead
-HATE	Hates %s	Does more damage to %s
+HATE	Hates %s	Does %d% more damage to %s
 DOUBLE_DAMAGE_CHANCE	Death Blow	Has %d% chance to deal double damage
 MAGIC_RESISTANCE	Magic Resistance	Has %d% chance to resist enemy spell
 SPELL_DAMAGE_REDUCTION	Spell Resistance	Damage from spells reduced 50%.

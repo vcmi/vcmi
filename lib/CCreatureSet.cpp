@@ -502,7 +502,8 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
 					break;
 				//Complex descriptions
-				case Bonus::HATE: //TODO: customize damage percent
+				case Bonus::HATE:
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::SPELL_IMMUNITY:

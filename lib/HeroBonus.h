@@ -87,7 +87,7 @@ namespace PrimarySkill
 	BONUS_NAME(UNLIMITED_RETALIATIONS)					\
 	BONUS_NAME(NO_MELEE_PENALTY)						\
 	BONUS_NAME(JOUSTING) /*for champions*/				\
-	BONUS_NAME(HATE) /*eg. angels hate devils, subtype - ID of hated creature*/ \
+	BONUS_NAME(HATE) /*eg. angels hate devils, subtype - ID of hated creature, val - damage bonus percent */ \
 	BONUS_NAME(KING1)									\
 	BONUS_NAME(KING2)									\
 	BONUS_NAME(KING3)									\

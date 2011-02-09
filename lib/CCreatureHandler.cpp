@@ -766,6 +766,8 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 		b.type = Bonus::DOUBLE_DAMAGE_CHANCE; break;
 	case 'g':
 		b.type = Bonus::SPELL_DAMAGE_REDUCTION; break;
+	case 'R':
+		b.type = Bonus::ADDITIONAL_RETALIATION; break;
 
 	case 'f': //on-off skill
 		b.enable = true; //sometimes format is: 2 -> 0, 1 -> 1
@@ -812,6 +814,54 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 				break;
 		}
 		break;
+	case 'w': //specific spell immunities, enabled/disabled
+		b.enable = true;
+		switch (mod[0])
+		{
+			case 'B': //Blind
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 74;
+				break;
+			case 'H': //Hypnotize
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 60;
+				break;
+			case 'I': //Implosion
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 18;
+				break;
+			case 'K': //Berserk
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 59;
+				break;
+			case 'M': //Meteor Shower
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 23;
+				break;
+			case 'R': //Armageddon
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 26;
+				break;
+			case 'S': //Slow
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 54;
+				break;
+			case '6': //problem - in VCMI value represents level, here it represents on/off
+			case '7':
+			case '8':
+			case '9':
+				b.type = Bonus::LEVEL_SPELL_IMMUNITY; //TODO - value can't be read afterwards
+				b.val = std::atoi(mod.c_str()) - 5;
+				break;
+			case ':':
+				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
+				b.val = SPELL_LEVELS; //in case someone adds higher level spells?
+				break;
+			default:
+				tlog3 << "Not parsed bonus " << buf << mod << "\n";
+		}
+		break;
+
 	case 'i':
 		b.enable = true;
 		b.type = Bonus::NO_DISTANCE_PENALTY;
@@ -819,6 +869,16 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 	case 'o':
 		b.enable = true;
 		b.type = Bonus::NO_OBSTACLES_PENALTY;
+		break;
+
+	case 'a':
+	//case 'c': //some special abilities are threated as spells, will cause bugs
+		b.type = Bonus::SPELL_AFTER_ATTACK;
+		b.subtype = stringToNumber(mod); 
+		break;
+	case 'h':
+		b.type= Bonus::HATE;
+		b.subtype = stringToNumber(mod);
 		break;
 	default:
 		tlog3 << "Not parsed bonus " << buf << mod << "\n";
@@ -872,6 +932,12 @@ void CCreatureHandler::loadMindImmunity(stackExperience & b, std::string & src, 
 		b.subtype = mindSpells[g];
 		cre->bonuses.push_back(new stackExperience(b));
 	}
+}
+
+int CCreatureHandler::stringToNumber(std::string & s)
+{
+	boost::algorithm::replace_first(s,"#",""); //drop hash character
+	return std::atoi(s.c_str());
 }
 
 CCreatureHandler::~CCreatureHandler()
