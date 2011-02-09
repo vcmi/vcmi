@@ -413,10 +413,10 @@ private:
 
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
-	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-	bool blockedByObstacle(int hex) const;
-	bool isCatapultAttackable(int hex) const; //returns true if given tile can be attacked by catapult
+	void giveCommand(ui8 action, THex tile, ui32 stack, si32 additional=-1);
+	bool isTileAttackable(const THex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
+	bool blockedByObstacle(THex hex) const;
+	bool isCatapultAttackable(THex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 

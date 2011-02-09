@@ -94,11 +94,17 @@ void CBattleAnimation::endAnim()
 bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 {
 	int lowestMoveID = owner->animIDhelper + 5;
+	CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
+	CSpellEffectAnim * thSen = dynamic_cast<CSpellEffectAnim *>(this);
+
 	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
 	{
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(it->first);
-		CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
+		CSpellEffectAnim * sen = dynamic_cast<CSpellEffectAnim *>(it->first);
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
+			continue;
+
+		if(sen && thSen && perStackConcurrency)
 			continue;
 
 		CReverseAnim * revAnim = dynamic_cast<CReverseAnim *>(stAnim);
@@ -109,7 +115,7 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 		if(it->first)
 			amin(lowestMoveID, it->first->ID);
 	}
-	return ID == lowestMoveID;
+	return ID == lowestMoveID || lowestMoveID == (owner->animIDhelper + 5);
 }
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
@@ -146,7 +152,7 @@ CDummyAnim::CDummyAnim(CBattleInterface * _owner, int howManyFrames) : CBattleAn
 //effect animation
 bool CSpellEffectAnim::init()
 {
-	if(!isEarliest(false))
+	if(!isEarliest(true))
 		return false;
 
 	if(effect == 12) //armageddon
@@ -1534,10 +1540,10 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//preparing obstacles to be shown
 	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
-	std::multimap<int, int> hexToObstacle;
+	std::multimap<THex, int> hexToObstacle;
 	for(int b=0; b<obstacles.size(); ++b)
 	{
-		int position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
+		THex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
 		hexToObstacle.insert(std::make_pair(position, b));
 	}
 
@@ -1622,10 +1628,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 
 		//showing obstacles
-		std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> obstRange =
+		std::pair<std::multimap<THex, int>::const_iterator, std::multimap<THex, int>::const_iterator> obstRange =
 			hexToObstacle.equal_range(b);
 
-		for(std::multimap<int, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
+		for(std::multimap<THex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 		{
 			CObstacleInstance & curOb = obstacles[it->second];
 			std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
@@ -2297,7 +2303,7 @@ void CBattleInterface::newRound(int number)
 	
 }
 
-void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
+void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 additional)
 {
 	if(!curInt->cb->battleGetStackByID(stack) && action != 1 && action != 4 && action != 5)
 	{
@@ -2325,7 +2331,7 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 addit
 	givenCommand->setn(ba);
 }
 
-bool CBattleInterface::isTileAttackable(const int & number) const
+bool CBattleInterface::isTileAttackable(const THex & number) const
 {
 	for(size_t b=0; b<shadedHexes.size(); ++b)
 	{
@@ -2335,20 +2341,20 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 	return false;
 }
 
-bool CBattleInterface::blockedByObstacle(int hex) const
+bool CBattleInterface::blockedByObstacle(THex hex) const
 {
 	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
-	std::set<int> coveredHexes;
+	std::set<THex> coveredHexes;
 	for(int b = 0; b < obstacles.size(); ++b)
 	{
-		std::vector<int> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
+		std::vector<THex> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
 		for(int w = 0; w < blocked.size(); ++w)
 			coveredHexes.insert(blocked[w]);
 	}
 	return vstd::contains(coveredHexes, hex);
 }
 
-bool CBattleInterface::isCatapultAttackable(int hex) const
+bool CBattleInterface::isCatapultAttackable(THex hex) const
 {
 	if(!siegeH)
 		return false;
@@ -3614,12 +3620,12 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{
-		if(myInterface->console->alterTxt.size() == 0 && myInterface->curInt->cb->battleGetStackByPos(myNumber) != NULL &&
-			myInterface->curInt->cb->battleGetStackByPos(myNumber)->owner != myInterface->curInt->playerID &&
-			myInterface->curInt->cb->battleGetStackByPos(myNumber)->alive())
+		const CStack * attackedStack = myInterface->curInt->cb->battleGetStackByPos(myNumber);
+		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != NULL &&
+			attackedStack->owner != myInterface->curInt->playerID &&
+			attackedStack->alive())
 		{
 			char tabh[160];
-			const CStack * attackedStack = myInterface->curInt->cb->battleGetStackByPos(myNumber);
 			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->getCreature()->nameSing : attackedStack->getCreature()->namePl;
 			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);

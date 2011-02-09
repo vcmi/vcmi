@@ -3715,7 +3715,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			ObstaclesRemoved obr;
 			for(int g=0; g<gs->curB->obstacles.size(); ++g)
 			{
-				std::vector<int> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
+				std::vector<THex> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
 
 				if(vstd::contains(blockedHexes, destination)) //this obstacle covers given hex
 				{

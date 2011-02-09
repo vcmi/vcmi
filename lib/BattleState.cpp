@@ -158,7 +158,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	//obstacles
 	for(unsigned int b=0; b<obstacles.size(); ++b)
 	{
-		std::vector<int> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
+		std::vector<THex> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
 		for(unsigned int c=0; c<blocked.size(); ++c)
 		{
 			if(blocked[c] >=0 && blocked[c] < BFIELD_SIZE)
@@ -1465,7 +1465,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 				coi.uniqueID = curB->obstacles.size();
 				coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
 				coi.pos = rand()%BFIELD_SIZE;
-				std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
+				std::vector<THex> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
 				bool badObstacle = false;
 				for(int b=0; b<block.size(); ++b)
 				{

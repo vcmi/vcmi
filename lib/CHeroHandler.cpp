@@ -93,9 +93,9 @@ int CObstacleInfo::getHeight() const
 	return ret;
 }
 
-std::vector<int> CObstacleInfo::getBlocked(int hex) const
+std::vector<THex> CObstacleInfo::getBlocked(THex hex) const
 {
-	std::vector<int> ret;
+	std::vector<THex> ret;
 	int cur = hex; //currently browsed hex
 	int curBeg = hex; //beginning of current line
 	for(int h=0; h<blockmap.size(); ++h)
@@ -107,16 +107,12 @@ std::vector<int> CObstacleInfo::getBlocked(int hex) const
 			++cur;
 			break;
 		case 'L':
-			if((cur/17)%2 == 0)
+			cur = curBeg + BFIELD_WIDTH;
+			if((cur/BFIELD_WIDTH)%2 == 1)
 			{
-				cur = curBeg + 17;
-				curBeg = cur;
+				cur--;
 			}
-			else
-			{
-				cur = curBeg + 16;
-				curBeg = cur;
-			}
+			curBeg = cur;
 			break;
 		case 'N':
 			++cur;
@@ -126,9 +122,9 @@ std::vector<int> CObstacleInfo::getBlocked(int hex) const
 	return ret;
 }
 
-int CObstacleInfo::getMaxBlocked(int hex) const
+THex CObstacleInfo::getMaxBlocked(THex hex) const
 {
-	std::vector<int> blocked = getBlocked(hex);
+	std::vector<THex> blocked = getBlocked(hex);
 	return *std::max_element(blocked.begin(), blocked.end());
 }
 
