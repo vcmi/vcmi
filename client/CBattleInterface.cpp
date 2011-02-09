@@ -377,7 +377,7 @@ bool CReverseAnim::init()
 	if(!priority && !isEarliest(false))
 		return false;
 	
-	owner->creAnims[stack->ID]->setType(8);
+	owner->creAnims[stack->ID]->setType(CCreatureAnim::TURN_R);
 
 	return true;
 }
@@ -421,7 +421,7 @@ void CReverseAnim::nextFrame()
 				}
 			}
 
-			owner->creAnims[stack->ID]->setType(7);
+			owner->creAnims[stack->ID]->setType(CCreatureAnim::TURN_L);
 			secondPartSetup = true;
 		}
 
@@ -436,7 +436,7 @@ void CReverseAnim::endAnim()
 {
 	CBattleAnimation::endAnim();
 	if( stack->alive() )//don't do that if stack is dead
-		owner->creAnims[stack->ID]->setType(2);
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 
 	delete this;
 }
@@ -515,13 +515,13 @@ bool CDefenceAnim::init()
 	if(killed)
 	{
 		CCS->soundh->playSound(battle_sound(stack->getCreature(), killed));
-		owner->creAnims[stack->ID]->setType(5); //death
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::DEATH); //death
 	}
 	else
 	{
 		// TODO: this block doesn't seems correct if the unit is defending.
 		CCS->soundh->playSound(battle_sound(stack->getCreature(), wince));
-		owner->creAnims[stack->ID]->setType(3); //getting hit
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HITTED); //getting hit
 	}
 
 	return true; //initialized successfuly
@@ -529,14 +529,14 @@ bool CDefenceAnim::init()
 
 void CDefenceAnim::nextFrame()
 {
-	if(!killed && owner->creAnims[stack->ID]->getType() != 3)
+	if(!killed && owner->creAnims[stack->ID]->getType() != CCreatureAnim::HITTED)
 	{
-		owner->creAnims[stack->ID]->setType(3);
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HITTED);
 	}
 
 	if(!owner->creAnims[stack->ID]->onLastFrameInGroup())
 	{
-		if( owner->creAnims[stack->ID]->getType() == 5 && (owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0
+		if( owner->creAnims[stack->ID]->getType() == CCreatureAnim::DEATH && (owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0
 			&& !owner->creAnims[stack->ID]->onLastFrameInGroup() )
 		{
 			owner->creAnims[stack->ID]->incrementFrame();
@@ -553,8 +553,8 @@ void CDefenceAnim::endAnim()
 {
 	//restoring animType
 
-	if(owner->creAnims[stack->ID]->getType() == 3)
-		owner->creAnims[stack->ID]->setType(2);
+	if(owner->creAnims[stack->ID]->getType() == CCreatureAnim::HITTED)
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 
 	//printing info to console
 
@@ -584,7 +584,7 @@ bool CBattleStackMoved::init()
 		return false;
 
 	//a few useful variables
-	steps = owner->creAnims[stack->ID]->framesInGroup(0)*owner->getAnimSpeedMultiplier()-1;
+	steps = owner->creAnims[stack->ID]->framesInGroup(CCreatureAnim::MOVING)*owner->getAnimSpeedMultiplier()-1;
 	if(steps == 0) //this creature seems to have no move animation so we can end it immediately
 	{
 		endAnim();
@@ -617,9 +617,9 @@ bool CBattleStackMoved::init()
 		return false;
 	}
 
-	if(owner->creAnims[stack->ID]->getType() != 0)
+	if(owner->creAnims[stack->ID]->getType() != CCreatureAnim::MOVING)
 	{
-		owner->creAnims[stack->ID]->setType(0);
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVING);
 	}
 	//unit reversed
 
@@ -740,6 +740,7 @@ bool CBattleMoveStart::init()
 	}
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
+	owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVE_START);
 
 	return true;
 }
@@ -752,8 +753,8 @@ void CBattleMoveStart::nextFrame()
 	}
 	else
 	{
-		if((owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0)
-			owner->creAnims[stack->ID]->incrementFrame();
+ 		if((owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0)
+ 			owner->creAnims[stack->ID]->incrementFrame();
 	}
 }
 
@@ -776,7 +777,8 @@ bool CBattleMoveEnd::init()
 	if( !isEarliest(true) )
 		return false;
 
-	if(!stack || owner->creAnims[stack->ID]->framesInGroup(21) == 0 || owner->creAnims[stack->ID]->getType() == 5)
+	if(!stack || owner->creAnims[stack->ID]->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
+		owner->creAnims[stack->ID]->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
 
@@ -785,7 +787,7 @@ bool CBattleMoveEnd::init()
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
-	owner->creAnims[stack->ID]->setType(21);
+	owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVE_END);
 
 	return true;
 }
@@ -802,8 +804,8 @@ void CBattleMoveEnd::endAnim()
 {
 	CBattleAnimation::endAnim();
 
-	if(owner->creAnims[stack->ID]->getType() != 5)
-		owner->creAnims[stack->ID]->setType(2); //resetting to default
+	if(owner->creAnims[stack->ID]->getType() != CCreatureAnim::DEATH)
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING); //resetting to default
 
 	CCS->curh->show();
 	delete this;
@@ -830,7 +832,7 @@ void CBattleAttack::nextFrame()
 	}
 	else if(owner->creAnims[stack->ID]->onLastFrameInGroup())
 	{
-		owner->creAnims[stack->ID]->setType(2);
+		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 		endAnim();
 		return; //execution of endAnim deletes this !!!
 	}
@@ -888,7 +890,8 @@ bool CMeleeAttack::init()
 
 	shooting = false;
 
-	static const int mutPosToGroup[] = {11, 11, 12, 13, 13, 12};
+	static const CCreatureAnim::EAnimType mutPosToGroup[] = {CCreatureAnim::ATTACK_UP, CCreatureAnim::ATTACK_UP,
+		CCreatureAnim::ATTACK_FRONT, CCreatureAnim::ATTACK_DOWN, CCreatureAnim::ATTACK_DOWN, CCreatureAnim::ATTACK_FRONT};
 
 	int revShiftattacker = (attackingStack->attackerOwned ? -1 : 1);
 
@@ -914,7 +917,7 @@ bool CMeleeAttack::init()
 		break;
 	default:
 		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos<<std::endl;
-		group = 11;
+		group = CCreatureAnim::ATTACK_FRONT;
 		break;
 	}
 
@@ -1034,11 +1037,11 @@ bool CShootingAnim::init()
 	shooting = true;
 
 	if(projectileAngle > straightAngle) //upper shot
-		group = 14;
+		group = CCreatureAnim::SHOOT_UP;
 	else if(projectileAngle < -straightAngle) //lower shot
-		group = 16;
+		group = CCreatureAnim::SHOOT_DOWN;
 	else //straight shot
-		group = 15;
+		group = CCreatureAnim::SHOOT_FRONT;
 
 	return true;
 }
@@ -1772,9 +1775,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
 						mouseHoveredStack = shere->ID;
-						if(creAnims[shere->ID]->getType() == 2 && creAnims[shere->ID]->framesInGroup(1) > 0)
+						if(creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING && creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
 						{
-							creAnims[shere->ID]->playOnce(1);
+							creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
 						}
 						
 					}
@@ -2210,7 +2213,7 @@ void CBattleInterface::newStack(const CStack * stack)
 	{
 		creAnims[stack->ID] = new CCreatureAnimation(stack->getCreature()->animDefName);	
 	}
-	creAnims[stack->ID]->setType(2);
+	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 	creAnims[stack->ID]->pos = Rect(coords.x, coords.y, creAnims[stack->ID]->fullWidth, creAnims[stack->ID]->fullHeight);
 	creDir[stack->ID] = stack->attackerOwned;
 }
@@ -2995,7 +2998,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 			if(incrementFrame)
 			{
 				++standingFrame[ID];
-				if(standingFrame[ID] == creAnims[ID]->framesInGroup(2))
+				if(standingFrame[ID] == creAnims[ID]->framesInGroup(CCreatureAnim::HOLDING))
 				{
 					standingFrame.erase(standingFrame.find(ID));
 				}
@@ -3309,7 +3312,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 		|| (action->actionType == BattleAction::WALK_AND_ATTACK && action->destinationTile != stack->position))
 	{
 		moveStarted = true;
-		if(creAnims[action->stackNumber]->framesInGroup(20))
+		if(creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
 		{
 			const CStack * stack = curInt->cb->battleGetStackByID(action->stackNumber);
 			pendingAnims.push_back(std::make_pair(new CBattleMoveStart(this, stack), false));

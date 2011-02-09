@@ -14,12 +14,12 @@
  *
  */
 
-int CCreatureAnimation::getType() const
+CCreatureAnim::EAnimType CCreatureAnimation::getType() const
 {
 	return type;
 }
 
-void CCreatureAnimation::setType(int type)
+void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 {
 	assert(framesInGroup(type) > 0 && "Bad type for void CCreatureAnimation::setType(int type)!");
 	this->type = type;
@@ -90,7 +90,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 
 	//init vars
 	curFrame = 0;
-	type = -1;
+	type = CCreatureAnim::WHOLE_ANIM;
 	frames = totalEntries;
 }
 
@@ -109,7 +109,7 @@ void CCreatureAnimation::incrementFrame()
 			internalFrame = 0;
 			if(once) //playing animation once - return to standing animation
 			{
-				type = 2;
+				type = CCreatureAnim::HOLDING;
 				once = false;
 				curFrame = frameGroups[2][0];
 			}
@@ -145,7 +145,7 @@ bool CCreatureAnimation::onLastFrameInGroup()
 	return false;
 }
 
-void CCreatureAnimation::playOnce(int type)
+void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 {
 	setType(type);
 	once = true;
@@ -285,7 +285,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	}
 }
 
-int CCreatureAnimation::framesInGroup(int group) const
+int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 {
 	if(frameGroups.find(group) == frameGroups.end())
 		return 0;

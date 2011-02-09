@@ -5,6 +5,7 @@
 #include <list>
 #include "GUIBase.h"
 #include "../lib/CCreatureSet.h"
+#include "CAnimation.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine
@@ -191,7 +192,7 @@ class CBattleAttack : public CBattleStackAnimation
 protected:
 	THex dest; //atacked hex
 	bool shooting;
-	int group; //if shooting is true, print this animation group
+	CCreatureAnim::EAnimType group; //if shooting is true, print this animation group
 	const CStack * attackedStack;
 	const CStack * attackingStack;
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature

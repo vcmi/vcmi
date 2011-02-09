@@ -6,6 +6,7 @@
 #include "CDefHandler.h"
 #include "GUIBase.h"
 #include "../client/CBitmapHandler.h"
+#include "CAnimation.h"
 
 /*
  * CCreatureAnimation.h, part of VCMI engine
@@ -63,15 +64,15 @@ private:
 	unsigned char * FDef; //animation raw data
 	int curFrame, internalFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
+	CCreatureAnim::EAnimType type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 public:
 	std::map<int, std::vector<int> > frameGroups; //groups of frames; [groupID] -> vector of frame IDs in group
-	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
 	~CCreatureAnimation(); //d-tor
 
-	void setType(int type); //sets type of animation and cleares framecount
-	int getType() const; //returns type of animation
+	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
+	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
 
 	template<int bpp>
@@ -84,9 +85,9 @@ public:
 	bool onLastFrameInGroup();
 
 	bool once;
-	void playOnce(int type); //plays once given stage of animation, then resets to 2
+	void playOnce(CCreatureAnim::EAnimType type); //plays once given stage of animation, then resets to 2
 
-	int framesInGroup(int group) const; //retirns number of fromes in given group
+	int framesInGroup(CCreatureAnim::EAnimType group) const; //retirns number of fromes in given group
 };
 
 #endif // __CCREATUREANIMATION_H__

@@ -311,6 +311,7 @@ public:
 
 	enum EAnimType // list of creature animations, numbers were taken from def files
 	{
+		WHOLE_ANIM=-1, //just for convenience
 		MOVING=0, //will automatically add MOVE_START and MOVE_END to queue
 		MOUSEON=1,
 		HOLDING=2,

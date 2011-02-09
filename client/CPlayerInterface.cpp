@@ -579,10 +579,10 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	for(int b=0; b<healedStacks.size(); ++b)
 	{
 		const CStack * healed = cb->battleGetStackByID(healedStacks[b].first);
-		if(battleInt->creAnims[healed->ID]->getType() == 5)
+		if(battleInt->creAnims[healed->ID]->getType() == CCreatureAnim::DEATH)
 		{
 			//stack has been resurrected
-			battleInt->creAnims[healed->ID]->setType(2);
+			battleInt->creAnims[healed->ID]->setType(CCreatureAnim::HOLDING);
 		}
 	}
 
