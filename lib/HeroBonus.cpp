@@ -439,7 +439,9 @@ bool CBonusSystemNode::isIndependentNode() const
 
 std::string CBonusSystemNode::nodeName() const
 {
-	return std::string("Bonus system node of type ") + typeid(*this).name();
+	return description.size() 
+		? description
+		: std::string("Bonus system node of type ") + typeid(*this).name();
 }
 
 void CBonusSystemNode::deserializationFix()

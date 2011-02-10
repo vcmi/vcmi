@@ -588,7 +588,7 @@ CStackInstance::~CStackInstance()
 std::string CStackInstance::nodeName() const
 {
 	std::ostringstream oss;
-	oss << "Stack of " << count << " creatures of ";
+	oss << "Stack of " << count << " of ";
 	if(type)
 		oss << type->namePl;
 	else if(idRand)

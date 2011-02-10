@@ -13,6 +13,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace boost::assign;
 extern CLodHandler * bitmaph;
@@ -47,6 +48,11 @@ CCreatureHandler::CCreatureHandler()
 	// Neutral: Stronghold, Fortess, Conflux
 	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
 	doubledCreatures +=  4, 14, 20, 28, 42, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
+
+	allCreatures.description = "All creatures";
+	creaturesOfLevel[0].description = "Creatures of unnormalized tier";
+	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
+		creaturesOfLevel[i].description = "Creatures of tier " + boost::lexical_cast<std::string>(i);
 }
 
 int CCreature::getQuantityID(const int & quantity)
@@ -147,7 +153,7 @@ bool CCreature::valid() const
 
 std::string CCreature::nodeName() const
 {
-	return "Type of creature " + namePl;
+	return "\"" + namePl + "\"";
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
@@ -469,8 +475,6 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-	for(i = 1; i <= CRE_LEVELS; i++)
-		levelCreatures[i];
 
 	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
 	ifs.open(DATA_DIR "/config/monsters.txt");
@@ -479,13 +483,19 @@ void CCreatureHandler::loadCreatures()
 		{
 			int id, lvl;
 			ifs >> id >> lvl;
-			if(lvl>0)
-			{
-				creatures[id]->level = lvl;
-				levelCreatures[lvl].push_back(creatures[id]);
-			}
+			if(!ifs.good())
+				break;
+			CCreature *c = creatures[id];
+			if(isbetw(lvl, 0, ARRAY_COUNT(creaturesOfLevel)))
+				c->attachTo(&creaturesOfLevel[lvl]);
+			else
+				c->attachTo(&creaturesOfLevel[0]);
 		}
 	}
+
+	BOOST_FOREACH(CBonusSystemNode &b, creaturesOfLevel)
+		b.attachTo(&allCreatures);
+
 	ifs.close();
 	ifs.clear();
 
@@ -657,6 +667,10 @@ void CCreatureHandler::loadCreatures()
 //  				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), c->bonuses.begin()); //common for tiers 8+
 //  		}
 	} //end of stack experience
+
+	//experiment - add 100 to attack for creatures of tier 1
+// 	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::OTHER, +100, 0, 0);
+// 	addBonusForTier(1, b);
 }
 
 void CCreatureHandler::loadAnimationInfo()
@@ -944,18 +958,61 @@ CCreatureHandler::~CCreatureHandler()
 {
 }
 
-int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen) const
+static int retreiveRandNum(const boost::function<int()> &randGen)
+{
+	if(randGen)
+		return randGen();
+	else
+		return rand();
+}
+
+template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const boost::function<int()> &randGen)
+{
+	return v[retreiveRandNum(randGen) % v.size()];
+}
+
+int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
 {
 	int r = 0;
-	do 
+	if(tier == -1) //pick any allowed creature
 	{
-		if(randGen)
-			r = randGen();
-		else
-			r = rand();
+		do 
+		{
+			pickRandomElementOf(creatures, randGen);
+			//r = retreiveRandNum(randGen) % CREATURES_COUNT;
+		} while (vstd::contains(VLC->creh->notUsedMonsters,r));
+	}
+	else
+	{
+		assert(iswith(tier, 1, 7));
+		std::vector<int> allowed;
+		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].children)
+		{
+			assert(b->nodeType == CBonusSystemNode::CREATURE);
+			int creid = static_cast<const CCreature*>(b)->idNumber;
+			if(!vstd::contains(notUsedMonsters, creid))
 
-		r %= 197;
-	} while (vstd::contains(VLC->creh->notUsedMonsters,r));
+				allowed.push_back(creid);
+		}
 
+		if(!allowed.size())
+		{
+			tlog2 << "Cannot pick a random creature of tier " << tier << "!\n";
+			return 0;
+		}
+
+		return pickRandomElementOf(allowed, randGen);
+	}
 	return r;
+}
+
+void CCreatureHandler::addBonusForTier(int tier, Bonus *b)
+{
+	assert(iswith(tier, 1, 7));
+	creaturesOfLevel[tier].addNewBonus(b);
+}
+
+void CCreatureHandler::addBonusForAllCreatures(Bonus *b)
+{
+	allCreatures.addNewBonus(b);
 }

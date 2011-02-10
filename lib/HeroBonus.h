@@ -362,13 +362,14 @@ public:
 class DLL_EXPORT CBonusSystemNode
 {
 public:
-	BonusList bonuses; //wielded bonuses (local and up-propagated here)
-	BonusList exportedBonuses;
+	BonusList bonuses; //wielded bonuses (local or up-propagated here)
+	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
 
-	TNodesVector parents, //parents -> we inherit bonuses from them, we may attach our bonuses to them
-									children;
+	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	TNodesVector children;
 
 	ui8 nodeType;
+	std::string description;
 
 	CBonusSystemNode();
 	virtual ~CBonusSystemNode();
@@ -438,6 +439,7 @@ public:
 	{
 		h & bonuses & nodeType;
 		h & exportedBonuses;
+		h & description;
 		//h & parents & children;
 	}
 

@@ -100,6 +100,7 @@ const int HEROI_TYPE = 34,
 	CREI_TYPE = 54,
 	EVENTI_TYPE = 26;
 
+const int CREATURES_COUNT = 197;
 const int CRE_LEVELS = 10;
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
@@ -552,6 +553,12 @@ template <typename t1, typename t2, typename t3>
 bool isbetw(const t1 &a, const t2 &b, const t3 &c) //checks if a is between b and c
 {
 	return a > b && a < c;
+}
+
+template <typename t1, typename t2, typename t3>
+bool iswith(const t1 &a, const t2 &b, const t3 &c) //checks if a is within b and c
+{
+	return a >= b && a <= c;
 }
 
 template <typename T> 

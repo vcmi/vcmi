@@ -98,15 +98,13 @@ public:
 	friend class CCreatureHandler;
 };
 
-
 class DLL_EXPORT CCreatureHandler
 {	
+	CBonusSystemNode allCreatures, creaturesOfLevel[CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 public:
-	CBonusSystemNode *globalEffects;
 	std::set<int> notUsedMonsters;
 	std::set<TCreature> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
-	bmap<int,std::vector<ConstTransitivePtr< CCreature> > > levelCreatures; //level -> list of creatures
 	bmap<std::string,int> nameToID;
 	bmap<int,std::string> idToProjectile;
 	bmap<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
@@ -126,8 +124,9 @@ public:
 	bool isGood (si8 faction) const;
 	bool isEvil (si8 faction) const;
 
-	int pickRandomMonster(const boost::function<int()> &randGen = 0) const;
-
+	int pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
+	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
+	void addBonusForAllCreatures(Bonus *b);
 
 	CCreatureHandler();
 	~CCreatureHandler();
@@ -136,7 +135,8 @@ public:
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
-		h & levelCreatures & globalEffects;		
+		h & allCreatures;
+		h & creaturesOfLevel;
 	}
 };
 

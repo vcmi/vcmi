@@ -523,21 +523,17 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	case 69: //random relic artifact
 		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
 	case 70: //random hero
-		{
-			return std::pair<int,int>(HEROI_TYPE,pickHero(obj->tempOwner));
-		}
+		return std::pair<int,int>(HEROI_TYPE,pickHero(obj->tempOwner));
 	case 71: //random monster
-		{
-			return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran))); 
-		}
+		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran))); 
 	case 72: //random monster lvl1
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[1][ran()%VLC->creh->levelCreatures[1].size()]->idNumber); 
+		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 1)); 
 	case 73: //random monster lvl2
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[2][ran()%VLC->creh->levelCreatures[2].size()]->idNumber);
+		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 2));
 	case 74: //random monster lvl3
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[3][ran()%VLC->creh->levelCreatures[3].size()]->idNumber);
+		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 3));
 	case 75: //random monster lvl4
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[4][ran()%VLC->creh->levelCreatures[4].size()]->idNumber);
+		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
 	case 76: //random resource
 		return std::pair<int,int>(79,ran()%7); //now it's OH3 style, use %8 for mithril 
 	case 77: //random town
@@ -559,11 +555,11 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			return std::pair<int,int>(TOWNI_TYPE,f); 
 		}
 	case 162: //random monster lvl5
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[5][ran()%VLC->creh->levelCreatures[5].size()]->idNumber);
+		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
 	case 163: //random monster lvl6
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[6][ran()%VLC->creh->levelCreatures[6].size()]->idNumber);
+		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
 	case 164: //random monster lvl7
-		return std::pair<int,int>(54,VLC->creh->levelCreatures[7][ran()%VLC->creh->levelCreatures[7].size()]->idNumber); 
+		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
 	case 216: //random dwelling
 		{
 			int faction = ran()%F_NUMBER;
@@ -762,6 +758,7 @@ CGameState::CGameState()
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
 	objCaller = new CObjectCallersHandler;
+	globalEffects.description = "Global effects";
 }
 CGameState::~CGameState()
 {
@@ -871,7 +868,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 	seed = Seed;
 	ran.seed((boost::int32_t)seed);
-	VLC->creh->globalEffects = &globalEffects;
 	scenarioOps = new StartInfo(*si);
 	initialOpts = new StartInfo(*si);
 	si = NULL;
