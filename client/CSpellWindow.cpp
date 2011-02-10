@@ -16,7 +16,9 @@
 #include <sstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 #include "CBitmapHandler.h"
+#include "../lib/CHeroHandler.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine
@@ -617,9 +619,32 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
-			int spell = mySpell;
-			owner->fexitb();
-			owner->myInt->battleInt->castThisSpell(spell);
+			IBattleCallback::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
+			switch (problem)
+			{
+			case IBattleCallback::OK:
+				{
+					int spell = mySpell;
+					owner->fexitb();
+					owner->myInt->battleInt->castThisSpell(spell);
+					break;
+				}
+			case IBattleCallback::ANOTHER_ELEMENTAL_SUMMONED:
+				{
+					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
+					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
+					if (owner->myHero->type->sex)
+					{ //female
+						caster = CGI->generaltexth->allTexts[540];
+					}
+					else
+					{ //male
+						caster = CGI->generaltexth->allTexts[539];
+					}
+
+					owner->myInt->showInfoDialog(text);
+				}
+			}
 		}
 		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell
 		{

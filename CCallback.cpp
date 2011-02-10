@@ -1087,3 +1087,27 @@ std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex 
 	return ret;
 }
 
+CBattleCallback::ESpellCastProblem CBattleCallback::battleCanCastThisSpell( const CSpell * spell )
+{
+	if(!battleCanCastSpell())
+		return GENERAL_CASTING_PROBLEM;
+
+	int spellIDs[] = {66, 67, 68, 69}; //IDs of summon elemental spells (fire, earth, water, air)
+	int creIDs[] = {114, 113, 115, 112}; //(fire, earth, water, air)
+
+	int * idp = std::find(spellIDs, spellIDs + ARRAY_COUNT(spellIDs), spell->id);
+	int arpos = idp - spellIDs;
+	if(arpos < ARRAY_COUNT(spellIDs))
+	{
+		//check if there are summoned elementals of other type
+		BOOST_FOREACH ( const CStack * st, gs->curB->stacks)
+		{
+			if (vstd::contains(st->state, SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
+			{
+				return ANOTHER_ELEMENTAL_SUMMONED;
+			}
+		}
+	}
+
+	return OK;
+}
