@@ -49,6 +49,7 @@ public:
 
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
+	int getExpRank() const;
 	void init();
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count);

@@ -628,25 +628,29 @@ void CCreatureHandler::loadCreatures()
 		buf = bitmaph->getTextFile("CREXPBON.TXT");
 		int it = 0;
 		si32 creid = -1;
-		commonBonuses.resize(8); //8 tiers
-		stackExperience b;
-		b.expBonuses.resize(10);
+		Bonus b; //prototype with some default properties
 		b.source = Bonus::STACK_EXPERIENCE;
+		b.valType = Bonus::ADDITIVE_VALUE;
 		b.additionalInfo = 0;
-		b.enable = false; //Bonuses are always active by default
+		BonusList bl;
 
 		loadToIt (dump2, buf, it, 3); //ignore first line
 		loadToIt (dump2, buf, it, 4); //ignore index
-		loadStackExp(b, buf, it);
+
+		loadStackExp(b, bl, buf, it);
+		BOOST_FOREACH(Bonus * b, bl)
+			addBonusForAllCreatures(b); //health bonus is common for all
+
 		loadToIt (dump2, buf, it, 4); //crop comment
-		for (i = 0; i < 8; ++i)
+		for (i = 1; i < 8; ++i)
 		{
-			commonBonuses[i].push_back(new stackExperience(b));//health bonus common for all
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
 			{
 				loadToIt (dump2, buf, it, 4); //ignore index
-				loadStackExp(b, buf, it);
-				commonBonuses[i].push_back(new stackExperience(b));
+				bl.clear();
+				loadStackExp(b, bl, buf, it);
+				BOOST_FOREACH(Bonus * b, bl)
+					addBonusForTier(i, b);
 				loadToIt (dump2, buf, it, 3); //crop comment
 			}
 		}
@@ -654,20 +658,33 @@ void CCreatureHandler::loadCreatures()
 		{
 			loadToIt(creid, buf, it, 4); //get index
 			b.id = creid; //id = this particular creature ID
-			loadStackExp(b, buf, it);
-			creatures[creid]->bonuses.push_back(new stackExperience(b)); //experience list is common for creatures of that type
+			loadStackExp(b, creatures[creid]->bonuses, buf, it); //add directly to CCreature Node
 			loadToIt (dump2, buf, it, 3); //crop comment
 		} while (it < buf.size());
 
-//  		BOOST_FOREACH(CCreature *c, creatures)
-//  		{
-//  			if (it = c->level < 7)
-//  				std::copy(commonBonuses[it-1].begin(), commonBonuses[it-1].end(), c->bonuses.begin());
-//  			else
-//  				std::copy(commonBonuses[7].begin(), commonBonuses[7].end(), c->bonuses.begin()); //common for tiers 8+
-//  		}
-	} //end of stack experience
+		//Calculate rank exp values, formula appears complicated bu no parsing needed
+		expRanks.resize(8);
+		int dif = 0;
+		it = 8000; //ignore name of this variable
+		expRanks[0].push_back(it);
+		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
+		{
+			expRanks[0].push_back(expRanks[0][j-1] + dif);
+			dif += it/5;
+		}
+		for (int i = 1; i < 8; ++i)
+		{
+			dif = 0;
+			it = 1000 * i;
+			expRanks[i].push_back(it);
+			for (int j = 1; j < 10; ++j)
+			{
+				expRanks[i].push_back(expRanks[i][j-1] + dif);
+				dif += it/5;
+			}
+		}
 
+	}//end of Stack Experience
 	//experiment - add 100 to attack for creatures of tier 1
 // 	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::OTHER, +100, 0, 0);
 // 	addBonusForTier(1, b);
@@ -743,15 +760,18 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 	i+=2;
 }
 
-void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int & it) //help function for parsing CREXPBON.txt, assuming all its details are already defined
-{
+void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it) //help function for parsing CREXPBON.txt
+{ //TODO: handle rank limiters
 	std::string buf, mod;
+	bool enable = false; //some bonuses are activated with values 2 or 1
 	loadToIt(buf, src, it, 4);
 	loadToIt(mod, src, it, 4);
+
 	switch (buf[0])
 	{
 	case 'H':
 		b.type = Bonus::STACK_HEALTH;
+		b.valType = Bonus::PERCENT_TO_BASE;
 		break;
 	case 'A':
 		b.type = Bonus::PRIMARY_SKILL;
@@ -784,7 +804,7 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 		b.type = Bonus::ADDITIONAL_RETALIATION; break;
 
 	case 'f': //on-off skill
-		b.enable = true; //sometimes format is: 2 -> 0, 1 -> 1
+		enable = true; //sometimes format is: 2 -> 0, 1 -> 1
 		switch (mod[0])
 		{
 			case 'A':
@@ -808,7 +828,7 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 			case 'p': //Mind spells
 			case 'P':
 				{
-					loadMindImmunity(b, src, it);
+					loadMindImmunity(b, bl, src, it);
 					return;
 				}
 				return;
@@ -829,7 +849,7 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 		}
 		break;
 	case 'w': //specific spell immunities, enabled/disabled
-		b.enable = true;
+		enable = true;
 		switch (mod[0])
 		{
 			case 'B': //Blind
@@ -877,11 +897,11 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 		break;
 
 	case 'i':
-		b.enable = true;
+		enable = true;
 		b.type = Bonus::NO_DISTANCE_PENALTY;
 		break;
 	case 'o':
-		b.enable = true;
+		enable = true;
 		b.type = Bonus::NO_OBSTACLES_PENALTY;
 		break;
 
@@ -902,28 +922,51 @@ void CCreatureHandler::loadStackExp(stackExperience & b, std::string & src, int 
 	{
 		case '+':
 		case '=': //should we allow percent values to stack or pick highest?
-			b.valType = Bonus::BASE_NUMBER;
+			b.valType = Bonus::ADDITIVE_VALUE;
 			break;
 	}
-	loadToIt (b.val, src, it, 4); //basic value, not particularly useful but existent
-	for (int i = 0; i < 10; ++i)
+
+	//limiters, range
+	si32 lastVal, curVal, lastLev = 0;
+
+	if (enable) //0 and 2 means non-active, 1 - active
 	{
-		loadToIt (b.expBonuses[i], src, it, 4); //vector must have length 10
-	}
-	if (b.enable) //switch 2 to 0
-	{
-		if (b.val == 2)
-			b.val = 0;
-		for (int i = 0; i < 10; ++i)
+		b.val = 0; //on-off ability, no value specified
+		loadToIt (curVal, src, it, 4); // 0 level is never active
+		for (int i = 1; i < 11; ++i)
 		{
-			if (b.expBonuses[i] == 2)
-				b.expBonuses[i] = 0;
-			else break; //higher levels are rarely disabled?
+			loadToIt (curVal, src, it, 4);
+			if (curVal == 1)
+			{
+				b.limiter.reset (new ExpRankLimiter(i));
+				bl.push_back(new Bonus(b));
+				break; //never turned off it seems
+			}
+		}
+	}
+	else
+	{
+		loadToIt (lastVal, src, it, 4); //basic value, not particularly useful but existent
+		for (int i = 1; i < 11; ++i)
+		{
+			loadToIt (curVal, src, it, 4);
+			if (curVal > lastVal) //threshold, add last bonus
+			{
+				b.val = lastVal;
+				b.limiter.reset (new ExpRankLimiter(i));
+				bl.push_back(new Bonus(b));
+				lastLev = i; //start new range from here, i = previous rank
+			}
+			else if (curVal < lastVal)
+			{
+				b.val = lastVal;
+				b.limiter.reset (new RankRangeLimiter(lastLev, i));
+			}
 		}
 	}
 }
 
-void CCreatureHandler::loadMindImmunity(stackExperience & b, std::string & src, int & it)
+void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string & src, int & it)
 {
 	CCreature * cre = creatures[b.id]; //odd workaround
 
@@ -944,7 +987,7 @@ void CCreatureHandler::loadMindImmunity(stackExperience & b, std::string & src, 
 	for (int g=0; g < mindSpells.size(); ++g)
 	{
 		b.subtype = mindSpells[g];
-		cre->bonuses.push_back(new stackExperience(b));
+		cre->bonuses.push_back(new Bonus(b));
 	}
 }
 

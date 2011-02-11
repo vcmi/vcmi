@@ -430,6 +430,29 @@ int CStackInstance::getQuantityID() const
 	return CCreature::getQuantityID(count);
 }
 
+int CStackInstance::getExpRank() const
+{
+	int tier = type->level;
+	if (isbetw(tier, 1, 7))
+	{
+		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
+		{ //exp values vary from 1st level to max exp at 11th level
+			if (experience >= VLC->creh->expRanks[tier][i])
+				return ++i; //faster, but confusing - 0 index mean 1st level of experience
+		}
+		return 0;
+	}
+	else //higher tier
+	{
+		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)
+		{
+			if (experience >= VLC->creh->expRanks[0][i])
+				return ++i;
+		}
+		return 0;
+	}
+}
+
 void CStackInstance::setType(int creID)
 {
 	setType(VLC->creh->creatures[creID]);

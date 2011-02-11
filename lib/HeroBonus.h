@@ -304,18 +304,6 @@ struct DLL_EXPORT Bonus
 	Bonus *addLimiter(ILimiter *Limiter); //returns this for convenient chain-calls
 };
 
-struct DLL_EXPORT stackExperience : public Bonus
-{
-	std::vector<si32> expBonuses; // variations for levels 1-10, copied to val field;
-	bool enable; //if true - turns ability on / off for zero value
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<Bonus&>(this);
-		h & expBonuses & enable;
-	}
-};
-
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
 class BonusList : public std::list<Bonus*>
@@ -627,6 +615,32 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & alignment;
+	}
+};
+
+class DLL_EXPORT ExpRankLimiter : public ILimiter //applies to creatures with Rank >= rank
+{
+public:
+	ui8 rank;
+
+	ExpRankLimiter(ui8 Rank);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & rank;
+	}
+};
+
+class DLL_EXPORT RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
+{
+public:
+	ui8 min, max;
+
+	RankRangeLimiter(ui8 Min, ui8 Max);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & min & max;
 	}
 };
 

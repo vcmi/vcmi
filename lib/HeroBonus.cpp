@@ -772,3 +772,13 @@ bool CreatureAlignmentLimiter::limit(const Bonus *b, const CBonusSystemNode &nod
 		return true;
 	}
 }
+
+ExpRankLimiter::ExpRankLimiter(ui8 Rank)
+	:rank(Rank)
+{
+}
+
+RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
+	:min(Min), max(Max)
+{
+}

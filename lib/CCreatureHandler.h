@@ -99,7 +99,8 @@ public:
 };
 
 class DLL_EXPORT CCreatureHandler
-{	
+{
+private: //?
 	CBonusSystemNode allCreatures, creaturesOfLevel[CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 public:
 	std::set<int> notUsedMonsters;
@@ -112,13 +113,13 @@ public:
 	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
-	std::vector<BonusList> commonBonuses; // levels 1-8 from CREXPBON.txt
+	std::vector<std::vector<ui32>> expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	void loadStackExp(stackExperience & b, std::string & src, int & it);
-	void loadMindImmunity(stackExperience & b, std::string & src, int & it); //multiple bonuses at once
+	void loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it);
+	void loadMindImmunity(Bonus & b, BonusList & bl, std::string & src, int & it); //multiple bonuses at once
 	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt
 
 	bool isGood (si8 faction) const;
