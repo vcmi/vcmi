@@ -1529,7 +1529,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	COMPLAIN_RET_IF(creatures.stacksCount() > ARMY_SIZE, "Too many stacks to give!");
 
 	//first we move creatures to give to make them army of object-source
-	for(int i = 0; creatures.stacksCount(); i++)
+	for(int i = 0; i != creatures.stacksCount(); i++)
 	{
 		TSlots::const_iterator stack = creatures.Slots().begin();
 		addToSlot(StackLocation(obj, i), stack->second->type, stack->second->count);

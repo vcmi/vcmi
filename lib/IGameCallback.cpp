@@ -267,3 +267,9 @@ const CTown * IGameCallback::getNativeTown(int color)
 {
 	return &VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(color).castle];
 }
+
+const CGObjectInstance * IGameCallback::getObjByQuestIdentifier(int identifier)
+{
+	assert(vstd::contains(gs->map->questIdentifierToId, identifier));
+	return getObj(gs->map->questIdentifierToId[identifier]);
+}

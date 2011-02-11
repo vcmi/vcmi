@@ -486,6 +486,7 @@ void CCreatureHandler::loadCreatures()
 			if(!ifs.good())
 				break;
 			CCreature *c = creatures[id];
+			c->level = lvl;
 			if(isbetw(lvl, 0, ARRAY_COUNT(creaturesOfLevel)))
 				c->attachTo(&creaturesOfLevel[lvl]);
 			else

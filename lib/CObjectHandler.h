@@ -309,7 +309,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	const CHero * type;
+	ConstTransitivePtr<CHero> type;
 	ui64 exp; //experience points
 	si32 level; //current level of hero
 	std::string name; //may be custom
@@ -760,6 +760,14 @@ public:
 	ui8 textOption; //store randomized mission write-ups rather than entire string (?)
 	std::string seerName;
 
+	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
+	//TODO? organize
+	CStackBasicDescriptor stackToKill; 
+	ui8 stackDirection;
+	std::string heroName; //backup of hero name
+	si32 heroPortrait;
+
+
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
@@ -769,10 +777,16 @@ public:
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
 
+	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
+	const CGCreature *getCreatureToKill(bool allowNull = false) const;
+
+	void addReplacements(MetaString &out, const std::string &base) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
 		h & rewardType & rID & rVal & textOption & seerName;
+		h & stackToKill & stackDirection & heroName & heroPortrait;
 	}
 };
 

@@ -337,7 +337,7 @@ void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 {
 	assert(stack.count); //valid count
 	assert(stack.type); //valid type
-	addReplacement(stack.type->idNumber, stack.count);
+	addCreReplacement(stack.type->idNumber, stack.count);
 }
 
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)

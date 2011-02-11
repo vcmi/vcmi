@@ -56,6 +56,7 @@ public:
 	virtual const CGHeroInstance* getHero(int objid);
 	virtual const CGTownInstance* getTown(int objid);
 	virtual const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected
+	virtual const CGObjectInstance *getObjByQuestIdentifier(int identifier); //NULL if object has been removed (eg. killed)
 	virtual int getCurrentPlayer()=0;
 	virtual int getSelectedHero()=0;
 	virtual const PlayerSettings * getPlayerSettings(int color);

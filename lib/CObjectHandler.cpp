@@ -1116,6 +1116,7 @@ void CGHeroInstance::initObj()
 	UpdateSpeciality();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
+	type->name = name;
 }
 void CGHeroInstance::UpdateSpeciality()
 {
@@ -3871,12 +3872,10 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 	{
 		case MISSION_NONE:
 			return true;
-			break;
 		case MISSION_LEVEL:
 			if (m13489val <= h->level)
 				return true;
 			return false;
-			break;
 		case MISSION_PRIMARY_STAT:
 			for (int i = 0; i < 4; ++i)
 			{
@@ -3884,17 +3883,11 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 					return false;
 			}
 			return true;
-			break;
 		case MISSION_KILL_HERO:
-			if (h->cb->gameState()->map->heroesToBeat[m13489val]->tempOwner < PLAYER_LIMIT)
-				return false; //if the pointer is not NULL
-			return true;
-			break;
 		case MISSION_KILL_CREATURE:
-			if (h->cb->gameState()->map->monsters[m13489val]->pos == int3(-1,-1,-1))
+			if (!h->cb->getObjByQuestIdentifier(m13489val))
 				return true;
 			return false;
-			break;
 		case MISSION_ART:
 			for (int i = 0; i < m5arts.size(); ++i)
 			{
@@ -3903,7 +3896,6 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				return false; //if the artifact was not found
 			}
 			return true;
-			break;
 		case MISSION_ARMY:
 			{
 				std::vector<CStackBasicDescriptor>::const_iterator cre;
@@ -3921,7 +3913,6 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				}
 			}
 			return true;
-			break;
 		case MISSION_RESOURCES:
 			for (int i = 0; i < 7; ++i) //including Mithril ?
 			{	//Quest has no direct access to callback
@@ -3929,17 +3920,14 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 					return false;
 			}
 			return true;
-			break;
 		case MISSION_HERO:
 			if (m13489val == h->type->ID)
 				return true;
 			return false;
-			break;
 		case MISSION_PLAYER:
 			if (m13489val == h->getOwner())
 				return true;
 			return false;
-			break;
 		default:
 			return false;
 	}
@@ -3957,6 +3945,17 @@ void CGSeerHut::initObj()
 			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
 			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
 			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
+		}
+
+		if(missionType == MISSION_KILL_CREATURE)
+		{
+			stackToKill = getCreatureToKill(false)->getStack(0);
+			stackDirection = checkDirection();
+		}
+		else if(missionType == MISSION_KILL_HERO)
+		{
+			heroName = getHeroToKill(false)->name;
+			heroPortrait = getHeroToKill(false)->portrait;
 		}
 	}
 	else
@@ -3989,30 +3988,25 @@ const std::string & CGSeerHut::getHoverText() const
 				ms.addReplacement(m13489val);
 				break;
 			case MISSION_PRIMARY_STAT:
-			{
-				MetaString loot;
-				for (int i = 0; i < 4; ++i)
 				{
-					if (m2stats[i])
+					MetaString loot;
+					for (int i = 0; i < 4; ++i)
 					{
-						loot << "%d %s";
-						loot.addReplacement(m2stats[i]);
-						loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
-					}		
+						if (m2stats[i])
+						{
+							loot << "%d %s";
+							loot.addReplacement(m2stats[i]);
+							loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
+						}		
+					}
+					ms.addReplacement(loot.buildList());
 				}
-				ms.addReplacement(loot.buildList());
-			}
 				break;
 			case MISSION_KILL_HERO:
-				ms.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
-				break;
-			case MISSION_HERO:
-				ms.addReplacement(VLC->heroh->heroes[m13489val]->name);
+				ms.addReplacement(heroName);
 				break;
 			case MISSION_KILL_CREATURE:
-				{
-					ms.addReplacement(cb->gameState()->map->monsters[m13489val]->getStack(0));
-				}
+				ms.addReplacement(stackToKill);
 				break;
 			case MISSION_ART:
 				{
@@ -4050,6 +4044,9 @@ const std::string & CGSeerHut::getHoverText() const
 					}
 					ms.addReplacement(loot.buildList());
 				}
+				break;
+			case MISSION_HERO:
+				ms.addReplacement(VLC->heroh->heroes[m13489val]->name);
 				break;
 			case MISSION_PLAYER:
 				ms.addReplacement(VLC->generaltexth->colors[m13489val]);
@@ -4096,7 +4093,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			switch (missionType)
 			{
 				case MISSION_LEVEL:
-					iw.components.push_back (Component (Component::EXPERIENCE, 1, m13489val, 0));
+					iw.components.push_back(Component (Component::EXPERIENCE, 1, m13489val, 0));
 					if (!isCustom)
 						iw.text.addReplacement(m13489val);
 					break;
@@ -4107,7 +4104,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					{
 						if (m2stats[i])
 						{
-							iw.components.push_back (Component (Component::PRIM_SKILL, i, m2stats[i], 0));
+							iw.components.push_back(Component (Component::PRIM_SKILL, i, m2stats[i], 0));
 							loot << "%d %s";
 							loot.addReplacement(m2stats[i]);
 							loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
@@ -4118,28 +4115,20 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 				}
 					break;
 				case MISSION_KILL_HERO:
-					iw.components.push_back (Component (Component::HERO,
-						cb->gameState()->map->heroesToBeat[m13489val]->type->ID, 0, 0));
+					iw.components.push_back(Component(Component::HERO, heroPortrait, 0, 0));
 					if (!isCustom)
-						iw.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+						addReplacements(iw.text, firstVisitText);
 					break;
 				case MISSION_HERO:
-					iw.components.push_back (Component (Component::HERO, m13489val, 0, 0));
+					iw.components.push_back(Component (Component::HERO, m13489val, 0, 0));
 					if (!isCustom)
 						iw.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
 				case MISSION_KILL_CREATURE:
 					{
-						CStackInstance stack = cb->gameState()->map->monsters[m13489val]->getStack(0);
-						iw.components.push_back (Component(stack));
+						iw.components.push_back(Component(stackToKill));
 						if (!isCustom)
-						{
-							iw.text.addReplacement(stack);
-							if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
-							{
-								iw.text.addReplacement(VLC->generaltexth->arraytxt[147+checkDirection()]);
-							}
-						}
+							addReplacements(iw.text, firstVisitText);
 					}
 					break;
 				case MISSION_ART:
@@ -4147,12 +4136,12 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					MetaString loot;
 					for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
 					{
-						iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
+						iw.components.push_back(Component (Component::ARTIFACT, *it, 0, 0));
 						loot << "%s";
 						loot.addReplacement(MetaString::ART_NAMES, *it);
 					}
 					if (!isCustom)
-						iw.text.addReplacement	(loot.buildList());
+						iw.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_ARMY:
@@ -4165,7 +4154,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot.addReplacement(*it);
 					}
 					if (!isCustom)
-						iw.text.addReplacement	(loot.buildList());
+						iw.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_RESOURCES:
@@ -4175,20 +4164,20 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					{
 						if (m7resources[i])
 						{
-							iw.components.push_back (Component (Component::RESOURCE, i, m7resources[i], 0));
+							iw.components.push_back(Component (Component::RESOURCE, i, m7resources[i], 0));
 							loot << "%d %s";
 							loot.addReplacement(m7resources[i]);
 							loot.addReplacement(MetaString::RES_NAMES, i);
 						}
 					}
 					if (!isCustom)
-						iw.text.addReplacement	(loot.buildList());
+						iw.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_PLAYER:
-					iw.components.push_back (Component (Component::FLAG, m13489val, 0, 0));
+					iw.components.push_back(Component (Component::FLAG, m13489val, 0, 0));
 					if (!isCustom)
-						iw.text.addReplacement	(VLC->generaltexth->colors[m13489val]);
+						iw.text.addReplacement(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
 			cb->setObjProperty (id,10,1);
@@ -4197,6 +4186,8 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		else if (!checkQuest(h))
 		{
 			iw.text << nextVisitText;
+			if(!isCustom)
+				addReplacements(iw.text, nextVisitText);
 			cb->showInfoDialog(&iw);
 		}
 		if (checkQuest(h)) // propose completion, also on first visit
@@ -4269,23 +4260,14 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 				}
 					break;
 				case MISSION_KILL_HERO:
+				case MISSION_KILL_CREATURE:
 					if (!isCustom)
-						bd.text.addReplacement(cb->gameState()->map->heroesToBeat[m13489val]->name);
+						addReplacements(bd.text, completedText);
 					break;
 				case MISSION_HERO:
 					if (!isCustom)
 						bd.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
-				case MISSION_KILL_CREATURE:
-				{
-					{
-						bd.text.addReplacement(cb->gameState()->map->monsters[m13489val]->getArmy()[0]);
-						if (std::count(firstVisitText.begin(), firstVisitText.end(), '%') == 2) //say where is placed monster
-						{
-							bd.text.addReplacement(VLC->generaltexth->arraytxt[147+checkDirection()]);
-						}
-					}
-				}
 				case MISSION_PLAYER:
 					if (!isCustom)
 						bd.text.addReplacement(VLC->generaltexth->colors[m13489val]);
@@ -4294,25 +4276,25 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			
 			switch (rewardType)
 			{
-				case 1: bd.components.push_back (Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f, 0));
+				case 1: bd.components.push_back(Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f, 0));
 					break;
-				case 2: bd.components.push_back (Component (Component::PRIM_SKILL, 5, rVal, 0));
+				case 2: bd.components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
 					break;
-				case 3: bd.components.push_back (Component (Component::MORALE, 0, rVal, 0));
+				case 3: bd.components.push_back(Component (Component::MORALE, 0, rVal, 0));
 					break;
-				case 4: bd.components.push_back (Component (Component::LUCK, 0, rVal, 0));
+				case 4: bd.components.push_back(Component (Component::LUCK, 0, rVal, 0));
 					break;
-				case 5: bd.components.push_back (Component (Component::RESOURCE, rID, rVal, 0));
+				case 5: bd.components.push_back(Component (Component::RESOURCE, rID, rVal, 0));
 					break;
-				case 6: bd.components.push_back (Component (Component::PRIM_SKILL, rID, rVal, 0));
+				case 6: bd.components.push_back(Component (Component::PRIM_SKILL, rID, rVal, 0));
 					break;
-				case 7: bd.components.push_back (Component (Component::SEC_SKILL, rID, rVal, 0));
+				case 7: bd.components.push_back(Component (Component::SEC_SKILL, rID, rVal, 0));
 					break;
-				case 8: bd.components.push_back (Component (Component::ARTIFACT, rID, 0, 0));
+				case 8: bd.components.push_back(Component (Component::ARTIFACT, rID, 0, 0));
 					break;
-				case 9: bd.components.push_back (Component (Component::SPELL, rID, 0, 0));
+				case 9: bd.components.push_back(Component (Component::SPELL, rID, 0, 0));
 					break;
-				case 10: bd.components.push_back (Component (Component::CREATURE, rID, rVal, 0));
+				case 10: bd.components.push_back(Component (Component::CREATURE, rID, rVal, 0));
 					break;
 			}
 			
@@ -4330,7 +4312,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 }
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = cb->gameState()->map->monsters[m13489val]->pos;
+	int3 cord = getCreatureToKill()->pos;
 	if ((double)cord.x/(double)cb->getMapSize().x < 0.34) //north
 	{
 		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //northwest
@@ -4440,6 +4422,41 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			break;
 		default:
 			break;
+	}
+}
+
+const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
+{
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(m13489val);
+	if(allowNull && !o)
+		return NULL;
+	assert(o && o->ID == HEROI_TYPE);
+	return static_cast<const CGHeroInstance*>(o);
+}
+
+const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
+{
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(m13489val);
+	if(allowNull && !o)
+		return NULL;
+	assert(o && o->ID == 54);
+	return static_cast<const CGCreature*>(o);
+}
+
+void CGSeerHut::addReplacements(MetaString &out, const std::string &base) const
+{
+	switch(missionType)
+	{
+	case MISSION_KILL_CREATURE:
+		out.addReplacement(stackToKill);
+		if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
+		{
+			out.addReplacement(VLC->generaltexth->arraytxt[147+stackDirection]);
+		}
+		break;
+	case MISSION_KILL_HERO:
+		out.addReplacement(heroName);
+		break;
 	}
 }
 

@@ -243,11 +243,8 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	if(obj->ID==HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-		std::vector<ConstTransitivePtr<CGHeroInstance> >::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
-		gs->map->heroes.erase(nitr);
-		int player = h->tempOwner;
-		nitr = std::find(gs->getPlayer(player)->heroes.begin(), gs->getPlayer(player)->heroes.end(), h);
-		gs->getPlayer(player)->heroes.erase(nitr);
+		gs->map->heroes -= h;
+		gs->getPlayer(h->tempOwner)->heroes -= h;
 		h->tempOwner = 255; //no one owns beaten hero
 
 		if(CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown))
@@ -264,13 +261,16 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		if(!vstd::contains(gs->hpool.pavailable, h->subID))
 			gs->hpool.pavailable[h->subID] = 0xff;
 
+		gs->map->objects[id] = NULL;
+		
+
 		return;
 	}
-	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
-	{
-		CGCreature *cre = static_cast<CGCreature*>(obj);
-		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
-	}
+// 	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
+// 	{
+// 		CGCreature *cre = static_cast<CGCreature*>(obj);
+// 		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
+// 	}
 	gs->map->objects[id].dellNull();
 }
 

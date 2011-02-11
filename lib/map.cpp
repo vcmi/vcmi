@@ -779,14 +779,15 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	nt->garrisonHero = NULL;
 }
 
-CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i)
+CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToBeGiven)
 {
 	CGHeroInstance * nhi = new CGHeroInstance();
 
 	int identifier = 0;
-	if(version>RoE)
+	if(version > RoE)
 	{
 		identifier = readNormalNr(bufor,i, 4); i+=4;
+		questIdentifierToId[identifier] = idToBeGiven;
 	}
 
 	ui8 owner = bufor[i++];
@@ -815,7 +816,6 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i)
 			break;
 		}
 	}
-	heroesToBeat[identifier] = nhi;
 	if(readChar(bufor,i))//true if hero has nonstandard name
 		nhi->name = readString(bufor,i);
 	if(version>AB)
@@ -1224,6 +1224,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		pos.z = bufor[i++];
 
 		int defnum = readNormalNr(bufor,i, 4); i+=4;
+		int idToBeGiven = objects.size();
 
 		CGDefInfo * defInfo = defy[defnum];
 		i+=5;
@@ -1306,7 +1307,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			}
 		case 34: case 70: case 62: //34 - hero; 70 - random hero; 62 - prison
 			{
-				nobj = loadHero(bufor, i);
+				nobj = loadHero(bufor, i, idToBeGiven);
 				break;
 			}
 		case 4: //Arena
@@ -1358,7 +1359,8 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				if(version>RoE)
 				{
 					cre->identifier = readNormalNr(bufor,i); i+=4;
-					monsters[cre->identifier] = cre;
+					questIdentifierToId[cre->identifier] = idToBeGiven;
+					//monsters[cre->identifier] = cre;
 				}
 
 				CStackInstance *hlp = new CStackInstance();
@@ -1846,10 +1848,11 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 		nobj->pos = pos;
 		nobj->ID = defInfo->id;
-		nobj->id = objects.size();
+		nobj->id = idToBeGiven;
 		if(nobj->ID != HEROI_TYPE && nobj->ID != 214 && nobj->ID != 62)
 			nobj->subID = defInfo->subid;
 		nobj->defInfo = defInfo;
+		assert(idToBeGiven == objects.size());
 		objects.push_back(nobj);
 		if(nobj->ID==TOWNI_TYPE)
 			towns.push_back(static_cast<CGTownInstance*>(nobj));

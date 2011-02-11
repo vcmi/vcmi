@@ -2386,6 +2386,12 @@ void CBattleInterface::hexLclicked(int whichOne)
 {
 	const CStack * actSt = activeStack;
 	const CStack* dest = curInt->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
+	if(!actSt)
+	{
+		tlog3 << "Hex l-clicked when no active stack!\n";
+		return;
+	}
+
 	if( ((whichOne%BFIELD_WIDTH)!=0 && (whichOne%BFIELD_WIDTH)!=(BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
 		|| (actSt->hasBonusOfType(Bonus::CATAPULT) && !spellDestSelectMode || dest ) //enemy's first aid tent can stand there and we want to shoot it
 		)

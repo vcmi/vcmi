@@ -287,8 +287,10 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
-	bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
-	bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
+	//bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
+	//bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
+
+	bmap<si32, si32> questIdentifierToId;
 
 	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
 
@@ -300,7 +302,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void readPredefinedHeroes( const unsigned char * bufor, int &i);
 	void readHeader( const unsigned char * bufor, int &i);
 	void readRumors( const unsigned char * bufor, int &i);
-	CGObjectInstance *loadHero(const unsigned char * bufor, int &i);
+	CGObjectInstance *loadHero(const unsigned char * bufor, int &i, int idToBeGiven);
 	void loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInstance * nhi);
 	bool loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
@@ -326,9 +328,8 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
-		h & monsters;
-		h & heroesToBeat;
 		h & artInstances; //hopefully serialization is now automagical?
+		h & questIdentifierToId;
 
 		//TODO: viccondetails
 		if(h.saving)
