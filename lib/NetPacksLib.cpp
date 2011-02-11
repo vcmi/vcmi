@@ -973,7 +973,13 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
 	if(ba.actionType != BattleAction::HERO_SPELL) //don't check for stack if it's custom action by hero
+	{
 		assert(st);
+	}
+	else
+	{
+		gs->curB->usedSpellsHistory[ba.side].push_back(VLC->spellh->spells[ba.additionalInfo]);
+	}
 
 	switch(ba.actionType)
 	{

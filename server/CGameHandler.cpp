@@ -21,6 +21,7 @@
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
 #include <boost/format.hpp>
+#include <sstream>
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -352,6 +353,57 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
 	sendAndApply(battleResult.data);
+
+	//Eagle Eye secondary skill handling
+	const CGHeroInstance *vistoriousHero = gs->curB->heroes[battleResult.data->winner];
+	if(0 && vistoriousHero)
+	{
+		if(int eagleEyeLevel = vistoriousHero->getSecSkillLevel(CGHeroInstance::EAGLE_EYE))
+		{
+			int maxLevel = eagleEyeLevel + 1;
+			double eagleEyeChance = vistoriousHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::EAGLE_EYE);
+			
+			ChangeSpells cs;
+			cs.learn = 1;
+			cs.hid = vistoriousHero->id;
+
+			BOOST_FOREACH(const CSpell *sp, gs->curB->usedSpellsHistory[!battleResult.data->winner])
+				if(rand() % 100 < eagleEyeChance)
+					cs.spells.insert(sp->id);
+
+			if(cs.spells.size())
+			{
+				InfoWindow iw;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
+				iw.text.addReplacement(vistoriousHero->name);
+
+				std::ostringstream names;
+				for(int i = 0; i < cs.spells.size(); i++)
+				{
+					names << "%s";
+					if(i < cs.spells.size() - 2)
+						names << ", ";
+					else if(i < cs.spells.size() - 1)
+						names << "%s";
+				}
+
+				iw.text.addReplacement(names.str());
+
+				std::set<ui32>::iterator it = cs.spells.begin();
+				for(int i = 0; i < cs.spells.size(); i++, it++)
+				{
+					iw.text.addReplacement(MetaString::SPELL_NAME, *it);
+					if(i == cs.spells.size() - 2) //we just added pre-last name
+						iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
+					iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
+				}
+
+				sendAndApply(&iw);
+				sendAndApply(&cs);
+			}
+		}
+	}
+
 
 	if(!duel)
 	{

@@ -58,7 +58,8 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	CArmedInstance *belligerents[2]; //may be same as heroes
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
-	ui8 castSpells[2]; //[0] - attacker, [1] - defender
+	ui8 castSpells[2]; //how many spells each side has cast this turn [0] - attacker, [1] - defender
+	std::vector<const CSpell *> usedSpellsHistory[2]; //each time hero casts spell, it's inserted here -> eagle eye skill 
 	SiegeInfo si;
 	si32 battlefieldType;
 
@@ -67,6 +68,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 		h & sides & round & activeStack & siege & town & tile & stacks & belligerents & obstacles
 			& castSpells & si & battlefieldType;
 		h & heroes;
+		h & usedSpellsHistory;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 
