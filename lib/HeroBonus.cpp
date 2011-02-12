@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
+#include "BattleState.h"
 
 #define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
 #define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)
@@ -29,6 +30,8 @@ int DLL_EXPORT BonusList::totalValue() const
 	int additive = 0;
 	int indepMax = 0;
 	bool hasIndepMax = false;
+	int indepMin = 0;
+	bool hasIndepMin = false;
 
 	BOOST_FOREACH(Bonus *i, *this)
 	{
@@ -58,15 +61,32 @@ int DLL_EXPORT BonusList::totalValue() const
 			}
 
 			break;
+		case Bonus::INDEPENDENT_MIN:
+			if (!indepMin)
+			{
+				indepMin = i->val;
+				hasIndepMin = true;
+			}
+			else
+			{
+				amax(indepMin, i->val);
+			}
+
+			break;
 		}
 	}
 	int modifiedBase = base + (base * percentToBase) / 100;
 	modifiedBase += additive;
 	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
+
+	if(hasIndepMin && hasIndepMax)
+		assert(indepMin < indepMax);
 	if (hasIndepMax)
-		return std::max(valFirst, indepMax);
-	else
-		return valFirst;
+		amax(valFirst, indepMax);
+	if (hasIndepMax)
+		amin(valFirst, indepMin);
+
+	return valFirst;
 }
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const
 {
@@ -600,15 +620,29 @@ namespace Selector
 	}
 }
 
+const CStackInstance * retreiveStackInstance(const CBonusSystemNode *node)
+{
+	switch(node->nodeType)
+	{
+	case CBonusSystemNode::STACK_INSTANCE:
+		return (static_cast<const CStackInstance *>(node));
+	case CBonusSystemNode::STACK_BATTLE:
+		return (static_cast<const CStack*>(node))->base;
+	default:
+		return NULL;
+	}
+}
+
 const CCreature * retrieveCreature(const CBonusSystemNode *node)
 {
 	switch(node->nodeType)
 	{
 	case CBonusSystemNode::CREATURE:
 		return (static_cast<const CCreature *>(node));
-	case CBonusSystemNode::STACK:
-		return (static_cast<const CStackInstance *>(node))->type;
 	default:
+		const CStackInstance *csi = retreiveStackInstance(node);
+		if(csi)
+			return csi->type;
 		return NULL;
 	}
 }
@@ -655,24 +689,11 @@ bool ILimiter::limit(const Bonus *b, const CBonusSystemNode &node) const /*retur
 
 bool CCreatureTypeLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
 {
-	switch (node.nodeType)
-	{	
-		case CBonusSystemNode::STACK:
-		{
-			const CCreature *c = (static_cast<const CStackInstance *>(&node))->type;
-			return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
-		}	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
-			break;
-		case CBonusSystemNode::CREATURE:
-		{
-			const CCreature *c = (static_cast<const CCreature *>(&node));
-			return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
-		}
-			break;
-		default:
-			return true;
-	}
+	const CCreature *c = retrieveCreature(&node);
+	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
+	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
 }
+
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)
 	:creature(&Creature), includeUpgrades(IncludeUpgrades)
 {
@@ -773,12 +794,15 @@ bool CreatureAlignmentLimiter::limit(const Bonus *b, const CBonusSystemNode &nod
 	}
 }
 
-ExpRankLimiter::ExpRankLimiter(ui8 Rank)
-	:rank(Rank)
+RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
+	:minRank(Min), maxRank(Max)
 {
 }
 
-RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
-	:min(Min), max(Max)
+bool RankRangeLimiter::limit( const Bonus *b, const CBonusSystemNode &node ) const
 {
+	const CStackInstance *csi = retreiveStackInstance(&node);
+	if(csi)
+		return csi->getExpRank() < minRank || csi->getExpRank() > maxRank;
+	return true;
 }

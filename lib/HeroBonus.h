@@ -213,7 +213,8 @@ struct DLL_EXPORT Bonus
 		BASE_NUMBER,
 		PERCENT_TO_ALL,
 		PERCENT_TO_BASE,
-		INDEPENDENT_MAX //used for SPELL bonus
+		INDEPENDENT_MAX, //used for SPELL bonus
+		INDEPENDENT_MIN //used for SECONDARY_SKILL_PREMY bonus
 	};
 
 	ui16 duration; //uses BonusDuration values
@@ -433,7 +434,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO
 	};
 };
 
@@ -618,29 +619,17 @@ public:
 	}
 };
 
-class DLL_EXPORT ExpRankLimiter : public ILimiter //applies to creatures with Rank >= rank
-{
-public:
-	ui8 rank;
-
-	ExpRankLimiter(ui8 Rank);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & rank;
-	}
-};
-
 class DLL_EXPORT RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
 {
 public:
-	ui8 min, max;
+	ui8 minRank, maxRank;
 
-	RankRangeLimiter(ui8 Min, ui8 Max);
+	RankRangeLimiter(ui8 Min, ui8 Max = 255);
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & min & max;
+		h & minRank & maxRank;
 	}
 };
 

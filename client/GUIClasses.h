@@ -471,8 +471,8 @@ public:
 	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
 	CSlider *slider; //for selecting amount
 	AdventureMapButton *max, *buy, *cancel;
-	SDL_Surface *bitmap; //background
-	CStatusBar *bar;
+	CPicture *bitmap; //background
+	CGStatusBar *bar;
 	int which; //which creature is active
 
 	const CGDwelling *dwelling;
@@ -486,11 +486,7 @@ public:
 	void sliderMoved(int to);
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to){show(to);};
-	void cleanCres();
+	void showAll(SDL_Surface * to);
 	void initCres();
 	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
 	~CRecruitmentWindow(); //d-tor

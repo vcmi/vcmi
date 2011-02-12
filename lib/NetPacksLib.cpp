@@ -243,8 +243,10 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	if(obj->ID==HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
+		PlayerState *p = gs->getPlayer(h->tempOwner);
 		gs->map->heroes -= h;
-		gs->getPlayer(h->tempOwner)->heroes -= h;
+		p->heroes -= h;
+		h->detachFrom(p);
 		h->tempOwner = 255; //no one owns beaten hero
 
 		if(CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown))
@@ -972,6 +974,12 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
+	if(ba.actionType == BattleAction::END_TACTIC_PHASE)
+	{
+		gs->curB->tacticDistance = 0;
+		return;
+	}
+
 	if(ba.actionType != BattleAction::HERO_SPELL) //don't check for stack if it's custom action by hero
 	{
 		assert(st);
@@ -1100,6 +1108,8 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		csi->setArmyObj(h);
 		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);
+		summonedStack->attachTo(csi);
+		summonedStack->postInit();
 		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
 		gs->curB->stacks.push_back(summonedStack);
 	}

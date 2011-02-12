@@ -21,7 +21,7 @@ struct DLL_EXPORT BattleAction
 	ui32 stackNumber;//stack ID, -1 left hero, -2 right hero,
 	enum ActionType
 	{
-		INVALID = -1, NO_ACTION = 0, HERO_SPELL, WALK, DEFEND, RETREAT, SURRENDER, WALK_AND_ATTACK, SHOOT, WAIT, CATAPULT, MONSTER_SPELL, BAD_MORALE, STACK_HEAL
+		END_TACTIC_PHASE = -2, INVALID = -1, NO_ACTION = 0, HERO_SPELL, WALK, DEFEND, RETREAT, SURRENDER, WALK_AND_ATTACK, SHOOT, WAIT, CATAPULT, MONSTER_SPELL, BAD_MORALE, STACK_HEAL
 	};
 	ui8 actionType; //use ActionType enum for values
 		//10 = Monster casts a spell (i.e. Faerie Dragons)	11 - Bad morale freeze	12 - stacks heals another stack
@@ -39,5 +39,6 @@ struct DLL_EXPORT BattleAction
 	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, THex attackFrom = THex::INVALID);
 	static BattleAction makeShotAttack(const CStack *shooter, const CStack *target);
 	static BattleAction makeMove(const CStack *stack, THex dest);
+	static BattleAction makeEndOFTacticPhase(ui8 side);
 };
 #endif // __BATTLEACTION_H__

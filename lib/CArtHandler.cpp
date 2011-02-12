@@ -585,23 +585,23 @@ void CArtHandler::addBonuses()
 	giveArtBonus(53,Bonus::SIGHT_RADIOUS,+1);//Spyglass
 
 	//necromancy bonus
-	giveArtBonus(54,Bonus::SECONDARY_SKILL_PREMY,+5,12, Bonus::ADDITIVE_VALUE);//Amulet of the Undertaker
-	giveArtBonus(55,Bonus::SECONDARY_SKILL_PREMY,+10,12, Bonus::ADDITIVE_VALUE);//Vampire's Cowl
-	giveArtBonus(56,Bonus::SECONDARY_SKILL_PREMY,+15,12, Bonus::ADDITIVE_VALUE);//Dead Man's Boots
+	giveArtBonus(54,Bonus::SECONDARY_SKILL_PREMY,+5, CGHeroInstance::NECROMANCY, Bonus::ADDITIVE_VALUE);//Amulet of the Undertaker
+	giveArtBonus(55,Bonus::SECONDARY_SKILL_PREMY,+10, CGHeroInstance::NECROMANCY, Bonus::ADDITIVE_VALUE);//Vampire's Cowl
+	giveArtBonus(56,Bonus::SECONDARY_SKILL_PREMY,+15, CGHeroInstance::NECROMANCY, Bonus::ADDITIVE_VALUE);//Dead Man's Boots
 
 	giveArtBonus(57,Bonus::MAGIC_RESISTANCE,+5);//Garniture of Interference
 	giveArtBonus(58,Bonus::MAGIC_RESISTANCE,+10);//Surcoat of Counterpoise
 	giveArtBonus(59,Bonus::MAGIC_RESISTANCE,+15);//Boots of Polarity
 
 	//archery bonus
-	giveArtBonus(60,Bonus::SECONDARY_SKILL_PREMY,+5,1, Bonus::ADDITIVE_VALUE);//Bow of Elven Cherrywood
-	giveArtBonus(61,Bonus::SECONDARY_SKILL_PREMY,+10,1, Bonus::ADDITIVE_VALUE);//Bowstring of the Unicorn's Mane
-	giveArtBonus(62,Bonus::SECONDARY_SKILL_PREMY,+15,1, Bonus::ADDITIVE_VALUE);//Angel Feather Arrows
+	giveArtBonus(60,Bonus::SECONDARY_SKILL_PREMY,+5, CGHeroInstance::ARCHERY, Bonus::ADDITIVE_VALUE);//Bow of Elven Cherrywood
+	giveArtBonus(61,Bonus::SECONDARY_SKILL_PREMY,+10,CGHeroInstance::ARCHERY, Bonus::ADDITIVE_VALUE);//Bowstring of the Unicorn's Mane
+	giveArtBonus(62,Bonus::SECONDARY_SKILL_PREMY,+15,CGHeroInstance::ARCHERY, Bonus::ADDITIVE_VALUE);//Angel Feather Arrows
 
 	//eagle eye bonus
-	giveArtBonus(63,Bonus::SECONDARY_SKILL_PREMY,+5,11, Bonus::ADDITIVE_VALUE);//Bird of Perception
-	giveArtBonus(64,Bonus::SECONDARY_SKILL_PREMY,+10,11, Bonus::ADDITIVE_VALUE);//Stoic Watchman
-	giveArtBonus(65,Bonus::SECONDARY_SKILL_PREMY,+15,11, Bonus::ADDITIVE_VALUE);//Emblem of Cognizance
+	giveArtBonus(63,Bonus::SECONDARY_SKILL_PREMY,+5, CGHeroInstance::EAGLE_EYE, Bonus::ADDITIVE_VALUE);//Bird of Perception
+	giveArtBonus(64,Bonus::SECONDARY_SKILL_PREMY,+10, CGHeroInstance::EAGLE_EYE, Bonus::ADDITIVE_VALUE);//Stoic Watchman
+	giveArtBonus(65,Bonus::SECONDARY_SKILL_PREMY,+15, CGHeroInstance::EAGLE_EYE, Bonus::ADDITIVE_VALUE);//Emblem of Cognizance
 
 	//reducing cost of surrendering
 	giveArtBonus(66,Bonus::SURRENDER_DISCOUNT,+10);//Statesman's Medal

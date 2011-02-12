@@ -1111,3 +1111,37 @@ CBattleCallback::ESpellCastProblem CBattleCallback::battleCanCastThisSpell( cons
 
 	return OK;
 }
+
+si8 CBattleCallback::battleGetTacticDist()
+{
+	if (!gs->curB)
+	{
+		tlog1 << "battleGetTacticDist called when no battle!\n";
+		return 0;
+	}
+
+	if (gs->curB->sides[gs->curB->tacticsSide] == player)
+	{
+		return gs->curB->tacticDistance;
+	}
+	return 0;
+}
+
+ui8 CBattleCallback::battleGetMySide()
+{
+	if (!gs->curB)
+	{
+		tlog1 << "battleGetMySide called when no battle!\n";
+		return 0;
+	}
+
+	return gs->curB->sides[1] == player;
+}
+
+bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
+{
+	MakeAction ma;
+	ma.ba = *action;
+	sendRequest(&ma);
+	return true;
+}

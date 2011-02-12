@@ -379,7 +379,7 @@ class CBattleInterface : public CIntObject
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
 	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
-		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
+		* bWait, * bDefence, * bConsoleUp, * bConsoleDown, *btactNext, *btactEnd;
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
 	CStackQueue *queue;
@@ -479,6 +479,8 @@ public:
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
+	void bTacticNextStack();
+	void bEndTacticPhase();
 	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate();

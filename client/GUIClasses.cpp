@@ -1705,14 +1705,14 @@ void CRecruitmentWindow::Cancel()
 void CRecruitmentWindow::sliderMoved(int to)
 {
 	buy->block(!to);
+	redraw();
 }
 void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 {
-	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
 		const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
-		if(isItIn(&genRect(132,sCREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
+		if(isItIn(&(Rect(creatures[i].pos) + pos),GH.current->motion.x,GH.current->motion.y))
 		{
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
@@ -1725,18 +1725,9 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 				slider->moveTo(newAmount);
 			else
 				slider->moveTo(slider->value);
-			curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
-			for(int j=0;j<creatures.size();j++)
-			{
-				if(which==j)
-					drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(255,0,0));
-				else
-					drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(239,215,123));
-				curx += TOTAL_CREATURE_WIDTH;
-			}
+			redraw();
 			break;
 		}
-		curx += TOTAL_CREATURE_WIDTH;
 	}
 }
 void CRecruitmentWindow::clickRight(tribool down, bool previousState)
@@ -1758,106 +1749,85 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 	}
 }
 
-void CRecruitmentWindow::activate()
+void CRecruitmentWindow::showAll( SDL_Surface * to )
 {
-	activateLClick();
-	activateRClick();
-	buy->activate();
-	max->activate();
-	cancel->activate();
-	slider->activate();
-	GH.statusbar = bar;
-}
-
-void CRecruitmentWindow::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	buy->deactivate();
-	max->deactivate();
-	cancel->deactivate();
-	slider->deactivate();
-}
-
-void CRecruitmentWindow::show(SDL_Surface * to)
-{
-	blitAt(bitmap,pos.x,pos.y,to);
-	buy->show(to);
-	max->show(to);
-	cancel->show(to);
-	slider->show(to);
-
+	CIntObject::showAll(to);
+	
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddle(pom,pos.x+205,pos.y+253,FONT_SMALL,zwykly,to);
+	printAtMiddleLoc(pom,205,253,FONT_SMALL,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddle(pom,pos.x+279,pos.y+253,FONT_SMALL,zwykly,to);
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,pos.x+243,pos.y+32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
+	printAtMiddleLoc(pom,279,253,FONT_SMALL,zwykly,to);
+	printAtMiddleLoc(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,243,32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
 
-	int curx = pos.x+122-creatures[which].res.size()*24;
+	int curx = 122-creatures[which].res.size()*24;
 	for(int i=creatures[which].res.size()-1; i>=0; i--)// decrement used to make gold displayed as first res
 	{
-		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,to);
-		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,to);
+		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,243,to);
+		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,243,to);
 		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddle(pom,curx+15,pos.y+287,FONT_SMALL,zwykly,to);
+		printAtMiddleLoc(pom,curx+15,287,FONT_SMALL,zwykly,to);
 		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddle(pom,curx+15+258,pos.y+287,FONT_SMALL,zwykly,to);
+		printAtMiddleLoc(pom,curx+15+258,287,FONT_SMALL,zwykly,to);
 		curx+=32+16;//size of bitmap + distance between them
 	}
 
-	for(int i=0; i<creatures.size(); ++i)
-		creatures[i].pic->show(to);
-
-	bar->show(to);
+	for(int j=0;j<creatures.size();j++)
+	{
+		if(which==j)
+			drawBorder(*bitmap,creatures[j].pos,int3(255,0,0));
+		else
+			drawBorder(*bitmap,creatures[j].pos,int3(239,215,123));
+	}
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset)
 :recruit(Recruit), dwelling(Dwelling), level(Level), dst(Dst)
 {
+	used = LCLICK | RCLICK;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	which = 0;
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPRCRT.bmp");
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
-	SDL_FreeSurface(hhlp);
-	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2+y_offset;
-	pos.w = bitmap->w;
-	pos.h = bitmap->h;
-	bar = new CStatusBar(pos.x+8, pos.y+370, "APHLFTRT.bmp", 471);
-	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
-	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
-	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
+
+	bitmap = new CPicture("TPRCRT.bmp");
+	bitmap->colorizeAndConvert(LOCPLINT->playerID);
+	bitmap->center();
+	pos = (bitmap->pos += Point(0, y_offset));
+
+	bar = new CGStatusBar(8, 370, "APHLFTRT.bmp", 471);
+	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
+	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
+	slider = new CSlider(176,279,135,0,0,0,0,true);
+	slider->moved = boost::bind(&CRecruitmentWindow::sliderMoved,this, _1);
 
 	initCres();
 
-	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,zwykly,bitmap); //cost per troop t
-	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,zwykly,bitmap); //available t
-	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,zwykly,bitmap); //recruit t
-	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,zwykly,bitmap); //total cost t
-	drawBorder(bitmap,172,222,67,42,int3(239,215,123));
-	drawBorder(bitmap,246,222,67,42,int3(239,215,123));
-	drawBorder(bitmap,64,222,99,76,int3(239,215,123));
-	drawBorder(bitmap,322,222,99,76,int3(239,215,123));
-	drawBorder(bitmap,133,312,66,34,int3(173,142,66));
-	drawBorder(bitmap,211,312,66,34,int3(173,142,66));
-	drawBorder(bitmap,289,312,66,34,int3(173,142,66));
+	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,zwykly,*bitmap); //cost per troop t
+	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,zwykly,*bitmap); //available t
+	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,zwykly,*bitmap); //recruit t
+	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,zwykly,*bitmap); //total cost t
+	drawBorder(*bitmap,172,222,67,42,int3(239,215,123));
+	drawBorder(*bitmap,246,222,67,42,int3(239,215,123));
+	drawBorder(*bitmap,64,222,99,76,int3(239,215,123));
+	drawBorder(*bitmap,322,222,99,76,int3(239,215,123));
+	drawBorder(*bitmap,133,312,66,34,int3(173,142,66));
+	drawBorder(*bitmap,211,312,66,34,int3(173,142,66));
+	drawBorder(*bitmap,289,312,66,34,int3(173,142,66));
 
 	//border for creatures
 	int curx = 192 + 50 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		creatures[i].pos.x = curx;
-		creatures[i].pos.y = 65;
-		creatures[i].pos.w = 100;
-		creatures[i].pos.h = 130;
-		if(which==i)
-			drawBorder(bitmap,curx-1,64,CREATURE_WIDTH,132,int3(255,0,0));
-		else
-			drawBorder(bitmap,curx-1,64,CREATURE_WIDTH,132,int3(239,215,123));
-		creatures[i].pic = new CCreaturePic(pos.x+curx, pos.y+65, CGI->creh->creatures[creatures[i].ID]);
+		creatures[i].pos.x = curx-1;
+		creatures[i].pos.y = 65 - 1;
+		creatures[i].pos.w = 100 + 2;
+		creatures[i].pos.h = 130 + 2;
+// 		if(which==i)
+// 			drawBorder(*bitmap,curx-1,64,CREATURE_WIDTH,132,int3(255,0,0));
+// 		else
+// 			drawBorder(*bitmap,curx-1,64,CREATURE_WIDTH,132,int3(239,215,123));
+		creatures[i].pic = new CCreaturePic(curx, 65, CGI->creh->creatures[creatures[i].ID]);
 		curx += TOTAL_CREATURE_WIDTH;
 	}
 
@@ -1871,18 +1841,13 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 
 CRecruitmentWindow::~CRecruitmentWindow()
 {
-	cleanCres();
-	delete max;
-	delete buy;
-	delete cancel;
-	SDL_FreeSurface(bitmap);
-	delete slider;
-	delete bar;
 }
 
 void CRecruitmentWindow::initCres()
 {
-	cleanCres();
+	creatures.clear();
+	amounts.clear();
+
 	for(int i=0; i<dwelling->creatures.size(); i++)
 	{
 		if(level >= 0 && i != level) 
@@ -1905,16 +1870,6 @@ void CRecruitmentWindow::initCres()
 	}
 
 	slider->setAmount(std::min(amounts[which],creatures[which].amount));
-}
-
-void CRecruitmentWindow::cleanCres()
-{
-	for(int i=0;i<creatures.size();i++)
-	{
-		delete creatures[i].pic;
-	}
-	creatures.clear();
-	amounts.clear();
 }
 
 CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int val)
@@ -6556,7 +6511,7 @@ void MoraleLuckBox::set(const CBonusSystemNode *node)
 		text += CGI->generaltexth->arraytxt[noneTxtId];
 	else
 	{
-		if (node->nodeType == CBonusSystemNode::STACK &&
+		if (node->nodeType == CBonusSystemNode::STACK_INSTANCE &&
 			(node->hasBonusOfType (Bonus::UNDEAD) || node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING))) //it's a creature window
 		{
 			text += CGI->generaltexth->arraytxt[113]; //unaffected by morale

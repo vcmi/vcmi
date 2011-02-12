@@ -352,10 +352,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	ui8 loser = sides[!battleResult.data->winner];
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
+
+
 	sendAndApply(battleResult.data);
 
 	//Eagle Eye secondary skill handling
-	const CGHeroInstance *vistoriousHero = gs->curB->heroes[battleResult.data->winner];
+	/*const CGHeroInstance *vistoriousHero = gs->curB->heroes[battleResult.data->winner];
 	if(0 && vistoriousHero)
 	{
 		if(int eagleEyeLevel = vistoriousHero->getSecSkillLevel(CGHeroInstance::EAGLE_EYE))
@@ -403,7 +405,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			}
 		}
 	}
-
+	*/
 
 	if(!duel)
 	{
@@ -617,7 +619,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	tlog1 << "Ended handling connection\n";
 }
 
-int CGameHandler::moveStack(int stack, int dest)
+int CGameHandler::moveStack(int stack, THex dest)
 {
 	int ret = 0;
 
@@ -626,6 +628,11 @@ int CGameHandler::moveStack(int stack, int dest)
 
 	assert(curStack);
 	assert(dest < BFIELD_SIZE);
+
+	if (gs->curB->tacticDistance)
+	{
+		assert(gs->curB->isInTacticRange(dest));
+	}
 
 	//initing necessary tables
 	bool accessibility[BFIELD_SIZE];
@@ -645,12 +652,12 @@ int CGameHandler::moveStack(int stack, int dest)
 		if(curStack->attackerOwned)
 		{
 			if(accessibility[dest+1])
-				dest+=1;
+				dest += THex::RIGHT;
 		}
 		else
 		{
 			if(accessibility[dest-1])
-				dest-=1;
+				dest += THex::LEFT;
 		}
 	}
 
@@ -675,9 +682,11 @@ int CGameHandler::moveStack(int stack, int dest)
 
 	ret = path.second;
 
+	int creSpeed = gs->curB->tacticDistance ? BFIELD_SIZE : curStack->Speed();
+
 	if(curStack->hasBonusOfType(Bonus::FLYING))
 	{
-		if(path.second <= curStack->Speed() && path.first.size() > 0)
+		if(path.second <= creSpeed && path.first.size() > 0)
 		{
 			//inform clients about move
 			BattleStackMoved sm;
@@ -691,7 +700,7 @@ int CGameHandler::moveStack(int stack, int dest)
 	}
 	else //for non-flying creatures
 	{
-		int tilesToMove = std::max((int)(path.first.size() - curStack->Speed()), 0);
+		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		for(int v=path.first.size()-1; v>=tilesToMove; --v)
 		{
 			//inform clients about move
@@ -3099,8 +3108,15 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
 	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
 	bool ok = true;
+
 	switch(ba.actionType)
 	{
+	case BattleAction::END_TACTIC_PHASE: //wait
+		{
+			sendAndApply(&StartAction(ba));
+			sendAndApply(&EndAction());
+			break;
+		}
 	case BattleAction::WALK: //walk
 		{
 			sendAndApply(&StartAction(ba)); //start movement
@@ -4844,12 +4860,8 @@ void CGameHandler::runBattle()
 
 	//tactic round
 	{
-		if( (gs->curB->heroes[0] && gs->curB->heroes[0]->getSecSkillLevel(CGHeroInstance::TACTICS)>0) || 
-			( gs->curB->heroes[1] && gs->curB->heroes[1]->getSecSkillLevel(CGHeroInstance::TACTICS)>0)  )//someone has tactics
-		{
-			//TODO: tactic round (round -1)
-			NEW_ROUND;
-		}
+		while(gs->curB->tacticDistance)
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
 	//spells opening battle

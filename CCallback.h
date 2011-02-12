@@ -105,6 +105,9 @@ public:
 	virtual si8 battleHasDistancePenalty(const CStack * stack, THex destHex) =0; //checks if given stack has distance penalty
 	virtual si8 battleHasWallPenalty(const CStack * stack, THex destHex) =0; //checks if given stack has wall penalty
 	virtual si8 battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel) =0; //checks if teleportation of given stack to given position can take place
+	virtual si8 battleGetTacticDist() =0; //returns tactic distance for calling player or 0 if player is not in tactic phase
+	virtual ui8 battleGetMySide() =0; //return side of player in battle (attacker/defender)
+	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
 };
 
 class ICallback : public virtual IBattleCallback
@@ -234,6 +237,9 @@ public:
 	si8 battleHasDistancePenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has distance penalty
 	si8 battleHasWallPenalty(const CStack * stack, THex destHex) OVERRIDE; //checks if given stack has wall penalty
 	si8 battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel) OVERRIDE; //checks if teleportation of given stack to given position can take place
+	si8 battleGetTacticDist() OVERRIDE; //returns tactic distance for calling player or 0 if player is not in tactic phase
+	ui8 battleGetMySide() OVERRIDE; //return side of player in battle (attacker/defender)
+	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
 
 	friend class CCallback;
 	friend class CClient;

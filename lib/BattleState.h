@@ -63,12 +63,16 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	SiegeInfo si;
 	si32 battlefieldType;
 
+	ui8 tacticsSide; //which side is requested to play tactics phase
+	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & sides & round & activeStack & siege & town & tile & stacks & belligerents & obstacles
 			& castSpells & si & battlefieldType;
 		h & heroes;
 		h & usedSpellsHistory;
+		h & tacticsSide & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 
@@ -117,6 +121,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	si8 battleMaxSpellLevel() const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	void localInit();
 	static BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
+	bool isInTacticRange( THex dest ) const;
 };
 
 class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor

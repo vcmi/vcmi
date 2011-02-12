@@ -315,11 +315,15 @@ std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOcc
 		}
 	}
 	
-	for (int i=0; i < BFIELD_SIZE ; ++i) {
-		if(
-			( ( !addOccupiable && dist[i] <= stack->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= stack->Speed() && isAccessible(i, ac, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), true) ) )//we can reach it
-			|| (vstd::contains(occupyable, i) && ( dist[ i + (stack->attackerOwned ? 1 : -1 ) ] <= stack->Speed() ) &&
-				ac[i + (stack->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
+	for (int i=0; i < BFIELD_SIZE ; ++i)
+	{
+		bool rangeFits = tacticDistance 
+						? isInTacticRange(i)
+						: dist[i] <= stack->Speed();
+
+		if(	( !addOccupiable && rangeFits && ac[i] ) 
+			|| ( addOccupiable && rangeFits && isAccessible(i, ac, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), true) )//we can reach it
+			|| (vstd::contains(occupyable, i) && (!tacticDistance && dist[ i + (stack->attackerOwned ? 1 : -1 ) ] <= stack->Speed() ) && ac[i + (stack->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
 			)
 		{
 			ret.push_back(i);
@@ -501,17 +505,17 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	{
 		if(shooting)
 		{
-			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
+			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ARCHERY) / 100.0f;
 		}
 		else
 		{
-			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 22) / 100.0f;
+			additiveBonus += attackerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::OFFENCE) / 100.0f;
 		}
 	}
 
 	if(defendingHero)
 	{
-		multBonus *= (std::max(0, 100-defendingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 23))) / 100.0f;
+		multBonus *= (std::max(0, 100-defendingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ARMORER))) / 100.0f;
 	}
 
 	//handling hate effect
@@ -838,7 +842,7 @@ ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const C
 	//applying sorcery secondary skill
 	if(caster)
 	{
-		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 25)) / 100.0f; //sorcery
+		ret *= (100.f + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::SORCERY)) / 100.0f;
 		ret *= (100.f + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0f;
 
 		if(sp->air)
@@ -1588,12 +1592,28 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
+	int tacticLvls[2] = {0};
+	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
+	{
+		if(heroes[i])
+			tacticLvls[i] += heroes[i]->getSecSkillLevel(CGHeroInstance::TACTICS);
+	}
+
+	if(int diff = tacticLvls[0] - tacticLvls[1])
+	{
+		curB->tacticsSide = diff < 0;
+		curB->tacticDistance = std::abs(diff)*2 + 1;
+	}
+
 	return curB;
 }
 
+bool BattleInfo::isInTacticRange( THex dest ) const
+{
 
-
-
+	return ((tacticsSide && dest.getX() > 0 && dest.getX() <= tacticDistance)
+		|| (!tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
+}
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),   
@@ -1602,11 +1622,13 @@ CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	assert(base);
 	type = base->type;
 	count = baseAmount = base->count;
+	nodeType = STACK_BATTLE;
 }
 
 CStack::CStack()
 {
 	init();
+	nodeType = STACK_BATTLE;
 }
 
 CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
@@ -1614,6 +1636,7 @@ CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
+	nodeType = STACK_BATTLE;
 }
 
 void CStack::init()

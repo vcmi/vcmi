@@ -6,6 +6,7 @@
 #include "../lib/map.h"
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
+#include "../lib/BattleAction.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
@@ -209,6 +210,15 @@ bool MakeAction::applyGh( CGameHandler *gh )
 {
 	if(!GS(gh)->curB) ERROR_AND_RETURN;
 	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
+
+	if(GS(gh)->curB->tacticDistance)
+	{
+		if(ba.actionType != BattleAction::WALK  &&  ba.actionType != BattleAction::END_TACTIC_PHASE)
+			ERROR_AND_RETURN;
+		if(gh->connections[GS(gh)->curB->sides[GS(gh)->curB->tacticsSide]] != c) 
+			ERROR_AND_RETURN;
+	}
+
 	return gh->makeBattleAction(ba);
 }
 

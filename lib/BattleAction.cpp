@@ -70,3 +70,11 @@ BattleAction BattleAction::makeMove(const CStack *stack, THex dest)
 	ba.destinationTile = dest;
 	return ba;
 }
+
+BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = END_TACTIC_PHASE;
+	return ba;
+}

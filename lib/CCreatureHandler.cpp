@@ -939,7 +939,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			loadToIt (curVal, src, it, 4);
 			if (curVal == 1)
 			{
-				b.limiter.reset (new ExpRankLimiter(i));
+				b.limiter.reset (new RankRangeLimiter(i));
 				bl.push_back(new Bonus(b));
 				break; //never turned off it seems
 			}
@@ -954,7 +954,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			if (curVal > lastVal) //threshold, add last bonus
 			{
 				b.val = lastVal;
-				b.limiter.reset (new ExpRankLimiter(i));
+				b.limiter.reset (new RankRangeLimiter(i));
 				bl.push_back(new Bonus(b));
 				lastLev = i; //start new range from here, i = previous rank
 			}

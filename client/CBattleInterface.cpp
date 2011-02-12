@@ -104,7 +104,7 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
 			continue;
 
-		if(sen && thSen && perStackConcurrency)
+		if(sen && thSen && sen != thSen && perStackConcurrency)
 			continue;
 
 		CReverseAnim * revAnim = dynamic_cast<CReverseAnim *>(stAnim);
@@ -1214,6 +1214,13 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	console->pos.y = 560 + pos.y;
 	console->pos.w = 406;
 	console->pos.h = 38;
+	if(curInt->cb->battleGetTacticDist())
+	{
+		btactNext = new AdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this), 213 + pos.x, 560 + pos.y, "icm011.def", SDLK_SPACE);
+		btactEnd = new AdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419 + pos.x, 560 + pos.y, "icm012.def", SDLK_RETURN);
+		bDefence->block(true);
+		bWait->block(true);
+	}
 
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -1330,6 +1337,20 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	for (int i = 0; i < ARRAY_COUNT(bfield); i++)
 	{
 		children.push_back(&bfield[i]);
+	}
+
+	if(curInt->cb->battleGetTacticDist())
+	{
+		BOOST_FOREACH(const CStack *s, curInt->cb->battleGetStacks())
+		{
+			if(s->owner == curInt->playerID)
+			{
+				active = 1;
+				stackActivated(s);
+				active = 0;
+				break;
+			}
+		}
 	}
 }
 
@@ -3385,6 +3406,18 @@ void CBattleInterface::waitForAnims()
 	LOCPLINT->pim->unlock();
 	animsAreDisplayed.waitWhileTrue();
 	LOCPLINT->pim->lock();
+}
+
+void CBattleInterface::bEndTacticPhase()
+{
+	BattleAction endt = BattleAction::makeEndOFTacticPhase(curInt->cb->battleGetMySide());
+	curInt->cb->battleMakeTacticAction(&endt);
+
+}
+
+void CBattleInterface::bTacticNextStack()
+{
+
 }
 
 void CBattleHero::show(SDL_Surface *to)

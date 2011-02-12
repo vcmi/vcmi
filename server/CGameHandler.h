@@ -104,7 +104,7 @@ public:
 
 	bool isAllowedExchange(int id1, int id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
-	int moveStack(int stack, int dest); //returned value - travelled distance
+	int moveStack(int stack, THex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void runBattle();
 	void checkLossVictory(ui8 player);

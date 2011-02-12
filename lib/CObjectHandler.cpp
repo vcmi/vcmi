@@ -690,13 +690,11 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	double modifier = 0;
 	if(onLand)
 	{
-		//logistics:
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 2) / 100.0f;
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, LOGISTICS) / 100.0f;
 	}
 	else
 	{
-		//navigation:
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 5) / 100.0f;
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NAVIGATION) / 100.0f;
 	}
 	return int(base + base*modifier) + bonus;
 }
@@ -1215,20 +1213,21 @@ void CGHeroInstance::updateSkill(int which, int val)
 		case 27: //First Aid
 			skillVal = 25 + 25*val; break;
 	}
-	if (skillVal) //we don't need bonuses of other types here
+	
+
+	int skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
+	if(Bonus * b = bonuses.getFirst(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
 	{
-		Bonus * b = bonuses.getFirst(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL));
-		if (b) //only local hero bonus
-		{
-			b->val = skillVal;
-		}
-		else
-		{
-			Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, Bonus::BASE_NUMBER);
-			bonus->source = Bonus::SECONDARY_SKILL;
-			addNewBonus(bonus);
-		}
+		b->val = skillVal;
+		b->valType = skillValType;
 	}
+	else
+	{
+		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, skillValType);
+		bonus->source = Bonus::SECONDARY_SKILL;
+		addNewBonus(bonus);
+	}
+	
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
@@ -1312,7 +1311,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	// Hero knows necromancy.
 	if (necromancyLevel > 0) 
 	{
-		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 12)/100.0;
+		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NECROMANCY)/100.0;
 		amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
