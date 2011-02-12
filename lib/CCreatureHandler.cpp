@@ -670,20 +670,45 @@ void CCreatureHandler::loadCreatures()
 		expRanks[0].push_back(it);
 		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
 		{
-			expRanks[0].push_back(expRanks[0][j-1] + dif);
+			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
 			dif += it/5;
 		}
-		for (int i = 1; i < 8; ++i)
+		for (i = 1; i < 8; ++i)
 		{
 			dif = 0;
 			it = 1000 * i;
 			expRanks[i].push_back(it);
 			for (int j = 1; j < 10; ++j)
 			{
-				expRanks[i].push_back(expRanks[i][j-1] + dif);
+				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
 				dif += it/5;
 			}
 		}
+
+		buf = bitmaph->getTextFile("CREXPMOD.TXT"); //could be hardcoded though, lots of useless info
+		it = 0;
+		loadToIt (dump2, buf, it, 3); //ignore first line
+
+		maxExpPerBattle.resize(8);
+		si32 val;
+		for (i = 1; i < 8; ++i)
+		{
+			loadToIt (dump2, buf, it, 4); //float multiplier -> hardcoded
+			loadToIt (dump2, buf, it, 4); //ignore upgrade mod? ->hardcoded
+			loadToIt (dump2, buf, it, 4); //already calculated
+			loadToIt (val, buf, it, 4);
+			maxExpPerBattle[i] = (ui32)val;
+			loadToIt (val, buf, it, 4); //11th level
+			val += (si32)expRanks[i].back();
+			expRanks[i].push_back((ui32)val);
+			loadToIt (dump2, buf, it, 3); //crop comment
+		}
+		//skeleton gets exp penalty
+			creatures[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+			creatures[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		//exp for tier >7, rank 11
+			expRanks[0].push_back(14700);
+			expAfterUpgrade = 75; //percent
 
 	}//end of Stack Experience
 	//experiment - add 100 to attack for creatures of tier 1
