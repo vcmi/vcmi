@@ -408,6 +408,7 @@ public:
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getHeroStrength() const;
 	int getTotalStrength() const;
+	expType calculateXp(expType exp) const; //apply learning skill
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = NULL) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;

@@ -1179,7 +1179,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	int skillVal = 0;
 	switch (which)
 	{
-		case 1: //Archery
+		case ARCHERY:
 			switch (val)
 			{
 				case 1:
@@ -1190,27 +1190,29 @@ void CGHeroInstance::updateSkill(int which, int val)
 					skillVal = 50; break;
 			}
 			break;
-		case 2: //Logistics
+		case LOGISTICS:
 			skillVal = 10 * val; break;
-		case 5: //Navigation
+		case NAVIGATION:
 			skillVal = 50 * val; break;
-		case 8: //Mysticism
+		case MYSTICISM:
 			skillVal = val; break;
-		case 11: //eagle Eye
+		case EAGLE_EYE:
 			skillVal = 30 + 10 * val; break;
-		case 12: //Necromancy
+		case NECROMANCY:
 			skillVal = 10 * val; break;
-		case 22: //Offense
-			skillVal = 10 * val; break;
-		case 23: //Armorer
+		case LEARNING:
 			skillVal = 5 * val; break;
-		case 24: //Intelligence
+		case OFFENCE:
+			skillVal = 10 * val; break;
+		case ARMORER:
+			skillVal = 5 * val; break;
+		case INTELLIGENCE:
 			skillVal = 25 << (val-1); break;
-		case 25: //Sorcery
+		case SORCERY:
 			skillVal = 5 * val; break;
-		case 26: //Resistance
+		case RESISTANCE:
 			skillVal = 5 << (val-1); break;
-		case 27: //First Aid
+		case FIRST_AID:
 			skillVal = 25 + 25*val; break;
 	}
 	
@@ -1244,6 +1246,11 @@ int CGHeroInstance::getTotalStrength() const
 {
 	double ret = getHeroStrength() * getArmyStrength();
 	return (int) ret;
+}
+
+expType CGHeroInstance::calculateXp(expType exp) const
+{
+	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::LEARNING))/100.0f;
 }
 
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
@@ -2492,7 +2499,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case 100: //give exp
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
-				val = val*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+				val = h->calculateXp(val);
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(id,subid,val,0));
@@ -3836,7 +3843,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(2,6,val1,0));
-				int expVal = val2*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+				expType expVal = h->calculateXp(val2);
 				sd.components.push_back(Component(5,0,expVal, 0));
 				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
@@ -3857,7 +3864,7 @@ void CGPickable::chosen( int which, int heroID ) const
 		cb->giveResource(cb->getOwner(heroID),6,val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(heroID, 4, val2*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f);
+		cb->changePrimSkill(heroID, 4, h->calculateXp(val2));
 		break;
 	default:
 		throw std::string("Unhandled treasure choice");
@@ -4374,7 +4381,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 	{
 		case 1: //experience
 		{
-			int expVal = rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+			expType expVal = h->calculateXp(rVal);
 			cb->changePrimSkill(h->id, 4, expVal, false);
 			break;
 		}
@@ -4862,7 +4869,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
-		expType expVal = gainedExp*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+		expType expVal = h->calculateXp(gainedExp);
 		getText(iw,afterBattle,175,h);
 
 		if(expVal)
@@ -6165,8 +6172,10 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(xp)
 		{
+			xp = h->calculateXp(xp);
 			iw.text.addTxt(11,132);
 			iw.text.addReplacement(xp);
+			cb->changePrimSkill(h->ID, 4, xp, false);
 		}
 		else
 		{
@@ -6174,8 +6183,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	cb->showInfoDialog(&iw);
-	//////////////////////////////////////////////////////////////////////////
-	///TODO: WHAT WITH EXP? 
+
 }
 
 //bool IShipyard::validLocation() const

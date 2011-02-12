@@ -196,6 +196,8 @@ void CGameHandler::levelUpHero(int ID, int skill)
 void CGameHandler::levelUpHero(int ID)
 {
 	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
+	if (hero->battle)
+		tlog1<<"Battle found\n";
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1)) // no more level-ups
 		return;
 		
@@ -287,7 +289,9 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	sendAndApply(&sps);
 	if(which==4) //only for exp - hero may level up
 	{
+		//TODO: Stack Experience only after battle
 		levelUpHero(ID);
+		//TODO: Commander
 	}
 }
 
@@ -340,9 +344,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
 	if (hero1)
-		battleResult.data->exp[0] *= (100+hero1->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;//sholar skill
+		battleResult.data->exp[0] = hero1->calculateXp(battleResult.data->exp[0]);//scholar skill
 	if (hero2)
-		battleResult.data->exp[1] *= (100+hero2->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+		battleResult.data->exp[1] = hero2->calculateXp(battleResult.data->exp[1]);
 
 	ui8 sides[2];
 	for(int i=0; i<2; ++i)
@@ -4687,7 +4691,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	int dump, exp;
 	market->getOffer(crid, 0, dump, exp, CREATURE_EXP);
 	exp *= count;
-	changePrimSkill(hero->id, 4, exp*(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f);
+	changePrimSkill(hero->id, 4, hero->calculateXp(exp));
 
 	return true;
 }

@@ -218,8 +218,16 @@ void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(count > 0);
+	if (STACK_EXP)
+		stacks[slot]->experience *= ((stacks[slot]->count + count)/(float)stacks[slot]->count);
 	stacks[slot]->count = count;
 	armyChanged();
+}
+
+void CCreatureSet::giveStackExp(expType exp)
+{
+	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
+		i->second->giveStackExp(exp);
 }
 
 void CCreatureSet::clear()
@@ -453,6 +461,19 @@ int CStackInstance::getExpRank() const
 	}
 }
 
+void CStackInstance::giveStackExp(expType exp)
+{
+	int level = type->level;
+	if (!iswith(level, 1, 7))
+		level = 0;
+
+	CCreatureHandler * creh = VLC->creh;
+
+	amin(exp, (expType)creh->expRanks[level].back()); //prevent exp overflow due to different types
+	amin(exp, (exp * creh->maxExpPerBattle[level])/100);
+	amin(experience += exp, creh->expRanks[level].back()); //can't get more exp than this limit
+}
+
 void CStackInstance::setType(int creID)
 {
 	setType(VLC->creh->creatures[creID]);
@@ -461,7 +482,11 @@ void CStackInstance::setType(int creID)
 void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
+	{
 		detachFrom(const_cast<CCreature*>(type));
+		if (type->isMyUpgrade(c) && STACK_EXP)
+			experience *= VLC->creh->expAfterUpgrade / 100.0f;
+	}
 
 	type = c;
 

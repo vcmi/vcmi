@@ -59,6 +59,7 @@ public:
 	void setType(int creID);
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
+	void giveStackExp(expType exp);
 	bool valid(bool allowUnrandomized) const;
 	virtual std::string nodeName() const OVERRIDE;
 	void deserializationFix();
@@ -118,6 +119,7 @@ public:
 	void setStackCount(TSlot slot, TQuantity count); //stack must exist!
 	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(TSlot slot, const CCreature *type);
+	void giveStackExp(expType exp);
 
 	//derivative 
 	void eraseStack(TSlot slot); //slot must be occupied
