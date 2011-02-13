@@ -647,6 +647,7 @@ void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 		return;
 	}
 
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackIsCatapulting(ca);
 }
 
@@ -657,6 +658,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 		return;
 	}
 
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
 		battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));

@@ -1106,6 +1106,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
+	tacticsMode = curInt->cb->battleGetTacticDist();
 	
 	//create stack queue
 	bool embedQueue = screen->h < 700;
@@ -1214,7 +1215,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	console->pos.y = 560 + pos.y;
 	console->pos.w = 406;
 	console->pos.h = 38;
-	if(curInt->cb->battleGetTacticDist())
+	if(tacticsMode)
 	{
 		btactNext = new AdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this), 213 + pos.x, 560 + pos.y, "icm011.def", SDLK_SPACE);
 		btactEnd = new AdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419 + pos.x, 560 + pos.y, "icm012.def", SDLK_RETURN);
@@ -2347,9 +2348,19 @@ void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 addit
 		break;
 	}
 
-	myTurn = false;
-	activeStack = NULL;
-	givenCommand->setn(ba);
+	if(!tacticsMode)
+	{
+		myTurn = false;
+		activeStack = NULL;
+		givenCommand->setn(ba);
+	}
+	else
+	{
+		curInt->cb->battleMakeTacticAction(ba);
+		delNull(ba);
+		// TODO:
+		// activate next stack
+	}
 }
 
 bool CBattleInterface::isTileAttackable(const THex & number) const

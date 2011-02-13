@@ -331,6 +331,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CArmedInstance *bEndArmy2 = gs->curB->belligerents[1];
 	resultsApplied.player1 = bEndArmy1->tempOwner;
 	resultsApplied.player2 = bEndArmy2->tempOwner;
+	const CGHeroInstance *victoriousHero = gs->curB->heroes[battleResult.data->winner];
 
 	if(!duel)
 	{
@@ -356,60 +357,56 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	ui8 loser = sides[!battleResult.data->winner];
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
+	ChangeSpells cs; //for Eagle Eye
 
+	if(victoriousHero)
+	{
+		if(int eagleEyeLevel = victoriousHero->getSecSkillLevel(CGHeroInstance::EAGLE_EYE))
+		{
+			int maxLevel = eagleEyeLevel + 1;
+			double eagleEyeChance = victoriousHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::EAGLE_EYE);
+			BOOST_FOREACH(const CSpell *sp, gs->curB->usedSpellsHistory[!battleResult.data->winner])
+				if(sp->level <= maxLevel && !vstd::contains(victoriousHero->spells, sp->id) && rand() % 100 < eagleEyeChance)
+					cs.spells.insert(sp->id);
+		}
+	}
 
 	sendAndApply(battleResult.data);
 
 	//Eagle Eye secondary skill handling
-	/*const CGHeroInstance *vistoriousHero = gs->curB->heroes[battleResult.data->winner];
-	if(0 && vistoriousHero)
+	/*if(cs.spells.size())
 	{
-		if(int eagleEyeLevel = vistoriousHero->getSecSkillLevel(CGHeroInstance::EAGLE_EYE))
+		cs.learn = 1;
+		cs.hid = victoriousHero->id;
+
+		InfoWindow iw;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
+		iw.text.addReplacement(victoriousHero->name);
+
+		std::ostringstream names;
+		for(int i = 0; i < cs.spells.size(); i++)
 		{
-			int maxLevel = eagleEyeLevel + 1;
-			double eagleEyeChance = vistoriousHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::EAGLE_EYE);
-			
-			ChangeSpells cs;
-			cs.learn = 1;
-			cs.hid = vistoriousHero->id;
-
-			BOOST_FOREACH(const CSpell *sp, gs->curB->usedSpellsHistory[!battleResult.data->winner])
-				if(rand() % 100 < eagleEyeChance)
-					cs.spells.insert(sp->id);
-
-			if(cs.spells.size())
-			{
-				InfoWindow iw;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-				iw.text.addReplacement(vistoriousHero->name);
-
-				std::ostringstream names;
-				for(int i = 0; i < cs.spells.size(); i++)
-				{
-					names << "%s";
-					if(i < cs.spells.size() - 2)
-						names << ", ";
-					else if(i < cs.spells.size() - 1)
-						names << "%s";
-				}
-
-				iw.text.addReplacement(names.str());
-
-				std::set<ui32>::iterator it = cs.spells.begin();
-				for(int i = 0; i < cs.spells.size(); i++, it++)
-				{
-					iw.text.addReplacement(MetaString::SPELL_NAME, *it);
-					if(i == cs.spells.size() - 2) //we just added pre-last name
-						iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
-					iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
-				}
-
-				sendAndApply(&iw);
-				sendAndApply(&cs);
-			}
+			names << "%s";
+			if(i < cs.spells.size() - 2)
+				names << ", ";
+			else if(i < cs.spells.size() - 1)
+				names << "%s";
 		}
-	}
-	*/
+
+		iw.text.addReplacement(names.str());
+
+		std::set<ui32>::iterator it = cs.spells.begin();
+		for(int i = 0; i < cs.spells.size(); i++, it++)
+		{
+			iw.text.addReplacement(MetaString::SPELL_NAME, *it);
+			if(i == cs.spells.size() - 2) //we just added pre-last name
+				iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
+			iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
+		}
+
+		sendAndApply(&iw);
+		sendAndApply(&cs);
+	}*/
 
 	if(!duel)
 	{

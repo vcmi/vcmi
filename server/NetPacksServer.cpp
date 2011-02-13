@@ -208,16 +208,18 @@ bool QueryReply::applyGh( CGameHandler *gh )
 
 bool MakeAction::applyGh( CGameHandler *gh )
 {
-	if(!GS(gh)->curB) ERROR_AND_RETURN;
-	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
-
-	if(GS(gh)->curB->tacticDistance)
+	const BattleInfo *b = GS(gh)->curB;
+	if(!b) ERROR_AND_RETURN;
+	
+	if(b->tacticDistance)
 	{
 		if(ba.actionType != BattleAction::WALK  &&  ba.actionType != BattleAction::END_TACTIC_PHASE)
 			ERROR_AND_RETURN;
-		if(gh->connections[GS(gh)->curB->sides[GS(gh)->curB->tacticsSide]] != c) 
+		if(gh->connections[b->sides[b->tacticsSide]] != c) 
 			ERROR_AND_RETURN;
 	}
+	else if(gh->connections[b->getStack(b->activeStack)->owner] != c) 
+		ERROR_AND_RETURN;
 
 	return gh->makeBattleAction(ba);
 }

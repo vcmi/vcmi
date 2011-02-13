@@ -1604,6 +1604,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		curB->tacticsSide = diff < 0;
 		curB->tacticDistance = std::abs(diff)*2 + 1;
 	}
+	else
+		curB->tacticDistance = 0;
 
 	return curB;
 }
@@ -1611,8 +1613,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 bool BattleInfo::isInTacticRange( THex dest ) const
 {
 
-	return ((tacticsSide && dest.getX() > 0 && dest.getX() <= tacticDistance)
-		|| (!tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
+	return ((!tacticsSide && dest.getX() > 0 && dest.getX() <= tacticDistance)
+		|| (tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

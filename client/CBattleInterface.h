@@ -400,6 +400,7 @@ private:
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
+	bool tacticsMode;
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature,
 		//4 - obstacle, 5 - teleport -1 - no location
