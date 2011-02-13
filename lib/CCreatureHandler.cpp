@@ -645,7 +645,7 @@ void CCreatureHandler::loadCreatures()
 			addBonusForAllCreatures(b); //health bonus is common for all
 
 		loadToIt (dump2, buf, it, 3); //crop comment
-		for (i = 1; i < 8; ++i)
+		for (i = 1; i < 7; ++i)
 		{
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
 			{
@@ -656,6 +656,18 @@ void CCreatureHandler::loadCreatures()
 					addBonusForTier(i, b);
 				loadToIt (dump2, buf, it, 3); //crop comment
 			}
+		}
+		for (int j = 0; j < 4; ++j) //tier 7
+		{
+			loadToIt (dump2, buf, it, 4); //ignore index
+			bl.clear();
+			loadStackExp(b, bl, buf, it);
+			BOOST_FOREACH(Bonus * b, bl)
+			{
+				addBonusForTier(7, b);
+				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
+			}
+			loadToIt (dump2, buf, it, 3); //crop comment
 		}
 		do //parse everything that's left
 		{
@@ -710,8 +722,9 @@ void CCreatureHandler::loadCreatures()
 			creatures[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
 			creatures[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
 		//exp for tier >7, rank 11
-			expRanks[0].push_back(14700);
+			expRanks[0].push_back(147000);
 			expAfterUpgrade = 75; //percent
+			maxExpPerBattle[0] = maxExpPerBattle[7];
 
 	}//end of Stack Experience
 	//experiment - add 100 to attack for creatures of tier 1
@@ -790,7 +803,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 }
 
 void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it) //help function for parsing CREXPBON.txt
-{ //TODO: handle rank limiters
+{
 	std::string buf, mod;
 	bool enable = false; //some bonuses are activated with values 2 or 1
 	loadToIt(buf, src, it, 4);
@@ -819,9 +832,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.subtype = 1;
 		break;
 	case 'S':
-		b.type = Bonus::STACKS_SPEED;
-		b.additionalInfo = 0;
-		break;
+		b.type = Bonus::STACKS_SPEED; break;
 
 	case 'b':
 		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
@@ -871,7 +882,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::FREE_SHOOTING; break;
 			case 'u':
 				b.type = Bonus::SPELL_RESISTANCE_AURA; break;
-				break;
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
@@ -911,7 +921,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = 54;
 				break;
-			case '6': //problem - in VCMI value represents level, here it represents on/off
+			case '6':
 			case '7':
 			case '8':
 			case '9':

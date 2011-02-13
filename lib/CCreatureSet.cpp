@@ -452,7 +452,7 @@ int CStackInstance::getExpRank() const
 	}
 	else //higher tier
 	{
-		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)
+		for (int i = VLC->creh->expRanks[0].size()-2; i >-1; --i)
 		{
 			if (experience >= VLC->creh->expRanks[0][i])
 				return ++i;
@@ -468,10 +468,11 @@ void CStackInstance::giveStackExp(expType exp)
 		level = 0;
 
 	CCreatureHandler * creh = VLC->creh;
+	ui32 maxExp = creh->expRanks[level].back();
 
-	amin(exp, (expType)creh->expRanks[level].back()); //prevent exp overflow due to different types
-	amin(exp, (exp * creh->maxExpPerBattle[level])/100);
-	amin(experience += exp, creh->expRanks[level].back()); //can't get more exp than this limit
+	amin(exp, (expType)maxExp); //prevent exp overflow due to different types
+	amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
+	amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
 void CStackInstance::setType(int creID)
