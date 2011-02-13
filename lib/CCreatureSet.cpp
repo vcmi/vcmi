@@ -441,7 +441,7 @@ int CStackInstance::getQuantityID() const
 int CStackInstance::getExpRank() const
 {
 	int tier = type->level;
-	if (isbetw(tier, 1, 7))
+	if (iswith(tier, 1, 7))
 	{
 		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
 		{ //exp values vary from 1st level to max exp at 11th level

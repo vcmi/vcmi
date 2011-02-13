@@ -1184,8 +1184,6 @@ struct BattleResult : public CPackForClient//3003
 	expType exp[2]; //exp for attacker and defender
 	std::set<ui32> artifacts; //artifacts taken from loser to winner
 
-
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & result & winner & casualties[0] & casualties[1] & exp & artifacts;

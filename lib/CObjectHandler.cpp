@@ -2962,6 +2962,8 @@ void CGCreature::newTurn() const
 		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
 		cb->setObjProperty(id, 11, power); //increase temppower
 	}
+	if (STACK_EXP)
+		cb->setObjProperty(id, 12, 10000); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
 {
@@ -2972,6 +2974,9 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 			break;
 		case 11:
 			temppower = val;
+			break;
+		case 12:
+			giveStackExp(val);
 			break;
 	}
 }

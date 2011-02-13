@@ -910,6 +910,14 @@ void BattleResult::applyGs( CGameState *gs )
 	if(h) 
 		h->bonuses.remove_if(Bonus::OneBattle);
 
+	if (STACK_EXP)
+	{
+		if (exp[0]) //checking local array is easier than dereferencing this crap twice
+			gs->curB->belligerents[0]->giveStackExp(exp[0]);
+		if (exp[1])
+			gs->curB->belligerents[1]->giveStackExp(exp[1]);
+	}
+
 	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;
 	gs->curB.dellNull();
 }
