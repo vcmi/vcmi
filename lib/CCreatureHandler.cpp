@@ -631,7 +631,9 @@ void CCreatureHandler::loadCreatures()
 		si32 creid = -1;
 		Bonus b; //prototype with some default properties
 		b.source = Bonus::STACK_EXPERIENCE;
+		b.duration = Bonus::PERMANENT;
 		b.valType = Bonus::ADDITIVE_VALUE;
+		b.effectRange = Bonus::NO_LIMIT;
 		b.additionalInfo = 0;
 		BonusList bl;
 
@@ -642,7 +644,7 @@ void CCreatureHandler::loadCreatures()
 		BOOST_FOREACH(Bonus * b, bl)
 			addBonusForAllCreatures(b); //health bonus is common for all
 
-		loadToIt (dump2, buf, it, 4); //crop comment
+		loadToIt (dump2, buf, it, 3); //crop comment
 		for (i = 1; i < 8; ++i)
 		{
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
@@ -693,6 +695,7 @@ void CCreatureHandler::loadCreatures()
 		si32 val;
 		for (i = 1; i < 8; ++i)
 		{
+			loadToIt (dump2, buf, it, 4); //index
 			loadToIt (dump2, buf, it, 4); //float multiplier -> hardcoded
 			loadToIt (dump2, buf, it, 4); //ignore upgrade mod? ->hardcoded
 			loadToIt (dump2, buf, it, 4); //already calculated
@@ -816,7 +819,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.subtype = 1;
 		break;
 	case 'S':
-		b.type = Bonus::STACKS_SPEED; break;
+		b.type = Bonus::STACKS_SPEED;
+		b.additionalInfo = 0;
+		break;
 
 	case 'b':
 		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
@@ -964,6 +969,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			loadToIt (curVal, src, it, 4);
 			if (curVal == 1)
 			{
+				b.val = curVal;
 				b.limiter.reset (new RankRangeLimiter(i));
 				bl.push_back(new Bonus(b));
 				break; //never turned off it seems
@@ -976,9 +982,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		for (int i = 1; i < 11; ++i)
 		{
 			loadToIt (curVal, src, it, 4);
-			if (curVal > lastVal) //threshold, add last bonus
+			if (curVal > lastVal) //threshold, add new bonus
 			{
-				b.val = lastVal;
+				b.val = curVal - lastVal;
+				lastVal = curVal;
 				b.limiter.reset (new RankRangeLimiter(i));
 				bl.push_back(new Bonus(b));
 				lastLev = i; //start new range from here, i = previous rank
