@@ -635,6 +635,7 @@ void CCreatureHandler::loadCreatures()
 		b.valType = Bonus::ADDITIVE_VALUE;
 		b.effectRange = Bonus::NO_LIMIT;
 		b.additionalInfo = 0;
+		b.turnsRemain = 0;
 		BonusList bl;
 
 		loadToIt (dump2, buf, it, 3); //ignore first line
@@ -886,6 +887,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::UNDEAD; break;
 			default:
 			tlog3 << "Not parsed bonus " << buf << mod << "\n";
+				return;
 				break;
 		}
 		break;
@@ -934,6 +936,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				break;
 			default:
 				tlog3 << "Not parsed bonus " << buf << mod << "\n";
+				return;
 		}
 		break;
 
@@ -957,6 +960,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		break;
 	default:
 		tlog3 << "Not parsed bonus " << buf << mod << "\n";
+		return;
 		break;
 	}
 	switch (mod[0])

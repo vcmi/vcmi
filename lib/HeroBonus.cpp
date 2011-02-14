@@ -582,7 +582,7 @@ namespace Selector
 	DLL_EXPORT CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
 	DLL_EXPORT CSelectFieldEqual<ui8> sourceType(&Bonus::source, 0);
 	DLL_EXPORT CSelectFieldEqual<ui8> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
-	DLL_EXPORT CWillLastTurns turns;;
+	DLL_EXPORT CWillLastTurns turns;
 
 	CSelector DLL_EXPORT typeSybtype(TBonusType Type, TBonusSubtype Subtype)
 	{
