@@ -374,12 +374,13 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	sendAndApply(battleResult.data);
 
 	//Eagle Eye secondary skill handling
-	/*if(cs.spells.size())
+	if(cs.spells.size())
 	{
 		cs.learn = 1;
 		cs.hid = victoriousHero->id;
 
 		InfoWindow iw;
+		iw.player = victoriousHero->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
 		iw.text.addReplacement(victoriousHero->name);
 
@@ -392,6 +393,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			else if(i < cs.spells.size() - 1)
 				names << "%s";
 		}
+		names << ".";
 
 		iw.text.addReplacement(names.str());
 
@@ -406,7 +408,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&iw);
 		sendAndApply(&cs);
-	}*/
+	}
 
 	if(!duel)
 	{
