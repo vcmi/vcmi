@@ -105,34 +105,31 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	BOOST_FOREACH(const CStack *s, cb->battleGetStacks())
+	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(IBattleCallback::ONLY_ENEMY))
 	{
-		if(s->owner != stack->owner)
+		if(cb->battleCanShoot(stack, s->position))
 		{
-			if(cb->battleCanShoot(stack, s->position))
+			enemiesShootable.push_back(s);
+		}
+		else
+		{
+			BOOST_FOREACH(THex hex, avHexes)
 			{
-				enemiesShootable.push_back(s);
-			}
-			else
-			{
-				BOOST_FOREACH(THex hex, avHexes)
+				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
-					if(CStack::isMeleeAttackPossible(stack, s, hex))
+					std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
+					if(i == enemiesReachable.end())
 					{
-						std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
-						if(i == enemiesReachable.end())
-						{
-							enemiesReachable.push_back(s);
-							i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
-						}
-
-						i->attackFrom.push_back(hex);
+						enemiesReachable.push_back(s);
+						i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
 					}
-				}
 
-				if(!vstd::contains(enemiesReachable, s))
-					enemiesUnreachable.push_back(s);
+					i->attackFrom.push_back(hex);
+				}
 			}
+
+			if(!vstd::contains(enemiesReachable, s))
+				enemiesUnreachable.push_back(s);
 		}
 	}
 

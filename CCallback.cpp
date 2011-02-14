@@ -539,10 +539,10 @@ THex CBattleCallback::battleGetPos(int stack)
 	return THex::INVALID;
 }
 
-std::vector<const CStack*> CBattleCallback::battleGetStacks(bool onlyAlive /*= true*/)
+TStacks CBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	std::vector<const CStack*> ret;
+	TStacks ret;
 	if(!gs->curB) //there is no battle
 	{
 		tlog2<<"battleGetStacks called when there is no battle!"<<std::endl;
@@ -550,8 +550,12 @@ std::vector<const CStack*> CBattleCallback::battleGetStacks(bool onlyAlive /*= t
 	}
 
 	BOOST_FOREACH(const CStack *s, gs->curB->stacks)
-		if(s->alive()  ||  !onlyAlive)
+	{
+		bool ownerMatches = whose == MINE_AND_ENEMY || whose == ONLY_MINE && s->owner == player;
+		bool alivenessMatches = s->alive()  ||  !onlyAlive;
+		if(ownerMatches && alivenessMatches)
 			ret.push_back(s);
+	}
 
 	return ret;
 }

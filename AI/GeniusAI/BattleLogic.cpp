@@ -75,7 +75,7 @@ void CBattleLogic::SetCurrentTurn(int turn)
 void CBattleLogic::MakeStatistics(int currentCreatureId)
 {
 	typedef std::vector<const CStack*> vector_stacks;
-	vector_stacks allStacks = m_cb->battleGetStacks(false);
+	vector_stacks allStacks = m_cb->battleGetStacks();
 	const CStack *currentStack = m_cb->battleGetStackByID(currentCreatureId);
 	if(currentStack->position < 0) //turret
 	{

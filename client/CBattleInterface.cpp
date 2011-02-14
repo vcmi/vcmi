@@ -1134,7 +1134,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false);
+	std::vector<const CStack*> stacks = curInt->cb->battleGetAllStacks();
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		newStack(s);
@@ -1170,8 +1170,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	}
 	
 	//preparing menu background
-	menu = BitmapHandler::loadBitmap("CBAR.BMP");
-	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
+	//graphics->blueToPlayersAdv(menu, hero1->tempOwner);
 
 	//preparing graphics for displaying amounts of creatures
 	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
@@ -1191,9 +1190,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	transformPalette(amountEffNeutral, 1.00f, 1.00f, 0.18f);
 
 	////blitting menu background and terrain
-	blitAt(background, pos.x, pos.y);
-	blitAt(menu, pos.x, 556 + pos.y);
-	CSDL_Ext::update();
+// 	blitAt(background, pos.x, pos.y);
+// 	blitAt(menu, pos.x, 556 + pos.y);
+// 	CSDL_Ext::update();
 
 	//preparing buttons and console
 	bOptions = new AdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
@@ -1221,7 +1220,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		btactEnd = new AdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419 + pos.x, 560 + pos.y, "icm012.def", SDLK_RETURN);
 		bDefence->block(true);
 		bWait->block(true);
+		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
 	}
+	else
+	{
+		menu = BitmapHandler::loadBitmap("CBAR.BMP");
+		btactEnd = btactNext = NULL;
+	}
+	graphics->blueToPlayersAdv(menu, curInt->playerID);
 
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -1340,18 +1346,11 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		children.push_back(&bfield[i]);
 	}
 
-	if(curInt->cb->battleGetTacticDist())
+	if(tacticsMode)
 	{
-		BOOST_FOREACH(const CStack *s, curInt->cb->battleGetStacks())
-		{
-			if(s->owner == curInt->playerID)
-			{
-				active = 1;
-				stackActivated(s);
-				active = 0;
-				break;
-			}
-		}
+		active = 1;
+		bTacticNextStack();
+		active = 0;
 	}
 }
 
@@ -1435,8 +1434,6 @@ void CBattleInterface::activate()
 	bSpell->activate();
 	bWait->activate();
 	bDefence->activate();
-	bConsoleUp->activate();
-	bConsoleDown->activate();
 	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		bfield[b].activate();
@@ -1447,6 +1444,17 @@ void CBattleInterface::activate()
 		defendingHero->activate();
 	if(curInt->sysOpts.showQueue)
 		queue->activate();
+
+	if(tacticsMode)
+	{
+		btactNext->activate();
+		btactEnd->activate();
+	}
+	else
+	{
+		bConsoleUp->activate();
+		bConsoleDown->activate();
+	}
 
 	LOCPLINT->cingconsole->activate();
 }
@@ -1463,8 +1471,6 @@ void CBattleInterface::deactivate()
 	bSpell->deactivate();
 	bWait->deactivate();
 	bDefence->deactivate();
-	bConsoleUp->deactivate();
-	bConsoleDown->deactivate();
 	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		bfield[b].deactivate();
@@ -1476,12 +1482,23 @@ void CBattleInterface::deactivate()
 	if(curInt->sysOpts.showQueue)
 		queue->deactivate();
 
+	if(tacticsMode)
+	{
+		btactNext->deactivate();
+		btactEnd->deactivate();
+	}
+	else
+	{
+		bConsoleUp->deactivate();
+		bConsoleDown->deactivate();
+	}
+
 	LOCPLINT->cingconsole->deactivate();
 }
 
 void CBattleInterface::show(SDL_Surface * to)
 {
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false); //used in a few places
+	std::vector<const CStack*> stacks = curInt->cb->battleGetAllStacks(); //used in a few places
 	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
@@ -1694,7 +1711,18 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//showing menu background and console
 	blitAt(menu, pos.x, 556 + pos.y, to);
-	console->show(to);
+	
+	if(tacticsMode)
+	{
+		btactNext->show(to);
+		btactEnd->show(to);
+	}
+	else
+	{
+		console->show(to);
+		bConsoleUp->show(to);
+		bConsoleDown->show(to);
+	}
 
 	//showing buttons
 	bOptions->show(to);
@@ -1704,8 +1732,6 @@ void CBattleInterface::show(SDL_Surface * to)
 	bSpell->show(to);
 	bWait->show(to);
 	bDefence->show(to);
-	bConsoleUp->show(to);
-	bConsoleDown->show(to);
 
 	//showing window with result of battle
 	if(resWindow)
@@ -2293,7 +2319,7 @@ void CBattleInterface::stackAttacking( const CStack * attacker, THex dest, const
 void CBattleInterface::newRoundFirst( int round )
 {
 	//handle regeneration
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(false);
+	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //gets only alive stacks
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		//don't show animation when no HP is regenerated
@@ -2302,13 +2328,13 @@ void CBattleInterface::newRoundFirst( int round )
 			continue;
 		}
 
-		if( s->hasBonusOfType(Bonus::HP_REGENERATION) && s->alive() )
+		if( s->hasBonusOfType(Bonus::HP_REGENERATION))
 			displayEffect(74, s->position);
 
-		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0) && s->alive() )
+		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
 			displayEffect(4, s->position);
 
-		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1) && s->alive() )
+		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
 			displayEffect(74, s->position);
 	}
 	waitForAnims();
@@ -2358,8 +2384,7 @@ void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 addit
 	{
 		curInt->cb->battleMakeTacticAction(ba);
 		delNull(ba);
-		// TODO:
-		// activate next stack
+		bTacticNextStack();
 	}
 }
 
@@ -3341,6 +3366,23 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
+	if(action->actionType == BattleAction::END_TACTIC_PHASE)
+	{
+		menu = BitmapHandler::loadBitmap("CBAR.bmp");
+		graphics->blueToPlayersAdv(menu, curInt->playerID);
+		if(active)
+		{
+			tacticsMode = false;
+			btactEnd->deactivate();
+			btactNext->deactivate();
+			bConsoleDown->activate();
+			bConsoleUp->activate();
+		}
+		redraw();
+
+		return;
+	}
+
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	if(stack)
@@ -3423,12 +3465,17 @@ void CBattleInterface::bEndTacticPhase()
 {
 	BattleAction endt = BattleAction::makeEndOFTacticPhase(curInt->cb->battleGetMySide());
 	curInt->cb->battleMakeTacticAction(&endt);
-
+	btactEnd->block(true);
 }
 
 void CBattleInterface::bTacticNextStack()
 {
-
+	TStacks stacksOfMine = curInt->cb->battleGetStacks(IBattleCallback::ONLY_MINE);
+	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
+	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
+		stackActivated(*it);
+	else
+		stackActivated(stacksOfMine.front());
 }
 
 void CBattleHero::show(SDL_Surface *to)

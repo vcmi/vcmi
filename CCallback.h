@@ -44,6 +44,7 @@ struct CGPathNode;
 struct CGPath;
 class CGGarrison;
 class CObstacleInstance;
+typedef std::vector<const CStack*> TStacks;
 
 struct InfoAboutTown
 {
@@ -79,6 +80,11 @@ public:
 		OK, GENERAL_CASTING_PROBLEM, ANOTHER_ELEMENTAL_SUMMONED
 	};
 
+	enum EStackOwnership
+	{
+		ONLY_MINE, ONLY_ENEMY, MINE_AND_ENEMY
+	};
+
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	//battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -88,7 +94,7 @@ public:
 	virtual const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true)=0; //returns stack info by given pos
 	virtual THex battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual std::vector<const CStack*> battleGetStacks(bool onlyAlive = true)=0; //returns stacks on battlefield
+	virtual TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true)=0; //returns stacks on battlefield
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
 	virtual std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
 	virtual std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL)=0; //returns vector of distances to [dest hex number]
@@ -108,6 +114,12 @@ public:
 	virtual si8 battleGetTacticDist() =0; //returns tactic distance for calling player or 0 if player is not in tactic phase
 	virtual ui8 battleGetMySide() =0; //return side of player in battle (attacker/defender)
 	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
+
+	//convienience methods using the ones above
+	TStacks battleGetAllStacks() //returns all stacks, alive or dead or undead or mechanical :)
+	{
+		return battleGetStacks(MINE_AND_ENEMY, false);
+	}
 };
 
 class ICallback : public virtual IBattleCallback
@@ -220,7 +232,7 @@ public:
 	const CStack * battleGetStackByPos(THex pos, bool onlyAlive = true) OVERRIDE; //returns stack info by given pos
 	THex battleGetPos(int stack) OVERRIDE; //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
-	std::vector<const CStack*> battleGetStacks(bool onlyAlive = true) OVERRIDE; //returns stacks on battlefield
+	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) OVERRIDE; //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ) OVERRIDE; //returns vector of stack in order of their move sequence
 	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable) OVERRIDE; //reutrns numbers of hexes reachable by creature with id ID
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL) OVERRIDE; //returns vector of distances to [dest hex number]; if predecessors is not null, it must point to BFIELD_SIZE * sizeof(int) of allocated memory
