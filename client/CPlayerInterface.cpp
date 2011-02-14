@@ -2059,6 +2059,7 @@ void CPlayerInterface::stopMovement()
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(market->o->ID == 2) //Altar
 	{
 		EMarketMode mode = market->availableModes().front();
@@ -2073,24 +2074,28 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CUniversityWindow *cuw = new CUniversityWindow(visitor, market);
 	GH.pushInt(cuw);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CHillFortWindow *chfw = new CHillFortWindow(visitor, object);
 	GH.pushInt(chfw);
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))
 		cmw->artifactsChanged(false);
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CTavernWindow *tv = new CTavernWindow(townOrTavern);
 	GH.pushInt(tv);
 }

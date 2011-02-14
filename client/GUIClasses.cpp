@@ -2530,6 +2530,7 @@ CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int
 	id = ID;
 	used = LCLICK | HOVER | RCLICK;
 	downSelection = false;
+	hlp = NULL;
 }
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
@@ -3835,6 +3836,8 @@ void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, co
 		{
 			arts->commonInfo->src.clear();
 			arts->commonInfo->dst.clear();
+			CCS->curh->dragAndDropCursor(NULL);
+			arts->unmarkSlots(false);
 		}
 	}
 }
