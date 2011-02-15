@@ -4509,7 +4509,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 	if (!down && previousState)
 	{
-		if(ourArt && ourArt->id == 0) //spellbook
+		if(ourArt && ourArt->artType->id == 0) //spellbook
 			return; //this is handled separately
 
 		if(!ourOwner->commonInfo->src.AOH) //nothing has been clicked
