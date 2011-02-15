@@ -1617,6 +1617,62 @@ bool BattleInfo::isInTacticRange( THex dest ) const
 		|| (tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
 }
 
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player) const
+{
+	int side = sides[0] == player ? 0 : 1;
+
+	if(castSpells[side] > 0)
+		return SpellCasting::ALREADY_CASTED_THIS_TURN;
+	if(!heroes[side])
+		return SpellCasting::NO_HERO_TO_CAST_SPELL;
+	if(!heroes[side]->getArt(17))
+		return SpellCasting::NO_SPELLBOOK;
+
+	return SpellCasting::OK;
+}
+
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, const CSpell * spell ) const
+{
+	SpellCasting::ESpellCastProblem genProblem = battleCanCastSpell(player);
+	if(genProblem != SpellCasting::OK)
+		return genProblem;
+	int cside = sides[0] == player ? 0 : 1; //caster's side
+	const CGHeroInstance * caster = heroes[cside];
+	if(!caster->canCastThisSpell(spell))
+		return SpellCasting::HERO_DOESNT_KNOW_SPELL;
+
+	if(caster->mana < getSpellCost(spell, caster)) //not enough mana
+		return SpellCasting::NOT_ENOUGH_MANA;
+
+	if(spell->id < 10) //it's adventure spell (not combat))
+		return SpellCasting::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
+
+	if(NBonus::hasOfType(heroes[1-cside], Bonus::SPELL_IMMUNITY, spell->id)) //non - casting hero provides immunity for this spell 
+		return SpellCasting::SECOND_HEROS_SPELL_IMMUNITY;
+
+	if(battleMaxSpellLevel() < spell->level) //non - casting hero stops caster from casting this spell
+		return SpellCasting::SPELL_LEVEL_LIMIT_EXCEEDED;
+
+	int spellIDs[] = {66, 67, 68, 69}; //IDs of summon elemental spells (fire, earth, water, air)
+	int creIDs[] = {114, 113, 115, 112}; //(fire, earth, water, air)
+
+	int * idp = std::find(spellIDs, spellIDs + ARRAY_COUNT(spellIDs), spell->id);
+	int arpos = idp - spellIDs;
+	if(arpos < ARRAY_COUNT(spellIDs))
+	{
+		//check if there are summoned elementals of other type
+		BOOST_FOREACH ( const CStack * st, stacks)
+		{
+			if (vstd::contains(st->state, SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
+			{
+				return SpellCasting::ANOTHER_ELEMENTAL_SUMMONED;
+			}
+		}
+	}
+
+	return SpellCasting::OK;
+}
+
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),   
 	counterAttacks(1)

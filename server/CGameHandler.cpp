@@ -3824,15 +3824,11 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
-			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all
-				|| (h->mana < gs->curB->getSpellCost(s, h)) //not enough mana
-				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
-				|| (gs->curB->castSpells[ba.side]) //spell has been cast
-				|| (NBonus::hasOfType(secondHero, Bonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
-				|| (gs->curB->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
-				)
+			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s);
+			if(escp != SpellCasting::OK)
 			{
 				tlog2 << "Spell cannot be cast!\n";
+				tlog2 << "Problem : " << escp << std::endl;
 				return false;
 			}
 

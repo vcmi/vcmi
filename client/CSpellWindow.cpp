@@ -17,8 +17,10 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/format.hpp>
 #include "CBitmapHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/BattleState.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine
@@ -619,20 +621,29 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
-			IBattleCallback::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
+			SpellCasting::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
 			switch (problem)
 			{
-			case IBattleCallback::OK:
+			case SpellCasting::OK:
 				{
 					int spell = mySpell;
 					owner->fexitb();
 					owner->myInt->battleInt->castThisSpell(spell);
 					break;
 				}
-			case IBattleCallback::ANOTHER_ELEMENTAL_SUMMONED:
+			case SpellCasting::ANOTHER_ELEMENTAL_SUMMONED:
 				{
 					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
 					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
+					BOOST_FOREACH(const CStack * s, stacks)
+					{
+						if(vstd::contains(s->state, SUMMONED))
+						{
+							elemental = s->getCreature()->namePl;
+							summoner = owner->myInt->cb->battleGetFightingHero(!s->attackerOwned)->name;
+							break;
+						}
+					}
 					if (owner->myHero->type->sex)
 					{ //female
 						caster = CGI->generaltexth->allTexts[540];
@@ -641,6 +652,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					{ //male
 						caster = CGI->generaltexth->allTexts[539];
 					}
+					text = boost::str(boost::format(text) % summoner % elemental % caster);
+
 
 					owner->myInt->showInfoDialog(text);
 				}

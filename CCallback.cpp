@@ -596,10 +596,7 @@ bool CBattleCallback::battleCanCastSpell()
 	if(!gs->curB) //there is no battle
 		return false;
 
-	if(gs->curB->sides[0] == player)
-		return gs->curB->castSpells[0] == 0 && gs->curB->heroes[0] && gs->curB->heroes[0]->getArt(17);
-	else
-		return gs->curB->castSpells[1] == 0 && gs->curB->heroes[1] && gs->curB->heroes[1]->getArt(17);
+	return gs->curB->battleCanCastSpell(player) == SpellCasting::OK;
 }
 
 bool CBattleCallback::battleCanFlee()
@@ -1091,29 +1088,16 @@ std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex 
 	return ret;
 }
 
-CBattleCallback::ESpellCastProblem CBattleCallback::battleCanCastThisSpell( const CSpell * spell )
+SpellCasting::ESpellCastProblem CBattleCallback::battleCanCastThisSpell( const CSpell * spell )
 {
-	if(!battleCanCastSpell())
-		return GENERAL_CASTING_PROBLEM;
-
-	int spellIDs[] = {66, 67, 68, 69}; //IDs of summon elemental spells (fire, earth, water, air)
-	int creIDs[] = {114, 113, 115, 112}; //(fire, earth, water, air)
-
-	int * idp = std::find(spellIDs, spellIDs + ARRAY_COUNT(spellIDs), spell->id);
-	int arpos = idp - spellIDs;
-	if(arpos < ARRAY_COUNT(spellIDs))
+	if(!gs->curB)
 	{
-		//check if there are summoned elementals of other type
-		BOOST_FOREACH ( const CStack * st, gs->curB->stacks)
-		{
-			if (vstd::contains(st->state, SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
-			{
-				return ANOTHER_ELEMENTAL_SUMMONED;
-			}
-		}
+
+		tlog1 << "battleCanCastThisSpell called when there is no battle!\n";
+		return SpellCasting::NO_HERO_TO_CAST_SPELL;
 	}
 
-	return OK;
+	return gs->curB->battleCanCastThisSpell(player, spell);
 }
 
 si8 CBattleCallback::battleGetTacticDist()

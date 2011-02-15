@@ -75,10 +75,6 @@ class IBattleCallback
 {
 public:
 	///describes why player cannot cast a specific spell
-	enum ESpellCastProblem
-	{
-		OK, GENERAL_CASTING_PROBLEM, ANOTHER_ELEMENTAL_SUMMONED
-	};
 
 	enum EStackOwnership
 	{
@@ -100,7 +96,7 @@ public:
 	virtual std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL)=0; //returns vector of distances to [dest hex number]
 	virtual bool battleCanShoot(const CStack * stack, THex dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
-	virtual ESpellCastProblem battleCanCastThisSpell(const CSpell * spell)=0; //determines if given spell can be casted (and returns problem description)
+	virtual SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell)=0; //determines if given spell can be casted (and returns problem description)
 	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
 	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
 	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
@@ -238,7 +234,7 @@ public:
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL) OVERRIDE; //returns vector of distances to [dest hex number]; if predecessors is not null, it must point to BFIELD_SIZE * sizeof(int) of allocated memory
 	bool battleCanShoot(const CStack * stack, THex dest) OVERRIDE; //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell() OVERRIDE; //returns true, if caller can cast a spell
-	ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) OVERRIDE; //determines if given spell can be casted (and returns problem description)
+	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) OVERRIDE; //determines if given spell can be casted (and returns problem description)
 	bool battleCanFlee() OVERRIDE; //returns true if caller can flee from the battle
 	const CGTownInstance * battleGetDefendedTown() OVERRIDE; //returns defended town if current battle is a siege, NULL instead
 	ui8 battleGetWallState(int partOfWall) OVERRIDE; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
