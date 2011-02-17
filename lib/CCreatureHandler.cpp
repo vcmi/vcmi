@@ -1019,18 +1019,22 @@ void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string &
 
 	b.type = Bonus::SPELL_IMMUNITY;
 	b.val = Bonus::BASE_NUMBER;
-	std::vector<si32> values;
-	values.resize(10);
-	si32 val;
+	si32 lastVal, curVal, lastLev = 0;
 
-	loadToIt (val, src, it, 4); //basic value
-	for (int i = 0; i < 10; ++i)
+	b.val = 0; //on-off ability, no value specified
+	loadToIt (curVal, src, it, 4); // 0 level is never active
+	for (int i = 1; i < 11; ++i)
 	{
-		loadToIt (values[i], src, it, 4);
-		if (values[i] = 2)
-			values[i] = 0;
+		loadToIt (curVal, src, it, 4);
+		if (curVal == 1)
+		{
+			b.val = curVal;
+			b.limiter.reset (new RankRangeLimiter(i));
+			break; //only one limiter here
+		}
 	}
-	std::vector<int> mindSpells = getMindSpells();
+
+	std::vector<int> mindSpells = getMindSpells(); //multiplicate spells
 	for (int g=0; g < mindSpells.size(); ++g)
 	{
 		b.subtype = mindSpells[g];
