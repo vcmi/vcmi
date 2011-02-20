@@ -99,6 +99,7 @@ struct ColorPutter
 	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
 	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
 };
 
 template <int incrementPtr>
@@ -109,6 +110,7 @@ struct ColorPutter<2, incrementPtr>
 	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
 	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
 };
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);

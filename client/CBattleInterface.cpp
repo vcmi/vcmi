@@ -1192,7 +1192,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	////blitting menu background and terrain
 // 	blitAt(background, pos.x, pos.y);
 // 	blitAt(menu, pos.x, 556 + pos.y);
-// 	CSDL_Ext::update();
 
 	//preparing buttons and console
 	bOptions = new AdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
@@ -1208,7 +1207,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624 + pos.x, 561 + pos.y, "ComSlide.def", SDLK_UP);
 	bConsoleDown = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624 + pos.x, 580 + pos.y, "ComSlide.def", SDLK_DOWN);
-	bConsoleDown->bitmapOffset = 2;
+	bConsoleDown->setOffset(2);
 	console = new CBattleConsole();
 	console->pos.x = 211 + pos.x;
 	console->pos.y = 560 + pos.y;
@@ -1725,13 +1724,13 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 
 	//showing buttons
-	bOptions->show(to);
-	bSurrender->show(to);
-	bFlee->show(to);
-	bAutofight->show(to);
-	bSpell->show(to);
-	bWait->show(to);
-	bDefence->show(to);
+	bOptions->showAll(to);
+	bSurrender->showAll(to);
+	bFlee->showAll(to);
+	bAutofight->showAll(to);
+	bSpell->showAll(to);
+	bWait->showAll(to);
+	bDefence->showAll(to);
 
 	//showing window with result of battle
 	if(resWindow)
@@ -3941,7 +3940,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	bool weAreAttacker = (owner->curInt->playerID == owner->attackingHeroInstance->tempOwner);
 	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
-		int text;
+		int text=-1;
 		switch(br.result)
 		{
 			case 0: text = 304; break;
@@ -4020,7 +4019,7 @@ void CBattleResultWindow::show(SDL_Surface *to)
 	CCS->videoh->update(107, 70, background, false, true);
 
 	SDL_BlitSurface(background, NULL, to, &pos);
-	exit->show(to);
+	exit->showAll(to);
 }
 
 void CBattleResultWindow::bExitf()
@@ -4061,9 +4060,11 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
 	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[392].first, CGI->generaltexth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
-	setToDefault->imgs[0]->fixButtonPos();
+	setToDefault->swappedImages = true;
+	setToDefault->update();
 	exit = new AdventureMapButton (CGI->generaltexth->zelp[393].first, CGI->generaltexth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
-	exit->imgs[0]->fixButtonPos();
+	exit->swappedImages = true;
+	exit->update();
 
 	//printing texts to background
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 242, 32, FONT_BIG, tytulowy, background); //window title
@@ -4132,12 +4133,12 @@ void CBattleOptionsWindow::show(SDL_Surface *to)
 
 	SDL_BlitSurface(background, NULL, to, &pos);
 
-	setToDefault->show(to);
-	exit->show(to);
-	viewGrid->show(to);
-	movementShadow->show(to);
-	animSpeeds->show(to);
-	mouseShadow->show(to);
+	setToDefault->showAll(to);
+	exit->showAll(to);
+	viewGrid->showAll(to);
+	movementShadow->showAll(to);
+	animSpeeds->showAll(to);
+	mouseShadow->showAll(to);
 }
 
 void CBattleOptionsWindow::bDefaultf()

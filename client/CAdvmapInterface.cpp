@@ -797,50 +797,52 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &genRect(32, 32, x + moveX, y + moveY));
+					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
 			else //standard version
 			{
 				if (hvx<0 && hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &genRect(32, 32, x, y));
+					Rect dstRect = genRect(32, 32, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp
-						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
-						to, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
 			SDL_SetClipRect(to, &prevClip);
@@ -1219,14 +1221,14 @@ void CAdvMapInt::fswitchLevel()
 	if (position.z)
 	{
 		position.z--;
-		underground.curimg=0;
-		underground.show(screenBuf);
+		underground.setIndex(0,true);
+		underground.showAll(screenBuf);
 	}
 	else
 	{
-		underground.curimg=1;
+		underground.setIndex(1,true);
 		position.z++;
-		underground.show(screenBuf);
+		underground.showAll(screenBuf);
 	}
 	updateScreen = true;
 	minimap.draw(screenBuf);
@@ -1357,16 +1359,16 @@ void CAdvMapInt::showAll(SDL_Surface *to)
 	if(state != INGAME)
 		return;
 
-	kingOverview.show(to);
-	underground.show(to);
-	questlog.show(to);
-	sleepWake.show(to);
-	moveHero.show(to);
-	spellbook.show(to);
-	advOptions.show(to);
-	sysOptions.show(to);
-	nextHero.show(to);
-	endTurn.show(to);
+	kingOverview.showAll(to);
+	underground.showAll(to);
+	questlog.showAll(to);
+	sleepWake.showAll(to);
+	moveHero.showAll(to);
+	spellbook.showAll(to);
+	advOptions.showAll(to);
+	sysOptions.showAll(to);
+	nextHero.showAll(to);
+	endTurn.showAll(to);
 
 	minimap.draw(to);
 	heroList.draw(to);
@@ -1398,10 +1400,10 @@ void CAdvMapInt::show(SDL_Surface *to)
 
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4/LOCPLINT->sysOpts.mapScrollingSpeed)) == 0 
-		&& 
+		&&  (
 			(GH.topInt() == this)
 			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
-			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
+			|| SDL_GetKeyState(NULL)[SDLK_RCTRL])
 	)
 	{
 		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
@@ -1452,7 +1454,7 @@ void CAdvMapInt::centerOn(int3 on)
 	adventureInt->position = on;
 	adventureInt->updateScreen=true;
 	updateMinimap=true;
-	underground.curimg = on.z; //change underground switch button image 
+	underground.setIndex(on.z,true); //change underground switch button image 
 	if(GH.topInt() == this)
 		underground.redraw();
 }
@@ -2002,7 +2004,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		}
 	}
 
-	if(const IShipyard *shipyard = ourInaccessibleShipyard(objAtTile))
+	if(ourInaccessibleShipyard(objAtTile))
 	{
 		CCS->curh->changeGraphic(0, 6);
 	}

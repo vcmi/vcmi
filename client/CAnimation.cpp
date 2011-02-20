@@ -1,7 +1,7 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-#include "SDL_image.h"
+#include <SDL_image.h>
 
 #include "../lib/CLodHandler.h"
 #include "CBitmapHandler.h"
@@ -20,6 +20,7 @@
  */
 
 extern DLL_EXPORT CLodHandler *spriteh;
+extern DLL_EXPORT CLodHandler *bitmaph;
 
 typedef std::map <size_t, std::vector <std::string> > source_map;
 typedef std::map<size_t, IImage* > image_map;
@@ -294,9 +295,13 @@ CDefFile::~CDefFile()
 	delete[] palette;
 }
 
-const std::map<size_t, std::vector <size_t> > * CDefFile::getEntries() const
+const std::map<size_t, size_t > CDefFile::getEntries() const
 {
-	return &offset;
+	std::map<size_t, size_t > ret;
+
+	for (std::map<size_t, std::vector <size_t> >::const_iterator mapIt = offset.begin(); mapIt!=offset.end(); ++mapIt)
+		ret[mapIt->first] =  mapIt->second.size();
+	return ret;
 }
 
 /*************************************************************************
@@ -571,16 +576,30 @@ SDLImage::SDLImage(SDL_Surface * from, bool extraRef):
 SDLImage::SDLImage(std::string filename, bool compressed):
 	margins(0,0)
 {
-	int size;
-	unsigned char * pic = spriteh->giveFile(filename, FILE_GRAPHICS, &size);
-	surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
+	if (spriteh->haveFile(filename, FILE_GRAPHICS))
+	{
+		int size;
+		unsigned char * pic=NULL;
+		pic = spriteh->giveFile(filename, FILE_GRAPHICS, &size);
+		surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
+		delete [] pic;
+	}
+	else if(bitmaph->haveFile(filename, FILE_GRAPHICS))
+		surf = BitmapHandler::loadBitmap(filename);
+	else
+	{
+		tlog0<<"Error: file not found: "<<filename<<"\n";
+		surf = NULL;
+		return;
+	}
 	fullSize.x = surf->w;
 	fullSize.y = surf->h;
-	delete [] pic;
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
 {
+	if (!surf)
+		return;
 	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
 	//TODO: rotation and scaling
 	if (src)
@@ -629,8 +648,10 @@ CompImage::CompImage(SDL_Surface * surf)
 	assert(0);
 }
 
-void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
+void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
 {
+	//rotation & 2 = horizontal rotation
+	//rotation & 4 = vertical rotation
 	if (!surf)
 		return;
 	Rect sourceRect(sprite);
@@ -642,6 +663,11 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
 
 	//Starting point on SDL surface
 	Point dest(posX+sourceRect.x, posY+sourceRect.y);
+	if (rotation & 2)
+		dest.y += sourceRect.h;
+	if (rotation & 4)
+		dest.x += sourceRect.w;
+
 	sourceRect -= sprite.topLeft();
 
 	for (int currY = 0; currY <sourceRect.h; currY++)
@@ -670,14 +696,17 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
 		
 		//Calculate position for blitting: pixels + Y + X
 		ui8* blitPos = (ui8*) where->pixels;
-		blitPos += (dest.y + currY) * where->pitch;
+		if (rotation & 4)
+			blitPos += (dest.y - currY) * where->pitch;
+		else
+			blitPos += (dest.y + currY) * where->pitch;
 		blitPos += dest.x * bpp;
 
-		//Blit block that must be fully visible
+		//Blit blocks that must be fully visible
 		while (currX + size < sourceRect.w)
 		{
-			//blit block, pointers will be incremented if needed
-			BlitBlockWithBpp(bpp, type, size, data, blitPos);
+			//blit block, pointers will be modified if needed
+			BlitBlockWithBpp(bpp, type, size, data, blitPos, rotation & 2);
 
 			currX += size;
 			type = *(data++);
@@ -685,30 +714,36 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src) const
 		}
 		//Blit last, semi-visible block
 		size = sourceRect.w - currX;
-		BlitBlockWithBpp(bpp, type, size, data, blitPos);
+		BlitBlockWithBpp(bpp, type, size, data, blitPos, rotation & 2);
 	}
 }
 
-void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
+#define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest); break
+
+//FIXME: better way to get blitter
+void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, bool rotated) const
 {
-	switch (bpp)
-	{
-	case 2: BlitBlock<2>(type, size, data, dest);
-			break;
-
-	case 3: BlitBlock<3>(type, size, data, dest);
-			break;
-
-	case 4: BlitBlock<4>(type, size, data, dest);
-			break;
-	default:
-			assert(0);
-			break;
-	}
+	assert(bpp>1 && bpp<5);
+	
+	if (rotated)
+		switch (bpp)
+		{
+			CASEBPP(2,1);
+			CASEBPP(3,1);
+			CASEBPP(4,1);
+		}
+	else
+		switch (bpp)
+		{
+			CASEBPP(2,1);
+			CASEBPP(3,1);
+			CASEBPP(4,1);
+		}
 }
+#undef CASEBPP
 
 //Blit one block from RLE-d surface
-template<int bpp>
+template<int bpp, int dir>
 void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
 {
 	//Raw data
@@ -743,15 +778,12 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
 			case 255:
 			{
 				//Put RGB row
-				//FIXME: can be optimized
-				for (int i=0; i<size; i++)
-					ColorPutter<bpp, 1>::PutColor(dest, palette[type]);
+				ColorPutter<bpp, 1>::PutColorRow(dest, palette[type], size);
 				break;
 			}
 			default:
 			{
 				//Put RGBA row
-				//FIXME: can be optimized
 				for (int i=0; i<size; i++)
 					ColorPutter<bpp, 1>::PutColorAlpha(dest, palette[type]);
 				break;
@@ -848,6 +880,27 @@ void TextParser::parseFile(std::map<size_t, std::vector <std::string> > &result)
 	}
 }
 
+IImage * CAnimation::getFromExtraDef(std::string filename)
+{
+	size_t pos = filename.find(':');
+	if (pos == -1)
+		return NULL;
+	CAnimation anim(filename.substr(0, pos));
+	pos++;
+	size_t frame = atoi(filename.c_str()+pos);
+	size_t group = 0;
+	pos = filename.find(':', pos);
+	if (pos != -1)
+	{
+		group = frame;
+		frame = atoi(filename.c_str()+pos);
+	}
+	anim.load(frame ,group);
+	IImage * ret = anim.images[group][frame];
+	anim.images.clear();
+	return ret;
+}
+
 bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 {
 	if (size(group) <= frame)
@@ -873,8 +926,10 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		//TODO: compressed images
-		images[group][frame] = new SDLImage(source[group][frame].c_str());
+		IImage * img = getFromExtraDef(source[group][frame].c_str());
+		if (!img)//TODO: load compressed image
+			img = new SDLImage(source[group][frame].c_str());
+		images[group][frame] = img;
 		return true;
 	}
 	return false;
@@ -902,12 +957,12 @@ void CAnimation::init(CDefFile * file)
 {
 	TextParser txtFile(name);
 
-	if ( txtFile.getType() != 1 )
+	if ( file && txtFile.getType() != 1 )
 	{
-		const std::map<size_t, std::vector <size_t> > * defEntries = file->getEntries();
+		const std::map<size_t, size_t> defEntries = file->getEntries();
 
-		for (std::map<size_t, std::vector <size_t> >::const_iterator mapIt = defEntries->begin(); mapIt!=defEntries->end(); ++mapIt)
-			source[mapIt->first].resize(mapIt->second.size());
+		for (std::map<size_t, size_t>::const_iterator mapIt = defEntries.begin(); mapIt!=defEntries.end(); ++mapIt)
+			source[mapIt->first].resize(mapIt->second);
 	}
 	txtFile.parseFile(source);
 }
@@ -942,27 +997,26 @@ CAnimation::CAnimation():
 	name(""),
 	compressed(false)
 {
-
+	init(NULL);
 }
 
 CAnimation::~CAnimation()
 {
-	for (group_map::iterator group = images.begin(); group != images.end(); ++group )
-		for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
-			delete image->second;
+	if (!images.empty())
+	{
+		tlog2<<"Warning: not all frames were unloaded from "<<name<<"\n";
+		for (group_map::iterator group = images.begin(); group != images.end(); ++group )
+			for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
+				delete image->second;
+	}
 }
 
-void CAnimation::setCustom(IImage * newImage, size_t frame, size_t group)
+void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
-	assert(newImage);
-
-	IImage * oldImage = getImage(frame,group,false);
-	if (oldImage);
-	delete oldImage;
-	images[group][frame] = newImage;
-
 	if (source[group].size() <= frame)
 		source[group].resize(frame+1);
+	source[group][frame] = filename;
+	//FIXME: update image if already loaded
 }
 
 IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
@@ -1028,20 +1082,6 @@ void CAnimation::unload(size_t frame, size_t group)
 	unloadFrame(frame, group);
 }
 
-void CAnimation::fixButtonPos()
-{
-	group_map::iterator groupIter = images.find(0);
-	if (groupIter != images.end())
-	{
-		image_map::iterator first = groupIter->second.find(0),
-		                    second = groupIter->second.find(1);
-		if (first != second)
-		{
-			std::swap (first->second, second->second);
-		}
-	}
-}
-
 size_t CAnimation::size(size_t group) const
 {
 	source_map::const_iterator iter = source.find(group);
@@ -1050,37 +1090,77 @@ size_t CAnimation::size(size_t group) const
 	return 0;
 }
 
-CAnimImage::CAnimImage(int x, int y, std::string name, size_t Frame, size_t Group):
-	anim(name),
+CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, unsigned char Flags):
 	frame(Frame),
-	group(Group)
+	group(Group),
+	player(-1),
+	flags(Flags)
 {
-	anim.load(frame, group);
-	pos.w = anim.getImage(frame, group)->width();
-	pos.h = anim.getImage(frame, group)->height();
+	pos.x += x;
+	pos.y += y;
+	anim = new CAnimation(name);
+	init();
+}
+
+CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int y, unsigned char Flags):
+	anim(Anim),
+	frame(Frame),
+	group(Group),
+	player(-1),
+	flags(Flags)
+{
+	pos.x += x;
+	pos.y += y;
+	init();
+}
+
+void CAnimImage::init()
+{
+	anim->load(frame, group);
+	if (flags & CShowableAnim::BASE)
+		anim->load(0,group);
+	
+	IImage *img = anim->getImage(frame, group);
+	pos.w = img->width();
+	pos.h = img->height();
+	
 }
 
 CAnimImage::~CAnimImage()
 {
-
+	anim->unload(frame, group);
+	if (flags & CShowableAnim::BASE)
+		anim->unload(0,group);
+	delete anim;
 }
 
 void CAnimImage::showAll(SDL_Surface *to)
 {
-	anim.getImage(frame, group)->draw(to);
+	anim->getImage(frame, group)->draw(to, pos.x, pos.y);
 }
 
 void CAnimImage::setFrame(size_t Frame, size_t Group)
 {
 	if (frame == Frame && group==Group)
 		return;
-	if (anim.size(Group) > Frame)
+	if (anim->size(Group) > Frame)
 	{
-		anim.unload(frame, group);
-		anim.load(Frame, Group);
+		anim->load(Frame, Group);
+		anim->unload(frame, group);
 		frame = Frame;
 		group = Group;
+		if (flags & CShowableAnim::PLAYER_COLORED)
+			anim->getImage(frame, group)->playerColored(player);
 	}
+}
+
+void CAnimImage::playerColored(int currPlayer)
+{
+	player = currPlayer;
+	flags |= CShowableAnim::PLAYER_COLORED;
+	anim->getImage(frame, group)->playerColored(player);
+	if (flags & CShowableAnim::BASE)
+			anim->getImage(0, group)->playerColored(player);
 }
 
 CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags, unsigned int Delay, size_t Group):
@@ -1105,7 +1185,7 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags
 
 CShowableAnim::~CShowableAnim()
 {
-
+	anim.unloadGroup(group);
 }
 
 bool CShowableAnim::set(size_t Group, size_t from, size_t to)

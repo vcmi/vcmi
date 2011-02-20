@@ -7,7 +7,6 @@
 
 #ifndef _MSC_VER
 #include "../lib/RegisterTypes.cpp"
-#include "CObjectHandler.h"
 #endif
 
 //for smart objs serialization over net
@@ -21,6 +20,7 @@
 #include "VCMI_Lib.h"
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
+#include "CSpellHandler.h"
 #include "CTownHandler.h"
 #include "CCampaignHandler.h"
 #include "NetPacks.h"

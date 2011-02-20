@@ -58,7 +58,7 @@ public:
 	template<class ImageLoader>
 	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
 
-	const std::map<size_t, std::vector <size_t> > * getEntries() const;
+	const std::map<size_t, size_t> getEntries() const;
 };
 
 /*
@@ -70,7 +70,7 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const=0;
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const=0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -106,7 +106,7 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -141,9 +141,9 @@ class CompImage : public IImage
 	SDL_Color *palette;
 
 	//Used internally to blit one block of data
-	template<int bpp>
+	template<int bpp, int dir>
 	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const;
-	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const;
+	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, bool rotated) const;
 
 public:
 	//Load image from def file
@@ -152,7 +152,7 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -193,6 +193,10 @@ private:
 	//to get rid of copy-pasting error message :]
 	void printError(size_t frame, size_t group, std::string type) const;
 
+	//not a very nice method to get image from another def file
+	//TODO: remove after implementing resource manager
+	IImage * getFromExtraDef(std::string filename);
+
 public:
 
 	CAnimation(std::string Name, bool Compressed = false);
@@ -200,8 +204,7 @@ public:
 	~CAnimation();
 
 	//add custom surface to the selected position.
-	//Known issue: IImage should not be used in another CAnimation (results in crash othervice)
-	void setCustom(IImage * newImage, size_t frame, size_t group=0);
+	void setCustom(std::string filename, size_t frame, size_t group=0);
 
 	//get pointer to image from specific group, NULL if not found
 	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
@@ -218,9 +221,6 @@ public:
 	void load  (size_t frame, size_t group=0);
 	void unload(size_t frame, size_t group=0);
 
-	//helper to fix frame order on some buttons
-	void fixButtonPos();
-
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
 };
@@ -231,17 +231,26 @@ public:
 class CAnimImage: public CIntObject
 {
 private:
-	CAnimation anim;
+	CAnimation* anim;
 	//displayed frame/group
 	size_t frame;
 	size_t group;
+	int player;
+	unsigned char flags;
+
+	void init();
 
 public:
-	CAnimImage(int x, int y, std::string name, size_t Frame, size_t Group=0);//c-tor
+	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, unsigned char Flags=0);
+	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, unsigned char Flags=0);
 	~CAnimImage();//d-tor
 
 	//change displayed frame on this one
 	void setFrame(size_t Frame, size_t Group=0);
+
+	//makes image player-colored
+	void playerColored(int player);
+
 	void showAll(SDL_Surface *to);
 };
 
@@ -257,6 +266,7 @@ public:
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
 		USE_RLE=8,         //RLE-d version, support full alpha-channel for 8-bit images
+		PLAYER_COLORED=16, //TODO: all loaded images will be player-colored
 	};
 protected:
 	CAnimation anim;

@@ -113,7 +113,7 @@ public:
 	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
-	std::vector<std::vector<ui32>> expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
+	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
 	si8 expAfterUpgrade;//multiplier in %
 

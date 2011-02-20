@@ -419,7 +419,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 		// Compute total width of buttons
 		bw = 20*(ret->buttons.size()-1); // space between all buttons
 		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
-			bw+=ret->buttons[i]->imgs[0]->getImage(0)->width(); 
+			bw+=ret->buttons[i]->pos.w;
 		winSize.second += 20 + //before button
 		ok->ourImages[0].bitmap->h; //button	
 	}
@@ -456,13 +456,12 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	{
 		// Position the buttons at the bottom of the window
 		bw = (ret->bitmap->w/2) - (bw/2);
-		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0]->getImage(0)->height();
+		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->pos.h;
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
-			ret->buttons[i]->pos.x = bw + ret->pos.x;
-			ret->buttons[i]->pos.y = curh + ret->pos.y;
-			bw += ret->buttons[i]->imgs[0]->getImage(0)->width() + 20;
+			ret->buttons[i]->moveBy(Point(bw, curh));
+			bw += ret->buttons[i]->pos.w + 20;
 		}
 	}
 	for(size_t i=0; i<ret->components.size(); i++)

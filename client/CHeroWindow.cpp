@@ -88,11 +88,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
 
 	formations = new CHighlightableButtonsGroup(0);
-	{
-		BLOCK_CAPTURING;
-		formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", pos.x+481, pos.y+483, 0, 0, SDLK_t);
-		formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def", pos.x+481, pos.y+519, 1, 0, SDLK_l);
-	}
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", 481, 483, 0, 0, SDLK_t);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def", 481, 519, 1, 0, SDLK_l);
 
 	tacticsButton = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 539, 483, SDLK_b);
 
@@ -233,7 +230,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 				if(cew->heroInst[g] == hero)
 					noDismiss = true;
 
-		if (CKingdomInterface * cki = dynamic_cast<CKingdomInterface*>(isa))
+		if (dynamic_cast<CKingdomInterface*>(isa))
 			noDismiss = true;
 	}
 	dismissButton->block(!!hero->visitedTown || noDismiss);

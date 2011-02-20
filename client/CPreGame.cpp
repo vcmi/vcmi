@@ -1426,12 +1426,10 @@ InfoCard::InfoCard( bool Network )
 		difficulty = new CHighlightableButtonsGroup(0);
 		{
 			static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
-			BLOCK_CAPTURING;
 
 			for(int i = 0; i < 5; i++)
 			{
 				difficulty->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[24+i].second, 0, 110 + i*32, 450, difButns[i], i));
-				difficulty->buttons.back()->pos += pos.topLeft();
 			}
 		}
 
@@ -2260,7 +2258,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 
 	subTitle = getText();
 
-	int val;
+	int val=-1;
 	switch(which)
 	{
 	case TOWN: 
@@ -2698,8 +2696,8 @@ void CBonusSelection::goBack()
 
 void CBonusSelection::showAll( SDL_Surface * to )
 {
-	CIntObject::showAll(to);
 	blitAt(background, pos.x, pos.y, to);
+	CIntObject::showAll(to);
 
 	show(to);
 }
@@ -2764,7 +2762,7 @@ void CBonusSelection::selectMap( int whichOne )
 
 void CBonusSelection::show( SDL_Surface * to )
 {
-	blitAt(background, pos.x, pos.y, to);
+	//blitAt(background, pos.x, pos.y, to);
 
 	//map name
 	std::string mapName = ourHeader->name;
@@ -2835,30 +2833,26 @@ void CBonusSelection::updateBonusSelection()
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
-	CDefEssential * twcp = CDefHandler::giveDefEss("TWCRPORT.DEF"); //for yellow border
-
 	bonuses->buttons.clear();
 	{
 		BLOCK_CAPTURING;
-		static const char *bonDefs[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "GSPBUT5.DEF", "ARTIFBON.DEF", "SPELLBON.DEF",
-			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "GSPBUT5.DEF", "GSPBUT5.DEF"};
+		static const char *bonusPics[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "", "ARTIFBON.DEF", "SPELLBON.DEF",
+			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "CREST58.DEF", "HPL000KN"};
 
 		for(int i = 0; i < bonDescs.size(); i++)
 		{
-			CDefEssential * de = CDefHandler::giveDefEss(bonDefs[bonDescs[i].type]);
-			SDL_Surface * surfToDuplicate = NULL;
-			bool createNewRef = true;
+			std::string picName=bonusPics[bonDescs[i].type];
+			size_t picNumber=bonDescs[i].info2;
 
 			std::string desc;
 			switch(bonDescs[i].type)
 			{
 			case 0: //spell
-				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[715];
 				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
 			case 1: //monster
-				surfToDuplicate = de->ourImages[bonDescs[i].info2 + 2].bitmap;
+				picNumber = bonDescs[i].info2 + 2;
 				desc = CGI->generaltexth->allTexts[717];
 				boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
 				boost::algorithm::replace_first(desc, "%s", CGI->creh->creatures[bonDescs[i].info2]->namePl);
@@ -2878,19 +2872,15 @@ void CBonusSelection::updateBonusSelection()
 					}
 					assert(faction != -1);
 
-					std::string bldgBitmapName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
-					surfToDuplicate = BitmapHandler::loadBitmap(bldgBitmapName);
-
-					createNewRef = false;
+					picName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
+					picNumber = -1;
 				}
 				break;
 			case 3: //artifact
-				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[715];
 				boost::algorithm::replace_first(desc, "%s", CGI->arth->artifacts[bonDescs[i].info2]->Name());
 				break;
 			case 4: //spell scroll
-				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[716];
 				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
@@ -2910,7 +2900,7 @@ void CBonusSelection::updateBonusSelection()
 							toPrint.push_back(std::make_pair(g, ptr[g]));
 						}
 					}
-					surfToDuplicate = de->ourImages[leadingSkill].bitmap;
+					picNumber = leadingSkill;
 					desc = CGI->generaltexth->allTexts[715];
 
 					std::string substitute; //text to be printed instead of %s
@@ -2928,7 +2918,6 @@ void CBonusSelection::updateBonusSelection()
 					break;
 				}
 			case 6: //secondary skill
-				surfToDuplicate = de->ourImages[bonDescs[i].info2].bitmap;
 				desc = CGI->generaltexth->allTexts[718];
 
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3]); //skill level
@@ -2950,7 +2939,7 @@ void CBonusSelection::updateBonusSelection()
 						serialResID = 8;
 						break;
 					}
-					surfToDuplicate = de->ourImages[serialResID].bitmap;
+					picNumber = serialResID;
 
 					desc = CGI->generaltexth->allTexts[717];
 					boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info2));
@@ -2967,7 +2956,7 @@ void CBonusSelection::updateBonusSelection()
 				}
 				break;
 			case 8: //player aka hero crossover
-				surfToDuplicate = graphics->flags->ourImages[bonDescs[i].info1].bitmap;
+				picNumber = bonDescs[i].info1;
 				desc = CGI->generaltexth->allTexts[718];
 
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //player color
@@ -2982,40 +2971,37 @@ void CBonusSelection::updateBonusSelection()
 				if (bonDescs[i].info2 == 0xFFFF)
 				{
 					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[0]->name); //hero's name
-					surfToDuplicate = graphics->portraitLarge[0];
+					//surfToDuplicate = graphics->portraitLarge[0];
+					//TODO: re-enable - need to get filename or CAnimation with heroes pics
 				}
 				else
 				{
 
 					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[bonDescs[i].info2]->name); //hero's name
-					surfToDuplicate = graphics->portraitLarge[bonDescs[i].info2];
+					//surfToDuplicate = graphics->portraitLarge[bonDescs[i].info2];
 				}
+				picNumber = -1;
 				break;
 			}
 
-			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, bonDefs[bonDescs[i].type], i));
-
+			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, "", i));
 			//create separate surface with yellow border
-			SDL_Surface * selected = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format, surfToDuplicate->flags);
-			blitAt(twcp->ourImages[1].bitmap, 0, 0, selected);
 
-			//replace images on button with new ones
-			delete bonuses->buttons.back()->imgs[0];
-			bonuses->buttons.back()->imgs[0] = new CAnimation();
-			bonuses->buttons.back()->imgs[0]->setCustom(new SDLImage(surfToDuplicate, createNewRef), 0);
-			bonuses->buttons.back()->imgs[0]->setCustom(new SDLImage(selected, false), 1);
+			if (picNumber != -1)
+				picName += ":" + boost::lexical_cast<std::string>(picNumber);
 
-			//cleaning
-			delete de;
+			CAnimation * anim = new CAnimation();
+			anim->setCustom(picName, 0);
+			anim->setCustom("TWCRPORT:1", 1);
+			bonuses->buttons.back()->setImage(anim);
+			//FIXME: use show base
+
 		}
 	}
 	if (bonuses->buttons.size() > 0)
 	{
 		bonuses->select(0, 0);
 	}
-
-	delete twcp;
-
 }
 
 void CBonusSelection::startMap()

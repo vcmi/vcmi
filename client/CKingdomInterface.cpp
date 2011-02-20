@@ -77,7 +77,7 @@ CKingdomInterface::CKingdomInterface()
 
 	exit = new AdventureMapButton (CGI->generaltexth->allTexts[600],"",
 		boost::bind(&CKingdomInterface::close,this),748,99+size*116,"OVBUTN1.DEF", SDLK_RETURN);
-	exit->bitmapOffset = 3;
+	exit->setOffset(3);
 
 	statusbar = new CStatusBar(7, 91+size*116,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("KRESBAR.bmp",pos.x+3,pos.y+111+size*116,32,2,76,76);
@@ -97,15 +97,15 @@ CKingdomInterface::CKingdomInterface()
 
 	ObjUp = new AdventureMapButton ("","", boost::bind(&CKingdomInterface::moveObjectList,this,1),
 		733,24,"OVBUTN4.DEF");
-	ObjUp->bitmapOffset = 4;
+	ObjUp->setOffset(4);
 
 	ObjDown = new AdventureMapButton ("","", boost::bind(&CKingdomInterface::moveObjectList,this,2),
 		733,size*116-18,"OVBUTN4.DEF");
-	ObjDown->bitmapOffset = 6;
+	ObjDown->setOffset(6);
 
 	ObjBottom = new AdventureMapButton ("","", boost::bind(&CKingdomInterface::moveObjectList,this,3),
 		733,size*116+2,"OVBUTN4.DEF");
-	ObjBottom->bitmapOffset = 2;
+	ObjBottom->setOffset(2);
 
 	for (size_t i=0; i<8; i++)
 	{

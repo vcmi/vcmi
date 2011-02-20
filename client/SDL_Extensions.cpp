@@ -100,6 +100,21 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const U
 	}
 }
 
+template<int bpp, int incrementPtr>
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
+{
+	Uint32 pixel = ((Uint32)Color.b << 0 ) + ((Uint32)Color.g << 8) + ((Uint32)Color.r << 16);
+	
+	for (size_t i=0; i<count; i++)
+	{
+		memcpy(ptr, &pixel, bpp);
+		if(incrementPtr == -1)
+			ptr -= bpp;
+		if(incrementPtr == 1)
+			ptr += bpp;
+	}
+}
+
 template <int incrementPtr>
 STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
 {
@@ -161,6 +176,22 @@ template <int incrementPtr>
 STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b);
+}
+
+template <int incrementPtr>
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
+{
+	//drop least significant bits of 24 bpp encoded color
+	Uint16 pixel = (Color.b>>3) + ((Color.g>>2) << 5) + ((Color.r>>3) << 11);
+	
+	for (size_t i=0; i<count; i++)
+	{
+		memcpy(ptr, &pixel, 2);
+		if(incrementPtr == -1)
+			ptr -= 2;
+		if(incrementPtr == 1)
+			ptr += 2;
+	}
 }
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
@@ -318,7 +349,8 @@ void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
+	SDL_Rect dstRect = genRect(temp->h, temp->w, x-(temp->w/2), y-(temp->h/2));
+	CSDL_Ext::blitSurface(temp, NULL, dst, &dstRect);
 	SDL_FreeSurface(temp);
 }
 
@@ -361,7 +393,8 @@ void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
+	SDL_Rect dstRect = genRect(temp->h,temp->w,x,y);
+	CSDL_Ext::blitSurface(temp,NULL,dst,&dstRect);
 	if(refresh)
 		SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
@@ -463,7 +496,8 @@ void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
+	SDL_Rect dstRect = genRect(temp->h,temp->w,x-temp->w,y-temp->h);
+	CSDL_Ext::blitSurface(temp,NULL,dst,&dstRect);
 	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
@@ -504,7 +538,8 @@ void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Colo
 		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 		break;
 	}
-	CSDL_Ext::blitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
+	SDL_Rect dstRect = genRect(temp->h,temp->w,x-temp->w,y-temp->h);
+	CSDL_Ext::blitSurface(temp,NULL,dst,&dstRect);
 	SDL_FreeSurface(temp);
 }
 
@@ -1296,7 +1331,13 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;
 
-//instantiation of templates used in CAnimation, required for correct linking
-template struct ColorPutter<2,1>;
-template struct ColorPutter<3,1>;
-template struct ColorPutter<4,1>;
+//instantiation of templates used in CAnimation and CCreatureAnimation, required for correct linking
+template struct ColorPutter<2,-1>;
+template struct ColorPutter<3,-1>;
+template struct ColorPutter<4,-1>;
+template struct ColorPutter<2, 0>;
+template struct ColorPutter<3, 0>;
+template struct ColorPutter<4, 0>;
+template struct ColorPutter<2, 1>;
+template struct ColorPutter<3, 1>;
+template struct ColorPutter<4, 1>;

@@ -157,9 +157,10 @@ void CBuildingRect::show(SDL_Surface *to)
 
 void CBuildingRect::showAll(SDL_Surface *to)
 {
+	if (active)
+		return;
 	CShowableAnim::showAll(to);
-
-	if(LOCPLINT->castleInt->hBuild == this && border && !active)
+	if(LOCPLINT->castleInt->hBuild == this && border)
 		blitAtLoc(border,0,0,to);
 }
 
@@ -405,7 +406,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
 
 	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
-	exit->bitmapOffset = 4;
+	exit->setOffset(4);
 	//growth icons and buildings
 	recreateBuildings();
 	recreateIcons();
@@ -1483,7 +1484,7 @@ void CHallInterface::showAll(SDL_Surface * to)
 	LOCPLINT->castleInt->statusbar->show(to);
 	printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(),399+pos.x,12+pos.y,FONT_MEDIUM,zwykly,to);
 	resdatabar->show(to);
-	exit->show(to);
+	exit->showAll(to);
 	for(int i=0; i<5; i++)
 	{
 		for(size_t j=0;j<boxes[i].size(); ++j)
@@ -1558,8 +1559,8 @@ void CHallInterface::CBuildWindow::show(SDL_Surface * to)
 	SDL_BlitSurface(bitmap,&poms,to,&pom);
 	if(!mode)
 	{
-		buy->show(to);
-		cancel->show(to);
+		buy->showAll(to);
+		cancel->showAll(to);
 	}
 }
 
@@ -1648,7 +1649,7 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 		cancel = new AdventureMapButton
 			("","",boost::bind(&CBuildWindow::close,this),pos.x+290,pos.y+445,"ICANCEL.DEF",SDLK_ESCAPE);
 		if(state!=7)
-			buy->state=2;
+			buy->setState(CButtonBase::BLOCKED);
 	}
 }
 
@@ -1688,7 +1689,7 @@ void CFortScreen::showAll( SDL_Surface * to)
 	{
 		crePics[i]->showAll(to);
 	}
-	exit->show(to);
+	exit->showAll(to);
 	resdatabar->show(to);
 	GH.statusbar->show(to);
 	
@@ -1900,6 +1901,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		spells[i]->pos.x += pos.x;
 		spells[i]->pos.y += pos.y;
 	}
+	scrolls.unload();
 }
 
 CMageGuildScreen::~CMageGuildScreen()
