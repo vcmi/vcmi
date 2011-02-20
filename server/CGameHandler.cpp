@@ -3739,7 +3739,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				sse.stacks.push_back((*it)->ID);
 			}
 			Bonus pseudoBonus;
-			pseudoBonus.id = spellID;
+			pseudoBonus.sid = spellID;
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
@@ -3824,7 +3824,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
-			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s);
+			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, BattleInfo::HERO_CASTING);
 			if(escp != SpellCasting::OK)
 			{
 				tlog2 << "Spell cannot be cast!\n";
@@ -4408,6 +4408,12 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				int chance = sf->additionalInfo % 1000;
 				//int meleeRanged = sf->additionalInfo / 1000;
 				int destination = oneOfAttacked->position;
+
+				const CSpell * spell = VLC->spellh->spells[spellID];
+				if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, BattleInfo::AFTER_ATTACK_CASTING, oneOfAttacked->position)
+					!= SpellCasting::OK)
+					continue;
+
 				//check if spell should be casted (probability handling)
 				if( rand()%100 >= chance )
 					continue;

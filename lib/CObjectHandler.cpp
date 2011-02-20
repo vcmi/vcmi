@@ -461,7 +461,7 @@ void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
 	gbonus.id = heroID;
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = Bonus::OBJECT;
-	gbonus.bonus.id = ID;
+	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);
 }
 
@@ -946,7 +946,7 @@ void CGHeroInstance::initObj()
 	{
 		Bonus *bonus = new Bonus();
 		bonus->val = it->val;
-		bonus->id = id; //from the hero, speciality has no unique id
+		bonus->sid = id; //from the hero, speciality has no unique id
 		bonus->duration = Bonus::PERMANENT;
 		bonus->source = Bonus::HERO_SPECIAL;
 		switch (it->type)
@@ -4548,7 +4548,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	gbonus.id = h->id;
 	gbonus.bonus.duration = Bonus::ONE_BATTLE;
 	gbonus.bonus.source = Bonus::OBJECT;
-	gbonus.bonus.id = ID;
+	gbonus.bonus.sid = ID;
 
 	bool second = false;
 	Bonus secondBonus;
@@ -5766,7 +5766,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 			gbonus.id = h->id;
 			gbonus.bonus.duration = Bonus::ONE_BATTLE;
 			gbonus.bonus.source = Bonus::OBJECT;
-			gbonus.bonus.id = ID;
+			gbonus.bonus.sid = ID;
 			gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[98];
 			gbonus.bonus.type = Bonus::MORALE;
 			gbonus.bonus.val = -1;
@@ -5812,7 +5812,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					gbonus.id = h->id;
 					gbonus.bonus.duration = Bonus::ONE_BATTLE;
 					gbonus.bonus.source = Bonus::OBJECT;
-					gbonus.bonus.id = ID;
+					gbonus.bonus.sid = ID;
 					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[101];
 					gbonus.bonus.type = Bonus::MORALE;
 					gbonus.bonus.val = -1;
@@ -5831,7 +5831,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					gbonus.id = h->id;
 					gbonus.bonus.duration = Bonus::ONE_BATTLE;
 					gbonus.bonus.source = Bonus::OBJECT;
-					gbonus.bonus.id = ID;
+					gbonus.bonus.sid = ID;
 					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
 					gbonus.bonus.type = Bonus::MORALE;
 					gbonus.bonus.val = -1;
@@ -6526,7 +6526,7 @@ void CGLighthouse::giveBonusTo( ui8 player ) const
 	gb.id = player;
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
-	gb.bonus.id = id;
+	gb.bonus.sid = id;
 	cb->sendAndApply(&gb);
 }
 

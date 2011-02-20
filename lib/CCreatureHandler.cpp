@@ -415,7 +415,7 @@ void CCreatureHandler::loadCreatures()
 				reader >> buf; nsf->subtype = buf;
 				reader >> buf; nsf->additionalInfo = buf;
 				nsf->source = Bonus::CREATURE_ABILITY;
-				nsf->id = cre->idNumber;
+				nsf->sid = cre->idNumber;
 				nsf->duration = Bonus::ONE_BATTLE;
 				nsf->turnsRemain = 0;
 
@@ -673,7 +673,7 @@ void CCreatureHandler::loadCreatures()
 		do //parse everything that's left
 		{
 			loadToIt(creid, buf, it, 4); //get index
-			b.id = creid; //id = this particular creature ID
+			b.sid = creid; //id = this particular creature ID
 			loadStackExp(b, creatures[creid]->bonuses, buf, it); //add directly to CCreature Node
 			loadToIt (dump2, buf, it, 3); //crop comment
 		} while (it < buf.size());
@@ -1015,7 +1015,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 
 void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string & src, int & it)
 {
-	CCreature * cre = creatures[b.id]; //odd workaround
+	CCreature * cre = creatures[b.sid]; //odd workaround
 
 	b.type = Bonus::SPELL_IMMUNITY;
 	b.val = Bonus::BASE_NUMBER;

@@ -596,7 +596,7 @@ bool CBattleCallback::battleCanCastSpell()
 	if(!gs->curB) //there is no battle
 		return false;
 
-	return gs->curB->battleCanCastSpell(player) == SpellCasting::OK;
+	return gs->curB->battleCanCastSpell(player, BattleInfo::HERO_CASTING) == SpellCasting::OK;
 }
 
 bool CBattleCallback::battleCanFlee()
@@ -1097,7 +1097,7 @@ SpellCasting::ESpellCastProblem CBattleCallback::battleCanCastThisSpell( const C
 		return SpellCasting::NO_HERO_TO_CAST_SPELL;
 	}
 
-	return gs->curB->battleCanCastThisSpell(player, spell);
+	return gs->curB->battleCanCastThisSpell(player, spell, BattleInfo::HERO_CASTING);
 }
 
 si8 CBattleCallback::battleGetTacticDist()

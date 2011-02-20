@@ -58,7 +58,6 @@ namespace PrimarySkill
 	BONUS_NAME(BLOCK_SPELLS_ABOVE_LEVEL) \
 	BONUS_NAME(WATER_WALKING) /*subtype 1 - without penalty, 2 - with penalty*/ \
 	BONUS_NAME(NO_SHOTING_PENALTY) \
-	BONUS_NAME(DISPEL_IMMUNITY) \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
 	BONUS_NAME(BLOCK_MORALE) \
@@ -226,7 +225,7 @@ struct DLL_EXPORT Bonus
 
 	ui8 source;//source type" uses BonusSource values - what gave that bonus
 	si32 val;
-	ui32 id; //source id: id of object/artifact/spell
+	ui32 sid; //source id: id of object/artifact/spell
 	ui8 valType; //by ValueType enum
 
 	si32 additionalInfo;
@@ -256,7 +255,7 @@ struct DLL_EXPORT Bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & subtype & source & val & id & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
+		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
 	}
 
 	static bool OneDay(const Bonus *hb)
@@ -285,7 +284,7 @@ struct DLL_EXPORT Bonus
 	}
 	static bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{
-		return hb.source==source && (id==0xffffff  ||  hb.id==id);
+		return hb.source==source && (id==0xffffff  ||  hb.sid==id);
 	}
 	inline bool operator == (const BonusType & cf) const
 	{

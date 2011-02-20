@@ -499,7 +499,7 @@ int NBonus::getCount(const CBonusSystemNode *obj, int from, int id)
 const CSpell * Bonus::sourceSpell() const
 {
 	if(source == SPELL_EFFECT)
-		return VLC->spellh->spells[id];
+		return VLC->spellh->spells[sid];
 	return NULL;
 }
 
@@ -519,18 +519,18 @@ std::string Bonus::Description() const
 	switch(source)
 	{
 	case CREATURE_ABILITY:
-		str << VLC->creh->creatures[id]->namePl;
+		str << VLC->creh->creatures[sid]->namePl;
 		break;
 	case SECONDARY_SKILL:
-		str << VLC->generaltexth->skillName[id] << " secondary skill";
+		str << VLC->generaltexth->skillName[sid] << " secondary skill";
 		break;
 	}
-
+	
 	return str.str();
 }
 
 Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/) 
-	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), description(Desc)
+	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	additionalInfo = -1;
 	turnsRemain = 0;
@@ -540,7 +540,7 @@ Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si
 }
 
 Bonus::Bonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ui8 ValType /*= ADDITIVE_VALUE*/) 
-	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), valType(ValType)
+	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	additionalInfo = -1;
 	turnsRemain = 0;
@@ -596,7 +596,7 @@ namespace Selector
 
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID)
 	{
-		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::id, sourceID);
+		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::sid, sourceID);
 	}
 
 	CSelector DLL_EXPORT sourceTypeSel(ui8 source)
@@ -668,7 +668,7 @@ DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	printField(subtype);
 	printField(duration);
 	printField(source);
-	printField(id);
+	printField(sid);
 	printField(additionalInfo);
 	printField(turnsRemain);
 	printField(valType);

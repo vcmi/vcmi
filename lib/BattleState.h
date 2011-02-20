@@ -115,8 +115,11 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	si8 canTeleportTo(const CStack * stack, THex destHex, int telportLevel) const; //determines if given stack can teleport to given place
 	bool battleCanShoot(const CStack * stack, THex dest) const; //determines if stack with given ID shoot at the selected destination
 
-	SpellCasting::ESpellCastProblem battleCanCastSpell(int player) const; //returns true if there are no general issues preventing from castng a spell
-	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell) const; //chcecks if given player can cast given spell
+	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING};
+
+	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode mode) const; //checks if given player can cast given spell
+	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
 
 	bool battleCanFlee(int player) const; //returns true if player can flee from the battle
 	const CStack * battleGetStack(THex pos, bool onlyAlive); //returns stack at given tile

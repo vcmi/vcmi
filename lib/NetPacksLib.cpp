@@ -186,7 +186,7 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 	if(!bdescr.message.size() 
 		&& bonus.source == Bonus::OBJECT 
 		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
-		&& gs->map->objects[bonus.id]->ID == EVENTI_TYPE) //it's morale/luck bonus from an event without description
+		&& gs->map->objects[bonus.sid]->ID == EVENTI_TYPE) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
@@ -222,7 +222,7 @@ DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 
 	for(BonusList::iterator i = bonuses.begin(); i != bonuses.end(); i++)
 	{
-		if((*i)->source == source && (*i)->id == id)
+		if((*i)->source == source && (*i)->sid == id)
 		{
 			bonus = **i; //backup bonus (to show to interfaces later)
 			bonuses.erase(i);
@@ -1052,7 +1052,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 				//WTF?
 				for (BonusList::iterator it = remainingEff.begin(); it != remainingEff.end(); it++)
 				{
-					if (onlyHelpful && VLC->spellh->spells[ (*it)->id ]->positiveness != 1)
+					if (onlyHelpful && VLC->spellh->spells[ (*it)->sid ]->positiveness != 1)
 					{
 						remainingEff.push_back(*it);
 					}
@@ -1147,7 +1147,7 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			int id = effect.begin()->id; //effects' source ID
+			int id = effect.begin()->sid; //effects' source ID
 			if(id == 47 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id)))//disrupting ray or not on the list - just add	
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
@@ -1217,7 +1217,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			
 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
 			{
-				if(VLC->spellh->spells[(*it)->id]->positiveness < 0)
+				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
 				{
 					changedStack->bonuses.erase(it);
 				}

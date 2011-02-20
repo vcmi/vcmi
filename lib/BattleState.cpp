@@ -550,7 +550,7 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 
 			BOOST_FOREACH(const Bonus *it, stack->bonuses)
 			{
-				if (it->source == Bonus::SPELL_EFFECT && it->id == 28 && it->val >= 2)
+				if (it->source == Bonus::SPELL_EFFECT && it->sid == 28 && it->val >= 2)
 				{
 					return true;
 				}
@@ -1617,32 +1617,48 @@ bool BattleInfo::isInTacticRange( THex dest ) const
 		|| (tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player) const
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, ECastingMode mode) const
 {
 	int side = sides[0] == player ? 0 : 1;
 
-	if(castSpells[side] > 0)
-		return SpellCasting::ALREADY_CASTED_THIS_TURN;
-	if(!heroes[side])
-		return SpellCasting::NO_HERO_TO_CAST_SPELL;
-	if(!heroes[side]->getArt(17))
-		return SpellCasting::NO_SPELLBOOK;
+	switch (mode)
+	{
+	case HERO_CASTING:
+		{
+			if(castSpells[side] > 0)
+				return SpellCasting::ALREADY_CASTED_THIS_TURN;
+			if(!heroes[side])
+				return SpellCasting::NO_HERO_TO_CAST_SPELL;
+			if(!heroes[side]->getArt(17))
+				return SpellCasting::NO_SPELLBOOK;
+		}
+		break;
+	}
 
 	return SpellCasting::OK;
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, const CSpell * spell ) const
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, const CSpell * spell, ECastingMode mode ) const
 {
-	SpellCasting::ESpellCastProblem genProblem = battleCanCastSpell(player);
+	SpellCasting::ESpellCastProblem genProblem = battleCanCastSpell(player, mode);
 	if(genProblem != SpellCasting::OK)
 		return genProblem;
-	int cside = sides[0] == player ? 0 : 1; //caster's side
-	const CGHeroInstance * caster = heroes[cside];
-	if(!caster->canCastThisSpell(spell))
-		return SpellCasting::HERO_DOESNT_KNOW_SPELL;
 
-	if(caster->mana < getSpellCost(spell, caster)) //not enough mana
-		return SpellCasting::NOT_ENOUGH_MANA;
+	int cside = sides[0] == player ? 0 : 1; //caster's side
+	switch(mode)
+	{
+	HERO_CASTING:
+		{
+			const CGHeroInstance * caster = heroes[cside];
+			if(!caster->canCastThisSpell(spell))
+				return SpellCasting::HERO_DOESNT_KNOW_SPELL;
+
+			if(caster->mana < getSpellCost(spell, caster)) //not enough mana
+				return SpellCasting::NOT_ENOUGH_MANA;
+		}
+		break;
+	}
+	
 
 	if(spell->id < 10) //it's adventure spell (not combat))
 		return SpellCasting::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
@@ -1670,6 +1686,34 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 		}
 	}
 
+	return SpellCasting::OK;
+}
+
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int player, const CSpell * spell, ECastingMode mode, THex dest )
+{
+	SpellCasting::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(player, spell, mode);
+	if(moreGeneralProblem != SpellCasting::OK)
+		return moreGeneralProblem;
+
+	const CStack * subject = getStackT(dest, false);
+	//dispel helpful spells
+	if(spell->id == 78)
+	{
+		BonusList spellBon = subject->getSpellBonuses();
+		bool hasPositiveSpell = false;
+		BOOST_FOREACH(const Bonus * b, spellBon)
+		{
+			if(VLC->spellh->spells[b->sid]->positiveness > 0)
+			{
+				hasPositiveSpell = true;
+				break;
+			}
+		}
+		if(!hasPositiveSpell)
+		{
+			return SpellCasting::NO_SPELLS_TO_DISPEL;
+		}
+	}
 	return SpellCasting::OK;
 }
 
@@ -1756,7 +1800,7 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
 	BOOST_FOREACH(Bonus *it, bonuses)
 	{
-		if(it->source == Bonus::SPELL_EFFECT && it->id == id)
+		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
 		{
 			if(!turn || it->turnsRemain > turn)
 				return &(*it);
@@ -1767,7 +1811,7 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 {
-	si32 power = VLC->spellh->spells[sse.id]->powers[sse.val];
+	si32 power = VLC->spellh->spells[sse.sid]->powers[sse.val];
 	//why, why, WHY this code is here?!?
 // 	Bonus * bonus = getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, sse.id));
 // 	if (bonus)
@@ -1794,142 +1838,142 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 // 	 	}
 // 	}
 	 
-	switch(sse.id)
+	switch(sse.sid)
 	{
 	case 27: //shield 
 	 	sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 28: //air shield
 	 	sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 29: //fire shield
 	 	sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 30: //protection from air
 	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 31: //protection from fire
 	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 32: //protection from water
 	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 33: //protection from earth
 	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 34: //anti-magic
 	 	sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 41: //bless
 // 	 	if (hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, 41)) //TODO: better handling of bonus percentages
 // 	 	{
 // 	 		int damagePercent = dynamic_cast<const CGHeroInstance*>(armyObj)->level * valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / type->level;
 // 	 		sf.push_back(featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, sse.turnsRemain));
-// 	 		sf.back().id = sse.id;
+// 	 		sf.back().sid = sse.sid;
 // 	 		sf.back().valType = Bonus::PERCENT_TO_ALL;
 // 	 	}
 	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 42: //curse
 	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 43: //bloodlust
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 44: //precision
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 45: //weakness
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 46: //stone skin
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 47: //disrupting ray
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 		sf.back().valType = Bonus::ADDITIVE_VALUE;
 	 	break;
 	case 48: //prayer
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 49: //mirth
 	 	sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 50: //sorrow
 	 	sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 51: //fortune
 	 	sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 52: //misfortune
 	 	sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 53: //haste
 	 	sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 54: //slow
 	 	sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 55: //slayer
 // 	 	if (bonus) //Coronius
 // 	 	{
 // 	 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-// 	 		sf.back().id = sse.id;
+// 	 		sf.back().sid = sse.sid;
 // 	 	}
 	 	sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 56: //frenzy
 	 	sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56]->powers[sse.val]/100.0, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 58: //counterstrike
 	 	sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 59: //bersek
 	 	sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 60: //hypnotize
 	 	sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.val, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 61: //forgetfulness
 	 	sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.val, sse.turnsRemain));
-	 	sf.back().id = sse.id;
+	 	sf.back().sid = sse.sid;
 	 	break;
 	case 62: //blind
 		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().id = sse.id;
+		sf.back().sid = sse.sid;
 		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().id = sse.id;
+		sf.back().sid = sse.sid;
 	 	break;
 	}
 }
@@ -1938,7 +1982,7 @@ ui8 CStack::howManyEffectsSet(ui16 id) const
 {
 	ui8 ret = 0;
 	BOOST_FOREACH(const Bonus *it, bonuses)
-		if(it->source == Bonus::SPELL_EFFECT && it->id == id) //effect found
+		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
 		{
 			++ret;
 		}
@@ -1997,8 +2041,8 @@ std::vector<si32> CStack::activeSpells() const
 	BonusList spellEffects = getSpellBonuses();
 	BOOST_FOREACH(const Bonus *it, spellEffects)
 	{
-		if (!vstd::contains(ret, it->id)) //do not duplicate spells with multiple effects
-			ret.push_back(it->id);
+		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
+			ret.push_back(it->sid);
 	}
 
 	return ret;

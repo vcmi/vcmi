@@ -2859,7 +2859,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	int effID = sse.effect.back().id;
+	int effID = sse.effect.back().sid;
 	if(effID != -1) //can be -1 for defensive stance effect
 	{
 		for(std::vector<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
