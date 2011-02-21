@@ -665,8 +665,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 				attackedCres.insert(st);
 		}
 	}
-	else if(VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET_1") != std::string::npos
-		|| VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	else if(s->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
 		if(skillLevel < 3)  /*not expert */
 		{
@@ -679,8 +678,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			for(int it=0; it<stacks.size(); ++it)
 			{
 				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((VLC->spellh->spells[s->id]->positiveness >= 0 && stacks[it]->owner == attackerOwner)
-					||(VLC->spellh->spells[s->id]->positiveness <= 0 && stacks[it]->owner != attackerOwner )
+				if((s->positiveness >= 0 && stacks[it]->owner == attackerOwner)
+					||(s->positiveness <= 0 && stacks[it]->owner != attackerOwner )
 					)
 				{
 					if(!onlyAlive || stacks[it]->alive())
@@ -689,7 +688,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			}
 		} //if(caster->getSpellSchoolLevel(s) < 3)
 	}
-	else if(VLC->spellh->spells[s->id]->attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+	else if(s->getTargetType() == CSpell::CREATURE)
 	{
 		CStack * st = getStackT(destinationTile, onlyAlive);
 		if(st)
@@ -1169,18 +1168,18 @@ const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 	return heroes[!stack->attackerOwned];
 }
 
-si8 BattleInfo::battleMaxSpellLevel() const
+si8 BattleInfo::battleMinSpellLevel() const
 {
-	si8 levelLimit = SPELL_LEVELS;
+	si8 levelLimit = 0;
 
 	if(const CGHeroInstance *h1 =  heroes[0])
 	{
-		amin(levelLimit, h1->valOfBonuses(Bonus::BLOCK_SPELLS_ABOVE_LEVEL));
+		amax(levelLimit, h1->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY));
 	}
 
 	if(const CGHeroInstance *h2 = heroes[1])
 	{
-		amin(levelLimit, h2->valOfBonuses(Bonus::BLOCK_SPELLS_ABOVE_LEVEL));
+		amax(levelLimit, h2->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY));
 	}
 
 	return levelLimit;
@@ -1461,8 +1460,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//spell level limiting bonus
-	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::OTHER,
-		SPELL_LEVELS, -1, -1, Bonus::INDEPENDENT_MIN));;
+	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
+		0, -1, -1, Bonus::INDEPENDENT_MAX));
 
 	//giving terrain overalay premies
 	int bonusSubtype = -1;
@@ -1515,8 +1514,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		{
 			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
 			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			Bonus * b = makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY);
-			b->valType = Bonus::INDEPENDENT_MIN;
+			Bonus * b = makeFeature(Bonus::LEVEL_SPELL_IMMUNITY, Bonus::ONE_BATTLE, SPELL_LEVELS, 1, Bonus::TERRAIN_OVERLAY);
+			b->valType = Bonus::INDEPENDENT_MAX;
 			curB->addNewBonus(b);
 			break;
 		}
@@ -1630,7 +1629,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	if(NBonus::hasOfType(heroes[1-cside], Bonus::SPELL_IMMUNITY, spell->id)) //non - casting hero provides immunity for this spell 
 		return SpellCasting::SECOND_HEROS_SPELL_IMMUNITY;
 
-	if(battleMaxSpellLevel() < spell->level) //non - casting hero stops caster from casting this spell
+	if(battleMinSpellLevel() > spell->level) //non - casting hero stops caster from casting this spell
 		return SpellCasting::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	int spellIDs[] = {66, 67, 68, 69}; //IDs of summon elemental spells (fire, earth, water, air)
@@ -1650,6 +1649,58 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 		}
 	}
 
+	//checking if there exists an appropriate target
+	switch(spell->getTargetType())
+	{
+	case CSpell::CREATURE:
+	case CSpell::CREATURE_EXPERT_MASSIVE:
+		if(mode == HERO_CASTING)
+		{
+			const CGHeroInstance * caster = getHero(player);
+			bool targetExists = false;
+			BOOST_FOREACH(const CStack * stack, stacks)
+			{
+				switch (spell->positiveness)
+				{
+				case 1:
+					if(stack->owner == caster->getOwner())
+					{
+						if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+						{
+							targetExists = true;
+							break;
+						}
+					}
+					break;
+				case 0:
+					if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+					{
+						targetExists = true;
+						break;
+					}
+					break;
+				case -1:
+					if(stack->owner != caster->getOwner())
+					{
+						if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+						{
+							targetExists = true;
+							break;
+						}
+					}
+					break;
+				}
+			}
+			if(!targetExists)
+			{
+				return SpellCasting::NO_APPROPRIATE_TARGET;
+			}
+		}
+		break;
+	case CSpell::OBSTACLE:
+		break;
+	}
+
 	return SpellCasting::OK;
 }
 
@@ -1659,25 +1710,56 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 	if(moreGeneralProblem != SpellCasting::OK)
 		return moreGeneralProblem;
 
+	return canCastHereLower(player, spell, mode, dest);
+}
+
+const CGHeroInstance * BattleInfo::getHero( int player ) const
+{
+	if(heroes[0] && heroes[0]->getOwner() == player)
+		return heroes[0];
+
+	return heroes[1];
+}
+
+SpellCasting::ESpellCastProblem BattleInfo::canCastHereLower( int player, const CSpell * spell, ECastingMode mode, THex dest ) const
+{
 	const CStack * subject = getStackT(dest, false);
-	//dispel helpful spells
-	if(spell->id == 78)
+	const CGHeroInstance * caster = mode == HERO_CASTING ? getHero(player) : NULL;
+	if(subject)
 	{
-		BonusList spellBon = subject->getSpellBonuses();
-		bool hasPositiveSpell = false;
-		BOOST_FOREACH(const Bonus * b, spellBon)
+		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id)
+			|| ( subject->hasBonusOfType(Bonus::LEVEL_SPELL_IMMUNITY) && subject->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY) >= spell->level))
 		{
-			if(VLC->spellh->spells[b->sid]->positiveness > 0)
+			return SpellCasting::STACK_IMMUNE_TO_SPELL;
+		}
+		//dispel helpful spells
+		if(spell->id == 78)
+		{
+			BonusList spellBon = subject->getSpellBonuses();
+			bool hasPositiveSpell = false;
+			BOOST_FOREACH(const Bonus * b, spellBon)
 			{
-				hasPositiveSpell = true;
-				break;
+				if(VLC->spellh->spells[b->sid]->positiveness > 0)
+				{
+					hasPositiveSpell = true;
+					break;
+				}
+			}
+			if(!hasPositiveSpell)
+			{
+				return SpellCasting::NO_SPELLS_TO_DISPEL;
 			}
 		}
-		if(!hasPositiveSpell)
+	}
+	else
+	{
+		if(spell->getTargetType() == CSpell::CREATURE ||
+			(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE && caster && caster->getSpellSchoolLevel(spell) < 3))
 		{
-			return SpellCasting::NO_SPELLS_TO_DISPEL;
+			return SpellCasting::WRONG_SPELL_TARGET;
 		}
 	}
+
 	return SpellCasting::OK;
 }
 
@@ -1833,7 +1915,8 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 34: //anti-magic
-	 	sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, 0, power - 1, sse.turnsRemain));
+	 	sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, SPELL_LEVELS, power - 1, sse.turnsRemain));
+		sf.back().valType = Bonus::INDEPENDENT_MAX;
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 41: //bless

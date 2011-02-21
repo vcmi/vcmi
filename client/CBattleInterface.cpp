@@ -2909,7 +2909,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	const CSpell & spell = *CGI->spellh->spells[spellID];
 	spellSelMode = 0;
-	if(spell.attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+	if(spell.getTargetType() == CSpell::CREATURE)
 	{
 		switch(spell.positiveness)
 		{
@@ -2924,8 +2924,7 @@ void CBattleInterface::castThisSpell(int spellID)
 			break;
 		}
 	}
-	if(spell.attributes.find("CREATURE_TARGET_1") != std::string::npos ||
-		spell.attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	if(spell.getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
 		if(castingHero && castingHero->getSpellSchoolLevel(&spell) < 3)
 		{
@@ -2947,7 +2946,7 @@ void CBattleInterface::castThisSpell(int spellID)
 			spellSelMode = -1;
 		}
 	}
-	if(spell.attributes.find("OBSTACLE_TARGET") != std::string::npos) //spell to be cast on an obstacle
+	if(spell.getTargetType() == CSpell::OBSTACLE)
 	{
 		spellSelMode = 4;
 	}

@@ -52,7 +52,7 @@ int DLL_EXPORT BonusList::totalValue() const
 			additive += i->val;
 			break;
 		case Bonus::INDEPENDENT_MAX:
-			if (!indepMax)
+			if (!hasIndepMax)
 			{
 				indepMax = i->val;
 				hasIndepMax = true;
@@ -64,14 +64,14 @@ int DLL_EXPORT BonusList::totalValue() const
 
 			break;
 		case Bonus::INDEPENDENT_MIN:
-			if (!indepMin)
+			if (!hasIndepMin)
 			{
 				indepMin = i->val;
 				hasIndepMin = true;
 			}
 			else
 			{
-				amax(indepMin, i->val);
+				amin(indepMin, i->val);
 			}
 
 			break;
@@ -85,7 +85,7 @@ int DLL_EXPORT BonusList::totalValue() const
 		assert(indepMin < indepMax);
 	if (hasIndepMax)
 		amax(valFirst, indepMax);
-	if (hasIndepMax)
+	if (hasIndepMin)
 		amin(valFirst, indepMin);
 
 	return valFirst;

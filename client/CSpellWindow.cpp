@@ -665,6 +665,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					owner->myInt->showInfoDialog(text);
 				}
 				break;
+			case SpellCasting::NO_APPROPRIATE_TARGET:
+				{
+					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[185]);
+				}
+				break;
 			}
 		}
 		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell

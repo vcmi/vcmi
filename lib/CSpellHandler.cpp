@@ -188,6 +188,21 @@ std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) con
 	return ret;
 }
 
+CSpell::ETargetType CSpell::getTargetType() const
+{
+	if(attributes.find("CREATURE_TARGET_1") != std::string::npos
+		|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
+		return CREATURE_EXPERT_MASSIVE;
+
+	if(attributes.find("CREATURE_TARGET") != std::string::npos)
+		return CREATURE;
+
+	if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
+		return OBSTACLE;
+	
+	return NO_TARGET;
+}
+
 static bool startsWithX(const std::string &s)
 {
 	return s.size() && s[0] == 'x';

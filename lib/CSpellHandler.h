@@ -20,6 +20,7 @@
 class DLL_EXPORT CSpell
 {
 public:
+	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
 	ui32 id;
 	std::string name;
 	std::string abbName; //abbreviated name
@@ -41,6 +42,7 @@ public:
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
 	std::set<ui16> rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const; //convert range to specific hexes
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
+	ETargetType getTargetType() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
