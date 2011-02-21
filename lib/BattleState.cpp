@@ -1171,29 +1171,16 @@ const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 
 si8 BattleInfo::battleMaxSpellLevel() const
 {
-// 	if(!curB) //there is not battle
-// 	{
-// 		tlog1 << "si8 CGameState::maxSpellLevel() call when there is no battle!" << std::endl;
-// 		throw "si8 CGameState::maxSpellLevel() call when there is no battle!";
-// 	}
-
 	si8 levelLimit = SPELL_LEVELS;
 
-	const CGHeroInstance *h1 =  heroes[0];
-	if(h1)
+	if(const CGHeroInstance *h1 =  heroes[0])
 	{
-		BOOST_FOREACH(const Bonus *i, h1->bonuses)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
+		amin(levelLimit, h1->valOfBonuses(Bonus::BLOCK_SPELLS_ABOVE_LEVEL));
 	}
 
-	const CGHeroInstance *h2 = heroes[1];
-	if(h2)
+	if(const CGHeroInstance *h2 = heroes[1])
 	{
-
-		BOOST_FOREACH(const Bonus *i, h2->bonuses)
-			if(i->type == Bonus::BLOCK_SPELLS_ABOVE_LEVEL)
-				amin(levelLimit, i->val);
+		amin(levelLimit, h2->valOfBonuses(Bonus::BLOCK_SPELLS_ABOVE_LEVEL));
 	}
 
 	return levelLimit;
@@ -1473,6 +1460,10 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		}
 	}
 
+	//spell level limiting bonus
+	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::OTHER,
+		SPELL_LEVELS, -1, -1, Bonus::INDEPENDENT_MIN));;
+
 	//giving terrain overalay premies
 	int bonusSubtype = -1;
 	switch(terType)
@@ -1524,7 +1515,9 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		{
 			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
 			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			curB->addNewBonus(makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY));
+			Bonus * b = makeFeature(Bonus::BLOCK_SPELLS_ABOVE_LEVEL, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_OVERLAY);
+			b->valType = Bonus::INDEPENDENT_MIN;
+			curB->addNewBonus(b);
 			break;
 		}
 	}

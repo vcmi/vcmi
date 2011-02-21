@@ -195,7 +195,7 @@ struct DLL_EXPORT Bonus
 		CAMPAIGN_BONUS,
 		SPECIAL_WEEK,
 		STACK_EXPERIENCE,
-		OTHER /*used for defensive stance*/
+		OTHER /*used for defensive stance and default value of spell level limit*/
 	};
 
 	enum LimitEffect

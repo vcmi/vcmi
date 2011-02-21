@@ -629,8 +629,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					int spell = mySpell;
 					owner->fexitb();
 					owner->myInt->battleInt->castThisSpell(spell);
-					break;
 				}
+				break;
 			case SpellCasting::ANOTHER_ELEMENTAL_SUMMONED:
 				{
 					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
@@ -657,6 +657,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 					owner->myInt->showInfoDialog(text);
 				}
+				break;
+			case SpellCasting::SPELL_LEVEL_LIMIT_EXCEEDED:
+				{
+					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
+					text = boost::str(boost::format(text) % caster);
+					owner->myInt->showInfoDialog(text);
+				}
+				break;
 			}
 		}
 		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell

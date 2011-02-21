@@ -627,7 +627,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(81,Bonus::FIRE_SPELL_DMG_PREMY,+50);//Orb of Tempestuous Fire
 	giveArtBonus(82,Bonus::WATER_SPELL_DMG_PREMY,+50);//Orb of Driving Rain
 
-	giveArtBonus(83,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,3);//Recanter's Cloak
+	giveArtBonus(83,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,3,-1,Bonus::INDEPENDENT_MIN);//Recanter's Cloak
 	giveArtBonus(84,Bonus::BLOCK_MORALE,0);//Spirit of Oppression
 	giveArtBonus(85,Bonus::BLOCK_LUCK,0);//Hourglass of the Evil Hour
 
@@ -684,7 +684,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
-	giveArtBonus(126,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
+	giveArtBonus(126,Bonus::BLOCK_SPELLS_ABOVE_LEVEL,0,-1,Bonus::INDEPENDENT_MIN);//Orb of Inhibition
 
 	//vial of dragon blood
 	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::ATTACK, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
