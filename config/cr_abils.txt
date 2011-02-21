@@ -89,9 +89,7 @@
 +  66 SPELL_AFTER_ATTACK 0 42 20 	//black knights
 +  67 DOUBLE_DAMAGE_CHANCE 20 0 0	//vampire lords
 +  67 SPELL_AFTER_ATTACK 0 42 20 	//dread knights
-+  68 ENEMY_MORALE_DECREASING -1 0 0		//bone dragon
 +  68 DRAGON_NATURE 0 0 0			//bone dragon is a dragon
-+  69 ENEMY_MORALE_DECREASING -1 0 0 		//ghost dragon
 +  69 SPELL_AFTER_ATTACK 0 75 20   	//ghost dragon
 +  69 DRAGON_NATURE 0 0 0			//ghost dragon is a dragon
 +  70 SPELL_IMMUNITY 0 62 0	  	   	//troglodytes are immune to blind

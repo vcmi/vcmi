@@ -329,7 +329,7 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.bonuses.back()->effectRange = Bonus::ONLY_ALLIED_ARMY;
+				ncre.bonuses.back()->addPropagator(new CPropagatorNodeType(CBonusSystemNode::HERO));
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
 			{

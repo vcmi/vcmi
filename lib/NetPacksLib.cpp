@@ -800,14 +800,32 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 
 	if(what == ObjProperty::OWNER)
 	{
+		CBonusSystemNode *nodeToMove = NULL;
 		if(obj->ID == TOWNI_TYPE)
 		{
 			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+			nodeToMove = &t->townAndVis;
 			if(t->tempOwner < PLAYER_LIMIT)
 				gs->getPlayer(t->tempOwner)->towns -= t;
 
 			if(val < PLAYER_LIMIT)
 				gs->getPlayer(val)->towns.push_back(t);
+		}
+		if(CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj))
+		{
+			if(!nodeToMove)
+				nodeToMove = cai;
+
+			if(obj->tempOwner < PLAYER_LIMIT)
+				nodeToMove->detachFrom(gs->getPlayer(obj->tempOwner));
+			else
+				nodeToMove->detachFrom(&gs->globalEffects);
+
+			if(val < PLAYER_LIMIT)
+				nodeToMove->attachTo(gs->getPlayer(val));
+			else
+				nodeToMove->attachTo(&gs->globalEffects);
+
 		}
 	}
 	
@@ -852,34 +870,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION) && s->alive() )
 			s->firstHPleft = s->MaxHealth();
 
-		//remove effects and restore only those with remaining turns in duration
-		BonusList tmpEffects = s->bonuses;
-		s->bonuses.removeSpells(Bonus::SPELL_EFFECT);
-
-		BOOST_FOREACH(Bonus *it, tmpEffects)
-		{
-			it->turnsRemain--;
-			if(it->turnsRemain > 0)
-				s->addNewBonus(it);
-		}
-
-		//the same as above for features
-		BonusList tmpFeatures = s->bonuses;
-		s->bonuses.clear();
-
-		BOOST_FOREACH(Bonus *b, tmpFeatures)
-		{
-			if((b->duration & Bonus::N_TURNS) != 0)
-			{
-				b->turnsRemain--;
-				if(b->turnsRemain > 0)
-					s->addNewBonus(b);
-			}
-			else
-			{
-				s->addNewBonus(b);
-			}
-		}
+		s->battleTurnPassed();
 	}
 }
 
@@ -1048,28 +1039,10 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			CStack *s = gs->curB->getStack(*it);
 			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 			{
-				BonusList remainingEff;
-				//WTF?
-				for (BonusList::iterator it = remainingEff.begin(); it != remainingEff.end(); it++)
-				{
-					if (onlyHelpful && VLC->spellh->spells[ (*it)->sid ]->positiveness != 1)
-					{
-						remainingEff.push_back(*it);
-					}
-					
-				}
-				s->bonuses.removeSpells(Bonus::SPELL_EFFECT); //removing all effects
-				s->bonuses = remainingEff; //assigning effects that should remain
-
-				//removing all features from spells
-				BonusList tmpFeatures = s->bonuses;
-				s->bonuses.clear();
-				BOOST_FOREACH(Bonus *b, tmpFeatures)
-				{
-					const CSpell *sp = b->sourceSpell();
-					if(sp && sp->positiveness != 1) //if(b->source != HeroBonus::SPELL_EFFECT || b.positiveness != 1)
-						s->addNewBonus(b);
-				}
+				if(onlyHelpful)
+					s->popBonuses(Selector::positiveSpellEffects);
+				else
+					s->popBonuses(Selector::sourceType(Bonus::SPELL_EFFECT));
 			}
 		}
 	}

@@ -225,7 +225,6 @@ class DLL_EXPORT CArmedInstance: public CGObjectInstance, public CBonusSystemNod
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	CCreatureSet& getArmy() const;
 	void randomizeArmy(int type);
 	void updateMoraleBonusFromArmy();
 
@@ -604,6 +603,8 @@ public:
 	std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
+	bool addBonusIfBuilt(int building, int type, int val, IPropagator *prop, int subtype = -1); //returns true if building is built and bonus has been added
+	bool addBonusIfBuilt(int building, int type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 // 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
@@ -635,7 +636,7 @@ public:
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	void removeCapitols (ui8 owner) const;
-	int defenceBonus(int type) const;//primary skills bonuses for defending hero
+	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 
 	CGTownInstance();
 	virtual ~CGTownInstance();

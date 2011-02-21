@@ -2064,8 +2064,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	}
 	else if(what==3) //split
 	{
-		if ( (s1->tempOwner != player && S1.stacks[p1]->count < s1->getArmy().getStackCount(p1) )
-			|| (s2->tempOwner != player && S2.stacks[p2]->count < s2->getArmy().getStackCount(p2) ) )
+		if ( (s1->tempOwner != player && S1.stacks[p1]->count < s1->getStackCount(p1) )
+			|| (s2->tempOwner != player && S2.stacks[p2]->count < s2->getStackCount(p2) ) )
 		{
 			complain("Can't move troops of another player!");
 			return false;

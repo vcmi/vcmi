@@ -75,12 +75,17 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGBlackMarket>();
 	s.template registerType<CGUniversity>();
 	//end of objects
+	s.template registerType<IPropagator>();
+	s.template registerType<CPropagatorNodeType>();
+
 	s.template registerType<ILimiter>();
 	s.template registerType<CCreatureTypeLimiter>();
 	s.template registerType<HasAnotherBonusLimiter>();
 	s.template registerType<CreatureNativeTerrainLimiter>();
 	s.template registerType<CreatureFactionLimiter>();
 	s.template registerType<CreatureAlignmentLimiter>();
+	s.template registerType<RankRangeLimiter>();
+	s.template registerType<StackOwnerLimiter>();
 
 	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CArtifact>();

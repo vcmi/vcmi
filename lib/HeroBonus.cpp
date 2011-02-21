@@ -13,8 +13,10 @@
 #include "CGeneralTextHandler.h"
 #include "BattleState.h"
 
-#define FOREACH_CONST_PARENT(pname) 	TCNodes parents; getParents(parents); BOOST_FOREACH(const CBonusSystemNode *pname, parents)
-#define FOREACH_PARENT(pname) 	TNodes parents; getParents(parents); BOOST_FOREACH(CBonusSystemNode *pname, parents)
+#define FOREACH_CONST_PARENT(pname) 	TCNodes lparents; getParents(lparents); BOOST_FOREACH(const CBonusSystemNode *pname, lparents)
+#define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
+#define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
+#define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
 	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
@@ -122,12 +124,6 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector,
 	BOOST_FOREACH(Bonus *i, *this)
 		if(selector(i) && (!limit || limit(i)))
 			out.push_back(i);
-}
-
-
-void DLL_EXPORT BonusList::removeSpells(Bonus::BonusSource sourceType)
-{
-	remove_if(Selector::sourceType(sourceType));
 }
 
 void BonusList::limit(const CBonusSystemNode &node)
@@ -338,19 +334,20 @@ CBonusSystemNode::~CBonusSystemNode()
 		while(children.size())
 			children.front()->detachFrom(this);
 	}
+
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		delete b;
 }
 
 void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 {
 	assert(!vstd::contains(parents, parent));
 	parents.push_back(parent);
-// 	BOOST_FOREACH(Bonus *b, exportedBonuses)
-// 		propagateBonus(b);
-// 
-// 	if(parent->weActAsBonusSourceOnly())
-// 	{
-// 
-// 	}
+
+	if(parent->actsAsBonusSourceOnly())
+		parent->newRedDescendant(this);
+	else
+		newRedDescendant(parent);
 
 	parent->newChildAttached(this);
 }
@@ -358,16 +355,18 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 {
 	assert(vstd::contains(parents, parent));
-	parents -= parent;
-	 //unpropagate bonus
 
+	if(parent->actsAsBonusSourceOnly())
+		parent->removedRedDescendant(this);
+	else
+		removedRedDescendant(parent);
+
+	parents -= parent;
 	parent->childDetached(this);
 }
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
 {
-	//TODO
-	//prop
 	BonusList bl;
 	exportedBonuses.getBonuses(bl, s);
 	BOOST_FOREACH(Bonus *b, bl)
@@ -384,24 +383,22 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
+	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
-	propagateBonus(b);
+	if(b->propagator)
+		propagateBonus(b);
+	else
+		bonuses.push_back(b);
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
 {
 	exportedBonuses -= b;
-	CBonusSystemNode *whereIsOurBonus = whereToPropagate(b);
-	whereIsOurBonus->bonuses -= b;
-	delNull(b);
-}
-
-CBonusSystemNode * CBonusSystemNode::whereToPropagate(Bonus *b)
-{
 	if(b->propagator)
-		return b->propagator->getDestNode(this);
+		unpropagateBonus(b);
 	else
-		return this;
+		bonuses -= b;
+	delNull(b);
 }
 
 bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
@@ -409,7 +406,7 @@ bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
 	return b->limiter && b->limiter->limit(b, *this);
 }
 
-bool CBonusSystemNode::weActAsBonusSourceOnly() const
+bool CBonusSystemNode::actsAsBonusSourceOnly() const
 {
 	switch(nodeType)
 	{
@@ -422,14 +419,28 @@ bool CBonusSystemNode::weActAsBonusSourceOnly() const
 	}
 }
 
-TNodesVector & CBonusSystemNode::nodesOnWhichWePropagate()
-{
-	return weActAsBonusSourceOnly() ? children : parents;
-}
-
 void CBonusSystemNode::propagateBonus(Bonus * b)
 {
-	whereToPropagate(b)->bonuses.push_back(b);
+	if(b->propagator->shouldBeAttached(this))
+	{
+		bonuses.push_back(b);
+		BONUS_LOG_LINE("#$# " << b->Description() << " #propagated to# " << nodeName());
+	}
+
+	FOREACH_RED_CHILD(child)
+		child->propagateBonus(b);
+}
+
+void CBonusSystemNode::unpropagateBonus(Bonus * b)
+{
+	if(b->propagator->shouldBeAttached(this))
+	{
+		bonuses -= b;
+		BONUS_LOG_LINE("#$#" << b->Description() << " #is no longer propagated to# " << nodeName());
+	}
+
+	FOREACH_RED_CHILD(child)
+		child->unpropagateBonus(b);
 }
 
 void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
@@ -467,6 +478,92 @@ std::string CBonusSystemNode::nodeName() const
 void CBonusSystemNode::deserializationFix()
 {
 	tlog2 << "Deserialization fix called on bare CBSN? Shouldn't be...\n";
+}
+
+void CBonusSystemNode::getRedParents(TNodes &out)
+{
+	FOREACH_PARENT(pname)
+	{
+		if(pname->actsAsBonusSourceOnly())
+		{
+			out.insert(pname);
+		}
+	}
+
+	if(!actsAsBonusSourceOnly())
+	{
+		BOOST_FOREACH(CBonusSystemNode *child, children)
+		{
+			out.insert(child);
+		}
+	}
+}
+
+void CBonusSystemNode::getRedChildren(TNodes &out)
+{
+	FOREACH_PARENT(pname)
+	{
+		if(!pname->actsAsBonusSourceOnly())
+		{
+			out.insert(pname);
+		}
+	}
+
+	if(actsAsBonusSourceOnly())
+	{
+		BOOST_FOREACH(CBonusSystemNode *child, children)
+		{
+			out.insert(child);
+		}
+	}
+}
+
+void CBonusSystemNode::newRedDescendant(CBonusSystemNode *descendant)
+{
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		if(b->propagator)
+			descendant->propagateBonus(b);
+
+	FOREACH_RED_PARENT(parent)
+		parent->newRedDescendant(descendant);
+}
+
+void CBonusSystemNode::removedRedDescendant(CBonusSystemNode *descendant)
+{
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		if(b->propagator)
+			descendant->unpropagateBonus(b);
+
+	FOREACH_RED_PARENT(parent)
+		parent->removedRedDescendant(descendant);
+}
+
+void CBonusSystemNode::getRedAncestors(TNodes &out)
+{
+	getRedParents(out);
+	FOREACH_RED_PARENT(p)
+		p->getRedAncestors(out);
+}
+
+void CBonusSystemNode::getRedDescendants(TNodes &out)
+{
+	getRedChildren(out);
+	FOREACH_RED_CHILD(c)
+		c->getRedChildren(out);
+}
+
+void CBonusSystemNode::battleTurnPassed()
+{
+	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
+	BOOST_FOREACH(Bonus *b, bonusesCpy)
+	{
+		if(b->duration & Bonus::N_TURNS)
+		{
+			b->turnsRemain--;
+			if(b->turnsRemain <= 0)
+				removeBonus(b);
+		}
+	}
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
@@ -562,7 +659,23 @@ Bonus::~Bonus()
 
 Bonus * Bonus::addLimiter(ILimiter *Limiter)
 {
-	limiter.reset(Limiter);
+	return addLimiter(boost::shared_ptr<ILimiter>(Limiter));
+}
+
+Bonus * Bonus::addLimiter(boost::shared_ptr<ILimiter> Limiter)
+{
+	limiter = Limiter;
+	return this;
+}
+
+Bonus * Bonus::addPropagator(IPropagator *Propagator)
+{
+	return addPropagator(boost::shared_ptr<IPropagator>(Propagator));
+}
+
+Bonus * Bonus::addPropagator(boost::shared_ptr<IPropagator> Propagator)
+{
+	propagator = Propagator;
 	return this;
 }
 
@@ -617,6 +730,27 @@ namespace Selector
 		dummy.type = type;
 		dummy.subtype = subtype;
 		return sel(&dummy);
+	}
+
+	bool DLL_EXPORT positiveSpellEffects(const Bonus *b)
+	{
+		if(b->source == Bonus::SPELL_EFFECT)
+		{
+			CSpell *sp = VLC->spellh->spells[b->sid];
+			return sp->positiveness == 1;
+		}
+		return false; //not a spell effect
+	}
+}
+
+const CStack * retreiveStackBattle(const CBonusSystemNode *node)
+{
+	switch(node->nodeType)
+	{
+	case CBonusSystemNode::STACK_BATTLE:
+		return static_cast<const CStack*>(node);
+	default:
+		return NULL;
 	}
 }
 
@@ -732,9 +866,35 @@ IPropagator::~IPropagator()
 
 }
 
-CBonusSystemNode * IPropagator::getDestNode(CBonusSystemNode *source)
+// CBonusSystemNode * IPropagator::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
+// {
+// 	tlog1 << "IPropagator::getDestNode called!\n";
+// 	return source;
+// }
+
+bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 {
-	return source;
+	return false;
+}
+
+// CBonusSystemNode * CPropagatorNodeType::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
+// {
+// 	return NULL;
+// }
+
+CPropagatorNodeType::CPropagatorNodeType()
+{
+
+}
+
+CPropagatorNodeType::CPropagatorNodeType(ui8 NodeType)
+	: nodeType(NodeType)
+{
+}
+
+bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
+{
+	return nodeType == dest->nodeType;
 }
 
 CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType) 
@@ -749,7 +909,8 @@ CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
 bool CreatureNativeTerrainLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
 {
 	const CCreature *c = retrieveCreature(&node);
-	return !c || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
+	return !c || !iswith(c->faction, 0, 9) || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
+	//TODO neutral creatues
 }
 
 CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
@@ -799,10 +960,37 @@ RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
 {
 }
 
+RankRangeLimiter::RankRangeLimiter()
+{
+	minRank = maxRank = -1;
+}
+
 bool RankRangeLimiter::limit( const Bonus *b, const CBonusSystemNode &node ) const
 {
 	const CStackInstance *csi = retreiveStackInstance(&node);
 	if(csi)
 		return csi->getExpRank() < minRank || csi->getExpRank() > maxRank;
 	return true;
+}
+
+bool StackOwnerLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const 
+{
+	const CStack *s = retreiveStackBattle(&node);
+	if(s)
+		return s->owner != owner;
+
+ 	const CStackInstance *csi = retreiveStackInstance(&node);
+ 	if(csi && csi->armyObj)
+ 		return csi->armyObj->tempOwner != owner;
+ 	return true;
+}
+
+StackOwnerLimiter::StackOwnerLimiter()
+	: owner(-1)
+{
+}
+
+StackOwnerLimiter::StackOwnerLimiter(ui8 Owner)
+	: owner(Owner)
+{
 }

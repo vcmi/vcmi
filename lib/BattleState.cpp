@@ -1100,27 +1100,6 @@ si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLev
 
 }
 
-// void BattleInfo::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	CBonusSystemNode::getBonuses(out, selector, root);
-// 
-// 	const CStack *dest = dynamic_cast<const CStack*>(root);
-// 	if (!dest)
-// 		return;
-// 
-// 	//TODO: make it in clean way
-// 	if(Selector::matchesType(selector, Bonus::MORALE) || Selector::matchesType(selector, Bonus::LUCK))
-// 	{
-// 		BOOST_FOREACH(const CStack *s, stacks)
-// 		{
-// 			if(s->owner == dest->owner)
-// 				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ALLIED_ARMY), this);
-// 			else
-// 				s->getBonuses(out, selector, Selector::effectRange(Bonus::ONLY_ENEMY_ARMY), this);
-// 		}
-// 	}
-// }
-
 bool BattleInfo::battleCanShoot(const CStack * stack, THex dest) const
 {
 	const CStack *dst = getStackT(dest);
@@ -1223,7 +1202,9 @@ si8 BattleInfo::battleMaxSpellLevel() const
 void BattleInfo::localInit()
 {
 	belligerents[0]->battle = belligerents[1]->battle = this;
-	//TODO: attach battle to belligerents
+	
+	BOOST_FOREACH(CArmedInstance *b, belligerents)
+		b->attachTo(this);
 
 	BOOST_FOREACH(CStack *s, stacks)
 	{
@@ -1492,39 +1473,6 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		}
 	}
 
-	// 	//giving building bonuses, if siege and we have harrisoned hero
-	// 	if (town)
-	// 	{
-	// 		if (heroes[1])
-	// 		{
-	// 			for (int i=0; i<4; i++)
-	// 			{
-	// 				int val = town->defenceBonus(i);
-	// 				if (val)
-	// 				{
-	// 					GiveBonus gs;
-	// 					gs.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::OBJECT, val, -1, "", i);
-	// 					gs.id = heroes[1]->id;
-	// 					sendAndApply(&gs);
-	// 				}
-	// 			}
-	// 		}
-	// 		else//if we don't have hero - apply separately, if hero present - will be taken from hero bonuses
-	// 		{
-	// 			if(town->subID == 0  &&  vstd::contains(town->builtBuildings,22)) //castle, brotherhood of sword built
-	// 				for(int g=0; g<stacks.size(); ++g)
-	// 					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
-	// 
-	// 			else if(vstd::contains(town->builtBuildings,5)) //tavern is built
-	// 				for(int g=0; g<stacks.size(); ++g)
-	// 					stacks[g]->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, 1, Bonus::TOWN_STRUCTURE));
-	// 
-	// 			if(town->subID == 1  &&  vstd::contains(town->builtBuildings,21)) //rampart, fountain of fortune is present
-	// 				for(int g=0; g<stacks.size(); ++g)
-	// 					stacks[g]->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, 2, Bonus::TOWN_STRUCTURE));
-	// 		}
-	// 	}
-
 	//giving terrain overalay premies
 	int bonusSubtype = -1;
 	switch(terType)
@@ -1586,12 +1534,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	if(town) //during siege always take premies for native terrain of faction
 		terrain = VLC->heroh->nativeTerrains[town->town->typeID];
 
-	ILimiter *nativeTerrain = new CreatureNativeTerrainLimiter(terrain);
+	boost::shared_ptr<ILimiter> nativeTerrain(new CreatureNativeTerrainLimiter(terrain));
 	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
+	//tactics
 	int tacticLvls[2] = {0};
 	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
 	{
@@ -1606,6 +1555,28 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 	else
 		curB->tacticDistance = 0;
+
+
+	// workaround — bonuses affecting only enemy
+	for(int i = 0; i < 2; i++)
+	{
+		TNodes nodes;
+		curB->belligerents[i]->getRedAncestors(nodes);
+		BOOST_FOREACH(CBonusSystemNode *n, nodes)
+		{
+			BOOST_FOREACH(Bonus *b, n->exportedBonuses)
+			{
+				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
+				{
+					Bonus *bCopy = new Bonus(*b);
+					bCopy->effectRange = Bonus::NO_LIMIT;
+					bCopy->propagator.reset();
+					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i]));
+					curB->addNewBonus(bCopy);
+				}
+			}
+		}
+	}
 
 	return curB;
 }

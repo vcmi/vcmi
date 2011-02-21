@@ -496,7 +496,7 @@ void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int sub
 	added->valType = valType;
 	added->limiter.reset(limiter);
 	if(type == Bonus::MORALE || Bonus::LUCK)
-		added->description = "\n" + artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+		added->description = artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
 	artifacts[aid]->addNewBonus(added);
 }
 

@@ -3010,7 +3010,7 @@ PlayerState::PlayerState()
  : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0), 
    enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
 {
-
+	nodeType = PLAYER;
 }
 
 std::string PlayerState::nodeName() const
@@ -3128,4 +3128,9 @@ DuelParameters::DuelParameters()
 {
 	terType = TerrainTile::dirt;
 	bfieldType = 15;
+}
+
+TeamState::TeamState()
+{
+	nodeType = TEAM;
 }

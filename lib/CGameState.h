@@ -167,7 +167,7 @@ public:
 	std::set<ui8> players; // members of this team
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 	
-	//TeamState();
+	TeamState();
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

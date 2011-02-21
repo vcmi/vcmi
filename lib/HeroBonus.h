@@ -202,9 +202,7 @@ struct DLL_EXPORT Bonus
 	{
 		NO_LIMIT = 0, 
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
-		ONLY_ALLIED_ARMY, ONLY_ENEMY_ARMY,
-		PLAYR_HEROES,
-		GLOBAL //Statue of Legion etc.
+		ONLY_ENEMY_ARMY
 	};
 
 	enum ValueType
@@ -303,6 +301,9 @@ struct DLL_EXPORT Bonus
 	std::string Description() const;
 
 	Bonus *addLimiter(ILimiter *Limiter); //returns this for convenient chain-calls
+	Bonus *addPropagator(IPropagator *Propagator); //returns this for convenient chain-calls
+	Bonus *addLimiter(boost::shared_ptr<ILimiter> Limiter); //returns this for convenient chain-calls
+	Bonus *addPropagator(boost::shared_ptr<IPropagator> Propagator); //returns this for convenient chain-calls
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -314,7 +315,6 @@ public:
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source = NULL) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
-	void DLL_EXPORT removeSpells(Bonus::BonusSource sourceType);
 
 	//special find functions
 	DLL_EXPORT Bonus * getFirst(const CSelector &select);
@@ -334,7 +334,26 @@ class DLL_EXPORT IPropagator
 {
 public:
 	virtual ~IPropagator();
-	virtual CBonusSystemNode *getDestNode(CBonusSystemNode *source);
+	virtual bool shouldBeAttached(CBonusSystemNode *dest);
+	//virtual CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild); //called when red relation between parent-childrem is established / removed
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+class DLL_EXPORT CPropagatorNodeType : public IPropagator
+{
+	ui8 nodeType;
+public:
+	CPropagatorNodeType();
+	CPropagatorNodeType(ui8 NodeType);
+	bool shouldBeAttached(CBonusSystemNode *dest);
+	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) OVERRIDE; 
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & nodeType;
+	}
 };
 	
 class DLL_EXPORT ILimiter
@@ -400,7 +419,11 @@ public:
 
 	const Bonus *getBonus(const CSelector &selector) const;
 	//non-const interface
-	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
+	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
+	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
+	void getRedAncestors(TNodes &out);
+	void getRedChildren(TNodes &out); 
+	void getRedDescendants(TNodes &out); 
 	Bonus *getBonus(const CSelector &selector);
 
 	void attachTo(CBonusSystemNode *parent);
@@ -411,15 +434,17 @@ public:
 	void newChildAttached(CBonusSystemNode *child);
 	void childDetached(CBonusSystemNode *child);
 	void propagateBonus(Bonus * b);
+	void unpropagateBonus(Bonus * b);
 	//void addNewBonus(const Bonus &b); //b will copied
 	void removeBonus(Bonus *b);
+	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
+	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
 
-	TNodesVector &nodesOnWhichWePropagate();
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
-	bool weActAsBonusSourceOnly() const;
+	bool actsAsBonusSourceOnly() const;
 	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
-	CBonusSystemNode *whereToPropagate(Bonus *b);
 
+	void battleTurnPassed(); //updates count of remaining turns and removed outdated bonuses
 	void popBonuses(const CSelector &s);
 	virtual std::string nodeName() const;
 	void deserializationFix();
@@ -434,7 +459,7 @@ public:
 
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM
 	};
 };
 
@@ -619,11 +644,27 @@ public:
 	}
 };
 
+class DLL_EXPORT StackOwnerLimiter : public ILimiter //applies only to creatures of given alignment
+{
+public:
+	ui8 owner;
+	StackOwnerLimiter();
+	StackOwnerLimiter(ui8 Owner);
+
+	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & owner;
+	}
+};
+
 class DLL_EXPORT RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
 {
 public:
 	ui8 minRank, maxRank;
 
+	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
 	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
 
@@ -651,6 +692,7 @@ namespace Selector
 
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);
 	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
+	bool DLL_EXPORT positiveSpellEffects(const Bonus *b);
 }
 
 extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
