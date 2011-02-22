@@ -1713,14 +1713,14 @@ void CBattleInterface::show(SDL_Surface * to)
 	
 	if(tacticsMode)
 	{
-		btactNext->show(to);
-		btactEnd->show(to);
+		btactNext->showAll(to);
+		btactEnd->showAll(to);
 	}
 	else
 	{
-		console->show(to);
-		bConsoleUp->show(to);
-		bConsoleDown->show(to);
+		console->showAll(to);
+		bConsoleUp->showAll(to);
+		bConsoleDown->showAll(to);
 	}
 
 	//showing buttons

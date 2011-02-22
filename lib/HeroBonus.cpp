@@ -12,6 +12,7 @@
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
 #include "BattleState.h"
+#include "CArtHandler.h"
 
 #define FOREACH_CONST_PARENT(pname) 	TCNodes lparents; getParents(lparents); BOOST_FOREACH(const CBonusSystemNode *pname, lparents)
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
@@ -606,20 +607,21 @@ std::string Bonus::Description() const
 		return description;
 
 	std::ostringstream str;
-	if(val < 0)
-		str << '-';
-	else if(val > 0)
-		str << '+';
-
-	str << val << " ";
+	str << std::showpos << val << " ";
 
 	switch(source)
 	{
+	case ARTIFACT:
+		str << VLC->arth->artifacts[sid]->Name();
+		break;;
+	case SPELL_EFFECT:
+		str << VLC->spellh->spells[sid]->name;
+		break;
 	case CREATURE_ABILITY:
 		str << VLC->creh->creatures[sid]->namePl;
 		break;
 	case SECONDARY_SKILL:
-		str << VLC->generaltexth->skillName[sid] << " secondary skill";
+		str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
 		break;
 	}
 	
@@ -824,6 +826,8 @@ bool ILimiter::limit(const Bonus *b, const CBonusSystemNode &node) const /*retur
 bool CCreatureTypeLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
 {
 	const CCreature *c = retrieveCreature(&node);
+	if(!c)
+		return true;
 	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
 	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
 }

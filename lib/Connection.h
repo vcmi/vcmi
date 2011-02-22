@@ -944,6 +944,5 @@ public:
 
 };
 
-#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving) deserializationFix();
 
 #endif // __CONNECTION_H__

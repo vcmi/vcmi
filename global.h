@@ -683,4 +683,6 @@ static inline ui32 read_unaligned_u32(const void *p)
 	#define OVERRIDE 	//is there any working counterpart?
 #endif
 
+#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving) deserializationFix();
+
 #endif // __GLOBAL_H__

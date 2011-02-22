@@ -475,7 +475,7 @@ void CClient::serialize( Handler &h, const int version )
 			else
 				nInt = new CPlayerInterface(pid);
 
-			playerint[pid] = nInt;
+			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callback);
 			nInt->serialize(h, version);
 		}

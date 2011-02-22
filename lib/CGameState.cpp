@@ -2852,6 +2852,25 @@ bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool
 
 void CGameState::buildBonusSystemTree()
 {
+	buildGlobalTeamPlayerTree();
+	attachArmedObjects();
+
+	BOOST_FOREACH(CGTownInstance *t, map->towns)
+	{
+		t->deserializationFix();
+	}
+	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact 
+	// are provided on initializing / deserializing
+}
+
+void CGameState::deserializationFix()
+{
+	buildGlobalTeamPlayerTree();
+	attachArmedObjects();
+}
+
+void CGameState::buildGlobalTeamPlayerTree()
+{
 	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
 	{
 		TeamState *t = &k->second;
@@ -2863,33 +2882,16 @@ void CGameState::buildBonusSystemTree()
 			assert(p);
 			p->attachTo(t);
 		}
-
 	}
+}
 
+void CGameState::attachArmedObjects()
+{
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
-		{
-			CBonusSystemNode *whereToAttach = armed->tempOwner < PLAYER_LIMIT 
-				? getPlayer(armed->tempOwner)
-				: &globalEffects;
-
-			if(armed->ID == TOWNI_TYPE)
-			{
-				CGTownInstance *town = static_cast<CGTownInstance*>(armed);
-				town->townAndVis.attachTo(whereToAttach);
-			}
-			else
-				armed->attachTo(whereToAttach);
-		}
+			armed->whatShouldBeAttached()->attachTo(armed->whereShouldBeAttached(this));
 	}
-
-	BOOST_FOREACH(CGTownInstance *t, map->towns)
-	{
-		t->deserializationFix();
-	}
-	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact 
-	// are provided on initializing / deserializing
 }
 
 int3 CPath::startPos() const

@@ -487,15 +487,11 @@ void CCreatureHandler::loadCreatures()
 				break;
 			CCreature *c = creatures[id];
 			c->level = lvl;
-			if(isbetw(lvl, 0, ARRAY_COUNT(creaturesOfLevel)))
-				c->attachTo(&creaturesOfLevel[lvl]);
-			else
-				c->attachTo(&creaturesOfLevel[0]);
 		}
 	}
 
-	BOOST_FOREACH(CBonusSystemNode &b, creaturesOfLevel)
-		b.attachTo(&allCreatures);
+	buildBonusTreeForTiers();
+
 
 	ifs.close();
 	ifs.clear();
@@ -1109,4 +1105,22 @@ void CCreatureHandler::addBonusForTier(int tier, Bonus *b)
 void CCreatureHandler::addBonusForAllCreatures(Bonus *b)
 {
 	allCreatures.addNewBonus(b);
+}
+
+void CCreatureHandler::buildBonusTreeForTiers()
+{
+	BOOST_FOREACH(CCreature *c, creatures)
+	{
+		if(isbetw(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
+			c->attachTo(&creaturesOfLevel[c->level]);
+		else
+			c->attachTo(&creaturesOfLevel[0]);
+	}
+	BOOST_FOREACH(CBonusSystemNode &b, creaturesOfLevel)
+		b.attachTo(&allCreatures);
+}
+
+void CCreatureHandler::deserializationFix()
+{
+	buildBonusTreeForTiers();
 }

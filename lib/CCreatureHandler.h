@@ -117,7 +117,10 @@ public:
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
 	si8 expAfterUpgrade;//multiplier in %
 
+
+	void deserializationFix();
 	void loadCreatures();
+	void buildBonusTreeForTiers();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	void loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it);
@@ -138,8 +141,10 @@ public:
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
+		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & allCreatures;
 		h & creaturesOfLevel;
+		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

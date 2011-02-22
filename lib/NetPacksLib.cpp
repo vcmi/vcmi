@@ -246,15 +246,15 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		PlayerState *p = gs->getPlayer(h->tempOwner);
 		gs->map->heroes -= h;
 		p->heroes -= h;
-		h->detachFrom(p);
+		h->detachFrom(h->whereShouldBeAttached(gs));
 		h->tempOwner = 255; //no one owns beaten hero
 
-		if(CGTownInstance *t = const_cast<CGTownInstance *>(h->visitedTown))
+		if(h->visitedTown)
 		{
 			if(h->inTownGarrison)
-				t->garrisonHero = NULL;
+				h->visitedTown->garrisonHero = NULL;
 			else
-				t->visitingHero = NULL;
+				h->visitedTown->visitingHero = NULL;
 			h->visitedTown = NULL;
 		}
 
@@ -800,36 +800,27 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 
 	if(what == ObjProperty::OWNER)
 	{
-		CBonusSystemNode *nodeToMove = NULL;
-		if(obj->ID == TOWNI_TYPE)
-		{
-			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
-			nodeToMove = &t->townAndVis;
-			if(t->tempOwner < PLAYER_LIMIT)
-				gs->getPlayer(t->tempOwner)->towns -= t;
-
-			if(val < PLAYER_LIMIT)
-				gs->getPlayer(val)->towns.push_back(t);
-		}
 		if(CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj))
 		{
-			if(!nodeToMove)
-				nodeToMove = cai;
+			if(obj->ID == TOWNI_TYPE)
+			{
+				CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+				if(t->tempOwner < PLAYER_LIMIT)
+					gs->getPlayer(t->tempOwner)->towns -= t;
+				if(val < PLAYER_LIMIT)
+					gs->getPlayer(val)->towns.push_back(t);
+			}
 
-			if(obj->tempOwner < PLAYER_LIMIT)
-				nodeToMove->detachFrom(gs->getPlayer(obj->tempOwner));
-			else
-				nodeToMove->detachFrom(&gs->globalEffects);
-
-			if(val < PLAYER_LIMIT)
-				nodeToMove->attachTo(gs->getPlayer(val));
-			else
-				nodeToMove->attachTo(&gs->globalEffects);
-
+			CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
+			nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
+			obj->setProperty(what,val);
+			nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
 		}
 	}
-	
-	obj->setProperty(what,val);
+	else
+	{
+		obj->setProperty(what,val);
+	}
 }
 
 DLL_EXPORT void SetHoverName::applyGs( CGameState *gs )

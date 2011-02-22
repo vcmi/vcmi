@@ -2777,7 +2777,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
-	CGTownInstance *town = const_cast<CGTownInstance*>(hero->visitedTown);
+	CGTownInstance *town = hero->visitedTown;
 	if(aid==0) //spellbook
 	{
 		if(!vstd::contains(town->builtBuildings,si32(0)) && complain("Cannot buy a spellbook, no mage guild in the town!")

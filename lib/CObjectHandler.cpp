@@ -26,6 +26,8 @@
 #include <SDL_stdinc.h>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/algorithm/string/trim.hpp>
+
 using namespace boost::assign;
 
 /*
@@ -1493,6 +1495,19 @@ void CGHeroInstance::deserializationFix()
 	attachTo(&speciality);
 }
 
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
+{
+	if(visitedTown)
+	{
+		if(inTownGarrison)
+			return visitedTown;
+		else
+			return &visitedTown->townAndVis;
+	}
+	else
+		return CArmedInstance::whereShouldBeAttached(gs);
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -2365,6 +2380,11 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 bool CGTownInstance::armedGarrison() const
 {
 	return stacksCount() || garrisonHero;
+}
+
+CBonusSystemNode * CGTownInstance::whatShouldBeAttached()
+{
+	return &townAndVis;
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
@@ -6586,6 +6606,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	 	b->val = 2-factions.size();
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % b->val); //Troops of %d alignments %d
 	}
+	boost::algorithm::trim(b->description);
 	 
 	//-1 modifier for any Necropolis unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
@@ -6603,6 +6624,19 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 void CArmedInstance::armyChanged()
 {
 	updateMoraleBonusFromArmy();
+}
+
+CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
+{
+	if(tempOwner < PLAYER_LIMIT)
+		return gs->getPlayer(tempOwner);
+	else
+		return &gs->globalEffects;
+}
+
+CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
+{
+	return this;
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const

@@ -25,6 +25,7 @@
  *
  */
 
+class CGameState;
 class CArtifactInstance;
 struct MetaString;
 struct BattleInfo;
@@ -231,9 +232,9 @@ public:
 	void armyChanged() OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
-	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
+	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs);
+	virtual CBonusSystemNode *whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
@@ -319,7 +320,7 @@ public:
 	si32 movement; //remaining movement points
 	ui8 sex;
 	ui8 inTownGarrison; // if hero is in town garrison 
-	const CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
+	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	const CGBoat *boat; //set to CGBoat when sailing
 	
 
@@ -361,6 +362,7 @@ public:
 			& sex & inTownGarrison & /*artifacts & artifWorn & */spells & patrol & moveDir;
 
 		h & type & speciality;
+		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
@@ -433,7 +435,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-
+	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs) OVERRIDE;
 	virtual std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void setPropertyDer(ui8 what, ui32 val);//synchr
@@ -596,10 +598,12 @@ public:
 			(*i)->town = this;
 
 		h & town & townAndVis;
+		BONUS_TREE_DESERIALIZATION_FIX
 		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 	//////////////////////////////////////////////////////////////////////////
 
+	virtual CBonusSystemNode *whatShouldBeAttached() OVERRIDE;
 	std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void recreateBuildingsBonuses();

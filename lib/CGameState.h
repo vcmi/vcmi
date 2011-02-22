@@ -145,6 +145,7 @@ public:
 
 	PlayerState();
 	std::string nodeName() const OVERRIDE;
+	void deserializationFix();
 
 	//override
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
@@ -350,6 +351,9 @@ public:
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
 
 	void buildBonusSystemTree();
+	void attachArmedObjects();
+	void buildGlobalTeamPlayerTree();
+	void deserializationFix();
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);
@@ -361,7 +365,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
+		h & scenarioOps & initialOpts & seed & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
 		h & villages & forts & capitols;
 		if(!h.saving)
 		{

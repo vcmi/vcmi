@@ -92,6 +92,7 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & artType & id;
+		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
@@ -136,6 +137,7 @@ public:
 	{
 		h & static_cast<CArtifactInstance&>(*this);
 		h & constituentsInfo;
+		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

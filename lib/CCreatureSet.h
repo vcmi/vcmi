@@ -41,6 +41,7 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & _armyObj & experience;
+		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
 	//overrides CBonusSystemNode
