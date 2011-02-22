@@ -46,6 +46,7 @@ class CGGarrison;
 class CObstacleInstance;
 typedef std::vector<const CStack*> TStacks;
 
+/// Struct which holds a short information about a town
 struct InfoAboutTown
 {
 	struct Details

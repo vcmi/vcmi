@@ -28,6 +28,7 @@ class IShipyard;
  *
  */
 
+/// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
 class CAdventureOptions : public CIntObject
 {
 public:
@@ -39,7 +40,7 @@ public:
 	static void showScenarioInfo();
 };
 	 
-
+/// Minimap which is displayed at the right upper corner of adventure map
 class CMinimap : public CIntObject
 {
 public:
@@ -70,6 +71,8 @@ public:
 	void showTile(const int3 &pos); //removes FoW
 	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
 };
+
+/// Holds information about which tiles of the terrain are shown/not shown at the screen
 class CTerrainRect
 	:  public CIntObject
 {
@@ -93,6 +96,9 @@ public:
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 };
+
+/// Resources bar which shows information about how many gold, crystals,... you have
+/// Current date is displayed too
 class CResDataBar
 	: public CIntObject
 {
@@ -111,6 +117,8 @@ public:
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
 };
+
+/// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
 {
 public:
@@ -133,8 +141,11 @@ public:
 	void deactivate();
 	void updateSelection(const CGObjectInstance *obj);
 };
-/*****************************/
-class CAdvMapInt : public CIntObject //adventure map interface
+
+/// That's a huge class which handles general adventure map actions and 
+/// shows the right menu(questlog, spellbook, end turn,..) from where you 
+/// can get to the towns and heroes. 
+class CAdvMapInt : public CIntObject
 {
 public:
 	CAdvMapInt();

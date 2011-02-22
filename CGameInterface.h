@@ -86,6 +86,7 @@ public:
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 };
 
+/// Central class for managing human player / AI interface logic
 class CGameInterface : public CBattleGameInterface
 {
 public:

@@ -32,9 +32,9 @@ struct SetStackEffect;;
 struct BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
-
 class CBattleInterface;
 
+/// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct SStackAttackedInfo
 {
 	const CStack * defender; //attacked stack
@@ -45,6 +45,7 @@ struct SStackAttackedInfo
 	bool killed; //if true, stack has been killed
 };
 
+/// Small struct which contains information about the position and the velocity of a projectile
 struct SProjectileInfo
 {
 	int x, y; //position on the screen
@@ -57,8 +58,8 @@ struct SProjectileInfo
 	bool reverse; //if true, projectile will be flipped by vertical asix
 };
 
-//battle animation handlers
 
+/// Base class of battle animations
 class CBattleAnimation
 {
 protected:
@@ -88,6 +89,7 @@ public:
 	CDummyAnim(CBattleInterface * _owner, int howManyFrames);
 };
 
+/// This class manages a spell effect animation
 class CSpellEffectAnim : public CBattleAnimation
 {
 private:
@@ -105,6 +107,7 @@ public:
 	CSpellEffectAnim(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false);
 };
 
+/// Sub-class which is responsible for managing the battle stack animation.
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
@@ -115,6 +118,7 @@ public:
 	static bool isToReverse(THex hexFrom, THex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 };
 
+/// Class responsible for animation of stack chaning direction (left <-> right)
 class CReverseAnim : public CBattleStackAnimation
 {
 private:
@@ -130,6 +134,7 @@ public:
 	CReverseAnim(CBattleInterface * _owner, const CStack * stack, THex dest, bool _priority);
 };
 
+/// Animation of a defending unit
 class CDefenceAnim : public CBattleStackAnimation
 {
 private:
@@ -147,6 +152,7 @@ public:
 	CDefenceAnim(SStackAttackedInfo _attackedInfo, CBattleInterface * _owner);
 };
 
+/// Move animation of a creature
 class CBattleStackMoved : public CBattleStackAnimation
 {
 private:
@@ -165,6 +171,7 @@ public:
 	CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, THex _destHex, bool _endMoving, int _distance);
 };
 
+/// Move start animation of a creature
 class CBattleMoveStart : public CBattleStackAnimation
 {
 public:
@@ -175,6 +182,7 @@ public:
 	CBattleMoveStart(CBattleInterface * _owner, const CStack * _stack);
 };
 
+/// Move end animation of a creature
 class CBattleMoveEnd : public CBattleStackAnimation
 {
 private:
@@ -187,6 +195,7 @@ public:
 	CBattleMoveEnd(CBattleInterface * _owner, const CStack * _stack, THex destTile);
 };
 
+/// This class is responsible for managing the battle attack animation
 class CBattleAttack : public CBattleStackAnimation
 {
 protected:
@@ -205,6 +214,7 @@ public:
 	CBattleAttack(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * defender);
 };
 
+/// Hand-to-hand attack
 class CMeleeAttack : public CBattleAttack
 {
 public:
@@ -215,6 +225,7 @@ public:
 	CMeleeAttack(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * _attacked);
 };
 
+/// Shooting attack
 class CShootingAnim : public CBattleAttack
 {
 private:
@@ -230,7 +241,7 @@ public:
 
 //end of battle animation handlers
 
-
+/// Hero battle animation
 class CBattleHero : public CIntObject
 {
 public:
@@ -251,6 +262,7 @@ public:
 	~CBattleHero(); //d-tor
 };
 
+/// Class which stands for a single hex field on a battlefield
 class CBattleHex : public CIntObject
 {
 private:
@@ -272,11 +284,13 @@ public:
 	CBattleHex();
 };
 
+/// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
 {
 	std::vector<int> lockedHexes;
 };
 
+/// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class CBattleConsole : public CIntObject
 {
 private:
@@ -296,6 +310,7 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
+/// Class which is responsible for showing the battle result window
 class CBattleResultWindow : public CIntObject
 {
 private:
@@ -313,6 +328,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
+/// Class which manages the battle options window
 class CBattleOptionsWindow : public CIntObject
 {
 private:
@@ -333,6 +349,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
+/// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct SBattleEffect
 {
 	int x, y; //position on the screen
@@ -341,6 +358,7 @@ struct SBattleEffect
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 };
 
+/// Shows the stack queue
 class CStackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
@@ -374,6 +392,8 @@ public:
 	//void showAll(SDL_Surface *to);
 };
 
+/// Big class which handles the overall battle interface actions and it is also responsible for
+/// drawing everything correctly.
 class CBattleInterface : public CIntObject
 {
 private:
@@ -421,6 +441,7 @@ private:
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
+	/// Class which is resposible for the wall of a siege during battle
 	class SiegeHelper
 	{
 	private:

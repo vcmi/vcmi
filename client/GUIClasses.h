@@ -73,7 +73,8 @@ class CArtifactInstance;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
-class CInfoWindow : public CSimpleWindow //text + comp. + ok button
+/// text + comp. + ok button
+class CInfoWindow : public CSimpleWindow 
 { //window able to delete its components when closed
 	bool delComps; //whether comps will be deleted
 
@@ -98,7 +99,9 @@ public:
 	static void showYesNoDialog( const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
 	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<SComponent*> *components = NULL, bool DelComps = false);
 };
-class CSelWindow : public CInfoWindow //component selection window
+
+/// component selection window
+class CSelWindow : public CInfoWindow 
 { //warning - this window deletes its components by closing!
 public:
 	void selectionChange(unsigned to);
@@ -108,7 +111,8 @@ public:
 	//notification - this class inherits important destructor from CInfoWindow
 };
 
-class CRClickPopup : public CIntObject //popup displayed on R-click
+/// popup displayed on R-click
+class CRClickPopup : public CIntObject 
 {
 public:
 	virtual void activate();
@@ -123,7 +127,8 @@ public:
 	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
 };
 
-class CRClickPopupInt : public CRClickPopup //popup displayed on R-click
+/// popup displayed on R-click
+class CRClickPopupInt : public CRClickPopup 
 {
 public:
 	IShowActivable *inner;
@@ -150,7 +155,8 @@ public:
 	~CInfoPopup(); //d-tor
 };
 
-class SComponent : public virtual CIntObject //common popup window component
+/// common popup window component
+class SComponent : public virtual CIntObject
 {
 public:
 	enum Etype
@@ -198,6 +204,8 @@ public:
 	void select(bool on);
 };
 class CGarrisonInt;
+
+/// A single garrison slot which holds one creature of a specific amount
 class CGarrisonSlot : public CIntObject
 {
 public:
@@ -221,6 +229,7 @@ public:
 	~CGarrisonSlot(); //d-tor
 };
 
+/// Class which manages slots of upper and lower garrison, splitting of units
 class CGarrisonInt :public CIntObject
 {
 public:
@@ -262,6 +271,7 @@ public:
 	~CGarrisonInt(); //d-tor
 };
 
+/// Status bar which is shown at the bottom of the in-game screens
 class CStatusBar
 	: public CIntObject, public IStatusBar
 {
@@ -278,6 +288,7 @@ public:
 	std::string getCurrent(); //getter for current
 };
 
+/// Label which shows text
 class CLabel
 	: public virtual CIntObject
 {
@@ -296,7 +307,7 @@ public:
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
 };
 
-//a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
+/// a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
 class CTextBox
 	: public CLabel
 {
@@ -320,6 +331,7 @@ public:
 	void sliderMoved(int to);
 };
 
+/// Status bar which is shown at the bottom of the in-game screens
 class CGStatusBar
 	: public CLabel, public IStatusBar
 {
@@ -341,6 +353,7 @@ public:
 	void calcOffset();
 };
 
+/// UIElement which can get input focus
 class CFocusable 
 	: public virtual CIntObject
 {
@@ -356,6 +369,7 @@ public:
 	~CFocusable();
 };
 
+/// Text input box where players can enter text
 class CTextInput
 	: public CLabel, public CFocusable
 {
@@ -372,6 +386,7 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 };
 
+/// Listbox UI Element
 class CList : public CIntObject
 {
 public:
@@ -396,6 +411,8 @@ public:
 	virtual int size() = 0; //how many elements do we have
 	void fixPos(); //scrolls list, so the selection will be visible
 };
+
+/// List of heroes which is shown at the right of the adventure map screen
 class CHeroList
 	: public CList
 {
@@ -420,6 +437,7 @@ public:
 	int size(); //how many elements do we have
 };
 
+/// List of towns which is shown at the right of the adventure map screen
 class CTownList
 	: public CList
 {
@@ -441,7 +459,8 @@ public:
 	int size(); //how many elements do we have
 };
 
-class CCreaturePic : public CIntObject //draws picture with creature on background, use Animated=true to get animation
+/// draws picture with creature on background, use Animated=true to get animation
+class CCreaturePic : public CIntObject 
 {
 private:
 	CPicture *bg; //background
@@ -452,6 +471,7 @@ public:
 	~CCreaturePic(); //d-tor
 };
 
+/// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CIntObject
 {
 public:
@@ -492,6 +512,7 @@ public:
 	~CRecruitmentWindow(); //d-tor
 };
 
+/// Split window where creatures can be splitted up into two single unit stacks
 class CSplitWindow : public CIntObject
 {
 public:
@@ -516,6 +537,7 @@ public:
 	void sliderMoved(int to);
 };
 
+/// Raised up level windowe where you can select one out of two skills
 class CLevelWindow : public CIntObject
 {
 public:
@@ -534,6 +556,7 @@ public:
 	void show(SDL_Surface * to);
 };
 
+/// Resource bar like that at the bottom of the adventure map screen
 class CMinorResDataBar : public CIntObject
 {
 public:
@@ -544,6 +567,7 @@ public:
 	~CMinorResDataBar(); //d-tor
 };
 
+/// Town portal, castle gate window
 class CObjectListWindow : public CIntObject
 {
 public:
@@ -811,6 +835,7 @@ public:
 	CInGameConsole(); //c-tor
 };
 
+/// Shows a text by moving the mouse cursor over the object
 class HoverableArea: public virtual CIntObject
 {
 public:
@@ -822,6 +847,7 @@ public:
 	virtual ~HoverableArea();
 };
 
+/// Can interact on left and right mouse clicks, plus it shows a text when by hovering over it
 class LRClickableAreaWText: public HoverableArea
 {
 public:
@@ -836,6 +862,7 @@ public:
 	virtual void clickRight(tribool down, bool previousState);
 };
 
+/// Can interact on left and right mouse clicks
 class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
 public:
@@ -858,6 +885,7 @@ public:
 	~MoraleLuckBox();
 };
 
+/// Opens hero window by left-clicking on it
 class CHeroArea: public CIntObject
 {
 public:
@@ -871,7 +899,7 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-
+/// Opens town screen by left-clicking on it
 class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
@@ -881,6 +909,7 @@ public:
 	LRClickableAreaOpenTown();
 };
 
+/// Creature info window
 class CCreInfoWindow : public CIntObject
 {
 public:
@@ -912,6 +941,7 @@ public:
 	void show(SDL_Surface * to);
 };
 
+/// Artifacts can be placed there. Gets shown at the hero window
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:
@@ -939,6 +969,7 @@ public:
 	~CArtPlace(); //d-tor
 };
 
+/// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
 class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero; //local copy of hero on which we operate
@@ -997,6 +1028,7 @@ public:
 	friend class CArtPlace;
 };
 
+/// Garrison window where you can take creatures out of the hero to place it on the garrison
 class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
@@ -1043,6 +1075,7 @@ public:
 	~CExchangeWindow(); //d-tor
 };
 
+/// Here you can buy ships
 class CShipyardWindow : public CIntObject
 {
 public:
@@ -1060,6 +1093,7 @@ public:
 	~CShipyardWindow();
 };
 
+/// Puzzle screen which gets uncovered when you visit obilisks
 class CPuzzleWindow : public CIntObject
 {
 private:
@@ -1079,6 +1113,7 @@ public:
 	~CPuzzleWindow();
 };
 
+/// Creature transformer window
 class CTransformerWindow : public CIntObject
 {
 public:
@@ -1143,8 +1178,8 @@ public:
 	~CUniversityWindow(); //d-tor
 };
 
-
-class CUnivConfirmWindow : public CIntObject//Confirmation window for University
+/// Confirmation window for University
+class CUnivConfirmWindow : public CIntObject
 {
 public:
 	CUniversityWindow * parent;
@@ -1156,6 +1191,7 @@ public:
 	void makeDeal(int skill);
 };
 
+/// Hill fort is the building where you can upgrade units
 class CHillFortWindow : public CWindowWithGarrison
 {
 public:

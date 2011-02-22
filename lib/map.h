@@ -35,7 +35,7 @@ class CQuest;
 class CGTownInstance;
 class IModableArt;
 
-
+/// Struct which describes a single terrain tile
 struct DLL_EXPORT TerrainTile
 {
 	enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
@@ -71,7 +71,9 @@ struct DLL_EXPORT TerrainTile
 	bool entrableTerrain(bool allowLand, bool allowSea) const; //checks if terrain is not a rock. If from is water/land, same type is also required. 
 	bool isClear(const TerrainTile *from = NULL) const; //checks for blocking objs and terraint type (water / land)
 };
-struct DLL_EXPORT SheroName //name of starting hero
+
+/// name of starting hero
+struct DLL_EXPORT SheroName 
 {
 	int heroID;
 	std::string heroName;
@@ -81,6 +83,9 @@ struct DLL_EXPORT SheroName //name of starting hero
 		h & heroID & heroName;
 	}
 };
+
+/// Player information regarding map. Which factions are allowed, AI tactic setting, main hero name, 
+/// position of main town,...
 struct DLL_EXPORT PlayerInfo
 {
 	si32 p7, p8, p9;
@@ -136,6 +141,8 @@ struct DLL_EXPORT PlayerInfo
 			posOfMainTown & team & generateHero;
 	}
 };
+
+/// Small struct which holds information about the loss condition
 struct DLL_EXPORT LossCondition
 {
 	ElossCon typeOfLossCon;
@@ -153,6 +160,8 @@ struct DLL_EXPORT LossCondition
 
 	LossCondition();
 };
+
+/// Small struct which holds information about the victory condition
 struct DLL_EXPORT CVictoryCondition
 {
 	EvictoryConditions condition; //ID of condition
@@ -172,6 +181,7 @@ struct DLL_EXPORT CVictoryCondition
 	}
 };
 
+/// Struct which holds a name and the rumor text
 struct DLL_EXPORT Rumor
 {
 	std::string name, text;
@@ -182,6 +192,7 @@ struct DLL_EXPORT Rumor
 	}
 };
 
+/// Struct which describes who can hire this hero
 struct DLL_EXPORT DisposedHero
 {
 	ui32 ID;
@@ -195,6 +206,7 @@ struct DLL_EXPORT DisposedHero
 	}
 };
 
+/// Class which manages map events.
 class DLL_EXPORT CMapEvent
 {
 public:
@@ -221,6 +233,8 @@ public:
 	}
 };
 
+/// Sub-class derived by CMapEvent; This event can build specific buildings or add 
+/// additional creatures in a town.
 class DLL_EXPORT CCastleEvent: public CMapEvent
 {
 public:
@@ -235,6 +249,7 @@ public:
 	}
 };
 
+/// Holds information about loss/victory condition, map format, version, players, height, width,...
 class DLL_EXPORT CMapHeader
 {
 public:
@@ -267,6 +282,8 @@ public:
 	}
 };
 
+/// Extends the base class and adds further map information like rumors, disposed heroes, 
+/// allowed spells, artifacts, abilities and such things.
 struct DLL_EXPORT Mapa : public CMapHeader
 {
 	ui32 checksum;

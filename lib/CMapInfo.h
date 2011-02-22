@@ -6,7 +6,8 @@ class CMapHeader;
 class CCampaignHeader;
 struct StartInfo;
 
-
+/// A class which stores the count of human players and all players, the filename,
+/// scenario options, the map header information,...
 class DLL_EXPORT CMapInfo
 {
 public:

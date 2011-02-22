@@ -18,6 +18,7 @@
 
 typedef boost::function<void()> Task;
 
+/// Can assign CPU work to other threads/cores
 class CThreadHelper
 {
 	boost::mutex rtinm;

@@ -15,7 +15,7 @@
  *
  */
 
-
+/// Struct which describes the name, the color, the starting bonus of a player
 struct PlayerSettings
 {
 	enum Ebonus {brandom=-1,bartifact, bgold, bresource};
@@ -50,6 +50,7 @@ struct PlayerSettings
 	}
 };
 
+/// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct StartInfo
 {
 	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, INVALID = 255};

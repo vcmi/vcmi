@@ -45,10 +45,8 @@ public:
 
 struct Mapa;
 
-/*
-	CGameInfo class
-	for allowing different functions for accessing game informations
-*/
+/// CGameInfo class
+/// for allowing different functions for accessing game informations
 class CGameInfo
 {
 	ConstTransitivePtr<CGameState> state; //don't touch it in client's code

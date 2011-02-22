@@ -25,6 +25,7 @@ class MoraleLuckBox;
  *
  */
 
+/// Huge class responsible for viewing and handling kingdom view, where you can see all your towns, flagged mines and heroes
 class CKingdomInterface : public CGarrisonHolder
 {
 	class CTownItem : public CWindowWithGarrison

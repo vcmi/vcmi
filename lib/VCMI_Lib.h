@@ -23,6 +23,7 @@ class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 
+/// Loads and constructs several handlers
 class DLL_EXPORT LibClasses
 {
 public:

@@ -56,6 +56,7 @@ struct ComponentsToBlit
 	~ComponentsToBlit(); //d-tor
 };
 
+/// Class which draws formatted text messages and generates chat windows
 class CMessage
 {
 public:

@@ -15,6 +15,7 @@ class CAdvMapInt;
 
 namespace config
 {
+	/// Struct holds data about client resolution, colors, fullscreen mode
 	struct ClientConfig
 	{
 		int resx, resy, bpp, fullscreen; //client resolution/colours
@@ -24,6 +25,7 @@ namespace config
 		std::string server, //server address (e.g. 127.0.0.1)
 			defaultAI; //dll name
 	};
+	
 	struct ButtonInfo
 	{
 		std::string defName;
@@ -31,6 +33,7 @@ namespace config
 		int x, y; //position on the screen
 		bool playerColoured; //if true button will be colored to main player's color (works properly only for appropriate 8bpp graphics)
 	};
+	/// Struct which holds data about position of several GUI elements at the adventure map screen
 	struct AdventureMapConfig
 	{
 		//minimap properties
@@ -71,6 +74,7 @@ namespace config
 	{
 		AdventureMapConfig ac;
 	};
+	/// Handles adventure map screen settings
 	class CConfigHandler
 	{
 	public:

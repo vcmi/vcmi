@@ -20,6 +20,7 @@
 
 struct BMPPalette;
 
+/// Class which manages animations of creatures/units inside battles
 class CCreatureAnimation : public CIntObject
 {
 private:

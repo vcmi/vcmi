@@ -157,6 +157,7 @@ namespace PrimarySkill
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
 	BONUS_NAME(EXP_MULTIPLIER)/* val - percent of additional exp gained by stack/commander (base value 100)*/
 
+/// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus
 {
 	enum BonusType
@@ -472,7 +473,7 @@ namespace NBonus
 	DLL_EXPORT int getCount(const CBonusSystemNode *obj, int from, int id);
 };
 
-//generates HeroBonus from given data
+/// generates HeroBonus from given data
 inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
 	Bonus sf;

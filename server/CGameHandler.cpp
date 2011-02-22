@@ -4870,22 +4870,16 @@ void CGameHandler::runBattle()
 	}
 
 	//spells opening battle
-	if (gs->curB->heroes[0] && gs->curB->heroes[0]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+	for(int i=0; i<ARRAY_COUNT(gs->curB->heroes); ++i)
 	{
-		BonusList bl;
-		gs->curB->heroes[0]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus *b, bl)
+		if(gs->curB->heroes[i] && gs->curB->heroes[i]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
 		{
-			handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[0]->tempOwner, NULL, gs->curB->heroes[1], b->val);
-		}
-	}
-	if (gs->curB->heroes[1] && gs->curB->heroes[1]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
-	{
-		BonusList bl;
-		gs->curB->heroes[1]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-		BOOST_FOREACH (Bonus *b, bl)
-		{
-			handleSpellCasting(b->subtype, 3, -1, 1, gs->curB->heroes[1]->tempOwner, NULL, gs->curB->heroes[0], b->val);
+			BonusList bl;
+			gs->curB->heroes[i]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			BOOST_FOREACH (Bonus *b, bl)
+			{
+				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val);
+			}
 		}
 	}
 

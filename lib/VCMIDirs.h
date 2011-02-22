@@ -14,7 +14,7 @@
 #endif
 
 
-/* Where to find the various VCMI files. This is mostly usefull for linux. */
+/// Where to find the various VCMI files. This is mostly usefull for linux. 
 class VCMIDirs {
 public:
 	std::string UserPath;

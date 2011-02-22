@@ -13,6 +13,7 @@
  *
  */
 
+/// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 class CStack;
 
 struct DLL_EXPORT BattleAction

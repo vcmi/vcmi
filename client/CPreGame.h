@@ -34,6 +34,7 @@ namespace boost{ class thread; class recursive_mutex;}
 
 enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps}; //_numOfMaps is for campaigns
 
+/// Class which handles map sorting by different criteria
 class mapSorter
 {
 public:
@@ -42,6 +43,7 @@ public:
 	mapSorter(ESortBy es):sortBy(es){};
 };
 
+/// The main menu screens listed in the EState enum
 class CMenuScreen : public CIntObject
 {
 public:
@@ -63,7 +65,7 @@ public:
 	void moveTo(CMenuScreen *next);
 };
 
-
+/// Struct which stores name, date and a value which says if the file is located in LOD
 struct FileInfo
 {
 	std::string name; // file name with full path and extension
@@ -71,6 +73,7 @@ struct FileInfo
 	bool inLod; //tells if this file is located in Lod
 };
 
+/// Implementation of the chat box
 class CChatBox : public CIntObject
 {
 public:
@@ -109,6 +112,7 @@ public:
 	~InfoCard();
 };
 
+/// The selection tab which is shown at the map selection screen
 class SelectionTab : public CIntObject
 {
 private:
@@ -153,6 +157,7 @@ public:
 	~SelectionTab();
 };
 
+/// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject
 {
 	CPicture *bg;
@@ -218,6 +223,7 @@ public:
 	bool canUseThisHero( int ID );
 };
 
+/// Interface for selecting a map.
 class ISelectionScreenInfo
 {
 public:
@@ -243,6 +249,7 @@ public:
 
 };
 
+/// The actual map selection screen which consists of the options and selection tab
 class CSelectionScreen : public CIntObject, public ISelectionScreenInfo
 {
 public:
@@ -281,6 +288,7 @@ public:
 	void propagateNames();
 };
 
+/// Save game screen
 class CSavingScreen : public CSelectionScreen
 {
 public:
@@ -291,7 +299,7 @@ public:
 	~CSavingScreen();
 };
 
-//scenario information screen shown during the game (thus not really a "pre-game" but fits here anyway)
+/// Scenario information screen shown during the game (thus not really a "pre-game" but fits here anyway)
 class CScenarioInfo : public CIntObject, public ISelectionScreenInfo
 {
 public:
@@ -303,6 +311,7 @@ public:
 	~CScenarioInfo();
 };
 
+/// Multiplayer mode
 class CMultiMode : public CIntObject
 {
 public:
@@ -317,6 +326,7 @@ public:
 	void joinTCP();
 };
 
+/// Hot seat player window
 class CHotSeatPlayers : public CIntObject
 {
 public:
@@ -329,6 +339,7 @@ public:
 	void enterSelectionScreen();
 };
 
+/// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CIntObject
 {
 	SDL_Surface * background;
@@ -405,6 +416,7 @@ public:
 	void startMap();
 };
 
+/// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
 public:

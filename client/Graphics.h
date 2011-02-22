@@ -29,6 +29,7 @@ class CGDefInfo;
 
 typedef struct _TTF_Font TTF_Font; //from SDL_ttf.h
 
+/// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
 public:

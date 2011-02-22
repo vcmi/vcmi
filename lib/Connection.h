@@ -244,6 +244,7 @@ struct VectorisedObjectInfo
 	}
 };
 
+/// Class which is responsible for storing and loading data.
 class DLL_EXPORT CSerializer
 {
 public:
@@ -349,6 +350,7 @@ struct VectorisedTypeFor
 		>::type type;
 };
 
+/// The class which manages saving objects.
 template <typename Serializer> class DLL_EXPORT COSer : public CSaverBase
 {
 public:
@@ -587,6 +589,7 @@ public:
 	}
 };
 
+/// The class which manages loading of objects.
 template <typename Serializer> class DLL_EXPORT CISer : public CLoaderBase
 {
 public:

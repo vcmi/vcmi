@@ -18,11 +18,13 @@ class CLodHandler;
 
 enum Epcxformat {PCX8B, PCX24B};
 
+/// Struct which stands for a simple rgba palette
 struct BMPPalette
 {
 	unsigned char R,G,B,F;
 };
 
+/// Class which converts pcx to bmp images
 class CPCXConv
 {	
 public:

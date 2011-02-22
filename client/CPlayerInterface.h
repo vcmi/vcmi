@@ -74,6 +74,7 @@ namespace boost
 	class recursive_mutex;
 };
 
+/// Stores information about system options like hero move speed, map scrolling speed, creature animation speed,...
 struct SystemOptions
 {
 	std::string playerName;
@@ -109,6 +110,7 @@ struct SystemOptions
 
 extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores default settings loaded with application
 
+/// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 public:

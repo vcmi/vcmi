@@ -23,8 +23,8 @@ class CLabel;
 
 namespace config{struct ButtonInfo;}
 
-
-class CButtonBase : public KeyShortcut//basic button class
+/// Base class for buttons.
+class CButtonBase : public KeyShortcut
 {
 public:
 	enum ButtonState
@@ -60,6 +60,8 @@ public:
 	virtual ~CButtonBase(); //d-tor
 };
 
+/// Typical Heroes 3 button which can be inactive or active and can 
+/// hold further information if you right-click it
 class AdventureMapButton : public CButtonBase
 {
 	std::vector<std::string> imageNames;//store list of images that can be used by this button
@@ -87,6 +89,7 @@ public:
 	void setPlayerColor(int player);
 };
 
+/// A button which can be selected/deselected
 class CHighlightableButton 
 	: public AdventureMapButton
 {
@@ -101,6 +104,7 @@ public:
 	void clickLeft(tribool down, bool previousState);
 };
 
+/// A group of buttons where one button can be selected
 class CHighlightableButtonsGroup : public CIntObject
 {
 public:
@@ -120,7 +124,7 @@ public:
 	void block(ui8 on);
 };
 
-
+/// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
 public:

@@ -25,6 +25,7 @@ class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHero;
 
+/// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
 {
 public:

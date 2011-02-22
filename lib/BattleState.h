@@ -120,9 +120,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 
 	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode mode) const; //checks if given player can cast given spell
-private:
-	SpellCasting::ESpellCastProblem canCastHereLower(int player, const CSpell * spell, ECastingMode mode, THex dest) const; //same as battleCanCastThisSpellHere, but doesn't refer to battleCanCastThisSpell
-public:
+	SpellCasting::ESpellCastProblem battleIsImmune(int player, const CSpell * spell, ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
 	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
 
 	bool battleCanFlee(int player) const; //returns true if player can flee from the battle

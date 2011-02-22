@@ -32,7 +32,7 @@ namespace boost { class thread; }
 
 void processCommand(const std::string &message, CClient *&client);
 
-//structure to handle running server and connecting to it
+/// structure to handle running server and connecting to it
 class CServerHandler
 {
 private:
@@ -56,6 +56,7 @@ public:
 	~CServerHandler();
 };
 
+/// Class which handles client - server logic
 class CClient : public IGameCallback
 {
 public:

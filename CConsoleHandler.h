@@ -18,6 +18,8 @@ namespace boost
 	class thread;
 }
 
+/// Class which wraps the native console. It can print text based on
+/// the chosen color
 class DLL_EXPORT CConsoleHandler
 {
 public:

@@ -1665,7 +1665,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 				case 1:
 					if(stack->owner == caster->getOwner())
 					{
-						if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+						if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
 						{
 							targetExists = true;
 							break;
@@ -1673,7 +1673,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 					}
 					break;
 				case 0:
-					if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+					if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
 					{
 						targetExists = true;
 						break;
@@ -1682,7 +1682,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 				case -1:
 					if(stack->owner != caster->getOwner())
 					{
-						if(canCastHereLower(player, spell, mode, stack->position) == SpellCasting::OK)
+						if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
 						{
 							targetExists = true;
 							break;
@@ -1710,7 +1710,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 	if(moreGeneralProblem != SpellCasting::OK)
 		return moreGeneralProblem;
 
-	return canCastHereLower(player, spell, mode, dest);
+	return battleIsImmune(player, spell, mode, dest);
 }
 
 const CGHeroInstance * BattleInfo::getHero( int player ) const
@@ -1721,7 +1721,7 @@ const CGHeroInstance * BattleInfo::getHero( int player ) const
 	return heroes[1];
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::canCastHereLower( int player, const CSpell * spell, ECastingMode mode, THex dest ) const
+SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CSpell * spell, ECastingMode mode, THex dest ) const
 {
 	const CStack * subject = getStackT(dest, false);
 	const CGHeroInstance * caster = mode == HERO_CASTING ? getHero(player) : NULL;

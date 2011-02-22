@@ -25,10 +25,8 @@ struct SDL_Surface;
 class SDLImageLoader;
 class CompImageLoader;
 
-/*
- * class for def loading, methods are based on CDefHandler
- * after loading will store general info (palette and frame offsets) and pointer to file itself
- */
+/// Class for def loading, methods are based on CDefHandler
+/// After loading will store general info (palette and frame offsets) and pointer to file itself
 class CDefFile
 {
 private:
@@ -254,9 +252,7 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
-/*
- * Base class for displaying animation, used as superclass for different animations
- */
+/// Base class for displaying animation, used as superclass for different animations
 class CShowableAnim: public CIntObject
 {
 public:
@@ -312,9 +308,7 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
-/*
- *
- */
+/// Creature-dependend animations like attacking, moving,... outside battles
 class CCreatureAnim: public CShowableAnim
 {
 public:

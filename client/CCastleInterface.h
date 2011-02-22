@@ -30,6 +30,7 @@ class CMinorResDataBar;
  *
  */
 
+/// Building "button"
 class CBuildingRect : public CShowableAnim
 {
 public:
@@ -47,6 +48,7 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
+/// Hero army slot
 class CHeroGSlot : public CIntObject
 {
 public:
@@ -65,8 +67,10 @@ public:
 	~CHeroGSlot(); //d-tor
 };
 
+/// Huge class which manages the castle window
 class CCastleInterface : public CWindowWithGarrison
 {
+	/// Creature info window
 	class CCreaInfo : public CIntObject
 	{
 	public:
@@ -79,6 +83,7 @@ class CCastleInterface : public CWindowWithGarrison
 		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
 	};
+	/// Town info which gets shown by right-clicking on a town at the map
 	class CTownInfo : public CIntObject
 	{
 	public:
@@ -141,11 +146,14 @@ public:
 	void recreateBuildings();
 	void recreateIcons();
 };
+
+/// Hall window where you can build things
 class CHallInterface : public CIntObject
 {
 public:
 	CMinorResDataBar * resdatabar;
 
+	/// The building information box which gets shown by right-clicking on a building image
 	class CBuildingBox : public CIntObject
 	{
 	public:
@@ -161,6 +169,7 @@ public:
 		~CBuildingBox(); //d-tor
 	};
 
+	/// The actual building window where you can decide to buy a building or not
 	class CBuildWindow: public CIntObject
 	{
 	public:
@@ -195,6 +204,7 @@ public:
 	void deactivate();
 };
 
+/// The fort screen where you can afford units
 class CFortScreen : public CIntObject
 {
 	class RecArea : public CIntObject
@@ -225,6 +235,7 @@ public:
 	void deactivate();
 };
 
+/// The mage guild screen where you can see which spells you have
 class CMageGuildScreen : public CIntObject
 {
 public:
@@ -252,6 +263,7 @@ public:
 
 };
 
+/// The blacksmith window where you can buy one of the three war machines
 class CBlacksmithDialog : public CIntObject
 {
 public:

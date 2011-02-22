@@ -22,6 +22,7 @@ struct SDL_Rect;
 class CGHeroInstance;
 class CStatusBar;
 
+/// Spellbook button is used by the spell window class
 class SpellbookInteractiveArea : public CIntObject
 {
 private:
@@ -39,6 +40,7 @@ public:
 		boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
 };
 
+/// The spell window
 class CSpellWindow : public CIntObject
 {
 private:

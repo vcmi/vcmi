@@ -13,6 +13,7 @@
 
 #include <cmath>
 
+/// Class which consists of three integer values. Represents position on adventure map.
 class int3
 {
 public:

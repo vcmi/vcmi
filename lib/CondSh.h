@@ -12,6 +12,7 @@
  *
  */
 
+/// Used for multithreading, wraps boost functions
 template <typename T> struct CondSh
 {
 	T data;

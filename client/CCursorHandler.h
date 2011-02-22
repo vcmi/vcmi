@@ -16,7 +16,8 @@ struct SDL_Surface;
  *
  */
 
-class CCursorHandler //handles cursor
+/// handles mouse cursor
+class CCursorHandler 
 {
 public:
 	int mode, number;

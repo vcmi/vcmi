@@ -56,6 +56,7 @@ class CGTownInstance;
 class StackState;
 class CPlayerInterface;
 
+/// A point with x/y coordinate, used mostly for graphic rendering
 struct Point
 {
 	int x, y;
@@ -122,6 +123,7 @@ struct Point
 	}
 };
 
+/// Rectangle class, which have a position and a size
 struct Rect : public SDL_Rect
 {
 	Rect()//default c-tor
@@ -276,6 +278,7 @@ struct Rect : public SDL_Rect
 	}
 };
 
+/// Defines a show method
 class IShowable
 {
 public:
@@ -288,6 +291,7 @@ public:
 	virtual ~IShowable(){}; //d-tor
 };
 
+/// Status bar interface
 class IStatusBar
 {
 public:
@@ -298,6 +302,7 @@ public:
 	virtual std::string getCurrent()=0; //returns currently displayed text
 };
 
+/// Defines a activate/deactive method
 class IActivable
 {
 public:
@@ -305,6 +310,8 @@ public:
 	virtual void deactivate()=0;
 	virtual ~IActivable(){}; //d-tor
 };
+
+
 class IShowActivable : public IShowable, public IActivable
 {
 public:
@@ -314,6 +321,7 @@ public:
 	virtual ~IShowActivable(){}; //d-tor
 };
 
+
 class IUpdateable
 {
 public:
@@ -321,6 +329,7 @@ public:
 	virtual ~IUpdateable(){}; //d-tor
 };
 
+/// Base UI element
 class CIntObject : public IShowActivable //interface object
 {
 public:
@@ -431,8 +440,8 @@ public:
 	}
 };
 
-//class for binding keys to left mouse button clicks
-//classes wanting use it should have it as one of their base classes
+/// Class for binding keys to left mouse button clicks
+/// Classes wanting use it should have it as one of their base classes
 class KeyShortcut : public virtual CIntObject
 {
 public:
@@ -443,7 +452,8 @@ public:
 	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };
 
-class CGarrisonHolder : public virtual CIntObject// to unify updating garrisons via PlayerInterface
+/// to unify updating garrisons via PlayerInterface
+class CGarrisonHolder : public virtual CIntObject
 {
 public:
 	CGarrisonHolder();
@@ -456,7 +466,7 @@ public:
 	CGarrisonInt *garr;
 	virtual void updateGarrisons();
 };
-
+/// Window GUI class
 class CSimpleWindow : public CIntObject
 {
 public:
@@ -465,7 +475,7 @@ public:
 	CSimpleWindow():bitmap(NULL){}; //c-tor
 	virtual ~CSimpleWindow(); //d-tor
 };
-
+/// Image class
 class CPicture : public CIntObject
 {
 public: 
@@ -494,6 +504,7 @@ public:
 	void colorizeAndConvert(int player);
 };
 
+/// Handles GUI logic and drawing
 class CGuiHandler
 {
 public:

@@ -41,6 +41,7 @@ struct StackLocation;
 struct ArtifactLocation;
 class CArtifactInstance;
 
+/// Interface class for handling general game logic and actions
 class DLL_EXPORT IGameCallback
 {
 protected:

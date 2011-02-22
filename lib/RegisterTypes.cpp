@@ -1,5 +1,3 @@
-
-
 #include "Connection.h"
 #include "NetPacks.h"
 #include "VCMI_Lib.h"
