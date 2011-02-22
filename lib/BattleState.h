@@ -116,12 +116,13 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	bool battleCanShoot(const CStack * stack, THex dest) const; //determines if stack with given ID shoot at the selected destination
 	const CGHeroInstance * getHero(int player) const; //returns fighting hero that belongs to given player
 
-	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING};
+	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, SpellCasting::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, SpellCasting::ECastingMode mode) const; //checks if given player can cast given spell
+	SpellCasting::ESpellCastProblem battleIsImmune(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
+	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
 
-	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode mode) const; //checks if given player can cast given spell
-	SpellCasting::ESpellCastProblem battleIsImmune(int player, const CSpell * spell, ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
+	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, SpellCasting::ECastingMode mode) const;
+
 
 	bool battleCanFlee(int player) const; //returns true if player can flee from the battle
 	const CStack * battleGetStack(THex pos, bool onlyAlive); //returns stack at given tile

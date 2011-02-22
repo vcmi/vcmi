@@ -3552,89 +3552,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner)
-{
-	std::vector<ui32> ret;
-	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
-	{
-		if (NBonus::hasOfType(caster, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES) ||
-			NBonus::hasOfType(hero2, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
-		{
-			//don't use natural immunities when one of heroes has this bonus
- 			BonusList bl = (*it)->getBonuses(Selector::type(Bonus::SPELL_IMMUNITY)),
-				b2 = (*it)->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
-
-			bl.insert(bl.end(), b2.begin(), b2.end());
- 
- 			BOOST_FOREACH(Bonus *bb, bl)
- 			{
- 				if( (bb->type == Bonus::SPELL_IMMUNITY && bb->subtype == sp->id || //100% sure spell immunity
- 					bb->type == Bonus::LEVEL_SPELL_IMMUNITY && bb->val >= sp->level) //some creature abilities have level 0
-					&& bb->source != Bonus::CREATURE_ABILITY)
- 				{
- 					ret.push_back((*it)->ID);
- 					continue;
- 				}
- 			}
-		}
-		else
-		{
-			if ((*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-				|| ( (*it)->hasBonusOfType(Bonus::LEVEL_SPELL_IMMUNITY) &&
-				(*it)->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY) >= sp->level) ) //some creature abilities have level 0
-			{
-				ret.push_back((*it)->ID);
-				continue;
-			}
-		}
-		
-
-		//non-negative spells on friendly stacks should always succeed, unless immune
-		if(sp->positiveness >= 0 && (*it)->owner == casterSideOwner)
-			continue;
-
-		const CGHeroInstance * bonusHero; //hero we should take bonuses from
-		if((*it)->owner == casterSideOwner)
-			bonusHero = caster;
-		else
-			bonusHero = hero2;
-
-		int prob = (*it)->valOfBonuses(Bonus::MAGIC_RESISTANCE); //probability of resistance in %
-		if(bonusHero)
-		{
-			//bonusHero's resistance support (secondary skils and artifacts)
-			prob += bonusHero->valOfBonuses(Bonus::MAGIC_RESISTANCE);
-			//resistance skill
-			prob += bonusHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 26) / 100.0f;
-		}
-
-		if(prob > 100) prob = 100;
-
-		if(rand()%100 < prob) //immunity from resistance
-			ret.push_back((*it)->ID);
-
-	}
-
-	if(sp->id == 60) //hypnotize
-	{
-		for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
-		{
-			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft 
-				> 
-				caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
-			)
-			{
-				ret.push_back((*it)->ID);
-			}
-		}
-	}
-
-	return ret;
-}
-
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor,
-	const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower )
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode )
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 
@@ -3654,7 +3572,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	}
 
 	//checking if creatures resist
-	sc.resisted = calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor);
+	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode);
 
 	//calculating dmg to display
 	for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
@@ -3824,7 +3742,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
-			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, BattleInfo::HERO_CASTING);
+			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, SpellCasting::HERO_CASTING);
 			if(escp != SpellCasting::OK)
 			{
 				tlog2 << "Spell cannot be cast!\n";
@@ -3834,7 +3752,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2));
+			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING);
 
 			sendAndApply(&EndAction());
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
@@ -4410,7 +4328,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				int destination = oneOfAttacked->position;
 
 				const CSpell * spell = VLC->spellh->spells[spellID];
-				if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, BattleInfo::AFTER_ATTACK_CASTING, oneOfAttacked->position)
+				if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, SpellCasting::AFTER_ATTACK_CASTING, oneOfAttacked->position)
 					!= SpellCasting::OK)
 					continue;
 
@@ -4419,7 +4337,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 					continue;
 
 				//casting
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count);
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
 			}
 		}
 	}
@@ -4878,7 +4796,7 @@ void CGameHandler::runBattle()
 			gs->curB->heroes[i]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			BOOST_FOREACH (Bonus *b, bl)
 			{
-				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val);
+				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, SpellCasting::HERO_CASTING);
 			}
 		}
 	}

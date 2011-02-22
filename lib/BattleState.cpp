@@ -1580,13 +1580,13 @@ bool BattleInfo::isInTacticRange( THex dest ) const
 		|| (tacticsSide && dest.getX() < BFIELD_WIDTH - 1 && dest.getX() >= BFIELD_WIDTH - tacticDistance - 1));
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, ECastingMode mode) const
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, SpellCasting::ECastingMode mode) const
 {
 	int side = sides[0] == player ? 0 : 1;
 
 	switch (mode)
 	{
-	case HERO_CASTING:
+	case SpellCasting::HERO_CASTING:
 		{
 			if(castSpells[side] > 0)
 				return SpellCasting::ALREADY_CASTED_THIS_TURN;
@@ -1601,7 +1601,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, ECast
 	return SpellCasting::OK;
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, const CSpell * spell, ECastingMode mode ) const
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, const CSpell * spell, SpellCasting::ECastingMode mode ) const
 {
 	SpellCasting::ESpellCastProblem genProblem = battleCanCastSpell(player, mode);
 	if(genProblem != SpellCasting::OK)
@@ -1654,7 +1654,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	{
 	case CSpell::CREATURE:
 	case CSpell::CREATURE_EXPERT_MASSIVE:
-		if(mode == HERO_CASTING)
+		if(mode == SpellCasting::HERO_CASTING)
 		{
 			const CGHeroInstance * caster = getHero(player);
 			bool targetExists = false;
@@ -1704,7 +1704,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	return SpellCasting::OK;
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int player, const CSpell * spell, ECastingMode mode, THex dest )
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest )
 {
 	SpellCasting::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(player, spell, mode);
 	if(moreGeneralProblem != SpellCasting::OK)
@@ -1721,14 +1721,27 @@ const CGHeroInstance * BattleInfo::getHero( int player ) const
 	return heroes[1];
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CSpell * spell, ECastingMode mode, THex dest ) const
+SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest ) const
 {
+	struct NegateRemover
+	{
+		bool operator()(const Bonus* b)
+		{
+			return b->source == Bonus::CREATURE_ABILITY;
+		}
+	};
 	const CStack * subject = getStackT(dest, false);
-	const CGHeroInstance * caster = mode == HERO_CASTING ? getHero(player) : NULL;
+	const CGHeroInstance * caster = mode == SpellCasting::HERO_CASTING ? getHero(player) : NULL;
 	if(subject)
 	{
+		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
+		{
+			std::remove_if(immunities.begin(), immunities.end(), NegateRemover());
+		}
+
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id)
-			|| ( subject->hasBonusOfType(Bonus::LEVEL_SPELL_IMMUNITY) && subject->valOfBonuses(Bonus::LEVEL_SPELL_IMMUNITY) >= spell->level))
+			|| ( immunities.size() > 0 && immunities.totalValue() >= spell->level))
 		{
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
@@ -1761,6 +1774,61 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CS
 	}
 
 	return SpellCasting::OK;
+}
+
+std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, SpellCasting::ECastingMode mode ) const
+{
+	std::vector<ui32> ret;
+	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+	{
+		if(battleIsImmune(caster->getOwner(), sp, mode, (*it)->position) != SpellCasting::OK)
+		{
+			ret.push_back((*it)->ID);
+			continue;
+		}
+
+		//non-negative spells on friendly stacks should always succeed, unless immune
+		if(sp->positiveness >= 0 && (*it)->owner == casterSideOwner)
+			continue;
+
+		const CGHeroInstance * bonusHero; //hero we should take bonuses from
+		if((*it)->owner == casterSideOwner)
+			bonusHero = caster;
+		else
+			bonusHero = hero2;
+
+		int prob = (*it)->valOfBonuses(Bonus::MAGIC_RESISTANCE); //probability of resistance in %
+		if(bonusHero)
+		{
+			//bonusHero's resistance support (secondary skils and artifacts)
+			prob += bonusHero->valOfBonuses(Bonus::MAGIC_RESISTANCE);
+			//resistance skill
+			prob += bonusHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 26) / 100.0f;
+		}
+
+		if(prob > 100) prob = 100;
+
+		if(rand()%100 < prob) //immunity from resistance
+			ret.push_back((*it)->ID);
+
+	}
+
+	if(sp->id == 60) //hypnotize
+	{
+		for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+		{
+			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft 
+		> 
+		caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
+			)
+			{
+				ret.push_back((*it)->ID);
+			}
+		}
+	}
+
+	return ret;
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
