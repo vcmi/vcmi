@@ -1024,7 +1024,6 @@ void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string &
 		loadToIt (curVal, src, it, 4);
 		if (curVal == 1)
 		{
-			b.val = curVal;
 			b.limiter.reset (new RankRangeLimiter(i));
 			break; //only one limiter here
 		}

@@ -92,7 +92,7 @@ void BonusRule::fireRule()
 				if (!it->first.functor(it->second->object->source, it->first.value)) return;
 			break;
 			case BonusCondition::id:
-				if (!it->first.functor(it->second->object->id, it->first.value)) return;
+				if (!it->first.functor(it->second->object->sid, it->first.value)) return;
 			break;
 			case BonusCondition::valType: //ever needed?
 				if (!it->first.functor(it->second->object->valType, it->first.value)) return;
