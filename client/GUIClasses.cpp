@@ -5720,9 +5720,6 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 :animCount(0)
 {
-	CDefHandler * arrows = CDefHandler::giveDef("ADAG.DEF");
-	alphaTransform(arrows->ourImages[0].bitmap);
-
 	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
 	graphics->blueToPlayersAdv(back, LOCPLINT->playerID);
 	//make transparency black
@@ -5741,23 +5738,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	CGI->mh->terrainRect
 		(grailPos - moveInt, adventureInt->anim,
 		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-		 background, &mapRect, 0, 0, true);
-
-	//printing X sign
-	{
-		int x = 32*moveInt.x - 16,
-			y = 32*moveInt.y + 1;
-		if (x<0 || y<0 || x>pos.w || y>pos.h)
-		{
-		}
-		else
-		{
-			Rect dstRect = genRect(32, 32, x, y);
-			CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[0].bitmap, NULL, background, &dstRect);
-		}
-	}
-
-	delete arrows;
+		 background, &mapRect, 0, 0, true, moveInt);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 

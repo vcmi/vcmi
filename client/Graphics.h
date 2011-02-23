@@ -61,6 +61,7 @@ public:
 	CDefEssential * un44; //many things
 	CDefEssential * smallIcons, *resources32; //resources 32x32
 	CDefEssential * flags;
+	CDefEssential * heroMoveArrows;
 	std::vector<CDefEssential *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	std::map<std::string, CDefEssential*> mapObjectDefs; //pointers to loaded defs (key is filename, uppercase)

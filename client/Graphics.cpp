@@ -319,6 +319,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(abils44,"SECSKILL.DEF");
 	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
+	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
 	std::ifstream ifs(DATA_DIR "/config/cr_bgs.txt"); 
 	int id;
@@ -333,6 +334,11 @@ Graphics::Graphics()
 
 	CThreadHelper th(&tasks,std::max((unsigned int)1,boost::thread::hardware_concurrency()));
 	th.run();
+
+	for(size_t y=0; y < heroMoveArrows->ourImages.size(); ++y)
+	{
+		CSDL_Ext::alphaTransform(heroMoveArrows->ourImages[y].bitmap);
+	}
 
 	//handling 32x32px imgs
 	smi->notFreeImgs = true;

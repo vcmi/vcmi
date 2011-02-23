@@ -421,10 +421,7 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect(int3 top_tile, unsigned char anim,
-	const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap,
-	bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect,
-	int moveX, int moveY, bool puzzleMode) const
+void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel ) const
 {
 	// Width and height of the portion of the map to process. Units in tiles.
 	unsigned int dx = tilesW;
@@ -653,6 +650,15 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim,
 				}
 			}
 			//objects blitted
+
+			//X sign
+			if(puzzleMode)
+			{
+				if(bx == grailPosRel.x && by == grailPosRel.y)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, NULL, extSurf, &sr);
+				}
+			}
 		}
 	}
 	// terrain printed

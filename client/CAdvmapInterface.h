@@ -81,7 +81,6 @@ public:
 	int3 curHoveredTile;
 	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 
-	CDefHandler * arrows;
 	CTerrainRect();
 	~CTerrainRect();
 	CGPath * currentPath;

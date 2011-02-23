@@ -440,16 +440,9 @@ CTerrainRect::CTerrainRect()
 	pos.w=ADVOPT.advmapW;
 	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
-	arrows = CDefHandler::giveDef("ADAG.DEF");
-
-	for(size_t y=0; y < arrows->ourImages.size(); ++y)
-	{
-		CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
-	}
 }
 CTerrainRect::~CTerrainRect()
 {
-	delete arrows;
 }
 void CTerrainRect::activate()
 {
@@ -457,7 +450,7 @@ void CTerrainRect::activate()
 	activateRClick();
 	activateHover();
 	activateMouseMove();
-};
+}
 void CTerrainRect::deactivate()
 {
 	deactivateLClick();
@@ -465,7 +458,7 @@ void CTerrainRect::deactivate()
 	deactivateHover();
 	deactivateMouseMove();
 	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
-};
+}
 void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
 	if ((down==false) || indeterminate(down))
@@ -782,6 +775,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			pn+=25;
 		if (pn>=0)
 		{
+			CDefEssential * arrows = graphics->heroMoveArrows;
 			int x = 32*(currentPath->nodes[i].coord.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
 				y = 32*(currentPath->nodes[i].coord.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
@@ -856,12 +850,12 @@ void CTerrainRect::show(SDL_Surface * to)
 		CGI->mh->terrainRect
 			(adventureInt->position, adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, moveX, moveY, false);
+			 to, &pos, moveX, moveY, false, int3());
 	else
 		CGI->mh->terrainRect
 			(adventureInt->position, adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, 0, 0, false);
+			 to, &pos, 0, 0, false, int3());
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
