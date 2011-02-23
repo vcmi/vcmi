@@ -814,7 +814,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					hero->giveArtifact(curBonus.info2);
 					break;
 				case 4: //spell scroll
-					//TODO
+					{
+						CArtifactInstance * scroll = CArtifactInstance::createScroll(VLC->spellh->spells[curBonus.info2]);
+						scroll->putAt(hero, scroll->firstAvailableSlot(hero));
+					}
 					break;
 				case 5: //prim skill
 					{
@@ -1069,11 +1072,6 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
 			map->addBlockVisTiles(nnn);
-			//give campaign bonus
-			if (scenarioOps->mode == StartInfo::CAMPAIGN && getPlayer(nnn->tempOwner)->human)
-			{
-				HLP::giveCampaignBonusToHero(nnn, scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
-			}
 		}
 	}
 
