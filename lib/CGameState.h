@@ -145,7 +145,6 @@ public:
 
 	PlayerState();
 	std::string nodeName() const OVERRIDE;
-	void deserializationFix();
 
 	//override
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
@@ -371,6 +370,7 @@ public:
 		{
 			loadTownDInfos();
 		}
+		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
 	friend class CCallback;

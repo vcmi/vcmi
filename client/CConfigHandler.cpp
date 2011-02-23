@@ -210,7 +210,8 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 				| str_p("localInformation=") >> (uint_p[assign_a(conf.cc.localInformation)] | eps_p[lerror("Wrong localInformation!")])
 				| str_p("fullscreen=") >> (uint_p[assign_a(conf.cc.fullscreen)] | eps_p[lerror("Wrong fullscreen!")])
 				| str_p("server=") >> ( ( +digit_p >> *('.' >> +digit_p) )[assign_a(conf.cc.server)]   | eps_p[lerror("Wrong server!")])
-				| str_p("defaultAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultAI)] | eps_p[lerror("Wrong defaultAI!")])
+				| str_p("defaultPlayerAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultPlayerAI)] | eps_p[lerror("Wrong defaultAI!")])
+				| str_p("neutralBattleAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultBattleAI)] | eps_p[lerror("Wrong defaultAI!")])
 				| (+(anychar_p - '}'))[lerror2("Unrecognized client option: ")]
 				;
 			clientOptionsSequence = *(clientOption >> (';' | eps_p[lerror("Semicolon lacking after client option!")]));

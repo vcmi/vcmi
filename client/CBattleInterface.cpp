@@ -3334,6 +3334,9 @@ void CBattleInterface::endAction(const BattleAction* action)
 	}
 
 	queue->update();
+
+	if(tacticsMode) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+		redrawBackgroundWithHexes(activeStack);
 }
 
 void CBattleInterface::hideQueue()
@@ -3461,9 +3464,11 @@ void CBattleInterface::waitForAnims()
 
 void CBattleInterface::bEndTacticPhase()
 {
+	btactEnd->block(true);
+	bDefence->block(false);
+	bWait->block(false);
 	BattleAction endt = BattleAction::makeEndOFTacticPhase(curInt->cb->battleGetMySide());
 	curInt->cb->battleMakeTacticAction(&endt);
-	btactEnd->block(true);
 }
 
 void CBattleInterface::bTacticNextStack()

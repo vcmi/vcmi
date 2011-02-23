@@ -386,10 +386,7 @@ void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
-	if(b->propagator)
-		propagateBonus(b);
-	else
-		bonuses.push_back(b);
+	exportBonus(b);
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
@@ -478,7 +475,8 @@ std::string CBonusSystemNode::nodeName() const
 
 void CBonusSystemNode::deserializationFix()
 {
-	tlog2 << "Deserialization fix called on bare CBSN? Shouldn't be...\n";
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		exportBonus(b);
 }
 
 void CBonusSystemNode::getRedParents(TNodes &out)
@@ -565,6 +563,14 @@ void CBonusSystemNode::battleTurnPassed()
 				removeBonus(b);
 		}
 	}
+}
+
+void CBonusSystemNode::exportBonus(Bonus * b)
+{
+	if(b->propagator)
+		propagateBonus(b);
+	else
+		bonuses.push_back(b);
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)

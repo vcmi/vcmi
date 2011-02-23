@@ -33,3 +33,8 @@ extern "C" DLL_F_EXPORT void ReleaseAI(CGlobalAI* i)
 {
 	delete (CGeniusAI*)i;
 }
+
+extern "C" DLL_F_EXPORT CBattleGameInterface* GetNewBattleAI()
+{
+	return new CGeniusAI();
+}

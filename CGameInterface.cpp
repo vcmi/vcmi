@@ -20,7 +20,7 @@
  */
 
 template<typename rett>
-rett * createAnyAI(CCallback * cb, std::string dllname, std::string methodName)
+rett * createAnyAI(std::string dllname, std::string methodName)
 {
 	char temp[50];
 	rett * ret=NULL;
@@ -62,14 +62,14 @@ rett * createAnyAI(CCallback * cb, std::string dllname, std::string methodName)
 	return ret;
 }
 
-CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
+CGlobalAI * CAIHandler::getNewAI(std::string dllname)
 {
-	return createAnyAI<CGlobalAI>(cb, dllname, "GetNewAI");
+	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-CBattleGameInterface * CAIHandler::getNewBattleAI( CCallback * cb, std::string dllname )
+CBattleGameInterface * CAIHandler::getNewBattleAI(std::string dllname )
 {
-	return createAnyAI<CBattleGameInterface>(cb, dllname, "GetNewBattleAI");
+	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
 BattleAction CGlobalAI::activeStack( const CStack * stack )

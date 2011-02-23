@@ -398,7 +398,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			CCallback *cb = new CCallback(gs,color,this);
 			if(!it->second.human) 
 			{
-				playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+				playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(conf.cc.defaultPlayerAI));
 			}
 			else 
 			{
@@ -412,7 +412,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		else
 		{
 			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
-			battleints[color] = CAIHandler::getNewBattleAI(cb,"StupidAI");
+			battleints[color] = CAIHandler::getNewBattleAI("StupidAI");
 			battleints[color]->init(cbc);
 		}
 	}
@@ -428,9 +428,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 	else
 	{
-		playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
-		playerint[255]->init(new CCallback(gs,255,this));
-		battleints[255] = playerint[255];
+		battleints[255] = CAIHandler::getNewBattleAI(conf.cc.defaultBattleAI);
+		battleints[255]->init(new CBattleCallback(gs, 255, this));
+// 		playerint[255]->init(new CCallback(gs,255,this));
+// 		battleints[255] = playerint[255];
 	}
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
@@ -465,16 +466,27 @@ void CClient::serialize( Handler &h, const int version )
 			ui8 pid;
 			h & pid & dllname;
 
-			CCallback *callback = new CCallback(gs,pid,this);
-			callbacks.insert(callback);
+
 			CGameInterface *nInt = NULL;
-
-
 			if(dllname.length())
-				nInt = CAIHandler::getNewAI(callback,dllname);
+			{
+				if(pid == 255)
+				{
+					CBattleCallback * cbc = new CBattleCallback(gs, pid, this);
+					CBattleGameInterface *cbgi = CAIHandler::getNewBattleAI(dllname);
+					battleints[pid] = cbgi;
+					cbgi->init(cb);
+					//TODO? consider serialization 
+					continue;
+				}
+				else
+					nInt = CAIHandler::getNewAI(dllname);
+			}
 			else
 				nInt = new CPlayerInterface(pid);
 
+			CCallback *callback = new CCallback(gs,pid,this);
+			callbacks.insert(callback);
 			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callback);
 			nInt->serialize(h, version);

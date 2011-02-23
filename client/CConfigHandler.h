@@ -23,7 +23,7 @@ namespace config
 		int pregameResx, pregameResy; //real screen resolution of preGame
 		int port, localInformation;
 		std::string server, //server address (e.g. 127.0.0.1)
-			defaultAI; //dll name
+			defaultPlayerAI, defaultBattleAI; //dll names
 	};
 	
 	struct ButtonInfo

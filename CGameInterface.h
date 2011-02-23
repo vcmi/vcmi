@@ -153,8 +153,8 @@ public:
 class CAIHandler
 {
 public:
-	static CGlobalAI * getNewAI(CCallback * cb, std::string dllname);
-	static CBattleGameInterface * getNewBattleAI(CCallback * cb, std::string dllname);
+	static CGlobalAI * getNewAI(std::string dllname);
+	static CBattleGameInterface * getNewBattleAI(std::string dllname);
 };
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {

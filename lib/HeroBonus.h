@@ -55,6 +55,7 @@ namespace PrimarySkill
 	BONUS_NAME(EARTH_SPELL_DMG_PREMY) \
 	BONUS_NAME(FIRE_SPELL_DMG_PREMY) \
 	BONUS_NAME(WATER_SPELL_DMG_PREMY) \
+	BONUS_NAME(BLOCK_SPELLS_ABOVE_LEVEL) \
 	BONUS_NAME(WATER_WALKING) /*subtype 1 - without penalty, 2 - with penalty*/ \
 	BONUS_NAME(NO_SHOTING_PENALTY) /* duplicates NO_DISTANCE_PENALTY or FREE_SHOOTHING?*/\
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
@@ -253,7 +254,7 @@ struct DLL_EXPORT Bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter;
+		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
 	}
 
 	static bool OneDay(const Bonus *hb)
@@ -448,15 +449,16 @@ public:
 	void popBonuses(const CSelector &s);
 	virtual std::string nodeName() const;
 	void deserializationFix();
+	void exportBonus(Bonus * b);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bonuses & nodeType;
+		h & /*bonuses & */nodeType;
 		h & exportedBonuses;
 		h & description;
+		BONUS_TREE_DESERIALIZATION_FIX
 		//h & parents & children;
 	}
-
 	enum ENodeTypes
 	{
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM
