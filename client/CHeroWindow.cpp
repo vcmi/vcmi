@@ -120,7 +120,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	luck = new MoraleLuckBox(false, Rect(233,179,53,45));
 	spellPointsArea = new LRClickableAreaWText(Rect(162,228, 136, 42), CGI->generaltexth->heroscrn[22]);
 
-	for(int i = 0; i < std::min(hero->secSkills.size(), 8u); ++i)
+	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, SComponent::secskill));
