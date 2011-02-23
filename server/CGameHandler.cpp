@@ -3253,6 +3253,21 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			prepareAttack(bat, curStack, destStack, 0);
 			sendAndApply(&bat);
 
+			//ballista & artillery handling
+			if(destStack->alive() && curStack->getCreature()->idNumber == 146)
+			{
+				static const int artilleryLvlToChance[] = {0, 50, 75, 100};
+				const CGHeroInstance * owner = gs->curB->getHero(curStack->owner);
+				int chance = artilleryLvlToChance[owner->getSecSkillLevel(CGHeroInstance::ARTILLERY)];
+				if(chance > (rand() % 100))
+				{
+					BattleAttack bat2;
+					bat2.flags |= 1;
+					prepareAttack(bat2, curStack, destStack, 0);
+					sendAndApply(&bat2);
+				}
+			}
+
 			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
 				&& curStack->alive()
 				&& destStack->alive()

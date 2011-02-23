@@ -3321,9 +3321,11 @@ void CBattleInterface::endAction(const BattleAction* action)
 	}
 
 	//check if we should reverse stacks
-	std::set<const CStack *> stacks;
-	stacks.insert(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
-	stacks.insert(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
+	//for some strange reason, it's not enough
+// 	std::set<const CStack *> stacks;
+// 	stacks.insert(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
+// 	stacks.insert(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
+	TStacks stacks = curInt->cb->battleGetStacks(IBattleCallback::MINE_AND_ENEMY);
 
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
