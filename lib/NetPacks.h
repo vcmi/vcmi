@@ -1240,17 +1240,19 @@ struct BattleStackAttacked : public CPackForClient//3005
 
 	ui32 stackAttacked, attackerID;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown;
-	ui32 effect; //set only if flag 2 is present
+	enum EFlags {KILLED = 1, EFFECT = 2};
+	ui8 flags; //uses EFlags (above)
+	ui32 effect; //set only if flag EFFECT is set
 	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
+
 
 	bool killed() const//if target stack was killed
 	{
-		return flags & 1;
+		return flags & KILLED;
 	}
 	bool isEffect() const//if stack has been attacked by a spell
 	{
-		return flags & 2;
+		return flags & EFFECT;
 	}
 	bool lifeDrain() const //if this attack involves life drain effect
 	{
@@ -1276,24 +1278,29 @@ struct BattleAttack : public CPackForClient//3006
 
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
-	ui8 flags;
+	ui8 flags; //usues Eflags (below)
+	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16};
 
 	bool shot() const//distance attack - decrease number of shots
 	{
-		return flags & 1;
+		return flags & SHOT;
 	}
 	bool counter() const//is it counterattack?
 	{
-		return flags & 2;
+		return flags & COUNTER;
 	}
 	bool lucky() const
 	{
-		return flags & 4;
+		return flags & LUCKY;
 	}
 	bool unlucky() const
 	{
 		//TODO: support?
-		return flags & 8;
+		return flags & UNLUCKY;
+	}
+	bool ballistaDoubleDmg() const //if it's ballista attack and does double dmg
+	{
+		return flags & BALLISTA_DOUBLE_DMG;
 	}
 	//bool killed() //if target stack was killed
 	//{

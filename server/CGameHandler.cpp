@@ -520,11 +520,21 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if(!noLuck && attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
 	{
-		bsa->damageAmount *= 2;
-		bat.flags |= 4;
+		bat.flags |= BattleAttack::LUCKY;
 	}
 
-	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky());//counting dealt damage
+	if(att->getCreature()->idNumber == 146)
+	{
+		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
+		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
+		int chance = artilleryLvlToChance[owner->getSecSkillLevel(CGHeroInstance::ARTILLERY)];
+		if(chance > rand() % 100)
+		{
+			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
+		}
+	}
+
+	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.ballistaDoubleDmg());//counting dealt damage
 	
 	
 	int dmg = bsa->damageAmount;
@@ -559,7 +569,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		BattleStackAttacked *bsa = &bat.bsa.back();
 		bsa->stackAttacked = att->ID;
 		bsa->attackerID = def->ID;
-		bsa->flags |= 2;
+		bsa->flags |= BattleStackAttacked::EFFECT;
 		bsa->effect = 11;
 
 		bsa->damageAmount = (dmg * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
@@ -3212,7 +3222,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& !stackAtEnd->hasBonusOfType(Bonus::HYPNOTIZED))
 			{
 				prepareAttack(bat, stackAtEnd, curStack, 0);
-				bat.flags |= 2;
+				bat.flags |= BattleAttack::COUNTER;
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
@@ -3248,23 +3258,17 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&StartAction(ba)); //start shooting
 
 			BattleAttack bat;
-			bat.flags |= 1;
+			bat.flags |= BattleAttack::SHOT;
 			prepareAttack(bat, curStack, destStack, 0);
 			sendAndApply(&bat);
 
 			//ballista & artillery handling
 			if(destStack->alive() && curStack->getCreature()->idNumber == 146)
 			{
-				static const int artilleryLvlToChance[] = {0, 50, 75, 100};
-				const CGHeroInstance * owner = gs->curB->getHero(curStack->owner);
-				int chance = artilleryLvlToChance[owner->getSecSkillLevel(CGHeroInstance::ARTILLERY)];
-				if(chance > (rand() % 100))
-				{
-					BattleAttack bat2;
-					bat2.flags |= 1;
-					prepareAttack(bat2, curStack, destStack, 0);
-					sendAndApply(&bat2);
-				}
+				BattleAttack bat2;
+				bat2.flags |= BattleAttack::SHOT;
+				prepareAttack(bat2, curStack, destStack, 0);
+				sendAndApply(&bat2);
 			}
 
 			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
@@ -3621,7 +3625,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 					continue;
 
 				BattleStackAttacked bsa;
-				bsa.flags |= 2;
+				bsa.flags |= BattleStackAttacked::EFFECT;
 				bsa.effect = spell->mainEffectAnim;
 				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 				bsa.stackAttacked = (*it)->ID;

@@ -383,7 +383,7 @@ std::pair< std::vector<THex>, int > BattleInfo::getPath(THex start, THex dest, b
 	return std::make_pair(path, dist[dest]);
 }
 
-TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky ) const
+TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool ballistaDoubleDmg ) const
 {
 	float additiveBonus=1.0f, multBonus=1.0f,
 		minDmg = attacker->getMinDamage() * attackerCount, 
@@ -528,6 +528,12 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 		additiveBonus += 1.0f;
 	}
 
+	//ballista double dmg
+	if(ballistaDoubleDmg)
+	{
+		additiveBonus += 1.0f;
+	}
+
 	//handling spell effects
 	if(!shooting && defender->hasBonusOfType(Bonus::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
 	{
@@ -599,14 +605,14 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	return returnedVal;
 }
 
-TDmgRange BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky) const
+TDmgRange BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool ballistaDoubleDmg) const
 {
-	return calculateDmgRange(attacker, defender, attacker->count, defender->count, attackerHero, defendingHero, shooting, charge, lucky);
+	return calculateDmgRange(attacker, defender, attacker->count, defender->count, attackerHero, defendingHero, shooting, charge, lucky, ballistaDoubleDmg);
 }
 
-ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky )
+ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool ballistaDoubleDmg )
 {
-	TDmgRange range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky);
+	TDmgRange range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge, lucky, ballistaDoubleDmg);
 
 	if(range.first != range.second)
 	{
@@ -2215,7 +2221,7 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 	if(count <= bsa.killedAmount) //stack killed
 	{
 		bsa.newAmount = 0;
-		bsa.flags |= 1;
+		bsa.flags |= BattleStackAttacked::KILLED;
 		bsa.killedAmount = count; //we cannot kill more creatures than we have
 	}
 	else
