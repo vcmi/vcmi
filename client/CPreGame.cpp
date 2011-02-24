@@ -837,7 +837,7 @@ void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirna
 	for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
 	{
 		if(fs::is_regular_file(file->status())
-			&& boost::ends_with(file->path().filename(), ext))
+			&& boost::ends_with(file->path().filename().string(), ext))
 		{
 			std::time_t date = 0;
 			try

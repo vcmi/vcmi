@@ -45,7 +45,7 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 		for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
 		{
 			if(fs::is_regular_file(file->status())
-				&& boost::ends_with(file->path().filename(), ext))
+				&& boost::ends_with(file->path().filename().string(), ext))
 			{
 				ret.push_back( getHeader( file->path().string(), false ) );
 			}

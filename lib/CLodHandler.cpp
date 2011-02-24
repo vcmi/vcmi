@@ -300,7 +300,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 			if(boost::filesystem::is_regular(dir->status()))
 			{
 				Entry e;
-				e.realName = dir->path().leaf();
+				e.realName = dir->path().leaf().string();
 				initEntry(e, e.realName);
 
 				if(vstd::contains(entries, e)) //file present in .lod - overwrite its entry
