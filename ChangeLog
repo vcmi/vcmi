@@ -1,3 +1,16 @@
+0.83 -> 0.84 (Mar 01 2011)
+GENERAL:
+* Bonus system has been rewritten
+* Support for new artifacts (spell scrolls, angelic alliance)
+* Preliminary support for stack experience (no UI yet)
+* Partial support for running VCMI in duel mode (no adventure map, only one battle)
+
+BATTLES:
+* Support for eagle eye, tactics and artillery secondary skills (together with corresponding artifacts)
+* Defensive stance is supported
+* New, improved AI for neutral player
+
+
 0.82 -> 0.83 (Nov 01 2010)
 GENERAL:
 * Alliances support
