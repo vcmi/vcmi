@@ -1373,7 +1373,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	{
 		if(is_regular(dir->status()))
 		{
-			std::string name = dir->path().leaf().string();
+			std::string name = dir->path().leaf();
 			if(starts_with(name, namePrefix) && ends_with(name, ".vlgm1"))
 			{
 				char nr = name[namePrefix.size()];
