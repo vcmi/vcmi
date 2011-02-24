@@ -26,7 +26,7 @@
 
 #include "ConstTransitivePtr.h"
 
-const ui32 version = 727;
+const ui32 version = 728;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
