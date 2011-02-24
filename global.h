@@ -431,7 +431,7 @@ namespace vstd
 	template <typename Item, size_t N>
 	bool contains(const Item (&c)[N], const Item &i) //returns true if given array contains item i
 	{
-		return std::find(c, c+N, i) != c+N;
+		return std::find(c, c+N, i) != c+N; //TODO: find out why template is not resolved
 	}
 	template <typename Container1, typename Container2>
 	typename Container2::iterator findFirstNot(Container1 &c1, Container2 &c2)//returns first element of c2 not present in c1
