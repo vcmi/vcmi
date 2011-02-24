@@ -1070,6 +1070,11 @@ void CInfoBar::newDay(int Day)
 
 void CInfoBar::showComp(SComponent * comp, int time)
 {
+	if(comp->type != SComponent::hero)
+	{
+		curSel = NULL;
+	}
+
 	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
 	blitAt(comp->getImg(),pos.x+52,pos.y+54);
@@ -1126,6 +1131,10 @@ void CInfoBar::deactivate()
 
 void CInfoBar::updateSelection(const CGObjectInstance *obj)
 {
+	if(obj->ID == HEROI_TYPE)
+		curSel = static_cast<const CGHeroInstance*>(obj);
+	else
+		curSel = NULL;
 	if(selInfoWin)
 		SDL_FreeSurface(selInfoWin);
 	selInfoWin = LOCPLINT->infoWin(obj);

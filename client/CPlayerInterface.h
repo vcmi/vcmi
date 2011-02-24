@@ -234,7 +234,7 @@ public:
 
 	//-------------//
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
-	void garrisonChanged(const CGObjectInstance * obj);
+	void garrisonChanged(const CGObjectInstance * obj, bool updateInfobox = true);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)

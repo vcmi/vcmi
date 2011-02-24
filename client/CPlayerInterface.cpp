@@ -505,10 +505,11 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	openTownWindow(town);
 }
-void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
+void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updateInfobox /*= true*/ )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	updateInfo(obj);
+	if(updateInfobox)
+		updateInfo(obj);
 
 	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
@@ -2148,12 +2149,13 @@ void CPlayerInterface::stacksErased(const StackLocation &location)
 	garrisonChanged(location.army);
 }
 
+#define UPDATE_IF(LOC) static_cast<const CArmedInstance*>(adventureInt->infoBar.curSel) == LOC.army.get()
 void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	garrisonChanged(loc1.army);
+	garrisonChanged(loc1.army, UPDATE_IF(loc1));
 	if(loc2.army != loc1.army)
-		garrisonChanged(loc2.army);
+		garrisonChanged(loc2.army, UPDATE_IF(loc2));
 }
 
 void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
@@ -2165,10 +2167,12 @@ void CPlayerInterface::newStackInserted(const StackLocation &location, const CSt
 void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	garrisonChanged(src.army);
+	bool updateInfobox = true;
+	garrisonChanged(src.army, UPDATE_IF(src));
 	if(dst.army != src.army)
-		garrisonChanged(dst.army);
+		garrisonChanged(dst.army, UPDATE_IF(dst));
 }
+#undef UPDATE_IF
 
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {

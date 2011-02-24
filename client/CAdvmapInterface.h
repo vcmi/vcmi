@@ -120,12 +120,14 @@ public:
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
 {
-public:
 	CDefHandler *day, *week1, *week2, *week3, *week4;
 	SComponent * current;
-	int mode;
 	int pom;
 	SDL_Surface *selInfoWin; //info box for selection
+	CDefHandler * getAnim(int mode);
+public:
+	int mode;
+	const CGHeroInstance * curSel;
 
 	CInfoBar();
 	~CInfoBar();
@@ -134,7 +136,7 @@ public:
 	void tick();
 	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town
 	void blitAnim(int mode);//0 - day, 1 - week
-	CDefHandler * getAnim(int mode);
+
 	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
