@@ -44,6 +44,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/RegisterTypes.cpp"
 #include <boost/thread/recursive_mutex.hpp>
+#include "../CThreadHelper.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -681,6 +682,7 @@ void CSelectionScreen::difficultyChange( int to )
 
 void CSelectionScreen::handleConnection()
 {
+	setThreadName(-1, "CSelectionScreen::handleConnection");
 	try
 	{
 		assert(serv);

@@ -19,7 +19,7 @@
 typedef boost::function<void()> Task;
 
 /// Can assign CPU work to other threads/cores
-class CThreadHelper
+class DLL_EXPORT CThreadHelper
 {
 	boost::mutex rtinm;
 	int currentTask, amount, threads;
@@ -37,6 +37,7 @@ template <typename T> inline void setData(T * data, boost::function<T()> func)
 	*data = func();
 }
 
+void DLL_EXPORT setThreadName(long threadID, const std::string &name);
 
 #define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
 	(boost::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))

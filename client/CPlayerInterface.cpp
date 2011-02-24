@@ -105,7 +105,7 @@ CPlayerInterface::CPlayerInterface(int Player)
 	human=true;
 	castleInt = NULL;
 	battleInt = NULL;
-	pim = new boost::recursive_mutex;
+	//pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	sysOpts = GDefaultOptions;
@@ -122,7 +122,8 @@ CPlayerInterface::CPlayerInterface(int Player)
 CPlayerInterface::~CPlayerInterface()
 {
 	howManyPeople--;
-	delete pim;
+	//delete pim;
+	delNull(pim);
 	delete showingDialog;
 	delete mainFPSmng;
 	if(adventureInt)
@@ -2210,6 +2211,8 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
 				aoh->artifactDisassembled(al);
 }
+
+boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
 {

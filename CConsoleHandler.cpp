@@ -4,6 +4,7 @@
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 #include <iomanip>
+#include "CThreadHelper.h"
 
 /*
 * CConsoleHandler.cpp, part of VCMI engine
@@ -182,12 +183,14 @@ void CConsoleHandler::setColor(int level)
 
 int CConsoleHandler::run()
 {
+	setThreadName(-1, "CConsoleHandler::run");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	std::ios::sync_with_stdio(false);
 	std::string buffer;
 
 	while ( std::cin.good() )
 	{
+#ifndef _WIN32
 		//check if we have some unreaded symbols
 		if (std::cin.rdbuf()->in_avail())
 		{
@@ -199,6 +202,11 @@ int CConsoleHandler::run()
 			boost::this_thread::sleep(boost::posix_time::millisec(100));
 
 		boost::this_thread::interruption_point();
+#else
+		std::getline(std::cin, buffer);
+		if ( cb && *cb )
+			(*cb)(buffer);
+#endif
 	}
 	return -1;
 }
@@ -228,8 +236,13 @@ CConsoleHandler::~CConsoleHandler()
 }
 void CConsoleHandler::end()
 {
-	if (thread) {
+	if (thread) 
+	{
+#ifndef _WIN32
 		thread->interrupt();
+#else
+		TerminateThread(thread->native_handle(),0);
+#endif
 		thread->join();
 		delete thread;
 		thread = NULL;

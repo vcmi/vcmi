@@ -31,10 +31,11 @@
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 #include "CPreGame.h"
+#include "CBattleInterface.h"
+#include "../CThreadHelper.h"
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
-#include "CBattleInterface.h"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
 
@@ -127,6 +128,7 @@ void CClient::waitForMoveAndSend(int color)
 
 void CClient::run()
 {
+	setThreadName(-1, "CClient::run");
 	try
 	{
 		CPack *pack = NULL;
@@ -648,6 +650,7 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::callServer()
 {
+	setThreadName(-1, "CServerHandler::callServer");
 	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > server_log.txt";
 	std::system(comm.c_str());
 	tlog0 << "Server finished\n";

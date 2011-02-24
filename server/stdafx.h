@@ -23,3 +23,8 @@
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 
+#include <boost/format.hpp>
+#include <sstream>
+#include <boost/format.hpp>
+#include <sstream>
+#include "../CThreadHelper.h"

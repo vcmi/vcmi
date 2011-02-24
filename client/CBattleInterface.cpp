@@ -3376,10 +3376,13 @@ void CBattleInterface::startAction(const BattleAction* action)
 		if(active)
 		{
 			tacticsMode = false;
-			btactEnd->deactivate();
-			btactNext->deactivate();
-			bConsoleDown->activate();
-			bConsoleUp->activate();
+			if(btactEnd && btactNext) //if the other side had tactics, there are no buttons
+			{
+				btactEnd->deactivate();
+				btactNext->deactivate();
+				bConsoleDown->activate();
+				bConsoleUp->activate();
+			}
 		}
 		redraw();
 
@@ -3473,9 +3476,15 @@ void CBattleInterface::bEndTacticPhase()
 	curInt->cb->battleMakeTacticAction(&endt);
 }
 
+static bool immobile(const CStack *s)
+{
+	return !s->Speed();
+}
+
 void CBattleInterface::bTacticNextStack()
 {
 	TStacks stacksOfMine = curInt->cb->battleGetStacks(IBattleCallback::ONLY_MINE);
+	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile));
 	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
 		stackActivated(*it);

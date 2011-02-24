@@ -119,7 +119,7 @@ public:
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 
-	boost::recursive_mutex *pim;
+	static boost::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
 	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
 	int autosaveCount;

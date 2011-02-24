@@ -5401,14 +5401,14 @@ void CExchangeWindow::show(SDL_Surface * to)
 	artifs[0]->showAll(to);
 	artifs[1]->showAll(to);
 
-	ourBar->show(to);
+	ourBar->showAll(to);
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
 	{
-		questlogButton[g]->show(to);//FIXME: for array count(secondary skill) show quest log button? WTF?
+		questlogButton[g]->showAll(to);//FIXME: for array count(secondary skill) show quest log button? WTF?
 	}
 
-	garr->show(to);
+	garr->showAll(to);
 }
 
 void CExchangeWindow::questlog(int whichHero)

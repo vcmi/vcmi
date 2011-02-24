@@ -23,7 +23,7 @@
 	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
-#define BONUS_LOG_LINE(x) tlog0 << x << std::endl
+#define BONUS_LOG_LINE(x) tlog5 << x << std::endl
 
 int DLL_EXPORT BonusList::totalValue() const
 {

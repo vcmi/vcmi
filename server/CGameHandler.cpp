@@ -20,8 +20,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
-#include <boost/format.hpp>
-#include <sstream>
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -571,6 +569,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
+	setThreadName(-1, "CGameHandler::handleConnection");
 	srand(time(NULL));
 	CPack *pack = NULL;
 	try

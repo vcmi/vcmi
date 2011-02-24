@@ -8,6 +8,7 @@
 #include "CCursorHandler.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
+#include "../CThreadHelper.h"
 /*
  * GUIBase.cpp, part of VCMI engine
  *
@@ -373,6 +374,7 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::run()
 {
+	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
 		while(!terminate)
