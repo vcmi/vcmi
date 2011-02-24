@@ -9,6 +9,8 @@
 using boost::logic::tribool;
 #include <boost/cstdint.hpp>
 #include <assert.h>
+//filesystem version 3 causes problems (and it's default as of boost 1.46)
+#define BOOST_FILESYSTEM_VERSION 2
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
 typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
 typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
@@ -425,6 +427,11 @@ namespace vstd
 	bool contains(const boost::unordered_set<Item> & c, const Item &i) //returns true if unordered set c contains item i
 	{
 		return c.find(i)!=c.end();
+	}
+	template <typename Item, size_t N>
+	bool contains(const Item (&c)[N], const Item &i) //returns true if given array contains item i
+	{
+		return std::find(c, c+N, i) != c+N;
 	}
 	template <typename Container1, typename Container2>
 	typename Container2::iterator findFirstNot(Container1 &c1, Container2 &c2)//returns first element of c2 not present in c1

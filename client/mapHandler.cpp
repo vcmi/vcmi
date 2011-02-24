@@ -532,8 +532,10 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 				if(obj->ID != HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
 					continue;
 
+				static const int notBlittedInPuzzleMode[] = {124};
+
 				//don't print flaggable objects in puzzle mode
-				if(puzzleMode && obj->tempOwner != 254)
+				if(puzzleMode && (obj->isVisitable() || vstd::contains(notBlittedInPuzzleMode, obj->ID)))
 					continue;
 
  				SDL_Rect sr2(sr); 

@@ -518,6 +518,18 @@ int3 CGObjectInstance::visitablePos() const
 	return pos - getVisitableOffset();
 }
 
+bool CGObjectInstance::isVisitable() const
+{
+	for(int g=0; g<ARRAY_COUNT(defInfo->visitMap); ++g)
+	{
+		if(defInfo->visitMap[g] != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->Slots().size())
