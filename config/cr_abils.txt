@@ -184,6 +184,7 @@
 + 151 DRAGON_NATURE 0 0 0			//diamond dragon is a dragon
 + 154 DRAGON_NATURE 0 0 0			//blood dragon is a dragon
 + 155 DRAGON_NATURE 0 0 0			//darkness dragon is a dragon
++ 168 FLYING 0 0 0					//Gorynyches fly
 -  46 FLYING		  				//hell hound doesn't fly
 -  47 FLYING			  			//cerberus doesn't fly
 - 120 DOUBLE_WIDE					//psychic elemental
