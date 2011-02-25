@@ -612,6 +612,7 @@ public:
 	bool addBonusIfBuilt(int building, int type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
+	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 // 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 // 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////

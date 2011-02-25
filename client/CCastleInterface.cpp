@@ -385,7 +385,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	winMode = 1;
 
 	//garrison
-	garr = new CGarrisonInt(pos.x+305,pos.y+387,4,Point(0,96),townInt,Point(62,374),town,town->visitingHero);
+	garr = new CGarrisonInt(pos.x+305,pos.y+387,4,Point(0,96),townInt,Point(62,374),town->getUpperArmy(),town->visitingHero);
 
 	townlist = new CTownList(3,pos.x+744,pos.y+414,"IAM014.DEF","IAM015.DEF");//744,526);
 	exit = new AdventureMapButton

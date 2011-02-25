@@ -1009,7 +1009,7 @@ InfoAboutTown::~InfoAboutTown()
 void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
 {
 	obj = t;
-	army = ArmyDescriptor(t, detailed);
+	army = ArmyDescriptor(t->getUpperArmy(), detailed);
 	built = t->builded;
 	fortLevel = t->fortLevel();
 	name = t->name;

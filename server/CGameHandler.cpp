@@ -2306,7 +2306,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 	//TODO: test for owning
 
 	if(dw->ID == TOWNI_TYPE)
-		dst = dw;
+		dst = (static_cast<const CGTownInstance *>(dw))->getUpperArmy();
 	else if(dw->ID == 17  ||  dw->ID == 20  ||  dw->ID == 78) //advmap dwelling
 		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
 	else if(dw->ID == 106)

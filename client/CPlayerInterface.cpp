@@ -123,7 +123,7 @@ CPlayerInterface::~CPlayerInterface()
 {
 	howManyPeople--;
 	//delete pim;
-	delNull(pim);
+	//delNull(pim);
 	delete showingDialog;
 	delete mainFPSmng;
 	if(adventureInt)
@@ -481,19 +481,13 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		wanderingHeroes.push_back(town->visitingHero);
 	}
 
-	//adventureInt->heroList.updateHList();
-
-	CCastleInterface *c = castleInt;
-	if(c)
+	if(CCastleInterface *c = castleInt)
 	{
 		c->garr->highlighted = NULL;
 		c->hslotup.hero = town->garrisonHero;
 		c->hslotdown.hero = town->visitingHero;
-		const CArmedInstance *upperArmy = town;
-		if(town->garrisonHero)
-			upperArmy = town->garrisonHero;
 
-		c->garr->setArmy(upperArmy, 0);
+		c->garr->setArmy(town->getUpperArmy(), 0);
 		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
 	}

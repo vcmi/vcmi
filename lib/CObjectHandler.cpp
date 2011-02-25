@@ -2399,6 +2399,13 @@ CBonusSystemNode * CGTownInstance::whatShouldBeAttached()
 	return &townAndVis;
 }
 
+const CArmedInstance * CGTownInstance::getUpperArmy() const
+{
+	if(garrisonHero)
+		return garrisonHero;
+	return this;
+}
+
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())

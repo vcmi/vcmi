@@ -3484,7 +3484,7 @@ static bool immobile(const CStack *s)
 void CBattleInterface::bTacticNextStack()
 {
 	TStacks stacksOfMine = curInt->cb->battleGetStacks(IBattleCallback::ONLY_MINE);
-	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile));
+	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile), stacksOfMine.end());
 	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
 		stackActivated(*it);

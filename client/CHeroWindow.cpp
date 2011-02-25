@@ -176,7 +176,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		AdventureMapButton * split = NULL;
 		{
 			BLOCK_CAPTURING;
-			split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), 604, 527, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
+			split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x + 539, pos.y + 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
 			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 		}
 		//delete garr;
