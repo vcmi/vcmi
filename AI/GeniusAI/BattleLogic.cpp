@@ -519,7 +519,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		std::vector<THex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false, false);
+		std::vector<THex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
 
 		if(fields.size() == 0)
 		{

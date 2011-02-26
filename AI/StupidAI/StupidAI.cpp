@@ -101,7 +101,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called");
-	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false, false);
+	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
@@ -248,7 +248,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, THex hex)
 	}
 
 	dists = cb->battleGetDistances(stack, realDest, predecessors);
-	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false, false);
+	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
 	while(1)
 	{
