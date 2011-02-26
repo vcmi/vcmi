@@ -90,7 +90,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	static bool isAccessible(THex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
 	void makeBFS(THex start, bool*accessibility, THex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<THex>, int > getPath(THex start, THex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	std::vector<THex> getAccessibility(const CStack * stack, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
+	std::vector<THex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 

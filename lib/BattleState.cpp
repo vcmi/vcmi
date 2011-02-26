@@ -270,7 +270,7 @@ void BattleInfo::makeBFS(THex start, bool *accessibility, THex *predecessor, int
 	}
 };
 
-std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOccupiable) const
+std::vector<THex> BattleInfo::getAccessibility( const CStack * stack, bool addOccupiable, std::vector<THex> * attackable ) const
 {
 	std::vector<THex> ret;
 	bool ac[BFIELD_SIZE];
@@ -327,6 +327,48 @@ std::vector<THex> BattleInfo::getAccessibility(const CStack * stack, bool addOcc
 			)
 		{
 			ret.push_back(i);
+		}
+	}
+
+	if(attackable)
+	{
+		struct HLP
+		{
+			static bool meleeAttackable(THex hex, const std::vector<THex> & baseRng)
+			{
+				BOOST_FOREACH(THex h, baseRng)
+				{
+					if(THex::mutualPosition(h, hex) > 0)
+						return true;
+				}
+
+				return false;
+			}
+		};
+		BOOST_FOREACH(const CStack * otherSt, stacks)
+		{
+			if(otherSt->owner == stack->owner)
+				continue;
+
+			std::vector<THex> occupiedBySecond;
+			occupiedBySecond.push_back(otherSt->position);
+			if(otherSt->doubleWide())
+				occupiedBySecond.push_back(otherSt->occupiedHex());
+
+			if(battleCanShoot(stack, otherSt->position))
+			{
+				attackable->insert(attackable->end(), occupiedBySecond.begin(), occupiedBySecond.end());
+
+				continue;
+			}
+			
+
+			BOOST_FOREACH(THex he, occupiedBySecond)
+			{
+				if(HLP::meleeAttackable(he, ret))
+					attackable->push_back(he);
+			}
+				
 		}
 	}
 

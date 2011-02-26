@@ -570,7 +570,7 @@ void CBattleCallback::getStackQueue( std::vector<const CStack *> &out, int howMa
 	gs->curB->getStackQueue(out, howMany);
 }
 
-std::vector<THex> CBattleCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable)
+std::vector<THex> CBattleCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
@@ -578,7 +578,7 @@ std::vector<THex> CBattleCallback::battleGetAvailableHexes(const CStack * stack,
 		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
 		return std::vector<THex>();
 	}
-	return gs->curB->getAccessibility(stack, addOccupiable);
+	return gs->curB->getAccessibility(stack, addOccupiable, attackable);
 	//return gs->battleGetRange(ID);
 }
 

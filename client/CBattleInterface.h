@@ -414,7 +414,8 @@ private:
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
-	std::vector<THex> shadedHexes; //hexes available for active stack
+	std::vector<THex> occupyableHexes, //hexes available for active stack
+		attackableHexes; //hexes attackable by active stack
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group

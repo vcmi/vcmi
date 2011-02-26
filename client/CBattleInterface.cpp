@@ -1804,7 +1804,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		else
 		{
-			if(std::find(shadedHexes.begin(),shadedHexes.end(),myNumber) == shadedHexes.end())
+			if(std::find(occupyableHexes.begin(),occupyableHexes.end(),myNumber) == occupyableHexes.end())
 			{
 				const CStack *shere = curInt->cb->battleGetStackByPos(myNumber);
 				const CStack *sactive = activeStack;
@@ -1881,7 +1881,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 						// Exclude directions which cannot be attacked from.
 						// Check to the left.
-						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - 1)) 
+						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - 1)) 
 						{
 							sectorCursor[0] = -1;
 						}
@@ -1898,13 +1898,13 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							{
 								bool attackRow[4] = {true, true, true, true};
 
-								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
+								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
 									attackRow[0] = false;
-								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
 									attackRow[1] = false;
-								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
 									attackRow[2] = false;
-								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + 1 + zigzagCorrection))
+								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + 1 + zigzagCorrection))
 									attackRow[3] = false;
 
 								if (!(attackRow[0] && attackRow[1]))
@@ -1916,14 +1916,14 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							}
 							else
 							{
-								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
 									sectorCursor[1] = -1;
-								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
 									sectorCursor[2] = -1;
 							}
 						}
 						// Check to the right.
-						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + 1))
+						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + 1))
 						{
 							sectorCursor[3] = -1;
 						}
@@ -1940,13 +1940,13 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							{
 								bool attackRow[4] = {true, true, true, true};
 
-								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
+								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
 									attackRow[0] = false;
-								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
 									attackRow[1] = false;
-								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
 									attackRow[2] = false;
-								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + 1 + zigzagCorrection))
+								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + 1 + zigzagCorrection))
 									attackRow[3] = false;
 
 								if (!(attackRow[0] && attackRow[1]))
@@ -1958,9 +1958,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							} 
 							else 
 							{
-								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
 									sectorCursor[4] = -1;
-								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
 									sectorCursor[5] = -1;
 							}
 						}
@@ -2389,9 +2389,9 @@ void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 addit
 
 bool CBattleInterface::isTileAttackable(const THex & number) const
 {
-	for(size_t b=0; b<shadedHexes.size(); ++b)
+	for(size_t b=0; b<occupyableHexes.size(); ++b)
 	{
-		if(THex::mutualPosition(shadedHexes[b], number) != -1 || shadedHexes[b] == number)
+		if(THex::mutualPosition(occupyableHexes[b], number) != -1 || occupyableHexes[b] == number)
 			return true;
 	}
 	return false;
@@ -2497,7 +2497,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		{
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
-				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
+				if(std::find(occupyableHexes.begin(),occupyableHexes.end(),whichOne)!=occupyableHexes.end())// and it's in our range
 				{
 					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 					if(activeStack->doubleWide())
@@ -2536,16 +2536,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 						bool doubleWide = actStack->doubleWide();
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ) +
 							(actStack->attackerOwned && doubleWide ? 1 : 0);
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -2553,16 +2553,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 				case 7: //from bottom left
 					{
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH );
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -2586,16 +2586,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 				case 9: //from top left
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -2605,16 +2605,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 						bool doubleWide = actStack->doubleWide();
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ) +
 							(actStack->attackerOwned && doubleWide ? 1 : 0);
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -2638,16 +2638,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 				case 13: //from bottom
 					{
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -2655,16 +2655,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 				case 14: //from top
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
-						if(vstd::contains(shadedHexes, destHex))
+						if(vstd::contains(occupyableHexes, destHex))
 							attackFromHex = destHex;
 						else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
 						{
-							if(vstd::contains(shadedHexes, destHex+1))
+							if(vstd::contains(occupyableHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
 						else //if we are defender
 						{
-							if(vstd::contains(shadedHexes, destHex-1))
+							if(vstd::contains(occupyableHexes, destHex-1))
 								attackFromHex = destHex-1;
 						}
 						break;
@@ -3207,7 +3207,8 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 
 void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 {
-	shadedHexes = curInt->cb->battleGetAvailableHexes(activeStack, true);
+	attackableHexes.clear();
+	occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
@@ -3216,10 +3217,12 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 
 	if(curInt->sysOpts.printStackRange)
 	{
-		for(size_t m=0; m<shadedHexes.size(); ++m) //rows
+		std::vector<THex> hexesToShade = occupyableHexes;
+		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
+		BOOST_FOREACH(THex hex, hexesToShade)
 		{
-			int i = shadedHexes[m]/BFIELD_WIDTH; //row
-			int j = shadedHexes[m]%BFIELD_WIDTH-1; //column
+			int i = hex.getY(); //row
+			int j = hex.getX()-1; //column
 			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 			int y = 86 + 42 * i;
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));

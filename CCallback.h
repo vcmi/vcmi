@@ -93,7 +93,7 @@ public:
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true)=0; //returns stacks on battlefield
 	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
-	virtual std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable)=0; //returns numbers of hexes reachable by creature with id ID
+	virtual std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL)=0; //returns numbers of hexes reachable by creature with id ID
 	virtual std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL)=0; //returns vector of distances to [dest hex number]
 	virtual bool battleCanShoot(const CStack * stack, THex dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
@@ -231,7 +231,7 @@ public:
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) OVERRIDE; //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ) OVERRIDE; //returns vector of stack in order of their move sequence
-	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable) OVERRIDE; //reutrns numbers of hexes reachable by creature with id ID
+	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL) OVERRIDE; //returns numbers of hexes reachable by creature with id ID
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL) OVERRIDE; //returns vector of distances to [dest hex number]; if predecessors is not null, it must point to BFIELD_SIZE * sizeof(int) of allocated memory
 	bool battleCanShoot(const CStack * stack, THex dest) OVERRIDE; //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell() OVERRIDE; //returns true, if caller can cast a spell
