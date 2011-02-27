@@ -312,15 +312,17 @@ class BonusList : public std::list<Bonus*>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source = NULL) const;
-	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source = NULL) const;
+	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
+
+	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector) const;
 
 	//special find functions
 	DLL_EXPORT Bonus * getFirst(const CSelector &select);
 	DLL_EXPORT const Bonus * getFirst(const CSelector &select) const;
 
 	void limit(const CBonusSystemNode &node); //erases bonuses using limitor
+	void DLL_EXPORT eliminateDuplicates();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -385,20 +387,17 @@ public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
-	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-
-	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
-
-	//////////////////////////////////////////////////////////////////////////
 	//interface
+	void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; 
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; //as above but without duplicates
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector) const;
 	int valOfBonuses(const CSelector &selector) const;
 	bool hasBonus(const CSelector &selector) const;
 	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	BonusList getBonuses(const CSelector &selector) const;
+	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
@@ -446,6 +445,7 @@ public:
 
 	void battleTurnPassed(); //updates count of remaining turns and removed outdated bonuses
 	void popBonuses(const CSelector &s);
+	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 	void deserializationFix();
 	void exportBonus(Bonus * b);

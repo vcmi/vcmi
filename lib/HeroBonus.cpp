@@ -113,23 +113,31 @@ void DLL_EXPORT BonusList::getModifiersWDescr(TModDescr &out) const
 		out.push_back(std::make_pair(i->val, i->Description()));
 }
 
-void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *source /*= NULL*/) const
+void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector) const
 {
-	BOOST_FOREACH(Bonus *i, *this)
-		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
-			out.push_back(i);
+// 	BOOST_FOREACH(Bonus *i, *this)
+// 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
+// 			out.push_back(i);
+
+	getBonuses(out, selector, 0);
 }
 
-void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *source /*= NULL*/) const
+void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const
 {
 	BOOST_FOREACH(Bonus *i, *this)
-		if(selector(i) && (!limit || limit(i)))
+		if(selector(i) && (!limit && i->effectRange == Bonus::NO_LIMIT || limit && limit(i))) //add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
 			out.push_back(i);
 }
 
 void BonusList::limit(const CBonusSystemNode &node)
 {
 	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
+}
+
+void DLL_EXPORT BonusList::eliminateDuplicates()
+{
+	sort();
+	unique();
 }
 
 int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -220,13 +228,14 @@ void CBonusSystemNode::getParents(TNodes &out)
 
 void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
 {
-	FOREACH_CONST_PARENT(p) //unwinded macro
-		p->getBonuses(out, selector, root ? root : this);
-
-	bonuses.getBonuses(out, selector);
-	
-	if(!root)
-		out.limit(*this);
+	getBonuses(out, selector, 0, root);
+// 	FOREACH_CONST_PARENT(p)
+// 		p->getBonuses(out, selector, root ? root : this);
+// 
+// 	bonuses.getBonuses(out, selector);
+// 	
+// 	if(!root)
+// 		out.limit(*this);
 }
 
 BonusList CBonusSystemNode::getBonuses(const CSelector &selector) const
@@ -236,11 +245,14 @@ BonusList CBonusSystemNode::getBonuses(const CSelector &selector) const
 	return ret;
 }
 
-void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const
+void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
 {
-	getBonuses(out, selector); //first get all the bonuses
-	out.remove_if(std::not1(limit)); //now remove the ones we don't like
-	out.limit(*this); //apply bonuses' limiters
+	getAllBonuses(out, selector, limit, root);
+	out.eliminateDuplicates();
+// 
+// 	getBonuses(out, selector); //first get all the bonuses
+// 	out.remove_if(std::not1(limit)); //now remove the ones we don't like
+// 	out.limit(*this); //apply bonuses' limiters
 }
 
 BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelector &limit) const
@@ -248,6 +260,17 @@ BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelecto
 	BonusList ret;
 	getBonuses(ret, selector, limit);
 	return ret;
+}
+
+void CBonusSystemNode::getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+{
+	FOREACH_CONST_PARENT(p)
+		p->getBonuses(out, selector, limit, root ? root : this);
+
+	bonuses.getBonuses(out, selector, limit);
+
+	if(!root)
+		out.limit(*this);
 }
 
 bool CBonusSystemNode::hasBonusFrom(ui8 source, ui32 sourceID) const
