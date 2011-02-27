@@ -369,7 +369,47 @@ public:
 	{}
 };
 
-class DLL_EXPORT CBonusSystemNode
+class DLL_EXPORT IBonusBearer
+{
+public:
+	virtual void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const = 0; 
+
+	//new bonusing node interface
+	// * selector is predicate that tests if HeroBonus matches our criteria
+	// * root is node on which call was made (NULL will be replaced with this)
+	//interface
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; //as above but without duplicates
+	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(const CSelector &selector) const;
+	int valOfBonuses(const CSelector &selector) const;
+	bool hasBonus(const CSelector &selector) const;
+	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
+	BonusList getBonuses(const CSelector &selector) const;
+
+	//legacy interface 
+	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
+	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
+	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
+	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
+	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(int from, int id) const;
+
+	//various hlp functions for non-trivial values
+	ui32 getMinDamage() const; //used for stacks and creatures only
+	ui32 getMaxDamage() const;
+	int MoraleVal() const; //range [-3, +3]
+	int LuckVal() const; //range [-3, +3]
+	si32 Attack() const; //get attack of stack with all modificators
+	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
+	ui16 MaxHealth() const; //get max HP of stack with all modifiers
+
+	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
+
+};
+
+class DLL_EXPORT CBonusSystemNode : public IBonusBearer
 {
 public:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
@@ -384,39 +424,11 @@ public:
 	CBonusSystemNode();
 	virtual ~CBonusSystemNode();
 
-	//new bonusing node interface
-	// * selector is predicate that tests if HeroBonus matches our criteria
-	// * root is node on which call was made (NULL will be replaced with this)
-	//interface
-	void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; 
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; //as above but without duplicates
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
-	int getBonusesCount(const CSelector &selector) const;
-	int valOfBonuses(const CSelector &selector) const;
-	bool hasBonus(const CSelector &selector) const;
-	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
-	BonusList getBonuses(const CSelector &selector) const;
+	void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
+
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-
-	//legacy interface 
-	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
-	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
-	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
-	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
-	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
-	int getBonusesCount(int from, int id) const;
-	ui32 getMinDamage() const; //used for stacks and creatures only
-	ui32 getMaxDamage() const;
-
-	int MoraleVal() const; //range [-3, +3]
-	int LuckVal() const; //range [-3, +3]
-	si32 Attack() const; //get attack of stack with all modificators
-	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
-	ui16 MaxHealth() const; //get max HP of stack with all modifiers
-
-
 	const Bonus *getBonus(const CSelector &selector) const;
+
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
 	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)

@@ -82,6 +82,8 @@ public:
 
 	void init();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
+
+	void loadNeutralBattleAI();
 	void endGame(bool closeConnection = true);
 	void stopConnection();
 	void save(const std::string & fname);

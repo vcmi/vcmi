@@ -37,7 +37,16 @@ public:
 	CHeroSwitcher(int serial);
 };
 
+//helper class for calculating values of hero bonuses without bonuses from picked up artifact
+class CHeroWithMaybePickedArtifact : public IBonusBearer
+{
+public:
+	const CGHeroInstance *hero;
+	CWindowWithArtifacts *cww;
 
+	CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero);
+	void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const OVERRIDE;
+};
 
 class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 {
@@ -61,6 +70,8 @@ class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 	LRClickableAreaWText * specArea;//speciality
 	MoraleLuckBox * morale, * luck;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
+	CHeroWithMaybePickedArtifact heroWArt;
+
 public:
 	const CGHeroInstance * curHero;
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton; //general

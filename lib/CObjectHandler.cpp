@@ -622,28 +622,9 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
-si32 CGHeroInstance::manaLimit() const
-{
-	return si32(getPrimSkillLevel(3) * (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0f);
-}
-//void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
-//{
-//	if (h3m)
-//		pos = Pos;
-//	else
-//		pos = convertPosition(Pos,true);
-//}
-
 bool CGHeroInstance::canWalkOnSea() const
 {
 	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
-}
-
-int CGHeroInstance::getPrimSkillLevel(int id) const
-{
-	int ret = valOfBonuses(Bonus::PRIMARY_SKILL, id);
-	amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
-	return ret;
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const

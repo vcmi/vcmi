@@ -70,6 +70,7 @@ class CStackInstance;
 class IMarket;
 class CTextBox;
 class CArtifactInstance;
+class IBonusBearer;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -878,7 +879,7 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 public:
 	bool morale; //true if morale, false if luck
 	
-	void set(const CBonusSystemNode *node);
+	void set(const IBonusBearer *node);
 	void showAll(SDL_Surface * to);
 
 	MoraleLuckBox(bool Morale, const Rect &r);
@@ -972,7 +973,7 @@ public:
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
 class CArtifactsOfHero : public CIntObject
 {
-	const CGHeroInstance * curHero; //local copy of hero on which we operate
+	const CGHeroInstance * curHero;
 
 	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
@@ -1012,6 +1013,7 @@ public:
 	CArtPlace *getArtPlace(int slot);
 
 	void setHero(const CGHeroInstance * hero);
+	const CGHeroInstance *getHero() const;
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
 
@@ -1019,7 +1021,7 @@ public:
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true);
 	void setSlotData (CArtPlace* artPlace, int slotID);
-	void updateWornSlots ();
+	void updateWornSlots (bool redrawParent = true);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor

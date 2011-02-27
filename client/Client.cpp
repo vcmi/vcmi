@@ -430,10 +430,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 	else
 	{
-		battleints[255] = CAIHandler::getNewBattleAI(conf.cc.defaultBattleAI);
-		battleints[255]->init(new CBattleCallback(gs, 255, this));
-// 		playerint[255]->init(new CCallback(gs,255,this));
-// 		battleints[255] = playerint[255];
+		loadNeutralBattleAI();
 	}
 
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
@@ -493,6 +490,9 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->init(callback);
 			nInt->serialize(h, version);
 		}
+
+		if(!vstd::contains(battleints, NEUTRAL_PLAYER))
+			loadNeutralBattleAI();
 	}
 }
 
@@ -586,6 +586,12 @@ void CClient::battleStarted(const BattleInfo * info)
 		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 	if(vstd::contains(battleints,254))
 		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+}
+
+void CClient::loadNeutralBattleAI()
+{
+	battleints[255] = CAIHandler::getNewBattleAI(conf.cc.defaultBattleAI);
+	battleints[255]->init(new CBattleCallback(gs, 255, this));
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

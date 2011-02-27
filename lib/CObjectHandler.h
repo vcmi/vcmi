@@ -386,16 +386,11 @@ public:
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	unsigned int getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	TModDescr getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
-	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
-	TModDescr getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
-	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 

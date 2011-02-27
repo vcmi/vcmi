@@ -44,6 +44,28 @@
 extern SDL_Surface * screen;
 using namespace boost::assign;
 
+void CHeroWithMaybePickedArtifact::getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+{
+	BonusList heroBonuses, bonusesFromPickedUpArtifact;
+	hero->getAllBonuses(heroBonuses, selector, limit, hero);
+
+	CArtifactsOfHero::SCommonPart *cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : NULL;
+	if(cp && cp->src.art && cp->src.AOH && cp->src.AOH->getHero() == hero)
+	{
+		cp->src.art->getAllBonuses(bonusesFromPickedUpArtifact, selector, limit, hero);
+	}
+
+	BOOST_FOREACH(Bonus *b, bonusesFromPickedUpArtifact)
+		heroBonuses -= b;
+	BOOST_FOREACH(Bonus *b, heroBonuses)
+		out.push_back(b);
+}
+
+CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero)
+	: cww(Cww), hero(Hero)
+{
+}
+
 void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
@@ -69,6 +91,7 @@ CHeroSwitcher::CHeroSwitcher(int serial)
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
+	:  heroWArt(this, hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	garr = NULL;
@@ -97,9 +120,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	//right list of heroes
 	for(int g=0; g<8; ++g)
 		heroListMi.push_back(new CHeroSwitcher(g));
-
-
-
+	
 	flags = CDefHandler::giveDefEss("CREST58.DEF");
 
 	//areas
@@ -161,17 +182,16 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	assert(hero == curHero);
 	//assert(hero->tempOwner == LOCPLINT->playerID || hero->tempOwner == NEUTRAL_PLAYER); //for now we won't show hero windows for non-our heroes
-
-	specArea->text = CGI->generaltexth->hTxts[hero->subID].longBonus;
+	
+	specArea->text = CGI->generaltexth->hTxts[curHero->subID].longBonus;
 
 	tacticsButton->callback.clear();
 	tacticsButton->callback2.clear();
 
 	dismissButton->hoverTexts[0] = boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name);
 	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->name % curHero->type->heroClass->name);
-	portraitArea->text = hero->getBiography();
+	portraitArea->text = curHero->getBiography();
 
-	
 	{
 		AdventureMapButton * split = NULL;
 		{
@@ -189,7 +209,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		if(!artSets.size())
 		{
 			CArtifactsOfHero *arts = new CArtifactsOfHero(Point(-65, -8), true);
-			arts->setHero(hero);
+			arts->setHero(curHero);
 			artSets.push_back(arts);
 		}
 	}
@@ -198,14 +218,14 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonusValue = hero->getPrimSkillLevel(g);
+		primSkillAreas[g]->bonusValue = heroWArt.getPrimSkillLevel(g);
 	}
 
 	//secondary skills support
 	for(size_t g=0; g< secSkillAreas.size(); ++g)
 	{
-		int skill = hero->secSkills[g].first,
-			level = hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(hero->secSkills[g].first));
+		int skill = curHero->secSkills[g].first,
+			level = curHero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(curHero->secSkills[g].first));
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
@@ -214,43 +234,43 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	//printing experience - original format does not support ui64
 	expArea->text = CGI->generaltexth->allTexts[2];
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(hero->level));
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(hero->exp));
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(curHero->level));
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(curHero->level+1)));
+	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(curHero->exp));
 
 	//printing spell points
-	spellPointsArea->text = boost::str(boost::format(CGI->generaltexth->allTexts[205]) % hero->name % hero->mana % hero->manaLimit());
+	spellPointsArea->text = boost::str(boost::format(CGI->generaltexth->allTexts[205]) % curHero->name % curHero->mana % heroWArt.manaLimit());
 
-	//if we have exchange window with this hero open
+	//if we have exchange window with this curHero open
 	bool noDismiss=false;
 	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa))
 			for(int g=0; g < ARRAY_COUNT(cew->heroInst); ++g)
-				if(cew->heroInst[g] == hero)
+				if(cew->heroInst[g] == curHero)
 					noDismiss = true;
 
 		if (dynamic_cast<CKingdomInterface*>(isa))
 			noDismiss = true;
 	}
-	dismissButton->block(!!hero->visitedTown || noDismiss);
+	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(hero->getSecSkillLevel(CGHeroInstance::TACTICS) == 0)
+	if(curHero->getSecSkillLevel(CGHeroInstance::TACTICS) == 0)
 		tacticsButton->block(true);
 	else
 	{
 		tacticsButton->block(false);
-		tacticsButton->callback = vstd::assigno(hero->tacticFormationEnabled,true);
-		tacticsButton->callback2 = vstd::assigno(hero->tacticFormationEnabled,false);
+		tacticsButton->callback = vstd::assigno(curHero->tacticFormationEnabled,true);
+		tacticsButton->callback2 = vstd::assigno(curHero->tacticFormationEnabled,false);
 	}
 
 	//setting formations
 	formations->onChange = 0;
-	formations->select(hero->formation,true);
-	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, hero, _1);
+	formations->select(curHero->formation,true);
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, curHero, _1);
 
-	morale->set(hero);
-	luck->set(hero);
+	morale->set(&heroWArt);
+	luck->set(&heroWArt);
 
 	if(redrawNeeded)
 		redraw();
@@ -271,6 +291,7 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::questlog()
 {
 }
+
 void CHeroWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
@@ -319,7 +340,7 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	for(int m=0; m<4; ++m)
 	{
 	 	std::ostringstream primarySkill;
-	 	primarySkill<<curHero->getPrimSkillLevel(m);
+	 	primarySkill << primSkillAreas[m]->bonusValue;
 	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, zwykly, to);
 	}
 	 
@@ -365,10 +386,10 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	//printing necessery texts
 	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, tytulowy, to);
 	std::ostringstream expstr;
-	expstr<<curHero->exp;
+	expstr << curHero->exp;
 	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, zwykly, to);
 	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, tytulowy, to);
 	std::ostringstream manastr;
-	manastr << curHero->mana << '/' << curHero->manaLimit();
+	manastr << curHero->mana << '/' << heroWArt.manaLimit();
 	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, zwykly, to);
 }

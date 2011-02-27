@@ -140,12 +140,12 @@ void DLL_EXPORT BonusList::eliminateDuplicates()
 	unique();
 }
 
-int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
+int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
 {
 	return valOfBonuses(Selector::type(type) && selector);
 }
 
-int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
+int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
 {
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
@@ -154,24 +154,168 @@ int CBonusSystemNode::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) 
 	return valOfBonuses(s);
 }
 
-int CBonusSystemNode::valOfBonuses(const CSelector &selector) const
+int IBonusBearer::valOfBonuses(const CSelector &selector) const
 {
 	BonusList hlp;
 	getBonuses(hlp, selector);
 	return hlp.totalValue();
 }
-bool CBonusSystemNode::hasBonus(const CSelector &selector) const
+bool IBonusBearer::hasBonus(const CSelector &selector) const
 {
 	return getBonuses(selector).size() > 0;
 }
 
-bool CBonusSystemNode::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
+bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
 {
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s && Selector::subtype(subtype);
 
 	return hasBonus(s);
+}
+
+void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
+{
+	getModifiersWDescr(out, subtype != -1 ? Selector::typeSybtype(type, subtype) : Selector::type(type));
+}
+
+void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
+{
+	getBonuses(selector).getModifiersWDescr(out);
+}
+int IBonusBearer::getBonusesCount(int from, int id) const
+{
+	return getBonusesCount(Selector::source(from, id));
+}
+
+int IBonusBearer::getBonusesCount(const CSelector &selector) const
+{
+	return getBonuses(selector).size();
+}
+
+void IBonusBearer::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+{
+	getBonuses(out, selector, 0, root);
+// 	FOREACH_CONST_PARENT(p)
+// 		p->getBonuses(out, selector, root ? root : this);
+// 
+// 	bonuses.getBonuses(out, selector);
+// 	
+// 	if(!root)
+// 		out.limit(*this);
+}
+
+BonusList IBonusBearer::getBonuses(const CSelector &selector) const
+{
+	BonusList ret;
+	getBonuses(ret, selector);
+	return ret;
+}
+
+void IBonusBearer::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+{
+	getAllBonuses(out, selector, limit, root);
+	out.eliminateDuplicates();
+// 
+// 	getBonuses(out, selector); //first get all the bonuses
+// 	out.remove_if(std::not1(limit)); //now remove the ones we don't like
+// 	out.limit(*this); //apply bonuses' limiters
+}
+
+BonusList IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit) const
+{
+	BonusList ret;
+	getBonuses(ret, selector, limit);
+	return ret;
+}
+
+bool IBonusBearer::hasBonusFrom(ui8 source, ui32 sourceID) const
+{
+	return hasBonus(Selector::source(source,sourceID));
+}
+
+int IBonusBearer::MoraleVal() const
+{
+	if(hasBonusOfType(Bonus::NON_LIVING) || hasBonusOfType(Bonus::UNDEAD) ||
+		hasBonusOfType(Bonus::NO_MORALE) || hasBonusOfType(Bonus::SIEGE_WEAPON))
+		return 0;
+
+	int ret = valOfBonuses(Selector::type(Bonus::MORALE));
+
+	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
+		amax(ret, +1);
+
+	return abetw(ret, -3, +3);
+}
+
+int IBonusBearer::LuckVal() const
+{
+	if(hasBonusOfType(Bonus::NO_LUCK))
+		return 0;
+
+	int ret = valOfBonuses(Selector::type(Bonus::LUCK));
+	
+	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
+		amax(ret, +1);
+
+	return abetw(ret, -3, +3);
+}
+
+si32 IBonusBearer::Attack() const
+{
+	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+
+	if(int frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
+	{
+		ret += frenzyPower * Defense(false);
+	}
+
+	return ret;
+}
+
+si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
+{
+	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+
+	if(withFrenzy && hasBonusOfType(Bonus::IN_FRENZY)) //frenzy for defender
+	{
+		return 0;
+	}
+
+	return ret;
+}
+
+ui16 IBonusBearer::MaxHealth() const
+{
+	return valOfBonuses(Bonus::STACK_HEALTH);
+}
+
+ui32 IBonusBearer::getMinDamage() const
+{
+	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 1));
+}
+ui32 IBonusBearer::getMaxDamage() const
+{
+	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 2));
+}
+
+si32 IBonusBearer::manaLimit() const
+{
+	return si32(getPrimSkillLevel(3) * (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0f);
+}
+
+int IBonusBearer::getPrimSkillLevel(int id) const
+{
+	int ret = 0;
+	if(id == PrimarySkill::ATTACK)
+		ret = Attack();
+	else if(id == PrimarySkill::DEFENSE)
+		ret = Defense();
+	else
+		ret = valOfBonuses(Bonus::PRIMARY_SKILL, id);
+
+	amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
+	return ret;
 }
 
 Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
@@ -195,25 +339,6 @@ const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
 	return (const_cast<CBonusSystemNode*>(this))->getBonus(selector);
 }
 
-void CBonusSystemNode::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
-{
-	getModifiersWDescr(out, subtype != -1 ? Selector::typeSybtype(type, subtype) : Selector::type(type));
-}
-
-void CBonusSystemNode::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
-{
-	getBonuses(selector).getModifiersWDescr(out);
-}
-int CBonusSystemNode::getBonusesCount(int from, int id) const
-{
-	return getBonusesCount(Selector::source(from, id));
-}
-
-int CBonusSystemNode::getBonusesCount(const CSelector &selector) const
-{
-	return getBonuses(selector).size();
-}
-
 void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
 {
 	BOOST_FOREACH(const CBonusSystemNode *parent, parents)
@@ -226,42 +351,6 @@ void CBonusSystemNode::getParents(TNodes &out)
 		out.insert(const_cast<CBonusSystemNode*>(parent));
 }
 
-void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-{
-	getBonuses(out, selector, 0, root);
-// 	FOREACH_CONST_PARENT(p)
-// 		p->getBonuses(out, selector, root ? root : this);
-// 
-// 	bonuses.getBonuses(out, selector);
-// 	
-// 	if(!root)
-// 		out.limit(*this);
-}
-
-BonusList CBonusSystemNode::getBonuses(const CSelector &selector) const
-{
-	BonusList ret;
-	getBonuses(ret, selector);
-	return ret;
-}
-
-void CBonusSystemNode::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
-{
-	getAllBonuses(out, selector, limit, root);
-	out.eliminateDuplicates();
-// 
-// 	getBonuses(out, selector); //first get all the bonuses
-// 	out.remove_if(std::not1(limit)); //now remove the ones we don't like
-// 	out.limit(*this); //apply bonuses' limiters
-}
-
-BonusList CBonusSystemNode::getBonuses(const CSelector &selector, const CSelector &limit) const
-{
-	BonusList ret;
-	getBonuses(ret, selector, limit);
-	return ret;
-}
-
 void CBonusSystemNode::getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
 {
 	FOREACH_CONST_PARENT(p)
@@ -271,76 +360,6 @@ void CBonusSystemNode::getAllBonuses(BonusList &out, const CSelector &selector, 
 
 	if(!root)
 		out.limit(*this);
-}
-
-bool CBonusSystemNode::hasBonusFrom(ui8 source, ui32 sourceID) const
-{
-	return hasBonus(Selector::source(source,sourceID));
-}
-
-int CBonusSystemNode::MoraleVal() const
-{
-	if(hasBonusOfType(Bonus::NON_LIVING) || hasBonusOfType(Bonus::UNDEAD) ||
-		hasBonusOfType(Bonus::NO_MORALE) || hasBonusOfType(Bonus::SIEGE_WEAPON))
-		return 0;
-
-	int ret = valOfBonuses(Selector::type(Bonus::MORALE));
-
-	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
-		amax(ret, +1);
-
-	return abetw(ret, -3, +3);
-}
-
-int CBonusSystemNode::LuckVal() const
-{
-	if(hasBonusOfType(Bonus::NO_LUCK))
-		return 0;
-
-	int ret = valOfBonuses(Selector::type(Bonus::LUCK));
-	
-	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
-		amax(ret, +1);
-
-	return abetw(ret, -3, +3);
-}
-
-si32 CBonusSystemNode::Attack() const
-{
-	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-
-	if(int frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
-	{
-		ret += frenzyPower * Defense(false);
-	}
-
-	return ret;
-}
-
-si32 CBonusSystemNode::Defense(bool withFrenzy /*= true*/) const
-{
-	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-
-	if(withFrenzy && hasBonusOfType(Bonus::IN_FRENZY)) //frenzy for defender
-	{
-		return 0;
-	}
-
-	return ret;
-}
-
-ui16 CBonusSystemNode::MaxHealth() const
-{
-	return valOfBonuses(Bonus::STACK_HEALTH);
-}
-
-ui32 CBonusSystemNode::getMinDamage() const
-{
-	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 1));
-}
-ui32 CBonusSystemNode::getMaxDamage() const
-{
-	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 2));
 }
 
 CBonusSystemNode::CBonusSystemNode()

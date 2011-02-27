@@ -1,14 +1,26 @@
 0.83 -> 0.84 (Mar 01 2011)
 GENERAL:
 * Bonus system has been rewritten
-* Support for new artifacts (spell scrolls, angelic alliance)
-* Preliminary support for stack experience (no UI yet)
-* Partial support for running VCMI in duel mode (no adventure map, only one battle)
+* Partial support for running VCMI in duel mode (no adventure map, only one battle, ATM only AI-AI battles)
+* New artifacts supported:
+- Angellic Alliance
+- Bird of Perception
+- Emblem of Cognizance
+- Spell Scroll
+- Stoic Watchman
 
 BATTLES:
-* Support for eagle eye, tactics and artillery secondary skills (together with corresponding artifacts)
+* Better animations handling
 * Defensive stance is supported
-* New, improved AI for neutral player
+
+HERO:
+* New secondary skills supported:
+- Artillery
+- Eagle Eye
+- Tactics
+
+AI PLAYER:
+* new AI leading neutral creatures in combat, slightly better then previous
 
 
 0.82 -> 0.83 (Nov 01 2010)

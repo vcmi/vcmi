@@ -2578,7 +2578,7 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 //  	if (src.slot >= 19 && dst.slot >= 19 && src.slot < dst.slot)
 //  		dst.slot--;
 
-	if (src.slot == dst.slot)
+	if (src.slot == dst.slot  &&  src.hero == dst.hero)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
 	//moving art to backpack is always allowed (we've ruled out exceptions)

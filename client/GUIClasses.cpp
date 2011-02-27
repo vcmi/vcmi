@@ -74,6 +74,7 @@ CFocusable * CFocusable::inputWithFocus;
 #undef min
 #undef max
 
+
 void CGarrisonSlot::hover (bool on)
 {
 	////Hoverable::hover(on);
@@ -4663,7 +4664,6 @@ void CArtPlace::select ()
 	if(slotID >= Arts::BACKPACK_START)
 		ourOwner->scrollBackpack(0); //will update slots
 
-	// Update the hero bonuses.
 	ourOwner->updateParentWindow();
 	ourOwner->safeRedraw();
 }
@@ -4695,7 +4695,7 @@ void CArtPlace::deactivate()
 
 void CArtPlace::showAll(SDL_Surface *to)
 {
-	if (ourArt && !picked)
+	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
 		int graphic = locked ? 145 : ourArt->artType->id;
 		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
@@ -5161,16 +5161,17 @@ void CArtifactsOfHero::updateParentWindow()
 		if(!updateState)
 		{
 			cew->deactivate();
-			for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
-			{
-				if(cew->heroInst[g] == curHero)
-				{
-					cew->artifs[g]->setHero(curHero);
-				}
-			}
+// 			for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
+// 			{
+// 				if(cew->heroInst[g] == curHero)
+// 				{
+// 					cew->artifs[g]->setHero(curHero);
+// 				}
+// 			}
 
 
 			cew->prepareBackground();
+			cew->redraw();
 			cew->activate();
 		}
 	}
@@ -5199,13 +5200,14 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	if(dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
 		setSlotData(getArtPlace(dst.slot), dst.slot);
 	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
-		updateWornSlots();
+		updateWornSlots(false);
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
 		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + Arts::BACKPACK_START);
 		commonInfo->reset();
 		unmarkSlots();
+		updateParentWindow();
 	}
 	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
 	{
@@ -5289,12 +5291,18 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 		updateWornSlots();
 }
 
-void CArtifactsOfHero::updateWornSlots()
+void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
 	for(int i = 0; i < Arts::BACKPACK_START; i++)
 		setSlotData(getArtPlace(i), i);
 
-	updateParentWindow();
+	if(redrawParent)
+		updateParentWindow();
+}
+
+const CGHeroInstance * CArtifactsOfHero::getHero() const
+{
+	return curHero;
 }
 
 void CExchangeWindow::close()
@@ -5307,9 +5315,9 @@ void CExchangeWindow::activate()
 	quit->activate();
 	garr->activate();
 
-	artifs[0]->setHero(heroInst[0]);
+	//artifs[0]->setHero(heroInst[0]);
 	artifs[0]->activate();
-	artifs[1]->setHero(heroInst[1]);
+	//artifs[1]->setHero(heroInst[1]);
 	artifs[1]->activate();
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
@@ -5446,11 +5454,12 @@ void CExchangeWindow::prepareBackground()
 	//heroes related thing
 	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
 	{
+		CHeroWithMaybePickedArtifact heroWArt = CHeroWithMaybePickedArtifact(this, heroInst[b]);
 		//printing primary skills' amounts
 		for(int m=0; m<4; ++m)
 		{
 			std::ostringstream primarySkill;
-			primarySkill<<heroInst[b]->getPrimSkillLevel(m);
+			primarySkill << heroWArt.getPrimSkillLevel(m);
 			CSDL_Ext::printAtMiddle(primarySkill.str(), 352 + 93 * b, 35 + 36 * m, FONT_SMALL, zwykly, bg);
 		}
 
@@ -5472,10 +5481,10 @@ void CExchangeWindow::prepareBackground()
 		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, zwykly, bg );
 
 		//setting morale
-		blitAt(graphics->morale30->ourImages[heroInst[b]->MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
+		blitAt(graphics->morale30->ourImages[heroWArt.MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
 
 		//setting luck
-		blitAt(graphics->luck30->ourImages[heroInst[b]->LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
+		blitAt(graphics->luck30->ourImages[heroWArt.LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
 	}
 
 	//printing portraits
@@ -6453,7 +6462,7 @@ CThievesGuildWindow::~CThievesGuildWindow()
 // 	delete resdatabar;
 }
 
-void MoraleLuckBox::set(const CBonusSystemNode *node)
+void MoraleLuckBox::set(const IBonusBearer *node)
 {
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
@@ -6461,7 +6470,7 @@ void MoraleLuckBox::set(const CBonusSystemNode *node)
 	const int componentType[] = {SComponent::luck, SComponent::morale};
 	const int hoverTextBase[] = {7, 4};
 	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
-	int (CBonusSystemNode::*getValue[])() const = {&CBonusSystemNode::LuckVal, &CBonusSystemNode::MoraleVal};
+	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
 
 	int mrlt = -9;
 	TModDescr mrl;
@@ -6484,8 +6493,7 @@ void MoraleLuckBox::set(const CBonusSystemNode *node)
 		text += CGI->generaltexth->arraytxt[noneTxtId];
 	else
 	{
-		if (node->nodeType == CBonusSystemNode::STACK_INSTANCE &&
-			(node->hasBonusOfType (Bonus::UNDEAD) || node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING))) //it's a creature window
+		if (node->hasBonusOfType (Bonus::UNDEAD) || node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING)) //it's a creature window
 		{
 			text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		}
