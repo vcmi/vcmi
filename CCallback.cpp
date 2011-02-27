@@ -1067,7 +1067,9 @@ std::vector<int> CBattleCallback::battleGetDistances(const CStack * stack, THex 
 		hex = stack->position;
 
 	std::vector<int> ret;
-	bool ac[BFIELD_SIZE];
+	bool ac[BFIELD_SIZE] = {0};
+	std::set<THex> occupyable;
+	gs->curB->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
 	THex pr[BFIELD_SIZE];
 	int dist[BFIELD_SIZE];
 	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
