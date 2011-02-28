@@ -1,1 +1,1 @@
-SUBDIRS = EmptyAI GeniusAI
+SUBDIRS = StupidAI EmptyAI GeniusAI

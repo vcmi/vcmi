@@ -62,7 +62,7 @@ void CHeroWithMaybePickedArtifact::getAllBonuses(BonusList &out, const CSelector
 }
 
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero)
-	: cww(Cww), hero(Hero)
+	:  hero(Hero), cww(Cww)
 {
 }
 
@@ -238,8 +238,11 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(curHero->level+1)));
 	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(curHero->exp));
 
-	//printing spell points
-	spellPointsArea->text = boost::str(boost::format(CGI->generaltexth->allTexts[205]) % curHero->name % curHero->mana % heroWArt.manaLimit());
+	//printing spell points, boost::format can't be used due to locale issues
+	spellPointsArea->text = CGI->generaltexth->allTexts[205];
+	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->name));
+	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(curHero->mana));
+	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(heroWArt.manaLimit()));
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;

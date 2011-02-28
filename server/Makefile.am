@@ -6,6 +6,8 @@ vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
+	../CThreadHelper.cpp \
+	../CThreadHelper.h \
 	CGameHandler.cpp \
 	CGameHandler.h \
 	CVCMIServer.cpp \

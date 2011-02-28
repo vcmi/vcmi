@@ -1597,7 +1597,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		curB->tacticDistance = 0;
 
 
-	// workaround — bonuses affecting only enemy
+	// workaround Â— bonuses affecting only enemy
 	for(int i = 0; i < 2; i++)
 	{
 		TNodes nodes;
@@ -1658,7 +1658,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	int cside = sides[0] == player ? 0 : 1; //caster's side
 	switch(mode)
 	{
-	HERO_CASTING:
+	case SpellCasting::HERO_CASTING:
 		{
 			const CGHeroInstance * caster = heroes[cside];
 			if(!caster->canCastThisSpell(spell))
@@ -1769,15 +1769,13 @@ const CGHeroInstance * BattleInfo::getHero( int player ) const
 	return heroes[1];
 }
 
+bool NegateRemover(const Bonus* b)
+{
+	return b->source == Bonus::CREATURE_ABILITY;
+}
+
 SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest ) const
 {
-	struct NegateRemover
-	{
-		bool operator()(const Bonus* b)
-		{
-			return b->source == Bonus::CREATURE_ABILITY;
-		}
-	};
 	const CStack * subject = getStackT(dest, false);
 	const CGHeroInstance * caster = mode == SpellCasting::HERO_CASTING ? getHero(player) : NULL;
 	if(subject)
@@ -1785,7 +1783,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CS
 		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
-			std::remove_if(immunities.begin(), immunities.end(), NegateRemover());
+			std::remove_if(immunities.begin(), immunities.end(), NegateRemover);
 		}
 
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id)

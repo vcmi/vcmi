@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "StupidAI.h"
 
+#ifdef __GNUC__
+#define strcpy_s(a, b, c) strncpy(a, c, b)
+#endif
+
 const char *g_cszAiName = "Stupid AI 0.1";
 
 extern "C" DLL_F_EXPORT int GetGlobalAiVersion()

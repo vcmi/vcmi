@@ -576,19 +576,17 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	if(style == 0)
 	{
 		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
-		CAnimation *animLeft = new CAnimation();
-		animLeft->setCustom(name + ":0", 0);
-		animLeft->setCustom(name + ":1", 1);
+		CAnimation *animLeft = new CAnimation(name);
 		left->setImage(animLeft);
+		left->setOffset(0);
 
-		CAnimation *animRight = new CAnimation();
-		animRight->setCustom(name + ":2", 0);
-		animRight->setCustom(name + ":3", 1);
+		CAnimation *animRight = new CAnimation(name);
 		right->setImage(animRight);
-		
-		CAnimation *animSlider = new CAnimation();
-		animSlider->setCustom(name + ":4", 0);
+		right->setOffset(2);
+
+		CAnimation *animSlider = new CAnimation(name);
 		slider->setImage(animSlider);
+		slider->setOffset(4);
 	}
 	else
 	{

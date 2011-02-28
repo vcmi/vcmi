@@ -20,13 +20,14 @@ To compile, at least the following packages (and their development counterparts)
 	* zlib and zlib-devel
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
 	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org):
+		- program-options
 		- filesystem
 		- iostreams
 		- system
 		- thread
 
 On Ubuntu 9.04 or later, run:
-  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev
+  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 Create a directory /YOUR_INSTALL_PATH/vcmi (such as
 /usr/local/share/games/vcmi) that will contain the game data files. The /vcmi at the end is necessary.
@@ -78,9 +79,11 @@ If you also have the original linux version of Heroes, you can also install the 
 
 III. Installing VCMI
 
-Since VCMI is still in development, there's no install procedure, although something like 
+Since VCMI is still in development, there's no install procedure, although something like this will work:
   DESTDIR=/path/to/heroes3 make install
-will work.
+You also need to update configuration files:
+ cp /PATH/TO/SOURCE/config /path/to/heroes3
+
 
 For development puposes, it's better to use links. Go
 to /YOUR_INSTALL_PATH/vcmi, and type:
@@ -89,6 +92,8 @@ to /YOUR_INSTALL_PATH/vcmi, and type:
   ln -s /PATH_TO_VCMI/server/vcmiserver
   ln -s /PATH_TO_VCMI/config
   ln -s /PATH_TO_VCMI/AI/GeniusAI/.libs/GeniusAI.so
+  ln -s /PATH_TO_VCMI/AI/StupidAI/.libs/StupidAI.so
 
 
 And start ./vcmiclient
+

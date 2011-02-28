@@ -58,6 +58,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_vcmiserver_OBJECTS = vcmiserver-CConsoleHandler.$(OBJEXT) \
+	vcmiserver-CThreadHelper.$(OBJEXT) \
 	vcmiserver-CGameHandler.$(OBJEXT) \
 	vcmiserver-CVCMIServer.$(OBJEXT) \
 	vcmiserver-NetPacksServer.$(OBJEXT) \
@@ -252,6 +253,8 @@ vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
+	../CThreadHelper.cpp \
+	../CThreadHelper.h \
 	CGameHandler.cpp \
 	CGameHandler.h \
 	CVCMIServer.cpp \
@@ -349,6 +352,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CConsoleHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CGameHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CThreadHelper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-CVCMIServer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-NetPacksServer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiserver-stdafx.Po@am__quote@
@@ -392,6 +396,22 @@ vcmiserver-CConsoleHandler.obj: ../CConsoleHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CConsoleHandler.cpp' object='vcmiserver-CConsoleHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CConsoleHandler.obj `if test -f '../CConsoleHandler.cpp'; then $(CYGPATH_W) '../CConsoleHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../CConsoleHandler.cpp'; fi`
+
+vcmiserver-CThreadHelper.o: ../CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CThreadHelper.o -MD -MP -MF $(DEPDIR)/vcmiserver-CThreadHelper.Tpo -c -o vcmiserver-CThreadHelper.o `test -f '../CThreadHelper.cpp' || echo '$(srcdir)/'`../CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CThreadHelper.Tpo $(DEPDIR)/vcmiserver-CThreadHelper.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CThreadHelper.cpp' object='vcmiserver-CThreadHelper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CThreadHelper.o `test -f '../CThreadHelper.cpp' || echo '$(srcdir)/'`../CThreadHelper.cpp
+
+vcmiserver-CThreadHelper.obj: ../CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CThreadHelper.obj -MD -MP -MF $(DEPDIR)/vcmiserver-CThreadHelper.Tpo -c -o vcmiserver-CThreadHelper.obj `if test -f '../CThreadHelper.cpp'; then $(CYGPATH_W) '../CThreadHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/../CThreadHelper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiserver-CThreadHelper.Tpo $(DEPDIR)/vcmiserver-CThreadHelper.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CThreadHelper.cpp' object='vcmiserver-CThreadHelper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -c -o vcmiserver-CThreadHelper.obj `if test -f '../CThreadHelper.cpp'; then $(CYGPATH_W) '../CThreadHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/../CThreadHelper.cpp'; fi`
 
 vcmiserver-CGameHandler.o: CGameHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiserver_CXXFLAGS) $(CXXFLAGS) -MT vcmiserver-CGameHandler.o -MD -MP -MF $(DEPDIR)/vcmiserver-CGameHandler.Tpo -c -o vcmiserver-CGameHandler.o `test -f 'CGameHandler.cpp' || echo '$(srcdir)/'`CGameHandler.cpp

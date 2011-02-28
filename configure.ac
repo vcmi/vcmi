@@ -61,8 +61,8 @@ LIBS=$saved_LIBS
 
 # Check for ffmpeg libraries
 saved_LIBS=$LIBS
-AC_CHECK_LIB(avformat,main,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
-AC_CHECK_LIB(swscale,main,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
+AC_CHECK_LIB(avformat,av_open_input_file,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
+AC_CHECK_LIB(swscale,sws_getContext,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
 
 FFMPEG_CXXFLAGS=`pkg-config --cflags libavformat libswscale`
 FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
@@ -84,4 +84,4 @@ AC_SUBST(SDL_CXXFLAGS)
 AC_SUBST(FFMPEG_LIBS)
 AC_SUBST(FFMPEG_CXXFLAGS)
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile)

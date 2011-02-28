@@ -16166,9 +16166,9 @@ LIBS=$saved_LIBS
 
 # Check for ffmpeg libraries
 saved_LIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lavformat" >&5
-$as_echo_n "checking for main in -lavformat... " >&6; }
-if test "${ac_cv_lib_avformat_main+set}" = set; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5
+$as_echo_n "checking for av_open_input_file in -lavformat... " >&6; }
+if test "${ac_cv_lib_avformat_av_open_input_file+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -16176,27 +16176,33 @@ LIBS="-lavformat  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char av_open_input_file ();
 int
 main ()
 {
-return main ();
+return av_open_input_file ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avformat_main=yes
+  ac_cv_lib_avformat_av_open_input_file=yes
 else
-  ac_cv_lib_avformat_main=no
+  ac_cv_lib_avformat_av_open_input_file=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_main" >&5
-$as_echo "$ac_cv_lib_avformat_main" >&6; }
-if test "x$ac_cv_lib_avformat_main" = x""yes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_av_open_input_file" >&5
+$as_echo "$ac_cv_lib_avformat_av_open_input_file" >&6; }
+if test "x$ac_cv_lib_avformat_av_open_input_file" = x""yes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBAVFORMAT 1
 _ACEOF
@@ -16207,9 +16213,9 @@ else
   as_fn_error $? "FFMpeg avformat library not found. Please install it." "$LINENO" 5
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lswscale" >&5
-$as_echo_n "checking for main in -lswscale... " >&6; }
-if test "${ac_cv_lib_swscale_main+set}" = set; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sws_getContext in -lswscale" >&5
+$as_echo_n "checking for sws_getContext in -lswscale... " >&6; }
+if test "${ac_cv_lib_swscale_sws_getContext+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -16217,27 +16223,33 @@ LIBS="-lswscale  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sws_getContext ();
 int
 main ()
 {
-return main ();
+return sws_getContext ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_swscale_main=yes
+  ac_cv_lib_swscale_sws_getContext=yes
 else
-  ac_cv_lib_swscale_main=no
+  ac_cv_lib_swscale_sws_getContext=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_swscale_main" >&5
-$as_echo "$ac_cv_lib_swscale_main" >&6; }
-if test "x$ac_cv_lib_swscale_main" = x""yes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_swscale_sws_getContext" >&5
+$as_echo "$ac_cv_lib_swscale_sws_getContext" >&6; }
+if test "x$ac_cv_lib_swscale_sws_getContext" = x""yes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBSWSCALE 1
 _ACEOF
@@ -16418,7 +16430,7 @@ CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\
 
 
 
-ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17519,6 +17531,7 @@ do
     "client/Makefile") CONFIG_FILES="$CONFIG_FILES client/Makefile" ;;
     "server/Makefile") CONFIG_FILES="$CONFIG_FILES server/Makefile" ;;
     "AI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/Makefile" ;;
+    "AI/StupidAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/StupidAI/Makefile" ;;
     "AI/GeniusAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/GeniusAI/Makefile" ;;
     "AI/EmptyAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/EmptyAI/Makefile" ;;
 
