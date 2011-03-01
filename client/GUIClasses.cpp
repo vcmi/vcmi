@@ -1843,7 +1843,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 		max->block(true);
 		slider->block(true);
 	}
-	//buy->block(true); //not needed, will be blocked by initing slider on 0
+	buy->block(true);
 }
 
 CRecruitmentWindow::~CRecruitmentWindow()

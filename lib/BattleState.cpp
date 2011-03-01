@@ -1719,7 +1719,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 				case 1:
 					if(stack->owner == caster->getOwner())
 					{
-						if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
+						if(battleIsImmune(caster, spell, mode, stack->position) == SpellCasting::OK)
 						{
 							targetExists = true;
 							break;
@@ -1727,7 +1727,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 					}
 					break;
 				case 0:
-					if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
+					if(battleIsImmune(caster, spell, mode, stack->position) == SpellCasting::OK)
 					{
 						targetExists = true;
 						break;
@@ -1736,7 +1736,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 				case -1:
 					if(stack->owner != caster->getOwner())
 					{
-						if(battleIsImmune(player, spell, mode, stack->position) == SpellCasting::OK)
+						if(battleIsImmune(caster, spell, mode, stack->position) == SpellCasting::OK)
 						{
 							targetExists = true;
 							break;
@@ -1764,11 +1764,12 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 	if(moreGeneralProblem != SpellCasting::OK)
 		return moreGeneralProblem;
 
-	return battleIsImmune(player, spell, mode, dest);
+	return battleIsImmune(getHero(player), spell, mode, dest);
 }
 
 const CGHeroInstance * BattleInfo::getHero( int player ) const
 {
+	assert(sides[0] == player || sides[1] == player);
 	if(heroes[0] && heroes[0]->getOwner() == player)
 		return heroes[0];
 
@@ -1780,10 +1781,9 @@ bool NegateRemover(const Bonus* b)
 	return b->source == Bonus::CREATURE_ABILITY;
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest ) const
+SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const
 {
 	const CStack * subject = getStackT(dest, false);
-	const CGHeroInstance * caster = mode == SpellCasting::HERO_CASTING ? getHero(player) : NULL;
 	if(subject)
 	{
 		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
@@ -1819,7 +1819,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune( int player, const CS
 	else
 	{
 		if(spell->getTargetType() == CSpell::CREATURE ||
-			(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE && caster && caster->getSpellSchoolLevel(spell) < 3))
+			(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE && mode == SpellCasting::HERO_CASTING && caster && caster->getSpellSchoolLevel(spell) < 3))
 		{
 			return SpellCasting::WRONG_SPELL_TARGET;
 		}
@@ -1833,7 +1833,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
-		if(battleIsImmune(caster->getOwner(), sp, mode, (*it)->position) != SpellCasting::OK)
+		if(battleIsImmune(caster, sp, mode, (*it)->position) != SpellCasting::OK)
 		{
 			ret.push_back((*it)->ID);
 			continue;
