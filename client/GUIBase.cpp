@@ -21,8 +21,6 @@
 
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
-extern Point screenLT;
-extern Point screenLTmax;
 
 void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
@@ -152,16 +150,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	current = sEvent;
 	bool prev;
 
-	struct HLP
-	{
-		static void adjustMousePos(SDL_Event * ev)
-		{
-			//adjust mouse position according to screenLT
-			ev->motion.x -= screenLT.x;
-			ev->motion.y -= screenLT.y;
-		}
-	};
-
 	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
 		SDL_KeyboardEvent key = sEvent->key;
@@ -190,13 +178,10 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
 		CCS->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
-		HLP::adjustMousePos(sEvent);
 		handleMouseMotion(sEvent);
 	}
 	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
 	{
-		HLP::adjustMousePos(sEvent);
-
 		if(sEvent->button.button == SDL_BUTTON_LEFT)
 		{
 			
@@ -255,8 +240,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		HLP::adjustMousePos(sEvent);
-
 		std::list<CIntObject*> hlp = lclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{
@@ -270,28 +253,9 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			else
 				(*i)->clickLeft(boost::logic::indeterminate, prev);
 		}
-
-		//screen drag-and-drop handling
-		if (screenLTmax != Point(0,0))
-		{
-			int diffX = sEvent->motion.x - lastClick.x,
-				diffY = sEvent->motion.y - lastClick.y;
-
-			screenLT.x += diffX;
-			amin(screenLT.x, 0);
-			amax(screenLT.x, -screenLTmax.x);
-
-			screenLT.y += diffY;
-			amin(screenLT.y, 0);
-			amax(screenLT.y, -screenLTmax.y);
-			totalRedraw();
-		}
-
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		HLP::adjustMousePos(sEvent);
-
 		std::list<CIntObject*> hlp = rclickable;
 		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 		{

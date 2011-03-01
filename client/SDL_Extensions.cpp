@@ -22,8 +22,6 @@
  *
  */
 
-extern Point screenLT;
-
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
 {
@@ -406,13 +404,6 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 {
 	if(!text.size())
 		return;
-
-	//adjust x and y
-	if (dst == screen)
-	{
-		x += screenLT.x;
-		y += screenLT.y;
-	}
 
 	if (graphics->fontsTrueType[font])
 	{
@@ -1303,9 +1294,6 @@ void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface *
 			betterDst = Rect(0, 0, dst->w, dst->h);
 		}
 
-		betterDst.x += screenLT.x;
-		betterDst.y += screenLT.y;
-
 		SDL_BlitSurface(src, srcRect, dst, &betterDst);
 	}
 }
@@ -1320,11 +1308,6 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	else
 	{
 		newRect = Rect(0, 0, dst->w, dst->h);
-	}
-	if (dst == screen)
-	{
-		newRect.x += screenLT.x;
-		newRect.y += screenLT.y;
 	}
 	SDL_FillRect(dst, &newRect, color);
 }

@@ -69,8 +69,6 @@ using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
 
-extern Point screenLTmax;
-
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
@@ -1347,8 +1345,6 @@ void CPlayerInterface::update()
 	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
 	CCS->curh->draw2();
-
-	screenLTmax = Point(conf.cc.resx - screen->w, conf.cc.resy - screen->h);
 
 	pim->unlock();
 

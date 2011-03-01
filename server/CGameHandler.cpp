@@ -1427,14 +1427,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			if(t.visitableObjects.size())
 				objectVisited(t.visitableObjects.back(), h);
 
-
-// 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
-// 			{
-// 				if (obj->blockVisit)
-// 				{
-// 					objectVisited(obj, h);
-// 				}
-// 			}
 			tlog5 << "Blocking visit at " << hmpos << std::endl;
 			return true;
 		}
@@ -1458,10 +1450,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			{
 				visitObjectOnTile(t, h);
 			}
-// 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
-// 			{
-// 				objectVisited(obj, h);
-// 			}
 
 			tlog5 << "Movement end!\n";
 			return true;

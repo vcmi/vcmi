@@ -65,7 +65,6 @@ using boost::ref;
 #endif
 
 void startGame(StartInfo * options, CConnection *serv = NULL);
-extern Point screenLTmax;
 extern SystemOptions GDefaultOptions;
 
 CGPreGame * CGP;
@@ -344,7 +343,6 @@ void CGPreGame::update()
 	CCS->curh->draw1();
 	SDL_Flip(screen);
 	CCS->curh->draw2();
-	screenLTmax = Point(800 - screen->w, 600 - screen->h);
 	GH.topInt()->show(screen);
 	GH.updateTime();
 	GH.handleEvents();

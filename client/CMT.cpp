@@ -75,8 +75,6 @@ static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
-Point screenLT = Point(0, 0); //position of top left corner of the screen
-Point screenLTmax = Point(0, 0); //,maximal values for screenLT coordinates
 static boost::thread *mainGUIThread;
 
 SystemOptions GDefaultOptions; 
@@ -548,8 +546,6 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
-	screenLT = Point(0, 0);
 
 #ifdef _WIN32
 	SDL_SysWMinfo wm;
