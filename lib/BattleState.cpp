@@ -1379,47 +1379,50 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//adding war machines
-	if(heroes[0])
+	if(!creatureBank)
 	{
-		if(heroes[0]->getArt(13)) //ballista
+		if(heroes[0])
 		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), stacks.size(), true, 255, 52);
+			if(heroes[0]->getArt(13)) //ballista
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), stacks.size(), true, 255, 52);
+				stacks.push_back(stack);
+			}
+			if(heroes[0]->getArt(14)) //ammo cart
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), true, 255, 18);
+				stacks.push_back(stack);
+			}
+			if(heroes[0]->getArt(15)) //first aid tent
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), true, 255, 154);
+				stacks.push_back(stack);
+			}
+		}
+		if(heroes[1])
+		{
+			//defending hero shouldn't receive ballista (bug #551)
+			if(heroes[1]->getArt(13) && !town) //ballista
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  stacks.size(), false, 255, 66);
+				stacks.push_back(stack);
+			}
+			if(heroes[1]->getArt(14)) //ammo cart
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), false, 255, 32);
+				stacks.push_back(stack);
+			}
+			if(heroes[1]->getArt(15)) //first aid tent
+			{
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), false, 255, 168);
+				stacks.push_back(stack);
+			}
+		}
+		if(town && heroes[0] && town->hasFort()) //catapult
+		{
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), stacks.size(), true, 255, 120);
 			stacks.push_back(stack);
 		}
-		if(heroes[0]->getArt(14)) //ammo cart
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), true, 255, 18);
-			stacks.push_back(stack);
-		}
-		if(heroes[0]->getArt(15)) //first aid tent
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), true, 255, 154);
-			stacks.push_back(stack);
-		}
-	}
-	if(heroes[1])
-	{
-		//defending hero shouldn't receive ballista (bug #551)
-		if(heroes[1]->getArt(13) && !town) //ballista
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  stacks.size(), false, 255, 66);
-			stacks.push_back(stack);
-		}
-		if(heroes[1]->getArt(14)) //ammo cart
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), false, 255, 32);
-			stacks.push_back(stack);
-		}
-		if(heroes[1]->getArt(15)) //first aid tent
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), false, 255, 168);
-			stacks.push_back(stack);
-		}
-	}
-	if(town && heroes[0] && town->hasFort()) //catapult
-	{
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), stacks.size(), true, 255, 120);
-		stacks.push_back(stack);
 	}
 	//war machines added
 
