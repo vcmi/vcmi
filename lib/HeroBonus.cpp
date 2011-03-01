@@ -517,8 +517,8 @@ std::string CBonusSystemNode::nodeName() const
 
 void CBonusSystemNode::deserializationFix()
 {
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
-		exportBonus(b);
+	exportBonuses();
+
 }
 
 void CBonusSystemNode::getRedParents(TNodes &out)
@@ -613,6 +613,12 @@ void CBonusSystemNode::exportBonus(Bonus * b)
 		propagateBonus(b);
 	else
 		bonuses.push_back(b);
+}
+
+void CBonusSystemNode::exportBonuses()
+{
+	BOOST_FOREACH(Bonus *b, exportedBonuses)
+		exportBonus(b);
 }
 
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)

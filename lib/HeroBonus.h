@@ -450,17 +450,19 @@ public:
 	void removeBonus(Bonus *b);
 	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
 	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
+	void battleTurnPassed(); //updates count of remaining turns and removed outdated bonuses
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;
 	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
-	void battleTurnPassed(); //updates count of remaining turns and removed outdated bonuses
 	void popBonuses(const CSelector &s);
 	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+
 	void deserializationFix();
 	void exportBonus(Bonus * b);
+	void exportBonuses();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

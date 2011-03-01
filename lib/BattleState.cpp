@@ -1242,6 +1242,7 @@ void BattleInfo::localInit()
 
 	BOOST_FOREACH(CStack *s, stacks)
 	{
+		s->exportBonuses();
 		if(s->base) //stack originating from "real" stack in garrison -> attach to it
 		{
 			s->attachTo(const_cast<CStackInstance*>(s->base));
@@ -1255,6 +1256,8 @@ void BattleInfo::localInit()
 		}
 		s->postInit();
 	}
+
+	exportBonuses();
 }
 
 namespace CGH
