@@ -126,7 +126,8 @@ const int CREEP_SIZE = 2000000000;
 const int WEEKLY_GROWTH = 10; //percent
 const int AVAILABLE_HEROES_PER_PLAYER = 2;
 const bool DWELLINGS_ACCUMULATE_CREATURES = true;
-const bool STACK_EXP = false;
+const bool STACK_EXP = true;
+const bool STACK_ARTIFACT = true;
 
 const int BFIELD_WIDTH = 17;
 const int BFIELD_HEIGHT = 11;

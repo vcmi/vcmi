@@ -979,7 +979,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			loadToIt (curVal, src, it, 4);
 			if (curVal == 1)
 			{
-				b.val = curVal;
 				b.limiter.reset (new RankRangeLimiter(i));
 				bl.push_back(new Bonus(b));
 				break; //never turned off it seems

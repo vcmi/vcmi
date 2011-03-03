@@ -6,6 +6,7 @@
 #include "CBattleInterface.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
+#include "CCreatureWindow.h"
 #include "CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
@@ -169,7 +170,10 @@ bool CGarrisonSlot::our()
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
-		GH.pushInt(new CCreInfoWindow(*myStack));
+	{
+		//GH.pushInt(new CCreInfoWindow(*myStack));
+		GH.pushInt(new CCreatureWindow(*myStack, 4));
+	}
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
@@ -189,7 +193,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]);
 				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
 
-				CCreInfoWindow *creWindow = new CCreInfoWindow( *myStack, 1, upgr, dism, &pom);
+				//CCreInfoWindow *creWindow = new CCreInfoWindow( *myStack, 1, upgr, dism, &pom);
+				CCreatureWindow *creWindow = new CCreatureWindow( *myStack, 2, upgr, dism, &pom);
 				
 				GH.pushInt(creWindow);
 

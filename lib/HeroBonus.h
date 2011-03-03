@@ -183,7 +183,7 @@ struct DLL_EXPORT Bonus
 		ARTIFACT,
 		ARTIFACT_INSTANCE,
 		OBJECT,
-		CREATURE_ABILITY,
+			CREATURE_ABILITY,
 		TERRAIN_NATIVE,
 		TERRAIN_OVERLAY,
 		SPELL_EFFECT,
@@ -696,6 +696,7 @@ namespace Selector
 	extern DLL_EXPORT CSelectFieldEqual<TBonusType> type;
 	extern DLL_EXPORT CSelectFieldEqual<TBonusSubtype> subtype;
 	extern DLL_EXPORT CSelectFieldEqual<si32> info;
+	extern DLL_EXPORT CSelectFieldEqual<ui16> duration;
 	extern DLL_EXPORT CSelectFieldEqual<ui8> sourceType;
 	extern DLL_EXPORT CSelectFieldEqual<ui8> effectRange;
 	extern DLL_EXPORT CWillLastTurns turns;
@@ -703,6 +704,7 @@ namespace Selector
 	CSelector DLL_EXPORT typeSybtype(TBonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_EXPORT typeSybtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID);
+	CSelector DLL_EXPORT durationType(ui16 duration);
 	CSelector DLL_EXPORT sourceTypeSel(ui8 source);
 
 	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);

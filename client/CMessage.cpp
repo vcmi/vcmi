@@ -28,7 +28,7 @@
 
 SDL_Color tytulowy = {229, 215, 123, 0}, 
 	tlo = {66, 44, 24, 0}, 
-	zwykly = {255, 255, 255, 0},
+	zwykly = {255, 243, 222, 0},
 	darkTitle = {215, 175, 78, 0};
 
 extern SDL_Surface * screen;

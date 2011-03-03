@@ -24,6 +24,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "CPlayerInterface.h"
+#include "CCreatureWindow.h"
 #include "CVideoHandler.h"
 #include "../lib/CTownHandler.h"
 #include <boost/assign/list_of.hpp>
@@ -3770,7 +3771,8 @@ void CBattleHex::clickRight(tribool down, bool previousState)
 		if(!myst->alive()) return;
 		if(down)
 		{
-			GH.pushInt(new CCreInfoWindow(*myst));
+			//GH.pushInt(new CCreInfoWindow(*myst));
+			GH.pushInt(new CCreatureWindow(*myst, CCreatureWindow::BATTLE));
 		}
 	}
 }
