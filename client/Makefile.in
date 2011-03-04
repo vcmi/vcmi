@@ -69,6 +69,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CCastleInterface.$(OBJEXT) \
 	vcmiclient-CConfigHandler.$(OBJEXT) \
 	vcmiclient-CCreatureAnimation.$(OBJEXT) \
+	vcmiclient-CCreatureWindow.$(OBJEXT) \
 	vcmiclient-CCursorHandler.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
@@ -298,6 +299,8 @@ vcmiclient_SOURCES = \
 	CConfigHandler.h \
 	CCreatureAnimation.cpp \
 	CCreatureAnimation.h \
+	CCreatureWindow.cpp \
+	CCreatureWindow.h \
 	CCursorHandler.cpp \
 	CCursorHandler.h \
 	CDefHandler.cpp \
@@ -440,6 +443,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConfigHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConsoleHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureAnimation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCursorHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CDefHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CGameInfo.Po@am__quote@
@@ -679,6 +683,22 @@ vcmiclient-CCreatureAnimation.obj: CCreatureAnimation.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureAnimation.cpp' object='vcmiclient-CCreatureAnimation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureAnimation.obj `if test -f 'CCreatureAnimation.cpp'; then $(CYGPATH_W) 'CCreatureAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureAnimation.cpp'; fi`
+
+vcmiclient-CCreatureWindow.o: CCreatureWindow.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo -c -o vcmiclient-CCreatureWindow.o `test -f 'CCreatureWindow.cpp' || echo '$(srcdir)/'`CCreatureWindow.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo $(DEPDIR)/vcmiclient-CCreatureWindow.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureWindow.cpp' object='vcmiclient-CCreatureWindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureWindow.o `test -f 'CCreatureWindow.cpp' || echo '$(srcdir)/'`CCreatureWindow.cpp
+
+vcmiclient-CCreatureWindow.obj: CCreatureWindow.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureWindow.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo -c -o vcmiclient-CCreatureWindow.obj `if test -f 'CCreatureWindow.cpp'; then $(CYGPATH_W) 'CCreatureWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureWindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo $(DEPDIR)/vcmiclient-CCreatureWindow.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureWindow.cpp' object='vcmiclient-CCreatureWindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureWindow.obj `if test -f 'CCreatureWindow.cpp'; then $(CYGPATH_W) 'CCreatureWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureWindow.cpp'; fi`
 
 vcmiclient-CCursorHandler.o: CCursorHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCursorHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCursorHandler.Tpo -c -o vcmiclient-CCursorHandler.o `test -f 'CCursorHandler.cpp' || echo '$(srcdir)/'`CCursorHandler.cpp

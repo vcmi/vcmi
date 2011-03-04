@@ -28,6 +28,8 @@ vcmiclient_SOURCES =  \
 	CConfigHandler.h \
 	CCreatureAnimation.cpp \
 	CCreatureAnimation.h \
+	CCreatureWindow.cpp \
+	CCreatureWindow.h \
 	CCursorHandler.cpp \
 	CCursorHandler.h \
 	CDefHandler.cpp \
