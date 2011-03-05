@@ -1883,6 +1883,42 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 	return ret;
 }
 
+int BattleInfo::getSurrenderingCost(int player) const
+{
+	if(!battleCanFlee(player)) //to surrender, conditions of fleeing must be fulfilled
+		return -1;
+	if(!getHero(theOtherPlayer(player))) //additionally, there must be an enemy hero
+		return -2;
+
+	int ret = 0;
+	double discount = 0;
+	BOOST_FOREACH(const CStack *s, stacks)
+		if(s->owner == player  &&  s->base) //we pay for our stack that comes from our army (the last condition eliminates summoned cres and war machines)
+			ret += s->getCreature()->cost[Res::GOLD] * s->count;
+
+	if(const CGHeroInstance *h = getHero(player))
+		discount += h->valOfBonuses(Bonus::SURRENDER_DISCOUNT);
+
+	ret *= (100.0 - discount) / 100.0;
+	amax(ret, 0); //no negative costs for >100% discounts (impossible in original H3 mechanics, but some day...)
+	return ret;
+}
+
+int BattleInfo::theOtherPlayer(int player) const
+{
+	return sides[!whatSide(player)];
+}
+
+ui8 BattleInfo::whatSide(int player) const
+{
+	for(int i = 0; i < ARRAY_COUNT(sides); i++)
+		if(sides[i] == player)
+			return i;
+
+	tlog1 << "BattleInfo::whatSide: Player " << player << " is not in battle!\n";
+	return -1;
+}
+
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),   
 	counterAttacks(1)

@@ -120,6 +120,7 @@ public:
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance); //distance - number of hexes travelled before attacking
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
+	void setBattleResult(int resultType, int victoriusSide);
 
 	CGameHandler(void);
 	~CGameHandler(void);

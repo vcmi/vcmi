@@ -1135,3 +1135,14 @@ bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 	sendRequest(&ma);
 	return true;
 }
+
+int CBattleCallback::battleGetSurrenderCost()
+{
+	if (!gs->curB)
+	{
+		tlog1 << "battleGetSurrenderCost called when no battle!\n";
+		return -1;
+	}
+
+	return gs->curB->getSurrenderingCost(player);
+}

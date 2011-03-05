@@ -1177,6 +1177,14 @@ void CGHeroInstance::updateSkill(int which, int val)
 		else
 			b->val = +val;
 	}
+	else if(which == DIPLOMACY) //surrender discount: 20% per level
+	{
+		
+		if(Bonus *b = getBonus(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
+			b->val = +val;
+		else
+			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
+	}
 
 	int skillVal = 0;
 	switch (which)

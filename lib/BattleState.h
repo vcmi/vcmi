@@ -131,6 +131,10 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void localInit();
 	static BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
 	bool isInTacticRange( THex dest ) const;
+	int getSurrenderingCost(int player) const;
+
+	int theOtherPlayer(int player) const;
+	ui8 whatSide(int player) const;
 };
 
 class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor

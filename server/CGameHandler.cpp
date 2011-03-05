@@ -1254,11 +1254,7 @@ void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 	}
 	if(!hasStack[0] || !hasStack[1]) //somebody has won
 	{
-		BattleResult *br = new BattleResult; //will be deleted at the end of startBattle(...)
-		br->result = 0;
-		br->winner = hasStack[1]; //fleeing side loses
-		gs->curB->calculateCasualties(br->casualties);
-		battleResult.set(br);
+		setBattleResult(0, hasStack[1]);
 	}
 }
 
@@ -1665,40 +1661,6 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 	sendAndApply(&vc);
 }
 
-// bool CGameHandler::removeArtifact(const CArtifact* art, int hid)
-// {
-// 	const CGHeroInstance* h = getHero(hid);
-// 
-// 	SetHeroArtifacts sha;
-// 	sha.hid = hid;
-// 	sha.artifacts = h->artifacts;
-// 	sha.artifWorn = h->artifWorn;
-// 	
-// 	std::vector<const CArtifact*>::iterator it;
-// 	if 	((it = std::find(sha.artifacts.begin(), sha.artifacts.end(), art)) != sha.artifacts.end()) //it is in backpack
-// 		sha.artifacts.erase(it);
-// 	else //worn
-// 	{
-// 		std::map<ui16, const CArtifact*>::iterator itr;
-// 		for (itr = sha.artifWorn.begin(); itr != sha.artifWorn.end(); ++itr)
-// 		{
-// 			if (itr->second == art)
-// 			{
-// 				VLC->arth->unequipArtifact(sha.artifWorn, itr->first);
-// 				break;
-// 			}
-// 		}
-// 
-// 		if(itr == sha.artifWorn.end())
-// 		{
-// 			tlog2 << "Cannot find artifact to remove!\n";
-// 			return false;
-// 		}
-// 	}
-// 	sendAndApply(&sha);
-// 	return true;
-// }
-
 void CGameHandler::removeArtifact(const ArtifactLocation &al)
 {
 	assert(al.getArt());
@@ -1736,13 +1698,6 @@ void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstan
 {
 	startBattleI(army1, army2, army2->visitablePos(), cb, creatureBank);
 }
-
-//void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army
-//{
-//	CGHeroInstance* h = const_cast<CGHeroInstance*>(getHero(heroID));
-//	startBattleI(&h->army,&army,tile,h,NULL,cb);
-//	//battle(&h->army,army,tile,h,NULL);
-//}
 
 void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spells )
 {
@@ -2534,17 +2489,7 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 		COMPLAIN_RET("No artifact to move!");
 	if (destArtifact && srcHero->tempOwner != destHero->tempOwner)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
-
-
-
-// 	// Combinational artifacts needs to be removed first so they don't get denied movement because of their own locks.
-// 	if (srcHeroID == destHeroID && srcSlot < 19 && destSlot < 19) 
-// 	{
-// 		sha.setArtAtPos(srcSlot, NULL);
-// 		if (!vstd::contains(sha.artifWorn, destSlot))
-// 			destArtifact = NULL;
-// 	}
-
+	
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
 	if ((!srcArtifact || destSlot < Arts::BACKPACK_START)
@@ -2561,10 +2506,6 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 
 	if(dst.slot >= Arts::BACKPACK_START)
 		amin(dst.slot, Arts::BACKPACK_START + dst.hero->artifactsInBackpack.size());
-
-//  	// Correction for destination from removing source artifact in backpack.
-//  	if (src.slot >= 19 && dst.slot >= 19 && src.slot < dst.slot)
-//  		dst.slot--;
 
 	if (src.slot == dst.slot  &&  src.hero == dst.hero)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
@@ -2583,37 +2524,6 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 		moveArtifact(src, dst);
 	}
 
-// 
-// 	// If dest does not fit in src, put it in dest's backpack instead.
-// 	if (srcHeroID == destHeroID) // To avoid stumbling on own locks, remove artifact first.
-// 		sha.setArtAtPos(destSlot, NULL);
-// 	const bool destFits = !destArtifact || srcSlot >= 19 || destSlot >= 19 || destArtifact->fitsAt(sha.artifWorn, srcSlot);
-// 	if (srcHeroID == destHeroID && destArtifact)
-// 		sha.setArtAtPos(destSlot, destArtifact);
-// 
-// 	sha.setArtAtPos(srcSlot, NULL);
-// 	if (destSlot < 19 && (destArtifact || srcSlot < 19) && destFits)
-// 		sha.setArtAtPos(srcSlot, destArtifact ? destArtifact : NULL);
-// 
-// 	// Internal hero artifact arrangement.
-// 	if(srcHero == destHero) 
-// 	{
-// 
-// 		sha.setArtAtPos(destSlot, srcHero->getArtAtPos(srcSlot));
-// 	}
-// 	if (srcHeroID != destHeroID) 
-// 	{
-// 		// Exchange between two different heroes.
-// 		SetHeroArtifacts sha2;
-// 		sha2.hid = destHeroID;
-// 		sha2.artifacts = destHero->artifacts;
-// 		sha2.artifWorn = destHero->artifWorn;
-// 		sha2.setArtAtPos(destSlot, srcArtifact ? srcArtifact : NULL);
-// 		if (!destFits)
-// 			sha2.setArtAtPos(sha2.artifacts.size() + 19, destHero->getArtAtPos(destSlot));
-// 		sendAndApply(&sha2);
-// 	}
-// 	sendAndApply(&sha);
 	return true;
 }
 
@@ -2656,118 +2566,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 		da.al = ArtifactLocation(hero, artifactSlot);
 		sendAndApply(&da);
 	}
-	/*
-	SetHeroArtifacts sha;
-	sha.hid = heroID;
-	sha.artifacts = hero->artifacts;
-	sha.artifWorn = hero->artifWorn;
 
-	if (assemble)
-	{
-		if (VLC->arth->artifacts.size() < assembleTo)
-		{
-			complain("Illegal artifact to assemble to.");
-			return false;
-		}
-
-		if (!destArtifact->canBeAssembledTo(hero->artifWorn, assembleTo))
-		{
-			complain("Artifact cannot be assembled.");
-			return false;
-		}
-
-		const CArtifact &artifact = *VLC->arth->artifacts[assembleTo];
-
-		if (artifact.constituents == NULL)
-		{
-			complain("Not a combinational artifact.");
-			return false;
-		}
-
-		// Perform assembly.
-		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
-		const bool destSpecific = vstd::contains(artifact.possibleSlots, artifactSlot); // Prefer the chosen slot as the location for the assembled artifact.
-
-		BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
-		{
-			if (destSpecific && constituentID == destArtifact->id)
-			{
-				sha.artifWorn[artifactSlot] = VLC->arth->artifacts[assembleTo];
-				destConsumed = true;
-				continue;
-			}
-
-			bool found = false;
-			for (std::map<ui16, const CArtifact*>::iterator it = sha.artifWorn.begin(); it != sha.artifWorn.end(); ++it)
-			{
-				if (it->second->id == constituentID)
-				{ // Found possible constituent to substitute.
-					if (destSpecific && !destConsumed && it->second->id == destArtifact->id)
-					{
-						// Find the specified destination for assembled artifact.
-						if (it->first == artifactSlot)
-						{
-							it->second = VLC->arth->artifacts[assembleTo];
-							destConsumed = true;
-
-							found = true;
-							break;
-						}
-					}
-					else
-					{
-						// Either put the assembled artifact in a fitting spot, or put a lock.
-						if (!destSpecific && !destConsumed && vstd::contains(artifact.possibleSlots, it->first))
-						{
-							it->second = VLC->arth->artifacts[assembleTo];
-							destConsumed = true;
-						}
-						else
-						{
-							it->second = VLC->arth->artifacts[145];
-						}
-
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				complain("Constituent missing.");
-				return false;
-			}
-		}
-	}
-	else
-	{
-		// Perform disassembly.
-		bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
-		BOOST_FOREACH(ui32 constituentID, *destArtifact->constituents)
-		{
-			const CArtifact &constituent = *VLC->arth->artifacts[constituentID];
-
-			if (!destConsumed && vstd::contains(constituent.possibleSlots, artifactSlot))
-			{
-				sha.artifWorn[artifactSlot] = VLC->arth->artifacts[constituentID];
-				destConsumed = true;
-			}
-			else
-			{
-				BOOST_REVERSE_FOREACH(ui16 slotID, constituent.possibleSlots)
-				{
-					if (vstd::contains(sha.artifWorn, slotID) && sha.artifWorn[slotID]->id == 145)
-					{
-						const_cast<CArtifact*>(sha.artifWorn[slotID])->id = constituentID;
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	sendAndApply(&sha);
-
-	return true;*/
 	return false;
 }
 
@@ -3142,17 +2941,28 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::RETREAT: //retreat/flee
 		{
-			if( !gs->curB->battleCanFlee(ba.side ? gs->curB->sides[1] : gs->curB->sides[0]) )
-				break;
-			//TODO: remove retreating hero from map and place it in recruitment list
-			BattleResult *br = new BattleResult;
-			br->result = 1;
-			br->winner = !ba.side; //fleeing side loses
-			gs->curB->calculateCasualties(br->casualties);
-			giveExp(*br);
-			battleResult.set(br);
+			if(!gs->curB->battleCanFlee(gs->curB->sides[ba.side]))
+				complain("Cannot retreat!");
+			else
+				setBattleResult(1, !ba.side); //surrendering side loses
 			break;
 		}
+	case BattleAction::SURRENDER:
+		{
+			int player = gs->curB->sides[ba.side];
+			int cost = gs->curB->getSurrenderingCost(player);
+			if(cost < 0)
+				complain("Cannot surrender!");
+			else if(getResource(player, Res::GOLD) < cost)
+				complain("Not enough gold to surrender!");
+			else
+			{
+				giveResource(player, Res::GOLD, -cost);
+				setBattleResult(2, !ba.side); //surrendering side loses
+			}
+			break;
+		}
+		break;
 	case BattleAction::WALK_AND_ATTACK: //walk or attack
 		{
 			sendAndApply(&StartAction(ba)); //start movement and attack
@@ -3538,17 +3348,6 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		if(!hero) return;
 		for (int g=7; g<=140; ++g)
 			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], -1);
-
-// 		SetHeroArtifacts sha;
-// 		sha.hid = hero->id;
-// 		sha.artifacts = hero->artifacts;
-// 		sha.artifWorn = hero->artifWorn;
-// 		sha.artifacts.push_back(VLC->arth->artifacts[2]); //grail
-// 		for (int g=7; g<=140; ++g)
-// 		{
-// 			sha.artifacts.push_back(VLC->arth->artifacts[g]);
-// 		}
-// 		sendAndApply(&sha);
 	}
 	else
 		cheated = false;
@@ -3730,7 +3529,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 {
 	switch(ba.actionType)
 	{
-	case 1: //hero casts spell
+	case BattleAction::HERO_SPELL: //hero casts spell
 		{
 			const CGHeroInstance *h = gs->curB->heroes[ba.side];
 			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
@@ -5060,6 +4859,15 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 	sendAndApply(&na); // -> updates a!!!, will create a on other machines
 
 	giveHeroArtifact(h, a, pos);
+}
+
+void CGameHandler::setBattleResult(int resultType, int victoriusSide)
+{
+	BattleResult *br = new BattleResult;
+	br->result = resultType;
+	br->winner = victoriusSide; //surrendering side loses
+	gs->curB->calculateCasualties(br->casualties);
+	battleResult.set(br);
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

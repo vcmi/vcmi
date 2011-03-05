@@ -496,6 +496,7 @@ public:
 	void bSurrenderf();
 	void bFleef();
 	void reallyFlee(); //performs fleeing without asking player
+	void reallySurrender(); //performs surrendering without asking player
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();

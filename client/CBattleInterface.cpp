@@ -37,6 +37,7 @@ const double M_PI = 3.14159265358979323846;
 #define _USE_MATH_DEFINES
 #include <cmath>
 #endif
+#include <boost/format.hpp>
 
 /*
  * CBattleInterface.cpp, part of VCMI engine
@@ -1198,8 +1199,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	bOptions = new AdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
 	bSurrender = new AdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54 + pos.x, 561 + pos.y, "icm001.def", SDLK_s);
 	bFlee = new AdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
-	bSurrender->block(!curInt->cb->battleCanFlee());
 	bFlee->block(!curInt->cb->battleCanFlee());	
+	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
 	bAutofight  = new AdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
 	bSpell = new AdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
 	bSpell->block(true);
@@ -2160,6 +2161,15 @@ void CBattleInterface::bSurrenderf()
 {
 	if(spellDestSelectMode) //we are casting a spell
 		return;
+
+	int cost = curInt->cb->battleGetSurrenderCost();
+	if(cost >= 0)
+	{
+		const CGHeroInstance *opponent = curInt->cb->battleGetFightingHero(1);
+		std::string enemyHeroName = opponent ? opponent->name : "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled? 
+		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
+		curInt->showYesNoDialog(surrenderMessage, std::vector<SComponent*>(), boost::bind(&CBattleInterface::reallySurrender,this), 0, false);
+	}
 }
 
 void CBattleInterface::bFleef()
@@ -2170,7 +2180,7 @@ void CBattleInterface::bFleef()
 	if( curInt->cb->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
-		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, 0, false);
+		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, 0, false); //Are you sure you want to retreat?
 	}
 	else
 	{
@@ -2185,7 +2195,7 @@ void CBattleInterface::bFleef()
 				heroName = defendingHeroInstance->name;
 		//calculating text
 		char buffer[1000];
-		sprintf(buffer, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str());
+		sprintf(buffer, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str()); //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
 		curInt->showInfoDialog(std::string(buffer), comps);
@@ -2194,8 +2204,21 @@ void CBattleInterface::bFleef()
 
 void CBattleInterface::reallyFlee()
 {
-	giveCommand(4,0,0);
+	giveCommand(BattleAction::RETREAT,0,0);
 	CCS->curh->changeGraphic(0, 0);
+}
+
+void CBattleInterface::reallySurrender()
+{
+	if(curInt->cb->getResourceAmount(Res::GOLD) < curInt->cb->battleGetSurrenderCost())
+	{
+		curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
+	}
+	else
+	{
+		giveCommand(BattleAction::SURRENDER,0,0);
+		CCS->curh->changeGraphic(0, 0);
+	}
 }
 
 void CBattleInterface::bAutofightf()
@@ -3013,6 +3036,7 @@ void CBattleInterface::activateStack()
 	bSpell->block(!curInt->cb->battleCanCastSpell());
 	bSurrender->block((curInt == attackerInt ? defendingHeroInstance : attackingHeroInstance) == NULL);
 	bFlee->block(!curInt->cb->battleCanFlee());
+	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
 
 	GH.fakeMouseMove();
 

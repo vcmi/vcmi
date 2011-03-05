@@ -99,6 +99,7 @@ public:
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
 	virtual SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell)=0; //determines if given spell can be casted (and returns problem description)
 	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
+	virtual int battleGetSurrenderCost()=0; //returns cost of surrendering battle, -1 if surrendering is not possible
 	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
 	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	virtual int battleGetWallUnderHex(THex hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
@@ -237,6 +238,7 @@ public:
 	bool battleCanCastSpell() OVERRIDE; //returns true, if caller can cast a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) OVERRIDE; //determines if given spell can be casted (and returns problem description)
 	bool battleCanFlee() OVERRIDE; //returns true if caller can flee from the battle
+	int battleGetSurrenderCost() OVERRIDE; //returns cost of surrendering battle, -1 if surrendering is not possible
 	const CGTownInstance * battleGetDefendedTown() OVERRIDE; //returns defended town if current battle is a siege, NULL instead
 	ui8 battleGetWallState(int partOfWall) OVERRIDE; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetWallUnderHex(THex hex) OVERRIDE; //returns part of destructible wall / gate / keep under given hex or -1 if not found
