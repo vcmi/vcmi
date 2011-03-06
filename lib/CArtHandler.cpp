@@ -653,7 +653,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(101,Bonus::SPELL_IMMUNITY,0,62);//Pendant of Second Sight
 	giveArtBonus(102,Bonus::SPELL_IMMUNITY,0,42);//Pendant of Holiness
 	giveArtBonus(103,Bonus::SPELL_IMMUNITY,0,24);//Pendant of Life
-	giveArtBonus(104,Bonus::SPELL_IMMUNITY,0,25);//Pendant of Death
+	giveArtBonus(104,Bonus::SPELL_IMMUNITY,0,25, 1, new HasAnotherBonusLimiter(Bonus::UNDEAD));//Pendant of Death does not display info for living stacks
 	giveArtBonus(105,Bonus::SPELL_IMMUNITY,0,60);//Pendant of Free Will
 	giveArtBonus(106,Bonus::SPELL_IMMUNITY,0,17);//Pendant of Negativity
 	giveArtBonus(107,Bonus::SPELL_IMMUNITY,0,61);//Pendant of Total Recall

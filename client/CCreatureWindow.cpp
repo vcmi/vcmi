@@ -12,7 +12,7 @@
 #include "Graphics.h"
 #include "AdventureMapButton.h"
 #include "CPlayerInterface.h"
-#include "CMessage.h"
+#include "CConfigHandler.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
@@ -50,37 +50,75 @@ CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type)
 	init(&stack, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj));
 }
 
+CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount)
+	:type(Type)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	CStackInstance * stack = new CStackInstance(Type,creatureCount); //TODO: simplify?
+	init(stack, CGI->creh->creatures[Cid], NULL);
+	delete stack;
+}
+
 void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner)
 {
 	c = stack->type;
 	if(!stackNode) stackNode = c;
 
-	//Basic graphics
-	std::pair<int,int> winSize;
-	winSize.first = 560 + 30;
-	winSize.second = 448 + 60;
+	//Basic graphics - need to calculate size
 
-	bitmap = new CPicture(CMessage::drawBox1 (winSize.first, winSize.second, LOCPLINT->playerID), winSize.first, winSize.second, true);
-	//bitmap = new CPicture("CreWin3.pcx");
-	//graphics->blueToPlayersAdv(bitmap->bg, LOCPLINT->playerID);
-	//bitmap->colorizeAndConvert(LOCPLINT->playerID);
+	CBonusSystemNode node = CBonusSystemNode() ;
+	node.bonuses = stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT));
+	BonusList bl;
+
+	while (node.bonuses.size())
+	{
+		Bonus * b = node.bonuses.front();
+
+		bl.push_back (new Bonus(*b));
+		bl.back()->val = node.valOfBonuses(Selector::typeSybtype(b->type, b->subtype)); //merge multiple bonuses into one
+		node.bonuses.remove_if (Selector::typeSybtype(b->type, b->subtype)); //remove used bonuses
+	}
+
+	std::vector<std::pair<std::string, std::string>> descriptions; //quick, yet slow solution
+	std::string text, text2;
+	BOOST_FOREACH(Bonus* b, bl)
+	{
+		text = stack->bonusToString(b, false);
+		if (text.size())
+		{
+			text2 = stack->bonusToString(b, true);
+			descriptions.push_back(std::pair<std::string,std::string>(text, text2));
+		}
+	}
+
+	int bonusRows = std::min ((int)((descriptions.size() + 1) / 2), (conf.cc.resy - 230) / 60);
+	amin(bonusRows, 4);
+	amax(bonusRows, 1);
+	//TODO: Scroll them
+
+	bitmap = new CPicture("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
+	bitmap->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bitmap->center();
 
 	//Buttons
-	ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CCreatureWindow::close,this), 489, 148, "IOKAY32.DEF", SDLK_RETURN);
+	ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CCreatureWindow::close,this), 489, 148, "hsbtns.def", SDLK_RETURN);
 
 	if (type <= BATTLE) //in battle or info window
 	{
 		upgrade = NULL;
 		dismiss = NULL;
 	}
-	anim = new CCreaturePic(20, 46, c);
+	anim = new CCreaturePic(22, 48, c);
+	count = boost::lexical_cast<std::string>(stack->count);
+	if (count.size()) //TODO
+		printTo(count, 117, 174, FONT_SMALL, tytulowy,*bitmap);
 	printAtMiddle(c->namePl, 180, 30, FONT_SMALL, tytulowy,*bitmap); //creature name
 
 	//Stats
-	morale = new MoraleLuckBox(true, genRect(42, 42, 333, 98));
+	morale = new MoraleLuckBox(true, genRect(42, 42, 335, 100));
 	morale->set(stack);
-	luck = new MoraleLuckBox(false, genRect(42, 42, 385, 98));
+	luck = new MoraleLuckBox(false, genRect(42, 42, 387, 100));
 	luck->set(stack);
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
@@ -101,8 +139,8 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 	{
 		if (STACK_EXP)
 		{
-			printAtMiddle("Rank " + boost::lexical_cast<std::string>(stack->getExpRank()), 425, 60, FONT_MEDIUM, tytulowy,*bitmap);
-			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 425, 80, FONT_SMALL, zwykly,*bitmap);
+			printAtMiddle("Rank " + boost::lexical_cast<std::string>(stack->getExpRank()), 436, 62, FONT_MEDIUM, tytulowy,*bitmap);
+			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 436, 82, FONT_SMALL, zwykly,*bitmap);
 		}
 
 		if (STACK_ARTIFACT && type > BATTLE)
@@ -125,7 +163,7 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 		std::vector<si32> spells = battleStack->activeSpells();
 		BOOST_FOREACH(si32 effect, spells)
 		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 21 + 52 * printed, 186, *bitmap); 
+			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap); 
 			if (++printed >= 10) //we can fit only 10 effects
 				break;
 		}
@@ -135,31 +173,21 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 
 	//All bonuses - abilities
 
-	BonusList bl = stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT));
-	//BonusList bl = stackNode->getBonuses(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
-	int bonusRows = bl.size() / 3;
-	int bonusHeight = bonusRows * 60;
-	//TODO: Scroll them
-	std::string text;
 	int i = 0, j = 0;
-
-	BOOST_FOREACH(Bonus* b, bl)
+	typedef std::pair<std::string, std::string> stringpair; //jeez
+	BOOST_FOREACH(stringpair p, descriptions)
 	{
-		int offsetx = 60*i;
-		int offsety = 170*j;
+		int offsetx = 257*j;
+		int offsety = 60*i;
 
-		text = stack->bonusToString(b, false);
-		if (text.size())
+		printAt(p.first, 84 + offsetx, 238 + offsety, FONT_SMALL, tytulowy, *bitmap);
+		printAt(p.second, 84 + offsetx, 258 + offsety, FONT_SMALL, zwykly, *bitmap);
+
+		if (++j > 1) //next line
 		{
-			printAt(text, 80 + offsety, 242 + offsetx, FONT_SMALL, tytulowy, *bitmap);
-			//graphics (21 + offsetx, 233 + offsetty)
-			if (++j > 2) //next line
-			{
-				++i;
-				j = 0;
-			}
+			++i;
+			j = 0;
 		}
-
 			//text = stack->bonusToString(*it, true);
 			//if (text.size())
 			//	printAt(text, 80 + offsety, 262 + offsetx, FONT_SMALL, zwykly, *bitmap);
@@ -214,13 +242,12 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false);
 			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,333, 148,"IVIEWCR2.DEF",SDLK_d);
 		}
-		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreatureWindow::close,this),489, 148,"IOKAY.DEF",SDLK_RETURN); //TODO: Remove duplicate
 	}
 }
 
 void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
 {
-	printAt(text, 155, 48 + nr*19, FONT_SMALL, zwykly, *bitmap);
+	printAt(text, 162, 48 + nr*19, FONT_SMALL, zwykly, *bitmap);
 
 	std::string hlp;
 	if(range && baseVal != val)
@@ -233,11 +260,32 @@ void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, in
 	printTo(hlp, 325, 64 + nr*19, FONT_SMALL, zwykly, *bitmap);
 }
 
+//void CCreatureWindow::activate()
+//{
+//	CIntObject::activate();
+//	if(type < 3)
+//		activateRClick();
+//}
+
 void CCreatureWindow::scrollArt(int dir)
 {
+}
+
+void CCreatureWindow::clickRight(tribool down, bool previousState)
+{
+	if(down)
+		return;
+	if (type < 3)
+		close();
 }
 
 void CCreatureWindow::close()
 {
 	GH.popIntTotally(this);
+}
+
+CCreatureWindow::~CCreatureWindow()
+{
+ 	for(int i=0; i<upgResCost.size();i++)
+ 		delete upgResCost[i];
 }

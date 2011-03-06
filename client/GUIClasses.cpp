@@ -172,7 +172,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 	if(down && creature)
 	{
 		//GH.pushInt(new CCreInfoWindow(*myStack));
-		GH.pushInt(new CCreatureWindow(*myStack, 4));
+		GH.pushInt(new CCreatureWindow(*myStack, 2));
 	}
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
@@ -194,7 +194,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
 
 				//CCreInfoWindow *creWindow = new CCreInfoWindow( *myStack, 1, upgr, dism, &pom);
-				CCreatureWindow *creWindow = new CCreatureWindow( *myStack, 2, upgr, dism, &pom);
+				CCreatureWindow *creWindow = new CCreatureWindow( *myStack, 3, upgr, dism, &pom);
 				
 				GH.pushInt(creWindow);
 
@@ -1752,7 +1752,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 			Rect creatureRect = genRect(132, sCREATURE_WIDTH, pos.x+curx, pos.y+64);
 			if(isItIn(&creatureRect, GH.current->motion.x, GH.current->motion.y))
 			{
-				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0);
+				CCreatureWindow *popup = new CCreatureWindow(creatures[i].ID, 0, 0);
 				GH.pushInt(popup);
 				break;
 			}

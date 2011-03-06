@@ -2,6 +2,7 @@
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
+#include "CCreatureWindow.h"
 #include "../CCallback.h"
 #include "../global.h"
 #include "CConfigHandler.h"
@@ -1062,7 +1063,7 @@ void CKingdomInterface::CTownItem::CCreaPlace::clickRight(tribool down, bool pre
 			crid = town->town->upgradedCreatures[type];
 		else
 			crid = town->town->basicCreatures[type];
-		GH.pushInt(new CCreInfoWindow(crid, 0, town->creatures[type].first));
+		GH.pushInt(new CCreatureWindow(crid, 0, town->creatures[type].first));
 	}
 }
 

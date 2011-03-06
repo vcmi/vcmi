@@ -519,6 +519,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::TWO_HEX_ATTACK_BREATH:
 				case Bonus::THREE_HEADED_ATTACK:
 				case Bonus::ATTACKS_ALL_ADJACENT:
+				case Bonus::ADDITIONAL_ATTACK: //TODO: what with more than one attack? Axe of Ferocity for example
 				case Bonus::FULL_HP_REGENERATION:
 				case Bonus::LIFE_DRAIN: //TODO: chance, hp percentage?
 				case Bonus::SELF_MORALE:
@@ -533,33 +534,27 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::UNDEAD:
 				break;
 				//One numeric value
-				//case Bonus::STACKS_SPEED: //Do we need description for creature stats?
-				//case Bonus::STACK_HEALTH:
 				case Bonus::MAGIC_RESISTANCE:
+				case Bonus::SPELL_RESISTANCE_AURA:
 				case Bonus::SPELL_DAMAGE_REDUCTION:
 				case Bonus::LEVEL_SPELL_IMMUNITY:
-				case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
-				case Bonus::CHANGES_SPELL_COST_FOR_ENEMY:
-				case Bonus::MANA_CHANNELING:
 				case Bonus::MANA_DRAIN:
 				case Bonus::HP_REGENERATION:
 				case Bonus::ADDITIONAL_RETALIATION:
 				case Bonus::DOUBLE_DAMAGE_CHANCE:
-				case Bonus::ENEMY_DEFENCE_REDUCTION:
-				case Bonus::MAGIC_MIRROR:
 				case Bonus::DARKNESS: //Darkness Dragons any1?
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
 					break;
 				//Complex descriptions
 				case Bonus::HATE:
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::SPELL_IMMUNITY:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->additionalInfo % 100));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->additionalInfo));
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				default:
@@ -571,13 +566,19 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 			text = it->second.first;
 			switch (bonus->type)
 			{
+				case Bonus::MANA_CHANNELING:
+				case Bonus::MAGIC_MIRROR:
+				case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
+				case Bonus::CHANGES_SPELL_COST_FOR_ENEMY:
+				case Bonus::ENEMY_DEFENCE_REDUCTION:
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
+					break;
 				case Bonus::HATE:
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::LEVEL_SPELL_IMMUNITY:
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
 					break;
-				case Bonus::SPELL_IMMUNITY:
 				case Bonus::SPELL_AFTER_ATTACK:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;

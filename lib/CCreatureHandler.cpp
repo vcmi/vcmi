@@ -416,7 +416,8 @@ void CCreatureHandler::loadCreatures()
 				reader >> buf; nsf->additionalInfo = buf;
 				nsf->source = Bonus::CREATURE_ABILITY;
 				nsf->sid = cre->idNumber;
-				nsf->duration = Bonus::ONE_BATTLE;
+				//nsf->duration = Bonus::ONE_BATTLE; //what the?
+				nsf->duration = Bonus::PERMANENT;
 				nsf->turnsRemain = 0;
 
 				cre->addNewBonus(nsf);
@@ -991,6 +992,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		for (int i = 1; i < 11; ++i)
 		{
 			loadToIt (curVal, src, it, 4);
+			if (b.type == Bonus::HATE)
+				curVal *= 10; //odd fix
 			if (curVal > lastVal) //threshold, add new bonus
 			{
 				b.val = curVal - lastVal;

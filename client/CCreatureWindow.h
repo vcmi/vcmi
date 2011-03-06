@@ -22,7 +22,7 @@ class AdventureMapButton;
 class CCreatureWindow : public CIntObject
 {
 public:
-	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3};
+	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3}; //only last one should open permanently
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	CPicture *bitmap; //background
@@ -40,24 +40,20 @@ public:
 
 	CSlider * slider; //Abilities
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	AdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection - do we need it?
+	AdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
 	//TODO: Arifact drop
 
-	//CCreatureWindow(const CStackInstance &st, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
 	CCreatureWindow(const CStack & stack, int type); //battle c-tor
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
-	//CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
+	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-	//~CCreatureWindow(); //d-tor
+	~CCreatureWindow(); //d-tor
 	//void activate();
 	void close();
-	//void clickRight(tribool down, bool previousState); //call-in
-	//void dismissF();
+	void clickRight(tribool down, bool previousState); //call-in
 	//void keyPressed (const SDL_KeyboardEvent & key); //call-in
-	//void deactivate();
-	//void show(SDL_Surface * to);
 	void scrollArt(int dir);
 };
 
