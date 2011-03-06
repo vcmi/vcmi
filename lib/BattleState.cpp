@@ -561,8 +561,7 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	}
 
 	//handling hate effect
-	if( attacker->hasBonusOfType(Bonus::HATE, defender->getCreature()->idNumber) )
-		additiveBonus += 0.5f;
+	additiveBonus += attacker->valOfBonuses(Bonus::HATE, defender->getCreature()->idNumber) / 100.f;
 
 	//luck bonus
 	if (lucky)

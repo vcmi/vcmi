@@ -8,10 +8,10 @@
 +   1 CHARGE_IMMUNITY 0 0 0 		//halberdier immunity to Champion charge bonus				
 +   4 ADDITIONAL_RETALIATION 1 0 0 	//griffins retaliate twice					
 +   5 UNLIMITED_RETALIATIONS 0 0 0	//royal griffins retaliate always					
-+  12 HATE 0 54 0			   	 	//angels hate devils	
-+  12 HATE 0 55 0					//angels hate archdevils	
-+  13 HATE 0 54 0					//archangels hate devils	
-+  13 HATE 0 55 0					//archangels hate arch	
++  12 HATE 50 54 0			   	 	//angels hate devils	
++  12 HATE 50 55 0					//angels hate archdevils	
++  13 HATE 50 54 0					//archangels hate devils	
++  13 HATE 50 55 0					//archangels hate arch	
 +  13 SPELLCASTER 0 38 0			//archangels cast resurrection			
 +  16 MAGIC_RESISTANCE 20 0 0 		//dwarf's magic resistance 20%				
 +  17 MAGIC_RESISTANCE 40 0 0 	 	//battle dwarf's magic resistance 40%				
@@ -37,10 +37,10 @@
 +  33 SPELL_DAMAGE_REDUCTION 75 -1 0	   	//iron golems reduce dmg from spells				
 +  34 CHANGES_SPELL_COST_FOR_ALLY -2 0 0   	//mages reduce spell cost					
 +  35 CHANGES_SPELL_COST_FOR_ALLY -2 0 0   	//archmages reduce spell cost					
-+  36 HATE 0 52 0				  	//genies hate efreets	
-+  36 HATE 0 53 0				  	//genies hate efreet sultans	
-+  37 HATE 0 52 0				  	//master genies hate efreets	
-+  37 HATE 0 53 0				  	//master genies hate efreet sultans	
++  36 HATE 50 52 0				  	//genies hate efreets	
++  36 HATE 50 53 0				  	//genies hate efreet sultans	
++  37 HATE 50 52 0				  	//master genies hate efreets	
++  37 HATE 50 53 0				  	//master genies hate efreet sultans	
 +  37 RANDOM_GENIE_SPELLCASTER 0 0 0  		//master genies cast spells				
 +  38 BLOCKS_RETALIATION 0 0 0		//nagas block retaliation				
 +  39 BLOCKS_RETALIATION 0 0 0  	//naga queens block retaliation					
@@ -49,7 +49,7 @@
 +  40 SPELL_IMMUNITY 0 60 0			//giants are immune to mind spells (hypnotize)			
 +  40 SPELL_IMMUNITY 0 61 0			//giants are immune to mind spells (forgetfulness)			
 +  40 SPELL_IMMUNITY 0 62 0			//giants are immune to mind spells (blind)			
-+  41 HATE 0 83 0		   	 		//titans hate black dragons	
++  41 HATE 50 83 0		   	 		//titans hate black dragons	
 +  41 SPELL_IMMUNITY 0 50 0			//titans are immune to mind spells (sorrow)			
 +  41 SPELL_IMMUNITY 0 59 0			//titans are immune to mind spells (berserk)			
 +  41 SPELL_IMMUNITY 0 60 0			//titans are immune to mind spells (hypnotize)			
@@ -63,21 +63,21 @@
 +  51 DAEMON_SUMMONING 0 52 0		//pit lord				
 +  52 FIRE_IMMUNITY 0 0 0 			//efreeti			
 +  52 FLYING 0 0 0  				//Efreeti		
-+  52 HATE 0 36 0	  				//efreeti hate genies	
-+  52 HATE 0 37 0					//efreeti hate master genies	
++  52 HATE 50 36 0	  				//efreeti hate genies	
++  52 HATE 50 37 0					//efreeti hate master genies	
 +  53 FIRE_IMMUNITY 0 0 0			//efreet sultan			
 +  53 FIRE_SHIELD 0 36 0			//efreet sultans			
 +  53 FLYING 0 0 0		  	 		//Efreet Sultan	
-+  53 HATE 0 36 0					//efreet sultans hate genies	
-+  53 HATE 0 37 0					//efreet sultans hate master genies	
++  53 HATE 50 36 0					//efreet sultans hate genies	
++  53 HATE 50 37 0					//efreet sultans hate master genies	
 +  54 BLOCKS_RETALIATION 0 0 0 	 	//devils				
 +  54 ENEMY_LUCK_DECREASING 1 0 0	//devils					
-+  54 HATE 0 12 0		   	 		//devils hate angels	
-+  54 HATE 0 13 0					//devils hate archangles	
++  54 HATE 50 12 0		   	 		//devils hate angels	
++  54 HATE 50 13 0					//devils hate archangles	
 +  55 BLOCKS_RETALIATION 0 0 0 	 	//archdevils				
 +  55 ENEMY_LUCK_DECREASING 1 0 0 	//archdevils					
-+  55 HATE 0 12 0		   	 		//archdevils hate angels	
-+  55 HATE 0 13 0					//archdevils hate archangles	
++  55 HATE 50 12 0		   	 		//archdevils hate angels	
++  55 HATE 50 13 0					//archdevils hate archangles	
 +  60 FULL_HP_REGENERATION 0 1 0			//wight			
 +  61 MANA_DRAIN 2 0 0 				//wraith		
 +  61 FULL_HP_REGENERATION 0 1 0 			//wraith			
@@ -105,6 +105,8 @@
 +  82 LEVEL_SPELL_IMMUNITY 3 0 0   	//red dragon's spell immunity					
 +  82 DRAGON_NATURE 0 0 0			//red dragon is a dragon			
 +  83 LEVEL_SPELL_IMMUNITY 5 0 0   	//black dragon's spell immunity					
++  83 HATE 50 40 0	//Hate Ggiants					
++  83 HATE 50 41 0	//Hate Titans					
 +  83 DRAGON_NATURE 0 0 0			//black dragon is a dragon			
 +  87 ADDITIONAL_ATTACK 1 0 0		//wolf raider				
 +  91 SPELLCASTER 2 43 6   	   	   	//ogre magi cast bloodlust			
