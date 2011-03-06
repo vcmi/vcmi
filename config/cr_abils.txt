@@ -114,7 +114,7 @@
 + 103 SPELL_AFTER_ATTACK 0 79 10   	//mighty gorgons					
 + 104 SPELL_AFTER_ATTACK 0 78 100  	//serpent fly					
 + 105 SPELL_AFTER_ATTACK 0 45 100  	//mighty gorgons					
-+ 105 SPELL_AFTER_ATTACK 0 78 10'file:///F:/Programowanie/VCMI/config/bonusnames.txt'#Arkusz1.C110  	//dragon fly					
++ 105 SPELL_AFTER_ATTACK 0 78 100	//dragon fly					
 + 106 SPELL_AFTER_ATTACK 0 70 20   	//basilisks					
 + 107 SPELL_AFTER_ATTACK 0 70 20   	//greater basilisks					
 + 109 SPELL_AFTER_ATTACK 0 71 20   	//Wyvern Monarch					
