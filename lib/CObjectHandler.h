@@ -654,7 +654,6 @@ class DLL_EXPORT CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
-	ui8 removeAfterVisit; //true if event is removed after occurring
 
 	//gained things:
 	ui32 gainedExp;
@@ -688,17 +687,15 @@ public:
 class DLL_EXPORT CGEvent : public CGPandoraBox  //event objects
 {
 public:
-
+	ui8 removeAfterVisit; //true if event is removed after occurring
 	ui8 availableFor; //players whom this event is available for
 	ui8 computerActivate; //true if computre player can activate this event
 	ui8 humanActivate; //true if human player can activate this event
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
-		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
-			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
-			& computerActivate & humanActivate;
+		h & static_cast<CGPandoraBox &>(*this);
+		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
 	}
 	
 	void onHeroVisit(const CGHeroInstance * h) const;

@@ -1586,13 +1586,12 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	COMPLAIN_RET_IF(creatures.stacksCount() > ARMY_SIZE, "Too many stacks to give!");
 
 	//first we move creatures to give to make them army of object-source
-	for(int i = 0; i != creatures.stacksCount(); i++)
+	for (TSlots::const_iterator stack = creatures.Slots().begin(); stack != creatures.Slots().end(); stack++)
 	{
-		TSlots::const_iterator stack = creatures.Slots().begin();
-		addToSlot(StackLocation(obj, i), stack->second->type, stack->second->count);
-	}
+		addToSlot(StackLocation(obj, obj->getSlotFor(stack->second->type)), stack->second->type, stack->second->count);
+	}		
 
-	tryJoiningArmy(obj, h, remove, false);
+	tryJoiningArmy(obj, h, remove, true);
 }
 
 void CGameHandler::takeCreatures(int objid, std::vector<CStackBasicDescriptor> creatures)
@@ -4522,6 +4521,24 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 {
 	if(!dst->canBeMergedWith(*src, allowMerging))
 	{
+		if (allowMerging) //do that, add all matching creatures.
+		{
+			bool cont = true;
+			while (cont)
+			{
+				for(TSlots::const_iterator i = src->stacks.begin(); i != src->stacks.end(); i++)//while there are unmoved creatures
+				{
+					TSlot pos = dst->getSlotFor(i->second->type);
+					if(pos > -1)
+					{
+						moveStack(StackLocation(src, i->first), StackLocation(dst, pos));
+						cont = true;
+						break; //or iterator crashes
+					}
+					cont = false;
+				}
+			}
+		}		
 		boost::function<void()> removeOrNot = 0;
 		if(removeObjWhenFinished) 
 			removeOrNot = boost::bind(&IGameCallback::removeObject,this,src->id);

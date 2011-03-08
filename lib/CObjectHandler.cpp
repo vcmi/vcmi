@@ -4873,6 +4873,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
+	std::string msg = message; //in case box is removed in the meantime
 
 	bool changesPrimSkill = false;
 	for (int i = 0; i < primskills.size(); i++)
@@ -5044,11 +5045,10 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		cb->showInfoDialog(&iw);
 		cb->giveCreatures(this, h, creatures, true);
-		//boost::bind(&CGPandoraBox::endBattle, this, h, _1)
 	}
-	if(!afterBattle && message.size())
+	if(!afterBattle && msg.size())
 	{
-		iw.text << message;
+		iw.text << msg;
 		cb->showInfoDialog(&iw);
 	}
 	if (!creatures.Slots().size())

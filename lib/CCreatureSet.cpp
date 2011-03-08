@@ -374,15 +374,20 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 	}
 	else
 	{
-		std::set<const CCreature*> cres;
+		CCreatureSet cres;
 
 		//get types of creatures that need their own slot
 		for(TSlots::const_iterator i = cs.stacks.begin(); i != cs.stacks.end(); i++)
-			cres.insert(i->second->type);
+			cres.addToSlot(i->first, i->second->type->idNumber, 1, true);
+		TSlot j;
 		for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
-			cres.insert(i->second->type);
-
-		return cres.size() <= ARMY_SIZE;
+		{
+			if ((j = cres.getSlotFor(i->second->type)) >= 0)
+				cres.addToSlot(j, i->second->type->idNumber, 1, true);  //merge if possible
+			else
+				return false; //no place found
+		}
+		return true; //all stacks found their slots
 	}
 }
 
