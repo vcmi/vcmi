@@ -525,7 +525,7 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 {
 	comp = Comp;
 	img = comp->getImg();
-	std::vector<std::string> brtext = CMessage::breakText(comp->subtitle,13); //text 
+	std::vector<std::string> brtext = CMessage::breakText(comp->subtitle,14); //text 
 	txt = CMessage::drawText(&brtext,txtFontHeight,FONT_SMALL);
 
 	//calculate dimensions

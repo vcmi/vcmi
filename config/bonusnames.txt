@@ -37,7 +37,7 @@ FULL_HP_REGENERATION	Regeneration	May Regenerate full Health
 HP_REGENERATION	Regeneration	Heals %d hit points every round
 FREE_SHOOTING	Shoot Close	Can shoot in Close Combat
 LEVEL_SPELL_IMMUNITY	Spell immunity 1-%d	Immune to spells levels 1-%d
-SPELL_DAMAGE_REDUCTION	Spell Resistance	Damage from spells reduced 50%.
+SPELL_DAMAGE_REDUCTION	Spell Resistance	Damage from spells reduced %d%.
 THREE_HEADED_ATTACK	Three-headed attack	Attacks three adjacent units
 UNDEAD	Undead	Creature is Undead
 UNLIMITED_RETALIATIONS	Unlimited retaliations	Retaliate any number of attacks
