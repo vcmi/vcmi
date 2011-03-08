@@ -612,6 +612,7 @@ void CRClickPopup::close()
 void CRClickPopup::createAndPush(const std::string &txt)
 {
 	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
+
 	CSimpleWindow * temp = CMessage::genWindow(txt,player,true);
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);

@@ -101,6 +101,7 @@ void CGeneralTextHandler::load()
 		loadToIt(hTxts[iii].bonusName,buf,i,4);
 		loadToIt(hTxts[iii].shortBonus,buf,i,4);
 		loadToIt(hTxts[iii].longBonus,buf,i,3);
+		trimQuotation(hTxts[iii].longBonus);
 	}
 
 	buf = bitmaph->getTextFile("HEROBIOS.TXT");
@@ -108,6 +109,7 @@ void CGeneralTextHandler::load()
 	for (int iii=0;iii<hTxts.size();iii++)
 	{
 		loadToIt(hTxts[iii].biography,buf,i,3);
+		trimQuotation(hTxts[iii].biography);
 	}
 
 	int it;
