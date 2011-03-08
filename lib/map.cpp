@@ -1751,7 +1751,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = hp;
 
 				int a = bufor[i++]; //unkown byte, seems to be always 0 (if not - scream!)
-				assert(!a);
+				tlog2 << "Unhandled Hero Placeholder detected\n";
 
 				int htid = bufor[i++]; //hero type id
 				nobj->subID = htid;
