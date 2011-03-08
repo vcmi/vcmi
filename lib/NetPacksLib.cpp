@@ -798,26 +798,24 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 		return;
 	}
 
-	if(what == ObjProperty::OWNER)
+	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
+	if(what == ObjProperty::OWNER && cai)
 	{
-		if(CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj))
+		if(obj->ID == TOWNI_TYPE)
 		{
-			if(obj->ID == TOWNI_TYPE)
-			{
-				CGTownInstance *t = static_cast<CGTownInstance*>(obj);
-				if(t->tempOwner < PLAYER_LIMIT)
-					gs->getPlayer(t->tempOwner)->towns -= t;
-				if(val < PLAYER_LIMIT)
-					gs->getPlayer(val)->towns.push_back(t);
-			}
-
-			CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
-			nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
-			obj->setProperty(what,val);
-			nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
+			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+			if(t->tempOwner < PLAYER_LIMIT)
+				gs->getPlayer(t->tempOwner)->towns -= t;
+			if(val < PLAYER_LIMIT)
+				gs->getPlayer(val)->towns.push_back(t);
 		}
+
+		CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
+		nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
+		obj->setProperty(what,val);
+		nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
 	}
-	else
+	else //not an armed instance
 	{
 		obj->setProperty(what,val);
 	}

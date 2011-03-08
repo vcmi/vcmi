@@ -839,7 +839,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 	case 'e':
 		b.type = Bonus::DOUBLE_DAMAGE_CHANCE; break;
 	case 'g':
-		b.type = Bonus::SPELL_DAMAGE_REDUCTION; break;
+		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
+		b.subtype = -1; //all magic schools
+		break;
 	case 'R':
 		b.type = Bonus::ADDITIONAL_RETALIATION; break;
 
