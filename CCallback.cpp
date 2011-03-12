@@ -970,7 +970,7 @@ std::vector < const CGObjectInstance * > CCallback::getMyObjects() const
 	std::vector < const CGObjectInstance * > ret;
 	for (int g=0; g<gs->map->objects.size(); ++g)
 	{
-		if (gs->map->objects[g]->tempOwner == LOCPLINT->playerID)
+		if (gs->map->objects[g] && gs->map->objects[g]->tempOwner == LOCPLINT->playerID)
 		{
 			ret.push_back(gs->map->objects[g]);
 		}

@@ -455,7 +455,7 @@ void CGarrisonInt::splitClick()
 	if(!highlighted)
 		return;
 	splitting = !splitting;
-	show(screen2);
+	redraw();
 }
 void CGarrisonInt::splitStacks(int am2)
 {
