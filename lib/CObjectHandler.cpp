@@ -3612,12 +3612,12 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 	if(!stacksCount())
 	{
 		InfoWindow iw;
-		iw.soundID = soundBase::treasure;
 		iw.player = h->tempOwner;
 		switch(ID)
 		{
-			case 5:
+		case 5:
 			{
+				iw.soundID = soundBase::treasure; //play sound only for non-scroll arts
 				iw.components.push_back(Component(4,subID,0,0));
 				if(message.length())
 					iw.text <<  message;
@@ -3625,15 +3625,14 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 					iw.text << std::pair<ui8,ui32>(12,subID);
 			}
 			break;
-			case 93:
-				{
-					int spellID = storedArtifact->getBonus(Selector::type(Bonus::SPELL))->subtype;
-					iw.components.push_back (Component(Component::SPELL, spellID,0,0));
-					iw.text.addTxt (MetaString::ADVOB_TXT,135);
-					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
-				}
+		case 93:
+			{
+				int spellID = storedArtifact->getGivenSpellID();
+				iw.components.push_back (Component(Component::SPELL, spellID,0,0));
+				iw.text.addTxt (MetaString::ADVOB_TXT,135);
+				iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
+			}
 			break;
-
 		}
 		cb->showInfoDialog(&iw);
 		pick(h);

@@ -80,6 +80,8 @@ class CInfoWindow : public CSimpleWindow
 	bool delComps; //whether comps will be deleted
 
 public:
+	typedef std::vector<std::pair<std::string,CFunctionList<void()> > > TButtonsInfo;
+	typedef std::vector<SComponent*> TCompsInfo;
 	int ID; //for identification
 	CTextBox *text;
 	std::vector<AdventureMapButton *> buttons;
@@ -93,7 +95,7 @@ public:
 	void showAll(SDL_Surface * to);
 	void sliderMoved(int to);
 
-	CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
+	CInfoWindow(std::string Text, int player, const TCompsInfo &comps = TCompsInfo(), const TButtonsInfo &Buttons = TButtonsInfo(), bool delComps = true); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 
@@ -124,7 +126,7 @@ public:
 	CRClickPopup();
 	virtual ~CRClickPopup(); //d-tor
 
-	static void createAndPush(const std::string &txt);
+	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
 };
 
@@ -870,8 +872,10 @@ public:
 	int baseType;
 	int bonusValue, type;
 	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState);
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	SComponent * createComponent() const;
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp

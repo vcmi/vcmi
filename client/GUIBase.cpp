@@ -706,15 +706,20 @@ const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	moveBy(Point(screen->w/2 - r.w/2 - pos.x, 
-				 screen->h/2 - r.h/2 - pos.y), 
-			propagate);
-	return pos;
+	return center(Point(screen->w/2, screen->h/2), propagate);
 }
 
 const Rect & CIntObject::center( bool propagate )
 {
 	return center(pos, propagate);
+}
+
+const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
+{
+	moveBy(Point(p.x - pos.w/2 - pos.x, 
+				p.y - pos.h/2 - pos.y), 
+			propagate);
+	return pos;
 }
 
 void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )

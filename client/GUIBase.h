@@ -418,7 +418,8 @@ public:
 	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
-	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, returns new position
+	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
+	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);

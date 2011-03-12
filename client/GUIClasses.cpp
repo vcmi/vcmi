@@ -491,7 +491,7 @@ void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
 	armedObjs[bottomGarrison] = army;
 }
 
-CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
+CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, const TButtonsInfo &Buttons, bool delComps)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = -1;
@@ -504,8 +504,11 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const std::vector<SCompon
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
 	text->redrawParentOnScrolling = true;
 
-	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
+	if(buttons.size())
+	{
+		buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
+		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
+	}
 
 	for(int i=0;i<comps.size();i++)
 	{
@@ -609,11 +612,12 @@ void CRClickPopup::close()
 	GH.popIntTotally(this);
 }
 
-void CRClickPopup::createAndPush(const std::string &txt)
+void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
 {
 	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
 
-	CSimpleWindow * temp = CMessage::genWindow(txt,player,true);
+	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
+	temp->center(Point(GH.current->motion)); //center on mouse
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
 }
@@ -4750,6 +4754,7 @@ void CArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
 
 void CArtPlace::setArtifact(const CArtifactInstance *art)
 {
+	baseType = -1; //by default we don't store any component
 	ourArt = art;
 	if(!art)
 	{
@@ -4759,6 +4764,26 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	else
 	{
 		text = ourArt->artType->Description();
+		if(art->artType->id == 1) //spell scroll
+		{
+			// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
+			// so we want to replace text in [...] with a spell name
+			// however other language versions don't have name placeholder at all, so we have to be careful
+			int spellID = art->getGivenSpellID();
+			int nameStart = text.find_first_of('[');
+			int nameEnd = text.find_first_of(']', nameStart);
+			if(spellID >= 0)
+			{
+				if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
+					text = text.replace(nameStart, nameEnd - nameStart + 1, CGI->spellh->spells[spellID]->name);
+
+				//add spell component info (used to provide a pic in r-click popup)
+				baseType = SComponent::spell;
+				type = spellID;
+				bonusValue = 0;
+			}
+		}
+
 		if (locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];
 		else
@@ -4821,7 +4846,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonusValue));
+		std::vector<SComponent*> comp(1, createComponent());
 		LOCPLINT->showInfoDialog(text, comp);
 	}
 }
@@ -4829,6 +4854,28 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
 	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
 {
+}
+
+SComponent * LRClickableAreaWTextComp::createComponent() const
+{
+	if(baseType >= 0)
+		return new SComponent(SComponent::Etype(baseType), type, bonusValue);
+	else
+		return NULL;
+}
+
+void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{
+		if(SComponent *comp = createComponent())
+		{
+			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+			return;
+		}
+	}
+
+	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occured
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)

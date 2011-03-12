@@ -30,13 +30,7 @@ public:
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	bool isBig () const;
-	//bool isModable () const;
-	//bool fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slot) const;
-	//bool canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const;
-// 	void addBonusesTo (BonusList *otherBonuses) const;
-// 	void removeBonusesFrom (BonusList *otherBonuses) const;
-	virtual void SetProperty (int mod){};
-	virtual void Init(){};
+
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
 
@@ -79,6 +73,7 @@ public:
 
 	int firstAvailableSlot(const CGHeroInstance *h) const;
 	int firstBackpackSlot(const CGHeroInstance *h) const;
+	int getGivenSpellID() const; //to be used with scrolls (and similiar arts), -1 if none
 
 	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
 	virtual bool canBeDisassembled() const;

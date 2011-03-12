@@ -1471,14 +1471,16 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 65: case 66: case 67: case 68: case 69: //random artifact
 		case 93: //spell scroll
 			{
+				int artID = -1;
+				int spellID = -1;
 				CGArtifact *art = new CGArtifact();
 				nobj = art;
 
-				bool areSettings = bufor[i]; ++i;
+				bool areSettings = bufor[i++];
 				if(areSettings)
 				{
 					art->message = readString(bufor,i);
-					bool areGuards = bufor[i]; ++i;
+					bool areGuards = bufor[i++];
 					if(areGuards)
 					{
 						readCreatureSet(art, bufor, i, 7, version > RoE);
@@ -1486,22 +1488,17 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					i+=4;
 				}
 
-				CArtifactInstance *innerArt = NULL;
 				if(defInfo->id==93)
 				{
-					int spellID = readNormalNr(bufor,i); 
-					i+=4;
-					innerArt = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
+					spellID = readNormalNr(bufor,i); i+=4;
+					artID = 1;
 				}
 				else if(defInfo->id == 5) //specific artifact
 				{
-					innerArt = createArt(defInfo->subid);
+					artID = defInfo->subid;
 				}
-				else
-				{
-					innerArt = createArt(-1);
-				}
-				art->storedArtifact = innerArt;
+
+				art->storedArtifact = createArt(artID, spellID);
 				break;
 			}
 		case 76: case 79: //random resource; resource
@@ -2080,11 +2077,16 @@ void Mapa::loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInsta
 	} //artifacts
 }
 
-CArtifactInstance * Mapa::createArt(int aid)
+CArtifactInstance * Mapa::createArt(int aid, int spellID /*= -1*/)
 {
 	CArtifactInstance *a = NULL;
 	if(aid >= 0)
-		a = CArtifactInstance::createNewArtifactInstance(aid);
+	{
+		if(spellID < 0)
+			a = CArtifactInstance::createNewArtifactInstance(aid);
+		else
+			a = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
+	}
 	else
 		a = new CArtifactInstance();
 

@@ -1026,6 +1026,17 @@ void CArtifactInstance::deserializationFix()
 	setType(artType);
 }
 
+int CArtifactInstance::getGivenSpellID() const
+{
+	const Bonus * b = getBonus(Selector::type(Bonus::SPELL));
+	if(!b)
+	{
+		tlog3 << "Warning: " << nodeName() << " doesn't bear any spell!\n";
+		return -1;
+	}
+	return b->subtype;
+}
+
 bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(al, assumeDestRemoved);

@@ -325,7 +325,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
 	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
-	CArtifactInstance *createArt(int aid);
+	CArtifactInstance *createArt(int aid, int spellID = -1);
 	void addNewArtifactInstance(CArtifactInstance *art);
 	void eraseArtifactInstance(CArtifactInstance *art);
 
