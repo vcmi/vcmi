@@ -80,7 +80,7 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 		node.bonuses.remove_if (Selector::typeSybtype(b->type, b->subtype)); //remove used bonuses
 	}
 
-	std::vector<std::pair<std::string, std::string>> descriptions; //quick, yet slow solution
+	std::vector<std::pair<std::string, std::string> > descriptions; //quick, yet slow solution
 	std::string text, text2;
 	BOOST_FOREACH(Bonus* b, bl)
 	{
