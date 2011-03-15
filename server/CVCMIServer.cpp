@@ -518,8 +518,6 @@ int main(int argc, char** argv)
 #endif
 	}
 	tlog0 << "Port " << port << " will be used." << std::endl;
-	CLodHandler h3bmp;
-	h3bmp.init(DATA_DIR "/Data/H3bitmap.lod", DATA_DIR "/Data");
 	initDLL(console,logfile);
 	srand ( (unsigned int)time(NULL) );
 	try
