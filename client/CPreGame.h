@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include "../StartInfo.h"
 #include "GUIBase.h"
+#include "GUIClasses.h"
 #include "FunctionList.h"
 #include "../lib/CMapInfo.h"
 
@@ -416,6 +417,52 @@ public:
 	void startMap();
 };
 
+/// Campaign selection screen
+class CCampaignScreen : public CIntObject
+{
+	public:
+		enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
+	
+	private:
+		SDL_Surface *bg; // background image
+		SDL_Surface *noCamp; // no campaign placeholder
+		AdventureMapButton *back; // back button
+
+		/// A button which plays a video when you move the mouse cursor over it
+		class CCampaignButton : public CIntObject
+		{
+		private:
+			std::string image;
+			SDL_Surface *bg;
+			SDL_Surface *button;
+			SDL_Surface *checked;
+			CLabel *hoverLabel; 
+			CampaignStatus status;
+
+			void clickLeft(tribool down, bool previousState);
+			void hover(bool on);
+
+		public:
+			std::string campFile; // the filename/resourcename of the campaign
+			std::string video; // the resource name of the video
+			std::string hoverText; // the text which gets shown when you move the mouse cursor over the button
+
+			CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status); // c-tor
+			~CCampaignButton(); // d-tor
+			void show(SDL_Surface *to);
+		};
+
+		std::vector<CCampaignButton*> campButtons; // a container which holds all buttons where you can start a campaign
+		
+		void drawCampaignPlaceholder(); // draws the no campaign placeholder at the lower right position
+public:
+	enum CampaignSet {ROE, SOD, WOG};
+
+	CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps);
+	~CCampaignScreen();
+	void showAll(SDL_Surface *to);
+};
+
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
@@ -431,6 +478,7 @@ public:
 	~CGPreGame();
 	void update();
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
+	void openCampaignScreen(CCampaignScreen::CampaignSet campaigns);
 
 	void loadGraphics();
 	void disposeGraphics();

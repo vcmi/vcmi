@@ -214,18 +214,21 @@ CMenuScreen::CMenuScreen( EState which )
 	{
 	case mainMenu:
 		{
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[3].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[newGame])), 540, 10, "ZMENUNG.DEF", SDLK_n);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[4].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0, 524, 251, "ZMENUHS.DEF", SDLK_h);
-			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[3].second, // New game
+				bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[newGame])), 540, 10, "ZMENUNG.DEF", SDLK_n);
+			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[4].second, // Load game
+				bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
+			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0, 524, 251, "ZMENUHS.DEF", SDLK_h); // Highscore
+			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c); // Credits
 			boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
-			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, confWindow, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE);
+			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, confWindow, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE); // Exit
 		}
 		break;
 	case newGame:
 		{
 			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, newGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
+			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, // Single player
+				bind(&CGPreGame::openSel, CGP, newGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
 			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
@@ -244,11 +247,11 @@ CMenuScreen::CMenuScreen( EState which )
 		break;
 	case campaignMain:
 		{
-			buttons[0] = new AdventureMapButton("", "", 0 /*cb*/, 535, 8, "ZSSSOD.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", "", 0 /*cb*/, 494, 117, "ZSSROE.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", "", 0 /*cb*/, 486, 241, "ZSSARM.DEF", SDLK_c);
-			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t);
-			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE);
+			buttons[0] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::CampaignSet::WOG), 535, 8, "ZSSSOD.DEF", SDLK_s); // WOG
+			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::CampaignSet::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
+			buttons[2] = new AdventureMapButton("", "", 0, 486, 241, "ZSSARM.DEF", SDLK_c); // AB TODO
+			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t); // Custom
+			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE); // Back
 
 		}
 		break;
@@ -301,6 +304,13 @@ CGPreGame::~CGPreGame()
 void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
 {
 	GH.pushInt(new CSelectionScreen(screenType, multi));
+}
+
+void CGPreGame::openCampaignScreen(CCampaignScreen::CampaignSet campaigns)
+{
+	std::map<std::string, CCampaignScreen::CampaignStatus> defaultCamp;
+	defaultCamp["GOOD1"] = CCampaignScreen::CampaignStatus::COMPLETED;
+	GH.pushInt(new CCampaignScreen(campaigns, defaultCamp));
 }
 
 void CGPreGame::loadGraphics()
@@ -3326,4 +3336,245 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 	GH.popInt(GH.topInt()); //only deactivate main menu screen
 	::startGame(startingInfo.sInfo, startingInfo.serv);
 	throw 666; //EVIL, EVIL, EVIL workaround to kill thread (does "goto catch" outside listening loop)
+}
+
+CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps)
+{
+	OBJ_CONSTRUCTION; // sets this as parent
+	std::string bgImage;
+	if (campaigns == ROE)
+		bgImage = "CAMPBACK.BMP";
+	else if (campaigns == SOD)
+		bgImage = "CAMPBKX2.BMP";
+	else if (campaigns == WOG)
+		bgImage = "CAMPZALL.BMP";
+
+	// Load background image
+	bg = BitmapHandler::loadBitmap(bgImage);
+	pos.x = 0;
+	pos.y = 0;
+	pos.w = bg->w;
+	pos.h = bg->h;
+	
+	// Create back button
+	back = new AdventureMapButton("", "", bind(&CGuiHandler::popIntTotally, &GH, this), 658, 482, "CMPSCAN.DEF", SDLK_ESCAPE);
+	back->hoverable = true;
+	
+	// Load all campaign buttons
+	static const int buttonCords[7][2]  = { {90, 72} , {539, 72} , {43, 245} , {313, 244}, {586, 246}, {34, 417}, {404, 414}};
+
+	if (campaigns == ROE)
+	{
+		// Long live the Queen
+		static const std::string roe0Camp = "GOOD1";
+		CCampaignButton *roe0 = new CCampaignButton(bg, "CAMPGD1S.BMP", buttonCords[0][0], buttonCords[0][1], camps[roe0Camp] != 0 ? camps[roe0Camp] : CampaignStatus::ENABLED);
+		roe0->video = "CGOOD1.BIK";
+		roe0->hoverText = CGI->generaltexth->campaignMapNames[0];
+		roe0->campFile = roe0Camp;
+		campButtons.push_back(roe0);
+
+		// Dungeons and Devils
+		static const std::string roe1Camp = "EVIL1";
+		CCampaignButton *roe1 = new CCampaignButton(bg, "CAMPEV1S.BMP", buttonCords[1][0], buttonCords[1][1], camps[roe1Camp] != 0 ? camps[roe1Camp] : CampaignStatus::ENABLED);
+		roe1->video = "CEVIL1.BIK";
+		roe1->hoverText = CGI->generaltexth->campaignMapNames[3];
+		roe1->campFile = roe1Camp;
+		campButtons.push_back(roe1);
+	
+		// Spoils of War
+		static const std::string roe2Camp = "NEUTRAL1";
+		CCampaignButton *roe2 = new CCampaignButton(bg, "CAMPNEUS.BMP", buttonCords[3][0], buttonCords[3][1], camps[roe2Camp] != 0 ? camps[roe2Camp] : CampaignStatus::ENABLED);
+		roe2->video = "CNEUTRAL.BIK";
+		roe2->hoverText = CGI->generaltexth->campaignMapNames[5];
+		roe2->campFile = roe2Camp;
+		campButtons.push_back(roe2);
+
+		// Liberation
+		static const std::string roe3Camp = "GOOD2";
+		CCampaignButton *roe3 = new CCampaignButton(bg, "CAMPGD2S.BMP", buttonCords[2][0], buttonCords[2][1], camps[roe3Camp] != 0 ? camps[roe3Camp] : CampaignStatus::DISABLED);
+		roe3->video = "CGOOD2.BIK";
+		roe3->hoverText = CGI->generaltexth->campaignMapNames[1];
+		roe3->campFile = roe3Camp;
+		campButtons.push_back(roe3);
+
+		// Long Live the King
+		static const std::string roe4Camp = "EVIL2";
+		CCampaignButton *roe4 = new CCampaignButton(bg, "CAMPEV2S.BMP", buttonCords[4][0], buttonCords[4][1], camps[roe4Camp] != 0 ? camps[roe4Camp] : CampaignStatus::DISABLED);
+		roe4->video = "CEVIL2.BIK";
+		roe4->hoverText = CGI->generaltexth->campaignMapNames[4];
+		roe4->campFile = roe4Camp;
+		campButtons.push_back(roe4);
+
+		// Song for the Father
+		static const std::string roe5Camp = "GOOD3";
+		CCampaignButton *roe5 = new CCampaignButton(bg, "CAMPGD3S.BMP", buttonCords[5][0], buttonCords[5][1], camps[roe5Camp] != 0 ? camps[roe5Camp] : CampaignStatus::DISABLED);
+		roe5->video = "CGOOD3.BIK";
+		roe5->hoverText = CGI->generaltexth->campaignMapNames[2];
+		roe5->campFile = roe5Camp;
+		campButtons.push_back(roe5);
+
+		// Seeds of Discontent
+		static const std::string roe6Camp = "SECRET";
+		if (camps[roe6Camp] != 0)
+		{
+			CCampaignButton *roe6 = new CCampaignButton(bg, "CAMPSCTS.BMP", buttonCords[6][0], buttonCords[6][1], camps[roe6Camp]);
+			roe6->video = "CSECRET.BIK";
+			roe6->hoverText = CGI->generaltexth->campaignMapNames[6];
+			roe6->campFile = roe6Camp;
+			campButtons.push_back(roe6);
+		}
+		else
+			drawCampaignPlaceholder();
+	}
+
+	if (campaigns == WOG)
+	{
+		// In the Wake of Gods
+		static const std::string wog0Camp = "ZC1";
+		CCampaignButton *wog0 = new CCampaignButton(bg, "CAMPZ01.BMP", buttonCords[0][0], buttonCords[0][1], camps[wog0Camp] != 0 ? camps[wog0Camp] : CampaignStatus::ENABLED);
+		wog0->hoverText = "In the Wake of Gods";
+		wog0->campFile = wog0Camp;
+		campButtons.push_back(wog0);
+
+		// The Samaritan
+		static const std::string wog1Camp = "ZC2";
+		CCampaignButton *wog1 = new CCampaignButton(bg, "CAMPZ02.BMP", buttonCords[1][0], buttonCords[1][1], camps[wog1Camp] != 0 ? camps[wog1Camp] : CampaignStatus::ENABLED);
+		wog1->hoverText = "The Samaritan";
+		wog1->campFile = wog1Camp;
+		campButtons.push_back(wog1);
+
+		// A Life of A-d-v-e-n-t-u-r-e
+		static const std::string wog2Camp = "ZC3";
+		CCampaignButton *wog2 = new CCampaignButton(bg, "CAMPZ03.BMP", buttonCords[2][0], buttonCords[2][1], camps[wog2Camp] != 0 ? camps[wog2Camp] : CampaignStatus::ENABLED);
+		wog2->hoverText = "A Life of A-d-v-e-n-t-u-r-e";
+		wog2->campFile = wog2Camp;
+		campButtons.push_back(wog2);
+
+		// Evil Way Home
+		static const std::string wog3Camp = "ZC4";
+		CCampaignButton *wog3 = new CCampaignButton(bg, "CAMPZ04.BMP", buttonCords[4][0] - 2, buttonCords[4][1] - 2, camps[wog3Camp] != 0 ? camps[wog3Camp] : CampaignStatus::ENABLED);
+		wog3->hoverText = "Evil Way Home";
+		wog3->campFile = wog3Camp;
+		campButtons.push_back(wog3);
+
+		drawCampaignPlaceholder();
+	}
+}
+
+CCampaignScreen::~CCampaignScreen()
+{
+	// Free background image and re-start WOG main menu animation
+	SDL_FreeSurface(bg);
+	if (noCamp != 0)
+		SDL_FreeSurface(noCamp);
+
+	CCS->videoh->open("ACREDIT.SMK");
+}
+
+void CCampaignScreen::drawCampaignPlaceholder()
+{
+	noCamp = BitmapHandler::loadBitmap("CAMPNOSC.BMP");
+	noCamp->w -= 2;
+	Rect noCampRect(385, 401, 238, 143);
+	blitAt(noCamp, noCampRect, bg);
+}
+
+void CCampaignScreen::showAll(SDL_Surface *to)
+{
+	// Draw background image and all interactive objects like buttons
+	blitAt(bg, pos.x, pos.y, to);
+	CIntObject::showAll(to);
+}
+
+CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status)
+{
+	OBJ_CONSTRUCTION; // sets this as parent
+
+	// Initialize CCampaignButton members
+	this->bg = bg;
+	this->image = image;
+	this->status = status;
+
+	// Initialize base CIntObject members
+	if (status != CampaignStatus::DISABLED)
+		used = LCLICK | HOVER;
+	pos.x = x;
+	pos.y = y;
+	pos.w = 200;
+	pos.h = 116;
+
+	// Creates the button image and the hover label
+	button = BitmapHandler::loadBitmap(image);
+	if (status != CampaignStatus::DISABLED)
+		blitAt(button, pos, bg);
+
+	if (status == CampaignStatus::COMPLETED)
+		checked = BitmapHandler::loadBitmap("CAMPCHK.BMP");
+
+	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
+	hoverLabel->ignoreLeadingWhitespace = false;
+}
+
+CCampaignScreen::CCampaignButton::~CCampaignButton()
+{
+	SDL_FreeSurface(button);
+
+	if (status == CampaignStatus::COMPLETED)
+		SDL_FreeSurface(checked);
+}
+
+void CCampaignScreen::CCampaignButton::hover(bool on)
+{	
+	if (on)
+		hoverLabel->setTxt(hoverText); // Shows the name of the campaign when you get into the bounds of the button
+
+	else
+	{
+		// Deletes the text from the screen when you hover out of the bounds of the button
+		hoverLabel->setTxt(" "); 
+		GH.totalRedraw();
+	}
+
+}
+
+void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
+{
+	CIntObject::show(to);
+
+	if (status == CampaignStatus::DISABLED || video == "")
+		return;
+
+	// Play the campaign button video when the mouse cursor is placed over the button
+	if (CCS->curh->xpos >= pos.x && CCS->curh->ypos >= pos.y && CCS->curh->xpos < pos.x + pos.w && CCS->curh->ypos < pos.y + pos.h)
+	{
+		if (CCS->videoh->fname != video)
+			CCS->videoh->open(video);
+		
+		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
+	}
+	else if (CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
+	{
+		CCS->videoh->close();
+		blitAt(button, pos, to);
+	}
+
+	if (status == CampaignStatus::COMPLETED) // Draw a checked symbol when you completed the mission
+	{
+		Rect chkRect(pos.x + 5, pos.y + 74, 42, 40);
+		blitAt(checked, chkRect, to); // this is needed because the video gets drawn on top of the screen
+		blitAt(checked, chkRect, bg); // this is needed because of the totalRedraw at the hover method
+	}
+}
+
+void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+{
+	if (down)
+	{
+		// Close running video and open the selected campaign
+		CCS->videoh->close();
+		CCampaign * ourCampaign = CCampaignHandler::getCampaign(campFile, true);
+		CCampaignState * campState = new CCampaignState();
+		campState->camp = ourCampaign;
+		GH.pushInt( new CBonusSelection(campState) );
+	}
 }

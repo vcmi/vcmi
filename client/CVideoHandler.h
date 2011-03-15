@@ -167,9 +167,10 @@ private:
 	CBIKHandler bikPlayer; //for .BIK
 	IVideoPlayer *current; //points to bik or smk player, appropriate to type of currently played video
 
-	std::string fname; //name of current video file (empty if idle)
 	bool first; //are we about to display the first frame (blocks update)
 public:
+	std::string fname; //name of current video file (empty if idle)
+	
 	CVideoPlayer(); //c-tor
 	~CVideoPlayer(); //d-tor
 
