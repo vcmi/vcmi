@@ -247,8 +247,8 @@ CMenuScreen::CMenuScreen( EState which )
 		break;
 	case campaignMain:
 		{
-			buttons[0] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::CampaignSet::WOG), 535, 8, "ZSSSOD.DEF", SDLK_s); // WOG
-			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::CampaignSet::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
+			buttons[0] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::WOG), 535, 8, "ZSSSOD.DEF", SDLK_s); // WOG
+			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
 			buttons[2] = new AdventureMapButton("", "", 0, 486, 241, "ZSSARM.DEF", SDLK_c); // AB TODO
 			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t); // Custom
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE); // Back
@@ -309,7 +309,7 @@ void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode 
 void CGPreGame::openCampaignScreen(CCampaignScreen::CampaignSet campaigns)
 {
 	std::map<std::string, CCampaignScreen::CampaignStatus> defaultCamp;
-	defaultCamp["GOOD1"] = CCampaignScreen::CampaignStatus::COMPLETED;
+	defaultCamp["GOOD1"] = CCampaignScreen::COMPLETED;
 	GH.pushInt(new CCampaignScreen(campaigns, defaultCamp));
 }
 
@@ -3367,7 +3367,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 	{
 		// Long live the Queen
 		static const std::string roe0Camp = "GOOD1";
-		CCampaignButton *roe0 = new CCampaignButton(bg, "CAMPGD1S.BMP", buttonCords[0][0], buttonCords[0][1], camps[roe0Camp] != 0 ? camps[roe0Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *roe0 = new CCampaignButton(bg, "CAMPGD1S.BMP", buttonCords[0][0], buttonCords[0][1], camps[roe0Camp] != 0 ? camps[roe0Camp] : CCampaignScreen::ENABLED);
 		roe0->video = "CGOOD1.BIK";
 		roe0->hoverText = CGI->generaltexth->campaignMapNames[0];
 		roe0->campFile = roe0Camp;
@@ -3375,7 +3375,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 
 		// Dungeons and Devils
 		static const std::string roe1Camp = "EVIL1";
-		CCampaignButton *roe1 = new CCampaignButton(bg, "CAMPEV1S.BMP", buttonCords[1][0], buttonCords[1][1], camps[roe1Camp] != 0 ? camps[roe1Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *roe1 = new CCampaignButton(bg, "CAMPEV1S.BMP", buttonCords[1][0], buttonCords[1][1], camps[roe1Camp] != 0 ? camps[roe1Camp] : CCampaignScreen::ENABLED);
 		roe1->video = "CEVIL1.BIK";
 		roe1->hoverText = CGI->generaltexth->campaignMapNames[3];
 		roe1->campFile = roe1Camp;
@@ -3383,7 +3383,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 	
 		// Spoils of War
 		static const std::string roe2Camp = "NEUTRAL1";
-		CCampaignButton *roe2 = new CCampaignButton(bg, "CAMPNEUS.BMP", buttonCords[3][0], buttonCords[3][1], camps[roe2Camp] != 0 ? camps[roe2Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *roe2 = new CCampaignButton(bg, "CAMPNEUS.BMP", buttonCords[3][0], buttonCords[3][1], camps[roe2Camp] != 0 ? camps[roe2Camp] : CCampaignScreen::ENABLED);
 		roe2->video = "CNEUTRAL.BIK";
 		roe2->hoverText = CGI->generaltexth->campaignMapNames[5];
 		roe2->campFile = roe2Camp;
@@ -3391,7 +3391,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 
 		// Liberation
 		static const std::string roe3Camp = "GOOD2";
-		CCampaignButton *roe3 = new CCampaignButton(bg, "CAMPGD2S.BMP", buttonCords[2][0], buttonCords[2][1], camps[roe3Camp] != 0 ? camps[roe3Camp] : CampaignStatus::DISABLED);
+		CCampaignButton *roe3 = new CCampaignButton(bg, "CAMPGD2S.BMP", buttonCords[2][0], buttonCords[2][1], camps[roe3Camp] != 0 ? camps[roe3Camp] : CCampaignScreen::DISABLED);
 		roe3->video = "CGOOD2.BIK";
 		roe3->hoverText = CGI->generaltexth->campaignMapNames[1];
 		roe3->campFile = roe3Camp;
@@ -3399,7 +3399,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 
 		// Long Live the King
 		static const std::string roe4Camp = "EVIL2";
-		CCampaignButton *roe4 = new CCampaignButton(bg, "CAMPEV2S.BMP", buttonCords[4][0], buttonCords[4][1], camps[roe4Camp] != 0 ? camps[roe4Camp] : CampaignStatus::DISABLED);
+		CCampaignButton *roe4 = new CCampaignButton(bg, "CAMPEV2S.BMP", buttonCords[4][0], buttonCords[4][1], camps[roe4Camp] != 0 ? camps[roe4Camp] : CCampaignScreen::DISABLED);
 		roe4->video = "CEVIL2.BIK";
 		roe4->hoverText = CGI->generaltexth->campaignMapNames[4];
 		roe4->campFile = roe4Camp;
@@ -3407,7 +3407,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 
 		// Song for the Father
 		static const std::string roe5Camp = "GOOD3";
-		CCampaignButton *roe5 = new CCampaignButton(bg, "CAMPGD3S.BMP", buttonCords[5][0], buttonCords[5][1], camps[roe5Camp] != 0 ? camps[roe5Camp] : CampaignStatus::DISABLED);
+		CCampaignButton *roe5 = new CCampaignButton(bg, "CAMPGD3S.BMP", buttonCords[5][0], buttonCords[5][1], camps[roe5Camp] != 0 ? camps[roe5Camp] : CCampaignScreen::DISABLED);
 		roe5->video = "CGOOD3.BIK";
 		roe5->hoverText = CGI->generaltexth->campaignMapNames[2];
 		roe5->campFile = roe5Camp;
@@ -3431,28 +3431,28 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 	{
 		// In the Wake of Gods
 		static const std::string wog0Camp = "ZC1";
-		CCampaignButton *wog0 = new CCampaignButton(bg, "CAMPZ01.BMP", buttonCords[0][0], buttonCords[0][1], camps[wog0Camp] != 0 ? camps[wog0Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *wog0 = new CCampaignButton(bg, "CAMPZ01.BMP", buttonCords[0][0], buttonCords[0][1], camps[wog0Camp] != 0 ? camps[wog0Camp] : CCampaignScreen::ENABLED);
 		wog0->hoverText = "In the Wake of Gods";
 		wog0->campFile = wog0Camp;
 		campButtons.push_back(wog0);
 
 		// The Samaritan
 		static const std::string wog1Camp = "ZC2";
-		CCampaignButton *wog1 = new CCampaignButton(bg, "CAMPZ02.BMP", buttonCords[1][0], buttonCords[1][1], camps[wog1Camp] != 0 ? camps[wog1Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *wog1 = new CCampaignButton(bg, "CAMPZ02.BMP", buttonCords[1][0], buttonCords[1][1], camps[wog1Camp] != 0 ? camps[wog1Camp] : CCampaignScreen::ENABLED);
 		wog1->hoverText = "The Samaritan";
 		wog1->campFile = wog1Camp;
 		campButtons.push_back(wog1);
 
 		// A Life of A-d-v-e-n-t-u-r-e
 		static const std::string wog2Camp = "ZC3";
-		CCampaignButton *wog2 = new CCampaignButton(bg, "CAMPZ03.BMP", buttonCords[2][0], buttonCords[2][1], camps[wog2Camp] != 0 ? camps[wog2Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *wog2 = new CCampaignButton(bg, "CAMPZ03.BMP", buttonCords[2][0], buttonCords[2][1], camps[wog2Camp] != 0 ? camps[wog2Camp] : CCampaignScreen::ENABLED);
 		wog2->hoverText = "A Life of A-d-v-e-n-t-u-r-e";
 		wog2->campFile = wog2Camp;
 		campButtons.push_back(wog2);
 
 		// Evil Way Home
 		static const std::string wog3Camp = "ZC4";
-		CCampaignButton *wog3 = new CCampaignButton(bg, "CAMPZ04.BMP", buttonCords[4][0] - 2, buttonCords[4][1] - 2, camps[wog3Camp] != 0 ? camps[wog3Camp] : CampaignStatus::ENABLED);
+		CCampaignButton *wog3 = new CCampaignButton(bg, "CAMPZ04.BMP", buttonCords[4][0] - 2, buttonCords[4][1] - 2, camps[wog3Camp] != 0 ? camps[wog3Camp] : CCampaignScreen::ENABLED);
 		wog3->hoverText = "Evil Way Home";
 		wog3->campFile = wog3Camp;
 		campButtons.push_back(wog3);
@@ -3496,7 +3496,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::st
 	this->status = status;
 
 	// Initialize base CIntObject members
-	if (status != CampaignStatus::DISABLED)
+	if (status != CCampaignScreen::DISABLED)
 		used = LCLICK | HOVER;
 	pos.x = x;
 	pos.y = y;
@@ -3505,10 +3505,10 @@ CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::st
 
 	// Creates the button image and the hover label
 	button = BitmapHandler::loadBitmap(image);
-	if (status != CampaignStatus::DISABLED)
+	if (status != CCampaignScreen::DISABLED)
 		blitAt(button, pos, bg);
 
-	if (status == CampaignStatus::COMPLETED)
+	if (status == CCampaignScreen::COMPLETED)
 		checked = BitmapHandler::loadBitmap("CAMPCHK.BMP");
 
 	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
@@ -3519,7 +3519,7 @@ CCampaignScreen::CCampaignButton::~CCampaignButton()
 {
 	SDL_FreeSurface(button);
 
-	if (status == CampaignStatus::COMPLETED)
+	if (status == CCampaignScreen::COMPLETED)
 		SDL_FreeSurface(checked);
 }
 
@@ -3541,8 +3541,12 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 {
 	CIntObject::show(to);
 
-	if (status == CampaignStatus::DISABLED || video == "")
+	if (status == CCampaignScreen::DISABLED || video == "")
 		return;
+
+#ifdef _WIN32
+	// TODO: windows video code seem to have diverged a little bit
+	// from non-windows code. Needs to be fixed and this ifdef removed.
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if (CCS->curh->xpos >= pos.x && CCS->curh->ypos >= pos.y && CCS->curh->xpos < pos.x + pos.w && CCS->curh->ypos < pos.y + pos.h)
@@ -3557,8 +3561,9 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 		CCS->videoh->close();
 		blitAt(button, pos, to);
 	}
+#endif
 
-	if (status == CampaignStatus::COMPLETED) // Draw a checked symbol when you completed the mission
+	if (status == CCampaignScreen::COMPLETED) // Draw a checked symbol when you completed the mission
 	{
 		Rect chkRect(pos.x + 5, pos.y + 74, 42, 40);
 		blitAt(checked, chkRect, to); // this is needed because the video gets drawn on top of the screen
