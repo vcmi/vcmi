@@ -49,19 +49,34 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\AI\</OutDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\bin\AI\</OutDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>E:\C++\Lua_includes;E:\vcmi\rep - assembla\trunk\lua src;E:\C++\boost_1_43_0;E:\C++\SDL_mixer-1.2.7\include;E:\C++\SDL_ttf-2.0.8\include;E:\C++\zlib 1.2.3 binaries\include;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\include;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\include;%(AdditionalIncludeDirectories)options&gt;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../libs; ../../;E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../libs; ../../;</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)StupidAI.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -71,7 +86,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>E:\C++\Lua_includes;E:\vcmi\rep - assembla\trunk\lua src;E:\C++\boost_1_43_0;E:\C++\SDL_mixer-1.2.7\include;E:\C++\SDL_ttf-2.0.8\include;E:\C++\zlib 1.2.3 binaries\include;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\include;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\include;%(AdditionalIncludeDirectories)options&gt;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -80,7 +95,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../libs; ../../;E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../libs; ../../;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
@@ -89,7 +104,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>E:\C++\Lua_includes;E:\vcmi\rep - assembla\trunk\lua src;E:\C++\boost_1_43_0;E:\C++\SDL_mixer-1.2.7\include;E:\C++\SDL_ttf-2.0.8\include;E:\C++\zlib 1.2.3 binaries\include;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\include;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\include;%(AdditionalIncludeDirectories)options&gt;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -98,7 +113,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../libs; ../../;E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../libs; ../../;</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)StupidAI.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
