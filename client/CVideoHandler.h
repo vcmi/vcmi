@@ -162,6 +162,7 @@ class CVideoPlayer : public IVideoPlayer
 {
 private:
 	CVidHandler * vidh; //.vid file handling
+	CVidHandler *vidh_ab; // armageddon's blade video file handling
 
 	CSmackPlayer smkPlayer; //for .SMK
 	CBIKHandler bikPlayer; //for .BIK

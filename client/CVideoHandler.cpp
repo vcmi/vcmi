@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include "../client/SDL_Extensions.h"
 #include "../client/CPlayerInterface.h"
+#include "boost\filesystem.hpp"
 
 extern SystemOptions GDefaultOptions; 
 //reads events and returns true on key down
@@ -401,12 +402,14 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 CVideoPlayer::CVideoPlayer()
 {
 	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
+	vidh_ab = new CVidHandler(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
 	current = NULL;
 }
 
 CVideoPlayer::~CVideoPlayer()
 {
 	delete vidh;
+	delete vidh_ab;
 }
 
 bool CVideoPlayer::open(std::string name)
@@ -420,9 +423,17 @@ bool CVideoPlayer::open(std::string name)
 	first = true;
 
 	//extract video from video.vid so we can play it
+	bool opened = false;
 	vidh->extract(name, name);
-	bool opened = current->open(name);
-	if(!opened)
+	if (boost::filesystem::exists(name))
+		opened = current->open(name);
+	else // couldn't load video then load from ab resource file
+	{
+		vidh_ab->extract(name, name);
+		if (boost::filesystem::exists(name))
+			opened = current->open(name);
+	}
+	if(!opened) // check if video could be loaded
 	{
 		current = NULL;
 		tlog3 << "Failed to open video file " << name << std::endl;

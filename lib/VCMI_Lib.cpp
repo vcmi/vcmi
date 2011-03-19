@@ -25,7 +25,8 @@
 class CLodHandler;
 LibClasses * VLC = NULL;
 DLL_EXPORT CLodHandler *bitmaph = NULL, 
-	*spriteh = NULL;
+	*spriteh = NULL,
+	*bitmaph_ab = NULL;
 
 
 DLL_EXPORT CLogger tlog0(0);
@@ -245,6 +246,8 @@ LibClasses::LibClasses()
 	spriteh->init(DATA_DIR "/Data/H3sprite.lod", DATA_DIR "/Sprites");
 	bitmaph = new CLodHandler;
 	bitmaph->init(DATA_DIR "/Data/H3bitmap.lod", DATA_DIR "/Data");
+	bitmaph_ab = new CLodHandler();
+	bitmaph_ab->init(DATA_DIR "/Data/H3ab_bmp.lod", DATA_DIR "/Data");
 	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
 
 	//init pointers to handlers

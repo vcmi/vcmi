@@ -20,6 +20,7 @@
 boost::mutex bitmap_handler_mx;
 
 extern DLL_EXPORT CLodHandler *bitmaph;
+extern DLL_EXPORT CLodHandler *bitmaph_ab;
 
 void CPCXConv::openPCX(char * PCX, int len)
 {
@@ -157,8 +158,12 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	SDL_Surface * ret=NULL;
 	int size;
-	unsigned char * file = bitmaph->giveFile(fname, FILE_GRAPHICS, &size);
-	
+	unsigned char * file = 0;
+	if (bitmaph->haveFile(fname, FILE_GRAPHICS))
+		file = bitmaph->giveFile(fname, FILE_GRAPHICS, &size);
+	else if (bitmaph_ab->haveFile(fname, FILE_GRAPHICS))
+		file = bitmaph_ab->giveFile(fname, FILE_GRAPHICS, &size);
+
 	if (!file)
 	{
 		tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;

@@ -56,7 +56,7 @@ public:
 };
 
 extern DLL_EXPORT LibClasses * VLC;
-extern DLL_EXPORT CLodHandler * bitmaph, *spriteh;
+extern DLL_EXPORT CLodHandler * bitmaph, *spriteh, *bitmaph_ab;
 
 DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode);

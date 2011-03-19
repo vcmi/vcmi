@@ -60,7 +60,6 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 				ret.push_back( getHeader(e.name, true) );
 			}
 		}
-
 	}
 
 
@@ -417,10 +416,15 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 
 unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLod, int & outSize )
 {
-	unsigned char * cmpgn;
+	unsigned char * cmpgn = 0;
 	if(fromLod)
 	{
-		cmpgn = bitmaph->giveFile(name, FILE_CAMPAIGN, &outSize);
+		if (bitmaph->haveFile(name, FILE_CAMPAIGN))
+			cmpgn = bitmaph->giveFile(name, FILE_CAMPAIGN, &outSize);
+		else if (bitmaph_ab->haveFile(name, FILE_CAMPAIGN))
+			cmpgn = bitmaph_ab->giveFile(name, FILE_CAMPAIGN, &outSize);
+		else
+			tlog1 << "Cannot find file: " << name << std::endl;
 		FILE * tmp = fopen("tmp_cmpgn", "wb");
 		fwrite(cmpgn, 1, outSize, tmp);
 		fclose(tmp);

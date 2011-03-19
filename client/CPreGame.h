@@ -456,7 +456,7 @@ class CCampaignScreen : public CIntObject
 		
 		void drawCampaignPlaceholder(); // draws the no campaign placeholder at the lower right position
 public:
-	enum CampaignSet {ROE, SOD, WOG};
+	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps);
 	~CCampaignScreen();

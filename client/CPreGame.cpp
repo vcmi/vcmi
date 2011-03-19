@@ -249,7 +249,7 @@ CMenuScreen::CMenuScreen( EState which )
 		{
 			buttons[0] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::WOG), 535, 8, "ZSSSOD.DEF", SDLK_s); // WOG
 			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
-			buttons[2] = new AdventureMapButton("", "", 0, 486, 241, "ZSSARM.DEF", SDLK_c); // AB TODO
+			buttons[2] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::AB), 486, 241, "ZSSARM.DEF", SDLK_c); // AB
 			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t); // Custom
 			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE); // Back
 
@@ -3342,7 +3342,7 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 {
 	OBJ_CONSTRUCTION; // sets this as parent
 	std::string bgImage;
-	if (campaigns == ROE)
+	if (campaigns == ROE || campaigns == AB)
 		bgImage = "CAMPBACK.BMP";
 	else if (campaigns == SOD)
 		bgImage = "CAMPBKX2.BMP";
@@ -3426,7 +3426,62 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 		else
 			drawCampaignPlaceholder();
 	}
+	if (campaigns == AB)
+	{
+		// Armageddon's Blade
+		static const std::string ab0Camp = "AB";
+		CCampaignButton *ab0 = new CCampaignButton(bg, "CAMP1AB7.BMP", buttonCords[0][0], buttonCords[0][1], camps[ab0Camp] != 0 ? camps[ab0Camp] : CCampaignScreen::ENABLED);
+		ab0->hoverText = "Armageddon's Blade";
+		ab0->campFile = ab0Camp;
+		ab0->video = "C1ab7.BIK";
+		campButtons.push_back(ab0);
 
+		// Dragon's Blood
+		static const std::string ab1Camp = "BLOOD";
+		CCampaignButton *ab1 = new CCampaignButton(bg, "CAMP1DB2.BMP", buttonCords[1][0], buttonCords[1][1], camps[ab1Camp] != 0 ? camps[ab1Camp] : CCampaignScreen::ENABLED);
+		ab1->hoverText = "Dragon's Blood";
+		ab1->campFile = ab1Camp;
+		ab1->video = "C1db2.BIK";
+		campButtons.push_back(ab1);
+
+		// Dragon Slayer
+		static const std::string ab2Camp = "SLAYER";
+		CCampaignButton *ab2 = new CCampaignButton(bg, "CAMP1DS1.BMP", buttonCords[2][0], buttonCords[2][1], camps[ab2Camp] != 0 ? camps[ab2Camp] : CCampaignScreen::ENABLED);
+		ab2->hoverText = "Dragon Slayer";
+		ab2->campFile = ab2Camp;
+		ab2->video = "C1ds1.BIK";
+		campButtons.push_back(ab2);
+
+		// Festival of Life
+		static const std::string ab3Camp = "FESTIVAL";
+		CCampaignButton *ab3 = new CCampaignButton(bg, "CAMP1FL3.BMP", buttonCords[3][0], buttonCords[3][1], camps[ab3Camp] != 0 ? camps[ab3Camp] : CCampaignScreen::ENABLED);
+		ab3->hoverText = "Festival of Life";
+		ab3->campFile = ab3Camp;
+		ab3->video = "C1fl3.BIK";
+		campButtons.push_back(ab3);
+
+		// Playing With Fire
+		static const std::string ab4Camp = "FIRE";
+		CCampaignButton *ab4 = new CCampaignButton(bg, "CAMP1PF2.BMP", buttonCords[4][0], buttonCords[4][1], camps[ab4Camp] != 0 ? camps[ab4Camp] : CCampaignScreen::ENABLED);
+		ab4->hoverText = "Playing With Fire";
+		ab4->campFile = ab4Camp;
+		ab4->video = "C1pf2.BIK";
+		campButtons.push_back(ab4);
+
+		// Foolhardy Waywardness
+		SDL_Surface *ab5Dis = BitmapHandler::loadBitmap("CAMP1FWX");
+		Rect ab5DisRect(buttonCords[5][0] - 2, buttonCords[5][1] - 2, ab5Dis->w, ab5Dis->h);
+		blitAt(ab5Dis, ab5DisRect, bg);
+
+		static const std::string ab5Camp = "FOOL";
+		CCampaignButton *ab5 = new CCampaignButton(bg, "CAMP1FW1.BMP", buttonCords[5][0], buttonCords[5][1], camps[ab5Camp] != 0 ? camps[ab5Camp] : CCampaignScreen::DISABLED);
+		ab5->hoverText = "Foolhardy Waywardness";
+		ab5->campFile = ab5Camp;
+		ab5->video = "C1fw1.BIK";
+		campButtons.push_back(ab5);
+
+		drawCampaignPlaceholder();
+	}
 	if (campaigns == WOG)
 	{
 		// In the Wake of Gods
@@ -3495,29 +3550,33 @@ CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::st
 	this->image = image;
 	this->status = status;
 
-	// Initialize base CIntObject members
-	if (status != CCampaignScreen::DISABLED)
-		used = LCLICK | HOVER;
+	// Initialize pos and size
 	pos.x = x;
 	pos.y = y;
 	pos.w = 200;
 	pos.h = 116;
 
-	// Creates the button image and the hover label
+	// Creates the button image
 	button = BitmapHandler::loadBitmap(image);
-	if (status != CCampaignScreen::DISABLED)
+	if (status != CCampaignScreen::DISABLED && button != 0)
+	{
 		blitAt(button, pos, bg);
+		used = LCLICK | HOVER; // set these flags to activate left click and hover event functions
+	}
 
+	// Create the checked image
 	if (status == CCampaignScreen::COMPLETED)
 		checked = BitmapHandler::loadBitmap("CAMPCHK.BMP");
 
+	// Create the button hover effect
 	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
 	hoverLabel->ignoreLeadingWhitespace = false;
 }
 
 CCampaignScreen::CCampaignButton::~CCampaignButton()
 {
-	SDL_FreeSurface(button);
+	if (button != 0)
+		SDL_FreeSurface(button);
 
 	if (status == CCampaignScreen::COMPLETED)
 		SDL_FreeSurface(checked);
@@ -3541,7 +3600,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 {
 	CIntObject::show(to);
 
-	if (status == CCampaignScreen::DISABLED || video == "")
+	if (status == CCampaignScreen::DISABLED || video == "" || button == 0)
 		return;
 
 #ifdef _WIN32
