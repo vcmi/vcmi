@@ -18,7 +18,6 @@
 #include "CVCMIServer.h"
 #include "../StartInfo.h"
 #include "../lib/map.h"
-#include "../lib/CLodHandler.h" 
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"

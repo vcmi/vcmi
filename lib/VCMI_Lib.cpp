@@ -11,6 +11,10 @@
 #include "CBuildingHandler.h"
 #include "CSpellHandler.h"
 #include "CGeneralTextHandler.h"
+#include "ERMParser.h"
+
+#include <boost/filesystem.hpp> //for erm parser testing
+#include <boost/algorithm/string.hpp> //for erm parser testing
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -48,7 +52,25 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	try
 	{
 		VLC->init();
-	} HANDLE_EXCEPTION
+	} HANDLE_EXCEPTION;
+
+
+	using namespace boost::filesystem;
+	//parser checking
+	directory_iterator enddir;
+	for (directory_iterator dir("Data/s"); dir!=enddir; dir++)
+	{
+		if(is_regular(dir->status()))
+		{
+			std::string name = dir->path().leaf();
+			if( boost::algorithm::ends_with(name, ".erm"))
+			{
+
+				ERMParser ep(dir->path().string());
+				ep.parseFile();
+			}
+		}
+	}
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
