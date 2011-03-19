@@ -195,7 +195,8 @@ int main(int argc, char** argv)
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only");
+		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
+		("nointro,i", "skips intro movies");
 
 	po::variables_map vm;
 	if(argc > 1)
@@ -261,7 +262,7 @@ int main(int argc, char** argv)
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
 
-	if(!vm.count("battle"))
+	if(!vm.count("battle") && !vm.count("nointro"))
 		playIntro();
 
 	SDL_FillRect(screen,NULL,0);

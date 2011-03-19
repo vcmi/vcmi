@@ -38,6 +38,8 @@ libvcmi_la_SOURCES = \
 	CSpellHandler.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
+	ERMParser.cpp \
+	ERMParser.h \
 	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \

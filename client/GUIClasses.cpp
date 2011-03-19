@@ -618,6 +618,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
 	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->fitToScreen(10);
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
 }
@@ -1727,8 +1728,8 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 {
 	for(int i=0;i<creatures.size();i++)
 	{
-		const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
-		if(isItIn(&(Rect(creatures[i].pos) + pos),GH.current->motion.x,GH.current->motion.y))
+		Rect creaPos = pos + creatures[i].pos;
+		if(isItIn(&creaPos, GH.current->motion.x, GH.current->motion.y))
 		{
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
@@ -5294,7 +5295,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	else if(src.slot >= Arts::BACKPACK_START && src.slot < commonInfo->src.slotID && src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
 	{
-		int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
+		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		commonInfo->src.slotID--;
 		assert(commonInfo->src.valid());
 		updateParentWindow();
@@ -5313,8 +5314,8 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	if(dst.slot < Arts::BACKPACK_START  &&  src.slot - Arts::BACKPACK_START < backpackPos)
  		shift--;
 
-	if( src.hero == curHero && src.slot >= Arts::BACKPACK_START
-	 || dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
+	if( (src.hero == curHero && src.slot >= Arts::BACKPACK_START)
+	 || (dst.hero == curHero && dst.slot >= Arts::BACKPACK_START) )
 		scrollBackpack(shift); //update backpack slots
 }
 

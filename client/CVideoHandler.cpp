@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include "../client/SDL_Extensions.h"
 #include "../client/CPlayerInterface.h"
-#include "boost\filesystem.hpp"
+#include "boost/filesystem.hpp"
 
 extern SystemOptions GDefaultOptions; 
 //reads events and returns true on key down
@@ -800,8 +800,7 @@ bool CVideoPlayer::nextFrame()
 			// Is this a packet from the video stream?
 			if (packet.stream_index == stream) {
 				// Decode video frame
-				avcodec_decode_video(codecContext, frame, &frameFinished, 
-									 packet.data, packet.size);
+				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
 
 				// Did we get a video frame?
 				if (frameFinished) {

@@ -58,7 +58,7 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	using namespace boost::filesystem;
 	//parser checking
 	directory_iterator enddir;
-	for (directory_iterator dir("Data/s"); dir!=enddir; dir++)
+	for (directory_iterator dir(DATA_DIR "/Data/s"); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{

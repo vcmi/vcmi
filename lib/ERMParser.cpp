@@ -17,7 +17,7 @@ ERMParser::ERMParser(std::string file)
 
 void ERMParser::parseFile()
 {
-	std::ifstream file(srcFile);
+	std::ifstream file(srcFile.c_str());
 	if(!file.is_open())
 	{
 		tlog1 << "File " << srcFile << " not found or unable to open\n";

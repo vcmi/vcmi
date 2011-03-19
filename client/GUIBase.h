@@ -421,6 +421,7 @@ public:
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
+	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);
 	void changeUsedEvents(ui16 what, bool enable, bool adjust = true);
@@ -503,6 +504,7 @@ public:
 	void showAll(SDL_Surface * to);
 	void convertToScreenBPP();
 	void colorizeAndConvert(int player);
+	void colorize(int player);
 };
 
 /// Handles GUI logic and drawing

@@ -29,7 +29,7 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
 fi
 
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
+   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
 fi
 
 # For clang only. Need an autoconf test.

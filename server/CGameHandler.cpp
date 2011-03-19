@@ -1212,23 +1212,23 @@ void CGameHandler::run(bool resume)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
 }
 
-namespace CGH
-{
-	using namespace std;
-	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
-	{
-		for(int j=0; j<7; ++j)
-		{
-			std::vector<int> pom;
-			for(int g=0; g<j+1; ++g)
-			{
-				int hlp; input>>hlp;
-				pom.push_back(hlp);
-			}
-			dest.push_back(pom);
-		}
-	}
-}
+//namespace CGH
+//{
+//	using namespace std;
+//	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
+//	{
+//		for(int j=0; j<7; ++j)
+//		{
+//			std::vector<int> pom;
+//			for(int g=0; g<j+1; ++g)
+//			{
+//				int hlp; input>>hlp;
+//				pom.push_back(hlp);
+//			}
+//			dest.push_back(pom);
+//		}
+//	}
+//}
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )
 {

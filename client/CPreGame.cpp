@@ -2838,16 +2838,21 @@ void CBonusSelection::updateBonusSelection()
 	//prim skill - PSKILBON.DEF
 	//sec skill - SSKILBON.DEF
 	//resource - BORES.DEF
-	//player - ?
-	//hero -?
+	//player - CREST58.DEF
+	//hero - PORTRAITSLARGE (HPL###.BMPs)
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
-	bonuses->buttons.clear();
+	for (size_t i=0; i<bonuses->buttons.size(); i++)
 	{
-		BLOCK_CAPTURING;
+		if (bonuses->buttons[i]->active)
+			bonuses->buttons[i]->deactivate();
+		bonuses->delChild(bonuses->buttons[i]);
+	}
+	bonuses->buttons.clear();
+
 		static const char *bonusPics[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "", "ARTIFBON.DEF", "SPELLBON.DEF",
-			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "CREST58.DEF", "HPL000KN"};
+			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "CREST58.DEF", "PORTRAITSLARGE"};
 
 		for(int i = 0; i < bonDescs.size(); i++)
 		{
@@ -2882,8 +2887,13 @@ void CBonusSelection::updateBonusSelection()
 					}
 					assert(faction != -1);
 
-					picName = graphics->ERMUtoPicture[faction][CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>())];
+					int buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>());
+					picName = graphics->ERMUtoPicture[faction][buildID];
 					picNumber = -1;
+
+					tlog1<<CGI->buildh->buildings.size()<<"\t"<<faction<<"\t"<<CGI->buildh->buildings[faction].size()<<"\t"<<buildID<<"\n";
+					if (vstd::contains(CGI->buildh->buildings[faction], buildID))
+						desc = CGI->buildh->buildings[faction].find(buildID)->second->Description();
 				}
 				break;
 			case 3: //artifact
@@ -2981,33 +2991,31 @@ void CBonusSelection::updateBonusSelection()
 				if (bonDescs[i].info2 == 0xFFFF)
 				{
 					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[0]->name); //hero's name
-					//surfToDuplicate = graphics->portraitLarge[0];
-					//TODO: re-enable - need to get filename or CAnimation with heroes pics
+					picNumber = 0;
 				}
 				else
 				{
-
 					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[bonDescs[i].info2]->name); //hero's name
-					//surfToDuplicate = graphics->portraitLarge[bonDescs[i].info2];
 				}
-				picNumber = -1;
 				break;
 			}
 
 			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, "", i));
-			//create separate surface with yellow border
 
 			if (picNumber != -1)
 				picName += ":" + boost::lexical_cast<std::string>(picNumber);
 
 			CAnimation * anim = new CAnimation();
 			anim->setCustom(picName, 0);
-			anim->setCustom("TWCRPORT:1", 1);
+			anim->setCustom("TWCRPORT:1", 1);//create separate surface with yellow border
 			bonuses->buttons.back()->setImage(anim);
 			//FIXME: use show base
 
 		}
-	}
+	if (active)
+		for (size_t i=0; i<bonuses->buttons.size(); i++)
+			bonuses->buttons[i]->activate();
+
 	if (bonuses->buttons.size() > 0)
 	{
 		bonuses->select(0, 0);
@@ -3101,6 +3109,7 @@ void CBonusSelection::CRegion::clickLeft( tribool down, bool previousState )
 	{
 		owner->selectMap(myNumber);
 		owner->highlightedRegion = this;
+		parent->showAll(screen);
 	}
 }
 

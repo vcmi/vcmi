@@ -610,7 +610,8 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 		{
 			totalw += (inter) * ((comps)[i].size() - 1);
 		}
-		
+
+		int startHeight = curh;
 		int middleh = curh + maxh/2;//axis for image aligment
 		int curw = (ret->w/2)-(totalw/2);
 
@@ -620,14 +621,14 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 
 			//blit img
 			int imgX = curw + ( cur->comp->pos.w - cur->comp->getImg()->w ) / 2;
-			int imgY = middleh - cur->comp->getImg()->h / 2;
+			int imgY = startHeight;
 			blitAt(cur->img, imgX, imgY, ret);
 			cur->comp->pos.x = imgX;
 			cur->comp->pos.y = imgY;
 
 			//blit subtitle
 			int textX = imgX + cur->comp->getImg()->w/2;
-			int textY = middleh + cur->comp->getImg()->h /2 + COMPONENT_TO_SUBTITLE;
+			int textY = startHeight + cur->comp->getImg()->h + COMPONENT_TO_SUBTITLE;
 			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, textY, ret, textX );
 
 			//if there is subsequent component blit "or"

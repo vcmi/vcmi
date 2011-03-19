@@ -722,6 +722,17 @@ const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
 	return pos;
 }
 
+void CIntObject::fitToScreen(int borderWidth, bool propagate)
+{
+	Point newPos = pos.topLeft();
+	amax(newPos.x, borderWidth);
+	amax(newPos.y, borderWidth);
+	amin(newPos.x, screen->w - borderWidth - pos.w);
+	amin(newPos.y, screen->h - borderWidth - pos.h);
+	if (newPos != pos.topLeft())
+		moveTo(newPos, propagate);
+}
+
 void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
 {
 	pos.x += p.x;
@@ -891,9 +902,15 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 void CPicture::colorizeAndConvert(int player)
 {
 	assert(bg);
+	colorize(player);
+	convertToScreenBPP();
+}
+
+void CPicture::colorize(int player)
+{
+	assert(bg);
 	assert(bg->format->BitsPerPixel == 8);
 	graphics->blueToPlayersAdv(bg, player);
-	convertToScreenBPP();
 }
 
 ObjectConstruction::ObjectConstruction( CIntObject *obj )
