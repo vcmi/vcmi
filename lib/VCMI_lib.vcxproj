@@ -181,6 +181,7 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
+    <ClCompile Include="ERMParser.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="map.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CSpellHandler.h" />
     <ClInclude Include="CTownHandler.h" />
+    <ClInclude Include="ERMParser.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="Interprocess.h" />
