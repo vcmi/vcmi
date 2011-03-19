@@ -229,7 +229,7 @@ void CMapHeader::loadPlayerInfo( int &pom, const unsigned char * bufor, int &i )
 			}
 			else
 			{
-				players[pom].generateHeroAtMainTown = false;
+				players[pom].generateHeroAtMainTown = true;
 				players[pom].generateHero = false;
 			}
 

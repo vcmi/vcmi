@@ -167,7 +167,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 			setPlayer(pset, 0, playerNames);
 
 		pset.castle = pinfo.defaultCastle();
-		pset.hero = pinfo.defaultHero(mapHeader->version==CMapHeader::RoE);
+		pset.hero = pinfo.defaultHero();
 
 
 		if(pinfo.mainHeroName.length())

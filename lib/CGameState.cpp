@@ -1056,7 +1056,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
 		const PlayerInfo &p = map->players[i];
-		bool generateHero = (p.generateHeroAtMainTown && p.hasMainTown)  ||  (p.hasMainTown && map->version==CMapHeader::RoE);
+		bool generateHero = (p.generateHeroAtMainTown && p.hasMainTown);
 		if(generateHero && vstd::contains(scenarioOps->playerInfos, i))
 		{
 			int3 hpos = p.posOfMainTown;
