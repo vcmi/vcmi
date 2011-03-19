@@ -274,8 +274,8 @@ public:
 	void eraseArtSlot(ui16 slot);
 
 	const ArtSlotInfo *getSlot(ui16 pos) const;
-	const CArtifactInstance* getArt(ui16 pos) const; //NULL - no artifact
-	CArtifactInstance* getArt(ui16 pos); //NULL - no artifact
+	const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const; //NULL - no artifact
+	CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
 	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	si32 getArtPos(const CArtifactInstance *art) const;
 	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)

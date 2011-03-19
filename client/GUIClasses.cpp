@@ -4705,7 +4705,7 @@ void CArtPlace::deactivate()
 
 void CArtPlace::showAll(SDL_Surface *to)
 {
-	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
+	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
 		int graphic = locked ? 145 : ourArt->artType->id;
 		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
@@ -5289,6 +5289,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			assert(commonInfo->src.AOH);
 			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[dst.getArt()->artType->id].bitmap);
 			markPossibleSlots(dst.getArt());
+			updateParentWindow();
 		}
 	}
 	else if(src.slot >= Arts::BACKPACK_START && src.slot < commonInfo->src.slotID && src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
@@ -5296,6 +5297,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		commonInfo->src.slotID--;
 		assert(commonInfo->src.valid());
+		updateParentWindow();
 	}
 	else
 	{
@@ -5791,6 +5793,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	SDL_FreeSurface(back);
 	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
 	quitb = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
+	quitb->assignedKeys.insert(SDLK_ESCAPE);
+
 	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
 

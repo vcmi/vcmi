@@ -2097,6 +2097,7 @@ CAdventureOptions::CAdventureOptions()
 	graphics->blueToPlayersAdv(bg->bg, LOCPLINT->playerID);
 	pos = bg->center();
 	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	//scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 24, "ADVINFO.DEF",SDLK_i);
 	scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);

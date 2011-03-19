@@ -6945,20 +6945,20 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 	cb->sendAndApply(&ow);
 }
 
-const CArtifactInstance* CArtifactSet::getArt(ui16 pos) const
+const CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/) const
 {
 	if(const ArtSlotInfo *si = getSlot(pos))
 	{
-		if(si->artifact && !si->locked)
+		if(si->artifact && (!excludeLocked || !si->locked))
 			return si->artifact;
 	}
 
 	return NULL;
 }
 
-CArtifactInstance* CArtifactSet::getArt(ui16 pos)
+CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/)
 {
-	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos));
+	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
 si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
