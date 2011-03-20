@@ -47,6 +47,7 @@ public:
 	//overrides CBonusSystemNode
 	//void getParents(TCNodes &out, const CBonusSystemNode *source = NULL) const;  //retrieves list of parent nodes (nodes to inherit bonuses from), source is the prinary asker
 	std::string bonusToString(Bonus *bonus, bool description) const; // how would bonus description look for this particular type of node
+	std::string bonusToGraphics(Bonus *bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;

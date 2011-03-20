@@ -21,6 +21,7 @@
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include <boost/tuple/tuple.hpp>
 
 using namespace CSDL_Ext;
 
@@ -80,15 +81,17 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 		node.bonuses.remove_if (Selector::typeSybtype(b->type, b->subtype)); //remove used bonuses
 	}
 
-	std::vector<std::pair<std::string, std::string> > descriptions; //quick, yet slow solution
-	std::string text, text2;
+	typedef boost::tuple<std::string,std::string, std::string> skillLine; //jeez
+	std::vector<skillLine> descriptions; //quick, yet slow solution
+	std::string text, text2, bonusGfx;
 	BOOST_FOREACH(Bonus* b, bl)
 	{
 		text = stack->bonusToString(b, false);
 		if (text.size())
 		{
 			text2 = stack->bonusToString(b, true);
-			descriptions.push_back(std::pair<std::string,std::string>(text, text2));
+			bonusGfx = stack->bonusToGraphics(b); // may be empty
+			descriptions.push_back(boost::tuple<std::string,std::string, std::string>(text, text2, bonusGfx));
 		}
 	}
 
@@ -174,23 +177,26 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 	//All bonuses - abilities
 
 	int i = 0, j = 0;
-	typedef std::pair<std::string, std::string> stringpair; //jeez
-	BOOST_FOREACH(stringpair p, descriptions)
+	std::string gfxName;
+	BOOST_FOREACH(skillLine p, descriptions)
 	{
 		int offsetx = 257*j;
-		int offsety = 60*i;
+		int offsety = 60*i + (bonusRows > 1 ? 1 : 0); //lack of precision :<
 
-		printAt(p.first, 84 + offsetx, 238 + offsety, FONT_SMALL, tytulowy, *bitmap);
-		printAt(p.second, 84 + offsetx, 258 + offsety, FONT_SMALL, zwykly, *bitmap);
+		printAt(p.get<0>(), 84 + offsetx, 238 + offsety, FONT_SMALL, tytulowy, *bitmap);
+		printAt(p.get<1>(), 84 + offsetx, 258 + offsety, FONT_SMALL, zwykly, *bitmap);
+		gfxName = p.get<2>();
+		if (gfxName.size())
+		{
+			CPicture * bonusGfx = new CPicture(gfxName, 22 + offsetx, 232 + offsety);
+			bonusGraphics.push_back(bonusGfx);
+		}
 
 		if (++j > 1) //next line
 		{
 			++i;
 			j = 0;
 		}
-			//text = stack->bonusToString(*it, true);
-			//if (text.size())
-			//	printAt(text, 80 + offsety, 262 + offsetx, FONT_SMALL, zwykly, *bitmap);
 	}
 
 	//AUIDAT.DEF
@@ -286,6 +292,6 @@ void CCreatureWindow::close()
 
 CCreatureWindow::~CCreatureWindow()
 {
- 	for(int i=0; i<upgResCost.size();i++)
+ 	for (int i=0; i<upgResCost.size(); ++i)
  		delete upgResCost[i];
 }

@@ -595,6 +595,142 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 		return "";
 }
 
+std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
+{
+	std::string fileName;
+	switch (bonus->type)
+	{
+			//"E_ALIVE.bmp"
+			//"E_ART.bmp"
+			//"E_BLESS.bmp"
+			//"E_BLOCK.bmp"
+			//"E_BLOCK1.bmp"
+			//"E_BLOCK2.bmp"
+		case Bonus::TWO_HEX_ATTACK_BREATH:
+			fileName = "E_BREATH.bmp"; break;
+		case Bonus::SPELL_AFTER_ATTACK:
+			fileName = "E_CAST.bmp"; break;
+			//"E_CAST1.bmp"
+			//"E_CAST2.bmp"
+			//"E_CASTER.bmp"
+		case Bonus::JOUSTING:
+			fileName = "E_CHAMP.bmp"; break;
+		case Bonus::DOUBLE_DAMAGE_CHANCE:
+			fileName = "E_DBLOW.bmp"; break;
+			//"E_DEATH.bmp"
+			//"E_DEFBON.bmp"
+		case Bonus::NO_DISTANCE_PENALTY:
+			fileName = "E_DIST.bmp"; break;
+		case Bonus::ADDITIONAL_ATTACK:
+			fileName = "E_DOUBLE.bmp"; break;
+		case Bonus::DRAGON_NATURE:
+			fileName = "E_DRAGON.bmp"; break;
+		case Bonus::MAGIC_RESISTANCE:
+			fileName = "E_DWARF.bmp"; break;
+		case Bonus::FEAR:
+			fileName = "E_FEAR.bmp"; break;
+		case Bonus::FEARLESS:
+			fileName = "E_FEARL.bmp"; break;
+			//"E_FIRE.bmp"
+		case Bonus::FLYING:
+			fileName = "E_FLY.bmp"; break;
+		case Bonus::SPELL_DAMAGE_REDUCTION:
+			fileName = "E_GOLEM.bmp"; break;
+		case Bonus::RETURN_AFTER_STRIKE:
+			fileName = "E_HARPY.bmp"; break;
+		case Bonus::HATE:
+			fileName = "E_HATE.bmp"; break;
+		case Bonus::KING1:
+			fileName = "E_KING1.bmp"; break;
+		case Bonus::KING2:
+			fileName = "E_KING2.bmp"; break;
+		case Bonus::KING3:
+			fileName = "E_KING3.bmp"; break;
+			//"E_LIGHT.bmp"
+		case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
+			fileName = "E_MANA.bmp"; break;
+		case Bonus::NO_MELEE_PENALTY:
+			fileName = "E_MELEE.bmp"; break;
+			//"E_MIND.bmp"
+		case Bonus::SELF_MORALE:
+			fileName = "E_MINOT.bmp"; break;
+		case Bonus::NO_MORALE:
+			fileName = "E_MORAL.bmp"; break;
+			//"E_NOFRIM.bmp"
+		case Bonus::NO_OBSTACLES_PENALTY:
+			fileName = "E_OBST.bmp"; break;
+		case Bonus::ENEMY_DEFENCE_REDUCTION:
+			fileName = "E_RDEF.bmp"; break;
+			//"E_REBIRTH.bmp"
+		case Bonus::BLOCKS_RETALIATION:
+			fileName = "E_RETAIL.bmp"; break;
+		case Bonus::ADDITIONAL_RETALIATION:
+			fileName = "E_RETAIL1.bmp"; break;
+		case Bonus::ATTACKS_ALL_ADJACENT:
+			fileName = "E_ROUND.bmp"; break;
+			//"E_SGNUM.bmp"
+			//"E_SGTYPE.bmp"
+		case Bonus::SHOOTER:
+			fileName = "E_SHOOT.bmp"; break;
+		case Bonus::FREE_SHOOTING: //shooter is not blocked by enemy
+			fileName = "E_SHOOTA.bmp"; break;
+			//"E_SHOOTN.bmp"
+			//"E_SPAIR.bmp"
+			//"E_SPAIR1.bmp"
+		case Bonus::SPELL_IMMUNITY:
+		{
+			switch (bonus->subtype)
+			{
+				case 74: //Blind
+					fileName = "E_SPBLIND.bmp"; break;
+				case 60: //Hypnotize
+					fileName = "E_SPHYPN.bmp"; break;
+				case 18: //Implosion
+					fileName = "E_SPIMP.bmp"; break;
+				case 59: //Berserk
+					fileName = "E_SPBERS.bmp"; break;
+				case 23: //Meteor Shower
+					fileName = "E_SPMET.bmp"; break;
+				case 26: //Armageddon
+					fileName = "E_SPARM.bmp"; break;
+				case 54: //Slow
+					fileName = "E_SPSLOW.bmp"; break;
+				//TODO: some generic spell handling?
+			}
+		}
+			//"E_SPAWILL.bmp"
+			//"E_SPCOLD.bmp"
+			//"E_SPDFIRE.bmp"
+			//"E_SPDIR.bmp"
+			//"E_SPDISB.bmp"
+			//"E_SPDISP.bmp"
+			//"E_SPEATH.bmp"
+			//"E_SPEATH1.bmp"
+			//"E_SPFIRE.bmp"
+			//"E_SPFIRE1.bmp"
+		case Bonus::LEVEL_SPELL_IMMUNITY:
+		{
+			if (iswith(bonus->val, 1 , 5))
+			{
+				fileName = "E_SPLVL" + boost::lexical_cast<std::string>(bonus->val) + ".bmp";
+			}
+			break;
+		}
+			//"E_SPWATER.bmp"
+			//"E_SPWATER1.bmp"
+			//"E_SUMMON.bmp"
+			//"E_SUMMON1.bmp"
+			//"E_SUMMON2.bmp"
+		case Bonus::FULL_HP_REGENERATION:
+			fileName = "E_TROLL.bmp"; break;
+		case Bonus::UNDEAD:
+			fileName = "E_UNDEAD.bmp"; break;
+		case Bonus::SPELL_RESISTANCE_AURA:
+			fileName = "E_UNIC.bmp"; break;
+	}
+	return fileName;
+}
+
 void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 {
 	if(_armyObj)

@@ -103,10 +103,12 @@
 +  79 SELF_MORALE 0 0 0			   	//minotaur kings		
 +  81 SPELL_AFTER_ATTACK 0 74 20   	//scorpicore					
 +  82 LEVEL_SPELL_IMMUNITY 3 0 0   	//red dragon's spell immunity					
++  82 TWO_HEX_ATTACK_BREATH 0 0 0  	//Red Dragon has breath attack					
 +  82 DRAGON_NATURE 0 0 0			//red dragon is a dragon			
 +  83 LEVEL_SPELL_IMMUNITY 5 0 0   	//black dragon's spell immunity					
-+  83 HATE 50 40 0	//Hate Ggiants					
++  83 HATE 50 40 0	//Hate Giants					
 +  83 HATE 50 41 0	//Hate Titans					
++  83 TWO_HEX_ATTACK_BREATH 0 0 0  	//Black Dragon has breath attack					
 +  83 DRAGON_NATURE 0 0 0			//black dragon is a dragon			
 +  87 ADDITIONAL_ATTACK 1 0 0		//wolf raider				
 +  91 SPELLCASTER 2 43 6   	   	   	//ogre magi cast bloodlust			
@@ -191,4 +193,5 @@
 -  47 FLYING			  			//cerberus doesn't fly
 - 120 DOUBLE_WIDE					//psychic elemental	
 - 121 DOUBLE_WIDE					//magic elemental	
+- 157 SHOOTER	//Hell Hydra certainly does not shoot					
 0						

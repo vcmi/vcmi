@@ -33,6 +33,7 @@ public:
 	CCreaturePic *anim; //related creature's animation
 	const CCreature *c; //related creature
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
+	std::vector<CPicture*> bonusGraphics;
 
 	MoraleLuckBox *luck, *morale;
 	LRClickableAreaWText * expArea; //displays exp details
