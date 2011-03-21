@@ -681,7 +681,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		{
 			switch (bonus->subtype)
 			{
-				case 74: //Blind
+				case 62: //Blind
 					fileName = "E_SPBLIND.bmp"; break;
 				case 60: //Hypnotize
 					fileName = "E_SPHYPN.bmp"; break;

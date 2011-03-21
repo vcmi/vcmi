@@ -56,7 +56,7 @@ CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	CStackInstance * stack = new CStackInstance(Type,creatureCount); //TODO: simplify?
+	CStackInstance * stack = new CStackInstance(Cid, creatureCount); //TODO: simplify?
 	init(stack, CGI->creh->creatures[Cid], NULL);
 	delete stack;
 }
@@ -138,12 +138,67 @@ void CCreatureWindow::init(const CStackInstance *stack, const CBonusSystemNode *
 	printLine(4, CGI->generaltexth->allTexts[388], c->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printLine(6, CGI->generaltexth->zelp[441].first, c->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
-	if (stack)
+	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 335, 50, false); //exp icon - Print it always?
+	if (type) //not in fort window
 	{
 		if (STACK_EXP)
 		{
+			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
 			printAtMiddle("Rank " + boost::lexical_cast<std::string>(stack->getExpRank()), 436, 62, FONT_MEDIUM, tytulowy,*bitmap);
 			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 436, 82, FONT_SMALL, zwykly,*bitmap);
+			if (type > BATTLE) //we need it only on adv. map
+			{
+				int tier = stack->type->level;
+				if (!iswith(tier, 1, 7))
+					tier = 0;
+				int number;
+				std::string expText = CGI->generaltexth->zcrexp[324];
+				boost::replace_first (expText, "%s", c->namePl);
+				boost::replace_first (expText, "%s", CGI->generaltexth->zcrexp[rank]);
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(rank));
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->experience));
+				number = CGI->creh->expRanks[tier][rank] - stack->experience;
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+				number = CGI->creh->maxExpPerBattle[tier]; //percent
+				boost::replace_first (expText, "%i%", boost::lexical_cast<std::string>(number));
+				number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
+
+				int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
+				number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
+
+				boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
+				number = CGI->creh->expAfterUpgrade;
+				boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
+
+				expmin = CGI->creh->expRanks[tier][9];
+				int expmax = CGI->creh->expRanks[tier][10];
+				number = expmax - expmin;
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+				number = (stack->count * (expmax - expmin)) / expmin; 
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+			
+				//» S t a c k   E x p e r i e n c e   D e t a i l s «
+				//
+				//Creature Type ................... : %s
+				//Experience Rank ................. : %s (%i)
+				//Experience Points ............... : %i
+				//Experience Points to Next Rank .. : %i
+				//Maximum Experience per Battle ... : %i%% (%i)
+				//Number of Creatures in stack .... : %i
+				//Maximum New Recruits
+				// without losing current Rank .... : %i
+				//Experience Multiplier ........... : %.2f
+				//Upgrade Multiplier .............. : %.2f
+				//Experience after Rank 10 ........ : %i
+				//Maximum New Recruits to remain at
+				// Rank 10 if at Maximum Experience : %i
+				expArea = new LRClickableAreaWText(Rect(334, 49, 160, 44), "" , expText );
+			}
 		}
 
 		if (STACK_ARTIFACT && type > BATTLE)

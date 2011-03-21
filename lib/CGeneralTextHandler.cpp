@@ -536,6 +536,16 @@ void CGeneralTextHandler::load()
 		} while (nameBuf.size());
 	}
 
+	buf = bitmaph->getTextFile ("ZCREXP.TXT");
+	it = 0;
+	loadToIt (dump, buf, it, 3); //comment
+	for (int i = 0; i < 459; ++i) //some texts seem to be empty
+	{
+		loadToIt(dump, buf, it, 4); //description, usually useless
+		loadToIt(nameBuf, buf, it, 3);
+		zcrexp.push_back(nameBuf);
+	}
+
 	std::ifstream ifs(DATA_DIR "/config/threatlevel.txt", std::ios::in | std::ios::binary);
 	getline(ifs, buf); //skip 1st line
 	for (int i = 0; i < 13; ++i)
