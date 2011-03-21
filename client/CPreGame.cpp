@@ -309,7 +309,6 @@ void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode 
 void CGPreGame::openCampaignScreen(CCampaignScreen::CampaignSet campaigns)
 {
 	std::map<std::string, CCampaignScreen::CampaignStatus> defaultCamp;
-	defaultCamp["GOOD1"] = CCampaignScreen::COMPLETED;
 	GH.pushInt(new CCampaignScreen(campaigns, defaultCamp));
 }
 
@@ -3370,157 +3369,51 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 	back->hoverable = true;
 	
 	// Load all campaign buttons
+	// 1.index: 0 => ROE, 1 => AB, 2 => WOG
 	static const int buttonCords[7][2]  = { {90, 72} , {539, 72} , {43, 245} , {313, 244}, {586, 246}, {34, 417}, {404, 414}};
+
+	static const std::string campFiles[3][7] = { {"GOOD1", "EVIL1", "GOOD2", "NEUTRAL1", "EVIL2", "GOOD3", "SECRET"}, 
+												 { "AB", "BLOOD", "SLAYER", "FESTIVAL", "FIRE", "FOOL" },
+												 { "ZC1", "ZC2", "ZC3", "ZC4" } };
+
+	static const std::string campImages[3][7] = { { "CAMPGD1S.BMP", "CAMPEV1S.BMP", "CAMPGD2S.BMP", "CAMPNEUS.BMP", "CAMPEV2S.BMP", "CAMPGD3S.BMP", "CAMPSCTS.BMP" }, 
+												  { "CAMP1AB7.BMP", "CAMP1DB2.BMP", "CAMP1DS1.BMP", "CAMP1FL3.BMP", "CAMP1PF2.BMP", "CAMP1FW1.BMP" },
+												  { "CAMPZ01.BMP", "CAMPZ02.BMP", "CAMPZ03.BMP", "CAMPZ04.BMP" } };
+
+	static const std::string campVideos[3][7] = { { "CGOOD1.BIK", "CEVIL1.BIK", "CGOOD2.BIK", "CNEUTRAL.BIK", "CEVIL2.BIK", "CGOOD3.BIK", "CSECRET.BIK" },
+												  { "C1ab7.BIK", "C1db2.BIK", "C1ds1.BIK", "C1fl3.BIK", "C1pf2.BIK", "C1fw1.BIK" } };
+
+	static const std::string campTexts[3][7] = { { getMapText(0), getMapText(3), getMapText(1), getMapText(5), getMapText(4), getMapText(2), getMapText(6) },
+												 { "Armageddon's Blade", "Dragon's Blood", "Dragon Slayer", "Festival of Life", "Playing With Fire", "Foolhardy Waywardness" },
+												 { "In the Wake of Gods", "The Samaritan", "A Life of A-d-v-e-n-t-u-r-e", "Evil Way Home" } };
+
+	static const CampaignStatus campDefaults[3][7] = { { CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED,
+														 CCampaignScreen::DISABLED, CCampaignScreen::DISABLED }, 
+						{ CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED},
+						{ CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED } };
 
 	if (campaigns == ROE)
 	{
-		// Long live the Queen
-		static const std::string roe0Camp = "GOOD1";
-		CCampaignButton *roe0 = new CCampaignButton(bg, "CAMPGD1S.BMP", buttonCords[0][0], buttonCords[0][1], camps[roe0Camp] != 0 ? camps[roe0Camp] : CCampaignScreen::ENABLED);
-		roe0->video = "CGOOD1.BIK";
-		roe0->hoverText = CGI->generaltexth->campaignMapNames[0];
-		roe0->campFile = roe0Camp;
-		campButtons.push_back(roe0);
-
-		// Dungeons and Devils
-		static const std::string roe1Camp = "EVIL1";
-		CCampaignButton *roe1 = new CCampaignButton(bg, "CAMPEV1S.BMP", buttonCords[1][0], buttonCords[1][1], camps[roe1Camp] != 0 ? camps[roe1Camp] : CCampaignScreen::ENABLED);
-		roe1->video = "CEVIL1.BIK";
-		roe1->hoverText = CGI->generaltexth->campaignMapNames[3];
-		roe1->campFile = roe1Camp;
-		campButtons.push_back(roe1);
-	
-		// Spoils of War
-		static const std::string roe2Camp = "NEUTRAL1";
-		CCampaignButton *roe2 = new CCampaignButton(bg, "CAMPNEUS.BMP", buttonCords[3][0], buttonCords[3][1], camps[roe2Camp] != 0 ? camps[roe2Camp] : CCampaignScreen::ENABLED);
-		roe2->video = "CNEUTRAL.BIK";
-		roe2->hoverText = CGI->generaltexth->campaignMapNames[5];
-		roe2->campFile = roe2Camp;
-		campButtons.push_back(roe2);
-
-		// Liberation
-		static const std::string roe3Camp = "GOOD2";
-		CCampaignButton *roe3 = new CCampaignButton(bg, "CAMPGD2S.BMP", buttonCords[2][0], buttonCords[2][1], camps[roe3Camp] != 0 ? camps[roe3Camp] : CCampaignScreen::DISABLED);
-		roe3->video = "CGOOD2.BIK";
-		roe3->hoverText = CGI->generaltexth->campaignMapNames[1];
-		roe3->campFile = roe3Camp;
-		campButtons.push_back(roe3);
-
-		// Long Live the King
-		static const std::string roe4Camp = "EVIL2";
-		CCampaignButton *roe4 = new CCampaignButton(bg, "CAMPEV2S.BMP", buttonCords[4][0], buttonCords[4][1], camps[roe4Camp] != 0 ? camps[roe4Camp] : CCampaignScreen::DISABLED);
-		roe4->video = "CEVIL2.BIK";
-		roe4->hoverText = CGI->generaltexth->campaignMapNames[4];
-		roe4->campFile = roe4Camp;
-		campButtons.push_back(roe4);
-
-		// Song for the Father
-		static const std::string roe5Camp = "GOOD3";
-		CCampaignButton *roe5 = new CCampaignButton(bg, "CAMPGD3S.BMP", buttonCords[5][0], buttonCords[5][1], camps[roe5Camp] != 0 ? camps[roe5Camp] : CCampaignScreen::DISABLED);
-		roe5->video = "CGOOD3.BIK";
-		roe5->hoverText = CGI->generaltexth->campaignMapNames[2];
-		roe5->campFile = roe5Camp;
-		campButtons.push_back(roe5);
-
-		// Seeds of Discontent
-		static const std::string roe6Camp = "SECRET";
-		if (camps[roe6Camp] != 0)
-		{
-			CCampaignButton *roe6 = new CCampaignButton(bg, "CAMPSCTS.BMP", buttonCords[6][0], buttonCords[6][1], camps[roe6Camp]);
-			roe6->video = "CSECRET.BIK";
-			roe6->hoverText = CGI->generaltexth->campaignMapNames[6];
-			roe6->campFile = roe6Camp;
-			campButtons.push_back(roe6);
-		}
-		else
+		createButtons(buttonCords, campFiles[0], campImages[0], campVideos[0], campTexts[0], camps, campDefaults[0]);
+		
+		if (camps[campFiles[0][6]] == 0)
 			drawCampaignPlaceholder();
 	}
 	if (campaigns == AB)
 	{
-		// Armageddon's Blade
-		static const std::string ab0Camp = "AB";
-		CCampaignButton *ab0 = new CCampaignButton(bg, "CAMP1AB7.BMP", buttonCords[0][0], buttonCords[0][1], camps[ab0Camp] != 0 ? camps[ab0Camp] : CCampaignScreen::ENABLED);
-		ab0->hoverText = "Armageddon's Blade";
-		ab0->campFile = ab0Camp;
-		ab0->video = "C1ab7.BIK";
-		campButtons.push_back(ab0);
-
-		// Dragon's Blood
-		static const std::string ab1Camp = "BLOOD";
-		CCampaignButton *ab1 = new CCampaignButton(bg, "CAMP1DB2.BMP", buttonCords[1][0], buttonCords[1][1], camps[ab1Camp] != 0 ? camps[ab1Camp] : CCampaignScreen::ENABLED);
-		ab1->hoverText = "Dragon's Blood";
-		ab1->campFile = ab1Camp;
-		ab1->video = "C1db2.BIK";
-		campButtons.push_back(ab1);
-
-		// Dragon Slayer
-		static const std::string ab2Camp = "SLAYER";
-		CCampaignButton *ab2 = new CCampaignButton(bg, "CAMP1DS1.BMP", buttonCords[2][0], buttonCords[2][1], camps[ab2Camp] != 0 ? camps[ab2Camp] : CCampaignScreen::ENABLED);
-		ab2->hoverText = "Dragon Slayer";
-		ab2->campFile = ab2Camp;
-		ab2->video = "C1ds1.BIK";
-		campButtons.push_back(ab2);
-
-		// Festival of Life
-		static const std::string ab3Camp = "FESTIVAL";
-		CCampaignButton *ab3 = new CCampaignButton(bg, "CAMP1FL3.BMP", buttonCords[3][0], buttonCords[3][1], camps[ab3Camp] != 0 ? camps[ab3Camp] : CCampaignScreen::ENABLED);
-		ab3->hoverText = "Festival of Life";
-		ab3->campFile = ab3Camp;
-		ab3->video = "C1fl3.BIK";
-		campButtons.push_back(ab3);
-
-		// Playing With Fire
-		static const std::string ab4Camp = "FIRE";
-		CCampaignButton *ab4 = new CCampaignButton(bg, "CAMP1PF2.BMP", buttonCords[4][0], buttonCords[4][1], camps[ab4Camp] != 0 ? camps[ab4Camp] : CCampaignScreen::ENABLED);
-		ab4->hoverText = "Playing With Fire";
-		ab4->campFile = ab4Camp;
-		ab4->video = "C1pf2.BIK";
-		campButtons.push_back(ab4);
-
-		// Foolhardy Waywardness
+		// Foolhardy Waywardness -- draw deactivated image
 		SDL_Surface *ab5Dis = BitmapHandler::loadBitmap("CAMP1FWX");
 		Rect ab5DisRect(buttonCords[5][0] - 2, buttonCords[5][1] - 2, ab5Dis->w, ab5Dis->h);
 		blitAt(ab5Dis, ab5DisRect, bg);
 
-		static const std::string ab5Camp = "FOOL";
-		CCampaignButton *ab5 = new CCampaignButton(bg, "CAMP1FW1.BMP", buttonCords[5][0], buttonCords[5][1], camps[ab5Camp] != 0 ? camps[ab5Camp] : CCampaignScreen::DISABLED);
-		ab5->hoverText = "Foolhardy Waywardness";
-		ab5->campFile = ab5Camp;
-		ab5->video = "C1fw1.BIK";
-		campButtons.push_back(ab5);
-
+		createButtons(buttonCords, campFiles[1], campImages[1], campVideos[1], campTexts[1], camps, campDefaults[1]);
 		drawCampaignPlaceholder();
 	}
 	if (campaigns == WOG)
 	{
-		// In the Wake of Gods
-		static const std::string wog0Camp = "ZC1";
-		CCampaignButton *wog0 = new CCampaignButton(bg, "CAMPZ01.BMP", buttonCords[0][0], buttonCords[0][1], camps[wog0Camp] != 0 ? camps[wog0Camp] : CCampaignScreen::ENABLED);
-		wog0->hoverText = "In the Wake of Gods";
-		wog0->campFile = wog0Camp;
-		campButtons.push_back(wog0);
-
-		// The Samaritan
-		static const std::string wog1Camp = "ZC2";
-		CCampaignButton *wog1 = new CCampaignButton(bg, "CAMPZ02.BMP", buttonCords[1][0], buttonCords[1][1], camps[wog1Camp] != 0 ? camps[wog1Camp] : CCampaignScreen::ENABLED);
-		wog1->hoverText = "The Samaritan";
-		wog1->campFile = wog1Camp;
-		campButtons.push_back(wog1);
-
-		// A Life of A-d-v-e-n-t-u-r-e
-		static const std::string wog2Camp = "ZC3";
-		CCampaignButton *wog2 = new CCampaignButton(bg, "CAMPZ03.BMP", buttonCords[2][0], buttonCords[2][1], camps[wog2Camp] != 0 ? camps[wog2Camp] : CCampaignScreen::ENABLED);
-		wog2->hoverText = "A Life of A-d-v-e-n-t-u-r-e";
-		wog2->campFile = wog2Camp;
-		campButtons.push_back(wog2);
-
-		// Evil Way Home
-		static const std::string wog3Camp = "ZC4";
-		CCampaignButton *wog3 = new CCampaignButton(bg, "CAMPZ04.BMP", buttonCords[4][0] - 2, buttonCords[4][1] - 2, camps[wog3Camp] != 0 ? camps[wog3Camp] : CCampaignScreen::ENABLED);
-		wog3->hoverText = "Evil Way Home";
-		wog3->campFile = wog3Camp;
-		campButtons.push_back(wog3);
-
+		createButtons(buttonCords, campFiles[2], campImages[2], campVideos[2], campTexts[2], camps, campDefaults[2]);
+		campButtons[3]->pos.x -= 2; // special rule for the 4.th campaign
+		campButtons[3]->pos.y -= 2;
 		drawCampaignPlaceholder();
 	}
 }
@@ -3533,6 +3426,29 @@ CCampaignScreen::~CCampaignScreen()
 		SDL_FreeSurface(noCamp);
 
 	CCS->videoh->open("ACREDIT.SMK");
+}
+
+void CCampaignScreen::createButtons(const int buttonCords[7][2], const std::string campFiles[], 
+	const std::string campImages[], const std::string campVideos[], const std::string campTexts[], std::map<std::string, CampaignStatus>& camps, const CampaignStatus campDefaults[])
+{
+	for (int i = 0; i < 7; i++)
+	{
+		if (campFiles[i] != "") // if it's setted in the array
+		{
+			std::string file = campFiles[i];
+			
+			CCampaignButton *button = new CCampaignButton(bg, campImages[i], buttonCords[i][0], buttonCords[i][1], camps[file] != 0 ? camps[file] : campDefaults[i]);
+			button->campFile = file;
+			button->hoverText = campTexts[i];
+			button->video = campVideos[i];
+			campButtons.push_back(button);
+		}
+	}
+}
+
+std::string CCampaignScreen::getMapText(int index)
+{
+	return CGI->generaltexth->campaignMapNames[index];
 }
 
 void CCampaignScreen::drawCampaignPlaceholder()

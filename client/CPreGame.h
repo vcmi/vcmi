@@ -455,6 +455,9 @@ class CCampaignScreen : public CIntObject
 		std::vector<CCampaignButton*> campButtons; // a container which holds all buttons where you can start a campaign
 		
 		void drawCampaignPlaceholder(); // draws the no campaign placeholder at the lower right position
+		std::string getMapText(int index);
+		void createButtons(const int buttonCords[7][2], const std::string campFiles[], 
+			const std::string campImages[], const std::string campVideos[], const std::string campTexts[], std::map<std::string, CampaignStatus>& camps, const CampaignStatus campDefaults[]);
 public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
