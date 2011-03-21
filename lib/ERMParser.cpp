@@ -63,14 +63,42 @@ void callme(char const& i)
 
 namespace ERM
 {
+	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
+	struct iexpT
+	{
+		typedef boost::optional<boost::variant<int, std::string> > valT;
+		boost::optional<std::string> varsym;
+		valT val;
+	};
 
-	typedef std::vector<int> identifierT;
+	typedef std::vector<iexpT> identifierT;
+
+
+	struct conditionT;
+	typedef
+		boost::optional<
+		boost::recursive_wrapper<conditionT>
+		>
+		conditionNodeT;
+
+	struct conditionT
+	{
+		enum ECondType{AND = 0, OR, XOR, LAST} ctype;
+		std::string cond;
+		conditionNodeT rhs;
+	};
+
+	std::ostream & operator << (std::ostream & out, const conditionT & cond)
+	{
+		static char sym[] = {'&', '|', 'X', '/'};
+		return out << sym[cond.ctype] << cond.cond << cond.rhs;
+	}
 
 	struct triggerT
 	{
 		std::string name;
 		boost::optional<identifierT> identifier;
-		boost::optional<std::string> condition;
+		boost::optional<conditionT> condition;
 	};
 
 	//a dirty workaround for preprocessor magic that prevents the use types with comma in it in BOOST_FUSION_ADAPT_STRUCT
@@ -86,7 +114,7 @@ namespace ERM
 	{
 		std::string name;
 		boost::optional<identifierT> identifier;
-		boost::optional<std::string> condition;
+		boost::optional<conditionT> condition;
 		bodyTbody body;
 	};
 
@@ -94,14 +122,14 @@ namespace ERM
 	{
 		std::string name;
 		boost::optional<identifierT> identifier;
-		boost::optional<std::string> condition;
+		boost::optional<conditionT> condition;
 		bodyTbody body;
 	};
 
 	struct postOBtriggerT
 	{
 		boost::optional<identifierT> identifier;
-		boost::optional<std::string> condition;
+		boost::optional<conditionT> condition;
 	};
 
 	typedef	boost::variant<
@@ -120,9 +148,9 @@ namespace ERM
 
 	void identifierPrinter(const identifierT & id)
 	{
-		BOOST_FOREACH(int x, id)
+		BOOST_FOREACH(iexpT x, id)
 		{
-			tlog2 << "\\" << x;
+			tlog2 << "\\" << x.varsym << x.val;
 		}
 	}
 
@@ -193,17 +221,30 @@ namespace ERM
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+	ERM::iexpT,
+	(boost::optional<std::string>, varsym)
+	(ERM::iexpT::valT, val)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	ERM::triggerT,
 	(std::string, name)
 	(boost::optional<ERM::identifierT>, identifier)
-	(boost::optional<std::string>, condition)
+	(boost::optional<ERM::conditionT>, condition)
 	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::conditionT,
+	(std::string, cond)
+	(ERM::conditionNodeT, rhs)
+	)
+
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::instructionT,
 	(std::string, name)
 	(boost::optional<ERM::identifierT>, identifier)
-	(boost::optional<std::string>, condition)
+	(boost::optional<ERM::conditionT>, condition)
 	(ERM::bodyTbody, body)
 	)
 
@@ -211,14 +252,14 @@ BOOST_FUSION_ADAPT_STRUCT(
 	ERM::receiverT,
 	(std::string, name)
 	(boost::optional<ERM::identifierT>, identifier)
-	(boost::optional<std::string>, condition)
+	(boost::optional<ERM::conditionT>, condition)
 	(ERM::bodyTbody, body)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::postOBtriggerT,
 	(boost::optional<ERM::identifierT>, identifier)
-	(boost::optional<std::string>, condition)
+	(boost::optional<ERM::conditionT>, condition)
 	)
 
 namespace ERM
@@ -228,17 +269,21 @@ namespace ERM
 	{
 		ERM_grammar() : ERM_grammar::base_type(rline, "ERM script line")
 		{
+			macro %= qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$');
+			iexp %= -(*qi::char_("a-z") - 'u') >> -(qi::int_ | macro); 
  			comment = *(qi::char_);
  			commentLine = ~qi::char_('!') >> comment;
- 			cmdName %= +qi::char_/*qi::repeat(2)[qi::char_]*/;
-			identifier %= (qi::int_ % qi::lit('/'));
-			condition %= qi::lit('&') >> +qi::char_("0-9a-zA-Z&/|<>=") >> qi::lit(":;");
-			trigger %= cmdName >> -identifier >> -condition; /////
-			string %= qi::lexeme['^' >> +(qi::char_ - '^') >> '^'];
-			body %= *( qi::char_("a-zA-Z0-9/ ") | string);
+ 			cmdName %= qi::repeat(2)[qi::char_];
+			identifier %= (iexp % qi::lit('/'));
+
+			condition %= (qi::lit('&') | qi::lit('|') | qi::lit('X') | qi::lit('/')) > *qi::char_("0-9a-zA-Z<>=-") > -condition;
+
+			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
+			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
+			body %= qi::lit(":") > *( qi::char_("a-zA-Z0-9/ @*?%+-:|&-") | string | macro) > qi::lit(";");
 			instruction %= cmdName >> -identifier >> -condition >> body;
 			receiver %= cmdName >> -identifier >> -condition >> body;
-			postOBtrigger %= qi::lit("$OB") >> -identifier >> -condition;
+			postOBtrigger %= qi::lit("$OB") >> -identifier >> -condition > qi::lit(";");
 			command %= (qi::char_('!') >>
 					(
 						(qi::char_('?') >> trigger) |
@@ -256,6 +301,7 @@ namespace ERM
 			//error handling
 
 			string.name("string constant");
+			iexp.name("i-expression");
 			comment.name("comment");
 			commentLine.name("comment line");
 			cmdName.name("name of a command");
@@ -285,11 +331,13 @@ namespace ERM
 
 		qi::rule<Iterator, std::string()> string;
 
+		qi::rule<Iterator, std::string()> macro;
+		qi::rule<Iterator, iexpT()> iexp;
 		qi::rule<Iterator, void()> comment;
 		qi::rule<Iterator, void()> commentLine;
 		qi::rule<Iterator, std::string()> cmdName;
 		qi::rule<Iterator, identifierT()> identifier;
-		qi::rule<Iterator, std::string()> condition;
+		qi::rule<Iterator, conditionT()> condition;
 		qi::rule<Iterator, triggerT()> trigger;
 		qi::rule<Iterator, bodyTbody()> body;
 		qi::rule<Iterator, instructionT()> instruction;
@@ -311,8 +359,8 @@ void ERMParser::parseLine( std::string line )
 	bool r = qi::parse(beg, end, ERMgrammar, AST);
 	if(!r || beg != end)
 	{
-		tlog1 << "Parse error for line " << line << std::endl;
-		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+		//tlog1 << "Parse error for line " << line << std::endl;
+		//tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
 	}
 	else
 	{
