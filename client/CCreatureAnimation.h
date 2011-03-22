@@ -66,8 +66,15 @@ private:
 	int curFrame, internalFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
 	CCreatureAnim::EAnimType type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
-public:
+	
+	template<int bpp>
+	int nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
+	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
+	
 	std::map<int, std::vector<int> > frameGroups; //groups of frames; [groupID] -> vector of frame IDs in group
+	bool once;
+
+public:
 	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
 	~CCreatureAnimation(); //d-tor
@@ -75,17 +82,12 @@ public:
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
-
-	template<int bpp>
-	int nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
-	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	void incrementFrame();
 	int getFrame() const;
 	bool onFirstFrameInGroup();
 	bool onLastFrameInGroup();
 
-	bool once;
 	void playOnce(CCreatureAnim::EAnimType type); //plays once given stage of animation, then resets to 2
 
 	int framesInGroup(CCreatureAnim::EAnimType group) const; //retirns number of fromes in given group

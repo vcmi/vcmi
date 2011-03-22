@@ -264,7 +264,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 					//TODO: smooth disappear / appear effect
 		}
 
-		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED //hero didn't change tile but visit succeeded
+		if ((details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
 			eraseCurrentPathOf(ho);
@@ -1021,7 +1021,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if(bonus.type == Bonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	updateInfo(hero);
-	if (bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING && !gain)
+	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
 		cb->recalculatePaths();
@@ -1213,10 +1213,12 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		}
 
 		if(obj->ID == TOWNI_TYPE)
+		{
 			if(obj->tempOwner == playerID)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
 			else
 				towns -= obj;
+		}
 
 		assert(cb->getTownsInfo().size() == towns.size());
 	}
@@ -1279,7 +1281,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
-		LOCPLINT->castleInt->recreateBuildings();
+		LOCPLINT->castleInt->addBuilding(20);
 	}
 }
 
@@ -2054,7 +2056,7 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(market->o->ID == 2) //Altar
 	{
-		EMarketMode mode = market->availableModes().front();
+		//EMarketMode mode = market->availableModes().front();
 		if(market->allowsTrade(ARTIFACT_EXP) && visitor->getAlignment() != EVIL)
 			GH.pushInt(new CAltarWindow(market, visitor, ARTIFACT_EXP));
 		else if(market->allowsTrade(CREATURE_EXP) && visitor->getAlignment() != GOOD)
@@ -2158,7 +2160,7 @@ void CPlayerInterface::newStackInserted(const StackLocation &location, const CSt
 void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	bool updateInfobox = true;
+	//bool updateInfobox = true;
 	garrisonChanged(src.army, UPDATE_IF(src));
 	if(dst.army != src.army)
 		garrisonChanged(dst.army, UPDATE_IF(dst));
@@ -2179,27 +2181,39 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		{
 			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
 				aoh->artifactMoved(src, dst);
+		}
+	}
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		{
 			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
 				aoh->artifactAssembled(al);
+		}
+	}
 }
 
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		{
 			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
 				aoh->artifactDisassembled(al);
+		}
+	}
 }
 
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;

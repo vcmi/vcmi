@@ -19,6 +19,7 @@ class CTransformerWindow;
 class CPicture;
 class CCreaturePic;
 class CMinorResDataBar;
+class CCastleBuildings;
 
 /*
  * CCastleInterface.h, part of VCMI engine
@@ -34,10 +35,14 @@ class CMinorResDataBar;
 class CBuildingRect : public CShowableAnim
 {
 public:
+	CCastleBuildings * parent;
 	const Structure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
-	CBuildingRect(const Structure *Str); //c-tor
+	
+	unsigned int stateCounter;//For building construction - current stage in animation
+	
+	CBuildingRect(CCastleBuildings * Par, const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
@@ -67,6 +72,54 @@ public:
 	~CHeroGSlot(); //d-tor
 };
 
+/// Class for town screen management (town background and structures)
+class CCastleBuildings : public CIntObject
+{
+	struct AnimRule
+	{
+		int townID, buildID;
+		int toCheck;
+		size_t firstA, lastA;
+		size_t firstB, lastB;
+	};
+	
+	CPicture *background;
+	//List of buildings for each group
+	std::map< int, std::vector<const Structure*> > groups;
+	//Vector with all blittable buildings
+	std::vector<CBuildingRect*> buildings;
+
+	const CGTownInstance * town;
+
+	const CGHeroInstance* getHero();//Select hero for buildings usage
+	void checkRules();//Check animation rules (special anims for Shipyard and Mana Vortex)
+
+	void enterBlacksmith(int ArtifactID);//support for blacksmith + ballista yard
+	void enterBuilding(int building);//for buildings with simple description + pic left-click messages
+	void enterCastleGate();
+	void enterFountain(int building);//Rampart's fountains
+	void enterMagesGuild();
+	void enterTownHall();
+
+	void openMagesGuild();
+	void openTownHall();
+
+public:
+	CBuildingRect * selectedBuilding;
+
+	CCastleBuildings(const CGTownInstance* town);
+	~CCastleBuildings();
+
+	void enterDwelling(int level);
+
+	void buildingClicked(int building);
+	void addBuilding(int building);
+	void removeBuilding(int building);//FIXME: not tested!!!
+	
+	void show(SDL_Surface *to);
+	void showAll(SDL_Surface *to);
+};
+
 /// Huge class which manages the castle window
 class CCastleInterface : public CWindowWithGarrison
 {
@@ -83,7 +136,7 @@ class CCastleInterface : public CWindowWithGarrison
 		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
 	};
-	/// Town info which gets shown by right-clicking on a town at the map
+	/// Icons from town screen with castle\town hall images
 	class CTownInfo : public CIntObject
 	{
 	public:
@@ -96,15 +149,13 @@ class CCastleInterface : public CWindowWithGarrison
 		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
 	};
+
 public:
-	bool showing; //indicates if interface is active
-	CBuildingRect * hBuild; //highlighted building
+	CCastleBuildings *builds;
 	SDL_Surface * townInt;
-	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 	CStatusBar * statusbar;
 	CResDataBar *resdatabar;
-	unsigned char animval, count;
 	int winMode;//0=right-click popup, 1 = normal, 2 = town hall only, 3 = fort only;
 
 	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
@@ -118,7 +169,6 @@ public:
 	AdventureMapButton *split;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
-	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
 	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
 	~CCastleInterface(); //d-tor
@@ -128,22 +178,12 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-	void buildingClicked(int building);
-	void defaultBuildingClicked(int building);//for buildings with simple description + pic left-click messages
-	void enterFountain(int building);
-	void enterBlacksmith(int ArtifactID);//support for blacksmith + ballista yard
-	void enterTavern();
-	void enterMageGuild();
 	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
-	void showRecruitmentWindow( int level );
-	void enterHall();
 	void close();
-	void splitF();
 	void activate();
 	void deactivate();
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
-	void recreateBuildings();
 	void recreateIcons();
 };
 
@@ -153,7 +193,7 @@ class CHallInterface : public CIntObject
 public:
 	CMinorResDataBar * resdatabar;
 
-	/// The building information box which gets shown by right-clicking on a building image
+	/// Building box from town hall (building icon + subtitle)
 	class CBuildingBox : public CIntObject
 	{
 	public:
@@ -169,7 +209,7 @@ public:
 		~CBuildingBox(); //d-tor
 	};
 
-	/// The actual building window where you can decide to buy a building or not
+	///  Window where you can decide to buy a building or not
 	class CBuildWindow: public CIntObject
 	{
 	public:
@@ -263,7 +303,7 @@ public:
 
 };
 
-/// The blacksmith window where you can buy one of the three war machines
+/// The blacksmith window where you can buy available in town war machine
 class CBlacksmithDialog : public CIntObject
 {
 public:

@@ -494,6 +494,8 @@ void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
 CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, const TButtonsInfo &Buttons, bool delComps)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	type |= BLOCK_ADV_HOTKEYS;
 	ID = -1;
 	for(int i=0;i<Buttons.size();i++)
 	{
@@ -4919,9 +4921,9 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 		LOCPLINT->openTownWindow(town);
 		LOCPLINT->castleInt->winMode = type;
 		if ( type == 2 )
-			LOCPLINT->castleInt->buildingClicked(10);
+			LOCPLINT->castleInt->builds->buildingClicked(10);
 		else if ( type == 3 && town->fortLevel() )
-			LOCPLINT->castleInt->buildingClicked(7);
+			LOCPLINT->castleInt->builds->buildingClicked(7);
 		}
 }
 

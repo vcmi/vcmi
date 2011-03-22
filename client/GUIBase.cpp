@@ -50,6 +50,7 @@ void CGuiHandler::popInt( IShowActivable *top )
 	if(listInt.size())
 		listInt.front()->activate();
 	totalRedraw();
+	fakeMouseMove();
 }
 
 void CGuiHandler::popIntTotally( IShowActivable *top )
@@ -333,7 +334,7 @@ void CGuiHandler::fakeMouseMove()
 
 	evnt.motion = sme;
 	current = &evnt;
-	handleMoveInterested(sme);
+	handleMouseMotion(&evnt);
 }
 
 void CGuiHandler::run()

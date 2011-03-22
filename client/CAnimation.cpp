@@ -585,7 +585,9 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 		delete [] pic;
 	}
 	else if(bitmaph->haveFile(filename, FILE_GRAPHICS))
+	{
 		surf = BitmapHandler::loadBitmap(filename);
+	}
 	else
 	{
 		tlog0<<"Error: file not found: "<<filename<<"\n";
@@ -648,8 +650,9 @@ CompImage::CompImage(SDL_Surface * surf)
 	assert(0);
 }
 
-void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
+void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
+	int rotation = 0; //TODO
 	//rotation & 2 = horizontal rotation
 	//rotation & 4 = vertical rotation
 	if (!surf)
@@ -706,7 +709,7 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned
 		while (currX + size < sourceRect.w)
 		{
 			//blit block, pointers will be modified if needed
-			BlitBlockWithBpp(bpp, type, size, data, blitPos, rotation & 2);
+			BlitBlockWithBpp(bpp, type, size, data, blitPos, alpha, rotation & 2);
 
 			currX += size;
 			type = *(data++);
@@ -714,14 +717,14 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned
 		}
 		//Blit last, semi-visible block
 		size = sourceRect.w - currX;
-		BlitBlockWithBpp(bpp, type, size, data, blitPos, rotation & 2);
+		BlitBlockWithBpp(bpp, type, size, data, blitPos, alpha, rotation & 2);
 	}
 }
 
-#define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest); break
+#define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest, alpha); break
 
 //FIXME: better way to get blitter
-void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, bool rotated) const
+void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha, bool rotated) const
 {
 	assert(bpp>1 && bpp<5);
 	
@@ -744,22 +747,33 @@ void CompImage::BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&
 
 //Blit one block from RLE-d surface
 template<int bpp, int dir>
-void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
+void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha) const
 {
 	//Raw data
 	if (type == 0xff)
 	{
 		ui8 color = *data;
+		if (alpha != 255)//Per-surface alpha is set
+		{
+			for (size_t i=0; i<size; i++)
+			{
+				SDL_Color col = palette[*(data++)];
+				col.unused = (unsigned int)col.unused*(255-alpha)/255;
+				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
+			}
+			return;
+		}
+
 		if (palette[color].unused == 255)
 		{
 			//Put row of RGB data
-			for (int i=0; i<size; i++)
+			for (size_t i=0; i<size; i++)
 				ColorPutter<bpp, 1>::PutColor(dest, palette[*(data++)]);
 		}
 		else
 		{
 			//Put row of RGBA data
-			for (int i=0; i<size; i++)
+			for (size_t i=0; i<size; i++)
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, palette[*(data++)]);
 			
 		}
@@ -767,6 +781,15 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
 	//RLE-d sequence
 	else
 	{
+		if (alpha != 255 && palette[type].unused !=0)//Per-surface alpha is set
+		{
+			SDL_Color col = palette[type];
+			col.unused = (int)col.unused*(255-alpha)/255;
+			for (size_t i=0; i<size; i++)
+				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
+			return;
+		}
+
 		switch (palette[type].unused)
 		{
 			case 0:
@@ -784,14 +807,13 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const
 			default:
 			{
 				//Put RGBA row
-				for (int i=0; i<size; i++)
+				for (size_t i=0; i<size; i++)
 					ColorPutter<bpp, 1>::PutColorAlpha(dest, palette[type]);
 				break;
 			}
 		}
 	}
 }
-
 
 void CompImage::playerColored(int player)
 {
@@ -991,6 +1013,7 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
+	loadedAnims.insert(this);
 }
 
 CAnimation::CAnimation():
@@ -998,6 +1021,7 @@ CAnimation::CAnimation():
 	compressed(false)
 {
 	init(NULL);
+	loadedAnims.insert(this);
 }
 
 CAnimation::~CAnimation()
@@ -1009,6 +1033,7 @@ CAnimation::~CAnimation()
 			for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
 				delete image->second;
 	}
+	loadedAnims.erase(this);
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
@@ -1088,6 +1113,21 @@ size_t CAnimation::size(size_t group) const
 	if (iter != source.end())
 		return iter->second.size();
 	return 0;
+}
+
+std::set<CAnimation*> CAnimation::loadedAnims;
+
+void CAnimation::getAnimInfo()
+{
+	tlog1<<"Animation stats: Loaded "<<loadedAnims.size()<<" total\n";
+	for (std::set<CAnimation*>::iterator it = loadedAnims.begin(); it != loadedAnims.end(); it++)
+	{
+		CAnimation * anim = *it;
+		tlog1<<"Name: "<<anim->name<<" Groups: "<<anim->images.size();
+		if (!anim->images.empty())
+			tlog1<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
+		tlog1<<"\n";
+	}
 }
 
 CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, unsigned char Flags):
@@ -1172,7 +1212,8 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags
 	value(0),
 	flags(Flags),
 	xOffset(0),
-	yOffset(0)
+	yOffset(0),
+	alpha(255)
 {
 	anim.loadGroup(group);
 	last = anim.size(group);
@@ -1186,6 +1227,11 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags
 CShowableAnim::~CShowableAnim()
 {
 	anim.unloadGroup(group);
+}
+
+void CShowableAnim::setAlpha(unsigned int alphaValue)
+{
+	alpha = std::min<unsigned int>(alphaValue, 255);
 }
 
 bool CShowableAnim::set(size_t Group, size_t from, size_t to)
@@ -1265,7 +1311,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	IImage * img = anim.getImage(frame, group);
-	img->draw(to, pos.x-xOffset, pos.y-yOffset, &src);
+	img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)
@@ -1350,8 +1396,7 @@ void CCreatureAnim::reset()
 		if (set(at))
 			return;
 	}
-	set(type);
-	tlog0<<"Warning: next sequence was not found for animation!\n";
+	set(HOLDING);
 }
 
 void CCreatureAnim::startPreview()

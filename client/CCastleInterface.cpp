@@ -1,38 +1,34 @@
 #include "../stdafx.h"
-#include "CCastleInterface.h"
-#include "AdventureMapButton.h"
-#include "CAdvmapInterface.h"
-#include "CAnimation.h"
-#include "../CCallback.h"
-#include "CGameInfo.h"
-#include "CHeroWindow.h"
-#include "CMessage.h"
-#include "CPlayerInterface.h"
-#include "SDL_Extensions.h"
-#include "CCreatureAnimation.h"
-#include "Graphics.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "CDefHandler.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CLodHandler.h"
-#include "../lib/CObjectHandler.h"
-#include "../lib/CSpellHandler.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/CCreatureHandler.h"
-#include "../lib/map.h"
-#include "CMusicHandler.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp>
-#include <boost/lexical_cast.hpp>
-#include <cmath>
-#include <sstream>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include "CCastleInterface.h"
+#include "../CCallback.h"
+#include "../lib/CArtHandler.h"
+#include "../lib/CBuildingHandler.h"
 #include "../lib/CCreatureHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
+#include "../lib/CTownHandler.h"
+#include "AdventureMapButton.h"
+#include "CAdvmapInterface.h"
+#include "CAnimation.h"
+#include "CBitmapHandler.h"
+#include "CDefHandler.h"
+#include "CGameInfo.h"
+#include "CHeroWindow.h"
+#include "CMessage.h"
 #include "CMusicHandler.h"
+#include "CPlayerInterface.h"
+#include "Graphics.h"
+#include "SDL_Extensions.h"
+
 using namespace boost::assign;
-using namespace CSDL_Ext;
 
 /*
  * CCastleInterface.cpp, part of VCMI engine
@@ -57,13 +53,13 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 	}
 }
 
-CBuildingRect::CBuildingRect(const Structure *Str)
+CBuildingRect::CBuildingRect(CCastleBuildings * Par, const Structure *Str)
 	:CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE | CShowableAnim::USE_RLE),
-	str(Str)
+	parent(Par), str(Str), stateCounter(80)
 {
 	used |= LCLICK | RCLICK | HOVER;
-	pos.x += str->pos.x + LOCPLINT->castleInt->pos.x;
-	pos.y += str->pos.y + LOCPLINT->castleInt->pos.y;
+	pos.x += str->pos.x;
+	pos.y += str->pos.y;
 
 	if (!str->borderName.empty())
 		border = BitmapHandler::loadBitmap(str->borderName, true);
@@ -78,10 +74,8 @@ CBuildingRect::CBuildingRect(const Structure *Str)
 
 CBuildingRect::~CBuildingRect()
 {
-	if(border)
-		SDL_FreeSurface(border);
-	if(area)
-		SDL_FreeSurface(area);
+	SDL_FreeSurface(border);
+	SDL_FreeSurface(area);
 }
 
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
@@ -91,9 +85,9 @@ bool CBuildingRect::operator<(const CBuildingRect & p2) const
 	else
 		return (str->ID) < (p2.str->ID);
 }
+
 void CBuildingRect::hover(bool on)
 {
-	//Hoverable::hover(on);
 	if(on)
 	{
 		if(!(active & MOVE))
@@ -104,63 +98,108 @@ void CBuildingRect::hover(bool on)
 		if(active & MOVE)
 			changeUsedEvents(MOVE, false, true);
 
-		if(LOCPLINT->castleInt->hBuild == this)
+		if(parent->selectedBuilding == this)
 		{
-			LOCPLINT->castleInt->hBuild = NULL;
+			parent->selectedBuilding = NULL;
 			GH.statusbar->clear();
-
-			//call mouseMoved in other buildings, cursor might have been moved while they were inactive (eg. because of r-click popup)
-			for(size_t i = 0; i < LOCPLINT->castleInt->buildings.size(); i++)
-				LOCPLINT->castleInt->buildings[i]->mouseMoved(GH.current->motion);
 		}
 	}
 }
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && !down && area && (LOCPLINT->castleInt->hBuild==this) )
+	if( previousState && !down && area && (parent->selectedBuilding==this) )
 		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
-			LOCPLINT->castleInt->buildingClicked(str->ID);
+			parent->buildingClicked(str->ID);
 }
 
 void CBuildingRect::clickRight(tribool down, bool previousState)
 {
-	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
+	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding))
 		return;
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
 		int bid = hordeToDwellingID(str->ID);
-
 		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
-		assert(bld);
 
-		CInfoPopup *vinya = new CInfoPopup();
-		vinya->free = true;
-		vinya->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID,
-			bld->Description(),
-			LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,
-			bld->Name());
-		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
-		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		GH.pushInt(vinya);
+		std::vector<SComponent*> comps(1,
+		new SComponent(SComponent::building, bld->tid, bld->bid,
+		               LOCPLINT->castleInt->bicons->ourImages[bld->bid].bitmap, false));
+
+		CRClickPopup::createAndPush(bld->Description(), comps);
 	}
+}
+
+SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, float f)
+{
+	SDL_Color ret;
+	ret.r = a.r*f + b.r*(1-f);
+	ret.g = a.g*f + b.g*(1-f);
+	ret.b = a.b*f + b.b*(1-f);
+	return ret;
 }
 
 void CBuildingRect::show(SDL_Surface *to)
 {
-	CShowableAnim::show(to);
+	const unsigned int stageDelay = 16;
 
-	if(LOCPLINT->castleInt->hBuild == this && border)
+	const unsigned int S1_TRANSP  = 16; //0.5 sec building appear 0->100 transparency
+	const unsigned int S2_WHITE_B = 32; //0.5 sec border glows from white to yellow
+	const unsigned int S3_YELLOW_B= 48; //0.5 sec border glows from yellow to normal
+	const unsigned int BUILDED    = 80; //  1 sec delay, nothing happens
+
+	if (stateCounter < S1_TRANSP)
+	{
+		setAlpha(255*stateCounter/stageDelay);
+		CShowableAnim::show(to);
+	}
+	else
+	{
+		setAlpha(255);
+		CShowableAnim::show(to);
+	}
+
+	if (border && stateCounter > S1_TRANSP)
+	{
+		if (stateCounter == BUILDED)
+		{
+			if (parent->selectedBuilding == this)
+				blitAtLoc(border,0,0,to);
+			return;
+		}
+		// key colors in glowing border
+		SDL_Color c1 = {200, 200, 200, 255};
+		SDL_Color c2 = {120, 100,  60, 255};
+		SDL_Color c3 = {200, 180, 110, 255};
+
+		unsigned int colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
+		SDL_Color oldColor = border->format->palette->colors[colorID];
+		SDL_Color newColor;
+
+		if (stateCounter < S2_WHITE_B)
+			newColor = multiplyColors(c1, c2, float(stateCounter%stageDelay)/stageDelay);
+		else
+		if (stateCounter < S3_YELLOW_B)
+			newColor = multiplyColors(c2, c3, float(stateCounter%stageDelay)/stageDelay);
+		else
+			newColor = oldColor;
+
+		SDL_SetColors(border, &newColor, colorID, 1);
 		blitAtLoc(border,0,0,to);
+		SDL_SetColors(border, &oldColor, colorID, 1);
+
+	}
+	if (stateCounter < BUILDED)
+		stateCounter++;
 }
 
 void CBuildingRect::showAll(SDL_Surface *to)
 {
 	if (active)
 		return;
+
 	CShowableAnim::showAll(to);
-	if(LOCPLINT->castleInt->hBuild == this && border)
+	if(parent->selectedBuilding == this && border)
 		blitAtLoc(border,0,0,to);
 }
 
@@ -184,18 +223,18 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	{
 		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //hovered pixel is inside this building
 		{
-			if(LOCPLINT->castleInt->hBuild == this)
+			if(parent->selectedBuilding == this)
 			{
-				LOCPLINT->castleInt->hBuild = NULL;
+				parent->selectedBuilding = NULL;
 				GH.statusbar->clear();
 			}
 		}
 		else //inside the area of this building
 		{
-			if(! LOCPLINT->castleInt->hBuild //no building hovered
-			  || (*LOCPLINT->castleInt->hBuild)<(*this)) //or we are on top
+			if(! parent->selectedBuilding //no building hovered
+			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
-				LOCPLINT->castleInt->hBuild = this;
+				parent->selectedBuilding = this;
 				GH.statusbar->print(getBuildingSubtitle(str->townID, str->ID));
 			}
 		}
@@ -300,11 +339,6 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
-	//if(indeterminate(down) && !isItIn(&other->pos,GH.current->motion.x,GH.current->motion.y))
-	//{
-	//	other->highlight = highlight = false;
-	//	show(screen2);
-	//}
 }
 
 void CHeroGSlot::deactivate()
@@ -350,21 +384,461 @@ void CHeroGSlot::setHighlight( bool on )
 	}
 }
 
+template <class ptr>
 class SORTHELP
 {
 public:
 	bool operator ()
-		(const CBuildingRect *a ,
-		 const CBuildingRect *b)
+		(const ptr *a ,
+		 const ptr *b)
 	{
 		return (*a)<(*b);
 	}
-} srthlp ;
+};
+
+SORTHELP<CBuildingRect> buildSorter;
+SORTHELP<Structure> structSorter;
+
+CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
+	town(Town),
+	selectedBuilding(NULL)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pos = LOCPLINT->castleInt->pos;//FIXME: remove access to castleInt
+
+	background = new CPicture(graphics->townBgs[town->subID]);
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
+	//Generate buildings list
+	for (std::set<si32>::const_iterator building=town->builtBuildings.begin(); building!=town->builtBuildings.end(); building++)
+	{
+		std::map<int, Structure*>::iterator structure;
+		structure = CGI->townh->structures[town->subID].find(*building);
+
+		if(structure != CGI->townh->structures[town->subID].end())
+		{
+			if(structure->second->group<0) // no group - just add it
+				buildings.push_back(new CBuildingRect(this, structure->second));
+			else // generate list for each group
+				groups[structure->second->group].push_back(structure->second);
+		}
+	}
+
+	Structure * shipyard = CGI->townh->structures[town->subID][6];
+	//ship in shipyard
+	if(shipyard && vstd::contains(groups, shipyard->group))
+	{
+		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
+		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
+		{
+			groups[shipyard->group].push_back(CGI->townh->structures[town->subID][20]);
+		}
+	}
+	//Create building for each group
+	for (std::map< int, std::vector<const Structure*> >::iterator group = groups.begin(); group != groups.end(); group++)
+	{
+		std::sort(group->second.begin(), group->second.end(), structSorter);
+		buildings.push_back(new CBuildingRect(this, group->second.back()));
+	}
+	std::sort(buildings.begin(),buildings.end(),buildSorter);
+	checkRules();
+}
+
+CCastleBuildings::~CCastleBuildings()
+{
+}
+
+void CCastleBuildings::checkRules()
+{
+	static const AnimRule animRule[2] = 
+	{
+		{5, 21, 4, 10, -1, 0, 9},//code for Mana Vortex
+		{0,  6, 8,  1, -1, 0, 0},//code for the shipyard in the Castle
+	};
+	
+	for (size_t i=0; i<2; i++)
+	{
+		if ( town->subID != animRule[i].townID ) //wrong town
+			continue;
+		
+		int groupID = CGI->townh->structures[town->subID][animRule[i].buildID]->group;
+		std::map< int, std::vector<const Structure*> >::const_iterator git= groups.find(groupID);
+		if ( git == groups.end() || git->second.empty() ) //we have no buildings in this group
+			continue;
+
+		int buildID  = git->second.back()->ID;
+		for (std::vector< CBuildingRect* >::const_iterator bit=buildings.begin() ; bit !=buildings.end(); bit++ )
+		{
+			if ( (*bit)->str->ID == buildID ) //last building in group
+			{
+				if (vstd::contains(town->builtBuildings, animRule[i].toCheck))
+					(*bit)->set(0,animRule[i].firstA, animRule[i].lastA);
+				else
+					(*bit)->set(0,animRule[i].firstB, animRule[i].lastB);
+			}
+		}
+	}
+}
+
+void CCastleBuildings::addBuilding(int building)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	std::map<int, Structure*>::const_iterator structure;
+	structure = CGI->townh->structures[town->subID].find(building);
+
+	if(structure != CGI->townh->structures[town->subID].end()) //we have info about that structure
+	{
+		if(structure->second->group<0) //no group - just add it
+		{
+			buildings.push_back(new CBuildingRect(this, structure->second));
+		}
+		else
+		{
+			groups[structure->second->group].push_back(structure->second);
+			int newBuilding = groups[structure->second->group].back()->ID;
+			if (newBuilding == building)
+			{
+				for (std::vector< CBuildingRect* >::iterator it=buildings.begin() ; it !=buildings.end(); it++ )
+				{
+					if ((*it)->str->ID == newBuilding)
+					{
+						delChild(*it);
+						buildings.erase(it);
+						break;
+					}
+				}
+				buildings.push_back(new CBuildingRect(this, structure->second));
+				buildings.back()->stateCounter = 0;
+			}
+		}
+	}
+	std::sort(buildings.begin(),buildings.end(),buildSorter);
+	checkRules();
+}
+
+void CCastleBuildings::removeBuilding(int building)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	std::map<int, Structure*>::const_iterator structure;
+	structure = CGI->townh->structures[town->subID].find(building);
+
+	if(structure != CGI->townh->structures[town->subID].end()) //we have info about that structure
+	{
+		if(structure->second->group<0) //no group - just add it
+		{
+			for (std::vector< CBuildingRect* >::iterator it=buildings.begin() ; it !=buildings.end(); it++ )
+			{
+				if ((*it)->str->ID == building)
+				{
+					delChild(*it);
+					buildings.erase(it);
+					break;
+				}
+			}
+		}
+		else
+		{
+			groups[structure->second->group].pop_back();
+			delChild(buildings[building]);
+			if (!groups[structure->second->group].empty())
+				buildings.push_back(new CBuildingRect(this, structure->second));
+		}
+	}
+	std::sort(buildings.begin(),buildings.end(),buildSorter);
+	checkRules();
+}
+
+void CCastleBuildings::show(SDL_Surface *to)
+{
+	//FIXME: object capturing, if possible
+	background->show(to);
+	for (std::vector< CBuildingRect* >::const_iterator it=buildings.begin() ; it !=buildings.end(); it++ )
+		(*it)->show(to);
+}
+
+void CCastleBuildings::showAll(SDL_Surface *to)
+{
+	//FIXME: object capturing, if possible
+	background->showAll(to);
+	for (std::vector< CBuildingRect* >::const_iterator it=buildings.begin() ; it !=buildings.end(); it++ )
+		(*it)->showAll(to);
+}
+
+const CGHeroInstance* CCastleBuildings::getHero()
+{
+	if (town->visitingHero)
+		return town->visitingHero;
+	if (town->garrisonHero)
+		return town->garrisonHero;
+	return NULL;
+}
+
+void CCastleBuildings::buildingClicked(int building)
+{
+	tlog5<<"You've clicked on "<<building<<std::endl;
+	building = hordeToDwellingID(building);
+	const CBuilding *b = CGI->buildh->buildings[town->subID].find(building)->second;
+
+	if(building >= 30)
+	{
+		enterDwelling((building-30)%CREATURES_PER_TOWN);
+	}
+	else
+	{
+		switch(building)
+		{
+		case 0: case 1: case 2: case 3: case 4: //mage guild
+				enterMagesGuild();
+				break;
+
+		case 5: //tavern
+				LOCPLINT->showTavernWindow(town);
+				break;
+
+		case 6: //shipyard
+				LOCPLINT->showShipyardDialog(town);
+				break;
+
+		case 7: case 8: case 9: //fort/citadel/castle
+				GH.pushInt(new CFortScreen(LOCPLINT->castleInt));
+				break;
+
+		case 10: case 11: case 12: case 13: //hall
+				enterTownHall();
+				break;
+
+		case 14:  //marketplace
+				GH.pushInt(new CMarketplaceWindow(town, town->visitingHero));
+				break;
+
+		case 16: //blacksmith
+				enterBlacksmith(town->town->warMachine);
+				break;
+
+		case 17:
+				switch(town->subID)
+				{
+				case 1://Mystic Pond
+						enterFountain(building);
+						break;
+
+				case 2: case 5: case 8://Artifact Merchant
+						if(town->visitingHero)
+							GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
+						else
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+						break;
+
+				default:
+					enterBuilding(building);
+					break;
+				}
+				break;
+
+		case 20: //ship at shipyard
+				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
+				break;
+
+		case 21: //special 2
+				switch(town->subID)
+				{
+				case 1: //Fountain of Fortune
+						enterFountain(building);
+						break;
+
+				case 6: //Freelancer's Guild
+						if(getHero())
+							GH.pushInt(new CMarketplaceWindow(town, getHero(), CREATURE_RESOURCE));
+						else
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+						break;
+
+				case 8: //Magic University
+						if (getHero())
+							GH.pushInt(new CUniversityWindow(getHero(), town));
+						else
+							enterBuilding(building);
+						break;
+
+				default:
+						enterBuilding(building);
+						break;
+				}
+				break;
+
+		case 22: //special 3
+				switch(town->subID)
+				{
+				case 0: //Brotherhood of sword
+						LOCPLINT->showTavernWindow(town);
+						break;
+
+				case 3: //Castle Gate
+						enterCastleGate();
+						break;
+
+				case 4: //Skeleton Transformer
+						GH.pushInt( new CTransformerWindow(getHero(), town) );
+						break;
+
+				case 5: //Portal of Summoning
+						if (town->creatures[CREATURES_PER_TOWN].second.empty())//No creatures
+							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30]);
+						else
+							enterDwelling(CREATURES_PER_TOWN);
+						break;
+
+				case 6: //Ballista Yard
+						enterBlacksmith(4);
+						break;
+
+				default:
+						enterBuilding(building);
+						break;
+				}
+				break;
+
+		default:
+				enterBuilding(building);
+				break;
+		}
+	}
+}
+
+void CCastleBuildings::enterBlacksmith(int ArtifactID)
+{
+	const CGHeroInstance *hero = town->visitingHero;
+	if(!hero)
+	{
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % CGI->buildh->buildings[town->subID].find(16)->second->Name()));
+		return;
+	}
+	int price = CGI->arth->artifacts[ArtifactID]->price;
+	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(ArtifactID+9);
+	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
+}
+
+void CCastleBuildings::enterBuilding(int building)
+{
+	std::vector<SComponent*> comps(1,
+		new SComponent(SComponent::building, town->subID,building, 
+		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap, false));
+
+	LOCPLINT->showInfoDialog(
+		CGI->buildh->buildings[town->subID].find(building)->second->Description(),comps);
+}
+
+void CCastleBuildings::enterCastleGate()
+{
+	if (!town->visitingHero)
+	{
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126]);
+		return;//only visiting hero can use castle gates
+	}
+	std::vector <int> availableTowns;
+	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+	for(size_t i=0;i<Towns.size();i++)
+	{
+		const CGTownInstance *t = Towns[i];
+		if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
+			t->subID == 3 && vstd::contains(t->builtBuildings, 22))//inferno with castle gate
+		{
+			availableTowns.push_back(t->id);//add to the list
+		}
+	}
+	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[22].bitmap, 0,0, false);//will be deleted by selection window
+	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
+	    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
+}
+
+void CCastleBuildings::enterDwelling(int level)
+{
+	assert(level >= 0 && level < town->creatures.size());
+	GH.pushInt(new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87));
+}
+
+void CCastleBuildings::enterFountain(int building)
+{
+	std::vector<SComponent*> comps(1,
+		new SComponent(SComponent::building,town->subID,building,
+		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap,false));
+
+	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
+	if ( building == 21)//we need description for mystic pond as well
+		descr += "\n\n"+CGI->buildh->buildings[town->subID].find(17)->second->Description();
+	if (town->bonusValue.first == 0)//fountain was builded this week
+		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
+	else//fountain produced something;
+	{
+		descr+= "\n\n"+ CGI->generaltexth->allTexts[678];
+		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
+		boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
+	}
+	LOCPLINT->showInfoDialog(descr, comps);
+}
+
+void CCastleBuildings::enterMagesGuild()
+{
+	const CGHeroInstance *hero = getHero();
+
+	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
+	{
+		if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 500) //not enough gold to buy spellbook
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
+		}
+		else
+		{
+			CFunctionList<void()> functionList = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,0);
+			functionList += boost::bind(&CCastleBuildings::openMagesGuild,this);
+			std::vector<SComponent*> components(1, new SComponent(SComponent::artifact,0,0));
+
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], components, functionList, 0, true);
+		}
+	}
+	else
+	{
+		openMagesGuild();
+	}
+}
+
+void CCastleBuildings::enterTownHall()
+{
+	if(town->visitingHero && town->visitingHero->hasArt(2) &&
+		!vstd::contains(town->builtBuildings, 26)) //hero has grail, but town does not have it
+	{
+		if(!vstd::contains(town->forbiddenBuildings, 26))
+		{
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
+			                            std::vector<SComponent*>(),
+			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, 26),
+			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
+		}
+		else
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
+			(dynamic_cast<CInfoWindow*>(GH.topInt()))->buttons[0]->callback += boost::bind(&CCastleBuildings::openTownHall, this);
+		}
+	}
+	else
+	{
+		openTownHall();
+	}
+}
+
+void CCastleBuildings::openMagesGuild()
+{
+	GH.pushInt(new CMageGuildScreen(LOCPLINT->castleInt));
+}
+
+void CCastleBuildings::openTownHall()
+{
+	GH.pushInt(new CHallInterface(LOCPLINT->castleInt));
+}
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 :hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
-	showing = false;
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	LOCPLINT->castleInt = this;
@@ -378,10 +852,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	hslotup.pos.y += pos.y;
 	hslotdown.pos.x += pos.x;
 	hslotdown.pos.y += pos.y;
-	hBuild = NULL;
-	count=0;
 	town = Town;
-	animval = 0;
 	winMode = 1;
 
 	//garrison
@@ -408,9 +879,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->setOffset(4);
 	//growth icons and buildings
-	recreateBuildings();
+	builds = new CCastleBuildings(town);
 	recreateIcons();
-	cityBg = BitmapHandler::loadBitmap(graphics->townBgs[town->subID]);
 	bicons = CDefHandler::giveDefEss(graphics->buildingPics[town->subID]);
 	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
 }
@@ -420,7 +890,6 @@ CCastleInterface::~CCastleInterface()
 	delete bars;
 	delete status;
 	SDL_FreeSurface(townInt);
-	SDL_FreeSurface(cityBg);
 	delete exit;
 	//delete split;
 	delete hall;
@@ -430,10 +899,7 @@ CCastleInterface::~CCastleInterface()
 	delete townlist;
 	delete statusbar;
 	delete resdatabar;
-	for(size_t i=0;i<buildings.size();i++)
-	{
-		delete buildings[i];
-	}
+	delete builds;
 	delete bicons;
 	for(size_t i=0;i<creainfo.size();i++)
 	{
@@ -455,294 +921,15 @@ void CCastleInterface::close()
 	CCS->musich->stopMusic(5000);
 }
 
-void CCastleInterface::splitF()
-{
-}
-
-void CCastleInterface::buildingClicked(int building)
-{
-	tlog5<<"You've clicked on "<<building<<std::endl;
-	building = hordeToDwellingID(building);
-
-	const CBuilding *b = CGI->buildh->buildings[town->subID].find(building)->second;
-
-	if(building >= 30)
-	{
-		showRecruitmentWindow((building-30)%CREATURES_PER_TOWN);
-	}
-	else
-	{
-		switch(building)
-		{
-		case 0: case 1: case 2: case 3: case 4: //mage guild
-			{
-				const CGHeroInstance *h = NULL; //hero that "enters" mage guild
-
-				if(!town->garrisonHero && !town->visitingHero) //no heroes in town
-					h = NULL;
-				else if(!town->garrisonHero) //only visiting hero
-					h = town->visitingHero;
-				else if(!town->visitingHero || hslotup.highlight) //only garrisoned hero OR both heroes present, garrisoned hero selected
-					h = town->garrisonHero;
-				else //both heroes present, use the visiting one
-					h = town->visitingHero;
-
-				if(h && !h->hasSpellbook()) //hero doesn't have spellbok
-				{
-					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
-					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
-					}
-					else
-					{
-						CFunctionList<void()> fl = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,h,0);
-						fl += boost::bind(&CCastleInterface::enterMageGuild,this);
-						std::vector<SComponent*> vvv(1,new SComponent(SComponent::artifact,0,0));
-						LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214],vvv,fl,0,true);
-					}
-				}
-				else
-				{
-					enterMageGuild();
-				}
-				break;
-			}
-		case 5: //tavern
-			{
-				enterTavern();
-				break;
-			}
-		case 6: //shipyard
-			{
-				LOCPLINT->showShipyardDialog(town);
-				break;
-			}
-		case 7: case 8: case 9: //fort/citadel/castle
-			{
-				CFortScreen *fs = new CFortScreen(this);
-				GH.pushInt(fs);
-				break;
-			}
-		case 10: case 11: case 12: case 13: //hall
-			if(town->visitingHero && town->visitingHero->hasArt(2) &&
-					!vstd::contains(town->builtBuildings, 26)) //hero has grail, but town does not have it
-			{
-				if(!vstd::contains(town->forbiddenBuildings, 26))
-				{
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-												std::vector<SComponent*>(),
-												boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, 26),
-												boost::bind(&CCastleInterface::enterHall, this), true);
-				}
-				else
-				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-					(dynamic_cast<CInfoWindow*>(GH.topInt()))->buttons[0]->callback += boost::bind(&CCastleInterface::enterHall, this);
-				}
-			}
-			else
-				enterHall();
-			break;
-		case 14:  //marketplace
-			{
-				CMarketplaceWindow *cmw = new CMarketplaceWindow(town, town->visitingHero);
-				GH.pushInt(cmw);
-				break;
-			}
-		//case 15: //resource silo - default handling only
-
-		case 16: //blacksmith
-			enterBlacksmith(town->town->warMachine);
-			break;
-		case 17:
-			{
-				switch(town->subID)
-				{
-	/*Rampart*/	case 1://Mystic Pond
-					enterFountain(building);
-					break;
-	/*Tower*/	case 2://Artifact Merchant
-	/*Dungeon*/	case 5://Artifact Merchant
-	/*Conflux*/	case 8://Artifact Merchant
-					if(town->visitingHero)
-						GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
-					else
-						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
-
-					break;
-				default:
-					defaultBuildingClicked(building);
-					break;
-				}
-				break;
-			}
-		//case 18: //basic horde 1 - can't be selected
-		//case 19: //upg horde 1 - can't be selected
-		case 20: //ship at shipyard
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
-			break;
-		case 21: //special 2
-			{
-				switch(town->subID)
-				{
-	/*Rampart*/	case 1: //Fountain of Fortune
-					enterFountain(building);
-					break;
-	/*Stronghold*/case 6: //Freelancer's Guild
-					if(town->visitingHero)
-						GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, CREATURE_RESOURCE));
-					else
-						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
-					break;
-	/*Conflux*/	case 8: //Magic University
-					if (town->visitingHero)
-						GH.pushInt(new CUniversityWindow(town->visitingHero, town));
-					else if (town->garrisonHero)
-						GH.pushInt(new CUniversityWindow(town->garrisonHero, town));
-					else//no hero in town - default popup
-						defaultBuildingClicked(building);
-
-					break;
-				default:
-					defaultBuildingClicked(building);
-					break;
-				}
-				break;
-			}
-		case 22: //special 3
-			{
-				switch(town->subID)
-				{
-	/*Castle*/		case 0: //brotherhood of sword
-					enterTavern();
-					break;
-	/*Inferno*/		case 3: //Castle Gate
-						{
-							if (!town->visitingHero)
-							{
-								LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[126], std::vector<SComponent*>(), soundBase::sound_todo);
-								break;//only visiting hero can use castle gates
-							}
-
-							std::vector <int> availableTowns;
-							std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
-							for(size_t i=0;i<Towns.size();i++)
-							{
-								const CGTownInstance *t = Towns[i];
-								if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
-									t->subID == 3 && vstd::contains(t->builtBuildings, 22))//inferno with castle gate
-								{
-									availableTowns.push_back(t->id);//add to the list
-								}
-							}
-							CPicture *titlePic = new CPicture (bicons->ourImages[building].bitmap, 0,0, false);//will be deleted by selection window
-							GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
-							    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, this, _1)));
-							break;
-						}
-	/*Necropolis*/	case 4: //Skeleton Transformer
-						const CGHeroInstance *hero;
-						if (town->visitingHero)
-							hero = town->visitingHero;
-						else if (town->garrisonHero)
-							hero = town->garrisonHero;
-						else
-							hero = NULL;//no hero - will trade with town garrison
-
-						GH.pushInt ( new CTransformerWindow(hero, town) );
-						break;
-
-	/*Dungeon*/		case 5: //Portal of Summoning
-						if (town->creatures[CREATURES_PER_TOWN].second.empty())
-						//extra dwelling has no creatures in it
-							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30], std::vector<SComponent*>(), soundBase::sound_todo);
-						else
-							this->showRecruitmentWindow(CREATURES_PER_TOWN);
-					break;
-	/*Stronghold*/		case 6: //Ballista Yard
-					enterBlacksmith(4);
-					break;
-				default:
-					defaultBuildingClicked(building);
-					break;
-				}
-				break;
-			}
-		//case 23: //special 4 - default handling only
-		//case 24: //basic horde 2 - can't be selected
-		//case 25: //upg horde 2 - can't be selected
-		//case 26: //grail - default handling only
-		default:
-				defaultBuildingClicked(building);
-				break;
-		}
-	}
-}
-
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(where, 1);
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 }
 
-void CCastleInterface::defaultBuildingClicked(int building)
-{
-	std::vector<SComponent*> comps(1,
-		new SComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
-
-	LOCPLINT->showInfoDialog(
-		CGI->buildh->buildings[town->subID].find(building)->second->Description(),
-		comps, soundBase::sound_todo);
-}
-
-void CCastleInterface::enterFountain(int building)
-{
-	std::vector<SComponent*> comps(1,
-		new SComponent(SComponent::building,town->subID,building,bicons->ourImages[building].bitmap,false));
-
-	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
-	if ( building == 21)//we need description for mystic pond as well
-	descr += "\n\n"+CGI->buildh->buildings[town->subID].find(17)->second->Description();
-	if (town->bonusValue.first == 0)//fountain was builded this week
-		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
-	else//fountain produced something;
-	{
-		descr+= "\n\n"+ CGI->generaltexth->allTexts[678];
-		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
-		char buf[10];
-		SDL_itoa(town->bonusValue.second,buf,10);
-		boost::algorithm::replace_first(descr,"%d",buf);
-	}
-	LOCPLINT->showInfoDialog(descr, comps, soundBase::sound_todo);
-}
-
-void CCastleInterface::enterBlacksmith(int ArtifactID)
-{
-	const CGHeroInstance *hero = town->visitingHero;
-	if(!hero)
-	{
-		std::string pom = CGI->generaltexth->allTexts[273];
-		boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID].find(16)->second->Name());
-		LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
-		return;
-	}
-	int price = CGI->arth->artifacts[ArtifactID]->price;
-	bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
-	if( hero->hasArt(ui16(ArtifactID+9)) ) //hero already has machine
-		possible = false;
-	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
-}
-
-void CCastleInterface::enterHall()
-{
-	CHallInterface *h = new CHallInterface(this);
-	GH.pushInt(h);
-}
-
 void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 {
 	blitAt(townInt,pos.x,pos.y+374,to);
-	blitAt(cityBg,pos,to);
 	adventureInt->resdatabar.draw(to);
 	townlist->draw(to);
 	statusbar->show(to);
@@ -768,10 +955,7 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 	market->show(to);
 	fort->show(to);
 	hall->show(to);
-	for(size_t i=0;i<buildings.size();i++)
-	{
-		buildings[i]->showAll(to);
-	}
+	builds->showAll(to);
 	statusbar->show(to);//refreshing statusbar
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
@@ -792,16 +976,12 @@ void CCastleInterface::townChange()
 void CCastleInterface::show(SDL_Surface * to)
 {
 	//blit buildings
-	for(size_t i=0;i<buildings.size();i++)
-	{
-		buildings[i]->show(to);
-	}
+	builds->show(to);
 	statusbar->show(to);//refreshing statusbar
 }
 
 void CCastleInterface::activate()
 {
-	showing = true;
 	townlist->activate();
 	garr->activate();
 	GH.statusbar = statusbar;
@@ -810,10 +990,7 @@ void CCastleInterface::activate()
 	hall->activate();
 	market->activate();
 	//split->activate();
-	for(size_t i=0;i<buildings.size();i++) //XXX pls use iterators or at() but not []
-	{
-		buildings[i]->activate();
-	}
+	builds->activate();
 	for(size_t i=0;i<creainfo.size();i++)
 		creainfo[i]->activate();
 	hslotdown.activate();
@@ -823,7 +1000,6 @@ void CCastleInterface::activate()
 
 void CCastleInterface::deactivate()
 {
-	showing = false;
 	townlist->deactivate();
 	garr->deactivate();
 	exit->deactivate();
@@ -831,10 +1007,7 @@ void CCastleInterface::deactivate()
 	hall->deactivate();
 	market->deactivate();
 	//split->deactivate();
-	for(size_t i=0;i<buildings.size();i++) //XXX iterators
-	{
-		buildings[i]->deactivate();
-	}
+	builds->deactivate();
 	for(size_t i=0;i<creainfo.size();i++)
 		creainfo[i]->deactivate();
 	hslotdown.deactivate();
@@ -844,158 +1017,18 @@ void CCastleInterface::deactivate()
 
 void CCastleInterface::addBuilding(int bid)
 {
-	//TODO: lepiej by bylo tylko dodawac co trzeba pamietajac o grupach
 	if ( winMode == 2 )//we will only build buildings, no need to update interface - it will be closed in a moment
 		return;
 	deactivate();
-	recreateBuildings();
+	builds->addBuilding(bid);
 	recreateIcons();
 	activate();
 }
 
 void CCastleInterface::removeBuilding(int bid)
 {
-	//TODO: lepiej by bylo tylko usuwac co trzeba pamietajac o grupach
-	recreateBuildings();
+	builds->removeBuilding(bid);
 	recreateIcons();
-}
-
-void CCastleInterface::recreateBuildings()
-{
-	for(size_t i=0;i<buildings.size();i++)
-	{
-		if(showing)
-			buildings[i]->deactivate();
-		delete buildings[i];
-	}
-	buildings.clear();
-	hBuild = NULL;
-
-	std::set< std::pair<int,int> > s; //group - id
-
-
-	for (std::set<si32>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
-	{
-		if(town->subID >= 0 && town->subID < CGI->townh->structures.size()) //we have info about structures in this town
-		{
-			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
-			{
-				const Structure * st = CGI->townh->structures[town->subID][*i];
-				if(st->group<0) //no group - just add it
-				{
-					buildings.push_back(new CBuildingRect(st));
-				}
-				else
-				{
-					std::set< std::pair<int,int> >::iterator obecny=s.end();
-					for(std::set< std::pair<int,int> >::iterator seti = s.begin(); seti!=s.end(); seti++) //check if we have already building from same group
-					{
-						if(seti->first == st->group)
-						{
-							obecny = seti;
-							break;
-						}
-					}
-					if(obecny != s.end())
-					{
-						if((*(CGI->townh->structures[town->subID][obecny->second])) < (*(CGI->townh->structures[town->subID][st->ID]))) //we have to replace old building with current one
-						{
-							for(size_t itpb = 0; itpb<buildings.size(); itpb++)
-							{
-								if(buildings[itpb]->str->ID == obecny->second)
-								{
-									delete buildings[itpb];
-									buildings.erase(buildings.begin() + itpb);
-									*(const_cast<int*>(&(obecny->second))) = st->ID;
-									buildings.push_back(new CBuildingRect(st));
-								}
-							}
-						}
-					}
-					else
-					{
-						buildings.push_back(new CBuildingRect(st));
-						s.insert(std::pair<int,int>(st->group,st->ID));
-					}
-				}
-			}
-			else continue;
-		}
-		else
-			break;
-	}
-
-	//ship in shipyard
-	bool isThereShip = false;
-	if(vstd::contains(town->builtBuildings,6))
-	{
-		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
-		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
-		{
-			Structure * st = CGI->townh->structures[town->subID][20];
-			buildings.push_back(new CBuildingRect(st));
-			s.insert(std::pair<int,int>(st->group,st->ID));
-			isThereShip = true;
-		}
-	}
-
-	std::sort(buildings.begin(),buildings.end(),srthlp);
-
-	//code for Mana Vortex (there are two sets of animation frames - one without mage guild and one with
-	if((town->subID == 5) && (town->builtBuildings.find(21)!=town->builtBuildings.end()))
-	{
-		CBuildingRect *vortex = NULL;
-		for(size_t i=0;i<buildings.size();i++)
-		{
-			if(buildings[i]->str->ID==21)
-			{
-				vortex=buildings[i];
-				break;
-			}
-		}
-		if(town->builtBuildings.find(4)!=town->builtBuildings.end()) //there is mage Guild level 5
-		{
-			vortex->set(0,10);
-		}
-		else
-		{
-			vortex->set(0,0,9);
-		}
-	}
-	//code for the shipyard in the Castle
-	else if(town->subID == 0)
-	{
-		int shipID = 0;
-		if(isThereShip)
-			shipID = 20;
-		else if(vstd::contains(town->builtBuildings, 6))
-			shipID = 6;
-
-		if(shipID)
-		{
-			CBuildingRect *shipyard = NULL;
-			for(size_t i=0;i<buildings.size();i++)
-			{
-				if(buildings[i]->str->ID==shipID)
-				{
-					shipyard=buildings[i];
-					break;
-				}
-			}
-			if(town->builtBuildings.find(8)!=town->builtBuildings.end()) //there is citadel
-			{
-				shipyard->set(0,1);
-			}
-			else
-			{
-				shipyard->set(0,0,0);
-			}
-		}
-	}
-
-	if(showing)
-		for(size_t i=0;i<buildings.size();i++)
-			buildings[i]->activate();
 }
 
 void CCastleInterface::recreateIcons()
@@ -1010,7 +1043,7 @@ void CCastleInterface::recreateIcons()
 
 	for(size_t i=0;i<creainfo.size();i++)
 	{
-		if(showing)
+		if(active)
 			creainfo[i]->deactivate();
 		delete creainfo[i];
 	}
@@ -1067,7 +1100,7 @@ void CCastleInterface::CCreaInfo::hover(bool on)
 void CCastleInterface::CCreaInfo::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
-		LOCPLINT->castleInt->showRecruitmentWindow(level);
+		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
 int CCastleInterface::CCreaInfo::AddToString(std::string from, std::string & to, int numb)
@@ -1161,9 +1194,8 @@ void CCastleInterface::CCreaInfo::clickRight(tribool down, bool previousState)
 void CCastleInterface::CCreaInfo::show(SDL_Surface * to)
 {
 	blitAt(graphics->smallImgs[crid],pos.x+8,pos.y,to);
-	std::ostringstream oss;
-	oss << '+' << LOCPLINT->castleInt->town->creatureGrowth(level);
-	CSDL_Ext::printAtMiddle(oss.str(),pos.x+24,pos.y+40,FONT_SMALL,zwykly,to);
+	std::string str = "+" + boost::lexical_cast<std::string>(LOCPLINT->castleInt->town->creatureGrowth(level));
+	CSDL_Ext::printAtMiddle(str, pos.x+24, pos.y+40, FONT_SMALL, zwykly, to);
 }
 
 CCastleInterface::CTownInfo::~CTownInfo()
@@ -1212,10 +1244,10 @@ void CCastleInterface::CTownInfo::hover(bool on)
 }
 
 void CCastleInterface::CTownInfo::clickLeft(tribool down, bool previousState)
-{
+{/*
 	if(previousState && (!down))
 		if (LOCPLINT->castleInt->town->builtBuildings.find(bid)!=LOCPLINT->castleInt->town->builtBuildings.end())
-			LOCPLINT->castleInt->buildingClicked(bid);//activate building
+			LOCPLINT->castleInt->buildingClicked(bid);//activate building*/
 }
 
 void CCastleInterface::CTownInfo::clickRight(tribool down, bool previousState)
@@ -1242,9 +1274,8 @@ void CCastleInterface::CTownInfo::show(SDL_Surface * to)
 {
 	if ( bid == 14 )//marketplace/income
 	{
-		std::ostringstream oss;
-		oss << LOCPLINT->castleInt->town->dailyIncome();
-		CSDL_Ext::printAtMiddle(oss.str(),pos.x+33,pos.y+34,FONT_SMALL,zwykly,to);
+		std::string str = boost::lexical_cast<std::string>(LOCPLINT->castleInt->town->dailyIncome());
+		CSDL_Ext::printAtMiddle(str, pos.x+33, pos.y+34, FONT_SMALL, zwykly, to);
 	}
 	else if ( bid == 6 )//no fort
 		blitAt(pic->ourImages[3].bitmap,pos.x,pos.y,to);
@@ -1252,24 +1283,6 @@ void CCastleInterface::CTownInfo::show(SDL_Surface * to)
 		blitAt(pic->ourImages[bid-7].bitmap,pos.x,pos.y,to);
 	else//town halls
 		blitAt(pic->ourImages[bid-10].bitmap,pos.x,pos.y,to);
-}
-
-void CCastleInterface::showRecruitmentWindow( int level )
-{
-	assert(level >= 0 && level < town->creatures.size());
-
-	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87);
-	GH.pushInt(rw);
-}
-
-void CCastleInterface::enterMageGuild()
-{
-	GH.pushInt(new CMageGuildScreen(this));
-}
-
-void CCastleInterface::enterTavern()
-{
-	LOCPLINT->showTavernWindow(town);
 }
 
 void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
@@ -1482,7 +1495,7 @@ void CHallInterface::showAll(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
 	LOCPLINT->castleInt->statusbar->show(to);
-	printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(),399+pos.x,12+pos.y,FONT_MEDIUM,zwykly,to);
+	printAtMiddleLoc(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][bid]->Name(), 399, 12, FONT_MEDIUM,zwykly,to);
 	resdatabar->show(to);
 	exit->showAll(to);
 	for(int i=0; i<5; i++)
@@ -1761,7 +1774,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
 	bg = SDL_ConvertSurface(bg2,screen->format,0);
 	SDL_FreeSurface(bg2);
-	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,FONT_MEDIUM,zwykly,bg);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,FONT_MEDIUM,zwykly,bg);
 	for(int i=0;i<fortSize; i++)
 	{
 		int dwelling;// ID of buiding with this creature
@@ -1780,28 +1793,28 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 			dwelling = 22;//Portal of summon
 		}
 
-		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,FONT_SMALL,zwykly,bg); //cr. name
+		CSDL_Ext::printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,FONT_SMALL,zwykly,bg); //cr. name
 		blitAt(owner->bicons->ourImages[dwelling].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
-		printAtMiddle(CGI->buildh->buildings[owner->town->subID][dwelling]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
+		CSDL_Ext::printAtMiddle(CGI->buildh->buildings[owner->town->subID][dwelling]->Name(),positions[i].x+79,positions[i].y+100,FONT_SMALL,zwykly,bg); //dwelling name
 		if(present) //if creature is present print available quantity
 		{
 			SDL_itoa(owner->town->creatures[i].first,buf,10);
-			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,FONT_SMALL,zwykly,bg);
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,FONT_SMALL,zwykly,bg);
 		}
 		blitAt(icons,positions[i].x+261,positions[i].y+3,bg);
 
 		//attack
-		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->Attack(),buf,10);
-		printTo(buf,positions[i].x+381,positions[i].y+21,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+21,FONT_SMALL,zwykly,bg);
 
 		//defense
-		printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->Defense(),buf,10);
-		printTo(buf,positions[i].x+381,positions[i].y+41,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+41,FONT_SMALL,zwykly,bg);
 
 		//damage
-		printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->damageMin,buf,10);
 		int hlp;
 		if(c->damageMin > 0)
@@ -1810,23 +1823,23 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 			hlp = 2;
 		buf[hlp-1]=' '; buf[hlp]='-'; buf[hlp+1]=' ';
 		SDL_itoa(c->damageMax,buf+hlp+2,10);
-		printTo(buf,positions[i].x+381,positions[i].y+62,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+62,FONT_SMALL,zwykly,bg);
 
 		//health
-		printAt(CGI->generaltexth->zelp[439].first,positions[i].x+288,positions[i].y+66,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printAt(CGI->generaltexth->zelp[439].first,positions[i].x+288,positions[i].y+66,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->MaxHealth(),buf,10);
-		printTo(buf,positions[i].x+381,positions[i].y+82,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+82,FONT_SMALL,zwykly,bg);
 
 		//speed
-		printAt(CGI->generaltexth->zelp[441].first,positions[i].x+288,positions[i].y+87,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printAt(CGI->generaltexth->zelp[441].first,positions[i].x+288,positions[i].y+87,FONT_SMALL,zwykly,bg);
 		SDL_itoa(c->valOfBonuses(Bonus::STACKS_SPEED), buf,10);
-		printTo(buf,positions[i].x+381,positions[i].y+103,FONT_SMALL,zwykly,bg);
+		CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+103,FONT_SMALL,zwykly,bg);
 
 		if(present)//growth
 		{
-			printAt(CGI->generaltexth->allTexts[194],positions[i].x+288,positions[i].y+107,FONT_SMALL,zwykly,bg);
+			CSDL_Ext::printAt(CGI->generaltexth->allTexts[194],positions[i].x+288,positions[i].y+107,FONT_SMALL,zwykly,bg);
 			SDL_itoa(owner->town->creatureGrowth(i),buf,10);
-			printTo(buf,positions[i].x+381,positions[i].y+123,FONT_SMALL,zwykly,bg);
+			CSDL_Ext::printTo(buf,positions[i].x+381,positions[i].y+123,FONT_SMALL,zwykly,bg);
 		}
 		if(first)
 		{
@@ -1843,7 +1856,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 void CFortScreen::RecArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && previousState)
-		LOCPLINT->castleInt->showRecruitmentWindow(level);
+		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
 void CFortScreen::RecArea::clickRight(tribool down, bool previousState)
@@ -1972,10 +1985,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	anim->startPreview();
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID]->nameSing.c_str()); //build a new ...
-	printAtMiddle(pom,165,28,FONT_BIG,tytulowy,*bmp);
-	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,*bmp); //resource cost
+	CSDL_Ext::printAtMiddle(pom,165,28,FONT_BIG,tytulowy,*bmp);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[43],165,218,FONT_MEDIUM,zwykly,*bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid]->price,pom,10);
-	printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,*bmp);
+	CSDL_Ext::printAtMiddle(pom,165,290,FONT_MEDIUM,zwykly,*bmp);
 
 	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this), 42, 312,"IBUY30.DEF",SDLK_RETURN);
 	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);

@@ -68,7 +68,7 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const=0;
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const=0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -104,7 +104,7 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL,  ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -140,8 +140,8 @@ class CompImage : public IImage
 
 	//Used internally to blit one block of data
 	template<int bpp, int dir>
-	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest) const;
-	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, bool rotated) const;
+	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha) const;
+	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha, bool rotated) const;
 
 public:
 	//Load image from def file
@@ -150,7 +150,7 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, unsigned char rotation=0) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -158,9 +158,8 @@ public:
 	friend class CompImageLoader;
 };
 
-/*
- * Class for handling animation.
- */
+
+/// Class for handling animation
 class CAnimation
 {
 private:
@@ -201,6 +200,10 @@ public:
 	CAnimation();
 	~CAnimation();
 
+	//static method for debugging - print info about loaded animations in tlog1
+	static void getAnimInfo();
+	static std::set<CAnimation*> loadedAnims;
+
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
@@ -223,9 +226,8 @@ public:
 	size_t size(size_t group=0) const;
 };
 
-/*
- * Class for displaying one image from animation
- */
+
+/// Class for displaying one image from animation
 class CAnimImage: public CIntObject
 {
 private:
@@ -283,9 +285,14 @@ protected:
 	//For clipping in rect, offsets of picture coordinates
 	int xOffset, yOffset;
 
+	ui8 alpha;
+
 public:
 	//called when next animation sequence is required
 	boost::function<void()> callback;
+
+	//Set per-surface alpha, 0 = transparent, 255 = opaque
+	void setAlpha(unsigned int alphaValue);
 
 	CShowableAnim(int x, int y, std::string name, unsigned char flags=0, unsigned int Delay=4, size_t Group=0);
 	~CShowableAnim();
@@ -308,7 +315,7 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
-/// Creature-dependend animations like attacking, moving,... outside battles
+/// Creature-dependend animations like attacking, moving,...
 class CCreatureAnim: public CShowableAnim
 {
 public:

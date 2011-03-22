@@ -224,8 +224,8 @@ int main(int argc, char** argv)
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
-	putenv("SDL_VIDEO_WINDOW_POS");
-	putenv("SDL_VIDEO_CENTERED=1");
+	putenv((char*)"SDL_VIDEO_WINDOW_POS");
+	putenv((char*)"SDL_VIDEO_CENTERED=1");
 
 	timeHandler total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
@@ -481,6 +481,10 @@ void processCommand(const std::string &message)
 				if(h->type->ID == id1)
 					if(const CArtifactInstance *a = h->getArt(id2))
 						tlog4 << a->nodeName();
+		}
+		else if (what == "anim" )
+		{
+			CAnimation::getAnimInfo();
 		}
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
