@@ -14,6 +14,20 @@ namespace qi = boost::spirit::qi;
 namespace ascii = spirit::ascii;
 namespace phoenix = boost::phoenix;
 
+
+//Greenspun's Tenth Rule of Programming:
+//Any sufficiently complicated C or Fortran program contains an ad hoc, informally-specified,
+//bug-ridden, slow implementation of half of Common Lisp.
+//actually these macros help in dealing with boost::variant
+#define BEGIN_TYPE_CASE(UN) struct UN : boost::static_visitor<> \
+{
+
+#define FOR_TYPE(TYPE, VAR) void operator()(TYPE const& VAR) const
+
+#define DO_TYPE_CASE(UN, VAR) };boost::apply_visitor(UN(), VAR);
+
+
+
 ERMParser::ERMParser(std::string file)
 	:srcFile(file)
 {}
@@ -133,90 +147,108 @@ namespace ERM
 	};
 
 	typedef	boost::variant<
-			triggerT,
-			instructionT,
-			receiverT,
-			postOBtriggerT,
-			qi::unused_type
-			>
-			commandT;
+		triggerT,
+		instructionT,
+		receiverT,
+		postOBtriggerT
+	>
+	commandTcmd;
 
-	typedef boost::variant<commandT, qi::unused_type> lineT;
+	struct commandT
+	{
+		commandTcmd cmd;
+		std::string comment;
+	};
+
+	typedef boost::variant<commandT, std::string, qi::unused_type> lineT;
 
 
 	//console printer
 
-	void identifierPrinter(const identifierT & id)
+	void identifierPrinter(const boost::optional<identifierT> & id)
 	{
-		BOOST_FOREACH(iexpT x, id)
+		if(id.is_initialized())
 		{
-			tlog2 << "\\" << x.varsym << x.val;
+			tlog2 << "identifier: ";
+			BOOST_FOREACH(iexpT x, *id)
+			{
+				tlog2 << "\\" << x.varsym << x.val;
+			}
 		}
 	}
 
-	struct CommandPrinter : boost::static_visitor<>
+	void conditionPrinter(const boost::optional<conditionT> & cond)
 	{
-		void operator()(triggerT const& trig) const
-		{
-			tlog2 << "trigger: " << trig.name << " identifier: ";
-			identifierPrinter(*trig.identifier);
-			tlog2 << " condition: " << *trig.condition;
-
-		}
-
-		void operator()(instructionT const& trig) const
-		{
-			tlog2 << "instruction: " << trig.name << " identifier: ";
-			identifierPrinter(*trig.identifier);
-			tlog2 << " condition: " << *trig.condition;
-			tlog2 << " body items:";
-			BOOST_FOREACH(bodyItem bi, trig.body)
-			{
-				tlog2 << " " << bi;
-			}
-		}
-
-		void operator()(receiverT const& trig) const
-		{
-			tlog2 << "receiver: " << trig.name << " identifier: ";
-			identifierPrinter(*trig.identifier);
-			tlog2 << " condition: " << *trig.condition;
-
-		}
-
-		void operator()(postOBtriggerT const& trig) const
-		{
-			tlog2 << "post OB trigger; " << " identifier: ";
-			identifierPrinter(*trig.identifier);
-			tlog2 << " condition: " << *trig.condition;
-
-		}
-
-		void operator()(qi::unused_type const& text) const
-		{
-			//tlog2 << "Empty line/comment line" << std::endl;
-		}
-
-	};
+		if(cond.is_initialized())
+			tlog2 << " condition: " << *cond;
+	}
 
 	struct ERMprinter : boost::static_visitor<>
 	{
 		void operator()(commandT const& cmd) const
 		{
-			CommandPrinter()(cmd);
+			
+		}
 
+		void operator()(std::string const& nothing) const
+		{
+			//tlog2 << "comment line" << std::endl;
 		}
 
 		void operator()(qi::unused_type const& nothing) const
 		{
-			//tlog2 << "Empty line/comment line" << std::endl;
+			//tlog2 << "Empty line" << std::endl;
 		}
 	};
 
 	void printLineAST(const lineT & ast)
 	{
 		tlog2 << "";
-		ast.apply_visitor(ERMprinter());
+		BEGIN_TYPE_CASE(psa)
+		FOR_TYPE(commandT, cmd)
+		{
+			BEGIN_TYPE_CASE(cmt)
+			FOR_TYPE(triggerT, trig)
+			{
+				tlog2 << "trigger: " << trig.name;
+				identifierPrinter(trig.identifier);
+				conditionPrinter(trig.condition);
+			}
+			FOR_TYPE(instructionT, trig)
+			{
+				tlog2 << "instruction: " << trig.name;
+				identifierPrinter(trig.identifier);
+				conditionPrinter(trig.condition);
+
+				tlog2 << " body items: ";
+				BOOST_FOREACH(bodyItem bi, trig.body)
+				{
+					tlog2 << " " << bi;
+				}
+			}
+			FOR_TYPE(receiverT, trig)
+			{
+				tlog2 << "receiver: " << trig.name;
+
+				identifierPrinter(trig.identifier);
+				conditionPrinter(trig.condition);
+			}
+			FOR_TYPE(postOBtriggerT, trig)
+			{
+				tlog2 << "post OB trigger; ";
+				identifierPrinter(trig.identifier);
+				conditionPrinter(trig.condition);
+			}
+			DO_TYPE_CASE(cmt, cmd.cmd);
+			std::cout << "Line comment: " << cmd.comment << std::endl;
+		}
+		FOR_TYPE(std::string, comment)
+		{
+		}
+		FOR_TYPE(qi::unused_type, nothing)
+		{
+		}
+		DO_TYPE_CASE(psa, ast);
 	}
 }
 
@@ -262,6 +294,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(boost::optional<ERM::conditionT>, condition)
 	)
 
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::commandT,
+	(ERM::commandTcmd, cmd)
+	(std::string, comment)
+	)
+
 namespace ERM
 {
 	template<typename Iterator>
@@ -271,8 +309,8 @@ namespace ERM
 		{
 			macro %= qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$');
 			iexp %= -(*qi::char_("a-z") - 'u') >> -(qi::int_ | macro); 
- 			comment = *(qi::char_);
- 			commentLine = ~qi::char_('!') >> comment;
+ 			comment %= *(qi::char_);
+ 			commentLine %= ~qi::char_('!') >> comment;
  			cmdName %= qi::repeat(2)[qi::char_];
 			identifier %= (iexp % qi::lit('/'));
 
@@ -284,19 +322,19 @@ namespace ERM
 			instruction %= cmdName >> -identifier >> -condition >> body;
 			receiver %= cmdName >> -identifier >> -condition >> body;
 			postOBtrigger %= qi::lit("$OB") >> -identifier >> -condition > qi::lit(";");
-			command %= (qi::char_('!') >>
+			command %= (qi::lit("!") >>
 					(
-						(qi::char_('?') >> trigger) |
-						(qi::char_('!') >> instruction) |
-						(qi::char_('#') >> receiver) |
+						(qi::lit("?") >> trigger) |
+						(qi::lit("!") >> instruction) |
+						(qi::lit("#") >> receiver) |
 						postOBtrigger
 					) >> comment
 				);
 
 			rline %=
 				(
-					command | commentLine | spirit::eoi
-				);
+					command | commentLine | spirit::eps
+				) > spirit::eoi;
 
 			//error handling
 
@@ -333,8 +371,8 @@ namespace ERM
 
 		qi::rule<Iterator, std::string()> macro;
 		qi::rule<Iterator, iexpT()> iexp;
-		qi::rule<Iterator, void()> comment;
-		qi::rule<Iterator, void()> commentLine;
+		qi::rule<Iterator, std::string()> comment;
+		qi::rule<Iterator, std::string()> commentLine;
 		qi::rule<Iterator, std::string()> cmdName;
 		qi::rule<Iterator, identifierT()> identifier;
 		qi::rule<Iterator, conditionT()> condition;
@@ -356,15 +394,15 @@ void ERMParser::parseLine( std::string line )
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
 	ERM::lineT AST;
 
-	bool r = qi::parse(beg, end, ERMgrammar, AST);
-	if(!r || beg != end)
-	{
-		//tlog1 << "Parse error for line " << line << std::endl;
-		//tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
-	}
-	else
-	{
-		//parsing succeeded
-		//ERM::printLineAST(AST);
-	}
+// 	bool r = qi::parse(beg, end, ERMgrammar, AST);
+// 	if(!r || beg != end)
+// 	{
+// 		tlog1 << "Parse error for line " << line << std::endl;
+// 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+// 	}
+// 	else
+// 	{
+// 		//parsing succeeded
+// 		ERM::printLineAST(AST);
+// 	}
 }

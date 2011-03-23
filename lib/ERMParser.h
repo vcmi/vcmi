@@ -5,7 +5,7 @@ class ERMParser
 {
 private:
 	std::string srcFile;
-
+	int parsedLine;
 
 	void parseLine(std::string line);
 
