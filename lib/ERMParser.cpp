@@ -19,12 +19,14 @@ namespace phoenix = boost::phoenix;
 //Any sufficiently complicated C or Fortran program contains an ad hoc, informally-specified,
 //bug-ridden, slow implementation of half of Common Lisp.
 //actually these macros help in dealing with boost::variant
+
+
 #define BEGIN_TYPE_CASE(UN) struct UN : boost::static_visitor<> \
 {
 
 #define FOR_TYPE(TYPE, VAR) void operator()(TYPE const& VAR) const
 
-#define DO_TYPE_CASE(UN, VAR) };boost::apply_visitor(UN(), VAR);
+#define DO_TYPE_CASE(UN, VAR) } ___UN; boost::apply_visitor(___UN, VAR);
 
 
 
@@ -97,7 +99,7 @@ namespace ERM
 
 	struct conditionT
 	{
-		enum ECondType{AND = 0, OR, XOR, LAST} ctype;
+		char ctype;
 		std::string cond;
 		conditionNodeT rhs;
 	};
@@ -165,6 +167,18 @@ namespace ERM
 
 	//console printer
 
+	struct UNT : boost::static_visitor<>
+	{
+		void operator()(int const& val) const
+		{
+			tlog2 << val << " ";
+		}
+		void operator()(std::string const& str) const
+		{
+			tlog2 << str << " ";
+		}
+	};
+
 	void identifierPrinter(const boost::optional<identifierT> & id)
 	{
 		if(id.is_initialized())
@@ -172,7 +186,15 @@ namespace ERM
 			tlog2 << "identifier: ";
 			BOOST_FOREACH(iexpT x, *id)
 			{
-				tlog2 << "\\" << x.varsym << x.val;
+				tlog2 << "\\";
+				if(x.varsym.is_initialized())
+				{
+					tlog2 << x.varsym.get() << " ";
+				}
+				if(x.val.is_initialized())
+				{
+					boost::apply_visitor(UNT(), x.val.get());
+				}
 			}
 		}
 	}
@@ -180,75 +202,77 @@ namespace ERM
 	void conditionPrinter(const boost::optional<conditionT> & cond)
 	{
 		if(cond.is_initialized())
-			tlog2 << " condition: " << *cond;
+		{
+			conditionT condp = cond.get();
+			tlog2 << " condition: " << condp.cond << " cond type: " << condp.ctype << " rhs:";
+			
+			//recursive call
+			if(condp.rhs.is_initialized())
+			{
+				boost::optional<conditionT> rhsc = condp.rhs.get().get();
+				conditionPrinter(rhsc);
+			}
+		}
 	}
 
-	struct ERMprinter : boost::static_visitor<>
+	struct UN2 : boost::static_visitor<>
+	{
+		void operator()(triggerT const& trig) const
+		{
+			tlog2 << "trigger: " << trig.name;
+			identifierPrinter(trig.identifier);
+			conditionPrinter(trig.condition);
+		}
+		void operator()(instructionT const& trig) const
+		{
+			tlog2 << "instruction: " << trig.name;
+			identifierPrinter(trig.identifier);
+			conditionPrinter(trig.condition);
+
+			tlog2 << " body items: ";
+// 			BOOST_FOREACH(bodyItem bi, trig.body)
+// 			{
+// 				tlog2 << " " << bi;
+// 			}
+		}
+		void operator()(receiverT const& trig) const
+		{
+			tlog2 << "receiver: " << trig.name;
+
+			identifierPrinter(trig.identifier);
+			conditionPrinter(trig.condition);
+		}
+		void operator()(postOBtriggerT const& trig) const
+		{
+			tlog2 << "post OB trigger; ";
+			identifierPrinter(trig.identifier);
+			conditionPrinter(trig.condition);
+		}
+	};
+
+	struct UN : boost::static_visitor<>
 	{
 		void operator()(commandT const& cmd) const
 		{
-			
+			UN2 un;
+			boost::apply_visitor(un, cmd.cmd);
+			std::cout << "Line comment: " << cmd.comment << std::endl;
 		}
-
-		void operator()(std::string const& nothing) const
+		void operator()(std::string const& comment) const
 		{
-			//tlog2 << "comment line" << std::endl;
 		}
-
 		void operator()(qi::unused_type const& nothing) const
 		{
-			//tlog2 << "Empty line" << std::endl;
 		}
 	};
 
 	void printLineAST(const lineT & ast)
 	{
 		tlog2 << "";
-		BEGIN_TYPE_CASE(psa)
-		FOR_TYPE(commandT, cmd)
-		{
-			BEGIN_TYPE_CASE(cmt)
-			FOR_TYPE(triggerT, trig)
-			{
-				tlog2 << "trigger: " << trig.name;
-				identifierPrinter(trig.identifier);
-				conditionPrinter(trig.condition);
-			}
-			FOR_TYPE(instructionT, trig)
-			{
-				tlog2 << "instruction: " << trig.name;
-				identifierPrinter(trig.identifier);
-				conditionPrinter(trig.condition);
 
-				tlog2 << " body items: ";
-				BOOST_FOREACH(bodyItem bi, trig.body)
-				{
-					tlog2 << " " << bi;
-				}
-			}
-			FOR_TYPE(receiverT, trig)
-			{
-				tlog2 << "receiver: " << trig.name;
-
-				identifierPrinter(trig.identifier);
-				conditionPrinter(trig.condition);
-			}
-			FOR_TYPE(postOBtriggerT, trig)
-			{
-				tlog2 << "post OB trigger; ";
-				identifierPrinter(trig.identifier);
-				conditionPrinter(trig.condition);
-			}
-			DO_TYPE_CASE(cmt, cmd.cmd);
-			std::cout << "Line comment: " << cmd.comment << std::endl;
-		}
-		FOR_TYPE(std::string, comment)
-		{
-		}
-		FOR_TYPE(qi::unused_type, nothing)
-		{
-		}
-		DO_TYPE_CASE(psa, ast);
+		UN zm = UN();
+		
+		boost::apply_visitor(zm, ast);
 	}
 }
 
@@ -267,6 +291,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::conditionT,
+	(char, ctype)
 	(std::string, cond)
 	(ERM::conditionNodeT, rhs)
 	)
@@ -314,7 +339,8 @@ namespace ERM
  			cmdName %= qi::repeat(2)[qi::char_];
 			identifier %= (iexp % qi::lit('/'));
 
-			condition %= (qi::lit('&') | qi::lit('|') | qi::lit('X') | qi::lit('/')) > *qi::char_("0-9a-zA-Z<>=-") > -condition;
+			
+			condition %= qi::char_("&|X/") > *qi::char_("0-9a-zA-Z<>=-") > -condition;
 
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
@@ -394,15 +420,15 @@ void ERMParser::parseLine( std::string line )
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
 	ERM::lineT AST;
 
-// 	bool r = qi::parse(beg, end, ERMgrammar, AST);
-// 	if(!r || beg != end)
-// 	{
-// 		tlog1 << "Parse error for line " << line << std::endl;
-// 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
-// 	}
-// 	else
-// 	{
-// 		//parsing succeeded
-// 		ERM::printLineAST(AST);
-// 	}
+	bool r = qi::parse(beg, end, ERMgrammar, AST);
+	if(!r || beg != end)
+	{
+		tlog1 << "Parse error for line " << line << std::endl;
+		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+	}
+	else
+	{
+		//parsing succeeded
+		ERM::printLineAST(AST);
+	}
 }
