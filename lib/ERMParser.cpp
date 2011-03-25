@@ -52,21 +52,45 @@ void ERMParser::parseFile()
 	}
 	//parse file
 	char lineBuf[1024];
-	int lineNum = 1;
+	parsedLine = 1;
+	std::string wholeLine; //used for buffering multiline lines
+	bool inString = false;
 	while(file.good())
 	{
 		//reading line
 		file.getline(lineBuf, ARRAY_COUNT(lineBuf));
 		if(file.gcount() == ARRAY_COUNT(lineBuf))
 		{
-			tlog1 << "Encountered a problem during parsing " << srcFile << " too long line " << lineNum << "\n";
+			tlog1 << "Encountered a problem during parsing " << srcFile << " too long line (" << parsedLine << ")\n";
 		}
-		//parsing
-		parseLine(lineBuf);
 
+		switch(classifyLine(lineBuf, inString))
+		{
+		case ERMParser::COMMAND_FULL:
+		case ERMParser::COMMENT:
+			{
+				parseLine(lineBuf);
+			}
+			break;
+		case ERMParser::UNFINISHED_STRING:
+			{
+				if(!inString)
+					wholeLine = "";
+				inString = true;
+				wholeLine += lineBuf;
+			}
+			break;
+		case ERMParser::END_OF_STRING:
+			{
+				inString = false;
+				wholeLine += lineBuf;
+				parseLine(wholeLine);
+			}
+			break;
+		}
 
 		//loop end
-		++lineNum;
+		++parsedLine;
 	}
 }
 
@@ -87,8 +111,20 @@ namespace ERM
 		valT val;
 	};
 
-	typedef std::vector<iexpT> identifierT;
+	struct TArithmeticOp
+	{
+		iexpT lhs, rhs;
+		char opcode;
+	};
 
+	typedef boost::variant<iexpT, TArithmeticOp > TIdentifierInternal;
+	typedef std::vector< TIdentifierInternal > identifierT;
+
+	struct TComparison
+	{
+		std::string compSign;
+		iexpT lhs, rhs;
+	};
 
 	struct conditionT;
 	typedef
@@ -97,18 +133,17 @@ namespace ERM
 		>
 		conditionNodeT;
 
+
 	struct conditionT
 	{
+		typedef boost::variant<
+			TComparison,
+			int>
+			Tcond; //comparison or condition flag
 		char ctype;
-		std::string cond;
+		Tcond cond;
 		conditionNodeT rhs;
 	};
-
-	std::ostream & operator << (std::ostream & out, const conditionT & cond)
-	{
-		static char sym[] = {'&', '|', 'X', '/'};
-		return out << sym[cond.ctype] << cond.cond << cond.rhs;
-	}
 
 	struct triggerT
 	{
@@ -179,32 +214,68 @@ namespace ERM
 		}
 	};
 
+
+	void iexpPrinter(const iexpT exp)
+	{
+		if(exp.varsym.is_initialized())
+		{
+			tlog2 << exp.varsym.get() << " ";
+		}
+		if(exp.val.is_initialized())
+		{
+			boost::apply_visitor(UNT(), exp.val.get());
+		}
+	}
+
+	struct IdentifierVisitor : boost::static_visitor<>
+	{
+		void operator()(iexpT const& iexp) const
+		{
+			iexpPrinter(iexp);
+		}
+		void operator()(TArithmeticOp const& arop) const
+		{
+			iexpPrinter(arop.lhs);
+			tlog2 << " " << arop.opcode << " ";
+			iexpPrinter(arop.rhs);
+		}
+	};
+
 	void identifierPrinter(const boost::optional<identifierT> & id)
 	{
 		if(id.is_initialized())
 		{
 			tlog2 << "identifier: ";
-			BOOST_FOREACH(iexpT x, *id)
+			BOOST_FOREACH(TIdentifierInternal x, id.get())
 			{
 				tlog2 << "\\";
-				if(x.varsym.is_initialized())
-				{
-					tlog2 << x.varsym.get() << " ";
-				}
-				if(x.val.is_initialized())
-				{
-					boost::apply_visitor(UNT(), x.val.get());
-				}
+				boost::apply_visitor(IdentifierVisitor(), x);
 			}
 		}
 	}
+
+	struct ConditionCondPrinter : boost::static_visitor<>
+	{
+		void operator()(TComparison const& cmp) const
+		{
+			iexpPrinter(cmp.lhs);
+			tlog2 << " " << cmp.compSign << " ";
+			iexpPrinter(cmp.rhs);
+		}
+		void operator()(int const& flag) const
+		{
+			tlog2 << "condflag " << flag;
+		}
+	};
 
 	void conditionPrinter(const boost::optional<conditionT> & cond)
 	{
 		if(cond.is_initialized())
 		{
 			conditionT condp = cond.get();
-			tlog2 << " condition: " << condp.cond << " cond type: " << condp.ctype << " rhs:";
+			tlog2 << " condition: ";
+			boost::apply_visitor(ConditionCondPrinter(), condp.cond);
+			tlog2 << " cond type: " << condp.ctype << " rhs:";
 			
 			//recursive call
 			if(condp.rhs.is_initialized())
@@ -283,6 +354,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TArithmeticOp,
+	(ERM::iexpT, lhs)
+	(char, opcode)
+	(ERM::iexpT, rhs)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	ERM::triggerT,
 	(std::string, name)
 	(boost::optional<ERM::identifierT>, identifier)
@@ -290,9 +368,16 @@ BOOST_FUSION_ADAPT_STRUCT(
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TComparison,
+	(ERM::iexpT, lhs)
+	(std::string, compSign)
+	(ERM::iexpT, rhs)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	ERM::conditionT,
 	(char, ctype)
-	(std::string, cond)
+	(ERM::conditionT::Tcond, cond)
 	(ERM::conditionNodeT, rhs)
 	)
 
@@ -337,22 +422,23 @@ namespace ERM
  			comment %= *(qi::char_);
  			commentLine %= ~qi::char_('!') >> comment;
  			cmdName %= qi::repeat(2)[qi::char_];
-			identifier %= (iexp % qi::lit('/'));
-
-			
-			condition %= qi::char_("&|X/") > *qi::char_("0-9a-zA-Z<>=-") > -condition;
+			arithmeticOp %= iexp >> qi::char_ >> iexp;
+			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
+			identifier %= (iexp | arithmeticOp) % qi::lit('/');
+			comparison %= iexp >> (*qi::char_("<=>")) >> iexp;
+			condition %= qi::char_("&|X/") >> (comparison | qi::int_) >> -condition;
 
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
-			body %= qi::lit(":") > *( qi::char_("a-zA-Z0-9/ @*?%+-:|&-") | string | macro) > qi::lit(";");
+			body %= qi::lit(":") > *( qi::char_("a-zA-Z0-9/ @*?%+-:|&=><-") | string | macro) > qi::lit(";");
 			instruction %= cmdName >> -identifier >> -condition >> body;
-			receiver %= cmdName >> -identifier >> -condition >> body;
+			receiver %= cmdName >> -identifier >> -condition >> body; //receiver without body exists... change needed
 			postOBtrigger %= qi::lit("$OB") >> -identifier >> -condition > qi::lit(";");
 			command %= (qi::lit("!") >>
 					(
 						(qi::lit("?") >> trigger) |
-						(qi::lit("!") >> instruction) |
-						(qi::lit("#") >> receiver) |
+						((qi::lit("!") | qi::lit("d!") | qi::lit(" !")) >> receiver) |
+						(qi::lit("#") >> instruction) | 
 						postOBtrigger
 					) >> comment
 				);
@@ -397,10 +483,12 @@ namespace ERM
 
 		qi::rule<Iterator, std::string()> macro;
 		qi::rule<Iterator, iexpT()> iexp;
+		qi::rule<Iterator, TArithmeticOp()> arithmeticOp;
 		qi::rule<Iterator, std::string()> comment;
 		qi::rule<Iterator, std::string()> commentLine;
 		qi::rule<Iterator, std::string()> cmdName;
 		qi::rule<Iterator, identifierT()> identifier;
+		qi::rule<Iterator, TComparison()> comparison;
 		qi::rule<Iterator, conditionT()> condition;
 		qi::rule<Iterator, triggerT()> trigger;
 		qi::rule<Iterator, bodyTbody()> body;
@@ -412,7 +500,7 @@ namespace ERM
 	};
 };
 
-void ERMParser::parseLine( std::string line )
+void ERMParser::parseLine( const std::string & line )
 {
 	std::string::const_iterator beg = line.begin(),
 		end = line.end();
@@ -423,12 +511,63 @@ void ERMParser::parseLine( std::string line )
 	bool r = qi::parse(beg, end, ERMgrammar, AST);
 	if(!r || beg != end)
 	{
-		tlog1 << "Parse error for line " << line << std::endl;
+		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
 	}
 	else
 	{
 		//parsing succeeded
-		ERM::printLineAST(AST);
+		//ERM::printLineAST(AST);
 	}
+}
+
+ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inString ) const
+{
+	ERMParser::ELineType ret;
+	if(line[0] == '!')
+	{	
+		if(countHatsBeforeSemicolon(line) % 2 == 1)
+		{
+			ret = ERMParser::UNFINISHED_STRING;
+		}
+		else
+		{
+			ret = ERMParser::COMMAND_FULL;
+		}
+	}
+	else
+	{
+		if(inString)
+		{
+			if(countHatsBeforeSemicolon(line) % 2 == 1)
+			{
+				ret = ERMParser::END_OF_STRING;
+			}
+			else
+			{
+				ret = ERMParser::UNFINISHED_STRING;
+			}
+		}
+		else
+		{
+			ret = ERMParser::COMMENT;
+		}
+	}
+
+	return ret;
+}
+
+int ERMParser::countHatsBeforeSemicolon( const std::string & line ) const
+{
+	//CHECK: omit macros? or anything else? 
+	int numOfHats = 0; //num of '^' before ';'
+	//check for unmatched ^
+	BOOST_FOREACH(char c, line)
+	{
+		if(c == ';')
+			break;
+		if(c == '^')
+			++numOfHats;
+	}
+	return numOfHats;
 }
