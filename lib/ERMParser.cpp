@@ -55,6 +55,7 @@ void ERMParser::parseFile()
 	parsedLine = 1;
 	std::string wholeLine; //used for buffering multiline lines
 	bool inString = false;
+	
 	while(file.good())
 	{
 		//reading line
@@ -103,19 +104,72 @@ void callme(char const& i)
 
 namespace ERM
 {
-	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
-	struct iexpT
+	typedef std::string TStringConstant;
+	typedef std::string TMacroUsage;
+	typedef std::string TMacroDef;
+	typedef std::string TCmdName;
+
+	
+	struct TVarExpNotMacro
 	{
-		typedef boost::optional<boost::variant<int, std::string> > valT;
-		boost::optional<std::string> varsym;
+		typedef boost::optional<int> valT;
+		std::string varsym;
 		valT val;
 	};
+	typedef boost::variant<TVarExpNotMacro, TMacroUsage> TVarExp;
+
+	//write-only variable expression
+	typedef TVarExp TVarpExp;
+
+	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
+	typedef boost::variant<TVarExp, int> iexpT;
 
 	struct TArithmeticOp
 	{
 		iexpT lhs, rhs;
 		char opcode;
 	};
+
+	struct TVRLogic
+	{
+		char opcode;
+		iexpT var;
+	};
+
+	struct TVRArithmetic
+	{
+		char opcode;
+		iexpT rhs;
+	};
+
+	struct TSemiCompare
+	{
+		std::string compSign;
+		iexpT rhs;
+	};
+
+	struct TCurriedString
+	{
+		iexpT iexp;
+		TStringConstant string;
+	};
+
+	struct TVarConcatString 
+	{
+		TVarExp var;
+		TStringConstant string;
+	};
+
+	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroUsage, TMacroDef, iexpT, TVarpExp, qi::unused_type> TBodyOptionItem;
+
+	typedef std::vector<TBodyOptionItem> TNormalBodyOptionList;
+
+	struct TNormalBodyOption
+	{
+		char optionCode;
+		TNormalBodyOptionList params;
+	};
+	typedef boost::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
 
 	typedef boost::variant<iexpT, TArithmeticOp > TIdentifierInternal;
 	typedef std::vector< TIdentifierInternal > identifierT;
@@ -147,7 +201,7 @@ namespace ERM
 
 	struct triggerT
 	{
-		std::string name;
+		TCmdName name;
 		boost::optional<identifierT> identifier;
 		boost::optional<conditionT> condition;
 	};
@@ -158,12 +212,12 @@ namespace ERM
 	//moreover, I encountered a quite serious bug in boost: http://boost.2283326.n4.nabble.com/container-hpp-111-error-C2039-value-type-is-not-a-member-of-td3352328.html
 	//not sure how serious it is...
 
-	typedef boost::variant<char, std::string> bodyItem;
- 	typedef std::vector<bodyItem> bodyTbody;
+	//typedef boost::variant<char, TStringConstant, TMacroUsage, TMacroDef> bodyItem;
+ 	typedef std::vector<TBodyOption> bodyTbody;
 
 	struct instructionT
 	{
-		std::string name;
+		TCmdName name;
 		boost::optional<identifierT> identifier;
 		boost::optional<conditionT> condition;
 		bodyTbody body;
@@ -171,7 +225,7 @@ namespace ERM
 
 	struct receiverT
 	{
-		std::string name;
+		TCmdName name;
 		boost::optional<identifierT> identifier;
 		boost::optional<conditionT> condition;
 		bodyTbody body;
@@ -202,29 +256,43 @@ namespace ERM
 
 	//console printer
 
-	struct UNT : boost::static_visitor<>
+	struct VarPrinter : boost::static_visitor<>
 	{
-		void operator()(int const& val) const
+		void operator()(TVarExpNotMacro const& val) const
 		{
-			tlog2 << val << " ";
+			tlog2 << val.varsym;
+			if(val.val.is_initialized())
+			{
+				tlog2 << val.val.get();
+			}
 		}
-		void operator()(std::string const& str) const
+		void operator()(TMacroUsage const& val) const
 		{
-			tlog2 << str << " ";
+			tlog2 << "$" << val << "&";
+		}
+	};
+
+	void varPrinter(const TVarExp & var)
+	{
+		boost::apply_visitor(VarPrinter(), var);
+	}
+
+	struct _IEP : boost::static_visitor<>
+	{
+		void operator()(int const & constant) const
+		{
+			tlog2 << constant;
+		}
+		void operator()(TVarExp const & var) const
+		{
+			varPrinter(var);
 		}
 	};
 
 
-	void iexpPrinter(const iexpT exp)
+	void iexpPrinter(const iexpT & exp)
 	{
-		if(exp.varsym.is_initialized())
-		{
-			tlog2 << exp.varsym.get() << " ";
-		}
-		if(exp.val.is_initialized())
-		{
-			boost::apply_visitor(UNT(), exp.val.get());
-		}
+		boost::apply_visitor(_IEP(), exp);
 	}
 
 	struct IdentifierVisitor : boost::static_visitor<>
@@ -348,9 +416,9 @@ namespace ERM
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-	ERM::iexpT,
-	(boost::optional<std::string>, varsym)
-	(ERM::iexpT::valT, val)
+	ERM::TVarExpNotMacro,
+	(std::string, varsym)
+	(ERM::TVarExpNotMacro::valT, val)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -361,8 +429,26 @@ BOOST_FUSION_ADAPT_STRUCT(
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TVRLogic,
+	(char, opcode)
+	(ERM::iexpT, var)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TVRArithmetic,
+	(char, opcode)
+	(ERM::iexpT, rhs)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TNormalBodyOption,
+	(char, optionCode)
+	(ERM::TNormalBodyOptionList, params)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	ERM::triggerT,
-	(std::string, name)
+	(ERM::TCmdName, name)
 	(boost::optional<ERM::identifierT>, identifier)
 	(boost::optional<ERM::conditionT>, condition)
 	)
@@ -375,16 +461,33 @@ BOOST_FUSION_ADAPT_STRUCT(
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TSemiCompare,
+	(std::string, compSign)
+	(ERM::iexpT, rhs)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TCurriedString,
+	(ERM::iexpT, iexp)
+	(ERM::TStringConstant, string)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TVarConcatString,
+	(ERM::TVarExp, var)
+	(ERM::TStringConstant, string)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	ERM::conditionT,
 	(char, ctype)
 	(ERM::conditionT::Tcond, cond)
 	(ERM::conditionNodeT, rhs)
 	)
 
-
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::instructionT,
-	(std::string, name)
+	(ERM::TCmdName, name)
 	(boost::optional<ERM::identifierT>, identifier)
 	(boost::optional<ERM::conditionT>, condition)
 	(ERM::bodyTbody, body)
@@ -392,7 +495,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::receiverT,
-	(std::string, name)
+	(ERM::TCmdName, name)
 	(boost::optional<ERM::identifierT>, identifier)
 	(boost::optional<ERM::conditionT>, condition)
 	(ERM::bodyTbody, body)
@@ -413,15 +516,20 @@ BOOST_FUSION_ADAPT_STRUCT(
 namespace ERM
 {
 	template<typename Iterator>
-	struct ERM_grammar : qi::grammar<Iterator, lineT()>
+	struct ERM_grammar : qi::grammar<Iterator, lineT(), ascii::space_type>
 	{
 		ERM_grammar() : ERM_grammar::base_type(rline, "ERM script line")
 		{
-			macro %= qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$');
-			iexp %= -(*qi::char_("a-z") - 'u') >> -(qi::int_ | macro); 
+			//do not build too complicated expressions, e.g. (a >> b) | c, qi has problems with them
+			macroUsage %= qi::lexeme[qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$')];
+			macroDef %= qi::lexeme[qi::lit('@') >> *(qi::char_ - '@') >> qi::lit('@')];
+			varExpNotMacro %= (+(qi::char_("?a-z") - 'u')) >> -qi::int_;
+			varExp %= varExpNotMacro | macroUsage;
+			iexp %= varExp | qi::int_;
+			varp %= qi::char_("?") > varExp;
  			comment %= *(qi::char_);
- 			commentLine %= ~qi::char_('!') >> comment;
- 			cmdName %= qi::repeat(2)[qi::char_];
+			commentLine %= (~qi::char_('!') >> comment | (qi::char_('!') >> (~qi::char_("?!#")) >> comment ));
+ 			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
 			arithmeticOp %= iexp >> qi::char_ >> iexp;
 			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
 			identifier %= (iexp | arithmeticOp) % qi::lit('/');
@@ -430,14 +538,25 @@ namespace ERM
 
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
-			body %= qi::lit(":") > *( qi::char_("a-zA-Z0-9/ @*?%+-:|&=><-") | string | macro) > qi::lit(";");
+			
+			VRLogic %= qi::char_("&|X") >> iexp;
+			VRarithmetic %= qi::char_("+*:/%-") >> iexp;
+			semiCompare %= *qi::char_("<=>") >> iexp;
+			curStr %= iexp >> string;
+			varConcatString %= varExp >> qi::lit("+") >> string;
+			bodyOptionItem %= varConcatString | curStr | string | semiCompare | macroUsage | macroDef | iexp | varp | qi::eps;
+			exactBodyOptionList %= (bodyOptionItem % qi::lit("/"));
+			normalBodyOption = qi::char_("A-Z") > exactBodyOptionList;
+			bodyOption %= VRLogic | VRarithmetic | normalBodyOption;
+			body %= qi::lit(":") >> +(bodyOption) > qi::lit(";");
+
 			instruction %= cmdName >> -identifier >> -condition >> body;
 			receiver %= cmdName >> -identifier >> -condition >> body; //receiver without body exists... change needed
 			postOBtrigger %= qi::lit("$OB") >> -identifier >> -condition > qi::lit(";");
 			command %= (qi::lit("!") >>
 					(
 						(qi::lit("?") >> trigger) |
-						((qi::lit("!") | qi::lit("d!") | qi::lit(" !")) >> receiver) |
+						(qi::lit("!") >> receiver) |
 						(qi::lit("#") >> instruction) | 
 						postOBtrigger
 					) >> comment
@@ -479,24 +598,37 @@ namespace ERM
 
 		}
 
-		qi::rule<Iterator, std::string()> string;
+		qi::rule<Iterator, TStringConstant(), ascii::space_type> string;
 
-		qi::rule<Iterator, std::string()> macro;
-		qi::rule<Iterator, iexpT()> iexp;
-		qi::rule<Iterator, TArithmeticOp()> arithmeticOp;
-		qi::rule<Iterator, std::string()> comment;
-		qi::rule<Iterator, std::string()> commentLine;
-		qi::rule<Iterator, std::string()> cmdName;
-		qi::rule<Iterator, identifierT()> identifier;
-		qi::rule<Iterator, TComparison()> comparison;
-		qi::rule<Iterator, conditionT()> condition;
-		qi::rule<Iterator, triggerT()> trigger;
-		qi::rule<Iterator, bodyTbody()> body;
-		qi::rule<Iterator, instructionT()> instruction;
-		qi::rule<Iterator, receiverT()> receiver;
-		qi::rule<Iterator, postOBtriggerT()> postOBtrigger;
-		qi::rule<Iterator, commandT()> command;
-		qi::rule<Iterator, lineT()> rline;
+		qi::rule<Iterator, TMacroUsage(), ascii::space_type> macroUsage;
+		qi::rule<Iterator, TMacroDef(), ascii::space_type> macroDef;
+		qi::rule<Iterator, TVarExpNotMacro(), ascii::space_type> varExpNotMacro;
+		qi::rule<Iterator, TVarExp(), ascii::space_type> varExp;
+		qi::rule<Iterator, iexpT(), ascii::space_type> iexp;
+		qi::rule<Iterator, TVarpExp(), ascii::space_type> varp;
+		qi::rule<Iterator, TArithmeticOp(), ascii::space_type> arithmeticOp;
+		qi::rule<Iterator, std::string(), ascii::space_type> comment;
+		qi::rule<Iterator, std::string(), ascii::space_type> commentLine;
+		qi::rule<Iterator, TCmdName(), ascii::space_type> cmdName;
+		qi::rule<Iterator, identifierT(), ascii::space_type> identifier;
+		qi::rule<Iterator, TComparison(), ascii::space_type> comparison;
+		qi::rule<Iterator, conditionT(), ascii::space_type> condition;
+		qi::rule<Iterator, TVRLogic(), ascii::space_type> VRLogic;
+		qi::rule<Iterator, TVRArithmetic(), ascii::space_type> VRarithmetic;
+		qi::rule<Iterator, TSemiCompare(), ascii::space_type> semiCompare;
+		qi::rule<Iterator, TCurriedString(), ascii::space_type> curStr;
+		qi::rule<Iterator, TVarConcatString(), ascii::space_type> varConcatString;
+		qi::rule<Iterator, TBodyOptionItem(), ascii::space_type> bodyOptionItem;
+		qi::rule<Iterator, TNormalBodyOptionList(), ascii::space_type> exactBodyOptionList;
+		qi::rule<Iterator, TNormalBodyOption(), ascii::space_type> normalBodyOption;
+		qi::rule<Iterator, TBodyOption(), ascii::space_type> bodyOption;
+		qi::rule<Iterator, triggerT(), ascii::space_type> trigger;
+		qi::rule<Iterator, bodyTbody(), ascii::space_type> body;
+		qi::rule<Iterator, instructionT(), ascii::space_type> instruction;
+		qi::rule<Iterator, receiverT(), ascii::space_type> receiver;
+		qi::rule<Iterator, postOBtriggerT(), ascii::space_type> postOBtrigger;
+		qi::rule<Iterator, commandT(), ascii::space_type> command;
+		qi::rule<Iterator, lineT(), ascii::space_type> rline;
 	};
 };
 
@@ -508,17 +640,17 @@ void ERMParser::parseLine( const std::string & line )
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
 	ERM::lineT AST;
 
-	bool r = qi::parse(beg, end, ERMgrammar, AST);
-	if(!r || beg != end)
-	{
-		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
-		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
-	}
-	else
-	{
-		//parsing succeeded
-		//ERM::printLineAST(AST);
-	}
+// 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
+// 	if(!r || beg != end)
+// 	{
+// 		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
+// 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+// 	}
+// 	else
+// 	{
+// 		//parsing succeeded
+// 		//ERM::printLineAST(AST);
+// 	}
 }
 
 ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inString ) const
