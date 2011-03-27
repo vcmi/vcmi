@@ -597,10 +597,20 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			src.army->eraseStack(src.slot);
-			dst.army->changeStackCount(dst.slot, count);
+			if (STACK_EXP)
+			{
+				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
+				src.army->eraseStack(src.slot);
+				dst.army->changeStackCount(dst.slot, count);
+				dst.army->setStackExp(dst.slot, totalExp /(dst.army->getStackCount(dst.slot))); //mean
+			}
+			else
+			{
+				src.army->eraseStack(src.slot);
+				dst.army->changeStackCount(dst.slot, count);
+			}
 		}
-		else //move stack to an empty slot
+		else //move stack to an empty slot, no exp change needed
 		{
 			CStackInstance *stackDetached = src.army->detachStack(src.slot);
 			dst.army->putStack(dst.slot, stackDetached);
@@ -611,13 +621,25 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			src.army->changeStackCount(src.slot, -count);
-			dst.army->changeStackCount(dst.slot, count);
+			if (STACK_EXP)
+			{
+				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
+				src.army->changeStackCount(src.slot, -count);
+				dst.army->changeStackCount(dst.slot, count);
+				dst.army->setStackExp(dst.slot, totalExp /(src.army->getStackCount(src.slot) + dst.army->getStackCount(dst.slot))); //mean
+			}
+			else
+			{
+				src.army->changeStackCount(src.slot, -count);
+				dst.army->changeStackCount(dst.slot, count);
+			}
 		}
 		else //split stack to an empty slot
 		{
 			src.army->changeStackCount(src.slot, -count);
 			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+			if (STACK_EXP)
+				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
 	}
 }

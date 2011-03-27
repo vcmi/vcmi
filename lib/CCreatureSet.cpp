@@ -86,6 +86,16 @@ int CCreatureSet::getStackCount(TSlot slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
+expType CCreatureSet::getStackExperience(TSlot slot) const
+{
+	TSlots::const_iterator i = stacks.find(slot);
+	if (i != stacks.end())
+		return i->second->experience;
+	else
+		return 0; //TODO? consider issuing a warning
+}
+
+
 bool CCreatureSet::mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable /*= -1*/) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
@@ -218,8 +228,8 @@ void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(count > 0);
-	if (STACK_EXP)
-		stacks[slot]->experience *= ((stacks[slot]->count + count)/(float)stacks[slot]->count);
+	if (STACK_EXP && count > stacks[slot]->count)
+		stacks[slot]->experience *= (count/(float)stacks[slot]->count);
 	stacks[slot]->count = count;
 	armyChanged();
 }
@@ -228,6 +238,11 @@ void CCreatureSet::giveStackExp(expType exp)
 {
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
 		i->second->giveStackExp(exp);
+}
+void CCreatureSet::setStackExp(TSlot slot, expType exp)
+{
+	assert(hasStackAtSlot(slot));
+	stacks[slot]->experience = exp;
 }
 
 void CCreatureSet::clear()

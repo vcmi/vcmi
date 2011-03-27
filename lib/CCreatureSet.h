@@ -122,6 +122,7 @@ public:
 	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(TSlot slot, const CCreature *type);
 	void giveStackExp(expType exp);
+	void setStackExp(TSlot slot, expType exp);
 
 	//derivative 
 	void eraseStack(TSlot slot); //slot must be occupied
@@ -133,6 +134,7 @@ public:
 	const CStackInstance& getStack(TSlot slot) const; 
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
 	int getStackCount (TSlot slot) const;
+	expType getStackExperience(TSlot slot) const;
 	TSlot findStack(const CStackInstance *stack) const; //-1 if none
 	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
 	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
