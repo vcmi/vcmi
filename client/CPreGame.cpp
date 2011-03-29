@@ -207,7 +207,7 @@ static CApplier<CBaseForPGApply> *applier = NULL;
 
 CMenuScreen::CMenuScreen( EState which )
 {
-	OBJ_CONSTRUCTION;//FIXME: Memory leak in buttons? Images on them definitely were not freed after game start
+	OBJ_CONSTRUCTION;
 	bgAd = NULL;
 
 	switch(which)
@@ -220,7 +220,7 @@ CMenuScreen::CMenuScreen( EState which )
 				bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
 			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0, 524, 251, "ZMENUHS.DEF", SDLK_h); // Highscore
 			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c); // Credits
-			boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
+			boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, boost::ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
 			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, confWindow, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE); // Exit
 		}
 		break;

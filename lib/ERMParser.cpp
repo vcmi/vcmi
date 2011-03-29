@@ -1,4 +1,9 @@
 #include "ERMParser.h"
+#include <boost/version.hpp>
+//To make compilation with older boost versions possible
+//Don't know exact version - 1.46 works while 1.42 not
+#if BOOST_VERSION >= 104600
+
 #include <boost/spirit/include/qi.hpp>
 #include <boost/bind.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -873,3 +878,9 @@ void ERMParser::repairEncoding( char * str, int len ) const
 		if(str[g] & 0x80)
 			str[g] = '|';
 }
+#else
+
+ERMParser::ERMParser(std::string file){}
+void ERMParser::parseFile(){}
+
+#endif

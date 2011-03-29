@@ -57,9 +57,9 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 
 	using namespace boost::filesystem;
 	//parser checking
-	if(!exists("./Data/s/"))
+	if(!exists(DATA_DIR "/Data/s/"))
 	{
-		tlog3 << "Warning: Folder ./Data/s/ doesn't exist!\n";
+		tlog3 << "Warning: Folder " DATA_DIR "/Data/s/ doesn't exist!\n";
 		return;
 	}
 	directory_iterator enddir;

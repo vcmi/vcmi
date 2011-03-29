@@ -232,29 +232,37 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	{
 		m_bEnemyDominates = false;
 	}
+	
+	//boost compile hack
+	typedef int const std::pair<int, int>::* IntPtr;
+	typedef int const SCreatureCasualties::* CreaPtr;
+	typedef SCreatureCasualties const std::pair<int, SCreatureCasualties>::* CreaPairPtr;
+	
 	// sort max damage
 	std::sort(m_statMaxDamage.begin(), m_statMaxDamage.end(),
-		bind(&creature_stat::value_type::second, _1) > bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort min damage
 	std::sort(m_statMinDamage.begin(), m_statMinDamage.end(),
-		bind(&creature_stat::value_type::second, _1) > bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort max speed
 	std::sort(m_statMaxSpeed.begin(), m_statMaxSpeed.end(),
-		bind(&creature_stat::value_type::second, _1) > bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort distance
 	std::sort(m_statDistance.begin(), m_statDistance.end(),
-		bind(&creature_stat::value_type::second, _1) < bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) < bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort distance from shooters
 	std::sort(m_statDistanceFromShooters.begin(), m_statDistanceFromShooters.end(),
-		bind(&creature_stat::value_type::second, _1) < bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) < bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort hit points
 	std::sort(m_statHitPoints.begin(), m_statHitPoints.end(),
-		bind(&creature_stat::value_type::second, _1) > bind(&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
 	// sort casualties
 	std::sort(m_statCasualties.begin(), m_statCasualties.end(),
-		bind(&creature_stat_casualties::value_type::second_type::damage_max, bind(&creature_stat_casualties::value_type::second, _1))
+		bind((CreaPtr)&creature_stat_casualties::value_type::second_type::damage_max, 
+			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, _1))
 		>
-		bind(&creature_stat_casualties::value_type::second_type::damage_max, bind(&creature_stat_casualties::value_type::second, _2)));
+		bind((CreaPtr)&creature_stat_casualties::value_type::second_type::damage_max,
+			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, _2)));
 }
 
 BattleAction CBattleLogic::MakeDecision(int stackID)

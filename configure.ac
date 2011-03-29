@@ -25,7 +25,7 @@ AC_ARG_ENABLE(debug,
 		  fi],
 		  [ enable_debug="yes" ])
 if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
-   CXXFLAGS="-O0 -ggdb"
+   CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 fi
 
 if test "x$GXX" = "xyes" ; then

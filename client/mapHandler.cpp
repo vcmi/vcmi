@@ -909,12 +909,12 @@ unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) con
 {
 	if(isMoving)
 	{
-		static const unsigned char frame [] = {-1, 10, 5, 6, 7, 8, 9, 12, 11};
+		static const unsigned char frame [] = {0xff, 10, 5, 6, 7, 8, 9, 12, 11};
 		return frame[dir];
 	}
 	else //if(isMoving)
 	{
-		static const unsigned char frame [] = {-1, 13, 0, 1, 2, 3, 4, 15, 14};
+		static const unsigned char frame [] = {0xff, 13, 0, 1, 2, 3, 4, 15, 14};
 		return frame[dir];
 	}
 }
