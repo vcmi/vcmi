@@ -50,7 +50,7 @@ void ERMParser::parseFile()
 	//check header
 	char header[5];
 	file.getline(header, ARRAY_COUNT(header));
-	if(std::string(header) != "ZVSE")
+	if(std::string(header) != "ZVSE" && std::string(header) != "VERM")
 	{
 		tlog1 << "File " << srcFile << " has wrong header\n";
 		return;
@@ -280,8 +280,30 @@ namespace ERM
 		std::string comment;
 	};
 
-	typedef boost::variant<Tcommand, std::string, qi::unused_type> Tline;
+	//vector expression
 
+
+	typedef boost::variant<Tcommand, std::string, qi::unused_type> TERMline;
+
+	struct TSymbol
+	{
+		boost::optional<std::string> symModifier; //'`', ',', ',@', '#''
+		std::string sym;
+	};
+
+	//for #'symbol expression
+
+	struct TVExp;
+	typedef boost::variant<boost::recursive_wrapper<TVExp>, TSymbol, char, double, int, Tcommand, TStringConstant > TVOption; //options in v-expression
+	//v-expression
+	struct TVExp
+	{
+		//char dummy;
+		std::vector<TVOption> children;
+	};
+
+	//script line
+	typedef boost::variant<TVExp, TERMline> TLine;
 
 	//console printer
 
@@ -537,11 +559,77 @@ namespace ERM
 		}
 	};
 
-	void printLineAST(const Tline & ast)
+	void printERM(const TERMline & ast)
 	{
 		tlog2 << "";
 		
 		boost::apply_visitor(LinePrinterVisitor(), ast);
+	}
+
+	void printTVExp(const TVExp & exp);
+
+	struct VOptionPrinterVisitor : boost::static_visitor<>
+	{
+		void operator()(TVExp const& cmd) const
+		{
+			printTVExp(cmd);
+		}
+		void operator()(TSymbol const& cmd) const
+		{
+			if(cmd.symModifier.is_initialized())
+			{
+				tlog2 << cmd.symModifier.get();
+			}
+			tlog2 << cmd.sym;
+		}
+		void operator()(char const& cmd) const
+		{
+			tlog2 << "'" << cmd << "'";
+		}
+		void operator()(int const& cmd) const
+		{
+			tlog2 << cmd;
+		}
+		void operator()(double const& cmd) const
+		{
+			tlog2 << cmd;
+		}
+		void operator()(TERMline const& cmd) const
+		{
+			printERM(cmd);
+		}
+		void operator()(TStringConstant const& cmd) const
+		{
+			tlog2 << "^" << cmd.str << "^";
+		}
+	};
+
+	void printTVExp(const TVExp & exp)
+	{
+		tlog2 << "[ ";
+		BOOST_FOREACH(TVOption opt, exp.children)
+		{
+			boost::apply_visitor(VOptionPrinterVisitor(), opt);
+			tlog2 << " ";
+		}
+		tlog2 << "]";
+	}
+
+	struct TLPrinterVisitor : boost::static_visitor<>
+	{
+		void operator()(TVExp const& cmd) const
+		{
+			printTVExp(cmd);
+		}
+		void operator()(TERMline const& cmd) const
+		{
+			printERM(cmd);
+		}
+	};
+
+	void printAST(const TLine & ast)
+	{
+		boost::apply_visitor(TLPrinterVisitor(), ast);
 	}
 }
 
@@ -670,12 +758,24 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, comment)
 	)
 
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TVExp,
+	//(char, dummy)
+	(std::vector<ERM::TVOption>, children)
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	ERM::TSymbol,
+	(boost::optional<std::string>, symModifier)
+	(std::string, sym)
+	)
+
 namespace ERM
 {
 	template<typename Iterator>
-	struct ERM_grammar : qi::grammar<Iterator, Tline(), ascii::space_type>
+	struct ERM_grammar : qi::grammar<Iterator, TLine(), ascii::space_type>
 	{
-		ERM_grammar() : ERM_grammar::base_type(rline, "ERM script line")
+		ERM_grammar() : ERM_grammar::base_type(vline, "VERM script line")
 		{
 			//do not build too complicated expressions, e.g. (a >> b) | c, qi has problems with them
 			macroUsage %= qi::lexeme[qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$')];
@@ -686,7 +786,7 @@ namespace ERM
 			iexp %= varExp | qi::int_;
 			varp %=/* qi::lit("?") >> */(varExpNotMacro | qMacroUsage);
  			comment %= *qi::char_;
-			commentLine %= (~qi::char_('!') >> comment | (qi::char_('!') >> (~qi::char_("?!$#")) >> comment ));
+			commentLine %= (~qi::char_("![") >> comment | (qi::char_('!') >> (~qi::char_("?!$#")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
 			arithmeticOp %= iexp >> qi::char_ >> iexp;
 			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
@@ -724,7 +824,15 @@ namespace ERM
 			rline %=
 				(
 					command | commentLine | spirit::eps
-				) > spirit::eoi;
+				);
+
+			vsym %= -(qi::string("`") | qi::string(",") | qi::string("#,") | qi::string(",@") | qi::string("#'")) >> +qi::char_("+*/$%&_=<>~a-zA-Z0-9-");
+
+			
+			vopt %= vsym | (qi::lit("!") >> qi::char_ >> qi::lit("!")) | qi::double_ | qi::int_ | command /*| vexp*/ | string;
+			vexp %= qi::lit("[") >> *(vopt) >> qi::lit("]");
+
+			vline %= (vexp | rline ) > spirit::eoi;
 
 			//error handling
 
@@ -741,11 +849,15 @@ namespace ERM
 			receiver.name("receiver");
 			postTrigger.name("post trigger");
 			command.name("command");
-			rline.name("script line");
+			rline.name("ERM script line");
+			vsym.name("V symbol");
+			vopt.name("V option");
+			vexp.name("V expression");
+			vline.name("VERM line");
 
 			qi::on_error<qi::fail>
 				(
-				rline
+				vline
 				, std::cout //or phoenix::ref(std::count), is there any difference?
 				<< phoenix::val("Error! Expecting ")
 				<< qi::_4                               // what failed?
@@ -788,7 +900,11 @@ namespace ERM
 		qi::rule<Iterator, Treceiver(), ascii::space_type> receiver;
 		qi::rule<Iterator, TPostTrigger(), ascii::space_type> postTrigger;
 		qi::rule<Iterator, Tcommand(), ascii::space_type> command;
-		qi::rule<Iterator, Tline(), ascii::space_type> rline;
+		qi::rule<Iterator, TERMline(), ascii::space_type> rline;
+		qi::rule<Iterator, TSymbol(), ascii::space_type> vsym;
+		qi::rule<Iterator, TVOption(), ascii::space_type> vopt;
+		qi::rule<Iterator, TVExp(), ascii::space_type> vexp;
+		qi::rule<Iterator, TLine(), ascii::space_type> vline;
 	};
 };
 
@@ -798,7 +914,7 @@ void ERMParser::parseLine( const std::string & line )
 		end = line.end();
 
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
-	ERM::Tline AST;
+	ERM::TLine AST;
 
 // 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
 // 	if(!r || beg != end)
@@ -810,7 +926,7 @@ void ERMParser::parseLine( const std::string & line )
 // 	{
 // 		//parsing succeeded
 // 		tlog2 << line << std::endl;
-// 		ERM::printLineAST(AST);
+// 		ERM::printAST(AST);
 // 	}
 }
 

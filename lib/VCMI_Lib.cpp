@@ -68,7 +68,8 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 		if(is_regular(dir->status()))
 		{
 			std::string name = dir->path().leaf();
-			if( boost::algorithm::ends_with(name, ".erm"))
+			if( boost::algorithm::ends_with(name, ".erm") ||
+				boost::algorithm::ends_with(name, ".verm") )
 			{
 
 				ERMParser ep(dir->path().string());
