@@ -285,9 +285,11 @@ namespace ERM
 
 	typedef boost::variant<Tcommand, std::string, qi::unused_type> TERMline;
 
+	typedef std::string TVModifier; //'`', ',', ',@', '#''
+
 	struct TSymbol
 	{
-		boost::optional<std::string> symModifier; //'`', ',', ',@', '#''
+		boost::optional<TVModifier> symModifier;
 		std::string sym;
 	};
 
@@ -298,7 +300,7 @@ namespace ERM
 	//v-expression
 	struct TVExp
 	{
-		//char dummy;
+		boost::optional<TVModifier> modifier;
 		std::vector<TVOption> children;
 	};
 
@@ -411,7 +413,7 @@ namespace ERM
 	}
 
 	struct BodyVarpPrinterVisitor : boost::static_visitor<>
-	{//<TVarExpNotMacro, TQMacroUsage>
+	{
 		void operator()(TVarExpNotMacro const& cmp) const
 		{
 			if(cmp.questionMark.is_initialized())
@@ -432,7 +434,6 @@ namespace ERM
 
 	struct BodyOptionItemPrinterVisitor : boost::static_visitor<>
 	{
-		//, , , , , , , , qi::unused_type
 		void operator()(TVarConcatString const& cmp) const
 		{
 			tlog2 << "+concat\"";
@@ -606,6 +607,10 @@ namespace ERM
 
 	void printTVExp(const TVExp & exp)
 	{
+		if(exp.modifier.is_initialized())
+		{
+			tlog2 << exp.modifier.get();
+		}
 		tlog2 << "[ ";
 		BOOST_FOREACH(TVOption opt, exp.children)
 		{
@@ -760,13 +765,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TVExp,
-	//(char, dummy)
+	(boost::optional<ERM::TVModifier>, modifier)
 	(std::vector<ERM::TVOption>, children)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TSymbol,
-	(boost::optional<std::string>, symModifier)
+	(boost::optional<ERM::TVModifier>, symModifier)
 	(std::string, sym)
 	)
 
@@ -786,7 +791,7 @@ namespace ERM
 			iexp %= varExp | qi::int_;
 			varp %=/* qi::lit("?") >> */(varExpNotMacro | qMacroUsage);
  			comment %= *qi::char_;
-			commentLine %= (~qi::char_("![") >> comment | (qi::char_('!') >> (~qi::char_("?!$#")) >> comment ));
+			commentLine %= (~qi::char_("!@") >> comment | (qi::char_('!') >> (~qi::char_("?!$#")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
 			arithmeticOp %= iexp >> qi::char_ >> iexp;
 			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
@@ -826,13 +831,14 @@ namespace ERM
 					command | commentLine | spirit::eps
 				);
 
-			vsym %= -(qi::string("`") | qi::string(",") | qi::string("#,") | qi::string(",@") | qi::string("#'")) >> +qi::char_("+*/$%&_=<>~a-zA-Z0-9-");
+			vmod %= qi::string("`") | qi::string(",") | qi::string(",@") | qi::string("#'");
+			vsym %= -vmod >> qi::lexeme[+qi::char_("+*/$%&_=<>~a-zA-Z0-9-")];
 
-			
-			vopt %= vsym | (qi::lit("!") >> qi::char_ >> qi::lit("!")) | qi::double_ | qi::int_ | command /*| vexp*/ | string;
-			vexp %= qi::lit("[") >> *(vopt) >> qi::lit("]");
+			qi::real_parser<double, qi::strict_real_policies<double> > strict_double;
+			vopt %= qi::lexeme[(qi::lit("!") >> qi::char_ >> qi::lit("!"))] | qi::lexeme[strict_double] | qi::lexeme[qi::int_] | command | vexp | string | vsym;
+			vexp %= -vmod >> qi::lit("[") >> *(vopt) >> qi::lit("]");
 
-			vline %= (vexp | rline ) > spirit::eoi;
+			vline %= (( qi::lit("@") >>vexp) | rline ) > spirit::eoi;
 
 			//error handling
 
@@ -902,6 +908,7 @@ namespace ERM
 		qi::rule<Iterator, Tcommand(), ascii::space_type> command;
 		qi::rule<Iterator, TERMline(), ascii::space_type> rline;
 		qi::rule<Iterator, TSymbol(), ascii::space_type> vsym;
+		qi::rule<Iterator, TVModifier(), ascii::space_type> vmod;
 		qi::rule<Iterator, TVOption(), ascii::space_type> vopt;
 		qi::rule<Iterator, TVExp(), ascii::space_type> vexp;
 		qi::rule<Iterator, TLine(), ascii::space_type> vline;
