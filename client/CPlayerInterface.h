@@ -3,7 +3,6 @@
 #include "../global.h"
 #include "../CGameInterface.h"
 #include "../lib/CondSh.h"
-#include "SDL_framerate.h"
 #include <map>
 #include <list>
 #include <algorithm>
@@ -130,7 +129,6 @@ public:
 
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	static CBattleInterface * battleInt; //NULL if no battle
-	FPSmanager * mainFPSmng; //to keep const framerate
 	CInGameConsole * cingconsole;
 	
 	CCallback * cb; //to communicate with engine

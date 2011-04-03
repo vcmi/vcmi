@@ -7,6 +7,7 @@
 #include <list>
 #include "../timeHandler.h"
 #include "FontBase.h"
+#include "SDL_framerate.h"
 
 #ifdef max
 #undef max
@@ -511,6 +512,7 @@ public:
 class CGuiHandler
 {
 public:
+	FPSmanager * mainFPSmng; //to keep const framerate
 	timeHandler th;
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;

@@ -10,8 +10,6 @@
 #include "CPlayerInterface.h"
 //#include "SDL_Extensions.h"
 #include "SDL_Extensions.h"
-//#include "SDL_framerate.h"
-
 #include "SDL_framerate.h"
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
@@ -108,9 +106,6 @@ CPlayerInterface::CPlayerInterface(int Player)
 	showingDialog = new CondSh<bool>(false);
 	sysOpts = GDefaultOptions;
 	//initializing framerate keeper
-	mainFPSmng = new FPSmanager;
-	SDL_initFramerate(mainFPSmng);
-	SDL_setFramerate(mainFPSmng, 48);
 	//framerate keeper initialized
 	cingconsole = new CInGameConsole;
 	terminate_cond.set(false);
@@ -123,7 +118,6 @@ CPlayerInterface::~CPlayerInterface()
 	//delete pim;
 	//delNull(pim);
 	delete showingDialog;
-	delete mainFPSmng;
 	if(adventureInt)
 	{
 		if(adventureInt->active & CIntObject::KEYBOARD)
@@ -289,7 +283,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	initMovement(details, ho, hp);
 
 	//first initializing done
-	SDL_framerateDelay(mainFPSmng); // after first move
+	SDL_framerateDelay(GH.mainFPSmng); // after first move
 
 	//main moving
 	for(int i=1; i<32; i+=2*sysOpts.heroMoveSpeed)
@@ -298,7 +292,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		adventureInt->updateScreen = true;
 		adventureInt->show(screen);
 		CSDL_Ext::update(screen);
-		SDL_framerateDelay(mainFPSmng); //for animation purposes
+		SDL_framerateDelay(GH.mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 
@@ -1349,8 +1343,6 @@ void CPlayerInterface::update()
 	CCS->curh->draw2();
 
 	pim->unlock();
-
-	SDL_framerateDelay(mainFPSmng);
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)

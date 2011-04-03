@@ -9,6 +9,7 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "../CThreadHelper.h"
+
 /*
  * GUIBase.cpp, part of VCMI engine
  *
@@ -342,11 +343,14 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
+		SDL_initFramerate(mainFPSmng);
 		while(!terminate)
 		{
 			if(curInt)
 				curInt->update();
-			SDL_Delay(20); //give time for other apps
+
+			SDL_framerateDelay(mainFPSmng);
+			//SDL_Delay(20); //give time for other apps
 		}
 	} HANDLE_EXCEPTION
 }
@@ -358,11 +362,14 @@ CGuiHandler::CGuiHandler()
 	current = NULL;
 	terminate = false;
 	statusbar = NULL;
+
+	mainFPSmng = new FPSmanager;
+	SDL_setFramerate(mainFPSmng, 48);
 }
 
 CGuiHandler::~CGuiHandler()
 {
-
+	delete mainFPSmng;
 }
 
 void CGuiHandler::breakEventHandling()
