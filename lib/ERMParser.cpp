@@ -79,15 +79,15 @@ void ERMParser::parseFile()
 				parseLine(lineBuf);
 			}
 			break;
-		case ERMParser::UNFINISHED_STRING:
+		case ERMParser::UNFINISHED:
 			{
 				if(!inString)
-					wholeLine = "";
+					wholeLine = " ";
 				inString = true;
 				wholeLine += lineBuf;
 			}
 			break;
-		case ERMParser::END_OF_STRING:
+		case ERMParser::END_OF:
 			{
 				inString = false;
 				wholeLine += lineBuf;
@@ -289,7 +289,7 @@ namespace ERM
 
 	struct TSymbol
 	{
-		boost::optional<TVModifier> symModifier;
+		std::vector<TVModifier> symModifier;
 		std::string sym;
 	};
 
@@ -300,7 +300,7 @@ namespace ERM
 	//v-expression
 	struct TVExp
 	{
-		boost::optional<TVModifier> modifier;
+		std::vector<TVModifier> modifier;
 		std::vector<TVOption> children;
 	};
 
@@ -577,9 +577,9 @@ namespace ERM
 		}
 		void operator()(TSymbol const& cmd) const
 		{
-			if(cmd.symModifier.is_initialized())
+			BOOST_FOREACH(TVModifier mod, cmd.symModifier)
 			{
-				tlog2 << cmd.symModifier.get();
+				tlog2 << mod << " ";
 			}
 			tlog2 << cmd.sym;
 		}
@@ -607,9 +607,9 @@ namespace ERM
 
 	void printTVExp(const TVExp & exp)
 	{
-		if(exp.modifier.is_initialized())
+		BOOST_FOREACH(TVModifier mod, exp.modifier)
 		{
-			tlog2 << exp.modifier.get();
+			tlog2 << mod << " ";
 		}
 		tlog2 << "[ ";
 		BOOST_FOREACH(TVOption opt, exp.children)
@@ -635,6 +635,7 @@ namespace ERM
 	void printAST(const TLine & ast)
 	{
 		boost::apply_visitor(TLPrinterVisitor(), ast);
+		tlog2 << std::endl;
 	}
 }
 
@@ -765,13 +766,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TVExp,
-	(boost::optional<ERM::TVModifier>, modifier)
+	(std::vector<ERM::TVModifier>, modifier)
 	(std::vector<ERM::TVOption>, children)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TSymbol,
-	(boost::optional<ERM::TVModifier>, symModifier)
+	(std::vector<ERM::TVModifier>, symModifier)
 	(std::string, sym)
 	)
 
@@ -791,7 +792,7 @@ namespace ERM
 			iexp %= varExp | qi::int_;
 			varp %=/* qi::lit("?") >> */(varExpNotMacro | qMacroUsage);
  			comment %= *qi::char_;
-			commentLine %= (~qi::char_("!@") >> comment | (qi::char_('!') >> (~qi::char_("?!$#")) >> comment ));
+			commentLine %= (~qi::char_("!") >> comment | (qi::char_('!') >> (~qi::char_("?!$#[")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
 			arithmeticOp %= iexp >> qi::char_ >> iexp;
 			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
@@ -831,14 +832,14 @@ namespace ERM
 					command | commentLine | spirit::eps
 				);
 
-			vmod %= qi::string("`") | qi::string(",") | qi::string(",@") | qi::string("#'");
-			vsym %= -vmod >> qi::lexeme[+qi::char_("+*/$%&_=<>~a-zA-Z0-9-")];
+			vmod %= qi::string("`") | qi::string(",!") | qi::string(",") | qi::string("#'");
+			vsym %= *vmod >> qi::lexeme[+qi::char_("+*/$%&_=<>~a-zA-Z0-9-")];
 
 			qi::real_parser<double, qi::strict_real_policies<double> > strict_double;
 			vopt %= qi::lexeme[(qi::lit("!") >> qi::char_ >> qi::lit("!"))] | qi::lexeme[strict_double] | qi::lexeme[qi::int_] | command | vexp | string | vsym;
-			vexp %= -vmod >> qi::lit("[") >> *(vopt) >> qi::lit("]");
+			vexp %= *vmod >> qi::lit("[") >> *(vopt) >> qi::lit("]");
 
-			vline %= (( qi::lit("@") >>vexp) | rline ) > spirit::eoi;
+			vline %= (( qi::lit("!") >>vexp) | rline ) > spirit::eoi;
 
 			//error handling
 
@@ -941,28 +942,20 @@ ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inS
 {
 	ERMParser::ELineType ret;
 	if(line[0] == '!')
-	{	
+	{
 		if(countHatsBeforeSemicolon(line) % 2 == 1)
-		{
-			ret = ERMParser::UNFINISHED_STRING;
-		}
+			ret = ERMParser::UNFINISHED;
 		else
-		{
 			ret = ERMParser::COMMAND_FULL;
-		}
 	}
 	else
 	{
 		if(inString)
 		{
 			if(countHatsBeforeSemicolon(line) % 2 == 1)
-			{
-				ret = ERMParser::END_OF_STRING;
-			}
+				ret = ERMParser::END_OF;
 			else
-			{
-				ret = ERMParser::UNFINISHED_STRING;
-			}
+				ret = ERMParser::UNFINISHED;
 		}
 		else
 		{
