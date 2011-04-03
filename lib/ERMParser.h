@@ -1,5 +1,20 @@
 #pragma once
 #include "../global.h"
+#include <fstream>
+
+class CERMPreprocessor
+{
+	std::string fname;
+	std::ifstream file;
+	int lineNo;
+	enum {INVALID, ERM, VERM} version;
+
+	void getline(std::string &ret);
+
+public:
+	CERMPreprocessor(const std::string &Fname);
+	std::string retreiveCommandLine();
+};
 
 class ERMParser
 {

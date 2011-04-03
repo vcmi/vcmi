@@ -1,3 +1,4 @@
+#define VCMI_DLL
 #include "ERMParser.h"
 #include <boost/version.hpp>
 //To make compilation with older boost versions possible
@@ -13,6 +14,7 @@
 #include <boost/spirit/include/phoenix_object.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <fstream>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace spirit = boost::spirit;
 namespace qi = boost::spirit::qi;
@@ -33,7 +35,125 @@ namespace phoenix = boost::phoenix;
 
 #define DO_TYPE_CASE(LinePrinterVisitor, VAR) } ___UN; boost::apply_visitor(___UN, VAR);
 
+CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), file(Fname), lineNo(0), version(INVALID)
+{
+	if(!file.is_open())
+	{
+		tlog1 << "File " << Fname << " not found or unable to open\n";
+		return;
+	}
 
+	//check header
+	std::string header;
+	getline(header);
+
+	if(header == "ZVSE")
+		version = ERM;
+	else if(header == "VERM")
+		version = VERM;
+	else
+	{
+		tlog1 << "File " << fname << " has wrong header\n";
+		return;
+	}
+}
+
+std::string CERMPreprocessor::retreiveCommandLine()
+{
+	std::string wholeCommand;
+
+	//parse file
+	bool verm = false;
+	bool openedString = false;
+	int openedBraces = 0;
+
+
+	while(file.good())
+	{
+
+		std::string line ;
+		getline(line); //reading line
+
+
+		int dash = line.find_first_of('^');
+		bool inTheMiddle = openedBraces || openedString;
+
+		if(!inTheMiddle)
+		{
+			if(line.size() < 2)
+				continue;
+			if(line[0] != '!' ) //command lines must begin with ! -> otherwise treat as comment
+				continue;
+			verm = line[1] == '[';
+		}
+
+		if(openedString)
+		{
+			wholeCommand += "\\n";
+			if(dash != std::string::npos)
+			{
+				wholeCommand += line.substr(0, dash);
+				line.erase(0,dash);
+			}
+			else //no closing marker -> the whole line is further part of string
+			{
+				wholeCommand += line;
+				continue;
+			}
+		}
+
+		int i = 0;
+		for(; i < line.length(); i++)
+		{
+			char c = line[i];
+			if(!openedString)
+			{
+				if(c == '[')
+					openedBraces++;
+				else if(c == ']')
+				{
+					openedBraces--;
+					if(!openedBraces) //the last brace has been matched -> stop "parsing", everything else in the line is comment
+					{
+						i++;
+						break;
+					}
+				}
+				else if(c == '^')
+					openedString = true;
+				else if(c == ';') // a ';' that is in command line (and not in string) ends the command -> throw away rest
+				{
+					line.erase(i+!verm, line.length() - i - !verm); //leave ';' at the end only at ERM commands
+					break;
+				}
+			}
+			else if(c == '^')
+				openedString = false;
+		}
+
+		if(verm && !openedBraces && i < line.length())
+		{
+			line.erase(i, line.length() - i);
+		}
+
+		wholeCommand += line;
+		if(!openedBraces && !openedString)
+			return wholeCommand;
+
+		//loop end
+	}
+
+	if(openedBraces || openedString)
+		tlog1 << "Ill-formed file: " << fname << std::endl;
+	return "";
+}
+
+void CERMPreprocessor::getline(std::string &ret)
+{
+	lineNo++;
+	std::getline(file, ret);
+	boost::trim(ret); //get rid of wspace
+}
 
 ERMParser::ERMParser(std::string file)
 	:srcFile(file)
@@ -41,64 +161,15 @@ ERMParser::ERMParser(std::string file)
 
 void ERMParser::parseFile()
 {
-	std::ifstream file(srcFile.c_str());
-	if(!file.is_open())
+	CERMPreprocessor preproc(srcFile);
+	while(1)
 	{
-		tlog1 << "File " << srcFile << " not found or unable to open\n";
-		return;
-	}
-	//check header
-	char header[5];
-	file.getline(header, ARRAY_COUNT(header));
-	if(std::string(header) != "ZVSE" && std::string(header) != "VERM")
-	{
-		tlog1 << "File " << srcFile << " has wrong header\n";
-		return;
-	}
-	//parse file
-	char lineBuf[1024];
-	parsedLine = 1;
-	std::string wholeLine; //used for buffering multiline lines
-	bool inString = false;
-	
-	while(file.good())
-	{
-		//reading line
-		file.getline(lineBuf, ARRAY_COUNT(lineBuf));
-		if(file.gcount() == ARRAY_COUNT(lineBuf))
-		{
-			tlog1 << "Encountered a problem during parsing " << srcFile << " too long line (" << parsedLine << ")\n";
-		}
+		std::string command = preproc.retreiveCommandLine();
+		if(command.length() == 0)
+			break;
 
-		switch(classifyLine(lineBuf, inString))
-		{
-		case ERMParser::COMMAND_FULL:
-		case ERMParser::COMMENT:
-			{
-				repairEncoding(lineBuf, ARRAY_COUNT(lineBuf));
-				parseLine(lineBuf);
-			}
-			break;
-		case ERMParser::UNFINISHED:
-			{
-				if(!inString)
-					wholeLine = " ";
-				inString = true;
-				wholeLine += lineBuf;
-			}
-			break;
-		case ERMParser::END_OF:
-			{
-				inString = false;
-				wholeLine += lineBuf;
-				repairEncoding(wholeLine);
-				parseLine(wholeLine);
-			}
-			break;
-		}
-
-		//loop end
-		++parsedLine;
+		repairEncoding(command);
+		parseLine(command);
 	}
 }
 
@@ -106,8 +177,6 @@ void callme(char const& i)
 {
 	std::cout << "fd";
 }
-
-
 
 namespace ERM
 {
@@ -924,18 +993,18 @@ void ERMParser::parseLine( const std::string & line )
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
 	ERM::TLine AST;
 
-// 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
-// 	if(!r || beg != end)
-// 	{
-// 		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
-// 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
-// 	}
-// 	else
-// 	{
-// 		//parsing succeeded
-// 		tlog2 << line << std::endl;
-// 		ERM::printAST(AST);
-// 	}
+//  	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
+//  	if(!r || beg != end)
+//  	{
+//  		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
+//  		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+//  	}
+//  	else
+//  	{
+//  		//parsing succeeded
+//  		tlog2 << line << std::endl;
+//  		ERM::printAST(AST);
+//  	}
 }
 
 ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inString ) const
