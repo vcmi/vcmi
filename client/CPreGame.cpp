@@ -351,12 +351,7 @@ void CGPreGame::update()
 	if(SEL)
 		SEL->update();
 
-	CCS->curh->draw1();
-	SDL_Flip(screen);
-	CCS->curh->draw2();
 	GH.topInt()->show(screen);
-	GH.updateTime();
-	GH.handleEvents();
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)

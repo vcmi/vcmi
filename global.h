@@ -135,7 +135,6 @@ const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 
 const int SPELLBOOK_GOLD_COST = 500;
 
-
 //for battle stacks' positions
 struct THex
 {
@@ -348,6 +347,17 @@ enum EAlignment
 {
 	GOOD, EVIL, NEUTRAL
 };
+
+// Converts an int/double or any data type you wish to a string
+template<typename T>
+std::string toString(const T& value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+
 //uncomment to make it work
 //#define MARK_BLOCKED_POSITIONS
 //#define MARK_VISITABLE_POSITIONS

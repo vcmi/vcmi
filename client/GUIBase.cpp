@@ -104,6 +104,11 @@ IShowActivable * CGuiHandler::topInt()
 
 void CGuiHandler::totalRedraw()
 {
+	this->invalidateTotalRedraw = true;
+}
+
+void CGuiHandler::internalTotalRedraw()
+{
 	for(int i=0;i<objsToBlit.size();i++)
 		objsToBlit[i]->showAll(screen2);
 
@@ -111,6 +116,9 @@ void CGuiHandler::totalRedraw()
 
 	if(objsToBlit.size())
 		objsToBlit.back()->showAll(screen);
+
+	this->invalidateTotalRedraw = false;
+	this->invalidateSimpleRedraw = false;
 }
 
 void CGuiHandler::updateTime()
@@ -304,10 +312,17 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 
 void CGuiHandler::simpleRedraw()
 {
+	this->invalidateSimpleRedraw = true;
+}
+
+void CGuiHandler::internalSimpleRedraw()
+{
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
 	objsToBlit.back()->show(screen); //blit active interface/window
+	
+	this->invalidateSimpleRedraw = false;
 }
 
 void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
@@ -343,14 +358,33 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		SDL_initFramerate(mainFPSmng);
+		CCS->curh->centerCursor();
+		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)
 		{
 			if(curInt)
-				curInt->update();
+				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
-			SDL_framerateDelay(mainFPSmng);
-			//SDL_Delay(20); //give time for other apps
+			// Handles mouse and key input
+			GH.updateTime();
+			GH.handleEvents();
+
+			// Redraws the GUI only once during rendering
+			if (this->invalidateTotalRedraw == true)
+				internalTotalRedraw();
+			if (this->invalidateSimpleRedraw == true)
+				internalSimpleRedraw();
+
+			if (SHOW_FPS)
+				drawFPSCounter();
+
+			mainFPSmng->framerateDelay(); // holds a constant FPS
+			
+			// draw the mouse cursor and update the screen
+			// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
+			CCS->curh->draw1();
+			CSDL_Ext::update(screen);
+			CCS->curh->draw2();
 		}
 	} HANDLE_EXCEPTION
 }
@@ -363,8 +397,8 @@ CGuiHandler::CGuiHandler()
 	terminate = false;
 	statusbar = NULL;
 
-	mainFPSmng = new FPSmanager;
-	SDL_setFramerate(mainFPSmng, 48);
+	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
+	mainFPSmng = new FPSManager(48);
 }
 
 CGuiHandler::~CGuiHandler()
@@ -376,6 +410,17 @@ void CGuiHandler::breakEventHandling()
 {
 	current = NULL;
 }
+
+void CGuiHandler::drawFPSCounter()
+{
+	const static SDL_Color yellow = {255, 255, 0, 0};
+	static SDL_Rect overlay = { 0, 0, 64, 32};
+	Uint32 black = SDL_MapRGB(screen->format, 10, 10, 10);
+	SDL_FillRect(screen, &overlay, black);
+	std::string fps = toString(mainFPSmng->fps);
+	CSDL_Ext::printAt(fps, 10, 10, FONT_BIG, yellow, screen);
+}
+
 
 void CIntObject::activateLClick()
 {

@@ -266,7 +266,7 @@ int main(int argc, char** argv)
 		playIntro();
 
 	SDL_FillRect(screen,NULL,0);
-	SDL_Flip(screen);
+	CSDL_Ext::update(screen);
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 

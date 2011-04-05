@@ -1,65 +1,33 @@
 
 /*
-
- SDL_framerate: framerate manager
- 
- LGPL (c) A. Schiffler
- 
+ * timeHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
  */
 
 #ifndef _SDL_framerate_h
 #define _SDL_framerate_h
 
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
+
+/// A fps manager which holds game updates at a constant rate
+class FPSManager
+{
+private:
+	double rateticks;
+	unsigned int lastticks;
+	int rate;
+
+public:
+	int fps; // the actual fps value
+
+	FPSManager(int rate); // initializes the manager with a given fps rate
+	void FPSManager::init(); // needs to be called directly before the main game loop to reset the internal timer
+	void framerateDelay(); // needs to be called every game update cycle
+};
+
+
 #endif
-
-/* --- */
-
-#include "SDL.h"
-
-/* --------- Definitions */
-
-/* Some rates in Hz */
-
-#define FPS_UPPER_LIMIT		200
-#define FPS_LOWER_LIMIT		1
-#define FPS_DEFAULT		30
-
-/* --------- Structure variables */
-
-	typedef struct {
-	Uint32 framecount;
-	float rateticks;
-	Uint32 lastticks;
-	Uint32 rate;
-	} FPSmanager;
-
-/* --------- Function prototypes */
-
-#ifdef WIN32
-#ifdef BUILD_DLL
-#define DLLINTERFACE __declspec(dllexport)
-#else
-#define DLLINTERFACE __declspec(dllimport)
-#endif
-#else
-#define DLLINTERFACE
-#endif
-
-/* Functions return 0 or value for sucess and -1 for error */
-
-	void SDL_initFramerate(FPSmanager * manager);
-	int SDL_setFramerate(FPSmanager * manager, int rate);
-	int SDL_getFramerate(FPSmanager * manager);
-	void SDL_framerateDelay(FPSmanager * manager);
-
-/* --- */
-
-/* Ends C function definitions when using C++ */
-#ifdef __cplusplus
-}
-#endif
-
-#endif				/* _SDL_framerate_h */

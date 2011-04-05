@@ -105,8 +105,6 @@ CPlayerInterface::CPlayerInterface(int Player)
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	sysOpts = GDefaultOptions;
-	//initializing framerate keeper
-	//framerate keeper initialized
 	cingconsole = new CInGameConsole;
 	terminate_cond.set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
@@ -283,7 +281,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	initMovement(details, ho, hp);
 
 	//first initializing done
-	SDL_framerateDelay(GH.mainFPSmng); // after first move
+	GH.mainFPSmng->framerateDelay(); // after first move
 
 	//main moving
 	for(int i=1; i<32; i+=2*sysOpts.heroMoveSpeed)
@@ -292,7 +290,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		adventureInt->updateScreen = true;
 		adventureInt->show(screen);
 		CSDL_Ext::update(screen);
-		SDL_framerateDelay(GH.mainFPSmng); //for animation purposes
+		GH.mainFPSmng->framerateDelay(); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 
@@ -1330,17 +1328,10 @@ void CPlayerInterface::update()
 	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
 		return;
 
-	GH.updateTime();
-	GH.handleEvents();
-
 	if(adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();
-
-	CCS->curh->draw1();
-	CSDL_Ext::update(screen);
-	CCS->curh->draw2();
 
 	pim->unlock();
 }

@@ -511,8 +511,16 @@ public:
 /// Handles GUI logic and drawing
 class CGuiHandler
 {
+private:
+	bool invalidateTotalRedraw;
+	bool invalidateSimpleRedraw;
+
+	void internalTotalRedraw();
+	void internalSimpleRedraw();
+
 public:
-	FPSmanager * mainFPSmng; //to keep const framerate
+	const static bool SHOW_FPS = false; // shows a fps counter when set to true
+	FPSManager *mainFPSmng; //to keep const framerate
 	timeHandler th;
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;
@@ -539,14 +547,17 @@ public:
 
 	CGuiHandler();
 	~CGuiHandler();
-	void run();
-	void totalRedraw(); //forces total redraw (using showAll)
-	void simpleRedraw(); //update only top interface and draw background from buffer
+	void run(); // holds the main loop for the whole program after initialization and manages the update/rendering system
+	
+	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
+	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
+	
 	void popInt(IShowActivable *top); //removes given interface from the top and activates next
 	void popIntTotally(IShowActivable *top); //deactivates, deletes, removes given interface from the top and activates next
 	void pushInt(IShowActivable *newInt); //deactivate old top interface, activates this one and pushes to the top
 	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
 	IShowActivable *topInt(); //returns top interface
+	
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
 	void handleEvent(SDL_Event *sEvent);
@@ -554,6 +565,7 @@ public:
 	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
+	void CGuiHandler::drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 	ui8 defActionsDef; //default auto actions
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created

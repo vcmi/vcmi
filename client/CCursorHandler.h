@@ -35,8 +35,9 @@ public:
 
 	void shiftPos( int &x, int &y );
 	void draw2();
-	void hide(){Show=0;};
-	void show(){Show=1;};
+	void hide() { Show=0; };
+	void show() { Show=1; };
+	void centerCursor();
 	~CCursorHandler();
 };
 
