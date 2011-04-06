@@ -9,6 +9,7 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "../CThreadHelper.h"
+#include "CConfigHandler.h"
 
 /*
  * GUIBase.cpp, part of VCMI engine
@@ -375,7 +376,7 @@ void CGuiHandler::run()
 			if (this->invalidateSimpleRedraw == true)
 				internalSimpleRedraw();
 
-			if (SHOW_FPS)
+			if (conf.cc.showFPS)
 				drawFPSCounter();
 
 			mainFPSmng->framerateDelay(); // holds a constant FPS

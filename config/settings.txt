@@ -12,6 +12,7 @@ clientSettings
 	localInformation=2; //0 - *all* information sent from server (safest and slowest); 1 - map information sent from server; 2 - all information local-storaged
 	defaultPlayerAI=GeniusAI; 
 	neutralBattleAI=StupidAI;
+	showFPS=0;
 }
 GUISettings
 {

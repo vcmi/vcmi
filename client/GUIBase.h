@@ -519,7 +519,6 @@ private:
 	void internalSimpleRedraw();
 
 public:
-	const static bool SHOW_FPS = false; // shows a fps counter when set to true
 	FPSManager *mainFPSmng; //to keep const framerate
 	timeHandler th;
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)

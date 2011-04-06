@@ -24,6 +24,7 @@ namespace config
 		int port, localInformation;
 		std::string server, //server address (e.g. 127.0.0.1)
 			defaultPlayerAI, defaultBattleAI; //dll names
+		bool showFPS; //show/hide FPS counter
 	};
 	
 	struct ButtonInfo

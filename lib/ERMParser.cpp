@@ -21,6 +21,16 @@ namespace qi = boost::spirit::qi;
 namespace ascii = spirit::ascii;
 namespace phoenix = boost::phoenix;
 
+/*
+ * ERMParser.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 
 //Greenspun's Tenth Rule of Programming:
 //Any sufficiently complicated C or Fortran program contains an ad hoc, informally-specified,
@@ -57,6 +67,11 @@ CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), fil
 		return;
 	}
 }
+
+class ParseErrorException : public std::exception
+{
+
+};
 
 std::string CERMPreprocessor::retreiveCommandLine()
 {
@@ -136,6 +151,9 @@ std::string CERMPreprocessor::retreiveCommandLine()
 			line.erase(i, line.length() - i);
 		}
 
+		if(wholeCommand.size()) //separate lines with a space
+			wholeCommand += " ";
+
 		wholeCommand += line;
 		if(!openedBraces && !openedString)
 			return wholeCommand;
@@ -159,553 +177,27 @@ ERMParser::ERMParser(std::string file)
 	:srcFile(file)
 {}
 
-void ERMParser::parseFile()
+std::vector<ERM::TLine> ERMParser::parseFile()
 {
 	CERMPreprocessor preproc(srcFile);
-	while(1)
+	std::vector<ERM::TLine> ret;
+	try
 	{
-		std::string command = preproc.retreiveCommandLine();
-		if(command.length() == 0)
-			break;
-
-		repairEncoding(command);
-		parseLine(command);
-	}
-}
-
-void callme(char const& i)
-{
-	std::cout << "fd";
-}
-
-namespace ERM
-{
-	struct TStringConstant
-	{
-		std::string str;
-	};
-	struct TMacroUsage
-	{
-		std::string macro;
-	};
-
-	//macro with '?', for write only
-	struct TQMacroUsage
-	{
-		std::string qmacro;
-	};
-
-	//definition of a macro
-	struct TMacroDef
-	{
-		std::string macro;
-	};
-	typedef std::string TCmdName;
-	
-	struct TVarExpNotMacro
-	{
-		typedef boost::optional<int> Tval;
-		boost::optional<char> questionMark;
-		std::string varsym;
-		Tval val;
-	};
-
-	typedef boost::variant<TVarExpNotMacro, TMacroUsage> TVarExp;
-
-	//write-only variable expression
-	struct TVarpExp
-	{
-		typedef boost::variant<TVarExpNotMacro, TQMacroUsage> Tvartype;
-		Tvartype var;
-	};
-
-	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
-	typedef boost::variant<TVarExp, int> TIexp;
-
-	struct TArithmeticOp
-	{
-		TIexp lhs, rhs;
-		char opcode;
-	};
-
-	struct TVRLogic
-	{
-		char opcode;
-		TIexp var;
-	};
-
-	struct TVRArithmetic
-	{
-		char opcode;
-		TIexp rhs;
-	};
-
-	struct TSemiCompare
-	{
-		std::string compSign;
-		TIexp rhs;
-	};
-
-	struct TCurriedString
-	{
-		TIexp iexp;
-		TStringConstant string;
-	};
-
-	struct TVarConcatString 
-	{
-		TVarExp var;
-		TStringConstant string;
-	};
-
-	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroUsage, TMacroDef, TIexp, TVarpExp, qi::unused_type> TBodyOptionItem;
-
-	typedef std::vector<TBodyOptionItem> TNormalBodyOptionList;
-
-	struct TNormalBodyOption
-	{
-		char optionCode;
-		TNormalBodyOptionList params;
-	};
-	typedef boost::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
-
-	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
-	typedef std::vector< TIdentifierInternal > Tidentifier;
-
-	struct TComparison
-	{
-		std::string compSign;
-		TIexp lhs, rhs;
-	};
-
-	struct Tcondition;
-	typedef
-		boost::optional<
-		boost::recursive_wrapper<Tcondition>
-		>
-		TconditionNode;
-
-
-	struct Tcondition
-	{
-		typedef boost::variant<
-			TComparison,
-			int>
-			Tcond; //comparison or condition flag
-		char ctype;
-		Tcond cond;
-		TconditionNode rhs;
-	};
-
-	struct Ttrigger
-	{
-		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
-	};
-
-	//a dirty workaround for preprocessor magic that prevents the use types with comma in it in BOOST_FUSION_ADAPT_STRUCT
-	//see http://comments.gmane.org/gmane.comp.lib.boost.user/62501 for some info
-	//
-	//moreover, I encountered a quite serious bug in boost: http://boost.2283326.n4.nabble.com/container-hpp-111-error-C2039-value-type-is-not-a-member-of-td3352328.html
-	//not sure how serious it is...
-
-	//typedef boost::variant<char, TStringConstant, TMacroUsage, TMacroDef> bodyItem;
- 	typedef std::vector<TBodyOption> Tbody;
-
-	struct Tinstruction
-	{
-		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
-		Tbody body;
-	};
-
-	struct Treceiver
-	{
-		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
-		boost::optional<Tbody> body;
-	};
-
-	struct TPostTrigger
-	{
-		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
-	};
-
-	struct Tcommand
-	{
-		typedef	boost::variant<
-			Ttrigger,
-			Tinstruction,
-			Treceiver,
-			TPostTrigger
-		>
-		Tcmd;
-		Tcmd cmd;
-		std::string comment;
-	};
-
-	//vector expression
-
-
-	typedef boost::variant<Tcommand, std::string, qi::unused_type> TERMline;
-
-	typedef std::string TVModifier; //'`', ',', ',@', '#''
-
-	struct TSymbol
-	{
-		std::vector<TVModifier> symModifier;
-		std::string sym;
-	};
-
-	//for #'symbol expression
-
-	struct TVExp;
-	typedef boost::variant<boost::recursive_wrapper<TVExp>, TSymbol, char, double, int, Tcommand, TStringConstant > TVOption; //options in v-expression
-	//v-expression
-	struct TVExp
-	{
-		std::vector<TVModifier> modifier;
-		std::vector<TVOption> children;
-	};
-
-	//script line
-	typedef boost::variant<TVExp, TERMline> TLine;
-
-	//console printer
-
-	struct VarPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TVarExpNotMacro const& val) const
+		while(1)
 		{
-			tlog2 << val.varsym;
-			if(val.val.is_initialized())
-			{
-				tlog2 << val.val.get();
-			}
-		}
-		void operator()(TMacroUsage const& val) const
-		{
-			tlog2 << "$" << val.macro << "&";
-		}
-	};
+			std::string command = preproc.retreiveCommandLine();
+			if(command.length() == 0)
+				break;
 
-	void varPrinter(const TVarExp & var)
-	{
-		boost::apply_visitor(VarPrinterVisitor(), var);
-	}
-
-	struct IExpPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(int const & constant) const
-		{
-			tlog2 << constant;
-		}
-		void operator()(TVarExp const & var) const
-		{
-			varPrinter(var);
-		}
-	};
-
-
-	void iexpPrinter(const TIexp & exp)
-	{
-		boost::apply_visitor(IExpPrinterVisitor(), exp);
-	}
-
-	struct IdentifierPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TIexp const& iexp) const
-		{
-			iexpPrinter(iexp);
-		}
-		void operator()(TArithmeticOp const& arop) const
-		{
-			iexpPrinter(arop.lhs);
-			tlog2 << " " << arop.opcode << " ";
-			iexpPrinter(arop.rhs);
-		}
-	};
-
-	void identifierPrinter(const boost::optional<Tidentifier> & id)
-	{
-		if(id.is_initialized())
-		{
-			tlog2 << "identifier: ";
-			BOOST_FOREACH(TIdentifierInternal x, id.get())
-			{
-				tlog2 << "#";
-				boost::apply_visitor(IdentifierPrinterVisitor(), x);
-			}
+			repairEncoding(command);
+			ret.push_back(parseLine(command));
 		}
 	}
-
-	struct ConditionCondPrinterVisitor : boost::static_visitor<>
+	catch (ParseErrorException & e)
 	{
-		void operator()(TComparison const& cmp) const
-		{
-			iexpPrinter(cmp.lhs);
-			tlog2 << " " << cmp.compSign << " ";
-			iexpPrinter(cmp.rhs);
-		}
-		void operator()(int const& flag) const
-		{
-			tlog2 << "condflag " << flag;
-		}
-	};
-
-	void conditionPrinter(const boost::optional<Tcondition> & cond)
-	{
-		if(cond.is_initialized())
-		{
-			Tcondition condp = cond.get();
-			tlog2 << " condition: ";
-			boost::apply_visitor(ConditionCondPrinterVisitor(), condp.cond);
-			tlog2 << " cond type: " << condp.ctype;
-			
-			//recursive call
-			if(condp.rhs.is_initialized())
-			{
-				tlog2 << "rhs: ";
-				boost::optional<Tcondition> rhsc = condp.rhs.get().get();
-				conditionPrinter(rhsc);
-			}
-			else
-			{
-				tlog2 << "no rhs; ";
-			}
-		}
+		tlog1 << "stopped parsing file" << std::endl;
 	}
-
-	struct BodyVarpPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TVarExpNotMacro const& cmp) const
-		{
-			if(cmp.questionMark.is_initialized())
-			{
-				tlog2 << cmp.questionMark.get();
-			}
-			if(cmp.val.is_initialized())
-			{
-				tlog2 << "val:" << cmp.val.get();
-			}
-			tlog2 << "varsym: |" << cmp.varsym << "|";
-		}
-		void operator()(TQMacroUsage const& cmp) const
-		{
-			tlog2 << "???$$" << cmp.qmacro << "$$";
-		}
-	};
-
-	struct BodyOptionItemPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TVarConcatString const& cmp) const
-		{
-			tlog2 << "+concat\"";
-			varPrinter(cmp.var);
-			tlog2 << " with " << cmp.string.str;
-		}
-		void operator()(TStringConstant const& cmp) const
-		{
-			tlog2 << " \"" << cmp.str << "\" ";
-		}
-		void operator()(TCurriedString const& cmp) const
-		{
-			tlog2 << "cs: ";
-			iexpPrinter(cmp.iexp);
-			tlog2 << " '" << cmp.string.str << "' ";
-		}
-		void operator()(TSemiCompare const& cmp) const
-		{
-			tlog2 << cmp.compSign << "; rhs: ";
-			iexpPrinter(cmp.rhs);
-		}
-		void operator()(TMacroUsage const& cmp) const
-		{
-			tlog2 << "$$" << cmp.macro << "$$";
-		}
-		void operator()(TMacroDef const& cmp) const
-		{
-			tlog2 << "@@" << cmp.macro << "@@";
-		}
-		void operator()(TIexp const& cmp) const
-		{
-			iexpPrinter(cmp);
-		}
-		void operator()(TVarpExp const& cmp) const
-		{
-			tlog2 << "varp";
-			boost::apply_visitor(BodyVarpPrinterVisitor(), cmp.var);
-		}
-		void operator()(qi::unused_type const& cmp) const
-		{
-			tlog2 << "nothing";
-		}
-	};
-
-	struct BodyOptionVisitor : boost::static_visitor<>
-	{
-		void operator()(TVRLogic const& cmp) const
-		{
-			tlog2 << cmp.opcode << " ";
-			iexpPrinter(cmp.var);
-		}
-		void operator()(TVRArithmetic const& cmp) const
-		{
-			tlog2 << cmp.opcode << " ";
-			iexpPrinter(cmp.rhs);
-		}
-		void operator()(TNormalBodyOption const& cmp) const
-		{
-			tlog2 << cmp.optionCode << "~";
-			BOOST_FOREACH(TBodyOptionItem optList, cmp.params)
-			{
-				boost::apply_visitor(BodyOptionItemPrinterVisitor(), optList);
-			}
-		}
-	};
-
-	void bodyPrinter(const Tbody & body)
-	{
-		tlog2 << " body items: ";
-		BOOST_FOREACH(TBodyOption bi, body)
-		{
-			tlog2 << " (";
-			apply_visitor(BodyOptionVisitor(), bi);
-			tlog2 << ") ";
-		}
-	}
-
-	struct CommandPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(Ttrigger const& trig) const
-		{
-			tlog2 << "trigger: " << trig.name << " ";
-			identifierPrinter(trig.identifier);
-			conditionPrinter(trig.condition);
-		}
-		void operator()(Tinstruction const& trig) const
-		{
-			tlog2 << "instruction: " << trig.name << " ";
-			identifierPrinter(trig.identifier);
-			conditionPrinter(trig.condition);
-			bodyPrinter(trig.body);
-			
-		}
-		void operator()(Treceiver const& trig) const
-		{
-			tlog2 << "receiver: " << trig.name << " ";
-
-			identifierPrinter(trig.identifier);
-			conditionPrinter(trig.condition);
-			if(trig.body.is_initialized())
-				bodyPrinter(trig.body.get());
-		}
-		void operator()(TPostTrigger const& trig) const
-		{
-			tlog2 << "post trigger: " << trig.name << " ";
-			identifierPrinter(trig.identifier);
-			conditionPrinter(trig.condition);
-		}
-	};
-
-	struct LinePrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(Tcommand const& cmd) const
-		{
-			CommandPrinterVisitor un;
-			boost::apply_visitor(un, cmd.cmd);
-			std::cout << "Line comment: " << cmd.comment << std::endl;
-		}
-		void operator()(std::string const& comment) const
-		{
-		}
-		void operator()(qi::unused_type const& nothing) const
-		{
-		}
-	};
-
-	void printERM(const TERMline & ast)
-	{
-		tlog2 << "";
-		
-		boost::apply_visitor(LinePrinterVisitor(), ast);
-	}
-
-	void printTVExp(const TVExp & exp);
-
-	struct VOptionPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TVExp const& cmd) const
-		{
-			printTVExp(cmd);
-		}
-		void operator()(TSymbol const& cmd) const
-		{
-			BOOST_FOREACH(TVModifier mod, cmd.symModifier)
-			{
-				tlog2 << mod << " ";
-			}
-			tlog2 << cmd.sym;
-		}
-		void operator()(char const& cmd) const
-		{
-			tlog2 << "'" << cmd << "'";
-		}
-		void operator()(int const& cmd) const
-		{
-			tlog2 << cmd;
-		}
-		void operator()(double const& cmd) const
-		{
-			tlog2 << cmd;
-		}
-		void operator()(TERMline const& cmd) const
-		{
-			printERM(cmd);
-		}
-		void operator()(TStringConstant const& cmd) const
-		{
-			tlog2 << "^" << cmd.str << "^";
-		}
-	};
-
-	void printTVExp(const TVExp & exp)
-	{
-		BOOST_FOREACH(TVModifier mod, exp.modifier)
-		{
-			tlog2 << mod << " ";
-		}
-		tlog2 << "[ ";
-		BOOST_FOREACH(TVOption opt, exp.children)
-		{
-			boost::apply_visitor(VOptionPrinterVisitor(), opt);
-			tlog2 << " ";
-		}
-		tlog2 << "]";
-	}
-
-	struct TLPrinterVisitor : boost::static_visitor<>
-	{
-		void operator()(TVExp const& cmd) const
-		{
-			printTVExp(cmd);
-		}
-		void operator()(TERMline const& cmd) const
-		{
-			printERM(cmd);
-		}
-	};
-
-	void printAST(const TLine & ast)
-	{
-		boost::apply_visitor(TLPrinterVisitor(), ast);
-		tlog2 << std::endl;
-	}
+	return ret;
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -853,13 +345,13 @@ namespace ERM
 		ERM_grammar() : ERM_grammar::base_type(vline, "VERM script line")
 		{
 			//do not build too complicated expressions, e.g. (a >> b) | c, qi has problems with them
-			macroUsage %= qi::lexeme[qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$')];
-			macroDef %= qi::lexeme[qi::lit('@') >> *(qi::char_ - '@') >> qi::lit('@')];
+			ERMmacroUsage %= qi::lexeme[qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$')];
+			ERMmacroDef %= qi::lexeme[qi::lit('@') >> *(qi::char_ - '@') >> qi::lit('@')];
 			varExpNotMacro %= -qi::char_("?") >> (+(qi::char_("a-z") - 'u')) >> -qi::int_;
-			qMacroUsage %= qi::lexeme[qi::lit("?$") >> *(qi::char_ - '$') >> qi::lit('$')];
-			varExp %= varExpNotMacro | macroUsage;
+			qERMMacroUsage %= qi::lexeme[qi::lit("?$") >> *(qi::char_ - '$') >> qi::lit('$')];
+			varExp %= varExpNotMacro | ERMmacroUsage;
 			iexp %= varExp | qi::int_;
-			varp %=/* qi::lit("?") >> */(varExpNotMacro | qMacroUsage);
+			varp %=/* qi::lit("?") >> */(varExpNotMacro | qERMMacroUsage);
  			comment %= *qi::char_;
 			commentLine %= (~qi::char_("!") >> comment | (qi::char_('!') >> (~qi::char_("?!$#[")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
@@ -877,7 +369,7 @@ namespace ERM
 			semiCompare %= *qi::char_("<=>") >> iexp;
 			curStr %= iexp >> string;
 			varConcatString %= varExp >> qi::lit("+") >> string;
-			bodyOptionItem %= varConcatString | curStr | string | semiCompare | macroUsage | macroDef | varp | iexp | qi::eps;
+			bodyOptionItem %= varConcatString | curStr | string | semiCompare | ERMmacroUsage | ERMmacroDef | varp | iexp | qi::eps;
 			exactBodyOptionList %= (bodyOptionItem % qi::lit("/"));
 			normalBodyOption = qi::char_("A-Z+") > exactBodyOptionList;
 			bodyOption %= VRLogic | VRarithmetic | normalBodyOption;
@@ -901,7 +393,7 @@ namespace ERM
 					command | commentLine | spirit::eps
 				);
 
-			vmod %= qi::string("`") | qi::string(",!") | qi::string(",") | qi::string("#'");
+			vmod %= qi::string("`") | qi::string(",!") | qi::string(",") | qi::string("#'") | qi::string("'");
 			vsym %= *vmod >> qi::lexeme[+qi::char_("+*/$%&_=<>~a-zA-Z0-9-")];
 
 			qi::real_parser<double, qi::strict_real_policies<double> > strict_double;
@@ -913,6 +405,11 @@ namespace ERM
 			//error handling
 
 			string.name("string constant");
+			ERMmacroUsage.name("macro usage");
+			qERMMacroUsage.name("macro usage with ?");
+			ERMmacroDef.name("macro definition");
+			varExpNotMacro.name("variable expression (not macro)");
+			varExp.name("variable expression");
 			iexp.name("i-expression");
 			comment.name("comment");
 			commentLine.name("comment line");
@@ -947,9 +444,9 @@ namespace ERM
 
 		qi::rule<Iterator, TStringConstant(), ascii::space_type> string;
 
-		qi::rule<Iterator, TMacroUsage(), ascii::space_type> macroUsage;
-		qi::rule<Iterator, TQMacroUsage(), ascii::space_type> qMacroUsage;
-		qi::rule<Iterator, TMacroDef(), ascii::space_type> macroDef;
+		qi::rule<Iterator, TMacroUsage(), ascii::space_type> ERMmacroUsage;
+		qi::rule<Iterator, TQMacroUsage(), ascii::space_type> qERMMacroUsage;
+		qi::rule<Iterator, TMacroDef(), ascii::space_type> ERMmacroDef;
 		qi::rule<Iterator, TVarExpNotMacro(), ascii::space_type> varExpNotMacro;
 		qi::rule<Iterator, TVarExp(), ascii::space_type> varExp;
 		qi::rule<Iterator, TIexp(), ascii::space_type> iexp;
@@ -985,7 +482,7 @@ namespace ERM
 	};
 };
 
-void ERMParser::parseLine( const std::string & line )
+ERM::TLine ERMParser::parseLine( const std::string & line )
 {
 	std::string::const_iterator beg = line.begin(),
 		end = line.end();
@@ -993,18 +490,14 @@ void ERMParser::parseLine( const std::string & line )
 	ERM::ERM_grammar<std::string::const_iterator> ERMgrammar;
 	ERM::TLine AST;
 
-//  	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
-//  	if(!r || beg != end)
-//  	{
-//  		tlog1 << "Parse error for line (" << parsedLine << ") : " << line << std::endl;
-//  		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
-//  	}
-//  	else
-//  	{
-//  		//parsing succeeded
-//  		tlog2 << line << std::endl;
-//  		ERM::printAST(AST);
-//  	}
+	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
+	if(!r || beg != end)
+	{
+		tlog1 << "Parse error in file " << srcFile << " (line " << parsedLine << ") :\n" << line << std::endl;
+		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+		throw ParseErrorException();
+	}
+	return AST;
 }
 
 ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inString ) const
