@@ -87,10 +87,10 @@ am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-CLodHandler.lo libvcmi_la-CMapInfo.lo \
 	libvcmi_la-CObjectHandler.lo libvcmi_la-Connection.lo \
 	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
-	libvcmi_la-ERMParser.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-map.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-RegisterTypes.lo \
-	libvcmi_la-VCMI_Lib.lo
+	libvcmi_la-ERMInterpreter.lo libvcmi_la-ERMParser.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-map.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -314,6 +314,8 @@ libvcmi_la_SOURCES = \
 	CSpellHandler.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
+	ERMInterpreter.cpp \
+	ERMInterpreter.h \
 	ERMParser.cpp \
 	ERMParser.h \
 	HeroBonus.cpp \
@@ -421,6 +423,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ERMInterpreter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ERMParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
@@ -588,6 +591,14 @@ libvcmi_la-CTownHandler.lo: CTownHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CTownHandler.cpp' object='libvcmi_la-CTownHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CTownHandler.lo `test -f 'CTownHandler.cpp' || echo '$(srcdir)/'`CTownHandler.cpp
+
+libvcmi_la-ERMInterpreter.lo: ERMInterpreter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ERMInterpreter.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ERMInterpreter.Tpo -c -o libvcmi_la-ERMInterpreter.lo `test -f 'ERMInterpreter.cpp' || echo '$(srcdir)/'`ERMInterpreter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ERMInterpreter.Tpo $(DEPDIR)/libvcmi_la-ERMInterpreter.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ERMInterpreter.cpp' object='libvcmi_la-ERMInterpreter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ERMInterpreter.lo `test -f 'ERMInterpreter.cpp' || echo '$(srcdir)/'`ERMInterpreter.cpp
 
 libvcmi_la-ERMParser.lo: ERMParser.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ERMParser.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ERMParser.Tpo -c -o libvcmi_la-ERMParser.lo `test -f 'ERMParser.cpp' || echo '$(srcdir)/'`ERMParser.cpp

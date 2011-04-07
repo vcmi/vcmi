@@ -45,7 +45,7 @@ namespace phoenix = boost::phoenix;
 
 #define DO_TYPE_CASE(LinePrinterVisitor, VAR) } ___UN; boost::apply_visitor(___UN, VAR);
 
-CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), file(Fname), lineNo(0), version(INVALID)
+CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), file(Fname.c_str()), lineNo(0), version(INVALID)
 {
 	if(!file.is_open())
 	{

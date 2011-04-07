@@ -1418,6 +1418,11 @@ void CHeroList::show( SDL_Surface * to )
 
 }
 
+void CHeroList::showAll( SDL_Surface * to )
+{
+	draw(to);
+}
+
 int CHeroList::size()
 {
 	return LOCPLINT->wanderingHeroes.size();
@@ -1434,17 +1439,17 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 {
 	arrup = CDefHandler::giveDef(arrupg);
 	arrdo = CDefHandler::giveDef(arrdog);
-	pos.x = x;
-	pos.y = y;
+	pos.x += x;
+	pos.y += y;
 	pos.w = std::max(arrdo->width, arrup->width);
 	pos.h = arrdo->height + arrup->height + Size*32;
 
-	arrupp.x=x;
-	arrupp.y=y;
+	arrupp.x=pos.x;
+	arrupp.y=pos.y;
 	arrupp.w=arrup->width;
 	arrupp.h=arrup->height;
-	arrdop.x=x;
-	arrdop.y=y+arrup->height+32*SIZE;
+	arrdop.x=pos.x;
+	arrdop.y=pos.y+arrup->height+32*SIZE;
 	arrdop.w=arrdo->width;
 	arrdop.h=arrdo->height;
 	posporx = arrdop.x;
@@ -1652,6 +1657,11 @@ void CTownList::draw(SDL_Surface * to)
 void CTownList::show( SDL_Surface * to )
 {
 
+}
+
+void CTownList::showAll( SDL_Surface * to )
+{
+	draw(to);
 }
 
 int CTownList::size()
@@ -4919,7 +4929,6 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 	if((!down) && previousState && town)
 		{
 		LOCPLINT->openTownWindow(town);
-		LOCPLINT->castleInt->winMode = type;
 		if ( type == 2 )
 			LOCPLINT->castleInt->builds->buildingClicked(10);
 		else if ( type == 3 && town->fortLevel() )
@@ -5724,8 +5733,8 @@ void CShipyardWindow::deactivate()
 void CShipyardWindow::show( SDL_Surface * to )
 {
 	blitAt(bg,pos,to);
-	//FIXME: change to blit by CAnimation
-	//CSDL_Ext::blit8bppAlphaTo24bpp(graphics->boatAnims[boat]->ourImages[21 + frame++/8%8].bitmap, NULL, to, &genRect(64, 96, pos.x+110, pos.y+85));
+	Rect clipRect = genRect(64, 96, pos.x+110, pos.y+85);
+	CSDL_Ext::blit8bppAlphaTo24bpp(graphics->boatAnims[boat]->ourImages[21 + frame++/8%8].bitmap, NULL, to, &clipRect);
 	build->showAll(to);
 	quit->showAll(to);
 }

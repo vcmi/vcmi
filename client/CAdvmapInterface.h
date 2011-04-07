@@ -115,6 +115,7 @@ public:
 
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Info box which shows next week/day information, hold the current date

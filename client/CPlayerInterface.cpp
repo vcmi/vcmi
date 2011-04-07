@@ -474,8 +474,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(CCastleInterface *c = castleInt)
 	{
 		c->garr->highlighted = NULL;
-		c->hslotup.hero = town->garrisonHero;
-		c->hslotdown.hero = town->visitingHero;
+		c->heroSlotUp->hero = town->garrisonHero;
+		c->heroSlotDown->hero = town->visitingHero;
 
 		c->garr->setArmy(town->getUpperArmy(), 0);
 		c->garr->setArmy(town->visitingHero, 1);
@@ -998,7 +998,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt());
 		if(fs)
-			fs->draw(castleInt,false);
+			fs->creaturesChanged();
 	}
 	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20  ||  town->ID == 106)) //external dwelling
 	{

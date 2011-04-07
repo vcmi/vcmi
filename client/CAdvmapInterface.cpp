@@ -894,7 +894,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 	bg = BitmapHandler::loadBitmap(defname);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos = genRect(bg->h,bg->w,x,y);
+	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -951,6 +951,13 @@ void CResDataBar::show( SDL_Surface * to )
 {
 
 }
+
+void CResDataBar::showAll( SDL_Surface * to )
+{
+	draw(to);
+}
+
+
 CInfoBar::CInfoBar()
 {
 	toNextTick = mode = pom = -1;

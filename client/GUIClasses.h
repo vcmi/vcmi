@@ -436,6 +436,7 @@ public:
 	void updateMove(const CGHeroInstance* which); //draws move points bar
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void init();
 	int size(); //how many elements do we have
 };
@@ -459,6 +460,7 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	int size(); //how many elements do we have
 };
 

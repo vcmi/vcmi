@@ -5,21 +5,21 @@
 #include "CAnimation.h"
 #include "GUIBase.h"
 
-class CGTownInstance;
-class CTownHandler;
-class CHallInterface;
-struct Structure;
-class CSpell;
 class AdventureMapButton;
-class CResDataBar;
-class CStatusBar;
-class CTownList;
-class CRecruitmentWindow;
-class CTransformerWindow;
-class CPicture;
-class CCreaturePic;
-class CMinorResDataBar;
+class CBuilding;
 class CCastleBuildings;
+class CCreaturePic;
+class CGStatusBar;
+class CGTownInstance;
+class CLabel;
+class CMinorResDataBar;
+class CPicture;
+class CResDataBar;
+class CSpell;
+class CStatusBar;
+class CTextBox;
+class CTownList;
+struct Structure;
 
 /*
  * CCastleInterface.h, part of VCMI engine
@@ -36,13 +36,14 @@ class CBuildingRect : public CShowableAnim
 {
 public:
 	CCastleBuildings * parent;
+	const CGTownInstance * town;
 	const Structure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
 	
 	unsigned int stateCounter;//For building construction - current stage in animation
 	
-	CBuildingRect(CCastleBuildings * Par, const Structure *Str); //c-tor
+	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
@@ -51,6 +52,22 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void show(SDL_Surface *to);
 	void showAll(SDL_Surface *to);
+};
+
+/// Dwelling info box - right-click screen for dwellings
+class CDwellingInfoBox : public CIntObject
+{
+	CPicture *background;
+	CLabel *title;
+	CCreaturePic *animation;
+	CLabel *available;
+	CLabel *costPerTroop;
+	
+	std::vector<CPicture *> resPicture;
+	std::vector<CLabel *> resAmount;
+public:
+	CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level);
+	void clickRight(tribool down, bool previousState);
 };
 
 /// Hero army slot
@@ -67,7 +84,7 @@ public:
 	void hover (bool on);
 	void clickLeft(tribool down, bool previousState);
 	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner); //c-tor
 	~CHeroGSlot(); //d-tor
 };
@@ -120,68 +137,77 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
-/// Huge class which manages the castle window
+/// Creature info window
+class CCreaInfo : public CIntObject
+{
+	const CGTownInstance * town;
+	const CCreature *creature;
+	int level;
+	
+	CAnimImage *picture;
+	CLabel * label;
+
+	int AddToString(std::string from, std::string & to, int numb);
+	
+public:
+	CCreaInfo(int posX, int posY, const CGTownInstance *Town, int Level);
+	
+	void hover(bool on);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
+};
+
+/// Town hall and fort icons for town screen
+class CTownInfo : public CIntObject
+{
+	const CGTownInstance *town;
+	const CBuilding *building;
+	CAnimImage *picture;
+public:
+	//if (townHall) hall-capital else fort - castle
+	CTownInfo(int posX, int posY, const CGTownInstance* town, bool townHall);
+	
+	void hover(bool on);
+	void clickRight(tribool down, bool previousState);
+};
+
+/// Class which manages the castle window
 class CCastleInterface : public CWindowWithGarrison
 {
-	/// Creature info window
-	class CCreaInfo : public CIntObject
-	{
-	public:
-		int crid,level;
-		CCreaInfo(int CRID, int LVL); //c-tor
-		~CCreaInfo();//d-tor
-		int AddToString(std::string from, std::string & to, int numb);
-		void hover(bool on);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
-	};
-	/// Icons from town screen with castle\town hall images
-	class CTownInfo : public CIntObject
-	{
-	public:
-		int bid;//typeID
-		CDefHandler * pic;
-		CTownInfo(int BID); //c-tor
-		~CTownInfo();//d-tor
-		void hover(bool on);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
-	};
+	CLabel *title;
+	CLabel *income;
+	CAnimImage *icon;
 
-public:
-	CCastleBuildings *builds;
-	SDL_Surface * townInt;
-	const CGTownInstance * town;
-	CStatusBar * statusbar;
+	CPicture * panel;
 	CResDataBar *resdatabar;
-	int winMode;//0=right-click popup, 1 = normal, 2 = town hall only, 3 = fort only;
+	CGStatusBar * statusbar;
 
-	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
-		*status; //0 - already, 1 - can't, 2 - lack of resources
-	CTownInfo *hall,*fort,*market;
-	CDefEssential* bicons; //150x70 buildings imgs
+	CTownInfo *hall, *fort;
 	CTownList * townlist;
 
-	CHeroGSlot hslotup, hslotdown;
 	AdventureMapButton *exit;
 	AdventureMapButton *split;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 
+public:
+	//TODO: remove - currently used only in dialog messages
+	CDefEssential* bicons; //150x70 buildings imgs
+
+	//TODO: move to private
+	const CGTownInstance * town;
+	CHeroGSlot *heroSlotUp, *heroSlotDown;
+	CCastleBuildings *builds;
+
 	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
-	~CCastleInterface(); //d-tor
+	~CCastleInterface();
 
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
 	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
+	void showAll(SDL_Surface *to);
 	void close();
-	void activate();
-	void deactivate();
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
 	void recreateIcons();
@@ -190,131 +216,169 @@ public:
 /// Hall window where you can build things
 class CHallInterface : public CIntObject
 {
-public:
-	CMinorResDataBar * resdatabar;
-
 	/// Building box from town hall (building icon + subtitle)
 	class CBuildingBox : public CIntObject
 	{
+		const CGTownInstance * town;
+		const CBuilding * building;
+
+		unsigned int state;//Buildings::EBuildStructure enum
+
+		CAnimImage * picture;
+		CAnimImage * panel;
+		CAnimImage * icon;
+		CLabel * label;
+
 	public:
-		int BID;
-		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - already builded today, 6 - cannot afford, 7 - build, 8 - lack of requirements
-		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
+		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
-		CBuildingBox(int id); //c-tor
-		CBuildingBox(int id, int x, int y); //c-tor
-		~CBuildingBox(); //d-tor
 	};
-
-	///  Window where you can decide to buy a building or not
-	class CBuildWindow: public CIntObject
-	{
-	public:
-		int tid, bid, state; //town id, building id, state
-		bool mode; // 0 - normal (with buttons), 1 - r-click popup
-		SDL_Surface * bitmap; //main window bitmap, with blitted res/text, without buttons/subtitle in "statusbar"
-		AdventureMapButton *buy, *cancel;
-
-		void activate();
-		void deactivate();
-		std::string getTextForState(int state);
-		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
-		void Buy();
-		void close();
-		CBuildWindow(int Tid, int Bid, int State, bool Mode); //c-tor
-		~CBuildWindow(); //d-tor
-	};
-
+	const CGTownInstance * town;
+	
 	std::vector< std::vector<CBuildingBox*> >boxes;
-
+	CPicture *background;
+	CLabel *title;
+	CGStatusBar *statusBar;
+	CMinorResDataBar * resdatabar;
 	AdventureMapButton *exit;
 
-	SDL_Surface * bg; //background
-	int bid;//building ID
-
-	CHallInterface(CCastleInterface * owner); //c-tor
-	~CHallInterface(); //d-tor
+public:
+	CHallInterface(const CGTownInstance * Town); //c-tor
 	void close();
-	void showAll(SDL_Surface * to);
-	void activate();
-	void deactivate();
+};
+
+///  Window where you can decide to buy a building or not
+class CBuildWindow: public CIntObject
+{
+	const CGTownInstance *town;
+	const CBuilding *building;
+	int state; //state - same as CHallInterface::CBuildingBox::state
+	bool mode; // 0 - normal (with buttons), 1 - r-click popup
+
+	CPicture *background;
+	CAnimImage *buildingPic;
+	AdventureMapButton *buy;
+	AdventureMapButton *cancel;
+
+	CLabel * title;
+	CTextBox * buildingDescr;
+	CTextBox * buildingState;
+	CGStatusBar *statusBar;
+
+	std::vector<CPicture *> resPicture;
+	std::vector<CLabel *> resAmount;
+
+	std::string getTextForState(int state);
+	void buyFunc();
+	void close();
+
+public:
+	void clickRight(tribool down, bool previousState);
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool Mode); //c-tor
+	~CBuildWindow(); //d-tor
+};
+
+//Small class to display 
+class LabeledValue : public CIntObject
+{
+	std::string hoverText;
+	CLabel *name;
+	CLabel *value;
+	void init(std::string name, std::string descr, int min, int max);
+
+public:
+	LabeledValue(Rect size, std::string name, std::string descr, int min, int max);
+	LabeledValue(Rect size, std::string name, std::string descr, int val);
+	void hover(bool on);
 };
 
 /// The fort screen where you can afford units
 class CFortScreen : public CIntObject
 {
-	class RecArea : public CIntObject
+	class RecruitArea : public CIntObject
 	{
-	public:
+		const CGTownInstance *town;
 		int level;
-		RecArea(int LEVEL):level(LEVEL){used = LCLICK | RCLICK;}; //c-tor
+
+		std::string hoverText;
+		CLabel * creatureName;
+		CLabel * dwellingName;
+		CLabel * availableCount;
+
+		std::vector<LabeledValue*> values;
+		CPicture *icons;
+		CAnimImage * buildingPic;
+		CCreaturePic *creatureAnim;
+
+	public:
+		RecruitArea(int posX, int posY, const CGTownInstance *town, int buildingID, int level);
+		
+		void creaturesChanged();
+		void hover(bool on);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 	};
-public:
+	
+	CPicture *background;
+	CLabel *title;
+	std::vector<RecruitArea*> recAreas;
 	CMinorResDataBar * resdatabar;
-	int fortSize;
+	CGStatusBar *statusBar;
 	AdventureMapButton *exit;
-	SDL_Surface * bg;
-	std::vector<Rect> positions;
-	std::vector<RecArea*> recAreas;
-	std::vector<CCreaturePic*> crePics;
 
-	CFortScreen(CCastleInterface * owner); //c-tor
+public:
+	CFortScreen(const CGTownInstance * town); //c-tor
 
-	void draw( CCastleInterface * owner, bool first);
-	~CFortScreen(); //d-tor
+	void creaturesChanged();
 	void close();
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
-	void activate();
-	void deactivate();
 };
 
 /// The mage guild screen where you can see which spells you have
 class CMageGuildScreen : public CIntObject
 {
-public:
 	class Scroll : public CIntObject
 	{
-	public:
 		const CSpell *spell;
+		CAnimImage *image;
 
-		Scroll(const CSpell *Spell);
+	public:
+		Scroll(Point position, const CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 	};
-	std::vector<std::vector<SDL_Rect> > positions;
-
-	CPicture *bg;
+	CPicture *background;
+	CPicture *window;
 	AdventureMapButton *exit;
 	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
+	CGStatusBar *statusBar;
 
-
-	CMageGuildScreen(CCastleInterface * owner); //c-tor
-	~CMageGuildScreen(); //d-tor
 	void close();
 
+public:
+	CMageGuildScreen(CCastleInterface * owner);
 };
 
 /// The blacksmith window where you can buy available in town war machine
 class CBlacksmithDialog : public CIntObject
 {
-public:
 	AdventureMapButton *buy, *cancel;
-	CPicture *bmp; //background
+	CPicture *background;
 	CPicture *animBG;
 	CCreatureAnim * anim;
+	CPicture * gold;
+	CLabel * title;
+	CLabel * costText;
+	CLabel * costValue;
+	CGStatusBar *statusBar;
 
-	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid); //c-tor
-	~CBlacksmithDialog(); //d-tor
 	void close();
+
+public:
+	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
 };
 
 #endif // __CCASTLEINTERFACE_H__

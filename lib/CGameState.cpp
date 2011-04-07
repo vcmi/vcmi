@@ -1850,24 +1850,21 @@ std::set<int> CGameState::getBuildingRequiments(const CGTownInstance *t, int ID)
 
 int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 {
-	int ret = 7; //allowed by default
+	int ret = Buildings::ALLOWED;
 
 	if(t->builded >= MAX_BUILDING_PER_TURN)
-		ret = 5; //building limit
+		ret = Buildings::CANT_BUILD_TODAY; //building limit
 
-	//checking resources
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
 	
 	if(!pom)
-		return 8;
+		return Buildings::ERROR;
 
-// 	if(pom->Name().size()==0||pom->resources.size()==0)
-// 		return 2;//TODO: why does this happen?
-
-	for(int res=0;res<pom->resources.size();res++) //TODO: support custom amount of resources
+	//checking resources
+	for(int res=0; res<RESOURCE_QUANTITY; res++)
 	{
 		if(pom->resources[res] > getPlayer(t->tempOwner)->resources[res])
-			ret = 6; //lack of res
+			ret = Buildings::NO_RESOURCES; //lack of res
 	}
 
 	//checking for requirements
@@ -1876,12 +1873,12 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
 		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
-			ret = 8; //lack of requirements - cannot build
+			ret = Buildings::PREREQUIRES; //lack of requirements - cannot build
 	}
 
 	//can we build it?
 	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
-		ret = 2; //forbidden
+		ret = Buildings::FORBIDDEN; //forbidden
 
 	if(ID == 13) //capitol
 	{
@@ -1889,22 +1886,20 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 		{
 			if(map->towns[in]->tempOwner==t->tempOwner  &&  vstd::contains(map->towns[in]->builtBuildings,13))
 			{
-				ret = 0; //no more than one capitol
+				ret = Buildings::HAVE_CAPITAL; //no more than one capitol
 				break;
 			}
 		}
 	}
 	else if(ID == 6) //shipyard
 	{
-		int3 t1(t->pos + int3(-1,3,0)),
-			t2(t->pos + int3(-3,3,0));
-		if(map->isInTheMap(t1) && map->getTile(t1).tertype != TerrainTile::water  
-			&&  (map->isInTheMap(t2) && map->getTile(t2).tertype != TerrainTile::water))
-			ret = 1; //lack of water
+		int3 tile = t->bestLocation();
+		if( !map->isInTheMap(tile) || map->getTile(tile).tertype != TerrainTile::water )
+			ret = Buildings::NO_WATER; //lack of water
 	}
 
 	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
-		ret = 4;
+		ret = Buildings::ALREADY_PRESENT;
 	return ret;
 }
 

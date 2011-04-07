@@ -3,8 +3,8 @@
 #include "CSndHandler.h"
 #include "CVideoHandler.h"
 #include <SDL.h>
-#include "../client/SDL_Extensions.h"
-#include "../client/CPlayerInterface.h"
+#include "SDL_Extensions.h"
+#include "CPlayerInterface.h"
 #include "boost/filesystem.hpp"
 
 extern SystemOptions GDefaultOptions; 

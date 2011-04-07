@@ -1161,9 +1161,11 @@ void CAnimImage::init()
 		anim->load(0,group);
 	
 	IImage *img = anim->getImage(frame, group);
-	pos.w = img->width();
-	pos.h = img->height();
-	
+	if (img)
+	{
+		pos.w = img->width();
+		pos.h = img->height();
+	}
 }
 
 CAnimImage::~CAnimImage()
@@ -1176,7 +1178,9 @@ CAnimImage::~CAnimImage()
 
 void CAnimImage::showAll(SDL_Surface *to)
 {
-	anim->getImage(frame, group)->draw(to, pos.x, pos.y);
+	IImage *img = anim->getImage(frame, group);
+	if (img)
+		img->draw(to, pos.x, pos.y);
 }
 
 void CAnimImage::setFrame(size_t Frame, size_t Group)
@@ -1189,8 +1193,14 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		anim->unload(frame, group);
 		frame = Frame;
 		group = Group;
-		if (flags & CShowableAnim::PLAYER_COLORED)
-			anim->getImage(frame, group)->playerColored(player);
+		IImage *img = anim->getImage(frame, group);
+		if (img)
+		{
+			if (flags & CShowableAnim::PLAYER_COLORED)
+				img->playerColored(player);
+			pos.w = img->width();
+			pos.h = img->height();
+		}
 	}
 }
 
@@ -1311,7 +1321,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	IImage * img = anim.getImage(frame, group);
-	img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
+	if (img)
+		img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)

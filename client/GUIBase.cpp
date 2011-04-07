@@ -115,8 +115,9 @@ void CGuiHandler::internalTotalRedraw()
 
 	blitAt(screen2,0,0,screen);
 
-	if(objsToBlit.size())
-		objsToBlit.back()->showAll(screen);
+	//Any reason to blit last object second time?
+	//if(objsToBlit.size())
+	//	objsToBlit.back()->showAll(screen);
 
 	this->invalidateTotalRedraw = false;
 	this->invalidateSimpleRedraw = false;
@@ -359,7 +360,8 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		CCS->curh->centerCursor();
+		//CCS->curh->centerCursor();//Is this essential? random crashes on Linux
+
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)
 		{
@@ -373,6 +375,7 @@ void CGuiHandler::run()
 			// Redraws the GUI only once during rendering
 			if (this->invalidateTotalRedraw == true)
 				internalTotalRedraw();
+
 			if (this->invalidateSimpleRedraw == true)
 				internalSimpleRedraw();
 
@@ -890,6 +893,8 @@ CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*
 	srcRect = new Rect(SrcRect);
 	pos.x += x;
 	pos.y += y;
+	pos.w = srcRect->w;
+	pos.h = srcRect->h;
 	bg = BG;
 	freeSurf = free;
 }

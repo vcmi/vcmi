@@ -2,6 +2,7 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 #include <iostream>
+#include <sstream>
 #include <algorithm> //std::find
 #include <string> //std::find
 #include <boost/logic/tribool.hpp>
@@ -320,6 +321,27 @@ namespace SpellCasting
 	};
 
 	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING};
+}
+
+namespace Buildings
+{
+	enum EBuildStructure
+	{
+		HAVE_CAPITAL, NO_WATER, FORBIDDEN, ADD_MAGES_GUILD, ALREADY_PRESENT, CANT_BUILD_TODAY,
+		NO_RESOURCES, ALLOWED, PREREQUIRES, ERROR
+	};
+
+	//Quite useful as long as most of building mechanics hardcoded
+	enum EBuilding
+	{
+		MAGES_GUILD_1,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5, 
+		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
+		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
+		RESOURCE_SILO,  BLACKSMITH,    SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
+		SHIP,           SPECIAL_2,     SPECIAL_3,         SPECIAL_4,       HORDE_2,
+		HORDE_2_UPGR,   GRAIL,         EXTRA_CITY_HALL,   EXTRA_TOWN_HALL, EXTRA_CAPITOL,
+		DWELL_FIRST=30, DWELL_LAST=36, DWELL_UP_FIRST=37, DWELL_UP_LAST=43
+	};
 }
 
 namespace Res

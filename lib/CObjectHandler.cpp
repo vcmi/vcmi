@@ -1867,6 +1867,8 @@ int CGTownInstance::creatureGrowth(const int & level) const
 {
 	if (level<0 || level >=CREATURES_PER_TOWN)
 		return 0;
+	if (!vstd::contains(builtBuildings, Buildings::DWELL_FIRST+level))
+		return 0; //no dwelling
 	TCreature creid = town->basicCreatures[level];
 		
 	int ret = VLC->creh->creatures[creid]->growth;
