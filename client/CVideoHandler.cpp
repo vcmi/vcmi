@@ -917,10 +917,6 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 	pos.x = x;
 	pos.y = y;
 
-	FPSmanager mainFPSmng;
-    SDL_initFramerate(&mainFPSmng);
-    SDL_setFramerate(&mainFPSmng, 48);
-
 	while(nextFrame()) {
 		
 		if(stopOnKey && keyDown())
@@ -929,9 +925,9 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 		SDL_DisplayYUVOverlay(overlay, &pos);
 
 		// Wait 3 frames
-		SDL_framerateDelay(&mainFPSmng);
-		SDL_framerateDelay(&mainFPSmng);
-		SDL_framerateDelay(&mainFPSmng);
+		GH.mainFPSmng->framerateDelay();
+		GH.mainFPSmng->framerateDelay();
+		GH.mainFPSmng->framerateDelay();
 	}
 
 	return true;

@@ -559,6 +559,6 @@ void ERMParser::repairEncoding( char * str, int len ) const
 #else
 
 ERMParser::ERMParser(std::string file){}
-void ERMParser::parseFile(){}
+std::vector<ERM::TLine> ERMParser::parseFile() {}
 
 #endif

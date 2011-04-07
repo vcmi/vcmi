@@ -25,7 +25,7 @@ public:
 	int fps; // the actual fps value
 
 	FPSManager(int rate); // initializes the manager with a given fps rate
-	void FPSManager::init(); // needs to be called directly before the main game loop to reset the internal timer
+	void init(); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 };
 

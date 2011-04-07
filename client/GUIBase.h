@@ -564,7 +564,7 @@ public:
 	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
-	void CGuiHandler::drawFPSCounter(); // draws the FPS to the upper left corner of the screen
+	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 	ui8 defActionsDef; //default auto actions
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
