@@ -1071,8 +1071,7 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 	{
 		do 
 		{
-			pickRandomElementOf(creatures, randGen);
-			//r = retreiveRandNum(randGen) % CREATURES_COUNT;
+			r = pickRandomElementOf(creatures, randGen)->idNumber;
 		} while (vstd::contains(VLC->creh->notUsedMonsters,r));
 	}
 	else
