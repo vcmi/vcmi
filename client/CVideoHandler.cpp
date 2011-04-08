@@ -800,7 +800,12 @@ bool CVideoPlayer::nextFrame()
 			// Is this a packet from the video stream?
 			if (packet.stream_index == stream) {
 				// Decode video frame
+#ifdef WITH_AVCODEC_DECODE_VIDEO2
 				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
+#else
+				avcodec_decode_video(codecContext, frame, &frameFinished, 
+									 packet.data, packet.size);
+#endif
 
 				// Did we get a video frame?
 				if (frameFinished) {

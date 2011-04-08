@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.83)				# Follow NAME_VER in global.h
+AC_INIT(vcmi, 0.84b)				# Follow NAME_VER in global.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 
@@ -63,8 +63,9 @@ LIBS=$saved_LIBS
 saved_LIBS=$LIBS
 AC_CHECK_LIB(avformat,av_open_input_file,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
 AC_CHECK_LIB(swscale,sws_getContext,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
+AC_CHECK_LIB(avcodec,avcodec_decode_video2,AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2",)
 
-FFMPEG_CXXFLAGS=`pkg-config --cflags libavformat libswscale`
+FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
 FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
 LIBS=$saved_LIBS
 
