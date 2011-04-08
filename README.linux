@@ -35,11 +35,6 @@ Create a directory /YOUR_INSTALL_PATH/vcmi (such as
 Then run configure:
   ./configure --datadir=/YOUR_INSTALL_PATH/ --bindir=/YOUR_INSTALL_PATH/vcmi --libdir=/YOUR_INSTALL_PATH/
 
-On 64 bits linux (such as OpenSUSE but not Ubuntu), if the boost
-libraries are installed in /usr/lib64, configure will not find them
-and will fail. Until this is fixed, add the following option to
-./configure: --with-boost-libdir=/usr/lib64
-
 If you want to use the Intel C++ compiler, add the following option to ./configure:
   CXX="icc -diag-disable 383,981,1418,869,1563,2259,1782,444,271,1,10156,1419"
 

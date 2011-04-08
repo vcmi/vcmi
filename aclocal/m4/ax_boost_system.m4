@@ -1,5 +1,5 @@
 # ===========================================================================
-#            http://autoconf-archive.cryp.to/ax_boost_system.html
+#      http://www.gnu.org/software/autoconf-archive/ax_boost_system.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -20,11 +20,7 @@
 #
 #     HAVE_BOOST_SYSTEM
 #
-# LAST MODIFICATION
-#
-#   2008-04-12
-#
-# COPYLEFT
+# LICENSE
 #
 #   Copyright (c) 2008 Thomas Porschberg <thomas@randspringer.de>
 #   Copyright (c) 2008 Michael Tindal
@@ -32,7 +28,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 14
 
 AC_DEFUN([AX_BOOST_SYSTEM],
 [
@@ -48,7 +47,7 @@ AC_DEFUN([AX_BOOST_SYSTEM],
             ax_boost_user_system_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_system_lib="$withval"
+		ax_boost_user_system_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -70,8 +69,8 @@ AC_DEFUN([AX_BOOST_SYSTEM],
         [AC_LANG_PUSH([C++])
 			 CXXFLAGS_SAVE=$CXXFLAGS
 
-			 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/system/error_code.hpp>]],
-                                   [[boost::system::system_category]]),
+			 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/system/error_code.hpp>]],
+                                   [[boost::system::system_category]])],
                    ax_cv_boost_system=yes, ax_cv_boost_system=no)
 			 CXXFLAGS=$CXXFLAGS_SAVE
              AC_LANG_POP([C++])
@@ -84,19 +83,19 @@ AC_DEFUN([AX_BOOST_SYSTEM],
 
 			LDFLAGS_SAVE=$LDFLAGS
             if test "x$ax_boost_user_system_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_system*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_system.*\)\.so.*$;\1;' -e 's;^lib\(boost_system.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/libboost_system*.so* $BOOSTLIBDIR/libboost_system*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_system.*\)\.so.*$;\1;' -e 's;^lib\(boost_system.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_SYSTEM_LIB) link_system="yes"; break],
                                  [link_system="no"])
-  				done
+				done
                 if test "x$link_system" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_system*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_system.*\)\.dll.*$;\1;' -e 's;^\(boost_system.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_SYSTEM_LIB) link_system="yes"; break],
                                  [link_system="no"])
-  				done
+				done
                 fi
 
             else
@@ -107,12 +106,15 @@ AC_DEFUN([AX_BOOST_SYSTEM],
                   done
 
             fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
+            fi
 			if test "x$link_system" = "xno"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
 			fi
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

@@ -1,5 +1,5 @@
 # ===========================================================================
-#           http://autoconf-archive.cryp.to/ax_boost_iostreams.html
+#    http://www.gnu.org/software/autoconf-archive/ax_boost_iostreams.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -20,17 +20,16 @@
 #
 #     HAVE_BOOST_IOSTREAMS
 #
-# LAST MODIFICATION
-#
-#   2008-04-12
-#
-# COPYLEFT
+# LICENSE
 #
 #   Copyright (c) 2008 Thomas Porschberg <thomas@randspringer.de>
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 18
 
 AC_DEFUN([AX_BOOST_IOSTREAMS],
 [
@@ -46,7 +45,7 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
             ax_boost_user_iostreams_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_iostreams_lib="$withval"
+		ax_boost_user_iostreams_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -65,14 +64,14 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
         AC_CACHE_CHECK(whether the Boost::IOStreams library is available,
 					   ax_cv_boost_iostreams,
         [AC_LANG_PUSH([C++])
-		 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/iostreams/filtering_stream.hpp>
+		 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/iostreams/filtering_stream.hpp>
 											 @%:@include <boost/range/iterator_range.hpp>
 											]],
                                   [[std::string  input = "Hello World!";
-       								 namespace io = boost::iostreams;
+								 namespace io = boost::iostreams;
 									 io::filtering_istream  in(boost::make_iterator_range(input));
 									 return 0;
-                                   ]]),
+                                   ]])],
                              ax_cv_boost_iostreams=yes, ax_cv_boost_iostreams=no)
          AC_LANG_POP([C++])
 		])
@@ -80,19 +79,19 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
 			AC_DEFINE(HAVE_BOOST_IOSTREAMS,,[define if the Boost::IOStreams library is available])
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
             if test "x$ax_boost_user_iostreams_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_iostreams*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_iostreams.*\)\.so.*$;\1;' -e 's;^lib\(boost_iostreams.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/libboost_iostreams*.so* $BOOSTLIBDIR/libboost_iostreams*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_iostreams.*\)\.so.*$;\1;' -e 's;^lib\(boost_iostreams.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_IOSTREAMS_LIB="-l$ax_lib"; AC_SUBST(BOOST_IOSTREAMS_LIB) link_iostreams="yes"; break],
                                  [link_iostreams="no"])
-  				done
+				done
                 if test "x$link_iostreams" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_iostreams*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_iostreams.*\)\.dll.*$;\1;' -e 's;^\(boost_iostreams.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_IOSTREAMS_LIB="-l$ax_lib"; AC_SUBST(BOOST_IOSTREAMS_LIB) link_iostreams="yes"; break],
                                  [link_iostreams="no"])
-  				done
+				done
                 fi
 
             else
@@ -103,12 +102,15 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
                   done
 
             fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
+            fi
 			if test "x$link_iostreams" != "xyes"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
 			fi
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])
