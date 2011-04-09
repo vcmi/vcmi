@@ -12,6 +12,7 @@ AC_PROG_CXX
 AC_ENABLE_SHARED
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
+AX_COMPILER_VENDOR
 
 # Use silent rules if supported.
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -28,12 +29,21 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 fi
 
+# For gcc and compatible compilers, enable compilation warnings, but
+# selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
 fi
 
-# For clang only. Need an autoconf test.
-# CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-unknown-pragmas -Wno-cast-align"
+# extra clang parameters
+if test "x${ax_cv_cxx_compiler_vendor}"  =  "xclang" ; then
+   CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-cast-align"
+fi
+
+# extra Intel icc parameters
+if test "x${ax_cv_cxx_compiler_vendor}"  =  "xintel" ; then
+   CXXFLAGS="$CXXFLAGS -diag-disable 383,981,1418,869,1563,2259,1782,444,271,1,10156,1419"
+fi
 
 # Check for Boost libraries
 AX_BOOST_BASE([1.36])

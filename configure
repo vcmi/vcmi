@@ -14472,6 +14472,41 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++ compiler vendor" >&5
+$as_echo_n "checking for C++ compiler vendor... " >&6; }
+if test "${ax_cv_cxx_compiler_vendor+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ax_cv_cxx_compiler_vendor=unknown
+  # note: don't check for gcc first since some other compilers define __GNUC__
+  for ventest in intel:__ICC,__ECC,__INTEL_COMPILER ibm:__xlc__,__xlC__,__IBMC__,__IBMCPP__ pathscale:__PATHCC__,__PATHSCALE__ clang:__clang__ gnu:__GNUC__ sun:__SUNPRO_C,__SUNPRO_CC hp:__HP_cc,__HP_aCC dec:__DECC,__DECCXX,__DECC_VER,__DECCXX_VER borland:__BORLANDC__,__TURBOC__ comeau:__COMO__ cray:_CRAYC kai:__KCC lcc:__LCC__ metrowerks:__MWERKS__ sgi:__sgi,sgi microsoft:_MSC_VER watcom:__WATCOMC__ portland:__PGI; do
+    vencpp="defined("`echo $ventest | cut -d: -f2 | sed 's/,/) || defined(/g'`")"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+#if !($vencpp)
+      thisisanerror;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ax_cv_cxx_compiler_vendor=`echo $ventest | cut -d: -f1`; break
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  done
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_cxx_compiler_vendor" >&5
+$as_echo "$ax_cv_cxx_compiler_vendor" >&6; }
+
+
 # Use silent rules if supported.
 # Check whether --enable-silent-rules was given.
 if test "${enable_silent_rules+set}" = set; then :
@@ -14501,12 +14536,21 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 fi
 
+# For gcc and compatible compilers, enable compilation warnings, but
+# selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
 fi
 
-# For clang only. Need an autoconf test.
-# CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-unknown-pragmas -Wno-cast-align"
+# extra clang parameters
+if test "x${ax_cv_cxx_compiler_vendor}"  =  "xclang" ; then
+   CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-cast-align"
+fi
+
+# extra Intel icc parameters
+if test "x${ax_cv_cxx_compiler_vendor}"  =  "xintel" ; then
+   CXXFLAGS="$CXXFLAGS -diag-disable 383,981,1418,869,1563,2259,1782,444,271,1,10156,1419"
+fi
 
 # Check for Boost libraries
 

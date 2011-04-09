@@ -43,6 +43,7 @@ am__aclocal_m4_deps = $(top_srcdir)/aclocal/m4/ax_boost_base.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_program_options.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_system.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_thread.m4 \
+	$(top_srcdir)/aclocal/m4/ax_compiler_vendor.m4 \
 	$(top_srcdir)/aclocal/m4/libtool.m4 \
 	$(top_srcdir)/aclocal/m4/ltoptions.m4 \
 	$(top_srcdir)/aclocal/m4/ltsugar.m4 \
