@@ -30,7 +30,7 @@ namespace VERMInterpreter
 	public:
 		ESymbolNotFound(const std::string & sym) : problem(std::string("Symbol ") + sym + std::string(" not found!"))
 		{}
-
+		~ESymbolNotFound() throw();
 		const char * what() const throw() OVERRIDE
 		{
 			return problem.c_str();
