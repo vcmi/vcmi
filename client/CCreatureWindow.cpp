@@ -286,7 +286,7 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	}
 	for (n = Pos << 1; n < numSkills; ++n)
 	{
-		int offsetx = 257*j;
+		int offsetx = 257*j - (bonusRows == 4 ? 1 : 0);
 		int offsety = 60*i + (bonusRows > 1 ? 1 : 0); //lack of precision :/
 
 		bonusItems[n]->moveTo (Point(pos.x + offsetx + 10, pos.y + offsety + 230), true);

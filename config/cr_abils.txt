@@ -179,6 +179,9 @@
 + 133 DRAGON_NATURE 0 0 0			//crystal dragon is a dragon			
 + 134 DRAGON_NATURE 0 0 0			//faerie dragon is a dragon			
 + 135 DRAGON_NATURE 0 0 0			//rust dragon is a dragon			
++ 136 NO_OBSTACLES_PENALTY 0 0 0			//Enchanter			
++ 137 NO_DISTANCE_PENALTY 0 0 0			//Sharpshooter			
++ 137 NO_OBSTACLES_PENALTY 0 0 0						
 + 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide			
 + 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide			
 + 144 FULL_HP_REGENERATION 0 0 0 			//troll			
