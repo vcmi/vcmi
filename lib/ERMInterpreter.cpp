@@ -15,153 +15,7 @@
  */
 
 namespace spirit = boost::spirit;
-
-namespace VERMInterpreter
-{
-	using namespace ERM;
-
-	//different exceptions that can be thrown during interpreting
-	class EInterpreterProblem : public std::exception
-	{};
-
-	class ESymbolNotFound : public EInterpreterProblem
-	{
-		std::string problem;
-	public:
-		ESymbolNotFound(const std::string & sym) : problem(std::string("Symbol ") + sym + std::string(" not found!"))
-		{}
-		~ESymbolNotFound() throw();
-		const char * what() const throw() OVERRIDE
-		{
-			return problem.c_str();
-		}
-	};
-
-
-	///main environment class, manages symbols
-	class Environment
-	{
-	private:
-		std::map<std::string, TVOption> symbols;
-		Environment * lexicalParent;
-
-	public:
-		bool isBound(const std::string & name, bool globalOnly) const
-		{
-			std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
-			if(globalOnly && lexicalParent)
-			{
-				return lexicalParent->isBound(name, globalOnly);
-			}
-
-			//we have it; if globalOnly is true, lexical parent is false here so we are global env
-			if(it != symbols.end())
-				return true;
-
-			//here, we don;t have it; but parent can have
-			if(lexicalParent)
-				return lexicalParent->isBound(name, globalOnly);
-
-			return false;
-		}
-
-		TVOption retrieveValue(const std::string & name) const
-		{
-			std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
-			if(it == symbols.end())
-			{
-				if(lexicalParent)
-				{
-					return lexicalParent->retrieveValue(name);
-				}
-
-				throw ESymbolNotFound(name);
-			}
-			return it->second;
-		}
-		
-		///returns true if symbols was really unbound
-		enum EUnbindMode{LOCAL, RECURSIVE_UNTIL_HIT, FULLY_RECURSIVE};
-		bool unbind(const std::string & name, EUnbindMode mode)
-		{
-			if(isBound(name, false))
-			{
-				if(symbols.find(name) != symbols.end()) //result of isBound could be from higher lexical env
-					symbols.erase(symbols.find(name));
-
-				if(mode == FULLY_RECURSIVE && lexicalParent)
-					lexicalParent->unbind(name, mode);
-
-				return true;
-			}
-			if(lexicalParent && (mode == RECURSIVE_UNTIL_HIT || mode == FULLY_RECURSIVE))
-				return lexicalParent->unbind(name, mode);
-
-			//neither bound nor have lexical parent
-			return false;
-		}
-	};
-
-//		All numeric variables are integer variables and have a range of -2147483647...+2147483647
-//		c			stores game active day number			//indirect variable
-//		d			current value							//not an actual variable but a modifier
-// 		e1..e100 	Function floating point variables		//local
-// 		e-1..e-100	Trigger local floating point variables	//local
-// 		'f'..'t'	Standard variables ('quick variables')	//global
-// 		v1..v1000	Standard variables						//global
-// 		w1..w100	Hero variables
-// 		w101..w200	Hero variables
-// 		x1..x16		Function parameters						//local
-// 		y1..y100	Function local variables				//local
-// 		y-1..y-100	Trigger-based local integer variables	//local
-// 		z1..z1000	String variables						//global
-// 		z-1..z-10	Function local string variables			//local
-
-	struct TriggerLocalVars
-	{
-		static const int EVAR_NUM = 100; //number of evar locals
-		double evar[EVAR_NUM]; //negative indices
-		
-		static const int YVAR_NUM = 100; //number of yvar locals
-		int yvar[YVAR_NUM];
-	};
-
-	struct FunctionLocalVars
-	{
-		static const int NUM_PARAMETERS = 16; //number of function parameters
-		int params[NUM_PARAMETERS]; //x-vars
-
-		static const int NUM_LOCALS = 100;
-		int locals[NUM_LOCALS]; //y-vars
-
-		static const int NUM_STRINGS = 10;
-		std::string strings[NUM_STRINGS]; //z-vars (negative indices)
-
-		static const int NUM_FLOATINGS = 100;
-		double floats[NUM_FLOATINGS]; //e-vars (positive indices)
-	};
-
-	struct ERMEnvironment
-	{
-		static const int NUM_QUICKS = 't' - 'f' + 1; //it should be 15
-		int quickVars[NUM_QUICKS]; //referenced by letter ('f' to 't' inclusive)
-
-		static const int NUM_STANDARDS = 1000;
-		int standardVars[NUM_STANDARDS]; //v-vars
-
-		static const int NUM_STRINGS = 1000;
-		std::string strings[NUM_STRINGS]; //z-vars (positive indices)
-	};
-
-	//call stack
-	class Stack
-	{
-		std::vector<int> entryPoints; //defines how to pass to current location
-		Environment * env; //most nested VERM environment
-	};
-}
-
-
+using namespace VERMInterpreter;
 
 namespace ERMPrinter
 {
@@ -517,7 +371,17 @@ void ERMInterpreter::scanForScripts()
 				boost::algorithm::ends_with(name, ".verm") )
 			{
 				ERMParser ep(dir->path().string());
-				scripts[name] = ep.parseFile();
+				FileInfo * finfo = new FileInfo;
+				finfo->filename = dir->path().string();
+
+				std::vector<ERM::TLine> buf = ep.parseFile();
+				finfo->length = buf.size();
+				files.push_back(finfo);
+
+				for(int g=0; g<buf.size(); ++g)
+				{
+					scripts[LinePointer(finfo, g)] = buf[g];
+				}
 			}
 		}
 	}
@@ -525,12 +389,124 @@ void ERMInterpreter::scanForScripts()
 
 void ERMInterpreter::printScripts( EPrintMode mode /*= EPrintMode::ALL*/ )
 {
-	for(std::map<std::string, std::vector<ERM::TLine> >::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
+	std::map< LinePointer, ERM::TLine >::const_iterator prevIt;
+	for(std::map< LinePointer, ERM::TLine >::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
 	{
-		tlog2 << "----------------- script " << it->first << " ------------------\n";
-		for(int i=0; i<it->second.size(); ++i)
+		if(it == scripts.begin() || it->first.file != prevIt->first.file)
 		{
-			ERMPrinter::printAST(it->second[i]);
+			tlog2 << "----------------- script " << it->first.file->filename << " ------------------\n";
 		}
+		
+		ERMPrinter::printAST(it->second);
+		prevIt = it;
 	}
 }
+
+void ERMInterpreter::scanScripts()
+{
+	for(std::map< LinePointer, ERM::TLine >::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
+	{
+
+	}
+}
+
+ERMInterpreter::ERMInterpreter()
+{
+	globalEnv = new Environment();
+}
+
+void ERMInterpreter::executeTrigger( Trigger & trig )
+{
+	for(LinePointer lp = trig.line; lp.isValid(); ++lp)
+	{
+		ERM::TLine curLine = retrieveLine(lp);
+		if(isATrigger(curLine))
+			break;
+
+		executeLine(lp);
+	}
+}
+
+bool ERMInterpreter::isATrigger( const ERM::TLine & line )
+{
+	switch(line.which())
+	{
+	case 0: //v-exp
+		{
+			TVExp vexp = boost::get<TVExp>(line);
+			if(vexp.children.size() == 0)
+				return false;
+
+			switch (getExpType(vexp.children[0]))
+			{
+			case SYMBOL:
+				{
+					//TODO: what about sym modifiers?
+					//TOOD: macros
+					ERM::TSymbol sym = boost::get<ERM::TSymbol>(vexp.children[0]);
+					return sym.sym == triggerSymbol || sym.sym == postTriggerSymbol;
+				}
+				break;
+			case TCMD:
+				return isCMDATrigger( boost::get<ERM::Tcommand>(vexp.children[0]) );
+				break;
+			default:
+				return false;
+				break;
+			}
+		}
+		break;
+	case 1: //erm
+		{
+			TERMline line = boost::get<TERMline>(line);
+			switch(line.which())
+			{
+			case 0: //tcmd
+				return isCMDATrigger( boost::get<ERM::Tcommand>(line) );
+				break;
+			default:
+				return false;
+				break;
+			}
+		}
+		break;
+	default:
+		assert(0); //it should never happen
+		break;
+	}
+	assert(0);
+}
+
+ERM::EVOtions ERMInterpreter::getExpType( const ERM::TVOption & opt )
+{
+	//MAINTENANCE: keep it correct!
+	return static_cast<ERM::EVOtions>(opt.which());
+}
+
+bool ERMInterpreter::isCMDATrigger( const ERM::Tcommand & cmd )
+{
+	switch (cmd.cmd.which())
+	{
+	case 0: //trigger
+	case 3: //post trigger
+		return true;
+		break;
+	default:
+		return false;
+		break;
+	}
+}
+
+ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
+{
+	return *scripts.find(linePtr);
+}
+
+void ERMInterpreter::executeLine( const LinePointer & lp )
+{
+
+}
+
+const std::string ERMInterpreter::triggerSymbol = "trigger";
+const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
+
