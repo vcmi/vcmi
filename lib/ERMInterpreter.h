@@ -2,6 +2,7 @@
 #include "../global.h"
 #include "ERMParser.h"
 #include <boost/smart_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 /*
  * ERMInterpreter.h, part of VCMI engine
@@ -271,7 +272,7 @@ namespace VERMInterpreter
 class ERMInterpreter
 {
 	std::vector<VERMInterpreter::FileInfo*> files;
-	std::vector< std::shared_ptr<VERMInterpreter::FileInfo> > fileInfos;
+	std::vector< boost::shared_ptr<VERMInterpreter::FileInfo> > fileInfos;
 	std::map<VERMInterpreter::LinePointer, ERM::TLine> scripts;
 	std::map<VERMInterpreter::LexicalPtr, VERMInterpreter::Environment> lexicalEnvs;
 	ERM::TLine retrieveLine(VERMInterpreter::LinePointer linePtr) const;
