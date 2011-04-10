@@ -77,6 +77,18 @@ TSlot CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount/*=ARMY_SIZE*
 	return -1; //no slot available
 }
 
+TSlot CCreatureSet::getFreeSlot(ui32 slotsAmount/*=ARMY_SIZE*/) const
+{
+	for (ui32 i = 0; i < slotsAmount; i++)
+	{
+		if(stacks.find(i) == stacks.end())
+		{
+			return i; //return first free slot
+		}
+	}
+	return -1; //no slot available
+}
+
 int CCreatureSet::getStackCount(TSlot slot) const
 {
 	TSlots::const_iterator i = stacks.find(slot);
@@ -227,7 +239,7 @@ void CCreatureSet::setFormation(bool tight)
 void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
-	assert(count > 0);
+	assert(stacks[slot]->count + count > 0);
 	if (STACK_EXP && count > stacks[slot]->count)
 		stacks[slot]->experience *= (count/(float)stacks[slot]->count);
 	stacks[slot]->count = count;

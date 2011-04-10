@@ -2852,7 +2852,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 const std::string & CGCreature::getHoverText() const
 {
 	MetaString ms;
-	int pom = stacks.find(0)->second->getQuantityID();
+	int pom = stacks.begin()->second->getQuantityID();
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
@@ -3131,7 +3131,73 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
+	//split stacks
+	int totalCount; //TODO: multiple creature types in a stack?
+	int basicType = stacks.begin()->second->type->idNumber;
+
+	float relativePower = ((float)h->getTotalStrength() / getArmyStrength());
+	int stacksCount;
+	//TODO: number depends on tile type
+	if (relativePower < 0.5)
+	{
+		stacksCount = 7;
+	}
+	else if (relativePower < 0.67)
+	{
+		stacksCount = 7;
+	}
+	else if (relativePower < 1)
+	{
+		stacksCount = 6;
+	}
+	else if (relativePower < 1.5)
+	{
+		stacksCount = 5;
+	}
+	else if (relativePower < 2)
+	{
+		stacksCount = 4;
+	}
+	else
+	{
+		stacksCount = 3;
+	}
+	int stackSize;
+	TSlot sourceSlot = stacks.begin()->first;
+	TSlot destSlot;
+	for (int stacksLeft = stacksCount; stacksLeft > 1; --stacksLeft)
+	{
+		stackSize = stacks.begin()->second->count / stacksLeft;
+		if (stackSize)
+		{
+			if ((destSlot = getFreeSlot()) > -1)
+				cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, destSlot), stackSize);
+			else
+			{
+				tlog2 <<"Warning! Not enough empty slots to split stack!";
+				break;
+			}
+		}
+		else break;
+	}
+	if (stacksCount > 1)
+	{
+		if (rand()%100 > 50) //upgrade
+		{
+			TSlot slotId = (stacks.size() / 2);
+			if(ui32 upgradesSize = getStack(slotId).type->upgrades.size())
+			{
+				std::set<TCreature>::const_iterator it = getStack(slotId).type->upgrades.begin(); //pick random in case there are more
+				std::advance (it, rand() % upgradesSize);
+				cb->changeStackType(StackLocation(this, slotId), VLC->creh->creatures[*it]);
+			}
+		}
+	}
+
 	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
+
+	//stacks.clear();
+	//stacks.insert(
 }
 
 void CGCreature::flee( const CGHeroInstance * h ) const
