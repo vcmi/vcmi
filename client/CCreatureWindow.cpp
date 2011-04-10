@@ -177,7 +177,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		if (STACK_EXP)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
-			printAtMiddle("Rank " + boost::lexical_cast<std::string>(stack->getExpRank()), 436, 62, FONT_MEDIUM, tytulowy,*bitmap);
+			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 436, 62, FONT_MEDIUM, tytulowy,*bitmap);
 			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 436, 82, FONT_SMALL, zwykly,*bitmap);
 			if (type > BATTLE) //we need it only on adv. map
 			{
@@ -254,6 +254,8 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 	else //slider automatically places bonus Items
 		recreateSkillList (0);
+
+	showAll(screen2);
 
 	//AUIDAT.DEF
 }
