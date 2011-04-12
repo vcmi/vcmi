@@ -315,8 +315,10 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-	if(c->shots)
-		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+	//if(c->shots)
+	//	printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+	if(stackNode->valOfBonuses(Bonus::SHOTS))
+		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 
 	//TODO
 	int dmgMultiply = 1;

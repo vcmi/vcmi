@@ -155,7 +155,8 @@ namespace PrimarySkill
 	BONUS_NAME(SPECIAL_UPGRADE) /*val = base, additionalInfo = target */\
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
-	BONUS_NAME(EXP_MULTIPLIER)/* val - percent of additional exp gained by stack/commander (base value 100)*/
+	BONUS_NAME(EXP_MULTIPLIER)/* val - percent of additional exp gained by stack/commander (base value 100)*/\
+	BONUS_NAME(SHOTS)
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus

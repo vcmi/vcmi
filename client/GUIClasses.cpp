@@ -2167,8 +2167,10 @@ void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNod
 	
 	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
 	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-	if(c->shots)
-		printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+	//if(c->shots)
+	//	printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+	if(stackNode->valOfBonuses(Bonus::SHOTS))
+		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 
 	//TODO
 	int dmgMultiply = 1;

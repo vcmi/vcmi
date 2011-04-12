@@ -1962,7 +1962,7 @@ void CStack::postInit()
 	assert(parents.size());
 
 	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
-	shots = getCreature()->shots;
+	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 	state.insert(ALIVE);  //alive state indication
 

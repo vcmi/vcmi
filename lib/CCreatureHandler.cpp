@@ -285,6 +285,7 @@ void CCreatureHandler::loadCreatures()
 		ncre.addBonus(ncre.damageMax, Bonus::CREATURE_DAMAGE, 2);
 
 		ncre.shots = readNumber(befi, i, andame, buf);
+		ncre.addBonus(ncre.shots, Bonus::SHOTS);
 		ncre.spells = readNumber(befi, i, andame, buf);
 		ncre.ammMin = readNumber(befi, i, andame, buf);
 		ncre.ammMax = readNumber(befi, i, andame, buf);
@@ -831,6 +832,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		break;
 	case 'S':
 		b.type = Bonus::STACKS_SPEED; break;
+	case 'O':
+		b.type = Bonus::SHOTS; break;
 
 	case 'b':
 		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
