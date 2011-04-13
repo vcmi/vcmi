@@ -351,7 +351,17 @@ void CGPreGame::update()
 	if(SEL)
 		SEL->update();
 
+	// draw the mouse cursor and update the screen
+	// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
+	CCS->curh->draw1();
+	CSDL_Ext::update(screen);
+	CCS->curh->draw2();
+
 	GH.topInt()->show(screen);
+	
+	// Handles mouse and key input
+	GH.updateTime();
+	GH.handleEvents();
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)

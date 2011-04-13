@@ -105,7 +105,8 @@ IShowActivable * CGuiHandler::topInt()
 
 void CGuiHandler::totalRedraw()
 {
-	this->invalidateTotalRedraw = true;
+	//this->invalidateTotalRedraw = true;
+	internalTotalRedraw();
 }
 
 void CGuiHandler::internalTotalRedraw()
@@ -314,7 +315,8 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 
 void CGuiHandler::simpleRedraw()
 {
-	this->invalidateSimpleRedraw = true;
+	//this->invalidateSimpleRedraw = true;
+	internalSimpleRedraw();
 }
 
 void CGuiHandler::internalSimpleRedraw()
@@ -368,27 +370,10 @@ void CGuiHandler::run()
 			if(curInt)
 				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
-			// Handles mouse and key input
-			GH.updateTime();
-			GH.handleEvents();
-
-			// Redraws the GUI only once during rendering
-			if (this->invalidateTotalRedraw == true)
-				internalTotalRedraw();
-
-			if (this->invalidateSimpleRedraw == true)
-				internalSimpleRedraw();
-
 			if (conf.cc.showFPS)
 				drawFPSCounter();
 
 			mainFPSmng->framerateDelay(); // holds a constant FPS
-			
-			// draw the mouse cursor and update the screen
-			// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
-			CCS->curh->draw1();
-			CSDL_Ext::update(screen);
-			CCS->curh->draw2();
 		}
 	} HANDLE_EXCEPTION
 }

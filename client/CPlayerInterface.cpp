@@ -1328,10 +1328,20 @@ void CPlayerInterface::update()
 	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
 		return;
 
+	// Handles mouse and key input
+	GH.updateTime();
+	GH.handleEvents();
+
 	if(adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();
+
+	// draw the mouse cursor and update the screen
+	// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
+	CCS->curh->draw1();
+	CSDL_Ext::update(screen);
+	CCS->curh->draw2();
 
 	pim->unlock();
 }
