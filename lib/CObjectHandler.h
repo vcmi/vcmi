@@ -728,10 +728,19 @@ public:
 	void setPropertyDer(ui8 what, ui32 val);
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 
+	struct DLL_EXPORT RestoredCreature // info about merging stacks after battle back into one
+	{
+		si32 basicType;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & basicType;
+		}
+	} restore;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower;
+		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower & restore;
 	}
 }; 
 

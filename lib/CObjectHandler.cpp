@@ -2943,6 +2943,27 @@ void CGCreature::endBattle( BattleResult *result ) const
 		cb->setHoverName(id,&ms);
 		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
 		*/
+
+		//merge stacks into one
+		TSlots::const_iterator i;
+		CCreature * cre = VLC->creh->creatures[restore.basicType];
+		for (i = stacks.begin(); i != stacks.end(); i++)
+		{
+			if (cre->isMyUpgrade(i->second->type))
+			{
+				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
+			}
+		}
+		while (stacks.size() > 1) //hopefully that's enough
+		{
+			i = stacks.end();
+			i--;
+			TSlot slot = getSlotFor(i->second->type);
+			if (slot == i->first) //no reason to move stack to its own slot
+				break;
+			else
+				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
+		}
 	}
 }
 
@@ -3004,6 +3025,9 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 			break;
 		case 12:
 			giveStackExp(val);
+			break;
+		case 13:
+			restore.basicType = val;
 			break;
 	}
 }
@@ -3134,6 +3158,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	//split stacks
 	int totalCount; //TODO: multiple creature types in a stack?
 	int basicType = stacks.begin()->second->type->idNumber;
+	cb->setObjProperty(id, 13, basicType); //store info about creature stack
 
 	float relativePower = ((float)h->getTotalStrength() / getArmyStrength());
 	int stacksCount;
@@ -3182,7 +3207,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	}
 	if (stacksCount > 1)
 	{
-		if (rand()%100 > 50) //upgrade
+		if (rand()%100 < 50) //upgrade
 		{
 			TSlot slotId = (stacks.size() / 2);
 			if(ui32 upgradesSize = getStack(slotId).type->upgrades.size())
@@ -3196,8 +3221,6 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 
 	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
 
-	//stacks.clear();
-	//stacks.insert(
 }
 
 void CGCreature::flee( const CGHeroInstance * h ) const
