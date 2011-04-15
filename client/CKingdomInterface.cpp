@@ -243,14 +243,14 @@ void CKingdomInterface::showAll( SDL_Surface * to/*=NULL*/)
 	adventureInt->resdatabar.draw(to);
 	blitAt(bg,pos,to);
 	resdatabar->draw(to);
-	toTowns->show(to);
-	toHeroes->show(to);
-	exit->show(to);
+	toTowns->showAll(to);
+	toHeroes->showAll(to);
+	exit->showAll(to);
 
-	ObjTop->show(to);
-	ObjUp->show(to);
-	ObjDown->show(to);
-	ObjBottom->show(to);
+	ObjTop->showAll(to);
+	ObjUp->showAll(to);
+	ObjDown->showAll(to);
+	ObjBottom->showAll(to);
 
 	for (size_t i=0; i<ObjList.size(); i++)//list may be moved, recreate hover text
 		ObjList[i]->hoverText = "";
