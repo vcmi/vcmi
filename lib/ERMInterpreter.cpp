@@ -402,11 +402,53 @@ void ERMInterpreter::printScripts( EPrintMode mode /*= EPrintMode::ALL*/ )
 	}
 }
 
+struct ScriptScanner : boost::static_visitor<>
+{
+	ERMInterpreter * interpreter;
+	LinePointer lp;
+
+	ScriptScanner(ERMInterpreter * interpr, const LinePointer & _lp) : interpreter(interpr), lp(_lp)
+	{}
+
+	void operator()(TVExp const& cmd) const
+	{
+		//
+	}
+	void operator()(TERMline const& cmd) const
+	{
+		if(cmd.which() == 0) //TCommand
+		{
+			Tcommand tcmd = boost::get<Tcommand>(cmd);
+			switch (tcmd.cmd.which())
+			{
+			case 0: //trigger
+				{
+					Trigger trig;
+					trig.line = lp;
+					interpreter->triggers[ TriggerType(boost::get<ERM::Ttrigger>(tcmd.cmd).name) ].push_back(trig);
+				}
+				break;
+			case 3: //post trigger
+				{
+					Trigger trig;
+					trig.line = lp;
+					interpreter->postTriggers[ TriggerType(boost::get<ERM::TPostTrigger>(tcmd.cmd).name) ].push_back(trig);
+				}
+				break;
+			default:
+
+				break;
+			}
+		}
+		
+	}
+};
+
 void ERMInterpreter::scanScripts()
 {
 	for(std::map< LinePointer, ERM::TLine >::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
 	{
-
+		boost::apply_visitor(ScriptScanner(this, it->first), it->second);
 	}
 }
 
@@ -442,7 +484,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 			case SYMBOL:
 				{
 					//TODO: what about sym modifiers?
-					//TOOD: macros
+					//TOOD: macros?
 					ERM::TSymbol sym = boost::get<ERM::TSymbol>(vexp.children[0]);
 					return sym.sym == triggerSymbol || sym.sym == postTriggerSymbol;
 				}
@@ -502,11 +544,176 @@ ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
 	return *scripts.find(linePtr);
 }
 
+/////////
+//code execution
+
+struct ERMExpDispatch : boost::static_visitor<>
+{
+	void operator()(Ttrigger const& trig) const
+	{
+		//the first executed line, check if we should proceed
+	}
+	void operator()(Tinstruction const& trig) const
+	{
+	}
+	void operator()(Treceiver const& trig) const
+	{
+	}
+	void operator()(TPostTrigger const& trig) const
+	{
+	}
+};
+
+struct CommandExec : boost::static_visitor<>
+{
+	void operator()(Tcommand const& cmd) const
+	{
+		boost::apply_visitor(ERMExpDispatch(), cmd.cmd);
+		std::cout << "Line comment: " << cmd.comment << std::endl;
+	}
+	void operator()(std::string const& comment) const
+	{
+		//comment - do nothing
+	}
+	void operator()(spirit::unused_type const& nothing) const
+	{
+		//nothing - do nothing
+	}
+};
+
+struct LineExec : boost::static_visitor<>
+{
+	void operator()(TVExp const& cmd) const
+	{
+		//printTVExp(cmd);
+	}
+	void operator()(TERMline const& cmd) const
+	{
+		boost::apply_visitor(CommandExec(), cmd);
+	}
+};
+
+/////////
+
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
+	boost::apply_visitor(LineExec(), scripts[lp]);
+}
 
+void ERMInterpreter::init()
+{
+	ermGlobalEnv = new ERMEnvironment();
+	globalEnv = new Environment();
+	//TODO: reset?
+}
+
+struct ERMExecEnvironment
+{
+	ERMEnvironment * ermGlobalEnv;
+	Trigger * trigEnv;
+	ERMExecEnvironment(ERMEnvironment * erm, Trigger * trig = NULL) : ermGlobalEnv(erm), trigEnv(trig)
+	{}
+};
+
+template<typename T>
+struct LVL2GetIexpDisemboweler : boost::static_visitor<>
+{
+	T & out;
+	const ERMExecEnvironment * env;
+	LVL2GetIexpDisemboweler(T & ret, const ERMExecEnvironment * _env) : out(ret), env(_env) //writes value to given var
+	{}
+
+	void processNotMacro(const TVarExpNotMacro & val) const
+	{
+		if(val.questionMark.is_initialized())
+			throw EIexpGetterProblem("Question marks ('?') are not allowed in getter i-expressions");
+
+		//TODO: finish it
+	}
+
+	void operator()(TVarExpNotMacro const& val) const
+	{
+		processNotMacro(val);
+	}
+	void operator()(TMacroUsage const& val) const
+	{
+		std::map<std::string, ERM::TVarExpNotMacro>::const_iterator it =
+			env->ermGlobalEnv->macroBindings.find(val	.macro);
+		if(it == env->ermGlobalEnv->macroBindings.end())
+			throw EUsageOfUndefinedMacro(val.macro);
+		else
+			processNotMacro(it->second);
+	}
+};
+
+template<typename T>
+struct LVL1GetIexpDisemboweler : boost::static_visitor<>
+{
+	T & out;
+	const ERMExecEnvironment * env;
+	LVL1GetIexpDisemboweler(T & ret, const ERMExecEnvironment * _env) : out(ret), env(_env) //writes value to given var
+	{}
+	void operator()(int const & constant) const
+	{
+		out = constant;
+	}
+	void operator()(TVarExp const & var) const
+	{
+		
+	}
+};
+
+template<typename T>
+T ERMInterpreter::getIexp( const ERM::TIexp & iexp, const Trigger * trig /*= NULL*/ ) const
+{
+	T ret;
+	boost::apply_visitor(LVL1GetIexpDisemboweler(ret, ERMExecEnvironment(ermGlobalEnv, trig)), iexp);
+	return ret;
 }
 
 const std::string ERMInterpreter::triggerSymbol = "trigger";
 const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
+const std::string ERMInterpreter::defunSymbol = "defun";
 
+
+struct TriggerIdMatchHelper : boost::static_visitor<>
+{
+	int & ret;
+	TriggerIdMatchHelper(int & b) : ret(b)
+	{}
+
+	void operator()(TIexp const& iexp) const
+	{
+		
+	}
+	void operator()(TArithmeticOp const& arop) const
+	{
+		//error?!?
+	}
+};
+
+bool TriggerIdentifierMatch::tryMatch( const ERM::Ttrigger & trig ) const
+{
+	if(trig.identifier.is_initialized())
+	{
+		ERM::Tidentifier tid = trig.identifier.get();
+		std::map< int, std::vector<int> >::const_iterator it = matchToIt.find(tid.size());
+		if(it == matchToIt.end())
+			return false;
+		else
+		{
+			const std::vector<int> & pattern = it->second;
+			for(int g=0; g<pattern.size(); ++g)
+			{
+				int val = -1;
+				boost::apply_visitor(TriggerIdMatchHelper(val), tid[g]);
+				return pattern[g] == val;
+			}
+		}
+	}
+	else
+	{
+		if(allowNoIdetifier)
+			return true;
+	}
+}

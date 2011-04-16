@@ -1,8 +1,6 @@
 #pragma once
 #include "../global.h"
 #include "ERMParser.h"
-#include <boost/smart_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 
 /*
  * ERMInterpreter.h, part of VCMI engine
@@ -27,7 +25,8 @@ namespace VERMInterpreter
 		{
 			return problem.c_str();
 		}
-		~EInterpreterProblem() throw();
+		~EInterpreterProblem() throw()
+		{}
 		EInterpreterProblem(const std::string & problemDesc) : problem(problemDesc)
 		{}
 	};
@@ -43,6 +42,20 @@ namespace VERMInterpreter
 	{
 		EInvalidTrigger(const std::string & sym) :
 		  EInterpreterProblem(std::string("Trigger \"") + sym + std::string("\" is invalid!"))
+		{}
+	};
+
+	struct EUsageOfUndefinedMacro : public EInterpreterProblem
+	{
+		EUsageOfUndefinedMacro(const std::string & macro) :
+			EInterpreterProblem(std::string("Macro ") + macro + " is undefined")
+		{}
+	};
+
+	struct EIexpGetterProblem : public EInterpreterProblem
+	{
+		EIexpGetterProblem(const std::string & desc) :
+			EInterpreterProblem(desc)
 		{}
 	};
 
@@ -133,6 +146,13 @@ namespace VERMInterpreter
 
 		static const int YVAR_NUM = 100; //number of yvar locals
 		int yvar[YVAR_NUM];
+		TriggerLocalVars()
+		{
+			for(int g=0; g<EVAR_NUM; ++g)
+				evar[g] = 0.0;
+			for(int g=0; g<YVAR_NUM; ++g)
+				yvar[g] = 0;
+		}
 	};
 
 	struct FunctionLocalVars
@@ -165,6 +185,8 @@ namespace VERMInterpreter
 
 		static const int NUM_STRINGS = 1000;
 		std::string strings[NUM_STRINGS]; //z-vars (positive indices)
+
+		std::map<std::string, ERM::TVarExpNotMacro> macroBindings;
 	};
 
 	struct TriggerType
@@ -186,6 +208,11 @@ namespace VERMInterpreter
 			throw EInvalidTrigger(trig);
 		}
 
+		bool operator<(const TriggerType & t2) const
+		{
+			return type < t2.type;
+		}
+
 		TriggerType(const std::string & sym)
 		{
 			type = convertTrigger(sym);
@@ -203,6 +230,9 @@ namespace VERMInterpreter
 	{
 		const FileInfo * file; //non-owning
 		int lineNum;
+
+		LinePointer() : file(NULL)
+		{}
 
 		LinePointer(const FileInfo * finfo, int line) : file(finfo), lineNum(line)
 		{}
@@ -227,7 +257,7 @@ namespace VERMInterpreter
 		}
 		bool isValid() const
 		{
-			return lineNum < file->length;
+			return file && lineNum < file->length;
 		}
 	};
 
@@ -265,22 +295,40 @@ namespace VERMInterpreter
 		LinePointer line;
 		TriggerLocalVars ermLocalVars;
 		Stack * stack; //where we are stuck at execution
+		Trigger() : stack(NULL)
+		{}
 	};
 
 }
 
+struct TriggerIdentifierMatch
+{
+	bool allowNoIdetifier;
+	std::map< int, std::vector<int> > matchToIt; //match subidentifiers to these numbers
+
+	static const int MAX_SUBIDENTIFIERS = 16;
+	bool tryMatch(const ERM::Ttrigger & trig) const;
+};
+
 class ERMInterpreter
 {
+	friend class ScriptScanner;
+
 	std::vector<VERMInterpreter::FileInfo*> files;
-	std::vector< boost::shared_ptr<VERMInterpreter::FileInfo> > fileInfos;
+	std::vector< VERMInterpreter::FileInfo* > fileInfos;
 	std::map<VERMInterpreter::LinePointer, ERM::TLine> scripts;
 	std::map<VERMInterpreter::LexicalPtr, VERMInterpreter::Environment> lexicalEnvs;
 	ERM::TLine retrieveLine(VERMInterpreter::LinePointer linePtr) const;
 
 	VERMInterpreter::Environment * globalEnv;
-	std::map<VERMInterpreter::TriggerType, std::vector<VERMInterpreter::Trigger> > triggers;
+	VERMInterpreter::ERMEnvironment * ermGlobalEnv;
+	std::map<VERMInterpreter::TriggerType, std::vector<VERMInterpreter::Trigger> > triggers, postTriggers;
 
-	static const std::string triggerSymbol, postTriggerSymbol;
+
+	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
+	template<typename T> T getIexp(const ERM::TIexp & iexp, const VERMInterpreter::Trigger * trig = NULL) const;
+
+	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
 	void executeLine(const VERMInterpreter::LinePointer & lp);
 	void executeTrigger(VERMInterpreter::Trigger & trig);
@@ -288,6 +336,7 @@ class ERMInterpreter
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
 public:
+	void init(); //sets up environment etc.
 	void scanForScripts();
 
 	enum EPrintMode{ALL, ERM_ONLY, VERM_ONLY};

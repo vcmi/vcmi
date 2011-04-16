@@ -52,9 +52,10 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	} HANDLE_EXCEPTION;
 
 
-//  	ERMInterpreter ei;
+ 	ERMInterpreter ei;
 //  	ei.scanForScripts();
-//  	ei.printScripts();
+//  	//ei.printScripts();
+// 	ei.scanScripts();
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
