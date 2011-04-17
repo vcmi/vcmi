@@ -52,9 +52,9 @@ namespace VERMInterpreter
 		{}
 	};
 
-	struct EIexpGetterProblem : public EInterpreterProblem
+	struct EIexpProblem : public EInterpreterProblem
 	{
-		EIexpGetterProblem(const std::string & desc) :
+		EIexpProblem(const std::string & desc) :
 			EInterpreterProblem(desc)
 		{}
 	};
@@ -301,18 +301,22 @@ namespace VERMInterpreter
 
 }
 
+class ERMInterpreter;
+
 struct TriggerIdentifierMatch
 {
 	bool allowNoIdetifier;
 	std::map< int, std::vector<int> > matchToIt; //match subidentifiers to these numbers
 
 	static const int MAX_SUBIDENTIFIERS = 16;
-	bool tryMatch(const ERM::Ttrigger & trig) const;
+	ERMInterpreter * ermEnv;
+	bool tryMatch(VERMInterpreter::Trigger * interptrig, const ERM::Ttrigger & trig) const;
 };
 
 class ERMInterpreter
 {
 	friend class ScriptScanner;
+	friend class TriggerIdMatchHelper;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
@@ -326,7 +330,7 @@ class ERMInterpreter
 
 
 	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
-	template<typename T> T getIexp(const ERM::TIexp & iexp, const VERMInterpreter::Trigger * trig = NULL) const;
+	template<typename T> T getIexp(const ERM::TIexp & iexp, /*const*/ VERMInterpreter::Trigger * trig = NULL, /*const*/ VERMInterpreter::FunctionLocalVars * fun = NULL) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 

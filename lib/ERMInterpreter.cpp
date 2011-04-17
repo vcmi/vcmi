@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine
@@ -611,24 +612,226 @@ struct ERMExecEnvironment
 {
 	ERMEnvironment * ermGlobalEnv;
 	Trigger * trigEnv;
-	ERMExecEnvironment(ERMEnvironment * erm, Trigger * trig = NULL) : ermGlobalEnv(erm), trigEnv(trig)
+	FunctionLocalVars * funcVars;
+	ERMExecEnvironment(ERMEnvironment * erm, Trigger * trig = NULL, FunctionLocalVars * funvars = NULL)
+		: ermGlobalEnv(erm), trigEnv(trig), funcVars(funvars)
 	{}
+
+	template<typename T>
+	T* getVar(std::string toFollow, boost::optional<int> initVal)
+	{
+		int initV;
+		bool hasInit = false;
+		if(initVal.is_initialized())
+		{
+			initV = initVal.get();
+			hasInit = true;
+		}
+
+		int endNum = 0;
+		if(toFollow[0] == 'd')
+		{
+			endNum = 1;
+			//TODO: support
+		}
+		T* ret;
+		for(int b=toFollow.size()-1; b>=endNum; --b)
+		{
+			bool retIt = b == endNum+1; //if we should return the value are currently at
+
+			char cr = toFollow[toFollow.size() - 1];
+			if(cr == 'c')//write number of current day
+			{
+				//TODO
+			}
+			else if(cr == 'd') //info for external env - add i/o set
+			{
+				throw EIexpProblem("d inside i-expression not allowed!");
+			}
+			else if(cr == 'e')
+			{
+				if(hasInit)
+				{
+					if(retIt)
+					{
+						//these C-style cast is here just to shut up compiler errors
+						if(initV > 0 && initV <= FunctionLocalVars::NUM_FLOATINGS)
+						{
+							if(funcVars)
+								ret = (T*)funcVars->floats + initV - 1;
+							else
+								throw EIexpProblem("Function context not available!");
+						}
+						else if(initV < 0 && initV >= -TriggerLocalVars::EVAR_NUM)
+						{
+							if(trigEnv)
+								ret = (T*)trigEnv->ermLocalVars.evar - initV + 1; //minus is important!
+							else
+								throw EIexpProblem("No trigger context available!");
+						}
+						else
+							throw EIexpProblem("index " + boost::lexical_cast<std::string>(initV) + " not allowed for e array");
+					}
+					else
+						throw EIexpProblem("e variables cannot appear in this context");
+				}
+				else
+					throw EIexpProblem("e variables cannot appear in this context");
+			}
+			else if(cr >= 'f' && cr <= 't')
+			{
+				if(retIt)
+					ret = &ermGlobalEnv->getQuickVar(cr);
+				else
+				{
+					if(hasInit)
+						throw EIexpProblem("quick variables cannot be used in this context");
+					else
+					{
+						initV = ermGlobalEnv->getQuickVar(cr);
+						hasInit = true;
+					}
+				}
+			}
+			else if(cr == 'v') //standard variables
+			{
+				if(hasInit)
+				{
+					if(initV > 0 && initV <= ERMEnvironment::NUM_STANDARDS)
+					{
+						if(retIt)
+							ret = ermGlobalEnv->standardVars + initV - 1;
+						else
+							initV = ermGlobalEnv->standardVars[initV-1];
+					}
+					else
+						throw EIexpProblem("standard variable index out of range");
+				}
+				else
+					throw EIexpProblem("standard variable cannot be used in this context!");
+			}
+			else if(cr == 'w') //local hero variables
+			{
+				//TODO
+			}
+			else if(cr == 'x') //function parameters
+			{
+				if(hasInit)
+				{
+					if(initV > 0 && initV <= FunctionLocalVars::NUM_PARAMETERS)
+					{
+						if(funcVars)
+						{
+							if(retIt)
+								ret = funcVars->params + initV-1;
+							else
+								initV = funcVars->params[initV-1];
+						}
+						else throw EIexpProblem("Function parameters cannot be used outside a function!");
+					}
+					else
+						throw EIexpProblem("Parameter number out of range");
+				}
+				else
+					throw EIexpProblem("Specify which function parameter should be used");
+			}
+			else if(cr == 'y')
+			{
+				if(hasInit)
+				{
+					if(initV > 0 && initV <= FunctionLocalVars::NUM_LOCALS)
+					{
+						if(funcVars)
+						{
+							if(retIt)
+								ret = funcVars->locals + initV-1;
+							else
+								initV = funcVars->params[initV - 1];
+						}
+						else
+							throw EIexpProblem("Function local variables cannot be used outside a function!");
+					}
+					else if(initV < 0 && initV >= -TriggerLocalVars::YVAR_NUM)
+					{
+						if(trigEnv)
+						{
+							if(retIt)
+								ret = trigEnv->ermLocalVars.yvar - initV + 1;
+							else
+								initV = trigEnv->ermLocalVars.yvar[-initV + 1];
+						}
+						else
+							throw EIexpProblem("Trigger local variables cannot be used outside triggers!");
+					}
+					else
+						throw EIexpProblem("Wrong argument for function local variable!");
+				}
+				else
+					throw EIexpProblem("y variable cannot be used in this context!");
+			}
+			else if(cr == 'z')
+			{
+				if(hasInit)
+				{
+					if(retIt)
+					{
+						//these C-style casts are here just to shut up compiler errors
+						if(initV > 0 && initV <= ermGlobalEnv->NUM_STRINGS)
+						{
+							ret = (T*)ermGlobalEnv->strings + initV - 1;
+						}
+						else if(initV < 0 && initV >= -FunctionLocalVars::NUM_STRINGS)
+						{
+							if(funcVars)
+							{
+								ret = (T*)funcVars->strings + initV - 1;
+							}
+							else
+								throw EIexpProblem("Function local string variables cannot be used outside functions!");
+						}
+						else
+							throw EIexpProblem("Wrong parameter for string variable!");
+					}
+					else
+						throw EIexpProblem("String variables can only be returned!");
+				}
+				else
+					throw EIexpProblem("String variables cannot be used in this context!");
+			}
+			else
+			{
+				throw EIexpProblem(std::string("Symbol ") + cr + " is not allowed in this context!");
+			}
+			
+		}
+		return ret;
+	}
 };
 
-template<typename T>
-struct LVL2GetIexpDisemboweler : boost::static_visitor<>
+namespace IexpDisemboweler
 {
-	T & out;
-	const ERMExecEnvironment * env;
-	LVL2GetIexpDisemboweler(T & ret, const ERMExecEnvironment * _env) : out(ret), env(_env) //writes value to given var
+	enum EDir{GET, SET};
+}
+
+template<typename T>
+struct LVL2IexpDisemboweler : boost::static_visitor<>
+{
+	T * inout;
+	IexpDisemboweler::EDir dir;
+	/*const*/ ERMExecEnvironment * env;
+
+	LVL2IexpDisemboweler(T * in_out, /*const*/ ERMExecEnvironment * _env, IexpDisemboweler::EDir _dir)
+		: inout(in_out), env(_env), dir(_dir) //writes value to given var
 	{}
 
 	void processNotMacro(const TVarExpNotMacro & val) const
 	{
 		if(val.questionMark.is_initialized())
-			throw EIexpGetterProblem("Question marks ('?') are not allowed in getter i-expressions");
+			throw EIexpProblem("Question marks ('?') are not allowed in getter i-expressions");
 
-		//TODO: finish it
+		//const-cast just to do some code-reuse...
+		*inout = *const_cast<ERMExecEnvironment*>(env)->getVar<T>(val.varsym, val.val);
+
 	}
 
 	void operator()(TVarExpNotMacro const& val) const
@@ -647,27 +850,38 @@ struct LVL2GetIexpDisemboweler : boost::static_visitor<>
 };
 
 template<typename T>
-struct LVL1GetIexpDisemboweler : boost::static_visitor<>
+struct LVL1IexpDisemboweler : boost::static_visitor<>
 {
-	T & out;
-	const ERMExecEnvironment * env;
-	LVL1GetIexpDisemboweler(T & ret, const ERMExecEnvironment * _env) : out(ret), env(_env) //writes value to given var
+	T * inout;
+	IexpDisemboweler::EDir dir;
+	/*const*/ ERMExecEnvironment * env;
+
+	LVL1IexpDisemboweler(T * in_out, /*const*/ ERMExecEnvironment * _env, IexpDisemboweler::EDir _dir)
+		: inout(in_out), env(_env), dir(_dir) //writes value to given var
 	{}
 	void operator()(int const & constant) const
 	{
-		out = constant;
+		if(dir == IexpDisemboweler::GET)
+		{
+			*inout = constant;
+		}
+		else
+		{
+			throw EIexpProblem("Cannot set a constant!");
+		}
 	}
 	void operator()(TVarExp const & var) const
 	{
-		
+		boost::apply_visitor(LVL2IexpDisemboweler<T>(inout, env, dir), var);
 	}
 };
 
 template<typename T>
-T ERMInterpreter::getIexp( const ERM::TIexp & iexp, const Trigger * trig /*= NULL*/ ) const
+T ERMInterpreter::getIexp( const ERM::TIexp & iexp, /*const*/ Trigger * trig /*= NULL*/, /*const*/ FunctionLocalVars * fun /*= NULL*/) const
 {
 	T ret;
-	boost::apply_visitor(LVL1GetIexpDisemboweler(ret, ERMExecEnvironment(ermGlobalEnv, trig)), iexp);
+	ERMExecEnvironment env(ermGlobalEnv, trig, fun);
+	boost::apply_visitor(LVL1IexpDisemboweler<T>(&ret, &env, IexpDisemboweler::GET), iexp);
 	return ret;
 }
 
@@ -679,12 +893,16 @@ const std::string ERMInterpreter::defunSymbol = "defun";
 struct TriggerIdMatchHelper : boost::static_visitor<>
 {
 	int & ret;
-	TriggerIdMatchHelper(int & b) : ret(b)
+	ERMInterpreter * interpreter;
+	Trigger * trig;
+
+	TriggerIdMatchHelper(int & b, ERMInterpreter * ermint, Trigger * _trig)
+	: ret(b), interpreter(ermint), trig(_trig)
 	{}
 
 	void operator()(TIexp const& iexp) const
 	{
-		
+		ret = interpreter->getIexp<int>(iexp, trig);
 	}
 	void operator()(TArithmeticOp const& arop) const
 	{
@@ -692,7 +910,7 @@ struct TriggerIdMatchHelper : boost::static_visitor<>
 	}
 };
 
-bool TriggerIdentifierMatch::tryMatch( const ERM::Ttrigger & trig ) const
+bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig, const ERM::Ttrigger & trig ) const
 {
 	if(trig.identifier.is_initialized())
 	{
@@ -706,7 +924,7 @@ bool TriggerIdentifierMatch::tryMatch( const ERM::Ttrigger & trig ) const
 			for(int g=0; g<pattern.size(); ++g)
 			{
 				int val = -1;
-				boost::apply_visitor(TriggerIdMatchHelper(val), tid[g]);
+				boost::apply_visitor(TriggerIdMatchHelper(val, ermEnv, interptrig), tid[g]);
 				return pattern[g] == val;
 			}
 		}
