@@ -10,6 +10,7 @@
 #include "Graphics.h"
 #include "../CThreadHelper.h"
 #include "CConfigHandler.h"
+#include <boost/lexical_cast.hpp>
 
 /*
  * GUIBase.cpp, part of VCMI engine
@@ -369,10 +370,7 @@ void CGuiHandler::run()
 		{
 			if(curInt)
 				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
-
-			if (conf.cc.showFPS)
-				drawFPSCounter();
-
+			
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
 	} HANDLE_EXCEPTION
@@ -406,7 +404,7 @@ void CGuiHandler::drawFPSCounter()
 	static SDL_Rect overlay = { 0, 0, 64, 32};
 	Uint32 black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = toString(mainFPSmng->fps);
+	std::string fps = boost::lexical_cast<std::string>(mainFPSmng->fps);
 	CSDL_Ext::printAt(fps, 10, 10, FONT_BIG, yellow, screen);
 }
 

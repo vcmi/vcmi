@@ -1337,6 +1337,9 @@ void CPlayerInterface::update()
 	else
 		GH.simpleRedraw();
 
+	if (conf.cc.showFPS)
+		GH.drawFPSCounter();
+
 	// draw the mouse cursor and update the screen
 	// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
 	CCS->curh->draw1();

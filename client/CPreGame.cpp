@@ -47,6 +47,7 @@
 #include "../lib/RegisterTypes.cpp"
 #include <boost/thread/recursive_mutex.hpp>
 #include "../CThreadHelper.h"
+#include "CConfigHandler.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -270,13 +271,14 @@ CMenuScreen::~CMenuScreen()
 void CMenuScreen::showAll( SDL_Surface * to )
 {
 	blitAt(CGP->mainbg, 0, 0, to);
+	CCS->videoh->update(pos.x + 8, pos.y + 105, to, true, false);
 	CIntObject::showAll(to);
 }
 
 void CMenuScreen::show( SDL_Surface * to )
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
+	//CCS->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
 }
 
 void CMenuScreen::moveTo( CMenuScreen *next )
@@ -337,31 +339,33 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
+	SDL_FillRect(screen, 0, 0);
+	
 	if (GH.listInt.size() == 0)
 	{
 		CCS->musich->playMusic(musicBase::mainMenu, -1);
-	#ifdef _WIN32
 		CCS->videoh->open("ACREDIT.SMK");
-	#else
-		CCS->videoh->open("ACREDIT.SMK", true, false);
-	#endif
 		GH.pushInt(scrs[CMenuScreen::mainMenu]);
 	}
 
 	if(SEL)
 		SEL->update();
 
-	// draw the mouse cursor and update the screen
-	// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
-	CCS->curh->draw1();
-	CSDL_Ext::update(screen);
-	CCS->curh->draw2();
-
-	GH.topInt()->show(screen);
-	
 	// Handles mouse and key input
 	GH.updateTime();
 	GH.handleEvents();
+
+	if (GH.curInt == 0) // no redraw, when a new game was created
+		return;
+
+	GH.totalRedraw();
+
+	if (conf.cc.showFPS)
+		GH.drawFPSCounter();
+
+	// draw the mouse cursor and update the screen
+	CCS->curh->draw(screen);
+	CSDL_Ext::update(screen);
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
@@ -3503,6 +3507,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::st
 	// Create the button hover effect
 	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
 	hoverLabel->ignoreLeadingWhitespace = false;
+	hoverLabel->autoRedraw = false;
 }
 
 CCampaignScreen::CCampaignButton::~CCampaignButton()
@@ -3523,19 +3528,18 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 	{
 		// Deletes the text from the screen when you hover out of the bounds of the button
 		hoverLabel->setTxt(" "); 
-		GH.totalRedraw();
 	}
 
 }
 
-void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
+void CCampaignScreen::CCampaignButton::showAll(SDL_Surface *to)
 {
-	CIntObject::show(to);
+	CIntObject::showAll(to);
 
 	if (status == CCampaignScreen::DISABLED || video == "" || button == 0)
 		return;
 
-#ifdef _WIN32
+
 	// TODO: windows video code seem to have diverged a little bit
 	// from non-windows code. Needs to be fixed and this ifdef removed.
 
@@ -3552,7 +3556,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 		CCS->videoh->close();
 		blitAt(button, pos, to);
 	}
-#endif
+
 
 	if (status == CCampaignScreen::COMPLETED) // Draw a checked symbol when you completed the mission
 	{

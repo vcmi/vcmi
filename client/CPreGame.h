@@ -449,7 +449,7 @@ class CCampaignScreen : public CIntObject
 
 			CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status); // c-tor
 			~CCampaignButton(); // d-tor
-			void show(SDL_Surface *to);
+			void showAll(SDL_Surface *to);
 		};
 
 		std::vector<CCampaignButton*> campButtons; // a container which holds all buttons where you can start a campaign

@@ -76,6 +76,11 @@ void CCursorHandler::draw2()
 	//blitAt(help,x,y);
 }
 
+void CCursorHandler::draw(SDL_Surface *to)
+{
+	CSDL_Ext::blitSurface(cursors[mode]->ourImages[number].bitmap, 0, to, &genRect(40, 40, xpos, ypos));
+}
+
 void CCursorHandler::shiftPos( int &x, int &y )
 {
 	if((mode==1 && number!=6) || mode ==3)

@@ -32,6 +32,7 @@ public:
 	void changeGraphic(const int & type, const int & no); //changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame no (not used for type 3)
 	void dragAndDropCursor (SDL_Surface* image); // Replace cursor with a custom image.
 	void draw1();
+	void draw(SDL_Surface *to);
 
 	void shiftPos( int &x, int &y );
 	void draw2();

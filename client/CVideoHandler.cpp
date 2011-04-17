@@ -667,7 +667,8 @@ CVideoPlayer::CVideoPlayer()
 bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 {
 	close();
-
+	
+	this->fname = fname;
 	offset = 0;
 	refreshWait = 3;
 	refreshCount = -1;
@@ -871,7 +872,10 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 		refreshCount = refreshWait;
 		if (nextFrame())
 			show(x,y,dst,update);
-	} else {
+		else
+			open(fname);
+	} 
+	else {
 		redraw(x, y, dst, update);
 	}
 
@@ -880,6 +884,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::close()
 {
+	fname = "";	
 	if (sws) {
 		sws_freeContext(sws);
 		sws = NULL;

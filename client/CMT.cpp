@@ -658,6 +658,7 @@ static void listenForEvents()
 void startGame(StartInfo * options, CConnection *serv/* = NULL*/) 
 {
 	GH.curInt =NULL;
+	SDL_FillRect(screen, 0, 0);
 	if(gOnlyAI)
 	{
 		for(std::map<int, PlayerSettings>::iterator it = options->playerInfos.begin(); 

@@ -235,7 +235,7 @@ public:
 	~CVideoPlayer();
 
 	bool init();
-	bool open(std::string fname, bool loop=false, bool useOverlay=false);
+	bool open(std::string fname, bool loop = false, bool useOverlay = false);
 	void close();
 	bool nextFrame();			// display next frame
 
@@ -250,6 +250,7 @@ public:
 	const char *data;			// video buffer
 	int length;					// video size
 	unsigned int offset;		// current data offset
+	std::string fname; //name of current video file (empty if idle)
 };
 
 #define VIDEO_WIN "win3.mjpg"
