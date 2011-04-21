@@ -59,6 +59,13 @@ namespace VERMInterpreter
 		{}
 	};
 
+	struct ELineProblem : public EInterpreterProblem
+	{
+		ELineProblem(const std::string & desc) :
+			EInterpreterProblem(desc)
+		{}
+	};
+
 
 	///main environment class, manages symbols
 	class Environment
@@ -310,23 +317,26 @@ struct TriggerIdentifierMatch
 
 	static const int MAX_SUBIDENTIFIERS = 16;
 	ERMInterpreter * ermEnv;
-	bool tryMatch(VERMInterpreter::Trigger * interptrig, const ERM::Ttrigger & trig) const;
+	bool tryMatch(VERMInterpreter::Trigger * interptrig) const;
 };
 
 class ERMInterpreter
 {
 	friend class ScriptScanner;
 	friend class TriggerIdMatchHelper;
+	friend class TriggerIdentifierMatch;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
 	std::map<VERMInterpreter::LinePointer, ERM::TLine> scripts;
 	std::map<VERMInterpreter::LexicalPtr, VERMInterpreter::Environment> lexicalEnvs;
 	ERM::TLine retrieveLine(VERMInterpreter::LinePointer linePtr) const;
+	static ERM::Ttrigger retrieveTrigger(ERM::TLine line);
 
 	VERMInterpreter::Environment * globalEnv;
 	VERMInterpreter::ERMEnvironment * ermGlobalEnv;
-	std::map<VERMInterpreter::TriggerType, std::vector<VERMInterpreter::Trigger> > triggers, postTriggers;
+	typedef std::map<VERMInterpreter::TriggerType, std::vector<VERMInterpreter::Trigger> > TtriggerListType;
+	TtriggerListType triggers, postTriggers;
 
 
 	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
@@ -340,6 +350,7 @@ class ERMInterpreter
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
 public:
+	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier); //use this to run triggers
 	void init(); //sets up environment etc.
 	void scanForScripts();
 

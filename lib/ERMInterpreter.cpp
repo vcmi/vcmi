@@ -885,6 +885,41 @@ T ERMInterpreter::getIexp( const ERM::TIexp & iexp, /*const*/ Trigger * trig /*=
 	return ret;
 }
 
+void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier )
+{
+	TtriggerListType & triggerList = pre ? triggers : postTriggers;
+
+	TriggerIdentifierMatch tim;
+	tim.allowNoIdetifier = false;
+	tim.ermEnv = this;
+	tim.matchToIt = identifier;
+	std::vector<Trigger> triggersToTry = triggerList[tt];
+	for(int g=0; g<triggersToTry.size(); ++g)
+	{
+		if(tim.tryMatch(&triggersToTry[g]))
+		{
+			executeTrigger(triggersToTry[g]);
+		}
+	}
+}
+
+ERM::Ttrigger ERMInterpreter::retrieveTrigger( ERM::TLine line )
+{
+	if(line.which() == 1)
+	{
+		ERM::TERMline tl = boost::get<ERM::TERMline>(line);
+		if(tl.which() == 0)
+		{
+			ERM::Tcommand tcm = boost::get<ERM::Tcommand>(line);
+			if(tcm.cmd.which() == 0)
+			{
+				return boost::get<ERM::Ttrigger>(tcm.cmd);
+			}
+		}
+	}
+	throw ELineProblem("Given line is not an ERM trigger!");
+}
+
 const std::string ERMInterpreter::triggerSymbol = "trigger";
 const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
 const std::string ERMInterpreter::defunSymbol = "defun";
@@ -910,10 +945,12 @@ struct TriggerIdMatchHelper : boost::static_visitor<>
 	}
 };
 
-bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig, const ERM::Ttrigger & trig ) const
+bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig ) const
 {
+	const ERM::Ttrigger & trig = ERMInterpreter::retrieveTrigger(ermEnv->retrieveLine(interptrig->line));
 	if(trig.identifier.is_initialized())
 	{
+
 		ERM::Tidentifier tid = trig.identifier.get();
 		std::map< int, std::vector<int> >::const_iterator it = matchToIt.find(tid.size());
 		if(it == matchToIt.end())
@@ -925,8 +962,12 @@ bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig, const ERM::Ttrigger
 			{
 				int val = -1;
 				boost::apply_visitor(TriggerIdMatchHelper(val, ermEnv, interptrig), tid[g]);
-				return pattern[g] == val;
+				if(pattern[g] != val)
+				{
+					return false;
+				}
 			}
+			return true;
 		}
 	}
 	else
