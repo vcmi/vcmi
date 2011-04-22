@@ -1355,7 +1355,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) )) 
 			&& complain("Cannot move hero, destination tile is blocked!") 
-		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() != 1 ||  (t.visitableObjects.front()->ID != 8 && t.visitableObjects.front()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land)
+		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!")
 		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!")
@@ -1370,7 +1370,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	}
 
 	//hero enters the boat
-	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.front()->ID == 8)
+	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == 8)
 	{
 		tmh.result = TryMoveHero::EMBARK;
 		tmh.movePoints = 0; //embarking takes all move points
