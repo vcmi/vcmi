@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include "../../lib/CCreatureHandler.h"
 #include <algorithm>
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
 
 IBattleCallback * cbc;
 

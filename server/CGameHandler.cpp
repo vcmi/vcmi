@@ -1571,7 +1571,7 @@ void CGameHandler::giveResource(int player, int which, int val)
 	SetResource sr;
 	sr.player = player;
 	sr.resid = which;
-	sr.val = gs->players.find(player)->second.resources[which]+val;
+	sr.val = gs->players.find(player)->second.resources[which] + val;
 	sendAndApply(&sr);
 }
 
@@ -2655,6 +2655,22 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	sendAndApply(&saa);
 
 	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], -2);
+	return true;
+}
+
+bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, int aid, int rid)
+{
+	const CArtifactInstance *art = h->getArtByInstanceId(aid);
+	if(!art)
+		COMPLAIN_RET("There is no artifact to sell!");
+	if(art->artType->id < 7)
+		COMPLAIN_RET("Cannot sell a war machine or spellbook!");
+
+	int resVal = 0, dump = 1;
+	m->getOffer(art->artType->id, rid, dump, resVal, ARTIFACT_RESOURCE);
+
+	removeArtifact(ArtifactLocation(h, h->getArtPos(art)));
+	giveResource(h->tempOwner, rid, resVal);
 	return true;
 }
 

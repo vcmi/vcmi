@@ -164,6 +164,10 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
 		return gh->buyArtifact(m, hero, r1, r2);
+	case ARTIFACT_RESOURCE:
+		if(!hero)
+			COMPLAIN_AND_RETURN("Only hero can sell artifacts!");
+		return gh->sellArtifact(m, hero, r1, r2);
 	case CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
 	case RESOURCE_SKILL:

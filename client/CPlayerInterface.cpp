@@ -2171,6 +2171,14 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	{
+		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		{
+			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
+				aoh->artifactRemoved(al);
+		}
+	}
 }
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)

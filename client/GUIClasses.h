@@ -71,6 +71,7 @@ class IMarket;
 class CTextBox;
 class CArtifactInstance;
 class IBonusBearer;
+class CArtPlace;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -622,6 +623,7 @@ public:
 	};
 	class CTradeableItem : public CIntObject
 	{
+		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact 
 	public:
 		EType type;
 		int id; 
@@ -629,10 +631,9 @@ public:
 		bool left;
 		std::string subtitle; //empty if default
 
-		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact 
 		const CArtifactInstance *getArtInstance() const;
+		void setArtInstance(const CArtifactInstance *art);
 // 		const CArtifact *getArt() const;
-// 		void setArtInstance(const CArtifactInstance *art) const;
 // 		void setArt(const CArtifact *artT) const;
 
 		CFunctionList<void()> callback;
@@ -677,6 +678,8 @@ public:
 	void removeItem(CTradeableItem * t);
 	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
 	void setMode(EMarketMode Mode); //mode setter
+
+	void artifactSelected(CArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
 
 	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
@@ -1011,9 +1014,11 @@ public:
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
 	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
+	boost::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactRemoved(const ArtifactLocation &al);
 	void artifactAssembled(const ArtifactLocation &al);
 	void artifactDisassembled(const ArtifactLocation &al);
 	CArtPlace *getArtPlace(int slot);
@@ -1025,9 +1030,12 @@ public:
 
 	void safeRedraw();
 	void markPossibleSlots(const CArtifactInstance* art);
-	void unmarkSlots(bool withRedraw = true);
+	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
+	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
 	void setSlotData (CArtPlace* artPlace, int slotID);
 	void updateWornSlots (bool redrawParent = true);
+
+	void updateSlot(int i);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor

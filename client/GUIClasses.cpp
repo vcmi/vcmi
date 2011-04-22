@@ -2586,6 +2586,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		posToSubCenter = Point(31, 76);
 		break;
 	case ARTIFACT_PLACEHOLDER:
+	case ARTIFACT_INSTANCE:
 		posToSubCenter = Point(19, 55);
 		if(downSelection)
 			posToSubCenter.y += 8;
@@ -2662,6 +2663,7 @@ SDL_Surface * CTradeWindow::CTradeableItem::getSurface()
 		return graphics->flags->ourImages[id].bitmap;
 	case ARTIFACT_TYPE:
 	case ARTIFACT_PLACEHOLDER:
+	case ARTIFACT_INSTANCE:
 		return id >= 0 ? graphics->artDefs->ourImages[id].bitmap : NULL;
 	case CREATURE:
 		return graphics->bigImgs[id];
@@ -2741,6 +2743,7 @@ std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
 		else
 			return CGI->creh->creatures[id]->namePl;
 	case ARTIFACT_TYPE:
+	case ARTIFACT_INSTANCE:
 		return CGI->arth->artifacts[id]->Name();
 	}
 	assert(0);
@@ -2759,20 +2762,15 @@ const CArtifactInstance * CTradeWindow::CTradeableItem::getArtInstance() const
 	}
 }
 
-// const CArtifact * CTradeWindow::CTradeableItem::getArt() const
-// {
-// 	return NULL;
-// }
-// 
-// void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art) const
-// {
-// 
-// }
-// 
-// void CTradeWindow::CTradeableItem::setArt(const CArtifact *artT) const
-// {
-// 
-// }
+void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
+{
+	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
+	hlp = art;
+	if(art)
+		id = art->artType->id;
+	else
+		id = -1;
+}
 
 CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
 	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
@@ -2802,6 +2800,10 @@ void CTradeWindow::initTypes()
 		itemsType[1] = RESOURCE;
 		itemsType[0] = ARTIFACT_TYPE;
 		break;
+	case ARTIFACT_RESOURCE:
+		itemsType[1] = ARTIFACT_INSTANCE;
+		itemsType[0] = RESOURCE;
+		break;
 	case CREATURE_EXP:
 		itemsType[1] = CREATURE;
 		itemsType[0] = CREATURE_PLACEHOLDER;
@@ -2815,6 +2817,40 @@ void CTradeWindow::initTypes()
 
 void CTradeWindow::initItems(bool Left)
 {
+	if(Left && (itemsType[1] == ARTIFACT_TYPE || itemsType[1] == ARTIFACT_INSTANCE))
+	{
+		int xOffset = 0, yOffset = 0;
+		if(mode == ARTIFACT_RESOURCE)
+		{
+			xOffset = -361;
+			yOffset = +46;
+
+			CTradeableItem *hlp = new CTradeableItem(itemsType[Left], -1, 1, 0);
+			hlp->recActions &= ~(UPDATE | SHOWALL);
+			hlp->pos += Rect(137, 469, 42, 42);
+			items[Left].push_back(hlp);
+		}
+		else //ARTIFACT_EXP
+		{
+			xOffset = -363;
+			yOffset = -12;
+		}
+
+		BLOCK_CAPTURING;
+		arts = new CArtifactsOfHero(Point(pos.x+xOffset, pos.y+yOffset));
+		arts->commonInfo = new CArtifactsOfHero::SCommonPart;
+		arts->commonInfo->participants.insert(arts);
+		arts->recActions = 255;
+		arts->setHero(hero);
+		arts->allowedAssembling = false;
+		addChild(arts);
+		artSets.push_back(arts);
+
+		if(mode == ARTIFACT_RESOURCE)
+			arts->highlightModeCallback = boost::bind(&CTradeWindow::artifactSelected, this, _1);
+		return;
+	}
+
 	std::vector<int> *ids = getItemsIds(Left);
 	std::vector<Rect> pos;
 	int amount = -1;
@@ -2975,7 +3011,7 @@ void CTradeWindow::showAll(SDL_Surface * to)
 
 	if(hRight)
 		CSDL_Ext::drawBorder(to,hRight->pos.x-1,hRight->pos.y-1,hRight->pos.w+2,hRight->pos.h+2,int3(255,231,148));
-	if(hLeft)
+	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
 		CSDL_Ext::drawBorder(to,hLeft->pos.x-1,hLeft->pos.y-1,hLeft->pos.w+2,hLeft->pos.h+2,int3(255,231,148));
 
 	if(readyToTrade)
@@ -3034,6 +3070,18 @@ void CTradeWindow::setMode(EMarketMode Mode)
 	GH.pushInt(nwindow);
 }
 
+void CTradeWindow::artifactSelected(CArtPlace *slot)
+{
+	assert(mode == ARTIFACT_RESOURCE);
+	items[1][0]->setArtInstance(slot->ourArt);
+	if(slot->ourArt)
+		hLeft = items[1][0];
+	else
+		hLeft = NULL;
+
+	selectionChanged(true);
+}
+
 CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
 	: CTradeWindow(Market, Hero, Mode)
 {
@@ -3063,6 +3111,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	case ARTIFACT_RESOURCE:
 		bgName = "TPMRKASS.bmp";
+		sliderNeeded = false;
 		break;
 	}
 
@@ -3121,7 +3170,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		slider = NULL;
 		max = NULL;
-		deal->pos.x -= 38;
+		deal->moveBy(Point(-30, 0));
 	}
 
 	Rect traderTextRect;
@@ -3137,6 +3186,9 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case CREATURE_RESOURCE: 
 		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 152, 102, FONT_SMALL, zwykly, *bg); //%s's Creatures
 		break;
+	case ARTIFACT_RESOURCE: 
+		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name), 152, 57, FONT_SMALL, zwykly, *bg); //%s's Artifacts
+		break;
 	}
 
 	//right side
@@ -3145,6 +3197,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case RESOURCE_RESOURCE:
 	case CREATURE_RESOURCE:
 	case RESOURCE_ARTIFACT:
+	case ARTIFACT_RESOURCE:
 		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,zwykly,*bg); //available for trade
 		traderTextRect = Rect(316, 48, 260, 75);
 		break;
@@ -3155,17 +3208,18 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	}
 
 	traderText = new CTextBox("", traderTextRect, 0, FONT_SMALL, CENTER);
+	int specialOffset = mode == ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
 	if(printButtonFor(RESOURCE_PLAYER))
 		new AdventureMapButton(CGI->generaltexth->zelp[612],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
 	if(printButtonFor(RESOURCE_RESOURCE))
-		new AdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450,"TPMRKBU5.DEF");
+		new AdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450 + specialOffset,"TPMRKBU5.DEF");
 	if(printButtonFor(CREATURE_RESOURCE))
 		new AdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
 	if(printButtonFor(RESOURCE_ARTIFACT))
-		new AdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450,"TPMRKBU2.DEF");
-	if(printButtonFor(ARTIFACT_RESOURCE))																				//unblock when support for art-res is ready
-		(new AdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"))->block(true); //was y=450, changed to not overlap res-art in some conditions
+		new AdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450 + specialOffset,"TPMRKBU2.DEF");
+	if(printButtonFor(ARTIFACT_RESOURCE))																				
+		new AdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"); //was y=450, changed to not overlap res-art in some conditions
 
 	updateTraderText();
 }
@@ -3205,10 +3259,12 @@ void CMarketplaceWindow::makeDeal()
 	int leftIdToSend = -1;
 	if(mode == CREATURE_RESOURCE)
 		leftIdToSend = hLeft->serial;
+	else if(mode == ARTIFACT_RESOURCE)
+		leftIdToSend = hLeft->getArtInstance()->id;
 	else
 		leftIdToSend = hLeft->id;
 
-	if(mode != RESOURCE_ARTIFACT)
+	if(slider)
 	{
 		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->value*r1, hero);
 		slider->moveTo(0);
@@ -3231,31 +3287,39 @@ void CMarketplaceWindow::sliderMoved( int to )
 
 void CMarketplaceWindow::selectionChanged(bool side)
 {
-	readyToTrade = (hLeft && hRight && (hLeft->id!= hRight->id || mode != RESOURCE_RESOURCE));
+	readyToTrade = hLeft && hRight;
+	if(mode == RESOURCE_RESOURCE)
+		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected 
 
+ 	if(mode == ARTIFACT_RESOURCE && !hLeft) 
+		arts->unmarkSlots(false);
+ 
 	if(readyToTrade)
 	{
-		int newAmount = -1;
-		market->getOffer(hLeft->id, hRight->id, r1, r2, mode);
-
-		if(itemsType[1] == RESOURCE)
-			newAmount = LOCPLINT->cb->getResourceAmount(hLeft->id);
-		else if(itemsType[1] ==  CREATURE)
-			newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
-		else
-			assert(0);
+		int soldItemId = hLeft->id;
+		market->getOffer(soldItemId, hRight->id, r1, r2, mode);
 
 		if(slider)
 		{
+			int newAmount = -1;
+			if(itemsType[1] == RESOURCE)
+				newAmount = LOCPLINT->cb->getResourceAmount(soldItemId);
+			else if(itemsType[1] ==  CREATURE)
+				newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+			else
+				assert(0);
+
 			slider->setAmount(newAmount / r1);
 			slider->moveTo(0);
 			max->block(false);
 			deal->block(false);
 		}
-		else
+		else if(itemsType[1] == RESOURCE) //buying -> check if we can afford transaction
 		{
-			deal->block(LOCPLINT->cb->getResourceAmount(hLeft->id) < r1);
+			deal->block(LOCPLINT->cb->getResourceAmount(soldItemId) < r1);
 		}
+		else
+			deal->block(false);
 	}
 	else
 	{
@@ -3313,19 +3377,30 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 {
 	if(Left)
 	{
-		assert(itemsType[1] == CREATURE || itemsType[1] == RESOURCE);
-		int val = slider 
-			? slider->value * r1 
-			: (((deal->isBlocked())) ? 0 : r1);
+		switch(itemsType[1])
+		{
+		case RESOURCE:
+		case CREATURE:
+			{
+				int val = slider 
+					? slider->value * r1 
+					: (((deal->isBlocked())) ? 0 : r1);
 
-		return boost::lexical_cast<std::string>(val);
+				return boost::lexical_cast<std::string>(val);
+			}
+		case ARTIFACT_INSTANCE:
+			return ((deal->isBlocked()) ? "0" : "1");
+		}
 	}
 	else
 	{
 		switch(itemsType[0])
 		{
 		case RESOURCE:
-			return boost::lexical_cast<std::string>( slider->value * r2 );
+			if(slider)
+				return boost::lexical_cast<std::string>( slider->value * r2 );
+			else
+				return boost::lexical_cast<std::string>(r2);
 		case ARTIFACT_TYPE:
 			return ((deal->isBlocked()) ? "0" : "1");
 		case PLAYER:
@@ -3346,6 +3421,8 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 			return Point(122, 446);
 		case CREATURE:
 			return Point(128, 450);
+		case ARTIFACT_INSTANCE:
+			return Point(134, 466);
 		}
 	}
 	else
@@ -3353,7 +3430,10 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		switch(itemsType[0])
 		{
 		case RESOURCE:
-			return Point(410, 446);
+			if(mode == ARTIFACT_RESOURCE)
+				return Point(410, 469);
+			else
+				return Point(410, 446);
 		case ARTIFACT_TYPE:
 			return Point(425, 447);
 		case PLAYER:
@@ -3437,6 +3517,11 @@ void CMarketplaceWindow::updateTraderText()
 			//I can offer you %d %s of %s for %d %s.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[269]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % hLeft->getName(r1)));
 		}
+		else if(mode == ARTIFACT_RESOURCE)
+		{
+			//I can offer you %d %s of %s for your %s.
+			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[268]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % hLeft->getName(r1)));
+		}
 		return;
 	}
 
@@ -3462,7 +3547,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	:CTradeWindow(Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(Mode == CREATURE_EXP ? "ALTARMON.bmp" : "ALTARART.bmp");
+	bg = new CPicture(Mode == CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bg->center();
 
@@ -3498,19 +3583,8 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		slider = NULL;
 		max = NULL;
-
-		{
-			BLOCK_CAPTURING;
-			arts = new CArtifactsOfHero(Point(pos.x-363, pos.y-12));
-			arts->commonInfo = new CArtifactsOfHero::SCommonPart;
-			arts->commonInfo->participants.insert(arts);
-			arts->setHero(Hero);
-			arts->recActions = 255;
-			arts->allowedAssembling = false;
-			addChild(arts);
-			artSets.push_back(arts);
-		}
-
+		
+		initItems(true);
 		initItems(false);
 	}
 
@@ -3843,9 +3917,8 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	market->getOffer(artID, 0, dmp, val, ARTIFACT_EXP);
 
 	arts->artifactsOnAltar.insert(art);
-	altarSlot->id = artID;
+	altarSlot->setArtInstance(art);
 	altarSlot->subtitle = boost::lexical_cast<std::string>(val);
-	altarSlot->hlp = art;
 
 	deal->block(false);
 	return true;
@@ -4532,6 +4605,24 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 		srcInBackpack = ourOwner->commonInfo->src.slotID >= Arts::BACKPACK_START,
 		srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
 	
+	if(ourOwner->highlightModeCallback && ourArt)
+	{
+		if(down)
+		{
+			if(ourArt->artType->id < 7) //War Machine or Spellbook
+			{
+				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]); //This item can't be traded.
+			}
+			else
+			{
+				ourOwner->unmarkSlots(false);
+				marked = true;
+				ourOwner->highlightModeCallback(this);
+			}
+		}
+		return;
+	}
+
 	// If clicked on spellbook, open it only if no artifact is held at the moment.
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
@@ -5077,6 +5168,19 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	for( ; s - omitedSoFar < 5; s++)
 		eraseSlotData(backpack[s-omitedSoFar], 19 + s);
 
+	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
+	if(highlightModeCallback)
+	{
+		for(int i = 0; i < 5; i++)
+		{
+			if(backpack[i]->marked)
+			{
+				highlightModeCallback(backpack[i]);
+				break;
+			}
+		}
+	}
+
 	//blocking scrolling if there is not enough artifacts to scroll
 	bool scrollingPossible = artsInBackpack - omitedSoFar > backpack.size();
 	leftArtRoll->block(!scrollingPossible);
@@ -5106,16 +5210,21 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 {
 	if(commonInfo)
-	{
 		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
-			BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
-			place->marked = false;
-	}
+			aoh->unmarkLocalSlots(false);
 	else
-	{
-		BOOST_FOREACH(CArtPlace *place, artWorn)
-			place->marked = false;
-	}
+		unmarkLocalSlots(false);\
+
+	if(withRedraw)
+		safeRedraw();
+}
+
+void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
+{
+	BOOST_FOREACH(CArtPlace *place, artWorn)
+		place->marked = false;
+	BOOST_FOREACH(CArtPlace *place, backpack)
+		place->marked = false;
 
 	if(withRedraw)
 		safeRedraw();
@@ -5154,7 +5263,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
- : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true)
+ : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true), highlightModeCallback(0)
 {
 	if(createCommonPart)
 	{
@@ -5263,9 +5372,9 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	if(src.hero == curHero && src.slot >= Arts::BACKPACK_START)
-		setSlotData(getArtPlace(src.slot), src.slot);
+		updateSlot(src.slot);
 	if(dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
-		setSlotData(getArtPlace(dst.slot), dst.slot);
+		updateSlot(dst.slot);
 	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
 		updateWornSlots(false);
 
@@ -5332,6 +5441,17 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		scrollBackpack(shift); //update backpack slots
 }
 
+void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
+{
+	if(al.hero == curHero)
+	{
+		if(al.slot < Arts::BACKPACK_START)
+			updateWornSlots(0);
+		else
+			scrollBackpack(0); //update backpack slots
+	}
+}
+
 CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < Arts::BACKPACK_START)
@@ -5363,7 +5483,8 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
 	for(int i = 0; i < Arts::BACKPACK_START; i++)
-		setSlotData(getArtPlace(i), i);
+		updateSlot(i);
+
 
 	if(redrawParent)
 		updateParentWindow();
@@ -5372,6 +5493,11 @@ void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 const CGHeroInstance * CArtifactsOfHero::getHero() const
 {
 	return curHero;
+}
+
+void CArtifactsOfHero::updateSlot(int slotID)
+{
+	setSlotData(getArtPlace(slotID), slotID);
 }
 
 void CExchangeWindow::close()

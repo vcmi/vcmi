@@ -6798,7 +6798,19 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			val2 = 1;
 		}
 		break;
+	case ARTIFACT_RESOURCE:
+		{
+			float effectiveness = std::min(((float)getMarketEfficiency()+3.0f) / 20.0f, 0.6f);
+			float r = VLC->arth->artifacts[id1]->price * effectiveness,
+				g = VLC->objh->resVals[id2]; 
 
+// 			if(id2 != 6) //non-gold prices are doubled
+// 				r /= 2; 
+
+			val1 = 1;
+			val2 = (r / g) + 0.5f;
+		}
+		break;
 	case CREATURE_EXP:
 		{
 			val1 = 1;
@@ -7079,6 +7091,19 @@ si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
 			return Arts::BACKPACK_START + i;
 
 	return -1;
+}
+
+const CArtifactInstance * CArtifactSet::getArtByInstanceId(int artInstId) const
+{
+	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
+		if(i->second.artifact->id == artInstId)
+			return i->second.artifact;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+		if(artifactsInBackpack[i].artifact->id == artInstId)
+			return artifactsInBackpack[i].artifact;
+
+	return NULL;
 }
 
 bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
