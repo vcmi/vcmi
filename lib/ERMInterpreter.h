@@ -66,6 +66,29 @@ namespace VERMInterpreter
 		{}
 	};
 
+	struct EExecutionError : public EInterpreterProblem
+	{
+		EExecutionError(const std::string & desc) :
+			EInterpreterProblem(desc)
+		{}
+	};
+
+	//internal interpreter error related to execution
+	struct EInterpreterError : public EExecutionError
+	{
+		EInterpreterError(const std::string & desc) :
+			EExecutionError(desc)
+		{}
+	};
+
+	//wrong script
+	struct EScriptExecError : public EExecutionError
+	{
+		EScriptExecError(const std::string & desc) :
+			EExecutionError(desc)
+		{}
+	};
+
 
 	///main environment class, manages symbols
 	class Environment
@@ -75,60 +98,13 @@ namespace VERMInterpreter
 		Environment * parent;
 
 	public:
-		bool isBound(const std::string & name, bool globalOnly) const
-		{
-			std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
-			if(globalOnly && parent)
-			{
-				return parent->isBound(name, globalOnly);
-			}
+		bool isBound(const std::string & name, bool globalOnly) const;
 
-			//we have it; if globalOnly is true, lexical parent is false here so we are global env
-			if(it != symbols.end())
-				return true;
-
-			//here, we don;t have it; but parent can have
-			if(parent)
-				return parent->isBound(name, globalOnly);
-
-			return false;
-		}
-
-		TVOption retrieveValue(const std::string & name) const
-		{
-			std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
-			if(it == symbols.end())
-			{
-				if(parent)
-				{
-					return parent->retrieveValue(name);
-				}
-
-				throw ESymbolNotFound(name);
-			}
-			return it->second;
-		}
+		TVOption retrieveValue(const std::string & name) const;
 
 		enum EUnbindMode{LOCAL, RECURSIVE_UNTIL_HIT, FULLY_RECURSIVE};
 		///returns true if symbols was really unbound
-		bool unbind(const std::string & name, EUnbindMode mode)
-		{
-			if(isBound(name, false))
-			{
-				if(symbols.find(name) != symbols.end()) //result of isBound could be from higher lexical env
-					symbols.erase(symbols.find(name));
-
-				if(mode == FULLY_RECURSIVE && parent)
-					parent->unbind(name, mode);
-
-				return true;
-			}
-			if(parent && (mode == RECURSIVE_UNTIL_HIT || mode == FULLY_RECURSIVE))
-				return parent->unbind(name, mode);
-
-			//neither bound nor have lexical parent
-			return false;
-		}
+		bool unbind(const std::string & name, EUnbindMode mode);
 	};
 
 	//		All numeric variables are integer variables and have a range of -2147483647...+2147483647
@@ -153,13 +129,7 @@ namespace VERMInterpreter
 
 		static const int YVAR_NUM = 100; //number of yvar locals
 		int yvar[YVAR_NUM];
-		TriggerLocalVars()
-		{
-			for(int g=0; g<EVAR_NUM; ++g)
-				evar[g] = 0.0;
-			for(int g=0; g<YVAR_NUM; ++g)
-				yvar[g] = 0;
-		}
+		TriggerLocalVars();
 	};
 
 	struct FunctionLocalVars
@@ -179,6 +149,7 @@ namespace VERMInterpreter
 
 	struct ERMEnvironment
 	{
+		ERMEnvironment();
 		static const int NUM_QUICKS = 't' - 'f' + 1; //it should be 15
 		int quickVars[NUM_QUICKS]; //referenced by letter ('f' to 't' inclusive)
 		int & getQuickVar(const char letter)
@@ -194,6 +165,9 @@ namespace VERMInterpreter
 		std::string strings[NUM_STRINGS]; //z-vars (positive indices)
 
 		std::map<std::string, ERM::TVarExpNotMacro> macroBindings;
+
+		static const int NUM_FLAGS = 1000;
+		bool flags[NUM_FLAGS];
 	};
 
 	struct TriggerType

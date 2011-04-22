@@ -460,7 +460,10 @@ ERMInterpreter::ERMInterpreter()
 
 void ERMInterpreter::executeTrigger( Trigger & trig )
 {
-	for(LinePointer lp = trig.line; lp.isValid(); ++lp)
+	//skpi the first line
+	LinePointer lp = trig.line;
+	++lp;
+	for(; lp.isValid(); ++lp)
 	{
 		ERM::TLine curLine = retrieveLine(lp);
 		if(isATrigger(curLine))
@@ -550,9 +553,13 @@ ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
 
 struct ERMExpDispatch : boost::static_visitor<>
 {
+	ERMInterpreter * owner;
+	ERMExpDispatch(ERMInterpreter * _owner) : owner(_owner)
+	{}
+
 	void operator()(Ttrigger const& trig) const
 	{
-		//the first executed line, check if we should proceed
+		throw EInterpreterError("Triggers cannot be executed!");
 	}
 	void operator()(Tinstruction const& trig) const
 	{
@@ -562,14 +569,19 @@ struct ERMExpDispatch : boost::static_visitor<>
 	}
 	void operator()(TPostTrigger const& trig) const
 	{
+		throw EInterpreterError("Post-triggers cannot be executed!");
 	}
 };
 
 struct CommandExec : boost::static_visitor<>
 {
+	ERMInterpreter * owner;
+	CommandExec(ERMInterpreter * _owner) : owner(_owner)
+	{}
+
 	void operator()(Tcommand const& cmd) const
 	{
-		boost::apply_visitor(ERMExpDispatch(), cmd.cmd);
+		boost::apply_visitor(ERMExpDispatch(owner), cmd.cmd);
 		std::cout << "Line comment: " << cmd.comment << std::endl;
 	}
 	void operator()(std::string const& comment) const
@@ -584,13 +596,17 @@ struct CommandExec : boost::static_visitor<>
 
 struct LineExec : boost::static_visitor<>
 {
+	ERMInterpreter * owner;
+	LineExec(ERMInterpreter * _owner) : owner(_owner)
+	{}
+
 	void operator()(TVExp const& cmd) const
 	{
 		//printTVExp(cmd);
 	}
 	void operator()(TERMline const& cmd) const
 	{
-		boost::apply_visitor(CommandExec(), cmd);
+		boost::apply_visitor(CommandExec(owner), cmd);
 	}
 };
 
@@ -598,7 +614,7 @@ struct LineExec : boost::static_visitor<>
 
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
-	boost::apply_visitor(LineExec(), scripts[lp]);
+	boost::apply_visitor(LineExec(this), scripts[lp]);
 }
 
 void ERMInterpreter::init()
@@ -893,7 +909,7 @@ void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool p
 	tim.allowNoIdetifier = false;
 	tim.ermEnv = this;
 	tim.matchToIt = identifier;
-	std::vector<Trigger> triggersToTry = triggerList[tt];
+	std::vector<Trigger> & triggersToTry = triggerList[tt];
 	for(int g=0; g<triggersToTry.size(); ++g)
 	{
 		if(tim.tryMatch(&triggersToTry[g]))
@@ -975,4 +991,76 @@ bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig ) const
 		if(allowNoIdetifier)
 			return true;
 	}
+}
+
+VERMInterpreter::ERMEnvironment::ERMEnvironment()
+{
+	for(int g=0; g<NUM_QUICKS; ++g)
+		quickVars[g] = 0;
+	for(int g=0; g<NUM_STANDARDS; ++g)
+		standardVars[g] = 0;
+	//string should be automatically initialized to ""
+	for(int g=0; g<NUM_FLAGS; ++g)
+		flags[g] = false;
+}
+
+VERMInterpreter::TriggerLocalVars::TriggerLocalVars()
+{
+	for(int g=0; g<EVAR_NUM; ++g)
+		evar[g] = 0.0;
+	for(int g=0; g<YVAR_NUM; ++g)
+		yvar[g] = 0;
+}
+
+bool VERMInterpreter::Environment::isBound( const std::string & name, bool globalOnly ) const
+{
+	std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
+	if(globalOnly && parent)
+	{
+		return parent->isBound(name, globalOnly);
+	}
+
+	//we have it; if globalOnly is true, lexical parent is false here so we are global env
+	if(it != symbols.end())
+		return true;
+
+	//here, we don;t have it; but parent can have
+	if(parent)
+		return parent->isBound(name, globalOnly);
+
+	return false;
+}
+
+ERM::TVOption VERMInterpreter::Environment::retrieveValue( const std::string & name ) const
+{
+	std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
+	if(it == symbols.end())
+	{
+		if(parent)
+		{
+			return parent->retrieveValue(name);
+		}
+
+		throw ESymbolNotFound(name);
+	}
+	return it->second;
+}
+
+bool VERMInterpreter::Environment::unbind( const std::string & name, EUnbindMode mode )
+{
+	if(isBound(name, false))
+	{
+		if(symbols.find(name) != symbols.end()) //result of isBound could be from higher lexical env
+			symbols.erase(symbols.find(name));
+
+		if(mode == FULLY_RECURSIVE && parent)
+			parent->unbind(name, mode);
+
+		return true;
+	}
+	if(parent && (mode == RECURSIVE_UNTIL_HIT || mode == FULLY_RECURSIVE))
+		return parent->unbind(name, mode);
+
+	//neither bound nor have lexical parent
+	return false;
 }
