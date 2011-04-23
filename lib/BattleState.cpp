@@ -2011,34 +2011,8 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 }
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
-{
+{	
 	si32 power = VLC->spellh->spells[sse.sid]->powers[sse.val];
-	//why, why, WHY this code is here?!?
-// 	Bonus * bonus = getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, sse.id));
-// 	if (bonus)
-// 	{
-// 	 	switch(bonus->additionalInfo)
-// 	 	{
-// 	 		case 0: //normal
-// 	 			switch(type->level)
-// 	 			{
-// 	 				case 1: case 2:
-// 	 					power += 3; //it doesn't necessarily make sense for some spells, use it wisely
-// 	 				break;
-// 	 				case 3: case 4:
-// 	 					power += 2;
-// 	 				break;
-// 	 				case 5: case 6:
-// 	 					power += 1;
-// 	 				break;
-// 	 			}
-// 	 		break;
-// 	 		case 1: //only Coronius as yet
-// 	 			power = std::max(5 - type->level, 0);
-// 	 		break;
-// 	 	}
-// 	}
-	 
 	switch(sse.sid)
 	{
 	case 27: //shield 
@@ -2075,13 +2049,6 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 41: //bless
-// 	 	if (hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, 41)) //TODO: better handling of bonus percentages
-// 	 	{
-// 	 		int damagePercent = dynamic_cast<const CGHeroInstance*>(armyObj)->level * valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / type->level;
-// 	 		sf.push_back(featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, sse.turnsRemain));
-// 	 		sf.back().sid = sse.sid;
-// 	 		sf.back().valType = Bonus::PERCENT_TO_ALL;
-// 	 	}
 	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
 	 	break;
@@ -2143,11 +2110,6 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 55: //slayer
-// 	 	if (bonus) //Coronius
-// 	 	{
-// 	 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-// 	 		sf.back().sid = sse.sid;
-// 	 	}
 	 	sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
 	 	break;

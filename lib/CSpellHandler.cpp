@@ -291,6 +291,7 @@ void CSpellHandler::loadSpells()
 		nsp->mainEffectAnim = -1;
 		spells.push_back(nsp);
 	}
+	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
 	//loading of additional spell traits
 	std::ifstream ast;
 	ast.open(DATA_DIR "/config/spell_info.txt", std::ios::binary);

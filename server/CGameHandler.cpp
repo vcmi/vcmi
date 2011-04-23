@@ -3439,6 +3439,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				sendAndApply(&si);
 			break;
 		}
+	// permanent effects
 	case 27: //shield 
 	case 28: //air shield
 	case 29: //fire shield
@@ -3470,17 +3471,65 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	case 62: //blind
 		{
 			SetStackEffect sse;
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-			{
-				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
-					continue;
-				sse.stacks.push_back((*it)->ID);
-			}
 			Bonus pseudoBonus;
 			pseudoBonus.sid = spellID;
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+
+			const Bonus * bonus = caster->getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
+			si32 power;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+					continue;
+				sse.stacks.push_back((*it)->ID);
+				
+				//Apply hero specials - peculiar enchants
+				ui8 tier = (*it)->base->type->level;
+				if (bonus)
+ 				{
+ 	 				switch(bonus->additionalInfo)
+ 	 				{
+ 	 					case 0: //normal
+						{
+ 	 						switch(tier)
+ 	 						{
+ 	 							case 1: case 2:
+ 	 								power = 3; 
+ 	 							break;
+ 	 							case 3: case 4:
+ 	 								power = 2;
+ 	 							break;
+ 	 							case 5: case 6:
+ 	 								power = 1;
+ 	 							break;
+ 	 						}
+							Bonus specialBonus(sse.effect.back());
+							specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+							sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional premy to given effect
+						}
+ 	 					break;
+ 	 					case 1: //only Coronius as yet
+						{
+ 	 						power = std::max(5 - tier, 0);
+							Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
+							specialBonus.sid = spellID;
+				 	 		sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional attack to Slayer effect
+						}
+ 	 					break;
+ 	 				}
+ 				}
+				if (caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
+ 	 			{
+ 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / tier;
+					Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
+					specialBonus.valType = Bonus::PERCENT_TO_ALL;
+					specialBonus.sid = spellID;
+ 	 				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus));
+ 	 			}
+			}
+
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
 			break;

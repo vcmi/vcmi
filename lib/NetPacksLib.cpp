@@ -1121,17 +1121,27 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 			}
 		}
 	}
-
+}
+void actualizeEffect(CStack * s, const Bonus & ef)
+{
+	BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
+	{
+		if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == ef.type && stackBonus->subtype == ef.subtype)
+		{
+			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
+		}
+	}
 }
 
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 {
+	int id = effect.begin()->sid; //effects' source ID
+
 	BOOST_FOREACH(ui32 id, stacks)
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			int id = effect.begin()->sid; //effects' source ID
 			if(id == 47 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id)))//disrupting ray or not on the list - just add	
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
@@ -1146,6 +1156,20 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		}
 		else
 			tlog1 << "Cannot find stack " << id << std::endl;
+	}
+	typedef std::pair<ui32, Bonus> p;
+	BOOST_FOREACH(p para, uniqueBonuses)
+	{
+		CStack *s = gs->curB->getStack(para.first);
+		if (s)
+		{
+			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id) && Selector::typeSybtype(para.second.type, para.second.subtype)))
+				s->addNewBonus(new Bonus(para.second));
+			else
+				actualizeEffect(s, effect);
+		}
+		else
+			tlog1 << "Cannot find stack " << para.first << std::endl;
 	}
 }
 
