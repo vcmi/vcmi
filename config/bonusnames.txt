@@ -41,3 +41,4 @@ SPELL_DAMAGE_REDUCTION	Spell Resistance	Damage from spells reduced %d%.
 THREE_HEADED_ATTACK	Three-headed attack	Attacks three adjacent units
 UNDEAD	Undead	Creature is Undead
 UNLIMITED_RETALIATIONS	Unlimited retaliations	Retaliate any number of attacks
+DEATH_STARE	Death Stare (%d%)	Chance to kill single creature
