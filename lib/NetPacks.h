@@ -1364,7 +1364,7 @@ struct SetStackEffect : public CPackForClient //3010
 
 	std::vector<ui32> stacks; //affected stacks (IDs)
 	std::vector<Bonus> effect; //bonuses to apply
-	std::vector<std::pair<ui32, Bonus>> uniqueBonuses; //bonuses per single stack
+	std::vector<std::pair<ui32, Bonus> > uniqueBonuses; //bonuses per single stack
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect & uniqueBonuses;

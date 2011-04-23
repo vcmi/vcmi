@@ -84,6 +84,12 @@ struct Point
 	}
 
 	template<typename T>
+	Point operator*(const T &mul) const
+	{
+		return Point(x*mul, y*mul);
+	}
+
+	template<typename T>
 	Point& operator+=(const T &b)
 	{
 		x += b.x;

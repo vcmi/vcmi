@@ -238,12 +238,10 @@ class CGarrisonInt :public CIntObject
 {
 public:
 	int interx; //space between slots
-	Point garOffset, //offset between garrisons (not used if only one hero)
-	      surOffset; //offset between garrison position on the bg surface and position on the screen
+	Point garOffset; //offset between garrisons (not used if only one hero)
 	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
-	SDL_Surface *&sur; //bg surface
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
 	bool splitting, pb, 
@@ -270,8 +268,14 @@ public:
 
 	void splitClick(); //handles click on split button
 	void splitStacks(int am2); //TODO: comment me
-	//x, y - position; inx - distance between slots; pomsur - background surface, SurOffset - ?; s1, s2 - top and bottom armies; removableUnits - you can take units from top; smallImgs - units images size 64x58 or 32x32; twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
+	//x, y - position;
+	//inx - distance between slots;
+	//pomsur, SurOffset - UNUSED
+	//s1, s2 - top and bottom armies;
+	//removableUnits - you can take units from top;
+	//smallImgs - units images size 64x58 or 32x32;
+	//twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 
@@ -964,6 +968,7 @@ public:
 	const CArtifactInstance * ourArt;
 
 	CArtPlace(const CArtifactInstance * Art); //c-tor
+	CArtPlace(Point position, const CArtifactInstance * Art = NULL); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void select ();
@@ -1038,7 +1043,10 @@ public:
 	void updateSlot(int i);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
-	CArtifactsOfHero(const Point& position, bool createCommonPart = false); //c-tor
+	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
+	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
+	CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
+		AdventureMapButton *leftScroll, AdventureMapButton *rightScroll, bool createCommonPart = false);
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;

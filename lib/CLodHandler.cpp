@@ -7,7 +7,7 @@
 #include <cctype>
 #include <cstring>
 #include <iostream>
-#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
@@ -67,8 +67,6 @@ unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType typ
 	int dotPos = fname.find_last_of('.');
 	if ( dotPos != -1 )
 		fname.erase(dotPos);
-
-	int count = entries.size();
 
 	boost::unordered_set<Entry>::const_iterator en_it = entries.find(Entry(fname, type));
 	
@@ -292,15 +290,28 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 
 	delete [] lodEntries;
 
-	boost::filesystem::directory_iterator enddir;
+	boost::filesystem::recursive_directory_iterator enddir;
 	if(boost::filesystem::exists(dirName))
 	{
-		for (boost::filesystem::directory_iterator dir(dirName);dir!=enddir;dir++)
+		std::vector<std::string> path;
+		for (boost::filesystem::recursive_directory_iterator dir(dirName); dir!=enddir; dir++)
 		{
+			//If a directory was found - add name to vector to recreate full path later
+			if (boost::filesystem::is_directory(dir->status()))
+			{
+				path.resize(dir.level()+1);
+				path.back() = dir->path().leaf();
+			}
 			if(boost::filesystem::is_regular(dir->status()))
 			{
 				Entry e;
-				e.realName = dir->path().leaf();
+
+				//we can't get relative path with boost at the moment - need to create path to file manually
+				for (size_t i=0; i<dir.level() && i<path.size(); i++)
+					e.realName += path[i] + '/';
+
+				e.realName += dir->path().leaf();
+
 				initEntry(e, e.realName);
 
 				if(vstd::contains(entries, e)) //file present in .lod - overwrite its entry

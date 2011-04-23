@@ -1042,13 +1042,12 @@ CMapHandler::~CMapHandler()
 	for(int i=0; i < staticRiverDefs.size(); i++)
 		delete staticRiverDefs[i];
 
-	//TODO: why this code makes VCMI crash?
-	/*for(int i=0; i < terrainGraphics.size(); ++i)
+	for(int i=0; i < terrainGraphics.size(); ++i)
 	{
 		for(int j=0; j < terrainGraphics[i].size(); ++j)
 			SDL_FreeSurface(terrainGraphics[i][j]);
 	}
-	terrainGraphics.clear();*/
+	terrainGraphics.clear();
 }
 
 CMapHandler::CMapHandler()

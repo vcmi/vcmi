@@ -97,7 +97,20 @@ CMinimap::CMinimap(bool draw)
 CMinimap::~CMinimap()
 {
 	SDL_FreeSurface(temps);
+	
+	for(int g=0; g<map.size(); ++g)
+		SDL_FreeSurface(map[g]);
+	map.clear();
+
+	for(int g=0; g<FoW.size(); ++g)
+		SDL_FreeSurface(FoW[g]);
+	FoW.clear();
+
+	for(int g=0; g<flObjs.size(); ++g)
+		SDL_FreeSurface(flObjs[g]);
+	flObjs.clear();
 }
+
 void CMinimap::draw(SDL_Surface * to)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();

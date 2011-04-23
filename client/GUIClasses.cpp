@@ -351,11 +351,6 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 	}
 	else//empty slot
 	{
-		Rect pos1 = pos, pos2 = pos; //positions on the garr bg sur and scren
-		pos1.x = owner->surOffset.x+ pos.x-owner->pos.x;
-		pos1.y = owner->surOffset.y+ pos.y-owner->pos.y;
-
-		CSDL_Ext::blitSurface(owner->sur,&pos1,to,&pos2);
 		if(owner->splitting && owner->highlighted->our())
 			blitAt(imgs[-1],pos,to);
 	}
@@ -463,10 +458,10 @@ void CGarrisonInt::splitStacks(int am2)
 }
 
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
-                            SDL_Surface *&pomsur, const Point& SurOffset, 
+                            SDL_Surface *pomsur, const Point& SurOffset, 
                             const CArmedInstance *s1, const CArmedInstance *s2, 
                             bool _removableUnits, bool smallImgs, bool _twoRows )
-	: interx(inx), garOffset(garsOffset), surOffset(SurOffset), highlighted(NULL), sur(pomsur), splitting(false),
+	: interx(inx), garOffset(garsOffset), highlighted(NULL), splitting(false),
 	smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows)
 {
 	setArmy(s1, false);
@@ -4590,6 +4585,13 @@ CArtPlace::CArtPlace(const CArtifactInstance* Art)
 {
 }
 
+CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
+	picked(false), marked(false), locked(false), ourArt(Art)
+{
+	pos += position;
+	pos.w = pos.h = 44;
+}
+
 void CArtPlace::activate()
 {
 	if(!active)
@@ -5114,7 +5116,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpackPos = 0;
 
 	// Fill the slots for worn artifacts and backpack.
-	for (int g = 0; g < 19 ; g++)
+	for (int g = 0; g < artWorn.size() ; g++)
 		setSlotData(artWorn[g], g);
 	scrollBackpack(0);
 }
@@ -5262,6 +5264,36 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 	artPlace->setArtifact(NULL);
 }
 
+CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
+	AdventureMapButton *leftScroll, AdventureMapButton *rightScroll, bool createCommonPart):
+
+	curHero(NULL),
+	artWorn(ArtWorn), backpack(Backpack),
+	backpackPos(0), commonInfo(NULL), updateState(false),
+	leftArtRoll(leftScroll), rightArtRoll(rightScroll),
+	allowedAssembling(true), highlightModeCallback(0)
+{
+	if(createCommonPart)
+	{
+		commonInfo = new CArtifactsOfHero::SCommonPart;
+		commonInfo->participants.insert(this);
+	}
+	
+	// Init slots for worn artifacts.
+	for (size_t g = 0; g < artWorn.size() ; g++)
+	{
+		artWorn[g]->ourOwner = this;
+		eraseSlotData(artWorn[g], g);
+	}
+
+	// Init slots for the backpack.
+	for(size_t s=0; s<backpack.size(); ++s)
+	{
+		backpack[s]->ourOwner = this;
+		eraseSlotData(backpack[s], 19 + s);
+	}
+}
+
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
  : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true), highlightModeCallback(0)
 {
@@ -5285,8 +5317,8 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 		genRect(44,44,381,296);
 
 	// Create slots for worn artifacts.
-	for (int g = 0; g < 19 ; g++)
-	{	
+	for (size_t g = 0; g < 19 ; g++)
+	{
 		artWorn[g] = new CArtPlace(NULL);
 		artWorn[g]->pos = slotPos[g] + pos;
 		artWorn[g]->ourOwner = this;

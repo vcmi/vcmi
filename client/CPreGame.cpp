@@ -254,7 +254,7 @@ CMenuScreen::CMenuScreen( EState which )
 			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
 			buttons[2] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::AB), 486, 241, "ZSSARM.DEF", SDLK_c); // AB
 			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t); // Custom
-			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZSSEXIT.DEF", SDLK_ESCAPE); // Back
+			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE); // Back
 
 		}
 		break;

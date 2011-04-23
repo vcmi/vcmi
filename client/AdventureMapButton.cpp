@@ -54,8 +54,11 @@ void CButtonBase::update()
 		else if (newPos == 1) newPos = 0;
 	}
 	image->setFrame(newPos);
-	showAll(screen);
-	showAll(screen2);//Any way to remove one of showAll()?
+	if (active)
+	{
+		showAll(screen);
+		showAll(screen2);//Any way to remove one of showAll()?
+	}
 }
 
 void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)

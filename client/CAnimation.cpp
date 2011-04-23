@@ -74,6 +74,7 @@ class TextParser
 	int type;
 	size_t position;
 	std::string text;
+	std::string getLine();
 public:
 	TextParser(const std::string &name);
 	int getType() const;
@@ -875,6 +876,13 @@ TextParser::TextParser(const std::string &name):
 		type = 2;
 }
 
+std::string TextParser::getLine()
+{
+	size_t lineStart = position+1;
+	position = text.find('\n', lineStart);
+	return text.substr(lineStart, position-lineStart);
+}
+
 int TextParser::getType() const
 {
 	return type;
@@ -882,22 +890,20 @@ int TextParser::getType() const
 
 void TextParser::parseFile(std::map<size_t, std::vector <std::string> > &result)
 {
+	std::string baseDir = getLine();
+
 	while (position != std::string::npos)
 	{
-		size_t lineStart = position+1;
-		position = text.find('\n', lineStart);
-		std::string buf = text.substr(lineStart, position-lineStart);
+		std::string buf = getLine();
 		size_t currentBlock = atoi(buf.c_str());
 
 		while (position != std::string::npos)
 		{
-			lineStart = position+1;
-			position = text.find('\n', lineStart);
-			std::string res = text.substr(lineStart, position-lineStart);
+			std::string res = getLine();
 			boost::algorithm::trim(res);
 			if (res.empty())
 				break;
-			result[currentBlock].push_back(res);
+			result[currentBlock].push_back(baseDir+'/'+res);
 		}
 	}
 }

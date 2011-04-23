@@ -188,6 +188,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		ret = IMG_Load_RW( SDL_RWFromMem((void*)file, size), 1);
 		if (!ret)
 			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
+		delete [] file;
 	}
 	return ret;
 }

@@ -53,7 +53,6 @@ void CGuiHandler::popInt( IShowActivable *top )
 	if(listInt.size())
 		listInt.front()->activate();
 	totalRedraw();
-	fakeMouseMove();
 }
 
 void CGuiHandler::popIntTotally( IShowActivable *top )
@@ -61,6 +60,7 @@ void CGuiHandler::popIntTotally( IShowActivable *top )
 	assert(listInt.front() == top);
 	popInt(top);
 	delete top;
+	fakeMouseMove();
 }
 
 void CGuiHandler::pushInt( IShowActivable *newInt )
@@ -94,6 +94,7 @@ void CGuiHandler::popInts( int howMany )
 		listInt.front()->activate();
 		totalRedraw();
 	}
+	fakeMouseMove();
 }
 
 IShowActivable * CGuiHandler::topInt()

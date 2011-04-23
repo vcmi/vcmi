@@ -755,6 +755,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::SPELL_RESISTANCE_AURA:
 			fileName = "E_UNIC.bmp"; break;
 	}
+	if(!fileName.empty())
+		fileName = "zvs/Lib1.res/" + fileName;
 	return fileName;
 }
 

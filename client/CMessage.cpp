@@ -59,25 +59,25 @@ namespace NMessage
 void CMessage::init()
 {
 	{
+		piecesOfBox.resize(PLAYER_LIMIT);
 		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
-			//FIXME: memory leak. Use SDL_Surface::refcount++ for each required surface
-			//that should not be deleted by CDefHandler destructor
 			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
-			std::vector<SDL_Surface *> n;
-			piecesOfBox.push_back(n);
 			if (i==1)
 			{
 				for (size_t j=0;j<bluePieces->ourImages.size();++j)
 				{
 					piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
+					bluePieces->ourImages[j].bitmap->refcount++;
 				}
 			}
 			for (size_t j=0;j<bluePieces->ourImages.size();++j)
 			{
 				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
+				bluePieces->ourImages[j].bitmap->refcount++;
 			}
+			delete bluePieces;
 		}
 		NMessage::background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
 		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
@@ -123,7 +123,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 {
 	std::vector<std::string> ret;
 
-	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(" "));
+	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(std::string(" ")));
 
 	while (text.length())
 	{
@@ -191,7 +191,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 		}
 
 		if(!allowLeadingWhitespace || !lineManuallyBroken)
-			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" ")); 
+			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(std::string(" "))); 
 
 		if (opened)
 		{
