@@ -18,6 +18,7 @@
 31 PROTECTF.wav	# protection from fire
 32 PROTECTW.wav	# protection from water
 33 PROTECTE.wav	# protection from earth
+35 DISPELL.wav	# dispell
 41 BLESS.wav	# bless
 42 CURSE.wav	# curse
 43 BLOODLUS.wav	# bloodlust
@@ -35,7 +36,7 @@
 55 SLAYER.wav	# slayer
 56 FRENZY.wav	# frenzy
 61 FORGET.wav	# forgetfulness
-
+79 DEATHSTR.wav # Death Stare
 
 
 
@@ -47,7 +48,6 @@
 #DEATHBLO.wav
 #DRAINLIF.wav
 #DRGNSLAY.wav
-#DISPELL.wav
 #DISGUISE.wav
 #DISEASE.wav
 #QUIKSAND.wav

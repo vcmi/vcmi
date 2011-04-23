@@ -841,6 +841,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.type = Bonus::CHANGES_SPELL_COST_FOR_ALLY; break;
 	case 'e':
 		b.type = Bonus::DOUBLE_DAMAGE_CHANCE; break;
+	case 'E':
+		b.type = Bonus::DEATH_STARE;
+		b.subtype = 0; //Gorgon
+		break;
 	case 'g':
 		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
 		b.subtype = -1; //all magic schools

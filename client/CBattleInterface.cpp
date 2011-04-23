@@ -2843,19 +2843,39 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 
 	//displaying message in console
+	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
 	{
 		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl ); //target
 		}
 		else
 		{
-			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
+			if (sc->id == 79) // Death Stare
+			{
+				customSpell = true;
+				if (sc->dmgToDisplay > 1)
+				{
+					text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+				}
+				else
+				{
+					text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+				}
+				boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
+			}
+			else
+				boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 		}
-		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
-		boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+		if (!customSpell)
+			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
+
 		console->addText(text);
 	}
 	else
@@ -2872,7 +2892,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
 		console->addText(text);
 	}
-	if(sc->dmgToDisplay != 0)
+	if(sc->dmgToDisplay && !customSpell)
 	{
 		std::string dmgInfo = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1);
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));

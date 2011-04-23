@@ -20,6 +20,9 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/poisson_distribution.hpp>
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -3401,6 +3404,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			continue;
 		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
+	if (spellID = 79) // Death stare
+	{
+		sc.dmgToDisplay = usedSpellPower;
+		amin(sc.dmgToDisplay, (*attackedCres.begin())->count); // hopefully stack is already reduced after attack
+	}
 
 	sendAndApply(&sc);
 
@@ -3585,6 +3593,27 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 
 			break;
 		}
+	case 79: //Death stare - handled in a bit different way
+		{
+			StacksInjured si;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				if((*it)->hasBonusOfType (Bonus::UNDEAD) || (*it)->hasBonusOfType (Bonus::NON_LIVING)) //this creature is immune
+					continue;
+
+				BattleStackAttacked bsa;
+				bsa.flags |= BattleStackAttacked::EFFECT;
+				bsa.effect = spell->mainEffectAnim; //TODO: find which it is
+				bsa.damageAmount = usedSpellPower * (*it)->valOfBonuses(Bonus::STACK_HEALTH);
+				bsa.stackAttacked = (*it)->ID;
+				bsa.attackerID = -1;
+				(*it)->prepareAttacked(bsa);
+				si.stacks.push_back(bsa);
+			}
+			if(!si.stacks.empty())
+				sendAndApply(&si);
+		}
+		break;
 	}
 
 }
@@ -4208,6 +4237,28 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				//casting
 				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
 			}
+		}
+	}
+	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
+	{
+		int staredCreatures = 0;
+		double mean = attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0) / 100;
+		if (mean >= 1)
+		{
+			boost::poisson_distribution<int, double> p((int)mean);
+			boost::mt19937 rng;
+			boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int, double>> dice (rng, p);
+			staredCreatures += dice();
+		}
+		if (((int)(mean * 100)) < rand() % 100) //fractional chance for one last kill
+			++staredCreatures;
+		 
+		staredCreatures += attacker->type->level * attacker->valOfBonuses(Bonus::DEATH_STARE, 1);
+		if (staredCreatures)
+		{
+			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally avaliable for multiple-hex attacks, but...
+			handleSpellCasting(79, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
+				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING);
 		}
 	}
 }

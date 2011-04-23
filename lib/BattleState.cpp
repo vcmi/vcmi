@@ -1791,9 +1791,10 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 			std::remove_if(immunities.begin(), immunities.end(), NegateRemover);
 		}
 
-		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id)
-			|| ( immunities.size() > 0 && immunities.totalValue() >= spell->level))
-		{
+		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id) ||
+			( immunities.size() > 0 && immunities.totalValue() >= spell->level)
+			&& spell->level) //many creature abilities have level equal to 0, may cause bugs
+		{ 
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		//dispel helpful spells

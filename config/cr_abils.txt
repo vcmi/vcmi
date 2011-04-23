@@ -115,7 +115,7 @@
 +  93 SPELL_AFTER_ATTACK 0 77 20   	//thunderbirds					
 +  96 ENEMY_DEFENCE_REDUCTION 40 0 0		//behemots				
 +  97 ENEMY_DEFENCE_REDUCTION 80 0 0		//ancient behemots				
-+ 103 SPELL_AFTER_ATTACK 0 79 10   	//mighty gorgons					
++ 103 DEATH_STARE 10 0 0   	//mighty gorgons					
 + 104 SPELL_AFTER_ATTACK 0 78 100  	//serpent fly					
 + 105 SPELL_AFTER_ATTACK 0 45 100  	//mighty gorgons					
 + 105 SPELL_AFTER_ATTACK 0 78 100	//dragon fly					
