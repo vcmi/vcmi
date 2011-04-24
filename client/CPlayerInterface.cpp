@@ -1045,6 +1045,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if (!h)
 		return false; //can't find hero
 
+	eventsM.unlock();
 	pim->unlock();
 	bool result = false;
 
@@ -1091,10 +1092,8 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 			cb->moveHero(h,endpos);
 
-			eventsM.unlock();
 			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 				stillMoveHero.cond.wait(un);
-			eventsM.lock();
 
 			if (guarded) // Abort movement if a guard was fought.
 				break;
@@ -1105,6 +1104,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	}
 
 	pim->lock();
+	eventsM.lock();
 	return result;
 }
 

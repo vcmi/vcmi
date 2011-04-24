@@ -1113,9 +1113,11 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//create stack queue
 	bool embedQueue = screen->h < 700;
 	queue = new CStackQueue(embedQueue, this);
-	if(!embedQueue && curInt->sysOpts.showQueue)
+	if(!embedQueue)
 	{
-		pos.y += queue->pos.h / 2; //center whole window
+		if(curInt->sysOpts.showQueue)
+			pos.y += queue->pos.h / 2; //center whole window
+
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
 // 		queue->pos.x = pos.x;
 // 		queue->pos.y = pos.y - queue->pos.h;
