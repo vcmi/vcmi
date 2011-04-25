@@ -583,9 +583,11 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->additionalInfo % 1000));
+				{
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
+				}
 				default:
 					{}//TODO: allow custom bonus types... someday, somehow
 			}

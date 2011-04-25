@@ -17,11 +17,11 @@
 +  17 MAGIC_RESISTANCE 40 0 0 	 	//battle dwarf's magic resistance 40%				
 +  20 CHANGES_SPELL_COST_FOR_ENEMY 2 0 0	//pegasus makes spell cost higher for enemy mage					
 +  21 CHANGES_SPELL_COST_FOR_ENEMY 2 0 0 	//silver pegasus makes spell cost higher for enemy mage					
-+  22 SPELL_AFTER_ATTACK 0 72 100   //dendroids cast bind						
-+  23 SPELL_AFTER_ATTACK 0 72 100 	//dendroid guards cast bind					
-+  24 SPELL_AFTER_ATTACK 0 62 20 	//unicorns cast blind with 20% probability					
++  22 SPELL_AFTER_ATTACK 72 0 100   //dendroids cast bind						
++  23 SPELL_AFTER_ATTACK 72 0 100 	//dendroid guards cast bind					
++  24 SPELL_AFTER_ATTACK 62 0 20 	//unicorns cast blind with 20% probability					
 +  24 SPELL_RESISTANCE_AURA 0 55 0	//unicorn					
-+  25 SPELL_AFTER_ATTACK 0 62 20 	//war unicorns cast blind with 20% probability					
++  25 SPELL_AFTER_ATTACK 62 0 20 	//war unicorns cast blind with 20% probability					
 +  25 SPELL_RESISTANCE_AURA 20 55 0 	//war unicorn					
 +  26 LEVEL_SPELL_IMMUNITY 3 0 0 	//green dragon's spell immunity					
 +  26 TWO_HEX_ATTACK_BREATH 0 0 0  	//green dragon's breath					
@@ -86,22 +86,22 @@
 +  63 LIFE_DRAIN 0 0 0	   	 		//vampire lords		
 +  64 SPELL_LIKE_ATTACK 76 0 0		//liches				
 +  65 SPELL_LIKE_ATTACK 76 0 0 		//power liches				
-+  66 SPELL_AFTER_ATTACK 0 42 20 	//black knights					
++  66 SPELL_AFTER_ATTACK 20 42 0 	//black knights					
 +  67 DOUBLE_DAMAGE_CHANCE 20 0 0	//vampire lords					
-+  67 SPELL_AFTER_ATTACK 0 42 20 	//dread knights					
++  67 SPELL_AFTER_ATTACK 20 42 0 	//dread knights					
 +  68 DRAGON_NATURE 0 0 0			//bone dragon is a dragon			
-+  69 SPELL_AFTER_ATTACK 0 75 20   	//ghost dragon					
++  69 SPELL_AFTER_ATTACK 20 75 0  	//ghost dragon					
 +  69 DRAGON_NATURE 0 0 0			//ghost dragon is a dragon			
 +  70 SPELL_IMMUNITY 0 62 0	  	   	//troglodytes are immune to blind			
 +  71 SPELL_IMMUNITY 0 62 0		   	//infernal troglodytes are immune to blind			
 +  72 RETURN_AFTER_STRIKE 0 0 0	   	//Harpies return after attack				
 +  73 BLOCKS_RETALIATION 0 0 0	   	//Harpy Hags				
 +  73 RETURN_AFTER_STRIKE 0 0 0	   	//Harpy Hags return after attack				
-+  76 SPELL_AFTER_ATTACK 0 70 2020  	//medusas					
-+  77 SPELL_AFTER_ATTACK 0 70 2020  	//medusa queens					
++  76 SPELL_AFTER_ATTACK 20 70 2000  	//medusas					
++  77 SPELL_AFTER_ATTACK 20 70 2000  	//medusa queens					
 +  78 SELF_MORALE 0 0 0	   	  	   	//minotaurs		
 +  79 SELF_MORALE 0 0 0			   	//minotaur kings		
-+  81 SPELL_AFTER_ATTACK 0 74 20   	//scorpicore					
++  81 SPELL_AFTER_ATTACK 20 74 0   	//scorpicore					
 +  82 LEVEL_SPELL_IMMUNITY 3 0 0   	//red dragon's spell immunity					
 +  82 TWO_HEX_ATTACK_BREATH 0 0 0  	//Red Dragon has breath attack					
 +  82 DRAGON_NATURE 0 0 0			//red dragon is a dragon			
@@ -112,16 +112,16 @@
 +  83 DRAGON_NATURE 0 0 0			//black dragon is a dragon			
 +  87 ADDITIONAL_ATTACK 1 0 0		//wolf raider				
 +  91 SPELLCASTER 2 43 6   	   	   	//ogre magi cast bloodlust			
-+  93 SPELL_AFTER_ATTACK 0 77 20   	//thunderbirds					
++  93 SPELL_AFTER_ATTACK 20 77 0   	//thunderbirds					
 +  96 ENEMY_DEFENCE_REDUCTION 40 0 0		//behemots				
 +  97 ENEMY_DEFENCE_REDUCTION 80 0 0		//ancient behemots				
 + 103 DEATH_STARE 10 0 0   	//mighty gorgons					
-+ 104 SPELL_AFTER_ATTACK 0 78 100  	//serpent fly					
-+ 105 SPELL_AFTER_ATTACK 0 45 100  	//mighty gorgons					
-+ 105 SPELL_AFTER_ATTACK 0 78 100	//dragon fly					
-+ 106 SPELL_AFTER_ATTACK 0 70 20   	//basilisks					
-+ 107 SPELL_AFTER_ATTACK 0 70 20   	//greater basilisks					
-+ 109 SPELL_AFTER_ATTACK 0 71 20   	//Wyvern Monarch					
++ 104 SPELL_AFTER_ATTACK 100 78 0  	//serpent fly					
++ 105 SPELL_AFTER_ATTACK 100 45 0  	//mighty gorgons					
++ 105 SPELL_AFTER_ATTACK 100 78 0	//dragon fly					
++ 106 SPELL_AFTER_ATTACK 20 70 0   	//basilisks					
++ 107 SPELL_AFTER_ATTACK 20 70 0   	//greater basilisks					
++ 109 SPELL_AFTER_ATTACK 20 71 0   	//Wyvern Monarch					
 + 110 ATTACKS_ALL_ADJACENT 0 0 0   	//hydras					
 + 110 BLOCKS_RETALIATION 0 0 0 	   	//hydras				
 + 111 ATTACKS_ALL_ADJACENT 0 0 0   	//chaos hydras					

@@ -956,7 +956,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		break;
 
 	case 'a':
-	//case 'c': //some special abilities are threated as spells, will cause bugs
+	case 'c': //some special abilities are threated as spells, work in progress
 		b.type = Bonus::SPELL_AFTER_ATTACK;
 		b.subtype = stringToNumber(mod); 
 		break;

@@ -3077,6 +3077,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			bat.flags |= BattleAttack::SHOT;
 			prepareAttack(bat, curStack, destStack, 0);
 			sendAndApply(&bat);
+			handleAfterAttackCasting(bat);
 
 			//ballista & artillery handling
 			if(destStack->alive() && curStack->getCreature()->idNumber == 146)
@@ -3203,7 +3204,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&EndAction());
 			break;
 		}
-		case BattleAction::STACK_HEAL: //healing
+		case BattleAction::STACK_HEAL: //healing with First Aid Tent
 		{
 			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
@@ -3404,13 +3405,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			continue;
 		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
-	if (spellID = 79) // Death stare
+	if (spellID == 79) // Death stare
 	{
 		sc.dmgToDisplay = usedSpellPower;
-		amin(sc.dmgToDisplay, (*attackedCres.begin())->count); // hopefully stack is already reduced after attack
+		amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
-
-	sendAndApply(&sc);
 
 	//applying effects
 	switch(spellID)
@@ -3477,6 +3476,12 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	case 60: //hypnotize
 	case 61: //forgetfulness
 	case 62: //blind
+	case 70: //Stone Gaze
+	case 71: //Poison
+	case 72: //Bind
+	case 73: //Disease
+	case 74: //Paralyze
+	case 75: //Aging
 		{
 			SetStackEffect sse;
 			Bonus pseudoBonus;
@@ -3484,8 +3489,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+			const Bonus * bonus = NULL;
+			if (caster)
+				bonus = caster->getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 
-			const Bonus * bonus = caster->getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 			si32 power;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
@@ -3528,7 +3535,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
  	 					break;
  	 				}
  				}
-				if (caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
+				if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
  	 			{
  	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / tier;
 					Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
@@ -3593,17 +3600,21 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 
 			break;
 		}
+		break;
 	case 79: //Death stare - handled in a bit different way
 		{
 			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
-				if((*it)->hasBonusOfType (Bonus::UNDEAD) || (*it)->hasBonusOfType (Bonus::NON_LIVING)) //this creature is immune
+				if((*it)->hasBonusOfType(Bonus::UNDEAD) || (*it)->hasBonusOfType(Bonus::NON_LIVING)) //this creature is immune
+				{
+					sc.dmgToDisplay = 0; //TODO: handle Death Stare for multiple targets (?)
 					continue;
+				}
 
 				BattleStackAttacked bsa;
 				bsa.flags |= BattleStackAttacked::EFFECT;
-				bsa.effect = spell->mainEffectAnim; //TODO: find which it is
+				bsa.effect = spell->mainEffectAnim; //from config\spell-Info.txt
 				bsa.damageAmount = usedSpellPower * (*it)->valOfBonuses(Bonus::STACK_HEALTH);
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
@@ -3615,6 +3626,8 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 		}
 		break;
 	}
+
+	sendAndApply(&sc);
 
 }
 
@@ -4203,40 +4216,50 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
 	if( attacker->hasBonusOfType(Bonus::SPELL_AFTER_ATTACK) )
 	{
+		std::set<ui32> spellsToCast;
 		BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK)))
 		{
-			if (sf->type == Bonus::SPELL_AFTER_ATTACK)
+			spellsToCast.insert (sf->subtype);
+		}
+		BOOST_FOREACH(ui32 spellID, spellsToCast)
+		{
+			const CStack * oneOfAttacked = NULL;
+			for(int g=0; g<bat.bsa.size(); ++g)
 			{
-				const CStack * oneOfAttacked = NULL;
-				for(int g=0; g<bat.bsa.size(); ++g)
+				if (bat.bsa[g].newAmount > 0)
 				{
-					if (bat.bsa[g].newAmount > 0)
-					{
-						oneOfAttacked = gs->curB->getStack(bat.bsa[g].stackAttacked);
-						break;
-					}
+					oneOfAttacked = gs->curB->getStack(bat.bsa[g].stackAttacked);
+					break;
 				}
-				if(oneOfAttacked == NULL) //all attacked creatures have been killed
-					return;
-
-				int spellID = sf->subtype;
-				int spellLevel = sf->val;
-				int chance = sf->additionalInfo % 1000;
-				//int meleeRanged = sf->additionalInfo / 1000;
-				int destination = oneOfAttacked->position;
-
-				const CSpell * spell = VLC->spellh->spells[spellID];
-				if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, SpellCasting::AFTER_ATTACK_CASTING, oneOfAttacked->position)
-					!= SpellCasting::OK)
-					continue;
-
-				//check if spell should be casted (probability handling)
-				if( rand()%100 >= chance )
-					continue;
-
-				//casting
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
 			}
+			bool castMe = false;
+			int meleeRanged;
+			if(oneOfAttacked == NULL) //all attacked creatures have been killed
+				return;
+			int spellLevel = 0;
+			BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::typeSybtype(Bonus::SPELL_AFTER_ATTACK, spellID)))
+			{
+				amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
+				meleeRanged = sf->additionalInfo / 1000;
+				if (meleeRanged == 0 || (meleeRanged == 1 && bat.shot()) || (meleeRanged == 2 && !bat.shot()))
+					castMe = true;
+			}
+			int chance = attacker->valOfBonuses((Selector::typeSybtype(Bonus::SPELL_AFTER_ATTACK, spellID)));
+			amin (chance, 100);
+			int destination = oneOfAttacked->position;
+
+			const CSpell * spell = VLC->spellh->spells[spellID];
+			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, SpellCasting::AFTER_ATTACK_CASTING, oneOfAttacked->position)
+				!= SpellCasting::OK)
+				continue;
+
+			//check if spell should be casted (probability handling)
+			if(rand()%100 >= chance)
+				continue;
+
+			//casting
+			if (castMe)
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
 		}
 	}
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79

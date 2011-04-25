@@ -92,7 +92,7 @@ namespace PrimarySkill
 	BONUS_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
-	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - spell level, (additional info)%1000 - chance in %; eg. dendroids, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
+	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, additional info % 1000 - level, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
@@ -157,7 +157,9 @@ namespace PrimarySkill
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
 	BONUS_NAME(EXP_MULTIPLIER)/* val - percent of additional exp gained by stack/commander (base value 100)*/\
 	BONUS_NAME(SHOTS)\
-	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/
+	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
+	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
+	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus
@@ -185,7 +187,7 @@ struct DLL_EXPORT Bonus
 		ARTIFACT,
 		ARTIFACT_INSTANCE,
 		OBJECT,
-			CREATURE_ABILITY,
+		CREATURE_ABILITY,
 		TERRAIN_NATIVE,
 		TERRAIN_OVERLAY,
 		SPELL_EFFECT,

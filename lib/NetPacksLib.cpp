@@ -874,13 +874,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
 		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
-
-		//regeneration
-		if( s->hasBonusOfType(Bonus::HP_REGENERATION) && s->alive() )
-			s->firstHPleft = std::min<ui32>( s->MaxHealth(), s->valOfBonuses(Bonus::HP_REGENERATION) );
-		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION) && s->alive() )
-			s->firstHPleft = s->MaxHealth();
-
+		// new turn effects
 		s->battleTurnPassed();
 	}
 }
@@ -889,6 +883,34 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 {
 	gs->curB->activeStack = stack;
 	CStack *st = gs->curB->getStack(stack);
+
+	if (st->alive())
+		{
+			//regeneration
+			if(st->hasBonusOfType(Bonus::HP_REGENERATION))
+				st->firstHPleft = std::min<ui32>( st->MaxHealth(), st->valOfBonuses(Bonus::HP_REGENERATION) );
+			if(st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
+				st->firstHPleft = st->MaxHealth();
+			if(st->hasBonusOfType(Bonus::POISON))
+			{
+				Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+				if (b) //TODO: what if not?...
+				{
+					b->val -= 10;
+					amax (b->val, -(st->valOfBonuses(Bonus::POISON)));
+				}
+			}
+			if(st->hasBonusOfType(Bonus::MANA_DRAIN))
+			{
+				const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
+				if (enemy)
+				{
+					ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);
+					amin (manaDrained, gs->curB->heroes[0]->mana);
+					gs->getHero(enemy->id)->mana -= manaDrained; //jeez, it's overcomplicate
+				}
+			}
+		}
 
 	//remove bonuses that last until when stack gets new turn
 	st->bonuses.remove_if(Bonus::UntilGetsTurn);
@@ -1135,14 +1157,14 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 {
-	int id = effect.begin()->sid; //effects' source ID
+	int spellid = effect.begin()->sid; //effects' source ID
 
 	BOOST_FOREACH(ui32 id, stacks)
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(id == 47 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id)))//disrupting ray or not on the list - just add	
+			if(spellid == 47 || spellid == 80 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add	
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{
@@ -1163,7 +1185,7 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(para.first);
 		if (s)
 		{
-			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, id) && Selector::typeSybtype(para.second.type, para.second.subtype)))
+			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid) && Selector::typeSybtype(para.second.type, para.second.subtype)))
 				s->addNewBonus(new Bonus(para.second));
 			else
 				actualizeEffect(s, effect);

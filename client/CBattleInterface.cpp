@@ -2307,6 +2307,20 @@ void CBattleInterface::stackRemoved(const CStack * stack)
 
 void CBattleInterface::stackActivated(const CStack * stack)
 {
+	//don't show animation when no HP is regenerated
+	if (stack->firstHPleft != stack->MaxHealth())
+	{
+		if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
+			displayEffect(74, stack->position);
+		if( stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
+			displayEffect(4, stack->position);
+	}
+
+	if(stack->hasBonusOfType(Bonus::MANA_DRAIN))
+			displayEffect(77, stack->position);
+	if(stack->hasBonusOfType(Bonus::POISON))
+			displayEffect(67, stack->position);
+
 	//givenCommand = NULL;
 	stackToActivate = stack;
 	if(pendingAnims.size() == 0)
@@ -2347,20 +2361,6 @@ void CBattleInterface::newRoundFirst( int round )
 	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //gets only alive stacks
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		//don't show animation when no HP is regenerated
-		if (s->firstHPleft == s->MaxHealth())
-		{
-			continue;
-		}
-
-		if( s->hasBonusOfType(Bonus::HP_REGENERATION))
-			displayEffect(74, s->position);
-
-		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
-			displayEffect(4, s->position);
-
-		if( s->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
-			displayEffect(74, s->position);
 	}
 	waitForAnims();
 }
@@ -2826,7 +2826,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case 37: //cure
 	case 38: //resurrection
 	case 39: //animate dead
-	case 78: //dispel helpful spells
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
@@ -2856,24 +2855,32 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 		else
 		{
-			if (sc->id == 79) // Death Stare
+			switch(sc->id)
 			{
-				customSpell = true;
-				if (sc->dmgToDisplay > 1)
-				{
-					text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
-				}
-				else
-				{
-					text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
-				}
-				boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
+				case 71: //Poison
+					customSpell = true;
+					break;
+				//case 75: // Aging
+				//	customSpell = true;
+				//	break;
+				case 79: // Death Stare
+					customSpell = true;
+					if (sc->dmgToDisplay > 1)
+					{
+						text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
+						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
+						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+					}
+					else
+					{
+						text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
+						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+					}
+					boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
+					break;
+				default:
+					boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 			}
-			else
-				boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 		}
 		if (!customSpell)
 			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
@@ -3503,10 +3510,12 @@ void CBattleInterface::startAction(const BattleAction* action)
 		console->addText(txt);
 	}
 
-	//displaying heal animation
-	if (action->actionType == BattleAction::STACK_HEAL)
+	//displaying special abilities
+	switch (action->actionType)
 	{
-		displayEffect(50, action->destinationTile);
+		case BattleAction::STACK_HEAL:
+			displayEffect(50, action->destinationTile);
+			break;
 	}
 }
 

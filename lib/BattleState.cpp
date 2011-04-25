@@ -1792,8 +1792,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		}
 
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id) ||
-			( immunities.size() > 0 && immunities.totalValue() >= spell->level)
-			&& spell->level) //many creature abilities have level equal to 0, may cause bugs
+			( immunities.size() > 0 && immunities.totalValue() >= spell->level)) //many creature abilities have level equal to 0 by default, fixed in config\spell_levels
 		{ 
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
@@ -2140,6 +2139,34 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
 	 	break;
+	case 70: //Stone Gaze
+	case 74: //Paralyze
+		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().sid = sse.sid;
+		break;
+	case 71: //Poison
+		sf.push_back(featureGeneratorVT(Bonus::POISON, 0, 30, 3, Bonus::INDEPENDENT_MAX)); //max hp penalty from this source
+		sf.back().sid = sse.sid;
+		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -10, 3, Bonus::PERCENT_TO_ALL));
+		sf.back().sid = sse.sid;
+		break;
+	case 72: //Bind
+		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -100, 1, Bonus::PERCENT_TO_ALL)); //sets speed to zero
+		sf.back().sid = sse.sid;
+		sf.push_back(featureGenerator(Bonus::BIND_EFFECT, 0, 0, 0)); //marker, TODO: handle it
+		sf.back().duration = Bonus::PERMANENT;
+	 	sf.back().sid = sse.sid;
+		break;
+	case 73: //Disease
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2 ,3));
+	 	sf.back().sid = sse.sid;
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2 ,3));
+	 	sf.back().sid = sse.sid;
+		break;
+	case 75: //Age
+		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -50, 3, Bonus::PERCENT_TO_ALL));
+		sf.back().sid = sse.sid;
+		break;
 	}
 }
 
