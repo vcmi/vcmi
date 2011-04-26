@@ -2845,6 +2845,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	//displaying message in console
 	bool customSpell = false;
+	bool plural = false; //add singular / plural form of creature text if this is true
+	int textID = 0;
 	if(sc->affectedCres.size() == 1)
 	{
 		std::string text = CGI->generaltexth->allTexts[195];
@@ -2857,35 +2859,82 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			switch(sc->id)
 			{
+				case 70: //Stone Gaze
+					customSpell = true;
+					plural = true;
+					textID = 558;
+					break;
 				case 71: //Poison
 					customSpell = true;
+					plural = true;
+					textID = 561;
 					break;
-				//case 75: // Aging
-				//	customSpell = true;
-				//	break;
+				case 72: //Bind
+					customSpell = true;
+					text = CGI->generaltexth->allTexts[560];
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+					break;	//Roots and vines bind the %s to the ground!
+				case 73: //Disease
+					customSpell = true;
+					plural = true;
+					textID = 553;
+					break;
+				case 74: //Paralyze
+					customSpell = true;
+					plural = true;
+					textID = 563;
+					break;
+				case 75: // Aging //TODO: hitpoints
+					customSpell = true;
+					plural = true;
+					textID = 551;
+					break;
+				case 78: //Dispell helpful spells
+					text = CGI->generaltexth->allTexts[555];
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					customSpell = true;
+					break;
 				case 79: // Death Stare
 					customSpell = true;
-					if (sc->dmgToDisplay > 1)
+					if (sc->dmgToDisplay)
 					{
-						text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+						if (sc->dmgToDisplay > 1)
+						{
+							text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
+							boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
+							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+						}
+						else
+						{
+							text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
+							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+						}
+						boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
 					}
 					else
-					{
-						text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
-					}
-					boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
+						text = "";
 					break;
 				default:
 					boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 			}
+			if (plural)
+			{
+				if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
+				{
+					text = CGI->generaltexth->allTexts[textID + 1];
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+				}
+				else
+				{
+					text = CGI->generaltexth->allTexts[textID];
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+				}
+			}
 		}
 		if (!customSpell)
 			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
-
-		console->addText(text);
+		if (text.size())
+			console->addText(text);
 	}
 	else
 	{

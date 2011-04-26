@@ -36,22 +36,30 @@
 55 SLAYER.wav	# slayer
 56 FRENZY.wav	# frenzy
 61 FORGET.wav	# forgetfulness
+70 PARALYZE.wav	# stone gaze - not sure
+71 POISON.wav	# poison
+72 BIND.wav		# bind
+73 DISEASE.wav	#
+74 PARALYZE.wav	#
+75 AGE.wav		# aging - already used (?)
+76 DEATHCLD.wav # death cloud
+77 LIGHTBLT.wav # thunder
+78 DISPELL.wav	# dispell helpful spells
 79 DEATHSTR.wav # Death Stare
+80 ACID.wav		# Acid breath / defence piercing
 
 
 
 #BLIND.wav
-#POISON.wav
 #CURE.wav
 #HYPNOTIZ.wav
-#DEATHCLD.wav
 #DEATHBLO.wav
 #DRAINLIF.wav
 #DRGNSLAY.wav
 #DISGUISE.wav
-#DISEASE.wav
 #QUIKSAND.wav
 #FIRESHIE.wav fireshield when cast
 #FIRESHLD.wav fireshield effect
 #ANIMDEAD.wav
 #ANTIMAGK.wav
+
