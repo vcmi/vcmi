@@ -1477,8 +1477,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	{
 		buy = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
 		          "", boost::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
+		buy->borderColor = int3(173, 142, 66);
+		buy->borderEnabled = true;
+		
 		cancel = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name()),
 		             "", boost::bind(&CBuildWindow::close,this), 290, 445, "ICANCEL", SDLK_ESCAPE);
+		cancel->borderColor = int3(173, 142, 66);
+		cancel->borderEnabled = true;
 		buy->block(state!=7);
 	}
 }

@@ -277,8 +277,7 @@ void CMenuScreen::showAll( SDL_Surface * to )
 
 void CMenuScreen::show( SDL_Surface * to )
 {
-	CIntObject::show(to);
-	//CCS->videoh->update(pos.x + 8, pos.y + 105, screen, true, false);
+	showAll(to);
 }
 
 void CMenuScreen::moveTo( CMenuScreen *next )
@@ -339,8 +338,6 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
-	SDL_FillRect(screen, 0, 0);
-	
 	if (GH.listInt.size() == 0)
 	{
 		CCS->musich->playMusic(musicBase::mainMenu, -1);
@@ -358,14 +355,15 @@ void CGPreGame::update()
 	if (GH.curInt == 0) // no redraw, when a new game was created
 		return;
 
-	GH.totalRedraw();
+	GH.topInt()->show(screen);
 
 	if (conf.cc.showFPS)
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
-	CCS->curh->draw(screen);
+	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
+	CCS->curh->draw2();
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
@@ -2616,6 +2614,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 
 	startB = new AdventureMapButton("", "", bind(&CBonusSelection::startMap, this), 475, 536, "CBBEGIB.DEF", SDLK_RETURN);
 	backB = new AdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
+	startB->setState(CButtonBase::BLOCKED);
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
@@ -2637,7 +2636,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	mapDesc = new CTextBox("", Rect(480, 280, 286, 117), 1);
 
 	//bonus choosing
-	printAtMiddleLoc(CGI->generaltexth->allTexts[71], 562, 438, FONT_MEDIUM, zwykly, background); //Choose a bonus:
+	printAtLoc(CGI->generaltexth->allTexts[71], 511, 432, FONT_MEDIUM, zwykly, background); //Choose a bonus:
 	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
@@ -2673,18 +2672,21 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	SDL_FreeSurface(panel);
 
 	//difficulty
-	printAtMiddleLoc(CGI->generaltexth->allTexts[492], 715, 438, FONT_MEDIUM, zwykly, background); //Difficulty
-	{//difficulty pics
-		for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
-		{
-			CDefEssential * cde = CDefHandler::giveDefEss("GSPBUT" + boost::lexical_cast<std::string>(b+3) + ".DEF");
-			SDL_Surface * surfToDuplicate = cde->ourImages[0].bitmap;
-			diffPics[b] = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format,
-				surfToDuplicate->flags);
+	std::vector<std::string> difficulty;
+	boost::split(difficulty, CGI->generaltexth->allTexts[492], boost::is_any_of(" "));
+	printAtLoc(difficulty.back(), 689, 432, FONT_MEDIUM, zwykly, background); //Difficulty
+	
+	//difficulty pics
+	for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
+	{
+		CDefEssential * cde = CDefHandler::giveDefEss("GSPBUT" + boost::lexical_cast<std::string>(b+3) + ".DEF");
+		SDL_Surface * surfToDuplicate = cde->ourImages[0].bitmap;
+		diffPics[b] = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format,
+			surfToDuplicate->flags);
 
-			delete cde;
-		}
+		delete cde;
 	}
+	
 	//difficulty selection buttons
 	if (ourCampaign->camp->header.difficultyChoosenByPlayer)
 	{
@@ -3010,26 +3012,20 @@ void CBonusSelection::updateBonusSelection()
 				break;
 			}
 
-			bonuses->addButton(new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, "", i));
+			CHighlightableButton *bonusButton = new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, "", i);
 
 			if (picNumber != -1)
 				picName += ":" + boost::lexical_cast<std::string>(picNumber);
 
 			CAnimation * anim = new CAnimation();
 			anim->setCustom(picName, 0);
-			anim->setCustom("TWCRPORT:1", 1);//create separate surface with yellow border
-			bonuses->buttons.back()->setImage(anim);
-			//FIXME: use show base
-
+			bonusButton->setImage(anim);
+			bonusButton->borderColor = int3(242, 226, 110); // yellow border
+			bonuses->addButton(bonusButton);
 		}
 	if (active)
 		for (size_t i=0; i<bonuses->buttons.size(); i++)
 			bonuses->buttons[i]->activate();
-
-	if (bonuses->buttons.size() > 0)
-	{
-		bonuses->select(0, 0);
-	}
 }
 
 void CBonusSelection::startMap()
@@ -3041,14 +3037,28 @@ void CBonusSelection::startMap()
 	}
 	else
 	{
-		GH.popInts(3);
+		// Deletes either the Custom campaign selection screen + Bonus selection screen or
+		// one of the main campaign selection screens + Bonus selection screen and
+		// deactivates the main menu
+		GH.popInts(2);
+		GH.popInt(GH.topInt()); 
 	}
 	::startGame(si);
 }
 
 void CBonusSelection::selectBonus( int id )
 {
-	sInfo.choosenCampaignBonus = id;
+	// Total redraw is needed because the border around the bonus images
+	// have to be undrawn/drawn.
+	if (id != sInfo.choosenCampaignBonus)
+	{
+		sInfo.choosenCampaignBonus = id;
+		GH.totalRedraw();
+
+		if (startB->getState() == CButtonBase::BLOCKED)
+			startB->setState(CButtonBase::NORMAL);
+	}
+	
 
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
@@ -3436,6 +3446,7 @@ CCampaignScreen::~CCampaignScreen()
 	if (noCamp != 0)
 		SDL_FreeSurface(noCamp);
 
+	//campButtons.clear();
 	CCS->videoh->open("ACREDIT.SMK");
 }
 
@@ -3470,11 +3481,17 @@ void CCampaignScreen::drawCampaignPlaceholder()
 	blitAt(noCamp, noCampRect, bg);
 }
 
-void CCampaignScreen::showAll(SDL_Surface *to)
+void CCampaignScreen::show(SDL_Surface *to)
 {
 	// Draw background image and all interactive objects like buttons
 	blitAt(bg, pos.x, pos.y, to);
-	CIntObject::showAll(to);
+	
+	for (int i = 0; i < this->campButtons.size(); i++)
+	{
+		campButtons[i]->show(to);
+	}
+
+	back->showAll(to);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status)
@@ -3507,7 +3524,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::st
 	// Create the button hover effect
 	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
 	hoverLabel->ignoreLeadingWhitespace = false;
-	hoverLabel->autoRedraw = false;
 }
 
 CCampaignScreen::CCampaignButton::~CCampaignButton()
@@ -3532,9 +3548,9 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 
 }
 
-void CCampaignScreen::CCampaignButton::showAll(SDL_Surface *to)
+void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 {
-	CIntObject::showAll(to);
+	hoverLabel->showAll(to);
 
 	if (status == CCampaignScreen::DISABLED || video == "" || button == 0)
 		return;

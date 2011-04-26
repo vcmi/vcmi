@@ -193,7 +193,9 @@ void CCursorHandler::centerCursor()
 	SDL_Surface *cursor = this->cursors[mode]->ourImages[number].bitmap;
 	this->xpos = (screen->w / 2.) - (cursor->w / 2.);
 	this->ypos = (screen->h / 2.) - (cursor->h / 2.);
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);	
 	SDL_WarpMouse(this->xpos, this->ypos);
+	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 }
 
 CCursorHandler::~CCursorHandler()

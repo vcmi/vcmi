@@ -71,7 +71,9 @@ public:
 	std::string helpBox; //for right-click help
 	CFunctionList<void()> callback;
 	bool actOnDown,//runs when mouse is pressed down over it, not when up
-	     hoverable;//if true, button will be highlighted when hovered
+	     hoverable,//if true, button will be highlighted when hovered
+		 borderEnabled;
+	int3 borderColor;
 
 	void clickRight(tribool down, bool previousState);
 	virtual void clickLeft(tribool down, bool previousState);
@@ -87,6 +89,8 @@ public:
 	void setIndex(size_t index, bool playerColoredButton=false);
 	void setImage(CAnimation* anim, bool playerColoredButton=false);
 	void setPlayerColor(int player);
+	void show(SDL_Surface *to);
+	void showAll(SDL_Surface *to);
 };
 
 /// A button which can be selected/deselected

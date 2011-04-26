@@ -517,13 +517,6 @@ public:
 /// Handles GUI logic and drawing
 class CGuiHandler
 {
-private:
-	bool invalidateTotalRedraw;
-	bool invalidateSimpleRedraw;
-
-	void internalTotalRedraw();
-	void internalSimpleRedraw();
-
 public:
 	FPSManager *mainFPSmng; //to keep const framerate
 	timeHandler th;

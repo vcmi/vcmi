@@ -225,6 +225,7 @@ private:
 	SDL_Rect pos;				// destination on screen
 
 	CVidHandler *vidh;
+	CVidHandler *vidh_ab;
 
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;

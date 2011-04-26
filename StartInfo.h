@@ -93,6 +93,7 @@ struct StartInfo
 	StartInfo()
 	{
 		mode = INVALID;
+		choosenCampaignBonus = -1;
 	}
 };
 

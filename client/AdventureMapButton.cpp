@@ -107,7 +107,8 @@ void CButtonBase::block(bool on)
 
 AdventureMapButton::AdventureMapButton ()
 {
-	hoverable = actOnDown = false;
+	hoverable = actOnDown = borderEnabled = false;
+	borderColor.x = -1;
 	used = LCLICK | RCLICK | HOVER | KEYBOARD;
 }
 
@@ -208,7 +209,8 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	currentImage = -1;
 	used = LCLICK | RCLICK | HOVER | KEYBOARD;
 	callback = Callback;
-	actOnDown = hoverable = false;
+	actOnDown = hoverable = borderEnabled = false;
+	borderColor.x = -1;
 	assignedKeys.insert(key);
 	hoverTexts = Name;
 	helpBox=HelpBox;
@@ -256,14 +258,34 @@ void AdventureMapButton::setPlayerColor(int player)
 	image->playerColored(player);
 }
 
+void AdventureMapButton::show(SDL_Surface *to)
+{
+	showAll(to);
+}
+
+void AdventureMapButton::showAll(SDL_Surface *to)
+{
+	CIntObject::showAll(to);
+
+	if (borderEnabled && borderColor.x >= 0)
+		CSDL_Ext::drawBorder(to, pos.x - 1, pos.y - 1, pos.w + 2, pos.h + 2, borderColor);
+}
+
 void CHighlightableButton::select(bool on)
 {
-	setState(on?HIGHLIGHTED:NORMAL);
-
-	if(on)
+	if (on)
+	{
+		setState(HIGHLIGHTED);
 		callback();
-	else 
+		borderEnabled = true;
+	}
+	else
+	{
+		setState(NORMAL);
 		callback2();
+		borderEnabled = false;
+	}
+	
 	if(hoverTexts.size()>1)
 	{
 		hover(false);

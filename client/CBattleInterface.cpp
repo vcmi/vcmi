@@ -3972,6 +3972,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	SDL_FreeSurface(background);
 	background = pom;
 	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleResultWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
+	exit->borderColor = int3(173, 142, 66);
+	exit->borderEnabled = true;
 
 	if(br.winner==0) //attacker won
 	{

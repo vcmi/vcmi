@@ -449,7 +449,7 @@ class CCampaignScreen : public CIntObject
 
 			CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status); // c-tor
 			~CCampaignButton(); // d-tor
-			void showAll(SDL_Surface *to);
+			void show(SDL_Surface *to);
 		};
 
 		std::vector<CCampaignButton*> campButtons; // a container which holds all buttons where you can start a campaign
@@ -463,7 +463,7 @@ public:
 
 	CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps);
 	~CCampaignScreen();
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface *to);
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection

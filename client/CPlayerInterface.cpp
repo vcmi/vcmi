@@ -1341,7 +1341,6 @@ void CPlayerInterface::update()
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
-	// todo: bad way of updating the cursor, update screen should be the last statement of the rendering process
 	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
 	CCS->curh->draw2();

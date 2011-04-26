@@ -660,6 +660,7 @@ CVideoPlayer::CVideoPlayer()
 	av_register_protocol(&lod_protocol);
 
 	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
+	vidh_ab = new CVidHandler(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
 }
 
 // loop = to loop through the video
@@ -675,6 +676,9 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	doLoop = loop;
 
 	data = vidh->extract(fname, length);
+	if (!data) {
+		data = vidh_ab->extract(fname, length);		
+	}	
 
 	if (data) {
 		// Create our URL name with the 'lod' protocol as a prefix and a
@@ -751,6 +755,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
 							 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 	} else {
+
 		PixelFormat screenFormat = PIX_FMT_NONE;
 		switch(screen->format->BytesPerPixel)
 		{
@@ -872,8 +877,15 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 		refreshCount = refreshWait;
 		if (nextFrame())
 			show(x,y,dst,update);
-		else
+		else {
 			open(fname);
+			nextFrame();			
+			
+			// The y position is wrong at the first frame.
+			// Note: either the windows player or the linux player is
+			// broken. Compensate here until the bug is found.			
+			show(x, y--, dst, update);
+		}
 	} 
 	else {
 		redraw(x, y, dst, update);

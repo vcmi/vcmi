@@ -107,23 +107,10 @@ IShowActivable * CGuiHandler::topInt()
 
 void CGuiHandler::totalRedraw()
 {
-	//this->invalidateTotalRedraw = true;
-	internalTotalRedraw();
-}
-
-void CGuiHandler::internalTotalRedraw()
-{
 	for(int i=0;i<objsToBlit.size();i++)
 		objsToBlit[i]->showAll(screen2);
 
 	blitAt(screen2,0,0,screen);
-
-	//Any reason to blit last object second time?
-	//if(objsToBlit.size())
-	//	objsToBlit.back()->showAll(screen);
-
-	this->invalidateTotalRedraw = false;
-	this->invalidateSimpleRedraw = false;
 }
 
 void CGuiHandler::updateTime()
@@ -317,18 +304,10 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 
 void CGuiHandler::simpleRedraw()
 {
-	//this->invalidateSimpleRedraw = true;
-	internalSimpleRedraw();
-}
-
-void CGuiHandler::internalSimpleRedraw()
-{
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
 	objsToBlit.back()->show(screen); //blit active interface/window
-	
-	this->invalidateSimpleRedraw = false;
 }
 
 void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
@@ -364,7 +343,7 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		//CCS->curh->centerCursor();//Is this essential? random crashes on Linux
+		CCS->curh->centerCursor();//Is this essential? random crashes on Linux
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)

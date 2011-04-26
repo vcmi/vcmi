@@ -494,8 +494,11 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	ID = -1;
 	for(int i=0;i<Buttons.size();i++)
 	{
-		buttons.push_back(new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first));
-		buttons[i]->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
+		AdventureMapButton *button = new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
+		button->borderColor = int3(173, 142, 66);
+		button->borderEnabled = true;
+		button->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
+		buttons.push_back(button);
 	}
 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
