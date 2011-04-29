@@ -1007,15 +1007,15 @@ void CSDL_Ext::update(SDL_Surface * what)
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
-	for(int i=0;i<w;i++)
+	for(int i = 0; i < w; i++)
 	{
-		SDL_PutPixelWithoutRefresh(sur,x+i,y,color.x,color.y,color.z);
-		SDL_PutPixelWithoutRefresh(sur,x+i,y+h-1,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+i,y,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1,color.x,color.y,color.z);
 	}
-	for(int i=0; i<h;i++)
+	for(int i = 0; i < h; i++)
 	{
-		SDL_PutPixelWithoutRefresh(sur,x,y+i,color.x,color.y,color.z);
-		SDL_PutPixelWithoutRefresh(sur,x+w-1,y+i,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefreshIfInSurf(sur,x,y+i,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+w-1,y+i,color.x,color.y,color.z);
 	}
 }
 
@@ -1174,7 +1174,7 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, con
 
 void CSDL_Ext::SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A /*= 255*/)
 {
-	if(x >= 0  &&  x < ekran->w  &&  y >= 0  &&  y < ekran->w)
+	if(x >= 0  &&  x < ekran->w  &&  y >= 0  &&  y < ekran->h)
 		SDL_PutPixelWithoutRefresh(ekran, x, y, R, G, B, A);
 }
 
