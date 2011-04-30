@@ -597,6 +597,15 @@ struct SetCaptureState
 	~SetCaptureState();
 };
 
+class Colors
+{
+public:
+	static SDL_Color MetallicGold;
+	static SDL_Color Yellow;
+
+	static SDL_Color createColor(int r, int g, int b);
+};
+
 #define OBJ_CONSTRUCTION ObjectConstruction obj__i(this)
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SetCaptureState obj__i1(true, 255); ObjectConstruction obj__i(this)
 #define BLOCK_CAPTURING SetCaptureState obj__i(false, 0)

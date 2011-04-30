@@ -26,7 +26,7 @@
 
 CButtonBase::CButtonBase()
 {
-	swappedImages = false;
+	swappedImages = keepFrame = false;
 	bitmapOffset = 0;
 	state=NORMAL;
 	image = NULL;
@@ -53,7 +53,10 @@ void CButtonBase::update()
 		     if (newPos == 0) newPos = 1;
 		else if (newPos == 1) newPos = 0;
 	}
-	image->setFrame(newPos);
+
+	if (!keepFrame)
+		image->setFrame(newPos);
+	
 	if (active)
 	{
 		showAll(screen);
@@ -107,8 +110,8 @@ void CButtonBase::block(bool on)
 
 AdventureMapButton::AdventureMapButton ()
 {
-	hoverable = actOnDown = borderEnabled = false;
-	borderColor.x = -1;
+	hoverable = actOnDown = borderEnabled = soundDisabled = false;
+	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
 	used = LCLICK | RCLICK | HOVER | KEYBOARD;
 }
 
@@ -139,7 +142,8 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 
 	if (down) 
 	{
-		CCS->soundh->playSound(soundBase::button);
+		if (!soundDisabled)
+			CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
 	} 
 	else if(hoverable && hovered)
@@ -209,8 +213,8 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	currentImage = -1;
 	used = LCLICK | RCLICK | HOVER | KEYBOARD;
 	callback = Callback;
-	actOnDown = hoverable = borderEnabled = false;
-	borderColor.x = -1;
+	hoverable = actOnDown = borderEnabled = soundDisabled = false;
+	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
 	assignedKeys.insert(key);
 	hoverTexts = Name;
 	helpBox=HelpBox;
@@ -267,8 +271,8 @@ void AdventureMapButton::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 
-	if (borderEnabled && borderColor.x >= 0)
-		CSDL_Ext::drawBorder(to, pos.x - 1, pos.y - 1, pos.w + 2, pos.h + 2, borderColor);
+	if (borderEnabled && borderColor.unused == 0)
+		CSDL_Ext::drawBorder(to, pos.x - 1, pos.y - 1, pos.w + 2, pos.h + 2, int3(borderColor.r, borderColor.g, borderColor.b));
 }
 
 void CHighlightableButton::select(bool on)
@@ -563,9 +567,9 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	strongInterest = true;
 
 
-	left = new AdventureMapButton;
-	right = new AdventureMapButton;
-	slider = new AdventureMapButton;
+	left = new AdventureMapButton();
+	right = new AdventureMapButton();
+	slider = new AdventureMapButton();
 
 	pos.x += x;
 	pos.y += y;
@@ -620,6 +624,9 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 		slider->setImage(new CAnimation("SCNRBSL.DEF"));
 	}
 	slider->actOnDown = true;
+	slider->soundDisabled = true;
+	left->soundDisabled = true;
+	right->soundDisabled = true;
 
 	value = -1;
 	moveTo(Value);

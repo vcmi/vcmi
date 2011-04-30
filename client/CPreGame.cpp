@@ -1057,6 +1057,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
 	slider->changeUsedEvents(WHEEL, true);
+	slider->slider->keepFrame = true;
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
@@ -3020,7 +3021,7 @@ void CBonusSelection::updateBonusSelection()
 			CAnimation * anim = new CAnimation();
 			anim->setCustom(picName, 0);
 			bonusButton->setImage(anim);
-			bonusButton->borderColor = int3(242, 226, 110); // yellow border
+			bonusButton->borderColor = Colors::Yellow; // yellow border
 			bonuses->addButton(bonusButton);
 		}
 	if (active)

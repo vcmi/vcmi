@@ -1155,8 +1155,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
-			Point moatPos = graphics->wallPositions[siegeH->town->town->typeID][10],
-				mlipPos = graphics->wallPositions[siegeH->town->town->typeID][11];
+			Point moatPos = graphics->wallPositions[siegeH->town->town->typeID][12],
+				mlipPos = graphics->wallPositions[siegeH->town->town->typeID][13];
 
 			if(moat) //eg. tower has no moat
 				blitAt(moat, moatPos.x,moatPos.y, background);
@@ -1588,7 +1588,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		THex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
 		hexToObstacle.insert(std::make_pair(position, b));
 	}
-
+	
 	////showing units //a lot of work...
 	std::vector<const CStack *> stackAliveByHex[BFIELD_SIZE];
 	//double loop because dead stacks should be printed first
@@ -2287,6 +2287,27 @@ void CBattleInterface::newStack(const CStack * stack)
 	{
 		const CCreature & turretCreature = *CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
 		creAnims[stack->ID] = new CCreatureAnimation(turretCreature.animDefName);	
+
+		// Remarks: Turret positions are read out of the /config/wall_pos.txt
+		int posID = 0;
+		switch (stack->position)
+		{
+		case -2: // keep creature
+			posID = 18;
+			break;
+		case -3: // bottom creature
+			posID = 19;
+			break;
+		case -4: // upper creature
+			posID = 20;
+			break;
+		}
+
+		if (posID != 0)
+		{
+			coords.x = graphics->wallPositions[siegeH->town->town->typeID][posID - 1].x + this->pos.x;
+			coords.y = graphics->wallPositions[siegeH->town->town->typeID][posID - 1].y + this->pos.y;
+		}
 	}
 	else
 	{
@@ -3748,19 +3769,16 @@ Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const
 	Point ret(-500, -500); //returned value
 	if(stack->position < 0) //creatures in turrets
 	{
-		const CCreature & turretCreature = *CGI->creh->creatures[ CGI->creh->factionToTurretCreature[cbi->siegeH->town->town->typeID] ];
-		int xShift = turretCreature.isDoubleWide() ? 44 : 0;
-
 		switch(stack->position)
 		{
 		case -2: //keep
-			ret = Point(505 + xShift, -66);
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][12];
 			break;
 		case -3: //lower turret
-			ret = Point(368 + xShift, 304);
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][13];
 			break;
 		case -4: //upper turret
-			ret = Point(339 + xShift, -192);
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][14];
 			break;	
 		}
 	}
@@ -3972,7 +3990,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	SDL_FreeSurface(background);
 	background = pom;
 	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleResultWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
-	exit->borderColor = int3(173, 142, 66);
+	exit->borderColor = Colors::MetallicGold;
 	exit->borderEnabled = true;
 
 	if(br.winner==0) //attacker won
@@ -4357,42 +4375,19 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 	}
 }
 
+/// What: 1. background wall, 2. keep, 3. bottom tower, 4. bottom wall, 5. wall below gate, 
+/// 6. wall over gate, 7. upper wall, 8. upper tower, 9. gate, 10. gate arch, 11. bottom static wall, 12. upper static wall, 13. moat, 14. mlip, 
+/// 15. keep turret cover, 16. lower turret cover, 17. upper turret cover
+/// Positions are loaded from the config file: /config/wall_pos.txt
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
-	switch(what)
+	
+	if (what >= 1 && what <= 17)
 	{
-	case 1: //background wall
-		pos = Point(owner->pos.w + owner->pos.x - walls[1]->w, 55 + owner->pos.y);
-		break;
-	case 2: //keep
-		pos = Point(owner->pos.w + owner->pos.x - walls[2]->w, 154 + owner->pos.y);
-		break;
-	case 3: //bottom tower
-	case 4: //bottom wall
-	case 5: //below gate
-	case 6: //over gate
-	case 7: //upper wall
-	case 8: //upper tower
-	case 9: //gate
-	case 10: //gate arch
-	case 11: //bottom static wall
-	case 12: //upper static wall
-		pos.x = graphics->wallPositions[town->town->typeID][what - 3].x + owner->pos.x;
-		pos.y = graphics->wallPositions[town->town->typeID][what - 3].y + owner->pos.y;
-		break;
-	case 15: //keep creature cover
-		pos = Point(owner->pos.w + owner->pos.x - walls[2]->w, 154 + owner->pos.y);
-		break;
-	case 16: //bottom turret creature cover
-		pos.x = graphics->wallPositions[town->town->typeID][0].x + owner->pos.x;
-		pos.y = graphics->wallPositions[town->town->typeID][0].y + owner->pos.y;
-		break;
-	case 17: //upper turret creature cover
-		pos.x = graphics->wallPositions[town->town->typeID][5].x + owner->pos.x;
-		pos.y = graphics->wallPositions[town->town->typeID][5].y + owner->pos.y;
-		break;
-	};
+		pos.x = graphics->wallPositions[town->town->typeID][what - 1].x + owner->pos.x;
+		pos.y = graphics->wallPositions[town->town->typeID][what - 1].y + owner->pos.y;
+	}
 
 	if(pos.x != -1)
 	{

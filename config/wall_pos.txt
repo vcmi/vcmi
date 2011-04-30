@@ -1,5 +1,9 @@
-//this file is a description of positions of wall parts' positions, following lines contain positions of: bottom tower, bottom wall, wall below gate, wall over gate, upper wall, upper tower, gate, gate arch, bottom static wall and upper static wall, moat, mlip (x, y)
+//this file is a description of positions of wall parts' positions, following lines contain positions of: 1. background wall, 2. keep, 3. bottom tower, 4. bottom wall, 5. wall below gate, 
+//6. wall over gate, 7. upper wall, 8. upper tower, 9. gate, 10. gate arch, 11. bottom static wall, 12. upper static wall, 13. moat, 14. mlip, 
+//15. keep turret cover, 16. lower turret cover, 17. upper turret cover, 18. keep creature, 19. lower turret creature, 20. upper turret creature (x, y)
 //Castle 
+600 55
+720 154
 601 500 
 528 350 
 468 291 
@@ -12,7 +16,15 @@
 488 79 
 410 90 
 410 80 
+720 154
+601 500 
+568 35 
+527 -66
+368 304
+339 -192
 //Rampart 
+608 55
+724 154
 593 511 
 548 451 
 468 309 
@@ -25,7 +37,15 @@
 491 103 
 410 77 
 410 97 
+724 154
+593 511 
+565 31 
+527 -66
+368 304
+339 -192
 //Tower 
+615 55
+726 154
 591 516 
 547 452 
 474 298 
@@ -38,7 +58,15 @@
 513 79 
 410 90 
 410 80 
+726 154
+591 516 
+579 36 
+527 -66
+368 304
+339 -192
 //Inferno 
+606 55
+730 154
 594 514 
 560 451 
 484 316 
@@ -51,7 +79,15 @@
 501 92 
 410 68 
 410 68 
+730 154
+594 514 
+568 27 
+527 -66
+368 304
+339 -192
 //Necropolis 
+604 55
+730 154
 591 512 
 535 445 
 477 323 
@@ -64,7 +100,15 @@
 503 97 
 410 78 
 412 77 
+730 154
+591 512 
+560 26 
+527 -66
+368 304
+339 -192
 //Dungeon 
+608 55
+732 154
 599 495 
 558 448 
 470 296 
@@ -77,7 +121,15 @@
 493 53 
 277 94 
 277 94 
+608 55
+599 495 
+564 15 
+571 -66
+412 304
+383 -192
 //Stronghold 
+617 55
+731 154
 585 508 
 552 440 
 482 304 
@@ -90,7 +142,15 @@
 498 107 
 410 90 
 410 91 
+731 154
+585 508 
+567 30 
+527 -66
+368 304
+339 -192
 //Fortress 
+599 55
+721 154
 599 505 
 545 441 
 486 306 
@@ -103,7 +163,15 @@
 507 130 
 369 95 
 363 70 
+721 154
+599 505 
+547 27 
+527 -66
+368 304
+339 -192
 //Conflux 
+600 55
+736 154
 607 505 
 508 346 
 467 299 
@@ -116,3 +184,9 @@
 489 97 
 410 80 
 410 80 
+736 154
+607 505 
+575 28 
+527 -66
+368 304
+339 -192

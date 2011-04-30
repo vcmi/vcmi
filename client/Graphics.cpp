@@ -394,12 +394,15 @@ void Graphics::loadWallPositions()
 		const int MAX_BUF = 2000;
 		char buf[MAX_BUF+1];
 
+		// skip the first three lines because they are comment lines
+		inp.getline(buf, MAX_BUF);
+		inp.getline(buf, MAX_BUF);
 		inp.getline(buf, MAX_BUF);
 		std::string dump;
 		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
 		{
 			inp >> dump;
-			for(int b=0; b<12; ++b)
+			for(int b = 0; b < 20; ++b)
 			{
 				Point pt;
 				inp >> pt.x;

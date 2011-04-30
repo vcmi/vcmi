@@ -39,7 +39,8 @@ private:
 	ButtonState state;//current state of button from enum
 
 public:
-	bool swappedImages;//fix for some buttons: normal and pressed image are swapped
+	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
+		keepFrame; // don't change visual representation
 
 	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = zwykly);
 	void update();//to refresh button after image or text change
@@ -72,8 +73,9 @@ public:
 	CFunctionList<void()> callback;
 	bool actOnDown,//runs when mouse is pressed down over it, not when up
 	     hoverable,//if true, button will be highlighted when hovered
-		 borderEnabled;
-	int3 borderColor;
+		 borderEnabled,
+		 soundDisabled;
+	SDL_Color borderColor;
 
 	void clickRight(tribool down, bool previousState);
 	virtual void clickLeft(tribool down, bool previousState);

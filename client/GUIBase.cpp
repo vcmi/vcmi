@@ -25,6 +25,15 @@
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
+SDL_Color Colors::MetallicGold = createColor(173, 142, 66);
+SDL_Color Colors::Yellow = createColor(242, 226, 110);
+
+SDL_Color Colors::createColor(int r, int g, int b)
+{
+	SDL_Color temp = {r, g, b, 0};
+	return temp;
+}
+
 void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(vstd::contains(assignedKeys,key.keysym.sym))
@@ -343,7 +352,7 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		CCS->curh->centerCursor();//Is this essential? random crashes on Linux
+		CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)

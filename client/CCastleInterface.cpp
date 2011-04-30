@@ -1493,12 +1493,12 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	{
 		buy = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
 		          "", boost::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
-		buy->borderColor = int3(173, 142, 66);
+		buy->borderColor = Colors::MetallicGold;
 		buy->borderEnabled = true;
 		
 		cancel = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name()),
 		             "", boost::bind(&CBuildWindow::close,this), 290, 445, "ICANCEL", SDLK_ESCAPE);
-		cancel->borderColor = int3(173, 142, 66);
+		cancel->borderColor = Colors::MetallicGold;
 		cancel->borderEnabled = true;
 		buy->block(state!=7);
 	}
@@ -1712,7 +1712,6 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	
 	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
-	
 	
 	std::vector<std::vector<Point> > positions;
 

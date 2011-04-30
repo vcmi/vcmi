@@ -495,7 +495,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	for(int i=0;i<Buttons.size();i++)
 	{
 		AdventureMapButton *button = new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
-		button->borderColor = int3(173, 142, 66);
+		button->borderColor = Colors::MetallicGold;
 		button->borderEnabled = true;
 		button->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
@@ -1744,8 +1744,6 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
 			slider->setAmount(newAmount);
-
-			slider->block(!newAmount);
 			max->block(!newAmount);
 
 			if(slider->value > newAmount)
@@ -5973,6 +5971,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
 	quitb = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
+	quitb->borderColor = Colors::MetallicGold;
+	quitb->borderEnabled = true;
 
 	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
