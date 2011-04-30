@@ -5159,7 +5159,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 			assert(art);
 			if(!vstd::contains(toOmit, art))
 			{ 
-				if(s - omitedSoFar < 5)
+				if(s - omitedSoFar < backpack.size())
 					setSlotData(backpack[s-omitedSoFar], slotID);
 			}
 			else
@@ -5170,13 +5170,13 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 			}
 		}
 	}
-	for( ; s - omitedSoFar < 5; s++)
+	for( ; s - omitedSoFar < backpack.size(); s++)
 		eraseSlotData(backpack[s-omitedSoFar], 19 + s);
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
 	{
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < backpack.size(); i++)
 		{
 			if(backpack[i]->marked)
 			{
@@ -5295,6 +5295,9 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 		backpack[s]->ourOwner = this;
 		eraseSlotData(backpack[s], 19 + s);
 	}
+
+	leftArtRoll->callback  += boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1);
+	rightArtRoll->callback += boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1);
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
@@ -5818,8 +5821,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	questlogButton[0] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
 	questlogButton[1] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
 
-	//statusbar
-	ourBar = new CStatusBar(pos.x + 3, pos.y + 577, "TSTATBAR.bmp", 726);
+	//statusbar 
+	//FIXME - this image is a bit bigger than required - part of background should be used instead
+	ourBar = new CGStatusBar(pos.x + 3, pos.y + 577, "KSTATBAR");
 
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
@@ -6739,14 +6743,19 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 
 void MoraleLuckBox::showAll(SDL_Surface * to)
 {
-	CDefEssential *def = morale ? graphics->morale42 : graphics->luck42;
+	CDefEssential *def;
+	if (small)
+		def = morale ? graphics->morale30 : graphics->luck30;
+	else
+		def = morale ? graphics->morale42 : graphics->luck42;
 	SDL_Surface *img = def->ourImages[bonusValue + 3].bitmap;
 	
 	blitAt(img, Rect(img).centerIn(pos), to); //put img in the center of our pos
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r)
-	:morale(Morale)
+MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
+	:morale(Morale),
+	 small(Small)
 {
 	bonusValue = 0;
 	pos = r + pos;
@@ -7093,13 +7102,33 @@ void CFocusable::moveFocus()
 	}
 }
 
-CWindowWithArtifacts::CWindowWithArtifacts()
+CArtifactHolder::CArtifactHolder()
 {
 	type |= WITH_ARTIFACTS;
 }
 
-CWindowWithArtifacts::~CWindowWithArtifacts()
+void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 {
+	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+		aoh->artifactRemoved(artLoc);
+}
+
+void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
+{
+	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+		aoh->artifactMoved(artLoc, destLoc);
+}
+
+void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
+{
+	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+		aoh->artifactDisassembled(artLoc);
+}
+
+void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
+{
+	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+		aoh->artifactAssembled(artLoc);
 }
 
 void CArtifactsOfHero::SCommonPart::Artpos::clear()

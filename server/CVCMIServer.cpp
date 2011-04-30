@@ -335,7 +335,7 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 		c << ui8(0); //OK!
 	}
 
-	gh->init(&si,std::clock());
+	gh->init(&si,std::time(NULL));
 	c.addStdVecItems(gh->gs);
 	gh->conns.insert(&c);
 

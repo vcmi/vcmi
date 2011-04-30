@@ -903,7 +903,7 @@ void TextParser::parseFile(std::map<size_t, std::vector <std::string> > &result)
 			boost::algorithm::trim(res);
 			if (res.empty())
 				break;
-			result[currentBlock].push_back(baseDir+'/'+res);
+			result[currentBlock].push_back(baseDir+res);
 		}
 	}
 }

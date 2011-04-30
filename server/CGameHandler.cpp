@@ -4270,7 +4270,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		{
 			boost::poisson_distribution<int, double> p((int)mean);
 			boost::mt19937 rng;
-			boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int, double>> dice (rng, p);
+			boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int, double> > dice (rng, p);
 			staredCreatures += dice();
 		}
 		if (((int)(mean * 100)) < rand() % 100) //fractional chance for one last kill

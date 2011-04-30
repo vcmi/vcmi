@@ -474,12 +474,10 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(CCastleInterface *c = castleInt)
 	{
 		c->garr->highlighted = NULL;
-		c->heroSlotUp->hero = town->garrisonHero;
-		c->heroSlotDown->hero = town->visitingHero;
-
 		c->garr->setArmy(town->getUpperArmy(), 0);
 		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
+		c->heroes->update();
 	}
 	GH.totalRedraw();
 }
@@ -2174,8 +2172,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
-				aoh->artifactRemoved(al);
+			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactRemoved(al);
 		}
 	}
 }
@@ -2187,8 +2184,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
-				aoh->artifactMoved(src, dst);
+			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactMoved(src, dst);
 		}
 	}
 }
@@ -2200,8 +2196,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
-				aoh->artifactAssembled(al);
+			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactAssembled(al);
 		}
 	}
 }
@@ -2213,8 +2208,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			BOOST_FOREACH(CArtifactsOfHero *aoh, (dynamic_cast<CWindowWithArtifacts*>(isa))->artSets)
-				aoh->artifactDisassembled(al);
+			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactAssembled(al);
 		}
 	}
 }

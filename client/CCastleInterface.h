@@ -70,11 +70,12 @@ public:
 	void clickRight(tribool down, bool previousState);
 };
 
-/// Hero army slot
+class HeroSlots;
+/// Hero icon slot
 class CHeroGSlot : public CIntObject
 {
 public:
-	CCastleInterface *owner;
+	HeroSlots *owner;
 	const CGHeroInstance *hero;
 	int upg; //0 - up garrison, 1 - down garrison
 	bool highlight; //indicates id the slot is highlighted
@@ -85,8 +86,25 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void deactivate();
 	void showAll(SDL_Surface * to);
-	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner); //c-tor
+	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner); //c-tor
 	~CHeroGSlot(); //d-tor
+};
+
+/// Two hero slots that can interact with each other
+class HeroSlots : public CIntObject
+{
+public:
+	bool showEmpty;
+	const CGTownInstance * town;
+
+	CGarrisonInt *garr;
+	CHeroGSlot * garrisonedHero;
+	CHeroGSlot * visitingHero;
+
+	HeroSlots(const CGTownInstance * town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty);
+
+	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
+	void update();
 };
 
 /// Class for town screen management (town background and structures)
@@ -196,7 +214,7 @@ public:
 
 	//TODO: move to private
 	const CGTownInstance * town;
-	CHeroGSlot *heroSlotUp, *heroSlotDown;
+	HeroSlots *heroes;
 	CCastleBuildings *builds;
 
 	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
@@ -205,7 +223,6 @@ public:
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
 	void showAll(SDL_Surface *to);
 	void close();
 	void addBuilding(int bid);

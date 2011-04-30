@@ -303,7 +303,7 @@ void CHeroGSlot::hover (bool on)
 		GH.statusbar->clear();
 		return;
 	}
-	CHeroGSlot *other = upg  ?  owner->heroSlotUp :  owner->heroSlotDown;
+	CHeroGSlot *other = upg  ?  owner->garrisonedHero :  owner->visitingHero;
 	std::string temp;
 	if(hero)
 	{
@@ -350,7 +350,7 @@ void CHeroGSlot::hover (bool on)
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
 {
-	CHeroGSlot *other = upg  ?  owner->heroSlotUp :  owner->heroSlotDown;
+	CHeroGSlot *other = upg  ?  owner->garrisonedHero :  owner->visitingHero;
 	if(!down)
 	{
 		owner->garr->splitting = false;
@@ -390,7 +390,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		{
 			setHighlight(true);
 			owner->garr->highlighted = NULL;
-			show(screen2);
+			showAll(screen2);
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
@@ -406,13 +406,13 @@ void CHeroGSlot::showAll(SDL_Surface * to)
 {
 	if(hero) //there is hero
 		blitAt(graphics->portraitLarge[hero->portrait],pos,to);
-	else if(!upg) //up garrison
+	else if(!upg && owner->showEmpty) //up garrison
 		blitAt(graphics->flags->ourImages[LOCPLINT->castleInt->town->getOwner()].bitmap,pos,to);
 	if(highlight)
 		blitAt(graphics->bigImgs[-1],pos,to);
 }
 
-CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastleInterface * Owner)
+CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner)
 {
 	used = LCLICK | HOVER;
 	owner = Owner;
@@ -432,7 +432,7 @@ CHeroGSlot::~CHeroGSlot()
 void CHeroGSlot::setHighlight( bool on )
 {
 	highlight = on;
-	if(owner->heroSlotUp->hero && owner->heroSlotDown->hero) //two heroes in town
+	if(owner->garrisonedHero->hero && owner->visitingHero->hero) //two heroes in town
 	{
 		for(size_t i = 0; i<owner->garr->splitButtons.size(); i++) //splitting enabled when slot higlighted
 			owner->garr->splitButtons[i]->block(!on);
@@ -914,9 +914,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
 
-	heroSlotUp = new CHeroGSlot(241, 387, 0, Town->garrisonHero, this);
-	heroSlotDown = new CHeroGSlot(241, 483, 1, Town->visitingHero, this);
 	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
+	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
 	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, zwykly, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
@@ -926,7 +925,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	exit->setOffset(4);
 
 	split = new AdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick,garr), 744, 382, "TSBTNS.DEF");
-	split->callback += boost::bind(&CCastleInterface::splitClicked, this);
+	split->callback += boost::bind(&HeroSlots::splitClicked, heroes);
 	removeChild(split);
 	garr->addSplitBtn(split);
 
@@ -1065,19 +1064,20 @@ CCreaInfo::CCreaInfo(int posX, int posY, const CGTownInstance *Town, int Level):
 
 void CCreaInfo::hover(bool on)
 {
+	std::string message = CGI->generaltexth->allTexts[588];
+	boost::algorithm::replace_first(message,"%s",creature->namePl);
+
 	if(on)
 	{
-		std::string descr=CGI->generaltexth->allTexts[588];
-		boost::algorithm::replace_first(descr,"%s",creature->namePl);
-		GH.statusbar->print(descr);
+		GH.statusbar->print(message);
 	}
-	else
+	else if (message == GH.statusbar->getCurrent())
 		GH.statusbar->clear();
 }
 
 void CCreaInfo::clickLeft(tribool down, bool previousState)
 {//FIXME: castleInt should be present - may be NULL if no castle window opened
-	if(previousState && (!down))
+	if(previousState && (!down) && LOCPLINT->castleInt)
 		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
@@ -1207,7 +1207,7 @@ void CTownInfo::hover(bool on)
 
 void CTownInfo::clickRight(tribool down, bool previousState)
 {//FIXME: castleInt may be NULL
-	if(down && building)
+	if(down && building && LOCPLINT->castleInt)
 	{
 		CInfoPopup *mess = new CInfoPopup();
 		mess->free = true;
@@ -1256,9 +1256,25 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 	}
 }
 
-void CCastleInterface::splitClicked()
+HeroSlots::HeroSlots(const CGTownInstance * Town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty):
+	showEmpty(ShowEmpty),
+	town(Town),
+	garr(Garrison)
 {
-	if(!!town->visitingHero && town->garrisonHero && (heroSlotDown->highlight || heroSlotUp->highlight))
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	garrisonedHero = new CHeroGSlot(garrPos.x, garrPos.y, 0, town->garrisonHero, this);
+	visitingHero = new CHeroGSlot(visitPos.x, visitPos.y, 1, town->visitingHero, this);
+}
+
+void HeroSlots::update()
+{
+	garrisonedHero->hero = town->garrisonHero;
+	visitingHero->hero = town->visitingHero;
+}
+
+void HeroSlots::splitClicked()
+{
+	if(!!town->visitingHero && town->garrisonHero && (visitingHero->highlight || garrisonedHero->highlight))
 	{
 		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}

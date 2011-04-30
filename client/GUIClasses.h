@@ -609,13 +609,26 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-class CWindowWithArtifacts : public virtual CIntObject
+class CArtifactHolder : public virtual CIntObject
+{
+public:
+	CArtifactHolder();
+
+	virtual void artifactRemoved(const ArtifactLocation &artLoc)=0;
+	virtual void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)=0;
+	virtual void artifactDisassembled(const ArtifactLocation &artLoc)=0;
+	virtual void artifactAssembled(const ArtifactLocation &artLoc)=0;
+};
+
+class CWindowWithArtifacts : public CArtifactHolder
 {
 public:
 	std::vector<CArtifactsOfHero *> artSets;
 
-	CWindowWithArtifacts();
-	~CWindowWithArtifacts();
+	void artifactRemoved(const ArtifactLocation &artLoc);
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
+	void artifactDisassembled(const ArtifactLocation &artLoc);
+	void artifactAssembled(const ArtifactLocation &artLoc);
 };
 
 class CTradeWindow : public CWindowWithArtifacts //base for markets and altar of sacrifice
@@ -891,11 +904,12 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 public:
 	bool morale; //true if morale, false if luck
+	bool small;
 	
 	void set(const IBonusBearer *node);
 	void showAll(SDL_Surface * to);
 
-	MoraleLuckBox(bool Morale, const Rect &r);
+	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 	~MoraleLuckBox();
 };
 
@@ -1067,7 +1081,7 @@ public:
 
 class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 {
-	CStatusBar * ourBar; //internal statusbar
+	CGStatusBar * ourBar; //internal statusbar
 
 	SDL_Surface *bg; //background
 	AdventureMapButton * quit, * questlogButton[2];
