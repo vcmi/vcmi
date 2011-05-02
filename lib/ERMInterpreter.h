@@ -125,25 +125,33 @@ namespace VERMInterpreter
 	struct TriggerLocalVars
 	{
 		static const int EVAR_NUM = 100; //number of evar locals
-		double evar[EVAR_NUM]; //negative indices
 
 		static const int YVAR_NUM = 100; //number of yvar locals
-		int yvar[YVAR_NUM];
 		TriggerLocalVars();
+
+		double & getEvar(int num);
+		int & getYvar(int num);
+	private:
+		double evar[EVAR_NUM]; //negative indices
+		int yvar[YVAR_NUM];
+
 	};
 
 	struct FunctionLocalVars
 	{
 		static const int NUM_PARAMETERS = 16; //number of function parameters
-		int params[NUM_PARAMETERS]; //x-vars
-
 		static const int NUM_LOCALS = 100;
-		int locals[NUM_LOCALS]; //y-vars
-
 		static const int NUM_STRINGS = 10;
-		std::string strings[NUM_STRINGS]; //z-vars (negative indices)
-
 		static const int NUM_FLOATINGS = 100;
+
+		int & getParam(int num);
+		int & getLocal(int num);
+		std::string & getString(int num);
+		double & getFloat(int num);
+	private:
+		int params[NUM_PARAMETERS]; //x-vars
+		int locals[NUM_LOCALS]; //y-vars
+		std::string strings[NUM_STRINGS]; //z-vars (negative indices)
 		double floats[NUM_FLOATINGS]; //e-vars (positive indices)
 	};
 
@@ -151,22 +159,22 @@ namespace VERMInterpreter
 	{
 		ERMEnvironment();
 		static const int NUM_QUICKS = 't' - 'f' + 1; //it should be 15
-		int quickVars[NUM_QUICKS]; //referenced by letter ('f' to 't' inclusive)
-		int & getQuickVar(const char letter)
-		{
-			assert(letter >= 'f' && letter <= 't'); //it should be check by another function, just makign sure here
-			return quickVars[letter - 'f'];
-		}
+		int & getQuickVar(const char letter);
+		int & getStandardVar(int num);
+		std::string & getZVar(int num);
+		bool & getFlag(int num);
 
 		static const int NUM_STANDARDS = 1000;
-		int standardVars[NUM_STANDARDS]; //v-vars
 
 		static const int NUM_STRINGS = 1000;
-		std::string strings[NUM_STRINGS]; //z-vars (positive indices)
 
 		std::map<std::string, ERM::TVarExpNotMacro> macroBindings;
 
 		static const int NUM_FLAGS = 1000;
+	private:
+		int quickVars[NUM_QUICKS]; //referenced by letter ('f' to 't' inclusive)
+		int standardVars[NUM_STANDARDS]; //v-vars
+		std::string strings[NUM_STRINGS]; //z-vars (positive indices)
 		bool flags[NUM_FLAGS];
 	};
 
@@ -294,11 +302,24 @@ struct TriggerIdentifierMatch
 	bool tryMatch(VERMInterpreter::Trigger * interptrig) const;
 };
 
+struct IexpValStr
+{
+	union
+	{
+		int val;
+		int * integervar;
+		double * flvar;
+		std::string * stringvar;
+	} val;
+	enum {WRONGVAL, INT, INTVAR, FLOATVAR, STRINGVAR} type;
+};
+
 class ERMInterpreter
 {
 	friend class ScriptScanner;
 	friend class TriggerIdMatchHelper;
 	friend class TriggerIdentifierMatch;
+	friend class ConditionDisemboweler;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
@@ -314,7 +335,7 @@ class ERMInterpreter
 
 
 	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
-	template<typename T> T getIexp(const ERM::TIexp & iexp, /*const*/ VERMInterpreter::Trigger * trig = NULL, /*const*/ VERMInterpreter::FunctionLocalVars * fun = NULL) const;
+	IexpValStr getIexp(const ERM::TIexp & iexp, /*const*/ VERMInterpreter::Trigger * trig = NULL, /*const*/ VERMInterpreter::FunctionLocalVars * fun = NULL) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
@@ -333,4 +354,5 @@ public:
 	void scanScripts(); //scans for functions, triggers etc.
 
 	ERMInterpreter();
+	bool checkCondition( ERM::Tcondition cond );
 };
