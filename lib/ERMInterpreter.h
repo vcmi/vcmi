@@ -103,7 +103,7 @@ namespace VERMInterpreter
 		TVOption retrieveValue(const std::string & name) const;
 
 		enum EUnbindMode{LOCAL, RECURSIVE_UNTIL_HIT, FULLY_RECURSIVE};
-		///returns true if symbols was really unbound
+		///returns true if symbol was really unbound
 		bool unbind(const std::string & name, EUnbindMode mode);
 	};
 
@@ -320,6 +320,9 @@ class ERMInterpreter
 	friend class TriggerIdMatchHelper;
 	friend class TriggerIdentifierMatch;
 	friend class ConditionDisemboweler;
+	friend struct LVL2IexpDisemboweler;
+	friend struct VR_SPerformer;
+	friend struct ERMExpDispatch;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
@@ -332,10 +335,12 @@ class ERMInterpreter
 	VERMInterpreter::ERMEnvironment * ermGlobalEnv;
 	typedef std::map<VERMInterpreter::TriggerType, std::vector<VERMInterpreter::Trigger> > TtriggerListType;
 	TtriggerListType triggers, postTriggers;
+	VERMInterpreter::Trigger * curTrigger;
+	VERMInterpreter::FunctionLocalVars * curFunc;
 
 
 	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
-	IexpValStr getIexp(const ERM::TIexp & iexp, /*const*/ VERMInterpreter::Trigger * trig = NULL, /*const*/ VERMInterpreter::FunctionLocalVars * fun = NULL) const;
+	IexpValStr getIexp(const ERM::TIexp & iexp) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
@@ -344,6 +349,7 @@ class ERMInterpreter
 	static bool isCMDATrigger(const ERM::Tcommand & cmd);
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
+	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal);
 public:
 	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier); //use this to run triggers
 	void init(); //sets up environment etc.
