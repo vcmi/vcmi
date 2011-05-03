@@ -268,8 +268,8 @@ GUISettings
 			gem2: x=6 y=6 graphic=agemUL.def; 
 			gem3: x=1436 y=6 graphic=agemUR.def; 
 			background=AdvMap1680x1050.pcx; 
-			HeroList: size=19 x=1489 y=201 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF; 
-			TownList: size=19 x=1627 y=201 arrowUp=IAM014.DEF arrowDown=IAM015.DEF; 
+			HeroList: size=19 x=1489 y=198 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF; 
+			TownList: size=19 x=1627 y=198 arrowUp=IAM014.DEF arrowDown=IAM015.DEF; 
 			Minimap: width=144 height=144 x=1510 y=26; 
 			Overview: pics=4 size=7 graphic=OvCast7.pcx;
 			Statusbar: x=8 y=1005 graphic=AdRollvr1680.pcx; 
@@ -284,6 +284,36 @@ GUISettings
 			ButtonSysOptions: x=1559 y=425 graphic=IAM009L.DEF playerColoured=1; 
 			ButtonNextHero: x=1559 y=458 graphic=IAM000.DEF playerColoured=1; 
 			ButtonEndTurn: x=1559 y=491 graphic=IAM001.DEF playerColoured=1; 
+		}; 
+	}
+	1920x1080 //setting specific for this resolution 
+		{ 
+		AdventureMap 
+		{ 
+			InGameConsole: maxInputPerLine=115 maxOutputPerLine=85;
+			AdvMap: x=7 y=7 width=1714 height=1026 smoothMove=1;
+			InfoBox: x=1725 y=869; 
+			gem0: x=6 y=988 graphic=agemLL.def; 
+			gem1: x=1676 y=988 graphic=agemLR.def; 
+			gem2: x=6 y=6 graphic=agemUL.def; 
+			gem3: x=1676 y=6 graphic=agemUR.def; 
+			background=AdvMap1920x1080.pcx; 
+			HeroList: size=20 x=1729 y=197 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF; 
+			TownList: size=20 x=1867 y=197 arrowUp=IAM014.DEF arrowDown=IAM015.DEF; 
+			Minimap: width=144 height=144 x=1750 y=26; 
+			Overview: pics=4 size=7 graphic=OvCast7.pcx;
+			Statusbar: x=8 y=1035 graphic=AdRollvr1920.pcx; 
+			ResDataBar: x=0 y=1055 graphic=ZResBar1920.pcx offsetX=67 offsetY=2 resSpace=192 resDateSpace=528; 
+			ButtonKingdomOv: x=1799 y=197 graphic=IAM002L.DEF playerColoured=1; 
+			ButtonUnderground: x=1799 y=229 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF); 
+			ButtonQuestLog: x=1799 y=261 graphic=IAM004L.DEF playerColoured=1; 
+			ButtonSleepWake: x=1799 y=293 graphic=IAM005L.DEF playerColoured=1; 
+			ButtonMoveHero: x=1799 y=326 graphic=IAM006L.DEF playerColoured=1; 
+			ButtonSpellbook: x=1799 y=359 graphic=IAM007L.DEF playerColoured=1; 
+			ButtonAdvOptions: x=1799 y=392 graphic=IAM008L.DEF playerColoured=1; 
+			ButtonSysOptions: x=1799 y=425 graphic=IAM009L.DEF playerColoured=1; 
+			ButtonNextHero: x=1799 y=458 graphic=IAM000.DEF playerColoured=1; 
+			ButtonEndTurn: x=1799 y=491 graphic=IAM001.DEF playerColoured=1; 
 		}; 
 	}
 }
