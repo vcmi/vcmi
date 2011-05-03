@@ -184,7 +184,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		{
 			if(owner->highlighted == this) //view info
 			{
-				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(), ID);
+				UpgradeInfo pom;
+				LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
 
 				bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
 				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
@@ -999,7 +1000,7 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
 	if(buttons.size() > 1  &&  askID >= 0) //cancel button functionality
-		buttons.back()->callback += boost::bind(&ICallback::selectionMade,LOCPLINT->cb,0,askID);
+		buttons.back()->callback += boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,askID);
 
 	for(int i=0;i<comps.size();i++)
 	{
@@ -5729,8 +5730,8 @@ void CExchangeWindow::prepareBackground()
 CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 {
 	char bufor[400];
-	heroInst[0] = LOCPLINT->cb->getHeroInfo(hero1, 2);
-	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
+	heroInst[0] = LOCPLINT->cb->getHero(hero1);
+	heroInst[1] = LOCPLINT->cb->getHero(hero2);
 
 	prepareBackground();
 	pos.x = screen->w/2 - bg->w/2;
@@ -6388,7 +6389,8 @@ void CHillFortWindow::updateGarrisons()
 		int newState = getState(i);
 		if (newState != -1)
 		{
-			UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, i);
+			UpgradeInfo info;
+			LOCPLINT->cb->getUpgradeInfo(hero, i, info);
 			if (info.newID.size())//we have upgrades here - update costs
 				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
 				{
@@ -6427,7 +6429,8 @@ void CHillFortWindow::makeDeal(int slot)
 			for (int i=0; i<slotsCount; i++)
 				if ( slot ==i || ( slot == slotsCount && currState[i] == 2 ) )//this is activated slot or "upgrade all"
 				{
-					UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, i);
+					UpgradeInfo info;
+					LOCPLINT->cb->getUpgradeInfo(hero, i, info);
 					LOCPLINT->cb->upgradeCreature(hero, i, info.newID[0]);
 				}
 			break;
@@ -6506,7 +6509,8 @@ int CHillFortWindow::getState(int slot)
 	if (hero->slotEmpty(slot))//no creature here
 		return -1;
 		
-	UpgradeInfo info = LOCPLINT->cb->getUpgradeInfo(hero, slot);
+	UpgradeInfo info;
+	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
 	if (!info.newID.size())//already upgraded
 		return 1;
 

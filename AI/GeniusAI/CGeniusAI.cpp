@@ -84,7 +84,7 @@ CGeniusAI::HypotheticalGameState::HypotheticalGameState(CGeniusAI& ai)
 
   if (ai.m_cb->howManyTowns() != 0) {
     AvailableHeroesToBuy = 
-      ai.m_cb->getAvailableHeroes(ai.m_cb->getTownInfo(0,0));
+      ai.m_cb->getAvailableHeroes(ai.m_cb->getTownBySerial(0));
   }
 
 	for (int i = 0; i < 8; i++)
@@ -126,7 +126,7 @@ void CGeniusAI::HypotheticalGameState::update(CGeniusAI& ai)
 
   if (ai.m_cb->howManyTowns())
   {
-		AvailableHeroesToBuy = ai.m_cb->getAvailableHeroes(ai.m_cb->getTownInfo(0,0));
+		AvailableHeroesToBuy = ai.m_cb->getAvailableHeroes(ai.m_cb->getTownBySerial(0));
   }
 
 	resourceAmounts.clear();
@@ -317,7 +317,8 @@ float CGeniusAI::TownObjective::getValue() const
 			break;
 
 	 	 case upgradeCreatures:
-			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
+			  UpgradeInfo ui;
+			  AI->m_cb->getUpgradeInfo(whichTown->t,which, ui);
 			  ID = whichTown->t->getCreature(which)->idNumber;
 			  howMany = whichTown->t->getStackCount(which);
 
@@ -425,7 +426,8 @@ void CGeniusAI::TownObjective::print() const
 		  break; // case recruitCreatures.
 
 		  case upgradeCreatures:
-			  UpgradeInfo ui = AI->m_cb->getUpgradeInfo (whichTown->t, which);
+			  UpgradeInfo ui;
+			  AI->m_cb->getUpgradeInfo (whichTown->t, which, ui);
 			  ID = whichTown->t->getCreature(which)->idNumber;
 			  tlog6 << "upgrade " << VLC->creh->creatures[ID]->namePl;
 			  //ui.cost	
@@ -446,7 +448,7 @@ CGeniusAI::~CGeniusAI()
 }
 
 
-void CGeniusAI::init(ICallback *CB)
+void CGeniusAI::init(CCallback *CB)
 {
 	m_cb = CB;
 	m_generalAI.init(CB);
@@ -749,7 +751,8 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 		tlog6 << "visiting town" << endl;
 		for (TSlots::const_iterator i = h->h->Slots().begin(); i != h->h->Slots().end(); i++)
 		{ // For each hero slot.
-			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(h->h,i->first);
+			UpgradeInfo ui;
+			cg.m_cb->getUpgradeInfo(h->h,i->first, ui);
 
 			bool canUpgrade = false;
 			if (ui.newID.size() != 0)
@@ -878,7 +881,8 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
   // Upgrade creatures.
 	for (TSlots::const_iterator i = t.t->Slots().begin(); i != t.t->Slots().end(); i++)
 	{
-		UpgradeInfo ui = m_cb->getUpgradeInfo(t.t, i->first);
+		UpgradeInfo ui;
+		m_cb->getUpgradeInfo(t.t, i->first, ui);
 		if (ui.newID.size())
 		{
 			bool canAfford = true;
@@ -952,7 +956,8 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 			break;
 
 		case upgradeCreatures:
-			UpgradeInfo ui = cg.m_cb->getUpgradeInfo(whichTown->t, which);
+			UpgradeInfo ui;
+			cg.m_cb->getUpgradeInfo(whichTown->t, which, ui);
 			ID = whichTown->t->getCreature(which)->idNumber;
 			newID = ui.newID.back();
 		// TODO: reduce resources in hgs
@@ -1070,8 +1075,8 @@ void CGeniusAI::startFirstTurn()
 {
 	HypotheticalGameState hgs(*this);
 	
-	const CGTownInstance * town = m_cb->getTownInfo(0,0);
-	const CGHeroInstance * heroInst = m_cb->getHeroInfo(0,0);
+	const CGTownInstance * town = m_cb->getTownBySerial(0);
+	const CGHeroInstance * heroInst = m_cb->getHeroBySerial(0);
 	
 	TownObjective(hgs, AIObjective::recruitHero, &hgs.townModels.front(), 0, this).fulfill(*this, hgs);
 	

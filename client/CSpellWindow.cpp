@@ -581,7 +581,7 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 
 void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
 {
-	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(town, 1);
+	const CGTownInstance * dest = LOCPLINT->cb->getTown(town);
 	LOCPLINT->cb->castSpell(hero, Spells::TOWN_PORTAL, dest->visitablePos());
 }
 
@@ -718,7 +718,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						double dist = -1;
 						for (int g=0; g<Towns.size(); ++g)
 						{
-							const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(Towns[g]->id, 1);
+							const CGTownInstance * dest = LOCPLINT->cb->getTown(Towns[g]->id);
 							double curDist = dest->pos.dist2d(h->pos);
 							if (nearest == -1 || curDist < dist)
 							{
@@ -730,7 +730,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
 						else
 						{
-							const CGTownInstance * town = LOCPLINT->cb->getTownInfo(Towns[nearest]->id, 1);
+							const CGTownInstance * town = LOCPLINT->cb->getTown(Towns[nearest]->id);
 							LOCPLINT->cb->castSpell(h, spell, town->visitablePos());// - town->getVisitableOffset());
 						}
 					}

@@ -18,7 +18,7 @@
 
 using namespace boost::logic;
 class CCallback;
-class IBattleCallback;
+class CBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
@@ -63,7 +63,7 @@ public:
 
 	virtual ~CBattleGameInterface() {};
 
-	virtual void init(IBattleCallback * CB){};
+	virtual void init(CBattleCallback * CB){};
 
 	//battle call-ins
 	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
@@ -74,7 +74,7 @@ public:
 	virtual void battleEnd(const BattleResult *br){};
 	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
-	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleStackMoved(const CStack * stack, THex dest, int distance, bool end){};
 	virtual void battleSpellCast(const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
@@ -118,7 +118,7 @@ public:
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after movement
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
-	virtual void init(ICallback * CB){};
+	virtual void init(CCallback * CB){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID){};
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level){}

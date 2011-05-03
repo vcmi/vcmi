@@ -127,11 +127,6 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
-	//get info
-	int getCurrentPlayer() OVERRIDE;
-	int getSelectedHero() OVERRIDE;
-
-
 	//do sth
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE;
 	bool removeObject(int objid) OVERRIDE;

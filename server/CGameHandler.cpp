@@ -735,7 +735,7 @@ int CGameHandler::moveStack(int stack, THex dest)
 CGameHandler::CGameHandler(void)
 {
 	QID = 1;
-	gs = NULL;
+	//gs = NULL;
 	IObjectInterface::cb = this;
 	applier = new CApplier<CBaseForGHApply>;
 	registerTypes3(*applier);
@@ -1563,11 +1563,6 @@ ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 	return 0;
 }
 
-int CGameHandler::getCurrentPlayer()
-{
-	return gs->currentPlayer;
-}
-
 void CGameHandler::giveResource(int player, int which, int val)
 {
 	if(!val) return; //don't waste time on empty call
@@ -1708,11 +1703,6 @@ void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spell
 	cs.spells = spells;
 	cs.learn = give;
 	sendAndApply(&cs);
-}
-
-int CGameHandler::getSelectedHero() 
-{
-	return IGameCallback::getSelectedHero(getCurrentPlayer())->id;
 }
 
 void CGameHandler::setObjProperty( int objid, int prop, si64 val )
@@ -2476,8 +2466,8 @@ bool CGameHandler::garrisonSwap( si32 tid )
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
 bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
 {
-	CGHeroInstance *srcHero = gs->getHero(srcHeroID);
-	CGHeroInstance *destHero = gs->getHero(destHeroID);
+	const CGHeroInstance *srcHero = getHero(srcHeroID);
+	const CGHeroInstance *destHero = getHero(destHeroID);
 	ArtifactLocation src(srcHero, srcSlot), dst(destHero, destSlot);
 
 	// Make sure exchange is even possible between the two heroes.

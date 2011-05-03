@@ -130,7 +130,7 @@ CPlayerInterface::~CPlayerInterface()
 
 	LOCPLINT = NULL;
 }
-void CPlayerInterface::init(ICallback * CB)
+void CPlayerInterface::init(CCallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
 	if(observerInDuelMode)
@@ -234,7 +234,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(LOCPLINT != this)
 		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	const CGHeroInstance * ho = cb->getHeroInfo(details.id); //object representing this hero
+	const CGHeroInstance * ho = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
 	adventureInt->centerOn(ho); //actualizing screen pos
@@ -1194,7 +1194,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObjectInfo(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
 		for(std::set<int3>::const_iterator it = pos.begin(); it != pos.end(); ++it)
 		{

@@ -64,6 +64,7 @@ class CHeroClass;
 class CCampaign;
 class CCampaignState;
 class IModableArt;
+class CGGarrison;
 
 namespace boost
 {
@@ -100,6 +101,32 @@ public:
 	InfoAboutHero & operator=(const InfoAboutHero & iah);
 	~InfoAboutHero();
 	void initFromHero(const CGHeroInstance *h, bool detailed);
+};
+
+/// Struct which holds a short information about a town
+struct DLL_EXPORT InfoAboutTown
+{
+	struct Details
+	{
+		int hallLevel, goldIncome;
+		bool customRes;
+		bool garrisonedHero;
+
+	} *details;
+
+	const CArmedInstance * obj;
+	char fortLevel; //0 - none
+	char owner;
+	std::string name;
+	CTown *tType;
+	bool built;
+
+	ArmyDescriptor army; //numbers of creatures are valid only if details
+
+	InfoAboutTown();
+	~InfoAboutTown();
+	void initFromTown(const CGTownInstance *t, bool detailed);
+	void initFromGarrison(const CGGarrison *garr, bool detailed);
 };
 
 // typedef si32 TResourceUnit;
@@ -176,8 +203,6 @@ public:
 	}
 
 };
-
-
 
 struct UpgradeInfo
 {

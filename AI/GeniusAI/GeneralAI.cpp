@@ -12,7 +12,7 @@ CGeneralAI::~CGeneralAI()
 {
 }
 
-void CGeneralAI::init(ICallback *CB)
+void CGeneralAI::init(CCallback *CB)
 {
 	assert(CB != NULL);
 	m_cb = CB;

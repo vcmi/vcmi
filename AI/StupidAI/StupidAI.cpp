@@ -8,7 +8,7 @@
 #include <algorithm>
 //#include <boost/thread.hpp>
 
-IBattleCallback * cbc;
+CBattleCallback * cbc;
 
 CStupidAI::CStupidAI(void)
 	: side(-1), cb(NULL)
@@ -22,7 +22,7 @@ CStupidAI::~CStupidAI(void)
 	print("destroyed");
 }
 
-void CStupidAI::init( IBattleCallback * CB )
+void CStupidAI::init( CBattleCallback * CB )
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;
@@ -105,7 +105,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(IBattleCallback::ONLY_ENEMY))
+	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
 	{
 		if(cb->battleCanShoot(stack, s->position))
 		{

@@ -11,9 +11,9 @@ namespace geniusai { namespace GeneralAI {
 		CGeneralAI();
 		~CGeneralAI();
 
-		void init(ICallback* CB);
+		void init(CCallback* CB);
 	private:
-		ICallback *m_cb;
+		CCallback *m_cb;
 	};
 
 }}

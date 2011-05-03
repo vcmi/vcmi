@@ -1771,6 +1771,9 @@ void CAdvMapInt::startTurn()
 
 void CAdvMapInt::tileLClicked(const int3 &mp)
 {
+	if(!LOCPLINT->cb->isVisible(mp))
+		return;
+
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
 		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
 	const TerrainTile *tile = LOCPLINT->cb->getTileInfo(mp);
@@ -1852,6 +1855,13 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 
 void CAdvMapInt::tileHovered(const int3 &tile)
 {
+	if(!LOCPLINT->cb->isVisible(tile))
+	{
+		CCS->curh->changeGraphic(0, 0);
+		statusbar.clear();
+		return;
+	}
+
 	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(tile);
 	if (temp.size())
 	{
@@ -2038,6 +2048,11 @@ void CAdvMapInt::tileRClicked(const int3 &mp)
 	if(spellBeingCasted)
 	{
 		leaveCastingMode();
+		return;
+	}
+	if(!LOCPLINT->cb->isVisible(mp))
+	{
+		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
 		return;
 	}
 

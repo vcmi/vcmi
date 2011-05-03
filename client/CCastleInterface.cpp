@@ -976,7 +976,7 @@ void CCastleInterface::showAll(SDL_Surface *to)
 
 void CCastleInterface::castleTeleport(int where)
 {
-	const CGTownInstance * dest = LOCPLINT->cb->getTownInfo(where, 1);
+	const CGTownInstance * dest = LOCPLINT->cb->getTown(where);
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 }
 
@@ -1815,7 +1815,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	cancel = new AdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
 
 	if(possible)
-		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHeroInfo(hid,2),aid);
+		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHero(hid),aid);
 	else
 		buy->block(true);
 

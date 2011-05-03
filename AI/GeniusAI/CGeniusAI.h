@@ -28,7 +28,7 @@ class CGeniusAI : public CGlobalAI
 {
 private:
   // TODO: cb... come back, croach busters!?
-	ICallback*							m_cb;
+	CCallback*							m_cb;
 	geniusai::BattleAI::CBattleLogic*	m_battleLogic;
 	geniusai::GeneralAI::CGeneralAI		m_generalAI;
 	geniusai::Priorities*				m_priorities;
@@ -180,7 +180,7 @@ public:
 	CGeniusAI();
 	virtual ~CGeniusAI();
 
-	virtual void init(ICallback * CB);
+	virtual void init(CCallback * CB);
 	virtual void yourTurn();
 	virtual void heroKilled(const CGHeroInstance *);
 	virtual void heroCreated(const CGHeroInstance *);

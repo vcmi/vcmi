@@ -3452,7 +3452,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 // 	std::set<const CStack *> stacks;
 // 	stacks.insert(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
 // 	stacks.insert(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
-	TStacks stacks = curInt->cb->battleGetStacks(IBattleCallback::MINE_AND_ENEMY);
+	TStacks stacks = curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
 
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
@@ -3612,7 +3612,7 @@ static bool immobile(const CStack *s)
 
 void CBattleInterface::bTacticNextStack()
 {
-	TStacks stacksOfMine = curInt->cb->battleGetStacks(IBattleCallback::ONLY_MINE);
+	TStacks stacksOfMine = curInt->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile), stacksOfMine.end());
 	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())

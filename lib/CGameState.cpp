@@ -145,6 +145,62 @@ public:
 	}
 } *objCaller = NULL;
 
+InfoAboutTown::InfoAboutTown()
+{
+	tType = NULL;
+	details = NULL;
+	fortLevel = 0;
+	owner = -1;
+}
+
+InfoAboutTown::~InfoAboutTown()
+{
+	delete details;
+}
+
+void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
+{
+	obj = t;
+	army = ArmyDescriptor(t->getUpperArmy(), detailed);
+	built = t->builded;
+	fortLevel = t->fortLevel();
+	name = t->name;
+	tType = t->town;
+	owner = t->tempOwner;
+
+	if(detailed) 
+	{
+		//include details about hero
+		details = new Details;
+		details->goldIncome = t->dailyIncome();
+		details->customRes = vstd::contains(t->builtBuildings, 15);
+		details->hallLevel = t->hallLevel();
+		details->garrisonedHero = t->garrisonHero;
+	}
+	//TODO: adjust undetailed info about army to our count of thieves guilds
+}
+
+void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
+{
+	obj = garr;
+	fortLevel = 0;
+	army = ArmyDescriptor(garr, detailed);
+	name = VLC->generaltexth->names[33]; // "Garrison"
+	owner = garr->tempOwner;
+	built = false;
+	tType = NULL;
+
+	// Show detailed info only to owning player.
+	if(detailed)
+	{
+		details = new InfoAboutTown::Details;
+		details->customRes = false;
+		details->garrisonedHero = false;
+		details->goldIncome = -1;
+		details->hallLevel = -1;
+	}
+}
+
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
 	int type = txt.first, ser = txt.second;
@@ -2376,7 +2432,10 @@ bool CGameState::isVisible(int3 pos, int player)
 
 bool CGameState::isVisible( const CGObjectInstance *obj, int player )
 {
-	if(player == 255) //neutral player
+	if(player == -1)
+		return true;
+
+	if(player == 255) //neutral player  -> TODO ??? needed?
 		return false;
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
