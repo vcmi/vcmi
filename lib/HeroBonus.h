@@ -4,7 +4,7 @@
 #include <list>
 #include <set>
 #include <boost/function.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 /*
  * HeroBonus.h, part of VCMI engine
