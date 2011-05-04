@@ -574,16 +574,18 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	{
 		const CStack *attacker = cb->battleGetStackByID(healedStacks[0].first, false);
 		const CStack *defender = cb->battleGetStackByID(lifeDrainFrom, false);
+		int textOff = 0;
+
 		if (attacker)
 		{
 			battleInt->displayEffect(50, attacker->position);
+			if (attacker->count > 1)
+			{
+				textOff += 1;
+			}
 		}
+
 		//print info about life drain
-		int textOff = 0;
-		if (attacker->count > 1)
-		{
-			textOff += 1;
-		}
 		char textBuf[1000];
 		sprintf(textBuf, CGI->generaltexth->allTexts[361 + textOff].c_str(), attacker->getCreature()->nameSing.c_str(),
 			healedStacks[0].second, defender->getCreature()->namePl.c_str());
