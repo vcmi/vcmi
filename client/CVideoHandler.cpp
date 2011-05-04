@@ -968,15 +968,4 @@ CVideoPlayer::~CVideoPlayer()
 	close();
 }
 
-//In old versions of libavformat this function is defined as static inline and not present in compiled library
-//which results in linkage error if compiler had not inlined it for some reason
-#if  (LIBAVFORMAT_VERSION_MAJOR < 52) || ( LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR < 32 )
-void av_free_packet(AVPacket *pkt)
-{
-	if (pkt && pkt->destruct) {
-		pkt->destruct(pkt);
-	}
-}
-#endif
-
 #endif
