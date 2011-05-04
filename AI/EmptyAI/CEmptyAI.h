@@ -5,9 +5,10 @@ struct HeroMoveDetails;
 
 class CEmptyAI : public CGlobalAI
 {
-	ICallback * cb;
+	CCallback *cb;
+
 public:
-	void init(ICallback * CB);
+	void init(CCallback * CB);
 	void yourTurn();
 	void heroKilled(const CGHeroInstance *);
 	void heroCreated(const CGHeroInstance *);
