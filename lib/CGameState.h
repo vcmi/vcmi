@@ -308,7 +308,7 @@ struct DLL_EXPORT DuelParameters
 };
 
 
-class BattleInfo;
+struct BattleInfo;
 
 class DLL_EXPORT CGameState
 {

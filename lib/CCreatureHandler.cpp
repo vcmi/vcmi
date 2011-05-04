@@ -605,7 +605,6 @@ void CCreatureHandler::loadCreatures()
 	ifs.open(DATA_DIR "/config/bonusnames.txt");
 	{
 		std::string buf2, buf3, line;
-		int i;
 		std::map<std::string,int>::const_iterator it;
 		getline(ifs, line); //skip 1st line
 		while(!ifs.eof())
@@ -1026,7 +1025,7 @@ void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string &
 
 	b.type = Bonus::SPELL_IMMUNITY;
 	b.val = Bonus::BASE_NUMBER;
-	si32 lastVal, curVal, lastLev = 0;
+	si32 curVal;
 
 	b.val = 0; //on-off ability, no value specified
 	loadToIt (curVal, src, it, 4); // 0 level is never active

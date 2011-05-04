@@ -127,7 +127,7 @@ public:
 	void deserializationFix();
 
 	friend class CArtifactInstance;
-	friend class AssembledArtifact;
+	friend struct AssembledArtifact;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifactInstance&>(*this);

@@ -392,7 +392,6 @@ void CHeroHandler::loadHeroes()
 		ballistics.push_back(bli);
 	}
 	{
-		it = 0;
 		std::ifstream inp;
 		dump.clear();
 		inp.open(DATA_DIR "/config/specials.txt"); //loading hero specials

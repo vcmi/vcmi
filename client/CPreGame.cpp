@@ -1981,7 +1981,7 @@ void OptionsTab::flagPressed( int color )
 			playerToRestore.reset();
 		}
 
-		int newPlayer = clickedNameID; //which player will take clicked position
+		int newPlayer; //which player will take clicked position
 
 		//who will be put here?
 		if(!clickedNameID) //AI player clicked -> if possible replace computer with unallocated player

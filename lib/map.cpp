@@ -933,11 +933,9 @@ void Mapa::readRumors( const unsigned char * bufor, int &i)
 void Mapa::readHeader( const unsigned char * bufor, int &i)
 {
 	//reading allowed heroes (20 bytes)
-	int ist = i;
-
-	ist=i; //starting i for loop
-
+	int ist = i;				//starting i for loop
 	unsigned char disp = 0;
+
 	if(version>=SoD)
 	{
 		disp = bufor[i++];
