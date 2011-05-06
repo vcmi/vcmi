@@ -614,51 +614,7 @@ VR_SPerformer::VR_SPerformer(VRPerformer & _owner) : owner(_owner)
 
 void VR_SPerformer::operator()(ERM::TIexp const& trig) const
 {
-	IexpValStr sv = owner.interp->getIexp(trig);
-	switch(owner.identifier.type)
-	{
-	case IexpValStr::FLOATVAR:
-		switch(sv.type)
-		{
-		case IexpValStr::FLOATVAR:
-			*owner.identifier.val.flvar = *sv.val.flvar;
-			break;
-		default:
-			throw EScriptExecError("Incompatible data types in VR S receiver: expected float var!");
-			break;
-		}
-		break;
-	case IexpValStr::INT:
-		throw EScriptExecError("VR S: value not assignable!");
-		break;
-	case IexpValStr::INTVAR:
-		switch(sv.type)
-		{
-		case IexpValStr::INT:
-			*owner.identifier.val.integervar = sv.val.val;
-			break;
-		case IexpValStr::INTVAR:
-			*owner.identifier.val.integervar = *sv.val.integervar;
-			break;
-		default:
-			throw EScriptExecError("Incompatible data types in VR S receiver: expected int var or constant!");
-			break;
-		}
-		break;
-	case IexpValStr::STRINGVAR:
-		switch(sv.type)
-		{
-		case IexpValStr::STRINGVAR:
-			*owner.identifier.val.stringvar = *sv.val.stringvar;
-			break;
-		default:
-			throw EScriptExecError("Incompatible data types in VR S receiver: expected string var!");
-			break;
-		}
-		break;
-	default:
-		throw EScriptExecError("Wrong type of identifier iexp!");
-	}
+	owner.identifier.setTo(owner.interp->getIexp(trig));
 }
 
 void VR_SPerformer::operator()(TVarConcatString const& cmp) const
@@ -711,29 +667,46 @@ struct ERMExpDispatch : boost::static_visitor<>
 				ERM::Tidentifier ident = trig.identifier.get();
 				if(ident.size() == 1)
 				{
-					ERM::TIdentifierInternal idint = ident[0];
-					if(idint.which() == 0)
-					{
-						IexpValStr ievs = owner->getIexp(boost::get<ERM::TIexp>(idint));
+					IexpValStr ievs = owner->getIexp(ident[0]);
 
-						//see body
-						if(trig.body.is_initialized())
+					//see body
+					if(trig.body.is_initialized())
+					{
+						ERM::Tbody bo = trig.body.get();
+						for(int g=0; g<bo.size(); ++g)
 						{
-							ERM::Tbody bo = trig.body.get();
-							for(int g=0; g<bo.size(); ++g)
-							{
-								boost::apply_visitor(VRPerformer(owner, ievs), bo[g]);
-							}
+							boost::apply_visitor(VRPerformer(owner, ievs), bo[g]);
 						}
 					}
-					else
-						throw EScriptExecError("Identifier of a VR receiver must be a valid i-expression!");
 				}
 				else
 					throw EScriptExecError("VR receiver must be used with exactly one identifier item!");
 			}
 			else
 				throw EScriptExecError("VR receiver must be used with an identifier!");
+		}
+		else if(trig.name == "DO")
+		{
+			//perform operations
+			if(trig.identifier.is_initialized())
+			{
+				ERM::Tidentifier tid = trig.identifier.get();
+				if(tid.size() != 4)
+				{
+					throw EScriptExecError("DO receiver takes exactly 4 arguments");
+				}
+				int funNum = owner->getIexp(tid[0]).getInt(),
+					startVal = owner->getIexp(tid[1]).getInt(),
+					stopVal = owner->getIexp(tid[2]).getInt(),
+					increment = owner->getIexp(tid[3]).getInt();
+
+				for(int it = startVal; it < stopVal; it += increment)
+				{
+					owner->getFuncVars(funNum)->getParam(16) = it;
+					//owner->executeTriggerType(TriggerType("FU"), true, );
+					it = owner->getFuncVars(funNum)->getParam(16);
+				}
+			}
 		}
 		else
 		{
@@ -797,7 +770,7 @@ void ERMInterpreter::init()
 	//TODO: reset?
 }
 
-IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> initVal)
+IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> initVal) const
 {
 	IexpValStr ret;
 	ret.type = IexpValStr::WRONGVAL;
@@ -819,10 +792,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 	if(toFollow.size() == 0)
 	{
 		if(hasInit)
-		{
-			ret.val.val = initV;
-			ret.type = IexpValStr::INT;
-		}
+			ret = IexpValStr(initV);
 		else
 			throw EIexpProblem("No input to getVar!");
 
@@ -852,20 +822,14 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 					if(initV > 0 && initV <= FunctionLocalVars::NUM_FLOATINGS)
 					{
 						if(curFunc)
-						{
-							ret.val.flvar = &curFunc->getFloat(initV);
-							ret.type = IexpValStr::FLOATVAR;
-						}
+							ret = IexpValStr(&curFunc->getFloat(initV));
 						else
 							throw EIexpProblem("Function context not available!");
 					}
 					else if(initV < 0 && initV >= -TriggerLocalVars::EVAR_NUM)
 					{
 						if(curTrigger)
-						{
-							ret.val.flvar = &curTrigger->ermLocalVars.getEvar(initV);
-							ret.type = IexpValStr::FLOATVAR;
-						}
+							ret = IexpValStr(&curTrigger->ermLocalVars.getEvar(initV));
 						else
 							throw EIexpProblem("No trigger context available!");
 					}
@@ -881,10 +845,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 		else if(cr >= 'f' && cr <= 't')
 		{
 			if(retIt)
-			{
-				ret.val.integervar = &ermGlobalEnv->getQuickVar(cr);
-				ret.type = IexpValStr::INTVAR;
-			}
+				ret = IexpValStr(&ermGlobalEnv->getQuickVar(cr));
 			else
 			{
 				if(hasInit)
@@ -901,10 +862,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 			if(hasInit)
 			{
 				if(retIt)
-				{
-					ret.val.integervar = &ermGlobalEnv->getStandardVar(initV);
-					ret.type = IexpValStr::INTVAR;
-				}
+					ret = IexpValStr(&ermGlobalEnv->getStandardVar(initV));
 				else
 					initV = ermGlobalEnv->getStandardVar(initV);
 			}
@@ -922,10 +880,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 				if(curFunc)
 				{
 					if(retIt)
-					{
-						ret.val.integervar = &curFunc->getParam(initV);
-						ret.type = IexpValStr::INTVAR;
-					}
+						ret = IexpValStr(&curFunc->getParam(initV));
 					else
 						initV = curFunc->getParam(initV);
 				}
@@ -943,10 +898,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 					if(curFunc)
 					{
 						if(retIt)
-						{
-							ret.val.integervar = &curFunc->getLocal(initV);
-							ret.type = IexpValStr::INTVAR;
-						}
+							ret = IexpValStr(&curFunc->getLocal(initV));
 						else
 							initV = curFunc->getLocal(initV);
 					}
@@ -958,10 +910,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 					if(curTrigger)
 					{
 						if(retIt)
-						{
-							ret.val.integervar = &curTrigger->ermLocalVars.getYvar(initV);
-							ret.type = IexpValStr::INTVAR;
-						}
+							ret = IexpValStr(&curTrigger->ermLocalVars.getYvar(initV));
 						else
 							initV = curTrigger->ermLocalVars.getYvar(initV);
 					}
@@ -982,17 +931,11 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 				{
 					//these C-style casts are here just to shut up compiler errors
 					if(initV > 0 )
-					{
-						ret.val.stringvar = &ermGlobalEnv->getZVar(initV);
-						ret.type = IexpValStr::STRINGVAR;
-					}
+						ret = IexpValStr(&ermGlobalEnv->getZVar(initV));
 					else if(initV < 0)
 					{
 						if(curFunc)
-						{
-							ret.val.stringvar = &curFunc->getString(initV);
-							ret.type = IexpValStr::STRINGVAR;
-						}
+							ret = IexpValStr(&curFunc->getString(initV));
 						else
 							throw EIexpProblem("Function local string variables cannot be used outside functions!");
 					}
@@ -1044,12 +987,7 @@ struct LVL2IexpDisemboweler : boost::static_visitor<IexpValStr>
 	}
 	IexpValStr operator()(TMacroUsage const& val) const
 	{
-		std::map<std::string, ERM::TVarExpNotMacro>::const_iterator it =
-			env->ermGlobalEnv->macroBindings.find(val	.macro);
-		if(it == env->ermGlobalEnv->macroBindings.end())
-			throw EUsageOfUndefinedMacro(val.macro);
-		
-		return processNotMacro(it->second);
+		return env->getIexp(val);
 	}
 };
 
@@ -1065,9 +1003,7 @@ struct LVL1IexpDisemboweler : boost::static_visitor<IexpValStr>
 	{
 		if(dir == IexpDisemboweler::GET)
 		{
-			IexpValStr ret;
-			ret.val.val = constant;
-			ret.type = IexpValStr::INT;
+			IexpValStr ret = IexpValStr(constant);
 		}
 		else
 		{
@@ -1083,6 +1019,26 @@ struct LVL1IexpDisemboweler : boost::static_visitor<IexpValStr>
 IexpValStr ERMInterpreter::getIexp( const ERM::TIexp & iexp ) const
 {
 	return boost::apply_visitor(LVL1IexpDisemboweler(const_cast<ERMInterpreter*>(this), IexpDisemboweler::GET), iexp);
+}
+
+IexpValStr ERMInterpreter::getIexp( const ERM::TMacroUsage & macro ) const
+{
+	std::map<std::string, ERM::TVarExpNotMacro>::const_iterator it =
+		ermGlobalEnv->macroBindings.find(macro.macro);
+	if(it == ermGlobalEnv->macroBindings.end())
+		throw EUsageOfUndefinedMacro(macro.macro);
+
+	return getVar(it->second.varsym, it->second.val);
+}
+
+IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
+{
+	if(tid.which() == 0)
+	{
+		IexpValStr ievs = getIexp(boost::get<ERM::TIexp>(tid));
+	}
+	else
+		throw EScriptExecError("Identifier must be a valid i-expression to perform this operation!");
 }
 
 void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier )
@@ -1167,32 +1123,20 @@ struct ConditionDisemboweler : boost::static_visitor<bool>
 			switch (rhs.type)
 			{
 			case IexpValStr::FLOATVAR:
-				return compareExp(*lhs.val.flvar, *rhs.val.flvar, cmp.compSign);
+				return compareExp(lhs.getFloat(), rhs.getFloat(), cmp.compSign);
 				break;
 			default:
 				throw EScriptExecError("Incompatible types for comparison");
 			}
 			break;
 		case IexpValStr::INT:
-			switch (rhs.type)
-			{
-			case IexpValStr::INT:
-				return compareExp(lhs.val.val, rhs.val.val, cmp.compSign);
-				break;
-			case IexpValStr::INTVAR:
-				return compareExp(lhs.val.val, *rhs.val.integervar, cmp.compSign);
-			default:
-				throw EScriptExecError("Incompatible types for comparison");
-			}
-			break;
 		case IexpValStr::INTVAR:
 			switch (rhs.type)
 			{
 			case IexpValStr::INT:
-				return compareExp(*lhs.val.integervar, rhs.val.val, cmp.compSign);
-				break;
 			case IexpValStr::INTVAR:
-				return compareExp(*lhs.val.integervar, *rhs.val.integervar, cmp.compSign);
+				return compareExp(lhs.getInt(), rhs.getInt(), cmp.compSign);
+				break;
 			default:
 				throw EScriptExecError("Incompatible types for comparison");
 			}
@@ -1201,7 +1145,7 @@ struct ConditionDisemboweler : boost::static_visitor<bool>
 			switch (rhs.type)
 			{
 			case IexpValStr::STRINGVAR:
-				return compareExp(*lhs.val.stringvar, *rhs.val.stringvar, cmp.compSign);
+				return compareExp(lhs.getString(), rhs.getString(), cmp.compSign);
 				break;
 			default:
 				throw EScriptExecError("Incompatible types for comparison");
@@ -1246,6 +1190,11 @@ bool ERMInterpreter::checkCondition( ERM::Tcondition cond )
 	return ret;
 }
 
+FunctionLocalVars * ERMInterpreter::getFuncVars( int funNum )
+{
+	return funcVars + funNum - 1;
+}
+
 const std::string ERMInterpreter::triggerSymbol = "trigger";
 const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
 const std::string ERMInterpreter::defunSymbol = "defun";
@@ -1267,11 +1216,12 @@ struct TriggerIdMatchHelper : boost::static_visitor<>
 		switch(val.type)
 		{
 		case IexpValStr::INT:
-			ret = val.val.val;
 		case IexpValStr::INTVAR:
-			ret = *val.val.integervar;
+			ret = val.getInt();
+			break;
 		default:
 			throw EScriptExecError("Incompatible i-exp type!");
+			break;
 		}
 	}
 	void operator()(TArithmeticOp const& arop) const
@@ -1476,4 +1426,106 @@ double & VERMInterpreter::FunctionLocalVars::getFloat( int num )
 		throw EScriptExecError("Number of float var out of bounds");
 
 	return floats[num-1];
+}
+
+void IexpValStr::setTo( const IexpValStr & second )
+{
+	switch(type)
+	{
+	case IexpValStr::FLOATVAR:
+		*val.flvar = second.getFloat();
+		break;
+	case IexpValStr::INT:
+		throw EScriptExecError("VR S: value not assignable!");
+		break;
+	case IexpValStr::INTVAR:
+		*val.integervar = second.getInt();
+		break;
+	case IexpValStr::STRINGVAR:
+		*val.stringvar = second.getString();
+		break;
+	default:
+		throw EScriptExecError("Wrong type of identifier iexp!");
+	}
+}
+
+void IexpValStr::setTo( int val )
+{
+	switch(type)
+	{
+	case INTVAR:
+		*this->val.integervar = val;
+		break;
+	default:
+		throw EIexpProblem("Incompatible type!");
+		break;
+	}
+}
+
+void IexpValStr::setTo( float val )
+{
+	switch(type)
+	{
+	case FLOATVAR:
+		*this->val.flvar = val;
+		break;
+	default:
+		throw EIexpProblem("Incompatible type!");
+		break;
+	}
+}
+
+void IexpValStr::setTo( const std::string & val )
+{
+	switch(type)
+	{
+	case STRINGVAR:
+		*this->val.stringvar = val;
+		break;
+	default:
+		throw EIexpProblem("Incompatible type!");
+		break;
+	}
+}
+
+int IexpValStr::getInt() const
+{
+	switch(type)
+	{
+	case IexpValStr::INT:
+		return val.val;
+		break;
+	case IexpValStr::INTVAR:
+		return *val.integervar;
+		break;
+	default:
+		throw EIexpProblem("Cannot get iexp as int!");
+		break;
+	}
+}
+
+float IexpValStr::getFloat() const
+{
+	switch(type)
+	{
+	case IexpValStr::FLOATVAR:
+		return *val.flvar;
+		break;
+	default:
+		throw EIexpProblem("Cannot get iexp as float!");
+		break;
+	}
+}
+
+std::string IexpValStr::getString() const
+{
+	switch(type)
+	{
+	case IexpValStr::STRINGVAR:
+		return *val.stringvar;
+		break;
+	default:
+		throw EScriptExecError("Cannot get iexp as string!");
+		break;
+	}
 }

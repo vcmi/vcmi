@@ -160,7 +160,7 @@ namespace VERMInterpreter
 		ERMEnvironment();
 		static const int NUM_QUICKS = 't' - 'f' + 1; //it should be 15
 		int & getQuickVar(const char letter);
-		int & getStandardVar(int num);
+		int & getStandardVar(int num); //get v-variable
 		std::string & getZVar(int num);
 		bool & getFlag(int num);
 
@@ -304,6 +304,7 @@ struct TriggerIdentifierMatch
 
 struct IexpValStr
 {
+private:
 	union
 	{
 		int val;
@@ -311,7 +312,34 @@ struct IexpValStr
 		double * flvar;
 		std::string * stringvar;
 	} val;
+public:
 	enum {WRONGVAL, INT, INTVAR, FLOATVAR, STRINGVAR} type;
+	void setTo(const IexpValStr & second);
+	void setTo(int val);
+	void setTo(float val);
+	void setTo(const std::string & val);
+	int getInt() const;
+	float getFloat() const;
+	std::string getString() const;
+
+	IexpValStr() : type(WRONGVAL)
+	{}
+	IexpValStr(int _val) : type(INT)
+	{
+		val.val = _val;
+	}
+	IexpValStr(int* _val) : type(INTVAR)
+	{
+		val.integervar = _val;
+	}
+	IexpValStr(double * _val) : type(FLOATVAR)
+	{
+		val.flvar = _val;
+	}
+	IexpValStr(std::string * _val) : type(STRINGVAR)
+	{
+		val.stringvar = _val;
+	}
 };
 
 class ERMInterpreter
@@ -337,10 +365,13 @@ class ERMInterpreter
 	TtriggerListType triggers, postTriggers;
 	VERMInterpreter::Trigger * curTrigger;
 	VERMInterpreter::FunctionLocalVars * curFunc;
+	static const int TRIG_FUNC_NUM = 30000;
+	VERMInterpreter::FunctionLocalVars funcVars[TRIG_FUNC_NUM];
+	VERMInterpreter::FunctionLocalVars * getFuncVars(int funNum);
 
-
-	template<typename T> void setIexp(const ERM::TIexp & iexp, const T & val, VERMInterpreter::Trigger * trig = NULL);
 	IexpValStr getIexp(const ERM::TIexp & iexp) const;
+	IexpValStr getIexp(const ERM::TMacroUsage & macro) const;
+	IexpValStr getIexp(const ERM::TIdentifierInternal & tid) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
@@ -349,7 +380,7 @@ class ERMInterpreter
 	static bool isCMDATrigger(const ERM::Tcommand & cmd);
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
-	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal);
+	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal) const;
 public:
 	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier); //use this to run triggers
 	void init(); //sets up environment etc.
