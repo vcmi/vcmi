@@ -340,6 +340,129 @@ public:
 	{
 		val.stringvar = _val;
 	}
+
+#define OPERATOR_DEFINITION_FULL(OPSIGN) \
+	template<typename T> \
+	IexpValStr operator OPSIGN(const T & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec); \
+			break; \
+		case FLOATVAR: \
+			ret.setTo(ret.getFloat() OPSIGN sec); \
+			break; \
+		case STRINGVAR: \
+			ret.setTo(ret.getString() OPSIGN sec); \
+			break; \
+		} \
+		return ret; \
+	} \
+	IexpValStr operator OPSIGN(const IexpValStr & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec.getInt()); \
+			break; \
+		case FLOATVAR: \
+			ret.setTo(ret.getFloat() OPSIGN sec.getFloat()); \
+			break; \
+		case STRINGVAR: \
+			ret.setTo(ret.getString() OPSIGN sec.getString()); \
+			break; \
+		} \
+		return ret; \
+	} \
+	template<typename T> \
+	IexpValStr & operator OPSIGN ## = (const T & sec) \
+	{ \
+		*this = *this OPSIGN sec; \
+		return *this; \
+	}
+
+#define OPERATOR_DEFINITION(OPSIGN) \
+	template<typename T> \
+	IexpValStr operator OPSIGN(const T & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec); \
+			break; \
+		case FLOATVAR: \
+			ret.setTo(ret.getFloat() OPSIGN sec); \
+			break; \
+		} \
+		return ret; \
+	} \
+	IexpValStr operator OPSIGN(const IexpValStr & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec.getInt()); \
+			break; \
+		case FLOATVAR: \
+			ret.setTo(ret.getFloat() OPSIGN sec.getFloat()); \
+			break; \
+		} \
+		return ret; \
+	} \
+	template<typename T> \
+	IexpValStr & operator OPSIGN ## = (const T & sec) \
+	{ \
+		*this = *this OPSIGN sec; \
+		return *this; \
+	}
+
+#define OPERATOR_DEFINITION_INTEGER(OPSIGN) \
+	template<typename T> \
+	IexpValStr operator OPSIGN(const T & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec); \
+			break; \
+		} \
+		return ret; \
+	} \
+	IexpValStr operator OPSIGN(const IexpValStr & sec) const \
+	{ \
+		IexpValStr ret = *this; \
+		switch (type) \
+		{ \
+		case INT: \
+		case INTVAR: \
+			ret.setTo(ret.getInt() OPSIGN sec.getInt()); \
+			break; \
+		} \
+		return ret; \
+	} \
+	template<typename T> \
+	IexpValStr & operator OPSIGN ## = (const T & sec) \
+	{ \
+		*this = *this OPSIGN sec; \
+		return *this; \
+	}
+
+	OPERATOR_DEFINITION_FULL(+)
+	OPERATOR_DEFINITION(-)
+	OPERATOR_DEFINITION(*)
+	OPERATOR_DEFINITION(/)
+	OPERATOR_DEFINITION_INTEGER(%)
 };
 
 class ERMInterpreter
@@ -351,6 +474,7 @@ class ERMInterpreter
 	friend struct LVL2IexpDisemboweler;
 	friend struct VR_SPerformer;
 	friend struct ERMExpDispatch;
+	friend struct VRPerformer;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
@@ -382,7 +506,8 @@ class ERMInterpreter
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
 	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal) const;
 public:
-	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier); //use this to run triggers
+	typedef std::map< int, std::vector<int> > TIDPattern;
+	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier); //use this to run triggers
 	void init(); //sets up environment etc.
 	void scanForScripts();
 

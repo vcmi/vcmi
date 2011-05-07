@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assign/std/vector.hpp> // for 'operator+=()'
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine
@@ -17,6 +18,7 @@
 
 namespace spirit = boost::spirit;
 using namespace VERMInterpreter;
+using namespace boost::assign;
 
 namespace ERMPrinter
 {
@@ -580,11 +582,47 @@ struct VRPerformer : boost::static_visitor<>
 
 	void operator()(TVRLogic const& trig) const
 	{
-		//TODO
+		int valr = interp->getIexp(trig.var).getInt();
+		switch (trig.opcode)
+		{
+		case '&':
+			const_cast<VRPerformer*>(this)->identifier.setTo(identifier.getInt() & valr);
+			break;
+		case '|':
+			const_cast<VRPerformer*>(this)->identifier.setTo(identifier.getInt() | valr);
+			break;
+		case 'X':
+			const_cast<VRPerformer*>(this)->identifier.setTo(identifier.getInt() ^ valr);
+			break;
+		default:
+			throw EInterpreterError("Wrong opcode in VR logic expression!");
+			break;
+		}
 	}
 	void operator()(TVRArithmetic const& trig) const
 	{
-		//TODO
+		IexpValStr rhs = interp->getIexp(trig.rhs);
+		switch (trig.opcode)
+		{
+		case '+':
+			const_cast<VRPerformer*>(this)->identifier += rhs;
+			break;
+		case '-':
+			const_cast<VRPerformer*>(this)->identifier -= rhs;
+			break;
+		case '*':
+			const_cast<VRPerformer*>(this)->identifier *= rhs;
+			break;
+		case ':':
+			const_cast<VRPerformer*>(this)->identifier /= rhs;
+			break;
+		case '%':
+			const_cast<VRPerformer*>(this)->identifier %= rhs;
+			break;
+		default:
+			throw EInterpreterError("Wrong opcode in VR arithmetic!");
+			break;
+		}
 	}
 	void operator()(TNormalBodyOption const& trig) const
 	{
@@ -618,21 +656,37 @@ void VR_SPerformer::operator()(ERM::TIexp const& trig) const
 }
 
 void VR_SPerformer::operator()(TVarConcatString const& cmp) const
-{}
+{
+	throw EScriptExecError("String concatenation not allowed in VR S");
+}
 void VR_SPerformer::operator()(TStringConstant const& cmp) const
-{}
+{
+	owner.identifier.setTo(cmp.str);
+}
 void VR_SPerformer::operator()(TCurriedString const& cmp) const
-{}
+{
+	throw EScriptExecError("Curried string not allowed in VR S");
+}
 void VR_SPerformer::operator()(TSemiCompare const& cmp) const
-{}
+{
+	throw EScriptExecError("Incomplete comparison not allowed in VR S");
+}
 void VR_SPerformer::operator()(TMacroUsage const& cmp) const
-{}
+{
+	owner.identifier.setTo(owner.interp->getIexp(cmp));
+}
 void VR_SPerformer::operator()(TMacroDef const& cmp) const
-{}
+{
+	throw EScriptExecError("Macro definition not allowed in VR S");
+}
 void VR_SPerformer::operator()(TVarpExp const& cmp) const
-{}
+{
+	throw EScriptExecError("Write-only variable expression not allowed in VR S");
+}
 void VR_SPerformer::operator()(spirit::unused_type const& cmp) const
-{}
+{
+	throw EScriptExecError("Expression not allowed in VR S");
+}
 
 struct ConditionDisemboweler;
 
@@ -703,7 +757,11 @@ struct ERMExpDispatch : boost::static_visitor<>
 				for(int it = startVal; it < stopVal; it += increment)
 				{
 					owner->getFuncVars(funNum)->getParam(16) = it;
-					//owner->executeTriggerType(TriggerType("FU"), true, );
+					ERMInterpreter::TIDPattern tip;
+					std::vector<int> v1;
+					v1 += funNum;
+					insert(tip) (v1.size(), v1);
+					owner->executeTriggerType(TriggerType("FU"), true, tip);
 					it = owner->getFuncVars(funNum)->getParam(16);
 				}
 			}
@@ -1041,7 +1099,7 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
 		throw EScriptExecError("Identifier must be a valid i-expression to perform this operation!");
 }
 
-void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const std::map< int, std::vector<int> > & identifier )
+void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier )
 {
 	TtriggerListType & triggerList = pre ? triggers : postTriggers;
 
