@@ -18,6 +18,8 @@
  *
  */
 
+class IGameEventsReceiver;
+class IBattleEventsReceiver;
 class CBattleGameInterface;
 struct StartInfo;
 class CGameState;
@@ -62,6 +64,8 @@ class CClient : public IGameCallback
 public:
 	CCallback *cb;
 	std::set<CCallback*> callbacks; //callbacks given to player interfaces
+	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
+	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
 	std::map<ui8,CGameInterface *> playerint;
 	std::map<ui8,CBattleGameInterface *> battleints;
 	bool hotSeat;
@@ -96,10 +100,6 @@ public:
 	boost::thread *connectionHandler; //thread running run() method
 
 	//////////////////////////////////////////////////////////////////////////
-	//from IGameCallback
-	int getCurrentPlayer();
-	int getSelectedHero();
-
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE {};
 	bool removeObject(int objid) OVERRIDE {return false;};
@@ -116,8 +116,8 @@ public:
 	void showThievesGuildWindow(int requestingObjId) OVERRIDE {};
 	void giveResource(int player, int which, int val) OVERRIDE {};
 
-	void giveCreatures (const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
-	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) OVERRIDE {};
+	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
+	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE {};
 	bool changeStackType(const StackLocation &sl, CCreature *c) OVERRIDE {return false;};
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) OVERRIDE {return false;};
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE {return false;};

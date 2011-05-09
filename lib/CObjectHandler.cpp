@@ -420,7 +420,7 @@ void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 		if ( !vstd::contains(i->second.players, ourplayer ))//another team
 		{
 			for (std::set<ui8>::iterator j = i->second.players.begin(); j != i->second.players.end(); j++)
-				if ( cb->getPlayerState(*j)->status == PlayerState::INGAME )//seek for living player (if any)
+				if ( cb->getPlayer(*j)->status == PlayerState::INGAME )//seek for living player (if any)
 				{
 					FoWChange fw;
 					fw.mode = 0;
@@ -2184,7 +2184,7 @@ int CGTownInstance::getMarketEfficiency() const
 	if(!vstd::contains(builtBuildings, 14)) 
 		return 0;
 
-	const PlayerState *p = cb->getPlayerState(tempOwner);
+	const PlayerState *p = cb->getPlayer(tempOwner);
 	assert(p);
 
 	int marketCount = 0;
@@ -6313,7 +6313,7 @@ int3 IBoatGenerator::bestLocation() const
 
 	for (int i = 0; i < offsets.size(); ++i)
 	{
-		TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i]);
+		const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i]);
 		if (tile) //tile is in the map
 		{
 			if (tile->tertype == TerrainTile::water  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
@@ -6326,7 +6326,7 @@ int3 IBoatGenerator::bestLocation() const
 int IBoatGenerator::state() const
 {
 	int3 tile = bestLocation();
-	TerrainTile *t = IObjectInterface::cb->getTile(tile);
+	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
 		return 2; //no available water
 	else if(!t->blockingObjects.size())

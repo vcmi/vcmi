@@ -710,6 +710,14 @@ DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
 	gs->map->eraseArtifactInstance(disassembled);
 }
 
+DLL_EXPORT void HeroVisit::applyGs( CGameState *gs )
+{
+	if(starting)
+		gs->ongoingVisits[hero] = obj;
+	else
+		gs->ongoingVisits.erase(hero);
+}
+
 DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
 	if(id >= 0)

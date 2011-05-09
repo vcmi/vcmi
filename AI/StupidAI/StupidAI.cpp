@@ -170,10 +170,10 @@ void CStupidAI::battleEnd(const BattleResult *br)
 	print("battleEnd called");
 }
 
-void CStupidAI::battleResultsApplied() 
-{
-	print("battleResultsApplied called");
-}
+// void CStupidAI::battleResultsApplied() 
+// {
+// 	print("battleResultsApplied called");
+// }
 
 void CStupidAI::battleNewRoundFirst(int round) 
 {

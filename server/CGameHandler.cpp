@@ -23,6 +23,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/poisson_distribution.hpp>
+#include "../lib/CCreatureSet.h"
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -492,7 +493,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			sah.army[0].setCreature(0, VLC->creh->nameToID[loserHero->type->refTypeStack[0]],1);
 		}
 
-		if(const CGHeroInstance *another =  getPlayerState(loser)->availableHeroes[1])
+		if(const CGHeroInstance *another =  getPlayer(loser)->availableHeroes[1])
 			sah.hid[1] = another->subID;
 		else
 			sah.hid[1] = -1;
@@ -1592,13 +1593,14 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	tryJoiningArmy(obj, h, remove, true);
 }
 
-void CGameHandler::takeCreatures(int objid, std::vector<CStackBasicDescriptor> creatures)
+void CGameHandler::takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures)
 {
-	if (creatures.size() <= 0)
+	std::vector<CStackBasicDescriptor> cres = creatures;
+	if (cres.size() <= 0)
 		return;
 	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
 
-	BOOST_FOREACH(CStackBasicDescriptor &sbd, creatures)
+	BOOST_FOREACH(CStackBasicDescriptor &sbd, cres)
 	{
 		TQuantity collected = 0;
 		while(collected < sbd.count)
@@ -1608,14 +1610,14 @@ void CGameHandler::takeCreatures(int objid, std::vector<CStackBasicDescriptor> c
 			{
 				if(i->second->type == sbd.type)
 				{
-					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much creatures as we can
+					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
 					changeStackCount(StackLocation(obj, i->first), take, false);
 					collected += take;
 					break;
 				}
 			}
 
-			if(i ==  obj->Slots().end()) //we went through the whole loop and haven't found appropriate creatures
+			if(i ==  obj->Slots().end()) //we went through the whole loop and haven't found appropriate cres
 			{
 				complain("Unexpected failure during taking creatures!");
 				return;
@@ -3880,7 +3882,7 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 		&& distance(o1->pos, o2->pos) < 2) //hero stands on the same tile or on the neighbouring tiles
 	{
 		//TODO: it's workaround, we should check if first hero visited second and player hasn't closed exchange window
-		//(to block moving stacks for free [without visiting] beteen heroes)
+		//(to block moving stacks for free [without visiting] between heroes)
 		return true;
 	}
 
@@ -3889,7 +3891,17 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
+	HeroVisit hv;
+	hv.obj = obj;
+	hv.hero = h;
+	hv.starting = true;
+	sendAndApply(&hv);
+
 	obj->onHeroVisit(h);
+
+	hv.obj = NULL; //not necessary, moreover may have been deleted in the meantime
+	hv.starting = false;
+	sendAndApply(&hv);
 }
 
 bool CGameHandler::buildBoat( ui32 objid )

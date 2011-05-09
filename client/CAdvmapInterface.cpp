@@ -31,6 +31,7 @@
 #include "../lib/CSpellHandler.h"
 #include <boost/foreach.hpp>
 #include "CSoundBase.h"
+#include "../lib/CGameState.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -193,7 +194,7 @@ void CMinimap::initMap(int level)
 			{
 				int mx=(mapSizes.x*x)/pos.w;
 				int my=(mapSizes.y*y)/pos.h;
-				const TerrainTile * tile = LOCPLINT->cb->getTileInfo(int3(mx, my, i));
+				const TerrainTile * tile = LOCPLINT->cb->getTile(int3(mx, my, i), false);
 				if(tile)
 				{
 					if (tile->blocked && (!tile->visitable))
@@ -342,7 +343,7 @@ void CMinimap::showTile(const int3 &pos)
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
 				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
 
-			const TerrainTile * tile = LOCPLINT->cb->getTileInfo(pos);
+			const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
 			if(tile)
 			{
 				if (tile->blocked && (!tile->visitable))
@@ -1776,14 +1777,14 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
 		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
-	const TerrainTile *tile = LOCPLINT->cb->getTileInfo(mp);
+	const TerrainTile *tile = LOCPLINT->cb->getTile(mp);
 	const CGObjectInstance *topBlocking = bobjs.size() ? bobjs.back() : NULL;
 
 
 	int3 selPos = selection->getSightCenter();
 	if(spellBeingCasted && isInScreenRange(selPos, mp))
 	{
-		const TerrainTile *heroTile = LOCPLINT->cb->getTileInfo(selPos);
+		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
 
 		switch(spellBeingCasted->id)
 		{
@@ -1898,9 +1899,9 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			return;
 		case Spells::DIMENSION_DOOR:
 			{
-				const TerrainTile *t = LOCPLINT->cb->getTileInfo(tile);
+				const TerrainTile *t = LOCPLINT->cb->getTile(tile, false);
 				int3 hpos = selection->getSightCenter();
-				if((!t  ||  t->isClear(LOCPLINT->cb->getTileInfo(hpos)))   &&   isInScreenRange(hpos, tile))
+				if((!t  ||  t->isClear(LOCPLINT->cb->getTile(hpos)))   &&   isInScreenRange(hpos, tile))
 					CCS->curh->changeGraphic(0, 41);
 				else
 					CCS->curh->changeGraphic(0, 0);
@@ -2023,7 +2024,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 				} else {
 					if(pnode->land)
 					{
-						if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
+						if(LOCPLINT->cb->getTile(h->getPosition(false))->tertype != TerrainTile::water)
 							CCS->curh->changeGraphic(0, 4 + turns*6);
 						else
 							CCS->curh->changeGraphic(0, 7 + turns*6); //anchor
@@ -2060,7 +2061,7 @@ void CAdvMapInt::tileRClicked(const int3 &mp)
 	if(!objs.size()) 
 	{
 		// Bare or undiscovered terrain
-		const TerrainTile * tile = LOCPLINT->cb->getTileInfo(mp);
+		const TerrainTile * tile = LOCPLINT->cb->getTile(mp);
 		if (tile) 
 		{
 			std::string hlp;

@@ -7,8 +7,6 @@
 #include <set>
 
 #include "../lib/HeroBonus.h"
-#include "../lib/CGameState.h"
-#include "../lib/CCreatureSet.h"
 #include "../lib/ConstTransitivePtr.h"
 
 /*
@@ -38,7 +36,7 @@ public:
 	ui32 ammMin, ammMax;
 	ui8 level; // 0 - unknown
 	std::string abilityText; //description of abilities
-	std::string abilityRefs; //references to abilities, in textformat
+	std::string abilityRefs; //references to abilities, in text format
 	std::string animDefName;
 	si32 idNumber;
 	si8 faction; //-1 = neutral

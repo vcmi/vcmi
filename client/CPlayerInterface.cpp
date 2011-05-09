@@ -44,6 +44,7 @@
 #include <boost/filesystem.hpp>
 #include "../StartInfo.h"
 #include <boost/foreach.hpp>
+#include "../lib/CGameState.h"
 
 #ifdef min
 #undef min
@@ -1058,7 +1059,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		enum TerrainTile::EterrainType newTerrain;
 		int sh = -1;
 
-		const TerrainTile * curTile = cb->getTileInfo(CGHeroInstance::convertPosition(h->pos, false));
+		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
 
 		for(int i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
@@ -1076,7 +1077,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
 				if (newTerrain != currentTerrain) {
 					CCS->soundh->stopSound(sh);
@@ -2009,11 +2010,11 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 	std::string hlp;
 	if(h->movement < h->maxMovePoints(true))
 		showInfoDialog(CGI->generaltexth->allTexts[56]); //"Digging for artifacts requires a whole day, try again tomorrow."
-	else if(cb->getTileInfo(h->getPosition(false))->tertype == TerrainTile::water)
+	else if(cb->getTile(h->getPosition(false))->tertype == TerrainTile::water)
 		showInfoDialog(CGI->generaltexth->allTexts[60]); //Try looking on land!
 	else
 	{
-		const TerrainTile *t = cb->getTileInfo(h->getPosition());
+		const TerrainTile *t = cb->getTile(h->getPosition());
 		CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
 		if(hlp.length() || t->blockingObjects.size() > 1)
 			showInfoDialog(CGI->generaltexth->allTexts[97]); //Try searching on clear ground.

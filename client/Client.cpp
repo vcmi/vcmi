@@ -33,9 +33,11 @@
 #include "CPreGame.h"
 #include "CBattleInterface.h"
 #include "../CThreadHelper.h"
+#include "../lib/ERMScriptModule.h"
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
+
 extern std::string NAME;
 namespace intpr = boost::interprocess;
 
@@ -300,19 +302,6 @@ void CClient::loadGame( const std::string & fname )
 	}
 }
 
-int CClient::getCurrentPlayer()
-{
-	return gs->currentPlayer;
-}
-
-int CClient::getSelectedHero()
-{
-	if(const CGHeroInstance *selHero = IGameCallback::getSelectedHero(getCurrentPlayer()))
-		return selHero->id;
-	else
-		return -1;
-}
-
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
@@ -436,7 +425,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
-
+	CERMScriptModule *erm = new CERMScriptModule();
+	privilagedGameEventReceivers.push_back(erm);
+	privilagedBattleEventReceivers.push_back(erm);
+	erm->init();
 }
 
 template <typename Handler>

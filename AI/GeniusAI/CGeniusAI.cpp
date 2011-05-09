@@ -9,6 +9,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/NetPacks.h"
 #include "AIPriorities.h"
+#include "../../lib/CGameState.h"
 
 using std::endl;
 using geniusai::CGeniusAI;

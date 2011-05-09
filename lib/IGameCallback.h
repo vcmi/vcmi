@@ -5,8 +5,7 @@
 #include <vector>
 #include <set>
 #include "../client/FunctionList.h"
-#include "CCreatureSet.h"
-#include "BattleState.h"
+#include "CObstacleInstance.h"
 
 /*
  * IGameCallback.h, part of VCMI engine
@@ -51,6 +50,11 @@ struct InfoAboutHero;
 class CMapHeader;
 struct BattleAction;
 class CStack;
+class CSpell;
+class CCreatureSet;
+class CCreature;
+class CStackBasicDescriptor;
+class TeamState;
 
 typedef std::vector<const CStack*> TStacks;
 
@@ -104,7 +108,7 @@ public:
 	si8 battleGetTacticDist(); //returns tactic distance for calling player or 0 if player is not in tactic phase
 	ui8 battleGetMySide(); //return side of player in battle (attacker/defender)
 
-	//convienience methods using the ones above
+	//convenience methods using the ones above
 	TStacks battleGetAllStacks() //returns all stacks, alive or dead or undead or mechanical :)
 	{
 		return battleGetStacks(MINE_AND_ENEMY, false);
@@ -121,7 +125,7 @@ protected:
 	bool isVisible(const CGObjectInstance *obj, int Player) const;
 	bool isVisible(const CGObjectInstance *obj) const;
 
-	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privilaged mode
+	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
 	bool isOwnedOrVisited(const CGObjectInstance *obj) const;
 
 public:
@@ -131,7 +135,7 @@ public:
 	bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact; 2 - secondary skill
 
 	//player
-	const PlayerState * getPlayerState(int color) const;
+	const PlayerState * getPlayer(int color, bool verbose = true) const;
 	int getResource(int Player, int which) const;
 	bool isVisible(int3 pos) const;
 	int getPlayerRelations(ui8 color1, ui8 color2) const;// 0 = enemy, 1 = ally, 2 = same player 
@@ -140,15 +144,19 @@ public:
 	int getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	const PlayerSettings * getPlayerSettings(int color) const;
 
+
 	//armed object
 	void getUpgradeInfo(const CArmedInstance *obj, int stackPos, UpgradeInfo &out)const;
 
 	//hero
+	const CGHeroInstance* getHero(int objid) const;
 	int getHeroCount(int player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	bool verifyPath(CPath * path, bool blockSea)const;
+	const CGHeroInstance* getSelectedHero(int player) const; //NULL if no hero is selected
+	int getSelectedHero() const; //of current (active) player
 
 	//objects
 	const CGObjectInstance* getObj(int objid, bool verbose = true) const;
@@ -157,14 +165,16 @@ public:
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
 	int getOwner(int heroID) const;
+	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //NULL if object has been removed (eg. killed)
 
 	//map
 	int3 guardingCreaturePosition (int3 pos) const;
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
-	const TerrainTile * getTileInfo(int3 tile) const;	
+	const TerrainTile * getTile(int3 tile, bool verbose = true) const;	
 
 	//town
+	const CGTownInstance* getTown(int objid) const;
 	int howManyTowns(int Player) const;
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
@@ -172,15 +182,13 @@ public:
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
-
-	//moved
-	const CGHeroInstance* getHero(int objid) const;
-	const CGTownInstance* getTown(int objid) const;
-
-	const CGHeroInstance* getSelectedHero(int player) const; //NULL if no hero is selected
-	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //NULL if object has been removed (eg. killed)
-	int getSelectedHero() const;
 	const CTown *getNativeTown(int color) const;
+
+	//from gs
+	const TeamState *getTeam(ui8 teamID) const;
+	const TeamState *getPlayerTeam(ui8 color) const;
+	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) const;
+	int canBuildStructure(const CGTownInstance *t, int ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
 
 
@@ -210,7 +218,6 @@ class DLL_EXPORT CPrivilagedInfoCallback : public CGameInfoCallback
 {
 public:
 	CGameState *const gameState ();
-	TerrainTile * getTile(int3 pos) const;
 	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
 	void getTilesInRange(boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player=-1, int mode=0) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
 	void getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int player=-1, int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
@@ -219,6 +226,17 @@ public:
 	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void erasePickedArt (si32 id);
 	void getAllowedSpells(std::vector<ui16> &out, ui16 level);
+};
+
+class DLL_EXPORT CNonConstInfoCallback : public CPrivilagedInfoCallback
+{
+public:
+	PlayerState *getPlayer(ui8 color, bool verbose = true);
+	TeamState *getTeam(ui8 teamID);//get team by team ID
+	TeamState *getPlayerTeam(ui8 color);// get team by player color
+	CGHeroInstance *getHero(int objid);
+	CGTownInstance *getTown(int objid);
+	TerrainTile * getTile(int3 pos);
 };
 
 /// Interface class for handling general game logic and actions
@@ -243,8 +261,8 @@ public:
 	virtual void showThievesGuildWindow(int requestingObjId) =0;
 	virtual void giveResource(int player, int which, int val)=0;
 
-	virtual void giveCreatures (const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
-	virtual void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) =0;
+	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
+	virtual void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
 	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack

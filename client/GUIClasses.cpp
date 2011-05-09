@@ -52,6 +52,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "CMusicHandler.h"
 #include "../lib/BattleState.h"
+#include "../lib/CGameState.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine

@@ -1,3 +1,4 @@
+#define VCMI_DLL
 #include "ERMInterpreter.h"
 
 #include <boost/filesystem.hpp>
@@ -1118,6 +1119,18 @@ void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool p
 	}
 }
 
+void ERMInterpreter::executeTriggerType(const char *trigger, int id)
+{
+	TIDPattern tip;
+	tip[0] = std::vector<int>(1, id);
+	executeTriggerType(VERMInterpreter::TriggerType(trigger), true, tip);
+}
+
+void ERMInterpreter::executeTriggerType(const char *trigger)
+{
+	executeTriggerType(VERMInterpreter::TriggerType(trigger), true, TIDPattern());
+}
+
 ERM::Ttrigger ERMInterpreter::retrieveTrigger( ERM::TLine line )
 {
 	if(line.which() == 1)
@@ -1251,6 +1264,11 @@ bool ERMInterpreter::checkCondition( ERM::Tcondition cond )
 FunctionLocalVars * ERMInterpreter::getFuncVars( int funNum )
 {
 	return funcVars + funNum - 1;
+}
+
+void ERMInterpreter::executeInstructions()
+{
+	//TODO implement me
 }
 
 const std::string ERMInterpreter::triggerSymbol = "trigger";

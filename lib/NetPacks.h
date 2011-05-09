@@ -927,6 +927,21 @@ struct DisassembledArtifact : CArtifactOperationPack  //530
 	}
 };
 
+struct HeroVisit : CPackForClient //531
+{
+	const CGHeroInstance *hero;
+	const CGObjectInstance *obj;
+	bool starting; //false -> ending
+
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero & obj & starting;
+	}
+};
+
 struct NewTurn : public CPackForClient //101
 {
 	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, CUSTOM, NO_ACTION, NONE};

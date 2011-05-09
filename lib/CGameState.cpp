@@ -535,34 +535,7 @@ int CGameState::pickHero(int owner)
 	}
 	return h;
 }
-CGHeroInstance *CGameState::getHero(int objid)
-{
-	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=HEROI_TYPE)
-		return NULL;
-	return static_cast<CGHeroInstance *>(map->objects[objid].get());
-}
 
-const CGHeroInstance * CGameState::getHero( int objid ) const
-{
-	return (const_cast<CGameState *>(this))->getHero(objid);
-}
-
-CGTownInstance *CGameState::getTown(int objid)
-{
-	if(objid<0 || objid>=map->objects.size())
-		return NULL;
-	CGObjectInstance *obj = map->objects[objid];
-
-	if(obj->ID != TOWNI_TYPE)
-		return NULL;
-
-	return static_cast<CGTownInstance *>(obj);
-}
-
-const CGTownInstance * CGameState::getTown( int objid ) const
-{
-	return (const_cast<CGameState *>(this))->getTown(objid);
-}
 
 std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 {
@@ -810,6 +783,7 @@ int CGameState::getDate(int mode) const
 }
 CGameState::CGameState()
 {
+	gs = this;
 	mx = new boost::shared_mutex();
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
@@ -1871,150 +1845,10 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	return ret;
 }
 
-std::set<int> CGameState::getBuildingRequiments(const CGTownInstance *t, int ID)
-{
-	std::set<int> used;
-	used.insert(ID);
-	std::set<int> reqs = VLC->townh->requirements[t->subID][ID];
-
-	while(true)
-	{
-		size_t noloop=0;
-		for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
-		{
-			if(used.find(*i)==used.end()) //we haven't added requirements for this building
-			{
-				used.insert(*i);
-				for(
-					std::set<int>::iterator j=VLC->townh->requirements[t->subID][*i].begin();
-					j!=VLC->townh->requirements[t->subID][*i].end();
-					j++)
-					{
-						reqs.insert(*j);//creating full list of requirements
-					}
-			}
-			else
-			{
-				noloop++;
-			}
-		}
-		if(noloop==reqs.size())
-			break;
-	}
-	return reqs;
-}
-
-int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
-{
-	int ret = Buildings::ALLOWED;
-
-	if(t->builded >= MAX_BUILDING_PER_TURN)
-		ret = Buildings::CANT_BUILD_TODAY; //building limit
-
-	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
-	
-	if(!pom)
-		return Buildings::ERROR;
-
-	//checking resources
-	for(int res=0; res<RESOURCE_QUANTITY; res++)
-	{
-		if(pom->resources[res] > getPlayer(t->tempOwner)->resources[res])
-			ret = Buildings::NO_RESOURCES; //lack of res
-	}
-
-	//checking for requirements
-	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requiments
-
-	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
-	{
-		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
-			ret = Buildings::PREREQUIRES; //lack of requirements - cannot build
-	}
-
-	//can we build it?
-	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
-		ret = Buildings::FORBIDDEN; //forbidden
-
-	if(ID == 13) //capitol
-	{
-		for(unsigned int in = 0; in < map->towns.size(); in++)
-		{
-			if(map->towns[in]->tempOwner==t->tempOwner  &&  vstd::contains(map->towns[in]->builtBuildings,13))
-			{
-				ret = Buildings::HAVE_CAPITAL; //no more than one capitol
-				break;
-			}
-		}
-	}
-	else if(ID == 6) //shipyard
-	{
-		int3 tile = t->bestLocation();
-		if( !map->isInTheMap(tile) || map->getTile(tile).tertype != TerrainTile::water )
-			ret = Buildings::NO_WATER; //lack of water
-	}
-
-	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
-		ret = Buildings::ALREADY_PRESENT;
-	return ret;
-}
-
 void CGameState::apply(CPack *pack)
 {
 	ui16 typ = typeList.getTypeID(pack);
 	applierGs->apps[typ]->applyOnGS(this,pack);
-}
-
-TeamState *CGameState::getTeam(ui8 teamID)
-{
-	if(vstd::contains(teams,teamID))
-	{
-		return &teams[teamID];
-	}
-	else 
-	{
-		tlog2 << "Warning: Cannot find info for team " << int(teamID) << std::endl;
-		return NULL;
-	}
-	
-}
-
-TeamState *CGameState::getPlayerTeam(ui8 color)
-{
-	PlayerState * ps = getPlayer(color);
-	if (ps)
-		return getTeam(ps->team);
-	return NULL;
-}
-
-PlayerState * CGameState::getPlayer( ui8 color, bool verbose )
-{
-	if(vstd::contains(players,color))
-	{
-		return &players[color];
-	}
-	else 
-	{
-		if(verbose)
-			tlog2 << "Warning: Cannot find info for player " << int(color) << std::endl;
-		return NULL;
-	}
-}
-
-const PlayerState * CGameState::getPlayer( ui8 color, bool verbose ) const
-{
-	return (const_cast<CGameState *>(this))->getPlayer(color, verbose);
-}
-
-
-const TeamState * CGameState::getTeam( ui8 teamID ) const
-{
-	return (const_cast<CGameState *>(this))->getTeam(teamID);
-}
-
-const TeamState * CGameState::getPlayerTeam( ui8 teamID ) const
-{
-	return (const_cast<CGameState *>(this))->getPlayerTeam(teamID);
 }
 
 bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
@@ -2505,7 +2339,7 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 
 int CGameState::victoryCheck( ui8 player ) const
 {
-	const PlayerState *p = getPlayer(player);
+	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	if(map->victoryCondition.condition == winStandard  ||  map->victoryCondition.allowNormalVictory)
 		if(player == checkForStandardWin())
 			return -1;
@@ -2659,7 +2493,7 @@ ui8 CGameState::checkForStandardWin() const
 bool CGameState::checkForStandardLoss( ui8 player ) const
 {
 	//std loss condition is: player lost all towns and heroes
-	const PlayerState &p = *getPlayer(player);
+	const PlayerState &p = *CGameInfoCallback::getPlayer(player);
 	return !p.heroes.size() && !p.towns.size();
 }
 
@@ -2848,7 +2682,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 int CGameState::lossCheck( ui8 player ) const
 {
-	const PlayerState *p = getPlayer(player);
+	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	//if(map->lossCondition.typeOfLossCon == lossStandard)
 		if(checkForStandardLoss(player))
 			return -1;

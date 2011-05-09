@@ -5,7 +5,7 @@
 #include "CCreatureSet.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
-
+#include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"
 
 /*
@@ -24,17 +24,6 @@ class CArmedInstance;
 class CGTownInstance;
 class CStackInstance;
 struct BattleStackAttacked;
-
-struct DLL_EXPORT CObstacleInstance
-{
-	int uniqueID;
-	int ID; //ID of obstacle (defines type of it)
-	int pos; //position on battlefield
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ID & pos & uniqueID;
-	}
-};
 
 //only for use in BattleInfo
 struct DLL_EXPORT SiegeInfo

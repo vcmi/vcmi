@@ -143,8 +143,8 @@ public:
 	void showThievesGuildWindow(int requestingObjId) OVERRIDE; //TODO: make something more general?
 	void giveResource(int player, int which, int val) OVERRIDE;
 
-	void giveCreatures (const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
-	void takeCreatures (int objid, std::vector<CStackBasicDescriptor> creatures) OVERRIDE;
+	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
+	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE;
 	bool changeStackType(const StackLocation &sl, CCreature *c) OVERRIDE;
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) OVERRIDE;
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE;

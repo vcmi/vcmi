@@ -22,6 +22,7 @@
 #endif
 
 #include "ConstTransitivePtr.h"
+#include "IGameCallback.h"
 
 
 /*
@@ -310,7 +311,7 @@ struct DLL_EXPORT DuelParameters
 
 struct BattleInfo;
 
-class DLL_EXPORT CGameState
+class DLL_EXPORT CGameState : public CNonConstInfoCallback
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
@@ -324,6 +325,7 @@ public:
 	bmap<ui8, TeamState> teams; //ID <-> team state
 	bmap<int, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
+	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
 	struct DLL_EXPORT HeroesPool
 	{
@@ -339,28 +341,17 @@ public:
 	} hpool; //we have here all heroes available on this map that are not hired
 
 	boost::shared_mutex *mx;
-	PlayerState *getPlayer(ui8 color, bool verbose = true);
-	TeamState *getTeam(ui8 teamID);//get team by team ID
-	TeamState *getPlayerTeam(ui8 color);// get team by player color
-	const PlayerState *getPlayer(ui8 color, bool verbose = true) const;
-	const TeamState *getTeam(ui8 teamID) const;
-	const TeamState *getPlayerTeam(ui8 color) const;
+
 	void init(StartInfo * si, ui32 checksum, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
 	void apply(CPack *pack);
-	CGHeroInstance *getHero(int objid);
-	CGTownInstance *getTown(int objid);
-	const CGHeroInstance *getHero(int objid) const;
-	const CGTownInstance *getTown(int objid) const;
 	int battleGetBattlefieldType(int3 tile = int3());//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	int getPlayerRelations(ui8 color1, ui8 color2);// 0 = enemy, 1 = ally, 2 = same player
 	//float getMarketEfficiency(int player, int mode=0);
-	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
-	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists

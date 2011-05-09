@@ -183,6 +183,7 @@
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="ERMInterpreter.cpp" />
     <ClCompile Include="ERMParser.cpp" />
+    <ClCompile Include="ERMScriptModule.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="map.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="CLodHandler.h" />
     <ClInclude Include="CMapInfo.h" />
     <ClInclude Include="CObjectHandler.h" />
+    <ClInclude Include="CObstacleInstance.h" />
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
@@ -216,8 +218,10 @@
     <ClInclude Include="CTownHandler.h" />
     <ClInclude Include="ERMInterpreter.h" />
     <ClInclude Include="ERMParser.h" />
+    <ClInclude Include="ERMScriptModule.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="IGameCallback.h" />
+    <ClInclude Include="IGameEventsReceiver.h" />
     <ClInclude Include="Interprocess.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="NetPacks.h" />

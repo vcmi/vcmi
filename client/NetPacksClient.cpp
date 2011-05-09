@@ -28,18 +28,48 @@
 
 
 //macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
-#define INTERFACE_CALL_IF_PRESENT(player,function,...) 	\
-		if(vstd::contains(cl->playerint,player))		\
-			cl->playerint[player]->function(__VA_ARGS__);
+#define CALL_ONLY_THAT_INTERFACE(player, function, ...)		\
+		do													\
+		{													\
+		if(vstd::contains(cl->playerint,player))			\
+			cl->playerint[player]->function(__VA_ARGS__);	\
+		}while(0)											
+
+
+#define INTERFACE_CALL_IF_PRESENT(player,function,...) 		\
+		do													\
+		{													\
+			CALL_ONLY_THAT_INTERFACE(player, function, __VA_ARGS__);\
+			BOOST_FOREACH(IGameEventsReceiver *ger, cl->privilagedGameEventReceivers)\
+				ger->function(__VA_ARGS__);					\
+		} while(0)										
+
+
+#define CALL_ONLY_THT_BATTLE_INTERFACE(player,function,...) 	\
+	do															\
+	{															\
+		if(vstd::contains(cl->battleints,player))				\
+			cl->battleints[player]->function(__VA_ARGS__);		\
+	} while (0);
+
+#define BATTLE_INTERFACE_CALL_RECEIVERS(function,...) 	\
+	do															\
+	{															\
+		BOOST_FOREACH(IBattleEventsReceiver *ber, cl->privilagedBattleEventReceivers)\
+			ber->function(__VA_ARGS__);							\
+	} while(0)
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT(player,function,...) 	\
-		if(vstd::contains(cl->battleints,player))		\
-			cl->battleints[player]->function(__VA_ARGS__);
+	do															\
+	{															\
+		CALL_ONLY_THAT_INTERFACE(player, function, __VA_ARGS__);\
+		BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__);	\
+	} while(0)
 
-#define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 	\
-	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->sides[0], function, __VA_ARGS__) \
-	BATTLE_INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->sides[1], function, __VA_ARGS__) \
-	BATTLE_INTERFACE_CALL_IF_PRESENT(254, function, __VA_ARGS__)
+#define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
+	CALL_ONLY_THT_BATTLE_INTERFACE(GS(cl)->curB->sides[0], function, __VA_ARGS__)	\
+	CALL_ONLY_THT_BATTLE_INTERFACE(GS(cl)->curB->sides[1], function, __VA_ARGS__)	\
+	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
  *
@@ -62,7 +92,7 @@ void SetResource::applyCl( CClient *cl )
 
 void SetPrimSkill::applyCl( CClient *cl )
 {
-	const CGHeroInstance *h = GS(cl)->getHero(id);
+	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
 		tlog1 << "Cannot find hero with ID " << id << std::endl;
@@ -73,7 +103,7 @@ void SetPrimSkill::applyCl( CClient *cl )
 
 void SetSecSkill::applyCl( CClient *cl )
 {
-	const CGHeroInstance *h = GS(cl)->getHero(id);
+	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
 		tlog1 << "Cannot find hero with ID " << id << std::endl;
@@ -84,9 +114,11 @@ void SetSecSkill::applyCl( CClient *cl )
 
 void HeroVisitCastle::applyCl( CClient *cl )
 {
-	if(start() && vstd::contains(cl->playerint,GS(cl)->getHero(hid)->tempOwner))
+	const CGHeroInstance *h = cl->getHero(hid);
+
+	if(start())
 	{
-		cl->playerint[GS(cl)->getHero(hid)->tempOwner]->heroVisitsTown(GS(cl)->getHero(hid),GS(cl)->getTown(tid));
+		INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroVisitsTown, h, GS(cl)->getTown(tid));
 	}
 }
 
@@ -97,33 +129,28 @@ void ChangeSpells::applyCl( CClient *cl )
 
 void SetMana::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->getHero(hid);
-	if(vstd::contains(cl->playerint,h->tempOwner))
-		cl->playerint[h->tempOwner]->heroManaPointsChanged(h);
+	const CGHeroInstance *h = cl->getHero(hid);
+	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroManaPointsChanged, h);
 }
 
 void SetMovePoints::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->getHero(hid);
+	const CGHeroInstance *h = cl->getHero(hid);
 
 	if (cl->IGameCallback::getSelectedHero(LOCPLINT->playerID) == h)//if we have selected that hero
 	{
 		GS(cl)->calculatePaths(h, *cl->pathInfo);
 	}
 
-	if(vstd::contains(cl->playerint,h->tempOwner))
-		cl->playerint[h->tempOwner]->heroMovePointsChanged(h);
+	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroMovePointsChanged, h);
 }
 
 void FoWChange::applyCl( CClient *cl )
 {
-	if(!vstd::contains(cl->playerint,player))
-		return;
-
 	if(mode)
-		cl->playerint[player]->tileRevealed(tiles);
+		INTERFACE_CALL_IF_PRESENT(player, tileRevealed, tiles);
 	else
-		cl->playerint[player]->tileHidden(tiles);
+		INTERFACE_CALL_IF_PRESENT(player, tileHidden, tiles);
 
 	cl->updatePaths();
 }
@@ -135,24 +162,24 @@ void SetAvailableHeroes::applyCl( CClient *cl )
 
 void ChangeStackCount::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stackChagedCount, sl, count, absoluteValue);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stackChagedCount, sl, count, absoluteValue);
 }
 
 void SetStackType::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stackChangedType,sl, *type);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stackChangedType, sl, *type);
 }
 
 void EraseStack::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,stacksErased,sl);
+	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stacksErased, sl);
 }
 
 void SwapStacks::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner,stacksSwapped, sl1, sl2);
+	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner, stacksSwapped, sl1, sl2);
 	if(sl1.army->tempOwner != sl2.army->tempOwner)
-		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner,stacksSwapped, sl1, sl2);
+		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner, stacksSwapped, sl1, sl2);
 }
 
 void InsertNewStack::applyCl( CClient *cl )
@@ -193,6 +220,12 @@ void DisassembledArtifact::applyCl( CClient *cl )
 {
 	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactDisassembled, al);
 }
+
+void HeroVisit::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
+}
+
 
 void GiveBonus::applyCl( CClient *cl )
 {
@@ -345,13 +378,6 @@ void TryMoveHero::applyCl( CClient *cl )
 		CGI->mh->printObject(h);
 	}
 }
-
-// void SetGarrisons::applyCl( CClient *cl )
-// {
-// 	for(std::map<ui32,CCreatureSet>::iterator i = garrs.begin(); i!=garrs.end(); i++)
-// 		if(vstd::contains(cl->playerint,cl->getOwner(i->first)))
-// 			cl->playerint[cl->getOwner(i->first)]->garrisonChanged(cl->getObj(i->first));
-// }
 
 void NewStructures::applyCl( CClient *cl )
 {
@@ -692,7 +718,7 @@ void PlayerBlocked::applyCl( CClient *cl )
 
 void YourTurn::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(player,yourTurn);
+	CALL_ONLY_THAT_INTERFACE(player,yourTurn);
 }
 
 void SaveGame::applyCl(CClient *cl)

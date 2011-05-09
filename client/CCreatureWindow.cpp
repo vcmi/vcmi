@@ -21,6 +21,7 @@
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include "../lib/CGameState.h"
 
 using namespace CSDL_Ext;
 

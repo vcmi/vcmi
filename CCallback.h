@@ -47,10 +47,6 @@ public:
 
 class IGameActionCallback
 {
-// 	IGameActionCallback(CGameState * GS, int Player);
-// 	bool isVisible(int3 pos, int Player) const;
-// 	bool isVisible(const CGObjectInstance *obj, int Player) const;
-// 	virtual bool hasAccess(int playerId) const;
 public:
 	//hero
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)

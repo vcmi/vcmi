@@ -50,12 +50,6 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	{
 		VLC->init();
 	} HANDLE_EXCEPTION;
-
-
- 	ERMInterpreter ei;
-//  	ei.scanForScripts();
-//  	//ei.printScripts();
-// 	ei.scanScripts();
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)

@@ -14,6 +14,7 @@
 #include <boost/foreach.hpp>
 #include "NetPacks.h"
 #include <boost/bind.hpp>
+#include "CBuildingHandler.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -25,10 +26,11 @@
  *
  */
 
+//TODO make clean
 #define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)
+#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return retVal;}} while(0)
-//#define ERROR_RET_IF(cond, printCond, txt, retVal) do {if(cond){ if(printCond) tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return retVal;}} while(0)
 
 extern boost::rand48 ran;
 
@@ -347,7 +349,7 @@ int CGameInfoCallback::getOwner(int heroID) const
 
 int CGameInfoCallback::getResource(int Player, int which) const
 {
-	const PlayerState *p = getPlayerState(Player);
+	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
 	ERROR_RET_VAL_IF(p->resources.size() <= which || which < 0, "No such resource!", -1);
 	return p->resources[which];
@@ -355,7 +357,7 @@ int CGameInfoCallback::getResource(int Player, int which) const
 
 const CGHeroInstance* CGameInfoCallback::getSelectedHero( int Player ) const
 {
-	const PlayerState *p = getPlayerState(Player);
+	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", NULL);
 	return getHero(p->currentSelection);
 }
@@ -446,7 +448,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 	{
 		floors.push_back(b);
 	}
-	TerrainTile *tinfo;
+	const TerrainTile *tinfo;
 	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
 	{
 		register int zd = *i;
@@ -519,17 +521,18 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<ui16> &out, ui16 leve
 	}
 }
 
-inline TerrainTile * CPrivilagedInfoCallback::getTile( int3 pos ) const
+inline TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 {
 	if(!gs->map->isInTheMap(pos))
 		return NULL;
 	return &gs->map->getTile(pos);
 }
 
-const PlayerState * CGameInfoCallback::getPlayerState(int color) const
+const PlayerState * CGameInfoCallback::getPlayer(int color, bool verbose) const
 {
-	ERROR_RET_VAL_IF(!hasAccess(color), "Cannot access player " << color << "info!", NULL);
-	return gs->getPlayer(color, false);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", NULL);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", NULL);
+	return &gs->players[color];
 }
 
 const CTown * CGameInfoCallback::getNativeTown(int color) const
@@ -703,7 +706,7 @@ std::vector < std::string > CGameInfoCallback::getObjDescriptions(int3 pos) cons
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<std::string> ret;
-	const TerrainTile *t = getTileInfo(pos);
+	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile given!", ret);
 
 
@@ -715,7 +718,8 @@ bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
 {
 	for (size_t i=0; i < path->nodes.size(); ++i)
 	{
-		const TerrainTile *t = getTileInfo(path->nodes[i].coord); //current tile
+		const TerrainTile *t = getTile(path->nodes[i].coord); //current tile
+		ERROR_RET_VAL_IF(!t, "Path contains not visible tile: " << path->nodes[i].coord << "!", false);
 		if (t->blocked && !t->visitable)
 			return false; //path is wrong - one of the tiles is blocked
 
@@ -724,7 +728,7 @@ bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
 			if (i==0)
 				continue;
 
-			const TerrainTile *prev = getTileInfo(path->nodes[i-1].coord); //tile of previous node on the path
+			const TerrainTile *prev = getTile(path->nodes[i-1].coord); //tile of previous node on the path
 			if ((   t->tertype == TerrainTile::water  &&  prev->tertype != TerrainTile::water)
 				|| (t->tertype != TerrainTile::water  &&  prev->tertype == TerrainTile::water)
 				||  prev->tertype == TerrainTile::rock
@@ -740,7 +744,7 @@ bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
 bool CGameInfoCallback::isVisible(int3 pos, int Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->map->isInTheMap(pos) && gs->isVisible(pos, Player);
+	return gs->map->isInTheMap(pos) && (Player == -1 || gs->isVisible(pos, Player));
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
@@ -771,7 +775,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
-	const TerrainTile *t = getTileInfo(pos);
+	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 
 	BOOST_FOREACH(const CGObjectInstance * obj, t->blockingObjects)
@@ -782,7 +786,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 std::vector < const CGObjectInstance * > CGameInfoCallback::getVisitableObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
-	const TerrainTile *t = getTileInfo(pos);
+	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
@@ -794,7 +798,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getVisitableObjs( in
 std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(int3 pos) const
 {
 	std::vector<const CGObjectInstance *> ret;
-	const TerrainTile *t = getTileInfo(pos);
+	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 	BOOST_FOREACH(const CGObjectInstance *obj, t->blockingObjects)
 		if(obj->tempOwner != 254)
@@ -822,10 +826,9 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	return ret;
 }	
 
-const TerrainTile * CGameInfoCallback::getTileInfo( int3 tile ) const
+const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
-	//ERROR_RET_VAL_IF(!gs->map->isInTheMap(tile), tile << " is outside the map!", NULL);
-	ERROR_SILENT_RET_VAL_IF(!isVisible(tile), tile << " is not visible!", NULL);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile << " is not visible!", NULL);
 
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return &gs->map->getTile(tile);
@@ -834,13 +837,97 @@ const TerrainTile * CGameInfoCallback::getTileInfo( int3 tile ) const
 int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", -1);
-	return gs->canBuildStructure(t,ID);
+
+	int ret = Buildings::ALLOWED;
+	if(t->builded >= MAX_BUILDING_PER_TURN)
+		ret = Buildings::CANT_BUILD_TODAY; //building limit
+
+	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
+
+	if(!pom)
+		return Buildings::ERROR;
+
+	//checking resources
+	for(int res=0; res<RESOURCE_QUANTITY; res++)
+	{
+		if(pom->resources[res] > getResource(t->tempOwner, res))
+			ret = Buildings::NO_RESOURCES; //lack of res
+	}
+
+	//checking for requirements
+	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requirements
+
+	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
+	{
+		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
+			ret = Buildings::PREREQUIRES; //lack of requirements - cannot build
+	}
+
+	//can we build it?
+	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
+		ret = Buildings::FORBIDDEN; //forbidden
+
+	if(ID == 13) //capitol
+	{
+		const PlayerState *ps = getPlayer(t->tempOwner);
+		if(ps)
+		{
+			BOOST_FOREACH(const CGTownInstance *t, ps->towns)
+			{
+				if(vstd::contains(t->builtBuildings, 13))
+				{
+					ret = Buildings::HAVE_CAPITAL; //no more than one capitol
+					break;
+				}
+			}
+		}
+	}
+	else if(ID == 6) //shipyard
+	{
+		const TerrainTile *tile = getTile(t->bestLocation());
+		
+		if(!tile || tile->tertype != TerrainTile::water )
+			ret = Buildings::NO_WATER; //lack of water
+	}
+
+	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
+		ret = Buildings::ALREADY_PRESENT;
+	return ret;
 }
 
 std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, int ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", std::set<int>());
-	return gs->getBuildingRequiments(t,ID);
+
+	std::set<int> used;
+	used.insert(ID);
+	std::set<int> reqs = VLC->townh->requirements[t->subID][ID];
+
+	while(true)
+	{
+		size_t noloop=0;
+		for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+		{
+			if(used.find(*i)==used.end()) //we haven't added requirements for this building
+			{
+				used.insert(*i);
+				for(
+					std::set<int>::iterator j=VLC->townh->requirements[t->subID][*i].begin();
+					j!=VLC->townh->requirements[t->subID][*i].end();
+				j++)
+				{
+					reqs.insert(*j);//creating full list of requirements
+				}
+			}
+			else
+			{
+				noloop++;
+			}
+		}
+		if(noloop==reqs.size())
+			break;
+	}
+	return reqs;
 }
 
 const CMapHeader * CGameInfoCallback::getMapHeader() const
@@ -850,7 +937,7 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 
 bool CGameInfoCallback::hasAccess(int playerId) const
 {
-	return gs->getPlayerRelations( playerId, player ) ||  player < 0;
+	return player < 0 || gs->getPlayerRelations( playerId, player );
 }
 
 int CGameInfoCallback::getPlayerStatus(int player) const
@@ -896,7 +983,7 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 	if(canGetFullInfo(obj))
 		return true;
 
-	const TerrainTile *t = getTileInfo(obj->visitablePos()); //get entrance tile
+	const TerrainTile *t = getTile(obj->visitablePos()); //get entrance tile
 	const CGObjectInstance *visitor = t->visitableObjects.back(); //visitong hero if present or the obejct itself at last
 	return visitor->ID == HEROI_TYPE && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
@@ -1014,7 +1101,7 @@ int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 
 const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId) const
 {
-	const PlayerState *p = getPlayerState(serialId);
+	const PlayerState *p = getPlayer(serialId);
 	ERROR_RET_VAL_IF(!p, "No player info", NULL);
 	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->heroes.size(), "No player info", NULL);
 	return p->heroes[serialId];
@@ -1022,7 +1109,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId)
 
 const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId) const
 {
-	const PlayerState *p = getPlayerState(serialId);
+	const PlayerState *p = getPlayer(serialId);
 	ERROR_RET_VAL_IF(!p, "No player info", NULL);
 	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->towns.size(), "No player info", NULL);
 	return p->towns[serialId];
@@ -1041,3 +1128,46 @@ std::vector<si32> CPlayerSpecificInfoCallback::getResourceAmount() const
 	ERROR_RET_VAL_IF(player == -1, "Applicable only for player callbacks", std::vector<si32>());
 	return gs->players[player].resources;
 }
+
+CGHeroInstance *CNonConstInfoCallback::getHero(int objid)
+{
+	return const_cast<CGHeroInstance*>(CGameInfoCallback::getHero(objid));
+}
+
+CGTownInstance *CNonConstInfoCallback::getTown(int objid)
+{
+
+	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
+}
+
+TeamState *CNonConstInfoCallback::getTeam(ui8 teamID)
+{
+	return const_cast<TeamState*>(CGameInfoCallback::getTeam(teamID));
+}
+
+TeamState *CNonConstInfoCallback::getPlayerTeam(ui8 color)
+{
+	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
+}
+
+PlayerState * CNonConstInfoCallback::getPlayer( ui8 color, bool verbose )
+{
+	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
+}
+
+const TeamState * CGameInfoCallback::getTeam( ui8 teamID ) const
+{
+	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << int(teamID), NULL);
+	const TeamState *ret = &gs->teams[teamID];
+	ERROR_RET_VAL_IF(player != -1 && !vstd::contains(ret->players, player), "Illegal attempt to access team data!", NULL);
+	return ret;
+}
+
+const TeamState * CGameInfoCallback::getPlayerTeam( ui8 teamID ) const
+{
+	const PlayerState * ps = getPlayer(teamID);
+	if (ps)
+		return getTeam(ps->team);
+	return NULL;
+}
+

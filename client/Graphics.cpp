@@ -22,6 +22,7 @@
 #include "CBitmapHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CGameState.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;

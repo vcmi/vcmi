@@ -18,7 +18,7 @@ public:
 	void battleAttack(const BattleAttack *ba) OVERRIDE; //called when stack is performing attack
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE; //called when stack receives damage (after battleAttack())
 	void battleEnd(const BattleResult *br) OVERRIDE;
-	void battleResultsApplied() OVERRIDE; //called when all effects of last battle are applied
+	//void battleResultsApplied() OVERRIDE; //called when all effects of last battle are applied
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied;
 	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(const CStack * stack, THex dest, int distance, bool end) OVERRIDE;

@@ -1,5 +1,6 @@
 #ifndef __CHEROWINDOW_H__
 #define __CHEROWINDOW_H__
+#include "..\lib\HeroBonus.h"
 
 
 //#include "CPlayerInterface.h"
