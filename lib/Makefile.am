@@ -30,29 +30,33 @@ libvcmi_la_SOURCES = \
 	CMapInfo.h \
 	CObjectHandler.cpp \
 	CObjectHandler.h \
-	CondSh.h \
-	Connection.cpp \
-	Connection.h \
-	ConstTransitivePtr.h \
+	CObstacleInstance.h \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
+	CondSh.h \
+	Connection.cpp \
+	Connection.h \
+	ConstTransitivePtr.h \
 	ERMInterpreter.cpp \
 	ERMInterpreter.h \
 	ERMParser.cpp \
 	ERMParser.h \
+	ERMScriptModule.cpp \
+	ERMScriptModule.h \
 	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \
 	IGameCallback.h \
+	IGameEventsReceiver.h \
 	Interprocess.h \
-	map.cpp \
-	map.h \
 	NetPacks.h \
 	NetPacksLib.cpp \
 	RegisterTypes.cpp \
 	RegisterTypes.h \
 	VCMIDirs.h \
-	VCMI_Lib.cpp
-	VCMI_Lib.h
+	VCMI_Lib.cpp \
+	VCMI_Lib.h \
+	map.cpp \
+	map.h

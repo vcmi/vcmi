@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\global.h"
+#include "../global.h"
 #include "IGameEventsReceiver.h"
 
 class ERMInterpreter;
