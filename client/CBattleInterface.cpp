@@ -3265,12 +3265,17 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 	if(!siegeH)
 		return;
 
-	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(50, 2)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 3)(186, 0);
+	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(29, 7)(50, 2)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 3)(186, 0);
 	
 	//additionally print bottom wall
 	if(hex == 182)
 	{
 		siegeH->printPartOfWall(to, 4);
+	}
+	// additionally print background wall, wall has lower priority than creatures in the most upper hexes
+	if (hex == 12)
+	{
+		siegeH->printPartOfWall(to, 1);
 	}
 
 	std::map<int, int>::const_iterator it = hexToPart.find(hex);
