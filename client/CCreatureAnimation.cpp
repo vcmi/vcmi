@@ -155,11 +155,10 @@ void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 template<int bpp>
 int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= NULL*/)
 {
-	//increasing frame numer
+	//increasing frame number
 	int SIndex = curFrame;
-	if(IncrementFrame)
+	if (IncrementFrame)
 		incrementFrame();
-	//frame number increased
 
 	long BaseOffset, 
 		SpriteWidth, SpriteHeight, //sprite format
@@ -168,15 +167,15 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 		TotalRowLength; // length of read segment
 	unsigned char SegmentType, SegmentLength;
 
-	i=BaseOffset=SEntries[SIndex].offset;
-	int prSize=readNormalNr<4>(i,FDef);i+=4;//TODO use me
-	int defType2 = readNormalNr<4>(i,FDef);i+=4;
-	FullWidth = readNormalNr<4>(i,FDef);i+=4;
-	FullHeight = readNormalNr<4>(i,FDef);i+=4;
-	SpriteWidth = readNormalNr<4>(i,FDef);i+=4;
-	SpriteHeight = readNormalNr<4>(i,FDef);i+=4;
-	LeftMargin = readNormalNr<4>(i,FDef);i+=4;
-	TopMargin = readNormalNr<4>(i,FDef);i+=4;
+	i = BaseOffset = SEntries[SIndex].offset;
+	int prSize = readNormalNr<4>(i, FDef); i += 4; //TODO use me
+	int defType2 = readNormalNr<4>(i, FDef); i += 4;
+	FullWidth = readNormalNr<4>(i, FDef); i += 4;
+	FullHeight = readNormalNr<4>(i, FDef); i += 4;
+	SpriteWidth = readNormalNr<4>(i, FDef); i += 4;
+	SpriteHeight = readNormalNr<4>(i, FDef); i += 4;
+	LeftMargin = readNormalNr<4>(i, FDef); i += 4;
+	TopMargin = readNormalNr<4>(i, FDef); i += 4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
@@ -184,60 +183,44 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 
 	int ftcp = 0;
 
-	if (defType2==1) //as it should be always in creature animations
+	if (defType2 == 1) //as it should be always in creature animations
 	{
-		if (TopMargin>0)
+		if (TopMargin > 0)
 		{
-			ftcp+=FullWidth * TopMargin;
+			ftcp += FullWidth * TopMargin;
 		}
-		int * RLEntries = (int*)(FDef+BaseOffset);
+		int *RLEntries = (int*)(FDef + BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
-		for (int i=0;i<SpriteHeight;i++)
+		for (int i = 0; i < SpriteHeight; i++)
 		{
-			BaseOffset=BaseOffsetor+RLEntries[i];
-			if (LeftMargin>0)
+			BaseOffset = BaseOffsetor + RLEntries[i];
+			if (LeftMargin > 0)
 			{
-				ftcp+=LeftMargin;
+				ftcp += LeftMargin;
 			}
-			TotalRowLength=0;
+			
+			TotalRowLength = 0;
 
-			int yB = ftcp/FullWidth + y;
+			// Note: Bug fixed (Rev 2115): The implementation of omitting lines was false. 
+			// We've to calculate several things so not showing/putting pixels should suffice.
 
-			bool omitIteration = false; //if true, we shouldn't try to blit this line to screen
-
-			if(yB < 0 || yB >= dest->h || (destRect && (destRect->y > yB || destRect->y + destRect->h <= yB ) ) )
-			{
-				//update variables
-				omitIteration = true;
-				continue;
-			}
+			int yB = ftcp / FullWidth + y;
 
 			do
 			{
-				SegmentType=FDef[BaseOffset++];
-				SegmentLength=FDef[BaseOffset++];
+				SegmentType = FDef[BaseOffset++];
+				SegmentLength = FDef[BaseOffset++];
+
+				int xB = (attacker ? ftcp % FullWidth : FullWidth - ftcp % FullWidth - 1) + x;
 
 
-				if(omitIteration)
+				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : 0x0f - ((animCount & 0x1e) >> 1) << 4;
+
+				for (int k = 0; k <= SegmentLength; k++)
 				{
-					ftcp += SegmentLength+1;
-					if(SegmentType == 0xFF)
+					if(xB >= 0 && xB < dest->w && yB >= 0 && yB < dest->h)
 					{
-						BaseOffset += SegmentLength+1;
-					}
-					continue;
-				}
-
-				int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
-
-
-				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e)>>1)<<4 : 0x0f - ((animCount & 0x1e)>>1)<<4;
-
-				for (int k=0; k<=SegmentLength; k++)
-				{
-					if(xB>=0 && xB<dest->w)
-					{
-						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB ))
+						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB))
 						{
 							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
 							putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
@@ -257,13 +240,13 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				}
 
 				TotalRowLength+=SegmentLength+1;
-			}while(TotalRowLength<SpriteWidth);
-			if (RightMargin>0)
+			} while(TotalRowLength < SpriteWidth);
+			if (RightMargin > 0)
 			{
-				ftcp+=RightMargin;
+				ftcp += RightMargin;
 			}
 		}
-		if (BottomMargin>0)
+		if (BottomMargin > 0)
 		{
 			ftcp += BottomMargin * FullWidth;
 		}
