@@ -28,6 +28,10 @@ class CERMPreprocessor
 public:
 	CERMPreprocessor(const std::string &Fname);
 	std::string retreiveCommandLine();
+	int getCurLineNo() const
+	{
+		return lineNo;
+	}
 };
 
 //various classes that represent ERM/VERM AST
@@ -231,20 +235,25 @@ namespace ERM
 	typedef boost::variant<TVExp, TERMline> TLine;
 }
 
+struct LineInfo
+{
+	ERM::TLine tl;
+	int realLineNum;
+};
+
 class ERMParser
 {
 private:
 	std::string srcFile;
-	int parsedLine;
 	void repairEncoding(char * str, int len) const; //removes nonstandard ascii characters from string
 	void repairEncoding(std::string & str) const; //removes nonstandard ascii characters from string
 	enum ELineType{COMMAND_FULL, COMMENT, UNFINISHED, END_OF};
 	int countHatsBeforeSemicolon(const std::string & line) const;
 	ELineType classifyLine(const std::string & line, bool inString) const;
-	ERM::TLine parseLine(const std::string & line);
+	ERM::TLine parseLine(const std::string & line, int realLineNo);
 
 
 public:
 	ERMParser(std::string file);
-	std::vector<ERM::TLine> parseFile();
+	std::vector<LineInfo> parseFile();
 };

@@ -378,13 +378,13 @@ void ERMInterpreter::scanForScripts()
 				FileInfo * finfo = new FileInfo;
 				finfo->filename = dir->path().string();
 
-				std::vector<ERM::TLine> buf = ep.parseFile();
+				std::vector<LineInfo> buf = ep.parseFile();
 				finfo->length = buf.size();
 				files.push_back(finfo);
 
 				for(int g=0; g<buf.size(); ++g)
 				{
-					scripts[LinePointer(finfo, g)] = buf[g];
+					scripts[LinePointer(finfo, g, buf[g].realLineNum)] = buf[g].tl;
 				}
 			}
 		}
@@ -509,11 +509,11 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 		break;
 	case 1: //erm
 		{
-			TERMline line = boost::get<TERMline>(line);
-			switch(line.which())
+			TERMline ermline = boost::get<TERMline>(line);
+			switch(ermline.which())
 			{
 			case 0: //tcmd
-				return isCMDATrigger( boost::get<ERM::Tcommand>(line) );
+				return isCMDATrigger( boost::get<ERM::Tcommand>(ermline) );
 				break;
 			default:
 				return false;
@@ -550,7 +550,7 @@ bool ERMInterpreter::isCMDATrigger( const ERM::Tcommand & cmd )
 
 ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
 {
-	return *scripts.find(linePtr);
+	return scripts.find(linePtr)->second;
 }
 
 /////////
@@ -1062,7 +1062,7 @@ struct LVL1IexpDisemboweler : boost::static_visitor<IexpValStr>
 	{
 		if(dir == IexpDisemboweler::GET)
 		{
-			IexpValStr ret = IexpValStr(constant);
+			return IexpValStr(constant);
 		}
 		else
 		{
@@ -1094,7 +1094,7 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
 {
 	if(tid.which() == 0)
 	{
-		IexpValStr ievs = getIexp(boost::get<ERM::TIexp>(tid));
+		return getIexp(boost::get<ERM::TIexp>(tid));
 	}
 	else
 		throw EScriptExecError("Identifier must be a valid i-expression to perform this operation!");
@@ -1138,12 +1138,14 @@ ERM::Ttrigger ERMInterpreter::retrieveTrigger( ERM::TLine line )
 		ERM::TERMline tl = boost::get<ERM::TERMline>(line);
 		if(tl.which() == 0)
 		{
-			ERM::Tcommand tcm = boost::get<ERM::Tcommand>(line);
+			ERM::Tcommand tcm = boost::get<ERM::Tcommand>(tl);
 			if(tcm.cmd.which() == 0)
 			{
 				return boost::get<ERM::Ttrigger>(tcm.cmd);
 			}
+			throw ELineProblem("Given line is not a trigger!");
 		}
+		throw ELineProblem("Given line is not a command!");
 	}
 	throw ELineProblem("Given line is not an ERM trigger!");
 }
@@ -1412,6 +1414,7 @@ double & VERMInterpreter::TriggerLocalVars::getEvar( int num )
 
 int & VERMInterpreter::TriggerLocalVars::getYvar( int num )
 {
+	num = -num; //we handle negative indices
 	if(num < 1 || num > YVAR_NUM)
 		throw EScriptExecError("Number of trigger local variable out of bounds");
 

@@ -177,10 +177,10 @@ ERMParser::ERMParser(std::string file)
 	:srcFile(file)
 {}
 
-std::vector<ERM::TLine> ERMParser::parseFile()
+std::vector<LineInfo> ERMParser::parseFile()
 {
 	CERMPreprocessor preproc(srcFile);
-	std::vector<ERM::TLine> ret;
+	std::vector<LineInfo> ret;
 	try
 	{
 		while(1)
@@ -190,7 +190,10 @@ std::vector<ERM::TLine> ERMParser::parseFile()
 				break;
 
 			repairEncoding(command);
-			ret.push_back(parseLine(command));
+			LineInfo li;
+			li.realLineNum = preproc.getCurLineNo();
+			li.tl = parseLine(command, li.realLineNum);
+			ret.push_back(li);
 		}
 	}
 	catch (ParseErrorException & e)
@@ -482,7 +485,7 @@ namespace ERM
 	};
 };
 
-ERM::TLine ERMParser::parseLine( const std::string & line )
+ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 {
 	std::string::const_iterator beg = line.begin(),
 		end = line.end();
@@ -493,7 +496,7 @@ ERM::TLine ERMParser::parseLine( const std::string & line )
 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
 	if(!r || beg != end)
 	{
-		tlog1 << "Parse error in file " << srcFile << " (line " << parsedLine << ") :\n" << line << std::endl;
+		tlog1 << "Parse error in file " << srcFile << " (line " << realLineNo << ") :\n" << line << std::endl;
 		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
 		throw ParseErrorException();
 	}

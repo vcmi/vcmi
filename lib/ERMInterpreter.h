@@ -220,10 +220,13 @@ namespace VERMInterpreter
 		const FileInfo * file; //non-owning
 		int lineNum;
 
+		int realLineNum;
+
 		LinePointer() : file(NULL)
 		{}
 
-		LinePointer(const FileInfo * finfo, int line) : file(finfo), lineNum(line)
+		LinePointer(const FileInfo * finfo, int line, int _realLineNum) : file(finfo), lineNum(line),
+			realLineNum(_realLineNum)
 		{}
 
 		//lexicographical order
