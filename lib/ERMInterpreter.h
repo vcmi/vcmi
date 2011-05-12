@@ -148,6 +148,7 @@ namespace VERMInterpreter
 		int & getLocal(int num);
 		std::string & getString(int num);
 		double & getFloat(int num);
+		void reset();
 	private:
 		int params[NUM_PARAMETERS]; //x-vars
 		int locals[NUM_LOCALS]; //y-vars
@@ -503,7 +504,7 @@ class ERMInterpreter
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
 	void executeLine(const VERMInterpreter::LinePointer & lp);
-	void executeTrigger(VERMInterpreter::Trigger & trig);
+	void executeTrigger(VERMInterpreter::Trigger & trig, int funNum = -1, std::vector<int> funParams=std::vector<int>());
 	static bool isCMDATrigger(const ERM::Tcommand & cmd);
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);

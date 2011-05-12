@@ -463,8 +463,18 @@ ERMInterpreter::ERMInterpreter()
 	globalEnv = new Environment();
 }
 
-void ERMInterpreter::executeTrigger( Trigger & trig )
+void ERMInterpreter::executeTrigger( VERMInterpreter::Trigger & trig, int funNum /*= -1*/, std::vector<int> funParams/*=std::vector<int>()*/ )
 {
+	//function-related logic
+	if(funNum != -1)
+	{
+		curFunc = getFuncVars(funNum);
+		for(int g=1; g<=FunctionLocalVars::NUM_PARAMETERS; ++g)
+		{
+			curFunc->getParam(g) = g < funParams.size() ? funParams[g] : 0;
+		}
+	}
+
 	//skip the first line
 	LinePointer lp = trig.line;
 	++lp;
@@ -476,6 +486,8 @@ void ERMInterpreter::executeTrigger( Trigger & trig )
 
 		executeLine(lp);
 	}
+
+	curFunc = NULL;
 }
 
 bool ERMInterpreter::isATrigger( const ERM::TLine & line )
@@ -827,6 +839,8 @@ void ERMInterpreter::init()
 	ermGlobalEnv = new ERMEnvironment();
 	globalEnv = new Environment();
 	//TODO: reset?
+	for(int g=0; g<TRIG_FUNC_NUM; ++g)
+		funcVars[g].reset();
 }
 
 IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> initVal) const
@@ -1102,6 +1116,16 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
 
 void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier )
 {
+	struct HLP
+	{
+		static int calcFunNum(VERMInterpreter::TriggerType tt, const TIDPattern & identifier)
+		{
+			if(tt.type != VERMInterpreter::TriggerType::FU)
+				return -1;
+
+			return identifier.begin()->second[0];
+		}
+	};
 	TtriggerListType & triggerList = pre ? triggers : postTriggers;
 
 	TriggerIdentifierMatch tim;
@@ -1114,7 +1138,7 @@ void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool p
 		if(tim.tryMatch(&triggersToTry[g]))
 		{
 			curTrigger = &triggersToTry[g];
-			executeTrigger(triggersToTry[g]);
+			executeTrigger(triggersToTry[g], HLP::calcFunNum(tt, identifier));
 		}
 	}
 }
@@ -1332,7 +1356,6 @@ bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig ) const
 					ret = false;
 				}
 			}
-			ret = true;
 		}
 	}
 	else
@@ -1505,6 +1528,18 @@ double & VERMInterpreter::FunctionLocalVars::getFloat( int num )
 		throw EScriptExecError("Number of float var out of bounds");
 
 	return floats[num-1];
+}
+
+void VERMInterpreter::FunctionLocalVars::reset()
+{
+	for(int g=0; g<ARRAY_COUNT(params); ++g)
+		params[g] = 0;
+	for(int g=0; g<ARRAY_COUNT(locals); ++g)
+		locals[g] = 0;
+	for(int g=0; g<ARRAY_COUNT(strings); ++g)
+		strings[g] = "";
+	for(int g=0; g<ARRAY_COUNT(floats); ++g)
+		floats[g] = 0.0;
 }
 
 void IexpValStr::setTo( const IexpValStr & second )
