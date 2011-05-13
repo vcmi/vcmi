@@ -2935,9 +2935,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					else
 						text = "";
 					break;
-				case 81:
-					break; //handled as hero spell - display damage
 				default:
+					text = CGI->generaltexth->allTexts[565]; //The %s casts %s	
 					boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //casting stack
 			}
 			if (plural)
@@ -2955,7 +2954,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			}
 		}
 		if (!customSpell)
-			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
+			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
 		if (text.size())
 			console->addText(text);
 	}
@@ -2968,7 +2967,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 		else
 		{
-			boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
+			boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //creature caster
 		}
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
 		console->addText(text);

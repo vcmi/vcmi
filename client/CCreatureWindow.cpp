@@ -41,8 +41,15 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type)
 	: type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	if (stack.base)
+		init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
+	else
+	{
+		CStackInstance * s = new CStackInstance(stack.type, 1); //TODO: war machines and summons should be regular stacks
+		init(s, stack.type, NULL);
+		delete s;
+	}
 
-	init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
 }
 
 CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type)
