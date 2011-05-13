@@ -1792,7 +1792,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		}
 
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id) ||
-			( immunities.size() > 0 && immunities.totalValue() >= spell->level)) //many creature abilities have level equal to 0 by default, fixed in config\spell_levels
+			( immunities.size() > 0 && immunities.totalValue() >= spell->level && spell->level))
 		{ 
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
@@ -2166,6 +2166,12 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	case 75: //Age
 		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -50, 3, Bonus::PERCENT_TO_ALL));
 		sf.back().sid = sse.sid;
+		break;
+	case 80: //Acid Breath
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -3, 1));
+	 	sf.back().sid = sse.sid;
+		sf.back().duration = Bonus::PERMANENT;
+		sf.back().valType = Bonus::ADDITIVE_VALUE;
 		break;
 	}
 }

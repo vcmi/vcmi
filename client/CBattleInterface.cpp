@@ -2935,6 +2935,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					else
 						text = "";
 					break;
+				case 81:
+					break; //handled as hero spell - display damage
 				default:
 					boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
 			}

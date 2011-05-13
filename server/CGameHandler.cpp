@@ -3397,10 +3397,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			continue;
 		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
-	if (spellID == 79) // Death stare
+	if (spellID == 79 || spellID == 81) // Death stare or Acid Breath
 	{
 		sc.dmgToDisplay = usedSpellPower;
-		amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
+		if (spellID == 79)
+			amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
 
 	//applying effects
@@ -3474,6 +3475,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	case 73: //Disease
 	case 74: //Paralyze
 	case 75: //Aging
+	case 80: //Acid Breath defense reduction
 		{
 			SetStackEffect sse;
 			Bonus pseudoBonus;
@@ -3529,7 +3531,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
  				}
 				if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
  	 			{
- 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, 41) / tier;
+ 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
 					Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
 					specialBonus.valType = Bonus::PERCENT_TO_ALL;
 					specialBonus.sid = spellID;
@@ -3617,10 +3619,27 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 				sendAndApply(&si);
 		}
 		break;
+	case 81: //Acid breath damage - new effect, separate from acid breath defense reduction
+		{
+			StacksInjured si;
+			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
+			{
+				BattleStackAttacked bsa;
+				bsa.flags |= BattleStackAttacked::EFFECT;
+				bsa.effect = VLC->spellh->spells[80]->mainEffectAnim; //use acid breath 
+				bsa.damageAmount = usedSpellPower; //damage times the number of attackers
+				bsa.stackAttacked = (*it)->ID;
+				bsa.attackerID = -1;
+				(*it)->prepareAttacked(bsa);
+				si.stacks.push_back(bsa);
+			}
+			if(!si.stacks.empty())
+				sendAndApply(&si);
+		}
+		break;
 	}
 
 	sendAndApply(&sc);
-
 }
 
 bool CGameHandler::makeCustomAction( BattleAction &ba )
@@ -4285,6 +4304,18 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 			handleSpellCasting(79, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING);
 		}
+	}
+	int acidDamage = 0;
+	BOOST_FOREACH(const Bonus *b, attacker->getBonuses(Selector::type(Bonus::ACID_BREATH)))
+	{
+		if (b->additionalInfo > rand()%100)
+			acidDamage += b->val;
+	}
+	if (acidDamage)
+	{
+		handleSpellCasting(81, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
+				!attacker->attackerOwned, attacker->owner, NULL, NULL,
+				acidDamage * attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
 	}
 }
 

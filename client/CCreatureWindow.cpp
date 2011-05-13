@@ -240,9 +240,12 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		std::vector<si32> spells = battleStack->activeSpells();
 		BOOST_FOREACH(si32 effect, spells)
 		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap); 
-			if (++printed >= 10) //we can fit only 10 effects
-				break;
+			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
+			{
+				blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap); 
+				if (++printed >= 10) //we can fit only 10 effects
+					break;
+			}
 		}
 		//print current health
 		printLine (5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
@@ -314,8 +317,8 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 		printTo(count, 117, 174, FONT_SMALL, tytulowy,*bitmap);
 	printAtMiddle(c->namePl, 180, 30, FONT_SMALL, tytulowy,*bitmap); //creature name
 
-	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
+	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
 	//if(c->shots)
 	//	printLine(2, CGI->generaltexth->allTexts[198], c->shots);
 	if(stackNode->valOfBonuses(Bonus::SHOTS))

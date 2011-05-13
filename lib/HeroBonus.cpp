@@ -269,6 +269,7 @@ si32 IBonusBearer::Attack() const
 	{
 		ret += frenzyPower * Defense(false);
 	}
+	amax(ret, 0);
 
 	return ret;
 }
@@ -281,6 +282,7 @@ si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
 	{
 		return 0;
 	}
+	amax(ret, 0);
 
 	return ret;
 }

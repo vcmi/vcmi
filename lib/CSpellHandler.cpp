@@ -322,23 +322,24 @@ void CSpellHandler::loadSpells()
 		}
 	}
 	ast.close();
-	ast.open(DATA_DIR "/config/spell_levels.txt", std::ios::binary);
-	if(!ast.is_open())
-	{
-		tlog1<<"lack of config/spell_levels.txt file!"<<std::endl;
-	}
-	else
-	{
-		//custom levels of spells. Level 0 seems to not be supported correctly, but we can replace it it something else
-		int spellID;
-		ast>>spellID;
-		int buf;
-		while(spellID != -1)
-		{
-			ast >> buf;
-			spells[spellID]->level = buf;
-			ast>>spellID;
-		}
-	}
-	ast.close();
+	//ast.open(DATA_DIR "/config/spell_levels.txt", std::ios::binary);
+	//if(!ast.is_open())
+	//{
+	//	tlog1<<"lack of config/spell_levels.txt file!"<<std::endl;
+	//}
+	//else
+	//{
+	//	//custom levels of spells. Level 0 seems to not be supported correctly, but we can replace it it something else
+	//	int spellID;
+	//	ast>>spellID;
+	//	int buf;
+	//	while(spellID != -1)
+	//	{
+	//		ast >> buf;
+	//		spells[spellID]->level = buf;
+	//		ast>>spellID;
+	//	}
+	//}
+	//ast.close();
+	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
 }

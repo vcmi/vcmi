@@ -159,7 +159,8 @@ namespace PrimarySkill
 	BONUS_NAME(SHOTS)\
 	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
 	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
-	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/
+	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
+	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus
