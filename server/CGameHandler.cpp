@@ -3368,7 +3368,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode )
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack)
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 
@@ -3379,6 +3379,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	sc.tile = destination;
 	sc.dmgToDisplay = 0;
 	sc.castedByHero = (bool)caster;
+	sc.attackerType = (stack ? stack->type->idNumber : -1);
 
 	//calculating affected creatures for all spells
 	std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
@@ -3674,7 +3675,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING);
+			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING, NULL);
 
 			sendAndApply(&EndAction());
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
@@ -4280,7 +4281,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 
 			//casting
 			if (castMe)
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
@@ -4302,7 +4303,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		{
 			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally avaliable for multiple-hex attacks, but...
 			handleSpellCasting(79, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
-				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING);
+				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
 	int acidDamage = 0;
@@ -4315,7 +4316,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	{
 		handleSpellCasting(81, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL,
-				acidDamage * attacker->count, SpellCasting::AFTER_ATTACK_CASTING);
+				acidDamage * attacker->count, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 	}
 }
 
@@ -4790,7 +4791,7 @@ void CGameHandler::runBattle()
 			gs->curB->heroes[i]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			BOOST_FOREACH (Bonus *b, bl)
 			{
-				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, SpellCasting::HERO_CASTING);
+				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, SpellCasting::HERO_CASTING, NULL);
 			}
 		}
 	}

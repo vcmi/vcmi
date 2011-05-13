@@ -192,7 +192,7 @@ public:
 
 	void playerMessage( ui8 player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
-	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode);
+	void handleSpellCasting(int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack);
 	bool makeCustomAction(BattleAction &ba);
 	bool queryReply( ui32 qid, ui32 answer );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, ui8 player );

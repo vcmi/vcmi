@@ -2930,7 +2930,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 							text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
 							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
 						}
-						boost::algorithm::replace_first(text, "%s", "Creatures"); //casting stack
+						boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //casting stack
 					}
 					else
 						text = "";
@@ -2938,7 +2938,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				case 81:
 					break; //handled as hero spell - display damage
 				default:
-					boost::algorithm::replace_first(text, "%s", "Creature"); //TODO: better fix
+					boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //casting stack
 			}
 			if (plural)
 			{
