@@ -289,7 +289,7 @@ si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
 
 ui16 IBonusBearer::MaxHealth() const
 {
-	return valOfBonuses(Bonus::STACK_HEALTH);
+	return std::max(1, valOfBonuses(Bonus::STACK_HEALTH)); //never 0 or negative
 }
 
 ui32 IBonusBearer::getMinDamage() const

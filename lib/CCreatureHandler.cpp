@@ -850,6 +850,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		break;
 	case 'R':
 		b.type = Bonus::ADDITIONAL_RETALIATION; break;
+	case 'W':
+		b.type = Bonus::MAGIC_RESISTANCE;
+		break;
 
 	case 'f': //on-off skill
 		enable = true; //sometimes format is: 2 -> 0, 1 -> 1
@@ -938,6 +941,52 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			case ':':
 				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
 				b.val = SPELL_LEVELS; //in case someone adds higher level spells?
+				break;
+			case 'F':
+				b.type = Bonus::FIRE_IMMUNITY;
+				b.subtype = 1; //not positive
+				break;
+			case 'O':
+				b.type = Bonus::FIRE_IMMUNITY;
+				b.subtype = 2; //only direct damage
+				break;
+			case 'f':
+				b.type = Bonus::FIRE_IMMUNITY;
+				b.subtype = 0; //all
+				break;
+			case 'C':
+				b.type = Bonus::WATER_IMMUNITY;
+				b.subtype = 1; //not positive
+				break;
+			case 'W':
+				b.type = Bonus::WATER_IMMUNITY;
+				b.subtype = 2; //only direct damage
+				break;
+			case 'w':
+				b.type = Bonus::WATER_IMMUNITY;
+				b.subtype = 0; //all
+				break;
+			case 'E':
+				b.type = Bonus::EARTH_IMMUNITY;
+				b.subtype = 2; //only direct damage
+				break;
+			case 'e':
+				b.type = Bonus::EARTH_IMMUNITY;
+				b.subtype = 0; //all
+				break;
+			case 'A':
+				b.type = Bonus::AIR_IMMUNITY;
+				b.subtype = 2; //only direct damage
+				break;
+			case 'a':
+				b.type = Bonus::AIR_IMMUNITY;
+				b.subtype = 0; //all
+				break;
+			case 'D':
+				b.type = Bonus::DIRECT_DAMAGE_IMMUNITY;
+				break;
+			case '0':
+				b.type = Bonus::RECEPTIVE;
 				break;
 			default:
 				tlog3 << "Not parsed bonus " << buf << mod << "\n";

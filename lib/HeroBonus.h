@@ -106,7 +106,10 @@ namespace PrimarySkill
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*value - spell id; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(DAEMON_SUMMONING) /*pit lord*/			\
-	BONUS_NAME(FIRE_IMMUNITY)							\
+	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive, 2 - only damage spells*/						\
+	BONUS_NAME(WATER_IMMUNITY)							\
+	BONUS_NAME(EARTH_IMMUNITY)							\
+	BONUS_NAME(AIR_IMMUNITY)							\
 	BONUS_NAME(FIRE_SHIELD)								\
 	BONUS_NAME(UNDEAD)									\
 	BONUS_NAME(HP_REGENERATION) /*creature regenerates val HP every new round*/					\
@@ -160,7 +163,9 @@ namespace PrimarySkill
 	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
 	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
-	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/
+	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
+	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
+	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus

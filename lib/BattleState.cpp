@@ -1785,6 +1785,63 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 	const CStack * subject = getStackT(dest, false);
 	if(subject)
 	{
+		if (spell->positiveness ==1 && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+			return SpellCasting::OK;
+
+		if (spell->fire)
+		{
+
+			if (spell->positiveness == -1) //negative
+			{
+				if (subject->hasBonusOfType(Bonus::FIRE_IMMUNITY)) //both damage and curse spells, TODO: separate them
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+			else if (spell->positiveness == 1)
+			{
+				if (subject->hasBonusOfType(Bonus::FIRE_IMMUNITY, 1))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+		}
+		if (spell->water)
+		{
+			if (spell->positiveness == -1) //negative
+			{
+				if (subject->hasBonusOfType(Bonus::WATER_IMMUNITY)) //both damage and curse spells, TODO: separate them
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+			else if (spell->positiveness == 1)
+			{
+				if (subject->hasBonusOfType(Bonus::WATER_IMMUNITY, 1))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+		}
+		if (spell->earth)
+		{
+			if (spell->positiveness == -1) //negative
+			{
+				if (subject->hasBonusOfType(Bonus::EARTH_IMMUNITY)) //both damage and curse spells, TODO: separate them
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+			else if (spell->positiveness == 1)
+			{
+				if (subject->hasBonusOfType(Bonus::EARTH_IMMUNITY, 1))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+		}
+		if (spell->air)
+		{
+			if (spell->positiveness == -1) //negative
+			{
+				if (subject->hasBonusOfType(Bonus::AIR_IMMUNITY)) //both damage and curse spells, TODO: separate them
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+			else if (spell->positiveness == 1)
+			{
+				if (subject->hasBonusOfType(Bonus::AIR_IMMUNITY, 1))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+			}
+		}
+
 		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
