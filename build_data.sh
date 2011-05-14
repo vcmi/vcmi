@@ -18,7 +18,7 @@
 # Data files needed:
 #   data1.cab and data1.hdr from the original CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_082.zip
+#   the VCMI distribution: vcmi_084.zip
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -106,7 +106,7 @@ rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_082.zip
+unzip ../vcmi_084.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
@@ -138,6 +138,3 @@ echo at the root of your VCMI tree:
 echo   ln -s client/vcmiclient .
 echo   ln -s server/vcmiserver .
 echo   ln -s AI/GeniusAI/.libs/GeniusAI.so .
-
-
-
