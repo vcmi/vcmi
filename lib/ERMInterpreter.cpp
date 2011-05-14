@@ -143,9 +143,9 @@ namespace ERMPrinter
 			}
 			tlog2 << "varsym: |" << cmp.varsym << "|";
 		}
-		void operator()(TQMacroUsage const& cmp) const
+		void operator()(TMacroUsage const& cmp) const
 		{
-			tlog2 << "???$$" << cmp.qmacro << "$$";
+			tlog2 << "???$$" << cmp.macro << "$$";
 		}
 	};
 
@@ -471,7 +471,7 @@ void ERMInterpreter::executeTrigger( VERMInterpreter::Trigger & trig, int funNum
 		curFunc = getFuncVars(funNum);
 		for(int g=1; g<=FunctionLocalVars::NUM_PARAMETERS; ++g)
 		{
-			curFunc->getParam(g) = g < funParams.size() ? funParams[g] : 0;
+			curFunc->getParam(g) = g-1 < funParams.size() ? funParams[g-1] : 0;
 		}
 	}
 
@@ -769,12 +769,14 @@ struct ERMExpDispatch : boost::static_visitor<>
 
 				for(int it = startVal; it < stopVal; it += increment)
 				{
-					owner->getFuncVars(funNum)->getParam(16) = it;
+					std::vector<int> params(FunctionLocalVars::NUM_PARAMETERS, 0);
+					params.back() = it;
+					//owner->getFuncVars(funNum)->getParam(16) = it;
 					ERMInterpreter::TIDPattern tip;
 					std::vector<int> v1;
 					v1 += funNum;
 					insert(tip) (v1.size(), v1);
-					owner->executeTriggerType(TriggerType("FU"), true, tip);
+					owner->executeTriggerType(TriggerType("FU"), true, tip, params);
 					it = owner->getFuncVars(funNum)->getParam(16);
 				}
 			}
@@ -831,6 +833,7 @@ struct LineExec : boost::static_visitor<>
 
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
+	tlog0 << "Executing line nr " << getRealLine(lp.lineNum) << " (internal " << lp.lineNum << ") from " << lp.file << std::endl;
 	boost::apply_visitor(LineExec(this), scripts[lp]);
 }
 
@@ -839,7 +842,7 @@ void ERMInterpreter::init()
 	ermGlobalEnv = new ERMEnvironment();
 	globalEnv = new Environment();
 	//TODO: reset?
-	for(int g=0; g<TRIG_FUNC_NUM; ++g)
+	for(int g = 0; g < ARRAY_COUNT(funcVars); ++g)
 		funcVars[g].reset();
 }
 
@@ -874,9 +877,9 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 	//now we have at least one element in toFollow
 	for(int b=toFollow.size()-1; b>=endNum; --b)
 	{
-		bool retIt = b == endNum+1; //if we should return the value are currently at
+		bool retIt = b == endNum/*+1*/; //if we should return the value are currently at
 
-		char cr = toFollow[toFollow.size() - 1];
+		char cr = toFollow[b];
 		if(cr == 'c')//write number of current day
 		{
 			//TODO
@@ -968,15 +971,11 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 			{
 				if(initV > 0 && initV <= FunctionLocalVars::NUM_LOCALS)
 				{
-					if(curFunc)
-					{
-						if(retIt)
-							ret = IexpValStr(&curFunc->getLocal(initV));
-						else
-							initV = curFunc->getLocal(initV);
-					}
+					int &valPtr = curFunc ? curFunc->getLocal(initV) : const_cast<ERMInterpreter&>(*this).getFuncVars(0)->getLocal(initV); //retreive local var if in function or use global set otherwise
+					if(retIt)
+						ret = IexpValStr(&valPtr);
 					else
-						throw EIexpProblem("Function local variables cannot be used outside a function!");
+						initV = curFunc->getLocal(initV);
 				}
 				else if(initV < 0 && initV >= -TriggerLocalVars::YVAR_NUM)
 				{
@@ -1114,7 +1113,7 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
 		throw EScriptExecError("Identifier must be a valid i-expression to perform this operation!");
 }
 
-void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier )
+void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams/*=std::vector<int>()*/ )
 {
 	struct HLP
 	{
@@ -1138,7 +1137,7 @@ void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool p
 		if(tim.tryMatch(&triggersToTry[g]))
 		{
 			curTrigger = &triggersToTry[g];
-			executeTrigger(triggersToTry[g], HLP::calcFunNum(tt, identifier));
+			executeTrigger(triggersToTry[g], HLP::calcFunNum(tt, identifier), funParams);
 		}
 	}
 }
@@ -1289,12 +1288,23 @@ bool ERMInterpreter::checkCondition( ERM::Tcondition cond )
 
 FunctionLocalVars * ERMInterpreter::getFuncVars( int funNum )
 {
-	return funcVars + funNum - 1;
+	if(funNum >= ARRAY_COUNT(funcVars) || funNum < 0)
+		throw EScriptExecError("Attempt of accessing variables of function with index out of boundaries!");
+	return funcVars + funNum;
 }
 
 void ERMInterpreter::executeInstructions()
 {
 	//TODO implement me
+}
+
+int ERMInterpreter::getRealLine(int lineNum)
+{
+	for(std::map<VERMInterpreter::LinePointer, ERM::TLine>::const_iterator i = scripts.begin(); i != scripts.end(); i++)
+		if(i->first.lineNum == lineNum)
+			return i->first.realLineNum;
+
+	return -1;
 }
 
 const std::string ERMInterpreter::triggerSymbol = "trigger";

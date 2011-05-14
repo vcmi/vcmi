@@ -213,10 +213,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, macro)
 	)
 
-BOOST_FUSION_ADAPT_STRUCT(
-	ERM::TQMacroUsage,
-	(std::string, qmacro)
-	)
+// BOOST_FUSION_ADAPT_STRUCT(
+// 	ERM::TQMacroUsage,
+// 	(std::string, qmacro)
+// 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TMacroDef,
@@ -351,10 +351,11 @@ namespace ERM
 			ERMmacroUsage %= qi::lexeme[qi::lit('$') >> *(qi::char_ - '$') >> qi::lit('$')];
 			ERMmacroDef %= qi::lexeme[qi::lit('@') >> *(qi::char_ - '@') >> qi::lit('@')];
 			varExpNotMacro %= -qi::char_("?") >> (+(qi::char_("a-z") - 'u')) >> -qi::int_;
-			qERMMacroUsage %= qi::lexeme[qi::lit("?$") >> *(qi::char_ - '$') >> qi::lit('$')];
+			//TODO: mixed var/macro expressions like in !!HE-1&407:Id$cost$; [script 13]
+			/*qERMMacroUsage %= qi::lexeme[qi::lit("?$") >> *(qi::char_ - '$') >> qi::lit('$')];*/
 			varExp %= varExpNotMacro | ERMmacroUsage;
 			iexp %= varExp | qi::int_;
-			varp %=/* qi::lit("?") >> */(varExpNotMacro | qERMMacroUsage);
+			varp %= qi::lit("?") >> (varExpNotMacro | ERMmacroUsage);
  			comment %= *qi::char_;
 			commentLine %= (~qi::char_("!") >> comment | (qi::char_('!') >> (~qi::char_("?!$#[")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
@@ -369,7 +370,7 @@ namespace ERM
 			
 			VRLogic %= qi::char_("&|X") >> iexp;
 			VRarithmetic %= qi::char_("+*:/%-") >> iexp;
-			semiCompare %= *qi::char_("<=>") >> iexp;
+			semiCompare %= +qi::char_("<=>") >> iexp;
 			curStr %= iexp >> string;
 			varConcatString %= varExp >> qi::lit("+") >> string;
 			bodyOptionItem %= varConcatString | curStr | string | semiCompare | ERMmacroUsage | ERMmacroDef | varp | iexp | qi::eps;
@@ -409,7 +410,7 @@ namespace ERM
 
 			string.name("string constant");
 			ERMmacroUsage.name("macro usage");
-			qERMMacroUsage.name("macro usage with ?");
+			/*qERMMacroUsage.name("macro usage with ?");*/
 			ERMmacroDef.name("macro definition");
 			varExpNotMacro.name("variable expression (not macro)");
 			varExp.name("variable expression");
@@ -448,7 +449,7 @@ namespace ERM
 		qi::rule<Iterator, TStringConstant(), ascii::space_type> string;
 
 		qi::rule<Iterator, TMacroUsage(), ascii::space_type> ERMmacroUsage;
-		qi::rule<Iterator, TQMacroUsage(), ascii::space_type> qERMMacroUsage;
+		/*qi::rule<Iterator, TQMacroUsage(), ascii::space_type> qERMMacroUsage;*/
 		qi::rule<Iterator, TMacroDef(), ascii::space_type> ERMmacroDef;
 		qi::rule<Iterator, TVarExpNotMacro(), ascii::space_type> varExpNotMacro;
 		qi::rule<Iterator, TVarExp(), ascii::space_type> varExp;

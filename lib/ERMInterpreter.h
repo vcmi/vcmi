@@ -165,7 +165,7 @@ namespace VERMInterpreter
 		std::string & getZVar(int num);
 		bool & getFlag(int num);
 
-		static const int NUM_STANDARDS = 1000;
+		static const int NUM_STANDARDS = 10000;
 
 		static const int NUM_STRINGS = 1000;
 
@@ -494,8 +494,8 @@ class ERMInterpreter
 	VERMInterpreter::Trigger * curTrigger;
 	VERMInterpreter::FunctionLocalVars * curFunc;
 	static const int TRIG_FUNC_NUM = 30000;
-	VERMInterpreter::FunctionLocalVars funcVars[TRIG_FUNC_NUM];
-	VERMInterpreter::FunctionLocalVars * getFuncVars(int funNum);
+	VERMInterpreter::FunctionLocalVars funcVars[TRIG_FUNC_NUM+1]; //+1 because we use [0] as a global set of y-vars
+	VERMInterpreter::FunctionLocalVars * getFuncVars(int funNum); //0 is a global func-like set
 
 	IexpValStr getIexp(const ERM::TIexp & iexp) const;
 	IexpValStr getIexp(const ERM::TMacroUsage & macro) const;
@@ -512,7 +512,7 @@ class ERMInterpreter
 public:
 	typedef std::map< int, std::vector<int> > TIDPattern;
 	void executeInstructions(); //called when starting a new game, before most of the map settings are done
-	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier); //use this to run triggers
+	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams=std::vector<int>()); //use this to run triggers
 	void executeTriggerType(const char *trigger, int id); //convenience version of above, for pre-trigger when there is only one argument
 	void executeTriggerType(const char *trigger); //convenience version of above, for pre-trigger when there are no args
 	void init(); //sets up environment etc.
@@ -524,4 +524,5 @@ public:
 
 	ERMInterpreter();
 	bool checkCondition( ERM::Tcondition cond );
+	int getRealLine(int lineNum);
 };

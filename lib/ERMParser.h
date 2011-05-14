@@ -46,11 +46,11 @@ namespace ERM
 		std::string macro;
 	};
 
-	//macro with '?', for write only
-	struct TQMacroUsage
-	{
-		std::string qmacro;
-	};
+// 	//macro with '?', for write only
+// 	struct TQMacroUsage
+// 	{
+// 		std::string qmacro;
+// 	};
 
 	//definition of a macro
 	struct TMacroDef
@@ -72,7 +72,7 @@ namespace ERM
 	//write-only variable expression
 	struct TVarpExp
 	{
-		typedef boost::variant<TVarExpNotMacro, TQMacroUsage> Tvartype;
+		typedef boost::variant<TVarExpNotMacro, TMacroUsage> Tvartype;
 		Tvartype var;
 	};
 
@@ -154,11 +154,28 @@ namespace ERM
 		TconditionNode rhs;
 	};
 
-	struct Ttrigger
+	struct TTriggerBase
 	{
+		bool pre; //if false it's !$ post-trigger, elsewise it's !# (pre)trigger
 		TCmdName name;
 		boost::optional<Tidentifier> identifier;
 		boost::optional<Tcondition> condition;
+	};
+
+	struct Ttrigger : TTriggerBase
+	{
+		Ttrigger() 
+		{
+			pre = false;
+		}
+	};
+
+	struct TPostTrigger : TTriggerBase
+	{
+		TPostTrigger()
+		{
+			pre = true;
+		}
 	};
 
 	//a dirty workaround for preprocessor magic that prevents the use types with comma in it in BOOST_FUSION_ADAPT_STRUCT
@@ -184,13 +201,6 @@ namespace ERM
 		boost::optional<Tidentifier> identifier;
 		boost::optional<Tcondition> condition;
 		boost::optional<Tbody> body;
-	};
-
-	struct TPostTrigger
-	{
-		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
 	};
 
 	struct Tcommand
