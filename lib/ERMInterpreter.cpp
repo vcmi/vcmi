@@ -569,31 +569,86 @@ ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
 //code execution
 
 struct VRPerformer;
-struct VR_SPerformer : boost::static_visitor<>
-{
-	VRPerformer & owner;
-	explicit VR_SPerformer(VRPerformer & _owner);
 
-	void operator()(TVarConcatString const& cmp) const;
-	void operator()(TStringConstant const& cmp) const;
-	void operator()(TCurriedString const& cmp) const;
-	void operator()(TSemiCompare const& cmp) const;
-	void operator()(TMacroUsage const& cmp) const;
-	void operator()(TMacroDef const& cmp) const;
-	void operator()(TIexp const& cmp) const;
-	void operator()(TVarpExp const& cmp) const;
-	void operator()(spirit::unused_type const& cmp) const;
+template<typename OwnerType>
+struct StandardBodyOptionItemVisitor : boost::static_visitor<>
+{
+	OwnerType & owner;
+	explicit StandardBodyOptionItemVisitor(OwnerType & _owner) : owner(_owner)
+	{}
+	virtual void operator()(TVarConcatString const& cmp) const
+	{
+		throw EScriptExecError("String concatenation not allowed in this receiver");
+	}
+	virtual void operator()(TStringConstant const& cmp) const
+	{
+		throw EScriptExecError("String constant not allowed in this receiver");
+	}
+	virtual void operator()(TCurriedString const& cmp) const
+	{
+		throw EScriptExecError("Curried string not allowed in this receiver");
+	}
+	virtual void operator()(TSemiCompare const& cmp) const
+	{
+		throw EScriptExecError("Semi comparison not allowed in this receiver");
+	}
+	virtual void operator()(TMacroUsage const& cmp) const
+	{
+		throw EScriptExecError("Macro usage not allowed in this receiver");
+	}
+	virtual void operator()(TMacroDef const& cmp) const
+	{
+		throw EScriptExecError("Macro definition not allowed in this receiver");
+	}
+	virtual void operator()(TIexp const& cmp) const
+	{
+		throw EScriptExecError("i-expression not allowed in this receiver");
+	}
+	virtual void operator()(TVarpExp const& cmp) const
+	{
+		throw EScriptExecError("Varp expression not allowed in this receiver");
+	}
+	virtual void operator()(spirit::unused_type const& cmp) const
+	{
+		throw EScriptExecError("\'Nothing\' not allowed in this receiver");
+	}
 };
 
-
-struct VRPerformer : boost::static_visitor<>
+template<typename T>
+struct StandardReceiverVisitor : boost::static_visitor<>
 {
 	ERMInterpreter * interp;
-	IexpValStr identifier;
-	VRPerformer(ERMInterpreter * _interpr, IexpValStr ident) : interp(_interpr), identifier(ident)
+	T identifier;
+	StandardReceiverVisitor(ERMInterpreter * _interpr, T ident) : interp(_interpr), identifier(ident)
 	{}
 
-	void operator()(TVRLogic const& trig) const
+	virtual void operator()(TVRLogic const& trig) const
+	{
+		throw EScriptExecError("VR logic not allowed in this receiver!");
+	}
+	virtual void operator()(TVRArithmetic const& trig) const
+	{
+		throw EScriptExecError("VR arithmetic not allowed in this receiver!");
+	}
+	virtual void operator()(TNormalBodyOption const& trig) const = 0;
+};
+
+struct VR_SPerformer : StandardBodyOptionItemVisitor<VRPerformer>
+{
+	explicit VR_SPerformer(VRPerformer & _owner);
+	using StandardBodyOptionItemVisitor<VRPerformer>::operator();
+
+	void operator()(TStringConstant const& cmp) const OVERRIDE;
+	void operator()(TMacroUsage const& cmp) const OVERRIDE;
+	void operator()(TIexp const& cmp) const OVERRIDE;
+};
+
+struct VRPerformer : StandardReceiverVisitor<IexpValStr>
+{
+	VRPerformer(ERMInterpreter * _interpr, IexpValStr ident) : StandardReceiverVisitor(_interpr, ident)
+	{}
+
+	void operator()(TVRLogic const& trig) const OVERRIDE
 	{
 		int valr = interp->getIexp(trig.var).getInt();
 		switch (trig.opcode)
@@ -612,7 +667,7 @@ struct VRPerformer : boost::static_visitor<>
 			break;
 		}
 	}
-	void operator()(TVRArithmetic const& trig) const
+	void operator()(TVRArithmetic const& trig) const OVERRIDE
 	{
 		IexpValStr rhs = interp->getIexp(trig.rhs);
 		switch (trig.opcode)
@@ -641,6 +696,26 @@ struct VRPerformer : boost::static_visitor<>
 	{
 		switch(trig.optionCode)
 		{
+		case 'C': //setting/checking v vars
+			{
+				//TODO
+			}
+			break;
+		case 'H': //checking if string is empty
+			{
+				//TODO
+			}
+			break;
+		case 'M': //string operations
+			{
+				//TODO
+			}
+			break;
+		case 'R': //random variables
+			{
+				//TODO
+			}
+			break;
 		case 'S': //setting variable
 			{
 				if(trig.params.size() == 1)
@@ -652,56 +727,112 @@ struct VRPerformer : boost::static_visitor<>
 					throw EScriptExecError("VR receiver S option takes exactly 1 parameter!");
 			}
 			break;
+		case 'T': //random variables
+			{
+				//TODO
+			}
+			break;
+		case 'U': //search for a substring
+			{
+				//TODO
+			}
+			break;
+		case 'V': //convert string to value
+			{
+				//TODO
+			}
+			break;
 		default:
-			//not supported or not allowed
+			throw EScriptExecError("Wrong VR receiver option!");
 			break;
 		}
 	}
 };
 
 
-VR_SPerformer::VR_SPerformer(VRPerformer & _owner) : owner(_owner)
+VR_SPerformer::VR_SPerformer(VRPerformer & _owner) : StandardBodyOptionItemVisitor(_owner)
 {}
 
 void VR_SPerformer::operator()(ERM::TIexp const& trig) const
 {
 	owner.identifier.setTo(owner.interp->getIexp(trig));
 }
-
-void VR_SPerformer::operator()(TVarConcatString const& cmp) const
-{
-	throw EScriptExecError("String concatenation not allowed in VR S");
-}
 void VR_SPerformer::operator()(TStringConstant const& cmp) const
 {
 	owner.identifier.setTo(cmp.str);
-}
-void VR_SPerformer::operator()(TCurriedString const& cmp) const
-{
-	throw EScriptExecError("Curried string not allowed in VR S");
-}
-void VR_SPerformer::operator()(TSemiCompare const& cmp) const
-{
-	throw EScriptExecError("Incomplete comparison not allowed in VR S");
 }
 void VR_SPerformer::operator()(TMacroUsage const& cmp) const
 {
 	owner.identifier.setTo(owner.interp->getIexp(cmp));
 }
-void VR_SPerformer::operator()(TMacroDef const& cmp) const
-{
-	throw EScriptExecError("Macro definition not allowed in VR S");
-}
-void VR_SPerformer::operator()(TVarpExp const& cmp) const
-{
-	throw EScriptExecError("Write-only variable expression not allowed in VR S");
-}
-void VR_SPerformer::operator()(spirit::unused_type const& cmp) const
-{
-	throw EScriptExecError("Expression not allowed in VR S");
-}
 
 struct ConditionDisemboweler;
+
+struct OBPerformer : StandardReceiverVisitor<int3>
+{
+	OBPerformer(ERMInterpreter * _interpr, int3 objPos) : StandardReceiverVisitor(_interpr, objPos)
+	{}
+	using StandardReceiverVisitor<int3>::operator(); //it removes compilation error... not sure why it *must* be here
+	void operator()(TNormalBodyOption const& trig) const
+	{
+		switch(trig.optionCode)
+		{
+		case 'B': //removes description hint
+			{
+				//TODO
+			}
+			break;
+		case 'C': //sgc of control word of object
+			{
+				//TODO
+			}
+			break;
+		case 'D': //disable gamer to use object
+			{
+				//TODO
+			}
+			break;
+		case 'E': //enable gamer to use object
+			{
+				//TODO
+			}
+			break;
+		case 'H': //replace hint for object
+			{
+				//TODO
+			}
+			break;
+		case 'M': //disabling messages and questions
+			{
+				//TODO
+			}
+			break;
+		case 'R': //eable all gamers to use object
+			{
+				//TODO
+			}
+			break;
+		case 'S': //disable all gamers to use object
+			{
+				//TODO
+			}
+			break;
+		case 'T': //sgc of obj type
+			{
+				//TODO
+			}
+			break;
+		case 'U': //sgc of obj subtype
+			{
+				//TODO
+			}
+			break;
+		default:
+			throw EScriptExecError("Wrong OB receiver option!");
+			break;
+		}
+	}
+};
 
 
 struct ERMExpDispatch : boost::static_visitor<>
@@ -780,6 +911,46 @@ struct ERMExpDispatch : boost::static_visitor<>
 					it = owner->getFuncVars(funNum)->getParam(16);
 				}
 			}
+		}
+		else if(trig.name == "OB")
+		{
+			int3 objPos;
+			if(trig.identifier.is_initialized())
+			{
+				ERM::Tidentifier tid = trig.identifier.get();
+				switch(tid.size())
+				{
+				case 1:
+					{
+						int num = owner->getIexp(tid[0]).getInt();
+						objPos = int3(owner->ermGlobalEnv->getStandardVar(num),
+								owner->ermGlobalEnv->getStandardVar(num+1),
+								owner->ermGlobalEnv->getStandardVar(num+2));
+					}
+					break;
+				case 3:
+					objPos = int3(owner->getIexp(tid[0]).getInt(),
+						owner->getIexp(tid[1]).getInt(),
+						owner->getIexp(tid[2]).getInt());
+					break;
+				default:
+					throw EScriptExecError("OB receiver takes 1 or 3 items in identifier!");
+					break;
+				}
+				//execute body
+				if(trig.body.is_initialized())
+				{
+					ERM::Tbody bo = trig.body.get();
+					for(int g=0; g<bo.size(); ++g)
+					{
+						boost::apply_visitor(OBPerformer(owner, objPos), bo[g]);
+					}
+				}
+				else
+					throw EScriptExecError("OB receiver must have body!");
+			}
+			else
+				throw EScriptExecError("OB receiver must have an identifier!");
 		}
 		else
 		{
@@ -1305,6 +1476,13 @@ int ERMInterpreter::getRealLine(int lineNum)
 			return i->first.realLineNum;
 
 	return -1;
+}
+
+void ERMInterpreter::setCurrentlyVisitedObj( int3 pos )
+{
+	ermGlobalEnv->getStandardVar(998) = pos.x;
+	ermGlobalEnv->getStandardVar(999) = pos.y;
+	ermGlobalEnv->getStandardVar(1000) = pos.z;
 }
 
 const std::string ERMInterpreter::triggerSymbol = "trigger";

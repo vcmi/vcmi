@@ -160,7 +160,7 @@ namespace VERMInterpreter
 	{
 		ERMEnvironment();
 		static const int NUM_QUICKS = 't' - 'f' + 1; //it should be 15
-		int & getQuickVar(const char letter);
+		int & getQuickVar(const char letter); //'f' - 't' variables
 		int & getStandardVar(int num); //get v-variable
 		std::string & getZVar(int num);
 		bool & getFlag(int num);
@@ -515,6 +515,7 @@ public:
 	void executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams=std::vector<int>()); //use this to run triggers
 	void executeTriggerType(const char *trigger, int id); //convenience version of above, for pre-trigger when there is only one argument
 	void executeTriggerType(const char *trigger); //convenience version of above, for pre-trigger when there are no args
+	void setCurrentlyVisitedObj(int3 pos); //sets v998 - v1000 to given value
 	void init(); //sets up environment etc.
 	void scanForScripts();
 

@@ -35,7 +35,7 @@ void CERMScriptModule::heroVisit(const CGHeroInstance *visitor, const CGObjectIn
 {
 	if(!visitedObj)
 		return;
-
+	interpreter->setCurrentlyVisitedObj(visitedObj->pos);
 	ERMInterpreter::TIDPattern tip;
 	tip[1] = list_of(visitedObj->ID);
 	tip[2] = list_of(visitedObj->ID)(visitedObj->subID);
