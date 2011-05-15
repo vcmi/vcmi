@@ -1746,12 +1746,6 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//units shown
 
-	//showing hero animations
-	if(attackingHero)
-		attackingHero->show(to);
-	if(defendingHero)
-		defendingHero->show(to);
-
 	projectileShowHelper(to);//showing projectiles
 
 	//showing spell effects
@@ -1825,6 +1819,15 @@ void CBattleInterface::show(SDL_Surface * to)
 
 void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to)
 {
+	//showing hero animations
+	if (hex == 0)
+		if(attackingHero)
+			attackingHero->show(to);
+
+	if (hex == 16)
+		if(defendingHero)
+			defendingHero->show(to);
+	
 	for(int v = 0; v < aliveStacks[hex].size(); ++v)
 	{
 		const CStack *s = aliveStacks[hex][v];
