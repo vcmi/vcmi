@@ -848,10 +848,13 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
 		b.subtype = -1; //all magic schools
 		break;
+	case 'P':
+		b.type = Bonus::CASTS; break;
 	case 'R':
 		b.type = Bonus::ADDITIONAL_RETALIATION; break;
 	case 'W':
 		b.type = Bonus::MAGIC_RESISTANCE;
+		b.subtype = 0; //otherwise creature window goes crazy
 		break;
 
 	case 'f': //on-off skill

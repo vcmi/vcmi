@@ -2326,21 +2326,48 @@ void CBattleInterface::stackRemoved(const CStack * stack)
 	creDir.erase(stackID);
 }
 
-void CBattleInterface::stackActivated(const CStack * stack)
+void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all before game state is changed due to abilities
 {
 	//don't show animation when no HP is regenerated
 	if (stack->firstHPleft != stack->MaxHealth())
 	{
 		if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
+		{
 			displayEffect(74, stack->position);
+			CCS->soundh->playSound(soundBase::REGENER);
+		}
 		if( stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
-			displayEffect(4, stack->position);
+		{
+			displayEffect(74, stack->position);
+			CCS->soundh->playSound(soundBase::REGENER);
+		}
 	}
 
 	if(stack->hasBonusOfType(Bonus::MANA_DRAIN))
-			displayEffect(77, stack->position);
+	{
+		CGHeroInstance * enemy = NULL; //probably could be smarter and not duplicated
+		if (defendingHero)
+			if (defendingHero->myHero->tempOwner != stack->owner)
+				enemy = const_cast<CGHeroInstance *>(defendingHero->myHero);
+		if (attackingHero)
+			if (attackingHero->myHero->tempOwner != stack->owner)
+				enemy = const_cast<CGHeroInstance *>(attackingHero->myHero);
+		if (enemy)
+		{
+			ui32 manaDrained = stack->valOfBonuses(Bonus::MANA_DRAIN);
+			amin (manaDrained, enemy->mana);
+			if (manaDrained)
+			{
+				displayEffect(77, stack->position);
+				CCS->soundh->playSound(soundBase::MANADRAI);
+			}
+		}
+	}
 	if(stack->hasBonusOfType(Bonus::POISON))
-			displayEffect(67, stack->position);
+	{
+		displayEffect(67, stack->position);
+		CCS->soundh->playSound(soundBase::POISON);
+	}
 
 	//givenCommand = NULL;
 	stackToActivate = stack;
@@ -3590,7 +3617,8 @@ void CBattleInterface::startAction(const BattleAction* action)
 	switch (action->actionType)
 	{
 		case BattleAction::STACK_HEAL:
-			displayEffect(50, action->destinationTile);
+			displayEffect(74, action->destinationTile);
+			CCS->soundh->playSound(soundBase::REGENER);
 			break;
 	}
 }

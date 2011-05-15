@@ -3208,7 +3208,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
-			int maxiumHeal = std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 27));
+			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 27));
 
 			int healed = std::min(maxHealable, maxiumHeal);
 

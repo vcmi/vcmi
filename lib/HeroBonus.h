@@ -165,7 +165,8 @@ namespace PrimarySkill
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
 	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
-	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/
+	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
+	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ 
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus
