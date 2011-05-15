@@ -27,6 +27,7 @@ class CHighlightableButton;
 class CHighlightableButtonsGroup;
 struct BattleResult;
 struct BattleSpellCast;
+struct CObstacleInstance;
 template <typename T> struct CondSh;
 struct SetStackEffect;;
 struct BattleAction;
@@ -429,7 +430,9 @@ private:
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
+	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
+	void showObstacles(std::multimap<THex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker);
 

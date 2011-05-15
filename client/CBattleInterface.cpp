@@ -1657,34 +1657,88 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	std::vector<const CStack *> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
-	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
+	if (!siegeH)
 	{
-		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
+		for(int b = 0; b < BFIELD_SIZE; ++b) //showing alive stacks
 		{
-			const CStack *s = stackAliveByHex[b][v];
+			showAliveStacks(stackAliveByHex, b, &flyingStacks, to);
+			showObstacles(&hexToObstacle, obstacles, b, to);
+			showPieceOfWall(to, b, stacks);
+		}
+	}
+	// Siege drawing
+	else
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			// xMin, xMax => go from hex x pos to hex x pos
+			// yMin, yMax => go from hex y pos to hex y pos
+			// xMove => 0: left side, 1: right side
+			// xMoveDir => 0: decrement, 1: increment, alters every second hex line either xMin or xMax depending on xMove
+			int xMin, xMax, yMin, yMax, xMove, xMoveDir = 0;
 			
-			if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != 0)
-				showAliveStack(s, to);
-			else
-				flyingStacks.push_back(s);
+			switch (i)
+			{
+				// display units shown at the upper left side
+			case 0:	
+					xMin = 0;
+					yMin = 0;
+					xMax = 11;
+					yMax = 4;
+					xMove = 1;
+					break;
+				// display wall/units shown at the upper wall area/right upper side
+			case 1:
+					xMin = 12;
+					yMin = 0;
+					xMax = 16;
+					yMax = 4;
+					xMove = 0;
+					break;
+				// display units shown at the lower wall area/right lower side
+			case 2:
+					xMin = 10;
+					yMin = 5;
+					xMax = 16;
+					yMax = 10;
+					xMove = 0;
+					xMoveDir = 1;
+					break;
+				// display units shown at the left lower side
+			case 3:
+					xMin = 0;
+					yMin = 5;
+					xMax = 9;
+					yMax = 10;
+					xMove = 1;
+					xMoveDir = 1;
+					break;
+			}
+
+			int runNum = 0;
+			for (int j = yMin; j <= yMax; j++)
+			{
+				if (runNum > 0)
+				{
+					if (xMin == xMax)
+						xMax = xMin = ((runNum % 2) == 0) ? (xMin + (xMoveDir == 0 ? -1 : 1)) : xMin; 
+					else if (xMove == 1)
+						xMax = ((runNum % 2) == 0) ? (xMax + (xMoveDir == 0 ? -1 : 1)) : xMax; 
+					else if (xMove == 0)
+						xMin = ((runNum % 2) == 0) ? (xMin + (xMoveDir == 0 ? -1 : 1)) : xMin; 
+				}
+
+				for (int k = xMin; k <= xMax; k++)
+				{
+					int hex = j * 17 + k;
+					showAliveStacks(stackAliveByHex, hex, &flyingStacks, to);
+					showObstacles(&hexToObstacle, obstacles, hex, to);
+					showPieceOfWall(to, hex, stacks);
+				}
+
+				++runNum;
+			}
 		}
-
-		//showing obstacles
-		std::pair<std::multimap<THex, int>::const_iterator, std::multimap<THex, int>::const_iterator> obstRange =
-			hexToObstacle.equal_range(b);
-
-		for(std::multimap<THex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
-		{
-			CObstacleInstance & curOb = obstacles[it->second];
-			std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
-			int x = ((curOb.pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%BFIELD_WIDTH) + pos.x + shift.first;
-			int y = 86 + 42 * (curOb.pos/BFIELD_WIDTH) + pos.y + shift.second;
-			std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
-			blitAt(images[((animCount+1)/(4/curInt->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
-		}
-
-		//showing wall pieces
-		showPieceOfWall(to, b, stacks);
 	}
 	
 	for(int b=0; b<flyingStacks.size(); ++b) //showing flying stacks
@@ -1768,6 +1822,36 @@ void CBattleInterface::show(SDL_Surface * to)
 		CMessage::drawBorder(curInt->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
 	}
 }
+
+void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to)
+{
+	for(int v = 0; v < aliveStacks[hex].size(); ++v)
+	{
+		const CStack *s = aliveStacks[hex][v];
+
+		if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != 0)
+			showAliveStack(s, to);
+		else
+			flyingStacks->push_back(s);
+	}
+}
+
+void CBattleInterface::showObstacles(std::multimap<THex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to)
+{
+	std::pair<std::multimap<THex, int>::const_iterator, std::multimap<THex, int>::const_iterator> obstRange =
+		hexToObstacle->equal_range(hex);
+
+	for(std::multimap<THex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
+	{
+		CObstacleInstance & curOb = obstacles[it->second];
+		std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
+		int x = ((curOb.pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%BFIELD_WIDTH) + pos.x + shift.first;
+		int y = 86 + 42 * (curOb.pos/BFIELD_WIDTH) + pos.y + shift.second;
+		std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
+		blitAt(images[((animCount+1)/(4/curInt->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
+	}
+}
+
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
@@ -3247,7 +3331,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	{
 		int xAdd = stack->attackerOwned ? 220 : 202;
 
-		//blitting amoutn background box
+		//blitting amount background box
 		SDL_Surface *amountBG = NULL;
 		BonusList spellEffects = stack->getSpellBonuses();
 		if(!spellEffects.size())
@@ -3293,72 +3377,73 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 	if(!siegeH)
 		return;
 
-	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(29, 7)(50, 2)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 3)(186, 0);
-	
-	//additionally print bottom wall
-	if(hex == 182)
-	{
-		siegeH->printPartOfWall(to, 4);
-	}
-	// additionally print background wall, wall has lower priority than creatures in the most upper hexes
-	if (hex == 12)
-	{
-		siegeH->printPartOfWall(to, 1);
-	}
+	using namespace boost::assign;
+	static const std::map<int, std::list<int>> hexToPart = map_list_of<int, std::list<int>>(12, list_of<int>(8)(1)(7))(45, list_of<int>(12)(6))
+		/*gate (78, list_of<int>(9))*/(101, list_of<int>(10))(118, list_of<int>(2))(165, list_of<int>(11))(186, list_of<int>(3));
 
-	std::map<int, int>::const_iterator it = hexToPart.find(hex);
+	std::map<int, std::list<int>>::const_iterator it = hexToPart.find(hex);
 	if(it != hexToPart.end())
 	{
-		siegeH->printPartOfWall(to, it->second);
-
-		//print creature in turret
-		int posToSeek = -1;
-		switch(it->second)
+		BOOST_FOREACH(int wallNum, it->second)
 		{
-		case 3: //bottom turret
-			posToSeek = -3;
-			break;
-		case 8: //upper turret
-			posToSeek = -4;
-			break;
-		case 2: //keep
-			posToSeek = -2;
-			break;
-		}
+			siegeH->printPartOfWall(to, wallNum);
 
-		if(posToSeek != -1)
-		{
-			const CStack *turret = NULL;
-
-			BOOST_FOREACH(const CStack *s, stacks)
+			//print creature in turret
+			int posToSeek = -1;
+			switch(wallNum)
 			{
-				if(s->position == posToSeek)
-				{
-					turret = s;
-					break;
-				}
+			case 3: //bottom turret
+				posToSeek = -3;
+				break;
+			case 8: //upper turret
+				posToSeek = -4;
+				break;
+			case 2: //keep
+				posToSeek = -2;
+				break;
 			}
 
-			if(turret)
+			if(posToSeek != -1)
 			{
-				showAliveStack(turret, to);
-				//blitting creature cover
-				switch(posToSeek)
-				{
-				case -3: //bottom turret
-					siegeH->printPartOfWall(to, 16);
-					break;
-				case -4: //upper turret
-					siegeH->printPartOfWall(to, 17);
-					break;
-				case -2: //keep
-					siegeH->printPartOfWall(to, 15);
-					break;
-				}
-			}
+				const CStack *turret = NULL;
 
+				BOOST_FOREACH(const CStack *s, stacks)
+				{
+					if(s->position == posToSeek)
+					{
+						turret = s;
+						break;
+					}
+				}
+
+				if(turret)
+				{
+					showAliveStack(turret, to);
+					//blitting creature cover
+					switch(posToSeek)
+					{
+					case -3: //bottom turret
+						siegeH->printPartOfWall(to, 16);
+						break;
+					case -4: //upper turret
+						siegeH->printPartOfWall(to, 17);
+						break;
+					case -2: //keep
+						siegeH->printPartOfWall(to, 15);
+						break;
+					}
+				}
+
+			}
 		}
 	}
+
+	// Damaged wall below gate have to be drawn earlier than a non-damaged wall below gate.
+	if ((hex == 112 && curInt->cb->battleGetWallState(3) == 3) || (hex == 147 && curInt->cb->battleGetWallState(3) != 3))
+		siegeH->printPartOfWall(to, 5);
+	// Damaged bottom wall have to be drawn earlier than a non-damaged bottom wall.
+	if ((hex == 165 && curInt->cb->battleGetWallState(4) == 3) || (hex == 185 && curInt->cb->battleGetWallState(4) != 3))
+		siegeH->printPartOfWall(to, 4);
 
 }
 
