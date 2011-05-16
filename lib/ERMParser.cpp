@@ -239,7 +239,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TVarpExp,
-	(ERM::TVarpExp::Tvartype, var)
+	(ERM::TVarExp, var)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -355,7 +355,7 @@ namespace ERM
 			/*qERMMacroUsage %= qi::lexeme[qi::lit("?$") >> *(qi::char_ - '$') >> qi::lit('$')];*/
 			varExp %= varExpNotMacro | ERMmacroUsage;
 			iexp %= varExp | qi::int_;
-			varp %= qi::lit("?") >> (varExpNotMacro | ERMmacroUsage);
+			varp %= qi::lit("?") >> varExp;
  			comment %= *qi::char_;
 			commentLine %= (~qi::char_("!") >> comment | (qi::char_('!') >> (~qi::char_("?!$#[")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
@@ -373,7 +373,7 @@ namespace ERM
 			semiCompare %= +qi::char_("<=>") >> iexp;
 			curStr %= iexp >> string;
 			varConcatString %= varExp >> qi::lit("+") >> string;
-			bodyOptionItem %= varConcatString | curStr | string | semiCompare | ERMmacroUsage | ERMmacroDef | varp | iexp | qi::eps;
+			bodyOptionItem %= varConcatString | curStr | string | semiCompare | ERMmacroDef | varp | iexp | qi::eps;
 			exactBodyOptionList %= (bodyOptionItem % qi::lit("/"));
 			normalBodyOption = qi::char_("A-Z+") > exactBodyOptionList;
 			bodyOption %= VRLogic | VRarithmetic | normalBodyOption;

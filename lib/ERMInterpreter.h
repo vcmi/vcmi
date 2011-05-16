@@ -471,14 +471,15 @@ public:
 
 class ERMInterpreter
 {
-	friend class ScriptScanner;
-	friend class TriggerIdMatchHelper;
-	friend class TriggerIdentifierMatch;
-	friend class ConditionDisemboweler;
-	friend struct LVL2IexpDisemboweler;
-	friend struct VR_SPerformer;
-	friend struct ERMExpDispatch;
-	friend struct VRPerformer;
+/*not so*/ public:
+// 	friend class ScriptScanner;
+// 	friend class TriggerIdMatchHelper;
+// 	friend class TriggerIdentifierMatch;
+// 	friend class ConditionDisemboweler;
+// 	friend struct LVL2IexpDisemboweler;
+// 	friend struct VR_SPerformer;
+// 	friend struct ERMExpDispatch;
+// 	friend struct VRPerformer;
 
 	std::vector<VERMInterpreter::FileInfo*> files;
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
@@ -500,6 +501,7 @@ class ERMInterpreter
 	IexpValStr getIexp(const ERM::TIexp & iexp) const;
 	IexpValStr getIexp(const ERM::TMacroUsage & macro) const;
 	IexpValStr getIexp(const ERM::TIdentifierInternal & tid) const;
+	IexpValStr getIexp(const ERM::TVarpExp & tid) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
@@ -509,6 +511,8 @@ class ERMInterpreter
 	static bool isATrigger(const ERM::TLine & line);
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
 	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal) const;
+
+
 public:
 	typedef std::map< int, std::vector<int> > TIDPattern;
 	void executeInstructions(); //called when starting a new game, before most of the map settings are done

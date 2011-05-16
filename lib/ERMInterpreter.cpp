@@ -568,8 +568,6 @@ ERM::TLine ERMInterpreter::retrieveLine( LinePointer linePtr ) const
 /////////
 //code execution
 
-struct VRPerformer;
-
 template<typename OwnerType>
 struct StandardBodyOptionItemVisitor : boost::static_visitor<>
 {
@@ -592,10 +590,10 @@ struct StandardBodyOptionItemVisitor : boost::static_visitor<>
 	{
 		throw EScriptExecError("Semi comparison not allowed in this receiver");
 	}
-	virtual void operator()(TMacroUsage const& cmp) const
-	{
-		throw EScriptExecError("Macro usage not allowed in this receiver");
-	}
+// 	virtual void operator()(TMacroUsage const& cmp) const
+// 	{
+// 		throw EScriptExecError("Macro usage not allowed in this receiver");
+// 	}
 	virtual void operator()(TMacroDef const& cmp) const
 	{
 		throw EScriptExecError("Macro definition not allowed in this receiver");
@@ -633,13 +631,13 @@ struct StandardReceiverVisitor : boost::static_visitor<>
 	virtual void operator()(TNormalBodyOption const& trig) const = 0;
 };
 
+struct VRPerformer;
 struct VR_SPerformer : StandardBodyOptionItemVisitor<VRPerformer>
 {
 	explicit VR_SPerformer(VRPerformer & _owner);
 	using StandardBodyOptionItemVisitor<VRPerformer>::operator();
 
 	void operator()(TStringConstant const& cmp) const OVERRIDE;
-	void operator()(TMacroUsage const& cmp) const OVERRIDE;
 	void operator()(TIexp const& cmp) const OVERRIDE;
 };
 
@@ -761,12 +759,19 @@ void VR_SPerformer::operator()(TStringConstant const& cmp) const
 {
 	owner.identifier.setTo(cmp.str);
 }
-void VR_SPerformer::operator()(TMacroUsage const& cmp) const
-{
-	owner.identifier.setTo(owner.interp->getIexp(cmp));
-}
 
 struct ConditionDisemboweler;
+
+struct OBPerformer;
+struct OB_UPerformer : StandardBodyOptionItemVisitor<OBPerformer>
+{
+	explicit OB_UPerformer(OBPerformer & owner) : StandardBodyOptionItemVisitor(owner)
+	{}
+	using StandardBodyOptionItemVisitor<OBPerformer>::operator();
+
+	virtual void operator()(TIexp const& cmp) const;
+	virtual void operator()(TVarpExp const& cmp) const;
+};
 
 struct OBPerformer : StandardReceiverVisitor<int3>
 {
@@ -807,7 +812,7 @@ struct OBPerformer : StandardReceiverVisitor<int3>
 				//TODO
 			}
 			break;
-		case 'R': //eable all gamers to use object
+		case 'R': //enable all gamers to use object
 			{
 				//TODO
 			}
@@ -824,7 +829,10 @@ struct OBPerformer : StandardReceiverVisitor<int3>
 			break;
 		case 'U': //sgc of obj subtype
 			{
-				//TODO
+				if(trig.params.size() == 1)
+					boost::apply_visitor(OB_UPerformer(const_cast<OBPerformer&>(*this)), trig.params[0]);
+				else
+					throw EScriptExecError("OB:U takes exactly one parameter!");
 			}
 			break;
 		default:
@@ -834,6 +842,15 @@ struct OBPerformer : StandardReceiverVisitor<int3>
 	}
 };
 
+void OB_UPerformer::operator()( TIexp const& cmp ) const
+{
+	IexpValStr val = owner.interp->getIexp(cmp);
+}
+
+void OB_UPerformer::operator()( TVarpExp const& cmp ) const
+{
+	IexpValStr val = owner.interp->getIexp(cmp);
+}
 
 struct ERMExpDispatch : boost::static_visitor<>
 {
@@ -850,6 +867,39 @@ struct ERMExpDispatch : boost::static_visitor<>
 	}
 	void operator()(Treceiver const& trig) const
 	{
+		struct HLP
+		{
+			ERMInterpreter * ei;
+			HLP(ERMInterpreter * interp) : ei(interp)
+			{}
+
+			int3 getPosFromIdentifier(ERM::Tidentifier tid, bool allowDummyFourth)
+			{
+				switch(tid.size())
+				{
+				case 1:
+					{
+						int num = ei->getIexp(tid[0]).getInt();
+						return int3(ei->ermGlobalEnv->getStandardVar(num),
+							ei->ermGlobalEnv->getStandardVar(num+1),
+							ei->ermGlobalEnv->getStandardVar(num+2));
+					}
+					break;
+				case 3:
+				case 4:
+					if(tid.size() == 4 && !allowDummyFourth)
+						throw EScriptExecError("4 items in identifirer are not allowed for this receiver!");
+
+					return int3(ei->getIexp(tid[0]).getInt(),
+						ei->getIexp(tid[1]).getInt(),
+						ei->getIexp(tid[2]).getInt());
+					break;
+				default:
+					throw EScriptExecError("This receiver takes 1 or 3 items in identifier!");
+					break;
+				}
+			}
+		};
 		if(trig.name == "VR")
 		{
 			//check condition
@@ -912,31 +962,25 @@ struct ERMExpDispatch : boost::static_visitor<>
 				}
 			}
 		}
+		else if(trig.name == "MO")
+		{
+			int3 objPos;
+			if(trig.identifier.is_initialized())
+			{
+				ERM::Tidentifier tid = trig.identifier.get();
+				objPos = HLP(owner).getPosFromIdentifier(tid, true);
+			}
+			else
+				throw EScriptExecError("MO receiver must have an identifier!");
+		}
 		else if(trig.name == "OB")
 		{
 			int3 objPos;
 			if(trig.identifier.is_initialized())
 			{
 				ERM::Tidentifier tid = trig.identifier.get();
-				switch(tid.size())
-				{
-				case 1:
-					{
-						int num = owner->getIexp(tid[0]).getInt();
-						objPos = int3(owner->ermGlobalEnv->getStandardVar(num),
-								owner->ermGlobalEnv->getStandardVar(num+1),
-								owner->ermGlobalEnv->getStandardVar(num+2));
-					}
-					break;
-				case 3:
-					objPos = int3(owner->getIexp(tid[0]).getInt(),
-						owner->getIexp(tid[1]).getInt(),
-						owner->getIexp(tid[2]).getInt());
-					break;
-				default:
-					throw EScriptExecError("OB receiver takes 1 or 3 items in identifier!");
-					break;
-				}
+				objPos = HLP(owner).getPosFromIdentifier(tid, false);
+
 				//execute body
 				if(trig.body.is_initialized())
 				{
@@ -954,7 +998,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 		}
 		else
 		{
-			//unsupported or invalid trigger
+			//not supported or invalid trigger
 		}
 	}
 	void operator()(TPostTrigger const& trig) const
@@ -1282,6 +1326,11 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TIdentifierInternal & tid ) const
 	}
 	else
 		throw EScriptExecError("Identifier must be a valid i-expression to perform this operation!");
+}
+
+IexpValStr ERMInterpreter::getIexp( const ERM::TVarpExp & tid ) const
+{
+	return boost::apply_visitor(LVL2IexpDisemboweler(const_cast<ERMInterpreter*>(this), IexpDisemboweler::GET), tid.var);
 }
 
 void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams/*=std::vector<int>()*/ )

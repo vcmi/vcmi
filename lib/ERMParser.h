@@ -72,8 +72,7 @@ namespace ERM
 	//write-only variable expression
 	struct TVarpExp
 	{
-		typedef boost::variant<TVarExpNotMacro, TMacroUsage> Tvartype;
-		Tvartype var;
+		TVarExp var;
 	};
 
 	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
@@ -115,7 +114,7 @@ namespace ERM
 		TStringConstant string;
 	};
 
-	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroUsage, TMacroDef, TIexp, TVarpExp, boost::spirit::unused_type> TBodyOptionItem;
+	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroDef, TIexp, TVarpExp, boost::spirit::unused_type> TBodyOptionItem;
 
 	typedef std::vector<TBodyOptionItem> TNormalBodyOptionList;
 
