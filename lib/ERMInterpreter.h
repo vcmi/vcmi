@@ -486,7 +486,7 @@ class ERMInterpreter
 	std::map<VERMInterpreter::LinePointer, ERM::TLine> scripts;
 	std::map<VERMInterpreter::LexicalPtr, VERMInterpreter::Environment> lexicalEnvs;
 	ERM::TLine retrieveLine(VERMInterpreter::LinePointer linePtr) const;
-	static ERM::Ttrigger retrieveTrigger(ERM::TLine line);
+	static ERM::TTriggerBase & retrieveTrigger(ERM::TLine line);
 
 	VERMInterpreter::Environment * globalEnv;
 	VERMInterpreter::ERMEnvironment * ermGlobalEnv;
@@ -512,6 +512,7 @@ class ERMInterpreter
 	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
 	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal) const;
 
+	std::string processERMString(std::string ermstring);
 
 public:
 	typedef std::map< int, std::vector<int> > TIDPattern;

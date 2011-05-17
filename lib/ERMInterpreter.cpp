@@ -21,6 +21,8 @@ namespace spirit = boost::spirit;
 using namespace VERMInterpreter;
 using namespace boost::assign;
 
+typedef int TUnusedType;
+
 namespace ERMPrinter
 {
 	//console printer
@@ -474,6 +476,8 @@ void ERMInterpreter::executeTrigger( VERMInterpreter::Trigger & trig, int funNum
 			curFunc->getParam(g) = g-1 < funParams.size() ? funParams[g-1] : 0;
 		}
 	}
+	else
+		curFunc = getFuncVars(0);
 
 	//skip the first line
 	LinePointer lp = trig.line;
@@ -690,7 +694,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 			break;
 		}
 	}
-	void operator()(TNormalBodyOption const& trig) const
+	void operator()(TNormalBodyOption const& trig) const OVERRIDE
 	{
 		switch(trig.optionCode)
 		{
@@ -759,6 +763,32 @@ void VR_SPerformer::operator()(TStringConstant const& cmp) const
 {
 	owner.identifier.setTo(cmp.str);
 }
+
+struct MAPerformer : StandardReceiverVisitor<TUnusedType>
+{
+	MAPerformer(ERMInterpreter * _interpr) : StandardReceiverVisitor(_interpr, 0)
+	{}
+	using StandardReceiverVisitor<TUnusedType>::operator();
+
+	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	{
+		switch(trig.optionCode)
+		{
+		case 'A': //sgc monster attack
+			break;
+		case 'B': //spell?
+			break;
+		case 'P': //hit points
+			{
+				//TODO
+			}
+			break;
+		default:
+			break;
+		}
+	}
+		
+};
 
 struct ConditionDisemboweler;
 
@@ -858,6 +888,52 @@ struct ERMExpDispatch : boost::static_visitor<>
 	ERMExpDispatch(ERMInterpreter * _owner) : owner(_owner)
 	{}
 
+	struct HLP
+	{
+		ERMInterpreter * ei;
+		HLP(ERMInterpreter * interp) : ei(interp)
+		{}
+
+		int3 getPosFromIdentifier(ERM::Tidentifier tid, bool allowDummyFourth)
+		{
+			switch(tid.size())
+			{
+			case 1:
+				{
+					int num = ei->getIexp(tid[0]).getInt();
+					return int3(ei->ermGlobalEnv->getStandardVar(num),
+						ei->ermGlobalEnv->getStandardVar(num+1),
+						ei->ermGlobalEnv->getStandardVar(num+2));
+				}
+				break;
+			case 3:
+			case 4:
+				if(tid.size() == 4 && !allowDummyFourth)
+					throw EScriptExecError("4 items in identifier are not allowed for this receiver!");
+
+				return int3(ei->getIexp(tid[0]).getInt(),
+					ei->getIexp(tid[1]).getInt(),
+					ei->getIexp(tid[2]).getInt());
+				break;
+			default:
+				throw EScriptExecError("This receiver takes 1 or 3 items in identifier!");
+				break;
+			}
+		}
+		template <typename Visitor>
+		void performBody(const boost::optional<ERM::Tbody> & body, const Visitor& visitor)
+		{
+			if(body.is_initialized())
+			{
+				ERM::Tbody bo = body.get();
+				for(int g=0; g<bo.size(); ++g)
+				{
+					boost::apply_visitor(visitor, bo[g]);
+				}
+			}
+		}
+	};
+
 	void operator()(Ttrigger const& trig) const
 	{
 		throw EInterpreterError("Triggers cannot be executed!");
@@ -867,39 +943,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 	}
 	void operator()(Treceiver const& trig) const
 	{
-		struct HLP
-		{
-			ERMInterpreter * ei;
-			HLP(ERMInterpreter * interp) : ei(interp)
-			{}
-
-			int3 getPosFromIdentifier(ERM::Tidentifier tid, bool allowDummyFourth)
-			{
-				switch(tid.size())
-				{
-				case 1:
-					{
-						int num = ei->getIexp(tid[0]).getInt();
-						return int3(ei->ermGlobalEnv->getStandardVar(num),
-							ei->ermGlobalEnv->getStandardVar(num+1),
-							ei->ermGlobalEnv->getStandardVar(num+2));
-					}
-					break;
-				case 3:
-				case 4:
-					if(tid.size() == 4 && !allowDummyFourth)
-						throw EScriptExecError("4 items in identifirer are not allowed for this receiver!");
-
-					return int3(ei->getIexp(tid[0]).getInt(),
-						ei->getIexp(tid[1]).getInt(),
-						ei->getIexp(tid[2]).getInt());
-					break;
-				default:
-					throw EScriptExecError("This receiver takes 1 or 3 items in identifier!");
-					break;
-				}
-			}
-		};
+		HLP helper(owner);
 		if(trig.name == "VR")
 		{
 			//check condition
@@ -918,14 +962,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 					IexpValStr ievs = owner->getIexp(ident[0]);
 
 					//see body
-					if(trig.body.is_initialized())
-					{
-						ERM::Tbody bo = trig.body.get();
-						for(int g=0; g<bo.size(); ++g)
-						{
-							boost::apply_visitor(VRPerformer(owner, ievs), bo[g]);
-						}
-					}
+					helper.performBody(trig.body, VRPerformer(owner, ievs));
 				}
 				else
 					throw EScriptExecError("VR receiver must be used with exactly one identifier item!");
@@ -962,6 +999,14 @@ struct ERMExpDispatch : boost::static_visitor<>
 				}
 			}
 		}
+		else if(trig.name == "MA")
+		{
+			if(trig.identifier.is_initialized())
+			{
+				throw EScriptExecError("MA receiver doesn't take the identifier!");
+			}
+			helper.performBody(trig.body, MAPerformer(owner));
+		}
 		else if(trig.name == "MO")
 		{
 			int3 objPos;
@@ -981,17 +1026,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 				ERM::Tidentifier tid = trig.identifier.get();
 				objPos = HLP(owner).getPosFromIdentifier(tid, false);
 
-				//execute body
-				if(trig.body.is_initialized())
-				{
-					ERM::Tbody bo = trig.body.get();
-					for(int g=0; g<bo.size(); ++g)
-					{
-						boost::apply_visitor(OBPerformer(owner, objPos), bo[g]);
-					}
-				}
-				else
-					throw EScriptExecError("OB receiver must have body!");
+				helper.performBody(trig.body, OBPerformer(owner, objPos));
 			}
 			else
 				throw EScriptExecError("OB receiver must have an identifier!");
@@ -1374,7 +1409,7 @@ void ERMInterpreter::executeTriggerType(const char *trigger)
 	executeTriggerType(VERMInterpreter::TriggerType(trigger), true, TIDPattern());
 }
 
-ERM::Ttrigger ERMInterpreter::retrieveTrigger( ERM::TLine line )
+ERM::TTriggerBase & ERMInterpreter::retrieveTrigger( ERM::TLine line )
 {
 	if(line.which() == 1)
 	{
@@ -1385,6 +1420,10 @@ ERM::Ttrigger ERMInterpreter::retrieveTrigger( ERM::TLine line )
 			if(tcm.cmd.which() == 0)
 			{
 				return boost::get<ERM::Ttrigger>(tcm.cmd);
+			}
+			else if(tcm.cmd.which() == 3)
+			{
+				return boost::get<ERM::TPostTrigger>(tcm.cmd);
 			}
 			throw ELineProblem("Given line is not a trigger!");
 		}
@@ -1534,6 +1573,54 @@ void ERMInterpreter::setCurrentlyVisitedObj( int3 pos )
 	ermGlobalEnv->getStandardVar(1000) = pos.z;
 }
 
+struct StringProcessHLP
+{
+	int extractNumber(const std::string & token)
+	{
+		return atoi(token.substr(1).c_str());
+	}
+	template <typename T>
+	void replaceToken(std::string ret, int tokenBegin, int tokenEnd, T val)
+	{
+		ret.replace(tokenBegin, tokenEnd, boost::lexical_cast<std::string>(val));
+	}
+};
+
+std::string ERMInterpreter::processERMString( std::string ermstring )
+{
+	StringProcessHLP hlp;
+	std::string ret = ermstring;
+	int curPos = 0;
+	while((curPos = ret.find('%', curPos)) != std::string::npos)
+	{
+		curPos++;
+		int tokenEnd = ret.find(' ', curPos);
+		std::string token = ret.substr(curPos, tokenEnd - curPos);
+		if(token.size() == 0)
+		{
+			throw EScriptExecError("Empty token not allowed!");
+		}
+
+		switch(token[0])
+		{
+		case '%':
+			ret.erase(curPos);
+			break;
+		case 'F':
+			hlp.replaceToken(ret, curPos, tokenEnd, ermGlobalEnv->getFlag(hlp.extractNumber(token)));
+			break;
+		case 'V':
+			hlp.replaceToken(ret, curPos, tokenEnd, ermGlobalEnv->getStandardVar(hlp.extractNumber(token)));
+			break;
+		default:
+			throw EScriptExecError("Unrecognized token in string");
+			break;
+		}
+
+	}
+	return ret;
+}
+
 const std::string ERMInterpreter::triggerSymbol = "trigger";
 const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
 const std::string ERMInterpreter::defunSymbol = "defun";
@@ -1573,7 +1660,7 @@ bool TriggerIdentifierMatch::tryMatch( Trigger * interptrig ) const
 {
 	bool ret = true;
 
-	const ERM::Ttrigger & trig = ERMInterpreter::retrieveTrigger(ermEnv->retrieveLine(interptrig->line));
+	const ERM::TTriggerBase & trig = ERMInterpreter::retrieveTrigger(ermEnv->retrieveLine(interptrig->line));
 	if(trig.identifier.is_initialized())
 	{
 
