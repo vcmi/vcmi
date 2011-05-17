@@ -1239,7 +1239,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		if ( type % 2 )   type--;
 		if ( hero1->sex ) type++;
 		attackingHero = new CBattleHero(graphics->battleHeroes[type], 0, 0, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
-		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, -40 + pos.x, pos.y);
+		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, pos.x - 43, pos.y - 19);
 	}
 	else
 	{
@@ -1251,7 +1251,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		if ( type % 2 )   type--;
 		if ( hero2->sex ) type++;
 		defendingHero = new CBattleHero(graphics->battleHeroes[type ], 0, 0, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
-		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 690 + pos.x, pos.y);
+		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
 	}
 	else
 	{
@@ -3755,8 +3755,8 @@ void CBattleHero::show(SDL_Surface *to)
 			&genRect(
 				flag->ourImages[flagAnim].bitmap->h,
 				flag->ourImages[flagAnim].bitmap->w,
-				62 + pos.x,
-				39 + pos.y
+				pos.x + 61,
+				pos.y + 39
 			)
 		);
 	}
@@ -3769,9 +3769,9 @@ void CBattleHero::show(SDL_Surface *to)
 			&genRect(
 				flag->ourImages[flagAnim].bitmap->h,
 				flag->ourImages[flagAnim].bitmap->w,
-				71 + pos.x,
-				39 + pos.y
-			)
+				pos.x + 72,
+				pos.y + 39
+				)
 		);
 	}
 	++flagAnimCount;
