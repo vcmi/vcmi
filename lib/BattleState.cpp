@@ -1425,26 +1425,25 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 	//war machines added
 
-	switch(curB->siege) //adding towers
+	if (curB->siege == 2 || curB->siege == 3)
 	{
+		// keep tower
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -2);
+		stacks.push_back(stack);
 
-	case 3: //castle
-		{//lower tower / upper tower
+		if (curB->siege == 3)
+		{
+			// lower tower + upper tower
 			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -4);
 			stacks.push_back(stack);
 			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -3);
-			stacks.push_back(stack);
-		}
-	case 2: //citadel
-		{//main tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -2);
 			stacks.push_back(stack);
 		}
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
-	//seting up siege
+	//setting up siege
 	if(town && town->hasFort())
 	{
 		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
@@ -2391,8 +2390,7 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 	switch(phase)
 	{
 	case 0: //catapult moves after turrets
-		return a->getCreature()->idNumber < b->getCreature()->idNumber; //catapult is 145 and turrets are 149
-		//TODO? turrets order
+		return a->getCreature()->idNumber > b->getCreature()->idNumber; //catapult is 145 and turrets are 149
 	case 1: //fastest first, upper slot first
 		{
 			int as = a->Speed(turn), bs = b->Speed(turn);

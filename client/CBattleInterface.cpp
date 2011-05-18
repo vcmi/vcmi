@@ -1040,7 +1040,7 @@ bool CShootingAnim::init()
 	spi.animStartDelay = CGI->creh->creatures[spi.creID]->attackClimaxFrame;
 	owner->projectiles.push_back(spi);
 
-	//attack aniamtion
+	//attack animation
 
 	shooting = true;
 
@@ -3894,13 +3894,13 @@ Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const
 		switch(stack->position)
 		{
 		case -2: //keep
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][12];
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][17];
 			break;
 		case -3: //lower turret
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][13];
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][18];
 			break;
 		case -4: //upper turret
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][14];
+			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][19];
 			break;	
 		}
 	}
