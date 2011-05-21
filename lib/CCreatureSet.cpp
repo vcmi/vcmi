@@ -564,6 +564,12 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::DRAGON_NATURE:
 				case Bonus::NON_LIVING:
 				case Bonus::UNDEAD:
+				case Bonus::FIRE_IMMUNITY: //TODO: what about direct, hostile and total immunity?
+				case Bonus::WATER_IMMUNITY:
+				case Bonus::AIR_IMMUNITY:
+				case Bonus::EARTH_IMMUNITY:
+				case Bonus::RECEPTIVE:
+				case Bonus::DIRECT_DAMAGE_IMMUNITY:
 				break;
 				//One numeric value
 				case Bonus::MAGIC_RESISTANCE:
@@ -662,7 +668,6 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_FEAR.bmp"; break;
 		case Bonus::FEARLESS:
 			fileName = "E_FEARL.bmp"; break;
-			//"E_FIRE.bmp"
 		case Bonus::FLYING:
 			fileName = "E_FLY.bmp"; break;
 		case Bonus::SPELL_DAMAGE_REDUCTION:
@@ -677,7 +682,6 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_KING2.bmp"; break;
 		case Bonus::KING3:
 			fileName = "E_KING3.bmp"; break;
-			//"E_LIGHT.bmp"
 		case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
 			fileName = "E_MANA.bmp"; break;
 		case Bonus::NO_MELEE_PENALTY:
@@ -687,7 +691,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_MINOT.bmp"; break;
 		case Bonus::NO_MORALE:
 			fileName = "E_MORAL.bmp"; break;
-			//"E_NOFRIM.bmp"
+		case Bonus::RECEPTIVE:
+			fileName = "E_NOFRIM.bmp"; break;
 		case Bonus::NO_OBSTACLES_PENALTY:
 			fileName = "E_OBST.bmp"; break;
 		case Bonus::ENEMY_DEFENCE_REDUCTION:
@@ -706,8 +711,6 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::FREE_SHOOTING: //shooter is not blocked by enemy
 			fileName = "E_SHOOTA.bmp"; break;
 			//"E_SHOOTN.bmp"
-			//"E_SPAIR.bmp"
-			//"E_SPAIR1.bmp"
 		case Bonus::SPELL_IMMUNITY:
 		{
 			switch (bonus->subtype)
@@ -730,15 +733,55 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			}
 		}
 			//"E_SPAWILL.bmp"
-			//"E_SPCOLD.bmp"
-			//"E_SPDFIRE.bmp"
-			//"E_SPDIR.bmp"
+		case Bonus::DIRECT_DAMAGE_IMMUNITY:
+			fileName = "E_SPDIR.bmp"; break;
 			//"E_SPDISB.bmp"
 			//"E_SPDISP.bmp"
 			//"E_SPEATH.bmp"
 			//"E_SPEATH1.bmp"
-			//"E_SPFIRE.bmp"
-			//"E_SPFIRE1.bmp"
+		case Bonus::FIRE_IMMUNITY:
+			switch (bonus->subtype)
+			{
+				case 0:
+					fileName =  "E_SPFIRE.bmp"; break; //all
+				case 1:
+					fileName =  "E_SPFIRE1.bmp"; break; //not positive
+				case 2:
+					fileName =  "E_FIRE.bmp"; break; //direct damage
+			}
+			break;
+		case Bonus::WATER_IMMUNITY:
+			switch (bonus->subtype)
+			{
+				case 0:
+					fileName =  "E_SPWATER.bmp"; break; //all
+				case 1:
+					fileName =  "E_SPWATER1.bmp"; break; //not positive
+				case 2:
+					fileName =  "E_SPCOLD.bmp"; break; //direct damage
+			}
+			break;
+		case Bonus::AIR_IMMUNITY: 
+			switch (bonus->subtype)
+			{
+				case 0:
+					fileName =  "E_SPAIR.bmp"; break; //all
+				case 1:
+					fileName =  "E_SPAIR1.bmp"; break; //not positive
+				case 2:
+					fileName = "E_LIGHT.bmp"; break;//direct damage
+			}
+			break;
+		case Bonus::EARTH_IMMUNITY: 
+			switch (bonus->subtype)
+			{
+				case 0:
+					fileName =  "E_SPEATH.bmp"; break; //all
+				case 1:
+				case 2: //no specific icon for direct damage immunity
+					fileName =  "E_SPEATH1.bmp"; break; //not positive
+			}
+			break;
 		case Bonus::LEVEL_SPELL_IMMUNITY:
 		{
 			if (iswith(bonus->val, 1 , 5))

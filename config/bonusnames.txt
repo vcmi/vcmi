@@ -1,5 +1,5 @@
 Bonus	Name (30 characters?)	Description (30)
-NO_SHOTING_PENALTY	?	???
+NO_SHOTING_PENALTY	No Shooting penalty?	???
 ADDITIONAL_RETALIATION	Additional retaliations	May Retaliate %d extra times
 ATTACKS_ALL_ADJACENT	Attack all around	Attacks all adjacent enemies
 RETURN_AFTER_STRIKE	Attack and Return	Returns after melee attack
@@ -42,3 +42,9 @@ THREE_HEADED_ATTACK	Three-headed attack	Attacks three adjacent units
 UNDEAD	Undead	Creature is Undead
 UNLIMITED_RETALIATIONS	Unlimited retaliations	Retaliate any number of attacks
 DEATH_STARE	Death Stare (%d%)	Chance to kill single creature
+FIRE_IMMUNITY	Immune to Fire	
+WATER_IMMUNITY	Immune to Water	
+AIR_IMMUNITY	Immune to Air	
+EARTH_IMMUNITY	Immune to Earth	
+DIRECT_DAMAGE_IMMUNITY	Direct Damage Immunity	Immune to direct damage spells
+RECEPTIVE	Receptive	No Immunity to Friendly Spells
