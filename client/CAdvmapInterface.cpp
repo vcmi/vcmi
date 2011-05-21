@@ -522,6 +522,18 @@ void CTerrainRect::hover(bool on)
 }
 void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 {
+	const static int pns[9][9] = {
+				{16, 17, 18,  7, -1, 19,  6,  5, -1},
+				{ 8,  9, 18,  7, -1, 19,  6, -1, 20},
+				{ 8,  1, 10,  7, -1, 19, -1, 21, 20},
+				{24, 17, 18, 15, -1, -1,  6,  5,  4},
+				{-1, -1, -1, -1, -1, -1, -1, -1, -1},
+				{ 8,  1,  2, -1, -1, 11, 22, 21, 20},
+				{24, 17, -1, 23, -1,  3, 14,  5,  4},
+				{24, -1,  2, 23, -1,  3, 22, 13,  4},
+				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
+			}; //table of magic values TODO meaning, change variable name
+
 	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
 	{
 		int pn=-1;//number of picture
@@ -551,19 +563,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			int id1=(cv[i].coord.x-cv[i+1].coord.x+1)+3*(cv[i].coord.y-cv[i+1].coord.y+1);   //Direction of entering vector
 			int id2=(cv[i-1].coord.x-cv[i].coord.x+1)+3*(cv[i-1].coord.y-cv[i].coord.y+1); //Direction of exiting vector
 
-			const static int pns[9][9] = {
-				{16, 17, 18,  7, -1, 19,  6,  5, -1},
-				{ 8,  9, 18,  7, -1, 19,  6, -1, 20},
-				{ 8,  1, 10,  7, -1, 19, -1, 21, 20},
-				{24, 17, 18, 15, -1, -1,  6,  5,  4},
-				{-1, -1, -1, -1, -1, -1, -1, -1, -1},
-				{ 8,  1,  2, -1, -1, 11, 22, 21, 20},
-				{24, 17, -1, 23, -1,  3, 14,  5,  4},
-				{24, -1,  2, 23, -1,  3, 22, 13,  4},
-				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
-			}; //table of magic values TODO meaning, change variable name
 			pn=pns[id1][id2];
-
 
 		}
 		if (currentPath->nodes[i].turns)
