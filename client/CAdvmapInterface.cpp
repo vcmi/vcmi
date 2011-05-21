@@ -535,254 +535,35 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 		}
 		else
 		{
-			/*
-			 * notation of arrow direction:
-			 * 1 2 3
-			 * 4 5 6
-			 * 7 8 9
-			 * ie. 157 means an arrow from left upper tile to left bottom tile through 5 (all arrows go through 5 in this notation)
-			*/
+			/* Vector directions
+			 *  0   1   2
+			 *    \ | / 
+			 *  3 - 4 - 5
+			 *    / | \
+			 *  6   7  8
+			 *For example:
+			 *  |
+			 *  |__\
+			 *     /
+			 * is id1=7, id2=5 (pns[7][5])
+			*/ 
 			std::vector<CGPathNode> & cv = currentPath->nodes;
-			if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1) //15x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //156
-				{
-					pn = 3;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //159
-				{
-					pn = 12;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //158
-				{
-					pn = 21;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //157
-				{
-					pn = 22;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //153
-				{
-					pn = 2;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //154
-				{
-					pn = 23;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //152
-				{
-					pn = 1;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1) //25x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //253
-				{
-					pn = 2;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //256
-				{
-					pn = 3;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //259
-				{
-					pn = 4;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //258
-				{
-					pn = 13;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //257
-				{
-					pn = 22;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //254
-				{
-					pn = 23;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //251
-				{
-					pn = 24;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1) //35x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //358
-				{
-					pn = 5;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //357
-				{
-					pn = 14;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //354
-				{
-					pn = 23;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //351
-				{
-					pn = 24;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //359
-				{
-					pn = 4;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //356
-				{
-					pn = 3;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //352
-				{
-					pn = 17;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y) //65x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //657
-				{
-					pn = 6;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //654
-				{
-					pn = 15;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //651
-				{
-					pn = 24;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //652
-				{
-					pn = 17;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //658
-				{
-					pn = 5;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //653
-				{
-					pn = 18;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //659
-				{
-					pn = 4;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1) //95x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //954
-				{
-					pn = 7;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //951
-				{
-					pn = 16;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //952
-				{
-					pn = 17;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //957
-				{
-					pn = 6;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //953
-				{
-					pn = 18;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //956
-				{
-					pn = 19;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //958
-				{
-					pn = 5;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1) //85x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //857
-				{
-					pn = 6;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //854
-				{
-					pn = 7;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //851
-				{
-					pn = 8;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //852
-				{
-					pn = 9;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //853
-				{
-					pn = 18;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //856
-				{
-					pn = 19;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //859
-				{
-					pn = 20;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1) //75x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //752
-				{
-					pn = 1;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //753
-				{
-					pn = 10;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //756
-				{
-					pn = 19;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //751
-				{
-					pn = 8;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //759
-				{
-					pn = 20;
-				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y) //45x
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //453
-				{
-					pn = 2;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //456
-				{
-					pn = 11;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //459
-				{
-					pn = 20;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //452
-				{
-					pn = 1;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //456
-				{
-					pn = 21;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //451
-				{
-					pn = 8;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //457
-				{
-					pn = 22;
-				}
-			}
+			int id1=(cv[i].coord.x-cv[i+1].coord.x+1)+3*(cv[i].coord.y-cv[i+1].coord.y+1);   //Direction of entering vector
+			int id2=(cv[i-1].coord.x-cv[i].coord.x+1)+3*(cv[i-1].coord.y-cv[i].coord.y+1); //Direction of exiting vector
+
+			const static int pns[9][9] = {
+				{16, 17, 18,  7, -1, 19,  6,  5, -1},
+				{ 8,  9, 18,  7, -1, 19,  6, -1, 20},
+				{ 8,  1, 10,  7, -1, 19, -1, 21, 20},
+				{24, 17, 18, 15, -1, -1,  6,  5,  4},
+				{-1, -1, -1, -1, -1, -1, -1, -1, -1},
+				{ 8,  1,  2, -1, -1, 11, 22, 21, 20},
+				{24, 17, -1, 23, -1,  3, 14,  5,  4},
+				{24, -1,  2, 23, -1,  3, 22, 13,  4},
+				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
+			}; //table of magic values TODO meaning, change variable name
+			pn=pns[id1][id2];
+
 
 		}
 		if (currentPath->nodes[i].turns)
