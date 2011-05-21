@@ -22,6 +22,7 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include "../lib/CGameState.h"
+#include "../lib/CSpellHandler.h"
 
 using namespace CSDL_Ext;
 
@@ -223,7 +224,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				number = (stack->count * (expmax - expmin)) / expmin; 
 				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience 
 			
-				expArea = new LRClickableAreaWText(Rect(334, 49, 160, 44), "" , expText );
+				expArea = new LRClickableAreaWTextComp(Rect(334, 49, 160, 44),SComponent::experience);
+				expArea->text = expText;
+				expArea->bonusValue = 0; //TDO: some specific value or no number at all
 			}
 		}
 
@@ -247,9 +250,15 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		std::vector<si32> spells = battleStack->activeSpells();
 		BOOST_FOREACH(si32 effect, spells)
 		{
+			std::string spellText;
 			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
 			{
-				blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap); 
+				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."	
+				boost::replace_first (spellText, "%s", CGI->spellh->spells[effect]->name);
+				int duration = battleStack->getBonus(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
+				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration)); 
+				blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap);
+				spellEffects.push_back(new LRClickableAreaWText(Rect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
 				if (++printed >= 10) //we can fit only 10 effects
 					break;
 			}

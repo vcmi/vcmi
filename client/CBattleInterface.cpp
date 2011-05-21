@@ -3019,10 +3019,24 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					plural = true;
 					textID = 563;
 					break;
-				case 75: // Aging //TODO: hitpoints
+				case 75: // Aging
+				{
 					customSpell = true;
-					plural = true;
-					textID = 551;
+					if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
+					{
+						text = CGI->generaltexth->allTexts[552];
+						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					}
+					else
+					{
+						text = CGI->generaltexth->allTexts[551];
+						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+					}
+					//The %s shrivel with age, and lose %d hit points."	
+					BonusList bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					bl.remove_if(Selector::source(Bonus::SPELL_EFFECT, 75));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl.totalValue()/2));
+				}
 					break;
 				case 78: //Dispell helpful spells
 					text = CGI->generaltexth->allTexts[555];

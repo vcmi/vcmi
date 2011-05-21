@@ -35,11 +35,12 @@ public:
 	const CGHeroInstance *heroOwner;
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 	std::vector<CBonusItem*> bonusItems;
+	std::vector<LRClickableAreaWText*> spellEffects;
 
 	CPicture *bitmap; //background
 	CCreaturePic *anim; //related creature's animation
 	MoraleLuckBox *luck, *morale;
-	LRClickableAreaWText * expArea; //displays exp details
+	LRClickableAreaWTextComp * expArea; //displays exp details
 	CArtPlace *creatureArtifact;
 	CSlider * slider; //Abilities
 	AdventureMapButton *dismiss, *upgrade, *ok;

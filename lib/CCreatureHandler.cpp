@@ -938,7 +938,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			case '7':
 			case '8':
 			case '9':
-				b.type = Bonus::LEVEL_SPELL_IMMUNITY; //TODO - value can't be read afterwards
+				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
 				b.val = std::atoi(mod.c_str()) - 5;
 				break;
 			case ':':
