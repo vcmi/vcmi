@@ -150,13 +150,14 @@ public:
 
 	//hero
 	const CGHeroInstance* getHero(int objid) const;
+	const CGHeroInstance* getHeroWithSubid(int subid) const;
 	int getHeroCount(int player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	bool verifyPath(CPath * path, bool blockSea)const;
 	const CGHeroInstance* getSelectedHero(int player) const; //NULL if no hero is selected
-	int getSelectedHero() const; //of current (active) player
+	const CGHeroInstance* getSelectedHero() const; //of current (active) player
 
 	//objects
 	const CGObjectInstance* getObj(int objid, bool verbose = true) const;
@@ -239,13 +240,17 @@ public:
 	TerrainTile * getTile(int3 pos);
 };
 
-/// Interface class for handling general game logic and actions
-class DLL_EXPORT IGameCallback : public CPrivilagedInfoCallback
+class DLL_EXPORT IGameEventRealizer
 {
 public:
-	virtual ~IGameCallback(){};
+	virtual void commitPackage(CPackForClient *pack) = 0;
 
-	//do sth
+	virtual void showInfoDialog(InfoWindow *iw);
+};
+
+class DLL_EXPORT IGameEventCallback : public IGameEventRealizer
+{
+public:
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
 	virtual bool removeObject(int objid)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
@@ -254,7 +259,6 @@ public:
 	virtual void setObjProperty(int objid, int prop, si64 val)=0;
 	virtual void changePrimSkill(int ID, int which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(int ID, int which, int val, bool abs=false)=0; 
-	virtual void showInfoDialog(InfoWindow *iw)=0;
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
@@ -293,6 +297,16 @@ public:
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map
+};
+
+/// Interface class for handling general game logic and actions
+class DLL_EXPORT IGameCallback : public CPrivilagedInfoCallback, public IGameEventCallback
+{
+public:
+	virtual ~IGameCallback(){};
+
+	//do sth
+
 
 	friend struct CPack;
 	friend struct CPackForClient;

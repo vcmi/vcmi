@@ -136,7 +136,7 @@ public:
 	void setObjProperty(int objid, int prop, si64 val) OVERRIDE;
 	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE;
 	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE; 
-	void showInfoDialog(InfoWindow *iw) OVERRIDE;
+	//void showInfoDialog(InfoWindow *iw) OVERRIDE;
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
@@ -185,6 +185,8 @@ public:
 	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed 
 	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
 	//////////////////////////////////////////////////////////////////////////
+
+	void commitPackage(CPackForClient *pack) OVERRIDE;
 
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);

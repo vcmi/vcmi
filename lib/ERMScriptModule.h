@@ -2,6 +2,9 @@
 
 #include "../global.h"
 #include "IGameEventsReceiver.h"
+#include "IGameCallback.h"
+
+class IGameEventRealizer;
 
 class ERMInterpreter;
 
@@ -13,16 +16,8 @@ public:
 	virtual ~CScriptingModule();
 };
 
-class DLL_EXPORT CERMScriptModule : public CScriptingModule
-{
-public:
-	ERMInterpreter *interpreter;
+extern DLL_EXPORT IGameEventRealizer *acb;
+extern DLL_EXPORT CPrivilagedInfoCallback *icb;
 
-	CERMScriptModule(void);
-	~CERMScriptModule(void);
 
-	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;
-	virtual void init() OVERRIDE;
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE;
-};
-
+DLL_EXPORT CScriptingModule *getERMModule();

@@ -1539,10 +1539,7 @@ void CGameHandler::setHoverName(int objid, MetaString* name)
 	SetHoverName shn(objid, *name);
 	sendAndApply(&shn);
 }
-void CGameHandler::showInfoDialog(InfoWindow *iw)
-{
-	sendToAllClients(iw);
-}
+
 void CGameHandler::showBlockingDialog( BlockingDialog *iw, const CFunctionList<void(ui32)> &callback )
 {
 	ask(iw,iw->player,callback);
@@ -5061,6 +5058,11 @@ void CGameHandler::setBattleResult(int resultType, int victoriusSide)
 	br->winner = victoriusSide; //surrendering side loses
 	gs->curB->calculateCasualties(br->casualties);
 	battleResult.set(br);
+}
+
+void CGameHandler::commitPackage( CPackForClient *pack )
+{
+	sendAndApply(pack);
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

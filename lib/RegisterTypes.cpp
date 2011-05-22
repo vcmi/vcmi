@@ -209,6 +209,7 @@ void registerTypes3(Serializer &s)
 	s.template registerType<CastleTeleportHero>();
 
 	s.template registerType<SaveGame>();
+	s.template registerType<CommitPackage>();
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
 }

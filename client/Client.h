@@ -109,7 +109,6 @@ public:
 	void setObjProperty(int objid, int prop, si64 val) OVERRIDE {};
 	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE {};
 	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE {}; 
-	void showInfoDialog(InfoWindow *iw) OVERRIDE {};
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
@@ -158,6 +157,8 @@ public:
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void updatePaths();
 	void battleStarted(const BattleInfo * info);
+
+	void commitPackage(CPackForClient *pack) OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
 

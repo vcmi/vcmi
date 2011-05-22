@@ -362,10 +362,9 @@ const CGHeroInstance* CGameInfoCallback::getSelectedHero( int Player ) const
 	return getHero(p->currentSelection);
 }
 
-int CGameInfoCallback::getSelectedHero() const
+const CGHeroInstance* CGameInfoCallback::getSelectedHero() const
 {
-	const CGHeroInstance *h = getSelectedHero(gs->currentPlayer);
-	return h ? h->id : -1; // TODO synchronous turns?
+	return getSelectedHero(gs->currentPlayer);
 }
 
 const PlayerSettings * CGameInfoCallback::getPlayerSettings(int color) const
@@ -1171,3 +1170,15 @@ const TeamState * CGameInfoCallback::getPlayerTeam( ui8 teamID ) const
 	return NULL;
 }
 
+const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
+{
+	BOOST_FOREACH(const CGHeroInstance *h, gs->map->heroes)
+		if(h->subID == subid)
+			return h;
+}
+
+
+void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
+{
+	commitPackage(iw);
+}

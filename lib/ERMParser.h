@@ -165,7 +165,7 @@ namespace ERM
 	{
 		Ttrigger() 
 		{
-			pre = false;
+			pre = true;
 		}
 	};
 
@@ -173,7 +173,7 @@ namespace ERM
 	{
 		TPostTrigger()
 		{
-			pre = true;
+			pre = false;
 		}
 	};
 

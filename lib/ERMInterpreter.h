@@ -1,6 +1,9 @@
 #pragma once
 #include "../global.h"
 #include "ERMParser.h"
+#include "IGameEventsReceiver.h"
+#include "ERMScriptModule.h"
+
 
 /*
  * ERMInterpreter.h, part of VCMI engine
@@ -317,6 +320,9 @@ private:
 		std::string * stringvar;
 	} val;
 public:
+	std::string name;
+	std::string getName() const;
+
 	enum {WRONGVAL, INT, INTVAR, FLOATVAR, STRINGVAR} type;
 	void setTo(const IexpValStr & second);
 	void setTo(int val);
@@ -469,7 +475,7 @@ public:
 	OPERATOR_DEFINITION_INTEGER(%)
 };
 
-class ERMInterpreter
+class ERMInterpreter : public CScriptingModule
 {
 /*not so*/ public:
 // 	friend class ScriptScanner;
@@ -485,8 +491,8 @@ class ERMInterpreter
 	std::vector< VERMInterpreter::FileInfo* > fileInfos;
 	std::map<VERMInterpreter::LinePointer, ERM::TLine> scripts;
 	std::map<VERMInterpreter::LexicalPtr, VERMInterpreter::Environment> lexicalEnvs;
-	ERM::TLine retrieveLine(VERMInterpreter::LinePointer linePtr) const;
-	static ERM::TTriggerBase & retrieveTrigger(ERM::TLine line);
+	ERM::TLine &retrieveLine(VERMInterpreter::LinePointer linePtr);
+	static ERM::TTriggerBase & retrieveTrigger(ERM::TLine &line);
 
 	VERMInterpreter::Environment * globalEnv;
 	VERMInterpreter::ERMEnvironment * ermGlobalEnv;
@@ -502,6 +508,7 @@ class ERMInterpreter
 	IexpValStr getIexp(const ERM::TMacroUsage & macro) const;
 	IexpValStr getIexp(const ERM::TIdentifierInternal & tid) const;
 	IexpValStr getIexp(const ERM::TVarpExp & tid) const;
+	IexpValStr getIexp(const ERM::TBodyOptionItem & opit) const;
 
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
@@ -521,7 +528,6 @@ public:
 	void executeTriggerType(const char *trigger, int id); //convenience version of above, for pre-trigger when there is only one argument
 	void executeTriggerType(const char *trigger); //convenience version of above, for pre-trigger when there are no args
 	void setCurrentlyVisitedObj(int3 pos); //sets v998 - v1000 to given value
-	void init(); //sets up environment etc.
 	void scanForScripts();
 
 	enum EPrintMode{ALL, ERM_ONLY, VERM_ONLY};
@@ -531,4 +537,20 @@ public:
 	ERMInterpreter();
 	bool checkCondition( ERM::Tcondition cond );
 	int getRealLine(int lineNum);
+
+	//overload CScriptingModule
+	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;
+	virtual void init() OVERRIDE;//sets up environment etc.
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE;
+
+	const CGObjectInstance *getObjFrom(int3 pos);
+	template <typename T>
+	const T *getObjFromAs(int3 pos)
+	{
+		const T* obj =  dynamic_cast<const T*>(getObjFrom(pos));
+		if(obj)
+			return obj;
+		else
+			throw EScriptExecError("Wrong cast attempted, object is not of a desired type!");
+	}
 };

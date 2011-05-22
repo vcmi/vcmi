@@ -425,9 +425,12 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
-	CERMScriptModule *erm = new CERMScriptModule();
+
+	CScriptingModule *erm = getERMModule();
 	privilagedGameEventReceivers.push_back(erm);
 	privilagedBattleEventReceivers.push_back(erm);
+	icb = this;
+	acb = this;
 	erm->init();
 }
 
@@ -509,7 +512,7 @@ void CClient::handlePack( CPack * pack )
 
 void CClient::updatePaths()
 {	
-	const CGHeroInstance *h = getHero(getSelectedHero());
+	const CGHeroInstance *h = getSelectedHero();
 	if (h)//if we have selected hero...
 		gs->calculatePaths(h, *pathInfo);
 }
@@ -584,6 +587,13 @@ void CClient::loadNeutralBattleAI()
 {
 	battleints[255] = CAIHandler::getNewBattleAI(conf.cc.defaultBattleAI);
 	battleints[255]->init(new CBattleCallback(gs, 255, this));
+}
+
+void CClient::commitPackage( CPackForClient *pack )
+{
+	CommitPackage cp;
+	cp.packToCommit = pack;
+	*serv << &cp;
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

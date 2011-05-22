@@ -162,6 +162,7 @@ public:
 
 /***********************************************************************************************************/
 
+
 struct PackageApplied : public CPackForClient //94
 {
 	PackageApplied() {type = 94;}
@@ -1490,6 +1491,23 @@ struct AdvmapSpellCast : public CPackForClient //108
 };
 
 /***********************************************************************************************************/
+
+struct CommitPackage : public CPackForServer
+{
+	bool applyGh(CGameHandler *gh);
+	CPackForClient *packToCommit;
+
+	~CommitPackage()
+	{
+		delete packToCommit;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & packToCommit;
+	}
+};
+
 
 struct CloseServer : public CPackForServer
 {

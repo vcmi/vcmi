@@ -40,6 +40,12 @@ bool SaveGame::applyGh( CGameHandler *gh )
 	return true;
 }
 
+bool CommitPackage::applyGh( CGameHandler *gh )
+{
+	gh->sendAndApply(packToCommit);
+	return true;
+}
+
 bool CloseServer::applyGh( CGameHandler *gh )
 {
 	gh->close();
