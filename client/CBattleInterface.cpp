@@ -1108,8 +1108,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
-	tacticsMode = curInt->cb->battleGetTacticDist();
-	
+
+	if(attackerInt && attackerInt->cb->battleGetTacticDist()) //hotseat -> check tactics for both players (defender may be local human)
+		tacticianInterface = attackerInt;
+	else if(defenderInt && defenderInt->cb->battleGetTacticDist()) 
+		tacticianInterface = defenderInt;
+
+	tacticsMode = tacticianInterface;  //if we found interface of player with tactics, then enter tactics mode
+
 	//create stack queue
 	bool embedQueue = screen->h < 700;
 	queue = new CStackQueue(embedQueue, this);
@@ -3748,7 +3754,7 @@ static bool immobile(const CStack *s)
 
 void CBattleInterface::bTacticNextStack()
 {
-	TStacks stacksOfMine = curInt->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
+	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile), stacksOfMine.end());
 	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())

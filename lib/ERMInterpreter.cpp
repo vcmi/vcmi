@@ -2254,7 +2254,8 @@ std::string IexpValStr::getName() const
 	{
 		return "Literal " + boost::lexical_cast<std::string>(getInt());
 	}
-
+	else
+		return "Unknown variable";
 }
 
 void ERMInterpreter::init()

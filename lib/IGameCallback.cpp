@@ -1175,6 +1175,8 @@ const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 	BOOST_FOREACH(const CGHeroInstance *h, gs->map->heroes)
 		if(h->subID == subid)
 			return h;
+
+	return NULL;
 }
 
 

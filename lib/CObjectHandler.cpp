@@ -1494,7 +1494,7 @@ void CGHeroInstance::deserializationFix()
 		if(i->second.artifact && !i->second.locked)
 			attachTo(i->second.artifact);
 
-	attachTo(&speciality);
+	//attachTo(&speciality);
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)

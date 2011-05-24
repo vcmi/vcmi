@@ -422,6 +422,7 @@ private:
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
+	CPlayerInterface *tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature,
