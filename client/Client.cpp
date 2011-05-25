@@ -426,12 +426,12 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	hotSeat = (humanPlayers > 1);
 
 
-	CScriptingModule *erm = getERMModule();
-	privilagedGameEventReceivers.push_back(erm);
-	privilagedBattleEventReceivers.push_back(erm);
-	icb = this;
-	acb = this;
-	erm->init();
+// 	CScriptingModule *erm = getERMModule();
+// 	privilagedGameEventReceivers.push_back(erm);
+// 	privilagedBattleEventReceivers.push_back(erm);
+// 	icb = this;
+// 	acb = this;
+// 	erm->init();
 }
 
 template <typename Handler>
