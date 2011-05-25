@@ -1253,24 +1253,24 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		if(resurrected)
 		{
 			
-			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
-			{
-				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
-				{
-					changedStack->bonuses.erase(it);
-				}
-			}
+// 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
+// 			{
+// 				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
+// 				{
+// 					changedStack->bonuses.erase(it);
+// 				}
+// 			}
 			
 			//removing all features from negative spells
 			BonusList tmpFeatures = changedStack->bonuses;
-			changedStack->bonuses.clear();
+			//changedStack->bonuses.clear();
 
 			BOOST_FOREACH(Bonus *b, tmpFeatures)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->positiveness >= 0)
+				if(s && s->positiveness < 0)
 				{
-					changedStack->addNewBonus(b);
+					changedStack->removeBonus(b);
 				}
 			}
 		}

@@ -486,6 +486,8 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 {
 	if(hero->tempOwner != playerID )
 		return;
+
+	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	openTownWindow(town);
 }

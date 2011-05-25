@@ -13,6 +13,7 @@ clientSettings
 	defaultPlayerAI=GeniusAI; 
 	neutralBattleAI=StupidAI;
 	showFPS=0;
+	classicCreatureWindow=0;
 }
 GUISettings
 {
