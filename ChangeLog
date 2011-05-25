@@ -1,9 +1,20 @@
 0.84 -> 0.85
 GENERAL:
+* Support for stack experience
+* Implemented original campaign selection screens
 * New artifacts supported:
 - Statesman's Medal
 - Diplomat's Ring
 - Ambassador's Sash
+
+TOWNS:
+* It's possible to sell artifacts at Artifact Merchants
+
+BATTLES:
+* Neutral monsters will be splitted to multiple stacks
+* Hero can surrender battle to keep army
+
+
 
 
 0.83 -> 0.84 (Mar 01 2011)

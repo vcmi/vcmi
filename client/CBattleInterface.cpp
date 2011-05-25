@@ -1098,7 +1098,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL), siegeH(NULL),
 	  attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
-	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
+	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL), tacticianInterface(NULL)
 {
 	ObjectConstruction h__l__p(this);
 
@@ -4035,8 +4035,7 @@ void CBattleHex::clickRight(tribool down, bool previousState)
 		if(!myst->alive()) return;
 		if(down)
 		{
-			//GH.pushInt(new CCreInfoWindow(*myst));
-			GH.pushInt(new CCreatureWindow(*myst, CCreatureWindow::BATTLE));
+			GH.pushInt(createCreWindow(myst));
 		}
 	}
 }

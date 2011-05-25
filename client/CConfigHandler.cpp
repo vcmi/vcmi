@@ -213,6 +213,7 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 				| str_p("defaultPlayerAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultPlayerAI)] | eps_p[lerror("Wrong defaultAI!")])
 				| str_p("neutralBattleAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultBattleAI)] | eps_p[lerror("Wrong defaultAI!")])
 				| str_p("showFPS=") >> (uint_p[assign_a(conf.cc.showFPS)] | eps_p[lerror("Wrong showFPS!")])
+				| str_p("classicCreatureWindow=") >> (uint_p[assign_a(conf.cc.classicCreatureWindow)] | eps_p[lerror("Wrong classicCreatureWindow!")])
 				| (+(anychar_p - '}'))[lerror2("Unrecognized client option: ")]
 				;
 			clientOptionsSequence = *(clientOption >> (';' | eps_p[lerror("Semicolon lacking after client option!")]));

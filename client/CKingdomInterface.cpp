@@ -1063,7 +1063,7 @@ void CKingdomInterface::CTownItem::CCreaPlace::clickRight(tribool down, bool pre
 			crid = town->town->upgradedCreatures[type];
 		else
 			crid = town->town->basicCreatures[type];
-		GH.pushInt(new CCreatureWindow(crid, 0, town->creatures[type].first));
+		GH.pushInt(createCreWindow(crid, 0, town->creatures[type].first));
 	}
 }
 

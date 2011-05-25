@@ -487,6 +487,10 @@ void processCommand(const std::string &message)
 			CAnimation::getAnimInfo();
 		}
 	}
+	else if (cn == "switchCreWin" )
+	{
+		conf.cc.classicCreatureWindow = !conf.cc.classicCreatureWindow;
+	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
 		PlayerMessage pm(LOCPLINT->playerID,message);

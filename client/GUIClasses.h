@@ -1280,4 +1280,8 @@ public:
 	~CThievesGuildWindow();
 };
 
+CIntObject *createCreWindow(const CStack *s);
+CIntObject *createCreWindow(int Cid, int Type, int creatureCount);
+CIntObject *createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
+
 #endif //__GUICLASSES_H__

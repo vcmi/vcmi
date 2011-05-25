@@ -172,8 +172,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
 	{
-		//GH.pushInt(new CCreInfoWindow(*myStack));
-		GH.pushInt(new CCreatureWindow(*myStack, 2));
+		GH.pushInt(createCreWindow(myStack, 2));
 	}
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
@@ -195,11 +194,6 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]);
 				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
 
-				//CCreInfoWindow *creWindow = new CCreInfoWindow( *myStack, 1, upgr, dism, &pom);
-				CCreatureWindow *creWindow = new CCreatureWindow( *myStack, 3, upgr, dism, &pom);
-				
-				GH.pushInt(creWindow);
-
 				owner->highlighted = NULL;
 				owner->splitting = false;
 
@@ -208,6 +202,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 				redraw();
 				refr = true;
+				CIntObject *creWindow = createCreWindow(myStack, 3, upgr, dism, &pom);
+				GH.pushInt(creWindow);
 			}
 			else 
 			{
@@ -1768,7 +1764,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 			Rect creatureRect = genRect(132, sCREATURE_WIDTH, pos.x+curx, pos.y+64);
 			if(isItIn(&creatureRect, GH.current->motion.x, GH.current->motion.y))
 			{
-				CCreatureWindow *popup = new CCreatureWindow(creatures[i].ID, 0, 0);
+				CIntObject *popup = createCreWindow(creatures[i].ID, 0, 0);
 				GH.pushInt(popup);
 				break;
 			}
@@ -7173,4 +7169,28 @@ bool CArtifactsOfHero::SCommonPart::Artpos::valid()
 {
 	assert(AOH && art);
 	return art == AOH->curHero->getArt(slotID);
+}
+
+CIntObject * createCreWindow(const CStack *s)
+{
+	if(conf.cc.classicCreatureWindow)
+		return new CCreInfoWindow(*s);
+	else
+		return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
+}
+
+CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
+{
+	if(conf.cc.classicCreatureWindow)
+		return new CCreInfoWindow(Cid, Type, creatureCount);
+	else
+		return new CCreatureWindow(Cid, Type, creatureCount);
+}
+
+CIntObject * createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
+{
+	if(conf.cc.classicCreatureWindow)
+		return new CCreInfoWindow(*s, type==3, Upg, Dsm, ui);
+	else
+		return  new CCreatureWindow(*s, type, Upg, Dsm, ui);
 }
