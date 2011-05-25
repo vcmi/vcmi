@@ -2305,8 +2305,6 @@ std::vector<si32> CStack::activeSpells() const
 CStack::~CStack()
 {
 	detachFromAll();
-	if(vstd::contains(state, SUMMONED))
-		delNull(base);
 }
 
 const CGHeroInstance * CStack::getMyHero() const
