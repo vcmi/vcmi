@@ -500,6 +500,11 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	}
 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	if(!text->slider)
+	{
+		text->pos.w = text->maxW;
+		text->pos.h = text->maxH;
+	}
 	text->redrawParentOnScrolling = true;
 
 	if(buttons.size())

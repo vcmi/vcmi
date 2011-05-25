@@ -439,11 +439,15 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 
 	int curh = SIDE_MARGIN;
-
 	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
-	ret->text->moveBy(Point(xOffset, SIDE_MARGIN));
 
-	//blitTextOnSur (txtg, fontHeight, curh, ret->bitmap);
+	if(!ret->buttons.size() && !ret->components.size()) //improvement for very small text only popups -> center text vertically
+	{
+		if(ret->bitmap->h > ret->text->pos.h + 2*SIDE_MARGIN)
+			curh = (ret->bitmap->h - ret->text->pos.h)/2;
+	}
+
+	ret->text->moveBy(Point(xOffset, curh));
 
 	curh += ret->text->pos.h;
 

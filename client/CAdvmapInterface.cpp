@@ -488,11 +488,10 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 {
 	int3 mp = whichTileIsIt();
 
-	if (!CGI->mh->map->isInTheMap(mp) || down != true)
-		return;
-
-	adventureInt->tileRClicked(mp);
+	if (CGI->mh->map->isInTheMap(mp) && down)
+		adventureInt->tileRClicked(mp);
 }
+
 void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	int3 tHovered = whichTileIsIt(sEvent.x,sEvent.y);
