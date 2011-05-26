@@ -53,6 +53,7 @@ struct SProjectileInfo
 	int dx, dy; //change in position in one step
 	int step, lastStep; //to know when finish showing this projectile
 	int creID; //ID of creature that shot this projectile
+	int stackID; //ID of stack
 	int frameNum; //frame to display form projectile animation
 	bool spin; //if true, frameNum will be increased
 	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)

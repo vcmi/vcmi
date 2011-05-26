@@ -972,25 +972,37 @@ bool CShootingAnim::init()
 		return false;
 	}
 
-	//projectile
+	// Create the projectile animation
+	
 	float projectileAngle; //in radians; if positive, projectiles goes up
 	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	int fromHex = shooter->position;
-	projectileAngle = atan2(float(abs(dest - fromHex)/BFIELD_WIDTH), float(abs(dest - fromHex)%BFIELD_WIDTH));
+	projectileAngle = atan2(float(abs(dest - fromHex) / BFIELD_WIDTH), float(abs(dest - fromHex) % BFIELD_WIDTH));
 	if(fromHex < dest)
 		projectileAngle = -projectileAngle;
-
+	
+	// Get further info about the shooter e.g. relative pos of projectile to unit.
+	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
+	// actual arrow tower shooter instead.
+	const CCreature *shooterInfo = shooter->getCreature();
+	if (shooterInfo->idNumber == 149)
+	{
+		int creID = CGI->creh->factionToTurretCreature[owner->siegeH->town->town->typeID];
+		shooterInfo = CGI->creh->creatures[creID];
+	}
+	
 	SProjectileInfo spi;
 	spi.creID = shooter->getCreature()->idNumber;
+	spi.stackID = shooter->ID;
 	spi.reverse = !shooter->attackerOwned;
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	if(vstd::contains(CGI->creh->idToProjectileSpin, spi.creID))
-		spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
+	if(vstd::contains(CGI->creh->idToProjectileSpin, shooterInfo->idNumber))
+		spi.spin = CGI->creh->idToProjectileSpin[shooterInfo->idNumber];
 	else
 	{
-		tlog2 << "Warning - no projectile spin for spi.creID " << spi.creID << std::endl;
+		tlog2 << "Warning - no projectile spin for spi.creID " << shooterInfo->idNumber << std::endl;
 		spi.spin = false;
 	}
 
@@ -1007,26 +1019,35 @@ bool CShootingAnim::init()
 	}
 	destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
 
-	if(projectileAngle > straightAngle) //upper shot
+	// The "master" point where all projectile positions relate to.
+	static const Point projectileOrigin(181, 252);
+
+	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
+	if (projectileAngle > straightAngle)
 	{
-		spi.x = xycoord.x + 200 + shooter->getCreature()->upperRightMissleOffsetX;
-		spi.y = xycoord.y + 100 - shooter->getCreature()->upperRightMissleOffsetY;
+		//upper shot
+		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->upperRightMissleOffsetX;
+		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->upperRightMissleOffsetY;
 	}
-	else if(projectileAngle < -straightAngle) //lower shot
+	else if (projectileAngle < -straightAngle) 
 	{
-		spi.x = xycoord.x + 200 + shooter->getCreature()->lowerRightMissleOffsetX;
-		spi.y = xycoord.y + 150 - shooter->getCreature()->lowerRightMissleOffsetY;
+		//lower shot
+		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->lowerRightMissleOffsetX;
+		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->lowerRightMissleOffsetY;
 	}
-	else //straight shot
+	else 
 	{
-		spi.x = xycoord.x + 200 + shooter->getCreature()->rightMissleOffsetX;
-		spi.y = xycoord.y + 125 - shooter->getCreature()->rightMissleOffsetY;
+		//straight shot
+		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX;
+		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY;
 	}
+	
 	spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / 40;
 	if(spi.lastStep == 0)
 		spi.lastStep = 1;
 	spi.dx = (destcoord.x - spi.x) / spi.lastStep;
 	spi.dy = (destcoord.y - spi.y) / spi.lastStep;
+	
 	//set starting frame
 	if(spi.spin)
 	{
@@ -1036,8 +1057,9 @@ bool CShootingAnim::init()
 	{
 		spi.frameNum = ((M_PI/2.0f - projectileAngle) / (2.0f *M_PI) + 1/((float)(2*(owner->idToProjectile[spi.creID]->ourImages.size()-1)))) * (owner->idToProjectile[spi.creID]->ourImages.size()-1);
 	}
-	//set delay
-	spi.animStartDelay = CGI->creh->creatures[spi.creID]->attackClimaxFrame;
+
+	// Set projectile animation start delay which is specified in frames
+	spi.animStartDelay = shooterInfo->attackClimaxFrame;
 	owner->projectiles.push_back(spi);
 
 	//attack animation
@@ -1545,7 +1567,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			//print shade
 			if(spellToCast) //when casting spell
 			{
-				//calculating spell schoold level
+				//calculating spell school level
 				const CSpell & spToCast =  *CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 schoolLevel = 0;
 				if( activeStack->attackerOwned )
@@ -1600,7 +1622,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//double loop because dead stacks should be printed first
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		if(creAnims.find(s->ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 		if(creAnims[s->ID]->getType() != 5 && s->position >= 0) //don't show turrets here
 			stackAliveByHex[s->position].push_back(s);
@@ -1608,7 +1630,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::vector<const CStack *> stackDeadByHex[BFIELD_SIZE];
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		if(creAnims.find(s->ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 		if(creAnims[s->ID]->getType() == 5)
 			stackDeadByHex[s->position].push_back(s);
@@ -1752,7 +1774,8 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//units shown
 
-	projectileShowHelper(to);//showing projectiles
+	// Show projectiles
+	projectileShowHelper(to);
 
 	//showing spell effects
 	if(battleEffects.size())
@@ -2381,7 +2404,7 @@ void CBattleInterface::newStack(const CStack * stack)
 		const CCreature & turretCreature = *CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
 		creAnims[stack->ID] = new CCreatureAnimation(turretCreature.animDefName);	
 
-		// Remarks: Turret positions are read out of the /config/wall_pos.txt
+		// Turret positions are read out of the /config/wall_pos.txt
 		int posID = 0;
 		switch (stack->position)
 		{
@@ -3523,11 +3546,15 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 	std::list< std::list<SProjectileInfo>::iterator > toBeDeleted;
 	for(std::list<SProjectileInfo>::iterator it=projectiles.begin(); it!=projectiles.end(); ++it)
 	{
-		if(it->animStartDelay>0)
-		{
-			--(it->animStartDelay);
-			continue;
-		}
+		// Creature have to be in a shooting anim and the anim start delay must be over.
+		// Otherwise abort to start moving the projectile.
+		if (it->animStartDelay > 0)
+			if(it->animStartDelay == creAnims[it->stackID]->getAnimationFrame() + 1
+					&& creAnims[it->stackID]->getType() >= 14 && creAnims[it->stackID]->getType() <= 16)
+				it->animStartDelay = 0;
+			else
+				continue;
+
 		SDL_Rect dst;
 		dst.h = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->h;
 		dst.w = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->w;
@@ -3543,6 +3570,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		{
 			CSDL_Ext::blit8bppAlphaTo24bpp(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap, NULL, to, &dst);
 		}
+
 		//actualizing projectile
 		++it->step;
 		if(it->step == it->lastStep)
@@ -3941,11 +3969,11 @@ Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const
 		{
 			if(attacker)
 			{
-				ret.x -= 42;
+				ret.x -= 44;
 			}
 			else
 			{
-				ret.x += 42;
+				ret.x += 45;
 			}
 		}
 	}
