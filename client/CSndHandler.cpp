@@ -148,6 +148,11 @@ CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
 
 CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname) 
 {
+	if(mfile->size() < 48)
+	{
+		tlog1 << fname << " doesn't contain needed data!\n";
+		return;
+	}
 	const unsigned char *data = (const unsigned char *)mfile->data();
 	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
 	struct videoEntry *ve = (struct videoEntry *)&data[4];
