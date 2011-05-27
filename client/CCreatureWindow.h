@@ -45,7 +45,7 @@ public:
 	CSlider * slider; //Abilities
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	AdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
-	//TODO: Arifact drop
+	//TODO: Artifact drop
 
 	boost::function<void()> dsm; //dismiss button callback
 	boost::function<void()> Upg; //upgrade button callback

@@ -50,7 +50,7 @@ bool CGeniusAI::AIObjectContainer::operator<(const AIObjectContainer& b) const
 
 CGeniusAI::HypotheticalGameState::HeroModel::HeroModel(
     const CGHeroInstance* h)
-    : h(h), finished(false)
+    : finished(false), h(h)
 {
 	pos = h->getPosition(false);
   remainingMovement = h->movement;
@@ -140,7 +140,7 @@ CGeniusAI::HeroObjective::HeroObjective(const HypotheticalGameState &hgs,
                                         const CGObjectInstance* object,
                                         HypotheticalGameState::HeroModel* h,
                                         CGeniusAI* ai)
-                                        : object(object), hgs(hgs)
+	: hgs(hgs), object(object)
 {
 	AI = ai;
 	pos = object->pos;
@@ -262,7 +262,7 @@ CGeniusAI::TownObjective::TownObjective(
     HypotheticalGameState::TownModel* tn,
     int Which,
     CGeniusAI * ai)
-    : whichTown(tn), which(Which), hgs(hgs)
+    : hgs(hgs), whichTown(tn), which(Which)
 {
 	AI = ai;
 	type = t;

@@ -688,7 +688,7 @@ struct HEPerformer;
 template<int opcode>
 struct HE_BPerformer : StandardBodyOptionItemVisitor<HEPerformer>
 {
-	explicit HE_BPerformer(HEPerformer & _owner) : StandardBodyOptionItemVisitor(_owner)
+	explicit HE_BPerformer(HEPerformer & _owner) : StandardBodyOptionItemVisitor<HEPerformer>(_owner)
 	{}
 	using StandardBodyOptionItemVisitor<HEPerformer>::operator();
 
@@ -703,15 +703,9 @@ void HE_BPerformer<opcode>::operator()( TIexp const& cmp ) const
 }
 
 template<int opcode>
-void HE_BPerformer<opcode>::operator()( TVarpExp const& cmp ) const
-{
-	erm->getIexp(cmp).setTo(owner.identifier->name);
-}
-
-template<int opcode>
 struct HE_CPerformer : StandardBodyOptionItemVisitor<HEPerformer>
 {
-	explicit HE_CPerformer(HEPerformer & _owner) : StandardBodyOptionItemVisitor(_owner)
+	explicit HE_CPerformer(HEPerformer & _owner) : StandardBodyOptionItemVisitor<HEPerformer>(_owner)
 	{}
 	using StandardBodyOptionItemVisitor<HEPerformer>::operator();
 
@@ -725,16 +719,9 @@ void HE_CPerformer<opcode>::operator()( TIexp const& cmp ) const
 	throw EScriptExecError("Setting hero army is not implemented!");
 }
 
-template<int opcode>
-void HE_CPerformer<opcode>::operator()( TVarpExp const& cmp ) const
-{
-	erm->getIexp(cmp).setTo(owner.identifier->name);
-}
-
-
 struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 {
-	HEPerformer(ERMInterpreter * _interpr, const CGHeroInstance * hero) : StandardReceiverVisitor(_interpr, hero)
+	HEPerformer(ERMInterpreter * _interpr, const CGHeroInstance * hero) : StandardReceiverVisitor<const CGHeroInstance *>(_interpr, hero)
 	{}
 	using StandardReceiverVisitor<const CGHeroInstance *>::operator();
 
@@ -788,6 +775,17 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 
 };
 
+template<int opcode>
+void HE_BPerformer<opcode>::operator()( TVarpExp const& cmp ) const
+{
+	erm->getIexp(cmp).setTo(owner.identifier->name);
+}
+
+template<int opcode>
+void HE_CPerformer<opcode>::operator()( TVarpExp const& cmp ) const
+{
+	erm->getIexp(cmp).setTo(owner.identifier->name);
+}
 
 ////MA
 struct MAPerformer;
@@ -802,7 +800,7 @@ struct MA_PPerformer : StandardBodyOptionItemVisitor<MAPerformer>
 
 struct MAPerformer : StandardReceiverVisitor<TUnusedType>
 {
-	MAPerformer(ERMInterpreter * _interpr) : StandardReceiverVisitor(_interpr, 0)
+	MAPerformer(ERMInterpreter * _interpr) : StandardReceiverVisitor<TUnusedType>(_interpr, 0)
 	{}
 	using StandardReceiverVisitor<TUnusedType>::operator();
 
@@ -841,7 +839,7 @@ void MA_PPerformer::operator()( TVarpExp const& cmp ) const
 struct MOPerformer;
 struct MO_GPerformer : StandardBodyOptionItemVisitor<MOPerformer>
 {
-	explicit MO_GPerformer(MOPerformer & _owner) : StandardBodyOptionItemVisitor(_owner)
+	explicit MO_GPerformer(MOPerformer & _owner) : StandardBodyOptionItemVisitor<MOPerformer>(_owner)
 	{}
 	using StandardBodyOptionItemVisitor<MOPerformer>::operator();
 
@@ -851,7 +849,7 @@ struct MO_GPerformer : StandardBodyOptionItemVisitor<MOPerformer>
 
 struct MOPerformer: StandardReceiverVisitor<int3>
 {
-	MOPerformer(ERMInterpreter * _interpr, int3 pos) : StandardReceiverVisitor(_interpr, pos)
+	MOPerformer(ERMInterpreter * _interpr, int3 pos) : StandardReceiverVisitor<int3>(_interpr, pos)
 	{}
 	using StandardReceiverVisitor<int3>::operator();
 
@@ -887,7 +885,7 @@ struct ConditionDisemboweler;
 struct OBPerformer;
 struct OB_UPerformer : StandardBodyOptionItemVisitor<OBPerformer>
 {
-	explicit OB_UPerformer(OBPerformer & owner) : StandardBodyOptionItemVisitor(owner)
+	explicit OB_UPerformer(OBPerformer & owner) : StandardBodyOptionItemVisitor<OBPerformer>(owner)
 	{}
 	using StandardBodyOptionItemVisitor<OBPerformer>::operator();
 
@@ -897,7 +895,7 @@ struct OB_UPerformer : StandardBodyOptionItemVisitor<OBPerformer>
 
 struct OBPerformer : StandardReceiverVisitor<int3>
 {
-	OBPerformer(ERMInterpreter * _interpr, int3 objPos) : StandardReceiverVisitor(_interpr, objPos)
+	OBPerformer(ERMInterpreter * _interpr, int3 objPos) : StandardReceiverVisitor<int3>(_interpr, objPos)
 	{}
 	using StandardReceiverVisitor<int3>::operator(); //it removes compilation error... not sure why it *must* be here
 	void operator()(TNormalBodyOption const& trig) const
@@ -986,7 +984,7 @@ struct VR_SPerformer : StandardBodyOptionItemVisitor<VRPerformer>
 
 struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 {
-	VRPerformer(ERMInterpreter * _interpr, IexpValStr ident) : StandardReceiverVisitor(_interpr, ident)
+	VRPerformer(ERMInterpreter * _interpr, IexpValStr ident) : StandardReceiverVisitor<IexpValStr>(_interpr, ident)
 	{}
 
 	void operator()(TVRLogic const& trig) const OVERRIDE
@@ -1085,7 +1083,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 };
 
 
-VR_SPerformer::VR_SPerformer(VRPerformer & _owner) : StandardBodyOptionItemVisitor(_owner)
+VR_SPerformer::VR_SPerformer(VRPerformer & _owner) : StandardBodyOptionItemVisitor<VRPerformer>(_owner)
 {}
 
 void VR_SPerformer::operator()(ERM::TIexp const& trig) const
@@ -1535,8 +1533,8 @@ namespace IexpDisemboweler
 
 struct LVL2IexpDisemboweler : boost::static_visitor<IexpValStr>
 {
-	IexpDisemboweler::EDir dir;
 	/*const*/ ERMInterpreter * env;
+	IexpDisemboweler::EDir dir;
 
 	LVL2IexpDisemboweler(/*const*/ ERMInterpreter * _env, IexpDisemboweler::EDir _dir)
 		: env(_env), dir(_dir) //writes value to given var
@@ -1564,8 +1562,8 @@ struct LVL2IexpDisemboweler : boost::static_visitor<IexpValStr>
 
 struct LVL1IexpDisemboweler : boost::static_visitor<IexpValStr>
 {
-	IexpDisemboweler::EDir dir;
 	/*const*/ ERMInterpreter * env;
+	IexpDisemboweler::EDir dir;
 
 	LVL1IexpDisemboweler(/*const*/ ERMInterpreter * _env, IexpDisemboweler::EDir _dir)
 		: env(_env), dir(_dir) //writes value to given var
@@ -1619,7 +1617,7 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TVarpExp & tid ) const
 
 struct LVL3BodyOptionItemVisitor : StandardBodyOptionItemVisitor<IexpValStr>
 {
-	explicit LVL3BodyOptionItemVisitor(IexpValStr & _owner) : StandardBodyOptionItemVisitor(_owner)
+	explicit LVL3BodyOptionItemVisitor(IexpValStr & _owner) : StandardBodyOptionItemVisitor<IexpValStr>(_owner)
 	{}
 	using StandardBodyOptionItemVisitor<IexpValStr>::operator();
 

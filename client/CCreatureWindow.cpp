@@ -72,7 +72,7 @@ CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount)
 }
 
 CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
-	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
+	: type(Type), dismiss(0), upgrade(0), ok(0), dsm(Dsm)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	init(&st, &st,dynamic_cast<const CGHeroInstance*>(st.armyObj));
