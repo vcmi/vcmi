@@ -551,6 +551,6 @@ public:
 		if(obj)
 			return obj;
 		else
-			throw EScriptExecError("Wrong cast attempted, object is not of a desired type!");
+			throw VERMInterpreter::EScriptExecError("Wrong cast attempted, object is not of a desired type!");
 	}
 };

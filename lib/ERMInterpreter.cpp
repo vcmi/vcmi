@@ -653,7 +653,7 @@ struct StandardReceiverVisitor : boost::static_visitor<>
 		{
 			ERM::TBodyOptionItem boi = params[0];
 			boost::apply_visitor(
-				OptionPerformer(*const_cast<OptionPerformer::TReceiverType*>(static_cast<const OptionPerformer::TReceiverType*>(this))), boi);
+				OptionPerformer(*const_cast<typename OptionPerformer::TReceiverType*>(static_cast<const typename OptionPerformer::TReceiverType*>(this))), boi);
 		}
 		else
 			throw EScriptExecError("This receiver option takes exactly 1 parameter!");
@@ -671,7 +671,7 @@ struct StandardReceiverVisitor : boost::static_visitor<>
 			{
 			case 0:
 				boost::apply_visitor(
-					OptionPerformer<0>(*const_cast<OptionPerformer<0>::TReceiverType*>(static_cast<const OptionPerformer<0>::TReceiverType*>(this))), boi);
+					OptionPerformer<0>(*const_cast<typename OptionPerformer<0>::TReceiverType*>(static_cast<const typename OptionPerformer<0>::TReceiverType*>(this))), boi);
 				break;
 			default:
 				throw EScriptExecError("Wrong number of option code!");
