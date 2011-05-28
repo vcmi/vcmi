@@ -476,6 +476,8 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 			cre->notGrowingTeam = cre->neverFlees = 0;
 			cre->character = 2;
 			cre->gainedArtifact = -1;
+			cre->identifier = -1;
+			cre->addToSlot(0, new CStackInstance(-1, -1)); //add placeholder stack
 		}
 		break;
 	default:

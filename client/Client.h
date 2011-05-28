@@ -106,7 +106,6 @@ public:
 	void setBlockVis(int objid, bool bv) OVERRIDE {};
 	void setOwner(int objid, ui8 owner) OVERRIDE {};
 	void setHoverName(int objid, MetaString * name) OVERRIDE {};
-	void setObjProperty(int objid, int prop, si64 val) OVERRIDE {};
 	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE {};
 	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};

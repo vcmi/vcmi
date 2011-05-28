@@ -271,8 +271,18 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		case COLOR:
 			vec = &VLC->generaltexth->capColors;
 			break;
+		default:
+			tlog1 << "Failed string substitution because type is " << type << std::endl;
+			dst = "#@#";
+			return;
 		}
-		dst = (*vec)[ser];
+		if(vec->size() <= ser)
+		{
+			tlog1 << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!\n";
+			dst = "#!#";
+		}
+		else
+			dst = (*vec)[ser];
 	}
 }
 

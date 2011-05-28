@@ -55,6 +55,8 @@ class CCreatureSet;
 class CCreature;
 class CStackBasicDescriptor;
 class TeamState;
+class CGCreature;
+
 
 typedef std::vector<const CStack*> TStacks;
 
@@ -246,6 +248,7 @@ public:
 	virtual void commitPackage(CPackForClient *pack) = 0;
 
 	virtual void showInfoDialog(InfoWindow *iw);
+	virtual void setObjProperty(int objid, int prop, si64 val);
 };
 
 class DLL_EXPORT IGameEventCallback : public IGameEventRealizer
@@ -256,7 +259,6 @@ public:
 	virtual void setBlockVis(int objid, bool bv)=0;
 	virtual void setOwner(int objid, ui8 owner)=0;
 	virtual void setHoverName(int objid, MetaString * name)=0;
-	virtual void setObjProperty(int objid, int prop, si64 val)=0;
 	virtual void changePrimSkill(int ID, int which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(int ID, int which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
@@ -306,7 +308,8 @@ public:
 	virtual ~IGameCallback(){};
 
 	//do sth
-
+	const CGObjectInstance *putNewObject(int ID, int subID, int3 pos);
+	const CGCreature *putNewMonster(int creID, int count, int3 pos);
 
 	friend struct CPack;
 	friend struct CPackForClient;

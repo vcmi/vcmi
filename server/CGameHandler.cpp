@@ -811,7 +811,6 @@ void CGameHandler::newTurn()
 
 	if (getDate(1) == 7 && getDate(0)>1) //new week (day numbers are confusing, as day was not yet switched)
 	{
-		int monsterid;
 		int monthType = rand()%100;
 		if(getDate(4) == 28) //new month
 		{
@@ -843,7 +842,7 @@ void CGameHandler::newTurn()
 			{
 				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
 				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				monsterid = newMonster.second;
+				n.creatureid = newMonster.second;
 			}
 			else
 				n.specialWeek = NewTurn::NORMAL;
@@ -1006,11 +1005,7 @@ void CGameHandler::newTurn()
 			for (int i = 0; i < amount; ++i)
 			{
 				tile = tiles.begin();
-				NewObject no;
-				no.ID = 54; //creature
-				no.subID= n.creatureid;
-				no.pos = *tile;
-				sendAndApply(&no);
+				putNewMonster(n.creatureid, VLC->creh->creatures[n.creatureid]->getRandomAmount(std::rand), *tile);
 				tiles.erase(tile); //not use it again
 			}
 		}
@@ -1702,15 +1697,6 @@ void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spell
 	cs.spells = spells;
 	cs.learn = give;
 	sendAndApply(&cs);
-}
-
-void CGameHandler::setObjProperty( int objid, int prop, si64 val )
-{
-	SetObjectProperty sob;
-	sob.id = objid;
-	sob.what = prop;
-	sob.val = val;
-	sendAndApply(&sob);
 }
 
 void CGameHandler::sendMessageTo( CConnection &c, const std::string &message )

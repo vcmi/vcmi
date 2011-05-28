@@ -3008,23 +3008,23 @@ void CGCreature::newTurn() const
 	if (stacks.begin()->second->count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
 		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
-		cb->setObjProperty(id, 10, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
-		cb->setObjProperty(id, 11, power); //increase temppower
+		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
+		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 	}
 	if (STACK_EXP)
-		cb->setObjProperty(id, 12, 10000); //for testing purpose
+		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, 10000); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
-		case 10:
+		case ObjProperty::MONSTER_COUNT:
 			stacks[0]->count = val;
 			break;
-		case 11:
+		case ObjProperty::MONSTER_POWER:
 			temppower = val;
 			break;
-		case 12:
+		case ObjProperty::MONSTER_EXP:
 			giveStackExp(val);
 			break;
 		case 13:

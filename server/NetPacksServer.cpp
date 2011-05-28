@@ -13,7 +13,14 @@
 #define ERROR_AND_RETURN	do {if(c) *c << &SystemMessage("You are not allowed to perform this action!");	\
 							tlog1<<"Player is not allowed to perform this action!\n";	\
 							return false;} while(0)
-#define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
+
+#define WRONG_PLAYER_MSG(expectedplayer) do {std::ostringstream oss;\
+			oss << "You were identified as player " << (int)gh->getPlayerAt(c) << " while expecting " << (int)expectedplayer;\
+			tlog1 << oss.str() << std::endl; \
+			if(c) *c << &SystemMessage(oss.str());} while(0)
+
+#define ERROR_IF_NOT_OWNS(id)	do{if(!PLAYER_OWNS(id)){WRONG_PLAYER_MSG(gh->getOwner(id)); ERROR_AND_RETURN; }}while(0)
+#define ERROR_IF_NOT(player)	do{if(player != gh->getPlayerAt(c)){WRONG_PLAYER_MSG(player); ERROR_AND_RETURN; }}while(0)
 #define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN; }
 
 /*
@@ -54,8 +61,7 @@ bool CloseServer::applyGh( CGameHandler *gh )
 
 bool EndTurn::applyGh( CGameHandler *gh )
 {
-	if(gh->getPlayerAt(c) != GS(gh)->currentPlayer)
-		ERROR_AND_RETURN;
+	ERROR_IF_NOT(GS(gh)->currentPlayer);
 	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
 	return true;
 }
@@ -153,8 +159,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
 		COMPLAIN_AND_RETURN("This hero can't use this marketplace!");
 
-	if(gh->getPlayerAt(c) != player) 
-		ERROR_AND_RETURN;
+	ERROR_IF_NOT(player);
 
 	switch(mode)
 	{
@@ -255,6 +260,7 @@ bool CastAdvSpell::applyGh( CGameHandler *gh )
 
 bool PlayerMessage::applyGh( CGameHandler *gh )
 {
+	ERROR_IF_NOT(player);
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
 	gh->playerMessage(player,text);
 	return true;
@@ -262,8 +268,12 @@ bool PlayerMessage::applyGh( CGameHandler *gh )
 
 bool SetSelection::applyGh( CGameHandler *gh )
 {
-	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
-	if(!gh->getObj(id)) ERROR_AND_RETURN;
+	ERROR_IF_NOT(player);
+	if(!gh->getObj(id))
+	{
+		tlog1 << "No such object...\n";
+		ERROR_AND_RETURN;
+	}
 	gh->sendAndApply(this);
 	return true;
 }

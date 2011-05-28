@@ -677,14 +677,18 @@ struct OpenWindow : public CPackForClient //517
 
 struct NewObject  : public CPackForClient //518
 {
-	NewObject(){type = 518;};
+	NewObject()
+	{
+		type = 518;
+		id = -1;
+	}
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 ID, subID;
 	int3 pos;
 
-	int id; //used internally
+	int id; //used locally, filled during applyGs
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1022,7 +1026,8 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 namespace ObjProperty
 {
 	//TODO: move non general properties out to the appropriate objs classes
-	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8};
+	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
+		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12};
 }
 
 struct SetObjectProperty : public CPackForClient//1001

@@ -509,7 +509,10 @@ void CStackInstance::giveStackExp(expType exp)
 
 void CStackInstance::setType(int creID)
 {
-	setType(VLC->creh->creatures[creID]);
+	if(creID >= 0 && creID < VLC->creh->creatures.size())
+		setType(VLC->creh->creatures[creID]);
+	else
+		setType(NULL);
 }
 
 void CStackInstance::setType(const CCreature *c)
