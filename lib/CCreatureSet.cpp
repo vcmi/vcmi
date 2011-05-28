@@ -512,7 +512,7 @@ void CStackInstance::setType(int creID)
 	if(creID >= 0 && creID < VLC->creh->creatures.size())
 		setType(VLC->creh->creatures[creID]);
 	else
-		setType(NULL);
+		setType((const CCreature*)NULL);
 }
 
 void CStackInstance::setType(const CCreature *c)
