@@ -720,6 +720,10 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			{
 				case 62: //Blind
 					fileName = "E_SPBLIND.bmp"; break;
+				case 35: // Dispell
+					fileName = "E_SPDISP.bmp"; break;
+				case 78: // Dispell beneficial spells
+					fileName = "E_SPDISB.bmp"; break;
 				case 60: //Hypnotize
 					fileName = "E_SPHYPN.bmp"; break;
 				case 18: //Implosion
@@ -734,6 +738,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 					fileName = "E_SPSLOW.bmp"; break;
 				//TODO: some generic spell handling?
 			}
+			break;
 		}
 			//"E_SPAWILL.bmp"
 		case Bonus::DIRECT_DAMAGE_IMMUNITY:

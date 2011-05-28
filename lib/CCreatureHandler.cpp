@@ -926,6 +926,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = 23;
 				break;
+			case 'N': //dispell beneficial spells
+				b.type = Bonus::SPELL_IMMUNITY;
+				b.subtype = 78;
+				break;
 			case 'R': //Armageddon
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = 26;
