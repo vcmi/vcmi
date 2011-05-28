@@ -1118,9 +1118,9 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL), siegeH(NULL),
-	  attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
-	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL), tacticianInterface(NULL)
+	  currentlyHoveredHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), spellToCast(NULL),
+	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
+	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
 {
 	ObjectConstruction h__l__p(this);
 
@@ -2523,9 +2523,9 @@ void CBattleInterface::newRoundFirst( int round )
 {
 	//handle regeneration
 	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //gets only alive stacks
-	BOOST_FOREACH(const CStack *s, stacks)
-	{
-	}
+//	BOOST_FOREACH(const CStack *s, stacks)
+//	{
+//	}
 	waitForAnims();
 }
 
@@ -3549,11 +3549,13 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		// Creature have to be in a shooting anim and the anim start delay must be over.
 		// Otherwise abort to start moving the projectile.
 		if (it->animStartDelay > 0)
+		{
 			if(it->animStartDelay == creAnims[it->stackID]->getAnimationFrame() + 1
 					&& creAnims[it->stackID]->getType() >= 14 && creAnims[it->stackID]->getType() <= 16)
 				it->animStartDelay = 0;
 			else
 				continue;
+		}
 
 		SDL_Rect dst;
 		dst.h = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->h;
@@ -4372,10 +4374,10 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->select(owner->getAnimSpeed(), 1);
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
-	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[392].first, CGI->generaltexth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
+	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[393], boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
 	setToDefault->swappedImages = true;
 	setToDefault->update();
-	exit = new AdventureMapButton (CGI->generaltexth->zelp[393].first, CGI->generaltexth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
+	exit = new AdventureMapButton (CGI->generaltexth->zelp[392], boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
 	exit->swappedImages = true;
 	exit->update();
 

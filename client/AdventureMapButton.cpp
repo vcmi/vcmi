@@ -47,7 +47,11 @@ void CButtonBase::update()
 		else
 			text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
 	}
+	
 	size_t newPos = (int)state + bitmapOffset;
+	if (state == HIGHLIGHTED && image->size() < 4)
+		newPos = image->size()-1;
+
 	if (swappedImages)
 	{
 		     if (newPos == 0) newPos = 1;
@@ -55,7 +59,9 @@ void CButtonBase::update()
 	}
 
 	if (!keepFrame)
+	{
 		image->setFrame(newPos);
+	}
 	
 	if (active)
 	{
@@ -277,6 +283,7 @@ void AdventureMapButton::showAll(SDL_Surface *to)
 
 void CHighlightableButton::select(bool on)
 {
+	selected = on;
 	if (on)
 	{
 		setState(HIGHLIGHTED);
@@ -311,7 +318,7 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 	if(previousState  &&  down == false && getState() == PRESSED)
 	{
 		//if(!onlyOn || !isHighlighted())
-			select(!isHighlighted());
+			select(!selected);
 	}
 }
 

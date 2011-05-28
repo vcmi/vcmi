@@ -245,6 +245,9 @@ public:
 	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, unsigned char Flags=0);
 	~CAnimImage();//d-tor
 
+	//size of animation
+	size_t size();
+
 	//change displayed frame on this one
 	void setFrame(size_t Frame, size_t Group=0);
 

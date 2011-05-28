@@ -591,12 +591,18 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 	else
 	{
-		tlog0<<"Error: file not found: "<<filename<<"\n";
 		surf = NULL;
-		return;
 	}
-	fullSize.x = surf->w;
-	fullSize.y = surf->h;
+
+	if (surf == NULL)
+	{
+		tlog1 << "Error: failed to load image "<<filename<<"\n";
+	}
+	else
+	{
+		fullSize.x = surf->w;
+		fullSize.y = surf->h;
+	}
 }
 
 void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
@@ -1158,6 +1164,11 @@ CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int 
 	pos.x += x;
 	pos.y += y;
 	init();
+}
+
+size_t CAnimImage::size()
+{
+	return anim->size(group);
 }
 
 void CAnimImage::init()
