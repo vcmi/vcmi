@@ -2304,3 +2304,145 @@ const CGObjectInstance * ERMInterpreter::getObjFrom( int3 pos )
 		throw EScriptExecError("Attempt to obtain access to nonexistent object!");
 	return objs.back();
 }
+
+namespace VERMInterpreter
+{
+	VOption convertToVOption(const ERM::TVOption & tvo)
+	{
+		return boost::apply_visitor(OptionConverterVisitor(), tvo);
+	}
+
+	VNode::VNode( const ERM::TVExp & exp )
+	{
+		for(int i=0; i<exp.children.size(); ++i)
+		{
+			children.elements.push_back(convertToVOption(exp.children[i]));
+		}
+		processModifierList(exp.modifier);
+	}
+
+	VNode::VNode( const VOption & first, const VOptionList & rest ) /*merges given arguments into [a, rest] */
+	{
+		setVnode(first, rest);
+	}
+
+	VNode::VNode( const VOptionList & cdren ) : children(cdren)
+	{}
+
+	VNode::VNode( const ERM::TSymbol & sym )
+	{
+		children.car() = OptionConverterVisitor()(sym);
+		processModifierList(sym.symModifier);
+	}
+
+	void VNode::setVnode( const VOption & first, const VOptionList & rest )
+	{
+		children.car() = first;
+		children.cdr() = rest;
+	}
+
+	void VNode::processModifierList( const std::vector<TVModifier> & modifierList )
+	{
+		for(int g=0; g<modifierList.size(); ++g)
+		{
+			children.cdr() = VNode(children);
+			if(modifierList[g] == "`")
+			{
+				children.car() = VSymbol("backquote");
+			}
+			else if(modifierList[g] == ",!")
+			{
+				children.car() = VSymbol("comma-unlist");
+			}
+			else if(modifierList[g] == ",")
+			{
+				children.car() = VSymbol("comma");
+			}
+			else if(modifierList[g] == "#'")
+			{
+				children.car() = VSymbol("get-func");
+			}
+			else if(modifierList[g] == "'")
+			{
+				children.car() = VSymbol("quote");
+			}
+			else
+				throw EInterpreterError("Incorrect value of modifier!");
+		}
+	}
+
+	VermTreeIterator & VermTreeIterator::operator=( const VOption & opt )
+	{
+		switch (state)
+		{
+		case CAR:
+			if(parent.elements.size() == 0)
+				parent.elements.push_back(opt);
+			else
+				parent.elements[0] = opt;
+			break;
+		case CDR:
+			parent.elements.resize(2);
+			parent.elements[1] = opt;
+			break;
+		default://should never happen
+			break;
+		}
+		return *this;
+	}
+
+	VermTreeIterator & VermTreeIterator::operator=( const std::vector<VOption> & opt )
+	{
+		switch (state)
+		{
+		case CAR:
+			//TODO: implement me
+			break;
+		case CDR:
+			parent.elements.resize(1);
+			parent.elements.insert(parent.elements.begin()+1, opt.begin(), opt.end());
+			break;
+		default://should never happen
+			break;
+		}
+		return *this;
+	}
+	VermTreeIterator & VermTreeIterator::operator=( const VOptionList & opt )
+	{
+		return *this = opt.elements;
+	}
+
+
+	VOption OptionConverterVisitor::operator()( ERM::TVExp const& cmd ) const
+	{
+		return VNode(cmd);
+	}
+	VOption OptionConverterVisitor::operator()( ERM::TSymbol const& cmd ) const
+	{
+		if(cmd.symModifier.size() == 0)
+			return VSymbol(cmd.sym);
+		else
+			return VNode(cmd);
+	}
+	VOption OptionConverterVisitor::operator()( char const& cmd ) const
+	{
+		return TLiteral(cmd);
+	}
+	VOption OptionConverterVisitor::operator()( double const& cmd ) const
+	{
+		return TLiteral(cmd);
+	}
+	VOption OptionConverterVisitor::operator()(int const& cmd) const
+	{
+		return TLiteral(cmd);
+	}
+	VOption OptionConverterVisitor::operator()(ERM::Tcommand const& cmd) const
+	{
+		return cmd;
+	}
+	VOption OptionConverterVisitor::operator()( ERM::TStringConstant const& cmd ) const
+	{
+		return TLiteral(cmd.str);
+	}
+
+}

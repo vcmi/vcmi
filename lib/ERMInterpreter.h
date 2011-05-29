@@ -295,6 +295,84 @@ namespace VERMInterpreter
 		{}
 	};
 
+
+	//verm goodies
+	struct VSymbol
+	{
+		std::string text;
+		VSymbol(const std::string & txt) : text(txt)
+		{}
+	};
+	typedef boost::variant<char, double, int, std::string> TLiteral;
+
+	struct VNIL
+	{};
+
+	struct VNode;
+	struct VOptionList;
+
+	typedef boost::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand> VOption; //options in v-expression, VNIl should be the default
+
+
+	struct VermTreeIterator
+	{
+	private:
+		friend struct VOptionList;
+		VOptionList & parent;
+		enum Estate {CAR, CDR} state;
+	public:
+		VermTreeIterator(VOptionList & _parent) : parent(_parent)
+		{}
+
+		VermTreeIterator & operator=(const VOption & opt);
+		VermTreeIterator & operator=(const std::vector<VOption> & opt);
+		VermTreeIterator & operator=(const VOptionList & opt);
+	};
+
+	struct VOptionList
+	{
+		std::vector<VOption> elements;
+		VermTreeIterator car()
+		{
+			VermTreeIterator ret(*this);
+			ret.state = VermTreeIterator::CAR;
+			return ret;
+		}
+		VermTreeIterator cdr()
+		{
+			VermTreeIterator ret(*this);
+			ret.state = VermTreeIterator::CDR;
+			return ret;
+		}
+		bool isNil() const
+		{
+			return elements.size() == 0;
+		}
+	};
+
+	struct OptionConverterVisitor : boost::static_visitor<VOption>
+	{
+		VOption operator()(ERM::TVExp const& cmd) const;
+		VOption operator()(ERM::TSymbol const& cmd) const;
+		VOption operator()(char const& cmd) const;
+		VOption operator()(double const& cmd) const;
+		VOption operator()(int const& cmd) const;
+		VOption operator()(ERM::Tcommand const& cmd) const;
+		VOption operator()(ERM::TStringConstant const& cmd) const;
+	};
+
+	struct VNode
+	{
+	private:
+		void processModifierList(const std::vector<TVModifier> & modifierList);
+	public:
+		VOptionList children;
+		VNode( const ERM::TVExp & exp);
+		VNode( const VOptionList & cdren );
+		VNode( const ERM::TSymbol & sym ); //only in case sym has modifiers!
+		VNode( const VOption & first, const VOptionList & rest); //merges given arguments into [a, rest];
+		void setVnode( const VOption & first, const VOptionList & rest);
+	};
 }
 
 class ERMInterpreter;
