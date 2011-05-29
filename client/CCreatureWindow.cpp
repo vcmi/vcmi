@@ -155,6 +155,17 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, stack->bonusToString(b, true), stack->bonusToGraphics(b)));
 		}
 	}
+	ui32 resistanceVal = stack->magicResistance(); //ugly solution
+	if (resistanceVal)
+	{
+		text = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE)->second.first;
+		std::string text2 = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE)->second.second;
+		boost::algorithm::replace_first(text2, "%d", boost::lexical_cast<std::string>( stack->magicResistance() ));
+		Bonus bonus;
+		bonus.type = Bonus::MAGIC_RESISTANCE;
+		std::string gfxName = stack->bonusToGraphics(&bonus);
+		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, text2, gfxName));
+	}
 
 	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (conf.cc.resy - 230) / 60);
 	amin(bonusRows, 4);

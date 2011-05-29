@@ -589,9 +589,9 @@ void CArtHandler::addBonuses()
 	giveArtBonus(55,Bonus::SECONDARY_SKILL_PREMY,+10, CGHeroInstance::NECROMANCY, Bonus::ADDITIVE_VALUE);//Vampire's Cowl
 	giveArtBonus(56,Bonus::SECONDARY_SKILL_PREMY,+15, CGHeroInstance::NECROMANCY, Bonus::ADDITIVE_VALUE);//Dead Man's Boots
 
-	giveArtBonus(57,Bonus::MAGIC_RESISTANCE,+5);//Garniture of Interference
-	giveArtBonus(58,Bonus::MAGIC_RESISTANCE,+10);//Surcoat of Counterpoise
-	giveArtBonus(59,Bonus::MAGIC_RESISTANCE,+15);//Boots of Polarity
+	giveArtBonus(57,Bonus::MAGIC_RESISTANCE,+5, 0);//Garniture of Interference
+	giveArtBonus(58,Bonus::MAGIC_RESISTANCE,+10, 0);//Surcoat of Counterpoise
+	giveArtBonus(59,Bonus::MAGIC_RESISTANCE,+15, 0);//Boots of Polarity
 
 	//archery bonus
 	giveArtBonus(60,Bonus::SECONDARY_SKILL_PREMY,+5, CGHeroInstance::ARCHERY, Bonus::ADDITIVE_VALUE);//Bow of Elven Cherrywood

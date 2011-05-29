@@ -320,6 +320,11 @@ int IBonusBearer::getPrimSkillLevel(int id) const
 	return ret;
 }
 
+si32 IBonusBearer::magicResistance() const
+{
+	return valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
+}
+
 Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 {
 	Bonus *ret = bonuses.getFirst(selector);

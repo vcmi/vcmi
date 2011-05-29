@@ -493,6 +493,18 @@ int CStackInstance::getExpRank() const
 	}
 }
 
+si32 CStackInstance::magicResistance() const
+{
+	si32 val = valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
+	if (const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
+	{
+		//resistance skill
+		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::RESISTANCE);
+	}
+	amin (val, 100);
+	return val;
+}
+
 void CStackInstance::giveStackExp(expType exp)
 {
 	int level = type->level;
@@ -574,8 +586,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::RECEPTIVE:
 				case Bonus::DIRECT_DAMAGE_IMMUNITY:
 				break;
-				//One numeric value
-				case Bonus::MAGIC_RESISTANCE:
+				//One numeric value. magic resistance handled separately
 				case Bonus::SPELL_RESISTANCE_AURA:
 				case Bonus::SPELL_DAMAGE_REDUCTION:
 				case Bonus::LEVEL_SPELL_IMMUNITY:
@@ -625,6 +636,9 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					break;
 				case Bonus::SPELL_IMMUNITY:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
+					break;
+				case Bonus::MAGIC_RESISTANCE: //handled separately
+					return "";
 					break;
 			}
 		}

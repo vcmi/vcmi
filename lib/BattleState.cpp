@@ -1905,14 +1905,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 		else
 			bonusHero = hero2;
 
-		int prob = (*it)->valOfBonuses(Bonus::MAGIC_RESISTANCE); //probability of resistance in %
-		if(bonusHero)
-		{
-			//bonusHero's resistance support (secondary skils and artifacts)
-			prob += bonusHero->valOfBonuses(Bonus::MAGIC_RESISTANCE);
-			//resistance skill
-			prob += bonusHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 26) / 100.0f;
-		}
+		int prob = (*it)->magicResistance(); //probability of resistance in %
 
 		if(prob > 100) prob = 100;
 
