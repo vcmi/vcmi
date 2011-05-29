@@ -2091,7 +2091,10 @@ void CGTownInstance::newTurn() const
 					int i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);
 					TCreature c = town->basicCreatures[i];
 					TSlot n = -1;
+					
 					TQuantity count = creatureGrowth(i);
+					if (!count) // no dwelling
+						count = VLC->creh->creatures[c]->growth;
 
 					{//no lower tiers or above current month
 
