@@ -81,8 +81,9 @@ public:
 	void applyOnGS(CGameState *gs, void *pack) const
 	{
 		T *ptr = static_cast<T*>(pack);
-		while(!gs->mx->try_lock())
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50)); //give other threads time to finish
+		gs->mx->lock();
+// 		while(!gs->mx->try_lock())
+// 			boost::this_thread::sleep(boost::posix_time::milliseconds(1)); //give other threads time to finish
 		ptr->applyGs(gs);
 		gs->mx->unlock();
 	}
@@ -1577,6 +1578,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			}
 		}
 	}
+
+
+	map->checkForObjectives(); //needs to be run when all objects are properly placed
 }
 
 int CGameState::battleGetBattlefieldType(int3 tile)
@@ -2002,7 +2006,6 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
 {
 	assert(hero);
-	boost::shared_lock<boost::shared_mutex> lock(*mx);
 	if(src.x < 0)
 		src = hero->getPosition(false);
 	if(movement < 0)

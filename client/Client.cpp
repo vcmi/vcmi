@@ -201,6 +201,10 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 {
 	// Game is ending
 	// Tell the network thread to reach a stable state
+	if(closeConnection)
+		stopConnection();
+	tlog0 << "Closed connection." << std::endl;
+
 	GH.curInt = NULL;
 	LOCPLINT->terminate_cond.setn(true);
 	LOCPLINT->pim->lock();
@@ -212,6 +216,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	GH.objsToBlit.clear();
 	GH.statusbar = NULL;
 	tlog0 << "Removed GUI." << std::endl;
+
 
 	delete CGI->mh;
 	const_cast<CGameInfo*>(CGI)->mh = NULL;
@@ -234,9 +239,6 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 		delete cb;
 	}
 	tlog0 << "Deleted playerInts." << std::endl;
-
-	if(closeConnection)
-		stopConnection();
 
 	tlog0 << "Client stopped." << std::endl;
 }

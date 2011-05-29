@@ -36,6 +36,9 @@ struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
 
+namespace boost
+{class shared_mutex;}
+
 class IBattleCallback
 {
 public:
@@ -105,12 +108,16 @@ class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback
 private:
 	CCallback(CGameState * GS, int Player, CClient *C);
 public:
-//client-specific functionalities (pathfinding)
+	//client-specific functionalities (pathfinding)
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //DEPRACATED!!!
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
 	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
+
+
+	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
+	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)

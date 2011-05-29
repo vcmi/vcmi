@@ -329,6 +329,8 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void addNewArtifactInstance(CArtifactInstance *art);
 	void eraseArtifactInstance(CArtifactInstance *art);
 
+
+	const CGObjectInstance *getObjectiveObjectFrom(int3 pos, bool lookForHero);
 	void checkForObjectives();
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);

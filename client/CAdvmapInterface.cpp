@@ -1092,6 +1092,8 @@ void CAdvMapInt::fnextHero()
 
 void CAdvMapInt::fendTurn()
 {
+	if(!LOCPLINT->makingTurn)
+		return;
 	if(LOCPLINT->cingconsole->active)
 		LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;

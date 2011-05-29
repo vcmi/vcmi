@@ -417,8 +417,6 @@ void Mapa::initFromBytes(const unsigned char * bufor)
 		addBlockVisTiles(objects[f]);
 	}
 	tlog0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
-
-	checkForObjectives();
 	tlog0 << "\tMap initialization done!" << std::endl;
 }	
 void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
@@ -2005,21 +2003,26 @@ bool Mapa::isWaterTile(const int3 &pos) const
 	return isInTheMap(pos) && getTile(pos).tertype == TerrainTile::water;
 }
 
+const CGObjectInstance *Mapa::getObjectiveObjectFrom(int3 pos, bool lookForHero)
+{
+	const std::vector <CGObjectInstance*> &objs = getTile(pos).visitableObjects;
+	assert(objs.size());
+	if(objs.size() > 1 && lookForHero && objs.front()->ID != HEROI_TYPE)
+	{
+		assert(objs.back()->ID == HEROI_TYPE);
+		return objs.back();
+	}
+	else
+		return objs.front();
+}
+
 void Mapa::checkForObjectives()
 {
 	if(isInTheMap(victoryCondition.pos))
-	{
-		const std::vector <CGObjectInstance*> &objs = getTile(victoryCondition.pos).visitableObjects;
-		assert(objs.size());
-		victoryCondition.obj = objs.front();
-	}
+		victoryCondition.obj = getObjectiveObjectFrom(victoryCondition.pos, victoryCondition.condition == beatHero);
 
 	if(isInTheMap(lossCondition.pos))
-	{
-		const std::vector <CGObjectInstance*> &objs = getTile(lossCondition.pos).visitableObjects;
-		assert(objs.size());
-		lossCondition.obj = objs.front();
-	}
+		lossCondition.obj = getObjectiveObjectFrom(lossCondition.pos, lossCondition.typeOfLossCon == lossHero);
 }
 
 void Mapa::addNewArtifactInstance( CArtifactInstance *art )
@@ -2038,9 +2041,18 @@ bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char *
 	if(isArt)
 	{
 		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= Arts::BACKPACK_START)
+		{
 			tlog3 << "Warning: A big artifact (war machine) in hero's backpack, ignoring...\n";
-		else
-			h->putArtifact(slot, createArt(aid));
+			return false;
+		}
+		if(aid == 0 && slot == Arts::MISC5)
+		{
+			//TODO: check how H3 handles it -> art 0 in slot 18 in AB map
+			tlog3 << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format " << (int)version << ")\n";
+			slot = Arts::SPELLBOOK;
+		}
+		
+		h->putArtifact(slot, createArt(aid));
 	}
 	return isArt;
 }

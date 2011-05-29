@@ -2434,9 +2434,8 @@ void CBattleInterface::newStack(const CStack * stack)
 	creDir[stack->ID] = stack->attackerOwned;
 }
 
-void CBattleInterface::stackRemoved(const CStack * stack)
+void CBattleInterface::stackRemoved(int stackID)
 {
-	int stackID = stack->ID;
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
 	creDir.erase(stackID);

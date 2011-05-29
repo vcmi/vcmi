@@ -27,7 +27,15 @@
 #include "../lib/BattleState.h"
 
 
-//macro to avoid code duplication - calls given method with given arguments if interface for specific player is present
+//macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
+//awaiting variadic templates...
+#define CALL_IN_PRIVILAGED_INTS(function, ...)										\
+	do																				\
+	{																				\
+		BOOST_FOREACH(IGameEventsReceiver *ger, cl->privilagedGameEventReceivers)	\
+			ger->function(__VA_ARGS__);												\
+	} while(0)
+
 #define CALL_ONLY_THAT_INTERFACE(player, function, ...)		\
 		do													\
 		{													\
@@ -35,17 +43,14 @@
 			cl->playerint[player]->function(__VA_ARGS__);	\
 		}while(0)											
 
-
-#define INTERFACE_CALL_IF_PRESENT(player,function,...) 		\
-		do													\
-		{													\
+#define INTERFACE_CALL_IF_PRESENT(player,function,...) 				\
+		do															\
+		{															\
 			CALL_ONLY_THAT_INTERFACE(player, function, __VA_ARGS__);\
-			BOOST_FOREACH(IGameEventsReceiver *ger, cl->privilagedGameEventReceivers)\
-				ger->function(__VA_ARGS__);					\
+			CALL_IN_PRIVILAGED_INTS(function, __VA_ARGS__);			\
 		} while(0)										
 
-
-#define CALL_ONLY_THT_BATTLE_INTERFACE(player,function,...) 	\
+#define CALL_ONLY_THT_BATTLE_INTERFACE(player,function, ...) 	\
 	do															\
 	{															\
 		if(vstd::contains(cl->battleints,player))				\
@@ -65,6 +70,16 @@
 		CALL_ONLY_THAT_INTERFACE(player, function, __VA_ARGS__);\
 		BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__);	\
 	} while(0)
+
+//calls all normal interfaces and privilaged ones, playerints may be updated when iterating over it, so we need a copy
+#define CALL_IN_ALL_INTERFACES(function, ...)							\
+	do																	\
+	{																	\
+		std::map<ui8, CGameInterface*> ints = cl->playerint;			\
+		for(std::map<ui8, CGameInterface*>::iterator i = ints.begin(); i != ints.end(); i++)\
+			CALL_ONLY_THAT_INTERFACE(i->first, function, __VA_ARGS__);	\
+	} while(0)
+
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
 	CALL_ONLY_THT_BATTLE_INTERFACE(GS(cl)->curB->sides[0], function, __VA_ARGS__)	\
@@ -263,12 +278,7 @@ void ChangeObjPos::applyCl( CClient *cl )
 
 void PlayerEndsGame::applyCl( CClient *cl )
 {
-	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
-		i->second->gameOver(player,	victory);
-
-
-// 	if(!CPlayerInterface::howManyPeople)
-// 		cl->terminate = true;
+	CALL_IN_ALL_INTERFACES(gameOver, player, victory);
 }
 
 void RemoveBonus::applyCl( CClient *cl )

@@ -650,7 +650,8 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
-		battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
+		battleInt->stackRemoved(*it);
+		//battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
 	}
 }
 
@@ -1045,11 +1046,15 @@ void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
+	if(!LOCPLINT->makingTurn)
+		return false;
 	if (!h)
 		return false; //can't find hero
 
+	//evil...
 	eventsM.unlock();
 	pim->unlock();
+	cb->getGsMutex().unlock_shared();
 	bool result = false;
 
 	{
@@ -1106,6 +1111,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		cb->recalculatePaths();
 	}
 
+	cb->getGsMutex().lock_shared();
 	pim->lock();
 	eventsM.lock();
 	return result;
@@ -1319,6 +1325,9 @@ void CPlayerInterface::update()
 	if(terminate_cond.get())
 		return;
 	
+	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
+	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+
 	//if there are any waiting dialogs, show them
 	if((howManyPeople <= 1 || makingTurn) && dialogs.size() && !showingDialog->get())
 	{
@@ -1834,6 +1843,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 			else
 				requestStoppingClient();
 		}
+		cb->unregisterMyInterface(); //we already won/lost, nothing else matters
 
 	}
 	else

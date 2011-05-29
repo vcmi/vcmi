@@ -769,6 +769,12 @@ static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
 {// bool forced = true - if creature should be replaced, if false - only if no creature was set
+	const PlayerState *p = gs->getPlayer(town->tempOwner);
+	if(!p)
+	{
+		tlog3 << "There is no player owner of town " << town->name << " at " << town->pos << std::endl;
+		return;
+	}
 
 	if (forced || town->creatures[CREATURES_PER_TOWN].second.empty())//we need to change creature
 		{
@@ -777,7 +783,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[CREATURES_PER_TOWN].second.clear();//remove old one
 			
-			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = gs->getPlayer(town->tempOwner)->dwellings;
+			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = p->dwellings;
 			if (dwellings.empty())//no dwellings - just remove
 			{
 				sendAndApply(&ssi);

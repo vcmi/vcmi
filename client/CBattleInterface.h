@@ -522,7 +522,7 @@ public:
 	//call-ins
 	void startAction(const BattleAction* action);
 	void newStack(const CStack * stack); //new stack appeared on battlefield
-	void stackRemoved(const CStack * stack); //stack disappeared from batlefiled
+	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
 	void stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void waitForAnims();

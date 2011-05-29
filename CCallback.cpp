@@ -259,7 +259,6 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 
 bool CCallback::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPath(src,dest,hero, ret);
 }
 
@@ -332,6 +331,20 @@ void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &p
 	cas.pos = pos;
 	sendRequest(&cas);
 }
+
+boost::shared_mutex& CCallback::getGsMutex()
+{
+	return *gs->mx;
+}
+
+void CCallback::unregisterMyInterface()
+{
+	assert(player >= 0); //works only for player callback
+	cl->playerint.erase(player);
+	cl->battleints.erase(player);
+	//TODO? should callback be disabled as well?
+}
+
 CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
 {
 	gs = GS;
