@@ -1329,7 +1329,10 @@ void CPlayerInterface::update()
 
 	//in some conditions we may receive calls before selection is initialized - we must ignore them
 	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
+	{
+		pim->unlock();
 		return;
+	}
 
 	// Handles mouse and key input
 	GH.updateTime();

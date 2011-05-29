@@ -525,8 +525,8 @@ void CStackInstance::setType(const CCreature *c)
 	}
 
 	type = c;
-
-	attachTo(const_cast<CCreature*>(type));
+	if(type)
+		attachTo(const_cast<CCreature*>(type));
 }
 std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 {
