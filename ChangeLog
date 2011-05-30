@@ -1,4 +1,4 @@
-0.84 -> 0.85
+0.84 -> 0.85 (Jun 01 2011)
 GENERAL:
 * Support for stack experience
 * Implemented original campaign selection screens
@@ -14,7 +14,7 @@ TOWNS:
 BATTLES:
 * Neutral monsters will be split into multiple stacks
 * Hero can surrender battle to keep army
-* Support for Death Stare, Support for Poison, Age, Disease, Acid Breath
+* Support for Death Stare, Support for Poison, Age, Disease, Acid Breath, Fire / Water / Earth / Air immunities and Receptiveness
 * Partial support for Stone Gaze, Paralyze, Mana drain
 
 
