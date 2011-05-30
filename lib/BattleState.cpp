@@ -769,7 +769,8 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const
 {
 	int owner = attackerOwned ? sides[0] : sides[1];
-	assert(owner >= PLAYER_LIMIT  ||  base.armyObj && base.armyObj->tempOwner == owner);
+	assert((owner >= PLAYER_LIMIT)  ||
+		   (base.armyObj && base.armyObj->tempOwner == owner));
 
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
@@ -1009,9 +1010,9 @@ void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, i
 	for(unsigned int i=0; i<stacks.size(); ++i)
 	{
 		const CStack * const s = stacks[i];
-		if(turn <= 0 && !s->willMove() //we are considering current round and stack won't move
-			|| turn > 0 && !s->canMove(turn) //stack won't be able to move in later rounds
-			|| turn <= 0 && s == active && out.size() && s == out.front()) //it's active stack already added at the beginning of queue
+		if((turn <= 0 && !s->willMove()) //we are considering current round and stack won't move
+		   || (turn > 0 && !s->canMove(turn)) //stack won't be able to move in later rounds
+		   || (turn <= 0 && s == active && out.size() && s == out.front())) //it's active stack already added at the beginning of queue
 		{
 			continue;
 		}

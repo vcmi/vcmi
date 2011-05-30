@@ -323,9 +323,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	for(std::map<int, PlayerSettings>::iterator it =si->playerInfos.begin(); 
 		it != si->playerInfos.end(); ++it)
 	{
-		if(networkMode == SINGLE												//single - one client has all player
-			|| networkMode != SINGLE && serv->connectionID == it->second.human	//multi - client has only "its players"
-			|| networkMode == HOST && it->second.human == false)				//multi - host has all AI players
+		if((networkMode == SINGLE)												//single - one client has all player
+		   || (networkMode != SINGLE && serv->connectionID == it->second.human)	//multi - client has only "its players"
+		   || (networkMode == HOST && it->second.human == false))				//multi - host has all AI players
 		{
 			myPlayers.insert(ui8(it->first)); //add player
 		}

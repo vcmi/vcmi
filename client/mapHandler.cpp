@@ -246,8 +246,8 @@ void CMapHandler::initObjectRects()
 	{
 		const CGObjectInstance *obj = map->objects[f];
 		if(	!obj
-			|| obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison //garrisoned hero
-			|| obj->ID==8 && static_cast<const CGBoat*>(obj)->hero //boat wih hero (hero graphics is used)
+			|| (obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat wih hero (hero graphics is used)
 			|| !obj->defInfo
 			|| !obj->defInfo->handler) //no graphic...
 		{
@@ -549,7 +549,7 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 					: static_cast<const CGHeroInstance*>(obj));
 
 				//print hero / boat and flag
-				if(themp && themp->moveDir && themp->type  ||  obj->ID == 8) //it's hero or boat
+				if((themp && themp->moveDir && themp->type) || (obj->ID == 8)) //it's hero or boat
 				{
 					const int IMGVAL = 8; //frames per group of movement animation
 					ui8 dir;

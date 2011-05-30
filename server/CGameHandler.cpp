@@ -1188,7 +1188,7 @@ void CGameHandler::run(bool resume)
 		resume = false;
 		for(; i != gs->players.end(); i++)
 		{
-			if(i->second.towns.size()==0 && i->second.heroes.size()==0
+			if((i->second.towns.size()==0 && i->second.heroes.size()==0)
 				|| i->second.color<0 
 				|| i->first>=PLAYER_LIMIT  
 				|| i->second.status) 
@@ -1325,7 +1325,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	bool blockvis = false;
 	const CGHeroInstance *h = getHero(hid);
 
-	if(!h  ||  asker != 255 && (instant  ||   h->getOwner() != gs->currentPlayer) //not turn of that hero or player can't simply teleport hero (at least not with this function)
+	if(!h  || (asker != 255 && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
 	  )
 	{
 		tlog1 << "Illegal call to move hero!\n";
@@ -3872,7 +3872,8 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 	{
 		boost::unique_lock<boost::recursive_mutex> lock(gsm);
 		for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
-			if(id1 == i->second.first && id2 == i->second.second   ||   id2 == i->second.first && id1 == i->second.second)
+			if((id1 == i->second.first && id2 == i->second.second) ||
+			   (id2 == i->second.first && id1 == i->second.second))
 				return true;
 	}
 
@@ -4646,14 +4647,14 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval/* = fal
 bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue /*= false*/)
 {
 	TQuantity currentCount = sl.army->getStackCount(sl.slot);
-	if(absoluteValue && count < 0
-		|| !absoluteValue && -count > currentCount)
+	if((absoluteValue && count < 0)
+		|| (!absoluteValue && -count > currentCount))
 	{
 		COMPLAIN_RET("Cannot take more stacks than present!");
 	}
 
-	if(currentCount == -count  &&  !absoluteValue
-		|| !count && absoluteValue)
+	if((currentCount == -count  &&  !absoluteValue)
+	   || (!count && absoluteValue))
 	{
 		eraseStack(sl);
 	}

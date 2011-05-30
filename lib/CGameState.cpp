@@ -347,7 +347,7 @@ DLL_EXPORT std::string MetaString::buildList () const
 	std::string lista;		
 	for (int i = 0; i < message.size(); ++i)
 	{
-		if (i > 0 && message[i] == TEXACT_STRING || message[i] == TLOCAL_STRING)
+		if (i > 0 && (message[i] == TEXACT_STRING || message[i] == TLOCAL_STRING))
 		{
 			if (exSt == exactStrings.size() - 1)
 				lista += VLC->generaltexth->allTexts[141]; //" and "
@@ -484,8 +484,8 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 
 		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
 		{
-			if(pavailable.find(i->first)->second & 1<<player
-				&& !bannedClass || i->second->type->heroClass != bannedClass)
+			if ((!bannedClass && (pavailable.find(i->first)->second & (1<<player))) ||
+				i->second->type->heroClass != bannedClass)
 			{
 				pool.push_back(i->second);
 				sum += i->second->type->heroClass->selectionProbability[town->typeID]; //total weight
@@ -975,8 +975,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
 				{
 					int cre = dp.sides[i].stacks[j].type, count = dp.sides[i].stacks[j].count;
-					if(!count && obj->hasStackAtSlot(j)
-						|| count)
+					if(count || obj->hasStackAtSlot(j))
 						obj->setCreature(j, cre, count);
 				}
 			}

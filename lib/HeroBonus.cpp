@@ -125,7 +125,7 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector)
 void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const
 {
 	BOOST_FOREACH(Bonus *i, *this)
-		if(selector(i) && (!limit && i->effectRange == Bonus::NO_LIMIT || limit && limit(i))) //add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
+		if(selector(i) && ((!limit && i->effectRange == Bonus::NO_LIMIT) || (limit && limit(i)))) //add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
 			out.push_back(i);
 }
 

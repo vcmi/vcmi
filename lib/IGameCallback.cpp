@@ -196,7 +196,7 @@ TStacks CBattleInfoCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_
 
 	BOOST_FOREACH(const CStack *s, gs->curB->stacks)
 	{
-		bool ownerMatches = whose == MINE_AND_ENEMY || whose == ONLY_MINE && s->owner == player || whose == ONLY_ENEMY && s->owner != player;
+		bool ownerMatches = (whose == MINE_AND_ENEMY) || (whose == ONLY_MINE && s->owner == player) || (whose == ONLY_ENEMY && s->owner != player);
 		bool alivenessMatches = s->alive()  ||  !onlyAlive;
 		if(ownerMatches && alivenessMatches)
 			ret.push_back(s);
