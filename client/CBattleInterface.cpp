@@ -1008,47 +1008,82 @@ bool CShootingAnim::init()
 
 	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	Point destcoord;
-	if(attackedStack)
-	{
-		destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
-	}
-	else //catapult attack
-	{
-		destcoord.x = -160 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH);
-		destcoord.y = -139 + 42 * (dest/BFIELD_WIDTH);
-	}
-	destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
-
+	int animSpeed = 40; // flight speed of projectile
+	
 	// The "master" point where all projectile positions relate to.
 	static const Point projectileOrigin(181, 252);
 
-	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
-	if (projectileAngle > straightAngle)
+	if (attackedStack)
 	{
-		//upper shot
-		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->upperRightMissleOffsetX;
-		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->upperRightMissleOffsetY;
-	}
-	else if (projectileAngle < -straightAngle) 
-	{
-		//lower shot
-		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->lowerRightMissleOffsetX;
-		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->lowerRightMissleOffsetY;
+		destcoord = CBattleHex::getXYUnitAnim(dest, false, attackedStack, owner); 
+		destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
+
+		// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
+		if (projectileAngle > straightAngle)
+		{
+			//upper shot
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->upperRightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->upperRightMissleOffsetY;
+		}
+		else if (projectileAngle < -straightAngle) 
+		{
+			//lower shot
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->lowerRightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->lowerRightMissleOffsetY;
+		}
+		else 
+		{
+			//straight shot
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY;
+		}
+
+		spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / animSpeed;
+		if(spi.lastStep == 0)
+			spi.lastStep = 1;
+		spi.dx = (destcoord.x - spi.x) / spi.lastStep;
+		spi.dy = (destcoord.y - spi.y) / spi.lastStep;
+		spi.catapultInfo = 0;
 	}
 	else 
 	{
-		//straight shot
-		spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX;
-		spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY;
+		// Catapult attack
+		// These are the values for equations of this kind: f(x) = ax^2 + bx + c
+		static const std::vector<CatapultProjectileInfo*> trajectoryCurves = boost::assign::list_of<CatapultProjectileInfo*>(new CatapultProjectileInfo(4.309, -3.198, 569.2, -296, 182))
+			(new CatapultProjectileInfo(4.710, -3.11, 558.68, -258, 175))(new CatapultProjectileInfo(5.056, -3.003, 546.9, -236, 174))
+			(new CatapultProjectileInfo(4.760, -2.74, 526.47, -216, 215))(new CatapultProjectileInfo(4.288, -2.496, 508.98, -223, 274))
+			(new CatapultProjectileInfo(3.683, -3.018, 558.39, -324, 176))(new CatapultProjectileInfo(2.884, -2.607, 528.95, -366, 312))
+			(new CatapultProjectileInfo(3.783, -2.364, 501.35, -227, 318));
+
+		static std::map<int, int> hexToCurve = boost::assign::map_list_of<int, int>(29, 0)(62, 1)(95, 2)(130, 3)(182, 4)(12, 5)(50, 6)(183, 7);
+
+		std::map<int, int>::iterator it = hexToCurve.find(dest.hex);
+
+		if (it == hexToCurve.end())
+		{
+			tlog1 << "For the hex position " << dest.hex << " is no curve defined.";
+			endAnim();
+			return false;
+		}
+		else
+		{
+			int curveID = it->second;
+			spi.catapultInfo = trajectoryCurves[curveID];
+			animSpeed /= 2;
+			spi.lastStep = (spi.catapultInfo->toX - spi.catapultInfo->fromX) / animSpeed;
+			spi.dx = animSpeed;
+			spi.dy = 0;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX + 17;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY + 10;
+
+			// Add explosion anim
+			int xEnd = spi.x + spi.lastStep * spi.dx;
+			int yEnd = spi.catapultInfo->calculateY(xEnd);
+			owner->addNewAnim( new CSpellEffectAnim(owner, "SGEXPL.DEF", xEnd - 126, yEnd - 105));
+		}
 	}
 	
-	spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / 40;
-	if(spi.lastStep == 0)
-		spi.lastStep = 1;
-	spi.dx = (destcoord.x - spi.x) / spi.lastStep;
-	spi.dy = (destcoord.y - spi.y) / spi.lastStep;
-	
-	//set starting frame
+	// Set starting frame
 	if(spi.spin)
 	{
 		spi.frameNum = 0;
@@ -1092,19 +1127,13 @@ void CShootingAnim::nextFrame()
 void CShootingAnim::endAnim()
 {
 	CBattleAnimation::endAnim();
-
 	delete this;
 }
 
 CShootingAnim::CShootingAnim(CBattleInterface * _owner, const CStack * attacker, THex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
 : CBattleAttack(_owner, attacker, _dest, _attacked), catapultDamage(_catapultDmg), catapult(_catapult)
 {
-	if(catapult) //catapult attack
-	{
-		owner->addNewAnim( new CSpellEffectAnim(owner, "SGEXPL.DEF",
-			-130 + 22 * ( ((dest/BFIELD_WIDTH) + 1)%2 ) + 44 * (dest % BFIELD_WIDTH) + owner->pos.x,
-			-50 + 42 * (dest/BFIELD_WIDTH) + owner->pos.y ));
-	}
+	
 }
 
 ////////////////////////
@@ -3361,7 +3390,20 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 		}
 	}
 
-	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack); //increment always when moving, never if stack died
+	// As long as the projectile of the shooter-stack is flying incrementFrame should be false
+	bool shootingFinished = true;
+	for (std::list<SProjectileInfo>::iterator it = projectiles.begin(); it != projectiles.end(); ++it)
+	{
+		if (it->stackID == ID)
+		{
+			shootingFinished = false;
+			if (it->animStartDelay == 0)
+				incrementFrame = false;
+		}
+	}
+
+	// Increment always when moving, never if stack died
+	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack);
 
 	//printing amount
 	if(stack->count > 0 //don't print if stack is not alive
@@ -3561,6 +3603,15 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		dst.w = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->w;
 		dst.x = it->x;
 		dst.y = it->y;
+		
+		// The equation below calculates the center pos of the canon, but we need the top left pos
+		// of it for drawing
+		if (it->catapultInfo)
+		{
+			dst.x -= 17;
+			dst.y -= 10;
+		}
+
 		if(it->reverse)
 		{
 			SDL_Surface * rev = CSDL_Ext::rotate01(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap);
@@ -3572,7 +3623,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 			CSDL_Ext::blit8bppAlphaTo24bpp(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap, NULL, to, &dst);
 		}
 
-		//actualizing projectile
+		// Update projectile
 		++it->step;
 		if(it->step == it->lastStep)
 		{
@@ -3580,8 +3631,19 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		}
 		else
 		{
-			it->x += it->dx;
-			it->y += it->dy;
+			if (it->catapultInfo)
+			{
+				// Parabolic shot of the trajectory, as follows: f(x) = ax^2 + bx + c
+				it->x += it->dx;
+				it->y = it->catapultInfo->calculateY(it->x);
+			}
+			else
+			{
+				// Normal projectile, just add the calculated "deltas" to the x and y positions.
+				it->x += it->dx;
+				it->y += it->dy;
+			}
+
 			if(it->spin)
 			{
 				++(it->frameNum);
@@ -4677,4 +4739,9 @@ CStackQueue::StackBox::~StackBox()
 void CStackQueue::StackBox::hover( bool on )
 {
 
+}
+
+int CatapultProjectileInfo::calculateY(int x)
+{
+	return (facA * pow(10., -3.)) * pow(x, 2.0) + facB * x + facC;
 }

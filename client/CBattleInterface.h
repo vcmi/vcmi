@@ -34,6 +34,7 @@ struct BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
 class CBattleInterface;
+struct CatapultProjectileInfo;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct SStackAttackedInfo
@@ -58,6 +59,7 @@ struct SProjectileInfo
 	bool spin; //if true, frameNum will be increased
 	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
 	bool reverse; //if true, projectile will be flipped by vertical asix
+	CatapultProjectileInfo *catapultInfo; // holds info about the parabolic trajectory of the cannon
 };
 
 
@@ -394,6 +396,19 @@ public:
 	//void showAll(SDL_Surface *to);
 };
 
+/// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
+struct CatapultProjectileInfo
+{
+	const double facA, facB, facC;
+	const int fromX, toX;
+
+	CatapultProjectileInfo() : facA(0), facB(0), facC(0), fromX(0), toX(0) { };
+	CatapultProjectileInfo(double factorA, double factorB, double factorC, int fromXX, int toXX) : facA(factorA), facB(factorB), facC(factorC),
+		fromX(fromXX), toX(toXX) { };
+
+	int calculateY(int x);
+};
+
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class CBattleInterface : public CIntObject
@@ -447,7 +462,7 @@ private:
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
-	/// Class which is resposible for the wall of a siege during battle
+	/// Class which is responsible for drawing the wall of a siege during battle
 	class SiegeHelper
 	{
 	private:
@@ -456,6 +471,7 @@ private:
 		const CBattleInterface * owner;
 	public:
 		const CGTownInstance * town; //besieged town
+		
 		SiegeHelper(const CGTownInstance * siegeTown, const CBattleInterface * _owner); //c-tor
 		~SiegeHelper(); //d-tor
 
