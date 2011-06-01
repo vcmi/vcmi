@@ -25,10 +25,10 @@ Naga Bank	1	30%	10	Nagas	50%	0	None	0	None	0	None	403	0	0	0	0	0	8	4000	0	None	0	
  	2	30%	15	Nagas	50%	0	None	0	None	0	None	605	0	0	0	0	0	12	6000	0	None	0	0	0	0	12000	20	150%
  	3	30%	20	Nagas	50%	0	None	0	None	0	None	806	0	0	0	0	0	16	8000	0	None	0	0	0	0	16000	20	200%
  	4	10%	30	Nagas	50%	0	None	0	None	0	None	1210	0	0	0	0	0	24	12000	0	None	0	0	0	0	24000	20	300%
-Dragon Fly Hive	1	30%	30	Dragonflies	50%	0	None	0	None	0	None	154	0	0	0	0	0	0	0	4	Wyverns	0	0	0	0	3200	21	100%
- 	2	30%	45	Dragonflies	50%	0	None	0	None	0	None	230	0	0	0	0	0	0	0	6	Wyverns	0	0	0	0	4800	21	150%
- 	3	30%	60	Dragonflies	50%	0	None	0	None	0	None	307	0	0	0	0	0	0	0	8	Wyverns	0	0	0	0	6400	21	200%
- 	4	10%	90	Dragonflies	50%	0	None	0	None	0	None	461	0	0	0	0	0	0	0	12	Wyverns	0	0	0	0	9600	21	300%
+Dragon Fly Hive	1	30%	30	Dragon Flies	0%	0	None	0	None	0	None	154	0	0	0	0	0	0	0	4	Wyverns	0	0	0	0	3200	21	100%
+ 	2	30%	45	Dragon Flies	0%	0	None	0	None	0	None	230	0	0	0	0	0	0	0	6	Wyverns	0	0	0	0	4800	21	150%
+ 	3	30%	60	Dragon Flies	0%	0	None	0	None	0	None	307	0	0	0	0	0	0	0	8	Wyverns	0	0	0	0	6400	21	200%
+ 	4	10%	90	Dragon Flies	0%	0	None	0	None	0	None	461	0	0	0	0	0	0	0	12	Wyverns	0	0	0	0	9600	21	300%
 Shipwreck	1	30%	10	Wights	0%	0	None	0	None	0	None	31	0	0	0	0	0	0	2000	0	None	0	0	0	0	2000	65	100%
  	2	30%	15	Wights	0%	0	None	0	None	0	None	46	0	0	0	0	0	0	3000	0	None	0	0	0	0	3000	65	150%
  	3	30%	25	Wights	0%	0	None	0	None	0	None	77	0	0	0	0	0	0	4000	0	None	1	0	0	0	5000	65	250%
