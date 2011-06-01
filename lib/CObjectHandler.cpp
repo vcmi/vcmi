@@ -5855,7 +5855,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		}
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
-		bd.soundID = soundBase::DANGER;
+		bd.soundID = soundBase::ROGUE;
 		bd.text << VLC->generaltexth->advobtxt[banktext];
 		if (ID == 16)
 			bd.text.addReplacement(VLC->objh->creBanksNames[index]);
