@@ -819,7 +819,8 @@ int3 CGameInfoCallback::getMapSize() const
 std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const CGObjectInstance * townOrTavern) const
 {
 	std::vector<const CGHeroInstance *> ret;
-	ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
+	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
+	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
 	ret.resize(gs->players[player].availableHeroes.size());
 	std::copy(gs->players[player].availableHeroes.begin(),gs->players[player].availableHeroes.end(),ret.begin());
 	return ret;
