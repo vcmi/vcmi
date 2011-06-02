@@ -53,6 +53,12 @@ AX_BOOST_THREAD
 AX_BOOST_IOSTREAMS
 AX_BOOST_PROGRAM_OPTIONS
 
+# Check for SDL headers
+AC_CHECK_HEADER([SDL/SDL.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
+AC_CHECK_HEADER([SDL/SDL_mixer.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
+AC_CHECK_HEADER([SDL/SDL_image.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
+AC_CHECK_HEADER([SDL/SDL_ttf.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
+
 # Check for SDL libraries
 saved_LIBS=$LIBS
 AC_CHECK_PROG(HAVE_SDL_CONFIG, sdl-config, yes, no)
