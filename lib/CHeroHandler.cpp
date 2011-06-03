@@ -564,6 +564,7 @@ void CHeroHandler::loadNativeTerrains()
 CHero::CHero()
 {
 	startingSpell = -1;
+	sex = 0xff;
 }
 
 CHero::~CHero()

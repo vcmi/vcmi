@@ -375,6 +375,7 @@ CGuiHandler::CGuiHandler()
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new FPSManager(48);
+	mainFPSmng->init(); // resets internal clock, needed for FPS manager
 }
 
 CGuiHandler::~CGuiHandler()

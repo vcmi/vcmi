@@ -605,7 +605,7 @@ void CServerHandler::startServer()
 {
 	th.update();
 	
-	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable; 	//TODO: will it work on non-windows platforms?
+	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 	if(verbose)
 		tlog0 << "Setting up thread calling server: " << th.getDif() << std::endl;
 }
@@ -644,6 +644,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	serverThread = NULL;
 	shared = NULL;
 	port = boost::lexical_cast<std::string>(conf.cc.port);
+	verbose = false;
 
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try

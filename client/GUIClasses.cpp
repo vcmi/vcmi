@@ -6798,6 +6798,7 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 	pos.y += y;
 	pos.w = pos.h = 0;
 	bg = NULL;
+	ignoreLeadingWhitespace = false;
 }
 
 void CLabel::setTxt(const std::string &Txt)

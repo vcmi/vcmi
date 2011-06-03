@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2009,2010 Frank Zago
+# Copyright (c) 2009,2010,2011 Frank Zago
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 # Data files needed:
 #   data1.cab and data1.hdr from the original CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_084.zip
+#   the VCMI distribution: vcmi_085.zip
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -106,7 +106,7 @@ rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_084.zip
+unzip ../vcmi_085.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f

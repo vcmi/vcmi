@@ -612,11 +612,15 @@ void CCreatureHandler::loadCreatures()
 			getline(ifs, buf, '\t');
 			getline(ifs, buf2, '\t');
 			getline(ifs, buf3);
+
+			if (ifs.eof() || ifs.fail())
+				break;
+
 			it = bonusNameMap.find(buf);
 			if (it != bonusNameMap.end())
 				stackBonuses[it->second] = std::pair<std::string, std::string>(buf2,buf3);
 			else
-				tlog2 << "Bonus " << buf << " not recognized, ingoring\n";
+				tlog2 << "Bonus " << buf << " not recognized, ignoring\n";
 		}
 	}
 	ifs.close();
