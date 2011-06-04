@@ -1294,13 +1294,9 @@ struct ERMExpDispatch : boost::static_visitor<>
 
 struct CommandExec : boost::static_visitor<>
 {
-	ERMInterpreter * owner;
-	CommandExec(ERMInterpreter * _owner) : owner(_owner)
-	{}
-
 	void operator()(Tcommand const& cmd) const
 	{
-		boost::apply_visitor(ERMExpDispatch(owner), cmd.cmd);
+		boost::apply_visitor(ERMExpDispatch(erm), cmd.cmd);
 		std::cout << "Line comment: " << cmd.comment << std::endl;
 	}
 	void operator()(std::string const& comment) const
@@ -1315,17 +1311,14 @@ struct CommandExec : boost::static_visitor<>
 
 struct LineExec : boost::static_visitor<>
 {
-	ERMInterpreter * owner;
-	LineExec(ERMInterpreter * _owner) : owner(_owner)
-	{}
-
 	void operator()(TVExp const& cmd) const
 	{
-		//printTVExp(cmd);
+		VNode line(cmd);
+		erm->eval(line);
 	}
 	void operator()(TERMline const& cmd) const
 	{
-		boost::apply_visitor(CommandExec(owner), cmd);
+		boost::apply_visitor(CommandExec(), cmd);
 	}
 };
 
@@ -1334,7 +1327,7 @@ struct LineExec : boost::static_visitor<>
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
 	tlog0 << "Executing line nr " << getRealLine(lp.lineNum) << " (internal " << lp.lineNum << ") from " << lp.file->filename << std::endl;
-	boost::apply_visitor(LineExec(this), scripts[lp]);
+	boost::apply_visitor(LineExec(), scripts[lp]);
 }
 
 IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> initVal) const
@@ -2040,7 +2033,7 @@ int & VERMInterpreter::TriggerLocalVars::getYvar( int num )
 
 bool VERMInterpreter::Environment::isBound( const std::string & name, bool globalOnly ) const
 {
-	std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
+	std::map<std::string, VOption>::const_iterator it = symbols.find(name);
 	if(globalOnly && parent)
 	{
 		return parent->isBound(name, globalOnly);
@@ -2057,9 +2050,9 @@ bool VERMInterpreter::Environment::isBound( const std::string & name, bool globa
 	return false;
 }
 
-ERM::TVOption VERMInterpreter::Environment::retrieveValue( const std::string & name ) const
+VOption & VERMInterpreter::Environment::retrieveValue( const std::string & name )
 {
-	std::map<std::string, TVOption>::const_iterator it = symbols.find(name);
+	std::map<std::string, VOption>::iterator it = symbols.find(name);
 	if(it == symbols.end())
 	{
 		if(parent)
@@ -2089,6 +2082,11 @@ bool VERMInterpreter::Environment::unbind( const std::string & name, EUnbindMode
 
 	//neither bound nor have lexical parent
 	return false;
+}
+
+void VERMInterpreter::Environment::localBind( std::string name, const VOption & sym )
+{
+	symbols[name] = sym;
 }
 
 int & VERMInterpreter::FunctionLocalVars::getParam( int num )
@@ -2305,6 +2303,156 @@ const CGObjectInstance * ERMInterpreter::getObjFrom( int3 pos )
 	return objs.back();
 }
 
+struct VOptionPrinter : boost::static_visitor<>
+{
+	void operator()(VNIL const& opt) const
+	{
+		tlog4 << "VNIL";
+	}
+	void operator()(VNode const& opt) const
+	{
+		tlog4 << "--vnode (will be supported in future versions)--";
+	}
+	void operator()(VSymbol const& opt) const
+	{
+		tlog4 << opt.text;
+	}
+	void operator()(TLiteral const& opt) const
+	{
+		tlog4 << opt;
+	}
+	void operator()(ERM::Tcommand const& opt) const
+	{
+		tlog4 << "--erm command (will be supported in future versions)--";
+	}
+};
+
+
+struct VNodeEvaluator : boost::static_visitor<VOption>
+{
+	Environment & env;
+	VNode & exp;
+	VNodeEvaluator(Environment & _env, VNode & _exp) : env(_env), exp(_exp)
+	{}
+	VOption operator()(VNIL const& opt) const
+	{
+		throw EVermScriptExecError("Nil does not evaluate to a function");
+	}
+	VOption operator()(VNode const& opt) const
+	{
+		//otherwise...
+		return VNIL();
+	}
+	VOption operator()(VSymbol const& opt) const
+	{
+		//check keywords
+		if(opt.text == "quote")
+		{
+			if(exp.children.size() == 2)
+				return exp.children[1];
+			else
+				throw EVermScriptExecError("quote special form takes only one argument");
+		}
+		else if(opt.text == "if")
+		{
+			if(exp.children.size() > 4)
+				throw EVermScriptExecError("if statement takes no more than three arguments");
+
+			if( isA<VNIL>(erm->eval(exp.children[1]) ) )
+			{
+				if(exp.children.size() > 2)
+					return erm->eval(exp.children[2]);
+				else
+					throw EVermScriptExecError("this if form needs at least two arguments");
+			}
+			else
+			{
+				if(exp.children.size() > 3)
+					return erm->eval(exp.children[3]);
+				else
+					throw EVermScriptExecError("this if form needs at least three arguments");
+			}
+		}
+		else if(opt.text == "print")
+		{
+			if(exp.children.size() == 2)
+			{
+				VOption printed = erm->eval(exp.children[1]);
+				boost::apply_visitor(VOptionPrinter(), printed);
+				return printed;
+			}
+			else
+				throw EVermScriptExecError("print special form takes only one argument");
+		}
+		else if(opt.text == "setq")
+		{
+			if(exp.children.size() != 3)
+				throw EVermScriptExecError("setq special form takes exactly 3 arguments");
+
+			env.localBind( getAs<std::string>(getAs<TLiteral>(exp.children[1]) ), exp.children[2]);
+		}
+
+
+		return VNIL(); //temporarily...
+	}
+	VOption operator()(TLiteral const& opt) const
+	{
+		throw EVermScriptExecError("String literal does not evaluate to a function");
+	}
+	VOption operator()(ERM::Tcommand const& opt) const
+	{
+		throw EVermScriptExecError("ERM command does not evaluate to a function");
+	}
+};
+
+struct VEvaluator : boost::static_visitor<VOption>
+{
+	Environment & env;
+	VEvaluator(Environment & _env) : env(_env)
+	{}
+	VOption operator()(VNIL const& opt) const
+	{
+		return opt;
+	}
+	VOption operator()(VNode const& opt) const
+	{
+		VOption & car = const_cast<VNode&>(opt).children.car().getAsItem();
+		return boost::apply_visitor(VNodeEvaluator(env, const_cast<VNode&>(opt)), car);
+	}
+	VOption operator()(VSymbol const& opt) const
+	{
+		return env.retrieveValue(opt.text);
+	}
+	VOption operator()(TLiteral const& opt) const
+	{
+		return opt;
+	}
+	VOption operator()(ERM::Tcommand const& opt) const
+	{
+		return VNIL();
+	}
+};
+
+VOption ERMInterpreter::eval( VOption line, Environment * env /*= NULL*/ )
+{
+// 	if(line.children.isNil())
+// 		return;
+// 
+// 	VOption & car = line.children.car().getAsItem();
+	return boost::apply_visitor(VEvaluator(env ? *env : *globalEnv), line);
+
+}
+
+VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /*= NULL*/ )
+{
+	VOptionList ret;
+	for(int g=0; g<list.size(); ++g)
+	{
+		ret.push_back(eval(list.getIth(g), env));
+	}
+	return ret;
+}
+
 namespace VERMInterpreter
 {
 	VOption convertToVOption(const ERM::TVOption & tvo)
@@ -2316,7 +2464,7 @@ namespace VERMInterpreter
 	{
 		for(int i=0; i<exp.children.size(); ++i)
 		{
-			children.elements.push_back(convertToVOption(exp.children[i]));
+			children.push_back(convertToVOption(exp.children[i]));
 		}
 		processModifierList(exp.modifier);
 	}
@@ -2376,14 +2524,14 @@ namespace VERMInterpreter
 		switch (state)
 		{
 		case CAR:
-			if(parent.elements.size() == 0)
-				parent.elements.push_back(opt);
+			if(parent.size() <= basePos)
+				parent.push_back(opt);
 			else
-				parent.elements[0] = opt;
+				parent[basePos] = opt;
 			break;
 		case CDR:
-			parent.elements.resize(2);
-			parent.elements[1] = opt;
+			parent.resize(basePos+2);
+			parent[basePos+1] = opt;
 			break;
 		default://should never happen
 			break;
@@ -2399,8 +2547,8 @@ namespace VERMInterpreter
 			//TODO: implement me
 			break;
 		case CDR:
-			parent.elements.resize(1);
-			parent.elements.insert(parent.elements.begin()+1, opt.begin(), opt.end());
+			parent.resize(basePos+1);
+			parent.insert(parent.begin()+basePos+1, opt.begin(), opt.end());
 			break;
 		default://should never happen
 			break;
@@ -2409,10 +2557,29 @@ namespace VERMInterpreter
 	}
 	VermTreeIterator & VermTreeIterator::operator=( const VOptionList & opt )
 	{
-		return *this = opt.elements;
+		return *this = opt;
 	}
-
-
+	VOption & VermTreeIterator::getAsItem()
+	{
+		if(state == CAR)
+			return parent[basePos];
+		else
+			throw EInterpreterError("iterator is not in car state, cannot get as list");
+	}
+	VermTreeIterator VermTreeIterator::getAsList()
+	{
+		VermTreeIterator ret = *this;
+		ret.basePos++;
+		return ret;
+	}
+	VOption & VermTreeIterator::getIth( int i )
+	{
+		return parent[basePos + i];
+	}
+	size_t VermTreeIterator::size() const
+	{
+		return parent.size() - basePos;
+	}
 	VOption OptionConverterVisitor::operator()( ERM::TVExp const& cmd ) const
 	{
 		return VNode(cmd);
@@ -2443,6 +2610,25 @@ namespace VERMInterpreter
 	VOption OptionConverterVisitor::operator()( ERM::TStringConstant const& cmd ) const
 	{
 		return TLiteral(cmd.str);
+	}
+
+	bool VOptionList::isNil() const
+	{
+		return size() == 0;
+	}
+
+	VermTreeIterator VOptionList::cdr()
+	{
+		VermTreeIterator ret(*this);
+		ret.state = VermTreeIterator::CDR;
+		return ret;
+	}
+
+	VermTreeIterator VOptionList::car()
+	{
+		VermTreeIterator ret(*this);
+		ret.state = VermTreeIterator::CAR;
+		return ret;
 	}
 
 }

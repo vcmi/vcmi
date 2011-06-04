@@ -92,23 +92,14 @@ namespace VERMInterpreter
 		{}
 	};
 
-
-	///main environment class, manages symbols
-	class Environment
+	//wrong script
+	struct EVermScriptExecError : public EScriptExecError
 	{
-	private:
-		std::map<std::string, TVOption> symbols;
-		Environment * parent;
-
-	public:
-		bool isBound(const std::string & name, bool globalOnly) const;
-
-		TVOption retrieveValue(const std::string & name) const;
-
-		enum EUnbindMode{LOCAL, RECURSIVE_UNTIL_HIT, FULLY_RECURSIVE};
-		///returns true if symbol was really unbound
-		bool unbind(const std::string & name, EUnbindMode mode);
+		EVermScriptExecError(const std::string & desc) :
+			EScriptExecError(desc)
+		{}
 	};
+
 
 	//		All numeric variables are integer variables and have a range of -2147483647...+2147483647
 	//		c			stores game active day number			//indirect variable
@@ -303,16 +294,99 @@ namespace VERMInterpreter
 		VSymbol(const std::string & txt) : text(txt)
 		{}
 	};
-	typedef boost::variant<char, double, int, std::string> TLiteral;
-
-	struct VNIL
-	{};
 
 	struct VNode;
 	struct VOptionList;
 
+	struct VNIL
+	{};
+
+
+	typedef boost::variant<char, double, int, std::string> TLiteral;
+
+
 	typedef boost::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand> VOption; //options in v-expression, VNIl should be the default
 
+	template<typename T, typename SecType>
+	T& getAs(SecType & opt)
+	{
+		if(opt.type() == typeid(T))
+			return boost::get<T>(opt);
+		else
+			throw EVermScriptExecError("Wrong type!");
+	}
+
+	template<typename T, typename SecType>
+	bool isA(SecType & opt)
+	{
+		if(opt.type() == typeid(T))
+			return true;
+		else
+			return false;
+	}
+
+	//why it doesn't work?
+// 	template<typename TBasicVariant>
+// 	struct IntVarinant : public TBasicVariant
+// 	{
+// 		template<typename T>
+// 		bool isA() const
+// 		{
+// 			return type() == typeid(T);
+// 		}
+// 		template<typename T>
+// 		T getAs()
+// 		{
+// 			if(isA<T>())
+// 				return boost::get<T>(*this);
+// 			else
+// 				throw EVermScriptExecError("Getting improved variant with wrongly specified type");
+// 		}
+// 		
+// 		IntVarinant(const VNode & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const VNIL & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const TLiteral & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const VSymbol & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const int & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const char & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const double & val) : TBasicVariant(val)
+// 		{}
+// 		IntVarinant(const ERM::Tcommand & val) : TBasicVariant(val)
+// 		{}
+// 		TBasicVariant & getAsPlaintVariant()
+// 		{
+// 			return *this;
+// 		}
+// 
+// 		IntVarinant()
+// 		{}
+// 	};
+
+
+	///main environment class, manages symbols
+	class Environment
+	{
+	private:
+		std::map<std::string, VOption> symbols;
+		Environment * parent;
+
+	public:
+		bool isBound(const std::string & name, bool globalOnly) const;
+
+		VOption & retrieveValue(const std::string & name);
+
+		enum EUnbindMode{LOCAL, RECURSIVE_UNTIL_HIT, FULLY_RECURSIVE};
+		///returns true if symbol was really unbound
+		bool unbind(const std::string & name, EUnbindMode mode);
+
+		void localBind(std::string name, const VOption & sym);
+	};
 
 	struct VermTreeIterator
 	{
@@ -320,34 +394,28 @@ namespace VERMInterpreter
 		friend struct VOptionList;
 		VOptionList & parent;
 		enum Estate {CAR, CDR} state;
+		int basePos; //car/cdr offset
 	public:
-		VermTreeIterator(VOptionList & _parent) : parent(_parent)
+		VermTreeIterator(VOptionList & _parent) : parent(_parent), basePos(0)
 		{}
 
 		VermTreeIterator & operator=(const VOption & opt);
 		VermTreeIterator & operator=(const std::vector<VOption> & opt);
 		VermTreeIterator & operator=(const VOptionList & opt);
+		VOption & getAsItem();
+		VermTreeIterator getAsList();
+		VOption & getIth(int i);
+		size_t size() const;
 	};
 
-	struct VOptionList
+	struct VOptionList : public std::vector<VOption>
 	{
-		std::vector<VOption> elements;
-		VermTreeIterator car()
-		{
-			VermTreeIterator ret(*this);
-			ret.state = VermTreeIterator::CAR;
-			return ret;
-		}
-		VermTreeIterator cdr()
-		{
-			VermTreeIterator ret(*this);
-			ret.state = VermTreeIterator::CDR;
-			return ret;
-		}
-		bool isNil() const
-		{
-			return elements.size() == 0;
-		}
+	private:
+		friend struct VermTreeIterator;
+	public:
+		VermTreeIterator car();
+		VermTreeIterator cdr();
+		bool isNil() const;
 	};
 
 	struct OptionConverterVisitor : boost::static_visitor<VOption>
@@ -598,6 +666,9 @@ class ERMInterpreter : public CScriptingModule
 	IexpValStr getVar(std::string toFollow, boost::optional<int> initVal) const;
 
 	std::string processERMString(std::string ermstring);
+
+	VERMInterpreter::VOption eval( VERMInterpreter::VOption line, VERMInterpreter::Environment * env = NULL );
+	VERMInterpreter::VOptionList evalEach( VERMInterpreter::VermTreeIterator list, VERMInterpreter::Environment * env = NULL ); 
 
 public:
 	typedef std::map< int, std::vector<int> > TIDPattern;
