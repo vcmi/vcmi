@@ -16028,43 +16028,10 @@ fi
 	fi
 
 
-# Check for SDL headers
-
-ac_fn_cxx_check_header_mongrel "$LINENO" "SDL/SDL.h" "ac_cv_header_SDL_SDL_h" "$ac_includes_default"
-if test "x$ac_cv_header_SDL_SDL_h" = x""yes; then :
-
-else
-  as_fn_error $? "Header not found. Install missing devel package." "$LINENO" 5
-fi
-
-
-ac_fn_cxx_check_header_mongrel "$LINENO" "SDL/SDL_mixer.h" "ac_cv_header_SDL_SDL_mixer_h" "$ac_includes_default"
-if test "x$ac_cv_header_SDL_SDL_mixer_h" = x""yes; then :
-
-else
-  as_fn_error $? "Header not found. Install missing devel package." "$LINENO" 5
-fi
-
-
-ac_fn_cxx_check_header_mongrel "$LINENO" "SDL/SDL_image.h" "ac_cv_header_SDL_SDL_image_h" "$ac_includes_default"
-if test "x$ac_cv_header_SDL_SDL_image_h" = x""yes; then :
-
-else
-  as_fn_error $? "Header not found. Install missing devel package." "$LINENO" 5
-fi
-
-
-ac_fn_cxx_check_header_mongrel "$LINENO" "SDL/SDL_ttf.h" "ac_cv_header_SDL_SDL_ttf_h" "$ac_includes_default"
-if test "x$ac_cv_header_SDL_SDL_ttf_h" = x""yes; then :
-
-else
-  as_fn_error $? "Header not found. Install missing devel package." "$LINENO" 5
-fi
-
-
-
-# Check for SDL libraries
+# Check for SDL headers and libraries
 saved_LIBS=$LIBS
+saved_CFLAGS=$CFLAGS
+
 # Extract the first word of "sdl-config", so it can be a program name with args.
 set dummy sdl-config; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -16106,6 +16073,29 @@ fi
 if test "$HAVE_SDL_CONFIG" = no; then
 as_fn_error $? "sdl-config doesn't exist. Try to check the PATH enviroment." "$LINENO" 5
 fi
+
+SDL_CXXFLAGS="`sdl-config --cflags`"
+SDL_LIBS="`sdl-config --libs`"
+
+LIBS="$LIBS $SDL_LIBS"
+CFLAGS="$CFLAGS $SDL_CXXFLAGS"
+
+
+for ac_header in SDL/SDL.h SDL/SDL_mixer.h SDL/SDL_image.h SDL/SDL_ttf.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_cxx_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+else
+  as_fn_error $? "Header not found. Install missing devel package." "$LINENO" 5
+fi
+
+done
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SDL_Init in -lSDL" >&5
 $as_echo_n "checking for SDL_Init in -lSDL... " >&6; }
@@ -16284,12 +16274,19 @@ else
 fi
 
 
-SDL_CXXFLAGS=`sdl-config --cflags`
-SDL_LIBS="`sdl-config --libs` $LIBS"
 LIBS=$saved_LIBS
+CFLAGS=$saved_CFLAGS
 
 # Check for ffmpeg libraries
 saved_LIBS=$LIBS
+saved_CFLAGS=$CFLAGS
+
+FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
+FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
+
+LIBS="$LIBS $FFMPEG_LIBS"
+CFLAGS="$CFLAGS $FFMPEG_CXXFLAGS"
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5
 $as_echo_n "checking for av_open_input_file in -lavformat... " >&6; }
 if test "${ac_cv_lib_avformat_av_open_input_file+set}" = set; then :
@@ -16425,9 +16422,8 @@ if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = x""yes; then :
 fi
 
 
-FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
-FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
 LIBS=$saved_LIBS
+CFLAGS=$saved_CFLAGS
 
 # Checks for header files.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5

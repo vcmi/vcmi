@@ -53,37 +53,47 @@ AX_BOOST_THREAD
 AX_BOOST_IOSTREAMS
 AX_BOOST_PROGRAM_OPTIONS
 
-# Check for SDL headers
-AC_CHECK_HEADER([SDL/SDL.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
-AC_CHECK_HEADER([SDL/SDL_mixer.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
-AC_CHECK_HEADER([SDL/SDL_image.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
-AC_CHECK_HEADER([SDL/SDL_ttf.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
-
-# Check for SDL libraries
+# Check for SDL headers and libraries
 saved_LIBS=$LIBS
+saved_CFLAGS=$CFLAGS
+
 AC_CHECK_PROG(HAVE_SDL_CONFIG, sdl-config, yes, no)
 if test "$HAVE_SDL_CONFIG" = no; then
 AC_MSG_ERROR(sdl-config doesn't exist. Try to check the PATH enviroment.)
 fi
 
-AC_CHECK_LIB(SDL, SDL_Init,,AC_MSG_ERROR([SDL library not found. Please install it.]))
+SDL_CXXFLAGS="`sdl-config --cflags`"
+SDL_LIBS="`sdl-config --libs`"
+
+LIBS="$LIBS $SDL_LIBS"
+CFLAGS="$CFLAGS $SDL_CXXFLAGS"
+
+AC_CHECK_HEADERS([SDL/SDL.h SDL/SDL_mixer.h SDL/SDL_image.h SDL/SDL_ttf.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
+
+AC_CHECK_LIB(SDL,SDL_Init,,AC_MSG_ERROR([SDL library not found. Please install it.]))
 AC_CHECK_LIB(SDL_mixer,main,,AC_MSG_ERROR([SDL_mixer library not found. Please install it.]))
 AC_CHECK_LIB(SDL_image,IMG_Load,,AC_MSG_ERROR([SDL_image library not found. Please install it.]))
 AC_CHECK_LIB(SDL_ttf,main,,AC_MSG_ERROR([SDL_ttf library not found. Please install it.]))
 
-SDL_CXXFLAGS=`sdl-config --cflags`
-SDL_LIBS="`sdl-config --libs` $LIBS"
 LIBS=$saved_LIBS
+CFLAGS=$saved_CFLAGS
 
 # Check for ffmpeg libraries
 saved_LIBS=$LIBS
+saved_CFLAGS=$CFLAGS
+
+FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
+FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
+
+LIBS="$LIBS $FFMPEG_LIBS"
+CFLAGS="$CFLAGS $FFMPEG_CXXFLAGS"
+
 AC_CHECK_LIB(avformat,av_open_input_file,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
 AC_CHECK_LIB(swscale,sws_getContext,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
 AC_CHECK_LIB(avcodec,avcodec_decode_video2,AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2",)
 
-FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
-FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
 LIBS=$saved_LIBS
+CFLAGS=$saved_CFLAGS
 
 # Checks for header files.
 AC_HEADER_STDC
