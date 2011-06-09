@@ -15,6 +15,13 @@ public:
 	int DecodeXPosition(int battleFieldPosition);
 	int DecodeYPosition(int battleFieldPosition);
 
+	int StepDownright(int pos);
+	int StepUpright(int pos);
+	int StepDownleft(int pos);
+	int StepUpleft(int pos);
+	int StepRight(int pos);
+	int StepLeft(int pos);
+	
 	int GetShortestDistance(int pointA, int pointB);
 	int GetDistanceWithObstacles(int pointA, int pointB);
 

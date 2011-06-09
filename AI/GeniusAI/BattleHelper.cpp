@@ -13,8 +13,8 @@ using namespace std;
 
 CBattleHelper::CBattleHelper():
 	InfiniteDistance(0xffff),
-	BattlefieldWidth(15),
-	BattlefieldHeight(11),
+	BattlefieldWidth(BFIELD_WIDTH-2),
+	BattlefieldHeight(BFIELD_HEIGHT),
 	m_voteForMaxDamage(10),
 	m_voteForMinDamage(10),
 	m_voteForMaxSpeed(10),
@@ -103,50 +103,90 @@ CBattleHelper::CBattleHelper():
 CBattleHelper::~CBattleHelper()
 {}
 
+
 int CBattleHelper::GetBattleFieldPosition(int x, int y)
 {
-	return x + 17 * (y - 1);
+	return x + BFIELD_WIDTH * (y - 1);
 }
 
 int CBattleHelper::DecodeXPosition(int battleFieldPosition)
 {
-	int pos = battleFieldPosition - (DecodeYPosition(battleFieldPosition) - 1) * 17;
-	assert(pos > 0 && pos < 16);
-	return pos;
+	int x = battleFieldPosition%BFIELD_WIDTH;
+	assert( x > 0 && x < BFIELD_WIDTH-1 );
+	return x;
 }
 
 int CBattleHelper::DecodeYPosition(int battleFieldPosition)
 {
-	double y = (double)battleFieldPosition / 17.0;
-	if (y - (int)y > 0.0)
-	{
-		return (int)y + 1;
-	}
-	assert((int)y > 0 && (int)y <= 11);
-	return (int)y;
+
+	int y=battleFieldPosition/BFIELD_WIDTH +1;
+	assert( y > 0 && y <= BFIELD_HEIGHT);
+	return y;
 }
 
+int CBattleHelper::StepRight(int pos){
+  return pos+1;
+}
+
+int CBattleHelper::StepLeft(int pos){
+  return pos-1;
+}
+
+int CBattleHelper::StepUpleft(int pos){
+  if((pos/BFIELD_WIDTH)%2==0){
+    return pos-BFIELD_WIDTH;
+  }else{
+    return pos-BFIELD_WIDTH-1;
+  }
+}
+
+int CBattleHelper::StepUpright(int pos){
+  if((pos/BFIELD_WIDTH)%2==0){
+    return pos-BFIELD_WIDTH+1;
+  }else{
+    return pos-BFIELD_WIDTH;
+  }
+}
+
+int CBattleHelper::StepDownleft(int pos){
+  if((pos/BFIELD_WIDTH)%2==0){
+    return pos+BFIELD_WIDTH;
+  }else{
+    return pos+BFIELD_WIDTH-1;
+  }
+}
+
+int CBattleHelper::StepDownright(int pos){
+  if((pos/BFIELD_WIDTH)%2==0){
+    return pos+BFIELD_WIDTH+1;
+ }else{
+    return pos+BFIELD_WIDTH;
+  }
+}
 
 int CBattleHelper::GetShortestDistance(int pointA, int pointB)
 {
-	/**
-	 * TODO: function hasn't been checked!
-	 */
 	int x1 = DecodeXPosition(pointA);
 	int y1 = DecodeYPosition(pointA);
-	//
 	int x2 = DecodeXPosition(pointB);
-	//x2 += (x2 % 2)? 0 : 1;
 	int y2 = DecodeYPosition(pointB);
-	//
-	double dx = x1 - x2;
-	double dy = y1 - y2;
-
-	return (int)sqrt(dx * dx + dy * dy);
+	int dx = abs(x1 - x2);
+	int dy = abs(y1 - y2);
+	if( dy%2==1 ){  
+		if( y1%2==1 ){
+			if( x2<=x1 ){dx++;}			
+		}else{
+			if( x2>=x1 ){dx++;}
+		}
+	}
+	max(dy,dx+dy/2);
+	
+	return 0;
 }
 
 int CBattleHelper::GetDistanceWithObstacles(int pointA, int pointB)
 {
+	
 	// TODO - implement this!
 	return GetShortestDistance(pointA, pointB);
 }
