@@ -16075,9 +16075,8 @@ as_fn_error $? "sdl-config doesn't exist. Try to check the PATH enviroment." "$L
 fi
 
 SDL_CXXFLAGS="`sdl-config --cflags`"
-SDL_LIBS="`sdl-config --libs`"
+LIBS="$LIBS `sdl-config --libs`"
 
-LIBS="$LIBS $SDL_LIBS"
 CFLAGS="$CFLAGS $SDL_CXXFLAGS"
 
 
@@ -16274,6 +16273,8 @@ else
 fi
 
 
+SDL_LIBS="$LIBS"
+
 LIBS=$saved_LIBS
 CFLAGS=$saved_CFLAGS
 
@@ -16281,11 +16282,11 @@ CFLAGS=$saved_CFLAGS
 saved_LIBS=$LIBS
 saved_CFLAGS=$CFLAGS
 
-FFMPEG_CXXFLAGS="`pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
-FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
+FFMPEG_CXXFLAGS=""
+FFMPEG_LIBS=
 
-LIBS="$LIBS $FFMPEG_LIBS"
-CFLAGS="$CFLAGS $FFMPEG_CXXFLAGS"
+LIBS="$LIBS `pkg-config --libs libavformat libswscale`"
+CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale` $AVCODEC_DECODE_VIDEO2"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5
 $as_echo_n "checking for av_open_input_file in -lavformat... " >&6; }
@@ -16421,6 +16422,9 @@ if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = x""yes; then :
   AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2"
 fi
 
+
+FFMPEG_LIBS="$LIBS"
+FFMPEG_CXXFLAGS="$CFLAGS"
 
 LIBS=$saved_LIBS
 CFLAGS=$saved_CFLAGS
