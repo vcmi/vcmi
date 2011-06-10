@@ -317,7 +317,7 @@ namespace VERMInterpreter
 	}
 
 	template<typename T, typename SecType>
-	bool isA(SecType & opt)
+	bool isA(const SecType & opt)
 	{
 		if(opt.type() == typeid(T))
 			return true;
