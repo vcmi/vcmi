@@ -45,6 +45,7 @@
 #include "../lib/CObjectHandler.h"
 #include <boost/program_options.hpp>
 #include "../lib/CArtHandler.h"
+#include "../lib/ERMScriptModule.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -85,6 +86,7 @@ boost::mutex eventsM;
 static bool gOnlyAI = false;
 static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
+static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 void dispose();
@@ -312,8 +314,30 @@ void processCommand(const std::string &message)
 	if(LOCPLINT && LOCPLINT->cingconsole)
 		LOCPLINT->cingconsole->print(message);
 
+	if(ermInteractiveMode)
+	{
+		if(cn == "exit")
+		{
+			ermInteractiveMode = false;
+			return;
+		}
+		else
+		{
+			if(client && client->erm)
+				client->erm->executeUserCommand(message);
+			tlog0 << "erm>";
+		}
+	}
+
 	if(message==std::string("die, fool"))
+	{
 		exit(EXIT_SUCCESS);
+	}
+	else if(cn == "erm")
+	{
+		ermInteractiveMode = true;
+		tlog0 << "erm>";
+	}
 	else if(cn==std::string("activate"))
 	{
 		int what;

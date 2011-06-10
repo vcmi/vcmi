@@ -412,7 +412,8 @@ void ERMInterpreter::printScripts( EPrintMode mode /*= EPrintMode::ALL*/ )
 		{
 			tlog2 << "----------------- script " << it->first.file->filename << " ------------------\n";
 		}
-		
+
+		tlog0 << it->first.realLineNum << '\t';
 		ERMPrinter::printAST(it->second);
 		prevIt = it;
 	}
@@ -774,6 +775,107 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 	}
 
 };
+struct IFPerformer;
+
+struct IF_MPerformer : StandardBodyOptionItemVisitor<IFPerformer>
+{
+	explicit IF_MPerformer(IFPerformer & _owner) : StandardBodyOptionItemVisitor<IFPerformer>(_owner){}
+	using StandardBodyOptionItemVisitor<IFPerformer>::operator();
+
+	void operator()(TStringConstant const& cmp) const OVERRIDE;
+};
+
+struct IFPerformer : StandardReceiverVisitor<TUnusedType>
+{
+	IFPerformer(ERMInterpreter * _interpr) : StandardReceiverVisitor<TUnusedType>(_interpr, 0)
+	{}
+	using StandardReceiverVisitor<TUnusedType>::operator();
+
+
+	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	{
+		std::string message; //to be shown
+		switch(trig.optionCode)
+		{
+		case 'M': //Show the message (Text) or contents of z$ variable on the screen immediately.
+			performOptionTakingOneParamter<IF_MPerformer>(trig.params);
+			break;
+		default:
+			break;
+		}
+	}
+
+	// startpos is the first digit
+	// digits will be converted to number and returned
+	static int getNum(std::string &msg, int numStart, int &digitsUsed) 
+	{
+		int numEnd = msg.find_first_not_of("1234567890", numStart);
+
+		if(numEnd == std::string::npos)
+			digitsUsed = msg.size() - numStart;
+		else
+			digitsUsed = numEnd - numStart;
+
+		return boost::lexical_cast<int>(msg.substr(numStart, digitsUsed));
+	}
+
+	static void formatMessage(std::string &msg)
+	{
+		int pos = 0; //index of the first not yet processed character in string
+
+		//according to the ERM help:
+		//"%%" -> "%"
+		//"%V#" -> current value of # flag.
+		//"%Vf"..."%Vt" -> current value of corresponding variable.
+		//"%W1"..."%W100" -> current value of corresponding hero variable.
+		//"%X1"..."%X16" -> current value of corresponding function parameter.
+		//"%Y1"..."%Y100" -> current value of corresponding local variable.
+		//"%Z1"..."%Z500" -> current value of corresponding string variable.
+		//"%$macro$" -> macro name of corresponding variable
+		//"%Dd" -> current day of week
+		//"%Dw" -> current week
+		//"%Dm" -> current month
+		//"%Da" -> current day from beginning of the game
+		//"%Gc" -> the color of current gamer in text
+		
+		while(pos < msg.size())
+		{
+			int percentPos = msg.find_first_of('%', pos);
+			if(percentPos == std::string::npos) //processing done?
+				break;
+
+			if(percentPos + 1 >= msg.size()) //at least one character after % is required
+				throw EScriptExecError("Formatting error: % at the end of string!"); 
+;
+			switch(msg[percentPos+1])
+			{
+			case '%':
+				msg.erase(percentPos+1, 1); //just delete superfluous %
+				break;
+			case 'X':
+				{
+					int digits;
+					int varNum = getNum(msg, percentPos+2, digits);
+					msg.replace(percentPos, digits+2, boost::lexical_cast<std::string>(erm->getVar("x", varNum).getInt()));
+				}
+				break;
+			}
+			pos++;
+		}
+	}
+
+	void showMessage(const std::string &msg)
+	{
+		std::string msgToFormat = msg;
+		IFPerformer::formatMessage(msgToFormat);
+		acb->showInfoDialog(msgToFormat, icb->getLocalPlayer());
+	}
+};
+
+void IF_MPerformer::operator()(TStringConstant const& cmp) const
+{
+	owner.showMessage(cmp.str);
+}
 
 template<int opcode>
 void HE_BPerformer<opcode>::operator()( TVarpExp const& cmp ) const
@@ -1281,8 +1383,13 @@ struct ERMExpDispatch : boost::static_visitor<>
 			else
 				throw EScriptExecError("HE receiver must have an identifier!");
 		}
+		else if(trig.name == "IF")
+		{
+			helper.performBody(trig.body, IFPerformer(owner));
+		}
 		else
 		{
+			tlog3 << trig.name << " receiver is not supported yet, doing nothing...\n";
 			//not supported or invalid trigger
 		}
 	}
@@ -2264,12 +2371,6 @@ void ERMInterpreter::init()
 
 	scanForScripts();
 	scanScripts();
-	for(std::map<VERMInterpreter::LinePointer, ERM::TLine>::iterator it = scripts.begin();
-		it != scripts.end(); ++it)
-	{
-		tlog0 << it->first.realLineNum << '\t';
-		ERMPrinter::printAST(it->second);
-	}
 
 	executeInstructions();
 	executeTriggerType("PI");
@@ -2451,6 +2552,11 @@ VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /
 		ret.push_back(eval(list.getIth(g), env));
 	}
 	return ret;
+}
+
+void ERMInterpreter::executeUserCommand(const std::string &cmd)
+{
+	tlog0 << "ERM here: received command: " << cmd << std::endl;
 }
 
 namespace VERMInterpreter

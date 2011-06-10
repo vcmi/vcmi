@@ -94,6 +94,7 @@ void CClient::init()
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
+	erm = NULL;
 	terminate = false;
 }
 
@@ -428,12 +429,12 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	hotSeat = (humanPlayers > 1);
 
 
-// 	CScriptingModule *erm = getERMModule();
-// 	privilagedGameEventReceivers.push_back(erm);
-// 	privilagedBattleEventReceivers.push_back(erm);
-// 	icb = this;
-// 	acb = this;
-// 	erm->init();
+	erm = getERMModule();
+ 	privilagedGameEventReceivers.push_back(erm);
+ 	privilagedBattleEventReceivers.push_back(erm);
+ 	icb = this;
+ 	acb = this;
+ 	erm->init();
 }
 
 template <typename Handler>
@@ -594,8 +595,16 @@ void CClient::loadNeutralBattleAI()
 void CClient::commitPackage( CPackForClient *pack )
 {
 	CommitPackage cp;
+	cp.freePack = false;
 	cp.packToCommit = pack;
 	*serv << &cp;
+}
+
+int CClient::getLocalPlayer() const
+{
+	if(LOCPLINT)
+		return LOCPLINT->playerID;
+	return getCurrentPlayer();
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

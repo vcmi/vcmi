@@ -144,6 +144,7 @@ public:
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	int getPlayerStatus(int player) const; //-1 if no such player
 	int getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
+	virtual int getLocalPlayer() const; //player that is currently owning given client (if not a client, then returns current player)
 	const PlayerSettings * getPlayerSettings(int color) const;
 
 
@@ -249,6 +250,9 @@ public:
 
 	virtual void showInfoDialog(InfoWindow *iw);
 	virtual void setObjProperty(int objid, int prop, si64 val);
+
+
+	virtual void showInfoDialog(const std::string &msg, int player);
 };
 
 class DLL_EXPORT IGameEventCallback : public IGameEventRealizer

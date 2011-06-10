@@ -1180,10 +1180,22 @@ const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 	return NULL;
 }
 
+int CGameInfoCallback::getLocalPlayer() const
+{
+	return getCurrentPlayer();
+}
 
 void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
 {
 	commitPackage(iw);
+}
+
+void IGameEventRealizer::showInfoDialog(const std::string &msg, int player)
+{
+	InfoWindow iw;
+	iw.player = player;
+	iw.text << msg;
+	showInfoDialog(&iw);
 }
 
 void IGameEventRealizer::setObjProperty(int objid, int prop, si64 val)

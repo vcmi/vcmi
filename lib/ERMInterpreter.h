@@ -690,6 +690,8 @@ public:
 	//overload CScriptingModule
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;
 	virtual void init() OVERRIDE;//sets up environment etc.
+	virtual void executeUserCommand(const std::string &cmd) OVERRIDE;
+
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE;
 
 	const CGObjectInstance *getObjFrom(int3 pos);

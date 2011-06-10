@@ -1499,12 +1499,18 @@ struct AdvmapSpellCast : public CPackForClient //108
 
 struct CommitPackage : public CPackForServer
 {
+	bool freePack; //for local usage, DO NOT serialize
 	bool applyGh(CGameHandler *gh);
 	CPackForClient *packToCommit;
 
+	CommitPackage()
+	{
+		freePack = true;
+	}
 	~CommitPackage()
 	{
-		delete packToCommit;
+		if(freePack)
+			delete packToCommit;
 	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -29,6 +29,7 @@ class CCallback;
 struct BattleAction;
 struct SharedMem;
 class CClient;
+class CScriptingModule;
 struct CPathsInfo;
 namespace boost { class thread; }
 
@@ -72,6 +73,7 @@ public:
 	CConnection *serv;
 	BattleAction *curbaction;
 	CPathsInfo *pathInfo;
+	CScriptingModule *erm;
 
 	CondSh<bool> waitingRequest;
 
@@ -98,6 +100,9 @@ public:
 
 	bool terminate;	// tell to terminate
 	boost::thread *connectionHandler; //thread running run() method
+
+	//////////////////////////////////////////////////////////////////////////
+	virtual int getLocalPlayer() const OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay

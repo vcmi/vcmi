@@ -11,7 +11,7 @@ class ERMInterpreter;
 class DLL_EXPORT CScriptingModule : public IGameEventsReceiver, public IBattleEventsReceiver
 {
 public:
-
+	virtual void executeUserCommand(const std::string &cmd){};
 	virtual void init(){}; //called upon the start of game (after map randomization, before first turn)
 	virtual ~CScriptingModule();
 };
