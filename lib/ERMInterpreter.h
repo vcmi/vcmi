@@ -4,7 +4,6 @@
 #include "IGameEventsReceiver.h"
 #include "ERMScriptModule.h"
 
-
 /*
  * ERMInterpreter.h, part of VCMI engine
  *
@@ -304,8 +303,85 @@ namespace VERMInterpreter
 
 	typedef boost::variant<char, double, int, std::string> TLiteral;
 
+	//for operator <, but this one seems to be implemented in boost alerady
+	struct _opLTvis : boost::static_visitor<bool>
+	{
+		const TLiteral & lhs;
+		_opLTvis(const TLiteral & _lhs) : lhs(_lhs)
+		{}
 
-	typedef boost::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand> VOption; //options in v-expression, VNIl should be the default
+		template<typename OP>
+		bool operator()(OP const & rhs) const
+		{
+			return boost::get<OP>(lhs) < rhs;
+		}
+	};
+
+// 	bool operator<(const TLiteral & t1, const TLiteral & t2)
+// 	{
+// 		if(t1.type() == t2.type())
+// 		{
+// 			return boost::apply_visitor(_opLTvis(t1), t2);
+// 		}
+// 		throw EVermScriptExecError("These types are incomparable!");
+// 	}
+
+
+	//for operator <=
+	struct _opLEvis : boost::static_visitor<bool>
+	{
+		const TLiteral & lhs;
+		_opLEvis(const TLiteral & _lhs) : lhs(_lhs)
+		{}
+
+		template<typename OP>
+		bool operator()(OP const & rhs) const
+		{
+			return boost::get<OP>(lhs) <= rhs;
+		}
+	};
+
+	bool operator<=(const TLiteral & t1, const TLiteral & t2);
+
+	//operator >
+	struct _opGTvis : boost::static_visitor<bool>
+	{
+		const TLiteral & lhs;
+		_opGTvis(const TLiteral & _lhs) : lhs(_lhs)
+		{}
+
+		template<typename OP>
+		bool operator()(OP const & rhs) const
+		{
+			return boost::get<OP>(lhs) <= rhs;
+		}
+	};
+
+	bool operator>(const TLiteral & t1, const TLiteral & t2);
+
+	//operator >=
+
+	struct _opGEvis : boost::static_visitor<bool>
+	{
+		const TLiteral & lhs;
+		_opGEvis(const TLiteral & _lhs) : lhs(_lhs)
+		{}
+
+		template<typename OP>
+		bool operator()(OP const & rhs) const
+		{
+			return boost::get<OP>(lhs) <= rhs;
+		}
+	};
+
+	bool operator>=(const TLiteral & t1, const TLiteral & t2);
+
+	//VFunc
+	struct VFunc;
+
+	//VOption & stuff
+
+	typedef boost::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand, boost::recursive_wrapper<VFunc> > VOption; //options in v-expression, VNIl should be the default
 
 	template<typename T, typename SecType>
 	T& getAs(SecType & opt)
@@ -368,6 +444,7 @@ namespace VERMInterpreter
 // 		{}
 // 	};
 
+	
 
 	///main environment class, manages symbols
 	class Environment
@@ -377,7 +454,12 @@ namespace VERMInterpreter
 		Environment * parent;
 
 	public:
-		bool isBound(const std::string & name, bool globalOnly) const;
+		Environment() : parent(NULL)
+		{}
+		void setPatent(Environment * _parent);
+		Environment * getPatent() const;
+		enum EIsBoundMode {GLOBAL_ONLY, LOCAL_ONLY, ANYWHERE};
+		bool isBound(const std::string & name, EIsBoundMode mode) const;
 
 		VOption & retrieveValue(const std::string & name);
 
@@ -386,26 +468,51 @@ namespace VERMInterpreter
 		bool unbind(const std::string & name, EUnbindMode mode);
 
 		void localBind(std::string name, const VOption & sym);
+		void bindAtFirstHit(std::string name, const VOption & sym); //if symbol is locally defines, it gets overwritten; otherwise it is bind globally
+	};
+
+	//this class just introduces a new dynamic range when instantiated, nothing more
+	class IntroduceDynamicEnv
+	{
+	public:
+		IntroduceDynamicEnv();
+		~IntroduceDynamicEnv();
 	};
 
 	struct VermTreeIterator
 	{
 	private:
 		friend struct VOptionList;
-		VOptionList & parent;
-		enum Estate {CAR, CDR} state;
+		VOptionList * parent;
+		enum Estate {NORM, CAR} state;
 		int basePos; //car/cdr offset
 	public:
-		VermTreeIterator(VOptionList & _parent) : parent(_parent), basePos(0)
+		VermTreeIterator(VOptionList & _parent) : parent(&_parent), basePos(0), state(NORM)
+		{}
+		VermTreeIterator() : parent(NULL), state(NORM)
 		{}
 
 		VermTreeIterator & operator=(const VOption & opt);
 		VermTreeIterator & operator=(const std::vector<VOption> & opt);
 		VermTreeIterator & operator=(const VOptionList & opt);
 		VOption & getAsItem();
-		VermTreeIterator getAsList();
+		VermTreeIterator getAsCDR();
+		VOptionList getAsList();
 		VOption & getIth(int i);
 		size_t size() const;
+
+		VermTreeIterator& operator=(const VermTreeIterator & rhs)
+		{
+			if(this == &rhs)
+			{
+				return *this;
+			}
+			parent = rhs.parent;
+			state = rhs.state;
+			basePos = rhs.basePos;
+
+			return *this;
+		}
 	};
 
 	struct VOptionList : public std::vector<VOption>
@@ -416,6 +523,30 @@ namespace VERMInterpreter
 		VermTreeIterator car();
 		VermTreeIterator cdr();
 		bool isNil() const;
+	};
+
+	struct VFunc
+	{
+		enum Eopt {DEFAULT, LT, GT, LE, GE, ADD, SUB, MULT, DIV, MOD} option;
+		std::vector<VSymbol> args;
+		VOptionList body;
+		VFunc(const VOptionList & _body) : body(_body), option(DEFAULT)
+		{}
+		VFunc(Eopt func) : option(func)
+		{}
+		VFunc& operator=(const VFunc & rhs)
+		{
+			if(this == &rhs)
+			{
+				return *this;
+			}
+			args = rhs.args;
+			body = rhs.body;
+
+			return *this;
+		}
+
+		VOption operator()(VermTreeIterator params);
 	};
 
 	struct OptionConverterVisitor : boost::static_visitor<VOption>
@@ -441,6 +572,56 @@ namespace VERMInterpreter
 		VNode( const VOption & first, const VOptionList & rest); //merges given arguments into [a, rest];
 		void setVnode( const VOption & first, const VOptionList & rest);
 	};
+
+	//v printer
+	struct _VLITPrinter : boost::static_visitor<void>
+	{
+		void operator()(const std::string & par) const
+		{
+			tlog1 << "^" << par << "^";
+		}
+		template<typename T>
+		void operator()(const T & par) const
+		{
+			tlog1 << par;
+		}
+	};
+
+	struct _VOPTPrinter : boost::static_visitor<void>
+	{
+		void operator()(VNIL const& opt) const
+		{
+			tlog1 << "[]";
+		}
+		void operator()(VNode const& opt) const
+		{
+			tlog1 << "[";
+			for(int g=0; g<opt.children.size(); ++g)
+			{
+				boost::apply_visitor(_VOPTPrinter(), opt.children[g]);
+				tlog1 << " ";
+			}
+			tlog1 << "]";
+		}
+		void operator()(VSymbol const& opt) const
+		{
+			tlog1 << opt.text;
+		}
+		void operator()(TLiteral const& opt) const
+		{
+			boost::apply_visitor(_VLITPrinter(), opt);
+		}
+		void operator()(ERM::Tcommand const& opt) const
+		{
+			tlog1 << "--erm--";
+		}
+		void operator()(VFunc const& opt) const
+		{
+			tlog1 << "function";
+		}
+	};
+
+	void printVOption(const VOption & opt);
 }
 
 class ERMInterpreter;
