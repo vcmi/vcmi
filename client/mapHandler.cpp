@@ -512,9 +512,10 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 			sr.h=sr.w=32;
 
 			//blit terrain with river/road
-			if(tile.terbitmap) //if custom terrain graphic - use it
-				CSDL_Ext::blitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), extSurf, &sr);
-			else //use default terrain graphic
+			if(tile.terbitmap) { //if custom terrain graphic - use it
+				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
+				CSDL_Ext::blitSurface(tile.terbitmap, &temp_rect, extSurf, &sr);
+			} else //use default terrain graphic
 				blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
 			if(tinfo.nuine) //print river if present
 				blitterWithRotationAndAlpha(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
@@ -685,10 +686,10 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 			if (pos.x < 0 || pos.x >= sizes.x ||
 				pos.y < 0 || pos.y >= sizes.y)
 			{
-
+				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
 
 				CSDL_Ext::blitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
-								&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
+								&temp_rect,extSurf,&sr);
 			}
 			else 
 			{

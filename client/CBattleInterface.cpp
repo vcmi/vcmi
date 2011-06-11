@@ -1617,7 +1617,8 @@ void CBattleInterface::show(SDL_Surface * to)
 					{
 						int x = 14 + ((*it/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(*it%BFIELD_WIDTH) + pos.x;
 						int y = 86 + 42 * (*it/BFIELD_WIDTH) + pos.y;
-						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
+						SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 					}
 				}
 			}
@@ -1625,7 +1626,8 @@ void CBattleInterface::show(SDL_Surface * to)
 			{
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
-				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
+				SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 			}
 		}
 	}
@@ -1812,7 +1814,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
 		{
 			SDL_Surface * bitmapToBlit = it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap;
-			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, it->x, it->y));
+			SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, it->x, it->y);
+			SDL_BlitSurface(bitmapToBlit, NULL, to, &temp_rect);
 		}
 	}
 
@@ -3451,7 +3454,8 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 				amountBG = amountEffNeutral;
 			}
 		}
-		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + 260));
+		SDL_Rect temp_rect = genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + 260);
+		SDL_BlitSurface(amountBG, NULL, to, &temp_rect);
 		//blitting amount
 		CSDL_Ext::printAtMiddle(
 			makeNumberShort(stack->count),
@@ -3559,7 +3563,8 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 			int j = hex.getX()-1; //column
 			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 			int y = 86 + 42 * i;
-			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));
+			SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &temp_rect);
 		}
 	}
 }
@@ -3864,31 +3869,29 @@ void CBattleHero::show(SDL_Surface *to)
 	//animation of flag
 	if(flip)
 	{
+		SDL_Rect temp_rect = genRect(
+			flag->ourImages[flagAnim].bitmap->h,
+			flag->ourImages[flagAnim].bitmap->w,
+			pos.x + 61,
+			pos.y + 39);
 		CSDL_Ext::blit8bppAlphaTo24bpp(
 			flag->ourImages[flagAnim].bitmap,
 			NULL,
 			screen,
-			&genRect(
-				flag->ourImages[flagAnim].bitmap->h,
-				flag->ourImages[flagAnim].bitmap->w,
-				pos.x + 61,
-				pos.y + 39
-			)
-		);
+			&temp_rect);
 	}
 	else
 	{
+		SDL_Rect temp_rect = genRect(
+			flag->ourImages[flagAnim].bitmap->h,
+			flag->ourImages[flagAnim].bitmap->w,
+			pos.x + 72,
+			pos.y + 39);
 		CSDL_Ext::blit8bppAlphaTo24bpp(
 			flag->ourImages[flagAnim].bitmap,
 			NULL,
 			screen,
-			&genRect(
-				flag->ourImages[flagAnim].bitmap->h,
-				flag->ourImages[flagAnim].bitmap->w,
-				pos.x + 72,
-				pos.y + 39
-				)
-		);
+			&temp_rect);
 	}
 	++flagAnimCount;
 	if(flagAnimCount%4==0)
@@ -4250,7 +4253,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 
 	if(owner->attackingHeroInstance) //a hero attacked
 	{
-		SDL_BlitSurface(graphics->portraitLarge[owner->attackingHeroInstance->portrait], NULL, background, &genRect(64, 58, 21, 38));
+		SDL_Rect temp_rect = genRect(64, 58, 21, 38);
+		SDL_BlitSurface(graphics->portraitLarge[owner->attackingHeroInstance->portrait], NULL, background, &temp_rect);
 		//setting attackerName
 		attackerName = owner->attackingHeroInstance->name;
 	}
@@ -4266,13 +4270,15 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 21, 38));
+		SDL_Rect temp_rect = genRect(64, 58, 21, 38);
+		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &temp_rect);
 		//setting attackerName
 		attackerName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
 	if(owner->defendingHeroInstance) //a hero defended
 	{
-		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &genRect(64, 58, 392, 38));
+		SDL_Rect temp_rect = genRect(64, 58, 392, 38);
+		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &temp_rect);
 		//setting defenderName
 		defenderName = owner->defendingHeroInstance->name;
 	}
@@ -4288,7 +4294,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 392, 38));
+		SDL_Rect temp_rect = genRect(64, 58, 392, 38);
+		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &temp_rect);
 		//setting defenderName
 		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
@@ -4701,7 +4708,8 @@ void CStackQueue::StackBox::showAll( SDL_Surface *to )
 	{
 		graphics->blueToPlayersAdv(bg, my->owner);
 		//SDL_UpdateRect(bg, 0, 0, 0, 0);
-		CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &genRect(bg->h, bg->w, pos.x, pos.y));
+		SDL_Rect temp_rect = genRect(bg->h, bg->w, pos.x, pos.y);
+		CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &temp_rect);
 		//blitAt(bg, pos, to);
 		blitAt(graphics->bigImgs[my->getCreature()->idNumber], pos.x +9, pos.y + 1, to);
 		printAtMiddleLoc(makeNumberShort(my->count), pos.w/2, pos.h - 12, FONT_MEDIUM, zwykly, to);

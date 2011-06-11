@@ -2902,6 +2902,8 @@ bool CGameHandler::queryReply( ui32 qid, ui32 answer )
 	return true;
 }
 
+static EndAction end_action;
+
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
 	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
@@ -2911,15 +2913,17 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	{
 	case BattleAction::END_TACTIC_PHASE: //wait
 		{
-			sendAndApply(&StartAction(ba));
-			sendAndApply(&EndAction());
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
+			sendAndApply(&end_action);
 			break;
 		}
 	case BattleAction::WALK: //walk
 		{
-			sendAndApply(&StartAction(ba)); //start movement
+			StartAction start_action(ba);
+			sendAndApply(&start_action); //start movement
 			moveStack(ba.stackNumber,ba.destinationTile); //move
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			break;
 		}
 	case BattleAction::DEFEND: //defend
@@ -2934,8 +2938,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::WAIT: //wait
 		{
-			sendAndApply(&StartAction(ba));
-			sendAndApply(&EndAction());
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
+			sendAndApply(&end_action);
 			break;
 		}
 	case BattleAction::RETREAT: //retreat/flee
@@ -2964,7 +2969,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		break;
 	case BattleAction::WALK_AND_ATTACK: //walk or attack
 		{
-			sendAndApply(&StartAction(ba)); //start movement and attack
+			StartAction start_action(ba);
+			sendAndApply(&start_action); //start movement and attack
 			int startingPos = gs->curB->getStack(ba.stackNumber)->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
@@ -2980,7 +2986,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				tlog3 << problem << std::endl;
 				complain(problem);
 				ok = false;
-				sendAndApply(&EndAction());
+				sendAndApply(&end_action);
 				break;
 			}
 
@@ -2993,14 +2999,14 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				complain(boost::str(boost::format("walk and attack error: no stack at additionalInfo tile (%d)!\n") % ba.additionalInfo));
 				ok = false;
-				sendAndApply(&EndAction());
+				sendAndApply(&end_action);
 				break;
 			}
 
 			if( !CStack::isMeleeAttackPossible(curStack, stackAtEnd) )
 			{
 				complain("Attack cannot be performed!");
-				sendAndApply(&EndAction());
+				sendAndApply(&end_action);
 				ok = false;
 				break;
 			}
@@ -3042,7 +3048,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				moveStack(ba.stackNumber, startingPos);
 				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
 			}
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			break;
 		}
 	case BattleAction::SHOOT: //shoot
@@ -3052,7 +3058,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			if( !gs->curB->battleCanShoot(curStack, ba.destinationTile) )
 				break;
 
-			sendAndApply(&StartAction(ba)); //start shooting
+			StartAction start_action(ba);
+			sendAndApply(&start_action); //start shooting
 
 			BattleAttack bat;
 			bat.flags |= BattleAttack::SHOT;
@@ -3080,12 +3087,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				handleAfterAttackCasting(bat);
 			}
 
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			break;
 		}
 	case BattleAction::CATAPULT: //catapult
 		{
-			sendAndApply(&StartAction(ba));
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(CGHeroInstance::BALLISTICS)];
 			
@@ -3182,12 +3190,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				sendAndApply(&ca);
 			}
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			break;
 		}
 		case BattleAction::STACK_HEAL: //healing with First Aid Tent
 		{
-			sendAndApply(&StartAction(ba));
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CStack *healer = gs->curB->getStack(ba.stackNumber),
 				*destStack = gs->curB->getStackT(ba.destinationTile);
@@ -3220,7 +3229,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			break;
 		}
 	}
@@ -3232,7 +3241,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 void CGameHandler::playerMessage( ui8 player, const std::string &message )
 {
 	bool cheated=true;
-	sendAndApply(&PlayerMessage(player,message));
+	PlayerMessage temp_message(player,message);
+
+	sendAndApply(&temp_message);
 	if(message == "vcmiistari") //give all spells and 999 mana
 	{
 		SetMana sm;
@@ -3353,7 +3364,8 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		cheated = false;
 	if(cheated)
 	{
-		sendAndApply(&SystemMessage(VLC->generaltexth->allTexts[260]));
+		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
+		sendAndApply(&temp_message);
 	}
 }
 
@@ -3665,11 +3677,12 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				return false;
 			}
 
-			sendAndApply(&StartAction(ba)); //start spell casting
+			StartAction start_action(ba);
+			sendAndApply(&start_action); //start spell casting
 
 			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING, NULL);
 
-			sendAndApply(&EndAction());
+			sendAndApply(&end_action);
 			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
 			{
 				battleMadeAction.setn(true);
@@ -4610,8 +4623,10 @@ void CGameHandler::makeStackDoNothing(const CStack * next)
 	doNothing.destinationTile = -1;
 	doNothing.side = !next->attackerOwned;
 	doNothing.stackNumber = next->ID;
-	sendAndApply(&StartAction(doNothing));
-	sendAndApply(&EndAction());
+
+	StartAction start_action(doNothing);
+	sendAndApply(&start_action);
+	sendAndApply(&end_action);
 }
 
 bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count)
@@ -4815,8 +4830,10 @@ void CGameHandler::runBattle()
 					ba.additionalInfo = 1;
 					ba.side = !next->attackerOwned;
 					ba.stackNumber = next->ID;
-					sendAndApply(&StartAction(ba));
-					sendAndApply(&EndAction());
+
+					StartAction start_action(ba);
+					sendAndApply(&start_action);
+					sendAndApply(&end_action);
 					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
 					continue;
 				}

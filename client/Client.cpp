@@ -123,7 +123,8 @@ void CClient::waitForMoveAndSend(int color)
 	{
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
-		*serv << &MakeAction(ba);
+		MakeAction temp_action(ba);
+		*serv << &temp_action;
 		return;
 	}HANDLE_EXCEPTION
 	tlog1 << "We should not be here!" << std::endl;
@@ -170,7 +171,8 @@ void CClient::save(const std::string & fname)
 		return;
 	}
 
-	*serv << &SaveGame(fname);
+	SaveGame save_game(fname);
+	*serv << &save_game;
 }
 
 #include <fstream>
@@ -538,7 +540,8 @@ void CClient::stopConnection()
 	{
 		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
-		*serv << &CloseServer();
+		CloseServer close_server;
+		*serv << &close_server;
 		tlog0 << "Sent closing signal to the server\n";
 	}
 

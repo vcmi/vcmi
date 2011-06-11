@@ -56,29 +56,38 @@ void CCursorHandler::draw1()
 	if(!Show) return;
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
-	SDL_BlitSurface(screen, &genRect(40,40,x,y), help, &genRect(40,40,0,0));
+
+	SDL_Rect temp_rect1 = genRect(40,40,x,y);
+	SDL_Rect temp_rect2 = genRect(40,40,0,0);
+	SDL_BlitSurface(screen, &temp_rect1, help, &temp_rect2);
 // 	if (dndImage)
 // 		blitAt(dndImage, x - dndImage->w/2, y - dndImage->h/2);
 // 	else
 // 		blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
 
-	if (dndImage)
-		SDL_BlitSurface(dndImage, NULL, screen, &genRect(40, 40, x - dndImage->w/2, y - dndImage->h/2));
-	else
-		SDL_BlitSurface(cursors[mode]->ourImages[number].bitmap, NULL, screen, &genRect(40,40,x,y));
+	if (dndImage) {
+		SDL_Rect temp_rect =genRect(40, 40, x - dndImage->w/2, y - dndImage->h/2);
+			SDL_BlitSurface(dndImage, NULL, screen, &temp_rect);
+	} else {
+		SDL_Rect temp_rect = genRect(40,40,x,y);
+			SDL_BlitSurface(cursors[mode]->ourImages[number].bitmap, NULL, screen, &temp_rect);
+	}
 }
 void CCursorHandler::draw2()
 {
 	if(!Show) return;
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
-	SDL_BlitSurface(help, NULL, screen, &genRect(40, 40, x, y));
+
+	SDL_Rect temp_rect = genRect(40, 40, x, y);
+	SDL_BlitSurface(help, NULL, screen, &temp_rect);
 	//blitAt(help,x,y);
 }
 
 void CCursorHandler::draw(SDL_Surface *to)
 {
-	CSDL_Ext::blitSurface(cursors[mode]->ourImages[number].bitmap, 0, to, &genRect(40, 40, xpos, ypos));
+	SDL_Rect temp_rect = genRect(40, 40, xpos, ypos);
+	CSDL_Ext::blitSurface(cursors[mode]->ourImages[number].bitmap, 0, to, &temp_rect);
 }
 
 void CCursorHandler::shiftPos( int &x, int &y )
