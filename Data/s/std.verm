@@ -1,0 +1,9 @@
+VERM
+; standard verm file, global engine things should be put here
+
+!?PI;
+![print ^Hello world!^]
+![defun add [x y] [+ x y]]
+![print [add 2 3]]
+![[lambda [x y] [if [> x y] [print ^wieksze^] [print ^mniejsze^]]] 2 3]
+![if [> 2 1] [print ^Wieksze^] [print ^Mniejsze^]]

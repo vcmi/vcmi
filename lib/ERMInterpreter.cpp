@@ -2542,6 +2542,21 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 
 			env.bindAtFirstHit( getAs<std::string>(getAs<TLiteral>(exp.children[1]) ), exp.children[2]);
 		}
+		else if(opt.text == "defun")
+		{
+			if(exp.children.size() < 4)
+			{
+				throw EVermScriptExecError("defun special form takes at least 4 arguments");
+			}
+			VFunc f(exp.children.cdr().getAsCDR().getAsCDR().getAsList());
+			VNode arglist = getAs<VNode>(exp.children[2]);
+			for(int g=0; g<arglist.children.size(); ++g)
+			{
+				f.args.push_back(getAs<VSymbol>(arglist.children[g]));
+			}
+			env.localBind(getAs<VSymbol>(exp.children[1]).text, f);
+			return f;
+		}
 		//"apply" part of eval, a bit blurred in this implementation but this way it looks good too
 		else if(symToFunc.find(opt.text) != symToFunc.end())
 		{
@@ -2549,9 +2564,20 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 			VOptionList ls = erm->evalEach(exp.children.cdr());
 			return f(VermTreeIterator(ls));
 		}
+		else if(topDyn->isBound(opt.text, Environment::ANYWHERE))
+		{
+			VOption & bValue = topDyn->retrieveValue(opt.text);
+			if(!isA<VFunc>(bValue))
+			{
+				throw EVermScriptExecError("This value does not evaluate to a function!");
+			}
+			VFunc f = getAs<VFunc>(bValue);
+			VOptionList ls = erm->evalEach(exp.children.cdr());
+			return f(VermTreeIterator(ls));
+		}
 
 
-		return VNIL(); //temporarily...
+		throw EVermScriptExecError("Cannot evaluate given expression");
 	}
 	VOption operator()(TLiteral const& opt) const
 	{
@@ -2891,6 +2917,88 @@ namespace VERMInterpreter
 					return lhs;
 				else
 					return VNIL();
+			}
+			break;
+		case ADD:
+			{
+				if(params.size() == 0)
+					throw EVermScriptExecError("+ special function takes at least 1 argument");
+
+				TLiteral par1 = getAs<TLiteral>(params.getIth(0));
+				int retI = 0;
+				double retD = 0.0;
+				int used = isA<int>(par1) ? 0 : 1;
+
+				for(int i=0; i<params.size(); ++i)
+				{
+					if(used == 0)
+						retI += getAs<int>(getAs<TLiteral>(params.getIth(i)));
+					else
+						retD += getAs<double>(getAs<TLiteral>(params.getIth(i)));
+				}
+				if(used == 0)
+					return retI;
+				else
+					return retD;
+			}
+			break;
+		case SUB:
+			{
+				if(params.size() != 2)
+					throw EVermScriptExecError("- special function takes at least 2 argument");
+
+				TLiteral par1 = getAs<TLiteral>(params.getIth(0));
+				int used = isA<int>(par1) ? 0 : 1;
+
+				if(used == 0)
+					return getAs<int>(getAs<TLiteral>(params.getIth(0))) - getAs<int>(getAs<TLiteral>(params.getIth(1)));
+				else
+					return getAs<double>(getAs<TLiteral>(params.getIth(1))) - getAs<double>(getAs<TLiteral>(params.getIth(1)));
+			}
+			break;
+		case MULT:
+			{
+				if(params.size() == 0)
+					throw EVermScriptExecError("* special function takes at least 1 argument");
+
+				TLiteral par1 = getAs<TLiteral>(params.getIth(0));
+				int retI = 1;
+				double retD = 1.0;
+				int used = isA<int>(par1) ? 0 : 1;
+
+				for(int i=0; i<params.size(); ++i)
+				{
+					if(used == 0)
+						retI *= getAs<int>(getAs<TLiteral>(params.getIth(i)));
+					else
+						retD *= getAs<double>(getAs<TLiteral>(params.getIth(i)));
+				}
+				if(used == 0)
+					return retI;
+				else
+					return retD;
+			}
+			break;
+		case DIV:
+			{
+				if(params.size() != 2)
+					throw EVermScriptExecError("/ special function takes at least 2 argument");
+
+				TLiteral par1 = getAs<TLiteral>(params.getIth(0));
+				int used = isA<int>(par1) ? 0 : 1;
+
+				if(used == 0)
+					return getAs<int>(getAs<TLiteral>(params.getIth(0))) / getAs<int>(getAs<TLiteral>(params.getIth(1)));
+				else
+					return getAs<double>(getAs<TLiteral>(params.getIth(1))) / getAs<double>(getAs<TLiteral>(params.getIth(1)));
+			}
+			break;
+		case MOD:
+			{
+				if(params.size() != 2)
+					throw EVermScriptExecError("% special function takes at least 2 argument");
+
+				return getAs<int>(getAs<TLiteral>(params.getIth(0))) % getAs<int>(getAs<TLiteral>(params.getIth(1)));
 			}
 			break;
 		default:
