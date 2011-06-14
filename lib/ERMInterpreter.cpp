@@ -2546,7 +2546,8 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 		else if(symToFunc.find(opt.text) != symToFunc.end())
 		{
 			VFunc f(symToFunc[opt.text]);
-			return f(erm->evalEach(exp.children.cdr()));
+			VOptionList ls = erm->evalEach(exp.children.cdr());
+			return f(VermTreeIterator(ls));
 		}
 
 
