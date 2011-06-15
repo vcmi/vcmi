@@ -487,7 +487,7 @@ namespace VERMInterpreter
 		enum Estate {NORM, CAR} state;
 		int basePos; //car/cdr offset
 	public:
-		VermTreeIterator(VOptionList & _parent) : parent(&_parent), basePos(0), state(NORM)
+		VermTreeIterator(VOptionList & _parent) : parent(&_parent), state(NORM), basePos(0)
 		{}
 		VermTreeIterator() : parent(NULL), state(NORM)
 		{}
@@ -530,7 +530,7 @@ namespace VERMInterpreter
 		enum Eopt {DEFAULT, LT, GT, LE, GE, ADD, SUB, MULT, DIV, MOD} option;
 		std::vector<VSymbol> args;
 		VOptionList body;
-		VFunc(const VOptionList & _body) : body(_body), option(DEFAULT)
+		VFunc(const VOptionList & _body) : option(DEFAULT), body(_body)
 		{}
 		VFunc(Eopt func) : option(func)
 		{}
