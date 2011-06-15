@@ -510,7 +510,7 @@ void CClient::handlePack( CPack * pack )
 	}
 	else
 	{
-		tlog1 << "Message cannot be applied, cannot find applier!\n";
+		tlog1 << "Message cannot be applied, cannot find applier! TypeID " << typeList.getTypeID(pack) << std::endl;
 	}
 	delete pack;
 }

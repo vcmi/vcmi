@@ -10,6 +10,10 @@
 using boost::logic::tribool;
 #include <boost/cstdint.hpp>
 #include <assert.h>
+#ifdef ANDROID
+#include <android/log.h>
+#include <sstream>
+#endif
 //filesystem version 3 causes problems (and it's default as of boost 1.46)
 #define BOOST_FILESYSTEM_VERSION 2
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
@@ -618,20 +622,43 @@ extern DLL_EXPORT CConsoleHandler *console;
 class CLogger //logger, prints log info to console and saves in file
 {
 	const int lvl;
+#ifdef ANDROID
+	std::ostringstream buf;
+	int androidloglevel;
+	void outputAndroid()
+	{
+		int pos = buf.str().find("\n");
+		while( pos >= 0 )
+		{
+			__android_log_print(androidloglevel, "VCMI", "%s", buf.str().substr(0, pos).c_str() );
+			buf.str( buf.str().substr(pos+1) );
+			pos = buf.str().find("\n");
+		}
+	}
+#endif
 
 public:
 	CLogger& operator<<(std::ostream& (*fun)(std::ostream&))
 	{
+#ifdef ANDROID
+		buf << fun;
+		outputAndroid();
+#else
 		if(lvl < CONSOLE_LOGGING_LEVEL)
 			std::cout << fun;
 		if((lvl < FILE_LOGGING_LEVEL) && logfile)
 			*logfile << fun;
+#endif
 		return *this;
 	}
 
 	template<typename T> 
 	CLogger & operator<<(const T & data)
 	{
+#ifdef ANDROID
+		buf << data;
+		outputAndroid();
+#else
 		if(lvl < CONSOLE_LOGGING_LEVEL)
 		{
 			if(console)
@@ -641,10 +668,25 @@ public:
 		}
 		if((lvl < FILE_LOGGING_LEVEL) && logfile)
 			*logfile << data << std::flush;
+#endif
 		return *this;
 	}
 
-	CLogger(const int Lvl) : lvl(Lvl) {}
+	CLogger(const int Lvl) : lvl(Lvl)
+	{
+#ifdef ANDROID
+		androidloglevel = ANDROID_LOG_INFO;
+		switch(lvl) {
+			case 0: androidloglevel = ANDROID_LOG_INFO; break;
+			case 1: androidloglevel = ANDROID_LOG_FATAL; break;
+			case 2: androidloglevel = ANDROID_LOG_ERROR; break;
+			case 3: androidloglevel = ANDROID_LOG_WARN; break;
+			case 4: androidloglevel = ANDROID_LOG_INFO; break;
+			case 5: androidloglevel = ANDROID_LOG_DEBUG; break;
+			case 6: case -2: androidloglevel = ANDROID_LOG_VERBOSE; break;
+		}
+#endif
+	}
 };
 
 extern DLL_EXPORT CLogger tlog0; //green - standard progress info

@@ -1,3 +1,6 @@
+#ifndef __VCMIDIRS_H__
+#define __VCMIDIRS_H__
+
 /*
  * UserHome.h, part of VCMI engine
  *
@@ -14,7 +17,7 @@
 #endif
 
 
-/// Where to find the various VCMI files. This is mostly usefull for linux. 
+/// Where to find the various VCMI files. This is mostly useful for linux. 
 class VCMIDirs {
 public:
 	std::string UserPath;
@@ -24,14 +27,27 @@ public:
 #ifdef _WIN32
 		UserPath = DATA_DIR;
 #else
-		// Find vcmi user directory and create it if necessary
-		std::string home_dir = getenv("HOME");
-		UserPath = path(home_dir + "/.vcmi").string();
+		try {
+#ifdef ANDROID
+			UserPath = DATA_DIR;
+#else
+			// Find vcmi user directory and create it if necessary
+			std::string home_dir = ".";
+			if( getenv("HOME") != NULL )
+				home_dir = getenv("HOME");
 
-		create_directory(UserPath);
-		create_directory(UserPath + "/config");
-		create_directory(UserPath + "/Games");
+			UserPath = path(home_dir + "/.vcmi").string();
+#endif
+			create_directory(UserPath);
+			create_directory(UserPath + "/config");
+			create_directory(UserPath + "/Games");
+		}
+		catch(const std::exception & e)
+		{
+		}
 #endif
 	}
 };
 extern VCMIDirs GVCMIDirs;
+
+#endif	// __VCMIDIRS_H__
