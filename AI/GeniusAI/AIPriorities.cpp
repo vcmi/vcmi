@@ -8,11 +8,11 @@ using namespace geniusai;
 Network::Network()
 {}
 Network::Network(vector<unsigned int> whichFeatures)// random network
-    : net(whichFeatures.size(),
+    : whichFeatures(whichFeatures),
+      net(whichFeatures.size(),
           whichFeatures.size() * 0.601 + 2,
           whichFeatures.size() * 0.251 + 2,
-          1),
-      whichFeatures(whichFeatures)
+          1)
 {
 }
 

@@ -693,7 +693,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::MAGIC_RESISTANCE:
 			fileName = "E_DWARF.bmp"; break;
 		case Bonus::SECONDARY_SKILL_PREMY:
-			if (bonus->subtype = CGHeroInstance::RESISTANCE)
+			if (bonus->subtype == CGHeroInstance::RESISTANCE)
 			{
 				fileName = "E_DWARF.bmp";
 			}

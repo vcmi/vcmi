@@ -54,7 +54,7 @@ class CSpell;
 class CCreatureSet;
 class CCreature;
 class CStackBasicDescriptor;
-class TeamState;
+struct TeamState;
 class CGCreature;
 
 

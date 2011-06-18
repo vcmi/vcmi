@@ -206,7 +206,7 @@ public:
 			if(!army || slot == -1 || !army->hasStackAtSlot(slot))
 			{
 				base = NULL;
-				tlog3 << type->nameSing << " don't have a base stack!\n";
+				tlog3 << type->nameSing << " doesn't have a base stack!\n";
 			}
 			else
 			{
