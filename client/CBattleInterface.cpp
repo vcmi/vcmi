@@ -4008,7 +4008,7 @@ CBattleHero::~CBattleHero()
 Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
 {
 	Point ret(-500, -500); //returned value
-	if(stack->position < 0) //creatures in turrets
+	if(stack && stack->position < 0) //creatures in turrets
 	{
 		switch(stack->position)
 		{
