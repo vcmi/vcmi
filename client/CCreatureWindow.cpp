@@ -335,9 +335,8 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
-	//if(c->shots)
-	//	printLine(2, CGI->generaltexth->allTexts[198], c->shots);
-	if(stackNode->valOfBonuses(Bonus::SHOTS))
+
+	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER)) //only for shooting units - important with wog exp shooters
 		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 
 	//TODO
