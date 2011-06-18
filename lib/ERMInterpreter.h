@@ -353,7 +353,7 @@ namespace VERMInterpreter
 		template<typename OP>
 		bool operator()(OP const & rhs) const
 		{
-			return boost::get<OP>(lhs) <= rhs;
+			return boost::get<OP>(lhs) > rhs;
 		}
 	};
 
@@ -370,11 +370,25 @@ namespace VERMInterpreter
 		template<typename OP>
 		bool operator()(OP const & rhs) const
 		{
-			return boost::get<OP>(lhs) <= rhs;
+			return boost::get<OP>(lhs) >= rhs;
 		}
 	};
 
 	bool operator>=(const TLiteral & t1, const TLiteral & t2);
+
+	//operator =
+	struct _opEQvis : boost::static_visitor<bool>
+	{
+		const TLiteral & lhs;
+		_opEQvis(const TLiteral & _lhs) : lhs(_lhs)
+		{}
+
+		template<typename OP>
+		bool operator()(OP const & rhs) const
+		{
+			return boost::get<OP>(lhs) == rhs;
+		}
+	};
 
 	//VFunc
 	struct VFunc;
@@ -527,12 +541,13 @@ namespace VERMInterpreter
 
 	struct VFunc
 	{
-		enum Eopt {DEFAULT, LT, GT, LE, GE, ADD, SUB, MULT, DIV, MOD} option;
+		enum Eopt {DEFAULT, LT, GT, LE, GE, EQ, ADD, SUB, MULT, DIV, MOD} option;
 		std::vector<VSymbol> args;
 		VOptionList body;
-		VFunc(const VOptionList & _body) : option(DEFAULT), body(_body)
+		bool macro; //true - act as macro, false - act as function
+		VFunc(const VOptionList & _body, bool asMacro = false) : option(DEFAULT), body(_body), macro(asMacro)
 		{}
-		VFunc(Eopt func) : option(func)
+		VFunc(Eopt func) : option(func), macro(false)
 		{}
 		VFunc& operator=(const VFunc & rhs)
 		{
@@ -563,7 +578,7 @@ namespace VERMInterpreter
 	struct VNode
 	{
 	private:
-		void processModifierList(const std::vector<TVModifier> & modifierList);
+		void processModifierList(const std::vector<TVModifier> & modifierList, bool asSymbol);
 	public:
 		VOptionList children;
 		VNode( const ERM::TVExp & exp);
@@ -574,52 +589,6 @@ namespace VERMInterpreter
 	};
 
 	//v printer
-	struct _VLITPrinter : boost::static_visitor<void>
-	{
-		void operator()(const std::string & par) const
-		{
-			tlog1 << "^" << par << "^";
-		}
-		template<typename T>
-		void operator()(const T & par) const
-		{
-			tlog1 << par;
-		}
-	};
-
-	struct _VOPTPrinter : boost::static_visitor<void>
-	{
-		void operator()(VNIL const& opt) const
-		{
-			tlog1 << "[]";
-		}
-		void operator()(VNode const& opt) const
-		{
-			tlog1 << "[";
-			for(int g=0; g<opt.children.size(); ++g)
-			{
-				boost::apply_visitor(_VOPTPrinter(), opt.children[g]);
-				tlog1 << " ";
-			}
-			tlog1 << "]";
-		}
-		void operator()(VSymbol const& opt) const
-		{
-			tlog1 << opt.text;
-		}
-		void operator()(TLiteral const& opt) const
-		{
-			boost::apply_visitor(_VLITPrinter(), opt);
-		}
-		void operator()(ERM::Tcommand const& opt) const
-		{
-			tlog1 << "--erm--";
-		}
-		void operator()(VFunc const& opt) const
-		{
-			tlog1 << "function";
-		}
-	};
 
 	void printVOption(const VOption & opt);
 }
