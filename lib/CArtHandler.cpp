@@ -400,24 +400,24 @@ int CArtHandler::convertMachineID(int id, bool creToArt )
 
 void CArtHandler::sortArts()
 {
-// 	for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
-// 	{
-// 		switch (allowedArtifacts[i]->aClass)
-// 		{
-// 		case CArtifact::ART_TREASURE:
-// 			treasures.push_back(allowedArtifacts[i]);
-// 			break;
-// 		case CArtifact::ART_MINOR:
-// 			minors.push_back(allowedArtifacts[i]);
-// 			break;
-// 		case CArtifact::ART_MAJOR:
-// 			majors.push_back(allowedArtifacts[i]);
-// 			break;
-// 		case CArtifact::ART_RELIC:
-// 			relics.push_back(allowedArtifacts[i]);
-// 			break;
-// 		}
-// 	}
+ 	//for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
+ 	//{
+ 	//	switch (allowedArtifacts[i]->aClass)
+ 	//	{
+ 	//	case CArtifact::ART_TREASURE:
+ 	//		treasures.push_back(allowedArtifacts[i]);
+ 	//		break;
+ 	//	case CArtifact::ART_MINOR:
+ 	//		minors.push_back(allowedArtifacts[i]);
+ 	//		break;
+ 	//	case CArtifact::ART_MAJOR:
+ 	//		majors.push_back(allowedArtifacts[i]);
+ 	//		break;
+ 	//	case CArtifact::ART_RELIC:
+ 	//		relics.push_back(allowedArtifacts[i]);
+ 	//		break;
+ 	//	}
+ 	//}
 }
 void CArtHandler::erasePickedArt (si32 id)
 {
@@ -467,10 +467,17 @@ void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, i
 		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
 	if (flags & CArtifact::ART_RELIC)
 		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-	if (!out.size()) //no arts are avaliable
+	if (!out.size()) //no artifact of specified rarity, we need to take another one
+	{
+		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
+		getAllowedArts (out, &minors, CArtifact::ART_MINOR);
+		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
+		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
+	}
+	if (!out.size()) //no arts are avaliable at all
 	{
 		out.resize (64);
-		std::fill_n (out.begin(), 64, artifacts[2]); //magic
+		std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
 	}
 }
 void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)

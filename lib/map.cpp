@@ -972,7 +972,16 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 			}
 		}//allowed artifacts have been read
 	}
-
+	else //ban combo artifacts
+	{
+		BOOST_FOREACH(CArtifact *artifact, VLC->arth->artifacts) 
+		{
+			if (artifact->constituents != NULL) //combo
+			{
+				allowedArtifact[artifact->id] = false;
+			}
+		}
+	}
 
 	allowedSpell.resize(SPELLS_QUANTITY);
 	for(unsigned int x=0;x<allowedSpell.size();x++)
