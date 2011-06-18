@@ -972,7 +972,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 			}
 		}//allowed artifacts have been read
 	}
-	else //ban combo artifacts
+	if (version == RoE || version == AB) //ban combo artifacts
 	{
 		BOOST_FOREACH(CArtifact *artifact, VLC->arth->artifacts) 
 		{
