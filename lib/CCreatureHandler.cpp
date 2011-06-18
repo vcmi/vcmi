@@ -624,6 +624,9 @@ void CCreatureHandler::loadCreatures()
 		}
 	}
 	ifs.close();
+	//handle magic resistance secondary skill premy, potentialy may be buggy
+	std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
+	stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
 
 	if (STACK_EXP) 	//reading default stack experience bonuses
 	{

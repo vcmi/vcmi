@@ -976,7 +976,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 	{
 		BOOST_FOREACH(CArtifact *artifact, VLC->arth->artifacts) 
 		{
-			if (artifact->constituents != NULL) //combo
+			if (artifact->constituents) //combo
 			{
 				allowedArtifact[artifact->id] = false;
 			}

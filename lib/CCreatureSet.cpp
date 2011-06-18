@@ -598,6 +598,16 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
 					break;
 				//Complex descriptions
+				case Bonus::SECONDARY_SKILL_PREMY: //only if there's no simple MR
+					if (bonus->subtype == CGHeroInstance::RESISTANCE)
+					{
+						if (!hasBonusOfType(Bonus::MAGIC_RESISTANCE))
+							boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>( magicResistance() ));
+					}
+					break;
+				case Bonus::MAGIC_RESISTANCE:
+						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>( magicResistance() ));
+					break;
 				case Bonus::HATE:
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
@@ -637,8 +647,9 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::SPELL_IMMUNITY:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
-				case Bonus::MAGIC_RESISTANCE: //handled separately
-					return "";
+				case Bonus::SECONDARY_SKILL_PREMY:
+					if (bonus->subtype != CGHeroInstance::RESISTANCE || hasBonusOfType(Bonus::MAGIC_RESISTANCE)) //handle it there
+					text = "";
 					break;
 			}
 		}
@@ -681,6 +692,12 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_DRAGON.bmp"; break;
 		case Bonus::MAGIC_RESISTANCE:
 			fileName = "E_DWARF.bmp"; break;
+		case Bonus::SECONDARY_SKILL_PREMY:
+			if (bonus->subtype = CGHeroInstance::RESISTANCE)
+			{
+				fileName = "E_DWARF.bmp";
+			}
+			break;
 		case Bonus::FEAR:
 			fileName = "E_FEAR.bmp"; break;
 		case Bonus::FEARLESS:
