@@ -1786,7 +1786,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 	const CStack * subject = getStackT(dest, false);
 	if(subject)
 	{
-		if (spell->positiveness ==1 && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		if (spell->positiveness == 1 && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 			return SpellCasting::OK;
 
 		if ((spell->id == 41 || spell->id == 42) && subject->hasBonusOfType(Bonus::UNDEAD)) //undeads are immune to bless & curse

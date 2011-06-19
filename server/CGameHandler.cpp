@@ -3667,35 +3667,43 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
-			ui8 skill = h->getSpellSchoolLevel(s); //skill level
-
-			SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, SpellCasting::HERO_CASTING);
-			if(escp != SpellCasting::OK)
+			if (s->mainEffectAnim > -1) //TODO: special effects, like Clone
 			{
-				tlog2 << "Spell cannot be cast!\n";
-				tlog2 << "Problem : " << escp << std::endl;
+				ui8 skill = h->getSpellSchoolLevel(s); //skill level
+
+				SpellCasting::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, SpellCasting::HERO_CASTING);
+				if(escp != SpellCasting::OK)
+				{
+					tlog2 << "Spell cannot be cast!\n";
+					tlog2 << "Problem : " << escp << std::endl;
+					return false;
+				}
+
+				StartAction start_action(ba);
+				sendAndApply(&start_action); //start spell casting
+
+				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING, NULL);
+
+				sendAndApply(&end_action);
+				if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
+				{
+					battleMadeAction.setn(true);
+				}
+				checkForBattleEnd(gs->curB->stacks);
+				if(battleResult.get())
+				{
+					battleMadeAction.setn(true);
+					//battle will be ended by startBattle function
+					//endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+				}
+
+				return true;
+			}
+			else
+			{
+				tlog2 << "Spell " << s->name << " is not yet supported!\n";
 				return false;
 			}
-
-			StartAction start_action(ba);
-			sendAndApply(&start_action); //start spell casting
-
-			handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), SpellCasting::HERO_CASTING, NULL);
-
-			sendAndApply(&end_action);
-			if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
-			{
-				battleMadeAction.setn(true);
-			}
-			checkForBattleEnd(gs->curB->stacks);
-			if(battleResult.get())
-			{
-				battleMadeAction.setn(true);
-				//battle will be ended by startBattle function
-				//endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
-			}
-
-			return true;
 		}
 	}
 	return false;
