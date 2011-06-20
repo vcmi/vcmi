@@ -1,4 +1,3 @@
-#define VCMI_DLL
 #include "ERMParser.h"
 #include <boost/version.hpp>
 //To make compilation with older boost versions possible

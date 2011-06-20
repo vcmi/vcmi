@@ -11,7 +11,7 @@
 #include "CBuildingHandler.h"
 #include "CSpellHandler.h"
 #include "CGeneralTextHandler.h"
-#include "ERMInterpreter.h"
+#include "IGameEventsReceiver.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine

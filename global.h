@@ -51,22 +51,24 @@ extern std::string NAME_AFFIX; //client / server
  * LIB_DIR is where the AI libraries reside (linux only)
  */
 #ifdef _WIN32
-#define DATA_DIR "."
-#define USER_DIR  "."
-#define BIN_DIR  "."
-#define LIB_DIR "AI"
-#define SERVER_NAME "VCMI_server.exe"
+	#define DATA_DIR "."
+	#define USER_DIR  "."
+	#define BIN_DIR  "."
+	#define LIB_DIR "AI"
+	#define SERVER_NAME "VCMI_server.exe"
+	#define LIB_EXT "dll"
 #else
-#ifndef DATA_DIR
-#error DATA_DIR undefined.
-#endif
-#ifndef BIN_DIR
-#error BIN_DIR undefined.
-#endif
-#ifndef LIB_DIR
-#error LIB_DIR undefined.
-#endif
-#define SERVER_NAME "vcmiserver"
+	#ifndef DATA_DIR
+	#error DATA_DIR undefined.
+	#endif
+	#ifndef BIN_DIR
+	#error BIN_DIR undefined.
+	#endif
+	#ifndef LIB_DIR
+	#error LIB_DIR undefined.
+	#endif
+	#define SERVER_NAME "vcmiserver"
+	#define LIB_EXT "so"
 #endif
 
 #ifdef _WIN32

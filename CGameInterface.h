@@ -54,6 +54,7 @@ typedef si32 TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
 struct ArtifactLocation;
+class CScriptingModule;
 
 class CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -82,12 +83,14 @@ public:
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 };
 
-class CAIHandler
+class CDynLibHandler
 {
 public:
 	static CGlobalAI * getNewAI(std::string dllname);
 	static CBattleGameInterface * getNewBattleAI(std::string dllname);
+	static CScriptingModule * getNewScriptingModule(std::string dllname);
 };
+
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:

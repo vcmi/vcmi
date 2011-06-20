@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StupidAI", "AI\StupidAI\Stu
 		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ERM", "Scripting\ERM\ERM.vcxproj", "{8F202F43-106D-4F63-AD9D-B1D43E803E8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +53,12 @@ Global
 		{15DABC90-234A-4B6B-9EEB-777C4768B82B}.RD|Win32.Build.0 = RD|Win32
 		{15DABC90-234A-4B6B-9EEB-777C4768B82B}.Release|Win32.ActiveCfg = Release|Win32
 		{15DABC90-234A-4B6B-9EEB-777C4768B82B}.Release|Win32.Build.0 = Release|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.Debug|Win32.Build.0 = Debug|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.RD|Win32.ActiveCfg = RD|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.RD|Win32.Build.0 = RD|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.Release|Win32.ActiveCfg = Release|Win32
+		{8F202F43-106D-4F63-AD9D-B1D43E803E8C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

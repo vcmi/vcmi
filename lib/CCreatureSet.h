@@ -53,6 +53,7 @@ public:
 	std::string getQuantityTXT(bool capitalized = true) const;
 	int getExpRank() const;
 	si32 magicResistance() const;
+	int getCreatureID() const; //-1 if not available
 	void init();
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count);
@@ -132,7 +133,8 @@ public:
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 	
-	const CStackInstance& getStack(TSlot slot) const; 
+	const CStackInstance& getStack(TSlot slot) const; //stack must exist
+	const CStackInstance* getStackPtr(TSlot slot) const; //if stack doesn't exist, returns NULL
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
 	int getStackCount (TSlot slot) const;
 	expType getStackExperience(TSlot slot) const;

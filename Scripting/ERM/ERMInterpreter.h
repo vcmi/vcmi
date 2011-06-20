@@ -1,7 +1,6 @@
 #pragma once
-#include "../global.h"
+#include "../../global.h"
 #include "ERMParser.h"
-#include "IGameEventsReceiver.h"
 #include "ERMScriptModule.h"
 
 /*
@@ -841,6 +840,8 @@ public:
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;
 	virtual void init() OVERRIDE;//sets up environment etc.
 	virtual void executeUserCommand(const std::string &cmd) OVERRIDE;
+	virtual void giveInfoCB(CPrivilagedInfoCallback *cb) OVERRIDE;
+	virtual void giveActionCB(IGameEventRealizer *cb) OVERRIDE;
 
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE;
 
@@ -854,4 +855,5 @@ public:
 		else
 			throw VERMInterpreter::EScriptExecError("Wrong cast attempted, object is not of a desired type!");
 	}
+
 };

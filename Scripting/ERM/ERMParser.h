@@ -1,5 +1,5 @@
 #pragma once
-#include "../global.h"
+#include "../../global.h"
 #include <fstream>
 #include <boost/variant.hpp>
 #include <boost/optional.hpp>

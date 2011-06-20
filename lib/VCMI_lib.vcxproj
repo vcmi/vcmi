@@ -172,6 +172,7 @@
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CDefObjInfoHandler.cpp" />
+    <ClCompile Include="CFileUtility.cpp" />
     <ClCompile Include="CGameState.cpp" />
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
@@ -181,9 +182,6 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
-    <ClCompile Include="ERMInterpreter.cpp" />
-    <ClCompile Include="ERMParser.cpp" />
-    <ClCompile Include="ERMScriptModule.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="map.cpp" />
@@ -204,6 +202,7 @@
     <ClInclude Include="CCreatureHandler.h" />
     <ClInclude Include="CCreatureSet.h" />
     <ClInclude Include="CDefObjInfoHandler.h" />
+    <ClInclude Include="CFileUtility.h" />
     <ClInclude Include="CGameState.h" />
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
@@ -214,11 +213,9 @@
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
+    <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSpellHandler.h" />
     <ClInclude Include="CTownHandler.h" />
-    <ClInclude Include="ERMInterpreter.h" />
-    <ClInclude Include="ERMParser.h" />
-    <ClInclude Include="ERMScriptModule.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />

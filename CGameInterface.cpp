@@ -20,7 +20,7 @@
  */
 
 template<typename rett>
-rett * createAnyAI(std::string dllname, std::string methodName)
+rett * createAny(std::string dllname, std::string methodName)
 {
 	char temp[50];
 	rett * ret=NULL;
@@ -29,24 +29,25 @@ rett * createAnyAI(std::string dllname, std::string methodName)
 
 	std::string dllPath;
 
+	//TODO unify at least partially (code duplication)
 #ifdef _WIN32
-	dllPath = LIB_DIR "/" +dllname+".dll";
+	dllPath = dllname;
 	HINSTANCE dll = LoadLibraryA(dllPath.c_str());
 	if (!dll)
 	{
-		tlog1 << "Cannot open AI library ("<<dllPath<<"). Throwing..."<<std::endl;
-		throw new std::string("Cannot open AI library");
+		tlog1 << "Cannot open dynamic library ("<<dllPath<<"). Throwing..."<<std::endl;
+		throw new std::string("Cannot open dynamic library");
 	}
 	//int len = dllname.size()+1;
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
 	getAI = (rett*(*)())GetProcAddress(dll,methodName.c_str());
 #else
-	dllPath = LIB_DIR "/" + dllname + ".so";
+	dllPath = dllname;
 	void *dll = dlopen(dllPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (!dll)
 	{
-		tlog1 << "Cannot open AI library ("<<dllPath<<"). Throwing..."<<std::endl;
-		throw new std::string("Cannot open AI library");
+		tlog1 << "Cannot open dynamic library ("<<dllPath<<"). Throwing..."<<std::endl;
+		throw new std::string("Cannot open dynamic library");
 	}
 	getName = (void(*)(char*))dlsym(dll,"GetAiName");
 	getAI = (rett*(*)())dlsym(dll,methodName.c_str());
@@ -58,18 +59,31 @@ rett * createAnyAI(std::string dllname, std::string methodName)
 	if(!ret)
 		tlog1 << "Cannot get AI!\n";
 
-	ret->dllName = dllname;	 
 	return ret;
 }
 
-CGlobalAI * CAIHandler::getNewAI(std::string dllname)
+
+template<typename rett>
+rett * createAnyAI(std::string dllname, std::string methodName)
+{
+	rett* ret = createAny<rett>(LIB_DIR "/" + dllname + '.' + LIB_EXT, methodName);
+	ret->dllName = dllname;	
+	return ret;
+}
+
+CGlobalAI * CDynLibHandler::getNewAI(std::string dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-CBattleGameInterface * CAIHandler::getNewBattleAI(std::string dllname )
+CBattleGameInterface * CDynLibHandler::getNewBattleAI(std::string dllname )
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
+}
+
+CScriptingModule * CDynLibHandler::getNewScriptingModule(std::string dllname)
+{
+	return createAny<CScriptingModule>(dllname, "GetNewModule");
 }
 
 BattleAction CGlobalAI::activeStack( const CStack * stack )

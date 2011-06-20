@@ -45,7 +45,7 @@
 #include "../lib/CObjectHandler.h"
 #include <boost/program_options.hpp>
 #include "../lib/CArtHandler.h"
-#include "../lib/ERMScriptModule.h"
+#include "../lib/CScriptingModule.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"

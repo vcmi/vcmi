@@ -33,7 +33,8 @@
 #include "CPreGame.h"
 #include "CBattleInterface.h"
 #include "../CThreadHelper.h"
-#include "../lib/ERMScriptModule.h"
+#include "../lib/CScriptingModule.h"
+#include "../lib/CFileUtility.h"
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
@@ -394,7 +395,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			CCallback *cb = new CCallback(gs,color,this);
 			if(!it->second.human) 
 			{
-				playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(conf.cc.defaultPlayerAI));
+				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(conf.cc.defaultPlayerAI));
 			}
 			else 
 			{
@@ -408,7 +409,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		else
 		{
 			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
-			battleints[color] = CAIHandler::getNewBattleAI("StupidAI");
+			battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
 			battleints[color]->init(cbc);
 		}
 	}
@@ -430,13 +431,19 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
+	std::vector<FileInfo> scriptModules;
+	CFileUtility::getFilesWithExt(scriptModules, "./Scripting", ".dll");
+	BOOST_FOREACH(FileInfo &m, scriptModules)
+	{
+		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
+		privilagedGameEventReceivers.push_back(nm);
+		privilagedBattleEventReceivers.push_back(nm);
+		nm->giveActionCB(this);
+		nm->giveInfoCB(this);
+		nm->init();
 
-	erm = getERMModule();
- 	privilagedGameEventReceivers.push_back(erm);
- 	privilagedBattleEventReceivers.push_back(erm);
- 	icb = this;
- 	acb = this;
- 	erm->init();
+		erm = nm; //something tells me that there'll at most one module and it'll be ERM
+	}
 }
 
 template <typename Handler>
@@ -472,14 +479,14 @@ void CClient::serialize( Handler &h, const int version )
 				if(pid == 255)
 				{
 					CBattleCallback * cbc = new CBattleCallback(gs, pid, this);
-					CBattleGameInterface *cbgi = CAIHandler::getNewBattleAI(dllname);
+					CBattleGameInterface *cbgi = CDynLibHandler::getNewBattleAI(dllname);
 					battleints[pid] = cbgi;
 					cbgi->init(cb);
 					//TODO? consider serialization 
 					continue;
 				}
 				else
-					nInt = CAIHandler::getNewAI(dllname);
+					nInt = CDynLibHandler::getNewAI(dllname);
 			}
 			else
 				nInt = new CPlayerInterface(pid);
@@ -591,7 +598,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::loadNeutralBattleAI()
 {
-	battleints[255] = CAIHandler::getNewBattleAI(conf.cc.defaultBattleAI);
+	battleints[255] = CDynLibHandler::getNewBattleAI(conf.cc.defaultBattleAI);
 	battleints[255]->init(new CBattleCallback(gs, 255, this));
 }
 

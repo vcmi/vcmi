@@ -48,6 +48,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include "../CThreadHelper.h"
 #include "CConfigHandler.h"
+#include "../lib/CFileUtility.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -846,34 +847,7 @@ void SelectionTab::filter( int size, bool selectFirst )
 
 void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext)
 {
-	if(!boost::filesystem::exists(dirname))
-	{
-		tlog1 << "Cannot find " << dirname << " directory!\n";
-	}
-	fs::path tie(dirname);
-	fs::directory_iterator end_iter;
-	for ( fs::directory_iterator file (tie); file!=end_iter; ++file )
-	{
-		if(fs::is_regular_file(file->status())
-			&& boost::ends_with(file->path().filename(), ext))
-		{
-			std::time_t date = 0;
-			try
-			{
-				date = fs::last_write_time(file->path());
-
-				out.resize(out.size()+1);
-				out.back().date = date;
-				out.back().name = file->path().string();
-			}
-			catch(...)
-			{
-				tlog2 << "\t\tWarning: very corrupted map file: " << file->path().string() << std::endl; 
-			}
-
-		}
-	}
-
+	CFileUtility::getFilesWithExt(out, dirname, ext);
 	allItems.resize(out.size());
 }
 

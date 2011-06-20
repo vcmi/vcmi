@@ -268,7 +268,14 @@ void CCreatureSet::clear()
 const CStackInstance& CCreatureSet::getStack(TSlot slot) const
 {
 	assert(hasStackAtSlot(slot));
-	return *stacks.find(slot)->second;
+	return *getStackPtr(slot);
+}
+
+const CStackInstance* CCreatureSet::getStackPtr(TSlot slot) const
+{
+	if(hasStackAtSlot(slot))
+		return stacks.find(slot)->second;
+	else return NULL;
 }
 
 void CCreatureSet::eraseStack(TSlot slot)
@@ -912,6 +919,14 @@ void CStackInstance::deserializationFix()
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = NULL;
 	setArmyObj(armyBackup);
+}
+
+int CStackInstance::getCreatureID() const
+{
+	if(type)
+		return type->idNumber;
+	else 
+		return -1;
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

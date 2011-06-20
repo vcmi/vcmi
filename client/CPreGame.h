@@ -30,6 +30,7 @@ class CCampaignState;
 class CConnection;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
+struct FileInfo;
 
 namespace boost{ class thread; class recursive_mutex;}
 
@@ -66,13 +67,6 @@ public:
 	void moveTo(CMenuScreen *next);
 };
 
-/// Struct which stores name, date and a value which says if the file is located in LOD
-struct FileInfo
-{
-	std::string name; // file name with full path and extension
-	std::time_t date;
-	bool inLod; //tells if this file is located in Lod
-};
 
 /// Implementation of the chat box
 class CChatBox : public CIntObject

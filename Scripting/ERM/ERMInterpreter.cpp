@@ -1,6 +1,5 @@
-#define VCMI_DLL
 #include "ERMInterpreter.h"
-
+#include <cctype>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
@@ -9,9 +8,9 @@
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
 
-#include "CObjectHandler.h"
-#include "CHeroHandler.h"
-#include "CCreatureHandler.h"
+#include "../../lib/CObjectHandler.h"
+#include "../../lib/CHeroHandler.h"
+#include "../../lib/CCreatureHandler.h"
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine
@@ -745,9 +744,14 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 					if(erm->getIexp(params[0]).getInt() == 0)
 					{
 						int slot = erm->getIexp(params[1]).getInt();
+						const CStackInstance *stack = identifier->getStackPtr(slot);
 						if(params[2].which() == 6) //varp
 						{
-							erm->getIexp(boost::get<ERM::TVarpExp>(params[2])).setTo(identifier->getCreature(slot)->idNumber);
+							IexpValStr lhs = erm->getIexp(boost::get<ERM::TVarpExp>(params[2]));
+							if(stack)
+								lhs.setTo(stack->getCreatureID());
+							else
+								lhs.setTo(-1);
 						}
 						else
 							throw EScriptExecError("Setting stack creature type is not implemented!");
@@ -787,6 +791,102 @@ struct IF_MPerformer : StandardBodyOptionItemVisitor<IFPerformer>
 	void operator()(TStringConstant const& cmp) const OVERRIDE;
 };
 
+
+//according to the ERM help:
+//"%%" -> "%"
+//"%V#" -> current value of # flag.
+//"%Vf"..."%Vt" -> current value of corresponding variable.
+//"%W1"..."%W100" -> current value of corresponding hero variable.
+//"%X1"..."%X16" -> current value of corresponding function parameter.
+//"%Y1"..."%Y100" -> current value of corresponding local variable.
+//"%Z1"..."%Z500" -> current value of corresponding string variable.
+//"%$macro$" -> macro name of corresponding variable
+//"%Dd" -> current day of week
+//"%Dw" -> current week
+//"%Dm" -> current month
+//"%Da" -> current day from beginning of the game
+//"%Gc" -> the color of current gamer in text
+struct StringFormatter
+{
+	int pos;
+	int tokenLength;
+	int percentPos;
+	int charsToReplace;
+	std::string &msg;
+
+	StringFormatter(std::string &MSG) : msg(MSG), pos(0) {}
+
+	static void format(std::string &msg)
+	{
+		StringFormatter sf(msg);
+		sf.format();
+	}
+
+	// startpos is the first digit
+	// digits will be converted to number and returned
+	// ADDITIVE on digitsUsed
+	int getNum() 
+	{
+		int toAdd = 0;
+		int numStart = percentPos + 2;
+		int numEnd = msg.find_first_not_of("1234567890", numStart);
+
+		if(numEnd == std::string::npos)
+			toAdd = msg.size() - numStart;
+		else
+			toAdd = numEnd - numStart;
+
+		charsToReplace += toAdd;
+		return boost::lexical_cast<int>(msg.substr(numStart, toAdd));
+	}
+
+	void format()
+	{
+		while(pos < msg.size())
+		{
+			percentPos = msg.find_first_of('%', pos);
+			charsToReplace = 1; //at least the same '%' needs to be replaced
+
+			std::ostringstream replaceWithWhat;
+
+			if(percentPos == std::string::npos) //processing done?
+				break;
+
+			if(percentPos + 1 >= msg.size()) //at least one character after % is required
+				throw EScriptExecError("Formatting error: % at the end of string!"); 
+
+			charsToReplace++; //the sign after % is consumed
+			switch(msg[percentPos+1])
+			{
+			case '%':
+				replaceWithWhat << '%';
+				break;
+			case 'F':
+				replaceWithWhat << erm->ermGlobalEnv->getFlag(getNum());
+				break;
+			case 'V':
+				if(std::isdigit(msg[percentPos + 2]))
+					replaceWithWhat << erm->ermGlobalEnv->getStandardVar(getNum());
+				else
+				{
+					charsToReplace++;
+					replaceWithWhat << erm->ermGlobalEnv->getQuickVar(msg[percentPos+2]);
+				}
+			case 'X':
+				replaceWithWhat << erm->getVar("x", getNum()).getInt();
+				break;
+			case 'Z':
+				replaceWithWhat << erm->ermGlobalEnv->getZVar(getNum());
+				break;
+			default:
+				throw EScriptExecError("Formatting error: unrecognized token indicator after %!");
+			}
+			msg.replace(percentPos, charsToReplace, replaceWithWhat.str());
+			pos = percentPos + 1;
+		}
+	}
+};
+
 struct IFPerformer : StandardReceiverVisitor<TUnusedType>
 {
 	IFPerformer(ERMInterpreter * _interpr) : StandardReceiverVisitor<TUnusedType>(_interpr, 0)
@@ -807,69 +907,10 @@ struct IFPerformer : StandardReceiverVisitor<TUnusedType>
 		}
 	}
 
-	// startpos is the first digit
-	// digits will be converted to number and returned
-	static int getNum(std::string &msg, int numStart, int &digitsUsed) 
-	{
-		int numEnd = msg.find_first_not_of("1234567890", numStart);
-
-		if(numEnd == std::string::npos)
-			digitsUsed = msg.size() - numStart;
-		else
-			digitsUsed = numEnd - numStart;
-
-		return boost::lexical_cast<int>(msg.substr(numStart, digitsUsed));
-	}
-
-	static void formatMessage(std::string &msg)
-	{
-		int pos = 0; //index of the first not yet processed character in string
-
-		//according to the ERM help:
-		//"%%" -> "%"
-		//"%V#" -> current value of # flag.
-		//"%Vf"..."%Vt" -> current value of corresponding variable.
-		//"%W1"..."%W100" -> current value of corresponding hero variable.
-		//"%X1"..."%X16" -> current value of corresponding function parameter.
-		//"%Y1"..."%Y100" -> current value of corresponding local variable.
-		//"%Z1"..."%Z500" -> current value of corresponding string variable.
-		//"%$macro$" -> macro name of corresponding variable
-		//"%Dd" -> current day of week
-		//"%Dw" -> current week
-		//"%Dm" -> current month
-		//"%Da" -> current day from beginning of the game
-		//"%Gc" -> the color of current gamer in text
-		
-		while(pos < msg.size())
-		{
-			int percentPos = msg.find_first_of('%', pos);
-			if(percentPos == std::string::npos) //processing done?
-				break;
-
-			if(percentPos + 1 >= msg.size()) //at least one character after % is required
-				throw EScriptExecError("Formatting error: % at the end of string!"); 
-;
-			switch(msg[percentPos+1])
-			{
-			case '%':
-				msg.erase(percentPos+1, 1); //just delete superfluous %
-				break;
-			case 'X':
-				{
-					int digits;
-					int varNum = getNum(msg, percentPos+2, digits);
-					msg.replace(percentPos, digits+2, boost::lexical_cast<std::string>(erm->getVar("x", varNum).getInt()));
-				}
-				break;
-			}
-			pos++;
-		}
-	}
-
 	void showMessage(const std::string &msg)
 	{
 		std::string msgToFormat = msg;
-		IFPerformer::formatMessage(msgToFormat);
+		StringFormatter::format(msgToFormat);
 		acb->showInfoDialog(msgToFormat, icb->getLocalPlayer());
 	}
 };
@@ -1937,54 +1978,6 @@ void ERMInterpreter::setCurrentlyVisitedObj( int3 pos )
 	ermGlobalEnv->getStandardVar(1000) = pos.z;
 }
 
-struct StringProcessHLP
-{
-	int extractNumber(const std::string & token)
-	{
-		return atoi(token.substr(1).c_str());
-	}
-	template <typename T>
-	void replaceToken(std::string ret, int tokenBegin, int tokenEnd, T val)
-	{
-		ret.replace(tokenBegin, tokenEnd, boost::lexical_cast<std::string>(val));
-	}
-};
-
-std::string ERMInterpreter::processERMString( std::string ermstring )
-{
-	StringProcessHLP hlp;
-	std::string ret = ermstring;
-	int curPos = 0;
-	while((curPos = ret.find('%', curPos)) != std::string::npos)
-	{
-		curPos++;
-		int tokenEnd = ret.find(' ', curPos);
-		std::string token = ret.substr(curPos, tokenEnd - curPos);
-		if(token.size() == 0)
-		{
-			throw EScriptExecError("Empty token not allowed!");
-		}
-
-		switch(token[0])
-		{
-		case '%':
-			ret.erase(curPos);
-			break;
-		case 'F':
-			hlp.replaceToken(ret, curPos, tokenEnd, ermGlobalEnv->getFlag(hlp.extractNumber(token)));
-			break;
-		case 'V':
-			hlp.replaceToken(ret, curPos, tokenEnd, ermGlobalEnv->getStandardVar(hlp.extractNumber(token)));
-			break;
-		default:
-			throw EScriptExecError("Unrecognized token in string");
-			break;
-		}
-
-	}
-	return ret;
-}
-
 const std::string ERMInterpreter::triggerSymbol = "trigger";
 const std::string ERMInterpreter::postTriggerSymbol = "postTrigger";
 const std::string ERMInterpreter::defunSymbol = "defun";
@@ -2745,6 +2738,16 @@ VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /
 void ERMInterpreter::executeUserCommand(const std::string &cmd)
 {
 	tlog0 << "ERM here: received command: " << cmd << std::endl;
+}
+
+void ERMInterpreter::giveInfoCB(CPrivilagedInfoCallback *cb)
+{
+	icb = cb;
+}
+
+void ERMInterpreter::giveActionCB(IGameEventRealizer *cb)
+{
+	acb = cb;
 }
 
 namespace VERMInterpreter
