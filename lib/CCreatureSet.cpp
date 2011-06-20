@@ -556,7 +556,6 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::UNLIMITED_RETALIATIONS:
 				case Bonus::SHOOTER:
 				case Bonus::FREE_SHOOTING:
-				case Bonus::NO_SHOTING_PENALTY:
 				case Bonus::NO_MELEE_PENALTY:
 				case Bonus::NO_DISTANCE_PENALTY:
 				case Bonus::NO_OBSTACLES_PENALTY:

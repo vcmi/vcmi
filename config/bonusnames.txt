@@ -1,5 +1,4 @@
 Bonus	Name (30 characters?)	Description (30)
-NO_SHOTING_PENALTY	No Shooting penalty?	???
 ADDITIONAL_RETALIATION	Additional retaliations	May Retaliate %d extra times
 ATTACKS_ALL_ADJACENT	Attack all around	Attacks all adjacent enemies
 RETURN_AFTER_STRIKE	Attack and Return	Returns after melee attack

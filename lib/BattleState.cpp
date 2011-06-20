@@ -607,7 +607,7 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	};
 
 	//wall / distance penalty + advanced air shield
-	if (shooting && !NBonus::hasOfType(attackerHero, Bonus::NO_SHOTING_PENALTY) && (
+	if (shooting && !NBonus::hasOfType(attackerHero, Bonus::NO_DISTANCE_PENALTY) && (
 		hasDistancePenalty(attacker, defender->position) || hasWallPenalty(attacker, defender->position) ||
 		HLP::hasAdvancedAirShield(defender) )
 		)

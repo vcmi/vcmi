@@ -644,7 +644,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(89,Bonus::EARTH_SPELLS,0);//Tome of Earth Magic
 
 	giveArtBonus(90,Bonus::WATER_WALKING, 0, 1);//Boots of Levitation
-	giveArtBonus(91,Bonus::NO_SHOTING_PENALTY,0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));//Golden Bow
+	giveArtBonus(91,Bonus::NO_DISTANCE_PENALTY,0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));//Golden Bow
 	giveArtBonus(92,Bonus::SPELL_IMMUNITY,0,35);//Sphere of Permanence
 	giveArtBonus(93,Bonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
 
@@ -735,7 +735,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(136, Bonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
-	giveArtBonus(137, Bonus::NO_SHOTING_PENALTY, 0);
+	giveArtBonus(137, Bonus::NO_DISTANCE_PENALTY, 0);
 	giveArtBonus(137, Bonus::FREE_SHOOTING, 0);
 
 	//Wizard's Well
