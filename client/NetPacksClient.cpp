@@ -360,7 +360,9 @@ void TryMoveHero::applyCl( CClient *cl )
 	const CGHeroInstance *h = cl->getHero(id);
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
+	{
 		CGI->mh->printObject(h);
+	}
 
 	if(result == EMBARK)
 		CGI->mh->hideObject(h->boat);

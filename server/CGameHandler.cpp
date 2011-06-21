@@ -1379,7 +1379,12 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == 8)
 	{
 		tmh.result = TryMoveHero::EMBARK;
-		tmh.movePoints = 0; //embarking takes all move points
+		if (h->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		{
+			tmh.movePoints = (h->movement - cost)*((float)(h->maxMovePoints(true)) / h->maxMovePoints(false));
+		}
+		else
+			tmh.movePoints = 0; //embarking takes all move points
 		//TODO: check for bonus that removes that penalty
 
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
@@ -1390,7 +1395,12 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	else if(h->boat && t.tertype != TerrainTile::water && !t.blocked)
 	{
 		tmh.result = TryMoveHero::DISEMBARK;
-		tmh.movePoints = 0; //disembarking takes all move points
+		if (h->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		{
+			tmh.movePoints = (h->movement - cost)*((float)(h->maxMovePoints(false)) / h->maxMovePoints(true));
+		}
+		else
+			tmh.movePoints = 0; //disembarking takes all move points
 		//TODO: check for bonus that removes that penalty
 
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);

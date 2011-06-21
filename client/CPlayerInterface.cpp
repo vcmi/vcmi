@@ -253,6 +253,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		{
 			if(adventureInt->terrain.currentPath)
 				eraseCurrentPathOf(ho);
+			cb->recalculatePaths();
 			return; //teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
