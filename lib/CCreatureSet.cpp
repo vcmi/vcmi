@@ -209,9 +209,9 @@ bool CCreatureSet::needsLastStack() const
 	return false;
 }
 
-int CCreatureSet::getArmyStrength() const
+ui64 CCreatureSet::getArmyStrength() const
 {
-	int ret = 0;
+	ui64 ret = 0;
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
 		ret += i->second->type->AIValue * i->second->count;
 	return ret;

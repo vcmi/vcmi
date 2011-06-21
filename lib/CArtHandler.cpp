@@ -1078,13 +1078,12 @@ bool CCombinedArtifactInstance::canBeDisassembled() const
 }
 
 CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
-	: CArtifactInstance(Art)
+	: CArtifactInstance(Art) //TODO: seems unued, but need to be written
 {
 }
 
 CCombinedArtifactInstance::CCombinedArtifactInstance()
 {
-
 }
 
 void CCombinedArtifactInstance::createConstituents()

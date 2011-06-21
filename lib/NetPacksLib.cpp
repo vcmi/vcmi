@@ -516,6 +516,8 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 
 	assert(!art->parents.size());
 	art->setType(art->artType);
+	if (CCombinedArtifactInstance* cart = dynamic_cast<CCombinedArtifactInstance*>(art.get()))
+		cart->createConstituents();
 }
 
 DLL_EXPORT const CStackInstance * StackLocation::getStack()

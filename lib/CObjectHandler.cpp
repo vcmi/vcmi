@@ -1253,10 +1253,10 @@ double CGHeroInstance::getHeroStrength() const
 	return sqrt((1.0 + 0.05*getPrimSkillLevel(0)) * (1.0 + 0.05*getPrimSkillLevel(1)));
 }
 
-int CGHeroInstance::getTotalStrength() const
+ui64 CGHeroInstance::getTotalStrength() const
 {
 	double ret = getHeroStrength() * getArmyStrength();
-	return (int) ret;
+	return (ui64) ret;
 }
 
 expType CGHeroInstance::calculateXp(expType exp) const
@@ -2867,7 +2867,7 @@ const std::string & CGCreature::getHoverText() const
 		hoverName += "\n\n ";
 		hoverName += (*texts)[0];
 		int choice;
-		float ratio = ((float)getArmyStrength() / selHero->getTotalStrength());
+		double ratio = ((double)getArmyStrength() / selHero->getTotalStrength());
 		if (ratio < 0.1) choice = 1;
 		else if (ratio < 0.25) choice = 2;
 		else if (ratio < 0.6) choice = 3;
