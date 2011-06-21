@@ -1245,11 +1245,12 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 
 	std::vector<HealInfo> healedStacks;
 	ui8 lifeDrain; //if true, this heal is an effect of life drain
-	si32 drainedFrom; //if life drain - then stack life was drain from
+	ui8 tentHealing; //if true, than it's healing via First Aid Tent
+	si32 drainedFrom; //if life drain - then stack life was drain from, if tentHealing - stack that is a healer
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & healedStacks & lifeDrain & drainedFrom;
+		h & healedStacks & lifeDrain & tentHealing & drainedFrom;
 	}
 };
 

@@ -669,7 +669,7 @@ void StacksHealedOrResurrected::applyCl( CClient *cl )
 	{
 		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
 	}
-	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, drainedFrom);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, tentHealing, drainedFrom);
 }
 
 void ObstaclesRemoved::applyCl( CClient *cl )

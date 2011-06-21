@@ -556,7 +556,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 }
 
 
-void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, si32 lifeDrainFrom)
+void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -593,6 +593,14 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 		sprintf(textBuf, CGI->generaltexth->allTexts[361 + textOff].c_str(), attacker->getCreature()->nameSing.c_str(),
 			healedStacks[0].second, defender->getCreature()->namePl.c_str());
 		battleInt->console->addText(textBuf);
+	}
+	if (tentHeal)
+	{
+		std::string text = CGI->generaltexth->allTexts[414];
+		boost::algorithm::replace_first(text, "%s", cb->battleGetStackByID(lifeDrainFrom, false)->getCreature()->nameSing);
+		boost::algorithm::replace_first(text, "%s",	cb->battleGetStackByID(healedStacks[0].first, false)->getCreature()->nameSing);
+		boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(healedStacks[0].second));
+		battleInt->console->addText(text);
 	}
 }
 

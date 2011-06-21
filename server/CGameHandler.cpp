@@ -548,7 +548,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN))
 	{
 		StacksHealedOrResurrected shi;
-		shi.lifeDrain = true;
+		shi.lifeDrain = (ui8)true;
+		shi.tentHealing = (ui8)false;
 		shi.drainedFrom = def->ID;
 
 		StacksHealedOrResurrected::HealInfo hi;
@@ -3217,7 +3218,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			else
 			{
 				StacksHealedOrResurrected shr;
-				shr.lifeDrain = false;
+				shr.lifeDrain = (ui8)false;
+				shr.tentHealing = (ui8)true;
+				shr.drainedFrom = ba.stackNumber;
 				StacksHealedOrResurrected::HealInfo hi;
 
 				hi.healedHP = healed;
@@ -3565,7 +3568,8 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 	case 39: //animate dead
 		{
 			StacksHealedOrResurrected shr;
-			shr.lifeDrain = false;
+			shr.lifeDrain = (ui8)false;
+			shr.tentHealing = (ui8)false;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
