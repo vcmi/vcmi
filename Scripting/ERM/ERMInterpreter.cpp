@@ -872,6 +872,7 @@ struct StringFormatter
 					charsToReplace++;
 					replaceWithWhat << erm->ermGlobalEnv->getQuickVar(msg[percentPos+2]);
 				}
+				break;
 			case 'X':
 				replaceWithWhat << erm->getVar("x", getNum()).getInt();
 				break;
@@ -1295,16 +1296,16 @@ struct ERMExpDispatch : boost::static_visitor<>
 	}
 	void operator()(Treceiver const& trig) const
 	{
-		HLP helper;
+		HLP helper;			
+		//check condition
+		if(trig.condition.is_initialized())
+		{
+			if( !erm->checkCondition(trig.condition.get()) )
+				return;
+		}
+
 		if(trig.name == "VR")
 		{
-			//check condition
-			if(trig.condition.is_initialized())
-			{
-				if( !erm->checkCondition(trig.condition.get()) )
-					return;
-			}
-
 			//perform operations
 			if(trig.identifier.is_initialized())
 			{

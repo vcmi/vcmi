@@ -38,6 +38,3 @@ VERM
 	]
 ]
 ![print [factorial 8]]
-
-; example 7 --- ERM integration
-![if [> 3 2] !!IF:M^Hello world^]
