@@ -83,13 +83,12 @@ am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
 	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
 	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
-	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
-	libvcmi_la-CLodHandler.lo libvcmi_la-CMapInfo.lo \
-	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
-	libvcmi_la-CTownHandler.lo libvcmi_la-Connection.lo \
-	libvcmi_la-ERMInterpreter.lo libvcmi_la-ERMParser.lo \
-	libvcmi_la-ERMScriptModule.lo libvcmi_la-HeroBonus.lo \
+	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CFileUtility.lo \
+	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
+	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
+	libvcmi_la-CMapInfo.lo libvcmi_la-CObjectHandler.lo \
+	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
+	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
 	libvcmi_la-IGameCallback.lo libvcmi_la-NetPacksLib.lo \
 	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo \
 	libvcmi_la-map.lo
@@ -296,6 +295,8 @@ libvcmi_la_SOURCES = \
 	CCreatureSet.h \
 	CDefObjInfoHandler.cpp \
 	CDefObjInfoHandler.h \
+	CFileUtility.cpp \
+	CFileUtility.h \
 	CGameState.cpp \
 	CGameState.h \
 	CGeneralTextHandler.cpp \
@@ -311,18 +312,13 @@ libvcmi_la_SOURCES = \
 	CObstacleInstance.h \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
+	CScriptingModule.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
 	ConstTransitivePtr.h \
-	ERMInterpreter.cpp \
-	ERMInterpreter.h \
-	ERMParser.cpp \
-	ERMParser.h \
-	ERMScriptModule.cpp \
-	ERMScriptModule.h \
 	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \
@@ -421,6 +417,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CDefObjInfoHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CFileUtility.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGameState.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGeneralTextHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CHeroHandler.Plo@am__quote@
@@ -430,9 +427,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ERMInterpreter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ERMParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ERMScriptModule.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
@@ -528,6 +522,14 @@ libvcmi_la-CDefObjInfoHandler.lo: CDefObjInfoHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CDefObjInfoHandler.lo `test -f 'CDefObjInfoHandler.cpp' || echo '$(srcdir)/'`CDefObjInfoHandler.cpp
 
+libvcmi_la-CFileUtility.lo: CFileUtility.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CFileUtility.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CFileUtility.Tpo -c -o libvcmi_la-CFileUtility.lo `test -f 'CFileUtility.cpp' || echo '$(srcdir)/'`CFileUtility.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CFileUtility.Tpo $(DEPDIR)/libvcmi_la-CFileUtility.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CFileUtility.cpp' object='libvcmi_la-CFileUtility.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CFileUtility.lo `test -f 'CFileUtility.cpp' || echo '$(srcdir)/'`CFileUtility.cpp
+
 libvcmi_la-CGameState.lo: CGameState.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CGameState.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CGameState.Tpo -c -o libvcmi_la-CGameState.lo `test -f 'CGameState.cpp' || echo '$(srcdir)/'`CGameState.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CGameState.Tpo $(DEPDIR)/libvcmi_la-CGameState.Plo
@@ -599,30 +601,6 @@ libvcmi_la-Connection.lo: Connection.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Connection.cpp' object='libvcmi_la-Connection.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-Connection.lo `test -f 'Connection.cpp' || echo '$(srcdir)/'`Connection.cpp
-
-libvcmi_la-ERMInterpreter.lo: ERMInterpreter.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ERMInterpreter.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ERMInterpreter.Tpo -c -o libvcmi_la-ERMInterpreter.lo `test -f 'ERMInterpreter.cpp' || echo '$(srcdir)/'`ERMInterpreter.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ERMInterpreter.Tpo $(DEPDIR)/libvcmi_la-ERMInterpreter.Plo
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ERMInterpreter.cpp' object='libvcmi_la-ERMInterpreter.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ERMInterpreter.lo `test -f 'ERMInterpreter.cpp' || echo '$(srcdir)/'`ERMInterpreter.cpp
-
-libvcmi_la-ERMParser.lo: ERMParser.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ERMParser.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ERMParser.Tpo -c -o libvcmi_la-ERMParser.lo `test -f 'ERMParser.cpp' || echo '$(srcdir)/'`ERMParser.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ERMParser.Tpo $(DEPDIR)/libvcmi_la-ERMParser.Plo
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ERMParser.cpp' object='libvcmi_la-ERMParser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ERMParser.lo `test -f 'ERMParser.cpp' || echo '$(srcdir)/'`ERMParser.cpp
-
-libvcmi_la-ERMScriptModule.lo: ERMScriptModule.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ERMScriptModule.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ERMScriptModule.Tpo -c -o libvcmi_la-ERMScriptModule.lo `test -f 'ERMScriptModule.cpp' || echo '$(srcdir)/'`ERMScriptModule.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ERMScriptModule.Tpo $(DEPDIR)/libvcmi_la-ERMScriptModule.Plo
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ERMScriptModule.cpp' object='libvcmi_la-ERMScriptModule.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ERMScriptModule.lo `test -f 'ERMScriptModule.cpp' || echo '$(srcdir)/'`ERMScriptModule.cpp
 
 libvcmi_la-HeroBonus.lo: HeroBonus.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-HeroBonus.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-HeroBonus.Tpo -c -o libvcmi_la-HeroBonus.lo `test -f 'HeroBonus.cpp' || echo '$(srcdir)/'`HeroBonus.cpp

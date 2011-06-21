@@ -16593,7 +16593,7 @@ CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\
 
 
 
-ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile Scripting/ERM/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17697,6 +17697,7 @@ do
     "AI/StupidAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/StupidAI/Makefile" ;;
     "AI/GeniusAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/GeniusAI/Makefile" ;;
     "AI/EmptyAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/EmptyAI/Makefile" ;;
+    "Scripting/ERM/Makefile") CONFIG_FILES="$CONFIG_FILES Scripting/ERM/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac

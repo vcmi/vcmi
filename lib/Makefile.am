@@ -18,6 +18,8 @@ libvcmi_la_SOURCES = \
 	CCreatureSet.h \
 	CDefObjInfoHandler.cpp \
 	CDefObjInfoHandler.h \
+	CFileUtility.cpp \
+	CFileUtility.h \
 	CGameState.cpp \
 	CGameState.h \
 	CGeneralTextHandler.cpp \
@@ -33,18 +35,13 @@ libvcmi_la_SOURCES = \
 	CObstacleInstance.h \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
+	CScriptingModule.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
 	ConstTransitivePtr.h \
-	ERMInterpreter.cpp \
-	ERMInterpreter.h \
-	ERMParser.cpp \
-	ERMParser.h \
-	ERMScriptModule.cpp \
-	ERMScriptModule.h \
 	HeroBonus.cpp \
 	HeroBonus.h \
 	IGameCallback.cpp \
