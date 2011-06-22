@@ -37,13 +37,6 @@ namespace phoenix = boost::phoenix;
 //actually these macros help in dealing with boost::variant
 
 
-#define BEGIN_TYPE_CASE(LinePrinterVisitor) struct LinePrinterVisitor : boost::static_visitor<> \
-{
-
-#define FOR_TYPE(TYPE, VAR) void operator()(TYPE const& VAR) const
-
-#define DO_TYPE_CASE(LinePrinterVisitor, VAR) } ___UN; boost::apply_visitor(___UN, VAR);
-
 CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), file(Fname.c_str()), lineNo(0), version(INVALID)
 {
 	if(!file.is_open())
