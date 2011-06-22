@@ -1117,12 +1117,12 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		}
 
 		CCS->soundh->stopSound(sh);
-		cb->recalculatePaths();
 	}
 
 	cb->getGsMutex().lock_shared();
 	pim->lock();
 	eventsM.lock();
+	cb->recalculatePaths();
 	return result;
 }
 
