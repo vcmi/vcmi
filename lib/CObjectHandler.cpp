@@ -1344,8 +1344,12 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		for (std::map<ui32,si32>::const_iterator it = casualties.begin(); it != casualties.end(); it++)
 		{
 			// Get lost enemy hit points convertible to units.
-			const ui32 raisedHP = VLC->creh->creatures[it->first]->valOfBonuses(Bonus::STACK_HEALTH) * it->second * necromancySkill;
-			raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, it->second * necromancySkill); //limit to % of HP and % of original stack count
+			CCreature * c = VLC->creh->creatures[it->first];
+			if (!(c->hasBonusOfType(Bonus::UNDEAD) || c->hasBonusOfType(Bonus::NON_LIVING)))
+			{
+				const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * it->second * necromancySkill;
+				raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, it->second * necromancySkill); //limit to % of HP and % of original stack count
+			}
 		}
 
 		// Make room for new units.
@@ -1375,7 +1379,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::treasure; //should be random from among resource sounds
+	iw.soundID = soundBase::pickup01 + ran() % 7;
 	iw.player = tempOwner;
 	iw.components.push_back(Component(raisedStack));
 
