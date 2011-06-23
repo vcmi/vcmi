@@ -3153,7 +3153,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		if(cost)
 			cb->giveResource(h->tempOwner,6,-cost);
 
-		cb->tryJoiningArmy(this, h, true, false);
+		cb->tryJoiningArmy(this, h, true, true);
 	}
 }
 
