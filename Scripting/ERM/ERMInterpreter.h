@@ -808,6 +808,7 @@ class ERMInterpreter : public CScriptingModule
 	static const std::string triggerSymbol, postTriggerSymbol, defunSymbol;
 
 	void executeLine(const VERMInterpreter::LinePointer & lp);
+	void executeLine(const ERM::TLine &line);
 	void executeTrigger(VERMInterpreter::Trigger & trig, int funNum = -1, std::vector<int> funParams=std::vector<int>());
 	static bool isCMDATrigger(const ERM::Tcommand & cmd);
 	static bool isATrigger(const ERM::TLine & line);

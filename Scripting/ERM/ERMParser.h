@@ -265,4 +265,5 @@ private:
 public:
 	ERMParser(std::string file);
 	std::vector<LineInfo> parseFile();
+	static ERM::TLine parseLine(const std::string & line);
 };

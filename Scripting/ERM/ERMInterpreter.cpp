@@ -1470,7 +1470,12 @@ struct LineExec : boost::static_visitor<>
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
 	tlog0 << "Executing line nr " << getRealLine(lp.lineNum) << " (internal " << lp.lineNum << ") from " << lp.file->filename << std::endl;
-	boost::apply_visitor(LineExec(), scripts[lp]);
+	executeLine(scripts[lp]);
+}
+
+void ERMInterpreter::executeLine(const ERM::TLine &line)
+{
+	boost::apply_visitor(LineExec(), line);
 }
 
 IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> initVal) const
@@ -2739,6 +2744,23 @@ VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /
 void ERMInterpreter::executeUserCommand(const std::string &cmd)
 {
 	tlog0 << "ERM here: received command: " << cmd << std::endl;
+	if(cmd.size() < 3)
+	{
+		tlog1 << "That can't be a valid command...\n";
+		return;
+	}
+	try
+	{
+		if(cmd[0] == '!') //should be a neat (V)ERM command
+		{
+			ERM::TLine line = ERMParser::parseLine(cmd);
+			executeLine(line);
+		}
+	}
+	catch(std::exception &e)
+	{
+		tlog1 << "Failed executing user command! Exception info:\n\t" << e.what() << std::endl;
+	}
 }
 
 void ERMInterpreter::giveInfoCB(CPrivilagedInfoCallback *cb)

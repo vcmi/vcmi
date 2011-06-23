@@ -480,6 +480,19 @@ namespace ERM
 
 ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 {
+	try
+	{
+		return parseLine(line);
+	}
+	catch(...)
+	{
+		tlog1 << "\tParse error occurred in file " << srcFile << " (line " << realLineNo << ") :\n" << line << std::endl;
+		throw;
+	}
+}
+
+ERM::TLine ERMParser::parseLine(const std::string & line)
+{
 	std::string::const_iterator beg = line.begin(),
 		end = line.end();
 
@@ -489,8 +502,7 @@ ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
 	if(!r || beg != end)
 	{
-		tlog1 << "Parse error in file " << srcFile << " (line " << realLineNo << ") :\n" << line << std::endl;
-		tlog1 << "\tCannot parse: " << std::string(beg, end) << std::endl;
+		tlog1 << "Parse error: cannot parse: " << std::string(beg, end) << std::endl;
 		throw ParseErrorException();
 	}
 	return AST;

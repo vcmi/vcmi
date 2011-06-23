@@ -328,8 +328,7 @@ void processCommand(const std::string &message)
 			tlog0 << "erm>";
 		}
 	}
-
-	if(message==std::string("die, fool"))
+	else if(message==std::string("die, fool"))
 	{
 		exit(EXIT_SUCCESS);
 	}
