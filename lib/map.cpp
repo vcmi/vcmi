@@ -981,7 +981,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 				allowedArtifact[artifact->id] = false;
 			}
 		}
-		if (version = RoE)
+		if (version == RoE)
 			allowedArtifact[128] = false; //Armageddon's Blade
 	}
 
