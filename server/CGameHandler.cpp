@@ -3500,7 +3500,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			if (caster)
 				bonus = caster->getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 
-			si32 power;
+			si32 power = 0;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
