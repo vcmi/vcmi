@@ -1206,7 +1206,7 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(para.first);
 		if (s)
 		{
-			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid) && Selector::typeSybtype(para.second.type, para.second.subtype)))
+			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid) && Selector::typeSubtype(para.second.type, para.second.subtype)))
 				s->addNewBonus(new Bonus(para.second));
 			else
 				actualizeEffect(s, effect);

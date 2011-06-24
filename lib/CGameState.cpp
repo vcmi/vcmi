@@ -1678,7 +1678,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero speciality
-		BonusList lista = h->speciality.getBonuses(Selector::typeSybtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
+		BonusList lista = h->speciality.getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		BOOST_FOREACH(const Bonus *it, lista)
 		{
 			ui16 nid = it->additionalInfo;
@@ -1813,7 +1813,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 
 	if(d.blocked && h->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 	{
-		bool freeFlying = h->getBonusesCount(Selector::typeSybtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
+		bool freeFlying = h->getBonusesCount(Selector::typeSubtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
 
 		if(!freeFlying)
 		{
@@ -1824,7 +1824,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	{
 		if(h->boat && s.siodmyTajemniczyBajt & 128 && d.siodmyTajemniczyBajt & 128) //Favourable Winds
 			ret *= 0.666f;
-		else if (!h->boat && h->getBonusesCount(Selector::typeSybtype(Bonus::WATER_WALKING, 1)) > 0)
+		else if (!h->boat && h->getBonusesCount(Selector::typeSubtype(Bonus::WATER_WALKING, 1)) > 0)
 			ret *= 1.4f; //40% penalty for water walking
 	}
 

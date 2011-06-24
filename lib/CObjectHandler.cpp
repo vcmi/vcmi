@@ -14,7 +14,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
-#include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "IGameCallback.h"
@@ -1229,7 +1228,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	
 
 	int skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = bonuses.getFirst(Selector::typeSybtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
+	if(Bonus * b = bonuses.getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
 	{
 		b->val = skillVal;
 		b->valType = skillValType;
@@ -7053,137 +7052,4 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 	ow.id2 = h->id;
 	ow.window = OpenWindow::UNIVERSITY_WINDOW;
 	cb->sendAndApply(&ow);
-}
-
-const CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/) const
-{
-	if(const ArtSlotInfo *si = getSlot(pos))
-	{
-		if(si->artifact && (!excludeLocked || !si->locked))
-			return si->artifact;
-	}
-
-	return NULL;
-}
-
-CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/)
-{
-	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
-}
-
-si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
-{
-	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
-		if(i->second.artifact->artType->id == aid)
-			return i->first;
-
-	if(onlyWorn)
-		return -1;
-
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
-		if(artifactsInBackpack[i].artifact->artType->id == aid)
-			return Arts::BACKPACK_START + i;
-
-	return -1;
-}
-
-si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
-{
-	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
-		if(i->second.artifact == art)
-			return i->first;
-
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
-		if(artifactsInBackpack[i].artifact == art)
-			return Arts::BACKPACK_START + i;
-
-	return -1;
-}
-
-const CArtifactInstance * CArtifactSet::getArtByInstanceId(int artInstId) const
-{
-	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
-		if(i->second.artifact->id == artInstId)
-			return i->second.artifact;
-
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
-		if(artifactsInBackpack[i].artifact->id == artInstId)
-			return artifactsInBackpack[i].artifact;
-
-	return NULL;
-}
-
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
-{
-	return getArtPos(aid, onlyWorn) != -1;
-}
-
-const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
-{
-	if(vstd::contains(artifactsWorn, pos))
-		return &artifactsWorn[pos];
-	if(pos >= Arts::AFTER_LAST )
-	{
-		int backpackPos = (int)pos - Arts::BACKPACK_START;
-		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
-			return NULL;
-		else
-			return &artifactsInBackpack[backpackPos];
-	}
-
-	return NULL;
-}
-
-bool CArtifactSet::isPositionFree(ui16 pos, bool onlyLockCheck /*= false*/) const
-{
-	if(const ArtSlotInfo *s = getSlot(pos))
-		return (onlyLockCheck || !s->artifact) && !s->locked;
-
-	return true; //no slot means not used
-}
-
-si32 CArtifactSet::getArtTypeId(ui16 pos) const
-{
-	const CArtifactInstance * const a = getArt(pos);
-	if(!a)
-	{
-		tlog2 << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)\n";
-		return -1;
-	}
-	return a->artType->id;
-}
-
-CArtifactSet::~CArtifactSet()
-{
-
-}
-
-ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ui16 slot)
-{
-	assert(!vstd::contains(artifactsWorn, slot));
-	ArtSlotInfo &ret = slot < Arts::BACKPACK_START 
-		? artifactsWorn[slot]
-		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - Arts::BACKPACK_START), ArtSlotInfo());
-
-	return ret;
-}
-
-void CArtifactSet::setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked)
-{
-	ArtSlotInfo &asi = retreiveNewArtSlot(slot);
-	asi.artifact = art;
-	asi.locked = locked;
-}
-
-void CArtifactSet::eraseArtSlot(ui16 slot)
-{
-	if(slot < Arts::BACKPACK_START)
-	{
-		artifactsWorn.erase(slot);
-	}
-	else
-	{
-		slot -= Arts::BACKPACK_START;
-		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
-	}
 }

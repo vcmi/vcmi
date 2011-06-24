@@ -142,8 +142,8 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		Bonus * b = node.bonuses.front();
 
 		bl.push_back (new Bonus(*b));
-		bl.back()->val = node.valOfBonuses(Selector::typeSybtype(b->type, b->subtype)); //merge multiple bonuses into one
-		node.bonuses.remove_if (Selector::typeSybtype(b->type, b->subtype)); //remove used bonuses
+		bl.back()->val = node.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
+		node.bonuses.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
 	}
 
 	std::string text;

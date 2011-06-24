@@ -712,8 +712,8 @@ namespace Selector
 	extern DLL_EXPORT CSelectFieldEqual<ui8> effectRange;
 	extern DLL_EXPORT CWillLastTurns turns;
 
-	CSelector DLL_EXPORT typeSybtype(TBonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_EXPORT typeSybtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
+	CSelector DLL_EXPORT typeSubtype(TBonusType Type, TBonusSubtype Subtype);
+	CSelector DLL_EXPORT typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID);
 	CSelector DLL_EXPORT durationType(ui16 duration);
 	CSelector DLL_EXPORT sourceTypeSel(ui8 source);

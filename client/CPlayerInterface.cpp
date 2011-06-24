@@ -582,7 +582,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 
 		if (attacker)
 		{
-			battleInt->displayEffect(50, attacker->position);
+			battleInt->displayEffect(52, attacker->position);
 			if (attacker->count > 1)
 			{
 				textOff += 1;

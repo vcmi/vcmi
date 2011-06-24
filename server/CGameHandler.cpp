@@ -867,7 +867,7 @@ void CGameHandler::newTurn()
 		else if(i->first >= PLAYER_LIMIT) 
 			assert(0); //illegal player number!
 
-		std::pair<ui8,si32> playerGold(i->first,i->second.resources[6]);
+		std::pair<ui8,si32> playerGold(i->first,i->second.resources[Res::GOLD]);
 		hadGold.insert(playerGold); 
 
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
@@ -916,7 +916,7 @@ void CGameHandler::newTurn()
 			
 			if(gs->day) //not first day
 			{
-				n.res[i->first][6] += h->valOfBonuses(Selector::typeSybtype(Bonus::SECONDARY_SKILL, 13)); //estates
+				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL, CGHeroInstance::ESTATES)); //estates
 
 				for (int k = 0; k < RESOURCE_QUANTITY; k++)
 				{
@@ -938,7 +938,7 @@ void CGameHandler::newTurn()
 				setPortalDwelling(*j, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if  ((**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT && vstd::contains((**j).builtBuildings, 22))//dwarven treasury
-					n.res[player][6] += hadGold[player]/10; //give 10% of starting gold
+					n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
 		}
 		if(gs->day  &&  player < PLAYER_LIMIT)//not the first day and town not neutral
 		{
@@ -948,8 +948,8 @@ void CGameHandler::newTurn()
 			{
 				if((**j).town->primaryRes == 127) //we'll give wood and ore
 				{
-					n.res[player][0] += 1;
-					n.res[player][2] += 1;
+					n.res[player][Res::WOOD] += 1;
+					n.res[player][Res::ORE] += 1;
 				}
 				else
 				{
@@ -3498,7 +3498,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 			const Bonus * bonus = NULL;
 			if (caster)
-				bonus = caster->getBonus(Selector::typeSybtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
+				bonus = caster->getBonus(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 
 			si32 power = 0;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
@@ -4285,14 +4285,14 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 			if(oneOfAttacked == NULL) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
-			BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::typeSybtype(Bonus::SPELL_AFTER_ATTACK, spellID)))
+			BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID)))
 			{
 				amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
 				meleeRanged = sf->additionalInfo / 1000;
 				if (meleeRanged == 0 || (meleeRanged == 1 && bat.shot()) || (meleeRanged == 2 && !bat.shot()))
 					castMe = true;
 			}
-			int chance = attacker->valOfBonuses((Selector::typeSybtype(Bonus::SPELL_AFTER_ATTACK, spellID)));
+			int chance = attacker->valOfBonuses((Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID)));
 			amin (chance, 100);
 			int destination = oneOfAttacked->position;
 

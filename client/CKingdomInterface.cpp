@@ -166,18 +166,10 @@ CKingdomInterface::CKingdomInterface()
 	incomesVal[7] = incomesVal[6]*1000;//gold mines -> total income
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size();i++)
-		switch(heroes[i]->getSecSkillLevel(CGHeroInstance::ESTATES))//some heroes may have estates
-		{
-		case 1: //basic
-			incomesVal[7] += 125;
-			break;
-		case 2: //advanced
-			incomesVal[7] += 250;
-			break;
-		case 3: //expert
-			incomesVal[7] += 500;
-			break;
-		}
+	{	//TODO: what about artifacts generating resources?
+			incomesVal[7] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL, CGHeroInstance::ESTATES));
+			incomesVal[7] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+	}
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(size_t i=0; i<towns.size();i++)
 		incomesVal[7] += towns[i]->dailyIncome();

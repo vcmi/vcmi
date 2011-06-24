@@ -227,5 +227,49 @@ public:
 	}
 };
 
+struct DLL_EXPORT ArtSlotInfo
+{
+	ConstTransitivePtr<CArtifactInstance> artifact;
+	ui8 locked; //if locked, then artifact points to the combined artifact
+
+	ArtSlotInfo()
+	{
+		locked = false;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artifact & locked;
+	}
+};
+
+class DLL_EXPORT CArtifactSet
+{
+public:
+	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
+	bmap<ui16, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+
+	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);
+	void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
+	void eraseArtSlot(ui16 slot);
+
+	const ArtSlotInfo *getSlot(ui16 pos) const;
+	const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const; //NULL - no artifact
+	CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
+	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	si32 getArtPos(const CArtifactInstance *art) const;
+	const CArtifactInstance *getArtByInstanceId(int artInstId) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
+	bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
+	si32 getArtTypeId(ui16 pos) const;
+
+
+	virtual ~CArtifactSet();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artifactsInBackpack & artifactsWorn;
+	}
+};
+
 
 #endif // __CARTHANDLER_H__

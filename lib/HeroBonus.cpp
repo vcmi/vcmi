@@ -176,7 +176,7 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 
 void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
 {
-	getModifiersWDescr(out, subtype != -1 ? Selector::typeSybtype(type, subtype) : Selector::type(type));
+	getModifiersWDescr(out, subtype != -1 ? Selector::typeSubtype(type, subtype) : Selector::type(type));
 }
 
 void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
@@ -294,11 +294,11 @@ ui16 IBonusBearer::MaxHealth() const
 
 ui32 IBonusBearer::getMinDamage() const
 {
-	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 1));
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1));
 }
 ui32 IBonusBearer::getMaxDamage() const
 {
-	return valOfBonuses(Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSybtype(Bonus::CREATURE_DAMAGE, 2));
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2));
 }
 
 si32 IBonusBearer::manaLimit() const
@@ -761,12 +761,12 @@ namespace Selector
 	DLL_EXPORT CSelectFieldEqual<ui8> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
 	DLL_EXPORT CWillLastTurns turns;
 
-	CSelector DLL_EXPORT typeSybtype(TBonusType Type, TBonusSubtype Subtype)
+	CSelector DLL_EXPORT typeSubtype(TBonusType Type, TBonusSubtype Subtype)
 	{
 		return type(Type) && subtype(Subtype);
 	}
 
-	CSelector DLL_EXPORT typeSybtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info)
+	CSelector DLL_EXPORT typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info)
 	{
 		return CSelectFieldEqual<TBonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
 	}

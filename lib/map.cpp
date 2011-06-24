@@ -981,6 +981,8 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 				allowedArtifact[artifact->id] = false;
 			}
 		}
+		if (version = RoE)
+			allowedArtifact[128] = false; //Armageddon's Blade
 	}
 
 	allowedSpell.resize(SPELLS_QUANTITY);

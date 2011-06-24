@@ -601,7 +601,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::ADDITIONAL_RETALIATION:
 				case Bonus::DOUBLE_DAMAGE_CHANCE:
 				case Bonus::DARKNESS: //Darkness Dragons any1?
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
 				//Complex descriptions
 				case Bonus::SECONDARY_SKILL_PREMY: //only if there's no simple MR
@@ -615,12 +615,12 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>( magicResistance() ));
 					break;
 				case Bonus::HATE:
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
 				{
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				}
@@ -639,7 +639,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::CHANGES_SPELL_COST_FOR_ENEMY:
 				case Bonus::ENEMY_DEFENCE_REDUCTION:
 				case Bonus::DEATH_STARE:
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSybtype(bonus->type, bonus->subtype))));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
 				case Bonus::HATE:
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);

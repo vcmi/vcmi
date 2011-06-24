@@ -476,9 +476,9 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	//calculating total attack/defense skills modifier
 
 	if(shooting) //precision handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSybtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)).totalValue();
+		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)).totalValue();
 	else //bloodlust handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSybtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)).totalValue();
+		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)).totalValue();
 
 
 	if(attacker->getEffect(55)) //slayer handling
