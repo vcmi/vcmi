@@ -1224,6 +1224,8 @@ void CGHeroInstance::updateSkill(int which, int val)
 			skillVal = 5 << (val-1); break;
 		case FIRST_AID:
 			skillVal = 25 + 25*val; break;
+		case ESTATES:
+			skillVal = 125 << (val-1); break;
 	}
 	
 

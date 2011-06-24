@@ -167,7 +167,7 @@ CKingdomInterface::CKingdomInterface()
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size();i++)
 	{	//TODO: what about artifacts generating resources?
-			incomesVal[7] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL, CGHeroInstance::ESTATES));
+			incomesVal[7] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ESTATES));
 			incomesVal[7] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 	}
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);

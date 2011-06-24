@@ -916,7 +916,7 @@ void CGameHandler::newTurn()
 			
 			if(gs->day) //not first day
 			{
-				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL, CGHeroInstance::ESTATES)); //estates
+				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ESTATES)); //estates
 
 				for (int k = 0; k < RESOURCE_QUANTITY; k++)
 				{
@@ -948,12 +948,12 @@ void CGameHandler::newTurn()
 			{
 				if((**j).town->primaryRes == 127) //we'll give wood and ore
 				{
-					n.res[player][Res::WOOD] += 1;
-					n.res[player][Res::ORE] += 1;
+					n.res[player][Res::WOOD] ++;
+					n.res[player][Res::ORE] ++;
 				}
 				else
 				{
-					n.res[player][(**j).town->primaryRes] += 1;
+					n.res[player][(**j).town->primaryRes] ++;;
 				}
 			}
 			n.res[player][6] += (**j).dailyIncome();
