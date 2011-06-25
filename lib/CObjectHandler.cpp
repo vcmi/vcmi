@@ -2261,9 +2261,9 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::recreateBuildingsBonuses()
 {
-	BonusList bl;
+	boost::shared_ptr<BonusList> bl(new BonusList);
 	exportedBonuses.getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
-	BOOST_FOREACH(Bonus *b, bl)
+	BOOST_FOREACH(Bonus *b, *bl)
 		removeBonus(b);
 
 

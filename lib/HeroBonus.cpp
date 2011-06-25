@@ -14,7 +14,6 @@
 #include "BattleState.h"
 #include "CArtHandler.h"
 
-#define FOREACH_CONST_PARENT(pname) 	TCNodes lparents; getParents(lparents); BOOST_FOREACH(const CBonusSystemNode *pname, lparents)
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
@@ -24,6 +23,9 @@
 #undef BONUS_NAME
 
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
+
+int CBonusSystemNode::treeChanged = 1;
+const bool CBonusSystemNode::cachingEnabled = true;
 
 int DLL_EXPORT BonusList::totalValue() const
 {
@@ -93,17 +95,23 @@ int DLL_EXPORT BonusList::totalValue() const
 }
 const DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &selector) const
 {
-	BOOST_FOREACH(Bonus *i, *this)
-		if(selector(i))
-			return &*i;
+	for (int i = 0; i < this->size(); i++)
+	{
+		const Bonus *b = (*this)[i];
+		if(selector(b))
+			return &*b;
+	}
 	return NULL;
 }
 
 DLL_EXPORT Bonus * BonusList::getFirst(const CSelector &select)
 {
-	BOOST_FOREACH(Bonus *i, *this)
-		if(select(i))
-			return &*i;
+	for (int i = 0; i < this->size(); i++)
+	{
+		Bonus *b = (*this)[i];
+		if(select(b))
+			return &*b;
+	}
 	return NULL;
 }
 
@@ -113,7 +121,7 @@ void DLL_EXPORT BonusList::getModifiersWDescr(TModDescr &out) const
 		out.push_back(std::make_pair(i->val, i->Description()));
 }
 
-void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector) const
+void DLL_EXPORT BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const
 {
 // 	BOOST_FOREACH(Bonus *i, *this)
 // 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
@@ -122,11 +130,16 @@ void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector)
 	getBonuses(out, selector, 0);
 }
 
-void DLL_EXPORT BonusList::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const
+void DLL_EXPORT BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching /*= false*/) const
 {
-	BOOST_FOREACH(Bonus *i, *this)
-		if(selector(i) && ((!limit && i->effectRange == Bonus::NO_LIMIT) || (limit && limit(i)))) //add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-			out.push_back(i);
+	for (int i = 0; i < this->size(); i++)
+	{
+		Bonus *b = (*this)[i];
+
+		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
+		if(caching || (selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || (limit && limit(b)))))
+			out->push_back(b);
+	}
 }
 
 void BonusList::limit(const CBonusSystemNode &node)
@@ -134,10 +147,11 @@ void BonusList::limit(const CBonusSystemNode &node)
 	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
 }
 
+
 void DLL_EXPORT BonusList::eliminateDuplicates()
 {
-	sort();
-	unique();
+	sort( begin(), end() );
+	erase( unique( begin(), end() ), end() );
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -156,13 +170,13 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 
 int IBonusBearer::valOfBonuses(const CSelector &selector) const
 {
-	BonusList hlp;
-	getBonuses(hlp, selector);
-	return hlp.totalValue();
+	CSelector limit = 0;
+	boost::shared_ptr<BonusList> hlp = getAllBonuses(selector, limit, NULL);
+	return hlp->totalValue();
 }
 bool IBonusBearer::hasBonus(const CSelector &selector) const
 {
-	return getBonuses(selector).size() > 0;
+	return getBonuses(selector)->size() > 0;
 }
 
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
@@ -170,6 +184,12 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s && Selector::subtype(subtype);
+	else
+	{
+		std::string str = "type_";
+		str += ((char) type);
+		setCachingStr(str);
+	}
 
 	return hasBonus(s);
 }
@@ -181,7 +201,7 @@ void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int
 
 void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
 {
-	getBonuses(selector).getModifiersWDescr(out);
+	getBonuses(selector)->getModifiersWDescr(out);
 }
 int IBonusBearer::getBonusesCount(int from, int id) const
 {
@@ -190,43 +210,17 @@ int IBonusBearer::getBonusesCount(int from, int id) const
 
 int IBonusBearer::getBonusesCount(const CSelector &selector) const
 {
-	return getBonuses(selector).size();
+	return getBonuses(selector)->size();
 }
 
-void IBonusBearer::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
+const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &selector) const
 {
-	getBonuses(out, selector, 0, root);
-// 	FOREACH_CONST_PARENT(p)
-// 		p->getBonuses(out, selector, root ? root : this);
-// 
-// 	bonuses.getBonuses(out, selector);
-// 	
-// 	if(!root)
-// 		out.limit(*this);
+	return getAllBonuses(selector, 0, NULL);
 }
 
-BonusList IBonusBearer::getBonuses(const CSelector &selector) const
+const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit) const
 {
-	BonusList ret;
-	getBonuses(ret, selector);
-	return ret;
-}
-
-void IBonusBearer::getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
-{
-	getAllBonuses(out, selector, limit, root);
-	out.eliminateDuplicates();
-// 
-// 	getBonuses(out, selector); //first get all the bonuses
-// 	out.remove_if(std::not1(limit)); //now remove the ones we don't like
-// 	out.limit(*this); //apply bonuses' limiters
-}
-
-BonusList IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit) const
-{
-	BonusList ret;
-	getBonuses(ret, selector, limit);
-	return ret;
+	return getAllBonuses(selector, limit, NULL);
 }
 
 bool IBonusBearer::hasBonusFrom(ui8 source, ui32 sourceID) const
@@ -325,6 +319,23 @@ si32 IBonusBearer::magicResistance() const
 	return valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
 }
 
+void IBonusBearer::setCachingStr(const std::string &request) const
+{
+}
+
+const boost::shared_ptr<BonusList> IBonusBearer::getSpellBonuses() const
+{
+	std::string str = "source_";
+	str += (char) Bonus::SPELL_EFFECT;
+	setCachingStr(str);
+	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT));
+}
+
+void CBonusSystemNode::setCachingStr(const std::string &request) const
+{
+	cachingStr = request;
+}
+
 Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 {
 	Bonus *ret = bonuses.getFirst(selector);
@@ -348,30 +359,82 @@ const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
 
 void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
 {
-	BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+	for (int i = 0; i < parents.size(); i++)
+	{
+		const CBonusSystemNode *parent = parents[i];
 		out.insert(parent);
+	}
 }
 
 void CBonusSystemNode::getParents(TNodes &out)
 {
-	BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+	for (int i = 0; i < parents.size(); i++)
+	{
+		const CBonusSystemNode *parent = parents[i];
 		out.insert(const_cast<CBonusSystemNode*>(parent));
+	}	
 }
 
-void CBonusSystemNode::getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+void CBonusSystemNode::getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const bool caching /*= false*/) const
 {
-	FOREACH_CONST_PARENT(p)
-		p->getBonuses(out, selector, limit, root ? root : this);
-
-	bonuses.getBonuses(out, selector, limit);
+	TCNodes lparents; 
+	getParents(lparents); 
+	BOOST_FOREACH(const CBonusSystemNode *p, lparents)
+		p->getAllBonusesRec(out, selector, limit, root ? root : this, caching);
+	
+	bonuses.getBonuses(out, selector, limit, caching);
 
 	if(!root)
-		out.limit(*this);
+		out->limit(*this);
 }
 
-CBonusSystemNode::CBonusSystemNode()
+const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
 {
-	nodeType = UNKNOWN;
+	boost::shared_ptr<BonusList> ret(new BonusList());
+	if (CBonusSystemNode::cachingEnabled)
+	{
+		if (cachedLast != treeChanged)
+		{
+			getAllBonusesRec(ret, selector, limit, this, true);
+			ret->eliminateDuplicates();
+			cachedBonuses = *ret;
+			ret->clear();
+			cachedRequests.clear();
+			cachedLast = treeChanged;
+		}
+	
+		if (cachingStr != "")
+		{
+			std::map<std::string, boost::shared_ptr<BonusList>>::iterator it(cachedRequests.find(cachingStr));
+			if (cachedRequests.size() > 0 && it != cachedRequests.end())
+			{
+				ret = it->second;
+				cachingStr = "";
+				return ret;
+			}
+		}
+
+		cachedBonuses.getBonuses(ret, selector, limit, false);
+		if (!root)
+			ret->limit(*this);
+
+		if (cachingStr != "")
+			cachedRequests[cachingStr] = ret;
+
+		cachingStr = "";
+
+		return ret;
+	}
+	else
+	{
+		getAllBonusesRec(ret, selector, limit, root, false);
+		ret->eliminateDuplicates();
+		return ret;
+	}
+}
+
+CBonusSystemNode::CBonusSystemNode() : nodeType(UNKNOWN), cachedLast(0)
+{
 }
 
 CBonusSystemNode::~CBonusSystemNode()
@@ -400,6 +463,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 		newRedDescendant(parent);
 
 	parent->newChildAttached(this);
+	CBonusSystemNode::treeChanged++;
 }
 
 void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
@@ -413,13 +477,14 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 
 	parents -= parent;
 	parent->childDetached(this);
+	CBonusSystemNode::treeChanged++;
 }
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
 {
-	BonusList bl;
+	boost::shared_ptr<BonusList> bl(new BonusList);
 	exportedBonuses.getBonuses(bl, s);
-	BOOST_FOREACH(Bonus *b, bl)
+	BOOST_FOREACH(Bonus *b, *bl)
 		removeBonus(b);
 
 	BOOST_FOREACH(CBonusSystemNode *child, children)
@@ -436,6 +501,7 @@ void CBonusSystemNode::addNewBonus(Bonus *b)
 	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);
+	CBonusSystemNode::treeChanged++;
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)
@@ -446,6 +512,7 @@ void CBonusSystemNode::removeBonus(Bonus *b)
 	else
 		bonuses -= b;
 	delNull(b);
+	CBonusSystemNode::treeChanged++;
 }
 
 bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
@@ -603,8 +670,10 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 void CBonusSystemNode::battleTurnPassed()
 {
 	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
-	BOOST_FOREACH(Bonus *b, bonusesCpy)
+	for (int i = 0; i < bonusesCpy.size(); i++)
 	{
+		Bonus *b = bonusesCpy[i];
+
 		if(b->duration & Bonus::N_TURNS)
 		{
 			b->turnsRemain--;
@@ -852,10 +921,10 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)
 {
-	int i = 0;
-	BOOST_FOREACH(const Bonus *b, bonusList)
+	for (int i = 0; i < bonusList.size(); i++)
 	{
-		out << "Bonus " << i++ << "\n" << *b << std::endl;
+		Bonus *b = bonusList[i];
+		out << "Bonus " << i << "\n" << *b << std::endl;
 	}
 	return out;
 }

@@ -1,7 +1,6 @@
 #pragma once
 #include "../global.h"
 #include <string>
-#include <list>
 #include <set>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -318,14 +317,14 @@ struct DLL_EXPORT Bonus
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-class BonusList : public std::list<Bonus*>
+class BonusList : public std::vector<Bonus*>
 {
 public:
 	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	void DLL_EXPORT getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
 	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
 
-	void DLL_EXPORT getBonuses(BonusList &out, const CSelector &selector) const;
+	void DLL_EXPORT getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const;
 
 	//special find functions
 	DLL_EXPORT Bonus * getFirst(const CSelector &select);
@@ -333,10 +332,26 @@ public:
 
 	void limit(const CBonusSystemNode &node); //erases bonuses using limitor
 	void DLL_EXPORT eliminateDuplicates();
+	
+	// remove_if implementation for STL vector types
+	template <class Predicate>
+	void remove_if(Predicate pred)
+	{
+		BonusList newList;
+		for (int i = 0; i < this->size(); i++)
+		{
+			Bonus *b = (*this)[i];
+			if (!pred(b))
+				newList.push_back(b);
+		}
+		this->clear();
+		this->resize(newList.size());
+		std::copy(newList.begin(), newList.end(), this->begin());
+	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<std::list<Bonus*>&>(*this);
+		h & static_cast<std::vector<Bonus*>&>(*this);
 	}
 };
 
@@ -382,20 +397,18 @@ public:
 class DLL_EXPORT IBonusBearer
 {
 public:
-	virtual void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const = 0; 
-
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
 	//interface
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const; //as above but without duplicates
-	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+	virtual const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const = 0; 
+	virtual void setCachingStr(const std::string &request) const;
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector) const;
 	int valOfBonuses(const CSelector &selector) const;
 	bool hasBonus(const CSelector &selector) const;
-	BonusList getBonuses(const CSelector &selector, const CSelector &limit) const;
-	BonusList getBonuses(const CSelector &selector) const;
+	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const CSelector &limit) const;
+	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector) const;
 
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
@@ -417,11 +430,24 @@ public:
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
-
+	const boost::shared_ptr<BonusList> getSpellBonuses() const;
 };
 
 class DLL_EXPORT CBonusSystemNode : public IBonusBearer
 {
+	static const bool cachingEnabled; 
+	mutable BonusList cachedBonuses;
+	mutable int cachedLast;	
+	static int treeChanged;
+
+	// Setting a value to cachingStr before getting any bonuses caches the result for later requests. 
+	// This string needs to be unique, that's why it has to be setted in the following manner:
+	// [property key]_[value] => only for selector
+	mutable std::string cachingStr;
+	mutable std::map<std::string, boost::shared_ptr<BonusList>> cachedRequests;
+
+	void getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
+
 public:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
@@ -432,11 +458,11 @@ public:
 	ui8 nodeType;
 	std::string description;
 
-	CBonusSystemNode();
+	explicit CBonusSystemNode();
 	virtual ~CBonusSystemNode();
-
-	void getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-
+	
+	const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
+	void setCachingStr(const std::string &request) const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonus(const CSelector &selector) const;
 

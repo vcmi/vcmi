@@ -1136,19 +1136,22 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 					cnt++;//external dwellings count to summ
 			summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
 
-			BonusList bl;
+			boost::shared_ptr<BonusList> bl;
 			const CGHeroInstance *hero = town->garrisonHero;
 			if (hero)
-				hero->getBonuses(bl, Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-			                      && Selector::sourceType(Bonus::ARTIFACT), hero);
+				bl = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
+			                      && Selector::sourceType(Bonus::ARTIFACT), 0, hero);
 			
 			hero = town->visitingHero;
 			if (hero)
-				hero->getBonuses(bl, Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-			                      && Selector::sourceType(Bonus::ARTIFACT), hero);
+			{
+				boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
+					&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
+				bl->insert(bl->end(), blAppend->begin(), blAppend->end()) ;
+			}
 			
-			if (bl.size())
-				summ+=AddToString (CGI->arth->artifacts[bl.front()->sid]->Name()+" %+d", descr, bl.totalValue());
+			if (bl->size())
+				summ+=AddToString (CGI->arth->artifacts[bl->front()->sid]->Name()+" %+d", descr, bl->totalValue());
 
 			//TODO: player bonuses
 

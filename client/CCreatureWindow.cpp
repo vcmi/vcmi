@@ -134,7 +134,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	//Basic graphics - need to calculate size
 
 	CBonusSystemNode node = CBonusSystemNode() ;
-	node.bonuses = stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT));
+	node.bonuses = *(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT)));
 	BonusList bl;
 
 	while (node.bonuses.size())

@@ -1651,16 +1651,18 @@ void CBattleInterface::show(SDL_Surface * to)
 	////showing units //a lot of work...
 	std::vector<const CStack *> stackAliveByHex[BFIELD_SIZE];
 	//double loop because dead stacks should be printed first
-	BOOST_FOREACH(const CStack *s, stacks)
+	for (int i = 0; i < stacks.size(); i++)
 	{
+		const CStack *s = stacks[i];
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 		if(creAnims[s->ID]->getType() != 5 && s->position >= 0) //don't show turrets here
 			stackAliveByHex[s->position].push_back(s);
 	}
 	std::vector<const CStack *> stackDeadByHex[BFIELD_SIZE];
-	BOOST_FOREACH(const CStack *s, stacks)
+	for (int i = 0; i < stacks.size(); i++)
 	{
+		const CStack *s = stacks[i];
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 		if(creAnims[s->ID]->getType() == 5)
@@ -3093,9 +3095,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
 					}
 					//The %s shrivel with age, and lose %d hit points."	
-					BonusList bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
-					bl.remove_if(Selector::source(Bonus::SPELL_EFFECT, 75));
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl.totalValue()/2));
+					boost::shared_ptr<BonusList> bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, 75));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
 				case 78: //Dispell helpful spells
@@ -3428,8 +3430,8 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 
 		//blitting amount background box
 		SDL_Surface *amountBG = NULL;
-		BonusList spellEffects = stack->getSpellBonuses();
-		if(!spellEffects.size())
+		boost::shared_ptr<BonusList> spellEffects = stack->getSpellBonuses();
+		if(!spellEffects->size())
 		{
 			amountBG = amountNormal;
 		}

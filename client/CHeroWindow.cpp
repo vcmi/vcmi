@@ -44,21 +44,25 @@
 extern SDL_Surface * screen;
 using namespace boost::assign;
 
-void CHeroWithMaybePickedArtifact::getAllBonuses(BonusList &out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+const boost::shared_ptr<BonusList> CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
 {
-	BonusList heroBonuses, bonusesFromPickedUpArtifact;
-	hero->getAllBonuses(heroBonuses, selector, limit, hero);
+	boost::shared_ptr<BonusList> out(new BonusList);
+	boost::shared_ptr<BonusList> heroBonuses = hero->getAllBonuses(selector, limit, hero);
+	boost::shared_ptr<BonusList> bonusesFromPickedUpArtifact;
 
 	CArtifactsOfHero::SCommonPart *cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : NULL;
 	if(cp && cp->src.art && cp->src.AOH && cp->src.AOH->getHero() == hero)
 	{
-		cp->src.art->getAllBonuses(bonusesFromPickedUpArtifact, selector, limit, hero);
+		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
 	}
+	else
+		bonusesFromPickedUpArtifact = boost::shared_ptr<BonusList>(new BonusList);
 
-	BOOST_FOREACH(Bonus *b, bonusesFromPickedUpArtifact)
-		heroBonuses -= b;
-	BOOST_FOREACH(Bonus *b, heroBonuses)
-		out.push_back(b);
+	BOOST_FOREACH(Bonus *b, *bonusesFromPickedUpArtifact)
+		*heroBonuses -= b;
+	BOOST_FOREACH(Bonus *b, *heroBonuses)
+		out->push_back(b);
+	return out;
 }
 
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero)

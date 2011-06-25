@@ -352,7 +352,8 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		CCS->curh->centerCursor();
+		if (conf.cc.fullscreen)
+			CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)

@@ -476,9 +476,9 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	//calculating total attack/defense skills modifier
 
 	if(shooting) //precision handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)).totalValue();
+		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT))->totalValue();
 	else //bloodlust handling (etc.)
-		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)).totalValue();
+		attackDefenceDifference += attacker->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))->totalValue();
 
 
 	if(attacker->getEffect(55)) //slayer handling
@@ -1830,23 +1830,23 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 
-		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+		boost::shared_ptr<BonusList> immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
-			std::remove_if(immunities.begin(), immunities.end(), NegateRemover);
+			std::remove_if(immunities->begin(), immunities->end(), NegateRemover);
 		}
 
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id) ||
-			( immunities.size() > 0 && immunities.totalValue() >= spell->level && spell->level))
+			( immunities->size() > 0 && immunities->totalValue() >= spell->level && spell->level))
 		{ 
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		//dispel helpful spells
 		if(spell->id == 78)
 		{
-			BonusList spellBon = subject->getSpellBonuses();
+			boost::shared_ptr<BonusList> spellBon = subject->getSpellBonuses();
 			bool hasPositiveSpell = false;
-			BOOST_FOREACH(const Bonus * b, spellBon)
+			BOOST_FOREACH(const Bonus * b, *spellBon)
 			{
 				if(VLC->spellh->spells[b->sid]->positiveness > 0)
 				{
@@ -2265,17 +2265,13 @@ THex CStack::occupiedHex() const
 		return THex::INVALID;
 	}
 }
-BonusList CStack::getSpellBonuses() const
-{
-	return getBonuses(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
-}
 
 std::vector<si32> CStack::activeSpells() const
 {
 	std::vector<si32> ret;
 
-	BonusList spellEffects = getSpellBonuses();
-	BOOST_FOREACH(const Bonus *it, spellEffects)
+	boost::shared_ptr<BonusList> spellEffects = getSpellBonuses();
+	BOOST_FOREACH(const Bonus *it, *spellEffects)
 	{
 		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);

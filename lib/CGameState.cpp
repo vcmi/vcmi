@@ -1678,8 +1678,8 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero speciality
-		BonusList lista = h->speciality.getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
-		BOOST_FOREACH(const Bonus *it, lista)
+		boost::shared_ptr<BonusList> lista = h->speciality.getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
+		BOOST_FOREACH(const Bonus *it, *lista)
 		{
 			ui16 nid = it->additionalInfo;
 			if (nid != base->idNumber) //in very specific case the upgrade is avaliable by default (?)

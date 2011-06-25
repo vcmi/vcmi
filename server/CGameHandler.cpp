@@ -4265,7 +4265,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	if( attacker->hasBonusOfType(Bonus::SPELL_AFTER_ATTACK) )
 	{
 		std::set<ui32> spellsToCast;
-		BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK)))
+		boost::shared_ptr<BonusList> spells = attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK));
+		BOOST_FOREACH(const Bonus *sf, *spells)
 		{
 			spellsToCast.insert (sf->subtype);
 		}
@@ -4285,7 +4286,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 			if(oneOfAttacked == NULL) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
-			BOOST_FOREACH(const Bonus *sf, attacker->getBonuses(Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID)))
+			boost::shared_ptr<BonusList> spellsByType = attacker->getBonuses(Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID));
+			BOOST_FOREACH(const Bonus *sf, *spellsByType)
 			{
 				amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
 				meleeRanged = sf->additionalInfo / 1000;
@@ -4333,7 +4335,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		}
 	}
 	int acidDamage = 0;
-	BOOST_FOREACH(const Bonus *b, attacker->getBonuses(Selector::type(Bonus::ACID_BREATH)))
+	boost::shared_ptr<BonusList> acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+	BOOST_FOREACH(const Bonus *b, *acidBreath)
 	{
 		if (b->additionalInfo > rand()%100)
 			acidDamage += b->val;
@@ -4815,9 +4818,8 @@ void CGameHandler::runBattle()
 	{
 		if(gs->curB->heroes[i] && gs->curB->heroes[i]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
 		{
-			BonusList bl;
-			gs->curB->heroes[i]->getBonuses(bl, Selector::type(Bonus::OPENING_BATTLE_SPELL));
-			BOOST_FOREACH (Bonus *b, bl)
+			boost::shared_ptr<BonusList> bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			BOOST_FOREACH (Bonus *b, *bl)
 			{
 				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, SpellCasting::HERO_CASTING, NULL);
 			}
