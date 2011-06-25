@@ -772,7 +772,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 		std::string dmgInfo;
 		const CGHeroInstance * hero = owner->myHero;
 		int causedDmg = owner->myInt->cb->estimateSpellDamage( CGI->spellh->spells[mySpell], (hero ? hero : NULL));
-		if(causedDmg == 0)
+		if(causedDmg == 0 || mySpell == 57) //Titan's Lightning Bolt already has damage info included
 			dmgInfo = "";
 		else
 		{

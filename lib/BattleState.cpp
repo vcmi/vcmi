@@ -914,13 +914,9 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 
 	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
 	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
-	
-	//FIXME: what point of dmgMultipliers map? all damage multipliers are already present in CSpell::power
-	//TODO: better way to determine damage spells
-	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 25)(24, 5)(25, 10)(26, 50)(77, 10);
 
 	//check if spell really does damage - if not, return 0
-	if(dmgMultipliers.find(sp->id) == dmgMultipliers.end())
+	if(VLC->spellh->damageSpells.find(sp->id) == VLC->spellh->damageSpells.end())
 		return 0;
 
 	ret = usedSpellPower * sp->power;
@@ -1782,6 +1778,21 @@ bool NegateRemover(const Bonus* b)
 	return b->source == Bonus::CREATURE_ABILITY;
 }
 
+bool BattleInfo::battleTestElementalImmunity(const CStack * subject, const CSpell * spell, Bonus::BonusType element, bool damageSpell) const //helper for battleisImmune
+{
+	if (spell->positiveness < 1) //negative or indifferent
+	{
+		if (damageSpell && subject->hasBonusOfType(element, 2) || subject->hasBonusOfType(element, 1))
+			return true;
+	}
+	else if (spell->positiveness == 1) //positive
+	{
+		if (subject->hasBonusOfType(element, 0)) //must be immune to all spells
+			return true;
+	}
+	return false;
+}
+
 SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const
 {
 	const CStack * subject = getStackT(dest, false);
@@ -1792,59 +1803,31 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 
 		if ((spell->id == 41 || spell->id == 42) && subject->hasBonusOfType(Bonus::UNDEAD)) //undeads are immune to bless & curse
 			return SpellCasting::STACK_IMMUNE_TO_SPELL; //TODO: more general logic for new spells?
+		
+		bool damageSpell = (VLC->spellh->damageSpells.find(spell->id) != VLC->spellh->damageSpells.end());
+
+		if (damageSpell && subject->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY));
+			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 
 		if (spell->fire)
 		{
-
-			if (spell->positiveness == -1) //negative
-			{
-				if (subject->hasBonusOfType(Bonus::FIRE_IMMUNITY)) //both damage and curse spells, TODO: separate them
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
-			else if (spell->positiveness == 1)
-			{
-				if (subject->hasBonusOfType(Bonus::FIRE_IMMUNITY, 1))
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
+			if (battleTestElementalImmunity(subject, spell, Bonus::FIRE_IMMUNITY, damageSpell));
+				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->water)
 		{
-			if (spell->positiveness == -1) //negative
-			{
-				if (subject->hasBonusOfType(Bonus::WATER_IMMUNITY)) //both damage and curse spells, TODO: separate them
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
-			else if (spell->positiveness == 1)
-			{
-				if (subject->hasBonusOfType(Bonus::WATER_IMMUNITY, 1))
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
+			if (battleTestElementalImmunity(subject, spell, Bonus::WATER_IMMUNITY, damageSpell));
+				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->earth)
 		{
-			if (spell->positiveness == -1) //negative
-			{
-				if (subject->hasBonusOfType(Bonus::EARTH_IMMUNITY)) //both damage and curse spells, TODO: separate them
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
-			else if (spell->positiveness == 1)
-			{
-				if (subject->hasBonusOfType(Bonus::EARTH_IMMUNITY, 1))
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
+			if (battleTestElementalImmunity(subject, spell, Bonus::EARTH_IMMUNITY, damageSpell));
+				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->air)
 		{
-			if (spell->positiveness == -1) //negative
-			{
-				if (subject->hasBonusOfType(Bonus::AIR_IMMUNITY)) //both damage and curse spells, TODO: separate them
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
-			else if (spell->positiveness == 1)
-			{
-				if (subject->hasBonusOfType(Bonus::AIR_IMMUNITY, 1))
-					return SpellCasting::STACK_IMMUNE_TO_SPELL;
-			}
+			if (battleTestElementalImmunity(subject, spell, Bonus::AIR_IMMUNITY, damageSpell));
+				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 
 		BonusList immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));

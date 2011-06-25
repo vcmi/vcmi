@@ -109,6 +109,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, SpellCasting::ECastingMode mode) const; //checks if given player can cast given spell
 	SpellCasting::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
 	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
+	bool battleTestElementalImmunity(const CStack * subject, const CSpell * spell, Bonus::BonusType element, bool damageSpell) const;
 
 	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, SpellCasting::ECastingMode mode) const;
 

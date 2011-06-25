@@ -63,11 +63,12 @@ class DLL_EXPORT CSpellHandler
 public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
+	std::set<TSpell> damageSpells; //they inflict damage and require particular threatment
 	void loadSpells();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & spells;
+		h & spells & damageSpells;
 	}
 };
 

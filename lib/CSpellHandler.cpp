@@ -4,6 +4,7 @@
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/assign/std/set.hpp>
 #include <cctype>
 
 
@@ -18,6 +19,7 @@ extern CLodHandler *bitmaph;
  * Full text of license available in license.txt file, in main folder
  *
  */
+using namespace boost::assign;
 
 namespace SRSLPraserHelpers
 {
@@ -323,4 +325,6 @@ void CSpellHandler::loadSpells()
 	}
 	ast.close();
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
+
+	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
 }
