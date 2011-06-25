@@ -4987,7 +4987,9 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
 		expType expVal = h->calculateXp(gainedExp);
-		getText(iw,afterBattle,175,h);
+		//getText(iw,afterBattle,175,h); //wtf?
+		iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
+		iw.text.addReplacement(h->name);
 
 		if(expVal)
 			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
@@ -5026,6 +5028,15 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	{
 		std::set<ui32> spellsToGive;
 		iw.components.clear();
+		if (spells.size() > 1)
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT, 188); //%s learns spells
+		}
+		else
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT, 184); //%s learns a spell
+		}
+		iw.text.addReplacement(h->name);
 		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
 		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
 		{
@@ -5100,6 +5111,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
  	iw.components.clear();
 // 	getText(iw,afterBattle,183,h);
+	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
+	iw.text.addReplacement(h->name);
 	for(int i=0; i<artifacts.size(); i++)
 	{
 		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));
@@ -5107,6 +5120,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		{
 			cb->showInfoDialog(&iw);
 			iw.components.clear();
+			iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure - once more?
+			iw.text.addReplacement(h->name);
 		}
 	}
 	if(iw.components.size())
