@@ -545,7 +545,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	def->prepareAttacked(*bsa);
 
 	//life drain handling
-	if (att->hasBonusOfType(Bonus::LIFE_DRAIN))
+	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
 		StacksHealedOrResurrected shi;
 		shi.lifeDrain = (ui8)true;

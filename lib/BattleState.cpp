@@ -1782,7 +1782,7 @@ bool BattleInfo::battleTestElementalImmunity(const CStack * subject, const CSpel
 {
 	if (spell->positiveness < 1) //negative or indifferent
 	{
-		if (damageSpell && subject->hasBonusOfType(element, 2) || subject->hasBonusOfType(element, 1))
+		if ((damageSpell && subject->hasBonusOfType(element, 2)) || subject->hasBonusOfType(element, 1))
 			return true;
 	}
 	else if (spell->positiveness == 1) //positive
@@ -1806,27 +1806,27 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		
 		bool damageSpell = (VLC->spellh->damageSpells.find(spell->id) != VLC->spellh->damageSpells.end());
 
-		if (damageSpell && subject->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY));
+		if (damageSpell && subject->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY))
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
 
 		if (spell->fire)
 		{
-			if (battleTestElementalImmunity(subject, spell, Bonus::FIRE_IMMUNITY, damageSpell));
+			if (battleTestElementalImmunity(subject, spell, Bonus::FIRE_IMMUNITY, damageSpell))
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->water)
 		{
-			if (battleTestElementalImmunity(subject, spell, Bonus::WATER_IMMUNITY, damageSpell));
+			if (battleTestElementalImmunity(subject, spell, Bonus::WATER_IMMUNITY, damageSpell))
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->earth)
 		{
-			if (battleTestElementalImmunity(subject, spell, Bonus::EARTH_IMMUNITY, damageSpell));
+			if (battleTestElementalImmunity(subject, spell, Bonus::EARTH_IMMUNITY, damageSpell))
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 		if (spell->air)
 		{
-			if (battleTestElementalImmunity(subject, spell, Bonus::AIR_IMMUNITY, damageSpell));
+			if (battleTestElementalImmunity(subject, spell, Bonus::AIR_IMMUNITY, damageSpell))
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 

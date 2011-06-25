@@ -319,6 +319,11 @@ si32 IBonusBearer::magicResistance() const
 	return valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
 }
 
+bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
+{
+	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING)));
+}
+
 void IBonusBearer::setCachingStr(const std::string &request) const
 {
 }

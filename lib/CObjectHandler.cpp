@@ -1346,7 +1346,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			// Get lost enemy hit points convertible to units.
 			CCreature * c = VLC->creh->creatures[it->first];
-			if (!(c->hasBonusOfType(Bonus::UNDEAD) || c->hasBonusOfType(Bonus::NON_LIVING)))
+			if (c->isLiving())
 			{
 				const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * it->second * necromancySkill;
 				raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, it->second * necromancySkill); //limit to % of HP and % of original stack count

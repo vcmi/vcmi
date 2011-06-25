@@ -587,6 +587,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 			{
 				textOff += 1;
 			}
+			CCS->soundh->playSound(soundBase::DRAINLIF);
 		}
 
 		//print info about life drain

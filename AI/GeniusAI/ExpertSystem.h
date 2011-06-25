@@ -3,6 +3,7 @@
 #include "../vcmi/lib/HeroBonus.h"
 #include <boost/bind.hpp>
 #include <vector>
+#include <list>
 
 /*
  * ExpertSystem.h, part of VCMI engine

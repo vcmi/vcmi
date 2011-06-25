@@ -426,6 +426,7 @@ public:
 	si32 Attack() const; //get attack of stack with all modificators
 	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
 	ui16 MaxHealth() const; //get max HP of stack with all modifiers
+	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
