@@ -236,7 +236,9 @@ void CCallback::setSelection(const CArmedInstance * obj)
 
 	if(obj->ID == HEROI_TYPE)
 	{
-		cl->gs->calculatePaths(static_cast<const CGHeroInstance *>(obj), *cl->pathInfo);
+		if(cl->pathInfo->hero != obj) //calculate new paths only if we selected a different hero
+			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));
+
 		//nasty workaround. TODO: nice workaround
 		cl->gs->getPlayer(player)->currentSelection = obj->id;
 	}
@@ -303,12 +305,13 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 	{ 
 		recalculatePaths();
 	}
+	boost::unique_lock<boost::mutex> pathLock(cl->pathMx);
 	return cl->pathInfo->getPath(dest, ret);
 }
 
 void CCallback::recalculatePaths()
 {
-	gs->calculatePaths(cl->IGameCallback::getSelectedHero(player), *cl->pathInfo);
+	cl->calculatePaths(cl->IGameCallback::getSelectedHero(player));
 }
 
 void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/ )

@@ -477,7 +477,7 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 			cre->character = 2;
 			cre->gainedArtifact = -1;
 			cre->identifier = -1;
-			cre->addToSlot(0, new CStackInstance(-1, -1)); //add placeholder stack
+			cre->addToSlot(0, new CStackInstance(subID, -1)); //add placeholder stack
 		}
 		break;
 	default:

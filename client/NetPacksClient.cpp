@@ -154,7 +154,7 @@ void SetMovePoints::applyCl( CClient *cl )
 
 	if (cl->IGameCallback::getSelectedHero(LOCPLINT->playerID) == h)//if we have selected that hero
 	{
-		GS(cl)->calculatePaths(h, *cl->pathInfo);
+		cl->calculatePaths(h);
 	}
 
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroMovePointsChanged, h);
@@ -329,7 +329,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 void RemoveObject::applyCl( CClient *cl )
 {
 	if(cl->pathInfo->hero && cl->pathInfo->hero->id != id)
-		GS(cl)->calculatePaths(cl->pathInfo->hero, *cl->pathInfo);
+		cl->updatePaths();
 }
 
 void TryMoveHero::applyFirstCl( CClient *cl )

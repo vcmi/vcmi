@@ -526,7 +526,7 @@ void CClient::updatePaths()
 {	
 	const CGHeroInstance *h = getSelectedHero();
 	if (h)//if we have selected hero...
-		gs->calculatePaths(h, *pathInfo);
+		calculatePaths(h);
 }
 
 void CClient::finishCampaign( CCampaignState * camp )
@@ -615,6 +615,13 @@ int CClient::getLocalPlayer() const
 	if(LOCPLINT)
 		return LOCPLINT->playerID;
 	return getCurrentPlayer();
+}
+
+void CClient::calculatePaths(const CGHeroInstance *h)
+{
+	assert(h);
+	boost::unique_lock<boost::mutex> pathLock(pathMx);
+	gs->calculatePaths(h, *pathInfo);
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

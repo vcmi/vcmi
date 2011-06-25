@@ -72,7 +72,10 @@ public:
 	bool hotSeat;
 	CConnection *serv;
 	BattleAction *curbaction;
+
 	CPathsInfo *pathInfo;
+	boost::mutex pathMx; //protects the variable above
+
 	CScriptingModule *erm;
 
 	CondSh<bool> waitingRequest;
@@ -97,6 +100,8 @@ public:
 	void run();
 	void finishCampaign( CCampaignState * camp );
 	void proposeNextMission( CCampaignState * camp );
+	void calculatePaths(const CGHeroInstance *h);
+	void updatePaths(); //calls calculatePaths for same hero for which we previously calculated paths
 
 	bool terminate;	// tell to terminate
 	boost::thread *connectionHandler; //thread running run() method
@@ -159,7 +164,6 @@ public:
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
-	void updatePaths();
 	void battleStarted(const BattleInfo * info);
 
 	void commitPackage(CPackForClient *pack) OVERRIDE;
