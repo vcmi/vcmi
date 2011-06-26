@@ -3647,7 +3647,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 			{
 				// Parabolic shot of the trajectory, as follows: f(x) = ax^2 + bx + c
 				it->x += it->dx;
-				it->y = it->catapultInfo->calculateY(it->x);
+				it->y = it->catapultInfo->calculateY(it->x - this->pos.x) + this->pos.y;
 			}
 			else
 			{
