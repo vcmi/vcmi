@@ -835,7 +835,7 @@ public:
 
 	ERMInterpreter();
 	bool checkCondition( ERM::Tcondition cond );
-	int getRealLine(int lineNum);
+	int getRealLine(const VERMInterpreter::LinePointer &lp);
 
 	//overload CScriptingModule
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;

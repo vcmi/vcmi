@@ -1469,7 +1469,7 @@ struct LineExec : boost::static_visitor<>
 
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
-	tlog0 << "Executing line nr " << getRealLine(lp.lineNum) << " (internal " << lp.lineNum << ") from " << lp.file->filename << std::endl;
+	tlog0 << "Executing line nr " << getRealLine(lp) << " (internal " << lp.lineNum << ") from " << lp.file->filename << std::endl;
 	executeLine(scripts[lp]);
 }
 
@@ -1968,10 +1968,10 @@ void ERMInterpreter::executeInstructions()
 	//TODO implement me
 }
 
-int ERMInterpreter::getRealLine(int lineNum)
+int ERMInterpreter::getRealLine(const LinePointer &lp)
 {
 	for(std::map<VERMInterpreter::LinePointer, ERM::TLine>::const_iterator i = scripts.begin(); i != scripts.end(); i++)
-		if(i->first.lineNum == lineNum)
+		if(i->first.lineNum == lp.lineNum && i->first.file->filename == lp.file->filename)
 			return i->first.realLineNum;
 
 	return -1;

@@ -4557,7 +4557,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 					COMPLAIN_RET("This hero can only teleport to nearest town!")
 			}
 			if (h->visitedTown)
-				stopHeroVisitCastle(town->id, h->id);
+				stopHeroVisitCastle(h->visitedTown->id, h->id);
 			if (moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1));
 				heroVisitCastle(town->id, h->id);
 		}
