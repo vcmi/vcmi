@@ -3369,7 +3369,9 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	int ID = stack->ID;
 	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 		return;
-
+	const CCreature *creature = stack->getCreature();
+	SDL_Rect unitRect = {creAnims[ID]->pos.x, creAnims[ID]->pos.y, creAnims[ID]->fullWidth, creAnims[ID]->fullHeight};
+	
 	int animType = creAnims[ID]->getType();
 
 	int affectingSpeed = curInt->sysOpts.animSpeed;
@@ -3377,25 +3379,34 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 		affectingSpeed = 2;
 	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
 
-	if(animType == 2)
+	if (creature->idNumber == 149)
 	{
-		if(standingFrame.find(ID)!=standingFrame.end())
+		// a turret creature has a limited height, so cut it at a certain position; turret creature has no standing anim
+		unitRect.h = graphics->wallPositions[siegeH->town->town->typeID][20].y;
+	}
+	else
+	{
+		// standing animation
+		if(animType == 2)
 		{
-			incrementFrame = (animCount%(8/affectingSpeed)==0);
-			if(incrementFrame)
+			if(standingFrame.find(ID)!=standingFrame.end())
 			{
-				++standingFrame[ID];
-				if(standingFrame[ID] == creAnims[ID]->framesInGroup(CCreatureAnim::HOLDING))
+				incrementFrame = (animCount%(8/affectingSpeed)==0);
+				if(incrementFrame)
 				{
-					standingFrame.erase(standingFrame.find(ID));
+					++standingFrame[ID];
+					if(standingFrame[ID] == creAnims[ID]->framesInGroup(CCreatureAnim::HOLDING))
+					{
+						standingFrame.erase(standingFrame.find(ID));
+					}
 				}
 			}
-		}
-		else
-		{
-			if((rand()%50) == 0)
+			else
 			{
-				standingFrame.insert(std::make_pair(ID, 0));
+				if((rand()%50) == 0)
+				{
+					standingFrame.insert(std::make_pair(ID, 0));
+				}
 			}
 		}
 	}
@@ -3411,9 +3422,9 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 				incrementFrame = false;
 		}
 	}
-
+	
 	// Increment always when moving, never if stack died
-	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack);
+	creAnims[ID]->nextFrame(to, unitRect.x, unitRect.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack, &unitRect);
 
 	//printing amount
 	if(stack->count > 0 //don't print if stack is not alive

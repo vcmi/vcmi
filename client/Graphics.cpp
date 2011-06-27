@@ -403,7 +403,7 @@ void Graphics::loadWallPositions()
 		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
 		{
 			inp >> dump;
-			for(int b = 0; b < 20; ++b)
+			for(int b = 0; b < 21; ++b)
 			{
 				Point pt;
 				inp >> pt.x;

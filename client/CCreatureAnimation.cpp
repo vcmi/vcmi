@@ -225,7 +225,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				{
 					if(xB >= 0 && xB < dest->w && yB >= 0 && yB < dest->h)
 					{
-						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB))
+						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
 						{
 							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
 							putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
