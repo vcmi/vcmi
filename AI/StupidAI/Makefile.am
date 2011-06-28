@@ -1,7 +1,9 @@
-pkglib_LTLIBRARIES = StupidAI.la
-StupidAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
-StupidAI_la_LDFLAGS = -L$(top_builddir)/lib -module
-StupidAI_la_SOURCES = \
+vcmiaidir = $(VCMI_AI_LIBS_DIR)
+
+vcmiai_LTLIBRARIES = libStupidAI.la
+libStupidAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libStupidAI_la_LDFLAGS = -L$(top_builddir)/lib -module
+libStupidAI_la_SOURCES = \
 	main.cpp\
 	stdafx.cpp\
 	stdafx.h\

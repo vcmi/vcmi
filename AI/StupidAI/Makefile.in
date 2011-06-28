@@ -76,17 +76,18 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(pkglibdir)"
-LTLIBRARIES = $(pkglib_LTLIBRARIES)
-StupidAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
-am_StupidAI_la_OBJECTS = main.lo stdafx.lo StupidAI.lo
-StupidAI_la_OBJECTS = $(am_StupidAI_la_OBJECTS)
+am__installdirs = "$(DESTDIR)$(vcmiaidir)"
+LTLIBRARIES = $(vcmiai_LTLIBRARIES)
+libStupidAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
+am_libStupidAI_la_OBJECTS = main.lo stdafx.lo StupidAI.lo
+libStupidAI_la_OBJECTS = $(am_libStupidAI_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
-StupidAI_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(StupidAI_la_LDFLAGS) $(LDFLAGS) -o $@
+libStupidAI_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libStupidAI_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -129,8 +130,8 @@ am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(StupidAI_la_SOURCES)
-DIST_SOURCES = $(StupidAI_la_SOURCES)
+SOURCES = $(libStupidAI_la_SOURCES)
+DIST_SOURCES = $(libStupidAI_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -209,6 +210,8 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+VCMI_AI_LIBS_DIR = @VCMI_AI_LIBS_DIR@
+VCMI_SCRIPTING_LIBS_DIR = @VCMI_SCRIPTING_LIBS_DIR@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -263,10 +266,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-pkglib_LTLIBRARIES = StupidAI.la
-StupidAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
-StupidAI_la_LDFLAGS = -L$(top_builddir)/lib -module
-StupidAI_la_SOURCES = \
+vcmiaidir = $(VCMI_AI_LIBS_DIR)
+vcmiai_LTLIBRARIES = libStupidAI.la
+libStupidAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libStupidAI_la_LDFLAGS = -L$(top_builddir)/lib -module
+libStupidAI_la_SOURCES = \
 	main.cpp\
 	stdafx.cpp\
 	stdafx.h\
@@ -307,39 +311,39 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
+install-vcmiaiLTLIBRARIES: $(vcmiai_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	test -z "$(pkglibdir)" || $(MKDIR_P) "$(DESTDIR)$(pkglibdir)"
-	@list='$(pkglib_LTLIBRARIES)'; test -n "$(pkglibdir)" || list=; \
+	test -z "$(vcmiaidir)" || $(MKDIR_P) "$(DESTDIR)$(vcmiaidir)"
+	@list='$(vcmiai_LTLIBRARIES)'; test -n "$(vcmiaidir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
 	  else :; fi; \
 	done; \
 	test -z "$$list2" || { \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkglibdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkglibdir)"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(vcmiaidir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(vcmiaidir)"; \
 	}
 
-uninstall-pkglibLTLIBRARIES:
+uninstall-vcmiaiLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pkglib_LTLIBRARIES)'; test -n "$(pkglibdir)" || list=; \
+	@list='$(vcmiai_LTLIBRARIES)'; test -n "$(vcmiaidir)" || list=; \
 	for p in $$list; do \
 	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkglibdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkglibdir)/$$f"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(vcmiaidir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(vcmiaidir)/$$f"; \
 	done
 
-clean-pkglibLTLIBRARIES:
-	-test -z "$(pkglib_LTLIBRARIES)" || rm -f $(pkglib_LTLIBRARIES)
-	@list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
+clean-vcmiaiLTLIBRARIES:
+	-test -z "$(vcmiai_LTLIBRARIES)" || rm -f $(vcmiai_LTLIBRARIES)
+	@list='$(vcmiai_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" != "$$p" || dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-StupidAI.la: $(StupidAI_la_OBJECTS) $(StupidAI_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(StupidAI_la_LINK) -rpath $(pkglibdir) $(StupidAI_la_OBJECTS) $(StupidAI_la_LIBADD) $(LIBS)
+libStupidAI.la: $(libStupidAI_la_OBJECTS) $(libStupidAI_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libStupidAI_la_LINK) -rpath $(vcmiaidir) $(libStupidAI_la_OBJECTS) $(libStupidAI_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -467,7 +471,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
-	for dir in "$(DESTDIR)$(pkglibdir)"; do \
+	for dir in "$(DESTDIR)$(vcmiaidir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -497,7 +501,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-pkglibLTLIBRARIES \
+clean-am: clean-generic clean-libtool clean-vcmiaiLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -518,13 +522,13 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-vcmiaiLTLIBRARIES
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-pkglibLTLIBRARIES
+install-exec-am:
 
 install-html: install-html-am
 
@@ -564,23 +568,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-pkglibLTLIBRARIES
+uninstall-am: uninstall-vcmiaiLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-pkglibLTLIBRARIES ctags distclean \
+	clean-libtool clean-vcmiaiLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-pkglibLTLIBRARIES \
-	install-ps install-ps-am install-strip installcheck \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip install-vcmiaiLTLIBRARIES installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-pkglibLTLIBRARIES
+	tags uninstall uninstall-am uninstall-vcmiaiLTLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

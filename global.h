@@ -54,7 +54,7 @@ extern std::string NAME_AFFIX; //client / server
 	#define DATA_DIR "."
 	#define USER_DIR  "."
 	#define BIN_DIR  "."
-	#define LIB_DIR "AI"
+	#define LIB_DIR "."
 	#define SERVER_NAME "VCMI_server.exe"
 	#define LIB_EXT "dll"
 #else

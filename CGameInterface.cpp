@@ -27,33 +27,29 @@ rett * createAny(std::string dllname, std::string methodName)
 	rett*(*getAI)(); 
 	void(*getName)(char*); 
 
-	std::string dllPath;
-
-	//TODO unify at least partially (code duplication)
 #ifdef _WIN32
-	dllPath = dllname;
-	HINSTANCE dll = LoadLibraryA(dllPath.c_str());
-	if (!dll)
+	HINSTANCE dll = LoadLibraryA(dllname.c_str());
+	if (dll)
 	{
-		tlog1 << "Cannot open dynamic library ("<<dllPath<<"). Throwing..."<<std::endl;
-		throw new std::string("Cannot open dynamic library");
+		getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
+		getAI = (rett*(*)())GetProcAddress(dll,methodName.c_str());
 	}
-	//int len = dllname.size()+1;
-	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
-	getAI = (rett*(*)())GetProcAddress(dll,methodName.c_str());
 #else
-	dllPath = dllname;
-	void *dll = dlopen(dllPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
+	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
+	if (dll)
+	{
+		getName = (void(*)(char*))dlsym(dll,"GetAiName");
+		getAI = (rett*(*)())dlsym(dll,methodName.c_str());
+	}
+#endif
 	if (!dll)
 	{
-		tlog1 << "Cannot open dynamic library ("<<dllPath<<"). Throwing..."<<std::endl;
+		tlog1 << "Cannot open dynamic library ("<<dllname<<"). Throwing..."<<std::endl;
 		throw new std::string("Cannot open dynamic library");
 	}
-	getName = (void(*)(char*))dlsym(dll,"GetAiName");
-	getAI = (rett*(*)())dlsym(dll,methodName.c_str());
-#endif
+
 	getName(temp);
-	tlog0 << "Loaded AI named " << temp << std::endl;
+	tlog0 << "Loaded " << temp << std::endl;
 	ret = getAI();
 
 	if(!ret)
@@ -62,12 +58,26 @@ rett * createAny(std::string dllname, std::string methodName)
 	return ret;
 }
 
+//Currently AI libraries use "lib" prefix only on non-win systems.
+//May be applied to Win systems as well to remove this ifdef
+#ifdef _WIN32
+std::string getAIFileName(std::string input)
+{
+	return input + '.' + LIB_EXT;
+}
+#else
+std::string getAIFileName(std::string input)
+{
+	return "lib" + input + '.' + LIB_EXT;
+}
+#endif
 
 template<typename rett>
 rett * createAnyAI(std::string dllname, std::string methodName)
 {
-	rett* ret = createAny<rett>(LIB_DIR "/" + dllname + '.' + LIB_EXT, methodName);
-	ret->dllName = dllname;	
+	std::string filename = getAIFileName(dllname);
+	rett* ret = createAny<rett>(LIB_DIR "/AI/" + filename, methodName);
+	ret->dllName = filename;
 	return ret;
 }
 

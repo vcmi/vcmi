@@ -73,8 +73,8 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 			SEntries[j].group = group;
 			frameIDs.push_back(j);
 		}
-		int unknown2 = readNormalNr<4>(i,FDef); i+=4; //TODO use me
-		int unknown3 = readNormalNr<4>(i,FDef); i+=4; //TODO use me
+		/*int unknown2 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
+		/*int unknown3 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
 		i+=13*totalInBlock; //ommiting names
 		for (j=0; j<totalInBlock; j++)
 		{ 
@@ -173,7 +173,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 	unsigned char SegmentType, SegmentLength;
 
 	i = BaseOffset = SEntries[SIndex].offset;
-	int prSize = readNormalNr<4>(i, FDef); i += 4; //TODO use me
+	/*int prSize = readNormalNr<4>(i, FDef);*/ i += 4; //TODO use me
 	int defType2 = readNormalNr<4>(i, FDef); i += 4;
 	FullWidth = readNormalNr<4>(i, FDef); i += 4;
 	FullHeight = readNormalNr<4>(i, FDef); i += 4;
@@ -219,7 +219,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				int xB = (attacker ? ftcp % FullWidth : FullWidth - ftcp % FullWidth - 1) + x;
 
 
-				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : 0x0f - ((animCount & 0x1e) >> 1) << 4;
+				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
 
 				for (int k = 0; k <= SegmentLength; k++)
 				{

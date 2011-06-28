@@ -445,7 +445,7 @@ class DLL_EXPORT CBonusSystemNode : public IBonusBearer
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::string cachingStr;
-	mutable std::map<std::string, boost::shared_ptr<BonusList>> cachedRequests;
+	mutable std::map<std::string, boost::shared_ptr<BonusList> > cachedRequests;
 
 	void getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
 

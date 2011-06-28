@@ -410,7 +410,7 @@ const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelect
 	
 		if (cachingStr != "")
 		{
-			std::map<std::string, boost::shared_ptr<BonusList>>::iterator it(cachedRequests.find(cachingStr));
+			std::map<std::string, boost::shared_ptr<BonusList> >::iterator it(cachedRequests.find(cachingStr));
 			if (cachedRequests.size() > 0 && it != cachedRequests.end())
 			{
 				ret = it->second;
@@ -438,7 +438,7 @@ const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelect
 	}
 }
 
-CBonusSystemNode::CBonusSystemNode() : nodeType(UNKNOWN), cachedLast(0)
+CBonusSystemNode::CBonusSystemNode() : cachedLast(0), nodeType(UNKNOWN)
 {
 }
 

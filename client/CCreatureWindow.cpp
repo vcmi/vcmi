@@ -402,7 +402,6 @@ CBonusItem::CBonusItem()
 CBonusItem::CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName)
 {
 	OBJ_CONSTRUCTION;
-	SHARE_POS;
 	visible = false;
 
 	name = Name;

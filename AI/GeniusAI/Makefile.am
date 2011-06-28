@@ -1,7 +1,9 @@
-pkglib_LTLIBRARIES = GeniusAI.la
-GeniusAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
-GeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module
-GeniusAI_la_SOURCES = \
+vcmiaidir = $(VCMI_AI_LIBS_DIR)
+
+vcmiai_LTLIBRARIES = libGeniusAI.la
+libGeniusAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libGeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module
+libGeniusAI_la_SOURCES = \
 	AIPriorities.cpp \
 	AIPriorities.h \
 	BattleHelper.cpp \

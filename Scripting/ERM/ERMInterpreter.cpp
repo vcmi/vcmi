@@ -814,7 +814,7 @@ struct StringFormatter
 	int charsToReplace;
 	std::string &msg;
 
-	StringFormatter(std::string &MSG) : msg(MSG), pos(0) {}
+	StringFormatter(std::string &MSG) : pos(0), msg(MSG) {}
 
 	static void format(std::string &msg)
 	{

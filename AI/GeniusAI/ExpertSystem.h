@@ -1,6 +1,6 @@
-#include "../vcmi/global.h"
-#include "../vcmi/CCallback.h"
-#include "../vcmi/lib/HeroBonus.h"
+#include "../../global.h"
+#include "../../CCallback.h"
+#include "../../lib/HeroBonus.h"
 #include <boost/bind.hpp>
 #include <vector>
 #include <list>
@@ -199,7 +199,7 @@ public:
 	}
 	bool operator()(int prop, si32 val) const
 	{
-		return first(prop,val) || second(prop,val); 
+		return first(prop,val) || second(prop,val);
 	}
 };
 TLogic operator||(const TLogic &first, const TLogic &second);
