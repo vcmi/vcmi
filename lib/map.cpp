@@ -1057,7 +1057,7 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 
 				if(readChar(bufor,i))//customBio
 					cgh->biography = readString(bufor,i);
-				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female    //FIXME:unused?
+				cgh->sex = bufor[i++]; // 0xFF is default, 00 male, 01 female
 				if(readChar(bufor,i))//are spells
 				{
 					int ist = i;
@@ -1755,7 +1755,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				nobj = hp;
 
 				int a = bufor[i++]; //unkown byte, seems to be always 0 (if not - scream!)
-				tlog2 << "Unhandled Hero Placeholder detected\n";
+				tlog2 << "Unhandled Hero Placeholder detected: "<<a<<"\n";
 
 				int htid = bufor[i++]; //hero type id
 				nobj->subID = htid;

@@ -432,7 +432,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	hotSeat = (humanPlayers > 1);
 
 	std::vector<FileInfo> scriptModules;
-	CFileUtility::getFilesWithExt(scriptModules, "./Scripting", ".dll");
+	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/Scripting", "." LIB_EXT);
 	BOOST_FOREACH(FileInfo &m, scriptModules)
 	{
 		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);

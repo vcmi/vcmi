@@ -2200,7 +2200,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactRemoved(al);
+			(dynamic_cast<CArtifactHolder*>(isa))->artifactRemoved(al);
 		}
 	}
 }
@@ -2212,7 +2212,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactMoved(src, dst);
+			(dynamic_cast<CArtifactHolder*>(isa))->artifactMoved(src, dst);
 		}
 	}
 }
@@ -2224,7 +2224,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactAssembled(al);
+			(dynamic_cast<CArtifactHolder*>(isa))->artifactAssembled(al);
 		}
 	}
 }
@@ -2236,7 +2236,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	{
 		if(isa->type & IShowActivable::WITH_ARTIFACTS)
 		{
-			(dynamic_cast<CWindowWithArtifacts*>(isa))->artifactAssembled(al);
+			(dynamic_cast<CArtifactHolder*>(isa))->artifactDisassembled(al);
 		}
 	}
 }
