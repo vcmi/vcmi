@@ -4725,7 +4725,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked && text.size())  //if there is no description or it's a lock, do nothing ;]
+	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
 		if (slotID < 19) 
 		{
@@ -4748,6 +4748,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						tlog3 << "More than one possibility of assembling... taking only first\n";
 						break;
 					}
+					return;
 				}
 
 				// Otherwise if the artifact can be diasassembled, display dialog.
@@ -4759,6 +4760,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						false,
 						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
 						0);
+					return;
 				}
 			}
 		}
@@ -5416,6 +5418,9 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		updateSlot(dst.slot);
 	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
 		updateWornSlots(false);
+	
+	if (src.hero != curHero && dst.hero != curHero)
+		return;
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
@@ -5454,7 +5459,9 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			updateParentWindow();
 		}
 	}
-	else if(src.slot >= Arts::BACKPACK_START && src.slot < commonInfo->src.slotID && src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
+	else if(src.slot >= Arts::BACKPACK_START && 
+	        src.slot <  commonInfo->src.slotID &&
+			src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
 	{
 		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		commonInfo->src.slotID--;
@@ -5521,7 +5528,7 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
-	for(int i = 0; i < Arts::BACKPACK_START; i++)
+	for(int i = 0; i < artWorn.size(); i++)
 		updateSlot(i);
 
 

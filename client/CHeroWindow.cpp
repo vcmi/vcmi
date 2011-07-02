@@ -6,8 +6,8 @@
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CKingdomInterface.h"
-#include "SDL.h"
-#include "SDL_Extensions.h"
+#include <SDL.h>
+#include <SDL_Extensions.h>
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CSpellWindow.h"
@@ -51,7 +51,7 @@ const boost::shared_ptr<BonusList> CHeroWithMaybePickedArtifact::getAllBonuses(c
 	boost::shared_ptr<BonusList> bonusesFromPickedUpArtifact;
 
 	CArtifactsOfHero::SCommonPart *cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : NULL;
-	if(cp && cp->src.art && cp->src.AOH && cp->src.AOH->getHero() == hero)
+	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
 	{
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
 	}
