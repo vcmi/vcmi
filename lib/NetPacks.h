@@ -1262,7 +1262,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 
 	ui32 stackAttacked, attackerID;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	enum EFlags {KILLED = 1, EFFECT = 2};
+	enum EFlags {KILLED = 1, EFFECT = 2, SECONDARY = 4};
 	ui8 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
 	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
@@ -1275,6 +1275,10 @@ struct BattleStackAttacked : public CPackForClient//3005
 	bool isEffect() const//if stack has been attacked by a spell
 	{
 		return flags & EFFECT;
+	}
+	bool isSecondary() const//if stack was not a primary target (receives no spell effects)
+	{
+		return flags & SECONDARY;
 	}
 	bool lifeDrain() const //if this attack involves life drain effect
 	{

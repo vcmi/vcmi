@@ -710,7 +710,17 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 		{
 			CStack * st = getStackT(*it, onlyAlive);
 			if(st)
-				attackedCres.insert(st);
+			{
+				if (s->id == 76) //Death Cloud //TODO: fireball and fire immunity
+				{
+					if (st->isLiving() || st->position == destinationTile) //directly hit or alive
+					{
+						attackedCres.insert(st);
+					}
+				}
+				else
+					attackedCres.insert(st);
+			}
 		}
 	}
 	else if(s->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)

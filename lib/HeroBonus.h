@@ -101,7 +101,7 @@ namespace PrimarySkill
 	BONUS_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	BONUS_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
 	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
-	BONUS_NAME(SPELL_LIKE_ATTACK) /*value - spell id; range is taken from spell, but damage from creature; eg. magog*/ \
+	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(DAEMON_SUMMONING) /*pit lord*/			\
 	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive, 2 - only damage spells*/						\

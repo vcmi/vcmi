@@ -6,8 +6,8 @@
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CKingdomInterface.h"
-#include <SDL.h>
-#include <SDL_Extensions.h>
+#include "SDL.h"
+#include "SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CSpellWindow.h"
