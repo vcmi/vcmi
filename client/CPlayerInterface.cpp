@@ -835,11 +835,14 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
 		{
 			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
-			battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
+			if (!i->isSecondary()) //display projectile only for primary target
+			{
+				battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
+			}
 		}
 	}
 	else
-	{//WARNING: does not support multiple attacked creatures
+	{//TODO: support multiple attacked creatures
 		int shift = 0;
 		if(ba->counter() && THex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{

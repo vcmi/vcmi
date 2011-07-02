@@ -546,6 +546,9 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	const Bonus * bonus = att->getBonus(Selector::type(Bonus::SPELL_LIKE_ATTACK));
 	if (bonus)
 	{
+		bsa->flags |= BattleStackAttacked::EFFECT;
+		bsa->effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
+
 		BattleStackAttacked bss = *bsa; // copy some parameters, such as attacker
 		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, def->position);
 
@@ -3489,6 +3492,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 					continue;
 
 				BattleStackAttacked bsa;
+				//TODO: display effect only upon primary target of area spell
 				bsa.flags |= BattleStackAttacked::EFFECT;
 				bsa.effect = spell->mainEffectAnim;
 				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
