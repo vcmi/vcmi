@@ -56,7 +56,7 @@
 +  41 SPELL_IMMUNITY 0 61 0			//titans are immune to mind spells (forgetfulness)			
 +  41 SPELL_IMMUNITY 0 62 0			//titans are immune to mind spells (blind)			
 +  43 MANA_CHANNELING 20 0 0 		//familiars				
-+  45 SPELL_LIKE_ATTACK 21 0 0 		//magogs fire with fireballs				
++  45 SPELL_LIKE_ATTACK 0 21 0 		//magogs fire with fireballs				
 +  47 BLOCKS_RETALIATION 0 0 0 		//cerberus				
 +  47 THREE_HEADED_ATTACK 0 0 0		//cerberus				
 +  47 THREE_HEADED_ATTACK 0 0 0 	//creberus					
@@ -84,8 +84,8 @@
 +  62 BLOCKS_RETALIATION 0 0 0		//vampires				
 +  63 BLOCKS_RETALIATION 0 0 0		//vampire lords				
 +  63 LIFE_DRAIN 0 0 0	   	 		//vampire lords		
-+  64 SPELL_LIKE_ATTACK 76 0 0		//liches				
-+  65 SPELL_LIKE_ATTACK 76 0 0 		//power liches				
++  64 SPELL_LIKE_ATTACK 0 76 0		//liches				
++  65 SPELL_LIKE_ATTACK 0 76 0 		//power liches				
 +  66 SPELL_AFTER_ATTACK 20 42 0 	//black knights					
 +  67 DOUBLE_DAMAGE_CHANCE 20 0 0	//vampire lords					
 +  67 SPELL_AFTER_ATTACK 20 42 0 	//dread knights					
