@@ -551,6 +551,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 		BattleStackAttacked bss = *bsa; // copy some parameters, such as attacker
 		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, def->position);
+		//TODO: get exact attacked hex for defender
 
 		BOOST_FOREACH(CStack * stack, attackedCreatures)
 		{
@@ -3492,9 +3493,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destinatio
 					continue;
 
 				BattleStackAttacked bsa;
-				//TODO: display effect only upon primary target of area spell
-				bsa.flags |= BattleStackAttacked::EFFECT;
-				bsa.effect = spell->mainEffectAnim;
+				if (destination > -1 && (*it)->coversPos(destination)) //display effect only upon primary target of area spell
+				{
+					bsa.flags |= BattleStackAttacked::EFFECT;
+					bsa.effect = spell->mainEffectAnim;
+				}
 				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;

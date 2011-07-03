@@ -2276,6 +2276,35 @@ THex CStack::occupiedHex() const
 	}
 }
 
+std::vector<THex> CStack::getHexes() const
+{
+	std::vector<THex> hexes;
+	hexes.push_back(THex(position));
+	if (doubleWide())
+	{
+		if (attackerOwned)
+			hexes.push_back(THex(position - 1));
+		else
+			hexes.push_back(THex(position + 1));
+	}
+	return hexes;
+}
+
+bool CStack::coversPos(ui16 pos) const
+{
+	if (pos == position)
+		return true;
+	if (doubleWide())
+	{
+		if (attackerOwned)
+			return (pos == position - 1);
+		else
+			return (pos == position + 1);
+	} 
+	else
+		return false;
+}
+
 std::vector<si32> CStack::activeSpells() const
 {
 	std::vector<si32> ret;

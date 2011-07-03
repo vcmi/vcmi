@@ -792,7 +792,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		const CStack *attacker = cb->battleGetStackByID(i->attackerID, false);
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
-			if (defender != NULL)
+			if (defender && !i->isSecondary())
 				battleInt->displayEffect(i->effect, defender->position);
 		}
 		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed()};
