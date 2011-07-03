@@ -92,6 +92,7 @@ CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale`"
 AC_CHECK_LIB(avformat,av_open_input_file,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
 AC_CHECK_LIB(swscale,sws_getContext,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
 AC_CHECK_LIB(avcodec,avcodec_decode_video2,AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2",)
+AC_CHECK_LIB(avcodec,av_register_protocol2,AVCODEC_DECODE_VIDEO2="-DWITH_AV_REGISTER_PROTOCOL2",)
 
 FFMPEG_LIBS="$LIBS"
 FFMPEG_CXXFLAGS="$CFLAGS $AVCODEC_DECODE_VIDEO2"

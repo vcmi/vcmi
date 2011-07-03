@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include "SDL_Extensions.h"
 #include "CPlayerInterface.h"
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 
 extern SystemOptions GDefaultOptions; 
 //reads events and returns true on key down
@@ -573,7 +573,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 #endif
 #include <stdint.h>
 
-#include <../client/SDL_framerate.h>
+#include "SDL_framerate.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -638,7 +638,7 @@ static URLProtocol lod_protocol = {
 	lod_open,
 	lod_read,
 	NULL,						// no write
-    lod_seek,
+	lod_seek,
 	lod_close
 };
 
@@ -657,7 +657,11 @@ CVideoPlayer::CVideoPlayer()
 	av_register_all();
 
 	// Register our protocol 'lod' so we can directly read from mmaped memory
+#ifdef WITH_AV_REGISTER_PROTOCOL2
+	av_register_protocol2(&lod_protocol, sizeof(lod_protocol));
+#else
 	av_register_protocol(&lod_protocol);
+#endif
 
 	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
 	vidh_ab = new CVidHandler(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
@@ -704,7 +708,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	// Find the first video stream
 	stream = -1;
 	for(unsigned int i=0; i<format->nb_streams; i++) {
-		if (format->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO) {
+		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) {
 			stream = i;
 			break;
 		}

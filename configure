@@ -16424,6 +16424,46 @@ if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = x""yes; then :
   AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2"
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_register_protocol2 in -lavcodec" >&5
+$as_echo_n "checking for av_register_protocol2 in -lavcodec... " >&6; }
+if test "${ac_cv_lib_avcodec_av_register_protocol2+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lavcodec  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char av_register_protocol2 ();
+int
+main ()
+{
+return av_register_protocol2 ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_avcodec_av_register_protocol2=yes
+else
+  ac_cv_lib_avcodec_av_register_protocol2=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_av_register_protocol2" >&5
+$as_echo "$ac_cv_lib_avcodec_av_register_protocol2" >&6; }
+if test "x$ac_cv_lib_avcodec_av_register_protocol2" = x""yes; then :
+  AVCODEC_DECODE_VIDEO2="-DWITH_AV_REGISTER_PROTOCOL2"
+fi
+
 
 FFMPEG_LIBS="$LIBS"
 FFMPEG_CXXFLAGS="$CFLAGS $AVCODEC_DECODE_VIDEO2"
