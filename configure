@@ -16461,12 +16461,12 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_av_register_protocol2" >&5
 $as_echo "$ac_cv_lib_avcodec_av_register_protocol2" >&6; }
 if test "x$ac_cv_lib_avcodec_av_register_protocol2" = x""yes; then :
-  AVCODEC_DECODE_VIDEO2="-DWITH_AV_REGISTER_PROTOCOL2"
+  AV_REGISTER_PROTOCOL2="-DWITH_AV_REGISTER_PROTOCOL2"
 fi
 
 
 FFMPEG_LIBS="$LIBS"
-FFMPEG_CXXFLAGS="$CFLAGS $AVCODEC_DECODE_VIDEO2"
+FFMPEG_CXXFLAGS="$CFLAGS $AVCODEC_DECODE_VIDEO2 $AV_REGISTER_PROTOCOL2"
 
 LIBS=$saved_LIBS
 CFLAGS=$saved_CFLAGS
