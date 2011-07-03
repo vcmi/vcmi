@@ -3433,7 +3433,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, int destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack)
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack)
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 

@@ -2280,29 +2280,16 @@ std::vector<THex> CStack::getHexes() const
 {
 	std::vector<THex> hexes;
 	hexes.push_back(THex(position));
-	if (doubleWide())
-	{
-		if (attackerOwned)
-			hexes.push_back(THex(position - 1));
-		else
-			hexes.push_back(THex(position + 1));
-	}
+	THex occupied = occupiedHex();
+	if(occupied.isValid())
+		hexes.push_back(occupied);
+
 	return hexes;
 }
 
-bool CStack::coversPos(ui16 pos) const
+bool CStack::coversPos(THex pos) const
 {
-	if (pos == position)
-		return true;
-	if (doubleWide())
-	{
-		if (attackerOwned)
-			return (pos == position - 1);
-		else
-			return (pos == position + 1);
-	} 
-	else
-		return false;
+	return vstd::contains(getHexes(), pos);
 }
 
 std::vector<si32> CStack::activeSpells() const

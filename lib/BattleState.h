@@ -184,7 +184,7 @@ public:
 	bool doubleWide() const;
 	THex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 	std::vector<THex> getHexes() const; //up to two occupied hexes, starting from front
-	bool coversPos(ui16 position) const; //checks also if unit is double-wide
+	bool coversPos(THex position) const; //checks also if unit is double-wide
 
 	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
 
