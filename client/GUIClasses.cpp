@@ -4779,6 +4779,15 @@ void CArtPlace::select ()
 		return;
 
 	picked = true;
+	if(ourArt->canBeDisassembled() && slotID < Arts::BACKPACK_START) //worn combined artifact -> locks have to disappear
+	{
+		for(int i = 0; i < Arts::BACKPACK_START; i++)
+		{
+			CArtPlace *ap = ourOwner->getArtPlace(i);
+			ap->picked = ourArt->isPart(ap->ourArt);
+		}
+	}
+
 	//int backpackCorrection = -(slotID - Arts::BACKPACK_START < ourOwner->backpackPos);
 
 	CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->artType->id].bitmap);
@@ -4798,6 +4807,12 @@ void CArtPlace::select ()
 void CArtPlace::deselect ()
 {
 	picked = false;
+	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
+	{
+		for(int i = 0; i < Arts::BACKPACK_START; i++)
+			ourOwner->getArtPlace(i)->picked = false;
+	}
+
 	CCS->curh->dragAndDropCursor(NULL);
 	ourOwner->unmarkSlots();
 	ourOwner->commonInfo->src.clear();
@@ -5427,7 +5442,6 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + Arts::BACKPACK_START);
 		commonInfo->reset();
 		unmarkSlots();
-		updateParentWindow();
 	}
 	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
 	{
@@ -5456,7 +5470,6 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			assert(commonInfo->src.AOH);
 			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[dst.getArt()->artType->id].bitmap);
 			markPossibleSlots(dst.getArt());
-			updateParentWindow();
 		}
 	}
 	else if(src.slot >= Arts::BACKPACK_START && 
@@ -5466,13 +5479,16 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		commonInfo->src.slotID--;
 		assert(commonInfo->src.valid());
-		updateParentWindow();
 	}
 	else
 	{
-		tlog1 << "Unexpected artifact movement...\n";
+		//when moving one artifact onto another it leads to two art movements: dst->backapck; src->dst
+		// however after first movement we pick the art from backpack and the second movement coming when
+		// we have a different artifact may look surprising... but it's valid.
+		//tlog1 << "Unexpected artifact movement...\n";
 	}
 
+	updateParentWindow();
  	int shift = 0;
 // 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
 // 		shift++;

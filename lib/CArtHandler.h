@@ -79,6 +79,7 @@ public:
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(CGHeroInstance *h, ui16 slot);
 	virtual void removeFrom(CGHeroInstance *h, ui16 slot);
+	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
 
 	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
 	void move(ArtifactLocation &src, ArtifactLocation &dst);
@@ -108,6 +109,7 @@ public:
 			h & art & slot;
 		}
 
+		bool operator==(const ConstituentInfo &rhs) const;
 		ConstituentInfo(CArtifactInstance *art = NULL, ui16 slot = -1);
 	};
 
@@ -117,6 +119,7 @@ public:
 	bool canBeDisassembled() const OVERRIDE;
 	void putAt(CGHeroInstance *h, ui16 slot) OVERRIDE;
 	void removeFrom(CGHeroInstance *h, ui16 slot) OVERRIDE;
+	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, int slot);

@@ -1045,6 +1045,11 @@ int CArtifactInstance::getGivenSpellID() const
 	return b->subtype;
 }
 
+bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
+{
+	return supposedPart == this;
+}
+
 bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(al, assumeDestRemoved);
@@ -1056,6 +1061,14 @@ bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assu
 
 	assert(artType->constituents);
 	std::vector<ConstituentInfo> constituentsToBePlaced = constituentsInfo; //we'll remove constituents from that list, as we find a suitable slot for them
+
+	//it may be that we picked a combined artifact in hero screen (though technically it's still there) to move it
+	//so we remove from the list all constituents that are already present on dst hero in the form of locks
+	BOOST_FOREACH(const ConstituentInfo &constituent, constituentsInfo)
+	{
+		if(constituent.art == al.hero->getArt(constituent.slot, false)) //no need to worry about locked constituent
+			constituentsToBePlaced -= constituent;
+	}
 	
 	//we iterate over all active slots and check if constituents fits them
 	for (int i = 0; i < Arts::BACKPACK_START; i++)
@@ -1191,10 +1204,29 @@ void CCombinedArtifactInstance::deserializationFix()
 		attachTo(ci.art);
 }
 
+bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
+{
+	bool me = CArtifactInstance::isPart(supposedPart);
+	if(me)
+		return true;
+
+	//check for constituents
+	BOOST_FOREACH(const ConstituentInfo &constituent, constituentsInfo)
+		if(constituent.art == supposedPart)
+			return true;
+
+	return false;
+}
+
 CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ui16 Slot /*= -1*/)
 {
 	art = Art;
 	slot = Slot;
+}
+
+bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInfo &rhs) const
+{
+	return art == rhs.art && slot == rhs.slot;
 }
 
 const CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/) const
