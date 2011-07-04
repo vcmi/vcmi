@@ -713,7 +713,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			{
 				if (s->id == 76) //Death Cloud //TODO: fireball and fire immunity
 				{
-					if (st->isLiving() || st->position == destinationTile) //directly hit or alive
+					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
 					{
 						attackedCres.insert(st);
 					}
@@ -759,6 +759,79 @@ std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillL
 			CStack * st = getStackT(*it, onlyAlive);
 			if(st)
 				attackedCres.insert(st);
+		}
+	}
+	return attackedCres;
+}
+std::set<CStack*> BattleInfo::getAttackedCreatures(const CStack* attacker, THex destinationTile)
+{ //TODO: caching?
+	std::set<CStack*> attackedCres;
+	const int WN = BFIELD_WIDTH;
+	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
+	{
+		std::vector<THex> hexes = attacker->getSurroundingHexes();
+		BOOST_FOREACH (THex tile, hexes)
+		{
+			CStack * st = getStackT(tile);
+			if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
+			{
+				attackedCres.insert(st);
+			}
+		}
+	}
+	ui16 hex = attacker->position.hex;
+	if (attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
+	{
+		std::vector<THex> hexes;
+		if (attacker->attackerOwned)
+		{
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
+			THex::checkAndPush(hex + 1, hexes);
+			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes);
+		}
+		else
+		{
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), hexes);
+			THex::checkAndPush(hex - 1, hexes);
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-1 : WN ), hexes);
+		}
+		BOOST_FOREACH (THex tile, hexes)
+		{
+			CStack * st = getStackT(tile);
+			if(st && st->owner != attacker->owner)
+			{
+				attackedCres.insert(st);
+			}
+		}
+	}
+	if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
+	{
+		std::vector<THex> hexes; //only one, in fact
+		int pseudoVector = destinationTile.hex - hex;
+		switch (pseudoVector)
+		{
+			case 1:
+			case -1:
+				THex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
+				break;
+			case WN: //17
+			case WN + 1: //18
+			case -WN: //-17
+			case -WN + 1: //-16
+				THex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : -1 ), hexes);
+				break;
+			case WN-1: //16
+			case -WN-1: //-18
+				THex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 0 : -1), hexes);
+				break;
+		}
+		BOOST_FOREACH (THex tile, hexes)
+		{
+			CStack * st = getStackT(tile);
+			if(st) //friendly stacks can also be damaged by Dragon Breath
+			{
+				attackedCres.insert(st);
+			}
 		}
 	}
 	return attackedCres;
@@ -2290,6 +2363,42 @@ std::vector<THex> CStack::getHexes() const
 bool CStack::coversPos(THex pos) const
 {
 	return vstd::contains(getHexes(), pos);
+}
+
+std::vector<THex> CStack::getSurroundingHexes() const
+{
+	std::vector<THex> hexes;
+	if (doubleWide())
+	{
+		const int WN = BFIELD_WIDTH;
+		if(attackerOwned)
+		{ //position is equal to front hex
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN+1 : WN ), hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN : WN-1 ), hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN-1 : WN-2 ), hexes);
+			THex::checkAndPush(position.hex - 2, hexes);
+			THex::checkAndPush(position.hex + 1, hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN-2 : WN-1 ), hexes);
+			THex::checkAndPush(position.hex + ( (position.hex/WN)%2 ? WN-1 : WN ), hexes);
+			THex::checkAndPush(position.hex + ( (position.hex/WN)%2 ? WN : WN+1 ), hexes);
+		}
+		else
+		{
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN+2 : WN+1 ), hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN+1 : WN ), hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN : WN-1 ), hexes);
+			THex::checkAndPush(position.hex + 2, hexes);
+			THex::checkAndPush(position.hex - 1, hexes);
+			THex::checkAndPush(position.hex - ( (position.hex/WN)%2 ? WN-1 : WN ), hexes);
+			THex::checkAndPush(position.hex + ( (position.hex/WN)%2 ? WN : WN+1 ), hexes);
+			THex::checkAndPush(position.hex + ( (position.hex/WN)%2 ? WN+1 : WN+2 ), hexes);
+		}
+		return hexes;
+	}
+	else
+	{
+		return position.neighbouringTiles();
+	}
 }
 
 std::vector<si32> CStack::activeSpells() const

@@ -1304,7 +1304,7 @@ struct BattleAttack : public CPackForClient//3006
 
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
-	ui8 flags; //usues Eflags (below)
+	ui8 flags; //uses Eflags (below)
 	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16};
 
 	bool shot() const//distance attack - decrease number of shots

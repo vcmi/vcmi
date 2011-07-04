@@ -300,7 +300,6 @@ struct THex
 	{
 		h & hex;
 	}
-private:
 	static void checkAndPush(int tile, std::vector<THex> & ret)
 	{
 		if( tile>=0 && tile<BFIELD_SIZE && (tile%BFIELD_WIDTH != (BFIELD_WIDTH - 1)) && (tile%BFIELD_WIDTH != 0) )

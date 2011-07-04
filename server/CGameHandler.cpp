@@ -508,10 +508,6 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
-	bat.bsa.push_back(BattleStackAttacked());
-	BattleStackAttacked *bsa = &bat.bsa.back();
-	bsa->stackAttacked = def->ID;
-	bsa->attackerID = att->ID;
 	int attackerLuck = att->LuckVal();
 	const CGHeroInstance * h0 = gs->curB->heroes[0],
 		* h1 = gs->curB->heroes[1];
@@ -537,19 +533,29 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
 	}
+	// only primary target 
+	applyBattleEffects(bat, att, def, distance, false);
 
-	bsa->damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.ballistaDoubleDmg());//counting dealt damage
-	int dmg = bsa->damageAmount;
-	def->prepareAttacked(*bsa);
-
-	//TODO: multiple attack targets
-	const Bonus * bonus = att->getBonus(Selector::type(Bonus::SPELL_LIKE_ATTACK));
-	if (bonus)
+	if (!bat.shot()) //multiple-hex attack - only in meele
 	{
-		bsa->flags |= BattleStackAttacked::EFFECT;
-		bsa->effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
+		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, def->position);
+		//TODO: get exact attacked hex for defender
 
-		BattleStackAttacked bss = *bsa; // copy some parameters, such as attacker
+		BOOST_FOREACH(CStack * stack, attackedCreatures)
+		{
+			if (stack != def) //do not hit same stack twice
+			{
+				applyBattleEffects(bat, att, stack, distance, true);
+			}
+		}
+	}
+
+	const Bonus * bonus = att->getBonus(Selector::type(Bonus::SPELL_LIKE_ATTACK));
+	if (bonus && (bat.shot())) //TODO: make it work in meele?
+	{
+		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
+		bat.bsa.front().effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
+
 		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, def->position);
 		//TODO: get exact attacked hex for defender
 
@@ -557,82 +563,54 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		{
 			if (stack != def) //do not hit same stack twice
 			{
-					bss.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
-				bss.stackAttacked = stack->ID;
-				bss.damageAmount = gs->curB->calculateDmg(att, stack, gs->curB->battleGetOwner(att),
-					gs->curB->battleGetOwner(stack), bat.shot(), distance, bat.lucky(), bat.ballistaDoubleDmg());
-				bat.bsa.push_back(bss); //add this stack to the list of victims
-				stack->prepareAttacked(bss);
-
-				//life drain handling
-				if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && stack->isLiving())
-				{
-					StacksHealedOrResurrected shi;
-					shi.lifeDrain = (ui8)true;
-					shi.tentHealing = (ui8)false;
-					shi.drainedFrom = stack->ID;
-
-					StacksHealedOrResurrected::HealInfo hi;
-					hi.stackID = stack->ID;
-					hi.healedHP = std::min<int>(dmg, att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
-					hi.lowLevelResurrection = false;
-					shi.healedStacks.push_back(hi);
-
-					if (hi.healedHP > 0)
-					{
-						bsa->healedStacks.push_back(shi);
-					}
-				} 
-
-				//fire shield handling
-				if (!bat.shot() && stack->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa->killed() )
-				{
-					bss.stackAttacked = att->ID; //invert
-					bss.attackerID = stack->ID;
-					bss.flags = BattleStackAttacked::EFFECT; //not seondary - fire shield damages only one creature
-					bss.effect = 11;
-
-					bsa->damageAmount = (dmg * stack->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
-					att->prepareAttacked(*bsa);
-				}
+				applyBattleEffects(bat, att, stack, distance, true);
 			}
 		}
 	}
-	else // only one target 
-	{ // TODO: move duplicated code to separate function
-		//life drain handling
-		if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
+}
+void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary) //helper function for prepareAttack
+{
+	BattleStackAttacked bsa;
+	if (secondary)
+		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
+	bsa.attackerID = att->ID;
+	bsa.stackAttacked = def->ID;
+	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.ballistaDoubleDmg());
+	def->prepareAttacked(bsa); //calculate casualties
+	bat.bsa.push_back(bsa); //add this stack to the list of victims
+
+	//life drain handling
+	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
+	{
+		StacksHealedOrResurrected shi;
+		shi.lifeDrain = (ui8)true;
+		shi.tentHealing = (ui8)false;
+		shi.drainedFrom = def->ID;
+
+		StacksHealedOrResurrected::HealInfo hi;
+		hi.stackID = att->ID;
+		hi.healedHP = std::min<int>(bsa.damageAmount, att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
+		hi.lowLevelResurrection = false;
+		shi.healedStacks.push_back(hi);
+
+		if (hi.healedHP > 0)
 		{
-			StacksHealedOrResurrected shi;
-			shi.lifeDrain = (ui8)true;
-			shi.tentHealing = (ui8)false;
-			shi.drainedFrom = def->ID;
-
-			StacksHealedOrResurrected::HealInfo hi;
-			hi.stackID = att->ID;
-			hi.healedHP = std::min<int>(dmg, att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
-			hi.lowLevelResurrection = false;
-			shi.healedStacks.push_back(hi);
-
-			if (hi.healedHP > 0)
-			{
-				bsa->healedStacks.push_back(shi);
-			}
-		} 
-
-		//fire shield handling
-		if ( !bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa->killed() )
-		{
-			bat.bsa.push_back(BattleStackAttacked());
-			BattleStackAttacked *bsa = &bat.bsa.back();
-			bsa->stackAttacked = att->ID;
-			bsa->attackerID = def->ID;
-			bsa->flags |= BattleStackAttacked::EFFECT;
-			bsa->effect = 11;
-
-			bsa->damageAmount = (dmg * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
-			att->prepareAttacked(*bsa);
+			bsa.healedStacks.push_back(shi);
 		}
+	} 
+
+	//fire shield handling
+	if (!bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa.killed() )
+	{
+		BattleStackAttacked bsa;
+		bsa.stackAttacked = att->ID; //invert
+		bsa.attackerID = def->ID;
+		bsa.flags |= BattleStackAttacked::EFFECT;
+		bsa.effect = 11;
+
+		bsa.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
+		att->prepareAttacked(bsa);
+		bat.bsa.push_back(bsa);
 	}
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
