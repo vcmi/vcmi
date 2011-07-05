@@ -34,6 +34,11 @@
 
 extern boost::rand48 ran;
 
+boost::shared_mutex& CCallbackBase::getGsMutex()
+{
+	return *gs->mx;
+}
+
 si8 CBattleInfoCallback::battleHasDistancePenalty( const CStack * stack, THex destHex )
 {
 	return gs->curB->hasDistancePenalty(stack, destHex);
@@ -848,7 +853,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 		return Buildings::ERROR;
 
 	//checking resources
-	if(pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
+	if(!pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
 		ret = Buildings::NO_RESOURCES; //lack of res
 
 	//checking for requirements

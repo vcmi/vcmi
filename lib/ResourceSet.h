@@ -71,7 +71,8 @@ namespace Res
 		{
 			int ret = INT_MAX;
 			for(int i = 0; i < size(); i++)
-				amin(ret, at(i) / rhs[i]);
+				if(rhs[i])
+					amin(ret, at(i) / rhs[i]);
 
 			return ret;
 		}

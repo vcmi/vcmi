@@ -121,7 +121,9 @@ void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
 void CAdventureAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	assert(!battleAI);
+	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(battleAIName);
+	battleAI->init(cbc);
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -189,4 +191,9 @@ void CAdventureAI::battleEnd(const BattleResult *br)
 void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
 	battleAI->battleStacksHealedRes(healedStacks, lifeDrain, tentHeal, lifeDrainFrom);
+}
+
+BattleAction CAdventureAI::activeStack(const CStack * stack)
+{
+	return battleAI->activeStack(stack);
 }

@@ -185,6 +185,7 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 template <typename T>
 void CBattleCallback::sendRequest(const T* request)
 {
+
 	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
 	if(waitTillRealize)
 		cl->waitingRequest.set(true);
@@ -192,7 +193,13 @@ void CBattleCallback::sendRequest(const T* request)
 	*cl->serv << request;
 
 	if(waitTillRealize)
+	{
+		if(unlockGsWhenWaiting)
+			gs->mx->unlock_shared();
 		cl->waitingRequest.waitWhileTrue();
+		if(unlockGsWhenWaiting)
+			gs->mx->lock_shared();
+	}
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
@@ -336,11 +343,6 @@ void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &p
 	cas.sid = spellID;
 	cas.pos = pos;
 	sendRequest(&cas);
-}
-
-boost::shared_mutex& CCallback::getGsMutex()
-{
-	return *gs->mx;
 }
 
 void CCallback::unregisterMyInterface()

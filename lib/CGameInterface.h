@@ -107,13 +107,15 @@ public:
 class DLL_EXPORT CAdventureAI : public CGlobalAI
 {
 public:
-	CAdventureAI() : battleAI(NULL) {};
-	CAdventureAI(const std::string &BattleAIName) : battleAIName(BattleAIName), battleAI(NULL) {};
+	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
+	CAdventureAI(const std::string &BattleAIName) : battleAIName(BattleAIName), battleAI(NULL), cbc(NULL) {};
 
 	std::string battleAIName;
 	CBattleGameInterface *battleAI;
+	CBattleCallback *cbc;
 
 	//battle interface
+	virtual BattleAction activeStack(const CStack * stack);
 	virtual void battleNewRound(int round);
 	virtual void battleCatapultAttacked(const CatapultAttack & ca);
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side);

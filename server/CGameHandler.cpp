@@ -2006,9 +2006,9 @@ void CGameHandler::close()
 
 bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1].get()),
+	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1].get()),
 		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2].get());
-	CCreatureSet &S1 = *s1, &S2 = *s2;
+	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 
 	if(!isAllowedExchange(id1,id2))
@@ -2019,8 +2019,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 	if(what==1) //swap
 	{
-		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && S1.stacks[p1]->count) //why 254??
-		  || ((s2->tempOwner != player && s2->tempOwner != 254) && S2.stacks[p2]->count))
+		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && s1->getStackCount(p1)) //why 254??
+		  || ((s2->tempOwner != player && s2->tempOwner != 254) && s2->getStackCount(p2)))
 		{
 			complain("Can't take troops from another player!");
 			return false;
@@ -2030,16 +2030,16 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	}
 	else if(what==2)//merge
 	{
-		if (( S1.stacks[p1]->type != S2.stacks[p2]->type && complain("Cannot merge different creatures stacks!"))
-		|| (((s1->tempOwner != player && s1->tempOwner != 254) && S2.stacks[p2]->count) && complain("Can't take troops from another player!")))
+		if (( s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
+		|| (((s1->tempOwner != player && s1->tempOwner != 254) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
 			return false; 
 
 		moveStack(sl1, sl2);
 	}
 	else if(what==3) //split
 	{
-		if ( (s1->tempOwner != player && S1.stacks[p1]->count < s1->getStackCount(p1) )
-			|| (s2->tempOwner != player && S2.stacks[p2]->count < s2->getStackCount(p2) ) )
+		if ( (s1->tempOwner != player && s1->getStackCount(p1) < s1->getStackCount(p1) )
+			|| (s2->tempOwner != player && s2->getStackCount(p2) < s2->getStackCount(p2) ) )
 		{
 			complain("Can't move troops of another player!");
 			return false;
@@ -2055,21 +2055,21 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 		if(vstd::contains(S2.stacks,p2))	 //dest. slot not free - it must be "rebalancing"...
 		{
-			int total = S1.stacks[p1]->count + S2.stacks[p2]->count;
+			int total = s1->getStackCount(p1) + s2->getStackCount(p2);
 			if( (total < val   &&   complain("Cannot split that stack, not enough creatures!"))
-				|| (S2.stacks[p2]->type != S1.stacks[p1]->type && complain("Cannot rebalance different creatures stacks!"))
+				|| (s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot rebalance different creatures stacks!"))
 			)
 			{
 				return false; 
 			}
 			
-			moveStack(sl1, sl2, val - S2.stacks[p2]->count);
+			moveStack(sl1, sl2, val - s2->getStackCount(p2));
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
 		}
 		else //split one stack to the two
 		{
-			if(S1.stacks[p1]->count < val)//not enough creatures
+			if(s1->getStackCount(p1) < val)//not enough creatures
 			{
 				complain("Cannot split that stack, not enough creatures!");
 				return false; 

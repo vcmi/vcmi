@@ -58,10 +58,12 @@ class CStackBasicDescriptor;
 struct TeamState;
 class CGCreature;
 
-
 typedef std::vector<const CStack*> TStacks;
 
-class CCallbackBase
+namespace boost
+{class shared_mutex;}
+
+class DLL_EXPORT CCallbackBase
 {
 protected:
 	CGameState *gs;
@@ -73,6 +75,9 @@ protected:
 	CCallbackBase()
 	: gs(NULL), player(-1)
 	{}
+
+public:
+	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
 };
 
 class DLL_EXPORT CBattleInfoCallback : public virtual CCallbackBase

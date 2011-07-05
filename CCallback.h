@@ -36,13 +36,11 @@ struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
 
-namespace boost
-{class shared_mutex;}
-
 class IBattleCallback
 {
 public:
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
+	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
@@ -115,8 +113,6 @@ public:
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
 
-
-	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
 	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 
 //commands
