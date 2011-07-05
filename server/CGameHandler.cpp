@@ -512,8 +512,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	const CGHeroInstance * h0 = gs->curB->heroes[0],
 		* h1 = gs->curB->heroes[1];
 	bool noLuck = false;
-	if(h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK) ||
-		h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK))
+	if((h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK)) ||
+	   (h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK)))
 	{
 		noLuck = true;
 	}
@@ -970,7 +970,7 @@ void CGameHandler::newTurn()
 		{
 			////SetResources r;
 			//r.player = (**j).tempOwner;
-			if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
+			if(vstd::contains((**j).builtBuildings, Buildings::RESOURCE_SILO)) //there is resource silo
 			{
 				if((**j).town->primaryRes == 127) //we'll give wood and ore
 				{
@@ -985,7 +985,7 @@ void CGameHandler::newTurn()
 			n.res[player][Res::GOLD] += (**j).dailyIncome();
 		}
 		handleTownEvents(*j, n, newCreas);
-		if (vstd::contains((**j).builtBuildings, 26)) 
+		if (vstd::contains((**j).builtBuildings, Buildings::GRAIL)) 
 		{
 			switch ((**j).subID)
 			{
@@ -1299,7 +1299,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	cs.learn = true;
 	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(CGHeroInstance::WISDOM)+2);i++)
 	{
-		if (t->subID == 8 && vstd::contains(t->builtBuildings, 26)) //Aurora Borealis
+		if (t->subID == 8 && vstd::contains(t->builtBuildings, Buildings::GRAIL)) //Aurora Borealis
 		{
 			std::vector<ui16> spells;
 			getAllowedSpells(spells, i);
@@ -1385,16 +1385,16 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	//it's a rock or blocked and not visitable tile 
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) )) 
-			&& complain("Cannot move hero, destination tile is blocked!") 
-		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
-			&& complain("Cannot move hero, destination tile is on water!")
-		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
-			&& complain("Cannot disembark hero, tile is blocked!")
-		|| (h->movement < cost  &&  dst != h->pos  &&  !instant)
-			&& complain("Hero doesn't have any movement points left!")
-		|| states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
-			&& complain("Cannot move hero during the battle"))
+	if(((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) )) 
+			&& complain("Cannot move hero, destination tile is blocked!"))
+		|| ((!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+			&& complain("Cannot move hero, destination tile is on water!"))
+		|| ((h->boat && t.tertype != TerrainTile::water && t.blocked)
+			&& complain("Cannot disembark hero, tile is blocked!"))
+		|| ((h->movement < cost  &&  dst != h->pos  &&  !instant)
+			&& complain("Hero doesn't have any movement points left!"))
+		|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
+			&& complain("Cannot move hero during the battle")))
 	{
 		//send info about movement failure
 		sendAndApply(&tmh);
@@ -1436,8 +1436,8 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//checks for standard movement
 	if(!instant)
 	{
-		if( distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighboring!")
-			|| h->movement < cost  &&  h->movement < 100  &&  complain("Not enough move points!")) 
+		if( (distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighboring!"))
+			|| (h->movement < cost  &&  h->movement < 100  &&  complain("Not enough move points!"))) 
 		{
 			sendAndApply(&tmh);
 			return false;
@@ -1524,12 +1524,12 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 		tlog1<<"Invalid call to teleportHero!";
 	
 	const CGTownInstance *from = h->visitedTown;
-	if((h->getOwner() != t->getOwner()) 
-		&& complain("Cannot teleport hero to another player") 
-	|| (!from || from->subID!=3 || !vstd::contains(from->builtBuildings, 22))
-		&& complain("Hero must be in town with Castle gate for teleporting")
-	|| (t->subID!=3 || !vstd::contains(t->builtBuildings, 22))
-		&& complain("Cannot teleport hero to town without Castle gate in it"))
+	if(((h->getOwner() != t->getOwner()) 
+		&& complain("Cannot teleport hero to another player"))
+	|| ((!from || from->subID!=3 || !vstd::contains(from->builtBuildings, Buildings::SPECIAL_3))
+		&& complain("Hero must be in town with Castle gate for teleporting"))
+	|| ((t->subID!=3 || !vstd::contains(t->builtBuildings, Buildings::SPECIAL_3))
+		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
 	int3 pos = t->visitablePos();
 	pos += h->getVisitableOffset();
@@ -1565,9 +1565,13 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	const PlayerState * p = gs->getPlayer(owner);
 
 	if((obj->ID == 17 || obj->ID == 20 ) && p && p->dwellings.size()==1)//first dwelling captured
+	{
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
+		{
 			if (t->subID == 5 && vstd::contains(t->builtBuildings, 22))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
+		}
+	}
 }
 
 void CGameHandler::setHoverName(int objid, MetaString* name)
@@ -2027,7 +2031,7 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	else if(what==2)//merge
 	{
 		if (( S1.stacks[p1]->type != S2.stacks[p2]->type && complain("Cannot merge different creatures stacks!"))
-		|| ((s1->tempOwner != player && s1->tempOwner != 254) && S2.stacks[p2]->count) && complain("Can't take troops from another player!"))
+		|| (((s1->tempOwner != player && s1->tempOwner != 254) && S2.stacks[p2]->count) && complain("Can't take troops from another player!")))
 			return false; 
 
 		moveStack(sl1, sl2);
@@ -2297,10 +2301,10 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 	}
 	int slot = dst->getSlotFor(crid); 
 
-	if(!found && complain("Cannot recruit: no such creatures!")
-		|| cram  >  VLC->creh->creatures[crid]->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!")
-		|| cram<=0  &&  complain("Cannot recruit: cram <= 0!")
-		|| slot<0  && !warMachine && complain("Cannot recruit: no available slot!")) 
+	if( (!found && complain("Cannot recruit: no such creatures!"))
+		|| (cram  >  VLC->creh->creatures[crid]->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
+		|| (slot<0  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
 		return false;
 	}
@@ -2583,10 +2587,10 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	CGTownInstance *town = hero->visitedTown;
 	if(aid==0) //spellbook
 	{
-		if(!vstd::contains(town->builtBuildings,si32(0)) && complain("Cannot buy a spellbook, no mage guild in the town!")
-			|| getResource(hero->getOwner(), Res::GOLD) < SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") 
-			|| hero->getArt(Arts::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!")
-			)
+		if((!vstd::contains(town->builtBuildings,si32(Buildings::MAGES_GUILD_1)) && complain("Cannot buy a spellbook, no mage guild in the town!"))
+		    || (getResource(hero->getOwner(), Res::GOLD) < SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
+		    || (hero->getArt(Arts::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
+		    )
 			return false;
 
 		giveResource(hero->getOwner(),Res::GOLD,-SPELLBOOK_GOLD_COST);
@@ -2598,11 +2602,11 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
 		int price = VLC->arth->artifacts[aid]->price;
-		if(hero->getArt(9+aid) && complain("Hero already has this machine!")
-			|| !vstd::contains(town->builtBuildings,si32(16)) && complain("No blackismith!")
-			|| gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price  && complain("Not enough gold!")  //no gold
-			|| (!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(22) ) )
-			&& town->town->warMachine!= aid ) &&  complain("This machine is unavailable here!") ) 
+		if((hero->getArt(9+aid) && complain("Hero already has this machine!"))
+			|| (!vstd::contains(town->builtBuildings,si32(Buildings::BLACKSMITH)) && complain("No blackismith!"))
+			|| (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price  && complain("Not enough gold!"))  //no gold
+			|| ((!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(Buildings::SPECIAL_3) ) )
+			&& town->town->warMachine!= aid ) &&  complain("This machine is unavailable here!"))) 
 		{
 			return false;
 		}
@@ -2699,13 +2703,13 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int s
 	if(!vstd::contains(m->availableItemsIds(RESOURCE_SKILL), skill))
 		COMPLAIN_RET("That skill is unavailable!");
 
-	if(getResource(h->tempOwner, 6) < 2000)//TODO: remove hardcoded resource\summ?
+	if(getResource(h->tempOwner, Res::GOLD) < 2000)//TODO: remove hardcoded resource\summ?
 		COMPLAIN_RET("You can't afford to buy this skill");
 
 	SetResource sr;
 	sr.player = h->tempOwner;
-	sr.resid = 6;
-	sr.val = getResource(h->tempOwner, 6) - 2000;
+	sr.resid = Res::GOLD;
+	sr.val = getResource(h->tempOwner, Res::GOLD) - 2000;
 	sendAndApply(&sr);
 
 	changeSecSkill(h->id, skill, 1, true);
@@ -2749,8 +2753,8 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	const CStackInstance &s = hero->getStack(slot);
 
-	if(s.count < count  //can't sell more creatures than have
-		|| hero->Slots().size() == 1  &&  hero->needsLastStack()  &&  s.count == count) //can't sell last stack
+	if( s.count < count  //can't sell more creatures than have
+		|| (hero->Slots().size() == 1  &&  hero->needsLastStack()  &&  s.count == count)) //can't sell last stack
 	{
 		COMPLAIN_RET("Not enough creatures in army!");
 	}
@@ -2839,14 +2843,14 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	const CGTownInstance *t = gs->getTown(obj->id);
 
 	//common preconditions
-	if( p->resources[Res::GOLD]<2500  && complain("Not enough gold for buying hero!")
-		|| getHeroCount(player, false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!"))
+	if( (p->resources[Res::GOLD]<2500  && complain("Not enough gold for buying hero!"))
+		|| (getHeroCount(player, false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 		return false;
 
 	if(t) //tavern in town
 	{
-		if(!vstd::contains(t->builtBuildings,5)  && complain("No tavern!")
-			|| t->visitingHero  && complain("There is visiting hero - no place!"))
+		if(    (!vstd::contains(t->builtBuildings,Buildings::TAVERN)  && complain("No tavern!"))
+			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
 			return false;
 	}
 	else if(obj->ID == 95) //Tavern on adv map

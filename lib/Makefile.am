@@ -1,5 +1,5 @@
 pkglib_LTLIBRARIES = libvcmi.la
-libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread
+libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
 libvcmi_la_CXXFLAGS = @SDL_CXXFLAGS@
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \
@@ -20,6 +20,8 @@ libvcmi_la_SOURCES = \
 	CDefObjInfoHandler.h \
 	CFileUtility.cpp \
 	CFileUtility.h \
+	CGameInterface.cpp \
+	CGameInterface.h \
 	CGameState.cpp \
 	CGameState.h \
 	CGeneralTextHandler.cpp \
@@ -50,6 +52,8 @@ libvcmi_la_SOURCES = \
 	Interprocess.h \
 	NetPacks.h \
 	NetPacksLib.cpp \
+	ResourceSet.cpp \
+	ResourceSet.h \
 	RegisterTypes.cpp \
 	RegisterTypes.h \
 	VCMIDirs.h \

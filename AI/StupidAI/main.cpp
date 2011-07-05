@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "StupidAI.h"
+#include <cstring>
 
 #ifdef __GNUC__
 #define strcpy_s(a, b, c) strncpy(a, c, b)

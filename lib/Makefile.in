@@ -84,12 +84,13 @@ am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
 	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
 	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CFileUtility.lo \
-	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
-	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
-	libvcmi_la-CMapInfo.lo libvcmi_la-CObjectHandler.lo \
-	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
-	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
+	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
+	libvcmi_la-CLodHandler.lo libvcmi_la-CMapInfo.lo \
+	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
+	libvcmi_la-CTownHandler.lo libvcmi_la-Connection.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
 	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo \
 	libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
@@ -278,7 +279,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 pkglib_LTLIBRARIES = libvcmi.la
-libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread
+libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
 libvcmi_la_CXXFLAGS = @SDL_CXXFLAGS@
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \
@@ -299,6 +300,8 @@ libvcmi_la_SOURCES = \
 	CDefObjInfoHandler.h \
 	CFileUtility.cpp \
 	CFileUtility.h \
+	CGameInterface.cpp \
+	CGameInterface.h \
 	CGameState.cpp \
 	CGameState.h \
 	CGeneralTextHandler.cpp \
@@ -329,6 +332,8 @@ libvcmi_la_SOURCES = \
 	Interprocess.h \
 	NetPacks.h \
 	NetPacksLib.cpp \
+	ResourceSet.cpp \
+	ResourceSet.h \
 	RegisterTypes.cpp \
 	RegisterTypes.h \
 	VCMIDirs.h \
@@ -420,6 +425,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CDefObjInfoHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CFileUtility.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGameInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGameState.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGeneralTextHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CHeroHandler.Plo@am__quote@
@@ -433,6 +439,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-RegisterTypes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ResourceSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-VCMI_Lib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-map.Plo@am__quote@
 
@@ -532,6 +539,14 @@ libvcmi_la-CFileUtility.lo: CFileUtility.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CFileUtility.lo `test -f 'CFileUtility.cpp' || echo '$(srcdir)/'`CFileUtility.cpp
 
+libvcmi_la-CGameInterface.lo: CGameInterface.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CGameInterface.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CGameInterface.Tpo -c -o libvcmi_la-CGameInterface.lo `test -f 'CGameInterface.cpp' || echo '$(srcdir)/'`CGameInterface.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CGameInterface.Tpo $(DEPDIR)/libvcmi_la-CGameInterface.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CGameInterface.cpp' object='libvcmi_la-CGameInterface.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CGameInterface.lo `test -f 'CGameInterface.cpp' || echo '$(srcdir)/'`CGameInterface.cpp
+
 libvcmi_la-CGameState.lo: CGameState.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CGameState.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CGameState.Tpo -c -o libvcmi_la-CGameState.lo `test -f 'CGameState.cpp' || echo '$(srcdir)/'`CGameState.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CGameState.Tpo $(DEPDIR)/libvcmi_la-CGameState.Plo
@@ -627,6 +642,14 @@ libvcmi_la-NetPacksLib.lo: NetPacksLib.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NetPacksLib.cpp' object='libvcmi_la-NetPacksLib.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-NetPacksLib.lo `test -f 'NetPacksLib.cpp' || echo '$(srcdir)/'`NetPacksLib.cpp
+
+libvcmi_la-ResourceSet.lo: ResourceSet.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ResourceSet.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ResourceSet.Tpo -c -o libvcmi_la-ResourceSet.lo `test -f 'ResourceSet.cpp' || echo '$(srcdir)/'`ResourceSet.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ResourceSet.Tpo $(DEPDIR)/libvcmi_la-ResourceSet.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ResourceSet.cpp' object='libvcmi_la-ResourceSet.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ResourceSet.lo `test -f 'ResourceSet.cpp' || echo '$(srcdir)/'`ResourceSet.cpp
 
 libvcmi_la-RegisterTypes.lo: RegisterTypes.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-RegisterTypes.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-RegisterTypes.Tpo -c -o libvcmi_la-RegisterTypes.lo `test -f 'RegisterTypes.cpp' || echo '$(srcdir)/'`RegisterTypes.cpp

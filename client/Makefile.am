@@ -8,8 +8,6 @@ vcmiclient_SOURCES =  \
 	../CCallback.h \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
-	../CGameInterface.cpp \
-	../CGameInterface.h \
 	../CThreadHelper.cpp \
 	../CThreadHelper.h \
 	AdventureMapButton.cpp \
