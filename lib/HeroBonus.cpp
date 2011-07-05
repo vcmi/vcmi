@@ -25,7 +25,7 @@
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
 
 int CBonusSystemNode::treeChanged = 1;
-const bool CBonusSystemNode::cachingEnabled = true;
+const bool CBonusSystemNode::cachingEnabled = false;
 
 int DLL_EXPORT BonusList::totalValue() const
 {
