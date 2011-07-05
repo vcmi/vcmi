@@ -708,7 +708,12 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	// Find the first video stream
 	stream = -1;
 	for(unsigned int i=0; i<format->nb_streams; i++) {
-		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) {
+#if LIBAVCODEC_VERSION_MAJOR < 53
+		if (format->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO)
+#else
+		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
+#endif
+		{
 			stream = i;
 			break;
 		}
