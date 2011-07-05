@@ -173,6 +173,7 @@
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CDefObjInfoHandler.cpp" />
     <ClCompile Include="CFileUtility.cpp" />
+    <ClCompile Include="CGameInterface.cpp" />
     <ClCompile Include="CGameState.cpp" />
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
@@ -188,6 +189,7 @@
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="RegisterTypes.cpp" />
     <ClCompile Include="..\stdafx.cpp" />
+    <ClCompile Include="ResourceSet.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +205,7 @@
     <ClInclude Include="CCreatureSet.h" />
     <ClInclude Include="CDefObjInfoHandler.h" />
     <ClInclude Include="CFileUtility.h" />
+    <ClInclude Include="CGameInterface.h" />
     <ClInclude Include="CGameState.h" />
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
@@ -223,6 +226,7 @@
     <ClInclude Include="map.h" />
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
+    <ClInclude Include="ResourceSet.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

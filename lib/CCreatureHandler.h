@@ -8,6 +8,7 @@
 
 #include "../lib/HeroBonus.h"
 #include "../lib/ConstTransitivePtr.h"
+#include "ResourceSet.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -28,7 +29,7 @@ class DLL_EXPORT CCreature : public CBonusSystemNode
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
-	std::vector<ui32> cost; //cost[res_id] - amount of that resource
+	TResources cost; //cost[res_id] - amount of that resource
 	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
 	ui32 hitPoints, speed, attack, defence;
 	ui32 fightValue, AIValue, growth, hordeGrowth, shots, spells;

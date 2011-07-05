@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#define VCMI_DLL
 #include "CGameInterface.h"
-#include "lib/BattleState.h"
+#include "BattleState.h"
 
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -101,4 +101,92 @@ BattleAction CGlobalAI::activeStack( const CStack * stack )
 	BattleAction ba; ba.actionType = BattleAction::DEFEND;
 	ba.stackNumber = stack->ID;
 	return ba;
+}
+
+CGlobalAI::CGlobalAI()
+{
+	human = false;
+}
+
+void CAdventureAI::battleNewRound(int round)
+{
+	battleAI->battleNewRound(round);
+}
+
+void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
+{
+	battleAI->battleCatapultAttacked(ca);
+}
+
+void CAdventureAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
+{
+	assert(!battleAI);
+	battleAI = CDynLibHandler::getNewBattleAI(battleAIName);
+	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
+}
+
+void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+{
+	battleAI->battleStacksAttacked(bsa);
+}
+
+void CAdventureAI::actionStarted(const BattleAction *action)
+{
+	battleAI->actionStarted(action);
+}
+
+void CAdventureAI::battleNewRoundFirst(int round)
+{
+	battleAI->battleNewRoundFirst(round);
+}
+
+void CAdventureAI::actionFinished(const BattleAction *action)
+{
+	battleAI->actionFinished(action);
+}
+
+void CAdventureAI::battleStacksEffectsSet(const SetStackEffect & sse)
+{
+	battleAI->battleStacksEffectsSet(sse);
+}
+
+void CAdventureAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
+{
+	battleAI->battleStacksRemoved(bsr);
+}
+
+void CAdventureAI::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
+{
+	battleAI->battleObstaclesRemoved(removedObstacles);
+}
+
+void CAdventureAI::battleNewStackAppeared(const CStack * stack)
+{
+	battleAI->battleNewStackAppeared(stack);
+}
+
+void CAdventureAI::battleStackMoved(const CStack * stack, THex dest, int distance, bool end)
+{
+	battleAI->battleStackMoved(stack, dest, distance, end);
+}
+
+void CAdventureAI::battleAttack(const BattleAttack *ba)
+{
+	battleAI->battleAttack(ba);
+}
+
+void CAdventureAI::battleSpellCast(const BattleSpellCast *sc)
+{
+	battleAI->battleSpellCast(sc);
+}
+
+void CAdventureAI::battleEnd(const BattleResult *br)
+{
+	battleAI->battleEnd(br);
+	delNull(battleAI);
+}
+
+void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
+{
+	battleAI->battleStacksHealedRes(healedStacks, lifeDrain, tentHeal, lifeDrainFrom);
 }

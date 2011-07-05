@@ -82,16 +82,14 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 	{
 		if(Upg && ui)
 		{
-			bool enough = true;
-			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++) //calculate upgrade cost
+			TResources upgradeCost = ui->cost[0] * st.count;
+			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
 			{
 				BLOCK_CAPTURING;
-				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*st.count)
-					enough = false;
-				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*st.count)); 
+				upgResCost.push_back(new SComponent(SComponent::resource, i->resType, i->resVal)); 
 			}
 
-			if(enough)
+			if(LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost))
 			{
 				CFunctionList<void()> fs;
 				fs += Upg;

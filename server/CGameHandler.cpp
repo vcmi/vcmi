@@ -924,11 +924,7 @@ void CGameHandler::newTurn()
 		}
 
 		n.res[i->first] = i->second.resources;
-// 		SetResources r;
-// 		r.player = i->first;
-// 		for(int j=0;j<RESOURCE_QUANTITY;j++)
-// 			r.res[j] = i->second.resources[j];
-		
+
 		BOOST_FOREACH(CGHeroInstance *h, (*i).second.heroes)
 		{
 			if(h->visitedTown)
@@ -955,7 +951,6 @@ void CGameHandler::newTurn()
 				}
 			}
 		}
-		//n.res.push_back(r);
 	}
 	//      townID,    creatureID, amount
 	std::map<si32, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
@@ -987,7 +982,7 @@ void CGameHandler::newTurn()
 					n.res[player][(**j).town->primaryRes] ++;;
 				}
 			}
-			n.res[player][6] += (**j).dailyIncome();
+			n.res[player][Res::GOLD] += (**j).dailyIncome();
 		}
 		handleTownEvents(*j, n, newCreas);
 		if (vstd::contains((**j).builtBuildings, 26)) 
@@ -2211,9 +2206,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	{
 		SetResources sr;
 		sr.player = t->tempOwner;
-		sr.res = gs->getPlayer(t->tempOwner)->resources;
-		for(int i=0;i<b->resources.size();i++)
-			sr.res[i]-=b->resources[i];
+		sr.res = gs->getPlayer(t->tempOwner)->resources - b->resources;
 		sendAndApply(&sr);
 	}
 
@@ -2315,8 +2308,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 	//recruit
 	SetResources sr;
 	sr.player = dst->tempOwner;
-	for(int i=0;i<RESOURCE_QUANTITY;i++)
-		sr.res[i]  =  gs->getPlayer(dst->tempOwner)->resources[i] - (c->cost[i] * cram);
+	sr.res = gs->getPlayer(dst->tempOwner)->resources - (c->cost * cram);
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2361,8 +2353,10 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
+	const PlayerState *p = getPlayer(player);
 	int crQuantity = obj->stacks[pos]->count;
 	int newIDpos= vstd::findPos(ui.newID, upgID);//get position of new id in UpgradeInfo
+	TResources totalCost = ui.cost[newIDpos] * crQuantity;
 
 	//check if upgrade is possible
 	if( (ui.oldID<0 || newIDpos == -1 ) && complain("That upgrade is not possible!")) 
@@ -2372,24 +2366,14 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	
 
 	//check if player has enough resources
-	for (std::set<std::pair<int,int> >::iterator j=ui.cost[newIDpos].begin(); j!=ui.cost[newIDpos].end(); j++)
-	{
-		if(gs->getPlayer(player)->resources[j->first] < j->second*crQuantity)
-		{
-			complain("Cannot upgrade, not enough resources!");
-			return false;
-		}
-	}
+	if(!p->resources.canAfford(totalCost))
+		COMPLAIN_RET("Cannot upgrade, not enough resources!");
 	
 	//take resources
-	for (std::set<std::pair<int,int> >::iterator j=ui.cost[newIDpos].begin(); j!=ui.cost[newIDpos].end(); j++)
-	{
-		SetResource sr;
-		sr.player = player;
-		sr.resid = j->first;
-		sr.val = gs->getPlayer(player)->resources[j->first] - j->second*crQuantity;
-		sendAndApply(&sr);
-	}
+	SetResources sr;
+	sr.player = player;
+	sr.res = p->resources - totalCost;
+	sendAndApply(&sr);
 	
 	//upgrade creature
 	changeStackType(StackLocation(obj, pos), VLC->creh->creatures[upgID]);
@@ -2854,8 +2838,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	const PlayerState *p = gs->getPlayer(player);
 	const CGTownInstance *t = gs->getTown(obj->id);
 
-	//common prconditions
-	if( p->resources[6]<2500  && complain("Not enough gold for buying hero!")
+	//common preconditions
+	if( p->resources[Res::GOLD]<2500  && complain("Not enough gold for buying hero!")
 		|| getHeroCount(player, false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!"))
 		return false;
 
@@ -2905,8 +2889,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 
 	SetResource sr;
 	sr.player = player;
-	sr.resid = 6;
-	sr.val = p->resources[6] - 2500;
+	sr.resid = Res::GOLD;
+	sr.val = p->resources[Res::GOLD] - 2500;
 	sendAndApply(&sr);
 
 	if(t)
@@ -3775,30 +3759,22 @@ void CGameHandler::handleTimeEvents()
 				//give resources
 				SetResources sr;
 				sr.player = player;
-				sr.res = pinfo->resources;
+				sr.res = pinfo->resources + ev->resources;
 
 				//prepare dialog
 				InfoWindow iw;
 				iw.player = player;
 				iw.text << ev->message;
+
 				for (int i=0; i<ev->resources.size(); i++)
 				{
 					if(ev->resources[i]) //if resource is changed, we add it to the dialog
-					{
-						// If removing too much resources, adjust the
-						// amount so the total doesn't become negative.
-						if (sr.res[i] + ev->resources[i] < 0)
-							ev->resources[i] = -sr.res[i];
-
-						if(ev->resources[i]) //if non-zero res change
-						{
-							iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
-							sr.res[i] += ev->resources[i];
-						}
-					}
+						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
 				}
+
 				if (iw.components.size())
 				{
+					sr.res.amax(0); // If removing too much resources, adjust the amount so the total doesn't become negative.
 					sendAndApply(&sr); //update player resources if changed
 				}
 
@@ -3839,21 +3815,24 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 				|| (ev->humanAffected && pinfo->human) ) )
 		{
 
+
 			// dialog
 			InfoWindow iw;
 			iw.player = player;
 			iw.text << ev->message;
 
-			for (int i=0; i<ev->resources.size(); i++)
-				if(ev->resources[i]) //if resource had changed, we add it to the dialog
-				{
-					int was = n.res[player][i];
-					n.res[player][i] += ev->resources[i];
-					n.res[player][i] = std::max<si32>(n.res[player][i], 0);
+			if(ev->resources.nonZero())
+			{
+				TResources was = n.res[player];
+				n.res[player] += ev->resources;
+				n.res[player].amax(0);
 
-					if(pinfo->resources[i] != n.res[player][i]) //if non-zero res change
-						iw.components.push_back(Component(Component::RESOURCE,i,n.res[player][i]-was,0));
-				}
+				for (int i=0; i<ev->resources.size(); i++)
+					if(ev->resources[i] && pinfo->resources[i] != n.res[player][i]) //if resource had changed, we add it to the dialog
+						iw.components.push_back(Component(Component::RESOURCE,i,n.res[player][i]-was[i],0));
+
+			}
+
 			for(std::set<si32>::iterator i = ev->buildings.begin(); i!=ev->buildings.end();i++)
 				if ( !vstd::contains(town->builtBuildings, *i))
 				{
@@ -4018,8 +3997,8 @@ bool CGameHandler::buildBoat( ui32 objid )
 	SetResources sr;
 	sr.player = obj->o->tempOwner;
 	sr.res = gs->getPlayer(obj->o->tempOwner)->resources;
-	sr.res[0] -= 10;
-	sr.res[6] -= 1000;
+	sr.res[Res::WOOD] -= 10;
+	sr.res[Res::GOLD] -= 1000;
 	sendAndApply(&sr);
 
 	//create boat

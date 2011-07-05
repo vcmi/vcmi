@@ -7,6 +7,7 @@
 #include <set>
 #include <list>
 #include <boost/thread/mutex.hpp>
+#include "../lib/ResourceSet.h"
 
 #ifdef max
 #undef max
@@ -1246,8 +1247,8 @@ public:
 	const CGObjectInstance * fort;
 	const CGHeroInstance * hero;
 	std::vector<int> currState;//current state of slot - to avoid calls to getState or updating buttons
-	std::vector<std::map<int,int> > costs;// costs [slot ID] [resource ID] = resource count for upgrade
-	std::vector<int> totalSumm; // totalSum[resource ID] = value
+	std::vector<TResources> costs;// costs [slot ID] [resource ID] = resource count for upgrade
+	TResources totalSumm; // totalSum[resource ID] = value
 
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
 	~CHillFortWindow(); //d-tor

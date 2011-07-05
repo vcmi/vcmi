@@ -416,6 +416,7 @@ public:
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 
+	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);

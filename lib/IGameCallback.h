@@ -6,6 +6,7 @@
 #include <set>
 #include "../client/FunctionList.h"
 #include "CObstacleInstance.h"
+#include "ResourceSet.h"
 
 /*
  * IGameCallback.h, part of VCMI engine
@@ -213,7 +214,7 @@ public:
 	std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 
 	int getResourceAmount(int type)const;
-	std::vector<si32> getResourceAmount() const;
+	TResources getResourceAmount() const;
 	const std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()const; //returns visibility map 
 	const PlayerSettings * getPlayerSettings(int color) const;
 };

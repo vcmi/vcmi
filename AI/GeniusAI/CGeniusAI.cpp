@@ -325,8 +325,8 @@ float CGeniusAI::TownObjective::getValue() const
 
 			newID = ui.newID.back();
 			int upgrade_serial = ui.newID.size() - 1;
-			for (std::set< std::pair<int,int> >::iterator j = ui.cost[upgrade_serial].begin(); j != ui.cost[upgrade_serial].end(); j++)
-				resourceCosts[j->first] = j->second*howMany;
+// 			for (std::set< std::pair<int,int> >::iterator j = ui.cost[upgrade_serial].begin(); j != ui.cost[upgrade_serial].end(); j++)
+// 				resourceCosts[j->first] = j->second*howMany;
 		break;
 	}
 
@@ -762,9 +762,9 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI& cg, HypotheticalGameState& hgs
 				std::set<std::pair<int,int> >::iterator j;
 				for (int ii = 0; ii < ui.cost.size(); ii++) // Can afford the upgrade?
 				{
-					for (j = ui.cost[ii].begin(); j != ui.cost[ii].end(); j++)
-						if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
-							canUpgrade = false;
+// 					for (j = ui.cost[ii].begin(); j != ui.cost[ii].end(); j++)
+// 						if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
+// 							canUpgrade = false;
 				}
 			}
 			if (canUpgrade)
@@ -889,11 +889,11 @@ void CGeniusAI::addTownObjectives (HypotheticalGameState::TownModel& t, Hypothet
 			bool canAfford = true;
 			
 			int upgrade_serial = ui.newID.size() - 1;
-			for (std::set< std::pair<int, int> >::iterator j = ui.cost[upgrade_serial].begin(); j != ui.cost[upgrade_serial].end(); j++)
-			{
-				if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
-					canAfford = false;
-			}
+// 			for (std::set< std::pair<int, int> >::iterator j = ui.cost[upgrade_serial].begin(); j != ui.cost[upgrade_serial].end(); j++)
+// 			{
+// 				if (hgs.resourceAmounts[j->first] < j->second * i->second->count)
+// 					canAfford = false;
+// 			}
 			if (canAfford)
 			{
 				TownObjective to(hgs,AIObjective::upgradeCreatures,&t,i->first,this);

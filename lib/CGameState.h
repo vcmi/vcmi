@@ -23,6 +23,7 @@
 
 #include "ConstTransitivePtr.h"
 #include "IGameCallback.h"
+#include "ResourceSet.h"
 
 
 /*
@@ -161,7 +162,7 @@ public:
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
-	std::vector<si32> resources;
+	TResources resources;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
@@ -209,7 +210,7 @@ struct UpgradeInfo
 {
 	int oldID; //creature to be upgraded
 	std::vector<int> newID; //possible upgrades
-	std::vector<std::set<std::pair<int,int> > > cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>
+	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	UpgradeInfo(){oldID = -1;};
 };
 

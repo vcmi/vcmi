@@ -10,6 +10,7 @@
 #include "../StartInfo.h"
 #include "ConstTransitivePtr.h"
 #include "../int3.h"
+#include "ResourceSet.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -238,12 +239,12 @@ struct SetResource : public CPackForClient //102
 }; 
  struct SetResources : public CPackForClient //104
  {
- 	SetResources(){res.resize(RESOURCE_QUANTITY);type = 104;};
+ 	SetResources(){type = 104;};
  	void applyCl(CClient *cl);
  	DLL_EXPORT void applyGs(CGameState *gs);
  
  	ui8 player;
- 	std::vector<si32> res; //res[resid] => res amount
+ 	TResources res; //res[resid] => res amount
  
  	template <typename Handler> void serialize(Handler &h, const int version)
  	{
@@ -965,7 +966,7 @@ struct NewTurn : public CPackForClient //101
 
 	std::set<Hero> heroes; //updates movement and mana points
 	//std::vector<SetResources> res;//resource list
-	std::map<ui8, std::vector<si32> > res; //player ID => resource value[res_id]
+	std::map<ui8, TResources> res; //player ID => resource value[res_id]
 	std::vector<SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	bool resetBuilded;

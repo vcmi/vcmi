@@ -848,11 +848,8 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 		return Buildings::ERROR;
 
 	//checking resources
-	for(int res=0; res<RESOURCE_QUANTITY; res++)
-	{
-		if(pom->resources[res] > getResource(t->tempOwner, res))
-			ret = Buildings::NO_RESOURCES; //lack of res
-	}
+	if(pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
+		ret = Buildings::NO_RESOURCES; //lack of res
 
 	//checking for requirements
 	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requirements
@@ -1122,10 +1119,10 @@ int CPlayerSpecificInfoCallback::getResourceAmount(int type) const
 	return getResource(player, type);
 }
 
-std::vector<si32> CPlayerSpecificInfoCallback::getResourceAmount() const
+TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	ERROR_RET_VAL_IF(player == -1, "Applicable only for player callbacks", std::vector<si32>());
+	ERROR_RET_VAL_IF(player == -1, "Applicable only for player callbacks", TResources());
 	return gs->players[player].resources;
 }
 
@@ -1214,7 +1211,7 @@ const CGObjectInstance * IGameCallback::putNewObject(int ID, int subID, int3 pos
 	no.subID= subID;
 	no.pos = pos;
 	commitPackage(&no);
-	return getObj(no.id); //id field will be filled during applaying on gs
+	return getObj(no.id); //id field will be filled during applying on gs
 }
 
 const CGCreature * IGameCallback::putNewMonster(int creID, int count, int3 pos)

@@ -1,12 +1,13 @@
 #ifndef __CPLAYERINTERFACE_H__
 #define __CPLAYERINTERFACE_H__
 #include "../global.h"
-#include "../CGameInterface.h"
+#include "../lib/CGameInterface.h"
 #include "../lib/CondSh.h"
 #include <map>
 #include <list>
 #include <algorithm>
 #include "GUIBase.h"
+#include "FunctionList.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf 

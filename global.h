@@ -349,14 +349,6 @@ namespace Buildings
 	};
 }
 
-namespace Res
-{
-	enum ERes 
-	{
-		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL
-	};
-}
-
 namespace Arts
 {
 	enum EPos

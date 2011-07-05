@@ -38,7 +38,6 @@ static unsigned int readNr(std::string &in, int &it)
 static CBuilding * readBg(std::string &buf, int& it)
 {
 	CBuilding * nb = new CBuilding();
-	nb->resources.resize(RESOURCE_QUANTITY);
 	for(int res=0;res<7;res++)
 		nb->resources[res] = readNr(buf,it);
 	/*nb->refName = */readTo(buf,it,'\n');

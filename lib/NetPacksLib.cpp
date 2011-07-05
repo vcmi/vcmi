@@ -45,12 +45,11 @@ DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
- DLL_EXPORT void SetResources::applyGs( CGameState *gs )
- {
- 	assert(player < PLAYER_LIMIT);
- 	for(int i=0;i<res.size();i++)
- 		gs->getPlayer(player)->resources[i] = res[i];
- }
+DLL_EXPORT void SetResources::applyGs( CGameState *gs )
+{
+	assert(player < PLAYER_LIMIT);
+	gs->getPlayer(player)->resources = res;
+}
 
 DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 {
@@ -751,12 +750,10 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		hero->mana = h.mana;
 	}
 
-	for(std::map<ui8, std::vector<si32> >::iterator i = res.begin(); i != res.end(); i++)
+	for(std::map<ui8, TResources>::iterator i = res.begin(); i != res.end(); i++)
 	{
 		assert(i->first < PLAYER_LIMIT);
-		std::vector<si32> &playerRes = gs->getPlayer(i->first)->resources;
-		for(int j = 0;  j < i->second.size();  j++)
-			playerRes[j] = i->second[j];
+		gs->getPlayer(i->first)->resources = i->second;
 	}
 
 	BOOST_FOREACH(SetAvailableCreatures h, cres) //set available creatures in towns

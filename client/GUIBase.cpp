@@ -820,6 +820,11 @@ void CIntObject::changeUsedEvents(ui16 what, bool enable, bool adjust /*= true*/
 	}
 }
 
+void CIntObject::drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color)
+{
+	CSDL_Ext::drawBorder(sur, r + pos, color);
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	init();

@@ -6,6 +6,7 @@
 #include <set>
 
 #include "../lib/ConstTransitivePtr.h"
+#include "ResourceSet.h"
 
 /*
  * CBuildingHandler.h, part of VCMI engine
@@ -22,7 +23,7 @@ class DLL_EXPORT CBuilding //a typical building encountered in every castle ;]
 {
 public:
 	si32 tid, bid; //town ID and structure ID
-	std::vector<si32> resources;
+	TResources resources;
 	std::string name;
 	std::string description;
 

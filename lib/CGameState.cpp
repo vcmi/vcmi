@@ -1184,7 +1184,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 
 	/******************RESOURCES****************************************************/
-	std::vector<int> startresAI, startresHuman;
+	TResources startresAI, startresHuman;
 	std::ifstream tis(DATA_DIR "/config/startres.txt");
 	int k;
 	for (int j=0; j<scenarioOps->difficulty * 2; j++)
@@ -1195,32 +1195,22 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	}
 	tis >> k;
 	for (int i=0; i<RESOURCE_QUANTITY; i++)
-	{
-		tis >> k;
-		startresHuman.push_back(k);
-	}
+		tis >> startresHuman[i];
+
 	tis >> k;
 	for (int i=0; i<RESOURCE_QUANTITY; i++)
-	{
-		tis >> k;
-		startresAI.push_back(k);
-	}
+		tis >> startresAI[i];
+
 	tis.close();
 	tis.clear();
 	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
 	{
-		(*i).second.resources.resize(RESOURCE_QUANTITY);
-		for (int x=0;x<RESOURCE_QUANTITY;x++)
-		{
-			if (i->second.human)
-			{
-				(*i).second.resources[x] = startresHuman[x];
-			}
-			else
-			{
-				(*i).second.resources[x] = startresAI[x];
-			}
-		}
+		PlayerState &p = i->second;
+
+		if (p.human)
+			p.resources = startresHuman;
+		else
+			p.resources = startresAI;
 	}
 
 	//give start resource bonus in case of campaign
@@ -1231,7 +1221,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		if(chosenBonus.type == 7) //resource
 		{
 			std::vector<const PlayerSettings *> people = HLP::getHumanPlayerInfo(scenarioOps); //players we will give resource bonus
-			for (int b=0; b<people.size(); ++b)
+			BOOST_FOREACH(const PlayerSettings *ps, people)
 			{
 				std::vector<int> res; //resources we will give
 				switch (chosenBonus.info1)
@@ -1240,10 +1230,10 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					res.push_back(chosenBonus.info1);
 					break;
 				case 0xFD: //wood+ore
-					res.push_back(0); res.push_back(2);
+					res.push_back(Res::WOOD); res.push_back(Res::ORE);
 					break;
 				case 0xFE:  //rare
-					res.push_back(1); res.push_back(3); res.push_back(4); res.push_back(5);
+					res.push_back(Res::MERCURY); res.push_back(Res::SULFUR); res.push_back(Res::CRYSTAL); res.push_back(Res::GEMS);
 					break;
 				default:
 					assert(0);
@@ -1252,7 +1242,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				//increasing resource quantity
 				for (int n=0; n<res.size(); ++n)
 				{
-					players[people[b]->color].resources[res[n]] += chosenBonus.info2;
+					players[ps->color].resources[res[n]] += chosenBonus.info2;
 				}
 			}
 		}
@@ -1393,15 +1383,15 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 		switch(scenarioOps->playerInfos[k->first].bonus)
 		{
 		case PlayerSettings::bgold:
-			k->second.resources[6] += 500 + (ran()%6)*100;
+			k->second.resources[Res::GOLD] += 500 + (ran()%6)*100;
 			break;
 		case PlayerSettings::bresource:
 			{
 				int res = VLC->townh->towns[scenarioOps->playerInfos[k->first].castle].primaryRes;
 				if(res == 127)
 				{
-					k->second.resources[0] += 5 + ran()%6;
-					k->second.resources[2] += 5 + ran()%6;
+					k->second.resources[Res::WOOD] += 5 + ran()%6;
+					k->second.resources[Res::ORE] += 5 + ran()%6;
 				}
 				else
 				{
@@ -1682,10 +1672,10 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		BOOST_FOREACH(const Bonus *it, *lista)
 		{
 			ui16 nid = it->additionalInfo;
-			if (nid != base->idNumber) //in very specific case the upgrade is avaliable by default (?)
+			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)
 			{
 				ret.newID.push_back(nid);
-				ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost));
+				ret.cost.push_back(VLC->creh->creatures[nid]->cost - base->cost);
 			}
 		}
 		t = h->visitedTown;
@@ -1700,7 +1690,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 				if(vstd::contains(base->upgrades, nid)) //possible upgrade
 				{
 					ret.newID.push_back(nid);
-					ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost));
+					ret.cost.push_back(VLC->creh->creatures[nid]->cost - base->cost);
 				}
 			}
 		}
@@ -1715,7 +1705,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		BOOST_FOREACH(si32 nid, base->upgrades)
 		{
 			ret.newID.push_back(nid);
-			ret.cost.push_back(costDiff(VLC->creh->creatures[nid]->cost, base->cost, costModifier));
+			ret.cost.push_back((VLC->creh->creatures[nid]->cost - base->cost) * costModifier / 100);
 		}
 	}
 
@@ -2619,15 +2609,15 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 2) //gold
 	{
-		FILL_FIELD(gold, g->second.resources[6])
+		FILL_FIELD(gold, g->second.resources[Res::GOLD])
 	}
 	if(level >= 2) //wood & ore
 	{
-		FILL_FIELD(woodOre, g->second.resources[0] + g->second.resources[1])
+		FILL_FIELD(woodOre, g->second.resources[Res::WOOD] + g->second.resources[Res::ORE])
 	}
 	if(level >= 3) //mercury, sulfur, crystal, gems
 	{
-		FILL_FIELD(mercSulfCrystGems, g->second.resources[2] + g->second.resources[3] + g->second.resources[4] + g->second.resources[5])
+		FILL_FIELD(mercSulfCrystGems, g->second.resources[Res::MERCURY] + g->second.resources[Res::SULFUR] + g->second.resources[Res::CRYSTAL] + g->second.resources[Res::GEMS])
 	}
 	if(level >= 4) //obelisks found
 	{

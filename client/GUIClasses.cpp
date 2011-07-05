@@ -1741,7 +1741,7 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 {
 	for(int i=0;i<creatures.size();i++)
 	{
-		Rect creaPos = pos + creatures[i].pos;
+		Rect creaPos = Rect(creatures[i].pos) + pos;
 		if(isItIn(&creaPos, GH.current->motion.x, GH.current->motion.y))
 		{
 			which = i;
@@ -1804,9 +1804,9 @@ void CRecruitmentWindow::showAll( SDL_Surface * to )
 	for(int j=0;j<creatures.size();j++)
 	{
 		if(which==j)
-			drawBorder(*bitmap,creatures[j].pos,int3(255,0,0));
+			drawBorderLoc(to,creatures[j].pos,int3(255,0,0));
 		else
-			drawBorder(*bitmap,creatures[j].pos,int3(239,215,123));
+			drawBorderLoc(to,creatures[j].pos,int3(239,215,123));
 	}
 }
 
@@ -2076,22 +2076,20 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 	{
 		if(Upg && ui)
 		{
-			bool enough = true;
-			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++) //calculate upgrade cost
+			TResources upgradeCost = ui->cost[0] * st.count;
+			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
 			{
 				BLOCK_CAPTURING;
-				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*st.count)
-					enough = false;
-				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*st.count)); 
+				upgResCost.push_back(new SComponent(SComponent::resource, i->resType, i->resVal)); 
 			}
 
-			if(enough)
+			if(LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost))
 			{
 				CFunctionList<void()> fs;
 				fs += Upg;
 				fs += boost::bind(&CCreInfoWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], boost::ref(upgResCost), fs, 0, false);
+				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], boost::ref(upgResCost), fs, 0, true);
 				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,76,237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -2109,7 +2107,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::functi
 			fs[0] += Dsm; //dismiss
 			fs[0] += boost::bind(&CCreInfoWindow::close,this);//close this window
 			CFunctionList<void()> cfl;
-			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false);
+			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],true);
 			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,21,237,"IVIEWCR2.DEF",SDLK_d);
 		}
 		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),216,237,"IOKAY.DEF",SDLK_RETURN);
@@ -6417,12 +6415,10 @@ void CHillFortWindow::updateGarrisons()
 			UpgradeInfo info;
 			LOCPLINT->cb->getUpgradeInfo(hero, i, info);
 			if (info.newID.size())//we have upgrades here - update costs
-				for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
-				{
-					std::pair<int, int> pair = std::make_pair(it->first, it->second * hero->getStackCount(i) );
-					costs[i].insert(pair);
-					totalSumm[pair.first] += pair.second;
-				}
+			{
+				costs[i] = info.cost[0] * hero->getStackCount(i);
+				totalSumm += costs[i];
+			}
 		}
 		
 		currState[i] = newState;
@@ -6474,10 +6470,13 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 			if ( costs[i].size() )//we have several elements
 			{
 				int curY = 128;//reverse iterator is used to display gold as first element
-				for( std::map<int,int>::reverse_iterator rit=costs[i].rbegin(); rit!=costs[i].rend(); rit++)
+				for(int j = costs[i].size()-1; j >= 0; j--)
 				{
-					blitAtLoc(resources->ourImages[rit->first].bitmap, 104+76*i, curY, to);
-					printToLoc(boost::lexical_cast<std::string>(rit->second), 168+76*i, curY+16, FONT_SMALL, zwykly, to);
+					int val = costs[i][j];
+					if(!val) continue;
+
+					blitAtLoc(resources->ourImages[j].bitmap, 104+76*i, curY, to);
+					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, zwykly, to);
 					curY += 20;
 				}
 			}
@@ -6515,6 +6514,7 @@ std::string CHillFortWindow::getTextForSlot(int slot)
 
 int CHillFortWindow::getState(int slot)
 {
+	TResources myRes = LOCPLINT->cb->getResourceAmount();
 	if ( slot == slotsCount )//"Upgrade all" slot
 	{
 		bool allUpgraded = true;//All creatures are upgraded?
@@ -6524,10 +6524,9 @@ int CHillFortWindow::getState(int slot)
 		if (allUpgraded)
 			return 1;
 
-		for ( int i=0; i<RESOURCE_QUANTITY; i++)//if we need more resources
-			if(LOCPLINT->cb->getResourceAmount(i) < totalSumm[i])
-				return 0;
-				
+		if(!totalSumm.canBeAfforded(myRes))
+			return 0;
+
 		return 2;
 	}
 
@@ -6539,9 +6538,9 @@ int CHillFortWindow::getState(int slot)
 	if (!info.newID.size())//already upgraded
 		return 1;
 
-	for(std::set<std::pair<int,int> >::iterator it=info.cost[0].begin(); it!=info.cost[0].end(); it++)
-		if(LOCPLINT->cb->getResourceAmount(it->first) < it->second * hero->getStackCount(slot))
+	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
 			return 0;
+
 	return 2;//can upgrade
 }
 

@@ -724,7 +724,6 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		nce->town = nt;
 		nce->name = readString(bufor,i);
 		nce->message = readString(bufor,i);
-		nce->resources.resize(RESOURCE_QUANTITY);
 		for(int x=0; x < 7; x++)
 		{
 			nce->resources[x] = readNormalNr(bufor,i); 
@@ -1885,7 +1884,6 @@ void Mapa::readEvents( const unsigned char * bufor, int &i )
 		{
 			ne->message +=bufor[i]; ++i;
 		}
-		ne->resources.resize(RESOURCE_QUANTITY);
 		for(int k=0; k < 7; k++)
 		{
 			ne->resources[k] = readNormalNr(bufor,i); i+=4;

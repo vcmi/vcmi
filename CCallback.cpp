@@ -157,14 +157,17 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ui16 artifactSlo
 
 bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 {
-	CGTownInstance * t = const_cast<CGTownInstance *>(town);
+	//CGTownInstance * t = const_cast<CGTownInstance *>(town);
 
 	if(town->tempOwner!=player)
 		return false;
-	const CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
-	for(int i=0;i<b->resources.size();i++)
-		if(b->resources[i] > gs->players[player].resources[i])
-			return false; //lack of resources
+
+	if(!canBuildStructure(town, buildingID))
+		return false;
+// 	const CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
+// 	for(int i=0;i<b->resources.size();i++)
+// 		if(b->resources[i] > gs->players[player].resources[i])
+// 			return false; //lack of resources
 
 	BuildStructure pack(town->id,buildingID);
 	sendRequest(&pack);

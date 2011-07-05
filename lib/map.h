@@ -15,6 +15,7 @@
 #endif
 
 #include "ConstTransitivePtr.h"
+#include "ResourceSet.h"
 
 /*
  * map.h, part of VCMI engine
@@ -211,7 +212,7 @@ class DLL_EXPORT CMapEvent
 {
 public:
 	std::string name, message;
-	std::vector<si32> resources; //gained / taken resources
+	TResources resources; //gained / taken resources
 	ui8 players; //affected players
 	ui8 humanAffected;
 	ui8 computerAffected;

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "CGameInterface.h"
+#include "lib/CGameInterface.h"
 
 /*
  * AI_Base.h, part of VCMI engine

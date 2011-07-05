@@ -183,7 +183,6 @@
     <ClCompile Include="CCursorHandler.cpp" />
     <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
-    <ClCompile Include="..\CGameInterface.cpp" />
     <ClCompile Include="CHeroWindow.cpp" />
     <ClCompile Include="CKingdomInterface.cpp" />
     <ClCompile Include="Client.cpp" />
@@ -218,7 +217,6 @@
     <ClInclude Include="CCursorHandler.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
-    <ClInclude Include="..\CGameInterface.h" />
     <ClInclude Include="CHeroWindow.h" />
     <ClInclude Include="CKingdomInterface.h" />
     <ClInclude Include="Client.h" />
