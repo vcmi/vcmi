@@ -504,7 +504,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	delete battleResult.data;
 }
 
-void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance)
+void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex)
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
@@ -538,7 +538,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if (!bat.shot()) //multiple-hex attack - only in meele
 	{
-		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, def->position);
+		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex);
 		//TODO: get exact attacked hex for defender
 
 		BOOST_FOREACH(CStack * stack, attackedCreatures)
@@ -556,7 +556,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
 		bat.bsa.front().effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
-		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, def->position);
+		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
 		//TODO: get exact attacked hex for defender
 
 		BOOST_FOREACH(CStack * stack, attackedCreatures)
@@ -3053,7 +3053,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//attack
 			BattleAttack bat;
-			prepareAttack(bat, curStack, stackAtEnd, distance);
+			prepareAttack(bat, curStack, stackAtEnd, distance, ba.additionalInfo);
 			sendAndApply(&bat);
 			handleAfterAttackCasting(bat);
 
@@ -3064,7 +3064,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& !stackAtEnd->hasBonusOfType(Bonus::SIEGE_WEAPON)
 				&& !stackAtEnd->hasBonusOfType(Bonus::HYPNOTIZED))
 			{
-				prepareAttack(bat, stackAtEnd, curStack, 0);
+				prepareAttack(bat, stackAtEnd, curStack, 0, curStack->position);
 				bat.flags |= BattleAttack::COUNTER;
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
@@ -3077,7 +3077,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& stackAtEnd->alive()  )
 			{
 				bat.flags = 0;
-				prepareAttack(bat, curStack, stackAtEnd, 0);
+				prepareAttack(bat, curStack, stackAtEnd, 0, ba.additionalInfo);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
@@ -3103,7 +3103,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			BattleAttack bat;
 			bat.flags |= BattleAttack::SHOT;
-			prepareAttack(bat, curStack, destStack, 0);
+			prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
 			sendAndApply(&bat);
 			handleAfterAttackCasting(bat);
 
@@ -3112,7 +3112,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;
-				prepareAttack(bat2, curStack, destStack, 0);
+				prepareAttack(bat2, curStack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat2);
 			}
 
@@ -3122,7 +3122,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& curStack->shots
 				)
 			{
-				prepareAttack(bat, curStack, destStack, 0);
+				prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}

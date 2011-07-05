@@ -785,15 +785,15 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CStack* attacker, THex 
 		std::vector<THex> hexes;
 		if (attacker->attackerOwned)
 		{
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes); //upper
 			THex::checkAndPush(hex + 1, hexes);
-			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes);
+			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes); //lower
 		}
 		else
 		{
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), hexes);
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
 			THex::checkAndPush(hex - 1, hexes);
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-1 : WN ), hexes);
+			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), hexes);
 		}
 		BOOST_FOREACH (THex tile, hexes)
 		{
