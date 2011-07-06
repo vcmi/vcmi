@@ -1010,6 +1010,8 @@ void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
 {
 	removeFrom(src.hero, src.slot);
 	putAt(dst.hero, dst.slot);
+	if (artType->id == 135 && dst.slot == Arts::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
+		dst.hero->giveArtifact(0);
 }
 
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)

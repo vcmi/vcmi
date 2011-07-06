@@ -3015,6 +3015,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			break; //for 15 and 16 cases
 		}
 	case 17: //lightning bolt
+	case 57: //Titan's Thunder
 	case 77: //thunderbolt
 		displayEffect(1, sc->tile);
 		displayEffect(spell.mainEffectAnim, sc->tile);
@@ -3050,6 +3051,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		if(sc->castedByHero)
 		{
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //spell name
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl ); //target
 		}
 		else
@@ -3143,7 +3145,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				}
 			}
 		}
-		if (!customSpell)
+		if (!customSpell) //TODO: should not get here for direct damage spells
 			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
 		if (text.size())
 			console->addText(text);

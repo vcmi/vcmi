@@ -3450,6 +3450,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 24: //death ripple
 	case 25: //destroy undead
 	case 26: //armageddon
+	case 57: //Titan's Lightning bolt
 	case 77: //Thunderbolt (thunderbirds)
 		{
 			StacksInjured si;
