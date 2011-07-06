@@ -717,6 +717,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		}
 
 		b->stackActivated(stack);
+		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
 	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
@@ -822,11 +823,24 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
-		boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
+		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
-		battleInt->displayEffect(18,stack->position);
+		battleInt->displayEffect(18, stack->position);
 	}
 	//TODO: bad luck?
+	if (ba->deathBlow())
+	{
+		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
+		std::string hlp = CGI->generaltexth->allTexts[(stack->count != 1) ? 336 : 335];
+		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
+		battleInt->console->addText(hlp);
+		for (std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+		{
+			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
+			battleInt->displayEffect(73, attacked->position);
+		}
+		
+	}
 
 	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 
@@ -834,15 +848,15 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	{
 		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
 		{
-			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
 			if (!i->isSecondary()) //display projectile only for primary target
 			{
+				const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
 				battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
 			}
 		}
 	}
 	else
-	{//TODO: support multiple attacked creatures
+	{
 		int shift = 0;
 		if(ba->counter() && THex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{

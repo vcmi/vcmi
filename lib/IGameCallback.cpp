@@ -299,7 +299,7 @@ TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, con
 		defenderHero = gs->curB->heroes[0];
 	}
 
-	TDmgRange ret = gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, shooting, 0, false, false);
+	TDmgRange ret = gs->curB->calculateDmgRange(attacker, defender, attackerHero, defenderHero, shooting, 0, false, false, false);
 
 	if(retaliationDmg)
 	{
@@ -314,7 +314,7 @@ TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, con
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				retaliationDmg->*pairElems[!i] = gs->curB->calculateDmgRange(defender, attacker, bsa.newAmount, attacker->count, attackerHero, defenderHero, false, false, false, false).*pairElems[!i];
+				retaliationDmg->*pairElems[!i] = gs->curB->calculateDmgRange(defender, attacker, bsa.newAmount, attacker->count, attackerHero, defenderHero, false, 0, false, false, false).*pairElems[!i];
 			}
 		}
 	}

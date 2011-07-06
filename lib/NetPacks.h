@@ -1306,7 +1306,7 @@ struct BattleAttack : public CPackForClient//3006
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui8 flags; //uses Eflags (below)
-	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16};
+	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32};
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1328,6 +1328,10 @@ struct BattleAttack : public CPackForClient//3006
 	bool ballistaDoubleDmg() const //if it's ballista attack and does double dmg
 	{
 		return flags & BALLISTA_DOUBLE_DMG;
+	}
+	bool deathBlow() const
+	{
+		return flags & DEATH_BLOW;
 	}
 	//bool killed() //if target stack was killed
 	//{

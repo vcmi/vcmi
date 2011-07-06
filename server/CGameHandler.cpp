@@ -522,6 +522,10 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	{
 		bat.flags |= BattleAttack::LUCKY;
 	}
+	if (rand()%100 < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
+	{
+		bat.flags |= BattleAttack::DEATH_BLOW;
+	}
 
 	if(att->getCreature()->idNumber == 146)
 	{
@@ -575,7 +579,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
-	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.ballistaDoubleDmg());
+	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.deathBlow(), bat.ballistaDoubleDmg());
 	def->prepareAttacked(bsa); //calculate casualties
 	bat.bsa.push_back(bsa); //add this stack to the list of victims
 
