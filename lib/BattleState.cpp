@@ -7,6 +7,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/random/linear_congruential.hpp>
 
 #include "VCMI_Lib.h"
 #include "CObjectHandler.h"
@@ -25,7 +26,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
+extern boost::rand48 ran;
 
 const CStack * BattleInfo::getNextStack() const
 {
@@ -845,10 +846,15 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CStack* attacker, THex 
 	return attackedCres;
 }
 
-int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower )
+int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
 {
-	if(!caster) //TODO: something better
-		return std::max(5, usedSpellPower);
+	if(!caster)
+	{
+		if (!usedSpellPower)
+			return 3; //default duration of all creature spells
+		else
+			return usedSpellPower; //use creature spell power
+	}
 	switch(spell->id)
 	{
 	case 56: //frenzy
@@ -2107,8 +2113,8 @@ void CStack::postInit()
 	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	casts = valOfBonuses(Bonus::CASTS); //TODO: set them in cr_abils.txt
 	state.insert(ALIVE);  //alive state indication
-
 
 	assert(firstHPleft > 0);
 }
@@ -2282,15 +2288,15 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
 	 	break;
-	case 70: //Stone Gaze //TODO: allow stacks use arbitrary spell power
+	case 70: //Stone Gaze
 	case 74: //Paralyze
 		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
 		break;
 	case 71: //Poison
-		sf.push_back(featureGeneratorVT(Bonus::POISON, 0, 30, 3, Bonus::INDEPENDENT_MAX)); //max hp penalty from this source
+		sf.push_back(featureGeneratorVT(Bonus::POISON, 0, 30, sse.turnsRemain, Bonus::INDEPENDENT_MAX)); //max hp penalty from this source
 		sf.back().sid = sse.sid;
-		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -10, 3, Bonus::PERCENT_TO_ALL));
+		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -10, sse.turnsRemain, Bonus::PERCENT_TO_ALL));
 		sf.back().sid = sse.sid;
 		break;
 	case 72: //Bind
@@ -2301,17 +2307,17 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	 	sf.back().sid = sse.sid;
 		break;
 	case 73: //Disease
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2 ,3));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2 , sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2 ,3));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2 , sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
 		break;
 	case 75: //Age
-		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -50, 3, Bonus::PERCENT_TO_ALL));
+		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -50, sse.turnsRemain, Bonus::PERCENT_TO_ALL));
 		sf.back().sid = sse.sid;
 		break;
 	case 80: //Acid Breath
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -3, 1));
+		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -sse.turnsRemain, 1));
 	 	sf.back().sid = sse.sid;
 		sf.back().duration = Bonus::PERMANENT;
 		sf.back().valType = Bonus::ADDITIVE_VALUE;
@@ -2489,6 +2495,23 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 		bsa.newAmount = 0;
 		bsa.flags |= BattleStackAttacked::KILLED;
 		bsa.killedAmount = count; //we cannot kill more creatures than we have
+
+		int resurrectFactor = valOfBonuses(Bonus::REBIRTH);
+		if (resurrectFactor > 0 && casts) //there must be casts left
+		{
+			int resurrectedCount = base->count * resurrectFactor / 100;
+			if (resurrectedCount)
+				resurrectedCount += ((base->count % resurrectedCount) * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0; //last stack has proportional chance to rebirth
+			else //only one unit
+				resurrectedCount += (base->count * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0;
+			if (hasBonusOfType(Bonus::REBIRTH, 1));
+				amax (resurrectedCount, 1); //resurrect at least one Sacred Phoenix
+			if (resurrectedCount)
+			{
+				bsa.flags |= BattleStackAttacked::REBIRTH;
+				bsa.newAmount = resurrectedCount; //risky?
+			}
+		}
 	}
 	else
 	{

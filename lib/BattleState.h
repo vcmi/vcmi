@@ -144,6 +144,7 @@ public:
 	THex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
+	ui8 casts; //how many casts left
 
 	std::set<ECombatInfo> state;
 	//overrides
@@ -199,7 +200,7 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & count;
+			& shots & casts & count;
 
 		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
 		const CArmedInstance *army = (base ? base->armyObj : NULL);

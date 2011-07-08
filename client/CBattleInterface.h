@@ -45,6 +45,7 @@ struct SStackAttackedInfo
 	const CStack * attacker; //attacking stack
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
+	bool rebirth; //if true, play rebirth animation after all
 };
 
 /// Small struct which contains information about the position and the velocity of a projectile

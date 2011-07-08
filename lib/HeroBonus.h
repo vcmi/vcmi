@@ -167,7 +167,7 @@ namespace PrimarySkill
 	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection casted by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
-	BONUS_NAME(REBIRTH) /* val - percent of life restored */
+	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus

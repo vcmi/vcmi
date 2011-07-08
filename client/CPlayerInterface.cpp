@@ -796,7 +796,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 			if (defender && !i->isSecondary())
 				battleInt->displayEffect(i->effect, defender->position);
 		}
-		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed()};
+		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
 		arg.push_back(to_put);
 
 	}

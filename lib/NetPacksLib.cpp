@@ -974,13 +974,20 @@ DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
 	CStack * at = gs->curB->getStack(stackAttacked);
 	at->count = newAmount;
 	at->firstHPleft = newHP;
-	if(killed())
-		at->state -= ALIVE;
 
+	if(killed())
+	{
+		at->state -= ALIVE;
+	}
 	//life drain handling
 	for (int g=0; g<healedStacks.size(); ++g)
 	{
 		healedStacks[g].applyGs(gs);
+	}
+	if (willRebirth())
+	{
+		at->casts--;
+		at->state.insert(ALIVE); //hmm?
 	}
 }
 

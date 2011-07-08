@@ -4366,8 +4366,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				continue;
 
 			//casting
-			if (castMe)
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, attacker->count, SpellCasting::AFTER_ATTACK_CASTING, attacker);
+			if (castMe) //stacks use 0 spell power. If needed, default = 3 or custom value is used
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, 0, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79

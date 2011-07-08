@@ -177,6 +177,8 @@
 + 125 NON_LIVING 0 0 0				//energy elementals shouldn't get morale		
 + 127 NON_LIVING 0 0 0						
 + 129 NON_LIVING 0 0 0						//Crystal Dragons do not fly
++ 131 REBIRTH 20 0 0	//20% of stack is resurrected					
++ 131 CASTS 1 0 0	//Phoenix rebirths once					
 + 132 DRAGON_NATURE 0 0 0			//azure dragon is a dragon			
 - 133 FLYING						
 + 133 DRAGON_NATURE 0 0 0			//crystal dragon is a dragon			
@@ -184,19 +186,19 @@
 + 135 DRAGON_NATURE 0 0 0			//rust dragon is a dragon			
 + 135 ACID_BREATH 25 0 20			//20% chance to do 25 damage			
 + 135 SPELL_AFTER_ATTACK 100 80 0			//always reduce defense			
-+ 136 NO_OBSTACLES_PENALTY 0 0 0			//Enchanter			
-+ 137 NO_DISTANCE_PENALTY 0 0 0			//Sharpshooter			
-+ 137 NO_OBSTACLES_PENALTY 0 0 0					//first aid tent can heal	
-+ 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide	//Ammo Cart		
-+ 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide		//arrow turret	
++ 136 NO_OBSTACLES_PENALTY 0 0 0			//Enchanter		//first aid tent can heal	
++ 137 NO_DISTANCE_PENALTY 0 0 0			//Sharpshooter	//Ammo Cart		
++ 137 NO_OBSTACLES_PENALTY 0 0 0					//arrow turret	
++ 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide			
++ 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide			
 + 144 FULL_HP_REGENERATION 0 0 0 			//troll			
-+ 147 HEALER 0 0 0						
-+ 148 NOT_ACTIVE 0 0 0						
-+ 149 SHOOTER 0 0 0					//Gorynyches fly	
-+ 151 DRAGON_NATURE 0 0 0			//diamond dragon is a dragon			//hell hound doesn't fly
-+ 154 DRAGON_NATURE 0 0 0			//blood dragon is a dragon			//cerberus doesn't fly
-+ 155 DRAGON_NATURE 0 0 0			//darkness dragon is a dragon		//psychic elemental	
-+ 168 FLYING 0 0 0					//magic elemental	
++ 147 HEALER 0 0 0					//Gorynyches fly	
++ 148 NOT_ACTIVE 0 0 0						//hell hound doesn't fly
++ 149 SHOOTER 0 0 0						//cerberus doesn't fly
++ 151 DRAGON_NATURE 0 0 0			//diamond dragon is a dragon		//psychic elemental	
++ 154 DRAGON_NATURE 0 0 0			//blood dragon is a dragon		//magic elemental	
++ 155 DRAGON_NATURE 0 0 0			//darkness dragon is a dragon			
++ 168 FLYING 0 0 0						
 -  46 FLYING		  				
 -  47 FLYING			  			
 - 120 DOUBLE_WIDE						
