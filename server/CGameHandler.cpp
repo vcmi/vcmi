@@ -3463,7 +3463,8 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
 				if (unitSpellPower)
 					sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
-				//TODO: Faerie Dragon - CREATURE_SPELL_POWER
+				else //Faerie Dragon
+					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
 			}
 			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
@@ -3528,11 +3529,16 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 75: //Aging
 	case 80: //Acid Breath defense reduction
 		{
+			int stackSpellPower = 0;
+			if (stack)
+			{
+				stackSpellPower = stack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+			}
 			SetStackEffect sse;
 			Bonus pseudoBonus;
 			pseudoBonus.sid = spellID;
 			pseudoBonus.val = spellLvl;
-			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, usedSpellPower);
+			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 			const Bonus * bonus = NULL;
 			if (caster)
@@ -3613,6 +3619,15 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 38: //resurrection
 	case 39: //animate dead
 		{
+			int hpGained = 0;
+			if (stack)
+			{
+				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
+				if (unitSpellPower)
+					hpGained = stack->count * unitSpellPower; //Archangel
+				else //Faerie Dragon-like effect - unused fo far
+					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
+			}
 			StacksHealedOrResurrected shr;
 			shr.lifeDrain = (ui8)false;
 			shr.tentHealing = (ui8)false;
@@ -3624,7 +3639,17 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (*it)->ID;
-				hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it);
+				if (stack)
+				{
+					if (hpGained)
+					{
+						hi.healedHP = gs->curB->calculateHealedHP(hpGained, spell, *it);
+					}
+					else
+						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id))->additionalInfo, *it);
+				}
+				else
+					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it);
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}

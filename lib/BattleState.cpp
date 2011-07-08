@@ -1056,27 +1056,41 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 
 ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const
 {
-	int powerPerLevel;
-	bool resurrect;
-	switch(spell->id)
-	{
-	case 37: //cure
-		{
-			powerPerLevel = 5;
-			resurrect = false;
-			break;
-		}
-	case 38: //resurrection
-	case 39: //animate dead
-		{
-			powerPerLevel = 50;
-			resurrect = true;
-			break;
-		}
-	}
-	int healedHealth = caster->getPrimSkillLevel(2) * powerPerLevel + spell->powers[caster->getSpellSchoolLevel(spell)];
+	bool resurrect = resurrects(spell->id);
+	int healedHealth = caster->getPrimSkillLevel(2) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
+}
+ui32 BattleInfo::calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const
+{
+	bool resurrect = resurrects(spell->id);
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
+}
+ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const
+{
+	bool resurrect = resurrects(spell->id);
+	int healedHealth = usedSpellPower * spell->power + spell->powers[spellSchoolLevel];
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
+}
+bool BattleInfo::resurrects(TSpell spellid) const
+{
+	switch(spellid)
+	{
+		case 37: //cure
+		{
+			return false;
+			break;
+		}
+		case 38: //resurrection
+		case 39: //animate dead
+		{
+			return true;
+			break;
+		}
+		default:
+			tlog2 << "BattleInfo::resurrects called for non-healing spell!\n";
+			return false;
+	}
 }
 
 void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int turn /*= 0*/, int lastMoved /*= -1*/ ) const
@@ -2268,7 +2282,7 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
 	 	break;
-	case 70: //Stone Gaze
+	case 70: //Stone Gaze //TODO: allow stacks use arbitrary spell power
 	case 74: //Paralyze
 		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;

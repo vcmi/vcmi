@@ -13,6 +13,7 @@
 +  13 HATE 50 54 0					//archangels hate devils	
 +  13 HATE 50 55 0					//archangels hate arch	
 +  13 SPELLCASTER 0 38 0			//archangels cast resurrection			
++ 13 SPECIFIC_SPELL_POWER 100 38 0			// 100 hp per Archangel			
 +  16 MAGIC_RESISTANCE 20 0 0 		//dwarf's magic resistance 20%				
 +  17 MAGIC_RESISTANCE 40 0 0 	 	//battle dwarf's magic resistance 40%				
 +  20 CHANGES_SPELL_COST_FOR_ENEMY 2 0 0	//pegasus makes spell cost higher for enemy mage					
@@ -36,20 +37,21 @@
 +  33 NON_LIVING 0 0 0  			//iron golems are non-living			
 +  33 SPELL_DAMAGE_REDUCTION 75 -1 0	   	//iron golems reduce dmg from spells				
 +  34 CHANGES_SPELL_COST_FOR_ALLY -2 0 0   	//mages reduce spell cost					
-+  35 CHANGES_SPELL_COST_FOR_ALLY -2 0 0   	//archmages reduce spell cost					
-+  36 HATE 50 52 0				  	//genies hate efreets	
-+  36 HATE 50 53 0				  	//genies hate efreet sultans	
-+  37 HATE 50 52 0				  	//master genies hate efreets	
-+  37 HATE 50 53 0				  	//master genies hate efreet sultans	
-+  37 RANDOM_GENIE_SPELLCASTER 0 0 0  		//master genies cast spells				
++  35 CHANGES_SPELL_COST_FOR_ALLY -2 0 0   	//archmages reduce spell cost			  	//genies hate efreets	
++  36 HATE 50 52 0				  	//genies hate efreet sultans	
++  36 HATE 50 53 0				  	//master genies hate efreets	
++  37 HATE 50 52 0				  	//master genies hate efreet sultans	
++  37 HATE 50 53 0						
++  37 RANDOM_SPELLCASTER 0 0 0  		//master genies cast spells				
++  37 CREATURE_ENCHANT_POWER 6 0 0		//spells last 6 turns				
 +  38 BLOCKS_RETALIATION 0 0 0		//nagas block retaliation				
 +  39 BLOCKS_RETALIATION 0 0 0  	//naga queens block retaliation					
 +  40 SPELL_IMMUNITY 0 50 0			//giants are immune to mind spells (sorrow)			
 +  40 SPELL_IMMUNITY 0 59 0			//giants are immune to mind spells (berserk)			
 +  40 SPELL_IMMUNITY 0 60 0			//giants are immune to mind spells (hypnotize)			
-+  40 SPELL_IMMUNITY 0 61 0			//giants are immune to mind spells (forgetfulness)			
++  40 SPELL_IMMUNITY 0 61 0			//giants are immune to mind spells (forgetfulness)		//titans hate black dragons	
 +  40 SPELL_IMMUNITY 0 62 0			//giants are immune to mind spells (blind)			
-+  41 HATE 50 83 0		   	 		//titans hate black dragons	
++  41 HATE 50 83 0		   	 			
 +  41 SPELL_IMMUNITY 0 50 0			//titans are immune to mind spells (sorrow)			
 +  41 SPELL_IMMUNITY 0 59 0			//titans are immune to mind spells (berserk)			
 +  41 SPELL_IMMUNITY 0 60 0			//titans are immune to mind spells (hypnotize)			
@@ -60,30 +62,30 @@
 +  47 BLOCKS_RETALIATION 0 0 0 		//cerberus				
 +  47 THREE_HEADED_ATTACK 0 0 0		//cerberus				
 +  47 THREE_HEADED_ATTACK 0 0 0 	//creberus					
-+  51 DAEMON_SUMMONING 0 52 0		//pit lord				
-+  52 FIRE_IMMUNITY 0 0 0 			//efreeti			
-+  52 FLYING 0 0 0  				//Efreeti		
-+  52 HATE 50 36 0	  				//efreeti hate genies	
-+  52 HATE 50 37 0					//efreeti hate master genies	
-+  53 FIRE_IMMUNITY 0 0 0			//efreet sultan			
-+  53 FIRE_SHIELD 0 36 0			//efreet sultans			
-+  53 FLYING 0 0 0		  	 		//Efreet Sultan	
-+  53 HATE 50 36 0					//efreet sultans hate genies	
-+  53 HATE 50 37 0					//efreet sultans hate master genies	
-+  54 BLOCKS_RETALIATION 0 0 0 	 	//devils				
-+  54 ENEMY_LUCK_DECREASING 1 0 0	//devils					
-+  54 HATE 50 12 0		   	 		//devils hate angels	
-+  54 HATE 50 13 0					//devils hate archangles	
-+  55 BLOCKS_RETALIATION 0 0 0 	 	//archdevils				
-+  55 ENEMY_LUCK_DECREASING 1 0 0 	//archdevils					
-+  55 HATE 50 12 0		   	 		//archdevils hate angels	
-+  55 HATE 50 13 0					//archdevils hate archangles	
++  51 DAEMON_SUMMONING 0 52 0		//pit lord		//Efreeti		
++  52 FIRE_IMMUNITY 0 0 0 			//efreeti		//efreeti hate genies	
++  52 FLYING 0 0 0  					//efreeti hate master genies	
++  52 HATE 50 36 0	  					
++  52 HATE 50 37 0						
++  53 FIRE_IMMUNITY 0 0 0			//efreet sultan		//Efreet Sultan	
++  53 FIRE_SHIELD 0 36 0			//efreet sultans		//efreet sultans hate genies	
++  53 FLYING 0 0 0		  	 		//efreet sultans hate master genies	
++  53 HATE 50 36 0						
++  53 HATE 50 37 0						
++  54 BLOCKS_RETALIATION 0 0 0 	 	//devils			//devils hate angels	
++  54 ENEMY_LUCK_DECREASING 1 0 0	//devils				//devils hate archangles	
++  54 HATE 50 12 0		   	 			
++  54 HATE 50 13 0						
++  55 BLOCKS_RETALIATION 0 0 0 	 	//archdevils			//archdevils hate angels	
++  55 ENEMY_LUCK_DECREASING 1 0 0 	//archdevils				//archdevils hate archangles	
++  55 HATE 50 12 0		   	 			
++  55 HATE 50 13 0				//wraith		
 +  60 FULL_HP_REGENERATION 0 1 0			//wight			
-+  61 MANA_DRAIN 2 0 0 				//wraith		
++  61 MANA_DRAIN 2 0 0 						
 +  61 FULL_HP_REGENERATION 0 1 0 			//wraith			
-+  62 BLOCKS_RETALIATION 0 0 0		//vampires				
++  62 BLOCKS_RETALIATION 0 0 0		//vampires		//vampire lords		
 +  63 BLOCKS_RETALIATION 0 0 0		//vampire lords				
-+  63 LIFE_DRAIN 0 0 0	   	 		//vampire lords		
++  63 LIFE_DRAIN 0 0 0	   	 				
 +  64 SPELL_LIKE_ATTACK 0 76 0		//liches				
 +  65 SPELL_LIKE_ATTACK 0 76 0 		//power liches				
 +  66 SPELL_AFTER_ATTACK 20 42 0 	//black knights					
@@ -97,10 +99,10 @@
 +  72 RETURN_AFTER_STRIKE 0 0 0	   	//Harpies return after attack				
 +  73 BLOCKS_RETALIATION 0 0 0	   	//Harpy Hags				
 +  73 RETURN_AFTER_STRIKE 0 0 0	   	//Harpy Hags return after attack				
-+  76 SPELL_AFTER_ATTACK 20 70 2000  	//medusas					
-+  77 SPELL_AFTER_ATTACK 20 70 2000  	//medusa queens					
-+  78 SELF_MORALE 0 0 0	   	  	   	//minotaurs		
-+  79 SELF_MORALE 0 0 0			   	//minotaur kings		
++  76 SPELL_AFTER_ATTACK 20 70 2000  	//medusas			//minotaurs		
++  77 SPELL_AFTER_ATTACK 20 70 2000  	//medusa queens			//minotaur kings		
++  78 SELF_MORALE 0 0 0	   	  	   			
++  79 SELF_MORALE 0 0 0			   			
 +  81 SPELL_AFTER_ATTACK 20 74 0   	//scorpicore					
 +  82 LEVEL_SPELL_IMMUNITY 3 0 0   	//red dragon's spell immunity					
 +  82 TWO_HEX_ATTACK_BREATH 0 0 0  	//Red Dragon has breath attack					
@@ -127,16 +129,16 @@
 + 110 BLOCKS_RETALIATION 0 0 0 	   	//hydras				
 + 111 ATTACKS_ALL_ADJACENT 0 0 0   	//chaos hydras					
 + 111 BLOCKS_RETALIATION 0 0 0 	   	//chaos hydras				
-+ 112 MORE_DAMAGE_FROM_SPELL 100 17 0	  	//air elementals are vulnerable to lightning bolt				
++ 112 MORE_DAMAGE_FROM_SPELL 100 17 0	  	//air elementals are vulnerable to lightning bolt		//air elementals are non-living		
 + 112 MORE_DAMAGE_FROM_SPELL 100 19 0		//air elementals are vulnerable to chain lightning				
-+ 112 NON_LIVING 0 0 0		 	 	//air elementals are non-living		
++ 112 NON_LIVING 0 0 0		 	 			
 + 112 SPELL_IMMUNITY 0 23 0			//air elementals are immune to meteor shower			
 + 112 SPELL_IMMUNITY 0 50 0			//air elementals are immune to mind spells (sorrow)			
 + 112 SPELL_IMMUNITY 0 59 0			//air elementals are immune to mind spells (berserk)			
 + 112 SPELL_IMMUNITY 0 60 0			//air elementals are immune to mind spells (hypnotize)			
-+ 112 SPELL_IMMUNITY 0 61 0			//air elementals are immune to mind spells (forgetfulness)			
++ 112 SPELL_IMMUNITY 0 61 0			//air elementals are immune to mind spells (forgetfulness)	//earth elementals are non-living		
 + 113 MORE_DAMAGE_FROM_SPELL 100 23 0		//earth elementals are vulnerable to meteor shower				
-+ 113 NON_LIVING 0 0 0		 	 	//earth elementals are non-living		
++ 113 NON_LIVING 0 0 0		 	 			
 + 113 SPELL_IMMUNITY 0 17 0			//earth elementals are immune to lightning bolt			
 + 113 SPELL_IMMUNITY 0 19 0			//earth elementals are immune to chain lightning			
 + 113 SPELL_IMMUNITY 0 50 0			//earth elementals are immune to mind spells (sorrow)			
@@ -144,39 +146,39 @@
 + 113 SPELL_IMMUNITY 0 60 0			//earth elementals are immune to mind spells (hypnotize)			
 + 113 SPELL_IMMUNITY 0 61 0			//earth elementals are immune to mind spells (forgetfulness)			
 + 114 FIRE_IMMUNITY 0 0 0			//fire elementals are immune to fire spells			
-+ 114 MORE_DAMAGE_FROM_SPELL 100 16 0		//fire elementals are vulnerable to ice bolt				
++ 114 MORE_DAMAGE_FROM_SPELL 100 16 0		//fire elementals are vulnerable to ice bolt		//fire elementals are non-living		
 + 114 MORE_DAMAGE_FROM_SPELL 100 20 0		//fire elementals are vulnerable to frost ring				
-+ 114 NON_LIVING 0 0 0		 	 	//fire elementals are non-living		
++ 114 NON_LIVING 0 0 0		 	 			
 + 114 SPELL_IMMUNITY 0 50 0			//fire elementals are immune to mind spells (sorrow)			
 + 114 SPELL_IMMUNITY 0 59 0			//fire elementals are immune to mind spells (berserk)			
-+ 114 SPELL_IMMUNITY 0 60 0			//fire elementals are immune to mind spells (hypnotize)			
++ 114 SPELL_IMMUNITY 0 60 0			//fire elementals are immune to mind spells (hypnotize)	//water elemental should be treated as double-wide		
 + 114 SPELL_IMMUNITY 0 61 0			//fire elementals are immune to mind spells (forgetfulness)			
-+ 115 DOUBLE_WIDE 0 0 0				//water elemental should be treated as double-wide		
++ 115 DOUBLE_WIDE 0 0 0						
 + 115 MORE_DAMAGE_FROM_SPELL 100 13 0		//water elementals are vulnerable to fire wall				
 + 115 MORE_DAMAGE_FROM_SPELL 100 21 0		//water elementals are vulnerable to fireball				
-+ 115 MORE_DAMAGE_FROM_SPELL 100 22 0		//water elementals are vulnerable to inferno				
++ 115 MORE_DAMAGE_FROM_SPELL 100 22 0		//water elementals are vulnerable to inferno		//water elementals are non-living		
 + 115 MORE_DAMAGE_FROM_SPELL 100 29 0		//water elementals are vulnerable to fire shield				
-+ 115 NON_LIVING 0 0 0		 	 	//water elementals are non-living		
++ 115 NON_LIVING 0 0 0		 	 			
 + 115 SPELL_IMMUNITY 0 16 0			//water elementals are immune to ice bolt			
 + 115 SPELL_IMMUNITY 0 20 0			//water elementals are immune to frost ring			
 + 115 SPELL_IMMUNITY 0 50 0			//water elementals are immune to mind spells (sorrow)			
 + 115 SPELL_IMMUNITY 0 59 0			//water elementals are immune to mind spells (berserk)			
-+ 115 SPELL_IMMUNITY 0 60 0			//water elementals are immune to mind spells (hypnotize)			
++ 115 SPELL_IMMUNITY 0 60 0			//water elementals are immune to mind spells (hypnotize)	//gold golems are non-living		
 + 115 SPELL_IMMUNITY 0 61 0			//water elementals are immune to mind spells (forgetfulness)			
-+ 116 NON_LIVING 0 0 0		 	   	//gold golems are non-living		
++ 116 NON_LIVING 0 0 0		 	   	//diamond golems are non-living		
 + 116 SPELL_DAMAGE_REDUCTION 85 -1 0		//gold golems reduce dmg from spells				
-+ 117 NON_LIVING 0 0 0				//diamond golems are non-living		
++ 117 NON_LIVING 0 0 0				//psychic elementals shouldn't get morale		
 + 117 SPELL_DAMAGE_REDUCTION 95 -1 0		//diamond golems reduce dmg from spells				
-+ 120 NON_LIVING 0 0 0				//psychic elementals shouldn't get morale		
++ 120 NON_LIVING 0 0 0				//magic elementals shouldn't get morale		
 + 121 LEVEL_SPELL_IMMUNITY 5 0 0	//magic elementals are immune to all spells					
-+ 121 NON_LIVING 0 0 0				//magic elementals shouldn't get morale		
-+ 123 DOUBLE_WIDE 0 0 0 			//ice elemental should be treated as double-wide			
-+ 123 NON_LIVING 0 0 0				//ice elementals shouldn't get morale		
-+ 125 NON_LIVING 0 0 0				//magma elementals shouldn't get morale		
-+ 127 NON_LIVING 0 0 0				//storm elementals shouldn't get morale		
-+ 129 NON_LIVING 0 0 0				//energy elementals shouldn't get morale		
++ 121 NON_LIVING 0 0 0				//ice elementals shouldn't get morale		
++ 123 DOUBLE_WIDE 0 0 0 			//ice elemental should be treated as double-wide	//magma elementals shouldn't get morale		
++ 123 NON_LIVING 0 0 0				//storm elementals shouldn't get morale		
++ 125 NON_LIVING 0 0 0				//energy elementals shouldn't get morale		
++ 127 NON_LIVING 0 0 0						
++ 129 NON_LIVING 0 0 0						//Crystal Dragons do not fly
 + 132 DRAGON_NATURE 0 0 0			//azure dragon is a dragon			
-- 133 FLYING						//Crystal Dragons do not fly
+- 133 FLYING						
 + 133 DRAGON_NATURE 0 0 0			//crystal dragon is a dragon			
 + 134 DRAGON_NATURE 0 0 0			//faerie dragon is a dragon			
 + 135 DRAGON_NATURE 0 0 0			//rust dragon is a dragon			
@@ -184,19 +186,19 @@
 + 135 SPELL_AFTER_ATTACK 100 80 0			//always reduce defense			
 + 136 NO_OBSTACLES_PENALTY 0 0 0			//Enchanter			
 + 137 NO_DISTANCE_PENALTY 0 0 0			//Sharpshooter			
-+ 137 NO_OBSTACLES_PENALTY 0 0 0						
-+ 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide			
-+ 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide		//first aid tent can heal	
-+ 144 FULL_HP_REGENERATION 0 0 0 			//troll	//Ammo Cart		
-+ 147 HEALER 0 0 0					//arrow turret	
++ 137 NO_OBSTACLES_PENALTY 0 0 0					//first aid tent can heal	
++ 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide	//Ammo Cart		
++ 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide		//arrow turret	
++ 144 FULL_HP_REGENERATION 0 0 0 			//troll			
++ 147 HEALER 0 0 0						
 + 148 NOT_ACTIVE 0 0 0						
-+ 149 SHOOTER 0 0 0						
-+ 151 DRAGON_NATURE 0 0 0			//diamond dragon is a dragon			
-+ 154 DRAGON_NATURE 0 0 0			//blood dragon is a dragon		//Gorynyches fly	
-+ 155 DRAGON_NATURE 0 0 0			//darkness dragon is a dragon			//hell hound doesn't fly
-+ 168 FLYING 0 0 0						//cerberus doesn't fly
--  46 FLYING		  			//psychic elemental	
--  47 FLYING			  		//magic elemental	
++ 149 SHOOTER 0 0 0					//Gorynyches fly	
++ 151 DRAGON_NATURE 0 0 0			//diamond dragon is a dragon			//hell hound doesn't fly
++ 154 DRAGON_NATURE 0 0 0			//blood dragon is a dragon			//cerberus doesn't fly
++ 155 DRAGON_NATURE 0 0 0			//darkness dragon is a dragon		//psychic elemental	
++ 168 FLYING 0 0 0					//magic elemental	
+-  46 FLYING		  				
+-  47 FLYING			  			
 - 120 DOUBLE_WIDE						
 - 121 DOUBLE_WIDE						
 - 157 SHOOTER	//Hell Hydra certainly does not shoot					
