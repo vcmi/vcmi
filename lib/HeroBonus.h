@@ -97,13 +97,13 @@ namespace PrimarySkill
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
 	BONUS_NAME(NON_LIVING) /*eg. gargoyle*/				\
-	BONUS_NAME(RANDOM_GENIE_SPELLCASTER) /*eg. master genie*/ \
+	BONUS_NAME(RANDOM_SPELLCASTER) /*eg. master genie, For Genie spells, subtype - spell id */ \
 	BONUS_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	BONUS_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
 	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
-	BONUS_NAME(DAEMON_SUMMONING) /*pit lord*/			\
+	BONUS_NAME(DAEMON_SUMMONING) /*pit lord, subtype - type of creatures, val - hp per unit*/			\
 	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive, 2 - only damage spells*/						\
 	BONUS_NAME(WATER_IMMUNITY)							\
 	BONUS_NAME(EARTH_IMMUNITY)							\
@@ -117,20 +117,19 @@ namespace PrimarySkill
 	BONUS_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \
 	BONUS_NAME(RETURN_AFTER_STRIKE)						\
 	BONUS_NAME(SELF_MORALE) /*eg. minotaur*/			\
-	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - spell power*/ \
+	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
 	BONUS_NAME(CATAPULT)								\
 	BONUS_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
 	BONUS_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect */ \
 	BONUS_NAME(GENERAL_ATTACK_REDUCTION) /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/ \
 	BONUS_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
 	BONUS_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
-	BONUS_NAME(CASTS_SPELL_WHEN_KILLED) /*similar to spell after attack*/ \
 	BONUS_NAME(FEAR)									\
 	BONUS_NAME(FEARLESS)								\
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
 	BONUS_NAME(NO_OBSTACLES_PENALTY)					\
 	BONUS_NAME(SELF_LUCK) /*halfling*/					\
-	BONUS_NAME(ENCHANTER)								\
+	BONUS_NAME(ENCHANTER)/* for Enchanter spells, subtype - spell id */ \
 	BONUS_NAME(HEALER)									\
 	BONUS_NAME(SIEGE_WEAPON)							\
 	BONUS_NAME(HYPNOTIZED)								\
@@ -164,7 +163,11 @@ namespace PrimarySkill
 	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
 	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
-	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ 
+	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
+	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection casted by units, subtype - spell id */\
+	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
+	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
+	BONUS_NAME(REBIRTH) /* val - percent of life restored */
 
 /// Struct for handling bonuses of several types. Can be transfered to any hero
 struct DLL_EXPORT Bonus

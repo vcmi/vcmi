@@ -3102,6 +3102,16 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
+				case 77: //Thunderbolt
+					text = CGI->generaltexth->allTexts[367];
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					console->addText(text);
+					text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
+					console->addText(text);
+					customSpell = true;
+					text = ""; //yeah, it's a terrible mess
+					break;
 				case 78: //Dispell helpful spells
 					text = CGI->generaltexth->allTexts[555];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
@@ -3145,7 +3155,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				}
 			}
 		}
-		if (!customSpell) //TODO: should not get here for direct damage spells
+		if (!customSpell && !sc->dmgToDisplay)
 			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
 		if (text.size())
 			console->addText(text);
@@ -3171,9 +3181,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 	if(sc->dmgToDisplay && !customSpell)
 	{
-		std::string dmgInfo = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1);
+		std::string dmgInfo = CGI->generaltexth->allTexts[376];
+		boost::algorithm::replace_first(dmgInfo, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-		console->addText(dmgInfo);
+		console->addText(dmgInfo); //todo: casualties (?)
 	}
 	waitForAnims();
 }

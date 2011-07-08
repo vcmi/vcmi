@@ -113,6 +113,7 @@
 +  87 ADDITIONAL_ATTACK 1 0 0		//wolf raider				
 +  91 SPELLCASTER 2 43 6   	   	   	//ogre magi cast bloodlust			
 +  93 SPELL_AFTER_ATTACK 20 77 0   	//thunderbirds					
++  93 SPECIFIC_SPELL_POWER 10 77 0	//10 damage per unit					
 +  96 ENEMY_DEFENCE_REDUCTION 40 0 0		//behemots				
 +  97 ENEMY_DEFENCE_REDUCTION 80 0 0		//ancient behemots				
 + 103 DEATH_STARE 10 0 0   	//mighty gorgons					

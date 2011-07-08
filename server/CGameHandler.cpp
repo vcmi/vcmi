@@ -3457,6 +3457,14 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 57: //Titan's Lightning bolt
 	case 77: //Thunderbolt (thunderbirds)
 		{
+			int spellDamage = 0;
+			if (stack)
+			{
+				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
+				if (unitSpellPower)
+					sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
+				//TODO: Faerie Dragon - CREATURE_SPELL_POWER
+			}
 			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
@@ -3469,7 +3477,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 					bsa.flags |= BattleStackAttacked::EFFECT;
 					bsa.effect = spell->mainEffectAnim;
 				}
-				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
+				if (spellDamage)
+					bsa.damageAmount = spellDamage;
+				else
+					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
 				(*it)->prepareAttacked(bsa);
