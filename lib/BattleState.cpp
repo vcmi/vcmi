@@ -2504,7 +2504,7 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 				resurrectedCount += ((base->count % resurrectedCount) * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0; //last stack has proportional chance to rebirth
 			else //only one unit
 				resurrectedCount += (base->count * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0;
-			if (hasBonusOfType(Bonus::REBIRTH, 1));
+			if (hasBonusOfType(Bonus::REBIRTH, 1))
 				amax (resurrectedCount, 1); //resurrect at least one Sacred Phoenix
 			if (resurrectedCount)
 			{

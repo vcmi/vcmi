@@ -13,7 +13,7 @@
  *
  */
 
-class Bonus;
+struct Bonus;
 class CCreature;
 class CStackInstance;
 class CStack;

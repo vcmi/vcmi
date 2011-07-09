@@ -100,7 +100,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
-	ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
+	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?
 	si8 hasDistancePenalty(const CStack * stackID, THex destHex) const; //determines if given stack has distance penalty shooting given pos
 	si8 sameSideOfWall(int pos1, int pos2) const; //determines if given positions are on the same side of wall
