@@ -2536,7 +2536,10 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 	{
 		addNewAnim(new CDefenceAnim(attackedInfos[h], this));
 		if (attackedInfos[h].rebirth)
+		{
 			displayEffect(50, attackedInfos[h].defender->position); //TODO: play reverse death animation
+			CCS->soundh->playSound(soundBase::RESURECT);
+		}
 	}
 	waitForAnims();
 	for(int h = 0; h < attackedInfos.size(); ++h)

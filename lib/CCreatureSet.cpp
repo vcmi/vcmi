@@ -574,6 +574,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::ATTACKS_ALL_ADJACENT:
 				case Bonus::ADDITIONAL_ATTACK: //TODO: what with more than one attack? Axe of Ferocity for example
 				case Bonus::FULL_HP_REGENERATION:
+				case Bonus::REBIRTH:
 				case Bonus::LIFE_DRAIN: //TODO: chance, hp percentage?
 				case Bonus::SELF_MORALE:
 				case Bonus::SELF_LUCK:
@@ -638,6 +639,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
 				case Bonus::CHANGES_SPELL_COST_FOR_ENEMY:
 				case Bonus::ENEMY_DEFENCE_REDUCTION:
+				case Bonus::REBIRTH:
 				case Bonus::DEATH_STARE:
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
@@ -737,7 +739,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_OBST.bmp"; break;
 		case Bonus::ENEMY_DEFENCE_REDUCTION:
 			fileName = "E_RDEF.bmp"; break;
-			//"E_REBIRTH.bmp"
+		case Bonus::REBIRTH:
+			fileName = "E_REBIRTH.bmp"; break;
 		case Bonus::BLOCKS_RETALIATION:
 			fileName = "E_RETAIL.bmp"; break;
 		case Bonus::ADDITIONAL_RETALIATION:

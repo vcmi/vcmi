@@ -47,3 +47,4 @@ AIR_IMMUNITY	Immune to Air
 EARTH_IMMUNITY	Immune to Earth	
 DIRECT_DAMAGE_IMMUNITY	Direct Damage Immunity	Immune to direct damage spells
 RECEPTIVE	Receptive	No Immunity to Friendly Spells
+REBIRTH	Rebirth (%d%)	Stack will rise after death

@@ -893,7 +893,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 					return;
 				}
 				return;
-			case 'r': //TODO: Rebirth on/off? makes sense?
+			case 'r':
+				b.type = Bonus::REBIRTH; //on/off? makes sense?
+				b.subtype = 0;
+				b.val = 20; //arbitrary value
 				break;
 			case 'R':
 				b.type = Bonus::BLOCKS_RETALIATION; break;
@@ -1044,7 +1047,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
-		b.val = 0; //on-off ability, no value specified
+		if (b.type != Bonus::REBIRTH)
+			b.val = 0; //on-off ability, no value specified
 		loadToIt (curVal, src, it, 4); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
