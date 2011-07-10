@@ -2501,15 +2501,16 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 		{
 			int resurrectedCount = base->count * resurrectFactor / 100;
 			if (resurrectedCount)
-				resurrectedCount += ((base->count % resurrectedCount) * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0; //last stack has proportional chance to rebirth
+				resurrectedCount += ((base->count * resurrectFactor / 100.0f - resurrectedCount) > ran()%100 / 100.0f) ? 1 : 0; //last stack has proportional chance to rebirth
 			else //only one unit
-				resurrectedCount += (base->count * resurrectFactor / 100.0f) > ran()%100 ? 1 : 0;
+				resurrectedCount += ((base->count * resurrectFactor / 100.0f) > ran()%100 / 100.0f) ? 1 : 0;
 			if (hasBonusOfType(Bonus::REBIRTH, 1))
 				amax (resurrectedCount, 1); //resurrect at least one Sacred Phoenix
 			if (resurrectedCount)
 			{
 				bsa.flags |= BattleStackAttacked::REBIRTH;
 				bsa.newAmount = resurrectedCount; //risky?
+				bsa.newHP = MaxHealth(); //resore full health
 			}
 		}
 	}

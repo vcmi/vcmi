@@ -2535,8 +2535,15 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 	for(int h = 0; h < attackedInfos.size(); ++h)
 	{
 		addNewAnim(new CDefenceAnim(attackedInfos[h], this));
+		if (attackedInfos[h].rebirth)
+			displayEffect(50, attackedInfos[h].defender->position); //TODO: play reverse death animation
 	}
 	waitForAnims();
+	for(int h = 0; h < attackedInfos.size(); ++h)
+	{
+		if (attackedInfos[h].rebirth)
+			creAnims[attackedInfos[h].defender->ID]->setType(CCreatureAnim::HOLDING);
+	}
 }
 
 void CBattleInterface::stackAttacking( const CStack * attacker, THex dest, const CStack * attacked, bool shooting )
