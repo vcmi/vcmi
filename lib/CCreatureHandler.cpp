@@ -49,10 +49,10 @@ CCreatureHandler::CCreatureHandler()
 	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
 	doubledCreatures +=  4, 14, 20, 28, 42, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
 
-	allCreatures.description = "All creatures";
-	creaturesOfLevel[0].description = "Creatures of unnormalized tier";
+	allCreatures.setDescription("All creatures");
+	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
 	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].description = "Creatures of tier " + boost::lexical_cast<std::string>(i);
+		creaturesOfLevel[i].setDescription("Creatures of tier " + boost::lexical_cast<std::string>(i));
 }
 
 int CCreature::getQuantityID(const int & quantity)
@@ -129,7 +129,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 CCreature::CCreature()
 {
 	doubleWide = false;
-	nodeType = CBonusSystemNode::CREATURE;
+	setNodeType(CBonusSystemNode::CREATURE);
 }
 void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
 {
@@ -330,12 +330,12 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.bonuses.back()->addPropagator(new CPropagatorNodeType(CBonusSystemNode::HERO));
+				ncre.getBonusList().back()->addPropagator(new CPropagatorNodeType(CBonusSystemNode::HERO));
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
 			{
 				ncre.addBonus(-1, Bonus::MORALE);;
-				ncre.bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+				ncre.getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
 				ncre.addBonus(0, Bonus::KING1);
@@ -399,12 +399,12 @@ void CCreatureHandler::loadCreatures()
 					else if(type == "ENEMY_MORALE_DECREASING")
 					{
 						cre->addBonus(-1, Bonus::MORALE);
-						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else if(type == "ENEMY_LUCK_DECREASING")
 					{
 						cre->addBonus(-1, Bonus::LUCK);
-						cre->bonuses.back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+						cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 					}
 					else
 						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
@@ -678,7 +678,7 @@ void CCreatureHandler::loadCreatures()
 		{
 			loadToIt(creid, buf, it, 4); //get index
 			b.sid = creid; //id = this particular creature ID
-			loadStackExp(b, creatures[creid]->bonuses, buf, it); //add directly to CCreature Node
+			loadStackExp(b, creatures[creid]->getBonusList(), buf, it); //add directly to CCreature Node
 			loadToIt (dump2, buf, it, 3); //crop comment
 		} while (it < buf.size());
 
@@ -1110,7 +1110,7 @@ void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string &
 	for (int g=0; g < mindSpells.size(); ++g)
 	{
 		b.subtype = mindSpells[g];
-		cre->bonuses.push_back(new Bonus(b));
+		cre->getBonusList().push_back(new Bonus(b));
 	}
 }
 
@@ -1151,9 +1151,9 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 	{
 		assert(iswith(tier, 1, 7));
 		std::vector<int> allowed;
-		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].children)
+		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
 		{
-			assert(b->nodeType == CBonusSystemNode::CREATURE);
+			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
 			int creid = static_cast<const CCreature*>(b)->idNumber;
 			if(!vstd::contains(notUsedMonsters, creid))
 

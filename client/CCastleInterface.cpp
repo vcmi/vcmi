@@ -1147,7 +1147,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 			{
 				boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
 					&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-				bl->insert(bl->end(), blAppend->begin(), blAppend->end()) ;
+				bl->insert(bl->size(), blAppend->begin(), blAppend->end()) ;
 			}
 			
 			if (bl->size())

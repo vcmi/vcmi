@@ -249,13 +249,13 @@ void GiveBonus::applyCl( CClient *cl )
 	case HERO:
 		{
 			const CGHeroInstance *h = GS(cl)->getHero(id);
-			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, *h->bonuses.back(),true);
+			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, *h->getBonusList().back(),true);
 		}
 		break;
 	case PLAYER:
 		{
 			const PlayerState *p = GS(cl)->getPlayer(id);
-			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, *p->bonuses.back(), true);
+			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, *p->getBonusList().back(), true);
 		}
 		break;
 	}

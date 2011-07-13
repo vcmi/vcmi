@@ -631,8 +631,8 @@ bool CBattleStackMoved::init()
 	}
 	//unit reversed
 
-	if(owner->moveSh <= 0)
-		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
+//	if(owner->moveSh <= 0)
+//		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 
 	//step shift calculation
 	posX = owner->creAnims[stack->ID]->pos.x, posY = owner->creAnims[stack->ID]->pos.y; // for precise calculations ;]
@@ -1008,7 +1008,7 @@ bool CShootingAnim::init()
 
 	Point xycoord = CBattleHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	Point destcoord;
-	int animSpeed = 40; // flight speed of projectile
+	
 	
 	// The "master" point where all projectile positions relate to.
 	static const Point projectileOrigin(181, 252);
@@ -1037,7 +1037,8 @@ bool CShootingAnim::init()
 			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX;
 			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY;
 		}
-
+	
+		double animSpeed = 23.0 * owner->getAnimSpeed(); // flight speed of projectile
 		spi.lastStep = sqrt((float)((destcoord.x - spi.x)*(destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / animSpeed;
 		if(spi.lastStep == 0)
 			spi.lastStep = 1;
@@ -1069,12 +1070,12 @@ bool CShootingAnim::init()
 		{
 			int curveID = it->second;
 			spi.catapultInfo = trajectoryCurves[curveID];
-			animSpeed /= 2;
+			double animSpeed = 3.318 * owner->getAnimSpeed();
 			spi.lastStep = (spi.catapultInfo->toX - spi.catapultInfo->fromX) / animSpeed;
 			spi.dx = animSpeed;
 			spi.dy = 0;
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX + 17;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY + 10;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX + 17.;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY + 10.;
 
 			// Add explosion anim
 			int xEnd = spi.x + spi.lastStep * spi.dx;
@@ -3333,7 +3334,6 @@ void CBattleInterface::setAnimSpeed(int set)
 int CBattleInterface::getAnimSpeed() const
 {
 	return curInt->sysOpts.animSpeed;
-	curInt->sysOpts.settingsChanged();
 }
 
 void CBattleInterface::activateStack()
@@ -3654,8 +3654,8 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		// of it for drawing
 		if (it->catapultInfo)
 		{
-			dst.x -= 17;
-			dst.y -= 10;
+			dst.x -= 17.;
+			dst.y -= 10.;
 		}
 
 		if(it->reverse)
@@ -4790,7 +4790,7 @@ void CStackQueue::StackBox::hover( bool on )
 
 }
 
-int CatapultProjectileInfo::calculateY(int x)
+double CatapultProjectileInfo::calculateY(double x)
 {
 	return (facA * pow(10., -3.)) * pow(x, 2.0) + facB * x + facC;
 }

@@ -799,7 +799,7 @@ CGameState::CGameState()
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
 	objCaller = new CObjectCallersHandler;
-	globalEffects.description = "Global effects";
+	globalEffects.setDescription("Global effects");
 }
 CGameState::~CGameState()
 {
@@ -2900,7 +2900,7 @@ PlayerState::PlayerState()
  : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0), 
    enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
 {
-	nodeType = PLAYER;
+	setNodeType(PLAYER);
 }
 
 std::string PlayerState::nodeName() const
@@ -3022,5 +3022,5 @@ DuelParameters::DuelParameters()
 
 TeamState::TeamState()
 {
-	nodeType = TEAM;
+	setNodeType(TEAM);
 }

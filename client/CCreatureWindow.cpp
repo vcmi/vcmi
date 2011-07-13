@@ -131,17 +131,17 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	//Basic graphics - need to calculate size
 
-	CBonusSystemNode node = CBonusSystemNode() ;
-	node.bonuses = *(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT)));
-	BonusList bl;
+	BonusList bl, blTemp;
+	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT))));
+	
 
-	while (node.bonuses.size())
+	while (blTemp.size())
 	{
-		Bonus * b = node.bonuses.front();
+		Bonus * b = blTemp.front();
 
 		bl.push_back (new Bonus(*b));
-		bl.back()->val = node.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
-		node.bonuses.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
+		bl.back()->val = blTemp.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
+		blTemp.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
 	}
 
 	std::string text;

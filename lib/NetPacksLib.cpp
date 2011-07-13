@@ -217,14 +217,21 @@ DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
 
 DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 {
-	BonusList &bonuses = (who == HERO ? gs->getHero(whoID)->bonuses : gs->getPlayer(whoID)->bonuses);
+	CBonusSystemNode *node;
+	if (who == HERO)
+		node = gs->getHero(whoID);
+	else
+		node = gs->getPlayer(whoID);
 
-	for(BonusList::iterator i = bonuses.begin(); i != bonuses.end(); i++)
+	BonusList &bonuses = node->getBonusList();
+	
+	for (int i = 0; i < bonuses.size(); i++)
 	{
-		if((*i)->source == source && (*i)->sid == id)
+		Bonus *b = bonuses[i];
+		if(b->source == source && b->sid == id)
 		{
-			bonus = **i; //backup bonus (to show to interfaces later)
-			bonuses.erase(i);
+			bonus = *b; //backup bonus (to show to interfaces later)
+			bonuses.erase(bonuses.begin() + i);
 			break;
 		}
 	}
@@ -513,7 +520,7 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 	assert(!vstd::contains(gs->map->artInstances, art));
 	gs->map->addNewArtifactInstance(art);
 
-	assert(!art->parents.size());
+	assert(!art->getParentNodes().size());
 	art->setType(art->artType);
 	if (CCombinedArtifactInstance* cart = dynamic_cast<CCombinedArtifactInstance*>(art.get()))
 		cart->createConstituents();
@@ -922,7 +929,7 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 		}
 
 	//remove bonuses that last until when stack gets new turn
-	st->bonuses.remove_if(Bonus::UntilGetsTurn);
+	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
 
 	if(vstd::contains(st->state,MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(HAD_MORALE);
@@ -946,11 +953,11 @@ void BattleResult::applyGs( CGameState *gs )
 	CGHeroInstance *h;
 	h = gs->curB->heroes[0];
 	if(h)
-		h->bonuses.remove_if(Bonus::OneBattle);
+		h->getBonusList().remove_if(Bonus::OneBattle);
 
 	h = gs->curB->heroes[1];
 	if(h) 
-		h->bonuses.remove_if(Bonus::OneBattle);
+		h->getBonusList().remove_if(Bonus::OneBattle);
 
 	if (STACK_EXP)
 	{
@@ -1018,12 +1025,12 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
 		stackAttacked.applyGs(gs);
 
-	attacker->bonuses.remove_if(Bonus::UntilAttack);
+	attacker->getBonusList().remove_if(Bonus::UntilAttack);
 
 	for(std::vector<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
 	{
 		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
-		stack->bonuses.remove_if(Bonus::UntilBeingAttacked);
+		stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
 	}
 }
 
@@ -1160,7 +1167,7 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 
 	BOOST_FOREACH(const Bonus &fromEffect, ef)
 	{
-		BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
+		BOOST_FOREACH(Bonus *stackBonus, s->getBonusList()) //TODO: optimize
 		{
 			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
 			{
@@ -1171,7 +1178,7 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 }
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
-	BOOST_FOREACH(Bonus *stackBonus, s->bonuses) //TODO: optimize
+	BOOST_FOREACH(Bonus *stackBonus, s->getBonusList()) //TODO: optimize
 	{
 		if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == ef.type && stackBonus->subtype == ef.subtype)
 		{
@@ -1279,7 +1286,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 // 			}
 			
 			//removing all features from negative spells
-			BonusList tmpFeatures = changedStack->bonuses;
+			const BonusList tmpFeatures = changedStack->getBonusList();
 			//changedStack->bonuses.clear();
 
 			BOOST_FOREACH(Bonus *b, tmpFeatures)

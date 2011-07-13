@@ -51,8 +51,8 @@ struct SStackAttackedInfo
 /// Small struct which contains information about the position and the velocity of a projectile
 struct SProjectileInfo
 {
-	int x, y; //position on the screen
-	int dx, dy; //change in position in one step
+	double x, y; //position on the screen
+	double dx, dy; //change in position in one step
 	int step, lastStep; //to know when finish showing this projectile
 	int creID; //ID of creature that shot this projectile
 	int stackID; //ID of stack
@@ -407,7 +407,7 @@ struct CatapultProjectileInfo
 	CatapultProjectileInfo(double factorA, double factorB, double factorC, int fromXX, int toXX) : facA(factorA), facB(factorB), facC(factorC),
 		fromX(fromXX), toX(toXX) { };
 
-	int calculateY(int x);
+	double calculateY(double x);
 };
 
 /// Big class which handles the overall battle interface actions and it is also responsible for

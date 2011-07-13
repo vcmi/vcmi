@@ -469,14 +469,14 @@ void processCommand(const std::string &message)
 	else if(cn == "bonuses")
 	{
 		tlog0 << "Bonuses of " << adventureInt->selection->getHoverText() << std::endl
-			<< adventureInt->selection->bonuses << std::endl;
+			<< adventureInt->selection->getBonusList() << std::endl;
 
 		tlog0 << "\nInherited bonuses:\n";
 		TCNodes parents;
 		adventureInt->selection->getParents(parents);
 		BOOST_FOREACH(const CBonusSystemNode *parent, parents)
 		{
-			tlog0 << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->bonuses << std::endl;
+			tlog0 << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
 		}
 	}
 	else if(cn == "not dialog")

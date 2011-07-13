@@ -4,6 +4,8 @@
 #include <set>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/range.hpp>
+#include <boost/thread/mutex.hpp>
 
 /*
  * HeroBonus.h, part of VCMI engine
@@ -320,43 +322,106 @@ struct DLL_EXPORT Bonus
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-class BonusList : public std::vector<Bonus*>
-{
-public:
-	int DLL_EXPORT totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	void DLL_EXPORT getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
-	void DLL_EXPORT getModifiersWDescr(TModDescr &out) const;
 
-	void DLL_EXPORT getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const;
+class DLL_EXPORT BonusList
+{
+private:
+	std::vector<Bonus*> bonuses;
+	bool belongsToTree;
+
+public:
+	BonusList(bool BelongsToTree = false);
+	BonusList(const BonusList &bonusList);
+	BonusList& operator=(const BonusList &bonusList); 
+
+	// wrapper functions of the STL vector container
+	std::vector<Bonus*>::size_type size() const { return bonuses.size(); }
+	void push_back(Bonus* const &x);
+	std::vector<Bonus*>::iterator erase (std::vector<Bonus*>::const_iterator position);
+	void clear();
+	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = NULL );
+	void insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x);
+	(Bonus *const) &operator[] (std::vector<Bonus*>::size_type n) { return bonuses[n]; }
+	(Bonus *const) &operator[] (std::vector<Bonus*>::size_type n) const { return bonuses[n]; }
+	(Bonus *const) &back() { return bonuses.back(); }
+	(Bonus *const) &front() { return bonuses.front(); }
+	(Bonus *const) &back() const { return bonuses.back(); }
+	(Bonus *const) &front() const { return bonuses.front(); }
+	std::vector<Bonus*>::const_iterator begin() { return bonuses.begin(); }
+	std::vector<Bonus*>::const_iterator end() { return bonuses.end(); }
+	std::vector<Bonus*>::const_iterator begin() const { return bonuses.begin(); }
+	std::vector<Bonus*>::const_iterator end() const { return bonuses.end(); }
+	std::vector<Bonus*>::size_type operator-=(Bonus* const &i);
+
+	// BonusList functions
+	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
+	void getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
+	void getModifiersWDescr(TModDescr &out) const;
+
+	void getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const;
 
 	//special find functions
-	DLL_EXPORT Bonus * getFirst(const CSelector &select);
-	DLL_EXPORT const Bonus * getFirst(const CSelector &select) const;
+	Bonus *getFirst(const CSelector &select);
+	const Bonus *getFirst(const CSelector &select) const;
+	int valOfBonuses(const CSelector &select) const;
 
 	void limit(const CBonusSystemNode &node); //erases bonuses using limitor
-	void DLL_EXPORT eliminateDuplicates();
+	void eliminateDuplicates();
 	
 	// remove_if implementation for STL vector types
 	template <class Predicate>
 	void remove_if(Predicate pred)
 	{
 		BonusList newList;
-		for (int i = 0; i < this->size(); i++)
+		for (unsigned int i = 0; i < bonuses.size(); i++)
 		{
-			Bonus *b = (*this)[i];
+			Bonus *b = bonuses[i];
 			if (!pred(b))
 				newList.push_back(b);
 		}
-		this->clear();
-		this->resize(newList.size());
-		std::copy(newList.begin(), newList.end(), this->begin());
+		bonuses.clear();
+		bonuses.resize(newList.size());
+		std::copy(newList.begin(), newList.end(), bonuses.begin());
+	}
+	
+	template <class InputIterator>
+	void insert(const int position, InputIterator first, InputIterator last)
+	{
+		bonuses.insert(bonuses.begin() + position, first, last);
+
+		if (belongsToTree)
+			CBonusSystemNode::incrementTreeChangedNum();
 	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<std::vector<Bonus*>&>(*this);
+		h & static_cast<std::vector<Bonus*>&>(bonuses);
 	}
+
+	friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
+	friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
 };
+
+// Extensions for BOOST_FOREACH to enable iterating of BonusList objects
+inline std::vector<Bonus*>::iterator range_begin(BonusList & x)
+{
+	return x.bonuses.begin();
+}
+
+inline std::vector<Bonus*>::iterator range_end(BonusList & x)
+{
+	return x.bonuses.end();
+}
+
+inline std::vector<Bonus*>::const_iterator range_begin(BonusList const &x)
+{
+	return x.begin();
+}
+
+inline std::vector<Bonus*>::const_iterator range_end(BonusList const &x)
+{
+	return x.end();
+}
 
 DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
@@ -404,14 +469,13 @@ public:
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
 	//interface
-	virtual const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const = 0; 
-	virtual void setCachingStr(const std::string &request) const;
+	virtual const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0; 
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector) const;
 	int valOfBonuses(const CSelector &selector) const;
-	bool hasBonus(const CSelector &selector) const;
-	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const CSelector &limit) const;
-	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector) const;
+	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
+	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
+	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
@@ -439,6 +503,16 @@ public:
 
 class DLL_EXPORT CBonusSystemNode : public IBonusBearer
 {
+private:
+	BonusList bonuses; //wielded bonuses (local or up-propagated here)
+	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
+
+	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	TNodesVector children;
+	
+	ui8 nodeType;
+	std::string description;
+	
 	static const bool cachingEnabled; 
 	mutable BonusList cachedBonuses;
 	mutable int cachedLast;	
@@ -447,26 +521,16 @@ class DLL_EXPORT CBonusSystemNode : public IBonusBearer
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests. 
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
-	mutable std::string cachingStr;
 	mutable std::map<std::string, boost::shared_ptr<BonusList> > cachedRequests;
 
 	void getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
 
 public:
-	BonusList bonuses; //wielded bonuses (local or up-propagated here)
-	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
-
-	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
-	TNodesVector children;
-
-	ui8 nodeType;
-	std::string description;
 
 	explicit CBonusSystemNode();
 	virtual ~CBonusSystemNode();
 	
-	const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
-	void setCachingStr(const std::string &request) const;
+	const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonus(const CSelector &selector) const;
 
@@ -504,6 +568,17 @@ public:
 	void deserializationFix();
 	void exportBonus(Bonus * b);
 	void exportBonuses();
+	
+	static void incrementTreeChangedNum();
+	BonusList &getBonusList();
+	const BonusList &getBonusList() const;
+	BonusList &getExportedBonusList();
+	const ui8 getNodeType() const;
+	void setNodeType(ui8 type);
+	const TNodesVector &getParentNodes() const;
+	const TNodesVector &getChildrenNodes() const;
+	const std::string &getDescription() const;
+	void setDescription(const std::string &description);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -754,3 +829,20 @@ namespace Selector
 }
 
 extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
+
+
+// Extensions for BOOST_FOREACH to enable iterating of BonusList objects
+namespace boost
+{
+	template<>
+	struct range_mutable_iterator<BonusList>
+	{
+		typedef std::vector<Bonus*>::iterator type;
+	};
+
+	template<>
+	struct range_const_iterator<::BonusList>
+	{
+		typedef std::vector<Bonus*>::const_iterator type;
+	};
+}

@@ -147,7 +147,7 @@ bool CArtifact::isBig () const
 
 CArtifact::CArtifact()
 {
-	nodeType = ARTIFACT;
+	setNodeType(ARTIFACT);
 }
 
 CArtifact::~CArtifact()
@@ -1116,7 +1116,7 @@ void CCombinedArtifactInstance::createConstituents()
 void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, int slot)
 {
 	assert(vstd::contains(*artType->constituents, art->artType->id));
-	assert(art->parents.size() == 1  &&  art->parents.front() == art->artType);
+	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.push_back(ConstituentInfo(art, slot));
 	attachTo(art);
 }

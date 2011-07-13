@@ -722,7 +722,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)
 {
-	nodeType = HERO;
+	setNodeType(HERO);
 	ID = HEROI_TYPE;
 	tacticFormationEnabled = inTownGarrison = false;
 	mana = movement = portrait = level = -1;
@@ -733,7 +733,7 @@ CGHeroInstance::CGHeroInstance()
 	type = NULL;
 	boat = NULL;
 	secSkills.push_back(std::make_pair(-1, -1));
-	speciality.nodeType = CBonusSystemNode::SPECIALITY;
+	speciality.setNodeType(CBonusSystemNode::SPECIALITY);
 	attachTo(&speciality); //do we evert need to detach it?
 }
 
@@ -1124,7 +1124,7 @@ void CGHeroInstance::UpdateSpeciality()
 	{
 		std::vector< ConstTransitivePtr<CCreature> > & creatures = VLC->creh->creatures;
 
-		BOOST_FOREACH(Bonus *it, speciality.bonuses)
+		BOOST_FOREACH(Bonus *it, speciality.getBonusList())
 		{
 			switch (it->type)
 			{
@@ -1230,7 +1230,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	
 
 	int skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = bonuses.getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
+	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
 	{
 		b->val = skillVal;
 		b->valType = skillValType;
@@ -2262,7 +2262,7 @@ void CGTownInstance::deserializationFix()
 void CGTownInstance::recreateBuildingsBonuses()
 {
 	boost::shared_ptr<BonusList> bl(new BonusList);
-	exportedBonuses.getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
+	getExportedBonusList().getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
 	BOOST_FOREACH(Bonus *b, *bl)
 		removeBonus(b);
 
@@ -3704,7 +3704,7 @@ void CGArtifact::initObj()
 		subID = 1;
 
 	assert(storedArtifact->artType);
-	assert(storedArtifact->parents.size());
+	assert(storedArtifact->getParentNodes().size());
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
@@ -6692,7 +6692,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	Bonus *b = bonuses.getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
+	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -6731,7 +6731,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	 
 	//-1 modifier for any Necropolis unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
-	Bonus *undeadModifier = bonuses.getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
+	Bonus *undeadModifier = getBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
  	if(vstd::contains(factions,4))
 	{
 		if(!undeadModifier)

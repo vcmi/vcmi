@@ -182,7 +182,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & bonuses;
+		h & heroes & towns & availableHeroes & dwellings & getBonusList();
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);

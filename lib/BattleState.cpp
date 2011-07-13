@@ -490,7 +490,7 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
-			BOOST_FOREACH(const Bonus *b, VLC->creh->creatures[g]->bonuses)
+			BOOST_FOREACH(const Bonus *b, VLC->creh->creatures[g]->getBonusList())
 			{
 				if ( (b->type == Bonus::KING3 && spLevel >= 3) || //expert
 					(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
@@ -602,7 +602,7 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 		static bool hasAdvancedAirShield(const CStack * stack)
 		{
 
-			BOOST_FOREACH(const Bonus *it, stack->bonuses)
+			BOOST_FOREACH(const Bonus *it, stack->getBonusList())
 			{
 				if (it->source == Bonus::SPELL_EFFECT && it->sid == 28 && it->val >= 2)
 				{
@@ -1718,7 +1718,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		curB->belligerents[i]->getRedAncestors(nodes);
 		BOOST_FOREACH(CBonusSystemNode *n, nodes)
 		{
-			BOOST_FOREACH(Bonus *b, n->exportedBonuses)
+			BOOST_FOREACH(Bonus *b, n->getExportedBonusList())
 			{
 				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
 				{
@@ -1944,7 +1944,8 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		boost::shared_ptr<BonusList> immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
-			std::remove_if(immunities->begin(), immunities->end(), NegateRemover);
+			//std::remove_if(immunities->begin(), immunities->end(), NegateRemover);
+			immunities->remove_if(NegateRemover);
 		}
 
 		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id) ||
@@ -2074,13 +2075,13 @@ CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	assert(base);
 	type = base->type;
 	count = baseAmount = base->count;
-	nodeType = STACK_BATTLE;
+	setNodeType(STACK_BATTLE);
 }
 
 CStack::CStack()
 {
 	init();
-	nodeType = STACK_BATTLE;
+	setNodeType(STACK_BATTLE);
 }
 
 CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
@@ -2088,7 +2089,7 @@ CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
-	nodeType = STACK_BATTLE;
+	setNodeType(STACK_BATTLE);
 }
 
 void CStack::init()
@@ -2108,7 +2109,7 @@ void CStack::init()
 void CStack::postInit()
 {
 	assert(type);
-	assert(parents.size());
+	assert(getParentNodes().size());
 
 	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
@@ -2127,7 +2128,7 @@ ui32 CStack::Speed( int turn /*= 0*/ ) const
 	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED) && Selector::turns(turn));
 
 	int percentBonus = 0;
-	BOOST_FOREACH(const Bonus *b, bonuses)
+	BOOST_FOREACH(const Bonus *b, getBonusList())
 	{
 		if(b->type == Bonus::STACKS_SPEED)
 		{
@@ -2148,7 +2149,7 @@ ui32 CStack::Speed( int turn /*= 0*/ ) const
 
 const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
-	BOOST_FOREACH(Bonus *it, bonuses)
+	BOOST_FOREACH(Bonus *it, getBonusList())
 	{
 		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
 		{
@@ -2328,7 +2329,7 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 ui8 CStack::howManyEffectsSet(ui16 id) const
 {
 	ui8 ret = 0;
-	BOOST_FOREACH(const Bonus *it, bonuses)
+	BOOST_FOREACH(const Bonus *it, getBonusList())
 		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
 		{
 			++ret;
@@ -2453,8 +2454,8 @@ const CGHeroInstance * CStack::getMyHero() const
 	if(base)
 		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
 	else //we are attached directly?
-		BOOST_FOREACH(const CBonusSystemNode *n, parents)
-		if(n->nodeType == HERO)
+		BOOST_FOREACH(const CBonusSystemNode *n, getParentNodes())
+		if(n->getNodeType() == HERO)
 			dynamic_cast<const CGHeroInstance *>(n);
 
 	return NULL;

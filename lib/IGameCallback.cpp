@@ -515,7 +515,7 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<ui16> &out, ui16 leve
 {
 
 	CSpell *spell;
-	for (int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+	for (unsigned int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
 		spell = VLC->spellh->spells[i];
 		if (isAllowed (0, spell->id) && spell->level == level)
@@ -974,7 +974,7 @@ int CGameInfoCallback::getHeroCount( int player, bool includeGarrisoned ) const
 	if(includeGarrisoned)
 		return p->heroes.size();
 	else
-		for(int i=0; i < p->heroes.size(); i++)
+		for(unsigned int i = 0; i < p->heroes.size(); i++)
 			if(!p->heroes[i]->inTownGarrison)
 				ret++;
 	return ret;
@@ -1018,7 +1018,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		for (size_t j=0; j < (*i).second.towns.size(); ++j)
+		for (size_t j = 0; j < (*i).second.towns.size(); ++j)
 		{
 			if ((*i).first==player  
 				|| (isVisible((*i).second.towns[j],player) && !onlyOur))
@@ -1205,7 +1205,7 @@ void IGameEventRealizer::setObjProperty(int objid, int prop, si64 val)
 	SetObjectProperty sob;
 	sob.id = objid;
 	sob.what = prop;
-	sob.val = val;
+	sob.val = static_cast<ui32>(val);
 	commitPackage(&sob);
 }
 

@@ -44,7 +44,7 @@
 extern SDL_Surface * screen;
 using namespace boost::assign;
 
-const boost::shared_ptr<BonusList> CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+const boost::shared_ptr<BonusList> CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
 {
 	boost::shared_ptr<BonusList> out(new BonusList);
 	boost::shared_ptr<BonusList> heroBonuses = hero->getAllBonuses(selector, limit, hero);
