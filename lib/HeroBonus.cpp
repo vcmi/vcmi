@@ -191,7 +191,7 @@ void BonusList::push_back(Bonus* const &x)
 		CBonusSystemNode::incrementTreeChangedNum();
 }
 
-std::vector<Bonus*>::iterator BonusList::erase(std::vector<Bonus*>::const_iterator position)
+std::vector<Bonus*>::iterator BonusList::erase(std::vector<Bonus*>::iterator position)
 {
 	if (belongsToTree)
 		CBonusSystemNode::incrementTreeChangedNum();

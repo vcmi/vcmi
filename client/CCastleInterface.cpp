@@ -1139,15 +1139,19 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 			boost::shared_ptr<BonusList> bl;
 			const CGHeroInstance *hero = town->garrisonHero;
 			if (hero)
+			{
 				bl = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
 			                      && Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-			
+			}
 			hero = town->visitingHero;
 			if (hero)
 			{
 				boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
 					&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-				bl->insert(bl->size(), blAppend->begin(), blAppend->end()) ;
+				if (town->garrisonHero)
+					bl->insert(bl->size(), blAppend->begin(), blAppend->end());
+				else
+					bl = blAppend;
 			}
 			
 			if (bl->size())

@@ -337,18 +337,18 @@ public:
 	// wrapper functions of the STL vector container
 	std::vector<Bonus*>::size_type size() const { return bonuses.size(); }
 	void push_back(Bonus* const &x);
-	std::vector<Bonus*>::iterator erase (std::vector<Bonus*>::const_iterator position);
+	std::vector<Bonus*>::iterator erase (std::vector<Bonus*>::iterator position);
 	void clear();
 	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = NULL );
 	void insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x);
-	(Bonus *const) &operator[] (std::vector<Bonus*>::size_type n) { return bonuses[n]; }
-	(Bonus *const) &operator[] (std::vector<Bonus*>::size_type n) const { return bonuses[n]; }
-	(Bonus *const) &back() { return bonuses.back(); }
-	(Bonus *const) &front() { return bonuses.front(); }
-	(Bonus *const) &back() const { return bonuses.back(); }
-	(Bonus *const) &front() const { return bonuses.front(); }
-	std::vector<Bonus*>::const_iterator begin() { return bonuses.begin(); }
-	std::vector<Bonus*>::const_iterator end() { return bonuses.end(); }
+	Bonus *const &operator[] (std::vector<Bonus*>::size_type n) { return bonuses[n]; }
+	Bonus *const &operator[] (std::vector<Bonus*>::size_type n) const { return bonuses[n]; }
+	Bonus *const &back() { return bonuses.back(); }
+	Bonus *const &front() { return bonuses.front(); }
+	Bonus *const &back() const { return bonuses.back(); }
+	Bonus *const &front() const { return bonuses.front(); }
+	std::vector<Bonus*>::iterator begin() { return bonuses.begin(); }
+	std::vector<Bonus*>::iterator end() { return bonuses.end(); }
 	std::vector<Bonus*>::const_iterator begin() const { return bonuses.begin(); }
 	std::vector<Bonus*>::const_iterator end() const { return bonuses.end(); }
 	std::vector<Bonus*>::size_type operator-=(Bonus* const &i);
@@ -385,13 +385,7 @@ public:
 	}
 	
 	template <class InputIterator>
-	void insert(const int position, InputIterator first, InputIterator last)
-	{
-		bonuses.insert(bonuses.begin() + position, first, last);
-
-		if (belongsToTree)
-			CBonusSystemNode::incrementTreeChangedNum();
-	}
+	void insert(const int position, InputIterator first, InputIterator last);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -830,6 +824,15 @@ namespace Selector
 
 extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
 
+// BonusList template that requires full interface of CBonusSystemNode
+template <class InputIterator>
+void BonusList::insert(const int position, InputIterator first, InputIterator last)
+{
+	bonuses.insert(bonuses.begin() + position, first, last);
+
+	if (belongsToTree)
+		CBonusSystemNode::incrementTreeChangedNum();
+}
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
 namespace boost
@@ -841,7 +844,7 @@ namespace boost
 	};
 
 	template<>
-	struct range_const_iterator<::BonusList>
+	struct range_const_iterator<BonusList>
 	{
 		typedef std::vector<Bonus*>::const_iterator type;
 	};
