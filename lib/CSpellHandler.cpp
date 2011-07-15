@@ -325,6 +325,8 @@ void CSpellHandler::loadSpells()
 	}
 	ast.close();
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
+	//forgetfulness needs to get targets automaticlaly on expert level
+	boost::replace_first(spells[61]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 
 	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
 }

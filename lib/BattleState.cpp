@@ -1912,8 +1912,41 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		if (spell->positiveness == 1 && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 			return SpellCasting::OK;
 
-		if ((spell->id == 41 || spell->id == 42) && subject->hasBonusOfType(Bonus::UNDEAD)) //undeads are immune to bless & curse
-			return SpellCasting::STACK_IMMUNE_TO_SPELL; //TODO: more general logic for new spells?
+		switch (spell->id) //TODO: more general logic for new spells?
+		{
+			case 25: //Destroy Undead
+				if (!subject->hasBonusOfType(Bonus::UNDEAD))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+				break;
+			case 24: // Death Ripple
+			case 41:
+			case 42: //undeads are immune to bless & curse
+				if (subject->hasBonusOfType(Bonus::UNDEAD))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL; 
+				break;
+			case 61: //Forgetfulness
+				if (!subject->hasBonusOfType(Bonus::SHOOTER))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL;
+				break;
+			case 78:	//dispel helpful spells
+			{
+				boost::shared_ptr<BonusList> spellBon = subject->getSpellBonuses();
+				bool hasPositiveSpell = false;
+				BOOST_FOREACH(const Bonus * b, *spellBon)
+				{
+					if(VLC->spellh->spells[b->sid]->positiveness > 0)
+					{
+						hasPositiveSpell = true;
+						break;
+					}
+				}
+				if(!hasPositiveSpell)
+				{
+					return SpellCasting::NO_SPELLS_TO_DISPEL;
+				}
+			}
+				break;
+		}
 		
 		bool damageSpell = (VLC->spellh->damageSpells.find(spell->id) != VLC->spellh->damageSpells.end());
 
@@ -1952,24 +1985,6 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 			( immunities->size() > 0 && immunities->totalValue() >= spell->level && spell->level))
 		{ 
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
-		}
-		//dispel helpful spells
-		if(spell->id == 78)
-		{
-			boost::shared_ptr<BonusList> spellBon = subject->getSpellBonuses();
-			bool hasPositiveSpell = false;
-			BOOST_FOREACH(const Bonus * b, *spellBon)
-			{
-				if(VLC->spellh->spells[b->sid]->positiveness > 0)
-				{
-					hasPositiveSpell = true;
-					break;
-				}
-			}
-			if(!hasPositiveSpell)
-			{
-				return SpellCasting::NO_SPELLS_TO_DISPEL;
-			}
 		}
 	}
 	else
