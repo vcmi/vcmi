@@ -249,7 +249,9 @@ public:
 
 	void run(bool resume);
 	void newTurn();
-	void handleAfterAttackCasting( const BattleAttack & bat );
+	void handleAttackBeforeCasting (const BattleAttack & bat);
+	void handleAfterAttackCasting (const BattleAttack & bat);
+	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot);
 	friend class CVCMIServer;
 	friend class CScriptCallback;

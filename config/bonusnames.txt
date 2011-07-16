@@ -5,6 +5,7 @@ RETURN_AFTER_STRIKE	Attack and Return	Returns after melee attack
 SPELL_RESISTANCE_AURA	Aura of Resistance	Nearby stacks get %d% resistance
 TWO_HEX_ATTACK_BREATH	Breath	Breath Attack (2-hex range)
 SPELL_AFTER_ATTACK	Caster - %s	%d% chance to cast after attack
+SPELL_BEFORE_ATTACK	Caster - %s	%d% chance to cast before attack
 CATAPULT	Catapult	Attacks siege walls
 JOUSTING	Champion Charge	+5% damage per hex travelled
 DOUBLE_DAMAGE_CHANCE	Death Blow	%d% chance for double damage

@@ -620,6 +620,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
+				case Bonus::SPELL_BEFORE_ATTACK:
 				{
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
@@ -650,6 +651,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bonus->val));
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
+				case Bonus::SPELL_BEFORE_ATTACK:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				case Bonus::SPELL_IMMUNITY:
@@ -683,7 +685,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::SPELL_AFTER_ATTACK:
 			fileName = "E_CAST.bmp"; break;
 			//"E_CAST1.bmp"
-			//"E_CAST2.bmp"
+		case Bonus::SPELL_BEFORE_ATTACK:
+			fileName ="E_CAST2.bmp"; break;
 			//"E_CASTER.bmp"
 		case Bonus::JOUSTING:
 			fileName = "E_CHAMP.bmp"; break;

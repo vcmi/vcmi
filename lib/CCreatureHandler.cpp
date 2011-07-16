@@ -1029,6 +1029,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.type= Bonus::HATE;
 		b.subtype = stringToNumber(mod);
 		break;
+	case 'p':
+		b.type = Bonus::SPELL_BEFORE_ATTACK;
+		b.subtype = stringToNumber(mod);
+		b.additionalInfo = 3; //always expert?
+		break;
 	default:
 		tlog3 << "Not parsed bonus " << buf << mod << "\n";
 		return;

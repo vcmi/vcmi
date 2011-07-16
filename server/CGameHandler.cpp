@@ -3046,6 +3046,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//attack
 			BattleAttack bat;
 			prepareAttack(bat, curStack, stackAtEnd, distance, ba.additionalInfo);
+			handleAttackBeforeCasting(bat); //only before first attack
 			sendAndApply(&bat);
 			handleAfterAttackCasting(bat);
 
@@ -3096,6 +3097,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleAttack bat;
 			bat.flags |= BattleAttack::SHOT;
 			prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
+			handleAttackBeforeCasting(bat);
 			sendAndApply(&bat);
 			handleAfterAttackCasting(bat);
 
@@ -3107,7 +3109,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				prepareAttack(bat2, curStack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat2);
 			}
-
+			//TODO: allow more than one additional attack
 			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
 				&& curStack->alive()
 				&& destStack->alive()
@@ -3473,7 +3475,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 					continue;
 
 				BattleStackAttacked bsa;
-				if (destination > -1 && (*it)->coversPos(destination)) //display effect only upon primary target of area spell
+				if (destination > -1 && (*it)->coversPos(destination) || spell->range[spellLvl] == "X") //display effect only upon primary target of area spell
 				{
 					bsa.flags |= BattleStackAttacked::EFFECT;
 					bsa.effect = spell->mainEffectAnim;
@@ -4317,13 +4319,12 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	return true;
 }
 
-void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
+void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker)
 {
-	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
-	if( attacker->hasBonusOfType(Bonus::SPELL_AFTER_ATTACK) )
+	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<ui32> spellsToCast;
-		boost::shared_ptr<BonusList> spells = attacker->getBonuses(Selector::type(Bonus::SPELL_AFTER_ATTACK));
+		boost::shared_ptr<BonusList> spells = attacker->getBonuses(Selector::type(attackMode));
 		BOOST_FOREACH(const Bonus *sf, *spells)
 		{
 			spellsToCast.insert (sf->subtype);
@@ -4344,7 +4345,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 			if(oneOfAttacked == NULL) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
-			boost::shared_ptr<BonusList> spellsByType = attacker->getBonuses(Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID));
+			boost::shared_ptr<BonusList> spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
 			BOOST_FOREACH(const Bonus *sf, *spellsByType)
 			{
 				amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
@@ -4352,24 +4353,36 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				if (meleeRanged == 0 || (meleeRanged == 1 && bat.shot()) || (meleeRanged == 2 && !bat.shot()))
 					castMe = true;
 			}
-			int chance = attacker->valOfBonuses((Selector::typeSubtype(Bonus::SPELL_AFTER_ATTACK, spellID)));
+			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, spellID)));
 			amin (chance, 100);
 			int destination = oneOfAttacked->position;
 
 			const CSpell * spell = VLC->spellh->spells[spellID];
-			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, SpellCasting::AFTER_ATTACK_CASTING, oneOfAttacked->position)
-				!= SpellCasting::OK)
+			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, SpellCasting::AFTER_ATTACK_CASTING, oneOfAttacked->position) != SpellCasting::OK)
 				continue;
 
 			//check if spell should be casted (probability handling)
 			if(rand()%100 >= chance)
 				continue;
 
-			//casting
+			//casting //TODO: check if spell can be blocked or target is immune
 			if (castMe) //stacks use 0 spell power. If needed, default = 3 or custom value is used
 				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, 0, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
+}
+
+void CGameHandler::handleAttackBeforeCasting (const BattleAttack & bat)
+{
+	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	attackCasting(bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no detah stare / acid bretah needed?
+}
+
+void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
+{
+	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
+
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
 	{
 		int staredCreatures = 0;
