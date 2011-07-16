@@ -325,7 +325,8 @@ namespace SpellCasting
 		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET
 	};
 
-	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING}; //also includes cast before attack
+	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
+			MAGIC_MIRROR};
 }
 
 namespace Buildings

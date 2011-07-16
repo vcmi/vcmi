@@ -2213,6 +2213,10 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.back().valType = Bonus::INDEPENDENT_MAX;
 	 	sf.back().sid = sse.sid;
 	 	break;
+	case 36: //magic mirror
+		sf.push_back(featureGenerator(Bonus::MAGIC_MIRROR, -1, power, sse.turnsRemain));
+		sf.back().valType = Bonus::INDEPENDENT_MAX;
+	 	sf.back().sid = sse.sid;
 	case 41: //bless
 	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
 	 	sf.back().sid = sse.sid;

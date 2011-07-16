@@ -3460,7 +3460,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 77: //Thunderbolt (thunderbirds)
 		{
 			int spellDamage = 0;
-			if (stack)
+			if (stack && mode != SpellCasting::MAGIC_MIRROR)
 			{
 				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
 				if (unitSpellPower)
@@ -3502,6 +3502,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 32: //protection from water
 	case 33: //protection from earth
 	case 34: //anti-magic
+	case 36: //magic mirror
 	case 41: //bless
 	case 42: //curse
 	case 43: //bloodlust
@@ -3532,7 +3533,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	case 80: //Acid Breath defense reduction
 		{
 			int stackSpellPower = 0;
-			if (stack)
+			if (stack && mode != SpellCasting::MAGIC_MIRROR)
 			{
 				stackSpellPower = stack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
 			}
@@ -3722,6 +3723,29 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	}
 
 	sendAndApply(&sc);
+	//Magic Mirror effect
+	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
+	{
+		for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+		{
+			int mirrorChance = (*it)->valOfBonuses(Bonus::MAGIC_MIRROR);
+			if(mirrorChance > rand()%100)
+			{
+			std::vector<CStack *> mirrorTargets;
+			std::vector<CStack *> & battleStacks = gs->curB->stacks;
+			for (int it=0; it < gs->curB->stacks.size(); ++it)
+			{
+				if(battleStacks[it]->owner == casterSide) //get enemy stacks which cna be affected by this spell
+				{
+					if (!gs->curB->battleIsImmune(NULL, spell, SpellCasting::MAGIC_MIRROR, battleStacks[it]->position))
+						mirrorTargets.push_back(battleStacks[it]);
+				}
+			}
+				int targetHex = mirrorTargets[rand() % mirrorTargets.size()]->position;
+				handleSpellCasting(spellID, 0, targetHex, 1 - casterSide, (*it)->owner, NULL, (caster ? caster : NULL), usedSpellPower, SpellCasting::MAGIC_MIRROR, (*it));
+			}
+		}
+	}
 }
 
 bool CGameHandler::makeCustomAction( BattleAction &ba )
