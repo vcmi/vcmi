@@ -3210,12 +3210,12 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 			displayEffect(CGI->spellh->spells[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(*ci)->position);
 		}
 	}
-	else if (sse.stacks.size() == 1 && sse.effect.size() == 1)
+	else if (sse.stacks.size() == 1 && sse.effect.size() == 2)
 	{
-		const Bonus & bns = sse.effect.back();
+		const Bonus & bns = sse.effect.front();
 		if (bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
 		{
-			//defensive stance (I hope)
+			//defensive stance
 			const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
 			int txtid = 120;
 
@@ -3223,7 +3223,9 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 				txtid++; //move to plural text
 
 			char txt[4000];
-			int val = stack->Defense() - (stack->Defense() * 100 )/ (100 + bns.val);
+			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
+			defenseBonuses.remove_if(Selector::durationType(Bonus::STACK_GETS_TURN)); //remove bonuses gained from defensive stance
+			int val = stack->Defense() - defenseBonuses.totalValue();
 			sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
 			console->addText(txt);
 		}

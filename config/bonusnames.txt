@@ -9,6 +9,7 @@ SPELL_BEFORE_ATTACK	Caster - %s	%d% chance to cast before attack
 CATAPULT	Catapult	Attacks siege walls
 JOUSTING	Champion Charge	+5% damage per hex travelled
 DOUBLE_DAMAGE_CHANCE	Death Blow	%d% chance for double damage
+DEFENSIVE_STANCE	Defense Bonus	+%d Defense when defending
 ADDITIONAL_ATTACK	Double Strike	Attacks twice
 DRAGON_NATURE	Dragon	Creature has a Dragon Nature
 LIFE_DRAIN	Drain life	Drains life equal to damage dealt

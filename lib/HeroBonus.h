@@ -125,6 +125,7 @@ namespace PrimarySkill
 	BONUS_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
 	BONUS_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect */ \
 	BONUS_NAME(GENERAL_ATTACK_REDUCTION) /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/ \
+	BONUS_NAME(DEFENSIVE_STANCE) /* val - bonus to defense while defending */ \
 	BONUS_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
 	BONUS_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
 	BONUS_NAME(FEAR)									\

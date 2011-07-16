@@ -600,6 +600,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::MANA_DRAIN:
 				case Bonus::HP_REGENERATION:
 				case Bonus::ADDITIONAL_RETALIATION:
+				case Bonus::DEFENSIVE_STANCE:
 				case Bonus::DOUBLE_DAMAGE_CHANCE:
 				case Bonus::DARKNESS: //Darkness Dragons any1?
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
@@ -694,7 +695,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_DBLOW.bmp"; break;
 		case Bonus::DEATH_STARE:
 			fileName = "E_DEATH.bmp"; break;
-			//"E_DEFBON.bmp"
+		case Bonus::DEFENSIVE_STANCE:
+			fileName = "E_DEFBON.bmp"; break;
 		case Bonus::NO_DISTANCE_PENALTY:
 			fileName = "E_DIST.bmp"; break;
 		case Bonus::ADDITIONAL_ATTACK:

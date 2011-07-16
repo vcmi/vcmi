@@ -2960,9 +2960,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::DEFEND: //defend
 		{
-			//defensive stance
+			//defensive stance //TODO: remove this bonus when stack becomes active
 			SetStackEffect sse;
 			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL) );
+			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, gs->curB->stacks[ba.stackNumber]->valOfBonuses(Bonus::DEFENSIVE_STANCE), 
+				 -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE));
 			sse.stacks.push_back(ba.stackNumber);
 			sendAndApply(&sse);
 
@@ -3731,18 +3733,21 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			int mirrorChance = (*it)->valOfBonuses(Bonus::MAGIC_MIRROR);
 			if(mirrorChance > rand()%100)
 			{
-			std::vector<CStack *> mirrorTargets;
-			std::vector<CStack *> & battleStacks = gs->curB->stacks;
-			for (int it=0; it < gs->curB->stacks.size(); ++it)
-			{
-				if(battleStacks[it]->owner == casterSide) //get enemy stacks which cna be affected by this spell
+				std::vector<CStack *> mirrorTargets;
+				std::vector<CStack *> & battleStacks = gs->curB->stacks;
+				for (int it=0; it < gs->curB->stacks.size(); ++it)
 				{
-					if (!gs->curB->battleIsImmune(NULL, spell, SpellCasting::MAGIC_MIRROR, battleStacks[it]->position))
-						mirrorTargets.push_back(battleStacks[it]);
+					if(battleStacks[it]->owner == casterSide) //get enemy stacks which cna be affected by this spell
+					{
+						if (!gs->curB->battleIsImmune(NULL, spell, SpellCasting::MAGIC_MIRROR, battleStacks[it]->position))
+							mirrorTargets.push_back(battleStacks[it]);
+					}
 				}
-			}
-				int targetHex = mirrorTargets[rand() % mirrorTargets.size()]->position;
-				handleSpellCasting(spellID, 0, targetHex, 1 - casterSide, (*it)->owner, NULL, (caster ? caster : NULL), usedSpellPower, SpellCasting::MAGIC_MIRROR, (*it));
+				if (mirrorTargets.size())
+				{
+					int targetHex = mirrorTargets[rand() % mirrorTargets.size()]->position;
+					handleSpellCasting(spellID, 0, targetHex, 1 - casterSide, (*it)->owner, NULL, (caster ? caster : NULL), usedSpellPower, SpellCasting::MAGIC_MIRROR, (*it));
+				}
 			}
 		}
 	}
