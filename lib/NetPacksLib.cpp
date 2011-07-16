@@ -231,7 +231,7 @@ DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			bonuses.erase(bonuses.begin() + i);
+			bonuses.erase(i);
 			break;
 		}
 	}

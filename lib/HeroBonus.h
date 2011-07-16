@@ -338,7 +338,7 @@ public:
 	// wrapper functions of the STL vector container
 	std::vector<Bonus*>::size_type size() const { return bonuses.size(); }
 	void push_back(Bonus* const &x);
-	std::vector<Bonus*>::iterator erase (std::vector<Bonus*>::iterator position);
+	std::vector<Bonus*>::iterator erase (const int position);
 	void clear();
 	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = NULL );
 	void insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x);
@@ -348,8 +348,8 @@ public:
 	Bonus *const &front() { return bonuses.front(); }
 	Bonus *const &back() const { return bonuses.back(); }
 	Bonus *const &front() const { return bonuses.front(); }
-	std::vector<Bonus*>::iterator begin() { return bonuses.begin(); }
-	std::vector<Bonus*>::iterator end() { return bonuses.end(); }
+
+	// There should be no non-const access to provide solid,robust bonus caching
 	std::vector<Bonus*>::const_iterator begin() const { return bonuses.begin(); }
 	std::vector<Bonus*>::const_iterator end() const { return bonuses.end(); }
 	std::vector<Bonus*>::size_type operator-=(Bonus* const &i);
@@ -398,6 +398,7 @@ public:
 };
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
+// Don't touch/call this functions
 inline std::vector<Bonus*>::iterator range_begin(BonusList & x)
 {
 	return x.bonuses.begin();
@@ -465,9 +466,9 @@ public:
 	// * root is node on which call was made (NULL will be replaced with this)
 	//interface
 	virtual const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0; 
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector) const;  //out: pairs<modifier value, modifier description>
-	int getBonusesCount(const CSelector &selector) const;
-	int valOfBonuses(const CSelector &selector) const;
+	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
+	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
+	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
 	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;

@@ -1941,7 +1941,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	{
 		mouseHoveredStack = -1;
 		int myNumber = -1; //number of hovered tile
-		for(int g=0; g<BFIELD_SIZE; ++g)
+		for(int g = 0; g < BFIELD_SIZE; ++g)
 		{
 			if(bfield[g].hovered && bfield[g].strictHovered)
 			{

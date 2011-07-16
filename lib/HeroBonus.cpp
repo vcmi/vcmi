@@ -13,6 +13,7 @@
 #include "CGeneralTextHandler.h"
 #include "BattleState.h"
 #include "CArtHandler.h"
+#include <boost/lexical_cast.hpp>
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
@@ -58,43 +59,45 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	BOOST_FOREACH(Bonus *i, bonuses)
+	for (size_t i = 0; i < bonuses.size(); i++)
 	{
-		switch(i->valType)
+		Bonus *b = bonuses[i];
+
+		switch(b->valType)
 		{
 		case Bonus::BASE_NUMBER:
-			base += i->val;
+			base += b->val;
 			break;
 		case Bonus::PERCENT_TO_ALL:
-			percentToAll += i->val;
+			percentToAll += b->val;
 			break;
 		case Bonus::PERCENT_TO_BASE:
-			percentToBase += i->val;
+			percentToBase += b->val;
 			break;
 		case Bonus::ADDITIVE_VALUE:
-			additive += i->val;
+			additive += b->val;
 			break;
 		case Bonus::INDEPENDENT_MAX:
 			if (!hasIndepMax)
 			{
-				indepMax = i->val;
+				indepMax = b->val;
 				hasIndepMax = true;
 			}
 			else
 			{
-				amax(indepMax, i->val);
+				amax(indepMax, b->val);
 			}
 
 			break;
 		case Bonus::INDEPENDENT_MIN:
 			if (!hasIndepMin)
 			{
-				indepMin = i->val;
+				indepMin = b->val;
 				hasIndepMin = true;
 			}
 			else
 			{
-				amin(indepMin, i->val);
+				amin(indepMin, b->val);
 			}
 
 			break;
@@ -137,8 +140,11 @@ Bonus * BonusList::getFirst(const CSelector &select)
 
 void BonusList::getModifiersWDescr(TModDescr &out) const
 {
-	BOOST_FOREACH(Bonus *i, bonuses)
-		out.push_back(std::make_pair(i->val, i->Description()));
+	for (size_t i = 0; i < bonuses.size(); i++)
+	{
+		Bonus *b = bonuses[i];
+		out.push_back(std::make_pair(b->val, b->Description()));
+	}
 }
 
 void BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const
@@ -191,11 +197,11 @@ void BonusList::push_back(Bonus* const &x)
 		CBonusSystemNode::incrementTreeChangedNum();
 }
 
-std::vector<Bonus*>::iterator BonusList::erase(std::vector<Bonus*>::iterator position)
+std::vector<Bonus*>::iterator BonusList::erase(const int position)
 {
 	if (belongsToTree)
 		CBonusSystemNode::incrementTreeChangedNum();
-	return bonuses.erase(position);
+	return bonuses.erase(bonuses.begin() + position);
 }
 
 void BonusList::clear()
@@ -241,17 +247,20 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
 {
+	std::stringstream cachingStr;
+	cachingStr << "type_" << type << "s_" << subtype;
+	
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s && Selector::subtype(subtype);
 
-	return valOfBonuses(s);
+	return valOfBonuses(s, cachingStr.str());
 }
 
-int IBonusBearer::valOfBonuses(const CSelector &selector) const
+int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	CSelector limit = 0;
-	boost::shared_ptr<BonusList> hlp = getAllBonuses(selector, limit, NULL);
+	boost::shared_ptr<BonusList> hlp = getAllBonuses(selector, limit, NULL, cachingStr);
 	return hlp->totalValue();
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
@@ -261,36 +270,37 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachin
 
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
 {
+	std::stringstream cachingStr;
+	cachingStr << "type_" << type << "s_" << subtype;
+
 	CSelector s = Selector::type(type);
-	std::string cachingStr = "";
 	if(subtype != -1)
 		s = s && Selector::subtype(subtype);
-	else
-	{
-		cachingStr = "type_";
-		cachingStr += ((char) type);
-	}
 
-	return hasBonus(s, cachingStr);
+	return hasBonus(s, cachingStr.str());
 }
 
 void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
 {
-	getModifiersWDescr(out, subtype != -1 ? Selector::typeSubtype(type, subtype) : Selector::type(type));
+	std::stringstream cachingStr;
+	cachingStr << "type_" << type << "s_" << subtype;
+	getModifiersWDescr(out, subtype != -1 ? Selector::typeSubtype(type, subtype) : Selector::type(type), cachingStr.str());
 }
 
-void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector) const
+void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr /* =""*/) const
 {
-	getBonuses(selector)->getModifiersWDescr(out);
+	getBonuses(selector, cachingStr)->getModifiersWDescr(out);
 }
 int IBonusBearer::getBonusesCount(int from, int id) const
 {
-	return getBonusesCount(Selector::source(from, id));
+	std::stringstream cachingStr;
+	cachingStr << "source_" << from << "id_" << id;
+	return getBonusesCount(Selector::source(from, id), cachingStr.str());
 }
 
-int IBonusBearer::getBonusesCount(const CSelector &selector) const
+int IBonusBearer::getBonusesCount(const CSelector &selector, const std::string &cachingStr /* =""*/) const
 {
-	return getBonuses(selector)->size();
+	return getBonuses(selector, cachingStr)->size();
 }
 
 const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
@@ -305,7 +315,9 @@ const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &sel
 
 bool IBonusBearer::hasBonusFrom(ui8 source, ui32 sourceID) const
 {
-	return hasBonus(Selector::source(source,sourceID));
+	std::stringstream cachingStr;
+	cachingStr << "source_" << source << "id_" << sourceID;
+	return hasBonus(Selector::source(source,sourceID), cachingStr.str());
 }
 
 int IBonusBearer::MoraleVal() const
@@ -313,8 +325,8 @@ int IBonusBearer::MoraleVal() const
 	if(hasBonusOfType(Bonus::NON_LIVING) || hasBonusOfType(Bonus::UNDEAD) ||
 		hasBonusOfType(Bonus::NO_MORALE) || hasBonusOfType(Bonus::SIEGE_WEAPON))
 		return 0;
-
-	int ret = valOfBonuses(Selector::type(Bonus::MORALE));
+	
+	int ret = valOfBonuses(Bonus::MORALE);
 
 	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
 		amax(ret, +1);
@@ -326,8 +338,8 @@ int IBonusBearer::LuckVal() const
 {
 	if(hasBonusOfType(Bonus::NO_LUCK))
 		return 0;
-
-	int ret = valOfBonuses(Selector::type(Bonus::LUCK));
+	
+	int ret = valOfBonuses(Bonus::LUCK);
 	
 	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
 		amax(ret, +1);
@@ -339,7 +351,7 @@ si32 IBonusBearer::Attack() const
 {
 	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 
-	if(int frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
+	if (int frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
 	{
 		ret += frenzyPower * Defense(false);
 	}
@@ -368,11 +380,15 @@ ui16 IBonusBearer::MaxHealth() const
 
 ui32 IBonusBearer::getMinDamage() const
 {
-	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1));
+	std::stringstream cachingStr;
+	cachingStr << "type_" << Bonus::CREATURE_DAMAGE << "s_0Otype_" << Bonus::CREATURE_DAMAGE << "s_1";
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1), cachingStr.str());
 }
 ui32 IBonusBearer::getMaxDamage() const
 {
-	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2));
+	std::stringstream cachingStr;
+	cachingStr << "type_" << Bonus::CREATURE_DAMAGE << "s_0Otype_" << Bonus::CREATURE_DAMAGE << "s_2";
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2), cachingStr.str());
 }
 
 si32 IBonusBearer::manaLimit() const
@@ -396,19 +412,21 @@ int IBonusBearer::getPrimSkillLevel(int id) const
 
 si32 IBonusBearer::magicResistance() const
 {
-	return valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
+	return valOfBonuses(Bonus::MAGIC_RESISTANCE);
 }
 
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
-	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING)));
+	std::stringstream cachingStr;
+	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING;
+	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING), cachingStr.str()));
 }
 
 const boost::shared_ptr<BonusList> IBonusBearer::getSpellBonuses() const
 {
-	std::string cachingStr = "source_";
-	cachingStr += (char) Bonus::SPELL_EFFECT;
-	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr);
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT;
+	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str());
 }
 
 Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
@@ -458,9 +476,6 @@ void CBonusSystemNode::getAllBonusesRec(boost::shared_ptr<BonusList> out, const 
 		p->getAllBonusesRec(out, selector, limit, root ? root : this, caching);
 	
 	bonuses.getBonuses(out, selector, limit, caching);
-
-	if(!root)
-		out->limit(*this);
 }
 
 const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
@@ -468,9 +483,12 @@ const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelect
 	boost::shared_ptr<BonusList> ret(new BonusList());
 	if (CBonusSystemNode::cachingEnabled)
 	{
+		// Exclusive access for one thread
 		static boost::mutex m;
 		boost::mutex::scoped_lock lock(m);
 
+		// If the bonus system tree changes(state of a single node or the relations to each other) then 
+		// cache all bonus objects. Selector objects doesn't matter.
 		if (cachedLast != treeChanged)
 		{
 			getAllBonusesRec(ret, selector, limit, this, true);
@@ -480,31 +498,44 @@ const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelect
 			cachedRequests.clear();
 			cachedLast = treeChanged;
 		}
-	
+		
+		// If a bonus system request comes with a caching string then look up in the map if there are any
+		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
 		if (cachingStr != "")
 		{
 			std::map<std::string, boost::shared_ptr<BonusList> >::iterator it(cachedRequests.find(cachingStr));
 			if (cachedRequests.size() > 0 && it != cachedRequests.end())
 			{
 				ret = it->second;
+				if (!root)
+					ret->limit(*this);
+
 				return ret;
 			}
 		}
-	
-		cachedBonuses.getBonuses(ret, selector, limit, false);
-		if (!root)
-			ret->limit(*this);
 
+		// Get the bonus results
+		cachedBonuses.getBonuses(ret, selector, limit, false);
+		
+		// Sets the results with the given caching string into the map
 		if (cachingStr != "")
 			cachedRequests[cachingStr] = ret;
-
+		
+		// Calculate limiters
+		if (!root)
+			ret->limit(*this);
 
 		return ret;
 	}
 	else
 	{
+		// Get bonus results without caching enabled.
 		getAllBonusesRec(ret, selector, limit, root, false);
 		ret->eliminateDuplicates();
+
+		if(!root)
+			ret->limit(*this);
+
 		return ret;
 	}
 }
