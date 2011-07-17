@@ -201,8 +201,8 @@ void CGameHandler::levelUpHero(int ID)
 	if (hero->battle)
 		tlog1<<"Battle found\n";
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1))
-	{// no more level-ups
-		afterBattleCallback(0);
+	{// no more level-ups, call end battle
+		afterBattleCallback();
 		return;
 	}
 		
@@ -267,41 +267,20 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
 	}
 
-	if (hero->exp >= VLC->heroh->reqExp(hero->level+2)) // more level-ups
+	if(hlu.skills.size() > 1) //apply and ask for secondary skill
 	{
-		if(hlu.skills.size() > 1) //apply and ask for secondary skill
-		{
-			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
-			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
-		}
-		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
-		{
-			sendAndApply(&hlu);
-			levelUpHero(ID, hlu.skills.back());
-		}
-		else //apply and send info
-		{
-			sendAndApply(&hlu);
-			levelUpHero(ID);
-		}
+		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
+		applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
 	}
-	else //call function after battle was finished and all exp given
+	else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
 	{
-		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::afterBattleCallback,this,_1)),_1));
-		if(hlu.skills.size() > 1) //apply and ask for secondary skill
-		{
-			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
-		}
-		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
-		{
-			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
-			levelUpHero(ID, hlu.skills.back());
-		}
-		else //apply and send info
-		{
-			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
-			levelUpHero(ID);
-		}
+		sendAndApply(&hlu);
+		levelUpHero(ID, hlu.skills.back());
+	}
+	else //apply and send info
+	{
+		sendAndApply(&hlu);
+		levelUpHero(ID);
 	}
 }
 
@@ -457,6 +436,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
 		if(battleResult.data->exp[1] && hero2)
 			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
+		if (!(hero1 || hero2)) //possible?
+			afterBattleCallback(); //clear stuff for sanity
 	}
 
 	sendAndApply(&resultsApplied);
@@ -518,7 +499,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 }
 
-void CGameHandler::afterBattleCallback(int ID) //object interaction after leveling up is done
+void CGameHandler::afterBattleCallback() //object interaction after leveling up is done
 {
 	if(battleEndCallback && *battleEndCallback)
 	{

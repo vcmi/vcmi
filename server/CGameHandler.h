@@ -182,9 +182,9 @@ public:
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker = 255);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
-	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed 
+	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed
 	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
-	void afterBattleCallback(int ID); // called after level-ups are finished, ID is just temporarily for compatibility
+	void afterBattleCallback(); // called after level-ups are finished, ID is just temporarily for compatibility
 	//////////////////////////////////////////////////////////////////////////
 
 	void commitPackage(CPackForClient *pack) OVERRIDE;
