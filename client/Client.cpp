@@ -100,13 +100,13 @@ void CClient::init()
 }
 
 CClient::CClient(void)
-:waitingRequest(false)
+:waitingRequest(0)
 {
 	init();
 }
 
 CClient::CClient(CConnection *con, StartInfo *si)
-:waitingRequest(false)
+:waitingRequest(0)
 {
 	init();
 	newGame(con,si);
@@ -431,19 +431,19 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 	hotSeat = (humanPlayers > 1);
 
-	std::vector<FileInfo> scriptModules;
-	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/Scripting", "." LIB_EXT);
-	BOOST_FOREACH(FileInfo &m, scriptModules)
-	{
-		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
-		privilagedGameEventReceivers.push_back(nm);
-		privilagedBattleEventReceivers.push_back(nm);
-		nm->giveActionCB(this);
-		nm->giveInfoCB(this);
-		nm->init();
-
-		erm = nm; //something tells me that there'll at most one module and it'll be ERM
-	}
+// 	std::vector<FileInfo> scriptModules;
+// 	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/Scripting", "." LIB_EXT);
+// 	BOOST_FOREACH(FileInfo &m, scriptModules)
+// 	{
+// 		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
+// 		privilagedGameEventReceivers.push_back(nm);
+// 		privilagedBattleEventReceivers.push_back(nm);
+// 		nm->giveActionCB(this);
+// 		nm->giveInfoCB(this);
+// 		nm->init();
+// 
+// 		erm = nm; //something tells me that there'll at most one module and it'll be ERM
+// 	}
 }
 
 template <typename Handler>
@@ -585,8 +585,8 @@ void CClient::battleStarted(const BattleInfo * info)
 	else
 		def = NULL;
 
-
-	new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
+	if(att || def || gs->scenarioOps->mode == StartInfo::DUEL)
+		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
 
 	if(vstd::contains(battleints,info->sides[0]))
 		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);

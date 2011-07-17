@@ -238,6 +238,13 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	const CGHeroInstance * ho = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
+	if(!ho)
+	{
+		//AI hero left the visible area (we can't obtain info)
+		//TODO - probably needs some handling
+		return;
+	}
+
 	adventureInt->centerOn(ho); //actualizing screen pos
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.draw(screen2);

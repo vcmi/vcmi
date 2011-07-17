@@ -78,7 +78,7 @@ public:
 
 	CScriptingModule *erm;
 
-	CondSh<bool> waitingRequest;
+	CondSh<int> waitingRequest;
 
 	std::queue<CPack *> packs;
 	boost::mutex packsM;

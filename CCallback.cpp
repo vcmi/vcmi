@@ -58,6 +58,7 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 void CCallback::selectionMade(int selection, int asker)
 {
 	QueryReply pack(asker,selection);
+	boost::unique_lock<boost::mutex> lock(*cl->serv->wmx);
 	*cl->serv << &pack;
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
@@ -188,9 +189,12 @@ void CBattleCallback::sendRequest(const T* request)
 
 	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
 	if(waitTillRealize)
-		cl->waitingRequest.set(true);
+		cl->waitingRequest.set(typeList.getTypeID<T>());
 
-	*cl->serv << request;
+	{
+		boost::unique_lock<boost::mutex> lock(*cl->serv->wmx);
+		*cl->serv << request;
+	}
 
 	if(waitTillRealize)
 	{

@@ -99,7 +99,7 @@ public:
 	}
 
 	ui16 getTypeID(const std::type_info *type);
-	template <typename T> ui16 getTypeID(const T * t)
+	template <typename T> ui16 getTypeID(const T * t = NULL)
 	{
 		return getTypeID(getTypeInfo(t));
 	}

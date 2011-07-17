@@ -709,7 +709,7 @@ void PackageApplied::applyCl( CClient *cl )
 {
 	ui8 player = GS(cl)->currentPlayer;
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
-	if(cl->waitingRequest.get())
+	if(cl->waitingRequest.get() == packType)
 		cl->waitingRequest.setn(false);
 }
 
@@ -730,6 +730,7 @@ void PlayerBlocked::applyCl( CClient *cl )
 
 void YourTurn::applyCl( CClient *cl )
 {
+	CALL_IN_ALL_INTERFACES(playerStartsTurn, player);
 	CALL_ONLY_THAT_INTERFACE(player,yourTurn);
 }
 

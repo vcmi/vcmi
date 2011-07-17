@@ -65,7 +65,11 @@ bool CloseServer::applyGh( CGameHandler *gh )
 
 bool EndTurn::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT(GS(gh)->currentPlayer);
+	int player = GS(gh)->currentPlayer;
+	ERROR_IF_NOT(player);
+	if(gh->states.checkFlag(player, &PlayerStatus::engagedIntoBattle))
+		COMPLAIN_AND_RETURN("Cannot end turn when in battle!");
+
 	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
 	return true;
 }

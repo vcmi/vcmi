@@ -646,15 +646,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
 
 				//send confirmation that we've applied the package
-				if(pack->type != 6000) //WORKAROUND - not confirm query replies TODO: reconsider
+				PackageApplied applied;
+				applied.result = result;
+				applied.packType = packType;
 				{
-					PackageApplied applied;
-					applied.result = result;
-					applied.packType = packType;
-					{
-						boost::unique_lock<boost::mutex> lock(*c.wmx);
-						c << &applied;
-					}
+					boost::unique_lock<boost::mutex> lock(*c.wmx);
+					c << &applied;
 				}
 			}
 			else
@@ -1757,6 +1754,7 @@ void CGameHandler::sendMessageTo( CConnection &c, const std::string &message )
 {
 	SystemMessage sm;
 	sm.text = message;
+	boost::unique_lock<boost::mutex> lock(*c.wmx);
 	c << &sm;
 }
 
@@ -1925,9 +1923,8 @@ void CGameHandler::sendToAllClients( CPackForClient * info )
 	tlog5 << "Sending to all clients a package of type " << typeid(*info).name() << std::endl;
 	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
 	{
-		(*i)->wmx->lock();
+		boost::unique_lock<boost::mutex> lock(*(*i)->wmx);
 		**i << info;
-		(*i)->wmx->unlock();
 	}
 }
 

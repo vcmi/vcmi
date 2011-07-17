@@ -110,4 +110,5 @@ public:
 	virtual void objectRemoved(const CGObjectInstance *obj){}; //eg. collected resource, picked artifact, beaten hero
 	virtual void playerBlocked(int reason){}; //reason: 0 - upcoming battle
 	virtual void gameOver(ui8 player, bool victory){}; //player lost or won the game
+	virtual void playerStartsTurn(ui8 player){};
 };
