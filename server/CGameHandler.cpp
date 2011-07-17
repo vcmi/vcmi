@@ -200,8 +200,11 @@ void CGameHandler::levelUpHero(int ID)
 	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
 	if (hero->battle)
 		tlog1<<"Battle found\n";
-	if (hero->exp < VLC->heroh->reqExp(hero->level+1)) // no more level-ups
+	if (hero->exp < VLC->heroh->reqExp(hero->level+1))
+	{// no more level-ups
+		afterBattleCallback(0);
 		return;
+	}
 		
 	//give prim skill
 	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
@@ -513,8 +516,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&sah);
 	}
-	if(!(battleEndCallback && *battleEndCallback))
-		delete battleResult.data;
 }
 
 void CGameHandler::afterBattleCallback(int ID) //object interaction after leveling up is done
