@@ -264,20 +264,41 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
 	}
 
-	if(hlu.skills.size() > 1) //apply and ask for secondary skill
+	if (hero->exp >= VLC->heroh->reqExp(hero->level+2)) // more level-ups
 	{
-		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
-		applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
+		if(hlu.skills.size() > 1) //apply and ask for secondary skill
+		{
+			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
+			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
+		}
+		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+		{
+			sendAndApply(&hlu);
+			levelUpHero(ID, hlu.skills.back());
+		}
+		else //apply and send info
+		{
+			sendAndApply(&hlu);
+			levelUpHero(ID);
+		}
 	}
-	else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+	else //call function after battle was finished and all exp given
 	{
-		sendAndApply(&hlu);
-		levelUpHero(ID, hlu.skills.back());
-	}
-	else //apply and send info
-	{
-		sendAndApply(&hlu);
-		levelUpHero(ID);
+		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::afterBattleCallback,this,_1)),_1));
+		if(hlu.skills.size() > 1) //apply and ask for secondary skill
+		{
+			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
+		}
+		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+		{
+			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
+			levelUpHero(ID, hlu.skills.back());
+		}
+		else //apply and send info
+		{
+			applyAndAsk(&hlu, hero->tempOwner, callback); //call levelUpHero when client responds
+			levelUpHero(ID);
+		}
 	}
 }
 
@@ -437,14 +458,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	sendAndApply(&resultsApplied);
 
-	if(battleEndCallback && *battleEndCallback) //TODO: object interaction after level dialog is handled
-	{
-		(*battleEndCallback)(battleResult.data);
-		delete battleEndCallback;
-		battleEndCallback = 0;
-	}
-
-
 	if(duel)
 	{
 		CSaveFile resultFile("result.vdrst");
@@ -500,10 +513,20 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&sah);
 	}
-
-	delete battleResult.data;
+	if(!(battleEndCallback && *battleEndCallback))
+		delete battleResult.data;
 }
 
+void CGameHandler::afterBattleCallback(int ID) //object interaction after leveling up is done
+{
+	if(battleEndCallback && *battleEndCallback)
+	{
+		(*battleEndCallback)(battleResult.data);
+		delete battleEndCallback;
+		battleEndCallback = 0;
+	}
+	delete battleResult.data;
+}
 void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex)
 {
 	bat.bsa.clear();
