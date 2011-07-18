@@ -161,15 +161,18 @@ class CCreaInfo : public CIntObject
 	const CGTownInstance * town;
 	const CCreature *creature;
 	int level;
+	bool showAvailable;
 	
 	CAnimImage *picture;
 	CLabel * label;
 
 	int AddToString(std::string from, std::string & to, int numb);
+	std::string genGrowthText();
 	
 public:
-	CCreaInfo(int posX, int posY, const CGTownInstance *Town, int Level);
+	CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
 	
+	void update();
 	void hover(bool on);
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);

@@ -60,14 +60,23 @@ std::string readString(const unsigned char * bufor, int &i)
 	return ret;
 }
 
-unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType type, int * length)
+void CLodHandler::convertName(std::string &filename, std::string *extension)
 {
-	std::string fname = defName;
-	std::transform(fname.begin(), fname.end(), fname.begin(), (int(*)(int))toupper);
-	int dotPos = fname.find_last_of('.');
-	if ( dotPos != -1 )
-		fname.erase(dotPos);
+	std::transform(filename.begin(), filename.end(), filename.begin(), toupper);
 
+	size_t dotPos = filename.find_last_of("/.");
+
+	if ( dotPos != std::string::npos && filename[dotPos] == '.')
+	{
+		if (extension)
+			*extension = filename.substr(dotPos);
+		filename.erase(dotPos);
+	}
+}
+
+unsigned char * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
+{
+	convertName(fname);
 	boost::unordered_set<Entry>::const_iterator en_it = entries.find(Entry(fname, type));
 	
 	if(en_it == entries.end()) //nothing's been found
@@ -127,15 +136,20 @@ unsigned char * CLodHandler::giveFile(const std::string defName, LodFileType typ
 	return NULL;
 }
 
-bool CLodHandler::haveFile(const std::string name, LodFileType type)
+std::string CLodHandler::getFileName(std::string lodFile, LodFileType type)
 {
-	std::string fname = name;
-	std::transform(fname.begin(), fname.end(), fname.begin(), (int(*)(int))toupper);
-	int dotPos = fname.find_last_of('.');
-	if ( dotPos != -1 )
-		fname.erase(dotPos);
-		
-	return vstd::contains(entries, Entry(fname, type));
+	convertName(lodFile);
+	boost::unordered_set<Entry>::const_iterator it = entries.find(Entry(lodFile, type));
+
+	if (it != entries.end())
+		return it->realName;
+	return "";
+}
+
+bool CLodHandler::haveFile(std::string name, LodFileType type)
+{
+	convertName(name);
+	return vstd::contains(entries, Entry(name, type));
 }
 
 DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char *& out, int wBits)
@@ -219,20 +233,12 @@ void CLodHandler::extractFile(const std::string FName, const std::string name)
 	}
 }
 
-void CLodHandler::initEntry(Entry &e, const std::string name)
+void CLodHandler::initEntry(Entry &e, std::string name)
 {
-	e.name = name;
-	//file names stored in upper case without extension
-	std::transform(e.name.begin(), e.name.end(), e.name.begin(), toupper);
 	std::string ext;
-		
-	size_t dotPos = e.name.find_last_of('.');
-	if ( dotPos < e.name.size() )
-	{
-		ext = e.name.substr(dotPos);
-		e.name.erase(dotPos);
-	}
-	
+	convertName(name, &ext);
+	e.name = name;
+
 	std::map<std::string, LodFileType>::iterator it = extMap.find(ext);
 	if (it == extMap.end())
 		e.type = FILE_OTHER;
@@ -254,6 +260,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 	EXT(".JPG", FILE_GRAPHICS);
 	EXT(".PCX", FILE_GRAPHICS);
 	EXT(".PNG", FILE_GRAPHICS);
+	EXT(".TGA", FILE_GRAPHICS);
 	#undef EXT
 	
 	myDir = dirName;
@@ -328,7 +335,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 		tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
 	}
 }
-std::string CLodHandler::getTextFile(const std::string name, LodFileType type)
+std::string CLodHandler::getTextFile(std::string name, LodFileType type)
 {
 	int length=-1;
 	unsigned char* data = giveFile(name, type, &length);

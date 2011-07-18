@@ -1101,10 +1101,17 @@ int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 	return getHeroCount(player,includeGarrisoned);
 }
 
-const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId) const
+const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId, bool includeGarrisoned) const
 {
 	const PlayerState *p = getPlayer(player);
 	ERROR_RET_VAL_IF(!p, "No player info", NULL);
+
+	if (!includeGarrisoned)
+	{
+		for(unsigned int i = 0; i < p->heroes.size() && i<=serialId; i++)
+			if(p->heroes[i]->inTownGarrison)
+				serialId++;
+	}
 	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->heroes.size(), "No player info", NULL);
 	return p->heroes[serialId];
 }

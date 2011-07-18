@@ -4513,6 +4513,16 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 		garr->addSplitBtn(split);
 	}
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
+
+	std::string titleText;
+	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
+		titleText = CGI->generaltexth->allTexts[709];
+	else
+	{
+		titleText = CGI->generaltexth->allTexts[35];
+		boost::algorithm::replace_first(titleText, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
+	}
+	title = new CLabel(275, 30, FONT_BIG, CENTER, tytulowy, titleText);
 }
 
 CGarrisonWindow::~CGarrisonWindow()
@@ -4523,18 +4533,8 @@ void CGarrisonWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	std::string title;
-	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
-		title = CGI->generaltexth->allTexts[709];
-	else
-	{
-		title = CGI->generaltexth->allTexts[35];
-		boost::algorithm::replace_first(title, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
-	}
-
 	blitAtLoc(graphics->flags->ourImages[garr->armedObjs[1]->getOwner()].bitmap,28,124,to);
 	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
-	printAtMiddleLoc(title,275,30,FONT_BIG,tytulowy,to);
 }
 
 IShowActivable::IShowActivable()
@@ -5143,7 +5143,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 void CArtifactsOfHero::dispose()
 {
 	//delNull(curHero);
-	unmarkSlots(false);
+	//unmarkSlots(false);
 	CCS->curh->dragAndDropCursor(NULL);
 }
 

@@ -1072,6 +1072,7 @@ class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
 	CPicture *bg; //background surface
+	CLabel *title; 
 	AdventureMapButton *quit;
 
 	void close();

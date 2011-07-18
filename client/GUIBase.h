@@ -283,6 +283,17 @@ struct Rect : public SDL_Rect
 			return Rect();
 		}
 	}
+	Rect operator|(const Rect &p) const //union of two rects
+	{
+		Rect ret;
+		ret.x =  std::min(p.x, this->x);
+		ret.y =  std::min(p.y, this->y);
+		int x2 = std::max(p.x+p.w, this->x+this->w);
+		int y2 = std::max(p.y+p.h, this->y+this->h);
+		ret.w = x2 -ret.x;
+		ret.h = y2 -ret.y;
+		return ret;
+	}
 };
 
 /// Defines a show method

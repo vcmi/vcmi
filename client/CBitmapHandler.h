@@ -47,6 +47,9 @@ public:
 
 namespace BitmapHandler
 {
+	//Load file from specific LOD
+	SDL_Surface * loadBitmapFromLod(CLodHandler *lod, std::string fname, bool setKey=true);
+	//Load file from any LODs
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
 };
 

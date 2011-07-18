@@ -103,16 +103,18 @@ class DLL_EXPORT CLodHandler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 
 public:
+	//convert string to upper case and remove extension. If extension!=NULL -> it will be copied here (including dot)
+	void convertName(std::string &filename, std::string *extension=NULL);
 
 	boost::unordered_set<Entry> entries;
 
 	CLodHandler();
 	~CLodHandler();
 	void init(const std::string lodFile, const std::string dirName);
-		
-	unsigned char * giveFile(const std::string defName, LodFileType type=FILE_ANY, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
-	bool haveFile(const std::string name, LodFileType type=FILE_ANY);//check if file is present in lod
-	std::string getTextFile(const std::string name, LodFileType type=FILE_TEXT); //extracts one file
+	std::string getFileName(std::string lodFile, LodFileType type=FILE_ANY);
+	unsigned char * giveFile(std::string defName, LodFileType type=FILE_ANY, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
+	bool haveFile(std::string name, LodFileType type=FILE_ANY);//check if file is present in lod
+	std::string getTextFile(std::string name, LodFileType type=FILE_TEXT); //extracts one file
 	void extractFile(const std::string FName, const std::string name); //extracts a specific file
 
 	static unsigned char * getUnpackedFile(const std::string & path, int * sizeOut); //loads given file, decompresses and returns

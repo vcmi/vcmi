@@ -577,22 +577,7 @@ SDLImage::SDLImage(SDL_Surface * from, bool extraRef):
 SDLImage::SDLImage(std::string filename, bool compressed):
 	margins(0,0)
 {
-	if (spriteh->haveFile(filename, FILE_GRAPHICS))
-	{
-		int size;
-		unsigned char * pic=NULL;
-		pic = spriteh->giveFile(filename, FILE_GRAPHICS, &size);
-		surf = IMG_Load_RW( SDL_RWFromMem((void*)pic, size), 1);
-		delete [] pic;
-	}
-	else if(bitmaph->haveFile(filename, FILE_GRAPHICS))
-	{
-		surf = BitmapHandler::loadBitmap(filename);
-	}
-	else
-	{
-		surf = NULL;
-	}
+	surf = BitmapHandler::loadBitmap(filename);
 
 	if (surf == NULL)
 	{

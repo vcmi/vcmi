@@ -17,10 +17,9 @@
  *
  */
 
-boost::mutex bitmap_handler_mx;
-
 extern DLL_EXPORT CLodHandler *bitmaph;
 extern DLL_EXPORT CLodHandler *bitmaph_ab;
+extern DLL_EXPORT CLodHandler *spriteh;
 
 void CPCXConv::openPCX(char * PCX, int len)
 {
@@ -53,7 +52,7 @@ SDL_Surface * CPCXConv::getSurface() const
 
 	int width = -1, height = -1;
 	Epcxformat format;
-	int fSize,y;//,i; //TODO use me 'i'
+	int fSize,y;
 	bool check1, check2;
 	unsigned char add;
 	int it=0;
@@ -149,26 +148,23 @@ bool isPCX(const unsigned char *header)//check whether file can be PCX according
 	return fSize == width*height || fSize == width*height*3;
 }
 
-SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
+SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fname, bool setKey)
 {
 	if(!fname.size())
 	{
 		tlog2 << "Call to loadBitmap with void fname!\n";
 		return NULL;
 	}
-	SDL_Surface * ret=NULL;
-	int size;
-	unsigned char * file = 0;
-	if (bitmaph->haveFile(fname, FILE_GRAPHICS))
-		file = bitmaph->giveFile(fname, FILE_GRAPHICS, &size);
-	else if (bitmaph_ab->haveFile(fname, FILE_GRAPHICS))
-		file = bitmaph_ab->giveFile(fname, FILE_GRAPHICS, &size);
-
-	if (!file)
+	if (!lod->haveFile(fname, FILE_GRAPHICS))
 	{
 		tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
 		return NULL;
 	}
+
+	SDL_Surface * ret=NULL;
+	int size;
+	unsigned char * file = 0;
+	file = lod->giveFile(fname, FILE_GRAPHICS, &size);
 	
 	if (isPCX(file))
 	{//H3-style PCX
@@ -185,10 +181,37 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	else
 	{ //loading via SDL_Image
-		ret = IMG_Load_RW( SDL_RWFromMem((void*)file, size), 1);
+		std::string filename = lod->getFileName(fname, FILE_GRAPHICS);
+		std::string ext;
+		lod->convertName(filename, &ext);
+
+		if (ext == ".TGA")//Special case - targa can't be loaded by IMG_Load_RW (no magic constants in header)
+		{
+			SDL_RWops *rw = SDL_RWFromMem((void*)file, size);
+			ret = IMG_LoadTGA_RW( rw );
+			SDL_FreeRW(rw);
+		}
+		else
+			ret = IMG_Load_RW( SDL_RWFromMem((void*)file, size), 1);
+
 		if (!ret)
 			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
 		delete [] file;
 	}
 	return ret;
+}
+
+SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
+{
+	if (bitmaph->haveFile(fname, FILE_GRAPHICS))
+		return loadBitmapFromLod(bitmaph, fname, setKey);
+
+	if (bitmaph_ab->haveFile(fname, FILE_GRAPHICS))
+		return loadBitmapFromLod(bitmaph_ab, fname, setKey);
+
+	if (spriteh->haveFile(fname, FILE_GRAPHICS))
+		return loadBitmapFromLod(spriteh, fname, setKey);
+	
+	tlog1<<"Failed to find file "<<fname<<"\n";
+	return NULL;
 }

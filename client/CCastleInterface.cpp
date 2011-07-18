@@ -1032,25 +1032,25 @@ void CCastleInterface::recreateIcons()
 	creainfo.clear();
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(14+55*i, 459, town, i));
+		creainfo.push_back(new CCreaInfo(Point(14+55*i, 459), town, i));
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(14+55*i, 507, town, i+4));
+		creainfo.push_back(new CCreaInfo(Point(14+55*i, 507), town, i+4));
 }
 
-CCreaInfo::CCreaInfo(int posX, int posY, const CGTownInstance *Town, int Level):
+CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact, bool ShowAvailable):
 	town(Town),
-	level(Level)
+	level(Level),
+	showAvailable(ShowAvailable)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	pos.x += posX;
-	pos.y += posY;
-	pos.w = 48;
-	pos.h = 48;
+	pos += position;
 	
 	if ( town->creatures.size() <= level || town->creatures[level].second.empty())
 	{
 		level = -1;
+		label = NULL;
+		picture = NULL;
 		return;//No creature
 	}
 	used = LCLICK | RCLICK | HOVER;
@@ -1058,8 +1058,42 @@ CCreaInfo::CCreaInfo(int posX, int posY, const CGTownInstance *Town, int Level):
 	unsigned int creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->creatures[creatureID];
 
-	label = new CLabel(24, 40, FONT_SMALL, CENTER, zwykly, boost::lexical_cast<std::string>(town->creatureGrowth(level)));
 	picture = new CAnimImage("CPRSMALL", creatureID+2, 0, 8, 0);
+
+	std::string value;
+	if (showAvailable)
+		value = boost::lexical_cast<std::string>(town->creatures[level].first);
+	else
+		value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
+
+	if (compact)
+	{
+		label = new CLabel(40, 32, FONT_TINY, BOTTOMRIGHT, zwykly, value);
+		pos.x += 8;
+		pos.w = 32;
+		pos.h = 32;
+	}
+	else
+	{
+		label = new CLabel(24, 40, FONT_SMALL, CENTER, zwykly, value);
+		pos.w = 48;
+		pos.h = 48;
+	}
+}
+
+void CCreaInfo::update()
+{
+	if (label)
+	{
+		std::string value;
+		if (showAvailable)
+			value = boost::lexical_cast<std::string>(town->creatures[level].first);
+		else
+			value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
+
+		if (value != label->text)
+			label->setTxt(value);
+	}
 }
 
 void CCreaInfo::hover(bool on)
@@ -1076,9 +1110,14 @@ void CCreaInfo::hover(bool on)
 }
 
 void CCreaInfo::clickLeft(tribool down, bool previousState)
-{//FIXME: castleInt should be present - may be NULL if no castle window opened
-	if(previousState && (!down) && LOCPLINT->castleInt)
-		LOCPLINT->castleInt->builds->enterDwelling(level);
+{
+	if(previousState && (!down))
+	{
+		int offset = LOCPLINT->castleInt? (-87) : 0;
+
+		GH.pushInt(new CRecruitmentWindow(town, level, town, 
+		           boost::bind(&CCallback::recruitCreatures, LOCPLINT->cb, town, _1, _2, level), offset));
+	}
 }
 
 int CCreaInfo::AddToString(std::string from, std::string & to, int numb)
@@ -1090,88 +1129,98 @@ int CCreaInfo::AddToString(std::string from, std::string & to, int numb)
 	return numb;
 }
 
+std::string CCreaInfo::genGrowthText()
+{
+	int summ=0;
+	std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
+	boost::algorithm::replace_first(descr,"%s", creature->nameSing);
+	boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(town->creatureGrowth(level)));
+
+	descr +="\n"+CGI->generaltexth->allTexts[590];
+	summ = creature->growth;
+	boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
+
+	if ( level>=0 && level<CREATURES_PER_TOWN)
+	{
+
+		if ( vstd::contains(town->builtBuildings, Buildings::CASTLE))
+			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CASTLE]->Name()+" %+d",descr,summ);
+		else if ( vstd::contains(town->builtBuildings, Buildings::CITADEL))
+			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CITADEL]->Name()+" %+d",descr,summ/2);
+
+		summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //double growth or plague
+			summ * creature->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
+
+		summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
+			summ * town->valOfGlobalBonuses
+			(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion
+
+		if(town->town->hordeLvl[0]==level)//horde, x to summ
+		if( vstd::contains(town->builtBuildings, Buildings::HORDE_1) || vstd::contains(town->builtBuildings, Buildings::HORDE_1_UPGR))
+			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_1]->Name()+" %+d",descr,
+				creature->hordeGrowth);
+
+		if(town->town->hordeLvl[1]==level)//horde, x to summ
+		if( vstd::contains(town->builtBuildings, Buildings::HORDE_2) || vstd::contains(town->builtBuildings, Buildings::HORDE_2_UPGR))
+			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_2]->Name()+" %+d",descr,
+				creature->hordeGrowth);
+
+		int cnt = 0;
+
+		std::vector< const CGDwelling * > myDwellings = LOCPLINT->cb->getMyDwellings();
+		for (std::vector<const CGDwelling*>::const_iterator it = myDwellings.begin(); it != myDwellings.end(); ++it)
+			if (CGI->creh->creatures[town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
+				cnt++;//external dwellings count to summ
+		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
+
+		boost::shared_ptr<BonusList> bl;
+		const CGHeroInstance *hero = town->garrisonHero;
+		if (hero)
+		{
+			bl = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
+							  && Selector::sourceType(Bonus::ARTIFACT), 0, hero);
+		}
+		hero = town->visitingHero;
+		if (hero)
+		{
+			boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
+				&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
+			if (town->garrisonHero)
+				bl->insert(bl->size(), blAppend->begin(), blAppend->end());
+			else
+				bl = blAppend;
+		}
+		
+		if (bl->size())
+			summ+=AddToString (CGI->arth->artifacts[bl->front()->sid]->Name()+" %+d", descr, bl->totalValue());
+
+		//TODO: player bonuses
+
+		if(vstd::contains(town->builtBuildings, Buildings::GRAIL)) //grail - +50% to ALL growth
+			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::GRAIL]->Name()+" %+d",descr,summ/2);
+
+		summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, creature->valOfBonuses(Bonus::CREATURE_GROWTH));
+	}
+	return descr;
+}
+
 void CCreaInfo::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		int summ=0;
-		std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
-		boost::algorithm::replace_first(descr,"%s", creature->nameSing);
-		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(town->creatureGrowth(level)));
-
-		descr +="\n"+CGI->generaltexth->allTexts[590];
-		summ = creature->growth;
-		boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
-
-		if ( level>=0 && level<CREATURES_PER_TOWN)
+		if (showAvailable)
+			GH.pushInt(new CDwellingInfoBox(screen->w/2, screen->h/2, town, level));
+		else
 		{
-
-			if ( vstd::contains(town->builtBuildings, Buildings::CASTLE))
-				summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CASTLE]->Name()+" %+d",descr,summ);
-			else if ( vstd::contains(town->builtBuildings, Buildings::CITADEL))
-				summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CITADEL]->Name()+" %+d",descr,summ/2);
-
-			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //double growth or plague
-				summ * creature->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
-
-			summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
-				summ * town->valOfGlobalBonuses
-				(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion
-
-			if(town->town->hordeLvl[0]==level)//horde, x to summ
-			if( vstd::contains(town->builtBuildings, Buildings::HORDE_1) || vstd::contains(town->builtBuildings, Buildings::HORDE_1_UPGR))
-				summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_1]->Name()+" %+d",descr,
-					creature->hordeGrowth);
-
-			if(town->town->hordeLvl[1]==level)//horde, x to summ
-			if( vstd::contains(town->builtBuildings, Buildings::HORDE_2) || vstd::contains(town->builtBuildings, Buildings::HORDE_2_UPGR))
-				summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_2]->Name()+" %+d",descr,
-					creature->hordeGrowth);
-
-			int cnt = 0;
-
-			std::vector< const CGDwelling * > myDwellings = LOCPLINT->cb->getMyDwellings();
-			for (std::vector<const CGDwelling*>::const_iterator it = myDwellings.begin(); it != myDwellings.end(); ++it)
-				if (CGI->creh->creatures[town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
-					cnt++;//external dwellings count to summ
-			summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
-
-			boost::shared_ptr<BonusList> bl;
-			const CGHeroInstance *hero = town->garrisonHero;
-			if (hero)
-			{
-				bl = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-			                      && Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-			}
-			hero = town->visitingHero;
-			if (hero)
-			{
-				boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-					&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-				if (town->garrisonHero)
-					bl->insert(bl->size(), blAppend->begin(), blAppend->end());
-				else
-					bl = blAppend;
-			}
-			
-			if (bl->size())
-				summ+=AddToString (CGI->arth->artifacts[bl->front()->sid]->Name()+" %+d", descr, bl->totalValue());
-
-			//TODO: player bonuses
-
-			if(vstd::contains(town->builtBuildings, Buildings::GRAIL)) //grail - +50% to ALL growth
-				summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::GRAIL]->Name()+" %+d",descr,summ/2);
-
-			summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, creature->valOfBonuses(Bonus::CREATURE_GROWTH));
+			std::string descr = genGrowthText();
+			CInfoPopup *mess = new CInfoPopup();//creating popup
+			mess->free = true;
+			mess->bitmap = CMessage::drawBoxTextBitmapSub
+			(LOCPLINT->playerID, descr,graphics->bigImgs[creature->idNumber],"");
+			mess->pos.x = screen->w/2 - mess->bitmap->w/2;
+			mess->pos.y = screen->h/2 - mess->bitmap->h/2;
+			GH.pushInt(mess);
 		}
-
-		CInfoPopup *mess = new CInfoPopup();//creating popup
-		mess->free = true;
-		mess->bitmap = CMessage::drawBoxTextBitmapSub
-		(LOCPLINT->playerID, descr,graphics->bigImgs[creature->idNumber],"");
-		mess->pos.x = screen->w/2 - mess->bitmap->w/2;
-		mess->pos.y = screen->h/2 - mess->bitmap->h/2;
-		GH.pushInt(mess);
 	}
 }
 

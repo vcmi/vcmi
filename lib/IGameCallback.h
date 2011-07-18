@@ -213,7 +213,7 @@ public:
 	std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	int getHeroSerial(const CGHeroInstance * hero)const;
 	const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
-	const CGHeroInstance* getHeroBySerial(int serialId) const; // serial id is [0, number of heroes)
+	const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
 	std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player

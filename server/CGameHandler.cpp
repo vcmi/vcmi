@@ -4825,7 +4825,7 @@ bool CGameHandler::addToSlot(const StackLocation &sl, const CCreature *c, TQuant
 
 void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging)
 {
-	if(!dst->canBeMergedWith(*src, allowMerging))
+	if(!src->canBeMergedWith(*dst, allowMerging))
 	{
 		if (allowMerging) //do that, add all matching creatures.
 		{
