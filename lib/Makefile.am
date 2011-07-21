@@ -50,6 +50,8 @@ libvcmi_la_SOURCES = \
 	IGameCallback.h \
 	IGameEventsReceiver.h \
 	Interprocess.h \
+	JsonNode.cpp \
+	JsonNode.h \
 	NetPacks.h \
 	NetPacksLib.cpp \
 	ResourceSet.cpp \

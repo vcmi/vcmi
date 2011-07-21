@@ -90,9 +90,9 @@ am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
 	libvcmi_la-CTownHandler.lo libvcmi_la-Connection.lo \
 	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
-	libvcmi_la-RegisterTypes.lo libvcmi_la-VCMI_Lib.lo \
-	libvcmi_la-map.lo
+	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-ResourceSet.lo libvcmi_la-RegisterTypes.lo \
+	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -330,6 +330,8 @@ libvcmi_la_SOURCES = \
 	IGameCallback.h \
 	IGameEventsReceiver.h \
 	Interprocess.h \
+	JsonNode.cpp \
+	JsonNode.h \
 	NetPacks.h \
 	NetPacksLib.cpp \
 	ResourceSet.cpp \
@@ -437,6 +439,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-JsonNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-RegisterTypes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ResourceSet.Plo@am__quote@
@@ -634,6 +637,14 @@ libvcmi_la-IGameCallback.lo: IGameCallback.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IGameCallback.cpp' object='libvcmi_la-IGameCallback.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-IGameCallback.lo `test -f 'IGameCallback.cpp' || echo '$(srcdir)/'`IGameCallback.cpp
+
+libvcmi_la-JsonNode.lo: JsonNode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-JsonNode.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-JsonNode.Tpo -c -o libvcmi_la-JsonNode.lo `test -f 'JsonNode.cpp' || echo '$(srcdir)/'`JsonNode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-JsonNode.Tpo $(DEPDIR)/libvcmi_la-JsonNode.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='JsonNode.cpp' object='libvcmi_la-JsonNode.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-JsonNode.lo `test -f 'JsonNode.cpp' || echo '$(srcdir)/'`JsonNode.cpp
 
 libvcmi_la-NetPacksLib.lo: NetPacksLib.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-NetPacksLib.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-NetPacksLib.Tpo -c -o libvcmi_la-NetPacksLib.lo `test -f 'NetPacksLib.cpp' || echo '$(srcdir)/'`NetPacksLib.cpp

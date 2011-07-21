@@ -250,6 +250,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 {
 	#define EXT(NAME, TYPE) extMap.insert(std::pair<std::string, LodFileType>(NAME, TYPE));
 	EXT(".TXT", FILE_TEXT);
+	EXT(".JSON",FILE_TEXT);
 	EXT(".DEF", FILE_ANIMATION);
 	EXT(".MSK", FILE_MASK);
 	EXT(".MSG", FILE_MASK);

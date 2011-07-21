@@ -24,6 +24,7 @@
 struct SDL_Surface;
 class SDLImageLoader;
 class CompImageLoader;
+class JsonNode;
 
 /// Class for def loading, methods are based on CDefHandler
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -164,7 +165,7 @@ class CAnimation
 {
 private:
 	//source[group][position] - file with this frame, if string is empty - image located in def file
-	std::map<size_t, std::vector <std::string> > source;
+	std::map<size_t, std::vector <JsonNode> > source;
 
 	//bitmap[group][position], store objects with loaded bitmaps
 	std::map<size_t, std::map<size_t, IImage* > > images;
@@ -327,8 +328,8 @@ public:
 	{
 		WHOLE_ANIM=-1, //just for convenience
 		MOVING=0, //will automatically add MOVE_START and MOVE_END to queue
-		MOUSEON=1,
-		HOLDING=2,
+		MOUSEON=1, //rename to IDLE
+		HOLDING=2, //rename to STANDING
 		HITTED=3,
 		DEFENCE=4,
 		DEATH=5,
@@ -351,6 +352,8 @@ public:
 		DHEX_ATTACK_DOWN=19,
 		MOVE_START=20, //no need to use this two directly - MOVING will be enought
 		MOVE_END=21
+		//MOUSEON=22 //special group for border-only images - IDLE will be used as base
+		//READY=23 //same but STANDING is base
 	};
 
 private:

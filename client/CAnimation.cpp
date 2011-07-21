@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 
 #include "../lib/CLodHandler.h"
+#include "../lib/JsonNode.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CAnimation.h"
@@ -22,7 +23,7 @@
 extern DLL_EXPORT CLodHandler *spriteh;
 extern DLL_EXPORT CLodHandler *bitmaph;
 
-typedef std::map <size_t, std::vector <std::string> > source_map;
+typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
 
@@ -66,19 +67,6 @@ public:
 
 	CompImageLoader(CompImage * Img);
 	~CompImageLoader();
-};
-
-//Small internal class for parsing texts
-class TextParser
-{
-	int type;
-	size_t position;
-	std::string text;
-	std::string getLine();
-public:
-	TextParser(const std::string &name);
-	int getType() const;
-	void parseFile(std::map<size_t, std::vector <std::string> > &result);
 };
 
 /*************************************************************************
@@ -588,6 +576,23 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 	}
+	if (compressed)
+	{
+		SDL_Surface *temp = surf;
+		// add RLE flag
+		if (surf->format->palette)
+		{
+			const SDL_Color &c = temp->format->palette->colors[0];
+			SDL_SetColorKey(temp, (SDL_SRCCOLORKEY | SDL_RLEACCEL),
+				SDL_MapRGB(temp -> format, c.r, c.g, c.b));
+		}
+		else
+			SDL_SetColorKey(temp, SDL_RLEACCEL, 0);
+
+		// convert surface to enable RLE
+		surf = SDL_ConvertSurface(temp, temp->format, temp->flags);
+		SDL_FreeSurface(temp);
+	}
 }
 
 void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
@@ -851,54 +856,6 @@ CompImage::~CompImage()
  *  CAnimation for animations handling, can load part of file if needed  *
  *************************************************************************/
 
-TextParser::TextParser(const std::string &name):
-	type(0),
-	position(std::string::npos)
-{
-	if (!spriteh->haveFile(name, FILE_TEXT))
-		return;
-	text = spriteh->getTextFile(name);
-	position = text.find('\n');
-	std::string typeStr = text.substr(0, position);
-	boost::algorithm::trim(typeStr);
-	if (typeStr == "Replace")
-		type = 1;
-	else if (typeStr == "Append")
-		type = 2;
-}
-
-std::string TextParser::getLine()
-{
-	size_t lineStart = position+1;
-	position = text.find('\n', lineStart);
-	return text.substr(lineStart, position-lineStart);
-}
-
-int TextParser::getType() const
-{
-	return type;
-}
-
-void TextParser::parseFile(std::map<size_t, std::vector <std::string> > &result)
-{
-	std::string baseDir = getLine();
-
-	while (position != std::string::npos)
-	{
-		std::string buf = getLine();
-		size_t currentBlock = atoi(buf.c_str());
-
-		while (position != std::string::npos)
-		{
-			std::string res = getLine();
-			boost::algorithm::trim(res);
-			if (res.empty())
-				break;
-			result[currentBlock].push_back(baseDir+res);
-		}
-	}
-}
-
 IImage * CAnimation::getFromExtraDef(std::string filename)
 {
 	size_t pos = filename.find(':');
@@ -936,7 +893,7 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 
 	//try to get image from def
-	if (source[group][frame].empty())
+	if (source[group][frame].getType() == JsonNode::DATA_NULL)
 	{
 		if (compressed)
 			images[group][frame] = new CompImage(file, frame, group);
@@ -945,9 +902,12 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		IImage * img = getFromExtraDef(source[group][frame].c_str());
-		if (!img)//TODO: load compressed image
-			img = new SDLImage(source[group][frame].c_str());
+		std::string filename = source[group][frame].Struct().find("file")->second.String();
+	
+		IImage * img = getFromExtraDef(filename);
+		if (!img)
+			img = new SDLImage(filename, compressed);
+
 		images[group][frame] = img;
 		return true;
 	}
@@ -974,16 +934,45 @@ bool CAnimation::unloadFrame(size_t frame, size_t group)
 
 void CAnimation::init(CDefFile * file)
 {
-	TextParser txtFile(name);
-
-	if ( file && txtFile.getType() != 1 )
+	if (file)
 	{
 		const std::map<size_t, size_t> defEntries = file->getEntries();
 
 		for (std::map<size_t, size_t>::const_iterator mapIt = defEntries.begin(); mapIt!=defEntries.end(); ++mapIt)
 			source[mapIt->first].resize(mapIt->second);
 	}
-	txtFile.parseFile(source);
+
+	if (spriteh->haveFile(name, FILE_TEXT))
+	{
+		std::string configFile = spriteh->getTextFile(name);
+		const JsonNode &config(configFile);
+
+		JsonMap::const_iterator rootEntry = config.Struct().find("sequences");
+		if (rootEntry != config.Struct().end())
+		{
+			//TODO: Process sequences group
+		}
+		
+		rootEntry = config.Struct().find("images");
+		if (rootEntry != config.Struct().end())
+		{
+			JsonVector vector = rootEntry->second.Vector();
+			
+			for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it)
+			{
+				JsonMap::const_iterator entry = it->Struct().find("group");
+
+				size_t group=0;
+				if (entry != it->Struct().end())
+					group = entry->second.Float();
+
+				size_t frame = it->Struct().find("frame")->second.Float();
+				if (source[group].size() <= frame)
+					source[group].resize(frame+1);
+				source[group][frame] = *it;
+			}
+		}
+	}
 }
 
 CDefFile * CAnimation::getFile() const
