@@ -323,13 +323,13 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 }
 
 CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
-: onlyOn(false), callback2(onDeselect)
+: onlyOn(false), selected(false), callback2(onDeselect)
 {
 	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
 }
 
 CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
-: onlyOn(false) // TODO: callback2(???)
+: onlyOn(false), selected(false) // TODO: callback2(???)
 {
 	ID = myid;
 	std::map<int,std::string> pom;
@@ -338,7 +338,7 @@ CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::st
 }
 
 CHighlightableButton::CHighlightableButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
-: onlyOn(false) // TODO: callback2(???)
+: onlyOn(false), selected(false) // TODO: callback2(???)
 {
 	ID = myid;
 	std::map<int,std::string> pom;
