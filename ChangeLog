@@ -1,3 +1,31 @@
+0.85 -> 0.86 (Aug 01 2011)
+GENERAL:
+* New artifacts supported
+- Admiral's Hat
+- Titan's Thunder
+* vERM parser & interpreter
+* Bonus caching system
+* .tga file support
+
+BATTLES:
+* Correct handling of siege obstacles
+* Catapult animation
+* New combat abilities supported
+- Dragon Breath
+- Three-headed Attack
+- Attack all around
+- Death Cloud / Fireball area attack
+- Death Blow
+- Lightning Strike
+- Rebirth
+* New WoG abilities supported
+- Defense Bonus
+- Cast before attack
+- Immunity to direct damage spells
+* New spells supported
+- Magic Mirror
+- Titan's Lightning Bolt
+
 0.84 -> 0.85 (Jun 01 2011)
 GENERAL:
 * Support for stack experience

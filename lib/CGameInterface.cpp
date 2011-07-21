@@ -63,7 +63,11 @@ rett * createAny(std::string dllname, std::string methodName)
 #ifdef _WIN32
 std::string getAIFileName(std::string input)
 {
-	return input + '.' + LIB_EXT;
+	size_t found=input.find(LIB_EXT);
+	if (found != std::string::npos) //quick, dirty fix
+		return input;
+	else
+		return input + '.' + LIB_EXT;
 }
 #else
 std::string getAIFileName(std::string input)
