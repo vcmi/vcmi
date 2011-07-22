@@ -1109,7 +1109,7 @@ void Mapa::readTerrain( const unsigned char * bufor, int &i)
 			terrain[z][c][0].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
 			terrain[z][c][0].roadDir = bufor[i++];
 			terrain[z][c][0].siodmyTajemniczyBajt = bufor[i++];
-			terrain[z][c][0].blocked = 0;
+			terrain[z][c][0].blocked = (terrain[z][c][0].tertype == TerrainTile::rock ? 1 : 0); //underground tiles are always blocked
 			terrain[z][c][0].visitable = 0;
 		}
 	}
@@ -1126,7 +1126,7 @@ void Mapa::readTerrain( const unsigned char * bufor, int &i)
 				terrain[z][c][1].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
 				terrain[z][c][1].roadDir = bufor[i++];
 				terrain[z][c][1].siodmyTajemniczyBajt = bufor[i++];
-				terrain[z][c][1].blocked = 0;
+				terrain[z][c][1].blocked = (terrain[z][c][1].tertype == TerrainTile::rock ? 1 : 0); //underground tiles are always blocked
 				terrain[z][c][1].visitable = 0;
 			}
 		}
