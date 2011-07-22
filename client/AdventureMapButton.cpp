@@ -65,8 +65,10 @@ void CButtonBase::update()
 	
 	if (active)
 	{
-		showAll(screen);
-		showAll(screen2);//Any way to remove one of showAll()?
+		if (parent)
+			parent->redraw();
+		else
+			redraw();
 	}
 }
 
@@ -259,18 +261,12 @@ void AdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton)
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
-	
 }
 
 void AdventureMapButton::setPlayerColor(int player)
 {
 	if (image)
 	image->playerColored(player);
-}
-
-void AdventureMapButton::show(SDL_Surface *to)
-{
-	showAll(to);
 }
 
 void AdventureMapButton::showAll(SDL_Surface *to)

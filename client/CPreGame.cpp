@@ -272,13 +272,13 @@ CMenuScreen::~CMenuScreen()
 void CMenuScreen::showAll( SDL_Surface * to )
 {
 	blitAt(CGP->mainbg, 0, 0, to);
-	CCS->videoh->update(pos.x + 8, pos.y + 105, to, true, false);
 	CIntObject::showAll(to);
 }
 
 void CMenuScreen::show( SDL_Surface * to )
 {
-	showAll(to);
+	CCS->videoh->update(pos.x + 8, pos.y + 105, to, true, false);
+	CIntObject::show(to);
 }
 
 void CMenuScreen::moveTo( CMenuScreen *next )
@@ -3375,10 +3375,12 @@ CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, Ca
 	static const std::string campImages[3][7] = { { "CAMPGD1S.BMP", "CAMPEV1S.BMP", "CAMPGD2S.BMP", "CAMPNEUS.BMP", "CAMPEV2S.BMP", "CAMPGD3S.BMP", "CAMPSCTS.BMP" }, 
 												  { "CAMP1AB7.BMP", "CAMP1DB2.BMP", "CAMP1DS1.BMP", "CAMP1FL3.BMP", "CAMP1PF2.BMP", "CAMP1FW1.BMP" },
 												  { "CAMPZ01.BMP", "CAMPZ02.BMP", "CAMPZ03.BMP", "CAMPZ04.BMP" } };
-
+#ifdef _WIN32
 	static const std::string campVideos[3][7] = { { "CGOOD1.BIK", "CEVIL1.BIK", "CGOOD2.BIK", "CNEUTRAL.BIK", "CEVIL2.BIK", "CGOOD3.BIK", "CSECRET.BIK" },
 												  { "C1ab7.BIK", "C1db2.BIK", "C1ds1.BIK", "C1fl3.BIK", "C1pf2.BIK", "C1fw1.BIK" } };
-
+#else
+	static const std::string campVideos[3][7] = { { "cgood1.mjpg", "cevil1.mjpg", "cgood2.mjpg", "cneutral.mjpg", "cevil2.mjpg", "cgood3.mjpg", "csecret.mjpg" } };
+#endif
 	static const std::string campTexts[3][7] = { { getMapText(0), getMapText(3), getMapText(1), getMapText(5), getMapText(4), getMapText(2), getMapText(6) },
 												 { "Armageddon's Blade", "Dragon's Blood", "Dragon Slayer", "Festival of Life", "Playing With Fire", "Foolhardy Waywardness" },
 												 { "In the Wake of Gods", "The Samaritan", "A Life of A-d-v-e-n-t-u-r-e", "Evil Way Home" } };
@@ -3529,10 +3531,6 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
 
 	if (status == CCampaignScreen::DISABLED || video == "" || button == 0)
 		return;
-
-
-	// TODO: windows video code seem to have diverged a little bit
-	// from non-windows code. Needs to be fixed and this ifdef removed.
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if (CCS->curh->xpos >= pos.x && CCS->curh->ypos >= pos.y && CCS->curh->xpos < pos.x + pos.w && CCS->curh->ypos < pos.y + pos.h)
