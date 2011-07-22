@@ -5409,10 +5409,13 @@ void CArtifactsOfHero::updateParentWindow()
 
 void CArtifactsOfHero::safeRedraw()
 {
-	if(parent)
-		parent->redraw();
-	else 
-		redraw();
+	if (active)
+	{
+		if(parent)
+			parent->redraw();
+		else 
+			redraw();
+	}
 }
 
 void CArtifactsOfHero::realizeCurrentTransaction()

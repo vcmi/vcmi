@@ -41,7 +41,7 @@ public:
 	//Create empty node
 	JsonNode(JsonType Type = DATA_NULL);
 	//Create tree from Json-formatted input
-	JsonNode(std::string input);
+	explicit JsonNode(std::string input);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 
@@ -53,6 +53,8 @@ public:
 	//Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
 	JsonType getType() const;
+
+	bool isNull() const;
 
 	//non-const acessors, node will change type on type mismatch
 	bool & Bool();
@@ -72,6 +74,13 @@ public:
 
 	//formatted output of this node in JSON format
 	void write(std::ostream &out, std::string prefix="") const;
+
+	//operator [], for structs only - get child node by name
+	JsonNode & operator[](std::string child);
+	const JsonNode & operator[](std::string child) const;
+
+	//error value for const operator[]
+	static const JsonNode nullNode;
 };
 
 std::ostream & operator<<(std::ostream &out, const JsonNode &node);

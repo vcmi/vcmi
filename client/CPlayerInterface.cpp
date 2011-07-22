@@ -4,6 +4,7 @@
 #include "../CCallback.h"
 #include "CCastleInterface.h"
 #include "CCursorHandler.h"
+#include "CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
@@ -487,6 +488,15 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
 		c->heroes->update();
+	}
+	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	{
+		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
+		if (ki)
+		{
+			ki->townChanged(town);
+			ki->updateGarrisons();
+		}
 	}
 	GH.totalRedraw();
 }
@@ -1032,11 +1042,18 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(castleInt && town->ID == TOWNI_TYPE)
+	if(const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt());
 		if(fs)
 			fs->creaturesChanged();
+
+		BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		{
+			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
+			if (ki && townObj)
+				ki->townChanged(townObj);
+		}
 	}
 	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20  ||  town->ID == 106)) //external dwelling
 	{

@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 
+const JsonNode JsonNode::nullNode;
+
 JsonNode::JsonNode(JsonType Type):
 	type(DATA_NULL)
 {
@@ -76,6 +78,11 @@ void JsonNode::setType(JsonType Type)
 	}
 }
 
+bool JsonNode::isNull() const
+{
+	return type == DATA_NULL;
+}
+
 bool & JsonNode::Bool()
 {
 	setType(DATA_BOOL);
@@ -135,6 +142,19 @@ const JsonMap & JsonNode::Struct() const
 {
 	assert(type == DATA_STRUCT);
 	return *data.Struct;
+}
+
+JsonNode & JsonNode::operator[](std::string child)
+{
+	return Struct()[child];
+}
+
+const JsonNode & JsonNode::operator[](std::string child) const
+{
+	JsonMap::const_iterator it = Struct().find(child);
+	if (it != Struct().end())
+		return it->second;
+	return nullNode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

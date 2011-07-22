@@ -945,31 +945,53 @@ void CAnimation::init(CDefFile * file)
 	if (spriteh->haveFile(name, FILE_TEXT))
 	{
 		std::string configFile = spriteh->getTextFile(name);
-		const JsonNode &config(configFile);
 
-		JsonMap::const_iterator rootEntry = config.Struct().find("sequences");
-		if (rootEntry != config.Struct().end())
+		const JsonNode config(configFile);
+
+		std::string basepath;
+		if (!config["basepath"].isNull())
+			basepath = config["basepath"].String();
+
+		if (!config["sequences"].isNull())
 		{
-			//TODO: Process sequences group
+			const JsonVector &groups = config["sequences"].Vector();
+			for (JsonVector::const_iterator groupsIter = groups.begin(); groupsIter!=groups.end(); ++groupsIter)
+			{
+				JsonNode group = *groupsIter;
+				size_t groupID = group["group"].Float();//TODO: string-to-value conversion
+				source[groupID].clear();
+
+				const JsonVector &frames = group["frames"].Vector();
+				for (JsonVector::const_iterator framesIter = frames.begin(); framesIter!=frames.end(); ++framesIter)
+				{
+					const JsonNode &frame = *framesIter;
+					source[groupID].push_back(frame);
+					std::string filename =  frame["file"].String();
+					source[groupID].back()["file"].String() = basepath + filename;
+				}
+			}
 		}
-		
-		rootEntry = config.Struct().find("images");
-		if (rootEntry != config.Struct().end())
+
+		if (!config["images"].isNull())
 		{
-			JsonVector vector = rootEntry->second.Vector();
+			const JsonVector &vector = config["images"].Vector();
 			
 			for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it)
 			{
-				JsonMap::const_iterator entry = it->Struct().find("group");
+				const JsonNode &node = *it;
 
 				size_t group=0;
-				if (entry != it->Struct().end())
-					group = entry->second.Float();
+				if (!node["group"].isNull())
+					group = node["group"].Float();
 
-				size_t frame = it->Struct().find("frame")->second.Float();
+				size_t frame = node["frame"].Float();
+
 				if (source[group].size() <= frame)
 					source[group].resize(frame+1);
-				source[group][frame] = *it;
+
+				source[group][frame] = node;
+				std::string filename =  node["file"].String();
+				source[group][frame]["file"].String() = basepath + filename;
 			}
 		}
 	}
@@ -1026,7 +1048,7 @@ void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
 	if (source[group].size() <= frame)
 		source[group].resize(frame+1);
-	source[group][frame] = filename;
+	source[group][frame]["file"].String() = filename;
 	//FIXME: update image if already loaded
 }
 
