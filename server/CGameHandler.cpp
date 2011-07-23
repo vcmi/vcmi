@@ -414,6 +414,27 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&iw);
 		sendAndApply(&cs);
 	}
+	// Necromancy if applicable.
+	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
+	const CGHeroInstance *loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
+
+	if (winnerHero) 
+	{
+		CStackBasicDescriptor raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
+
+		// Give raised units to winner and show dialog, if any were raised.
+		if (raisedStack.type) 
+		{
+			TSlot slot = winnerHero->getSlotFor(raisedStack.type);
+
+			if (slot != -1) 
+			{
+				winnerHero->showNecromancyDialog(raisedStack);
+				addToSlot(StackLocation(winnerHero, slot), raisedStack.type, raisedStack.count);
+			}
+		}
+	}
+
 
 	if(!duel)
 	{
@@ -447,27 +468,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		CSaveFile resultFile("result.vdrst");
 		resultFile << *battleResult.data;
 		return;
-	}
-
-	// Necromancy if applicable.
-	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
-	const CGHeroInstance *loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
-
-	if (winnerHero) 
-	{
-		CStackBasicDescriptor raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
-
-		// Give raised units to winner and show dialog, if any were raised.
-		if (raisedStack.type) 
-		{
-			TSlot slot = winnerHero->getSlotFor(raisedStack.type);
-
-			if (slot != -1) 
-			{
-				winnerHero->showNecromancyDialog(raisedStack);
-				addToSlot(StackLocation(winnerHero, slot), raisedStack.type, raisedStack.count);
-			}
-		}
 	}
 
 	if(visitObjectAfterVictory && winnerHero == hero1)
@@ -506,8 +506,8 @@ void CGameHandler::afterBattleCallback() //object interaction after leveling up 
 		(*battleEndCallback)(battleResult.data);
 		delete battleEndCallback;
 		battleEndCallback = 0;
+		delete battleResult.data; //remove only after battle
 	}
-	delete battleResult.data;
 }
 void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex)
 {

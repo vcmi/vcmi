@@ -10,6 +10,7 @@
 #include "../lib/CCreatureHandler.h" //creatures name for objects list
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CObjectHandler.h" //Hero/Town objects
+#include "../lib/CHeroHandler.h" // only for calculating required xp? worth it?
 #include "AdventureMapButton.h"
 #include "CAnimation.h" //CAnimImage
 #include "CAdvmapInterface.h" //CResDataBar
