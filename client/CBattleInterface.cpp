@@ -3584,7 +3584,8 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 {
 	attackableHexes.clear();
-	occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
+	if (activeStack)
+		occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);

@@ -73,16 +73,6 @@ public:
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
 
-size_t getPaletteSize(int type)
-{
-	switch (type)
-	{
-		case 66: return 32;
-		case 71: return 4;
-		default: return 20;
-	}
-}
-
 CDefFile::CDefFile(std::string Name):
 	data(NULL),
 	palette(NULL)
@@ -119,7 +109,10 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].b = data[it++];
 		palette[i].unused = 255;
 	}
-	memcpy(palette, H3Palette, getPaletteSize(type));//initialize shadow\selection colors
+	if (type == 71)//Buttons/buildings don't have shadows\semi-transparency
+		memset(palette, 0, sizeof(SDL_Color)*8);
+	else
+		memcpy(palette, H3Palette, sizeof(SDL_Color)*8);//initialize shadow\selection colors
 
 	for (unsigned int i=0; i<totalBlocks; i++)
 	{
