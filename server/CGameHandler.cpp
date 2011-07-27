@@ -3319,7 +3319,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 
 		for(int i = 0; i < ARMY_SIZE; i++)
 			if(!hero->hasStackAtSlot(i))
-				insertNewStack(StackLocation(hero, i), archangel, 10);
+				insertNewStack(StackLocation(hero, i), archangel, 5);
 	}
 	else if(message == "vcmiangband") //gives 10 black knight into each slot
 	{
