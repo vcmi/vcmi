@@ -4660,7 +4660,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			}
 			if (h->visitedTown)
 				stopHeroVisitCastle(h->visitedTown->id, h->id);
-			if (moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1));
+			if (moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1))
 				heroVisitCastle(town->id, h->id);
 		}
 		break;
