@@ -198,13 +198,11 @@ void CGameHandler::levelUpHero(int ID, int skill)
 void CGameHandler::levelUpHero(int ID)
 {
 	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
-	if (hero->battle)
-		tlog1<<"Battle found\n";
+	
+	// required exp for at least 1 lvl-up hasn't been reached
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1))
-	{// no more level-ups, call end battle
-		afterBattleCallback();
 		return;
-	}
+
 		
 	//give prim skill
 	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
@@ -216,7 +214,7 @@ void CGameHandler::levelUpHero(int ID)
 		if(r<pom)
 			break;
 	}
-	tlog5 << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+	tlog5 << "The hero gets the primary skill with the no. " << x << " with a probability of " << r << "%." <<  std::endl; 
 	SetPrimSkill sps;
 	sps.id = ID;
 	sps.which = x;
@@ -292,11 +290,14 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	sps.abs = abs;
 	sps.val = val;
 	sendAndApply(&sps);
-	if(which==4) //only for exp - hero may level up
+	
+	//only for exp - hero may level up
+	if(which==4)
 	{
-		//TODO: Stack Experience only after battle
 		levelUpHero(ID);
+
 		//TODO: Commander
+		//TODO: Stack Experience only after battle
 	}
 }
 
@@ -453,12 +454,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 
 		//give exp
-		if(battleResult.data->exp[0] && hero1)
+		if (battleResult.data->exp[0] && hero1)
 			changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
-		if(battleResult.data->exp[1] && hero2)
+		else if (battleResult.data->exp[1] && hero2)
 			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
-		if (!(hero1 || hero2)) //possible?
-			afterBattleCallback(); //clear stuff for sanity
+
+		afterBattleCallback();
 	}
 
 	sendAndApply(&resultsApplied);
@@ -497,6 +498,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&sah);
 	}
+
+	delete battleResult.data;
 }
 
 void CGameHandler::afterBattleCallback() //object interaction after leveling up is done
@@ -506,7 +509,6 @@ void CGameHandler::afterBattleCallback() //object interaction after leveling up 
 		(*battleEndCallback)(battleResult.data);
 		delete battleEndCallback;
 		battleEndCallback = 0;
-		delete battleResult.data; //remove only after battle
 	}
 }
 void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex)
@@ -3727,6 +3729,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	}
 
 	sendAndApply(&sc);
+	
 	//Magic Mirror effect
 	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
@@ -3737,12 +3740,12 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			{
 				std::vector<CStack *> mirrorTargets;
 				std::vector<CStack *> & battleStacks = gs->curB->stacks;
-				for (int it=0; it < gs->curB->stacks.size(); ++it)
+				for (size_t j = 0; j < battleStacks.size(); ++j)
 				{
-					if(battleStacks[it]->owner == casterSide) //get enemy stacks which cna be affected by this spell
+					if(battleStacks[j]->owner == casterSide) //get enemy stacks which can be affected by this spell
 					{
-						if (!gs->curB->battleIsImmune(NULL, spell, SpellCasting::MAGIC_MIRROR, battleStacks[it]->position))
-							mirrorTargets.push_back(battleStacks[it]);
+						if (!gs->curB->battleIsImmune(NULL, spell, SpellCasting::MAGIC_MIRROR, battleStacks[j]->position))
+							mirrorTargets.push_back(battleStacks[j]);
 					}
 				}
 				if (mirrorTargets.size())
