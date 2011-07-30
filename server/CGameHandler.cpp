@@ -201,8 +201,10 @@ void CGameHandler::levelUpHero(int ID)
 	
 	// required exp for at least 1 lvl-up hasn't been reached
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1))
+	{
+		afterBattleCallback();
 		return;
-
+	}
 		
 	//give prim skill
 	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
@@ -458,8 +460,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
 		else if (battleResult.data->exp[1] && hero2)
 			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
-
-		afterBattleCallback();
+		else
+			afterBattleCallback();
 	}
 
 	sendAndApply(&resultsApplied);
@@ -498,8 +500,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&sah);
 	}
-
-	delete battleResult.data;
 }
 
 void CGameHandler::afterBattleCallback() //object interaction after leveling up is done
