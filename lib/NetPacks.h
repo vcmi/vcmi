@@ -1215,14 +1215,14 @@ struct BattleResult : public CPackForClient//3003
 struct BattleStackMoved : public CPackForClient//3004
 {
 	ui32 stack;
-	THex tile;
-	ui8 ending, distance, teleporting;
+	std::vector<THex> tilesToMove;
+	ui8 distance, teleporting;
 	BattleStackMoved(){type = 3004;};
 	void applyFirstCl(CClient *cl);
 	void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & tile & ending & distance;
+		h & stack & tilesToMove & distance;
 	}
 };
 

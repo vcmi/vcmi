@@ -747,25 +747,31 @@ int CGameHandler::moveStack(int stack, THex dest)
 			//inform clients about move
 			BattleStackMoved sm;
 			sm.stack = curStack->ID;
-			sm.tile = path.first[0];
+			std::vector<THex> tiles;
+			tiles.push_back(path.first[0]);
+			sm.tilesToMove = tiles;
 			sm.distance = path.second;
-			sm.ending = true;
 			sm.teleporting = false;
 			sendAndApply(&sm);
 		}
 	}
 	else //for non-flying creatures
 	{
+		// send one package with the creature path information
+		std::vector<THex> tiles;
 		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		for(int v=path.first.size()-1; v>=tilesToMove; --v)
 		{
-			//inform clients about move
+			tiles.push_back(path.first[v]);	
+		}
+	
+		if (tiles.size() > 0)
+		{
 			BattleStackMoved sm;
 			sm.stack = curStack->ID;
-			sm.tile = path.first[v];
 			sm.distance = path.second;
-			sm.ending = v==tilesToMove;
 			sm.teleporting = false;
+			sm.tilesToMove = tiles;
 			sendAndApply(&sm);
 		}
 	}
@@ -3617,8 +3623,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			BattleStackMoved bsm;
 			bsm.distance = -1;
 			bsm.stack = gs->curB->activeStack;
-			bsm.ending = true;
-			bsm.tile = destination;
+			std::vector<THex> tiles;
+			tiles.push_back(destination);
+			bsm.tilesToMove = tiles;
 			bsm.teleporting = true;
 			sendAndApply(&bsm);
 

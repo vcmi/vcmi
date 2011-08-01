@@ -21,7 +21,7 @@ public:
 	//void battleResultsApplied() OVERRIDE; //called when all effects of last battle are applied
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied;
 	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(const CStack * stack, THex dest, int distance, bool end) OVERRIDE;
+	void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance) OVERRIDE;
 	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
 	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE;//called when a specific effect is set to stacks
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE; //called by engine when battle starts; side=0 - left, side=1 - right

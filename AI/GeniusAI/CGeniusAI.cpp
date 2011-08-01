@@ -1319,12 +1319,12 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, THex dest, int distance, bool end)
+void CGeniusAI::battleStackMoved(int ID, std::vector<THex> dest, int distance)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
 	message += "), dest(";
-	message += boost::lexical_cast<std::string>(dest);
+	message += boost::lexical_cast<std::string>(dest.size());
 	message += ")";
 	DbgBox(message.c_str());
 }

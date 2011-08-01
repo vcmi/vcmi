@@ -168,9 +168,9 @@ void CAdventureAI::battleNewStackAppeared(const CStack * stack)
 	battleAI->battleNewStackAppeared(stack);
 }
 
-void CAdventureAI::battleStackMoved(const CStack * stack, THex dest, int distance, bool end)
+void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance)
 {
-	battleAI->battleStackMoved(stack, dest, distance, end);
+	battleAI->battleStackMoved(stack, dest, distance);
 }
 
 void CAdventureAI::battleAttack(const BattleAttack *ba)

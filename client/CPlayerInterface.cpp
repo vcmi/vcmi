@@ -761,7 +761,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, THex dest, int distance, bool end)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -769,7 +769,7 @@ void CPlayerInterface::battleStackMoved(const CStack * stack, THex dest, int dis
 	}
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->stackMoved(stack, dest, end, distance);
+	battleInt->stackMoved(stack, dest, distance);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {

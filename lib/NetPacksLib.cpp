@@ -973,7 +973,7 @@ void BattleResult::applyGs( CGameState *gs )
 
 void BattleStackMoved::applyGs( CGameState *gs )
 {
-	gs->curB->getStack(stack)->position = tile;
+	gs->curB->getStack(stack)->position = tilesToMove.back();
 }
 
 DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )

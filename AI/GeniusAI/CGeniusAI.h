@@ -205,7 +205,7 @@ public:
 	virtual void battleStacksAttacked(const std::set<BattleStackAttacked> & bsa); //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleResult *br);
 	virtual void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, THex dest, int distance, bool end);
+	virtual void battleStackMoved(int ID, std::vector<THex> dest, int distance);
 	virtual void battleSpellCast(const BattleSpellCast *sc);
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning

@@ -609,9 +609,9 @@ bool CBattleStackMoved::init()
 	//bool twoTiles = movedStack->doubleWide();
 	
 	Point begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
-	Point endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, owner);
+	Point endPosition = CBattleHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
 
-	int mutPos = THex::mutualPosition(curStackPos, destHex);
+	int mutPos = THex::mutualPosition(curStackPos, nextHex);
 	
 	//reverse unit if necessary
 	if((begPosition.x > endPosition.x) && owner->creDir[stack->ID] == true)
@@ -687,10 +687,41 @@ void CBattleStackMoved::nextFrame()
 	posY += stepY;
 	owner->creAnims[stack->ID]->pos.y = posY;
 
+	// Increments step count and check if we are finished with current animation
 	++whichStep;
 	if(whichStep == steps)
 	{
-		endAnim();
+		// Sets the position of the creature animation sprites
+		Point coords = CBattleHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
+		owner->creAnims[stack->ID]->pos = coords;
+		
+		// true if creature haven't reached the final destination hex
+		if ((nextPos + 1) < destTiles.size())
+		{
+			// update the next hex field which has to be reached by the stack
+			nextPos++;
+			curStackPos = nextHex;
+			nextHex = destTiles[nextPos];
+			
+			// update position of double wide creatures
+			bool twoTiles = stack->doubleWide();
+			if(twoTiles && bool(stack->attackerOwned) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big attacker creature is reversed
+				owner->creAnims[stack->ID]->pos.x -= 44;
+			else if(twoTiles && (! bool(stack->attackerOwned) ) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big defender creature is reversed
+				owner->creAnims[stack->ID]->pos.x += 44;
+			
+			// re-init animation
+			for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+			{
+				if (it->first == this)
+				{
+					it->second = false;
+					break;
+				}
+			}
+		}
+		else
+			endAnim();
 	}
 }
 
@@ -701,22 +732,8 @@ void CBattleStackMoved::endAnim()
 	CBattleAnimation::endAnim();
 
 	if(movedStack)
-	{
-		bool twoTiles = movedStack->doubleWide();
+		owner->addNewAnim(new CBattleMoveEnd(owner, stack, nextHex));
 
-		if(endMoving)
-		{
-			owner->addNewAnim(new CBattleMoveEnd(owner, stack, destHex));
-		}
-
-		Point coords = CBattleHex::getXYUnitAnim(destHex, owner->creDir[stack->ID], movedStack, owner);
-		owner->creAnims[stack->ID]->pos = coords;
-
-		if(!endMoving && twoTiles && bool(movedStack->attackerOwned) && (owner->creDir[stack->ID] != bool(movedStack->attackerOwned) )) //big attacker creature is reversed
-			owner->creAnims[stack->ID]->pos.x -= 44;
-		else if(!endMoving && twoTiles && (! bool(movedStack->attackerOwned) ) && (owner->creDir[stack->ID] != bool(movedStack->attackerOwned) )) //big defender creature is reversed
-			owner->creAnims[stack->ID]->pos.x += 44;
-	}
 
 	if(owner->moveSh >= 0)
 	{
@@ -727,10 +744,11 @@ void CBattleStackMoved::endAnim()
 	delete this;
 }
 
-CBattleStackMoved::CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, THex _destHex, bool _endMoving, int _distance)
-: CBattleStackAnimation(_owner, _stack), destHex(_destHex), endMoving(_endMoving), distance(_distance), stepX(0.0f), stepY(0.0f)
+CBattleStackMoved::CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, std::vector<THex> _destTiles, int _distance)
+: CBattleStackAnimation(_owner, _stack), destTiles(_destTiles), nextPos(0), distance(_distance), stepX(0.0f), stepY(0.0f)
 {
 	curStackPos = stack->position;
+	nextHex = destTiles.front();
 }
 
 //move started
@@ -2525,9 +2543,9 @@ void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all
 		activateStack();
 }
 
-void CBattleInterface::stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance)
+void CBattleInterface::stackMoved(const CStack * stack, std::vector<THex> destHex, int distance)
 {
-	addNewAnim(new CBattleStackMoved(this, stack, destHex, endMoving, distance));
+	addNewAnim(new CBattleStackMoved(this, stack, destHex, distance));
 	waitForAnims();
 }
 

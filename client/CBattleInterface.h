@@ -161,8 +161,9 @@ public:
 class CBattleStackMoved : public CBattleStackAnimation
 {
 private:
-	THex destHex; //destination
-	bool endMoving; //if this is end of move
+	std::vector<THex> destTiles; //destination
+	THex nextHex;
+	int nextPos;
 	int distance;
 	float stepX, stepY; //how far stack is moved in one frame
 	float posX, posY;
@@ -173,7 +174,7 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, THex _destHex, bool _endMoving, int _distance);
+	CBattleStackMoved(CBattleInterface * _owner, const CStack * _stack, std::vector<THex> _destTiles, int _distance);
 };
 
 /// Move start animation of a creature
@@ -541,7 +542,7 @@ public:
 	void newStack(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
-	void stackMoved(const CStack * stack, THex destHex, bool endMoving, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack * stack, std::vector<THex> destHex, int distance); //stack with id number moved to destHex
 	void waitForAnims();
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack * attacker, THex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
