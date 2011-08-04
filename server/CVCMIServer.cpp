@@ -152,8 +152,8 @@ void CPregameServer::run()
 
 			if(acceptor)
 			{
-				acceptor->io_service().reset();
-				acceptor->io_service().poll();
+				acceptor->get_io_service().reset();
+				acceptor->get_io_service().poll();
 			}
 		} //frees lock
 
@@ -214,7 +214,7 @@ void CPregameServer::start_async_accept()
 	assert(!upcomingConnection);
 	assert(acceptor);
 
-	upcomingConnection = new TSocket(acceptor->io_service());
+	upcomingConnection = new TSocket(acceptor->get_io_service());
 	acceptor->async_accept(*upcomingConnection, boost::bind(&CPregameServer::connectionAccepted, this, boost::asio::placeholders::error));
 }
 
@@ -398,7 +398,7 @@ void CVCMIServer::start()
 
 	boost::system::error_code error;
 	tlog0<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
-	tcp::socket * s = new tcp::socket(acceptor->io_service());
+	tcp::socket * s = new tcp::socket(acceptor->get_io_service());
 	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
 	delete mr;
@@ -482,7 +482,7 @@ void CVCMIServer::loadGame()
 		}
 		else
 		{
-			tcp::socket * s = new tcp::socket(acceptor->io_service());
+			tcp::socket * s = new tcp::socket(acceptor->get_io_service());
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{

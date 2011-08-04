@@ -137,7 +137,7 @@ connerror1:
 	throw std::string("Can't establish connection :(");
 }
 CConnection::CConnection(TSocket * Socket, std::string Name )
-	:socket(Socket),io_service(&Socket->io_service()), name(Name)//, send(this), rec(this)
+	:socket(Socket),io_service(&Socket->get_io_service()), name(Name)//, send(this), rec(this)
 {
 	init();
 }
