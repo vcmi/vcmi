@@ -690,12 +690,22 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		char url[100];
 		sprintf(url, "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
 
-		if (av_open_input_file(&format, url, NULL, 0, NULL)!=0) {
+#if LIBAVFORMAT_VERSION_MAJOR < 54
+		int avfopen = av_open_input_file(&format, url, NULL, 0, NULL);
+#else
+		int avfopen = avformat_open_input(&format, url, NULL, NULL);
+#endif
+		if (avfopen != 0) {
 			return false;
 		}
 	} else {
 		// File is not in a container
-		if (av_open_input_file(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, 0, NULL)!=0) {
+#if LIBAVFORMAT_VERSION_MAJOR < 54
+		int avfopen = av_open_input_file(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, 0, NULL);
+#else
+		int avfopen = avformat_open_input(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, NULL);
+#endif
+		if (avfopen != 0) {
 			// tlog1 << "Video file not found: " DATA_DIR "/Data/video/" + fname << std::endl;
 			return false;
 		}
