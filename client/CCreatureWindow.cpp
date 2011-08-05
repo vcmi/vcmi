@@ -129,6 +129,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		stackNode = StackNode;
 	heroOwner = HeroOwner;
 
+	if (Stack->count)
+		count = boost::lexical_cast<std::string>(Stack->count);
+
 	//Basic graphics - need to calculate size
 
 	BonusList bl, blTemp;
@@ -326,16 +329,19 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	count = boost::lexical_cast<std::string>(stack->count);
-	if (count.size()) //TODO
-		printTo(count, 117, 174, FONT_SMALL, tytulowy,*bitmap);
+	//count = boost::lexical_cast<std::string>(stack->count);
+	//if (count.size()) //TODO
+	//	printTo(count, 117, 174, FONT_SMALL, tytulowy,*bitmap);
+	if(count.size())
+		printTo(count.c_str(), pos.x+114, pos.y+174, FONT_TIMES, zwykly, to);
+
 	printAtMiddle(c->namePl, 180, 30, FONT_SMALL, tytulowy,*bitmap); //creature name
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
 
 	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER)) //only for shooting units - important with wog exp shooters
-		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
+		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS)); //TODO: change shot count for battle stack
 
 	//TODO
 	int dmgMultiply = 1;
@@ -349,6 +355,13 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	BOOST_FOREACH(CBonusItem* b, bonusItems)
 		b->showAll (to);
 }
+
+void CCreatureWindow::show(SDL_Surface * to)
+{
+	if (count.size()) //army stack
+		printTo(count, pos.x + 114, pos.y + 174,FONT_TIMES, zwykly, to);
+}
+
 
 void CCreatureWindow::sliderMoved(int newpos)
 {

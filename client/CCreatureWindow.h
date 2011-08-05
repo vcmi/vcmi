@@ -56,6 +56,7 @@ public:
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
 	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	void recreateSkillList(int pos);
 	~CCreatureWindow(); //d-tor
