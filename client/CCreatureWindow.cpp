@@ -43,7 +43,6 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type)
 	: type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	battleStack = &stack;
 	if (stack.base)
 		init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
 	else
@@ -338,7 +337,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
 	{//only for shooting units - important with wog exp shooters
 		if (type == BATTLE)
-			printLine(2, CGI->generaltexth->allTexts[198], battleStack->shots);
+			printLine(2, CGI->generaltexth->allTexts[198], dynamic_cast<const CStack*>(stackNode)->shots);
 		else
 			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 	}

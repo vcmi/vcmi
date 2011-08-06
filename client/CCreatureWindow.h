@@ -33,7 +33,6 @@ public:
 	const CStackInstance *stack;
 	const CBonusSystemNode *stackNode;
 	const CGHeroInstance *heroOwner;
-	const CStack * battleStack; //determine the umber of shots in battle
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 	std::vector<CBonusItem*> bonusItems;
 	std::vector<LRClickableAreaWText*> spellEffects;
