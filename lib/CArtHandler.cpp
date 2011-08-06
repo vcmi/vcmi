@@ -735,9 +735,9 @@ void CArtHandler::addBonuses()
 	giveArtBonus(136, Bonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
-	giveArtBonus(137, Bonus::NO_DISTANCE_PENALTY, 0);
-	giveArtBonus(137, Bonus::NO_OBSTACLES_PENALTY, 0);
-	giveArtBonus(137, Bonus::FREE_SHOOTING, 0);
+	giveArtBonus(137, Bonus::NO_DISTANCE_PENALTY, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
+	giveArtBonus(137, Bonus::NO_OBSTACLES_PENALTY, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
+	giveArtBonus(137, Bonus::FREE_SHOOTING, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
 
 	//Wizard's Well
 	giveArtBonus(138, Bonus::FULL_MANA_REGENERATION, 0);

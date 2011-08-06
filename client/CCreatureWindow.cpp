@@ -22,6 +22,7 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include "../lib/CGameState.h"
+#include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
 
 using namespace CSDL_Ext;
@@ -42,6 +43,7 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type)
 	: type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	battleStack = &stack;
 	if (stack.base)
 		init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
 	else
@@ -50,7 +52,6 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type)
 		init(s, stack.type, NULL);
 		delete s;
 	}
-
 }
 
 CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type)
@@ -329,19 +330,18 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	//count = boost::lexical_cast<std::string>(stack->count);
-	//if (count.size()) //TODO
-	//	printTo(count, 117, 174, FONT_SMALL, tytulowy,*bitmap);
-	if(count.size())
-		printTo(count.c_str(), pos.x+114, pos.y+174, FONT_TIMES, zwykly, to);
-
 	printAtMiddle(c->namePl, 180, 30, FONT_SMALL, tytulowy,*bitmap); //creature name
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
 
-	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER)) //only for shooting units - important with wog exp shooters
-		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS)); //TODO: change shot count for battle stack
+	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
+	{//only for shooting units - important with wog exp shooters
+		if (type == BATTLE)
+			printLine(2, CGI->generaltexth->allTexts[198], battleStack->shots);
+		else
+			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
+	}
 
 	//TODO
 	int dmgMultiply = 1;
