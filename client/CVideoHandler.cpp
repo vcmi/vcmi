@@ -423,12 +423,12 @@ bool CVideoPlayer::open(std::string name)
 
 	//extract video from video.vid so we can play it
 	bool opened = false;
-	vidh->extract(name, name);
+	vidh.extract(name, name);
 	if (boost::filesystem::exists(name))
 		opened = current->open(name);
 	else // couldn't load video then load from ab resource file
 	{
-		vidh_ab->extract(name, name);
+		vidh.extract(name, name);
 		if (boost::filesystem::exists(name))
 			opened = current->open(name);
 	}
