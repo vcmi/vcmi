@@ -75,7 +75,7 @@ CSoundHandler::CSoundHandler()
 	// Vectors for helper(s)
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
-	horseSounds +=  // must be the same order as terrains (see EtrrainType);
+	horseSounds +=  // must be the same order as terrains (see EterrainType);
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
@@ -89,6 +89,7 @@ void CSoundHandler::init()
 	if (initialized) {
 		// Load sounds
 		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3.snd"));
+		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3-cd2.snd"));
 		sndh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.snd"));
 	}
 }

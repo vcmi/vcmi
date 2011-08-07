@@ -16,9 +16,10 @@
 #   unrar: sudo apt-get install unrar
 
 # Data files needed:
-#   data1.cab and data1.hdr from the original CDROM
+#   data1.cab and data1.hdr from the original 1st CDROM
+#   Heroes3.snd from the original 2nd CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_085.zip
+#   the VCMI distribution: vcmi_085b.rar
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -60,6 +61,8 @@ find . -name "*.ASI" | xargs rm -f
 mv Program_Files/* $DESTDIR
 cd ..
 
+# Copy Heroes3.snd from 2nd CDROM and rename it to avoid a name conflict.
+cp Heroes3.snd $DESTDIR/Data/Heroes3-cd2.snd
 
 # Extract Data from WoG
 # 39753248 allinone_358f.zip
@@ -106,7 +109,8 @@ rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_085.zip
+#unzip ../vcmi_085.zip
+unrar ../vcmi_085b.rar
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
