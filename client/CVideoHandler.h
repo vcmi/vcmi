@@ -9,6 +9,8 @@ struct SDL_Surface;
 #define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 #include <windows.h>
 
+#include "CSndHandler.h"
+
 #pragma pack(push,1)
 struct BINK_STRUCT
 {
@@ -161,8 +163,7 @@ class CVidHandler;
 class CVideoPlayer : public IVideoPlayer
 {
 private:
-	CVidHandler * vidh; //.vid file handling
-	CVidHandler *vidh_ab; // armageddon's blade video file handling
+	CVidHandler vidh; //.vid file handling
 
 	CSmackPlayer smkPlayer; //for .SMK
 	CBIKHandler bikPlayer; //for .BIK
@@ -199,6 +200,7 @@ public:
 
 #else
 
+#include "CSndHandler.h"
 #include <SDL_video.h>
 
 typedef struct AVFormatContext AVFormatContext;
@@ -206,7 +208,6 @@ typedef struct AVCodecContext AVCodecContext;
 typedef struct AVCodec AVCodec;
 typedef struct AVFrame AVFrame;
 struct SwsContext;
-class CVidHandler;
 
 class CVideoPlayer //: public IVideoPlayer
 {
@@ -224,8 +225,7 @@ private:
 	SDL_Rect destRect;			// valid when dest is used
 	SDL_Rect pos;				// destination on screen
 
-	CVidHandler *vidh;
-	CVidHandler *vidh_ab;
+	CVidHandler vidh;
 
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;

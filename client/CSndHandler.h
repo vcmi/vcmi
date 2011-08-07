@@ -54,15 +54,16 @@ protected:
 		std::string name;
 		unsigned int size;
 		unsigned int offset;
+		const char *data;
 	};
 
-	boost::iostreams::mapped_file_source *mfile;
+	std::vector<boost::iostreams::mapped_file_source *> mfiles;
+	boost::iostreams::mapped_file_source *add_file(std::string fname);
 
 public:
 	std::vector<Entry> entries;
 	std::map<std::string, int> fimap; // map of file and index
 	~CMediaHandler(); //d-tor
-	CMediaHandler(std::string fname); //c-tor
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
 	const char * extract (std::string srcfile, int & size); //return selecte file data, NULL if file doesn't exist
 	void extract(int index, std::string dstfile); //saves selected file
@@ -73,13 +74,13 @@ public:
 class CSndHandler: public CMediaHandler
 {
 public:
-	CSndHandler(std::string fname);
+	void add_file(std::string fname);
 };
 
 class CVidHandler: public CMediaHandler
 {
 public:
-	CVidHandler(std::string fname);
+	void add_file(std::string fname);
 };
 
 

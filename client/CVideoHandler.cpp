@@ -401,15 +401,14 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 CVideoPlayer::CVideoPlayer()
 {
-	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
-	vidh_ab = new CVidHandler(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+	vidh.add_file(std::string(DATA_DIR "/Data/VIDEO.VID"));
+	vidh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+
 	current = NULL;
 }
 
 CVideoPlayer::~CVideoPlayer()
 {
-	delete vidh;
-	delete vidh_ab;
 }
 
 bool CVideoPlayer::open(std::string name)
@@ -663,8 +662,8 @@ CVideoPlayer::CVideoPlayer()
 	av_register_protocol(&lod_protocol);
 #endif
 
-	vidh = new CVidHandler(std::string(DATA_DIR "/Data/VIDEO.VID"));
-	vidh_ab = new CVidHandler(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+	vidh.add_file(std::string(DATA_DIR "/Data/VIDEO.VID"));
+	vidh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
 }
 
 // loop = to loop through the video
@@ -679,10 +678,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	refreshCount = -1;
 	doLoop = loop;
 
-	data = vidh->extract(fname, length);
-	if (!data) {
-		data = vidh_ab->extract(fname, length);		
-	}	
+	data = vidh.extract(fname, length);
 
 	if (data) {
 		// Create our URL name with the 'lod' protocol as a prefix and a

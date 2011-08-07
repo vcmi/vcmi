@@ -62,7 +62,7 @@ void CAudioBase::setVolume(unsigned int percent)
 	volume = percent;
 }
 
-CSoundHandler::CSoundHandler(): sndh(NULL)
+CSoundHandler::CSoundHandler()
 {
 	// Map sound names
 #define VCMI_SOUND_NAME(x) ( soundBase::x,
@@ -86,16 +86,17 @@ void CSoundHandler::init()
 {
 	CAudioBase::init();
 
-	if (initialized)
+	if (initialized) {
 		// Load sounds
-		sndh = new CSndHandler(std::string(DATA_DIR "/Data/Heroes3.snd"));
+		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3.snd"));
+		sndh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.snd"));
+	}
 }
 
 void CSoundHandler::release()
 {
 	if (initialized) {
 		Mix_HaltChannel(-1);
-		delete sndh;
 
 		std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
 		for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
@@ -118,7 +119,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 
 	// Load and insert
 	int size;
-	const char *data = sndh->extract(it->second, size);
+	const char *data = sndh.extract(it->second, size);
 	if (!data)
 		return NULL;
 

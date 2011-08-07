@@ -6,7 +6,7 @@
 #include "CSoundBase.h"
 #include "CMusicBase.h"
 #include "../lib/CCreatureHandler.h"
-
+#include "CSndHandler.h"
 
 /*
  * CMusicHandler.h, part of VCMI engine
@@ -18,7 +18,6 @@
  *
  */
 
-class CSndHandler;
 class CSpell;
 struct _Mix_Music;
 typedef struct _Mix_Music Mix_Music;
@@ -67,7 +66,7 @@ public:
 class CSoundHandler: public CAudioBase
 {
 private:
-	CSndHandler *sndh;
+	CSndHandler sndh;
 	soundBase::soundID getSoundID(std::string &fileName);
 
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;

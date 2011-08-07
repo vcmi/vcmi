@@ -14,16 +14,27 @@
  *
  */
 
+/* Media file are kept in container files. We map these files in
+ * memory, parse them and create an index of them to easily retrieve
+ * the data+size of the objects. */
+
 CMediaHandler::~CMediaHandler()
 {
+	std::vector<boost::iostreams::mapped_file_source *>::iterator it;
+
 	entries.clear();
 	fimap.clear();
-	mfile->close();
-	delete mfile;
+	
+	for (it=mfiles.begin() ; it < mfiles.end(); it++ ) {
+		(*it)->close();
+		delete *it;
+	}
 }
 
-CMediaHandler::CMediaHandler(std::string fname)
+boost::iostreams::mapped_file_source *CMediaHandler::add_file(std::string fname)
 {
+	boost::iostreams::mapped_file_source *mfile;
+
 	try //c-tor of mapped_file_source throws exception on failure
 	{
 		mfile = new boost::iostreams::mapped_file_source(fname);
@@ -32,15 +43,19 @@ CMediaHandler::CMediaHandler(std::string fname)
 	{
 		tlog1 << "Cannot open " << fname << std::endl;
 		throw std::string("Cannot open ")+fname;
+		return NULL;
+	} else {
+		mfiles.push_back(mfile);
+		return mfile;
 	}
 }
 
 void CMediaHandler::extract(int index, std::string dstfile) //saves selected file
 {
 	std::ofstream out(dstfile.c_str(),std::ios_base::binary);
-	const char *data = mfile->data();
-	
-	out.write(&data[entries[index].offset], entries[index].size);
+	Entry &entry = entries[index];
+
+	out.write(entry.data, entry.size);
 	out.close();
 }
 
@@ -98,10 +113,10 @@ MemberFile CMediaHandler::getFile(std::string name)
 
 const char * CMediaHandler::extract (int index, int & size)
 {
-	size = entries[index].size;
-	const char *data = mfile->data();
+	Entry &entry = entries[index];
 
-	return &data[entries[index].offset];
+	size = entry.size;
+	return entry.data;
 }
 
 const char * CMediaHandler::extract (std::string srcName, int &size)
@@ -119,35 +134,38 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 	return NULL;
 }
 
-CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
+void CSndHandler::add_file(std::string fname)
 {
-	const unsigned char *data = (const unsigned char *)mfile->data();
+	boost::iostreams::mapped_file_source *mfile = CMediaHandler::add_file(fname);
+	if (!mfile)
+		/* File doesn't exist. Silently skip it.*/
+		return;
+
+	const char *data = mfile->data();
 	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
 	struct soundEntry *se = (struct soundEntry *)&data[4];
 
 	for (unsigned int i=0; i<numFiles; i++, se++)
 	{
 		Entry entry;
-		//		char *p;
 
-		// Reassemble the filename, drop extension
 		entry.name = se->filename;
-		//		entry.name += '.';
-		//		p = se->filename;
-		//		while(*p) p++;
-		//		p++;
-		//		entry.name += p;
-
 		entry.offset = SDL_SwapLE32(se->offset);
 		entry.size = SDL_SwapLE32(se->size);
+		entry.data = mfile->data() + entry.offset;
 
 		entries.push_back(entry);
 		fimap[entry.name] = i;
 	}
 }
 
-CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname) 
+void CVidHandler::add_file(std::string fname)
 {
+	boost::iostreams::mapped_file_source *mfile = CMediaHandler::add_file(fname);
+	if (!mfile)
+		/* File doesn't exist. Silently skip it.*/
+		return;
+
 	if(mfile->size() < 48)
 	{
 		tlog1 << fname << " doesn't contain needed data!\n";
@@ -173,6 +191,7 @@ CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname)
 
 			entry.size = SDL_SwapLE32(ve_next->offset) - entry.offset;
 		}
+		entry.data = mfile->data() + entry.offset;
 
 		entries.push_back(entry);
 		fimap[entry.name] = i;
