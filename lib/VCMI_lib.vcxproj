@@ -185,6 +185,7 @@
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
+    <ClCompile Include="JsonNode.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="RegisterTypes.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />
     <ClInclude Include="Interprocess.h" />
+    <ClInclude Include="JsonNode.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
