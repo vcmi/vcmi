@@ -4394,11 +4394,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		}
 
 		CCS->musich->playMusic(musicBase::winBattle);
-		#ifdef _WIN32
-			CCS->videoh->open(VIDEO_WIN);
-		#else
-			CCS->videoh->open(VIDEO_WIN, true);
-		#endif
+		CCS->videoh->open(VIDEO_WIN);
 		std::string str = CGI->generaltexth->allTexts[text];
 		
 		const CGHeroInstance * ourHero = weAreAttacker? owner->attackingHeroInstance : owner->defendingHeroInstance;

@@ -1,15 +1,56 @@
 #ifndef __CVIDEOHANDLER_H__
 #define __CVIDEOHANDLER_H__
+
 #include "../global.h"
+#include "CSndHandler.h"
 
 struct SDL_Surface;
+
+
+class IVideoPlayer
+{
+public:
+	virtual bool open(std::string name)=0; //true - succes
+	virtual void close()=0;
+	virtual bool nextFrame()=0;
+	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
+	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
+	virtual bool wait()=0;
+	virtual int curFrame() const =0;
+	virtual int frameCount() const =0;
+
+};
+
+class IMainVideoPlayer : public IVideoPlayer
+{
+public:
+	std::string fname;  //name of current video file (empty if idle)
+
+	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true){}
+	virtual bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false) 
+	{
+		return false;
+	}
+};
+
+class CEmptyVideoPlayer : public IMainVideoPlayer
+{
+public:
+	virtual int curFrame() const {return -1;};
+	virtual int frameCount() const {return -1;};
+	virtual void redraw( int x, int y, SDL_Surface *dst, bool update = true ) {};
+	virtual void show( int x, int y, SDL_Surface *dst, bool update = true ) {};
+	virtual bool nextFrame() {return false;};
+	virtual void close() {};
+	virtual bool wait() {return false;};
+	virtual bool open( std::string name ) {return false;};
+};
+
 
 #ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 #include <windows.h>
-
-#include "CSndHandler.h"
 
 #pragma pack(push,1)
 struct BINK_STRUCT
@@ -60,45 +101,6 @@ typedef void(__stdcall*  BinkDoFrame)(HBINK);
 typedef ui8(__stdcall*  BinkWait)(HBINK);
 typedef si32(__stdcall*  BinkCopyToBuffer)(HBINK, void* buffer, int stride, int height, int x, int y, int mode);
 
-class IVideoPlayer
-{
-public:
-	virtual bool open(std::string name)=0; //true - succes
-	virtual void close()=0;
-	virtual void nextFrame()=0;
-	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
-	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
-	virtual bool wait()=0;
-	virtual int curFrame() const =0;
-	virtual int frameCount() const =0;
-
-};
-
-class IMainVideoPlayer : public IVideoPlayer
-{
-public:
-	std::string fname;  //name of current video file (empty if idle)
-
-	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true){}
-	virtual bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false) 
-	{
-		return false;
-	}
-};
-
-class CEmptyVideoPlayer : public IMainVideoPlayer
-{
-public:
-	virtual int curFrame() const {return -1;};
-	virtual int frameCount() const {return -1;};
-	virtual void redraw( int x, int y, SDL_Surface *dst, bool update = true ) {};
-	virtual void show( int x, int y, SDL_Surface *dst, bool update = true ) {};
-	virtual void nextFrame() {};
-	virtual void close() {};
-	virtual bool wait() {return false;};
-	virtual bool open( std::string name ) {return false;};
-};
-
 class CBIKHandler : public DLLHandler, public IVideoPlayer
 {
 	void allocBuffer(int Bpp = 0);
@@ -120,7 +122,7 @@ public:
 	CBIKHandler();
 	bool open(std::string name);
 	void close();
-	void nextFrame();
+	bool nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
 	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
 	bool wait();
@@ -176,7 +178,7 @@ public:
 	~CSmackPlayer();
 	bool open(std::string name);
 	void close();
-	void nextFrame();
+	bool nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
 	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
 	bool wait();
@@ -204,7 +206,7 @@ public:
 
 	bool open(std::string name);
 	void close();
-	void nextFrame(); //move animation to the next frame
+	bool nextFrame(); //move animation to the next frame
 	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
 	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw paremeter is set true
@@ -216,6 +218,7 @@ public:
 	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey = false); //plays whole opened video; returns: true when whole video has been shown, false when it has been interrupted
 };
 
+#define VIDEO_TAVERN "TAVERN.BIK"
 #define VIDEO_WIN "WIN3.BIK"
 #define VIDEO_LOSE_BATTLE_START "LBSTART.BIK"
 #define VIDEO_LOSE_BATTLE_LOOP "LBLOOP.BIK"
@@ -234,7 +237,7 @@ typedef struct AVCodec AVCodec;
 typedef struct AVFrame AVFrame;
 struct SwsContext;
 
-class CVideoPlayer //: public IVideoPlayer
+class CVideoPlayer : public IMainVideoPlayer
 {
 private:
 	int stream;					// stream index in video
@@ -256,12 +259,15 @@ private:
 	int refreshCount;
 	bool doLoop;				// loop through video
 
+	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey);
+	bool open(std::string fname, bool loop, bool useOverlay = false);
+
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
 
 	bool init();
-	bool open(std::string fname, bool loop = false, bool useOverlay = false);
+	bool open(std::string fname);
 	void close();
 	bool nextFrame();			// display next frame
 
@@ -270,14 +276,19 @@ public:
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
 	
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
-	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey);
 	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false);
 
+	//TODO:
+	bool wait(){return false;};
+	int curFrame() const {return -1;};
+	int frameCount() const {return -1;};
+	
 	const char *data;			// video buffer
 	int length;					// video size
 	unsigned int offset;		// current data offset
 };
 
+#define VIDEO_TAVERN "tavern.mjpg"
 #define VIDEO_WIN "win3.mjpg"
 #define VIDEO_LOSE_BATTLE_START "lbstart.mjpg"
 #define VIDEO_LOSE_BATTLE_LOOP "lbloop.mjpg"

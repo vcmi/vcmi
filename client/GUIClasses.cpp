@@ -4167,11 +4167,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
 			recruit->block(1);
 	}
 
-#ifdef _WIN32
-	CCS->videoh->open("TAVERN.BIK");
-#else
-	CCS->videoh->open("tavern.mjpg", true, false);
-#endif
+	CCS->videoh->open(VIDEO_TAVERN);
 }
 
 void CTavernWindow::recruitb()

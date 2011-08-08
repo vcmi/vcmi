@@ -214,9 +214,10 @@ void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
 		SDL_UpdateRect(dst, x, y, w, h);
 }
 
-void CBIKHandler::nextFrame()
+bool CBIKHandler::nextFrame()
 {
 	binkNextFrame(hBink);
+	return true;
 }
 
 void CBIKHandler::close()
@@ -269,9 +270,10 @@ void CBIKHandler::freeBuffer()
 	bufferSize = 0;
 }
 
-void CSmackPlayer::nextFrame()
+bool CSmackPlayer::nextFrame()
 {
 	ptrSmackNextFrame(data);
+	return true;
 }
 
 bool CSmackPlayer::wait()
@@ -668,6 +670,11 @@ CVideoPlayer::CVideoPlayer()
 
 	vidh.add_file(std::string(DATA_DIR "/Data/VIDEO.VID"));
 	vidh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+}
+
+bool CVideoPlayer::open(std::string fname)
+{
+	return open(fname, true, false);
 }
 
 // loop = to loop through the video
