@@ -136,7 +136,13 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 
 void CSndHandler::add_file(std::string fname)
 {
-	boost::iostreams::mapped_file_source *mfile = CMediaHandler::add_file(fname);
+	boost::iostreams::mapped_file_source *mfile = NULL;
+	try
+	{
+		mfile = CMediaHandler::add_file(fname);
+	}
+	catch(...)
+	{}
 	if (!mfile)
 		/* File doesn't exist. Silently skip it.*/
 		return;
