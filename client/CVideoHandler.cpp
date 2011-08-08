@@ -67,7 +67,7 @@ void DLLHandler::Instantiate(const char *filename)
 	if(!dll)
 	{
 		tlog1 << "Failed loading " << filename << std::endl;
-		checkForError();
+		checkForError(true);
 	}
 #else
 	dll = dlopen(filename,RTLD_LOCAL | RTLD_LAZY);
@@ -78,6 +78,11 @@ void *DLLHandler::FindAddress(const char *symbol)
 {
 	void *ret;
 #ifdef _WIN32
+	if(!dll)
+	{
+		tlog1 << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!\n";
+		return NULL;
+	}
 	ret = (void*) GetProcAddress(dll,symbol);
 	if(!ret)
 	{
@@ -114,7 +119,6 @@ DLLHandler::DLLHandler()
 CBIKHandler::CBIKHandler()
 {
 	Instantiate("BINKW32.DLL");
-
 	//binkGetError = FindAddress("_BinkGetError@0");
 	binkOpen = (BinkOpen)FindAddress("_BinkOpen@8");
 	binkSetSoundSystem = (BinkSetSoundSystem)FindAddress("_BinkSetSoundSystem@8");
@@ -124,6 +128,7 @@ CBIKHandler::CBIKHandler()
 	binkCopyToBuffer = (BinkCopyToBuffer)FindAddress("_BinkCopyToBuffer@28");
 	binkWait = (BinkWait)FindAddress("_BinkWait@4");
 	binkClose =  (BinkClose)FindAddress("_BinkClose@4");
+
 
 	hBinkFile = NULL;
 	hBink = NULL;
@@ -274,10 +279,9 @@ bool CSmackPlayer::wait()
 	return ptrSmackWait(data);
 }
 
-CSmackPlayer::CSmackPlayer()
+CSmackPlayer::CSmackPlayer() : data(NULL)
 {
 	Instantiate("smackw32.dll");
-
 	ptrSmackNextFrame = (SmackNextFrame)FindAddress("_SmackNextFrame@4");
 	ptrSmackWait = (SmackWait)FindAddress("_SmackWait@4");
 	ptrSmackDoFrame = (SmackDoFrame)FindAddress("_SmackDoFrame@4");

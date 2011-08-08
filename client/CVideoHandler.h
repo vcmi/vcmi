@@ -71,6 +71,32 @@ public:
 	virtual bool wait()=0;
 	virtual int curFrame() const =0;
 	virtual int frameCount() const =0;
+
+};
+
+class IMainVideoPlayer : public IVideoPlayer
+{
+public:
+	std::string fname;  //name of current video file (empty if idle)
+
+	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true){}
+	virtual bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false) 
+	{
+		return false;
+	}
+};
+
+class CEmptyVideoPlayer : public IMainVideoPlayer
+{
+public:
+	virtual int curFrame() const {return -1;};
+	virtual int frameCount() const {return -1;};
+	virtual void redraw( int x, int y, SDL_Surface *dst, bool update = true ) {};
+	virtual void show( int x, int y, SDL_Surface *dst, bool update = true ) {};
+	virtual void nextFrame() {};
+	virtual void close() {};
+	virtual bool wait() {return false;};
+	virtual bool open( std::string name ) {return false;};
 };
 
 class CBIKHandler : public DLLHandler, public IVideoPlayer
@@ -160,7 +186,7 @@ public:
 
 class CVidHandler;
 
-class CVideoPlayer : public IVideoPlayer
+class CVideoPlayer : public IMainVideoPlayer
 {
 private:
 	CVidHandler vidh; //.vid file handling
@@ -171,7 +197,6 @@ private:
 
 	bool first; //are we about to display the first frame (blocks update)
 public:
-	std::string fname; //name of current video file (empty if idle)
 	
 	CVideoPlayer(); //c-tor
 	~CVideoPlayer(); //d-tor
@@ -251,7 +276,6 @@ public:
 	const char *data;			// video buffer
 	int length;					// video size
 	unsigned int offset;		// current data offset
-	std::string fname; //name of current video file (empty if idle)
 };
 
 #define VIDEO_WIN "win3.mjpg"

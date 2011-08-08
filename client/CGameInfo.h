@@ -29,7 +29,7 @@ class CGeneralTextHandler;
 class CConsoleHandler;
 class CCursorHandler;
 class CGameState;
-class CVideoPlayer;
+class IMainVideoPlayer;
 
 
 //a class for non-mechanical client GUI classes
@@ -40,7 +40,7 @@ public:
 	CMusicHandler * musich;
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;
-	CVideoPlayer * videoh;
+	IMainVideoPlayer * videoh;
 };
 
 struct Mapa;
