@@ -465,10 +465,15 @@ void CVideoPlayer::close()
 	fname.clear();
 }
 
-void CVideoPlayer::nextFrame()
+bool CVideoPlayer::nextFrame()
 {
 	if(current)
+	{
 		current->nextFrame();
+		return true;
+	}
+	else
+		return false;
 }
 
 void CVideoPlayer::show(int x, int y, SDL_Surface *dst, bool update)
