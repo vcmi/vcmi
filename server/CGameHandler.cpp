@@ -3453,6 +3453,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 		if (spellID == 79)
 			amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
+	StacksInjured si;
 
 	//applying effects
 	switch(spellID)
@@ -3480,7 +3481,6 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				else //Faerie Dragon
 					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
 			}
-			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
@@ -3501,8 +3501,6 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 			}
-			if(!si.stacks.empty())
-				sendAndApply(&si);
 			break;
 		}
 	// permanent effects
@@ -3628,7 +3626,6 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			bsm.tilesToMove = tiles;
 			bsm.teleporting = true;
 			sendAndApply(&bsm);
-
 			break;
 		}
 	case 37: //cure
@@ -3687,13 +3684,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			}
 			if(!obr.obstacles.empty())
 				sendAndApply(&obr);
-
 			break;
 		}
 		break;
 	case 79: //Death stare - handled in a bit different way
 		{
-			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if((*it)->hasBonusOfType(Bonus::UNDEAD) || (*it)->hasBonusOfType(Bonus::NON_LIVING)) //this creature is immune
@@ -3711,13 +3706,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 			}
-			if(!si.stacks.empty())
-				sendAndApply(&si);
 		}
 		break;
 	case 81: //Acid breath damage - new effect, separate from acid breath defense reduction
 		{
-			StacksInjured si;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
 			{
 				BattleStackAttacked bsa;
@@ -3729,14 +3721,13 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 			}
-			if(!si.stacks.empty())
-				sendAndApply(&si);
 		}
 		break;
 	}
 
 	sendAndApply(&sc);
-	
+	if(!si.stacks.empty()) //after spellcast info shows
+		sendAndApply(&si);
 	//Magic Mirror effect
 	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{

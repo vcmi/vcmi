@@ -566,8 +566,8 @@ void CDefenceAnim::endAnim()
 
 	//printing info to console
 
-	if(attacker!=NULL)
-		owner->printConsoleAttacked(stack, dmg, amountKilled, attacker);
+	//if(attacker!=NULL)
+	//	owner->printConsoleAttacked(stack, dmg, amountKilled, attacker);
 
 	//const CStack * attacker = owner->curInt->cb->battleGetStackByID(IDby, false);
 	//const CStack * attacked = owner->curInt->cb->battleGetStackByID(stackID, false);
@@ -2561,6 +2561,18 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 		}
 	}
 	waitForAnims();
+	int targets = 0, killed = 0, damage = 0;
+	for(int h = 0; h < attackedInfos.size(); ++h)
+	{
+		++targets;
+		killed += attackedInfos[h].killed;
+		damage += attackedInfos[h].dmg;
+	}
+	if (targets > 1)
+		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
+	else
+		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, false);
+
 	for(int h = 0; h < attackedInfos.size(); ++h)
 	{
 		if (attackedInfos[h].rebirth)
@@ -3626,21 +3638,26 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 	}
 }
 
-void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker )
+void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple )
 {
 	char tabh[200];
-	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
-		(attacker->count > 1 ? attacker->getCreature()->namePl.c_str() : attacker->getCreature()->nameSing.c_str()),
-		dmg);
+	int end = 0;
+	if (attacker) //ignore if stacks were killed by spell
+	{
+		end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
+		(attacker->count > 1 ? attacker->getCreature()->namePl.c_str() : attacker->getCreature()->nameSing.c_str()), dmg);
+	}
 	if(killed > 0)
 	{
 		if(killed > 1)
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender->getCreature()->namePl.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed,
+				multiple ? CGI->generaltexth->allTexts[43].c_str() : defender->getCreature()->namePl.c_str()); // creatures perish
 		}
 		else //killed == 1
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender->getCreature()->nameSing.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), 
+				multiple ? CGI->generaltexth->allTexts[42].c_str() : defender->getCreature()->nameSing.c_str()); // creature perishes
 		}
 	}
 
