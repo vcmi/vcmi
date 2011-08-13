@@ -361,6 +361,7 @@ namespace Arts
 	};
 	const ui16 BACKPACK_START = 19;
 	const int ID_CATAPULT = 3, ID_LOCK = 145;
+	const ui16 CREATURE_ART = 0;
 }
 
 enum EAlignment

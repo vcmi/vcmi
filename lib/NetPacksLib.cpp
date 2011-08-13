@@ -1150,7 +1150,8 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStackInstance *csi = new CStackInstance(creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id]->powers[skill]); //deleted by d-tor of summoned stack
+		int summonedElementals = h->getPrimSkillLevel(2) * VLC->spellh->spells[id]->powers[skill] * (100 + h->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id) / 100.0f); //new feature - percentage bonus
+		CStackInstance *csi = new CStackInstance(creID, summonedElementals); //deleted by d-tor of summoned stack
 		csi->setArmyObj(h);
 		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
 		summonedStack->state.insert(SUMMONED);

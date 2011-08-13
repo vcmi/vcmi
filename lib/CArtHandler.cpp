@@ -1231,7 +1231,7 @@ bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInf
 	return art == rhs.art && slot == rhs.slot;
 }
 
-const CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/) const
+const CArtifactInstance* IArtifactSetBase::getArt(ui16 pos, bool excludeLocked) const
 {
 	if(const ArtSlotInfo *si = getSlot(pos))
 	{
@@ -1242,9 +1242,29 @@ const CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= t
 	return NULL;
 }
 
-CArtifactInstance* CArtifactSet::getArt(ui16 pos, bool excludeLocked /*= true*/)
+bool IArtifactSetBase::hasArt(ui32 aid, bool onlyWorn) const
 {
-	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
+	return getArtPos(aid, onlyWorn) != -1;
+}
+
+bool IArtifactSetBase::isPositionFree(ui16 pos, bool onlyLockCheck) const
+{
+	if(const ArtSlotInfo *s = getSlot(pos))
+		return (onlyLockCheck || !s->artifact) && !s->locked;
+
+	return true; //no slot means not used
+}
+
+void IArtifactSetBase::setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked)
+{
+	ArtSlotInfo &asi = retreiveNewArtSlot(slot);
+	asi.artifact = art;
+	asi.locked = locked;
+}
+
+CArtifactInstance* IArtifactSetBase::getArt(ui16 pos, bool excludeLocked /*= true*/)
+{
+	return const_cast<CArtifactInstance*>((const_cast<const IArtifactSetBase*>(this))->getArt(pos, excludeLocked));
 }
 
 si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
@@ -1289,11 +1309,6 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(int artInstId) const
 	return NULL;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
-{
-	return getArtPos(aid, onlyWorn) != -1;
-}
-
 const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
 {
 	if(vstd::contains(artifactsWorn, pos))
@@ -1308,14 +1323,6 @@ const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
 	}
 
 	return NULL;
-}
-
-bool CArtifactSet::isPositionFree(ui16 pos, bool onlyLockCheck /*= false*/) const
-{
-	if(const ArtSlotInfo *s = getSlot(pos))
-		return (onlyLockCheck || !s->artifact) && !s->locked;
-
-	return true; //no slot means not used
 }
 
 si32 CArtifactSet::getArtTypeId(ui16 pos) const
@@ -1344,13 +1351,6 @@ ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ui16 slot)
 	return ret;
 }
 
-void CArtifactSet::setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked)
-{
-	ArtSlotInfo &asi = retreiveNewArtSlot(slot);
-	asi.artifact = art;
-	asi.locked = locked;
-}
-
 void CArtifactSet::eraseArtSlot(ui16 slot)
 {
 	if(slot < Arts::BACKPACK_START)
@@ -1362,4 +1362,94 @@ void CArtifactSet::eraseArtSlot(ui16 slot)
 		slot -= Arts::BACKPACK_START;
 		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
 	}
+}
+
+ArtSlotInfo & CCreatureArtifactSet::retreiveNewArtSlot(ui16 slot)
+{
+	assert(slot); //ke?
+	ArtSlotInfo &ret = slot <= Arts::CREATURE_ART
+		? activeArtifact
+		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - 1), ArtSlotInfo());
+
+	return ret;
+}
+
+void CCreatureArtifactSet::eraseArtSlot(ui16 slot)
+{
+	if(slot == Arts::CREATURE_ART)
+	{
+		activeArtifact.artifact = NULL; //hmm?
+	}
+	else
+	{
+		slot -= 1;
+		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
+	}
+}
+
+const ArtSlotInfo * CCreatureArtifactSet::getSlot(ui16 pos) const
+{
+	if (pos == Arts::CREATURE_ART)
+		return &activeArtifact;
+	else if(pos > Arts::CREATURE_ART)
+	{
+		int backpackPos = (int)pos - 1;
+		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
+			return NULL;
+		else
+			return &artifactsInBackpack[backpackPos];
+	}
+	return NULL;
+}
+
+si32 CCreatureArtifactSet::getArtPos(int aid, bool onlyWorn) const
+{
+	if (aid == activeArtifact.artifact->artType->id )
+		return Arts::CREATURE_ART;
+
+	if(onlyWorn)
+		return -1;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+	{
+		if(artifactsInBackpack[i].artifact->artType->id == aid)
+			return i + 1;
+	}
+
+	return -1;
+}
+
+si32 CCreatureArtifactSet::getArtPos(const CArtifactInstance *art) const
+{
+	if (activeArtifact.artifact == art)
+		return Arts::CREATURE_ART;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+		if(artifactsInBackpack[i].artifact == art)
+			return Arts::BACKPACK_START + i;
+
+	return -1;
+}
+
+const CArtifactInstance * CCreatureArtifactSet::getArtByInstanceId(int artInstId) const
+{
+	if (activeArtifact.artifact->id == artInstId)
+		return activeArtifact.artifact;
+
+	for(int i = 0; i < artifactsInBackpack.size(); i++)
+		if(artifactsInBackpack[i].artifact->id == artInstId)
+			return artifactsInBackpack[i].artifact;
+
+	return NULL;
+}
+
+si32 CCreatureArtifactSet::getArtTypeId(ui16 pos) const
+{
+	const CArtifactInstance * const a = getArt(pos);
+	if(!a)
+	{
+		tlog2 << "Stack has no artifact at " << pos << " (getArtTypeId)\n";
+		return -1;
+	}
+	return a->artType->id;
 }
