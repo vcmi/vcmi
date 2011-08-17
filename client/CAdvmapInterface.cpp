@@ -32,6 +32,7 @@
 #include <boost/foreach.hpp>
 #include "CSoundBase.h"
 #include "../lib/CGameState.h"
+#include "CMusicHandler.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -1449,6 +1450,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
+	CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype]); //TODO: needs to be updated upon hero movement
 	if(centerView)
 		centerOn(sel);
 
@@ -1555,8 +1557,9 @@ void CAdvMapInt::startTurn()
 
 void CAdvMapInt::tileLClicked(const int3 &mp)
 {
-	if(!LOCPLINT->cb->isVisible(mp))
+	if(!LOCPLINT->cb->isVisible(mp) || !LOCPLINT->makingTurn)
 		return;
+
 
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
 		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
