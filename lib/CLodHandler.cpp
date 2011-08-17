@@ -280,6 +280,11 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 	totalFiles = SDL_SwapLE32(temp);
 
 	LOD.seekg(0x5c, std::ios::beg);
+	if(!LOD)
+	{
+		tlog2 << lodFile << " doesn't store anything!\n";
+		return;
+	}
 
 	struct LodEntry *lodEntries = new struct LodEntry[totalFiles];
 	LOD.read((char *)lodEntries, sizeof(struct LodEntry) * totalFiles);

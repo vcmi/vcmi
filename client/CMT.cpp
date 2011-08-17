@@ -137,8 +137,8 @@ void init()
 	CCS->soundh->init();
 	CCS->soundh->setVolume(GDefaultOptions.soundVolume);
 	CCS->musich = new CMusicHandler;
-	//CGI->musich->init();
-	//CGI->musich->setVolume(GDefaultOptions.musicVolume);
+	CCS->musich->init();
+	CCS->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 	tlog0<<"Initializing screen and sound handling: "<<tmh.getDif()<<std::endl;
 
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
 
 	if(!vm.count("battle"))
 	{
-		CCS->musich->playMusic(musicBase::mainMenu, -1);
+		//CCS->musich->playMusic(musicBase::mainMenu, -1);
 		GH.curInt = new CGPreGame; //will set CGP pointer to itself
 	}
 	else

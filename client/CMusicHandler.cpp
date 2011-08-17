@@ -316,6 +316,10 @@ CMusicHandler::CMusicHandler(): currentMusic(NULL), nextMusic(NULL)
 	              musicBase::necroTown,      musicBase::dungeonTown,
 				  musicBase::strongHoldTown, musicBase::fortressTown,
 	              musicBase::elemTown;
+
+	terrainMusics += musicBase::dirt, musicBase::sand, musicBase::grass,
+		musicBase::snow, musicBase::swamp, musicBase::rough,
+		musicBase::underground, musicBase::lava,musicBase::water;
 }
 
 void CMusicHandler::init()
@@ -441,7 +445,11 @@ Mix_Music * CMusicHandler::LoadMUS(const char *file)
 	Mix_Music *ret = Mix_LoadMUS(file);
 	if(!ret) //load music and check for error
 		tlog1 << "Unable to load music file (" << file <<"). Error: " << Mix_GetError() << std::endl;
-	
+
+#ifdef _WIN32
+	//The assertion will fail if old MSVC libraries pack .dll is used
+	assert(Mix_GetMusicType(ret) == MUS_MP3_MAD);
+#endif
 	return ret;
 }
 
