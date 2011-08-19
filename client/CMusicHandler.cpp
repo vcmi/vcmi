@@ -28,7 +28,13 @@ using namespace boost::assign;
 static boost::bimap<soundBase::soundID, std::string> sounds;
 
 // Not pretty, but there's only one music handler object in the game.
-static void musicFinishedCallbackC(void) {
+static void soundFinishedCallbackC(int channel)
+{
+	CCS->soundh->soundFinishedCallback(channel);
+}
+
+static void musicFinishedCallbackC(void)
+{
 	CCS->musich->musicFinishedCallback();
 }
 
@@ -48,7 +54,8 @@ void CAudioBase::init()
 
 void CAudioBase::release()
 {
-	if (initialized) {
+	if (initialized)
+		{
 		Mix_CloseAudio();
 		initialized = false;
 	}
@@ -75,32 +82,41 @@ CSoundHandler::CSoundHandler()
 	// Vectors for helper(s)
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
+
 	horseSounds +=  // must be the same order as terrains (see EterrainType);
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
+
+	battleIntroSounds +=     soundBase::battle00, soundBase::battle01,
+	    soundBase::battle02, soundBase::battle03, soundBase::battle04,
+	    soundBase::battle05, soundBase::battle06, soundBase::battle07;
 };
 
 void CSoundHandler::init()
 {
 	CAudioBase::init();
 
-	if (initialized) {
+	if (initialized)
+	{
 		// Load sounds
 		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3.snd"));
 		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3-cd2.snd"));
 		sndh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.snd"));
+		Mix_ChannelFinished(soundFinishedCallbackC);
 	}
 }
 
 void CSoundHandler::release()
 {
-	if (initialized) {
+	if (initialized)
+	{
 		Mix_HaltChannel(-1);
 
 		std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
-		for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
+		for (it=soundChunks.begin(); it != soundChunks.end(); it++)
+		{
 			if (it->second)
 				Mix_FreeChunk(it->second);
 		}
@@ -128,7 +144,8 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 	Mix_Chunk *chunk;
 	chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
-	if (!chunk) {
+	if (!chunk)
+	{
 		tlog1 << "Unable to mix sound" << it->second << "(" << Mix_GetError() << ")" << std::endl;
 		return NULL;
 	}
@@ -268,8 +285,11 @@ int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 			tlog1 << "Unable to play sound file " << soundID << " , error " << Mix_GetError() << std::endl;
-		
-	} else {
+		else
+			callbacks[channel];//insert empty callback
+	}
+	else
+	{
 		channel = -1;
 	}
 
@@ -297,7 +317,32 @@ void CSoundHandler::setVolume(unsigned int percent)
 		Mix_Volume(-1, (MIX_MAX_VOLUME * volume)/100);
 }
 
-CMusicHandler::CMusicHandler(): currentMusic(NULL), nextMusic(NULL)
+void CSoundHandler::setCallback(int channel, boost::function<void()> function)
+{
+	std::map<int, boost::function<void()> >::iterator iter;
+	iter = callbacks.find(channel);
+
+	//channel not found. It may have finished so fire callback now
+	if(iter == callbacks.end())
+		function();
+	else
+		iter->second = function;
+}
+
+void CSoundHandler::soundFinishedCallback(int channel)
+{
+	std::map<int, boost::function<void()> >::iterator iter;
+	iter = callbacks.find(channel);
+
+	assert(iter != callbacks.end());
+
+	if (iter->second)
+		iter->second();
+
+	callbacks.erase(iter);
+}
+
+CMusicHandler::CMusicHandler()
 {
 	// Map music IDs
 #define VCMI_MUSIC_ID(x) ( musicBase::x ,
@@ -314,7 +359,7 @@ CMusicHandler::CMusicHandler(): currentMusic(NULL), nextMusic(NULL)
 	townMusics += musicBase::castleTown,     musicBase::rampartTown,
 	              musicBase::towerTown,      musicBase::infernoTown,
 	              musicBase::necroTown,      musicBase::dungeonTown,
-				  musicBase::strongHoldTown, musicBase::fortressTown,
+	              musicBase::strongHoldTown, musicBase::fortressTown,
 	              musicBase::elemTown;
 
 	terrainMusics += musicBase::dirt, musicBase::sand, musicBase::grass,
@@ -332,21 +377,14 @@ void CMusicHandler::init()
 
 void CMusicHandler::release()
 {
-	if (initialized) {
+	if (initialized)
+	{
+		boost::mutex::scoped_lock guard(musicMutex);
+
 		Mix_HookMusicFinished(NULL);
 
-		musicMutex.lock();
-
-		if (currentMusic)
-		{
-			Mix_HaltMusic();
-			Mix_FreeMusic(currentMusic);
-		}
-
-		if (nextMusic)
-			Mix_FreeMusic(nextMusic);
-
-		musicMutex.unlock();
+		current.reset();
+		next.reset();
 	}
 
 	CAudioBase::release();
@@ -356,42 +394,39 @@ void CMusicHandler::release()
 // loop: -1 always repeats, 0=do not play, 1+=number of loops
 void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 {
+	if (current.get() != NULL && *current == musicID)
+		return;
+
+	queueNext(new MusicEntry(this, musicID, loop));
+}
+
+// Helper. Randomly plays tracks from music_vec
+void CMusicHandler::playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop)
+{
+	if (current.get() != NULL && *current == music_vec)
+		return;
+
+	queueNext(new MusicEntry(this, music_vec, loop));
+}
+
+void CMusicHandler::queueNext(MusicEntry *queued)
+{
 	if (!initialized)
 		return;
 
-	std::string filename = DATA_DIR "/Mp3/";
-	filename += musics[musicID];
+	boost::mutex::scoped_lock guard(musicMutex);
 
-	musicMutex.lock();
+	next.reset(queued);
 
-	if (nextMusic)
+	if (current.get() != NULL)
 	{
-		// There's already a music queued, so remove it
-		Mix_FreeMusic(nextMusic);
-		nextMusic = NULL;
-	}
-
-	if (currentMusic)
-	{
-		// A music is already playing. Stop it and the callback will
-		// start the new one
-		nextMusic = LoadMUS(filename.c_str());
-		nextMusicLoop = loop;
-		Mix_FadeOutMusic(1000);
+		current->stop(1000);
 	}
 	else
 	{
-		currentMusic = LoadMUS(filename.c_str());
-		PlayMusic(currentMusic,loop);
+		current = next;
+		current->play();
 	}
-
-	musicMutex.unlock();
-}
-
-// Helper. Randomly select a music from an array and play it
-void CMusicHandler::playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop)
-{
-	playMusic(music_vec[rand() % music_vec.size()], loop);
 }
 
 // Stop and free the current music
@@ -400,14 +435,12 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if (!initialized)
 		return;
 
-	musicMutex.lock();
+	boost::mutex::scoped_lock guard(musicMutex);
 
-	if (currentMusic)
-	{
-		Mix_FadeOutMusic(fade_ms);
-	}
+	if (current.get() != NULL)
+		current->stop(fade_ms);
+	next.reset();
 
-	musicMutex.unlock();
 }
 
 // Sets the music volume, from 0 (mute) to 100
@@ -422,42 +455,100 @@ void CMusicHandler::setVolume(unsigned int percent)
 // Called by SDL when a music finished.
 void CMusicHandler::musicFinishedCallback(void)
 {
-	musicMutex.lock();
+	boost::mutex::scoped_lock guard(musicMutex);
 
-	if (currentMusic)
+	if (current.get() != NULL)
 	{
-		Mix_FreeMusic(currentMusic);
-		currentMusic = NULL;
+		//return if current music still not finished
+		if (current->play())
+			return;
+		else
+			current.reset();
 	}
 
-	if (nextMusic)
+	if (current.get() == NULL && next.get() != NULL)
 	{
-		currentMusic = nextMusic;
-		nextMusic = NULL;
-		PlayMusic(currentMusic,nextMusicLoop);
+		current = next;
+		current->play();
 	}
-
-	musicMutex.unlock();
 }
 
-Mix_Music * CMusicHandler::LoadMUS(const char *file)
+MusicEntry::MusicEntry(CMusicHandler *_owner, musicBase::musicID _musicID, int _loopCount):
+	owner(_owner),
+	music(NULL),
+	loopCount(_loopCount)
 {
-	Mix_Music *ret = Mix_LoadMUS(file);
-	if(!ret) //load music and check for error
-		tlog1 << "Unable to load music file (" << file <<"). Error: " << Mix_GetError() << std::endl;
+	load(_musicID);
+}
+
+MusicEntry::MusicEntry(CMusicHandler *_owner, std::vector<musicBase::musicID> &_musicVec, int _loopCount):
+	currentID(musicBase::music_todo),
+	owner(_owner),
+	music(NULL),
+	loopCount(_loopCount),
+	musicVec(_musicVec)
+{
+	//In this case music will be loaded only on playing - no need to call load() here
+}
+
+MusicEntry::~MusicEntry()
+{
+	tlog5<<"Del-ing music file "<<filename<<"\n";
+	if (music)
+		Mix_FreeMusic(music);
+}
+
+void MusicEntry::load(musicBase::musicID ID)
+{
+	currentID = ID;
+	filename = DATA_DIR "/Mp3/";
+	filename += owner->musics[ID];
+
+	tlog5<<"Loading music file "<<filename<<"\n";
+	if (music)
+		Mix_FreeMusic(music);
+
+	music = Mix_LoadMUS(filename.c_str());
 
 #ifdef _WIN32
 	//The assertion will fail if old MSVC libraries pack .dll is used
-	assert(Mix_GetMusicType(ret) == MUS_MP3_MAD);
+	assert(Mix_GetMusicType(music) == MUS_MP3_MAD);
 #endif
-	return ret;
 }
 
-int CMusicHandler::PlayMusic(Mix_Music *music, int loops)
+bool MusicEntry::play()
 {
-	int ret = Mix_PlayMusic(music, loops);
-	if(ret == -1)
-		tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
+	tlog5<<"Playing music file "<<filename<<"\n";
+	if (loopCount == 0)
+		return false;
 
-	return ret;
+	if (loopCount > 0)
+		loopCount--;
+
+	if (!musicVec.empty())
+		load(musicVec.at(rand() % musicVec.size()));
+
+	if(Mix_PlayMusic(music, 1) == -1)
+	{
+		tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+void MusicEntry::stop(int fade_ms)
+{
+	tlog5<<"Stoping music file "<<filename<<"\n";
+	loopCount = 0;
+	Mix_FadeOutMusic(fade_ms);
+}
+
+bool MusicEntry::operator == (musicBase::musicID _musicID) const
+{
+	return musicVec.empty() && currentID == _musicID;
+}
+
+bool MusicEntry::operator == (std::vector<musicBase::musicID> &_musicVec) const
+{
+	return musicVec == _musicVec;
 }

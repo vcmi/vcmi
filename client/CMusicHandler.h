@@ -2,6 +2,9 @@
 #define __CMUSICHANDLER_H__
 
 #include <boost/thread/mutex.hpp>
+#include <boost/function.hpp>
+
+#include <memory>
 
 #include "CSoundBase.h"
 #include "CMusicBase.h"
@@ -73,6 +76,10 @@ private:
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
 
+	//have entry for every currently active channel
+	//boost::function will be NULL if callback was not set
+	std::map<int, boost::function<void()> > callbacks;
+
 public:
 	CSoundHandler();
 
@@ -87,16 +94,48 @@ public:
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
+
+	void setCallback(int channel, boost::function<void()> function);
+	void soundFinishedCallback(int channel);
+
 	std::vector <struct CreaturesBattleSounds> CBattleSounds;
 	std::map<const CSpell*, soundBase::soundID> spellSounds;
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> horseSounds;
+	std::vector<soundBase::soundID> battleIntroSounds;
 };
 
 // Helper
 #define battle_sound(creature,what_sound) CCS->soundh->CBattleSounds[(creature)->idNumber].what_sound
+
+class CMusicHandler;
+
+//Class for handling one music file
+class MusicEntry
+{
+	std::string filename; //used only for debugging and console messages
+	musicBase::musicID currentID;
+	CMusicHandler *owner;
+	Mix_Music *music;
+	int loopCount;
+	//if not empty - vector from which music will be randomly selected
+	std::vector<musicBase::musicID> musicVec;
+
+	void load(musicBase::musicID);
+
+public:
+	bool operator == (musicBase::musicID musicID) const;
+	bool operator == (std::vector<musicBase::musicID> &_musicVec) const;
+
+	MusicEntry(CMusicHandler *owner, musicBase::musicID musicID, int _loopCount);
+	MusicEntry(CMusicHandler *owner, std::vector<musicBase::musicID> &_musicVec, int _loopCount);
+	~MusicEntry();
+
+	bool play();
+	void stop(int fade_ms=0);
+};
 
 class CMusicHandler: public CAudioBase
 {
@@ -104,12 +143,11 @@ private:
 	// Because we use the SDL music callback, our music variables must
 	// be protected
 	boost::mutex musicMutex;
-	Mix_Music *currentMusic;
-	Mix_Music *nextMusic;
-	int nextMusicLoop;
 
-	Mix_Music * LoadMUS(const char *file); //calls Mix_LoadMUS and checks for errors
-	int PlayMusic(Mix_Music *music, int loops); //calls Mix_PlayMusic and checks for errors
+	std::auto_ptr<MusicEntry> current;
+	std::auto_ptr<MusicEntry> next;
+
+	void queueNext(MusicEntry *queued);
 public:
 	CMusicHandler();
 

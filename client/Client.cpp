@@ -478,7 +478,7 @@ void CClient::serialize( Handler &h, const int version )
 			{
 				if(pid == 255)
 				{
-					CBattleCallback * cbc = new CBattleCallback(gs, pid, this);
+					//CBattleCallback * cbc = new CBattleCallback(gs, pid, this);//FIXME: unused?
 					CBattleGameInterface *cbgi = CDynLibHandler::getNewBattleAI(dllname);
 					battleints[pid] = cbgi;
 					cbgi->init(cb);

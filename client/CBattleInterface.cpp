@@ -1477,6 +1477,8 @@ CBattleInterface::~CBattleInterface()
 
 	delete siegeH;
 	curInt->battleInt = NULL;
+
+	//TODO:restart music (can be AI or terrain). May be easier to backup and restore it instead of re-selecting
 }
 
 void CBattleInterface::setPrintCellBorders(bool set)
@@ -2981,7 +2983,6 @@ void CBattleInterface::displayBattleFinished()
 	CCS->curh->changeGraphic(0,0);
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-	CCS->musich->stopMusic();
 	resWindow = new CBattleResultWindow(*bresult, temp_rect, this);
 	GH.pushInt(resWindow);
 }

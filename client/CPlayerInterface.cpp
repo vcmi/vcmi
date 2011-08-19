@@ -257,6 +257,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
+		//We may need to change music - select new track, music handler will change it if needed
+		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(ho->visitablePos())->tertype]);
 		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
 		{
 			if(adventureInt->terrain.currentPath)
@@ -569,7 +571,11 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	CCS->musich->playMusicFromSet(CCS->musich->battleMusics, -1);
+	CCS->musich->stopMusic();
+
+	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
+
 	GH.pushInt(battleInt);
 }
 
@@ -2051,13 +2057,19 @@ void CPlayerInterface::acceptTurn()
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	/* TODO: This isn't quite right. First day in game should play
-	 * NEWDAY. And we don't play NEWMONTH. */
+	//Select sound for day start
+	int totalDays = cb->getDate();
 	int day = cb->getDate(1);
-	if (day != 1)
+	int week = cb->getDate(2);
+
+	if (totalDays == 1)
 		CCS->soundh->playSound(soundBase::newDay);
-	else
+	else if (day != 1)
+		CCS->soundh->playSound(soundBase::newDay);
+	else if (week != 1)
 		CCS->soundh->playSound(soundBase::newWeek);
+	else
+		CCS->soundh->playSound(soundBase::newMonth);
 
 	adventureInt->infoBar.newDay(day);
 

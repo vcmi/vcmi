@@ -729,7 +729,6 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		break;
 	}
 
-	CCS->musich->stopMusic();
 	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 

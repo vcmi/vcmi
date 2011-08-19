@@ -951,7 +951,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 CCastleInterface::~CCastleInterface()
 {
 	LOCPLINT->castleInt = NULL;
-	CCS->musich->stopMusic(5000);
 	delete bicons;
 }
 
@@ -1420,10 +1419,12 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 				int buildingID = boxList[row][col][item];
 				building = CGI->buildh->buildings[town->subID][buildingID];
 
-				if (buildingID == 18 && vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
-					continue;
-				if (buildingID == 24 && vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37))
-					continue;
+				//Creature hordes - select unupgraded version if dwelling upgrade was not build yet
+				if (buildingID == 18 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
+					break;
+				if (buildingID == 24 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37))
+					break;
+
 				if(vstd::contains(town->builtBuildings,buildingID))
 					continue;
 				break;
