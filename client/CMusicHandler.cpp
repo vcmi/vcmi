@@ -231,32 +231,22 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
-	tlog5 << "\t\tReading config/sp_sounds.txt" << std::endl;
-	std::ifstream ifs(DATA_DIR "/config/sp_sounds.txt");
-	std::string line;
+	class JsonNode config(DATA_DIR "/config/sp_sounds.json");
 
-	while(getline(ifs, line))
-	{
-		int spellid;
-		std::string soundfile="";
-		std::istringstream str(line);
-
-		str >> spellid >> soundfile;
-
-		if (str.good() || (str.eof() && soundfile != ""))
-		{
+	if (!config["spell_sounds"].isNull()) {
+		const JsonVector &vector = config["spell_sounds"].Vector();
+	
+		for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it) {
+			const JsonNode &node = *it;
+			int spellid = node["id"].Float();
 			const CSpell *s = CGI->spellh->spells[spellid];
 
 			if (vstd::contains(spellSounds, s))
-			{
 				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;
-			}
-			
-			spellSounds[s] = getSoundID(soundfile);
+
+			spellSounds[s] = getSoundID(node["soundfile"].String());
 		}
 	}
-	ifs.close();
-	ifs.clear();
 }
 
 // Plays a sound, and return its channel so we can fade it out later

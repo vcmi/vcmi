@@ -1,0 +1,242 @@
+// Sounds associated with spells
+// "name" is not currently used in game
+
+{
+	"spell_sounds": 
+	[
+		{
+			"id": 15,
+			"soundfile": "MAGICBLT.wav",
+			"name": "magic arrow"
+		},
+		{
+			"id": 16,
+			"soundfile": "ICERAY.wav",
+			"name": "ice bolt"
+		},
+		{
+			"id": 17,
+			"soundfile": "LIGHTBLT.wav",
+			"name": "lightning bolt"
+		},
+		{
+			"id": 20,
+			"soundfile": "FROSTING.wav",
+			"name": "frost ring"
+		},
+		{
+			"id": 21,
+			"soundfile": "FIREBALL.wav",
+			"name": "fireball"
+		},
+		{
+			"id": 23,
+			"soundfile": "METEOR.wav",
+			"name": "meteor shower"
+		},
+		{
+			"id": 24,
+			"soundfile": "DEATHRIP.wav",
+			"name": "death ripple"
+		},
+		{
+			"id": 26,
+			"soundfile": "ARMGEDN.wav",
+			"name": "armageddon"
+		},
+		{
+			"id": 27,
+			"soundfile": "SHIELD.wav",
+			"name": "shield "
+		},
+		{
+			"id": 28,
+			"soundfile": "AIRSHELD.wav",
+			"name": "air shield"
+		},
+		{
+			"id": 30,
+			"soundfile": "PROTECTA.wav",
+			"name": "protection from air"
+		},
+		{
+			"id": 31,
+			"soundfile": "PROTECTF.wav",
+			"name": "protection from fire"
+		},
+		{
+			"id": 32,
+			"soundfile": "PROTECTW.wav",
+			"name": "protection from water"
+		},
+		{
+			"id": 33,
+			"soundfile": "PROTECTE.wav",
+			"name": "protection from earth"
+		},
+		{
+			"id": 35,
+			"soundfile": "DISPELL.wav",
+			"name": "dispell"
+		},
+		{
+			"id": 41,
+			"soundfile": "BLESS.wav",
+			"name": "bless"
+		},
+		{
+			"id": 42,
+			"soundfile": "CURSE.wav",
+			"name": "curse"
+		},
+		{
+			"id": 43,
+			"soundfile": "BLOODLUS.wav",
+			"name": "bloodlust"
+		},
+		{
+			"id": 44,
+			"soundfile": "PRECISON.wav",
+			"name": "precision"
+		},
+		{
+			"id": 45,
+			"soundfile": "WEAKNESS.wav",
+			"name": "weakness"
+		},
+		{
+			"id": 46,
+			"soundfile": "TUFFSKIN.wav",
+			"name": "stone skin"
+		},
+		{
+			"id": 47,
+			"soundfile": "DISRUPTR.wav",
+			"name": "disrupting ray"
+		},
+		{
+			"id": 48,
+			"soundfile": "PRAYER.wav",
+			"name": "prayer"
+		},
+		{
+			"id": 49,
+			"soundfile": "MIRTH.wav",
+			"name": "mirth"
+		},
+		{
+			"id": 50,
+			"soundfile": "SORROW.wav",
+			"name": "sorrow"
+		},
+		{
+			"id": 51,
+			"soundfile": "FORTUNE.wav",
+			"name": "fortune"
+		},
+		{
+			"id": 52,
+			"soundfile": "MISFORT.wav",
+			"name": "misfortune"
+		},
+		{
+			"id": 53,
+			"soundfile": "HASTE.wav",
+			"name": "haste"
+		},
+		{
+			"id": 54,
+			"soundfile": "MUCKMIRE.wav",
+			"name": "slow"
+		},
+		{
+			"id": 55,
+			"soundfile": "SLAYER.wav",
+			"name": "slayer"
+		},
+		{
+			"id": 56,
+			"soundfile": "FRENZY.wav",
+			"name": "frenzy"
+		},
+		{
+			"id": 61,
+			"soundfile": "FORGET.wav",
+			"name": "forgetfulness"
+		},
+		{
+			"id": 70,
+			"soundfile": "PARALYZE.wav",
+			"name": "stone gaze - not sure"
+		},
+		{
+			"id": 71,
+			"soundfile": "POISON.wav",
+			"name": "poison"
+		},
+		{
+			"id": 72,
+			"soundfile": "BIND.wav",
+			"name": " bind"
+		},
+		{
+			"id": 73,
+			"soundfile": "DISEASE.wav",
+			"name": ""
+		},
+		{
+			"id": 74,
+			"soundfile": "PARALYZE.wav",
+			"name": ""
+		},
+		{
+			"id": 75,
+			"soundfile": "AGE.wav",
+			"name": "aging - already used (?)"
+		},
+
+		{
+			"id": 6,
+			"soundfile": "DEATHCLD.wav",
+			"name": "death cloud"
+		},
+		{
+			"id": 77,
+			"soundfile": "LIGHTBLT.wav",
+			"name": "thunder"
+		},
+		{
+			"id": 78,
+			"soundfile": "DISPELL.wav",
+			"name": "dispell helpful spells"
+		},
+		{
+			"id": 79,
+			"soundfile": "DEATHSTR.wav",
+			"name": "Death Stare"
+		},
+		{
+			"id": 80,
+			"soundfile": "ACID.wav",
+			"name": " Acid breath / defence piercing"
+		}
+	]
+}
+
+// Missing:
+// 18 	# implosion
+// 22 	# inferno
+// 25	# destroy undead
+// BLIND.wav
+// CURE.wav
+// HYPNOTIZ.wav
+// DEATHBLO.wav
+// DRAINLIF.wav
+// DRGNSLAY.wav
+// DISGUISE.wav
+// QUIKSAND.wav
+// FIRESHIE.wav fireshield when cast
+// FIRESHLD.wav fireshield effect
+// ANIMDEAD.wav
+// ANTIMAGK.wav
+
