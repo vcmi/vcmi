@@ -157,6 +157,7 @@ public:
 
 	// Musics
 	std::map<musicBase::musicID, std::string> musics;
+	std::vector<musicBase::musicID> aiMusics;
 	std::vector<musicBase::musicID> battleMusics;
 	std::vector<musicBase::musicID> townMusics;
 	std::vector<musicBase::musicID> terrainMusics;

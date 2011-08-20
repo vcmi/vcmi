@@ -20,7 +20,8 @@ JsonNode::JsonNode(std::string input):
 	JsonParser parser(input, *this);
 }
 
-JsonNode::JsonNode(const char *filename)
+JsonNode::JsonNode(const char *filename):
+	type(DATA_NULL)
 {
 	std::ifstream file(filename);
 	std::string str((std::istreambuf_iterator<char>(file)),
@@ -246,12 +247,13 @@ JsonParser::JsonParser(const std::string inputString, JsonNode &root):
 	pos(0)
 {
 	extractValue(root);
+	extractWhitespace(false);
 
 	//Warn if there are any non-whitespace symbols left
-	if (input.find_first_not_of(" \r\t\n", pos) != std::string::npos)
+	if (pos < input.size())
 		error("Not all file was parsed!", true);
 
-	//TODO: better way to show errors
+	//TODO: better way to show errors (like printing file name as well)
 	tlog2<<errors;
 }
 
@@ -290,7 +292,7 @@ bool JsonParser::extractValue(JsonNode &node)
 	}
 }
 
-bool JsonParser::extractWhitespace()
+bool JsonParser::extractWhitespace(bool verbose)
 {
 	while (true)
 	{
@@ -317,7 +319,7 @@ bool JsonParser::extractWhitespace()
 		pos = input.find('\n', pos);
 	}
 
-	if (pos >= input.size())
+	if (pos >= input.size() && verbose)
 		return error("Unexpected end of file!");
 	return true;
 }

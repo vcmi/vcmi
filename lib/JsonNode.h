@@ -43,7 +43,7 @@ public:
 	//Create tree from Json-formatted input
 	explicit JsonNode(std::string input);
 	//Create tree from JSON file
- 	JsonNode(const char *filename);
+ 	explicit JsonNode(const char *filename);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 
@@ -101,7 +101,7 @@ class JsonParser
 	bool extractEscaping(std::string &str);
 	bool extractLiteral(const std::string &literal);
 	bool extractString(std::string &string);
-	bool extractWhitespace();
+	bool extractWhitespace(bool verbose = true);
 	bool extractSeparator();
 
 	//Methods for extracting JSON data

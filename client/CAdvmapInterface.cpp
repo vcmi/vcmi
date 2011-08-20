@@ -1450,7 +1450,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
-	CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype]);
+	if (LOCPLINT->battleInt == NULL)
+		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype]);
 	if(centerView)
 		centerOn(sel);
 

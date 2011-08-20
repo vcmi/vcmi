@@ -27,6 +27,7 @@
 #include "CCreatureWindow.h"
 #include "CVideoHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/map.h"
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -1431,6 +1432,12 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		bTacticNextStack();
 		active = 0;
 	}
+
+	CCS->musich->stopMusic();
+
+	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
+	
 }
 
 CBattleInterface::~CBattleInterface()
@@ -1478,7 +1485,15 @@ CBattleInterface::~CBattleInterface()
 	delete siegeH;
 	curInt->battleInt = NULL;
 
-	//TODO:restart music (can be AI or terrain). May be easier to backup and restore it instead of re-selecting
+	//TODO: play AI tracks if battle was during AI turn
+	//if (!curInt->makingTurn) 
+	//CCS->musich->playMusicFromSet(CCS->musich->aiMusics, -1);
+	
+	if(adventureInt && adventureInt->selection)
+	{
+		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->tertype;
+		CCS->musich->playMusic(CCS->musich->terrainMusics[terrain], -1);
+	}
 }
 
 void CBattleInterface::setPrintCellBorders(bool set)

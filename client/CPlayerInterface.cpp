@@ -571,10 +571,6 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		SDL_Delay(20);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	CCS->musich->stopMusic();
-
-	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
-	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
 
 	GH.pushInt(battleInt);
 }

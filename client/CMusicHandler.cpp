@@ -331,6 +331,8 @@ CMusicHandler::CMusicHandler()
 #undef VCMI_MUSIC_FILE
 
 	// Vectors for helper
+	aiMusics += musicBase::AITheme0, musicBase::AITheme1, musicBase::AITheme2;
+	
 	battleMusics += musicBase::combat1, musicBase::combat2, 
 		musicBase::combat3, musicBase::combat4;
 	
