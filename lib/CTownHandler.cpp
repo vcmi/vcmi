@@ -5,6 +5,7 @@
 #include <sstream>
 #include "../lib/VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
+#include "../lib/JsonNode.h"
 
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
@@ -125,27 +126,35 @@ void CTownHandler::loadNames()
 
 void CTownHandler::loadStructures()
 {
-	structures.resize(F_NUMBER);
-	//read buildings coords
-	std::ifstream of(DATA_DIR "/config/buildings.txt");
-	while(!of.eof())
-	{
-		Structure *vinya = new Structure;
-		vinya->group = -1;
-		of >> vinya->townID;
-		if (vinya->townID == -1)
-			break;
-		of >> vinya->ID;
-		of >> vinya->defName;
-		vinya->name = vinya->defName; //TODO - use normal names
-		of >> vinya->pos.x;
-		of >> vinya->pos.y;
-		vinya->pos.z = 0;
-		structures[vinya->townID][vinya->ID] = vinya;
-	}
-	of.close();
-	of.clear();
+	std::ifstream of;
 
+	structures.resize(F_NUMBER);
+
+	//read buildings coords
+	const JsonNode config(DATA_DIR "/config/buildings.json");
+	const JsonVector &vector1 = config["town_type"].Vector();
+	int townid=0;
+
+	for (JsonVector::const_iterator it = vector1.begin(); it!=vector1.end(); ++it, ++townid) {
+		const JsonNode &node = *it;
+		const JsonVector &vector2 = node["defnames"].Vector();
+
+		for (JsonVector::const_iterator it2 = vector2.begin(); it2!=vector2.end(); ++it2) {
+			const JsonNode &ai = *it2;
+			Structure *vinya = new Structure;
+
+			vinya->group = -1;
+			vinya->townID = townid;
+			vinya->ID = ai["id"].Float();
+			vinya->defName = ai["defname"].String();
+			vinya->name = vinya->defName; //TODO - use normal names
+			vinya->pos.x = ai["x"].Float();
+			vinya->pos.y = ai["y"].Float();
+			vinya->pos.z = 0;
+			structures[vinya->townID][vinya->ID] = vinya;
+		}
+	}
+	
 	//read building priorities
 	of.open(DATA_DIR "/config/buildings2.txt");
 	int format, idt;
