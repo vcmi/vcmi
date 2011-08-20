@@ -504,35 +504,25 @@ void CCreatureHandler::loadCreatures()
 			factionToTurretCreature[c->faction] = creatureID;
 	}
 
-	std::ifstream ifs;
-	std::string dump2;
-
 	buildBonusTreeForTiers();
 	loadAnimationInfo();
 
 	//reading creature ability names
-	ifs.open(DATA_DIR "/config/bonusnames.txt");
-	{
-		std::string buf2, buf3, line;
-		std::map<std::string,int>::const_iterator it;
-		getline(ifs, line); //skip 1st line
-		while(!ifs.eof())
-		{
-			getline(ifs, buf, '\t');
-			getline(ifs, buf2, '\t');
-			getline(ifs, buf3);
+	const JsonNode config2(DATA_DIR "/config/bonusnames.json");
+	const JsonVector &bonuses_vec = config2["bonuses"].Vector();
 
-			if (ifs.eof() || ifs.fail())
-				break;
+	for (JsonVector::const_iterator it = bonuses_vec.begin(); it!=bonuses_vec.end(); ++it) {
+		const JsonNode &bonus = *it;
+		std::map<std::string,int>::const_iterator it_map;
+		std::string bonusID = bonus["id"].String();
 
-			it = bonusNameMap.find(buf);
-			if (it != bonusNameMap.end())
-				stackBonuses[it->second] = std::pair<std::string, std::string>(buf2,buf3);
-			else
-				tlog2 << "Bonus " << buf << " not recognized, ignoring\n";
-		}
+		it_map = bonusNameMap.find(bonusID);
+		if (it_map != bonusNameMap.end()) {
+			stackBonuses[it_map->second] = std::pair<std::string, std::string>(bonus["name"].String(), bonus["description"].String());
+		} else
+			tlog2 << "Bonus " << bonusID << " not recognized, ignoring\n";
 	}
-	ifs.close();
+
 	//handle magic resistance secondary skill premy, potentialy may be buggy
 	std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
 	stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
@@ -550,6 +540,7 @@ void CCreatureHandler::loadCreatures()
 		b.additionalInfo = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
+		std::string dump2;
 
 		loadToIt (dump2, buf, it, 3); //ignore first line
 		loadToIt (dump2, buf, it, 4); //ignore index
