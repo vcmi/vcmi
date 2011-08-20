@@ -23,6 +23,7 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGameState.h"
+#include "../lib/JsonNode.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -357,29 +358,30 @@ Graphics::Graphics()
 }
 void Graphics::loadHeroPortraits()
 {	
-	std::ifstream of(DATA_DIR "/config/portrety.txt");
-	int numberOfPortraits;
-	of>>numberOfPortraits;
-	for (int j=0; j<numberOfPortraits; j++)
-	{
-		int ID;
-		of>>ID;
-		std::string path;
-		of>>path;
-		portraitSmall.push_back(BitmapHandler::loadBitmap(path));
-		for(size_t ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
+	const JsonNode config(DATA_DIR "/config/portraits.json");
+	const JsonVector &portraits_vec = config["hero_portrait"].Vector();
+
+	for (JsonVector::const_iterator it = portraits_vec.begin(); it!=portraits_vec.end(); ++it) {
+		const JsonNode &portrait_node = *it;
+		std::string filename = portrait_node["filename"].String();
+
+		/* Small portrait. */
+		portraitSmall.push_back(BitmapHandler::loadBitmap(filename));
+
+		/* Large portrait. Alter the filename. Size letter is usually
+		 * third one, but there are exceptions and it should fix the
+		 * problem. */
+		for (int ff=0; ff<filename.size(); ++ff)
 		{
-			if(path[ff]=='S')
-			{
-				path[ff]='L';
+			if (filename[ff]=='S') {
+				filename[ff]='L';
 				break;
 			}
 		}
-		portraitLarge.push_back(BitmapHandler::loadBitmap(path));
-		SDL_SetColorKey(portraitLarge[portraitLarge.size()-1],SDL_SRCCOLORKEY,SDL_MapRGB(portraitLarge[portraitLarge.size()-1]->format,0,255,255));
+		portraitLarge.push_back(BitmapHandler::loadBitmap(filename));
 
+		SDL_SetColorKey(portraitLarge[portraitLarge.size()-1],SDL_SRCCOLORKEY,SDL_MapRGB(portraitLarge[portraitLarge.size()-1]->format,0,255,255));
 	}
-	of.close();
 }
 
 void Graphics::loadWallPositions()
