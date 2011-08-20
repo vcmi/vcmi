@@ -1,4 +1,9 @@
-// Buildings coordinates inside a city, ordered by city type (0 to 8)
+// Town properties, ordered by city type (0 to 8)
+
+//  defnames: Buildings coordinates inside a city
+//  blit_order: Buildings not mentioned in the file will be blitted first.
+//              Then buildings in the list will be drawn in that order.
+
 {
 	"town_type":
 		[
@@ -41,7 +46,10 @@
 			{ "id": 42, "defname": "TBCSUP_5.def", "x": 160, "y": 190 },
 			{ "id": 43, "defname": "TBCSUP_6.def", "x": 303, "y": 0 },
 			{ "id": 20, "defname": "TBCSBOAT.def", "x": 478, "y": 134 },
-		] },
+			],
+
+		  "blit_order": [ 1, 2, 3, 10, 11, 12, 13, 5, 22, 30, 37, 16, 6, 20, 18, 19, 34, 41 ]	
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBRMBLAK.def", "x": 558, "y": 105 },
@@ -86,7 +94,10 @@
 			{ "id": 13, "defname": "TBRMHAL4.def", "x": 534, "y": 187 },
 			{ "id": 12, "defname": "TBRMHAL3.def", "x": 538, "y": 187 },
 			{ "id": 11, "defname": "TBRMHAL2.def", "x": 538, "y": 187 },
-		], },
+		  ],
+
+		  "blit_order": [ 33, 40, 35, 42, 16, 32, 39, 0, 1, 2, 3, 4, 31, 18, 38, 19, 34, 24, 41, 25, 5, 30, 37, 14, 10, 11, 12, 13, 17, 21, 22, -1, 27, 28, 29, 15 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBTWBLAK.def", "x": 478, "y": 211 },
@@ -126,7 +137,9 @@
 			{ "id": 42, "defname": "TBTWUP_5.def", "x": 681, "y": 157 },
 			{ "id": 43, "defname": "TBTWUP_6.def", "x": 75, "y": 91 },
 			{ "id": 8, "defname": "TBTWCAS2.def", "x": 301, "y": 0 },
-		], },
+		  ],
+		  "blit_order": [ 36, 43, 32, 39, 10, 11, 12, 13, 32, 35, 42, 15, 5, 18, 19 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBINBLAK.def", "x": 684, "y": 253 },
@@ -167,7 +180,9 @@
 			{ "id": 42, "defname": "TBINUP_5.def", "x": 220, "y": 282 },
 			{ "id": 43, "defname": "TBINUP_6.def", "x": 420, "y": 105 },
 			{ "id": 8, "defname": "TBINCAS2.def", "x": 222, "y": 44 },
-		], },
+		  ],
+		  "blit_order": [ 26, 21, 7, 8, 9, 22, 31, 38, 36, 43, 10, 11, 12, 13, 5, 32, 39, 24, 25, 33, 40, 34, 41, 30, 37, 18, 19, 14, 15, 16, 35, 42 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBNCBLAK.def", "x": 382, "y": 252 },
@@ -212,7 +227,9 @@
 			{ "id": 42, "defname": "TBNCUP_5.def", "x": 0, "y": 30 },
 			{ "id": 43, "defname": "TBNCUP_6.def", "x": 662, "y": 23 },
 			{ "id": 20, "defname": "TBNCBOAT.def", "x": 617, "y": 265 },
-		], },
+		  ],
+		  "blit_order": [ 17, 0, 1, 2, 3, 4, 7, 8, 9, 32, 39, 26, 15, 14, 34, 41, 16, 5, 33, 40, 31, 38, 6, 30, 18, 37, 19, 22, 20 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBDNBLAK.def", "x": 544, "y": 248 },
@@ -252,7 +269,9 @@
 			{ "id": 42, "defname": "TBDNUP_5.def", "x": 270, "y": 253 },
 			{ "id": 43, "defname": "TBDNUP_6.def", "x": 550, "y": 0 },
 			{ "id": 8, "defname": "TBDNCAS2.def", "x": 363, "y": 87 },
-		], },
+		  ],
+		  "blit_order": [ 0, 1, 2, 3, 4, 21, 35, 42, 5, 30, 18, 37, 19, 32, 39, 26, 7, 8, 9, 23 ]
+		},
 
 		{ "defnames": [
 			{ "id": 31, "defname": "TBSTDW_1.def", "x": 266, "y": 246 },
@@ -291,7 +310,9 @@
 			{ "id": 41, "defname": "TBSTUP_4.def", "x": 129, "y": 15 },
 			{ "id": 42, "defname": "TBSTUP_5.def", "x": 616, "y": 93 },
 			{ "id": 16, "defname": "TBSTBLAK.def", "x": 660, "y": 286 },
-		], },
+		  ],
+		  "blit_order": [ 33, 40, 30, 18, 37, 19, 31, 38, 23, 26, 5, 32, 39, 15, 14, 21, 16, 22 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBFRBLAK.def", "x": 360, "y": 160 },
@@ -332,7 +353,9 @@
 			{ "id": 43, "defname": "TBFRUP_6.def", "x": 587, "y": 263 },
 			{ "id": 29, "defname": "TBFRWTRW.def", "x": 320, "y": 141 },
 			{ "id": 20, "defname": "TBFRBOAT.def", "x": 197, "y": 294 },
-		], },
+		  ],
+		  "blit_order": [ 16, 15, 14, 34, 41, 31, 38, 10, 11, 12, 13, 29, 0, 1, 2, 33, 40, 30, 18, 37, 19, 5, 36, 43, 26 ]
+		},
 
 		{ "defnames": [
 			{ "id": 16, "defname": "TBELBLAK.def", "x": 449, "y": 151 },
@@ -377,6 +400,8 @@
 			{ "id": 42, "defname": "TBELUP_5.def", "x": 394, "y": 283 },
 			{ "id": 43, "defname": "TBELUP_6.def", "x": 43, "y": 0 },
 			{ "id": 20, "defname": "TBELBOAT.def", "x": 239, "y": 215 }
-		] ]
+		  ],
+		  "blit_order": [ -1, 27, 28, 16, 34, 41, 6, 20, 33, 40, 36, 43, 21, 0, 1, 2, 3, 4, 5, 15, 14, 17, 35, 42, 30, 18, 37, 19, 10, 11, 12, 13, 29 ]
+		}
 	]
 }

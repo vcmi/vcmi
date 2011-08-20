@@ -130,65 +130,53 @@ void CTownHandler::loadStructures()
 
 	structures.resize(F_NUMBER);
 
-	//read buildings coords
+	// read city properties
 	const JsonNode config(DATA_DIR "/config/buildings.json");
-	const JsonVector &vector1 = config["town_type"].Vector();
-	int townid=0;
+	const JsonVector &town_type_vec = config["town_type"].Vector();
+	int townID=0;
 
-	for (JsonVector::const_iterator it = vector1.begin(); it!=vector1.end(); ++it, ++townid) {
+	// Iterate for each city type
+	for (JsonVector::const_iterator it = town_type_vec.begin(); it!=town_type_vec.end(); ++it, ++townID) {
+		std::map<int, Structure*> &town = structures[townID];
 		const JsonNode &node = *it;
-		const JsonVector &vector2 = node["defnames"].Vector();
+		const JsonVector &defnames_vec = node["defnames"].Vector();
 
-		for (JsonVector::const_iterator it2 = vector2.begin(); it2!=vector2.end(); ++it2) {
+		// Read buildings coordinates for that city
+		for (JsonVector::const_iterator it2 = defnames_vec.begin(); it2!=defnames_vec.end(); ++it2) {
 			const JsonNode &ai = *it2;
 			Structure *vinya = new Structure;
 
 			vinya->group = -1;
-			vinya->townID = townid;
+			vinya->townID = townID;
 			vinya->ID = ai["id"].Float();
 			vinya->defName = ai["defname"].String();
 			vinya->name = vinya->defName; //TODO - use normal names
 			vinya->pos.x = ai["x"].Float();
 			vinya->pos.y = ai["y"].Float();
 			vinya->pos.z = 0;
-			structures[vinya->townID][vinya->ID] = vinya;
+			town[vinya->ID] = vinya;
+		}
+
+		// Read buildings blit order for that city
+		const JsonVector &blit_order_vec = node["blit_order"].Vector();
+		int itr = 1;
+
+		for (JsonVector::const_iterator it2 = blit_order_vec.begin(); it2!=blit_order_vec.end(); ++it2) {
+			const JsonNode &ai = *it2;
+			int buildingID = ai.Float();
+
+			/* Find the building and set its order. */
+			std::map<int, Structure*>::iterator i2 = town.find(buildingID);
+			if (i2 != (town.end()))
+				i2->second->pos.z = itr++;
+			else
+				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
 		}
 	}
 	
-	//read building priorities
-	of.open(DATA_DIR "/config/buildings2.txt");
-	int format, idt;
-	std::string s;
-	of >> format >> idt;
-	while(!of.eof())
-	{
-		std::vector<std::map<int, Structure*> >::iterator i;
-		std::map<int, Structure*>::iterator i2;
-		int itr=1, buildingID;
-		int castleID;
-		of >> s;
-		if (s != "CASTLE")
-			break;
-		of >> castleID;
-		while(1)
-		{
-			of >> s;
-			if (s == "END")
-				break;
-			else
-				if( (i=structures.begin() + castleID) != structures.end() )
-					if( (i2 = i->find( buildingID = atoi(s.c_str()) )) != (i->end()) )
-						i2->second->pos.z=itr++;
-					else
-						tlog3 << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
-				else
-					tlog3 << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
-		}
-	}
-	of.close();
-	of.clear();
-
 	//read borders and areas names
+	int format;
+	std::string s;
 	of.open(DATA_DIR "/config/buildings3.txt");
 	while(!of.eof())
 	{
