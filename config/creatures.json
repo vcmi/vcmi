@@ -1,0 +1,1712 @@
+// Defines creatures.
+
+// The following properties are mandatory:
+//  id:      number of the creature
+//  name:    array of names for the creature
+//  defname: graphics for the creature
+//  level:   its level (1 to 7)
+//  faction: its faction (0 to 8)
+
+// The following properties are optional:
+//  upgrade:            number of the creature to upgrade to
+//  projectile_defname: if the creature is a shooter, graphics for the projectile
+//  projectile_spin:    if the creature is a shooter, indicate whether the projectile spins
+//  turret_shooter:     indicates whether the shooter appears in the castle turrets
+
+{
+	"creatures":
+		[
+			{
+				"id": 0,
+				"level": 1,
+				"name": [ "Pikeman" ],
+				"faction": 0,
+				"upgrade": 1,
+				"defname": "CPKMAN.DEF"
+			},
+
+			{
+				"id": 1,
+				"level": 1,
+				"name": [ "Halberdier" ],
+				"faction": 0,
+				"defname": "CHALBD.DEF"
+			},
+
+			{
+				"id": 2,
+				"level": 2,
+				"name": [ "Archer", "LightCrossbowman" ],
+				"faction": 0,
+				"upgrade": 3,
+				"defname": "CLCBOW.DEF",
+				"projectile_defname": "PLCBOWX.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 3,
+				"level": 2,
+				"name": [ "HeavyCrossbowman" ],
+				"faction": 0,
+				"defname": "CHCBOW.DEF",
+				"projectile_defname": "PLCBOWX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 4,
+				"level": 3,
+				"name": [ "Griffin" ],
+				"faction": 0,
+				"upgrade": 5,
+				"defname": "CGRIFF.DEF"
+			},
+
+			{
+				"id": 5,
+				"level": 3,
+				"name": [ "RoyalGriffin" ],
+				"faction": 0,
+				"defname": "CRGRIF.DEF"
+			},
+
+			{
+				"id": 6,
+				"level": 4,
+				"name": [ "Swordsman" ],
+				"faction": 0,
+				"upgrade": 7,
+				"defname": "CSWORD.DEF"
+			},
+
+			{
+				"id": 7,
+				"level": 4,
+				"name": [ "Crusader" ],
+				"faction": 0,
+				"defname": "CCRUSD.DEF"
+			},
+
+			{
+				"id": 8,
+				"level": 5,
+				"name": [ "Monk" ],
+				"faction": 0,
+				"upgrade": 9,
+				"defname": "CMONKK.DEF",
+				"projectile_defname": "CPRZEAX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 9,
+				"level": 5,
+				"name": [ "Zealot" ],
+				"faction": 0,
+				"defname": "CZEALT.DEF",
+				"projectile_defname": "CPRZEAX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 10,
+				"level": 6,
+				"name": [ "Cavalier" ],
+				"faction": 0,
+				"upgrade": 11,
+				"defname": "CCAVLR.DEF"
+			},
+
+			{
+				"id": 11,
+				"level": 6,
+				"name": [ "Champion" ],
+				"faction": 0,
+				"defname": "CCHAMP.DEF"
+			},
+
+			{
+				"id": 12,
+				"level": 7,
+				"name": [ "Angel" ],
+				"faction": 0,
+				"upgrade": 13,
+				"defname": "CANGEL.DEF"
+			},
+
+			{
+				"id": 13,
+				"level": 7,
+				"name": [ "Archangel" ],
+				"faction": 0,
+				"defname": "CRANGL.DEF"
+			},
+
+			{
+				"id": 14,
+				"level": 1,
+				"name": [ "Centaur" ],
+				"faction": 1,
+				"upgrade": 15,
+				"defname": "CCENTR.DEF"
+			},
+
+			{
+				"id": 15,
+				"level": 1,
+				"name": [ "EliteCentaur" ],
+				"faction": 1,
+				"defname": "CECENT.DEF"
+			},
+
+			{
+				"id": 16,
+				"level": 2,
+				"name": [ "Dwarf" ],
+				"faction": 1,
+				"upgrade": 17,
+				"defname": "CDWARF.DEF"
+			},
+
+			{
+				"id": 17,
+				"level": 2,
+				"name": [ "BattleDwarf" ],
+				"faction": 1,
+				"defname": "CBDWAR.DEF"
+			},
+
+			{
+				"id": 18,
+				"level": 3,
+				"name": [ "WoodElf" ],
+				"faction": 1,
+				"upgrade": 19,
+				"defname": "CELF.DEF",
+				"projectile_defname": "PELFX.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 19,
+				"level": 3,
+				"name": [ "GrandElf" ],
+				"faction": 1,
+				"defname": "CGRELF.DEF",
+				"projectile_defname": "PELFX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 20,
+				"level": 4,
+				"name": [ "Pegasus" ],
+				"faction": 1,
+				"upgrade": 21,
+				"defname": "CPEGAS.DEF"
+			},
+
+			{
+				"id": 21,
+				"level": 4,
+				"name": [ "SilverPegasus" ],
+				"faction": 1,
+				"defname": "CAPEGS.DEF"
+			},
+
+			{
+				"id": 22,
+				"level": 5,
+				"name": [ "Treefolk" ],
+				"faction": 1,
+				"upgrade": 23,
+				"defname": "CTREE.DEF"
+			},
+
+			{
+				"id": 23,
+				"level": 5,
+				"name": [ "BriarTreefolk" ],
+				"faction": 1,
+				"defname": "CBTREE.DEF"
+			},
+
+			{
+				"id": 24,
+				"level": 6,
+				"name": [ "Unicorn" ],
+				"faction": 1,
+				"upgrade": 25,
+				"defname": "CUNICO.DEF"
+			},
+
+			{
+				"id": 25,
+				"level": 6,
+				"name": [ "WarUnicorn" ],
+				"faction": 1,
+				"defname": "CWUNIC.DEF"
+			},
+
+			{
+				"id": 26,
+				"level": 7,
+				"name": [ "GreenDragon" ],
+				"faction": 1,
+				"upgrade": 27,
+				"defname": "CGDRAG.DEF"
+			},
+
+			{
+				"id": 27,
+				"level": 7,
+				"name": [ "GoldDragon" ],
+				"faction": 1,
+				"defname": "CDDRAG.DEF"
+			},
+
+			{
+				"id": 28,
+				"level": 1,
+				"name": [ "ApprenticeGremlin" ],
+				"faction": 2,
+				"upgrade": 29,
+				"defname": "CGREMA.DEF"
+			},
+
+			{
+				"id": 29,
+				"level": 1,
+				"name": [ "MasterGremlin" ],
+				"faction": 2,
+				"defname": "CGREMM.DEF",
+				"projectile_defname": "CPRGRE.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 30,
+				"level": 2,
+				"name": [ "StoneGargoyle" ],
+				"faction": 2,
+				"upgrade": 31,
+				"defname": "CGARGO.DEF"
+			},
+
+			{
+				"id": 31,
+				"level": 2,
+				"name": [ "ObsidianGargoyle" ],
+				"faction": 2,
+				"defname": "COGARG.DEF"
+			},
+
+			{
+				"id": 32,
+				"level": 3,
+				"name": [ "IronGolem" ],
+				"faction": 2,
+				"upgrade": 33,
+				"defname": "CSGOLE.DEF"
+			},
+
+			{
+				"id": 33,
+				"level": 3,
+				"name": [ "StoneGolem" ],
+				"faction": 2,
+				"defname": "CIGOLE.DEF"
+			},
+
+			{
+				"id": 34,
+				"level": 4,
+				"name": [ "Mage" ],
+				"faction": 2,
+				"upgrade": 35,
+				"defname": "CMAGE.DEF",
+				"projectile_defname": "PMAGEX.DEF",
+				"projectile_spin": true,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 35,
+				"level": 4,
+				"name": [ "ArchMage" ],
+				"faction": 2,
+				"defname": "CAMAGE.DEF",
+				"projectile_defname": "PMAGEX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 36,
+				"level": 5,
+				"name": [ "Genie" ],
+				"faction": 2,
+				"upgrade": 37,
+				"defname": "CGENIE.DEF"
+			},
+
+			{
+				"id": 37,
+				"level": 5,
+				"name": [ "Caliph" ],
+				"faction": 2,
+				"defname": "CSULTA.DEF"
+			},
+
+			{
+				"id": 38,
+				"level": 6,
+				"name": [ "NagaSentinel" ],
+				"faction": 2,
+				"upgrade": 39,
+				"defname": "CNAGA.DEF"
+			},
+
+			{
+				"id": 39,
+				"level": 6,
+				"name": [ "NagaGuardian" ],
+				"faction": 2,
+				"defname": "CNAGAG.DEF"
+			},
+
+			{
+				"id": 40,
+				"level": 7,
+				"name": [ "LesserTitan" ],
+				"faction": 2,
+				"upgrade": 41,
+				"defname": "CLTITA.DEF"
+			},
+
+			{
+				"id": 41,
+				"level": 7,
+				"name": [ "GreaterTitan" ],
+				"faction": 2,
+				"defname": "CGTITA.DEF",
+				"projectile_defname": "CPRGTIX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 42,
+				"level": 1,
+				"name": [ "Imp" ],
+				"faction": 3,
+				"upgrade": 43,
+				"defname": "CIMP.DEF"
+			},
+
+			{
+				"id": 43,
+				"level": 1,
+				"name": [ "Familiar" ],
+				"faction": 3,
+				"defname": "CFAMIL.DEF"
+			},
+
+			{
+				"id": 44,
+				"level": 2,
+				"name": [ "Gog" ],
+				"faction": 3,
+				"upgrade": 45,
+				"defname": "CGOG.DEF",
+				"projectile_defname": "CPRGOGX.DEF",
+				"projectile_spin": true,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 45,
+				"level": 2,
+				"name": [ "Magog" ],
+				"faction": 3,
+				"defname": "CMAGOG.DEF",
+				"projectile_defname": "CPRGOGX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 46,
+				"level": 3,
+				"name": [ "HellHound" ],
+				"faction": 3,
+				"upgrade": 47,
+				"defname": "CHHOUN.DEF"
+			},
+
+			{
+				"id": 47,
+				"level": 3,
+				"name": [ "Cerberus" ],
+				"faction": 3,
+				"defname": "CCERBU.DEF"
+			},
+
+			{
+				"id": 48,
+				"level": 4,
+				"name": [ "Single-HornedDemon" ],
+				"faction": 3,
+				"upgrade": 49,
+				"defname": "COHDEM.DEF"
+			},
+
+			{
+				"id": 49,
+				"level": 4,
+				"name": [ "Dual-HornedDemon" ],
+				"faction": 3,
+				"defname": "CTHDEM.DEF"
+			},
+
+			{
+				"id": 50,
+				"level": 5,
+				"name": [ "PitFiend" ],
+				"faction": 3,
+				"upgrade": 51,
+				"defname": "CPFIEN.DEF"
+			},
+
+			{
+				"id": 51,
+				"level": 5,
+				"name": [ "PitFoe" ],
+				"faction": 3,
+				"defname": "CPFOE.DEF"
+			},
+
+			{
+				"id": 52,
+				"level": 6,
+				"name": [ "Efreet" ],
+				"faction": 3,
+				"upgrade": 53,
+				"defname": "CEFREE.DEF"
+			},
+
+			{
+				"id": 53,
+				"level": 6,
+				"name": [ "EfreetSultan" ],
+				"faction": 3,
+				"defname": "CEFRES.DEF"
+			},
+
+			{
+				"id": 54,
+				"level": 7,
+				"name": [ "Devil" ],
+				"faction": 3,
+				"upgrade": 55,
+				"defname": "CDEVIL.DEF"
+			},
+
+			{
+				"id": 55,
+				"level": 7,
+				"name": [ "ArchDevil" ],
+				"faction": 3,
+				"defname": "CADEVL.DEF"
+			},
+
+			{
+				"id": 56,
+				"level": 1,
+				"name": [ "Skeleton" ],
+				"faction": 4,
+				"upgrade": 57,
+				"defname": "CSKELE.DEF"
+			},
+
+			{
+				"id": 57,
+				"level": 1,
+				"name": [ "SkeletonWarrior" ],
+				"faction": 4,
+				"defname": "CWSKEL.DEF"
+			},
+
+			{
+				"id": 58,
+				"level": 2,
+				"name": [ "Zombie" ],
+				"faction": 4,
+				"upgrade": 59,
+				"defname": "CZOMBI.DEF"
+			},
+
+			{
+				"id": 59,
+				"level": 2,
+				"name": [ "ZombieLord" ],
+				"faction": 4,
+				"defname": "CZOMLO.DEF"
+			},
+
+			{
+				"id": 60,
+				"level": 3,
+				"name": [ "Wight" ],
+				"faction": 4,
+				"upgrade": 61,
+				"defname": "CWIGHT.DEF"
+			},
+
+			{
+				"id": 61,
+				"level": 3,
+				"name": [ "Wraith" ],
+				"faction": 4,
+				"defname": "CWRAIT.DEF"
+			},
+
+			{
+				"id": 62,
+				"level": 4,
+				"name": [ "Vampire" ],
+				"faction": 4,
+				"upgrade": 63,
+				"defname": "CVAMP.DEF"
+			},
+
+			{
+				"id": 63,
+				"level": 4,
+				"name": [ "Nosferatu" ],
+				"faction": 4,
+				"defname": "CNOSFE.DEF"
+			},
+
+			{
+				"id": 64,
+				"level": 5,
+				"name": [ "Lich" ],
+				"faction": 4,
+				"upgrade": 65,
+				"defname": "CLICH.DEF",
+				"projectile_defname": "PLICH.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 65,
+				"level": 5,
+				"name": [ "PowerLich" ],
+				"faction": 4,
+				"defname": "CPLICH.DEF",
+				"projectile_defname": "PLICH.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 66,
+				"level": 6,
+				"name": [ "BlackKnight" ],
+				"faction": 4,
+				"upgrade": 67,
+				"defname": "CBKNIG.DEF"
+			},
+
+			{
+				"id": 67,
+				"level": 6,
+				"name": [ "BlackLord" ],
+				"faction": 4,
+				"defname": "CBLORD.DEF"
+			},
+
+			{
+				"id": 68,
+				"level": 7,
+				"name": [ "BoneDragon" ],
+				"faction": 4,
+				"upgrade": 69,
+				"defname": "CNDRGN.DEF"
+			},
+
+			{
+				"id": 69,
+				"level": 7,
+				"name": [ "GhostDragon" ],
+				"faction": 4,
+				"defname": "CHDRGN.DEF"
+			},
+
+			{
+				"id": 70,
+				"level": 1,
+				"name": [ "Troglodyte" ],
+				"faction": 5,
+				"upgrade": 71,
+				"defname": "CTROGL.DEF"
+			},
+
+			{
+				"id": 71,
+				"level": 1,
+				"name": [ "InfernalTroglodyte" ],
+				"faction": 5,
+				"defname": "CITROG.DEF"
+			},
+
+			{
+				"id": 72,
+				"level": 2,
+				"name": [ "Harpy" ],
+				"faction": 5,
+				"upgrade": 73,
+				"defname": "CHARPY.DEF"
+			},
+
+			{
+				"id": 73,
+				"level": 2,
+				"name": [ "HarpyHag", "M73" ],
+				"faction": 5,
+				"defname": "CHARPH.DEF"
+			},
+
+			{
+				"id": 74,
+				"level": 3,
+				"name": [ "Beholder" ],
+				"faction": 5,
+				"upgrade": 75,
+				"defname": "CBEHOL.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 75,
+				"level": 3,
+				"name": [ "EvilEye", "M75" ], 
+				"faction": 5,
+				"defname": "CEVEYE.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 76,
+				"level": 4,
+				"name": [ "Medusa", "Medusae" ],
+				"faction": 5,
+				"upgrade": 77,
+				"defname": "CMEDUS.DEF",
+				"projectile_defname": "PMEDUSX.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 77,
+				"level": 4,
+				"name": [ "MedusaQueen" ],
+				"faction": 5,
+				"defname": "CMEDUQ.DEF",
+				"projectile_defname": "PMEDUSX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 78,
+				"level": 5,
+				"name": [ "Minotaur" ],
+				"faction": 5,
+				"upgrade": 79,
+				"defname": "CMINOT.DEF"
+			},
+
+			{
+				"id": 79,
+				"level": 5,
+				"name": [ "MinotaurKing" ],
+				"faction": 5,
+				"defname": "CMINOK.DEF"
+			},
+
+			{
+				"id": 80,
+				"level": 6,
+				"name": [ "Manticore" ],
+				"faction": 5,
+				"upgrade": 81,
+				"defname": "CMCORE.DEF"
+			},
+
+			{
+				"id": 81,
+				"level": 6,
+				"name": [ "Scorpicore" ],
+				"faction": 5,
+				"defname": "CCMCOR.DEF"
+			},
+
+			{
+				"id": 82,
+				"level": 7,
+				"name": [ "RedDragon" ],
+				"faction": 5,
+				"upgrade": 83,
+				"defname": "CRDRGN.DEF"
+			},
+
+			{
+				"id": 83,
+				"level": 7,
+				"name": [ "BlackDragon" ],
+				"faction": 5,
+				"defname": "CBDRGN.DEF"
+			},
+
+			{
+				"id": 84,
+				"level": 1,
+				"name": [ "Goblin" ],
+				"faction": 6,
+				"upgrade": 85,
+				"defname": "CGOBLI.DEF"
+			},
+
+			{
+				"id": 85,
+				"level": 1,
+				"name": [ "Hobgoblin" ],
+				"faction": 6,
+				"defname": "CHGOBL.DEF"
+			},
+
+			{
+				"id": 86,
+				"level": 2,
+				"name": [ "GoblinWolfRider" ],
+				"faction": 6,
+				"upgrade": 87,
+				"defname": "CBWLFR.DEF"
+			},
+
+			{
+				"id": 87,
+				"level": 2,
+				"name": [ "HobgoblinWolfRider" ],
+				"faction": 6,
+				"defname": "CUWLFR.DEF"
+			},
+
+			{
+				"id": 88,
+				"level": 3,
+				"name": [ "Orc" ],
+				"faction": 6,
+				"upgrade": 89,
+				"defname": "CORC.DEF",
+				"projectile_defname": "PORCHX.DEF",
+				"projectile_spin": true,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 89,
+				"level": 3,
+				"name": [ "OrcChieftain" ],
+				"faction": 6,
+				"defname": "CORCCH.DEF",
+				"projectile_defname": "PORCHX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 90,
+				"level": 4,
+				"name": [ "Ogre" ],
+				"faction": 6,
+				"upgrade": 91,
+				"defname": "COGRE.DEF"
+			},
+
+			{
+				"id": 91,
+				"level": 4,
+				"name": [ "OgreMage" ],
+				"faction": 6,
+				"defname": "COGMAG.DEF"
+			},
+
+			{
+				"id": 92,
+				"level": 5,
+				"name": [ "Roc" ],
+				"faction": 6,
+				"upgrade": 93,
+				"defname": "CROC.DEF"
+			},
+
+			{
+				"id": 93,
+				"level": 5,
+				"name": [ "Thunderbird" ],
+				"faction": 6,
+				"defname": "CTBIRD.DEF"
+			},
+
+			{
+				"id": 94,
+				"level": 6,
+				"name": [ "Cyclops" ],
+				"faction": 6,
+				"upgrade": 95,
+				"defname": "CCYCLR.DEF",
+				"projectile_defname": "PCYCLBX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 95,
+				"level": 6,
+				"name": [ "CyclopsLord" ],
+				"faction": 6,
+				"defname": "CCYCLLOR.DEF",
+				"projectile_defname": "PCYCLBX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 96,
+				"level": 7,
+				"name": [ "YoungBehemoth" ],
+				"faction": 6,
+				"upgrade": 97,
+				"defname": "CYBEHE.DEF"
+			},
+
+			{
+				"id": 97,
+				"level": 7,
+				"name": [ "AncientBehemoth" ],
+				"faction": 6,
+				"defname": "CABEHE.DEF"
+			},
+
+			{
+				"id": 98,
+				"level": 1,
+				"name": [ "Gnoll" ],
+				"faction": 7,
+				"upgrade": 99,
+				"defname": "CGNOLL.DEF"
+			},
+
+			{
+				"id": 99,
+				"level": 1,
+				"name": [ "GnollMarauder" ],
+				"faction": 7,
+				"defname": "CGNOLM.DEF"
+			},
+
+			{
+				"id": 100,
+				"level": 2,
+				"name": [ "PrimitiveLizardman" ],
+				"faction": 7,
+				"upgrade": 101,
+				"defname": "CPLIZA.DEF",
+				"projectile_defname": "PPLIZAX.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 101,
+				"level": 2,
+				"name": [ "AdvancedLizardman" ],
+				"faction": 7,
+				"defname": "CALIZA.DEF",
+				"projectile_defname": "PPLIZAX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 102,
+				"level": 5,
+				"name": [ "CopperGorgon" ],
+				"faction": 7,
+				"upgrade": 103,
+				"defname": "CCGORG.DEF"
+			},
+
+			{
+				"id": 103,
+				"level": 5,
+				"name": [ "BronzeGorgon" ],
+				"faction": 7,
+				"defname": "CBGOG.DEF"
+			},
+
+			{
+				"id": 104,
+				"level": 3,
+				"name": [ "Dragonflies", "DragonFly", "SerpentFly" ],
+				"faction": 7,
+				"upgrade": 105,
+				"defname": "CDRFLY.DEF"
+			},
+
+			{
+				"id": 105,
+				"level": 3,
+				"name": [ "FireDragonFly" ],
+				"faction": 7,
+				"defname": "CDRFIR.DEF"
+			},
+
+			{
+				"id": 106,
+				"level": 4,
+				"name": [ "Basilisk" ],
+				"faction": 7,
+				"upgrade": 107,
+				"defname": "CBASIL.DEF"
+			},
+
+			{
+				"id": 107,
+				"level": 4,
+				"name": [ "GreaterBasilisk" ],
+				"faction": 7,
+				"defname": "CGBASI.DEF"
+			},
+
+			{
+				"id": 108,
+				"level": 6,
+				"name": [ "Wyvern" ],
+				"faction": 7,
+				"upgrade": 109,
+				"defname": "CWYVER.DEF"
+			},
+
+			{
+				"id": 109,
+				"level": 6,
+				"name": [ "WyvernMonarch" ],
+				"faction": 7,
+				"defname": "CWYVMN.DEF"
+			},
+
+			{
+				"id": 110,
+				"level": 7,
+				"name": [ "Hydra" ],
+				"faction": 7,
+				"upgrade": 111,
+				"defname": "CHYDRA.DEF"
+			},
+
+			{
+				"id": 111,
+				"level": 7,
+				"name": [ "ChaosHydra" ],
+				"faction": 7,
+				"defname": "CCHYDR.DEF"
+			},
+
+			{
+				"id": 112,
+				"level": 2,
+				"name": [ "AirElemental", "AirElementals" ],
+				"faction": 8,
+				"upgrade": 127,
+				"defname": "CAELEM.DEF"
+			},
+
+			{
+				"id": 113,
+				"level": 5,
+				"name": [ "EarthElemental", "EarthElementals" ],
+				"faction": 8,
+				"upgrade": 125,
+				"defname": "CEELEM.DEF"
+			},
+
+			{
+				"id": 114,
+				"level": 4,
+				"name": [ "FireElemental", "FireElementals" ],
+				"faction": 8,
+				"upgrade": 129,
+				"defname": "CFELEM.DEF"
+			},
+
+			{
+				"id": 115,
+				"level": 3,
+				"name": [ "WaterElemental", "WaterElementals" ],
+				"faction": 8,
+				"upgrade": 123,
+				"defname": "CWELEM.DEF"
+			},
+
+			{
+				"id": 116,
+				"level": 4,
+				"name": [ "GoldGolem" ],
+				"faction": -1,
+				"defname": "CGGOLE.DEF"
+			},
+
+			{
+				"id": 117,
+				"level": 5,
+				"name": [ "DiamondGolem" ],
+				"faction": -1,
+				"defname": "CDGOLE.DEF"
+			},
+
+			{
+				"id": 118,
+				"level": 1,
+				"name": [ "Pixie", "Pixies" ],
+				"faction": 8,
+				"upgrade": 119,
+				"defname": "CPIXIE.DEF"
+			},
+
+			{
+				"id": 119,
+				"level": 1,
+				"name": [ "Sprite" ],
+				"faction": 8,
+				"defname": "CSPRITE.DEF"
+			},
+
+			{
+				"id": 120,
+				"level": 6,
+				"name": [ "PsiElemental" ],
+				"faction": 8,
+				"upgrade": 121,
+				"defname": "CPSYEL.DEF"
+			},
+
+			{
+				"id": 121,
+				"level": 6,
+				"name": [ "MagicElemental" ],
+				"faction": 8,
+				"defname": "CMAGEL.DEF"
+			},
+
+			{
+				"id": 123,
+				"level": 3,
+				"name": [ "IceElemental" ],
+				"faction": 8,
+				"defname": "CICEE.DEF",
+				"projectile_defname": "PICEE.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 125,
+				"level": 5,
+				"name": [ "StoneElemental" ],
+				"faction": 8,
+				"defname": "CSTONE.DEF"
+			},
+
+			{
+				"id": 127,
+				"level": 2,
+				"name": [ "StormElemental" ],
+				"faction": 8,
+				"defname": "CSTORM.DEF",
+				"projectile_defname": "CPRGTIX.DEF",
+				"projectile_spin": false,
+				"turret_shooter": true
+			},
+
+			{
+				"id": 129,
+				"level": 4,
+				"name": [ "ElectricityElemental" ],
+				"faction": 8,
+				"defname": "CNRG.DEF"
+			},
+
+			{
+				"id": 130,
+				"level": 7,
+				"name": [ "Firebird" ],
+				"faction": 8,
+				"upgrade": 131,
+				"defname": "CFBIRD.DEF"
+			},
+
+			{
+				"id": 131,
+				"level": 7,
+				"name": [ "Pheonix" ],
+				"faction": 8,
+				"upgrade": 15,
+				"defname": "CPHX.DEF"
+			},
+
+			{
+				"id": 132,
+				"level": 10,
+				"name": [ "AzureDragon" ],
+				"faction": -1,
+				"defname": "CADRGN.DEF"
+			},
+
+			{
+				"id": 133,
+				"level": 10,
+				"name": [ "CrystalDragon" ],
+				"faction": -1,
+				"defname": "CCDRGN.DEF"
+			},
+
+			{
+				"id": 134,
+				"level": 8,
+				"name": [ "FairieDragon" ],
+				"faction": -1,
+				"defname": "CFDRGN.DEF"
+			},
+
+			{
+				"id": 135,
+				"level": 10,
+				"name": [ "RustDragon" ],
+				"faction": -1,
+				"defname": "CRSDGN.DEF"
+			},
+
+			{
+				"id": 136,
+				"level": 6,
+				"name": [ "Enchanter" ],
+				"faction": -1,
+				"defname": "CENCH.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 137,
+				"level": 4,
+				"name": [ "Sharpshooter" ],
+				"faction": -1,
+				"defname": "CSHARP.DEF",
+				"projectile_defname": "PELFX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 138,
+				"level": 1,
+				"name": [ "Halfling" ],
+				"faction": -1,
+				"defname": "CHALF.DEF",
+				"projectile_defname": "PHALF.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 139,
+				"level": 1,
+				"name": [ "Peasant" ],
+				"faction": -1,
+				"defname": "CPEAS.DEF"
+			},
+
+			{
+				"id": 140,
+				"level": 2,
+				"name": [ "Boar" ],
+				"faction": -1,
+				"defname": "CBOAR.DEF"
+			},
+
+			{
+				"id": 141,
+				"level": 3,
+				"name": [ "Mummy" ],
+				"faction": -1,
+				"defname": "CMUMMY.DEF"
+			},
+
+			{
+				"id": 142,
+				"level": 3,
+				"name": [ "warrior" ],
+				"faction": -1,
+				"defname": "CNOMAD.DEF"
+			},
+
+			{
+				"id": 143,
+				"level": 2,
+				"name": [ "Rogue" ],
+				"faction": -1,
+				"defname": "CROGUE.DEF"
+			},
+
+			{
+				"id": 144,
+				"level": 5,
+				"name": [ "OgreShaman" ],
+				"faction": -1,
+				"defname": "CTROLL.DEF"
+			},
+
+			{
+				"id": 145,
+				"level": 0,
+				"name": [ "Catapult" ],
+				"faction": -1,
+				"defname": "SMCATA.DEF",
+				"projectile_defname": "SMCATX.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 146,
+				"level": 0,
+				"name": [ "Ballista" ],
+				"faction": -1,
+				"defname": "SMBAL.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 147,
+				"level": 0,
+				"name": [ "FirstAidTent" ],
+				"faction": -1,
+				"defname": "SMTENT.DEF"
+			},
+
+			{
+				"id": 148,
+				"level": 0,
+				"name": [ "AmmoCart" ],
+				"faction": -1,
+				"defname": "SMCART.DEF"
+			},
+
+			{
+				"id": 149,
+				"level": 0,
+				"name": [ "ArrowTower" ],
+				"faction": -1,
+				"defname": "x"
+			},
+
+			{
+				"id": 150,
+				"level": 0,
+				"name": [ "SupremeArchangel" ],
+				"faction": 0,
+				"defname": "ZM150Z.DEF"
+			},
+
+			{
+				"id": 151,
+				"level": 8,
+				"name": [ "DiamondDragon" ],
+				"faction": 1,
+				"defname": "ZM151Z.DEF"
+			},
+
+			{
+				"id": 152,
+				"level": 8,
+				"name": [ "LordofThunder" ],
+				"faction": 2,
+				"defname": "ZM152Z.DEF",
+				"projectile_defname": "CPRGTIX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 153,
+				"level": 8,
+				"name": [ "HellBaron" ],
+				"faction": 3,
+				"defname": "ZM153Z.DEF"
+			},
+
+			{
+				"id": 154,
+				"level": 8,
+				"name": [ "BloodDragon" ],
+				"faction": 4,
+				"defname": "ZM154Z.DEF"
+			},
+
+			{
+				"id": 155,
+				"level": 8,
+				"name": [ "DarknessDragon" ],
+				"faction": 5,
+				"defname": "ZM155Z.DEF"
+			},
+
+			{
+				"id": 156,
+				"level": 8,
+				"name": [ "GhostBehemoth" ],
+				"faction": 6,
+				"defname": "ZM156Z.DEF"
+			},
+
+			{
+				"id": 157,
+				"level": 8,
+				"name": [ "HellHydra" ],
+				"faction": 7,
+				"defname": "ZM157Z.DEF"
+			},
+
+			{
+				"id": 158,
+				"level": 8,
+				"name": [ "SacredPhoenix" ],
+				"faction": 8,
+				"defname": "ZM158Z.DEF"
+			},
+
+			{
+				"id": 159,
+				"level": 0,
+				"name": [ "Ghost" ],
+				"faction": -1,
+				"defname": "ZM159G.DEF"
+			},
+
+			{
+				"id": 160,
+				"level": 0,
+				"name": [ "God1War" ],
+				"faction": -1,
+				"defname": "ZM160G.DEF"
+			},
+
+			{
+				"id": 161,
+				"level": 0,
+				"name": [ "God2Peace" ],
+				"faction": -1,
+				"defname": "ZM161G.DEF"
+			},
+
+			{
+				"id": 162,
+				"level": 0,
+				"name": [ "God3Mana" ],
+				"faction": -1,
+				"defname": "ZM162G.DEF"
+			},
+
+			{
+				"id": 163,
+				"level": 0,
+				"name": [ "God4Lore" ],
+				"faction": -1,
+				"defname": "ZM163G.DEF"
+			},
+
+			{
+				"id": 164,
+				"level": 0,
+				"name": [ "MinotaurKing" ],
+				"faction": -1,
+				"defname": "ZM164GD.DEF"
+			},
+
+			{
+				"id": 165,
+				"level": 0,
+				"name": [ "MineralElemental" ],
+				"faction": -1,
+				"defname": "ZM165GD.DEF"
+			},
+
+			{
+				"id": 166,
+				"level": 0,
+				"name": [ "ElectricityElemental" ],
+				"faction": -1,
+				"defname": "ZM166GD.DEF"
+			},
+
+			{
+				"id": 167,
+				"level": 0,
+				"name": [ "AncientBasilisk" ],
+				"faction": -1,
+				"defname": "ZM167GD.DEF"
+			},
+
+			{
+				"id": 168,
+				"level": 0,
+				"name": [ "Gorynych" ],
+				"faction": -1,
+				"defname": "ZM168DG.DEF"
+			},
+
+			{
+				"id": 169,
+				"level": 0,
+				"name": [ "WarZealot" ],
+				"faction": -1,
+				"defname": "ZM169ZL.DEF",
+				"projectile_defname": "CPRZEAX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 170,
+				"level": 0,
+				"name": [ "Myriad" ],
+				"faction": -1,
+				"defname": "ZM170SW.DEF",
+				"projectile_defname": "PLCBOWX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 171,
+				"level": 0,
+				"name": [ "MedusaMatriarch" ],
+				"faction": -1,
+				"defname": "ZM171SR.DEF",
+				"projectile_defname": "PLCBOWX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 172,
+				"level": 0,
+				"name": [ "Nightmare" ],
+				"faction": -1,
+				"defname": "ZM172N.DEF"
+			},
+
+			{
+				"id": 173,
+				"level": 0,
+				"name": [ "SantaGremlin" ],
+				"faction": -1,
+				"defname": "ZM173M.DEF",
+				"projectile_defname": "CPRGRE.DEF",
+				"projectile_spin": true
+			},
+
+			{
+				"id": 174,
+				"level": 0,
+				"name": [ "Paladin1" ],
+				"faction": -1,
+				"defname": "ZM174NPC.DEF"
+			},
+
+			{
+				"id": 175,
+				"level": 0,
+				"name": [ "Hierophant1" ],
+				"faction": -1,
+				"defname": "ZM175NPC.DEF"
+			},
+
+			{
+				"id": 176,
+				"level": 0,
+				"name": [ "TempleGuardian1" ],
+				"faction": -1,
+				"defname": "ZM176NPC.DEF"
+			},
+
+			{
+				"id": 177,
+				"level": 0,
+				"name": [ "Succubus1" ],
+				"faction": -1,
+				"defname": "ZM177NPC.DEF"
+			},
+
+			{
+				"id": 178,
+				"level": 0,
+				"name": [ "SoulEater1" ],
+				"faction": -1,
+				"defname": "ZM178NPC.DEF"
+			},
+
+			{
+				"id": 179,
+				"level": 0,
+				"name": [ "Brute1" ],
+				"faction": -1,
+				"defname": "ZM179NPC.DEF"
+			},
+
+			{
+				"id": 180,
+				"level": 0,
+				"name": [ "OgreLeader1" ],
+				"faction": -1,
+				"defname": "ZM180NPC.DEF"
+			},
+
+			{
+				"id": 181,
+				"level": 0,
+				"name": [ "Shaman1" ],
+				"faction": -1,
+				"defname": "ZM181NPC.DEF"
+			},
+
+			{
+				"id": 182,
+				"level": 0,
+				"name": [ "AstralSpirit1" ],
+				"faction": -1,
+				"defname": "ZM182NPC.DEF"
+			},
+
+			{
+				"id": 183,
+				"level": 0,
+				"name": [ "Paladin2" ],
+				"faction": -1,
+				"defname": "ZM174NPC.DEF"
+			},
+
+			{
+				"id": 184,
+				"level": 0,
+				"name": [ "Hierophant2" ],
+				"faction": -1,
+				"defname": "ZM175NPC.DEF"
+			},
+
+			{
+				"id": 185,
+				"level": 0,
+				"name": [ "TempleGuardian2" ],
+				"faction": -1,
+				"defname": "ZM176NPC.DEF"
+			},
+
+			{
+				"id": 186,
+				"level": 0,
+				"name": [ "Succubus2" ],
+				"faction": -1,
+				"defname": "ZM177NPC.DEF"
+			},
+
+			{
+				"id": 187,
+				"level": 0,
+				"name": [ "SoulEater2" ],
+				"faction": -1,
+				"defname": "ZM178NPC.DEF"
+			},
+
+			{
+				"id": 188,
+				"level": 0,
+				"name": [ "Brute2" ],
+				"faction": -1,
+				"defname": "ZM179NPC.DEF"
+			},
+
+			{
+				"id": 189,
+				"level": 0,
+				"name": [ "OgreLeader2" ],
+				"faction": -1,
+				"defname": "ZM180NPC.DEF"
+			},
+
+			{
+				"id": 190,
+				"level": 0,
+				"name": [ "Shaman2" ],
+				"faction": -1,
+				"defname": "ZM181NPC.DEF"
+			},
+
+			{
+				"id": 191,
+				"level": 0,
+				"name": [ "AstralSpirit2" ],
+				"faction": -1,
+				"defname": "ZM182NPC.DEF"
+			},
+
+			{
+				"id": 192,
+				"level": 0,
+				"name": [ "SylvanCentaur" ],
+				"faction": -1,
+				"defname": "ZM192Z.DEF"
+			},
+
+			{
+				"id": 193,
+				"level": 0,
+				"name": [ "Sorceress" ],
+				"faction": -1,
+				"defname": "ZM193Z.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			},
+
+			{
+				"id": 194,
+				"level": 0,
+				"name": [ "Werewolf" ],
+				"faction": -1,
+				"defname": "ZM194Z.DEF"
+			},
+
+			{
+				"id": 195,
+				"level": 0,
+				"name": [ "HellSteed" ],
+				"faction": -1,
+				"defname": "ZM195Z.DEF"
+			},
+
+			{
+				"id": 196,
+				"level": 0,
+				"name": [ "Dracolich" ],
+				"faction": -1,
+				"defname": "ZM196Z.DEF",
+				"projectile_defname": "SMBALX.DEF",
+				"projectile_spin": false
+			}
+		]
+}

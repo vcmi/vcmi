@@ -14,6 +14,7 @@
 #include "../lib/CGameState.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include "../lib/JsonNode.h"
 
 using namespace boost::assign;
 extern CLodHandler * bitmaph;
@@ -462,144 +463,52 @@ void CCreatureHandler::loadCreatures()
 
 	abils.close();
 
-	tlog5 << "\t\tReading config/crerefnam.txt" << std::endl;
-	//loading reference names
-	std::ifstream ifs(DATA_DIR "/config/crerefnam.txt");
-	int tempi;
-	std::string temps;
-	for (;;)
-	{
-		ifs >> tempi >> temps;
-		if (tempi>=creatures.size())
-			break;
-		boost::assign::insert(nameToID)(temps,tempi);
-		creatures[tempi]->nameRef=temps;
-	}
-	ifs.close();
-	ifs.clear();
+	// loading creatures properties
+	tlog5 << "\t\tReading config/creatures.json" << std::endl;
+	const JsonNode config(DATA_DIR "/config/creatures.json");
+	const JsonVector &creatures_vec = config["creatures"].Vector();
 
-	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
-	ifs.open(DATA_DIR "/config/monsters.txt");
-	{
-		while(!ifs.eof())
-		{
-			int id, lvl;
-			ifs >> id >> lvl;
-			if(!ifs.good())
-				break;
-			CCreature *c = creatures[id];
-			c->level = lvl;
+	for (JsonVector::const_iterator it = creatures_vec.begin(); it!=creatures_vec.end(); ++it) {
+		const JsonNode &creature = *it;
+		int creatureID = creature["id"].Float();
+		const JsonNode *value;
+
+		/* A creature can have several names. */
+		const JsonVector &names_vec = creature["name"].Vector();
+		for (JsonVector::const_iterator it = names_vec.begin(); it!=names_vec.end(); ++it) {
+			const std::string name = (*it).String();
+
+			boost::assign::insert(nameToID)(name, creatureID);
 		}
+
+		// Set various creature properties
+		CCreature *c = creatures[creatureID];
+		c->level = creature["level"].Float();
+		c->faction = creature["faction"].Float();
+		c->animDefName = creature["defname"].String();
+
+		value = &creature["upgrade"];
+		if (!value->isNull())
+			c->upgrades.insert(value->Float());
+
+		value = &creature["projectile_defname"];
+		if (!value->isNull()) {
+			idToProjectile[creatureID] = value->String();
+
+			value = &creature["projectile_spin"];
+			idToProjectileSpin[creatureID] = value->Bool();
+		}
+
+		value = &creature["turret_shooter"];
+		if (!value->isNull() && value->Bool())
+			factionToTurretCreature[c->faction] = creatureID;
 	}
+
+	std::ifstream ifs;
+	std::string dump2;
 
 	buildBonusTreeForTiers();
-
-
-	ifs.close();
-	ifs.clear();
-
-	tlog5 << "\t\tReading config/cr_factions.txt" << std::endl;
-	ifs.open(DATA_DIR "/config/cr_factions.txt");
-	while(!ifs.eof())
-	{
-		int id, fact;
-		ifs >> id >> fact;
-		creatures[id]->faction = fact;
-	}
-	ifs.close();
-	ifs.clear();
-
-	tlog5 << "\t\tReading config/cr_upgrade_list.txt" << std::endl;
-	ifs.open(DATA_DIR "/config/cr_upgrade_list.txt");
-	while(!ifs.eof())
-	{
-		int id, up;
-		ifs >> id >> up;
-		creatures[id]->upgrades.insert(up);
-	}
-	ifs.close();
-	ifs.clear();
-
-	//loading unit animation def names
-	tlog5 << "\t\tReading config/CREDEFS.TXT" << std::endl;
-	std::ifstream inp(DATA_DIR "/config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame2 = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame2+1]; // allocate memory
-	inp.read((char*)bufor, andame2); // read map file to buffer
-	inp.close();
-	bufor[andame2] = 0;
-	buf = std::string(bufor);
-	delete [] bufor;
-
-	i = 0; //buf iterator
-	hmcr = 0;
-	for(; i<andame2; ++i) //omitting rubbish
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	i+=2;
-	tlog5 << "We have "<<creatures.size() << " creatures\n";
-	for(int s=0; s<creatures.size(); ++s)
-	{
-		//tlog5 <<"\t\t\t" << s <<". Reading defname. \n";
-		int befi=i;
-		std::string rub;
-		for(; i<andame2; ++i)
-		{
-			if(buf[i]==' ')
-				break;
-		}
-		rub = buf.substr(befi, i-befi);
-		++i;
-
-		befi=i;
-		for(; i<andame2; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		std::string defName = buf.substr(befi, i-befi);
-		creatures[s]->animDefName = defName;
-	}
-	tlog5 << "\t\tReading CRANIM.TXT.txt" << std::endl;
 	loadAnimationInfo();
-
-	//loading id to projectile mapping
-
-	tlog5 << "\t\tReading config/cr_shots.txt" << std::endl;
-	std::ifstream inp2(DATA_DIR "/config/cr_shots.txt", std::ios::in | std::ios::binary); //this file is not in lod
-	char dump [200];
-	inp2.getline(dump, 200);
-	while(true)
-	{
-		int id;
-		std::string name;
-		bool spin;
-
-		inp2>>id;
-		if(id == -1)
-			break;
-		inp2>>name;
-		idToProjectile[id] = name;
-		inp2>>spin;
-		idToProjectileSpin[id] = spin;
-	}
-	inp2.close();
-
-	//reading factionToTurretCreature
-
-	tlog5 << "\t\tReading config/cr_to_turret.txt" << std::endl;
-	std::ifstream inp3(DATA_DIR "/config/cr_to_turret.txt", std::ios::in | std::ios::binary); //this file is not in lod
-	std::string dump2;
-	inp3 >> dump2 >> dump2;
-	for(int g=0; g<F_NUMBER; ++g)
-	{
-		inp3 >> factionToTurretCreature[g];
-	}
-	inp3.close();
 
 	//reading creature ability names
 	ifs.open(DATA_DIR "/config/bonusnames.txt");
