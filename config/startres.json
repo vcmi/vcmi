@@ -1,0 +1,31 @@
+// Starting ressources, ordered by difficulty level (0 to 4)
+{
+	"difficulty":
+		[
+			{ 
+			  "human": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
+			  "ai": { "wood" : 5, "mercury": 2, "ore": 5, "sulfur": 2, "crystal": 2, "gems": 2, "gold": 5000, "mithril": 0 }
+			},
+
+			{ 
+			  "human": { "wood" : 20, "mercury": 10, "ore": 20, "sulfur": 10, "crystal": 10, "gems": 10, "gold": 20000, "mithril": 0 },
+			  "ai": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 7500, "mithril": 0 }
+			},
+
+			{ 
+			  "human": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 15000, "mithril": 0 },
+			  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			},
+
+			{ 
+			  "human": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 10000, "mithril": 0 },
+			  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			}
+
+			{
+			  "human": { "wood" : 0, "mercury": 0, "ore": 0	, "sulfur": 0, "crystal": 0, "gems": 0, "gold": 0, "mithril": 0 }, 
+			  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			}
+		]
+}
+

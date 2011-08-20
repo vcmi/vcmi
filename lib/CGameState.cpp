@@ -30,6 +30,7 @@
 #include <numeric>
 #include "CMapInfo.h"
 #include "BattleState.h"
+#include "../lib/JsonNode.h"
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -1185,24 +1186,30 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 	/******************RESOURCES****************************************************/
 	TResources startresAI, startresHuman;
-	std::ifstream tis(DATA_DIR "/config/startres.txt");
-	int k;
-	for (int j=0; j<scenarioOps->difficulty * 2; j++)
-	{
-		tis >> k;
-		for (int z=0;z<RESOURCE_QUANTITY;z++)
-			tis>>k;
-	}
-	tis >> k;
-	for (int i=0; i<RESOURCE_QUANTITY; i++)
-		tis >> startresHuman[i];
+	const JsonNode config(DATA_DIR "/config/startres.json");
+	const JsonVector &vector = config["difficulty"].Vector();
+	const JsonNode &level = vector[scenarioOps->difficulty];
+	const JsonNode &human = level["human"];
+	const JsonNode &ai = level["ai"];
 
-	tis >> k;
-	for (int i=0; i<RESOURCE_QUANTITY; i++)
-		tis >> startresAI[i];
+	startresHuman[0] = human["wood"].Float();
+	startresHuman[1] = human["mercury"].Float();
+	startresHuman[2] = human["ore"].Float();
+	startresHuman[3] = human["sulfur"].Float();
+	startresHuman[4] = human["crystal"].Float();
+	startresHuman[5] = human["gems"].Float();
+	startresHuman[6] = human["gold"].Float();
+	startresHuman[7] = human["mithril"].Float();
 
-	tis.close();
-	tis.clear();
+	startresAI[0] = ai["wood"].Float();
+	startresAI[1] = ai["mercury"].Float();
+	startresAI[2] = ai["ore"].Float();
+	startresAI[3] = ai["sulfur"].Float();
+	startresAI[4] = ai["crystal"].Float();
+	startresAI[5] = ai["gems"].Float();
+	startresAI[6] = ai["gold"].Float();
+	startresAI[7] = ai["mithril"].Float();
+
 	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
 	{
 		PlayerState &p = i->second;
