@@ -42,6 +42,8 @@ public:
 	JsonNode(JsonType Type = DATA_NULL);
 	//Create tree from Json-formatted input
 	explicit JsonNode(std::string input);
+	//Create tree from JSON file
+ 	JsonNode(const char *filename);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 
@@ -56,7 +58,7 @@ public:
 
 	bool isNull() const;
 
-	//non-const acessors, node will change type on type mismatch
+	//non-const accessors, node will change type on type mismatch
 	bool & Bool();
 	int & Int();
 	float & Float();
@@ -64,7 +66,7 @@ public:
 	JsonVector & Vector();
 	JsonMap & Struct();
 
-	//const acessors, will cause assertion failure on type mismatch
+	//const accessors, will cause assertion failure on type mismatch
 	const bool & Bool() const;
 	const int & Int() const;
 	const float & Float() const;

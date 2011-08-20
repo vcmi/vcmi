@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 const JsonNode JsonNode::nullNode;
 
@@ -17,6 +18,15 @@ JsonNode::JsonNode(std::string input):
 	type(DATA_NULL)
 {
 	JsonParser parser(input, *this);
+}
+
+JsonNode::JsonNode(const char *filename)
+{
+	std::ifstream file(filename);
+	std::string str((std::istreambuf_iterator<char>(file)),
+					std::istreambuf_iterator<char>());
+
+	JsonParser parser(str, *this);
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
