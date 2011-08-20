@@ -1,0 +1,1253 @@
+{
+	"creature_sounds": 
+	[
+		{
+			"name": "AdvancedLizardman",
+			"attack": "ALIZATTK.wav",
+			"defend": "ALIZDFND.wav",
+			"killed": "ALIZKILL.wav",
+			"move": "ALIZMOVE.wav",
+			"shoot": "ALIZSHOT.wav",
+			"wince": "ALIZWNCE.wav"
+		},
+		{
+			"name": "AirElemental",
+			"attack": "AELMATTK.wav",
+			"defend": "AELMDFND.wav",
+			"killed": "AELMKILL.wav",
+			"move": "AELMMOVE.wav",
+			"wince": "AELMWNCE.wav"
+		},
+		{
+			"name": "AmmoCart",
+			"killed": "CARTKILL.wav",
+			"wince": "CARTWNCE.wav"
+		},
+		{
+			"name": "AncientBehemoth",
+			"attack": "BMTHATTK.wav",
+			"defend": "BMTHDFND.wav",
+			"killed": "BMTHKILL.wav",
+			"move": "BMTHMOVE.wav",
+			"wince": "BMTHWNCE.wav"
+		},
+		{
+			"name": "Angel",
+			"attack": "ANGLATTK.wav",
+			"defend": "ANGLDFND.wav",
+			"killed": "ANGLKILL.wav",
+			"move": "ANGLMOVE.wav",
+			"wince": "ANGLWNCE.wav"
+		},
+		{
+			"name": "ApprenticeGremlin",
+			"attack": "AGRMATTK.wav",
+			"defend": "AGRMDFND.wav",
+			"killed": "AGRMKILL.wav",
+			"move": "AGRMMOVE.wav",
+			"shoot": "AGRMSHOT.wav",
+			"wince": "AGRMWNCE.wav"
+		},
+		{
+			"name": "ArchDevil",
+			"attack": "ADVLATTK.wav",
+			"defend": "ADVLDFND.wav",
+			"killed": "ADVLKILL.wav",
+			"move": "ADVLMOVE.wav",
+			"wince": "ADVLWNCE.wav",
+			"startMoving": "ADVLEXT1.wav",
+			"stopMoving": "ADVLEXT2.wav"
+		},
+		{
+			"name": "ArchMage",
+			"attack": "AMAGATTK.wav",
+			"defend": "AMAGDFND.wav",
+			"killed": "AMAGKILL.wav",
+			"move": "AMAGMOVE.wav",
+			"shoot": "AMAGSHOT.wav",
+			"wince": "AMAGWNCE.wav"
+		},
+		{
+			"name": "Archangel",
+			"attack": "AAGLATTK.wav",
+			"defend": "AAGLDFND.wav",
+			"killed": "AAGLKILL.wav",
+			"move": "AAGLMOVE.wav",
+			"wince": "AAGLWNCE.wav"
+		},
+		{
+			"name": "AzureDragon",
+			"attack": "AZURATTK.wav",
+			"defend": "AZURDFND.wav",
+			"killed": "AZURKILL.wav",
+			"move": "AZURMOVE.wav",
+			"wince": "AZURWNCE.wav"
+		},
+		{
+			"name": "Ballista",
+			"killed": "BALLKILL.wav",
+			"shoot": "BALLSHOT.wav",
+			"wince": "BALLWNCE.wav"
+		},
+		{
+			"name": "Basilisk",
+			"attack": "BASLATTK.wav",
+			"defend": "BASLDFND.wav",
+			"killed": "BASLKILL.wav",
+			"move": "BASLMOVE.wav",
+			"wince": "BASLWNCE.wav"
+		},
+		{
+			"name": "BattleDwarf",
+			"attack": "BDRFATTK.wav",
+			"defend": "BDRFDFND.wav",
+			"killed": "BDRFKILL.wav",
+			"move": "BDRFMOVE.wav",
+			"wince": "BDRFWNCE.wav"
+		},
+		{
+			"name": "Beholder",
+			"attack": "BHDRATTK.wav",
+			"defend": "BHDRDFND.wav",
+			"killed": "BHDRKILL.wav",
+			"move": "BHDRMOVE.wav",
+			"shoot": "BHDRSHOT.wav",
+			"wince": "BHDRWNCE.wav",
+			"ext1": "BHDRDETH.wav"
+		},
+		{
+			"name": "BlackDragon",
+			"attack": "BKDRATTK.wav",
+			"defend": "BKDRDFND.wav",
+			"killed": "BKDRKILL.wav",
+			"move": "BKDRMOVE.wav",
+			"wince": "BKDRWNCE.wav"
+		},
+		{
+			"name": "BlackKnight",
+			"attack": "BKNTATTK.wav",
+			"defend": "BKNTDFND.wav",
+			"killed": "BKNTKILL.wav",
+			"move": "BKNTMOVE.wav",
+			"wince": "BKNTWNCE.wav"
+		},
+		{
+			"name": "BlackLord",
+			"attack": "BLRDATTK.wav",
+			"defend": "BLRDDFND.wav",
+			"killed": "BLRDKILL.wav",
+			"move": "BLRDMOVE.wav",
+			"wince": "BLRDWNCE.wav"
+		},
+		{
+			"name": "Boar",
+			"attack": "BOARATTK.wav",
+			"defend": "BOARDFND.wav",
+			"killed": "BOARKILL.wav",
+			"move": "BOARMOVE.wav",
+			"wince": "BOARWNCE.wav"
+		},
+		{
+			"name": "BoneDragon",
+			"attack": "BODRATTK.wav",
+			"defend": "BODRDFND.wav",
+			"killed": "BODRKILL.wav",
+			"move": "BODRMOVE.wav",
+			"wince": "BODRWNCE.wav"
+		},
+		{
+			"name": "BriarTreefolk",
+			"attack": "BTREATTK.wav",
+			"defend": "BTREDFND.wav",
+			"killed": "BTREKILL.wav",
+			"move": "BTREMOVE.wav",
+			"wince": "BTREWNCE.wav"
+		},
+		{
+			"name": "BronzeGorgon",
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
+		},
+		{
+			"name": "Caliph",
+			"attack": "CALFATTK.wav",
+			"defend": "CALFDFND.wav",
+			"killed": "CALFKILL.wav",
+			"move": "CALFMOVE.wav",
+			"shoot": "CALFSHOT.wav",
+			"wince": "CALFWNCE.wav"
+		},
+		{
+			"name": "Catapult",
+			"killed": "CATAKILL.wav",
+			"shoot": "CATASHOT.wav",
+			"wince": "CATAWNCE.wav"
+		},
+		{
+			"name": "Cavalier",
+			"attack": "CAVAATTK.wav",
+			"defend": "CAVADFND.wav",
+			"killed": "CAVAKILL.wav",
+			"move": "CAVAMOVE.wav",
+			"wince": "CAVAWNCE.wav"
+		},
+		{
+			"name": "Centaur",
+			"attack": "CNTRATTK.wav",
+			"defend": "CNTRDFND.wav",
+			"killed": "CNTRKILL.wav",
+			"move": "CNTRMOVE.wav",
+			"shoot": "CNTRSHOT.wav",
+			"wince": "CNTRWNCE.wav"
+		},
+		{
+			"name": "Cerberus",
+			"attack": "CERBATTK.wav",
+			"defend": "CERBDFND.wav",
+			"killed": "CERBKILL.wav",
+			"move": "CERBMOVE.wav",
+			"wince": "CERBWNCE.wav"
+		},
+		{
+			"name": "Champion",
+			"attack": "CHMPATTK.wav",
+			"defend": "CHMPDFND.wav",
+			"killed": "CHMPKILL.wav",
+			"move": "CHMPMOVE.wav",
+			"wince": "CHMPWNCE.wav"
+		},
+		{
+			"name": "ChaosHydra",
+			"attack": "CHYDATTK.wav",
+			"defend": "CHYDDFND.wav",
+			"killed": "CHYDKILL.wav",
+			"move": "CHYDMOVE.wav",
+			"wince": "CHYDWNCE.wav"
+		},
+		{
+			"name": "CopperGorgon",
+			"attack": "CGORATTK.wav",
+			"defend": "CGORDFND.wav",
+			"killed": "CGORKILL.wav",
+			"move": "CGORMOVE.wav",
+			"wince": "CGORWNCE.wav"
+		},
+		{
+			"name": "Crusader",
+			"attack": "CRUSATTK.wav",
+			"defend": "CRUSDFND.wav",
+			"killed": "CRUSKILL.wav",
+			"move": "CRUSMOVE.wav",
+			"wince": "CRUSWNCE.wav"
+		},
+		{
+			"name": "CrystalDragon",
+			"attack": "CRYSATTK.wav",
+			"defend": "CRYSDFND.wav",
+			"killed": "CRYSKILL.wav",
+			"move": "CRYSMOVE.wav",
+			"wince": "CRYSWNCE.wav"
+		},
+		{
+			"name": "Cyclops",
+			"attack": "CCYCATTK.wav",
+			"defend": "CCYCDFND.wav",
+			"killed": "CCYCKILL.wav",
+			"move": "CCYCMOVE.wav",
+			"shoot": "CCYCSHOT.wav",
+			"wince": "CCYCWNCE.wav"
+		},
+		{
+			"name": "CyclopsLord",
+			"attack": "CYCLATTK.wav",
+			"defend": "CYCLDFND.wav",
+			"killed": "CYCLKILL.wav",
+			"move": "CYCLMOVE.wav",
+			"shoot": "CYCLSHOT.wav",
+			"wince": "CYCLWNCE.wav"
+		},
+		{
+			"name": "Devil",
+			"attack": "DEVLATTK.wav",
+			"defend": "DEVLDFND.wav",
+			"killed": "DEVLKILL.wav",
+			"move": "DEVLMOVE.wav",
+			"wince": "DEVLWNCE.wav",
+			"ext1": "DEVLEXT1.wav",
+			"ext2": "DEVLEXT2.wav"
+		},
+		{
+			"name": "DiamondGolem",
+			"attack": "DGLMATTK.wav",
+			"defend": "DGLMDFND.wav",
+			"killed": "DGLMKILL.wav",
+			"move": "DGLMMOVE.wav",
+			"wince": "DGLMWNCE.wav"
+		},
+		{
+			"name": "DragonFly",
+			"attack": "DFLYATTK.wav",
+			"defend": "DFLYDFND.wav",
+			"killed": "DFLYKILL.wav",
+			"move": "DFLYMOVE.wav",
+			"wince": "DFLYWNCE.wav"
+		},
+		{
+			"name": "Dual-HornedDemon",
+			"attack": "DHDMATTK.wav",
+			"defend": "DHDMDFND.wav",
+			"killed": "DHDMKILL.wav",
+			"move": "DHDMMOVE.wav",
+			"wince": "DHDMWNCE.wav"
+		},
+		{
+			"name": "Dwarf",
+			"attack": "DWRFATTK.wav",
+			"defend": "DWRFDFND.wav",
+			"killed": "DWRFKILL.wav",
+			"move": "DWRFMOVE.wav",
+			"wince": "DWRFWNCE.wav"
+		},
+		{
+			"name": "EarthElemental",
+			"attack": "EELMATTK.wav",
+			"defend": "EELMDFND.wav",
+			"killed": "EELMKILL.wav",
+			"move": "EELMMOVE.wav",
+			"wince": "EELMWNCE.wav"
+		},
+		{
+			"name": "Efreet",
+			"attack": "EFRTATTK.wav",
+			"defend": "EFRTDFND.wav",
+			"killed": "EFRTKILL.wav",
+			"move": "EFRTMOVE.wav",
+			"wince": "EFRTWNCE.wav"
+		},
+		{
+			"name": "EfreetSultan",
+			"attack": "ESULATTK.wav",
+			"defend": "ESULDFND.wav",
+			"killed": "ESULKILL.wav",
+			"move": "ESULMOVE.wav",
+			"shoot": "ESULSHOT.wav",
+			"wince": "ESULWNCE.wav"
+		},
+		{
+			"name": "ElectricityElemental",
+			"attack": "ENERATTK.wav",
+			"defend": "ENERDFND.wav",
+			"killed": "ENERKILL.wav",
+			"move": "ENERMOVE.wav",
+			"wince": "ENERWNCE.wav"
+		},
+		{
+			"name": "EliteCentaur",
+			"attack": "ECNTATTK.wav",
+			"defend": "ECNTDFND.wav",
+			"killed": "ECNTKILL.wav",
+			"move": "ECNTMOVE.wav",
+			"wince": "ECNTWNCE.wav"
+		},
+		{
+			"name": "Enchanter",
+			"attack": "ENCHATTK.wav",
+			"defend": "ENCHDFND.wav",
+			"killed": "ENCHKILL.wav",
+			"move": "ENCHMOVE.wav",
+			"shoot": "ENCHSHOT.wav",
+			"wince": "ENCHWNCE.wav"
+		},
+		{
+			"name": "EvilEye",
+			"attack": "EVLIATTK.wav",
+			"defend": "EVLIDFND.wav",
+			"killed": "EVLIKILL.wav",
+			"move": "EVLIMOVE.wav",
+			"shoot": "EVLISHOT.wav",
+			"wince": "EVLIWNCE.wav",
+			"ext1": "EVLIDETH.wav"
+		},
+		{
+			"name": "FairieDragon",
+			"attack": "FAERATTK.wav",
+			"defend": "FAERDFND.wav",
+			"killed": "FAERKILL.wav",
+			"move": "FAERMOVE.wav",
+			"shoot": "FAERSHOT.wav",
+			"wince": "FAERWNCE.wav"
+		},
+		{
+			"name": "Familiar",
+			"attack": "FMLRATTK.wav",
+			"defend": "FMLRDFND.wav",
+			"killed": "FMLRKILL.wav",
+			"move": "FMLRMOVE.wav",
+			"wince": "FMLRWNCE.wav"
+		},
+		{
+			"name": "FireDragonFly",
+			"attack": "FDFLATTK.wav",
+			"defend": "FDFLDFND.wav",
+			"killed": "FDFLKILL.wav",
+			"move": "FDFLMOVE.wav",
+			"shoot": "FDFLSHOT.wav",
+			"wince": "FDFLWNCE.wav"
+		},
+		{
+			"name": "FireElemental",
+			"attack": "FELMATTK.wav",
+			"defend": "FELMDFND.wav",
+			"killed": "FELMKILL.wav",
+			"move": "FELMMOVE.wav",
+			"wince": "FELMWNCE.wav"
+		},
+		{
+			"name": "Firebird",
+			"attack": "FIRBATTK.wav",
+			"defend": "FIRBDFND.wav",
+			"killed": "FIRBKILL.wav",
+			"move": "FIRBMOVE.wav",
+			"wince": "FIRBWNCE.wav"
+		},
+		{
+			"name": "FirstAidTent",
+			"killed": "FAIDKILL.wav",
+			"wince": "FAIDWNCE.wav"
+		},
+		{
+			"name": "Genie",
+			"attack": "GENIATTK.wav",
+			"defend": "GENIDFND.wav",
+			"killed": "GENIKILL.wav",
+			"move": "GENIMOVE.wav",
+			"wince": "GENIWNCE.wav"
+		},
+		{
+			"name": "GhostDragon",
+			"attack": "GHDRATTK.wav",
+			"defend": "GHDRDFND.wav",
+			"killed": "GHDRKILL.wav",
+			"move": "GHDRMOVE.wav",
+			"wince": "GHDRWNCE.wav"
+		},
+		{
+			"name": "Gnoll",
+			"attack": "GNOLATTK.wav",
+			"defend": "GNOLDFND.wav",
+			"killed": "GNOLKILL.wav",
+			"move": "GNOLMOVE.wav",
+			"wince": "GNOLWNCE.wav"
+		},
+		{
+			"name": "GnollMarauder",
+			"attack": "GNLMATTK.wav",
+			"defend": "GNLMDFND.wav",
+			"killed": "GNLMKILL.wav",
+			"move": "GNLMMOVE.wav",
+			"wince": "GNLMWNCE.wav"
+		},
+		{
+			"name": "Goblin",
+			"attack": "GBLNATTK.wav",
+			"defend": "GBLNDFND.wav",
+			"killed": "GBLNKILL.wav",
+			"move": "GBLNMOVE.wav",
+			"wince": "GBLNWNCE.wav"
+		},
+		{
+			"name": "GoblinWolfRider",
+			"attack": "GWRDATTK.wav",
+			"defend": "GWRDDFND.wav",
+			"killed": "GWRDKILL.wav",
+			"move": "GWRDMOVE.wav",
+			"wince": "GWRDWNCE.wav"
+		},
+		{
+			"name": "Gog",
+			"attack": "GOGGATTK.wav",
+			"defend": "GOGGDFND.wav",
+			"killed": "GOGGKILL.wav",
+			"move": "GOGGMOVE.wav",
+			"shoot": "GOGGSHOT.wav",
+			"wince": "GOGGWNCE.wav",
+			"ext1": "GOGFLAME.wav"
+		},
+		{
+			"name": "GoldDragon",
+			"attack": "GODRATTK.wav",
+			"defend": "GODRDFND.wav",
+			"killed": "GODRKILL.wav",
+			"move": "GODRMOVE.wav",
+			"wince": "GODRWNCE.wav"
+		},
+		{
+			"name": "GoldGolem",
+			"attack": "GGLMATTK.wav",
+			"defend": "GGLMDFND.wav",
+			"killed": "GGLMKILL.wav",
+			"move": "GGLMMOVE.wav",
+			"wince": "GGLMWNCE.wav"
+		},
+		{
+			"name": "GrandElf",
+			"attack": "GELFATTK.wav",
+			"defend": "GELFDFND.wav",
+			"killed": "GELFKILL.wav",
+			"move": "GELFMOVE.wav",
+			"shoot": "GELFSHOT.wav",
+			"wince": "GELFWNCE.wav"
+		},
+		{
+			"name": "GreaterBasilisk",
+			"attack": "GBASATTK.wav",
+			"defend": "GBASDFND.wav",
+			"killed": "GBASKILL.wav",
+			"move": "GBASMOVE.wav",
+			"wince": "GBASWNCE.wav"
+		},
+		{
+			"name": "GreaterTitan",
+			"attack": "GTITATTK.wav",
+			"defend": "GTITDFND.wav",
+			"killed": "GTITKILL.wav",
+			"move": "GTITMOVE.wav",
+			"shoot": "GTITSHOT.wav",
+			"wince": "GTITWNCE.wav"
+		},
+		{
+			"name": "GreenDragon",
+			"attack": "GRDRATTK.wav",
+			"defend": "GRDRDFND.wav",
+			"killed": "GRDRKILL.wav",
+			"move": "GRDRMOVE.wav",
+			"wince": "GRDRWNCE.wav"
+		},
+		{
+			"name": "Griffin",
+			"attack": "GRIFATTK.wav",
+			"defend": "GRIFDFND.wav",
+			"killed": "GRIFKILL.wav",
+			"move": "GRIFMOVE.wav",
+			"wince": "GRIFWNCE.wav"
+		},
+		{
+			"name": "Halberdier",
+			"attack": "HALBATTK.wav",
+			"defend": "HALBDFND.wav",
+			"killed": "HALBKILL.wav",
+			"move": "HALBMOVE.wav",
+			"wince": "HALBWNCE.wav"
+		},
+		{
+			"name": "Halfling",
+			"attack": "HALFATTK.wav",
+			"defend": "HALFDFND.wav",
+			"killed": "HALFKILL.wav",
+			"move": "HALFMOVE.wav",
+			"shoot": "HALFSHOT.wav",
+			"wince": "HALFWNCE.wav"
+		},
+		{
+			"name": "Harpy",
+			"attack": "HARPATTK.wav",
+			"defend": "HARPDFND.wav",
+			"killed": "HARPKILL.wav",
+			"move": "HARPMOVE.wav",
+			"shoot": "silence",
+			"wince": "HARPWNCE.wav"
+		},
+		{
+			"name": "HarpyHag",
+			"attack": "HHAGATTK.wav",
+			"defend": "HHAGDFND.wav",
+			"killed": "HHAGKILL.wav",
+			"move": "HHAGMOVE.wav",
+			"shoot": "HHAGSHOT.wav",
+			"wince": "HHAGWNCE.wav"
+		},
+		{
+			"name": "HeavyCrossbowman",
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
+		},
+		{
+			"name": "HellHound",
+			"attack": "HHNDATTK.wav",
+			"defend": "HHNDDFND.wav",
+			"killed": "HHNDKILL.wav",
+			"move": "HHNDMOVE.wav",
+			"wince": "HHNDWNCE.wav"
+		},
+		{
+			"name": "Hobgoblin",
+			"attack": "HGOBATTK.wav",
+			"defend": "HGOBDFND.wav",
+			"killed": "HGOBKILL.wav",
+			"move": "HGOBMOVE.wav",
+			"wince": "HGOBWNCE.wav"
+		},
+		{
+			"name": "HobgoblinWolfRider",
+			"attack": "HGWRATTK.wav",
+			"defend": "HGWRDFND.wav",
+			"killed": "HGWRKILL.wav",
+			"move": "HGWRMOVE.wav",
+			"wince": "HGWRWNCE.wav"
+		},
+		{
+			"name": "Hydra",
+			"attack": "HYDRATTK.wav",
+			"defend": "HYDRDFND.wav",
+			"killed": "HYDRKILL.wav",
+			"move": "HYDRMOVE.wav",
+			"wince": "HYDRWNCE.wav"
+		},
+		{
+			"name": "IceElemental",
+			"attack": "ICELATTK.wav",
+			"defend": "ICELDFND.wav",
+			"killed": "ICELKILL.wav",
+			"move": "ICELMOVE.wav",
+			"shoot": "ICELSHOT.wav",
+			"wince": "ICELWNCE.wav"
+		},
+		{
+			"name": "Imp",
+			"attack": "IMPPATTK.wav",
+			"defend": "IMPPDFND.wav",
+			"killed": "IMPPKILL.wav",
+			"move": "IMPPMOVE.wav",
+			"wince": "IMPPWNCE.wav"
+		},
+		{
+			"name": "InfernalTroglodyte",
+			"attack": "ITRGATTK.wav",
+			"defend": "ITRGDFND.wav",
+			"killed": "ITRGKILL.wav",
+			"move": "ITRGMOVE.wav",
+			"wince": "ITRGWNCE.wav"
+		},
+		{
+			"name": "StoneGolem",
+			"attack": "IGLMATTK.wav",
+			"defend": "IGLMDFND.wav",
+			"killed": "IGLMKILL.wav",
+			"move": "IGLMMOVE.wav",
+			"wince": "IGLMWNCE.wav"
+		},
+		{
+			"name": "LesserTitan",
+			"attack": "LTITATTK.wav",
+			"defend": "LTITDFND.wav",
+			"killed": "LTITKILL.wav",
+			"move": "LTITMOVE.wav",
+			"wince": "LTITWNCE.wav"
+		},
+		{
+			"name": "Lich",
+			"attack": "LICHATTK.wav",
+			"defend": "LICHDFND.wav",
+			"killed": "LICHKILL.wav",
+			"move": "LICHMOVE.wav",
+			"shoot": "LICHSHOT.wav",
+			"wince": "LICHWNCE.wav",
+			"ext1": "LICHATK2.wav"
+		},
+		{
+			"name": "LightCrossbowman",
+			"attack": "LCRSATTK.wav",
+			"defend": "LCRSDFND.wav",
+			"killed": "LCRSKILL.wav",
+			"move": "LCRSMOVE.wav",
+			"shoot": "LCRSSHOT.wav",
+			"wince": "LCRSWNCE.wav"
+		},
+		{
+			"name": "Mage",
+			"attack": "MAGEATTK.wav",
+			"defend": "MAGEDFND.wav",
+			"killed": "MAGEKILL.wav",
+			"move": "MAGEMOVE.wav",
+			"shoot": "MAGESHOT.wav",
+			"wince": "MAGEWNCE.wav"
+		},
+		{
+			"name": "MagicElemental",
+			"attack": "MGELATTK.wav",
+			"defend": "MGELDFND.wav",
+			"killed": "MGELKILL.wav",
+			"move": "MGELMOVE.wav",
+			"wince": "MGELWNCE.wav"
+		},
+		{
+			"name": "Magog",
+			"attack": "MGOGATTK.wav",
+			"defend": "MGOGDFND.wav",
+			"killed": "MGOGKILL.wav",
+			"move": "MGOGMOVE.wav",
+			"shoot": "MGOGSHOT.wav",
+			"wince": "MGOGWNCE.wav",
+			"ext1": "GOGFLAME.wav"
+		},
+		{
+			"name": "Manticore",
+			"attack": "MANTATTK.wav",
+			"defend": "MANTDFND.wav",
+			"killed": "MANTKILL.wav",
+			"move": "MANTMOVE.wav",
+			"shoot": "MANTSHOT.wav",
+			"wince": "MANTWNCE.wav"
+		},
+		{
+			"name": "MasterGremlin",
+			"attack": "MGRMATTK.wav",
+			"defend": "MGRMDFND.wav",
+			"killed": "MGRMKILL.wav",
+			"move": "MGRMMOVE.wav",
+			"shoot": "MGRMSHOT.wav",
+			"wince": "MGRMWNCE.wav"
+		},
+		{
+			"name": "Medusa",
+			"attack": "MEDUATTK.wav",
+			"defend": "MEDUDFND.wav",
+			"killed": "MEDUKILL.wav",
+			"move": "MEDUMOVE.wav",
+			"shoot": "MEDUSHOT.wav",
+			"wince": "MEDUWNCE.wav"
+		},
+		{
+			"name": "MedusaQueen",
+			"attack": "MEDQATTK.wav",
+			"defend": "MEDQDFND.wav",
+			"killed": "MEDQKILL.wav",
+			"move": "MEDQMOVE.wav",
+			"shoot": "MEDQSHOT.wav",
+			"wince": "MEDQWNCE.wav"
+		},
+		{
+			"name": "Minotaur",
+			"attack": "MINOATTK.wav",
+			"defend": "MINODFND.wav",
+			"killed": "MINOKILL.wav",
+			"move": "MINOMOVE.wav",
+			"wince": "MINOWNCE.wav"
+		},
+		{
+			"name": "MinotaurKing",
+			"attack": "MINKATTK.wav",
+			"defend": "MINKDFND.wav",
+			"killed": "MINKKILL.wav",
+			"move": "MINKMOVE.wav",
+			"shoot": "MINKSHOT.wav",
+			"wince": "MINKWNCE.wav"
+		},
+		{
+			"name": "Monk",
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
+		},
+		{
+			"name": "Mummy",
+			"attack": "MUMYATTK.wav",
+			"defend": "MUMYDFND.wav",
+			"killed": "MUMYKILL.wav",
+			"move": "MUMYMOVE.wav",
+			"wince": "MUMYWNCE.wav"
+		},
+		{
+			"name": "NagaGuardian",
+			"attack": "NGRDATTK.wav",
+			"defend": "NGRDDFND.wav",
+			"killed": "NGRDKILL.wav",
+			"move": "NGRDMOVE.wav",
+			"wince": "NGRDWNCE.wav"
+		},
+		{
+			"name": "NagaSentinel",
+			"attack": "NSENATTK.wav",
+			"defend": "NSENDFND.wav",
+			"killed": "NSENKILL.wav",
+			"move": "NSENMOVE.wav",
+			"wince": "NSENWNCE.wav"
+		},
+		{
+			"name": "Nosferatu",
+			"attack": "NOSFATTK.wav",
+			"defend": "NOSFDFND.wav",
+			"killed": "NOSFKILL.wav",
+			"move": "NOSFMOVE.wav",
+			"shoot": "NOSFSHOT.wav",
+			"wince": "NOSFWNCE.wav",
+			"ext1": "NOSFEXT1.wav",
+			"ext2": "NOSFEXT2.wav"
+		},
+		{
+			"name": "ObsidianGargoyle",
+			"attack": "OGRGATTK.wav",
+			"defend": "OGRGDFND.wav",
+			"killed": "OGRGKILL.wav",
+			"move": "OGRGMOVE.wav",
+			"wince": "OGRGWNCE.wav"
+		},
+		{
+			"name": "Ogre",
+			"attack": "OGREATTK.wav",
+			"defend": "OGREDFND.wav",
+			"killed": "OGREKILL.wav",
+			"move": "OGREMOVE.wav",
+			"wince": "OGREWNCE.wav"
+		},
+		{
+			"name": "OgreMage",
+			"attack": "OGRMATTK.wav",
+			"defend": "OGRMDFND.wav",
+			"killed": "OGRMKILL.wav",
+			"move": "OGRMMOVE.wav",
+			"shoot": "OGRMSHOT.wav",
+			"wince": "OGRMWNCE.wav"
+		},
+		{
+			"name": "OgreShaman",
+			"attack": "TRLLATTK.wav",
+			"defend": "TRLLDFND.wav",
+			"killed": "TRLLKILL.wav",
+			"move": "TRLLMOVE.wav",
+			"wince": "TRLLWNCE.wav"
+		},
+		{
+			"name": "Orc",
+			"attack": "OORCATTK.wav",
+			"defend": "OORCDFND.wav",
+			"killed": "OORCKILL.wav",
+			"move": "OORCMOVE.wav",
+			"shoot": "OORCSHOT.wav",
+			"wince": "OORCWNCE.wav"
+		},
+		{
+			"name": "OrcChieftain",
+			"attack": "ORCCATTK.wav",
+			"defend": "ORCCDFND.wav",
+			"killed": "ORCCKILL.wav",
+			"move": "ORCCMOVE.wav",
+			"shoot": "ORCCSHOT.wav",
+			"wince": "ORCCWNCE.wav"
+		},
+		{
+			"name": "Peasant",
+			"attack": "PSNTATTK.wav",
+			"defend": "PSNTDFND.wav",
+			"killed": "PSNTKILL.wav",
+			"move": "PSNTMOVE.wav",
+			"wince": "PSNTWNCE.wav"
+		},
+		{
+			"name": "Pegasus",
+			"attack": "PEGAATTK.wav",
+			"defend": "PEGADFND.wav",
+			"killed": "PEGAKILL.wav",
+			"move": "PEGAMOVE.wav",
+			"wince": "PEGAWNCE.wav"
+		},
+		{
+			"name": "Pheonix",
+			"attack": "PHOEATTK.wav",
+			"defend": "PHOEDFND.wav",
+			"killed": "PHOEKILL.wav",
+			"move": "PHOEMOVE.wav",
+			"wince": "PHOEWNCE.wav"
+		},
+		{
+			"name": "Pikeman",
+			"attack": "PIKEATTK.wav",
+			"defend": "PIKEDFND.wav",
+			"killed": "PIKEKILL.wav",
+			"move": "PIKEMOVE.wav",
+			"wince": "PIKEWNCE.wav"
+		},
+		{
+			"name": "PitFiend",
+			"attack": "PFNDATTK.wav",
+			"defend": "PFNDDFND.wav",
+			"killed": "PFNDKILL.wav",
+			"move": "PFNDMOVE.wav",
+			"wince": "PFNDWNCE.wav"
+		},
+		{
+			"name": "PitFoe",
+			"attack": "PFOEATTK.wav",
+			"defend": "PFOEDFND.wav",
+			"killed": "PFOEKILL.wav",
+			"move": "PFOEMOVE.wav",
+			"wince": "PFOEWNCE.wav"
+		},
+		{
+			"name": "Pixie",
+			"attack": "PIXIATTK.wav",
+			"defend": "PIXIDFND.wav",
+			"killed": "PIXIKILL.wav",
+			"move": "PIXIMOVE.wav",
+			"wince": "PIXIWNCE.wav"
+		},
+		{
+			"name": "PowerLich",
+			"attack": "PLCHATTK.wav",
+			"defend": "PLCHDFND.wav",
+			"killed": "PLCHKILL.wav",
+			"move": "PLCHMOVE.wav",
+			"shoot": "PLCHSHOT.wav",
+			"wince": "PLCHWNCE.wav"
+		},
+		{
+			"name": "PrimitiveLizardman",
+			"attack": "PLIZATTK.wav",
+			"defend": "PLIZDFND.wav",
+			"killed": "PLIZKILL.wav",
+			"move": "PLIZMOVE.wav",
+			"shoot": "PLIZSHOT.wav",
+			"wince": "PLIZWNCE.wav"
+		},
+		{
+			"name": "PsiElemental",
+			"attack": "PSYCATTK.wav",
+			"defend": "PSYCDFND.wav",
+			"killed": "PSYCKILL.wav",
+			"move": "PSYCMOVE.wav",
+			"wince": "PSYCWNCE.wav"
+		},
+		{
+			"name": "RedDragon",
+			"attack": "RDDRATTK.wav",
+			"defend": "RDDRDFND.wav",
+			"killed": "RDDRKILL.wav",
+			"move": "RDDRMOVE.wav",
+			"wince": "RDDRWNCE.wav"
+		},
+		{
+			"name": "Roc",
+			"attack": "ROCCATTK.wav",
+			"defend": "ROCCDFND.wav",
+			"killed": "ROCCKILL.wav",
+			"move": "ROCCMOVE.wav",
+			"wince": "ROCCWNCE.wav"
+		},
+		{
+			"name": "Rogue",
+			"attack": "ROGUATTK.wav",
+			"defend": "ROGUDFND.wav",
+			"killed": "ROGUKILL.wav",
+			"move": "ROGUMOVE.wav",
+			"wince": "ROGUWNCE.wav"
+		},
+		{
+			"name": "RoyalGriffin",
+			"attack": "RGRFATTK.wav",
+			"defend": "RGRFDFND.wav",
+			"killed": "RGRFKILL.wav",
+			"move": "RGRFMOVE.wav",
+			"wince": "RGRFWNCE.wav"
+		},
+		{
+			"name": "RustDragon",
+			"attack": "RUSTATTK.wav",
+			"defend": "RUSTDFND.wav",
+			"killed": "RUSTKILL.wav",
+			"move": "RUSTMOVE.wav",
+			"wince": "RUSTWNCE.wav"
+		},
+		{
+			"name": "Scorpicore",
+			"attack": "SCRPATTK.wav",
+			"defend": "SCRPDFND.wav",
+			"killed": "SCRPKILL.wav",
+			"move": "SCRPMOVE.wav",
+			"shoot": "SCRPSHOT.wav",
+			"wince": "SCRPWNCE.wav"
+		},
+		{
+			"name": "SilverPegasus",
+			"attack": "APEGATTK.wav",
+			"defend": "APEGDFND.wav",
+			"killed": "APEGKILL.wav",
+			"move": "APEGMOVE.wav",
+			"wince": "APEGWNCE.wav"
+		},
+		{
+			"name": "Single-HornedDemon",
+			"attack": "SHDMATTK.wav",
+			"defend": "SHDMDFND.wav",
+			"killed": "SHDMKILL.wav",
+			"move": "SHDMMOVE.wav",
+			"wince": "SHDMWNCE.wav"
+		},
+		{
+			"name": "Skeleton",
+			"attack": "SKELATTK.wav",
+			"defend": "SKELDFND.wav",
+			"killed": "SKELKILL.wav",
+			"move": "SKELMOVE.wav",
+			"wince": "SKELWNCE.wav"
+		},
+		{
+			"name": "SkeletonWarrior",
+			"attack": "SKLWATTK.wav",
+			"defend": "SKLWDFND.wav",
+			"killed": "SKLWKILL.wav",
+			"move": "SKLWMOVE.wav",
+			"wince": "SKLWWNCE.wav"
+		},
+		{
+			"name": "Sprite",
+			"attack": "SPRTATTK.wav",
+			"defend": "SPRTDFND.wav",
+			"killed": "SPRTKILL.wav",
+			"move": "SPRTMOVE.wav",
+			"wince": "SPRTWNCE.wav"
+		},
+		{
+			"name": "StoneElemental",
+			"attack": "MAGMATTK.wav",
+			"defend": "MAGMDFND.wav",
+			"killed": "MAGMKILL.wav",
+			"move": "MAGMMOVE.wav",
+			"wince": "MAGMWNCE.wav"
+		},
+		{
+			"name": "StoneGargoyle",
+			"attack": "SGRGATTK.wav",
+			"defend": "SGRGDFND.wav",
+			"killed": "SGRGKILL.wav",
+			"move": "SGRGMOVE.wav",
+			"wince": "SGRGWNCE.wav"
+		},
+		{
+			"name": "IronGolem",
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
+		},
+		{
+			"name": "StormElemental",
+			"attack": "STORATTK.wav",
+			"defend": "STORDFND.wav",
+			"killed": "STORKILL.wav",
+			"move": "STORMOVE.wav",
+			"shoot": "STORSHOT.wav",
+			"wince": "STORWNCE.wav"
+		},
+		{
+			"name": "Swordsman",
+			"attack": "SWRDATTK.wav",
+			"defend": "SWRDDFND.wav",
+			"killed": "SWRDKILL.wav",
+			"move": "SWRDMOVE.wav",
+			"wince": "SWRDWNCE.wav"
+		},
+		{
+			"name": "Thunderbird",
+			"attack": "TBRDATTK.wav",
+			"defend": "TBRDDFND.wav",
+			"killed": "TBRDKILL.wav",
+			"move": "TBRDMOVE.wav",
+			"wince": "TBRDWNCE.wav"
+		},
+		{
+			"name": "Treefolk",
+			"attack": "TREEATTK.wav",
+			"defend": "TREEDFND.wav",
+			"killed": "TREEKILL.wav",
+			"move": "TREEMOVE.wav",
+			"wince": "TREEWNCE.wav"
+		},
+		{
+			"name": "Troglodyte",
+			"attack": "TROGATTK.wav",
+			"defend": "TROGDFND.wav",
+			"killed": "TROGKILL.wav",
+			"move": "TROGMOVE.wav",
+			"wince": "TROGWNCE.wav"
+		},
+		{
+			"name": "Unicorn",
+			"attack": "UNICATTK.wav",
+			"defend": "UNICDFND.wav",
+			"killed": "UNICKILL.wav",
+			"move": "UNICMOVE.wav",
+			"wince": "UNICWNCE.wav"
+		},
+		{
+			"name": "Vampire",
+			"attack": "VAMPATTK.wav",
+			"defend": "VAMPDFND.wav",
+			"killed": "VAMPKILL.wav",
+			"move": "VAMPMOVE.wav",
+			"wince": "VAMPWNCE.wav",
+			"startMoving": "VAMPEXT1.wav",
+			"stopMoving": "VAMPEXT2.wav"
+		},
+		{
+			"name": "warrior",
+			"attack": "NMADATTK.wav",
+			"defend": "NMADDFND.wav",
+			"killed": "NMADKILL.wav",
+			"move": "NMADMOVE.wav",
+			"wince": "NMADWNCE.wav"
+		},
+		{
+			"name": "WarUnicorn",
+			"attack": "WUNCATTK.wav",
+			"defend": "WUNCDFND.wav",
+			"killed": "WUNCKILL.wav",
+			"move": "WUNCMOVE.wav",
+			"shoot": "WUNCSHOT.wav",
+			"wince": "WUNCWNCE.wav"
+		},
+		{
+			"name": "WaterElemental",
+			"attack": "WELMATTK.wav",
+			"defend": "WELMDFND.wav",
+			"killed": "WELMKILL.wav",
+			"move": "WELMMOVE.wav",
+			"wince": "WELMWNCE.wav"
+		},
+		{
+			"name": "Wight",
+			"attack": "WGHTATTK.wav",
+			"defend": "WGHTDFND.wav",
+			"killed": "WGHTKILL.wav",
+			"move": "WGHTMOVE.wav",
+			"wince": "WGHTWNCE.wav"
+		},
+		{
+			"name": "WoodElf",
+			"attack": "WELFATTK.wav",
+			"defend": "WELFDFND.wav",
+			"killed": "WELFKILL.wav",
+			"move": "WELFMOVE.wav",
+			"shoot": "WELFSHOT.wav",
+			"wince": "WELFWNCE.wav"
+		},
+		{
+			"name": "Wraith",
+			"attack": "WRTHATTK.wav",
+			"defend": "WRTHDFND.wav",
+			"killed": "WRTHKILL.wav",
+			"move": "WRTHMOVE.wav",
+			"wince": "WRTHWNCE.wav"
+		},
+		{
+			"name": "Wyvern",
+			"attack": "WYVNATTK.wav",
+			"defend": "WYVNDFND.wav",
+			"killed": "WYVNKILL.wav",
+			"move": "WYVNMOVE.wav",
+			"wince": "WYVNWNCE.wav"
+		},
+		{
+			"name": "WyvernMonarch",
+			"attack": "WYVMATTK.wav",
+			"defend": "WYVMDFND.wav",
+			"killed": "WYVMKILL.wav",
+			"move": "WYVMMOVE.wav",
+			"wince": "WYVMWNCE.wav"
+		},
+		{
+			"name": "YoungBehemoth",
+			"attack": "YBMHATTK.wav",
+			"defend": "YBMHDFND.wav",
+			"killed": "YBMHKILL.wav",
+			"move": "YBMHMOVE.wav",
+			"wince": "YBMHWNCE.wav"
+		},
+		{
+			"name": "Zealot",
+			"attack": "ZELTATTK.wav",
+			"defend": "ZELTDFND.wav",
+			"killed": "ZELTKILL.wav",
+			"move": "ZELTMOVE.wav",
+			"shoot": "ZELTSHOT.wav",
+			"wince": "ZELTWNCE.wav"
+		},
+		{
+			"name": "Zombie",
+			"attack": "ZOMBATTK.wav",
+			"defend": "ZOMBDFND.wav",
+			"killed": "ZOMBKILL.wav",
+			"move": "ZOMBMOVE.wav",
+			"wince": "ZOMBWNCE.wav"
+		},
+		{
+			"name": "ZombieLord",
+			"attack": "ZMBLATTK.wav",
+			"defend": "ZMBLDFND.wav",
+			"killed": "ZMBLKILL.wav",
+			"move": "ZMBLMOVE.wav",
+			"wince": "ZMBLWNCE.wav"
+		}
+	]
+}
+
+// For future reference. Creatures from WoG.
+// 137 Sharpshooter
+// 149 ArrowTower
+// 150 SupremeArchangel
+// 151 DiamondDragon
+// 152 LordofThunder
+// 153 HellBaron
+// 154 BloodDragon
+// 155 DarknessDragon
+// 156 GhostBehemoth
+// 157 HellHydra
+// 158 SacredPhoenix
+// 159 Ghost
+// 160 God1War
+// 161 God2Peace
+// 162 God3Mana
+// 163 God4Lore
+// 164 MinotaurKing
+// 165 MineralElemental
+// 166 ElectricityElemental
+// 167 AncientBasilisk
+// 168 Gorynych
+// 169 WarZealot
+// 170 Myriad
+// 171 MedusaMatriarch
+// 172 Nightmare
+// 173 SantaGremlin
+// 174 Paladin1
+// 175 Hierophant1
+// 176 TempleGuardian1
+// 177 Succubus1
+// 178 SoulEater1
+// 179 Brute1
+// 180 OgreLeader1
+// 181 Shaman1
+// 182 AstralSpirit1
+// 183 Paladin2
+// 184 Hierophant2
+// 185 TempleGuardian2
+// 186 Succubus2
+// 187 SoulEater2
+// 188 Brute2
+// 189 OgreLeader2
+// 190 Shaman2
+// 191 AstralSpirit2
+// 192 SylvanCentaur
+// 193 Sorceress
+// 194 Werewolf
+// 195 HellSteed
+// 196 Dracolich

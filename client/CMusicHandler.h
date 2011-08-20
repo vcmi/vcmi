@@ -70,7 +70,7 @@ class CSoundHandler: public CAudioBase
 {
 private:
 	CSndHandler sndh;
-	soundBase::soundID getSoundID(std::string &fileName);
+	soundBase::soundID getSoundID(const std::string &fileName);
 
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 

@@ -12,6 +12,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../client/CGameInfo.h"
+#include "../lib/JsonNode.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -156,7 +157,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 }
 
 // Get a soundID given a filename
-soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
+soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 {
 	boost::bimap<soundBase::soundID, std::string>::right_iterator it;
 
@@ -169,62 +170,49 @@ soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 
 void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
-	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
-	std::ifstream ifs(DATA_DIR "/config/cr_sounds.txt");
-	std::string line;
+	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
+	class JsonNode config(DATA_DIR "/config/cr_sounds.json");
 
 	CBattleSounds.resize(creatures.size());
 
-	while(getline(ifs, line))
-	{
-		std::string cname="", attack="", defend="", killed="", move="", 
-			shoot="", wince="", ext1="", ext2="";
-		std::istringstream str(line);
+	if (!config["creature_sounds"].isNull()) {
+		const JsonVector &vector = config["creature_sounds"].Vector();
+	
+		for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it) {
+			const JsonNode &node = *it;
+			const JsonNode *value;
+			int id;
 
-		str >> cname >> attack >> defend >> killed >> move >> shoot >> wince >> ext1 >> ext2;
+			value = &node["name"];
 
-		if (!line.size() || cname[0] == '#')
-			// That's a comment. Discard.
-			continue;
-
-		if (str.good() || (str.eof() && wince != ""))
-		{
-			int id = -1;
-
-			bmap<std::string,int>::const_iterator i = CGI->creh->nameToID.find(cname);
-			if(i != CGI->creh->nameToID.end())
+			bmap<std::string,int>::const_iterator i = CGI->creh->nameToID.find(value->String());
+			if (i != CGI->creh->nameToID.end())
 				id = i->second;
 			else
 			{
-				tlog1 << "Sound info for an unknown creature: " << cname << std::endl;
+				tlog1 << "Sound info for an unknown creature: " << value->String() << std::endl;
 				continue;
 			}
 
-			if (CBattleSounds[id].killed != soundBase::invalid)
-				tlog1 << "Creature << " << cname << " already has sounds" << std::endl;
-			
-			CBattleSounds[id].attack = getSoundID(attack);
-			CBattleSounds[id].defend = getSoundID(defend);
-			CBattleSounds[id].killed = getSoundID(killed);
-			CBattleSounds[id].move = getSoundID(move);
-			CBattleSounds[id].shoot = getSoundID(shoot);
-			CBattleSounds[id].wince = getSoundID(wince);
-			CBattleSounds[id].ext1 = getSoundID(ext1);
-			CBattleSounds[id].ext2 = getSoundID(ext2);
+			/* This is a bit ugly. Maybe we should use an array for
+			 * sound ids instead of separate variables and define
+			 * attack/defend/killed/... as indexes. */
+#define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) CBattleSounds[id].value_name = getSoundID(value->String()); } while(0)
 
-			// Special creatures
-			if (id == 55 || // Archdevil
-				id == 62 || // Vampire
-				id == 62)	// Vampire Lord
-			{
-				CBattleSounds[id].startMoving = CBattleSounds[id].ext1;
-				CBattleSounds[id].endMoving = CBattleSounds[id].ext2;
-			}
+			GET_SOUND_VALUE(attack);
+			GET_SOUND_VALUE(defend);
+			GET_SOUND_VALUE(killed);
+			GET_SOUND_VALUE(move);
+			GET_SOUND_VALUE(shoot);
+			GET_SOUND_VALUE(wince);
+			GET_SOUND_VALUE(ext1);
+			GET_SOUND_VALUE(ext2);
+			GET_SOUND_VALUE(startMoving);
+			GET_SOUND_VALUE(endMoving);
+#undef GET_SOUND_VALUE
 		}
 	}
-	ifs.close();
-	ifs.clear();
-
+	
 	//commented to avoid spurious warnings
 	/*
 	// Find creatures without sounds
