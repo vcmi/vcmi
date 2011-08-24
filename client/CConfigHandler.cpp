@@ -3,7 +3,10 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/version.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
+#include "../lib/JsonNode.h"
+
 using namespace config;
 
 #if BOOST_VERSION >= 103800
@@ -27,10 +30,6 @@ using namespace phoenix;
  */
 
 CConfigHandler conf;
-GUIOptions *current = NULL;
-std::pair<int,int> curRes;
-ButtonInfo *currentButton;
-int gnb=-1;
 
 struct lerror
 {
@@ -46,34 +45,7 @@ struct lerror
 		tlog1 << txt << std::endl;
 	}
 };
-struct SetCurButton
-{
-	template<typename IteratorT>
-	void operator()(IteratorT t1, IteratorT t2) const
-	{
-		std::string str(t1,t2);
-		if(str=="KingdomOv")
-			currentButton = &current->ac.kingOverview;
-		else if(str=="Underground")
-			currentButton = &current->ac.underground;
-		else if(str=="QuestLog")
-			currentButton = &current->ac.questlog;
-		else if(str=="SleepWake")
-			currentButton = &current->ac.sleepWake;
-		else if(str=="MoveHero")
-			currentButton = &current->ac.moveHero;
-		else if(str=="Spellbook")
-			currentButton = &current->ac.spellbook;
-		else if(str=="AdvOptions")
-			currentButton = &current->ac.advOptions;
-		else if(str=="SysOptions")
-			currentButton = &current->ac.sysOptions;
-		else if(str=="NextHero")
-			currentButton = &current->ac.nextHero;
-		else if(str=="EndTurn")
-			currentButton = &current->ac.endTurn;
-	}
-};
+
 struct lerror2
 {
 	std::string txt;
@@ -86,121 +58,15 @@ struct lerror2
 	}
 };
 
-struct dummy 
-{
-	boost::function<void()> func;
-	dummy(const boost::function<void()>  & F)
-		:func(F){}
-	template<typename IteratorT>
-	void operator()(IteratorT t1, IteratorT t2) const
-	{
-		func();
-	}
-};
-
-template<typename T>struct SetButtonProp
-{
-	T point;
-	SetButtonProp(T p)
-		:point(p){}
-	template <typename Z>
-	void operator()(const Z & val) const
-	{
-		currentButton->*point = val;
-	}
-};
-template<typename T> SetButtonProp<T> SetButtonProp_a(T p)
-{
-	return SetButtonProp<T>(p);
-}
-struct SetButtonStr
-{
-	std::string ButtonInfo::*point;
-	SetButtonStr(std::string ButtonInfo::* p)
-		:point(p){}
-	template <typename Z>
-	void operator()(const Z first, const Z last) const
-	{
-		std::string str(first,last);
-		currentButton->*point = str;
-	}
-};
-template<typename T>struct SetAdventureProp
-{
-	T point;
-	SetAdventureProp(T p)
-		:point(p){}
-	template <typename Z>
-	void operator()(const Z & val) const
-	{
-		current->ac.*point = val;
-	}
-};
-template<typename T> SetAdventureProp<T> SetAdventureProp_a(T p)
-{
-	return SetAdventureProp<T>(p);
-}
-struct SetAdventureStr
-{
-	std::string AdventureMapConfig::*point;
-	SetAdventureStr(std::string AdventureMapConfig::* p)
-		:point(p){}
-	template <typename Z>
-	void operator()(const Z first, const Z last) const
-	{
-		std::string str(first,last);
-		current->ac.*point = str;
-	}
-};
-struct AddDefForButton
-{
-	template <typename Z>
-	void operator()(const Z first, const Z last) const
-	{
-		std::string str(first,last);
-		currentButton->additionalDefs.push_back(str);
-	}
-};
-struct ClearAdditionalDefs
-{
-	template <typename Z>
-	void operator()(const Z first, const Z last) const
-	{
-		currentButton->additionalDefs.clear();
-	}
-};
-static void addGRes()
-{
-	if(current)
-		conf.guiOptions[curRes] = *current; //we'll use by default settings from previous resolution
-	current = &conf.guiOptions[curRes];
-}
-static void setGem(int x, int val)
-{
-	if(x)	
-		current->ac.gemX[gnb] = val;
-	else
-		current->ac.gemY[gnb] = val;
-}
-struct AddGemName
-{
-	template <typename Z>
-	void operator()(const Z first, const Z last) const
-	{
-		current->ac.gemG.push_back(std::string(first,last));
-	}
-};
 struct SettingsGrammar : public grammar<SettingsGrammar>
 {
 	template <typename ScannerT>
 	struct definition
 	{
 		rule<ScannerT>  r, clientOption, clientOptionsSequence, ClientSettings;
-		rule<ScannerT>  GUISettings, GUIOption, GUIOptionsSequence, AdvMapOptionsSequence, AdvMapOption;
-		rule<ScannerT> GUIResolution, fname;
+
 		definition(SettingsGrammar const& self)  
 		{ 
-			fname = lexeme_d[+(alnum_p | '.')];
 			clientOption 
 				= str_p("resolution=") >> (uint_p[assign_a(conf.cc.resx)] >> 'x' >> uint_p[assign_a(conf.cc.resy)] | eps_p[lerror("Wrong resolution!")])
 				| str_p("pregameRes=") >> (uint_p[assign_a(conf.cc.pregameResx)] >> 'x' >> uint_p[assign_a(conf.cc.pregameResy)] | eps_p[lerror("Wrong pregame size!")])
@@ -219,123 +85,12 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 			clientOptionsSequence = *(clientOption >> (';' | eps_p[lerror("Semicolon lacking after client option!")]));
 			ClientSettings = '{' >>  clientOptionsSequence >> '}';
 
-			AdvMapOption 
-				=	str_p("Buttons") >> ((ch_p('{') >> '}') | eps_p[lerror("Wrong Buttons!")])
-				|	str_p("Minimap: ") >> 
-						*(	
-							"width=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::minimapW)]//[assign_a(current->ac.minimapW)] 
-							  |	"height=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::minimapH)]
-							  |	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::minimapX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::minimapY)]
-						 )
-				| str_p("Statusbar:") >>
-						*(	
-							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::statusbarX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::statusbarY)]
-							  |	"graphic=" >> fname[SetAdventureStr(&AdventureMapConfig::statusbarG)]
-							) 
-						 )
-				| str_p("ResDataBar:") >>
-						*(	
-							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resdatabarX)]
-							|	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resdatabarY)]
-							|	"offsetX=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resOffsetX)]
-							|	"offsetY=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resOffsetY)]
-							|	"resSpace=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resDist)]
-							|	"resDateSpace=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resDateDist)]
-							  |	"graphic=" >> fname[SetAdventureStr(&AdventureMapConfig::resdatabarG)]
-							) 
-						 )
-				| str_p("InfoBox:") >>
-						*(	
-							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::infoboxX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::infoboxY)]
-							) 
-						 )
-				| str_p("AdvMap:") >>
-						*(	
-							(   "x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapX)]
-							  | "y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapY)]
-							  | "width=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapW)]
-							  | "height=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapH)]
-							  | "smoothMove=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::smoothMove)]
-							  | "puzzleSepia=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::puzzleSepia)]
-							) 
-						 )
-				| str_p("background=") >> fname[SetAdventureStr(&AdventureMapConfig::mainGraphic)]
-				| str_p("Button") >> (+(anychar_p-':'))[SetCurButton()] >> ':' >>
-						*(	
-							(	"x=" >> uint_p[SetButtonProp_a(&ButtonInfo::x)]
-							  |	"y=" >> uint_p[SetButtonProp_a(&ButtonInfo::y)]
-							  |	"playerColoured=" >> uint_p[SetButtonProp_a(&ButtonInfo::playerColoured)]
-							  |	"graphic=" >> fname[SetButtonStr(&ButtonInfo::defName)]
-							  | str_p("additionalDefs=")[ClearAdditionalDefs()] 
-									>> ch_p('(') >> fname[AddDefForButton()] 
-									>> *(',' >> fname[AddDefForButton()]) >> ')'
-							) 
-						 )
-				 | str_p("HeroList:") >> 
-						*(	
-							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::hlistX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::hlistY)]
-							  |	"size=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::hlistSize)]
-							  |	"movePoints=" >> fname[SetAdventureStr(&AdventureMapConfig::hlistMB)]
-							  |	"manaPoints=" >> fname[SetAdventureStr(&AdventureMapConfig::hlistMN)]
-							  |	"arrowUp=" >> fname[SetAdventureStr(&AdventureMapConfig::hlistAU)]
-							  |	"arrowDown=" >> fname[SetAdventureStr(&AdventureMapConfig::hlistAD)]
-							) 
-						 )
-				 | str_p("TownList:") >> 
-						*(	
-							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tlistX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tlistY)]
-							  |	"size=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tlistSize)]
-							  |	"arrowUp=" >> fname[SetAdventureStr(&AdventureMapConfig::tlistAU)]
-							  |	"arrowDown=" >> fname[SetAdventureStr(&AdventureMapConfig::tlistAD)]
-							) 
-						 )
-				 | str_p("gem") >> uint_p[var(gnb) = arg1] >> ':' >>
-						*(	
-							(	"x=" >> uint_p[bind(&setGem,1,_1)]
-							  | "y=" >> uint_p[bind(&setGem,0,_1)]
-							  | "graphic=" >> fname[AddGemName()]
-							) 
-						 )
-				 | str_p("InGameConsole:") >> 
-						*(	
-							(	"maxInputPerLine=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::inputLineLength)]
-							  |	"maxOutputPerLine=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::outputLineLength)]
-							) 
-						 )
-				| str_p("Overview:") >>
-						*(	
-							(	"pics=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::overviewPics)]
-							  |	"size=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::overviewSize)]
-							  |	"graphic=" >> fname[SetAdventureStr(&AdventureMapConfig::overviewBg)]
-							) 
-						 )
-				;
-			AdvMapOptionsSequence = *(AdvMapOption >> (';' | eps_p[lerror("Semicolon lacking in advmapopt!")]));
-			GUIResolution = (uint_p[assign_a(curRes.first)] >> 'x' >> uint_p[assign_a(curRes.second)])
-								[dummy(&addGRes)];
-			GUIOption = str_p("AdventureMap") >> ('{' >> AdvMapOptionsSequence >> '}' | eps_p[lerror("Wrong AdventureMap!")]);
-			GUIOptionsSequence = *(GUIOption >> (';' | eps_p[lerror("Semicolon after GUIOption lacking!")]));
-			GUISettings	= +(GUIResolution >> '{' >> GUIOptionsSequence >> '}');
+			r =	str_p("clientSettings") >> (ClientSettings | eps_p[lerror("Wrong clientSettings!")]);
 
-
-			r	
-				=	str_p("clientSettings") >> (ClientSettings | eps_p[lerror("Wrong clientSettings!")])
-				>>	str_p("GUISettings") >> ('{' >> GUISettings >> '}' | eps_p[lerror("Wrong GUISettings!")]);
 #ifdef BOOST_SPIRIT_DEBUG
 			BOOST_SPIRIT_DEBUG_RULE(clientOption);
 			BOOST_SPIRIT_DEBUG_RULE(clientOptionsSequence);
 			BOOST_SPIRIT_DEBUG_RULE(ClientSettings);
-			BOOST_SPIRIT_DEBUG_RULE(AdvMapOption);
-			BOOST_SPIRIT_DEBUG_RULE(AdvMapOptionsSequence);
-			BOOST_SPIRIT_DEBUG_RULE(GUIOption);
-			BOOST_SPIRIT_DEBUG_RULE(GUIOptionsSequence);
-			BOOST_SPIRIT_DEBUG_RULE(GUISettings);
-			BOOST_SPIRIT_DEBUG_RULE(GUIResolution);
 			BOOST_SPIRIT_DEBUG_RULE(r);
 #endif
 		}    
@@ -358,6 +113,29 @@ struct CommentsGrammar : public grammar<CommentsGrammar>
 		rule<ScannerT> const& start() const { return comment; }
 	};
 };
+
+static void setButton(ButtonInfo &button, const JsonNode &g)
+{
+	button.x = g["x"].Float();
+	button.y = g["y"].Float();
+	button.playerColoured = g["playerColoured"].Float();
+	button.defName = g["graphic"].String();
+
+	if (!g["additionalDefs"].isNull()) {
+		const JsonVector &defs_vec = g["additionalDefs"].Vector();
+
+		BOOST_FOREACH(const JsonNode &def, defs_vec) {
+			button.additionalDefs.push_back(def.String());
+		}
+	}
+}
+
+static void setGem(AdventureMapConfig &ac, const int gem, const JsonNode &g)
+{
+	ac.gemX[gem] = g["x"].Float();
+	ac.gemY[gem] = g["y"].Float();
+	ac.gemG.push_back(g["graphic"].String());
+}
 
 CConfigHandler::CConfigHandler(void)
 {
@@ -390,6 +168,81 @@ void config::CConfigHandler::init()
 		tlog1 << "Cannot parse config/settings.txt file!\n";
 	else if(!info.full)
 		tlog2 << "Not entire config/settings.txt parsed!\n";
+
+	/* Read resolutions. */
+	const JsonNode config(DATA_DIR "/config/resolutions.json");
+	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
+
+	BOOST_FOREACH(const JsonNode &g, guisettings_vec) {
+		std::pair<int,int> curRes(g["resolution"]["x"].Float(), g["resolution"]["y"].Float());
+		GUIOptions *current = &conf.guiOptions[curRes];
+		
+		current->ac.inputLineLength = g["InGameConsole"]["maxInputPerLine"].Float();
+		current->ac.outputLineLength = g["InGameConsole"]["maxOutputPerLine"].Float();
+		
+		current->ac.advmapX = g["AdvMap"]["x"].Float();
+		current->ac.advmapY = g["AdvMap"]["y"].Float();
+		current->ac.advmapW = g["AdvMap"]["width"].Float();
+		current->ac.advmapH = g["AdvMap"]["height"].Float();
+		current->ac.smoothMove = g["AdvMap"]["smoothMove"].Float();
+		current->ac.puzzleSepia = g["AdvMap"]["puzzleSepia"].Float();
+
+		current->ac.infoboxX = g["InfoBox"]["x"].Float();
+		current->ac.infoboxY = g["InfoBox"]["y"].Float();
+
+		setGem(current->ac, 0, g["gem0"]);
+		setGem(current->ac, 1, g["gem1"]);
+		setGem(current->ac, 2, g["gem2"]);
+		setGem(current->ac, 3, g["gem3"]);
+
+		current->ac.mainGraphic = g["background"].String();
+
+		current->ac.hlistX = g["HeroList"]["x"].Float();
+		current->ac.hlistY = g["HeroList"]["y"].Float();
+		current->ac.hlistSize = g["HeroList"]["size"].Float();
+		current->ac.hlistMB = g["HeroList"]["movePoints"].String();
+		current->ac.hlistMN = g["HeroList"]["manaPoints"].String();
+		current->ac.hlistAU = g["HeroList"]["arrowUp"].String();
+		current->ac.hlistAD = g["HeroList"]["arrowDown"].String();
+
+		current->ac.tlistX = g["TownList"]["x"].Float();
+		current->ac.tlistY = g["TownList"]["y"].Float();
+		current->ac.tlistSize = g["TownList"]["size"].Float();
+		current->ac.tlistAU = g["TownList"]["arrowUp"].String();
+		current->ac.tlistAD = g["TownList"]["arrowDown"].String();
+
+		current->ac.minimapW = g["Minimap"]["width"].Float();
+		current->ac.minimapH = g["Minimap"]["height"].Float();
+		current->ac.minimapX = g["Minimap"]["x"].Float();
+		current->ac.minimapY = g["Minimap"]["y"].Float();
+
+		current->ac.overviewPics = g["Overview"]["pics"].Float();
+		current->ac.overviewSize = g["Overview"]["size"].Float();
+		current->ac.overviewBg = g["Overview"]["graphic"].String();
+
+		current->ac.statusbarX = g["Statusbar"]["x"].Float();
+		current->ac.statusbarY = g["Statusbar"]["y"].Float();
+		current->ac.statusbarG = g["Statusbar"]["graphic"].String();
+
+		current->ac.resdatabarX = g["ResDataBar"]["x"].Float();
+		current->ac.resdatabarY = g["ResDataBar"]["y"].Float();
+		current->ac.resOffsetX = g["ResDataBar"]["offsetX"].Float();
+		current->ac.resOffsetY = g["ResDataBar"]["offsetY"].Float();
+		current->ac.resDist = g["ResDataBar"]["resSpace"].Float();
+		current->ac.resDateDist = g["ResDataBar"]["resDateSpace"].Float();
+		current->ac.resdatabarG = g["ResDataBar"]["graphic"].String();
+
+		setButton(current->ac.kingOverview, g["ButtonKingdomOv"]);
+		setButton(current->ac.underground, g["ButtonUnderground"]);
+		setButton(current->ac.questlog, g["ButtonQuestLog"]);
+		setButton(current->ac.sleepWake, g["ButtonSleepWake"]);
+		setButton(current->ac.moveHero, g["ButtonMoveHero"]);
+		setButton(current->ac.spellbook, g["ButtonSpellbook"]);
+		setButton(current->ac.advOptions, g["ButtonAdvOptions"]);
+		setButton(current->ac.sysOptions, g["ButtonSysOptions"]);
+		setButton(current->ac.nextHero, g["ButtonNextHero"]);
+		setButton(current->ac.endTurn, g["ButtonEndTurn"]);
+	}
 
 	//fixing screenx / screeny if set to 0x0
 	if (cc.screenx == 0 && cc.screeny == 0)
