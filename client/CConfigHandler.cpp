@@ -137,7 +137,7 @@ static void setGem(AdventureMapConfig &ac, const int gem, const JsonNode &g)
 	ac.gemG.push_back(g["graphic"].String());
 }
 
-CConfigHandler::CConfigHandler(void)
+CConfigHandler::CConfigHandler(void): current(NULL)
 {
 }
 
@@ -250,9 +250,6 @@ void config::CConfigHandler::init()
 		cc.screenx = cc.resx;
 		cc.screeny = cc.resy;
 	}
-}
 
-GUIOptions * config::CConfigHandler::go()
-{
-	return &guiOptions[std::pair<int,int>(cc.resx,cc.resy)];
+	SetResolution(cc.resx, cc.resy);
 }

@@ -79,13 +79,19 @@ namespace config
 	/// Handles adventure map screen settings
 	class CConfigHandler
 	{
+		GUIOptions *current; // pointer to current gui options
+
 	public:
 		ClientConfig cc;
 		std::map<std::pair<int,int>, GUIOptions > guiOptions;
-		GUIOptions *go(); //return pointer to gui options appropriate for used screen resolution
 		void init();
 		CConfigHandler(void); //c-tor
 		~CConfigHandler(void); //d-tor
+
+		GUIOptions *go() { return current; };
+		void SetResolution(int x, int y) {
+			current = &guiOptions[std::pair<int,int>(x, y)];
+		}
 	};
 }
 extern config::CConfigHandler conf;
