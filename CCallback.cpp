@@ -363,6 +363,7 @@ CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
 
 bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 {
+	assert(cl->gs->curB->tacticDistance);
 	MakeAction ma;
 	ma.ba = *action;
 	sendRequest(&ma);

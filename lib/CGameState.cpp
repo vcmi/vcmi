@@ -1466,16 +1466,19 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				}
 			}
 			
-		for (std::list<CCastleEvent*>::iterator ev=vti->events.begin(); ev!=vti->events.end(); ev++)
+		//town events
+		BOOST_FOREACH(CCastleEvent *ev, vti->events)
+		{
 			for (int i = 0; i<CREATURES_PER_TOWN; i++)
-				if (vstd::contains((*ev)->buildings,(-31-i))) //if we have horde for this level
+				if (vstd::contains(ev->buildings,(-31-i))) //if we have horde for this level
 				{
-					(*ev)->buildings.erase(-31-i);
+					ev->buildings.erase(-31-i);
 					if (vti->town->hordeLvl[0] == i)
-						(*ev)->buildings.insert(18);
+						ev->buildings.insert(18);
 					if (vti->town->hordeLvl[1] == i)
-						(*ev)->buildings.insert(24);
+						ev->buildings.insert(24);
 				}
+		}
 		//init spells
 		vti->spells.resize(SPELL_LEVELS);
 		CSpell *s;

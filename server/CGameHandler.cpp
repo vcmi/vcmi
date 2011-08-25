@@ -1049,10 +1049,13 @@ void CGameHandler::newTurn()
 			getFreeTiles(tiles);
 			ui32 amount = (tiles.size()) >> 6;
 			std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+			tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << n.creatureid << std::endl;
+			const CCreature *cre = VLC->creh->creatures[n.creatureid];
 			for (int i = 0; i < amount; ++i)
 			{
 				tile = tiles.begin();
-				putNewMonster(n.creatureid, VLC->creh->creatures[n.creatureid]->getRandomAmount(std::rand), *tile);
+				tlog5 << "\tSpawning monster at " << *tile << std::endl;
+				putNewMonster(n.creatureid, cre->getRandomAmount(std::rand), *tile);
 				tiles.erase(tile); //not use it again
 			}
 		}

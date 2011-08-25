@@ -68,7 +68,7 @@ public:
 	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
-	int getRandomAmount(RanGen &ranGen)
+	int getRandomAmount(RanGen &ranGen) const
 	{
 		if(ammMax == ammMin)
 			return ammMax;

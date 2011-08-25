@@ -24,7 +24,7 @@
  *
  */
 
-static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
+static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID, bool addAuxiliary = true)
 {
 	std::map<int,int> mapa;
 	std::set<si32> ret;
@@ -51,9 +51,12 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 		}
 	}
 
-	ret.insert(10); //village hall is always present
-	ret.insert(-1); //houses near v.hall / eyecandies
-	ret.insert(-2); //terrain eyecandy, if -1 is used
+	if(addAuxiliary)
+	{
+		ret.insert(10); //village hall is always present
+		ret.insert(-1); //houses near v.hall / eyecandies
+		ret.insert(-2); //terrain eyecandy, if -1 is used
+	}
 
 	if(ret.find(11)!=ret.end())
 		ret.insert(27);
@@ -752,7 +755,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 					nce->buildings.insert(byte*8+bit);
 			i++;
 		}
-		nce->buildings = convertBuildings(nce->buildings,subid);
+		nce->buildings = convertBuildings(nce->buildings,subid, false);
 		
 		nce->creatures.resize(7);
 		for(int vv=0; vv<7; ++vv)

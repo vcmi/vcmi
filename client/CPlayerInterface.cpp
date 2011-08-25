@@ -1334,7 +1334,6 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 void CPlayerInterface::newObject( const CGObjectInstance * obj )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	CGI->mh->printObject(obj);
 	//we might have built a boat in shipyard in opened town screen
 	if(obj->ID == 8
 		&& LOCPLINT->castleInt

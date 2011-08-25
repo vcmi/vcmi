@@ -864,7 +864,8 @@ void NewObject::applyCl(CClient *cl)
 	cl->updatePaths();
 
 	const CGObjectInstance *obj = cl->getObj(id);
-	//notify interfaces about move
+	CGI->mh->printObject(obj);
+
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
 		//TODO: check if any covered tile is visible

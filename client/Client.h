@@ -161,6 +161,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
+	friend class CBattleCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
