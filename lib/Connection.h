@@ -922,6 +922,7 @@ public:
 	~CConnection(void);
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
+	void sendPack(const CPack &pack);
 };
 
 DLL_EXPORT std::ostream &operator<<(std::ostream &str, const CConnection &cpc);

@@ -1268,13 +1268,6 @@ void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 	m_battleLogic = new BattleAI::CBattleLogic(m_cb, army1, army2, tile, hero1,
     hero2, side);
 
-	if(m_cb->battleGetTacticDist())
-	{
-		m_cb->waitTillRealize = false;
-		BattleAction endt = BattleAction::makeEndOFTacticPhase(m_cb->battleGetMySide());
-		m_cb->battleMakeTacticAction(&endt);
-		m_cb->waitTillRealize = true;
-	}
 	DbgBox("** CGeniusAI::battleStart **");
 }
 

@@ -243,6 +243,12 @@ CPack * CConnection::retreivePack()
 	return ret;
 }
 
+void CConnection::sendPack(const CPack &pack)
+{
+	boost::unique_lock<boost::mutex> lock(*wmx);
+	*this << &pack; //packs has to be sent as polymorphic pointers!
+}
+
 CSaveFile::CSaveFile( const std::string &fname )
 	:sfile(NULL)
 {

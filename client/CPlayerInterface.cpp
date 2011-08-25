@@ -892,6 +892,12 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	}
 }
 
+void CPlayerInterface::yourTacticPhase(int distance)
+{
+	while(battleInt->tacticsMode)
+		boost::this_thread::sleep(boost::posix_time::millisec(1));
+}
+
 void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

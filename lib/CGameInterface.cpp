@@ -198,3 +198,8 @@ BattleAction CAdventureAI::activeStack(const CStack * stack)
 {
 	return battleAI->activeStack(stack);
 }
+
+void CAdventureAI::yourTacticPhase(int distance)
+{
+	battleAI->yourTacticPhase(distance);
+}

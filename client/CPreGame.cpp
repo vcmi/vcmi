@@ -2042,7 +2042,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		for(int i = 0; i < 6; i++)
 			btns[i] = NULL;
 
-	selectButtons(false);
+	selectButtons();
 
 	assert(SEL->current && SEL->current->mapHeader);
 	const PlayerInfo &p = SEL->current->mapHeader->players[s.color];
@@ -2080,12 +2080,12 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 8, zwykly, to);
 }
 
-void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
+void OptionsTab::PlayerOptionsEntry::selectButtons()
 {
 	if(!btns[0])
 		return;
 
-	if( (!onlyHero  &&  pi.defaultCastle() != -1) //fixed tow
+	if( (pi.defaultCastle() != -1) //fixed tow
 		|| (SEL->isGuest() && s.color != playerColor)) //or not our player
 	{
 		btns[0]->disable();

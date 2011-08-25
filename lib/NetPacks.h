@@ -952,6 +952,7 @@ struct NewTurn : public CPackForClient //101
 {
 	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, CUSTOM, NO_ACTION, NONE};
 
+	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 	struct Hero

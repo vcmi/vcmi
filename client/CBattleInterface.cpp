@@ -3830,11 +3830,14 @@ void CBattleInterface::startAction(const BattleAction* action)
 {
 	if(action->actionType == BattleAction::END_TACTIC_PHASE)
 	{
+		SDL_FreeSurface(menu);
 		menu = BitmapHandler::loadBitmap("CBAR.bmp");
+
 		graphics->blueToPlayersAdv(menu, curInt->playerID);
+		bDefence->block(false);
+		bWait->block(false);
 		if(active)
 		{
-			tacticsMode = false;
 			if(btactEnd && btactNext) //if the other side had tactics, there are no buttons
 			{
 				btactEnd->deactivate();
@@ -3932,10 +3935,7 @@ void CBattleInterface::waitForAnims()
 void CBattleInterface::bEndTacticPhase()
 {
 	btactEnd->block(true);
-	bDefence->block(false);
-	bWait->block(false);
-	BattleAction endt = BattleAction::makeEndOFTacticPhase(curInt->cb->battleGetMySide());
-	curInt->cb->battleMakeTacticAction(&endt);
+	tacticsMode = false;
 }
 
 static bool immobile(const CStack *s)

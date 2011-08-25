@@ -76,8 +76,11 @@ namespace boost
 //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionaly -1 - unknown)
 struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
 {
+	bool isDetailed; 
 	DLL_EXPORT ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
 	DLL_EXPORT ArmyDescriptor();
+
+	DLL_EXPORT int getStrength() const;
 };
 
 struct DLL_EXPORT InfoAboutHero

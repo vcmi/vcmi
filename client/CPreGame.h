@@ -184,7 +184,7 @@ public:
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 		
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
-		void selectButtons(bool onlyHero = true); //hides unavailable buttons
+		void selectButtons(); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
 	};
 

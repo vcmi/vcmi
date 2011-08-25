@@ -241,6 +241,11 @@ void HeroVisit::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
 }
 
+void NewTurn::applyCl( CClient *cl )
+{
+	cl->updatePaths();
+}
+
 
 void GiveBonus::applyCl( CClient *cl )
 {
@@ -711,6 +716,8 @@ void PackageApplied::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(cl->waitingRequest.get() == packType)
 		cl->waitingRequest.setn(false);
+	else if(cl->waitingRequest.get())
+		tlog3 << "Suprising server message!\n";
 }
 
 void SystemMessage::applyCl( CClient *cl )

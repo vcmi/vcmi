@@ -89,7 +89,7 @@ private:
 
 
 protected:
-	template <typename T> void sendRequest(const T*request);
+	void sendRequest(const CPack *request);
 	CClient *cl;
 	//virtual bool hasAccess(int playerId) const;
 

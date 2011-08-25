@@ -523,7 +523,8 @@ void CClient::handlePack( CPack * pack )
 }
 
 void CClient::updatePaths()
-{	
+{
+	//TODO? lazy evaluation? paths now can get recalculated multiple times upon various game events
 	const CGHeroInstance *h = getSelectedHero();
 	if (h)//if we have selected hero...
 		calculatePaths(h);
@@ -594,6 +595,11 @@ void CClient::battleStarted(const BattleInfo * info)
 		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 	if(vstd::contains(battleints,254))
 		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+
+	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide]))
+	{
+		boost::thread hlp = boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide]]);
+	}
 }
 
 void CClient::loadNeutralBattleAI()
@@ -622,6 +628,17 @@ void CClient::calculatePaths(const CGHeroInstance *h)
 	assert(h);
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 	gs->calculatePaths(h, *pathInfo);
+}
+
+void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
+{
+	setThreadName(-1, "CClient::commenceTacticPhaseForInt");
+	try
+	{
+		battleInt->yourTacticPhase(gs->curB->tacticDistance);
+		MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
+		serv->sendPack(ma);
+	} HANDLE_EXCEPTION
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

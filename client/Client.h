@@ -165,6 +165,7 @@ public:
 	
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
+	void commenceTacticPhaseForInt(CBattleGameInterface *battleInt); //will be called as separate thread
 
 	void commitPackage(CPackForClient *pack) OVERRIDE;
 

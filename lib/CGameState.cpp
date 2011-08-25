@@ -2990,7 +2990,7 @@ InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
 
 
 
-ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
+ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed) : isDetailed(detailed)
 {
 	for(TSlots::const_iterator i = army->Slots().begin(); i != army->Slots().end(); i++)
 	{
@@ -3001,9 +3001,25 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	}
 }
 
-ArmyDescriptor::ArmyDescriptor()
+ArmyDescriptor::ArmyDescriptor() : isDetailed(true)
 {
 
+}
+
+int ArmyDescriptor::getStrength() const
+{
+	ui64 ret = 0;
+	if(isDetailed)
+	{
+		for(const_iterator i = begin(); i != end(); i++)
+			ret += i->second.type->AIValue * i->second.count;
+	}
+	else
+	{
+		for(const_iterator i = begin(); i != end(); i++)
+			ret += i->second.type->AIValue * CCreature::estimateCreatureCount(i->second.count);
+	}
+	return ret;
 }
 
 DuelParameters::SideSettings::StackSettings::StackSettings()

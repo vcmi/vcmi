@@ -67,6 +67,7 @@ public:
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
+	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
 
 /// Central class for managing human player / AI interface logic
@@ -116,6 +117,7 @@ public:
 
 	//battle interface
 	virtual BattleAction activeStack(const CStack * stack);
+	virtual void yourTacticPhase(int distance);
 	virtual void battleNewRound(int round);
 	virtual void battleCatapultAttacked(const CatapultAttack & ca);
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side);

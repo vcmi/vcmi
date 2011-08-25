@@ -183,26 +183,23 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-template <typename T>
-void CBattleCallback::sendRequest(const T* request)
+void CBattleCallback::sendRequest(const CPack* request)
 {
 
-	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
+	//TODO should be part of CClient (client owns connection, not CB)
+	//but it would have to be very tricky cause template/serialization issues
 	if(waitTillRealize)
-		cl->waitingRequest.set(typeList.getTypeID<T>());
+		cl->waitingRequest.set(typeList.getTypeID(request));
 
-	{
-		boost::unique_lock<boost::mutex> lock(*cl->serv->wmx);
-		*cl->serv << request;
-	}
+	cl->serv->sendPack(*request);
 
 	if(waitTillRealize)
 	{
 		if(unlockGsWhenWaiting)
-			gs->mx->unlock_shared();
+			getGsMutex().unlock_shared();
 		cl->waitingRequest.waitWhileTrue();
 		if(unlockGsWhenWaiting)
-			gs->mx->lock_shared();
+			getGsMutex().lock_shared();
 	}
 }
 
@@ -246,7 +243,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	SetSelection ss;
 	ss.player = player;
 	ss.id = obj->id;
-	sendRequest(&ss);
+	sendRequest(&(CPackForClient&)ss);
 
 	if(obj->ID == HEROI_TYPE)
 	{
@@ -287,7 +284,7 @@ void CCallback::save( const std::string &fname )
 void CCallback::sendMessage(const std::string &mess)
 {
 	PlayerMessage pm(player, mess);
-	sendRequest(&pm);
+	sendRequest(&(CPackForClient&)pm);
 }
 
 void CCallback::buildBoat( const IShipyard *obj )

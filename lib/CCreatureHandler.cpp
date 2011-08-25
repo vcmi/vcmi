@@ -71,12 +71,37 @@ int CCreature::getQuantityID(const int & quantity)
 	if (quantity<250)
 		return 5;
 	if (quantity<500)
-		return 5;
-	if (quantity<1000)
 		return 6;
-	if (quantity<4000)
+	if (quantity<1000)
 		return 7;
 	return 8;
+}
+
+int CCreature::estimateCreatureCount(int countID)
+{
+	switch(countID)
+	{
+	case 0:
+		return 3;
+	case 1:
+		return 8;
+	case 2:
+		return 15;
+	case 3:
+		return 35;
+	case 4:
+		return 75;
+	case 5:
+		return 175;
+	case 6:
+		return 375;
+	case 7:
+		return 750;
+	case 8:
+		return 2500;
+	default:
+		assert("Wrong countID!");
+	}
 }
 
 bool CCreature::isDoubleWide() const
