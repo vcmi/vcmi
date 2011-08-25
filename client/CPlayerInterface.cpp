@@ -894,7 +894,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 
 void CPlayerInterface::yourTacticPhase(int distance)
 {
-	while(battleInt->tacticsMode)
+	while(battleInt && battleInt->tacticsMode)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 

@@ -236,7 +236,8 @@ bool MakeAction::applyGh( CGameHandler *gh )
 	
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != BattleAction::WALK  &&  ba.actionType != BattleAction::END_TACTIC_PHASE)
+		if(ba.actionType != BattleAction::WALK  &&  ba.actionType != BattleAction::END_TACTIC_PHASE  
+			&& ba.actionType != BattleAction::RETREAT && ba.actionType != BattleAction::SURRENDER)
 			ERROR_AND_RETURN;
 		if(gh->connections[b->sides[b->tacticsSide]] != c) 
 			ERROR_AND_RETURN;

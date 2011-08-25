@@ -598,7 +598,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide]))
 	{
-		boost::thread hlp = boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide]]);
+		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide]]);
 	}
 }
 
@@ -636,8 +636,11 @@ void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 	try
 	{
 		battleInt->yourTacticPhase(gs->curB->tacticDistance);
-		MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
-		serv->sendPack(ma);
+		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
+		{
+			MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
+			serv->sendPack(ma);
+		}
 	} HANDLE_EXCEPTION
 }
 

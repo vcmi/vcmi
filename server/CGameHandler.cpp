@@ -4915,7 +4915,7 @@ void CGameHandler::runBattle()
 
 	//tactic round
 	{
-		while(gs->curB->tacticDistance)
+		while(gs->curB->tacticDistance && !battleResult.get())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
@@ -5191,6 +5191,11 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 
 void CGameHandler::setBattleResult(int resultType, int victoriusSide)
 {
+	if(battleResult.get())
+	{
+		complain("There is already set result?");
+		return;
+	}
 	BattleResult *br = new BattleResult;
 	br->result = resultType;
 	br->winner = victoriusSide; //surrendering side loses
