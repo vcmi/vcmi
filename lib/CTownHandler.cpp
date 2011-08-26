@@ -46,6 +46,13 @@ void CTownHandler::loadStructures()
 		towns.push_back(town);
 	}
 
+	for(int x=0;x<towns.size();x++) {
+		/* There is actually 8 basic creatures, but we ignore the 8th
+		 * entry for now */
+		towns[x].basicCreatures.resize(7);
+		towns[x].upgradedCreatures.resize(7);
+	}
+
 	structures.resize(F_NUMBER);
 
 	// read city properties
@@ -54,6 +61,7 @@ void CTownHandler::loadStructures()
 	// Iterate for each city type
 	townID = 0;
 	BOOST_FOREACH(const JsonNode &town_node, config["town_type"].Vector()) {
+		int level;
 		std::map<int, Structure*> &town = structures[townID];
 
 		// Read buildings coordinates for that city
@@ -82,11 +90,8 @@ void CTownHandler::loadStructures()
 		}
 
 		// Read buildings blit order for that city
-		const JsonVector &blit_order_vec = town_node["blit_order"].Vector();
 		int itr = 1;
-
-		for (JsonVector::const_iterator it2 = blit_order_vec.begin(); it2!=blit_order_vec.end(); ++it2) {
-			const JsonNode &node = *it2;
+		BOOST_FOREACH(const JsonNode &node, town_node["blit_order"].Vector()) {
 			int buildingID = node.Float();
 
 			/* Find the building and set its order. */
@@ -95,6 +100,22 @@ void CTownHandler::loadStructures()
 				i2->second->pos.z = itr++;
 			else
 				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
+		}
+
+		// Read basic creatures belonging to that city
+		level = 0;
+		BOOST_FOREACH(const JsonNode &node, town_node["creatures_basic"].Vector()) {
+			// This if ignores the 8th field (WoG creature)
+			if (level < towns[townID].basicCreatures.size())
+				towns[townID].basicCreatures[level] = node.Float();
+			level ++;
+		}
+
+		// Read upgraded creatures belonging to that city
+		level = 0;
+		BOOST_FOREACH(const JsonNode &node, town_node["creatures_upgraded"].Vector()) {
+			towns[townID].upgradedCreatures[level] = node.Float();
+			level ++;
 		}
 
 		townID ++;
@@ -143,33 +164,6 @@ void CTownHandler::loadStructures()
 	}
 
 	std::ifstream of;
-	for(int x=0;x<towns.size();x++)
-		towns[x].basicCreatures.resize(7);
-
-	of.open(DATA_DIR "/config/basicCres.txt");
-	while(!of.eof())
-	{
-		int tid, lid, cid; //town,level,creature
-		of >> tid >> lid >> cid;
-		if(lid < towns[tid].basicCreatures.size())
-			towns[tid].basicCreatures[lid]=cid;
-	}
-	of.close();
-	of.clear();
-
-	for(int x=0;x<towns.size();x++)
-		towns[x].upgradedCreatures.resize(7);
-
-	of.open(DATA_DIR "/config/creatures_upgr.txt");
-	while(!of.eof())
-	{
-		int tid, lid, cid; //town,level,creature
-		of >> tid >> lid >> cid;
-		if(lid < towns[tid].upgradedCreatures.size())
-			towns[tid].upgradedCreatures[lid]=cid;
-	}
-	of.close();
-	of.clear();
 
 	of.open(DATA_DIR "/config/building_horde.txt");
 	while(!of.eof())
