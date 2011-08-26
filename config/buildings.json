@@ -92,15 +92,15 @@
 			{ "id": 39, "defname": "TBRMUP_2.def", "x": 665, "y": 101, "border": "TORELF2.bmp", "area": "TZRELF2.bmp" },
 			{ "id": 38, "defname": "TBRMUP_1.def", "x": 0, "y": 143, "border": "TORDWF2.bmp", "area": "TZRDWF2.bmp" },
 			{ "id": 37, "defname": "TBRMUP_0.def", "x": 0, "y": 236, "border": "TORCEN2A.bmp", "area": "TZRCEN2A.bmp" },
-			{ "id": 5, "defname": "TBRMTVRN.def", "x": 181, "y": 229 "border": "TORTAV.bmp", "area": "TZRTAV.bmp" },
+			{ "id": 5, "defname": "TBRMTVRN.def", "x": 181, "y": 229, "border": "TORTAV.bmp", "area": "TZRTAV.bmp" },
 			{ "id": 17, "defname": "TBRMSPEC.def", "x": 555, "y": 297, "border": "TORGAR1A.bmp", "area": "TZRGAR1A.bmp" },
 			{ "id": 15, "defname": "TBRMSILO.def", "x": 245, "y": 324, "border": "TORMRK2.bmp", "area": "TZRMRK2.bmp" },
 			{ "id": 14, "defname": "TBRMMARK.def", "x": 129, "y": 301, "border": "TORMRK1.bmp", "area": "TZRMRK1.bmp" },
-			{ "id": 0, "defname": "TBRMMAGE.def", "x": 454, "y": 200 "border": "TORMAG1.bmp", "area": "TZRMAG1.bmp" },
-			{ "id": 1, "defname": "TBRMMAG2.def", "x": 438, "y": 178 "border": "TORMAG2.bmp", "area": "TZRMAG2.bmp" },
-			{ "id": 2, "defname": "TBRMMAG3.def", "x": 418, "y": 153 "border": "TORMAG3.bmp", "area": "TZRMAG3.bmp" },
-			{ "id": 3, "defname": "TBRMMAG4.def", "x": 406, "y": 129 "border": "TORMAG4.bmp", "area": "TZRMAG4.bmp" },
-			{ "id": 4, "defname": "TBRMMAG5.def", "x": 384, "y": 104 "border": "TORMAG5.bmp", "area": "TZRMAG5.bmp" },
+			{ "id": 0, "defname": "TBRMMAGE.def", "x": 454, "y": 200, "border": "TORMAG1.bmp", "area": "TZRMAG1.bmp" },
+			{ "id": 1, "defname": "TBRMMAG2.def", "x": 438, "y": 178, "border": "TORMAG2.bmp", "area": "TZRMAG2.bmp" },
+			{ "id": 2, "defname": "TBRMMAG3.def", "x": 418, "y": 153, "border": "TORMAG3.bmp", "area": "TZRMAG3.bmp" },
+			{ "id": 3, "defname": "TBRMMAG4.def", "x": 406, "y": 129, "border": "TORMAG4.bmp", "area": "TZRMAG4.bmp" },
+			{ "id": 4, "defname": "TBRMMAG5.def", "x": 384, "y": 104, "border": "TORMAG5.bmp", "area": "TZRMAG5.bmp" },
 			{ "id": 25, "defname": "TBRMHRD4.def", "x": 47, "y": 142, "border": "TORTRE2H.bmp", "area": "TZRTRE2H.bmp" },
 			{ "id": 24, "defname": "TBRMHRD3.def", "x": 47, "y": 142, "border": "TORTRE1H.bmp", "area": "TZRTRE1H.bmp" },
 			{ "id": 19, "defname": "TBRMHRD2.def", "x": 0, "y": 143, "border": "TORDWF2H.bmp", "area": "TZRDWF2H.bmp" },
@@ -268,7 +268,7 @@
 			{ "id": 43, "defname": "TBNCUP_6.def", "x": 662, "y": 23, "border": "TONBON2.bmp", "area": "TZNBON2.bmp" },
 			{ "id": 20, "defname": "TBNCBOAT.def", "x": 617, "y": 265, "border": "TONSHPNA.bmp", "area": "TZNSHPNA.bmp" },
 		  ],
-		  "blit_order": [ 17, 0, 1, 2, 3, 4, 7, 8, 9, 32, 39, 26, 15, 14, 34, 41, 16, 5, 33, 40, 31, 38, 6, 30, 18, 37, 19, 22, 20 ]
+		  "blit_order": [ 17, 0, 1, 2, 3, 4, 7, 8, 9, 32, 39, 26, 15, 14, 34, 41, 16, 5, 33, 40, 31, 38, 6, 30, 18, 37, 19, 22, 20 ],
 		  "creatures_basic": [ 56, 58, 60, 62, 64, 66, 68, 154 ],
 		  "creatures_upgraded": [ 57, 59, 61, 63, 65, 67, 69 ],
 		  "horde": [ 0, -1 ],
@@ -318,7 +318,7 @@
 			{ "id": 43, "defname": "TBDNUP_6.def", "x": 550, "y": 0, "border": "TODDRA2A.bmp", "area": "TZDDRA2A.bmp" },
 			{ "id": 8, "defname": "TBDNCAS2.def", "x": 363, "y": 87, "border": "TODCAS2.bmp", "area": "TZDCAS2.bmp" },
 		  ],
-		  "blit_order": [ 0, 1, 2, 3, 4, 21, 35, 42, 5, 30, 18, 37, 19, 32, 39, 26, 7, 8, 9, 23 ]
+		  "blit_order": [ 0, 1, 2, 3, 4, 21, 35, 42, 5, 30, 18, 37, 19, 32, 39, 26, 7, 8, 9, 23 ],
 		  "creatures_basic": [ 70, 72, 74, 76, 78, 80, 82, 155 ],
 		  "creatures_upgraded": [ 71, 73, 75, 77, 79, 81, 83 ],
 		  "horde": [ 0, -1 ],
@@ -367,7 +367,7 @@
 			{ "id": 42, "defname": "TBSTUP_5.def", "x": 616, "y": 93, "border": "TOSCYC2A.bmp", "area": "TZSCYC2A.bmp" },
 			{ "id": 16, "defname": "TBSTBLAK.def", "x": 660, "y": 286, "border": "TOSBLK1.bmp", "area": "TZSBLK1.bmp" },
 		  ],
-		  "blit_order": [ 33, 40, 30, 18, 37, 19, 31, 38, 23, 26, 5, 32, 39, 15, 14, 21, 16, 22 ]
+		  "blit_order": [ 33, 40, 30, 18, 37, 19, 31, 38, 23, 26, 5, 32, 39, 15, 14, 21, 16, 22 ],
 		  "creatures_basic": [ 84, 86, 88, 90, 92, 94, 96, 156 ],
 		  "creatures_upgraded": [ 85, 87, 89, 91, 93, 95, 97 ],
 		  "horde": [ 0, -1 ],
@@ -418,7 +418,7 @@
 			{ "id": 29, "defname": "TBFRWTRW.def", "x": 320, "y": 141 },
 			{ "id": 20, "defname": "TBFRBOAT.def", "x": 197, "y": 294, "border": "TOFDCK1.bmp", "area": "TZFDCK1.bmp" },
 		  ],
-		  "blit_order": [ 16, 15, 14, 34, 41, 31, 38, 10, 11, 12, 13, 29, 0, 1, 2, 33, 40, 30, 18, 37, 19, 5, 36, 43, 26 ]
+		  "blit_order": [ 16, 15, 14, 34, 41, 31, 38, 10, 11, 12, 13, 29, 0, 1, 2, 33, 40, 30, 18, 37, 19, 5, 36, 43, 26 ],
 		  "creatures_basic": [ 98, 100, 104, 106, 102, 108, 110, 157 ],
 		  "creatures_upgraded": [ 99, 101, 105, 107, 103, 109, 111 ],
 		  "horde": [ 0, -1 ],
@@ -483,7 +483,10 @@
 		}
 	],
 
-	"town_groups":		// Not sure what that is.
+	//A group contains a vector of building IDs
+	//In the town screen only the last built structure from the group is displayed
+	//Eg. when there is Mage Guild Level 3, then we don't display Mage Guild Level 1 and 2
+	"town_groups":
 		[
 			{
 				// Applies to all castles

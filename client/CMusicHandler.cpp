@@ -103,7 +103,7 @@ void CSoundHandler::init()
 	{
 		// Load sounds
 		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3.snd"));
-		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3-cd2.snd"));
+		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3-cd2.snd"), false);
 		sndh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.snd"));
 		Mix_ChannelFinished(soundFinishedCallbackC);
 	}

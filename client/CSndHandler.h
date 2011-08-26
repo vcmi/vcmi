@@ -58,7 +58,7 @@ protected:
 	};
 
 	std::vector<boost::iostreams::mapped_file_source *> mfiles;
-	boost::iostreams::mapped_file_source *add_file(std::string fname);
+	boost::iostreams::mapped_file_source *add_file(std::string fname, bool important = true); //if not important, then we don't print warning when the file is missing
 
 public:
 	std::vector<Entry> entries;
@@ -74,7 +74,7 @@ public:
 class CSndHandler: public CMediaHandler
 {
 public:
-	void add_file(std::string fname);
+	void add_file(std::string fname, bool important = true); //if not important, then we don't print warning when the file is missing
 };
 
 class CVidHandler: public CMediaHandler

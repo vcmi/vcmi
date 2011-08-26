@@ -31,23 +31,27 @@ CMediaHandler::~CMediaHandler()
 	}
 }
 
-boost::iostreams::mapped_file_source *CMediaHandler::add_file(std::string fname)
+boost::iostreams::mapped_file_source *CMediaHandler::add_file(std::string fname, bool important /*= true*/)
 {
 	boost::iostreams::mapped_file_source *mfile;
 
 	try //c-tor of mapped_file_source throws exception on failure
 	{
 		mfile = new boost::iostreams::mapped_file_source(fname);
-	} HANDLE_EXCEPTIONC(tlog1 << "Cannot open " << fname << std::endl)
-	if (!mfile->is_open()) //just in case
+		
+		if (!mfile->is_open()) //just in case
+			throw std::runtime_error("Cannot open " + fname + ": !mfile->is_open()");
+	} 
+	catch(std::exception &e)
 	{
-		tlog1 << "Cannot open " << fname << std::endl;
-		throw std::string("Cannot open ")+fname;
-		return NULL;
-	} else {
-		mfiles.push_back(mfile);
-		return mfile;
+		if(important)
+			tlog1 << "Cannot open " << fname  << ": " << e.what() << std::endl;
+		throw;
 	}
+
+
+	mfiles.push_back(mfile);
+	return mfile;
 }
 
 void CMediaHandler::extract(int index, std::string dstfile) //saves selected file
@@ -134,18 +138,17 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 	return NULL;
 }
 
-void CSndHandler::add_file(std::string fname)
+void CSndHandler::add_file(std::string fname, bool important /*= true*/)
 {
 	boost::iostreams::mapped_file_source *mfile = NULL;
 	try
 	{
-		mfile = CMediaHandler::add_file(fname);
+		mfile = CMediaHandler::add_file(fname, important);
 	}
 	catch(...)
-	{}
-	if (!mfile)
-		/* File doesn't exist. Silently skip it.*/
+	{
 		return;
+	}
 
 	const char *data = mfile->data();
 	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
@@ -167,10 +170,15 @@ void CSndHandler::add_file(std::string fname)
 
 void CVidHandler::add_file(std::string fname)
 {
-	boost::iostreams::mapped_file_source *mfile = CMediaHandler::add_file(fname);
-	if (!mfile)
-		/* File doesn't exist. Silently skip it.*/
+	boost::iostreams::mapped_file_source *mfile = NULL;
+	try
+	{
+		mfile = CMediaHandler::add_file(fname);
+	}
+	catch(...)
+	{
 		return;
+	}
 
 	if(mfile->size() < 48)
 	{
