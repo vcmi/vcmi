@@ -19,6 +19,7 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/map.h"
+#include "../lib/JsonNode.h"
 #include "mapHandler.h"
 #include "../stdafx.h"
 #include <boost/algorithm/string.hpp>
@@ -60,42 +61,40 @@ CMinimap::CMinimap(bool draw)
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	statusbarTxt = CGI->generaltexth->zelp[291].first;
 	rcText = CGI->generaltexth->zelp[291].second;
-	pos.x=ADVOPT.minimapX;//630
-	pos.y=ADVOPT.minimapY;//26
-	pos.h=ADVOPT.minimapW;//144
-	pos.w=ADVOPT.minimapH;//144
+	pos.x=ADVOPT.minimapX;
+	pos.y=ADVOPT.minimapY;
+	pos.h=ADVOPT.minimapW;
+	pos.w=ADVOPT.minimapH;
 
 	temps = newSurface(pos.w,pos.h);
 
-	std::ifstream is(DATA_DIR "/config/minimap.txt",std::ifstream::in);
-	for (int i=0;i<TERRAIN_TYPES;i++)
-	{
+	const JsonNode config(DATA_DIR "/config/minimap.json");
+	const JsonVector &minimap_vec = config["MinimapColors"].Vector();
+
+	BOOST_FOREACH(const JsonNode &m, minimap_vec) {
 		std::pair<int,SDL_Color> vinya;
-		std::pair<int,SDL_Color> vinya2;
-		int pom;
-		is >> pom;
-		vinya2.first=vinya.first=pom;
-		is >> pom;
-		vinya.second.r=pom;
-		is >> pom;
-		vinya.second.g=pom;
-		is >> pom;
-		vinya.second.b=pom;
-		is >> pom;
-		vinya2.second.r=pom;
-		is >> pom;
-		vinya2.second.g=pom;
-		is >> pom;
-		vinya2.second.b=pom;
-		vinya.second.unused=vinya2.second.unused=255;
+
+		vinya.first = m["terrain_id"].Float();
+
+		const JsonVector &unblocked_vec = m["unblocked"].Vector();
+		vinya.second.r = unblocked_vec[0].Float();
+		vinya.second.g = unblocked_vec[1].Float();
+		vinya.second.b = unblocked_vec[2].Float();
+		vinya.second.unused = 255;
 		colors.insert(vinya);
-		colorsBlocked.insert(vinya2);
+
+		const JsonVector &blocked_vec = m["blocked"].Vector();
+		vinya.second.r = blocked_vec[0].Float();
+		vinya.second.g = blocked_vec[1].Float();
+		vinya.second.b = blocked_vec[2].Float();
+		vinya.second.unused = 255;
+		colorsBlocked.insert(vinya);
 	}
-	is.close();
 
 	if (draw)
 		redraw();
 }
+
 CMinimap::~CMinimap()
 {
 	SDL_FreeSurface(temps);

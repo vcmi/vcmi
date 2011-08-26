@@ -1,0 +1,16 @@
+{
+	"MinimapColors":
+		// Colors of terrain in minimap, in RGB format
+		[
+			{ "name": "Dirt", "terrain_id": 0, "unblocked": [ 82, 56, 8 ], "blocked": [ 57, 40, 8 ] },
+			{ "name": "Sand", "terrain_id": 1, "unblocked": [ 222, 207, 140 ], "blocked": [ 165, 158, 107 ] },
+			{ "name": "Grass", "terrain_id": 2, "unblocked": [ 0, 65, 0 ], "blocked": [ 0, 48, 0 ] },
+			{ "name": "Snow", "terrain_id": 3, "unblocked": [ 181, 199, 198 ], "blocked": [ 140, 158, 156 ] },
+			{ "name": "Swamp", "terrain_id": 4, "unblocked": [ 74, 134, 107 ], "blocked": [ 33, 89, 66 ] },
+			{ "name": "Rough", "terrain_id": 5, "unblocked": [ 132, 113, 49 ], "blocked": [ 99, 81, 33 ] },
+			{ "name": "Subterranean", "terrain_id": 6, "unblocked": [ 132, 48, 0 ], "blocked": [ 90, 8, 0 ] },
+			{ "name": "Lava", "terrain_id": 7, "unblocked": [ 74, 73, 74 ], "blocked": [ 41, 40, 41 ] },
+			{ "name": "Water", "terrain_id": 8, "unblocked": [ 8, 81, 148 ], "blocked": [ 8, 81, 148 ] },
+			{ "name": "Rock", "terrain_id": 9, "unblocked": [ 0, 0, 0 ], "blocked": [ 0, 0, 0 ] }
+		]
+}
