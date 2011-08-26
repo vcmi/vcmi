@@ -33,7 +33,6 @@ CTownHandler::~CTownHandler()
 }
 void CTownHandler::loadStructures()
 {
-	int si, itr;
 	char bufname[75];
 	int townID;
 
@@ -125,6 +124,11 @@ void CTownHandler::loadStructures()
 			level ++;
 		}
 
+		// Misc.
+		towns[townID].mageLevel = town_node["mage_guild"].Float();
+		towns[townID].primaryRes  = town_node["primary_ressource"].Float();
+		towns[townID].warMachine = town_node["war_machine"].Float();
+
 		townID ++;
 	}
 
@@ -171,15 +175,6 @@ void CTownHandler::loadStructures()
 	}
 
 	std::ifstream of;
-
-	of.open(DATA_DIR "/config/mageLevel.txt");
-	of >> si;
-	for(itr=0; itr<si; itr++)
-	{
-		of >> towns[itr].mageLevel >> towns[itr].primaryRes >> towns[itr].warMachine;
-	}
-	of.close();
-	of.clear();
 
 	of.open(DATA_DIR "/config/requirements.txt");
 	requirements.resize(F_NUMBER);
