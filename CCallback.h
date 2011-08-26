@@ -35,6 +35,7 @@ class IShipyard;
 struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
+struct CPack;
 
 class IBattleCallback
 {
