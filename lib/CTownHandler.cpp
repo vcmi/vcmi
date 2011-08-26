@@ -6,6 +6,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "../lib/JsonNode.h"
+#include <boost/foreach.hpp>
 
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
@@ -183,89 +184,50 @@ void CTownHandler::loadStructures()
 				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
 		}
 	}
-	
-	//read borders and areas names
-	int format;
-	std::string s;
 
-	//read groups
-	of.open(DATA_DIR "/config/buildings4.txt");
-	of >> format;
-	if(format!=1)
-	{
-		tlog1 << "Unhandled format of buildings4.txt \n";
-	}
-	else
-	{
-		of >> s;
-		int itr=1;
-		while(!of.eof())
-		{
-			std::vector<std::map<int, Structure*> >::iterator i;
-			std::map<int, Structure*>::iterator i2;
-			int buildingID;
-			int castleID;
-			itr++;
-			if (s == "CASTLE")
-			{
-				of >> castleID;
-			}
-			else if(s == "ALL")
-			{
-				castleID = -1;
-			}
-			else
-			{
-				break;
-			}
-			of >> s;
-			while(1) //read groups for castle
-			{
-				if (s == "GROUP")
-				{
-					while(1)
-					{
-						of >> s;
-						if((s == "GROUP") || (s == "EOD") || (s == "CASTLE")) //
-							break;
-						buildingID = atoi(s.c_str());
-						if(castleID>=0)
-						{
-							if((i = structures.begin() + castleID) != structures.end())
-								if((i2=(i->find(buildingID)))!=(i->end()))
-									i2->second->group = itr;
-								else
-									tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
-							else
-								tlog3 << "Warning3: Castle "<<castleID<<" not defined."<<std::endl;
-						}
-						else //set group for selected building in ALL castles
-						{
-							for(i=structures.begin();i!=structures.end();i++)
-							{
-								for(i2=i->begin(); i2!=i->end(); i2++)
-								{
-									if(i2->first == buildingID)
-									{
-										i2->second->group = itr;
-										break;
-									}
-								}
+	int group_num=0;
+
+	// Iterate for each city
+	BOOST_FOREACH(const JsonNode &town_node, config["town_groups"].Vector()) {
+		townID = town_node["id"].Float();
+
+		// Iterate for each group for that city
+		BOOST_FOREACH(const JsonNode &group, town_node["groups"].Vector()) {
+
+			group_num ++;
+		
+			// Iterate for each bulding value in the group
+			BOOST_FOREACH(const JsonNode &value, group.Vector()) {
+				int buildingID = value.Float();
+
+				std::vector<std::map<int, Structure*> >::iterator i;
+				std::map<int, Structure*>::iterator i2;
+
+				if (townID >= 0) {
+					if ((i = structures.begin() + townID) != structures.end()) {
+						if ((i2=(i->find(buildingID)))!=(i->end()))
+							i2->second->group = group_num;
+						else
+							tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<townID<<std::endl;
+					} 
+					else
+						tlog3 << "Warning3: Castle "<<townID<<" not defined."<<std::endl;
+				} else {
+					// Set group for selected building in ALL castles
+					for (i=structures.begin();i!=structures.end();i++) {
+						for(i2=i->begin(); i2!=i->end(); i2++) {
+							if(i2->first == buildingID)	{
+								i2->second->group = group_num;
+								break;
 							}
 						}
 					}
-					if(s == "CASTLE")
-						break;
-					itr++;
-				}//if (s == "GROUP")
-				else if(s == "EOD")
-					break;
+				}
 			}
 		}
-		of.close();
-		of.clear();
 	}
 }
+
 const std::string & CTown::Name() const
 {
 	if(name.length())
