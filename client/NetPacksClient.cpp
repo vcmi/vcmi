@@ -243,7 +243,9 @@ void HeroVisit::applyCl( CClient *cl )
 
 void NewTurn::applyCl( CClient *cl )
 {
-	cl->updatePaths();
+	//cl->updatePaths(); => may fail when there is no selected (mechanically) hero
+	if(cl->pathInfo->hero)
+		cl->calculatePaths(cl->pathInfo->hero);
 }
 
 
