@@ -118,6 +118,13 @@ void CTownHandler::loadStructures()
 			level ++;
 		}
 
+		//  Horde building creature level
+		level = 0;
+		BOOST_FOREACH(const JsonNode &node, town_node["horde"].Vector()) {
+			towns[townID].hordeLvl[level] = node.Float();
+			level ++;
+		}
+
 		townID ++;
 	}
 
@@ -164,16 +171,6 @@ void CTownHandler::loadStructures()
 	}
 
 	std::ifstream of;
-
-	of.open(DATA_DIR "/config/building_horde.txt");
-	while(!of.eof())
-	{
-		int tid, lid, cid; //town,horde serial,creature level
-		of >> tid >> lid >> cid;
-		towns[tid].hordeLvl[--lid] = cid;
-	}
-	of.close();
-	of.clear();
 
 	of.open(DATA_DIR "/config/mageLevel.txt");
 	of >> si;
