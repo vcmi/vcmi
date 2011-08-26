@@ -190,7 +190,7 @@ void LibClasses::init()
 	tlog0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
 
 	townh = new CTownHandler;
-	townh->loadNames();
+	townh->loadStructures();
 	tlog0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
 
 	objh = new CObjectHandler;

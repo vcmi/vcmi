@@ -69,7 +69,6 @@ public:
 
 	CTownHandler(); //c-tor
 	~CTownHandler(); //d-tor
-	void loadNames();
 	void loadStructures();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

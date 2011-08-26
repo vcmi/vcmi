@@ -31,21 +31,116 @@ CTownHandler::~CTownHandler()
 		for( std::map<int, Structure*>::iterator j = i->begin(); j!=i->end(); j++)
 			delete j->second;
 }
-void CTownHandler::loadNames()
+void CTownHandler::loadStructures()
 {
 	int si, itr;
 	char bufname[75];
-	for (si=0; si<F_NUMBER; si++)
+	int townID;
+
+	for (townID=0; townID<F_NUMBER; townID++)
 	{
 		CTown town;
-		town.typeID=si;
+		town.typeID=townID;
 		town.bonus=towns.size();
 		if (town.bonus==8) town.bonus=3;
 		towns.push_back(town);
 	}
 
-	loadStructures();
+	structures.resize(F_NUMBER);
 
+	// read city properties
+	const JsonNode config(DATA_DIR "/config/buildings.json");
+
+	// Iterate for each city type
+	townID = 0;
+	BOOST_FOREACH(const JsonNode &town_node, config["town_type"].Vector()) {
+		std::map<int, Structure*> &town = structures[townID];
+
+		// Read buildings coordinates for that city
+		BOOST_FOREACH(const JsonNode &node, town_node["defnames"].Vector()) {
+			Structure *vinya = new Structure;
+			const JsonNode *value;
+
+			vinya->group = -1;
+			vinya->townID = townID;
+			vinya->ID = node["id"].Float();
+			vinya->defName = node["defname"].String();
+			vinya->name = vinya->defName; //TODO - use normal names
+			vinya->pos.x = node["x"].Float();
+			vinya->pos.y = node["y"].Float();
+			vinya->pos.z = 0;
+			
+			value = &node["border"];
+			if (!value->isNull())
+				vinya->borderName = value->String();
+
+			value = &node["area"];
+			if (!value->isNull())
+				vinya->areaName = value->String();
+
+			town[vinya->ID] = vinya;
+		}
+
+		// Read buildings blit order for that city
+		const JsonVector &blit_order_vec = town_node["blit_order"].Vector();
+		int itr = 1;
+
+		for (JsonVector::const_iterator it2 = blit_order_vec.begin(); it2!=blit_order_vec.end(); ++it2) {
+			const JsonNode &node = *it2;
+			int buildingID = node.Float();
+
+			/* Find the building and set its order. */
+			std::map<int, Structure*>::iterator i2 = town.find(buildingID);
+			if (i2 != (town.end()))
+				i2->second->pos.z = itr++;
+			else
+				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
+		}
+
+		townID ++;
+	}
+
+	int group_num=0;
+
+	// Iterate for each city
+	BOOST_FOREACH(const JsonNode &town_node, config["town_groups"].Vector()) {
+		townID = town_node["id"].Float();
+
+		// Iterate for each group for that city
+		BOOST_FOREACH(const JsonNode &group, town_node["groups"].Vector()) {
+
+			group_num ++;
+		
+			// Iterate for each bulding value in the group
+			BOOST_FOREACH(const JsonNode &value, group.Vector()) {
+				int buildingID = value.Float();
+
+				std::vector<std::map<int, Structure*> >::iterator i;
+				std::map<int, Structure*>::iterator i2;
+
+				if (townID >= 0) {
+					if ((i = structures.begin() + townID) != structures.end()) {
+						if ((i2=(i->find(buildingID)))!=(i->end()))
+							i2->second->group = group_num;
+						else
+							tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<townID<<std::endl;
+					} 
+					else
+						tlog3 << "Warning3: Castle "<<townID<<" not defined."<<std::endl;
+				} else {
+					// Set group for selected building in ALL castles
+					for (i=structures.begin();i!=structures.end();i++) {
+						for(i2=i->begin(); i2!=i->end(); i2++) {
+							if(i2->first == buildingID)	{
+								i2->second->group = group_num;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	std::ifstream of;
 	for(int x=0;x<towns.size();x++)
@@ -123,109 +218,6 @@ void CTownHandler::loadNames()
 	}
 	of.close();
 	of.clear();
-}
-
-void CTownHandler::loadStructures()
-{
-	std::ifstream of;
-
-	structures.resize(F_NUMBER);
-
-	// read city properties
-	const JsonNode config(DATA_DIR "/config/buildings.json");
-	const JsonVector &town_type_vec = config["town_type"].Vector();
-	int townID=0;
-
-	// Iterate for each city type
-	for (JsonVector::const_iterator it = town_type_vec.begin(); it!=town_type_vec.end(); ++it, ++townID) {
-		std::map<int, Structure*> &town = structures[townID];
-		const JsonNode &town_node = *it;
-		const JsonVector &defnames_vec = town_node["defnames"].Vector();
-
-		// Read buildings coordinates for that city
-		for (JsonVector::const_iterator it2 = defnames_vec.begin(); it2!=defnames_vec.end(); ++it2) {
-			const JsonNode &node = *it2;
-			Structure *vinya = new Structure;
-			const JsonNode *value;
-
-			vinya->group = -1;
-			vinya->townID = townID;
-			vinya->ID = node["id"].Float();
-			vinya->defName = node["defname"].String();
-			vinya->name = vinya->defName; //TODO - use normal names
-			vinya->pos.x = node["x"].Float();
-			vinya->pos.y = node["y"].Float();
-			vinya->pos.z = 0;
-			
-			value = &node["border"];
-			if (!value->isNull())
-				vinya->borderName = value->String();
-
-			value = &node["area"];
-			if (!value->isNull())
-				vinya->areaName = value->String();
-
-			town[vinya->ID] = vinya;
-		}
-
-		// Read buildings blit order for that city
-		const JsonVector &blit_order_vec = town_node["blit_order"].Vector();
-		int itr = 1;
-
-		for (JsonVector::const_iterator it2 = blit_order_vec.begin(); it2!=blit_order_vec.end(); ++it2) {
-			const JsonNode &node = *it2;
-			int buildingID = node.Float();
-
-			/* Find the building and set its order. */
-			std::map<int, Structure*>::iterator i2 = town.find(buildingID);
-			if (i2 != (town.end()))
-				i2->second->pos.z = itr++;
-			else
-				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
-		}
-	}
-
-	int group_num=0;
-
-	// Iterate for each city
-	BOOST_FOREACH(const JsonNode &town_node, config["town_groups"].Vector()) {
-		townID = town_node["id"].Float();
-
-		// Iterate for each group for that city
-		BOOST_FOREACH(const JsonNode &group, town_node["groups"].Vector()) {
-
-			group_num ++;
-		
-			// Iterate for each bulding value in the group
-			BOOST_FOREACH(const JsonNode &value, group.Vector()) {
-				int buildingID = value.Float();
-
-				std::vector<std::map<int, Structure*> >::iterator i;
-				std::map<int, Structure*>::iterator i2;
-
-				if (townID >= 0) {
-					if ((i = structures.begin() + townID) != structures.end()) {
-						if ((i2=(i->find(buildingID)))!=(i->end()))
-							i2->second->group = group_num;
-						else
-							tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<townID<<std::endl;
-					} 
-					else
-						tlog3 << "Warning3: Castle "<<townID<<" not defined."<<std::endl;
-				} else {
-					// Set group for selected building in ALL castles
-					for (i=structures.begin();i!=structures.end();i++) {
-						for(i2=i->begin(); i2!=i->end(); i2++) {
-							if(i2->first == buildingID)	{
-								i2->second->group = group_num;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 const std::string & CTown::Name() const
