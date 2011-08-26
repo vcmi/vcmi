@@ -5,6 +5,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 
 #include "CCastleInterface.h"
 #include "../CCallback.h"
@@ -1130,76 +1131,14 @@ int CCreaInfo::AddToString(std::string from, std::string & to, int numb)
 
 std::string CCreaInfo::genGrowthText()
 {
-	int summ=0;
-	std::string descr=CGI->generaltexth->allTexts[589];//Growth of creature is number
-	boost::algorithm::replace_first(descr,"%s", creature->nameSing);
-	boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(town->creatureGrowth(level)));
+	GrowthInfo gi = town->getGrowthInfo(level);
+	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->nameSing % gi.totalGrowth());
 
-	descr +="\n"+CGI->generaltexth->allTexts[590];
-	summ = creature->growth;
-	boost::algorithm::replace_first(descr,"%d", boost::lexical_cast<std::string>(summ));
-
-	if ( level>=0 && level<CREATURES_PER_TOWN)
+	BOOST_FOREACH(const GrowthInfo::Entry &entry, gi.entries)
 	{
-
-		if ( vstd::contains(town->builtBuildings, Buildings::CASTLE))
-			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CASTLE]->Name()+" %+d",descr,summ);
-		else if ( vstd::contains(town->builtBuildings, Buildings::CITADEL))
-			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::CITADEL]->Name()+" %+d",descr,summ/2);
-
-		summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, //double growth or plague
-			summ * creature->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100);
-
-		summ+=AddToString(CGI->generaltexth->artifNames[133] + " %+d",descr,
-			summ * town->valOfGlobalBonuses
-			(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT))/100); //Statue of Legion
-
-		if(town->town->hordeLvl[0]==level)//horde, x to summ
-		if( vstd::contains(town->builtBuildings, Buildings::HORDE_1) || vstd::contains(town->builtBuildings, Buildings::HORDE_1_UPGR))
-			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_1]->Name()+" %+d",descr,
-				creature->hordeGrowth);
-
-		if(town->town->hordeLvl[1]==level)//horde, x to summ
-		if( vstd::contains(town->builtBuildings, Buildings::HORDE_2) || vstd::contains(town->builtBuildings, Buildings::HORDE_2_UPGR))
-			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::HORDE_2]->Name()+" %+d",descr,
-				creature->hordeGrowth);
-
-		int cnt = 0;
-
-		std::vector< const CGDwelling * > myDwellings = LOCPLINT->cb->getMyDwellings();
-		for (std::vector<const CGDwelling*>::const_iterator it = myDwellings.begin(); it != myDwellings.end(); ++it)
-			if (CGI->creh->creatures[town->town->basicCreatures[level]]->idNumber == (*it)->creatures[0].second[0])
-				cnt++;//external dwellings count to summ
-		summ+=AddToString(CGI->generaltexth->allTexts[591],descr,cnt);
-
-		boost::shared_ptr<BonusList> bl;
-		const CGHeroInstance *hero = town->garrisonHero;
-		if (hero)
-		{
-			bl = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-							  && Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-		}
-		hero = town->visitingHero;
-		if (hero)
-		{
-			boost::shared_ptr<BonusList> blAppend = hero->getAllBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level) 
-				&& Selector::sourceType(Bonus::ARTIFACT), 0, hero);
-			if (town->garrisonHero)
-				bl->insert(bl->size(), blAppend->begin(), blAppend->end());
-			else
-				bl = blAppend;
-		}
-		
-		if (bl->size())
-			summ+=AddToString (CGI->arth->artifacts[bl->front()->sid]->Name()+" %+d", descr, bl->totalValue());
-
-		//TODO: player bonuses
-
-		if(vstd::contains(town->builtBuildings, Buildings::GRAIL)) //grail - +50% to ALL growth
-			summ+=AddToString(CGI->buildh->buildings[town->subID][Buildings::GRAIL]->Name()+" %+d",descr,summ/2);
-
-		summ+=AddToString(CGI->generaltexth->allTexts[63] + " %+d",descr, creature->valOfBonuses(Bonus::CREATURE_GROWTH));
+		descr +="\n" + entry.description;
 	}
+	
 	return descr;
 }
 

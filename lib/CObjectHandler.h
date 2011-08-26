@@ -519,6 +519,22 @@ public:
 
 class DLL_EXPORT CTownAndVisitingHero : public CBonusSystemNode
 {
+public:
+	CTownAndVisitingHero();
+};
+
+struct DLL_EXPORT GrowthInfo
+{
+	struct Entry
+	{
+		int count;
+		std::string description;
+		Entry(const std::string &format, int _count);
+		Entry(int subID, Buildings::EBuilding building, int _count);
+	};
+
+	std::vector<Entry> entries;
+	int totalGrowth() const;
 };
 
 class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard, public IMarket
@@ -591,6 +607,7 @@ public:
 	bool creatureDwelling(const int & level, bool upgraded=false) const;
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 	int creatureGrowth(const int & level) const;
+	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
 	int dailyIncome() const; //calculates daily income of this town

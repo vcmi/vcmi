@@ -198,6 +198,7 @@ public:
 class DLL_EXPORT CArtHandler //handles artifacts
 {
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;

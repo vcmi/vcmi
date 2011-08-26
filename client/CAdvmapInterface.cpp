@@ -58,6 +58,8 @@ CAdvMapInt *adventureInt;
 
 CMinimap::CMinimap(bool draw)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	used = LCLICK | RCLICK | HOVER;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	statusbarTxt = CGI->generaltexth->zelp[291].first;
 	rcText = CGI->generaltexth->zelp[291].second;
@@ -67,6 +69,7 @@ CMinimap::CMinimap(bool draw)
 	pos.w=ADVOPT.minimapH;
 
 	temps = newSurface(pos.w,pos.h);
+	aiShield = new CPicture("AISHIELD.bmp");
 
 	const JsonNode config(DATA_DIR "/config/minimap.json");
 	const JsonVector &minimap_vec = config["MinimapColors"].Vector();
@@ -114,48 +117,55 @@ CMinimap::~CMinimap()
 
 void CMinimap::draw(SDL_Surface * to)
 {
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	//draw terrain
-	blitAt(map[adventureInt->position.z],0,0,temps);
-
-	//draw heroes
-	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
-	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
-
-	for (size_t i=0; i < hh.size(); ++i)
+	if(LOCPLINT->makingTurn)
 	{
-		int3 hpos = hh[i]->getPosition(false);
-		if(hpos.z!=adventureInt->position.z)
-			continue;
-		//float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
-		int3 maplgp ( (hpos.x*mw)/mapSizes.x, (hpos.y*mh)/mapSizes.y, hpos.z );
-		for (int ii=0; ii<wo; ii++)
+		int3 mapSizes = LOCPLINT->cb->getMapSize();
+		//draw terrain
+		blitAt(map[adventureInt->position.z],0,0,temps);
+
+		//draw heroes
+		std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
+		int mw = map[0]->w, mh = map[0]->h,
+			wo = mw/mapSizes.x, ho = mh/mapSizes.y;
+
+		for (size_t i=0; i < hh.size(); ++i)
 		{
-			for (int jj=0; jj<ho; jj++)
+			int3 hpos = hh[i]->getPosition(false);
+			if(hpos.z!=adventureInt->position.z)
+				continue;
+			//float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
+			int3 maplgp ( (hpos.x*mw)/mapSizes.x, (hpos.y*mh)/mapSizes.y, hpos.z );
+			for (int ii=0; ii<wo; ii++)
 			{
-				SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
+				for (int jj=0; jj<ho; jj++)
+				{
+					SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
 						graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
+				}
 			}
 		}
+
+		blitAt(flObjs[adventureInt->position.z],0,0,temps);
+
+		blitAt(FoW[adventureInt->position.z],0,0,temps);
+
+		//draw radar
+		const int tilesw=(ADVOPT.advmapW+31)/32;
+		const int tilesh=(ADVOPT.advmapH+31)/32;
+		int bx = (((float)adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
+			by = (((float)adventureInt->position.y)/(((float)mapSizes.y)))*pos.h,
+			rx = (((float)tilesw)/(mapSizes.x))*((float)pos.w), //width
+			ry = (((float)tilesh)/(mapSizes.y))*((float)pos.h); //height
+
+		CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
+
+		//blitAt(radar,bx,by,temps);
+		blitAt(temps,pos.x,pos.y,to);
 	}
-
-	blitAt(flObjs[adventureInt->position.z],0,0,temps);
-
-	blitAt(FoW[adventureInt->position.z],0,0,temps);
-
-	//draw radar
-	const int tilesw=(ADVOPT.advmapW+31)/32;
-	const int tilesh=(ADVOPT.advmapH+31)/32;
-	int bx = (((float)adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
-		by = (((float)adventureInt->position.y)/(((float)mapSizes.y)))*pos.h,
-		rx = (((float)tilesw)/(mapSizes.x))*((float)pos.w), //width
-		ry = (((float)tilesh)/(mapSizes.y))*((float)pos.h); //height
-
-	CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
-
-	//blitAt(radar,bx,by,temps);
-	blitAt(temps,pos.x,pos.y,to);
+	else
+	{
+		aiShield->showAll(to);
+	}
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
@@ -275,13 +285,11 @@ void CMinimap::clickRight(tribool down, bool previousState)
 
 void CMinimap::clickLeft(tribool down, bool previousState)
 {
-	if (down && (!previousState))
-		activateMouseMove();
-	else if (!down)
-	{
-		if (std::find(GH.motioninterested.begin(),GH.motioninterested.end(),this)!=GH.motioninterested.end())
-			deactivateMouseMove();
-	}
+	if (down && !(used & MOVE))
+		changeUsedEvents(MOVE, true);
+	else if (!down  &&  used & MOVE)
+		changeUsedEvents(MOVE, false);
+
 	//ClickableL::clickLeft(down);
 	if (!((bool)down))
 		return;
@@ -314,20 +322,12 @@ void CMinimap::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 }
 void CMinimap::activate()
 {
-	activateLClick();
-	activateRClick();
-	activateHover();
-	if (pressedL)
-		activateMouseMove();
+	CIntObject::activate();
 }
 
 void CMinimap::deactivate()
 {
-	if (pressedL)
-		deactivateMouseMove();
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
+	CIntObject::deactivate();
 }
 
 void CMinimap::showTile(const int3 &pos)
@@ -437,11 +437,6 @@ void CMinimap::hideTile(const int3 &pos)
 				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
 		}
 	}
-}
-
-void CMinimap::show( SDL_Surface * to )
-{
-
 }
 
 CTerrainRect::CTerrainRect()

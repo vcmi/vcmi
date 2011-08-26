@@ -950,7 +950,7 @@ struct HeroVisit : CPackForClient //531
 
 struct NewTurn : public CPackForClient //101
 {
-	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, CUSTOM, NO_ACTION, NONE};
+	enum weekType {NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, NO_ACTION};
 
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);

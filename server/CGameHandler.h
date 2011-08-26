@@ -254,6 +254,7 @@ public:
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot);
+	void spawnWanderingMonsters(int creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

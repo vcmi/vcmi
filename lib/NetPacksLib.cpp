@@ -766,65 +766,23 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 	BOOST_FOREACH(SetAvailableCreatures h, cres) //set available creatures in towns
 		h.applyGs(gs);
 
-	if (specialWeek != NO_ACTION) //first pack applied, reset all effects and aplly new
+	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
+	if(gs->getDate(1)) //new week
+		gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
+
+	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
+
+	//count days without town
+	for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		//TODO? won't work for battles lasting several turns (not an issue now but...)
-		gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-
-		if(gs->getDate(1)) //new week, Monday that is
-		{
-			gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
-
-			Bonus *b = new Bonus();
-			b->duration = Bonus::ONE_WEEK;
-			b->source = Bonus::SPECIAL_WEEK;
-			b->effectRange = Bonus::NO_LIMIT;
-			b->valType = Bonus::BASE_NUMBER; //certainly not intuitive
-			switch (specialWeek)
-			{
-				case DOUBLE_GROWTH:
-					b->val = 100;
-					b->type = Bonus::CREATURE_GROWTH_PERCENT;
-					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
-					break;
-				case BONUS_GROWTH:
-					b->val = 5;
-					b->type = Bonus::CREATURE_GROWTH;
-					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[creatureid], false));
-					break;
-				case DEITYOFFIRE:
-					b->val = 15;
-					b->type = Bonus::CREATURE_GROWTH;
-					b->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[42], true));
-					break;
-				case PLAGUE:
-					b->val = -100; //no basic creatures
-					b->type = Bonus::CREATURE_GROWTH_PERCENT;
-					break;
-				default:
-					b->val = 0;
-
-			}
-			if (b->val)
-				gs->globalEffects.addNewBonus(b);
-		}
+		if(i->second.towns.size() || gs->day == 1)
+			i->second.daysWithoutCastle = 0;
+		else
+			i->second.daysWithoutCastle++;
 	}
-	else //second pack is applied
-	{
-		//count days without town
-		for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-		{
-			if(i->second.towns.size() || gs->day == 1)
-				i->second.daysWithoutCastle = 0;
-			else
-				i->second.daysWithoutCastle++;
-		}
-		if(resetBuilded) //reset amount of structures set in this turn in towns
-		{
-			BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
-				t->builded = 0;
-		}
-	}
+
+	BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
+		t->builded = 0;
 }
 
 DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )

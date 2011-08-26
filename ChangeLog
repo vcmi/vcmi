@@ -1,11 +1,13 @@
-0.85 -> 0.86 (Aug 01 2011)
+0.85 -> 0.86 (Sep 01 2011?)
 GENERAL:
+* Reinstated music support
+* Bonus system optimizations (caching)
+* converted many config files to JSON
+* .tga file support
 * New artifacts supported
 - Admiral's Hat
+- Statue of Legion
 - Titan's Thunder
-* vERM parser & interpreter
-* Bonus caching system
-* .tga file support
 
 BATTLES:
 * Correct handling of siege obstacles

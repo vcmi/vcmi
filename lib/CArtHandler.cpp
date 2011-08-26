@@ -502,8 +502,22 @@ void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int sub
 	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
 	added->valType = valType;
 	added->limiter.reset(limiter);
-	if(type == Bonus::MORALE || Bonus::LUCK)
+	if(type == Bonus::MORALE || type == Bonus::LUCK)
 		added->description = artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+	else
+		added->description = artifacts[aid]->Name();
+	artifacts[aid]->addNewBonus(added);
+}
+
+void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator /*= NULL*/)
+{
+	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added->valType = Bonus::BASE_NUMBER;
+	added->propagator.reset(propagator);
+	if(type == Bonus::MORALE || type == Bonus::LUCK)
+		added->description = artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
+	else
+		added->description = artifacts[aid]->Name();
 	artifacts[aid]->addNewBonus(added);
 }
 
@@ -677,11 +691,11 @@ void CArtHandler::addBonuses()
 	giveArtBonus(116,Bonus::GENERATE_RESOURCE,+750, Res::GOLD); //Endless Bag of Gold
 	giveArtBonus(117,Bonus::GENERATE_RESOURCE,+500, Res::GOLD); //Endless Purse of Gold
 
-	giveArtBonus(118,Bonus::CREATURE_GROWTH,+5,1); //Legs of Legion
-	giveArtBonus(119,Bonus::CREATURE_GROWTH,+4,2); //Loins of Legion
-	giveArtBonus(120,Bonus::CREATURE_GROWTH,+3,3); //Torso of Legion
-	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4); //Arms of Legion
-	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5); //Head of Legion
+	giveArtBonus(118,Bonus::CREATURE_GROWTH,+5,1, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Legs of Legion
+	giveArtBonus(119,Bonus::CREATURE_GROWTH,+4,2, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Loins of Legion
+	giveArtBonus(120,Bonus::CREATURE_GROWTH,+3,3, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Torso of Legion
+	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Arms of Legion
+	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Head of Legion
 
 	//Sea Captain's Hat 
 	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0); 
@@ -722,7 +736,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
 
 	// Statue of Legion - gives only 50% growth
-	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50, -1);
+	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50, -1, new CPropagatorNodeType(CBonusSystemNode::PLAYER));
 
 	//Power of the Dragon Father
 	giveArtBonus(134, Bonus::LEVEL_SPELL_IMMUNITY, 4, -1, Bonus::INDEPENDENT_MAX);
@@ -880,7 +894,6 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 {
 	init();
 	setType(Art);
-
 }
 
 // CArtifactInstance::CArtifactInstance(int aid)
@@ -911,6 +924,7 @@ CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 void CArtifactInstance::init()
 {
 	id = -1;
+	setNodeType(ARTIFACT_INSTANCE);
 }
 
 int CArtifactInstance::firstAvailableSlot(const CGHeroInstance *h) const

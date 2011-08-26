@@ -853,55 +853,70 @@ void CGameHandler::newTurn()
 {
 	tlog5 << "Turn " << gs->day+1 << std::endl;
 	NewTurn n;
+	n.specialWeek = NewTurn::NO_ACTION;
 	n.creatureid = -1;
 	n.day = gs->day + 1;
-	n.resetBuilded = true;
-	bool newmonth = false;
+
+	bool firstTurn = !getDate(0);
+	bool newWeek = getDate(1) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = getDate(4) == 28;
 	
 	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
 	srand(time(NULL));
 
-	if (getDate(1) == 7 && getDate(0)>1) //new week (day numbers are confusing, as day was not yet switched)
+	if (newWeek && !firstTurn)
 	{
-		int monthType = rand()%100;
-		if(getDate(4) == 28) //new month
+		n.specialWeek = NewTurn::NORMAL;
+		bool deityOfFireBuilt = false;
+		BOOST_FOREACH(const CGTownInstance *t, gs->map->towns)
 		{
-			newmonth = true;
-			if (monthType < 40) //double growth
+			if(t->subID == 3 && vstd::contains(t->builtBuildings, Buildings::GRAIL))
 			{
-				n.specialWeek = NewTurn::DOUBLE_GROWTH;
-				if (ALLCREATURESGETDOUBLEMONTHS)
+				deityOfFireBuilt = true;
+				break;
+			}
+		}
+
+		if(deityOfFireBuilt)
+		{
+			n.specialWeek = NewTurn::DEITYOFFIRE;
+			n.creatureid = 42;
+		}
+		else
+		{
+			int monthType = rand()%100;
+			if(newMonth) //new month
+			{
+				if (monthType < 40) //double growth
 				{
-					std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					n.specialWeek = NewTurn::DOUBLE_GROWTH;
+					if (ALLCREATURESGETDOUBLEMONTHS)
+					{
+						std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+						n.creatureid = newMonster.second;
+					}
+					else
+					{
+						std::set<TCreature>::const_iterator it = VLC->creh->doubledCreatures.begin();
+						std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random element of set is tiring
+						n.creatureid = *it;
+					}
+				}
+				else if (monthType < 50)
+					n.specialWeek = NewTurn::PLAGUE;
+			}
+			else //it's a week, but not full month
+			{
+				if (monthType < 25)
+				{
+					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
+					std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
-				else
-				{
-					std::set<TCreature>::const_iterator it = VLC->creh->doubledCreatures.begin();
-					std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random elelemnt of set is tiring
-					n.creatureid = *it;
-				}
 			}
-			else if (monthType < 90)
-				n.specialWeek = NewTurn::NORMAL;
-			else
-				n.specialWeek = NewTurn::PLAGUE;
-		}
-		else //it's a week, but not full month
-		{
-			newmonth = false;
-			if (monthType < 25)
-			{
-				n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-				std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
-				n.creatureid = newMonster.second;
-			}
-			else
-				n.specialWeek = NewTurn::NORMAL;
 		}
 	}
-	else
-		n.specialWeek = NewTurn::NO_ACTION; //don't remove bonuses
 
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
 
@@ -915,7 +930,7 @@ void CGameHandler::newTurn()
 		std::pair<ui8,si32> playerGold(i->first,i->second.resources[Res::GOLD]);
 		hadGold.insert(playerGold); 
 
-		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
+		if(newWeek) //new heroes in tavern
 		{
 			SetAvailableHeroes sah;
 			sah.player = i->first;
@@ -955,7 +970,7 @@ void CGameHandler::newTurn()
 
 			n.heroes.insert(hth);
 			
-			if(gs->day) //not first day
+			if(!firstTurn) //not first day
 			{
 				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ESTATES)); //estates
 
@@ -969,131 +984,113 @@ void CGameHandler::newTurn()
 	//      townID,    creatureID, amount
 	std::map<si32, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
 	
-	for(std::vector<ConstTransitivePtr<CGTownInstance> >::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+	BOOST_FOREACH(CGTownInstance *t, gs->map->towns)
 	{
-		ui8 player = (*j)->tempOwner;
-		if(gs->getDate(1)==7) //first day of week
+		ui8 player = t->tempOwner;
+		handleTownEvents(t, n, newCreas);
+		if(newWeek) //first day of week
 		{
-			if ((*j)->subID == 5 && vstd::contains((*j)->builtBuildings, 22))
-				setPortalDwelling(*j, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+			if(t->subID == 5 && vstd::contains(t->builtBuildings, Buildings::SPECIAL_3))
+				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
-			if  ((**j).subID == 1 && gs->getDate(0) && player < PLAYER_LIMIT && vstd::contains((**j).builtBuildings, 22))//dwarven treasury
-					n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
-		}
-		if(gs->day  &&  player < PLAYER_LIMIT)//not the first day and town not neutral
-		{
-			////SetResources r;
-			//r.player = (**j).tempOwner;
-			if(vstd::contains((**j).builtBuildings, Buildings::RESOURCE_SILO)) //there is resource silo
+			if(!firstTurn)
+				if (t->subID == 1  && player < PLAYER_LIMIT && vstd::contains(t->builtBuildings, Buildings::SPECIAL_3))//dwarven treasury
+						n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
+
+			SetAvailableCreatures sac;
+			sac.tid = t->id;
+			sac.creatures = t->creatures;
+			for (int k=0; k < CREATURES_PER_TOWN; k++) //creature growths
 			{
-				if((**j).town->primaryRes == 127) //we'll give wood and ore
+				if(t->creatureDwelling(k))//there is dwelling (k-level)
+				{
+					ui32 &availableCount = sac.creatures[k].first;
+					const CCreature *cre = VLC->creh->creatures[t->creatureDwelling(k, true) ? t->town->upgradedCreatures[k] : t->town->basicCreatures[k]];
+
+					if (n.specialWeek == NewTurn::PLAGUE)
+						availableCount = t->creatures[k].first / 2; //halve their number, no growth
+					else
+					{
+						if(firstTurn) //first day of game: use only basic growths
+							availableCount = cre->growth;
+						else
+							availableCount += t->creatureGrowth(k);
+
+						if(n.creatureid == cre->idNumber 
+							|| n.specialWeek == NewTurn::DEITYOFFIRE && (cre->idNumber == 42 || cre->idNumber == 43))
+						{
+							if(n.specialWeek == NewTurn::DOUBLE_GROWTH)
+								availableCount *= 2;
+							else if(n.specialWeek == NewTurn::BONUS_GROWTH)
+								availableCount += 5;
+							else if(n.specialWeek == NewTurn::DEITYOFFIRE)
+								availableCount += 15;
+						}
+					}
+				}
+			}
+			//add creatures from town events
+			if (vstd::contains(newCreas, t->id))
+				for(std::map<si32, si32>::iterator i=newCreas[t->id].begin() ; i!=newCreas[t->id].end(); i++)
+					sac.creatures[i->first].first += i->second;
+
+			n.cres.push_back(sac);
+		}
+		if(!firstTurn  &&  player < PLAYER_LIMIT)//not the first day and town not neutral
+		{
+			if(vstd::contains(t->builtBuildings, Buildings::RESOURCE_SILO)) //there is resource silo
+			{
+				if(t->town->primaryRes == 127) //we'll give wood and ore
 				{
 					n.res[player][Res::WOOD] ++;
 					n.res[player][Res::ORE] ++;
 				}
 				else
 				{
-					n.res[player][(**j).town->primaryRes] ++;;
+					n.res[player][t->town->primaryRes] ++;
 				}
 			}
-			n.res[player][Res::GOLD] += (**j).dailyIncome();
+
+			n.res[player][Res::GOLD] += t->dailyIncome();
 		}
-		handleTownEvents(*j, n, newCreas);
-		if (vstd::contains((**j).builtBuildings, Buildings::GRAIL)) 
+		if(vstd::contains(t->builtBuildings, Buildings::GRAIL) && t->subID == 2) 
 		{
-			switch ((**j).subID)
-			{
-				case 2: // Skyship, probably easier to handle same as Veil of darkness
-					{ //do it every new day after veils apply
-						FoWChange fw;
-						fw.mode = 1;
-						fw.player = player;
-						getAllTiles(fw.tiles, player, -1, 0);
-						sendAndApply (&fw);
-					}
-					break;
-				case 3: //Deity of Fire
-					{
-						if (getDate(0) > 1)
-						{
-							n.specialWeek = NewTurn::DEITYOFFIRE; //spawn familiars on new month
-							n.creatureid = 42; //familiar
-						}
-					}
-					break;
-			}
+			// Skyship, probably easier to handle same as Veil of darkness
+			//do it every new day after veils apply
+			FoWChange fw;
+			fw.mode = 1;
+			fw.player = player;
+			getAllTiles(fw.tiles, player, -1, 0);
+			sendAndApply (&fw);
 		}
-		if ((**j).hasBonusOfType (Bonus::DARKNESS))
+		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			(**j).hideTiles((**j).getOwner(), (**j).getBonus(Selector::type(Bonus::DARKNESS))->val);
+			t->hideTiles(t->getOwner(), t->getBonus(Selector::type(Bonus::DARKNESS))->val);
 		}
 		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
-	if(getDate(2) == 1) //first week
+	if(newMonth)
 	{
 		SetAvailableArtifacts saa; 
 		saa.id = -1;
 		pickAllowedArtsSet(saa.arts);
 		sendAndApply(&saa);
 	}
-
 	sendAndApply(&n);
 
-	if (gs->getDate(1)==1) //first day of week, day has already been changed
+	if(newWeek)
 	{
-		if (getDate(4) == 1 && (n.specialWeek == NewTurn::DOUBLE_GROWTH || n.specialWeek == NewTurn::DEITYOFFIRE))
-		{ //spawn wandering monsters
-			std::vector<int3>::iterator tile;
-			std::vector<int3> tiles;
-			getFreeTiles(tiles);
-			ui32 amount = (tiles.size()) >> 6;
-			std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
-			tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << n.creatureid << std::endl;
-			const CCreature *cre = VLC->creh->creatures[n.creatureid];
-			for (int i = 0; i < amount; ++i)
-			{
-				tile = tiles.begin();
-				tlog5 << "\tSpawning monster at " << *tile << std::endl;
-				putNewMonster(n.creatureid, cre->getRandomAmount(std::rand), *tile);
-				tiles.erase(tile); //not use it again
-			}
+		//spawn wandering monsters
+		if (newMonth && (n.specialWeek == NewTurn::DOUBLE_GROWTH || n.specialWeek == NewTurn::DEITYOFFIRE))
+		{
+			spawnWanderingMonsters(n.creatureid);
 		}
 
-		NewTurn n2; //just to handle  creature growths after bonuses are applied
-		n2.specialWeek = NewTurn::NO_ACTION;
-		n2.day = gs->day;
-		n2.resetBuilded = true;
-
-		for(std::vector<ConstTransitivePtr<CGTownInstance> >::iterator j = gs->map->towns.begin(); j!=gs->map->towns.end(); j++)//handle towns
+		//new week info popup
+		if(!firstTurn)
 		{
-			SetAvailableCreatures sac;
-			sac.tid = (**j).id;
-			sac.creatures = (**j).creatures;
-			for (int k=0; k < CREATURES_PER_TOWN; k++) //creature growths
-			{
-				if((**j).creatureDwelling(k))//there is dwelling (k-level)
-				{
-					if (n.specialWeek == NewTurn::PLAGUE)
-						sac.creatures[k].first = (**j).creatures[k].first / 2; //halve their number, no growth
-					else
-					{
-						sac.creatures[k].first += (**j).creatureGrowth(k);
-						if(gs->getDate(0) == 1) //first day of game: use only basic growths
-							amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]]->growth);
-					}
-				}
-			}
-			//creatures from town events
-			if (vstd::contains(newCreas, (**j).id))
-				for(std::map<si32, si32>::iterator i=newCreas[(**j).id].begin() ; i!=newCreas[(**j).id].end(); i++)
-					sac.creatures[i->first].first += i->second;
-			
-			n2.cres.push_back(sac);
-		}
-		if (gs->getDate(0) > 1)
-		{
-			InfoWindow iw; //new week info
+			InfoWindow iw;
 			switch (n.specialWeek)
 			{
 				case NewTurn::DOUBLE_GROWTH:
@@ -1118,7 +1115,7 @@ void CGameHandler::newTurn()
 					iw.text.addReplacement2(15);							//%+d 15
 					break;
 				default:
-					iw.text.addTxt(MetaString::ARRAY_TXT, (newmonth ? 130 : 133));
+					iw.text.addTxt(MetaString::ARRAY_TXT, (newMonth ? 130 : 133));
 					iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
 			}
 			for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
@@ -1127,9 +1124,8 @@ void CGameHandler::newTurn()
 				sendAndApply(&iw);
 			}
 		}
-
-		sendAndApply(&n2);
 	}
+
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
 	handleTimeEvents();
 	//call objects
@@ -3884,6 +3880,7 @@ void CGameHandler::handleTimeEvents()
 
 void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<si32, std::map<si32, si32> > &newCreas)
 {
+	//TODO event removing desync!!!
 	town->events.sort(evntCmp);
 	while(town->events.size() && town->events.front()->firstOccurence == gs->day)
 	{
@@ -5208,6 +5205,23 @@ void CGameHandler::commitPackage( CPackForClient *pack )
 	sendAndApply(pack);
 }
 
+void CGameHandler::spawnWanderingMonsters(int creatureID)
+{
+	std::vector<int3>::iterator tile;
+	std::vector<int3> tiles;
+	getFreeTiles(tiles);
+	ui32 amount = (tiles.size()) >> 6;
+	std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+	tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID << std::endl;
+	const CCreature *cre = VLC->creh->creatures[creatureID];
+	for (int i = 0; i < amount; ++i)
+	{
+		tile = tiles.begin();
+		tlog5 << "\tSpawning monster at " << *tile << std::endl;
+		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
+		tiles.erase(tile); //not use it again
+	}
+}
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
 	int color = army->tempOwner;

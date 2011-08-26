@@ -26,6 +26,7 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include "CBuildingHandler.h"
 
 using namespace boost::assign;
 
@@ -1871,49 +1872,64 @@ int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns
 }
 int CGTownInstance::creatureGrowth(const int & level) const
 {
-	if (level<0 || level >=CREATURES_PER_TOWN)
-		return 0;
-	if (!vstd::contains(builtBuildings, Buildings::DWELL_FIRST+level))
-		return 0; //no dwelling
-	TCreature creid = town->basicCreatures[level];
-		
-	int ret = VLC->creh->creatures[creid]->growth;
-	switch(fortLevel())
-	{
-	case 3:
-		ret*=2;break;
-	case 2:
-		ret*=(1.5); break;
-	}
-	ret *= (1 + VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100); // double growth or plague
-	if(tempOwner != NEUTRAL_PLAYER)
-	{
-		ret *= (100.0f + cb->gameState()->players[tempOwner].valOfBonuses
-			(Selector::type(Bonus::CREATURE_GROWTH_PERCENT) && Selector::sourceType(Bonus::ARTIFACT)))/100; //Statue of Legion
-		for (std::vector<ConstTransitivePtr<CGDwelling> >::const_iterator it = cb->gameState()->players[tempOwner].dwellings.begin(); it != cb->gameState()->players[tempOwner].dwellings.end(); ++it)
-		{ //+1 for each dwelling
-			if (VLC->creh->creatures[creid]->idNumber == (*it)->creatures[0].second[0])
-				++ret;
-		}
-	}
-	if(getHordeLevel(0)==level)
-		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
-			ret+=VLC->creh->creatures[creid]->hordeGrowth;
-	if(getHordeLevel(1)==level)
-		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
-			ret+=VLC->creh->creatures[creid]->hordeGrowth;
-
-	//support for legs of legion etc.
-	if(garrisonHero)
-		ret += garrisonHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
-	if(visitingHero)
-		ret += visitingHero->valOfBonuses(Bonus::CREATURE_GROWTH, level);
-	if(builtBuildings.find(26)!=builtBuildings.end()) //grail - +50% to ALL growth
-		ret*=1.5;
-	//spcecial week unaffected by grail (bug in original game?)
-	ret += VLC->creh->creatures[creid]->valOfBonuses(Bonus::CREATURE_GROWTH);
-	return ret;//check CCastleInterface.cpp->CCastleInterface::CCreaInfo::clickRight if this one will be modified
+	return getGrowthInfo(level).totalGrowth();
 }
+
+GrowthInfo CGTownInstance::getGrowthInfo(int level) const
+{
+	GrowthInfo ret;
+
+	if (level<0 || level >=CREATURES_PER_TOWN)
+		return ret;
+	if (!vstd::contains(builtBuildings, Buildings::DWELL_FIRST+level))
+		return ret; //no dwelling
+
+	const CCreature *creature = VLC->creh->creatures[town->basicCreatures[level]];
+	const int base = creature->growth;
+	int castleBonus = 0;
+
+	ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[590], base));// \n\nBasic growth %d"
+
+	if ( vstd::contains(builtBuildings, Buildings::CASTLE))
+		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::CASTLE, castleBonus = base));
+	else if ( vstd::contains(builtBuildings, Buildings::CITADEL))
+		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::CITADEL, castleBonus = base / 2));
+
+	if(town->hordeLvl[0] == level)//horde 1
+		if( vstd::contains(builtBuildings, Buildings::HORDE_1) || vstd::contains(builtBuildings, Buildings::HORDE_1_UPGR))
+			ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::HORDE_1, creature->hordeGrowth));
+
+	if(town->hordeLvl[1] == level)//horde 2
+		if(vstd::contains(builtBuildings, Buildings::HORDE_2) || vstd::contains(builtBuildings, Buildings::HORDE_2_UPGR))
+			ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::HORDE_2, creature->hordeGrowth));
+
+	int dwellingBonus = 0;
+	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
+	{
+		BOOST_FOREACH(const CGDwelling *dwelling, p->dwellings)
+			if(creature->idNumber == dwelling->creatures[0].second[0])
+				dwellingBonus++;
+	}
+
+	if(dwellingBonus)
+		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
+		
+	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
+	boost::shared_ptr<BonusList> bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
+	BOOST_FOREACH(const Bonus *b, *bonuses)
+		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val));
+
+	//statue-of-legion-like bonus: % to base+castle
+	boost::shared_ptr<BonusList> bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
+	BOOST_FOREACH(const Bonus *b, *bonuses2)
+		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
+
+	if(vstd::contains(builtBuildings, Buildings::GRAIL)) //grail - +50% to ALL (so far added) growth
+		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::GRAIL, ret.totalGrowth() / 2));
+
+	return ret;
+}
+
 int CGTownInstance::dailyIncome() const
 {
 	int ret = 0;
@@ -7069,4 +7085,30 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 	ow.id2 = h->id;
 	ow.window = OpenWindow::UNIVERSITY_WINDOW;
 	cb->sendAndApply(&ow);
+}
+
+GrowthInfo::Entry::Entry(const std::string &format, int _count)
+	: count(_count)
+{
+	description = boost::str(boost::format(format) % count);
+}
+
+GrowthInfo::Entry::Entry(int subID, Buildings::EBuilding building, int _count)
+	: count(_count)
+{
+	description = boost::str(boost::format("%s %+d") % VLC->buildh->buildings[subID][building]->Name() % count);
+}
+
+CTownAndVisitingHero::CTownAndVisitingHero()
+{
+	setNodeType(TOWN_AND_VISITOR);
+}
+
+int GrowthInfo::totalGrowth() const
+{
+	int ret = 0;
+	BOOST_FOREACH(const Entry &entry, entries)
+		ret += entry.count;
+
+	return ret;
 }

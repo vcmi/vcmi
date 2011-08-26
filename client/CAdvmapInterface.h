@@ -44,6 +44,7 @@ public:
 class CMinimap : public CIntObject
 {
 public:
+	CPicture *aiShield; //the graphic displayed during AI turn
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
@@ -52,7 +53,6 @@ public:
 
 	CMinimap(bool draw=true);
 	~CMinimap();
-	void show(SDL_Surface * to);
 	void draw(SDL_Surface * to);
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void initMap(int level=-1);// (level==-1) => redraw all levels
