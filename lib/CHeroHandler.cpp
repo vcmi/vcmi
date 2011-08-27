@@ -3,6 +3,7 @@
 #include "CHeroHandler.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/JsonNode.h"
 #include <iomanip>
 #include <sstream>
 #include <fstream>
@@ -12,6 +13,7 @@
 #else
 #include <boost/spirit.hpp>
 #endif
+#include <boost/foreach.hpp>
 
 using namespace boost::spirit;
 
@@ -281,38 +283,18 @@ void CHeroHandler::loadHeroes()
 		nher->ID = heroes.size();
 		heroes.push_back(nher);
 	}
-	//loading initial secondary skills
-	{
-		std::ifstream inp;
-		inp.open(DATA_DIR "/config/heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
-		if(!inp.is_open())
-		{
-			tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
-		}
-		else
-		{
-			inp>>dump;
-			int hid; //ID of currently read hero
-			int secQ; //number of secondary abilities
-			while(true)
-			{
-				inp>>hid;
-				if(hid == -1)
-					break;
-				inp>>secQ;
-				heroes[hid]->sex = secQ;
-				inp>>secQ;
-				for(int g=0; g<secQ; ++g)
-				{
-					int a, b;
-					inp>>a; inp>>b;
-					heroes[hid]->secSkillsInit.push_back(std::make_pair(a, b));
-				}
-			}
-			inp.close();
+
+	// Load heroes information
+	const JsonNode config(DATA_DIR "/config/heroes.json");
+	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
+		int hid = hero["id"].Float();
+
+		heroes[hid]->sex = hero["sex"].Float();
+
+		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
+			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
 		}
 	}
-	//initial skills loaded
 
 	{
 		std::ifstream inp;
