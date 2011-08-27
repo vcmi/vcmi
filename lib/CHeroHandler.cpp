@@ -294,26 +294,13 @@ void CHeroHandler::loadHeroes()
 		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
 			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
 		}
+
+		const JsonNode *value = &hero["spell"];
+		if (!value->isNull()) {
+			heroes[hid]->startingSpell = value->Float();
+		}
 	}
 
-	{
-		std::ifstream inp;
-		std::istringstream iss;
-		dump.clear();
-		inp.open(DATA_DIR "/config/hero_spells.txt");
-		while(inp)
-		{
-			getline(inp, dump);
-			if(!dump.size()  ||  dump[0] == '-')
-				continue;
-			iss.clear();
-			iss.str(dump);
-			int hid, sid;
-			iss >> hid >> sid;
-			heroes[hid]->startingSpell = sid;
-		}
-		inp.close();
-	}
 	loadHeroClasses();
 	initHeroClasses();
 	expPerLevel.push_back(0);
