@@ -288,6 +288,7 @@ void CHeroHandler::loadHeroes()
 	const JsonNode config(DATA_DIR "/config/heroes.json");
 	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
 		int hid = hero["id"].Float();
+		const JsonNode *value;
 
 		heroes[hid]->sex = hero["sex"].Float();
 
@@ -295,9 +296,23 @@ void CHeroHandler::loadHeroes()
 			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
 		}
 
-		const JsonNode *value = &hero["spell"];
+		value = &hero["spell"];
 		if (!value->isNull()) {
 			heroes[hid]->startingSpell = value->Float();
+		}
+
+		value = &hero["specialties"];
+		if (!value->isNull()) {
+			BOOST_FOREACH(const JsonNode &specialty, value->Vector()) {
+				SSpecialtyInfo dummy;
+
+				dummy.type = specialty["type"].Float();
+				dummy.val = specialty["val"].Float();
+				dummy.subtype = specialty["subtype"].Float();
+				dummy.additionalinfo = specialty["info"].Float();
+
+				heroes[hid]->spec.push_back(dummy); //put a copy of dummy
+			}
 		}
 	}
 
@@ -360,26 +375,8 @@ void CHeroHandler::loadHeroes()
 		}
 		ballistics.push_back(bli);
 	}
-	{
-		std::ifstream inp;
-		dump.clear();
-		inp.open(DATA_DIR "/config/specials.txt"); //loading hero specials
-		assert(inp);
-		SSpecialtyInfo dummy;
-		si32 hid;
-		inp.ignore(100, '\n');
-		for (int i = 0; i < 175; ++i)
-		{
-			inp >> hid;
-			inp >> dummy.type;
-			inp >> dummy.val;
-			inp >> dummy.subtype;
-			inp >> dummy.additionalinfo;
-			heroes[hid]->spec.push_back(dummy); //put a copy of dummy
-		}
-		inp.close();
-	}
 }
+
 void CHeroHandler::loadHeroClasses()
 {
 	std::istringstream str(bitmaph->getTextFile("HCTRAITS.TXT")); //we'll be reading from it
