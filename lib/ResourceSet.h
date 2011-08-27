@@ -1,6 +1,7 @@
 #pragma once
 
-#include"../global.h"
+#include "../global.h"
+#include <climits>
 
 typedef si32 TResource;
 
