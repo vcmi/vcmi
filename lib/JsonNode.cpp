@@ -125,32 +125,42 @@ JsonMap & JsonNode::Struct()
 }
 
 
-const bool & JsonNode::Bool() const
+const bool & JsonNode::Bool(const bool &value) const
 {
+	if (isNull())
+		return value;
 	assert(type == DATA_BOOL);
 	return data.Bool;
 }
 
-const float & JsonNode::Float() const
+const float & JsonNode::Float(const float &value) const
 {
+	if (isNull())
+		return value;
 	assert(type == DATA_FLOAT);
 	return data.Float;
 }
 
-const std::string & JsonNode::String() const
+const std::string & JsonNode::String(const std::string &value) const
 {
+	if (isNull())
+		return value;
 	assert(type == DATA_STRING);
 	return *data.String;
 }
 
-const JsonVector & JsonNode::Vector() const
+const JsonVector & JsonNode::Vector(const JsonVector &value) const
 {
+	if (isNull())
+		return value;
 	assert(type == DATA_VECTOR);
 	return *data.Vector;
 }
 
-const JsonMap & JsonNode::Struct() const
+const JsonMap & JsonNode::Struct(const JsonMap &value) const
 {
+	if (isNull())
+		return value;
 	assert(type == DATA_STRUCT);
 	return *data.Struct;
 }
