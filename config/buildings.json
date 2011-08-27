@@ -53,7 +53,7 @@
 			{ "id": 41, "defname": "TBCSUP_4.def", "x": 563, "y": 173, "border": "TOCSMON2.bmp", "area": "TZCSMON2.bmp" },
 			{ "id": 42, "defname": "TBCSUP_5.def", "x": 160, "y": 190, "border": "TOCSCAV2.bmp", "area": "TZCSCAV2.bmp" },
 			{ "id": 43, "defname": "TBCSUP_6.def", "x": 303, "y": 0, "border": "TOCSANG2.bmp", "area": "TZCSANG2.bmp" },
-			{ "id": 20, "defname": "TBCSBOAT.def", "x": 478, "y": 134, "border": "TOCSDKMN.bmp", "area": "TZCSDKMN.bmp" },
+			{ "id": 20, "defname": "TBCSBOAT.def", "x": 478, "y": 134, "border": "TOCSDKMN.bmp", "area": "TZCSDKMN.bmp" }
 			],
 
 		  "blit_order": [ 1, 2, 3, 10, 11, 12, 13, 5, 22, 30, 37, 16, 6, 20, 18, 19, 34, 41 ],
@@ -63,6 +63,40 @@
 		  "mage_guild": 4,
 		  "primary_ressource": 127,
 		  "war_machine": 4,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 6 ] },
+					{ "id": 18, "requires": [ 32 ] },
+					{ "id": 19, "requires": [ 39 ] },
+					{ "id": 20, "requires": [ 6 ] },
+					{ "id": 21, "requires": [ 33 ] },
+					{ "id": 22, "requires": [ 5 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 33 ] },
+					{ "id": 33, "requires": [ 16, 30 ] },
+					{ "id": 34, "requires": [ 0, 33 ] },
+					{ "id": 35, "requires": [ 21 ] },
+					{ "id": 36, "requires": [ 34 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -109,7 +143,7 @@
 			{ "id": 10, "defname": "TBRMHALL.def", "x": 565, "y": 216, "border": "TORHAL1.bmp", "area": "TZRHAL1.bmp" },
 			{ "id": 13, "defname": "TBRMHAL4.def", "x": 534, "y": 187, "border": "TORHAL4.bmp", "area": "TZRHAL4.bmp" },
 			{ "id": 12, "defname": "TBRMHAL3.def", "x": 538, "y": 187, "border": "TORHAL3.bmp", "area": "TZRHAL3.bmp" },
-			{ "id": 11, "defname": "TBRMHAL2.def", "x": 538, "y": 187, "border": "TORHAL2.bmp", "area": "TZRHAL2.bmp" },
+			{ "id": 11, "defname": "TBRMHAL2.def", "x": 538, "y": 187, "border": "TORHAL2.bmp", "area": "TZRHAL2.bmp" }
 		  ],
 
 		  "blit_order": [ 33, 40, 35, 42, 16, 32, 39, 0, 1, 2, 3, 4, 31, 18, 38, 19, 34, 24, 41, 25, 5, 30, 37, 14, 10, 11, 12, 13, 17, 21, 22, -1, 27, 28, 29, 15 ],
@@ -119,6 +153,40 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 4,
 		  "war_machine": 6,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 18, "requires": [ 31 ] },
+					{ "id": 19, "requires": [ 38 ] },
+					{ "id": 21, "requires": [ 17 ] },
+					{ "id": 22, "requires": [ 18 ] },
+					{ "id": 24, "requires": [ 34 ] },
+					{ "id": 25, "requires": [ 41 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 32 ] },
+					{ "id": 34, "requires": [ 32 ] },
+					{ "id": 35, "requires": [ 33, 34 ] },
+					{ "id": 36, "requires": [ 35, 1 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36, 2 ] }
+				]
 		},
 
 		{
@@ -160,7 +228,7 @@
 			{ "id": 41, "defname": "TBTWUP_4.def", "x": 511, "y": 8, "border": "TOTGEN2.bmp", "area": "TZTGEN2.bmp" },
 			{ "id": 42, "defname": "TBTWUP_5.def", "x": 681, "y": 157, "border": "TOTNAG2.bmp", "area": "TZTNAG2.bmp" },
 			{ "id": 43, "defname": "TBTWUP_6.def", "x": 75, "y": 91, "border": "TOTTIT2.bmp", "area": "TZTTIT2.bmp" },
-			{ "id": 8, "defname": "TBTWCAS2.def", "x": 301, "y": 0, "border": "TOTCAS2.bmp", "area": "TZTCAS2.bmp" },
+			{ "id": 8, "defname": "TBTWCAS2.def", "x": 301, "y": 0, "border": "TOTCAS2.bmp", "area": "TZTCAS2.bmp" }
 		  ],
 		  "blit_order": [ 36, 43, 32, 39, 10, 11, 12, 13, 32, 35, 42, 15, 5, 18, 19 ],
 		  "creatures_basic": [ 28, 30, 32, 34, 36, 38, 40, 152 ],
@@ -169,6 +237,40 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 5,
 		  "war_machine": 5,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 14 ] },
+					{ "id": 18, "requires": [ 31 ] },
+					{ "id": 19, "requires": [ 38 ] },
+					{ "id": 21, "requires": [ 7 ] },
+					{ "id": 22, "requires": [ 0 ] },
+					{ "id": 23, "requires": [ 0 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 0, 31, 32 ] },
+					{ "id": 34, "requires": [ 33 ] },
+					{ "id": 35, "requires": [ 33 ] },
+					{ "id": 36, "requires": [ 34, 35 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33, 22 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -211,7 +313,7 @@
 			{ "id": 41, "defname": "TBINUP_4.def", "x": 359, "y": 244, "border": "TOIPIT2.bmp", "area": "TZIPIT2.bmp" },
 			{ "id": 42, "defname": "TBINUP_5.def", "x": 220, "y": 282, "border": "TOIEFR2.bmp", "area": "TZIEFR2.bmp" },
 			{ "id": 43, "defname": "TBINUP_6.def", "x": 420, "y": 105, "border": "TOIDVL2.bmp", "area": "TZIDVL2.bmp" },
-			{ "id": 8, "defname": "TBINCAS2.def", "x": 222, "y": 44, "border": "TOICAS1A.bmp", "area": "TZICAS1A.bmp" },
+			{ "id": 8, "defname": "TBINCAS2.def", "x": 222, "y": 44, "border": "TOICAS1A.bmp", "area": "TZICAS1A.bmp" }
 		  ],
 		  "blit_order": [ 26, 21, 7, 8, 9, 22, 31, 38, 36, 43, 10, 11, 12, 13, 5, 32, 39, 24, 25, 33, 40, 34, 41, 30, 37, 18, 19, 14, 15, 16, 35, 42 ],
 		  "creatures_basic": [ 42, 44, 46, 48, 50, 52, 54, 153 ],
@@ -220,6 +322,41 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 1,
 		  "war_machine": 5,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 18, "requires": [ 30 ] },
+					{ "id": 19, "requires": [ 37 ] },
+					{ "id": 21, "requires": [ 7 ] },
+					{ "id": 22, "requires": [ 8 ] },
+					{ "id": 23, "requires": [ 0 ] },
+					{ "id": 24, "requires": [ 32 ] },
+					{ "id": 25, "requires": [ 39 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 31 ] },
+					{ "id": 34, "requires": [ 33 ] },
+					{ "id": 35, "requires": [ 0, 33 ] },
+					{ "id": 36, "requires": [ 34, 35 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33 ] },
+					{ "id": 41, "requires": [ 34, 1 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -266,7 +403,7 @@
 			{ "id": 41, "defname": "TBNCUP_4.def", "x": 222, "y": 171, "border": "TONLICH2.bmp", "area": "TZNLICH2.bmp" },
 			{ "id": 42, "defname": "TBNCUP_5.def", "x": 0, "y": 30, "border": "TONBKN2.bmp", "area": "TZNBKN2.bmp" },
 			{ "id": 43, "defname": "TBNCUP_6.def", "x": 662, "y": 23, "border": "TONBON2.bmp", "area": "TZNBON2.bmp" },
-			{ "id": 20, "defname": "TBNCBOAT.def", "x": 617, "y": 265, "border": "TONSHPNA.bmp", "area": "TZNSHPNA.bmp" },
+			{ "id": 20, "defname": "TBNCBOAT.def", "x": 617, "y": 265, "border": "TONSHPNA.bmp", "area": "TZNSHPNA.bmp" }
 		  ],
 		  "blit_order": [ 17, 0, 1, 2, 3, 4, 7, 8, 9, 32, 39, 26, 15, 14, 34, 41, 16, 5, 33, 40, 31, 38, 6, 30, 18, 37, 19, 22, 20 ],
 		  "creatures_basic": [ 56, 58, 60, 62, 64, 66, 68, 154 ],
@@ -275,6 +412,40 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 127,
 		  "war_machine": 6,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 7 ] },
+					{ "id": 18, "requires": [ 22, 30 ] },
+					{ "id": 19, "requires": [ 22, 37 ] },
+					{ "id": 20, "requires": [ 6 ] },
+					{ "id": 21, "requires": [ 0 ] },
+					{ "id": 22, "requires": [ 30 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 31 ] },
+					{ "id": 34, "requires": [ 0, 31 ] },
+					{ "id": 35, "requires": [ 33, 34 ] },
+					{ "id": 36, "requires": [ 35 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33, 21 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -316,7 +487,7 @@
 			{ "id": 41, "defname": "TBDNUP_4.def", "x": 519, "y": 172, "border": "TODMIN2.bmp", "area": "TZDMIN2.bmp" },
 			{ "id": 42, "defname": "TBDNUP_5.def", "x": 270, "y": 253, "border": "TODMAN2.bmp", "area": "TZDMAN2.bmp" },
 			{ "id": 43, "defname": "TBDNUP_6.def", "x": 550, "y": 0, "border": "TODDRA2A.bmp", "area": "TZDDRA2A.bmp" },
-			{ "id": 8, "defname": "TBDNCAS2.def", "x": 363, "y": 87, "border": "TODCAS2.bmp", "area": "TZDCAS2.bmp" },
+			{ "id": 8, "defname": "TBDNCAS2.def", "x": 363, "y": 87, "border": "TODCAS2.bmp", "area": "TZDCAS2.bmp" }
 		  ],
 		  "blit_order": [ 0, 1, 2, 3, 4, 21, 35, 42, 5, 30, 18, 37, 19, 32, 39, 26, 7, 8, 9, 23 ],
 		  "creatures_basic": [ 70, 72, 74, 76, 78, 80, 82, 155 ],
@@ -325,6 +496,38 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 3,
 		  "war_machine": 4,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 14 ] },
+					{ "id": 18, "requires": [ 30 ] },
+					{ "id": 19, "requires": [ 37 ] },
+					{ "id": 21, "requires": [ 0 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 31, 32 ] },
+					{ "id": 34, "requires": [ 33 ] },
+					{ "id": 35, "requires": [ 33 ] },
+					{ "id": 36, "requires": [ 1, 34, 35 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36, 2 ] }
+				]
 		},
 
 		{
@@ -365,7 +568,7 @@
 			{ "id": 40, "defname": "TBSTUP_3.def", "x": 197, "y": 137, "border": "TOSOGR2.bmp", "area": "TZSOGR2.bmp" },
 			{ "id": 41, "defname": "TBSTUP_4.def", "x": 129, "y": 15, "border": "TOSROC2.bmp", "area": "TZSROC2.bmp" },
 			{ "id": 42, "defname": "TBSTUP_5.def", "x": 616, "y": 93, "border": "TOSCYC2A.bmp", "area": "TZSCYC2A.bmp" },
-			{ "id": 16, "defname": "TBSTBLAK.def", "x": 660, "y": 286, "border": "TOSBLK1.bmp", "area": "TZSBLK1.bmp" },
+			{ "id": 16, "defname": "TBSTBLAK.def", "x": 660, "y": 286, "border": "TOSBLK1.bmp", "area": "TZSBLK1.bmp" }
 		  ],
 		  "blit_order": [ 33, 40, 30, 18, 37, 19, 31, 38, 23, 26, 5, 32, 39, 15, 14, 21, 16, 22 ],
 		  "creatures_basic": [ 84, 86, 88, 90, 92, 94, 96, 156 ],
@@ -374,6 +577,40 @@
 		  "mage_guild": 3,
 		  "primary_ressource": 127,
 		  "war_machine": 5,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 7 ] },
+					{ "id": 18, "requires": [ 30 ] },
+					{ "id": 19, "requires": [ 37 ] },
+					{ "id": 21, "requires": [ 14 ] },
+					{ "id": 22, "requires": [ 16 ] },
+					{ "id": 23, "requires": [ 7 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 32 ] },
+					{ "id": 34, "requires": [ 31 ] },
+					{ "id": 35, "requires": [ 33 ] },
+					{ "id": 36, "requires": [ 34 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31, 37 ] },
+					{ "id": 39, "requires": [ 32, 16 ] },
+					{ "id": 40, "requires": [ 33, 0 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -416,7 +653,7 @@
 			{ "id": 42, "defname": "TBFRUP_5.def", "x": 0, "y": 4, "border": "TOFWYV2.bmp", "area": "TZFWYV2.bmp" },
 			{ "id": 43, "defname": "TBFRUP_6.def", "x": 587, "y": 263, "border": "TOFHYD2A.bmp", "area": "TZFHYD2A.bmp" },
 			{ "id": 29, "defname": "TBFRWTRW.def", "x": 320, "y": 141 },
-			{ "id": 20, "defname": "TBFRBOAT.def", "x": 197, "y": 294, "border": "TOFDCK1.bmp", "area": "TZFDCK1.bmp" },
+			{ "id": 20, "defname": "TBFRBOAT.def", "x": 197, "y": 294, "border": "TOFDCK1.bmp", "area": "TZFDCK1.bmp" }
 		  ],
 		  "blit_order": [ 16, 15, 14, 34, 41, 31, 38, 10, 11, 12, 13, 29, 0, 1, 2, 33, 40, 30, 18, 37, 19, 5, 36, 43, 26 ],
 		  "creatures_basic": [ 98, 100, 104, 106, 102, 108, 110, 157 ],
@@ -425,6 +662,39 @@
 		  "mage_guild": 3,
 		  "primary_ressource": 127,
 		  "war_machine": 6,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 11, 21 ] },
+					{ "id": 18, "requires": [ 30 ] },
+					{ "id": 19, "requires": [ 37 ] },
+					{ "id": 21, "requires": [ 7 ] },
+					{ "id": 22, "requires": [ 21 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30 ] },
+					{ "id": 32, "requires": [ 30 ] },
+					{ "id": 33, "requires": [ 32 ] },
+					{ "id": 34, "requires": [ 31, 32 ] },
+					{ "id": 35, "requires": [ 31 ] },
+					{ "id": 36, "requires": [ 33, 35 ] },
+					{ "id": 37, "requires": [ 30, 5 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33 ] },
+					{ "id": 41, "requires": [ 34, 15 ] },
+					{ "id": 42, "requires": [ 35 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		},
 
 		{
@@ -480,6 +750,38 @@
 		  "mage_guild": 5,
 		  "primary_ressource": 1,
 		  "war_machine": 4,
+
+		  "building_requirements":
+				[
+					{ "id": 1, "requires": [ 0 ] },
+					{ "id": 2, "requires": [ 1 ] },
+					{ "id": 3, "requires": [ 2 ] },
+					{ "id": 4, "requires": [ 3 ] },
+					{ "id": 8, "requires": [ 7 ] },
+					{ "id": 9, "requires": [ 8 ] },
+					{ "id": 11, "requires": [ 10, 5 ] },
+					{ "id": 12, "requires": [ 11, 0, 14, 16 ] },
+					{ "id": 13, "requires": [ 12, 9 ] },
+					{ "id": 15, "requires": [ 14 ] },
+					{ "id": 17, "requires": [ 14 ] },
+					{ "id": 18, "requires": [ 30 ] },
+					{ "id": 19, "requires": [ 37 ] },
+					{ "id": 21, "requires": [ 0 ] },
+					{ "id": 30, "requires": [ 7 ] },
+					{ "id": 31, "requires": [ 30, 0 ] },
+					{ "id": 32, "requires": [ 30, 0 ] },
+					{ "id": 33, "requires": [ 31 ] },
+					{ "id": 34, "requires": [ 32 ] },
+					{ "id": 35, "requires": [ 33, 34 ] },
+					{ "id": 36, "requires": [ 35 ] },
+					{ "id": 37, "requires": [ 30 ] },
+					{ "id": 38, "requires": [ 31 ] },
+					{ "id": 39, "requires": [ 32 ] },
+					{ "id": 40, "requires": [ 33, 31 ] },
+					{ "id": 41, "requires": [ 34 ] },
+					{ "id": 42, "requires": [ 35, 1 ] },
+					{ "id": 43, "requires": [ 36 ] }
+				]
 		}
 	],
 
@@ -505,7 +807,7 @@
 					[ 36, 43 ],
 					[ 24, 25 ],
 					[ 18, 19 ]
-				],
+				]
 			},
 
 			{
@@ -514,14 +816,14 @@
 					[ 24, 25, 34, 41 ],
 					[ 17, 21 ],
 					[ 31, 18, 38, 19 ]
-				],
+				]
 			},
 
 			{
 				"id": 2,
 				"groups" : [
 					[ 18, 19, 31, 38 ]
-				],
+				]
 			},
 
 			{
@@ -529,21 +831,21 @@
 				"groups" : [
 					[ 18, 19, 30, 37 ],
 					[ 32, 39, 24, 25 ]
-				],
+				]
 			},
 
 			{
 				"id": 4,
 				"groups" : [
 					[ 30, 37, 18, 19 ]
-				],
+				]
 			},
 
 			{
 				"id": 5,
 				"groups" : [
 					[ 30, 37, 18, 19 ]
-				],
+				]
 			},
 
 			{
@@ -551,21 +853,21 @@
 				"groups" : [
 					[ 21 ],
 					[ 30, 37, 18, 19 ]
-				],
+				]
 			},
 
 			{
 				"id": 7,
 				"groups" : [
 					[ 30, 37, 18, 19 ]
-				],
+				]
 			},
 
 			{
 				"id": 8,
 				"groups" : [
 					[ 30, 37, 18, 19 ]
-				],
+				]
 			}
 		]
 }	

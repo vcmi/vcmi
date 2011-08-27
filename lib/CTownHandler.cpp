@@ -8,9 +8,6 @@
 #include "../lib/JsonNode.h"
 #include <boost/foreach.hpp>
 
-extern CLodHandler * bitmaph;
-void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
-
 /*
  * CTownHandler.cpp, part of VCMI engine
  *
@@ -33,7 +30,6 @@ CTownHandler::~CTownHandler()
 }
 void CTownHandler::loadStructures()
 {
-	char bufname[75];
 	int townID;
 
 	for (townID=0; townID<F_NUMBER; townID++)
@@ -124,6 +120,16 @@ void CTownHandler::loadStructures()
 			level ++;
 		}
 
+		// Buildings dependencies. Which building depend on which other building.
+		requirements.resize(F_NUMBER);
+		BOOST_FOREACH(const JsonNode &node, town_node["building_requirements"].Vector()) {
+			std::set<int> &requires = requirements[townID][node["id"].Float()];
+
+			BOOST_FOREACH(const JsonNode &building, node["requires"].Vector()) {
+				requires.insert(building.Float());
+			}
+		}
+
 		// Misc.
 		towns[townID].mageLevel = town_node["mage_guild"].Float();
 		towns[townID].primaryRes  = town_node["primary_ressource"].Float();
@@ -173,37 +179,6 @@ void CTownHandler::loadStructures()
 			}
 		}
 	}
-
-	std::ifstream of;
-
-	of.open(DATA_DIR "/config/requirements.txt");
-	requirements.resize(F_NUMBER);
-	while(!of.eof())
-	{
-		int ile, town, build, pom;
-		of >> ile;
-		for(int i=0;i<ile;i++)
-		{
-			of >> town;
-			while(true)
-			{
-				of.getline(bufname,75);
-				if(!bufname[0] || bufname[0] == '\n' || bufname[0] == '\r')
-					of.getline(bufname,75);
-				std::istringstream ifs(bufname);
-				ifs >> build;
-				if(build<0)
-					break;
-				while(!ifs.eof())
-				{
-					ifs >> pom;
-					requirements[town][build].insert(pom);
-				}
-			}
-		}
-	}
-	of.close();
-	of.clear();
 }
 
 const std::string & CTown::Name() const
