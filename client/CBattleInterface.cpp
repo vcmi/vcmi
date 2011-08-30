@@ -3510,7 +3510,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	{
         const THex nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
         const bool edge = stack->position % BFIELD_WIDTH == (stack->attackerOwned ? BFIELD_WIDTH - 2 : 1);
-        const bool moveInside = !edge && !vstd::contains(curInt->cb->battleGetAvailableHexes(stack, true), nextPos);
+        const bool moveInside = !edge && !isHexAccessible(nextPos);
 		int xAdd = (stack->attackerOwned ? 220 : 202) +
                    (stack->doubleWide() ? 44 : 0) * (stack->attackerOwned ? +1 : -1) +
                    (moveInside ? amountNormal->w + 10 : 0) * (stack->attackerOwned ? -1 : +1);
@@ -3957,6 +3957,13 @@ void CBattleInterface::bTacticNextStack()
 		stackActivated(*it);
 	else
 		stackActivated(stacksOfMine.front());
+}
+
+bool CBattleInterface::isHexAccessible(THex nextPos)
+{
+	//!vstd::contains(curInt->cb->battleGetAvailableHexes(stack, true), nextPos)
+	//TODO has to be fast
+	return true;
 }
 
 void CBattleHero::show(SDL_Surface *to)

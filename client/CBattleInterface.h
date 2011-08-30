@@ -460,6 +460,7 @@ private:
 	void giveCommand(ui8 action, THex tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const THex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool blockedByObstacle(THex hex) const;
+	bool isHexAccessible(THex nextPos);
 	bool isCatapultAttackable(THex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
