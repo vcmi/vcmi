@@ -290,7 +290,8 @@ void CHeroHandler::loadHeroes()
 		int hid = hero["id"].Float();
 		const JsonNode *value;
 
-		heroes[hid]->sex = hero["sex"].Float();
+		// sex: 0=male, 1=female
+		heroes[hid]->sex = !!hero["female"].Bool();
 
 		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
 			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
