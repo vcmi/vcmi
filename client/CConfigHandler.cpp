@@ -121,10 +121,12 @@ static void setButton(ButtonInfo &button, const JsonNode &g)
 	button.playerColoured = g["playerColoured"].Float();
 	button.defName = g["graphic"].String();
 
-	const JsonVector &defs_vec = g["additionalDefs"].Vector();
+	if (!g["additionalDefs"].isNull()) {
+		const JsonVector &defs_vec = g["additionalDefs"].Vector();
 
-	BOOST_FOREACH(const JsonNode &def, defs_vec) {
-		button.additionalDefs.push_back(def.String());
+		BOOST_FOREACH(const JsonNode &def, defs_vec) {
+			button.additionalDefs.push_back(def.String());
+		}
 	}
 }
 

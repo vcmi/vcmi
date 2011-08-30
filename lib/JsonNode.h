@@ -60,18 +60,19 @@ public:
 
 	//non-const accessors, node will change type on type mismatch
 	bool & Bool();
+	int & Int();
 	float & Float();
 	std::string & String();
 	JsonVector & Vector();
 	JsonMap & Struct();
 
 	//const accessors, will cause assertion failure on type mismatch
-	//if node is null then default value will be returned instead
-	const bool & Bool(const bool &value = false) const;
-	const float & Float(const float &value = 0) const;
-	const std::string & String(const std::string &value = "") const;
-	const JsonVector & Vector(const JsonVector &value = JsonVector()) const;
-	const JsonMap & Struct(const JsonMap &value = JsonMap()) const;
+	const bool & Bool() const;
+	const int & Int() const;
+	const float & Float() const;
+	const std::string & String() const;
+	const JsonVector & Vector() const;
+	const JsonMap & Struct() const;
 
 	//formatted output of this node in JSON format
 	void write(std::ostream &out, std::string prefix="") const;

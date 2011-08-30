@@ -290,24 +290,29 @@ void CHeroHandler::loadHeroes()
 		int hid = hero["id"].Float();
 		const JsonNode *value;
 
-		//sex: 0=male, 1=female
-		heroes[hid]->sex = !hero["female"].Bool(false);
+		heroes[hid]->sex = hero["sex"].Float();
 
 		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
-			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float(1)));
+			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
 		}
 
-		heroes[hid]->startingSpell = hero["spell"].Float(-1);
+		value = &hero["spell"];
+		if (!value->isNull()) {
+			heroes[hid]->startingSpell = value->Float();
+		}
 
-		BOOST_FOREACH(const JsonNode &specialty, hero["specialties"].Vector()) {
-			SSpecialtyInfo dummy;
+		value = &hero["specialties"];
+		if (!value->isNull()) {
+			BOOST_FOREACH(const JsonNode &specialty, value->Vector()) {
+				SSpecialtyInfo dummy;
 
-			dummy.type = specialty["type"].Float();
-			dummy.val = specialty["val"].Float(0);
-			dummy.subtype = specialty["subtype"].Float(0);
-			dummy.additionalinfo = specialty["info"].Float(0);
+				dummy.type = specialty["type"].Float();
+				dummy.val = specialty["val"].Float();
+				dummy.subtype = specialty["subtype"].Float();
+				dummy.additionalinfo = specialty["info"].Float();
 
 				heroes[hid]->spec.push_back(dummy); //put a copy of dummy
+			}
 		}
 	}
 

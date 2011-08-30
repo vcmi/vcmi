@@ -479,6 +479,7 @@ void CCreatureHandler::loadCreatures()
 	for (JsonVector::const_iterator it = creatures_vec.begin(); it!=creatures_vec.end(); ++it) {
 		const JsonNode &creature = *it;
 		int creatureID = creature["id"].Float();
+		const JsonNode *value;
 
 		/* A creature can have several names. */
 		const JsonVector &names_vec = creature["name"].Vector();
@@ -494,11 +495,20 @@ void CCreatureHandler::loadCreatures()
 		c->faction = creature["faction"].Float();
 		c->animDefName = creature["defname"].String();
 
-		c->upgrades.insert(creature["upgrade"].Float());
-		idToProjectile[creatureID] = creature["projectile_defname"].String();
-		idToProjectileSpin[creatureID] = creature["projectile_spin"].Bool();
+		value = &creature["upgrade"];
+		if (!value->isNull())
+			c->upgrades.insert(value->Float());
 
-		if (creature["turret_shooter"].Bool(false))
+		value = &creature["projectile_defname"];
+		if (!value->isNull()) {
+			idToProjectile[creatureID] = value->String();
+
+			value = &creature["projectile_spin"];
+			idToProjectileSpin[creatureID] = value->Bool();
+		}
+
+		value = &creature["turret_shooter"];
+		if (!value->isNull() && value->Bool())
 			factionToTurretCreature[c->faction] = creatureID;
 	}
 

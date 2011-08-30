@@ -62,6 +62,7 @@ void CTownHandler::loadStructures()
 		// Read buildings coordinates for that city
 		BOOST_FOREACH(const JsonNode &node, town_node["defnames"].Vector()) {
 			Structure *vinya = new Structure;
+			const JsonNode *value;
 
 			vinya->group = -1;
 			vinya->townID = townID;
@@ -72,8 +73,13 @@ void CTownHandler::loadStructures()
 			vinya->pos.y = node["y"].Float();
 			vinya->pos.z = 0;
 			
-			vinya->borderName = node["border"].String();
-			vinya->areaName = node["area"].String();
+			value = &node["border"];
+			if (!value->isNull())
+				vinya->borderName = value->String();
+
+			value = &node["area"];
+			if (!value->isNull())
+				vinya->areaName = value->String();
 
 			town[vinya->ID] = vinya;
 		}
