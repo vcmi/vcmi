@@ -83,6 +83,8 @@ public:
 	virtual void buildBoat(const IShipyard *obj) = 0;
 };
 
+struct CPack;
+
 class CBattleCallback : public IBattleCallback, public CBattleInfoCallback
 {
 private:

@@ -63,7 +63,7 @@ Install Heroes 3 and Wog. Then move all the installed files into
 Once both programs are installed, you can install VCMI.
 
 Download the windows VCMI release (at time of writing: 
-http://forum.vcmi.eu/dload.php?action=download&id=18)
+http://forum.vcmi.eu/dload.php?action=download&id=21)
 and extract it in a private directory. Populate /YOUR_INSTALL_PATH/vcmi:
 
   mv sprites /YOUR_INSTALL_PATH/vcmi/Sprites

@@ -1994,7 +1994,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		else
 		{
-			if(std::find(occupyableHexes.begin(),occupyableHexes.end(),myNumber) == occupyableHexes.end())
+            if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
 			{
 				const CStack *shere = curInt->cb->battleGetStackByPos(myNumber);
 				const CStack *sactive = activeStack;
@@ -3508,8 +3508,13 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 			&& !stack->hasBonusOfType(Bonus::SIEGE_WEAPON) //and not a war machine...
 	)
 	{
-		int xAdd = stack->attackerOwned ? 220 : 202;
-
+        const THex nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
+        const bool edge = stack->position % BFIELD_WIDTH == (stack->attackerOwned ? BFIELD_WIDTH - 2 : 1);
+        const bool moveInside = !edge && !vstd::contains(curInt->cb->battleGetAvailableHexes(stack, true), nextPos);
+		int xAdd = (stack->attackerOwned ? 220 : 202) +
+                   (stack->doubleWide() ? 44 : 0) * (stack->attackerOwned ? +1 : -1) +
+                   (moveInside ? amountNormal->w + 10 : 0) * (stack->attackerOwned ? -1 : +1);
+        
 		//blitting amount background box
 		SDL_Surface *amountBG = NULL;
 		boost::shared_ptr<BonusList> spellEffects = stack->getSpellBonuses();
