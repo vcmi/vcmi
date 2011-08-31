@@ -201,19 +201,13 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 0;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
+	const JsonNode config(DATA_DIR "/config/town_pictures.json");
+	BOOST_FOREACH(const JsonNode &p, config["town_pictures"].Vector()) {
 
-	std::ifstream tpics(DATA_DIR "/config/townPics.txt");
-	assert(tpics.is_open());
-	while(!tpics.eof())
-	{
-		tpics >> pals;
-		townBgs.push_back(pals);
-		tpics >> pals;
-		guildBgs.push_back(pals);
-		tpics >> pals;
-		buildingPics.push_back(pals);
+		townBgs.push_back(p["town_background"].String());
+		guildBgs.push_back(p["guild_background"].String());
+		buildingPics.push_back(p["building_picture"].String());
 	}
-	tpics.close();
 }
 
 void Graphics::initializeBattleGraphics()

@@ -1,0 +1,17 @@
+{
+	// Some town pictures, ordered by the town number (0 to 8)
+	//   town_background: background inside the town
+	//   guild_background: background inside the mage guild
+	//   building_picture: picture inside the city hall
+	"town_pictures": [
+		{ "town_background": "TBCSBACK.bmp", "guild_background": "TPMAGECS.bmp", "building_picture": "HALLCSTL.DEF" },
+		{ "town_background": "TBRMBACK.bmp", "guild_background": "TPMAGERM.bmp", "building_picture": "HALLRAMP.DEF" },
+		{ "town_background": "TBTWBACK.bmp", "guild_background": "TPMAGETW.bmp", "building_picture": "HALLTOWR.DEF" },
+		{ "town_background": "TBINBACK.bmp", "guild_background": "TPMAGEIN.bmp", "building_picture": "HALLINFR.DEF" },
+		{ "town_background": "TBNCBACK.bmp", "guild_background": "TPMAGENC.bmp", "building_picture": "HALLNECR.DEF" },
+		{ "town_background": "TBDNBACK.bmp", "guild_background": "TPMAGEDN.bmp", "building_picture": "HALLDUNG.DEF" },
+		{ "town_background": "TBSTBACK.bmp", "guild_background": "TPMAGEST.bmp", "building_picture": "HALLSTRN.DEF" },
+		{ "town_background": "TBFRBACK.bmp", "guild_background": "TPMAGEFR.bmp", "building_picture": "HALLFORT.DEF" },
+		{ "town_background": "TBELBACK.bmp", "guild_background": "TPMAGEEL.bmp", "building_picture": "HALLELEM.DEF" }
+	]
+}
