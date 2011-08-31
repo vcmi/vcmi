@@ -715,21 +715,19 @@ CDefEssential * Graphics::getDef( const CGDefInfo * info )
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	std::ifstream etp(DATA_DIR "/config/ERMU_to_picture.txt");
-
-	assert(etp.is_open());
-
-	for(int g=0; g<44; ++g)
-	{
-		for (int b=0; b<ARRAY_COUNT(ERMUtoPicture); ++b)
-		{
-			std::string buf;
-			etp >> buf;
-			ERMUtoPicture[b][g] = buf;
+	const JsonNode config(DATA_DIR "/config/ERMU_to_picture.json");
+	int etp_idx = 0;
+	BOOST_FOREACH(const JsonNode &etp, config["ERMU_to_picture"].Vector()) {
+		int idx = 0;
+		BOOST_FOREACH(const JsonNode &n, etp.Vector()) {
+			ERMUtoPicture[idx][etp_idx] = n.String();
+			idx ++;
 		}
-	}
+		assert (idx == ARRAY_COUNT(ERMUtoPicture));
 
-	etp.close();
+		etp_idx ++;
+	}
+	assert (etp_idx == 44);
 }
 
 Font::Font(unsigned char *Data)
