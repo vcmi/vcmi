@@ -242,32 +242,17 @@ void Graphics::initializeBattleGraphics()
 	}
 
 	//initialization of AC->def name mapping
-	std::ifstream acd;
-	acd.open(DATA_DIR "/config/AC_desc.txt", std::ios::binary);
-	if(!acd.is_open())
-	{
-		tlog1<<"lack of config/AC_desc.txt file!"<<std::endl;
-	}
-	else
-	{
-		std::string buf;
-		acd>>buf;
-		int ACid, numberOfDefs;
-		while(true)
-		{
-			std::vector< std::string > toAdd;
-			acd>>ACid;
-			if(ACid == -1)
-				break;
-			acd>>numberOfDefs;
-			for(int g=0; g<numberOfDefs; ++g)
-			{
-				acd>>buf;
-				toAdd.push_back(buf);
-			}
-			battleACToDef[ACid] = toAdd;
+	BOOST_FOREACH(const JsonNode &ac, config["ac_mapping"].Vector()) {
+		int ACid = ac["id"].Float();
+		std::vector< std::string > toAdd;
+
+		BOOST_FOREACH(const JsonNode &defname, ac["defnames"].Vector()) {
+			toAdd.push_back(defname.String());
 		}
+
+		battleACToDef[ACid] = toAdd;
 	}
+
 	spellEffectsPics = CDefHandler::giveDefEss("SpellInt.def");
 }
 Graphics::Graphics()
