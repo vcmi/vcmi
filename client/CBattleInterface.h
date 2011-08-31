@@ -17,6 +17,7 @@
  *
  */
 
+class CLabel;
 class CCreatureSet;
 class CGHeroInstance;
 class CDefHandler;
@@ -339,20 +340,17 @@ class CBattleOptionsWindow : public CIntObject
 {
 private:
 	CBattleInterface * myInt;
-	SDL_Surface * background;
+	CPicture * background;
 	AdventureMapButton * setToDefault, * exit;
 	CHighlightableButton * viewGrid, * movementShadow, * mouseShadow;
 	CHighlightableButtonsGroup * animSpeeds;
+
+	std::vector<CLabel*> labels;
 public:
 	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner); //c-tor
-	~CBattleOptionsWindow(); //d-tor
 
 	void bDefaultf(); //dafault button callback
 	void bExitf(); //exit button callback
-
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to = 0);
 };
 
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...

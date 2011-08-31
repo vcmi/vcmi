@@ -6034,6 +6034,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 		SDL_FreeSurface(puzzle);
 	}
 
+	CCS->soundh->playSound(soundBase::OBELISK);
 }
 
 CPuzzleWindow::~CPuzzleWindow()

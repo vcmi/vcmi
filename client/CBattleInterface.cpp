@@ -2340,8 +2340,9 @@ void CBattleInterface::bOptionsf()
 
 	CCS->curh->changeGraphic(0,0);
 
-	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
-	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
+	Rect tempRect = genRect(431, 481, 160, 84);
+	tempRect += pos.topLeft();
+	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(tempRect, this);
 	GH.pushInt(optionsWin);
 }
 
@@ -4523,108 +4524,56 @@ void CBattleResultWindow::bExitf()
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos = position;
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("comopbck.bmp", true);
-	graphics->blueToPlayersAdv(hhlp, owner->curInt->playerID);
-	background = SDL_ConvertSurface(hhlp, screen->format, 0);
-	SDL_SetColorKey(background, SDL_SRCCOLORKEY, SDL_MapRGB(background->format,0,255,255));
-	SDL_FreeSurface(hhlp);
+	background = new CPicture("comopbck.bmp");
+	background->colorize(owner->curInt->playerID);
 
-
-	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
+	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 25, 56, false);
 	viewGrid->select(owner->curInt->sysOpts.printCellBorders);
-	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
+	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 25, 89, false);
 	movementShadow->select(owner->curInt->sysOpts.printStackRange);
-	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
+	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 25, 122, false);
 	mouseShadow->select(owner->curInt->sysOpts.printMouseShadow);
 
 	animSpeeds = new CHighlightableButtonsGroup(0);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def",188, 309, 1);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[423].first),CGI->generaltexth->zelp[423].second, "sysob10.def",252, 309, 2);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[424].first),CGI->generaltexth->zelp[424].second, "sysob11.def",315, 309, 4);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def", 28, 225, 1);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[423].first),CGI->generaltexth->zelp[423].second, "sysob10.def", 92, 225, 2);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[424].first),CGI->generaltexth->zelp[424].second, "sysob11.def",156, 225, 4);
 	animSpeeds->select(owner->getAnimSpeed(), 1);
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
-	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[393], boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
+	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[393], boost::bind(&CBattleOptionsWindow::bDefaultf,this), 246, 359, "codefaul.def");
 	setToDefault->swappedImages = true;
 	setToDefault->update();
-	exit = new AdventureMapButton (CGI->generaltexth->zelp[392], boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
+	exit = new AdventureMapButton (CGI->generaltexth->zelp[392], boost::bind(&CBattleOptionsWindow::bExitf,this), 357, 359, "soretrn.def",SDLK_RETURN);
 	exit->swappedImages = true;
 	exit->update();
 
-	//printing texts to background
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 242, 32, FONT_BIG, tytulowy, background); //window title
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[393], 122, 214, FONT_MEDIUM, tytulowy, background); //animation speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 293, FONT_MEDIUM, tytulowy, background); //music volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 359, FONT_MEDIUM, tytulowy, background); //effects' volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[396], 353, 66, FONT_MEDIUM, tytulowy, background); //auto - combat options
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[397], 353, 265, FONT_MEDIUM, tytulowy, background); //creature info
+	//creating labels
+	labels.push_back(new CLabel(242,  32, FONT_BIG,    CENTER, tytulowy, CGI->generaltexth->allTexts[392]));//window title
+	labels.push_back(new CLabel(122, 214, FONT_MEDIUM, CENTER, tytulowy, CGI->generaltexth->allTexts[393]));//animation speed
+	labels.push_back(new CLabel(122, 293, FONT_MEDIUM, CENTER, tytulowy, CGI->generaltexth->allTexts[394]));//music volume
+	labels.push_back(new CLabel(122, 359, FONT_MEDIUM, CENTER, tytulowy, CGI->generaltexth->allTexts[395]));//effects' volume
+	labels.push_back(new CLabel(353,  66, FONT_MEDIUM, CENTER, tytulowy, CGI->generaltexth->allTexts[396]));//auto - combat options
+	labels.push_back(new CLabel(353, 265, FONT_MEDIUM, CENTER, tytulowy, CGI->generaltexth->allTexts[397]));//creature info
 
-		//auto - combat options
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[398], 283, 86, FONT_MEDIUM, zwykly, background); //creatures
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[399], 283, 116, FONT_MEDIUM, zwykly, background); //spells
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[400], 283, 146, FONT_MEDIUM, zwykly, background); //catapult
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[151], 283, 176, FONT_MEDIUM, zwykly, background); //ballista
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[401], 283, 206, FONT_MEDIUM, zwykly, background); //first aid tent
+	//auto - combat options
+	labels.push_back(new CLabel(283,  86, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[398]));//creatures
+	labels.push_back(new CLabel(283, 116, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[399]));//spells
+	labels.push_back(new CLabel(283, 146, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[400]));//catapult
+	labels.push_back(new CLabel(283, 176, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[151]));//ballista
+	labels.push_back(new CLabel(283, 206, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[401]));//first aid tent
 
-		//creature info
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[402], 283, 285, FONT_MEDIUM, zwykly, background); //all stats
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[403], 283, 315, FONT_MEDIUM, zwykly, background); //spells only
+	//creature info
+	labels.push_back(new CLabel(283, 285, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[402]));//all stats
+	labels.push_back(new CLabel(283, 315, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[403]));//spells only
 	
-		//general options
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[404], 61, 57, FONT_MEDIUM, zwykly, background); //hex grid
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[405], 61, 90, FONT_MEDIUM, zwykly, background); //movement shadow
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[406], 61, 124, FONT_MEDIUM, zwykly, background); //cursor shadow
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 61, 156, FONT_MEDIUM, zwykly, background); //spellbook animation
-	//texts printed
-}
-
-CBattleOptionsWindow::~CBattleOptionsWindow()
-{
-	SDL_FreeSurface(background);
-
-	delete setToDefault;
-	delete exit;
-
-	delete viewGrid;
-	delete movementShadow;
-	delete animSpeeds;
-	delete mouseShadow;
-}
-
-void CBattleOptionsWindow::activate()
-{
-	setToDefault->activate();
-	exit->activate();
-	viewGrid->activate();
-	movementShadow->activate();
-	animSpeeds->activate();
-	mouseShadow->activate();
-}
-
-void CBattleOptionsWindow::deactivate()
-{
-	setToDefault->deactivate();
-	exit->deactivate();
-	viewGrid->deactivate();
-	movementShadow->deactivate();
-	animSpeeds->deactivate();
-	mouseShadow->deactivate();
-}
-
-void CBattleOptionsWindow::show(SDL_Surface *to)
-{
-	if(!to) //"evaluating" to
-		to = screen;
-
-	SDL_BlitSurface(background, NULL, to, &pos);
-
-	setToDefault->showAll(to);
-	exit->showAll(to);
-	viewGrid->showAll(to);
-	movementShadow->showAll(to);
-	animSpeeds->showAll(to);
-	mouseShadow->showAll(to);
+	//general options
+	labels.push_back(new CLabel(61,  57, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[404]));
+	labels.push_back(new CLabel(61,  90, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[405]));
+	labels.push_back(new CLabel(61, 123, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[406]));
+	labels.push_back(new CLabel(61, 156, FONT_MEDIUM, TOPLEFT, zwykly, CGI->generaltexth->allTexts[407]));
 }
 
 void CBattleOptionsWindow::bDefaultf()

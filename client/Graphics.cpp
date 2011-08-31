@@ -335,6 +335,9 @@ Graphics::Graphics()
 	{
 		bigImgs[i-2] = smi2->ourImages[i].bitmap;
 	}
+	//hack for green color on big infernal troglodite image - Mantis #758
+	SDL_Color green = {0x30, 0x5c, 0x20, SDL_ALPHA_OPAQUE};
+	bigImgs[71]->format->palette->colors[7] = green;
 	delete smi2;
 }
 void Graphics::loadHeroPortraits()
