@@ -212,27 +212,33 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	std::ifstream bback(DATA_DIR "/config/battleBack.txt");
-	battleBacks.resize(26);
-	for(int i=1; i<26; ++i) //25 - number of terrains battle can be fought on
-	{
-		int am;
-		bback>>am;
-		battleBacks[i].resize(am);
-		for(int f=0; f<am; ++f)
-		{
-			bback>>battleBacks[i][f];
-		}
+	const JsonNode config(DATA_DIR "/config/battles_graphics.json");
+	
+	// Reserve enough space for the terrains
+	// TODO: there should be a method to count the number of elements
+	int idx = 0;
+	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
+		idx++;
+	}
+	battleBacks.resize(idx);
+
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
+		battleBacks[idx].push_back(t.String());
+		idx++;
 	}
 
 	//initializing battle hero animation
-	std::ifstream bher(DATA_DIR "/config/battleHeroes.txt");
-	int numberofh;
-	bher>>numberofh;
-	battleHeroes.resize(numberofh);
-	for(int i=0; i<numberofh; ++i) //9 - number of terrains battle can be fought on
-	{
-		bher>>battleHeroes[i];
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &h, config["heroes"].Vector()) {
+		idx++;
+	}
+	battleHeroes.resize(idx);
+
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &h, config["heroes"].Vector()) {
+		battleHeroes[idx] = h.String();
+		idx ++;
 	}
 
 	//initialization of AC->def name mapping

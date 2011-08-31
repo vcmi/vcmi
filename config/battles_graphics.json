@@ -1,0 +1,53 @@
+{
+	// backgrounds of terrains battles can be fought on
+	"backgrounds": [
+		"CMBKBCH.BMP",
+		"CMBKDES.BMP",
+		"CMBKDRTR.BMP",
+		"CMBKDRMT.BMP",
+		"CMBKDRDD.BMP",
+		"CMBKGRMT.BMP",
+		"CMBKGRTR.BMP",
+		"CMBKLAVA.BMP",
+		"CMBKMAG.BMP",
+		"CMBKSNMT.BMP",
+		"CMBKSNTR.BMP",
+		"CMBKSUB.BMP",
+		"CMBKSWMP.BMP",
+		"CMBKFF.BMP",
+		"CMBKRK.BMP",
+		"CMBKMC.BMP",
+		"CMBKLP.BMP",
+		"CMBKHG.BMP",
+		"CMBKCF.BMP",
+		"CMBKEF.BMP",
+		"CMBKFW.BMP",
+		"CMBKCUR.BMP",
+		"CMBKRGH.BMP",
+		"CMBKBOAT.BMP",
+		"CMBKDECK.BMP"
+	]
+
+	// Hero animation used in battles.
+	// Each 2 def represent male and female heroes for each race
+	"heroes": [
+		"CH00.DEF",
+		"CH01.DEF",
+		"CH02.DEF",
+		"CH03.DEF",
+		"CH05.DEF",
+		"CH04.DEF",
+		"CH06.DEF",
+		"CH07.DEF",
+		"CH08.DEF",
+		"CH09.DEF",
+		"CH010.DEF",
+		"CH11.DEF",
+		"CH013.DEF",
+		"CH012.DEF",
+		"CH014.DEF",
+		"CH015.DEF",
+		"CH16.DEF",
+		"CH17.DEF"
+	]
+}
