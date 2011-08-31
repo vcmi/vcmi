@@ -367,35 +367,18 @@ void Graphics::loadHeroPortraits()
 
 void Graphics::loadWallPositions()
 {
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/wall_pos.txt", std::ios_base::in|std::ios_base::binary);
-	if(!inp.is_open())
-	{
-		tlog1<<"missing file: config/wall_pos.txt"<<std::endl;
-	}
-	else
-	{
-		const int MAX_BUF = 2000;
-		char buf[MAX_BUF+1];
+	const JsonNode config(DATA_DIR "/config/wall_pos.json");
 
-		// skip the first three lines because they are comment lines
-		inp.getline(buf, MAX_BUF);
-		inp.getline(buf, MAX_BUF);
-		inp.getline(buf, MAX_BUF);
-		std::string dump;
-		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
-		{
-			inp >> dump;
-			for(int b = 0; b < 21; ++b)
-			{
-				Point pt;
-				inp >> pt.x;
-				inp >> pt.y;
-				wallPositions[g].push_back(pt);
-			}
+	BOOST_FOREACH(const JsonNode &town, config["towns"].Vector()) {
+		int townID = town["id"].Float();
+
+		BOOST_FOREACH(const JsonNode &coords, town["pos"].Vector()) {
+			Point pt(coords["x"].Float(), coords["y"].Float());
+			wallPositions[townID].push_back(pt);
 		}
+
+		assert(wallPositions[townID].size() == 21);
 	}
-	inp.close();
 }
 
 void Graphics::loadHeroAnims()
