@@ -1,0 +1,19 @@
+{
+	// Backgrounds for creatures.
+	//   id: town ID (0 to 8, -1 is neutral)
+	//   bg120: 100x120 background creature image
+	//   bg130: 100x130 background creature image
+	
+	"backgrounds": [
+		{ "id": -1, "bg120": "TPCASNEU.bmp", "bg130": "CRBKGNEU.bmp" },
+		{ "id": 0,  "bg120": "TPCASCAS.bmp", "bg130": "CRBKGCAS.bmp" },
+		{ "id": 1,  "bg120": "TPCASRAM.bmp", "bg130": "CRBKGRAM.bmp" },
+		{ "id": 2,  "bg120": "TPCASTOW.bmp", "bg130": "CRBKGTOW.bmp" },
+		{ "id": 3,  "bg120": "TPCASINF.bmp", "bg130": "CRBKGINF.bmp" },
+		{ "id": 4,  "bg120": "TPCASNEC.bmp", "bg130": "CRBKGNEC.bmp" },
+		{ "id": 5,  "bg120": "TPCASDUN.bmp", "bg130": "CRBKGDUN.bmp" },
+		{ "id": 6,  "bg120": "TPCASSTR.bmp", "bg130": "CRBKGSTR.bmp" },
+		{ "id": 7,  "bg120": "TPCASFOR.bmp", "bg130": "CRBKGFOR.bmp" },
+		{ "id": 8,  "bg120": "TPCASELE.bmp", "bg130": "CRBKGELE.bmp" }
+	]
+}

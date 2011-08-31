@@ -9,7 +9,7 @@
 #include <boost/thread.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/assign/std/vector.hpp>
+#include <boost/foreach.hpp>
 #include "../CThreadHelper.h"
 #include "CGameInfo.h"
 #include "../lib/CLodHandler.h"
@@ -323,15 +323,11 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
-	std::ifstream ifs(DATA_DIR "/config/cr_bgs.txt"); 
-	int id;
-	std::string name;
-	while(!ifs.eof())
-	{
-		ifs >> id >> name;
-		tasks += GET_SURFACE(backgrounds[id],name);
-		name.replace(0,5,"TPCAS");
-		tasks += GET_SURFACE(backgroundsm[id],name);
+	const JsonNode config(DATA_DIR "/config/creature_backgrounds.json");
+	BOOST_FOREACH(const JsonNode &b, config["backgrounds"].Vector()) {
+		const int id = b["id"].Float();
+		tasks += GET_SURFACE(backgrounds[id], b["bg130"].String());
+		tasks += GET_SURFACE(backgroundsm[id], b["bg120"].String());
 	}
 
 	CThreadHelper th(&tasks,std::max((unsigned int)1,boost::thread::hardware_concurrency()));
