@@ -20,6 +20,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
+#include "../lib/JsonNode.cpp"
 #include "mapHandler.h"
 #include "CConfigHandler.h"
 #include "Client.h"
@@ -176,28 +177,30 @@ void CClient::save(const std::string & fname)
 	*serv << &save_game;
 }
 
-#include <fstream>
 void initVillagesCapitols(Mapa * map)
 {
-	std::ifstream ifs(DATA_DIR "/config/townsDefs.txt");
-	int ccc;
-	ifs>>ccc;
-	for(int i=0;i<ccc*2;i++)
-	{
-		const CGDefInfo *n;
-		if(i<ccc)
-		{
-			n = CGI->state->villages[i];
-			map->defy.push_back(CGI->state->forts[i]);
-		}
-		else 
-			n = CGI->state->capitols[i%ccc];
+	const JsonNode config(DATA_DIR "/config/towns_defs.json");
+	int idx;
 
-		ifs >> const_cast<CGDefInfo*>(n)->name;
-		if(!n)
-			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
-		else
-			map->defy.push_back(const_cast<CGDefInfo*>(n));
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector()) {
+
+		map->defy.push_back(CGI->state->forts[idx]);
+
+		const CGDefInfo *n = CGI->state->villages[idx];
+		const_cast<CGDefInfo*>(n)->name = t["village"].String();
+		map->defy.push_back(const_cast<CGDefInfo*>(n));
+
+		idx++;
+	}
+
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector()) {
+		const CGDefInfo *n = CGI->state->capitols[idx];
+		const_cast<CGDefInfo*>(n)->name = t["capitol"].String();
+		map->defy.push_back(const_cast<CGDefInfo*>(n));
+
+		idx++;
 	}
 }
 

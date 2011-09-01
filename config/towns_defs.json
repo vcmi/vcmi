@@ -1,0 +1,14 @@
+{
+	// Graphics for villages and castles on the map, ordered by town id.
+	"town_defnames": [
+		{ "village": "AVCCAST0.DEF", "capitol": "AVCCASZ0.DEF" },
+		{ "village": "AVCRAMP0.DEF", "capitol": "AVCRAMZ0.DEF" },
+		{ "village": "AVCTOWR0.DEF", "capitol": "AVCTOWZ0.DEF" },
+		{ "village": "AVCINFT0.DEF", "capitol": "AVCINFZ0.DEF" },
+		{ "village": "AVCNECR0.DEF", "capitol": "AVCNECZ0.DEF" },
+		{ "village": "AVCDUNG0.DEF", "capitol": "AVCDUNZ0.DEF" },
+		{ "village": "AVCSTRO0.DEF", "capitol": "AVCSTRZ0.DEF" },
+		{ "village": "AVCFTRT0.DEF", "capitol": "AVCFORZ0.DEF" },
+		{ "village": "AVCHFOR0.DEF", "capitol": "AVCHFORZ.DEF" }
+	]
+}
