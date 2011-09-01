@@ -372,11 +372,16 @@ bool CBattleStackAnimation::isToReverse(THex hexFrom, THex hexTo, bool curDir, b
 	}
 }
 
+CCreatureAnimation * CBattleStackAnimation::myAnim()
+{
+	return owner->creAnims[stack->ID];
+}
+
 //revering animation
 
 bool CReverseAnim::init()
 {
-	if(owner->creAnims[stack->ID] == NULL || owner->creAnims[stack->ID]->getType() == 5)
+	if(myAnim() == NULL || myAnim()->getType() == 5)
 	{
 		endAnim();
 
@@ -386,8 +391,12 @@ bool CReverseAnim::init()
 	if(!priority && !isEarliest(false))
 		return false;
 	
-	owner->creAnims[stack->ID]->setType(CCreatureAnim::TURN_R);
+	if(myAnim()->framesInGroup(CCreatureAnim::TURN_R))
+		myAnim()->setType(CCreatureAnim::TURN_R);
+	else
+		setupSecondPart();
 
+		
 	return true;
 }
 
@@ -395,7 +404,7 @@ void CReverseAnim::nextFrame()
 {
 	if(partOfAnim == 1) //first part of animation
 	{
-		if(owner->creAnims[stack->ID]->onLastFrameInGroup())
+		if(myAnim()->onLastFrameInGroup())
 		{
 			partOfAnim = 2;
 		}
@@ -404,37 +413,9 @@ void CReverseAnim::nextFrame()
 	{
 		if(!secondPartSetup)
 		{
-			owner->creDir[stack->ID] = !owner->creDir[stack->ID];
-
-			if(!stack)
-			{
-				endAnim();
-				return;
-			}
-
-			Point coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
-			owner->creAnims[stack->ID]->pos.x = coords.x;
-			//creAnims[stackID]->pos.y = coords.second;
-
-			if(stack->doubleWide())
-			{
-				if(stack->attackerOwned)
-				{
-					if(!owner->creDir[stack->ID])
-						owner->creAnims[stack->ID]->pos.x -= 44;
-				}
-				else
-				{
-					if(owner->creDir[stack->ID])
-						owner->creAnims[stack->ID]->pos.x += 44;
-				}
-			}
-
-			owner->creAnims[stack->ID]->setType(CCreatureAnim::TURN_L);
-			secondPartSetup = true;
+			setupSecondPart();
 		}
-
-		if(owner->creAnims[stack->ID]->onLastFrameInGroup())
+		if(myAnim()->onLastFrameInGroup())
 		{
 			endAnim();
 		}
@@ -445,7 +426,7 @@ void CReverseAnim::endAnim()
 {
 	CBattleAnimation::endAnim();
 	if( stack->alive() )//don't do that if stack is dead
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
+		myAnim()->setType(CCreatureAnim::HOLDING);
 
 	delete this;
 }
@@ -455,6 +436,41 @@ CReverseAnim::CReverseAnim(CBattleInterface * _owner, const CStack * stack, THex
 {
 }
 
+void CReverseAnim::setupSecondPart()
+{
+	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
+
+	if(!stack)
+	{
+		endAnim();
+		return;
+	}
+
+	Point coords = CBattleHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
+	myAnim()->pos.x = coords.x;
+	//creAnims[stackID]->pos.y = coords.second;
+
+	if(stack->doubleWide())
+	{
+		if(stack->attackerOwned)
+		{
+			if(!owner->creDir[stack->ID])
+				myAnim()->pos.x -= 44;
+		}
+		else
+		{
+			if(owner->creDir[stack->ID])
+				myAnim()->pos.x += 44;
+		}
+	}
+
+	secondPartSetup = true;
+
+	if(myAnim()->framesInGroup(CCreatureAnim::TURN_L))
+		myAnim()->setType(CCreatureAnim::TURN_L);
+	else
+		endAnim();
+}
 
 //defence anim
 
@@ -524,13 +540,13 @@ bool CDefenceAnim::init()
 	if(killed)
 	{
 		CCS->soundh->playSound(battle_sound(stack->getCreature(), killed));
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::DEATH); //death
+		myAnim()->setType(CCreatureAnim::DEATH); //death
 	}
 	else
 	{
 		// TODO: this block doesn't seems correct if the unit is defending.
 		CCS->soundh->playSound(battle_sound(stack->getCreature(), wince));
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HITTED); //getting hit
+		myAnim()->setType(CCreatureAnim::HITTED); //getting hit
 	}
 
 	return true; //initialized successfuly
@@ -538,17 +554,17 @@ bool CDefenceAnim::init()
 
 void CDefenceAnim::nextFrame()
 {
-	if(!killed && owner->creAnims[stack->ID]->getType() != CCreatureAnim::HITTED)
+	if(!killed && myAnim()->getType() != CCreatureAnim::HITTED)
 	{
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HITTED);
+		myAnim()->setType(CCreatureAnim::HITTED);
 	}
 
-	if(!owner->creAnims[stack->ID]->onLastFrameInGroup())
+	if(!myAnim()->onLastFrameInGroup())
 	{
-		if( owner->creAnims[stack->ID]->getType() == CCreatureAnim::DEATH && (owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0
-			&& !owner->creAnims[stack->ID]->onLastFrameInGroup() )
+		if( myAnim()->getType() == CCreatureAnim::DEATH && (owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0
+			&& !myAnim()->onLastFrameInGroup() )
 		{
-			owner->creAnims[stack->ID]->incrementFrame();
+			myAnim()->incrementFrame();
 		}
 	}
 	else
@@ -562,8 +578,8 @@ void CDefenceAnim::endAnim()
 {
 	//restoring animType
 
-	if(owner->creAnims[stack->ID]->getType() == CCreatureAnim::HITTED)
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
+	if(myAnim()->getType() == CCreatureAnim::HITTED)
+		myAnim()->setType(CCreatureAnim::HOLDING);
 
 	//printing info to console
 
@@ -593,7 +609,7 @@ bool CBattleStackMoved::init()
 		return false;
 
 	//a few useful variables
-	steps = owner->creAnims[stack->ID]->framesInGroup(CCreatureAnim::MOVING)*owner->getAnimSpeedMultiplier()-1;
+	steps = myAnim()->framesInGroup(CCreatureAnim::MOVING)*owner->getAnimSpeedMultiplier()-1;
 	if(steps == 0) //this creature seems to have no move animation so we can end it immediately
 	{
 		endAnim();
@@ -602,7 +618,7 @@ bool CBattleStackMoved::init()
 	whichStep = 0;
 	int hexWbase = 44, hexHbase = 42;
 	const CStack * movedStack = stack;
-	if(!movedStack || owner->creAnims[stack->ID]->getType() == 5)
+	if(!movedStack || myAnim()->getType() == 5)
 	{
 		endAnim();
 		return false;
@@ -626,9 +642,9 @@ bool CBattleStackMoved::init()
 		return false;
 	}
 
-	if(owner->creAnims[stack->ID]->getType() != CCreatureAnim::MOVING)
+	if(myAnim()->getType() != CCreatureAnim::MOVING)
 	{
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVING);
+		myAnim()->setType(CCreatureAnim::MOVING);
 	}
 	//unit reversed
 
@@ -636,7 +652,7 @@ bool CBattleStackMoved::init()
 //		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 
 	//step shift calculation
-	posX = owner->creAnims[stack->ID]->pos.x, posY = owner->creAnims[stack->ID]->pos.y; // for precise calculations ;]
+	posX = myAnim()->pos.x, posY = myAnim()->pos.y; // for precise calculations ;]
 	if(mutPos == -1 && movedStack->hasBonusOfType(Bonus::FLYING)) 
 	{
 		steps *= distance;
@@ -684,9 +700,9 @@ void CBattleStackMoved::nextFrame()
 {
 	//moving instructions
 	posX += stepX;
-	owner->creAnims[stack->ID]->pos.x = posX;
+	myAnim()->pos.x = posX;
 	posY += stepY;
-	owner->creAnims[stack->ID]->pos.y = posY;
+	myAnim()->pos.y = posY;
 
 	// Increments step count and check if we are finished with current animation
 	++whichStep;
@@ -694,7 +710,7 @@ void CBattleStackMoved::nextFrame()
 	{
 		// Sets the position of the creature animation sprites
 		Point coords = CBattleHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
-		owner->creAnims[stack->ID]->pos = coords;
+		myAnim()->pos = coords;
 		
 		// true if creature haven't reached the final destination hex
 		if ((nextPos + 1) < destTiles.size())
@@ -707,9 +723,9 @@ void CBattleStackMoved::nextFrame()
 			// update position of double wide creatures
 			bool twoTiles = stack->doubleWide();
 			if(twoTiles && bool(stack->attackerOwned) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big attacker creature is reversed
-				owner->creAnims[stack->ID]->pos.x -= 44;
+				myAnim()->pos.x -= 44;
 			else if(twoTiles && (! bool(stack->attackerOwned) ) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big defender creature is reversed
-				owner->creAnims[stack->ID]->pos.x += 44;
+				myAnim()->pos.x += 44;
 			
 			// re-init animation
 			for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
@@ -760,28 +776,28 @@ bool CBattleMoveStart::init()
 		return false;
 
 
-	if(!stack || owner->creAnims[stack->ID]->getType() == 5)
+	if(!stack || myAnim()->getType() == 5)
 	{
 		CBattleMoveStart::endAnim();
 		return false;
 	}
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
-	owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVE_START);
+	myAnim()->setType(CCreatureAnim::MOVE_START);
 
 	return true;
 }
 
 void CBattleMoveStart::nextFrame()
 {
-	if(owner->creAnims[stack->ID]->onLastFrameInGroup())
+	if(myAnim()->onLastFrameInGroup())
 	{
 		endAnim();
 	}
 	else
 	{
  		if((owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0)
- 			owner->creAnims[stack->ID]->incrementFrame();
+ 			myAnim()->incrementFrame();
 	}
 }
 
@@ -804,8 +820,8 @@ bool CBattleMoveEnd::init()
 	if( !isEarliest(true) )
 		return false;
 
-	if(!stack || owner->creAnims[stack->ID]->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
-		owner->creAnims[stack->ID]->getType() == CCreatureAnim::DEATH)
+	if(!stack || myAnim()->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
+		myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
 
@@ -814,14 +830,14 @@ bool CBattleMoveEnd::init()
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
-	owner->creAnims[stack->ID]->setType(CCreatureAnim::MOVE_END);
+	myAnim()->setType(CCreatureAnim::MOVE_END);
 
 	return true;
 }
 
 void CBattleMoveEnd::nextFrame()
 {
-	if(owner->creAnims[stack->ID]->onLastFrameInGroup())
+	if(myAnim()->onLastFrameInGroup())
 	{
 		endAnim();
 	}
@@ -831,8 +847,8 @@ void CBattleMoveEnd::endAnim()
 {
 	CBattleAnimation::endAnim();
 
-	if(owner->creAnims[stack->ID]->getType() != CCreatureAnim::DEATH)
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING); //resetting to default
+	if(myAnim()->getType() != CCreatureAnim::DEATH)
+		myAnim()->setType(CCreatureAnim::HOLDING); //resetting to default
 
 	CCS->curh->show();
 	delete this;
@@ -847,19 +863,19 @@ CBattleMoveEnd::CBattleMoveEnd(CBattleInterface * _owner, const CStack * _stack,
 
 void CBattleAttack::nextFrame()
 {
-	if(owner->creAnims[stack->ID]->getType() != group)
-		owner->creAnims[stack->ID]->setType(group);
+	if(myAnim()->getType() != group)
+		myAnim()->setType(group);
 
-	if(owner->creAnims[stack->ID]->onFirstFrameInGroup())
+	if(myAnim()->onFirstFrameInGroup())
 	{
 		if(shooting)
 			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), shoot));
 		else
 			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), attack));
 	}
-	else if(owner->creAnims[stack->ID]->onLastFrameInGroup())
+	else if(myAnim()->onLastFrameInGroup())
 	{
-		owner->creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
+		myAnim()->setType(CCreatureAnim::HOLDING);
 		endAnim();
 		return; //execution of endAnim deletes this !!!
 	}
@@ -898,7 +914,7 @@ bool CMeleeAttack::init()
 	//	return false;
 	//}
 
-	if(!attackingStack || owner->creAnims[stack->ID]->getType() == 5)
+	if(!attackingStack || myAnim()->getType() == 5)
 	{
 		endAnim();
 		
@@ -985,7 +1001,7 @@ bool CShootingAnim::init()
 
 	const CStack * shooter = attackingStack;
 
-	if(!shooter || owner->creAnims[stack->ID]->getType() == 5)
+	if(!shooter || myAnim()->getType() == 5)
 	{
 		endAnim();
 		return false;

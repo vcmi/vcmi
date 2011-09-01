@@ -122,6 +122,8 @@ public:
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
 	static bool isToReverseHlp(THex hexFrom, THex hexTo, bool curDir); //helper for isToReverse
 	static bool isToReverse(THex hexFrom, THex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
+	
+	CCreatureAnimation *myAnim(); //animation for our stack
 };
 
 /// Class responsible for animation of stack chaning direction (left <-> right)
@@ -135,6 +137,8 @@ public:
 	bool priority; //true - high, false - low
 	bool init();
 	void nextFrame();
+
+	void setupSecondPart();
 	void endAnim();
 
 	CReverseAnim(CBattleInterface * _owner, const CStack * stack, THex dest, bool _priority);
@@ -565,6 +569,7 @@ public:
 	friend class AdventureMapButton;
 	friend class CInGameConsole;
 	friend class CReverseAnim;
+	friend class CBattleStackAnimation;
 	friend class CBattleAnimation;
 	friend class CDefenceAnim;
 	friend class CBattleStackMoved;
