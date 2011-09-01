@@ -20,7 +20,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/map.h"
-#include "../lib/JsonNode.cpp"
+#include "../lib/JsonNode.h"
 #include "mapHandler.h"
 #include "CConfigHandler.h"
 #include "Client.h"

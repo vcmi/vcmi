@@ -2562,6 +2562,14 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 		
 }
 
+bool CStack::ableToRetaliate() const
+{
+	return alive() 
+		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
+		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
+		&& !hasBonusOfType(Bonus::HYPNOTIZED);
+}
+
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {
 	switch(phase)

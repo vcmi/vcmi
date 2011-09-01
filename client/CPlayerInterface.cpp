@@ -850,7 +850,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	if (ba->deathBlow())
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
-		std::string hlp = CGI->generaltexth->allTexts[(stack->count != 1) ? 336 : 335];
+		std::string hlp = CGI->generaltexth->allTexts[(stack->count != 1) ? 366 : 365];
 		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
 		for (std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)

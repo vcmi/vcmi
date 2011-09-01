@@ -3055,19 +3055,19 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//attack
-			BattleAttack bat;
-			prepareAttack(bat, curStack, stackAtEnd, distance, ba.additionalInfo);
-			handleAttackBeforeCasting(bat); //only before first attack
-			sendAndApply(&bat);
-			handleAfterAttackCasting(bat);
+			{
+				BattleAttack bat;
+				prepareAttack(bat, curStack, stackAtEnd, distance, ba.additionalInfo);
+				handleAttackBeforeCasting(bat); //only before first attack
+				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
+			}
 
 			//counterattack
 			if(!curStack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
-				&& stackAtEnd->alive()
-				&& ( stackAtEnd->counterAttacks > 0 || stackAtEnd->hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS) )
-				&& !stackAtEnd->hasBonusOfType(Bonus::SIEGE_WEAPON)
-				&& !stackAtEnd->hasBonusOfType(Bonus::HYPNOTIZED))
+				&& stackAtEnd->ableToRetaliate())
 			{
+				BattleAttack bat;
 				prepareAttack(bat, stackAtEnd, curStack, 0, curStack->position);
 				bat.flags |= BattleAttack::COUNTER;
 				sendAndApply(&bat);
@@ -3080,7 +3080,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& curStack->alive()
 				&& stackAtEnd->alive()  )
 			{
-				bat.flags = 0;
+				BattleAttack bat;
 				prepareAttack(bat, curStack, stackAtEnd, 0, ba.additionalInfo);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
@@ -3105,12 +3105,14 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start shooting
 
-			BattleAttack bat;
-			bat.flags |= BattleAttack::SHOT;
-			prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
-			handleAttackBeforeCasting(bat);
-			sendAndApply(&bat);
-			handleAfterAttackCasting(bat);
+			{
+				BattleAttack bat;
+				bat.flags |= BattleAttack::SHOT;
+				prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
+				handleAttackBeforeCasting(bat);
+				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
+			}
 
 			//ballista & artillery handling
 			if(destStack->alive() && curStack->getCreature()->idNumber == 146)
@@ -3127,6 +3129,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& curStack->shots
 				)
 			{
+				BattleAttack bat;
+				bat.flags |= BattleAttack::SHOT;
 				prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);

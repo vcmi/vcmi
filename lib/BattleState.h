@@ -161,6 +161,7 @@ public:
 	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
+	bool ableToRetaliate() const; //if stack can retaliate after attacked
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
