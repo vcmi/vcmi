@@ -275,7 +275,6 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 
 void CCreatureHandler::loadCreatures()
 {
-	notUsedMonsters += 122,124,126,128,145,146,147,148,149,160,161,162,163,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
 	tlog5 << "\t\tReading config/cr_abils.json and ZCRTRAIT.TXT" << std::endl;
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
@@ -427,10 +426,8 @@ void CCreatureHandler::loadCreatures()
 	// loading creatures properties
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
 	const JsonNode config(DATA_DIR "/config/creatures.json");
-	const JsonVector &creatures_vec = config["creatures"].Vector();
 
-	for (JsonVector::const_iterator it = creatures_vec.begin(); it!=creatures_vec.end(); ++it) {
-		const JsonNode &creature = *it;
+	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector()) {
 		int creatureID = creature["id"].Float();
 		const JsonNode *value;
 
@@ -477,6 +474,10 @@ void CCreatureHandler::loadCreatures()
 				RemoveAbility(c, ability);
 			}
 		}
+	}
+
+	BOOST_FOREACH(const JsonNode &creature, config["unused_creatures"].Vector()) {
+		notUsedMonsters += creature.Float();
 	}
 
 	buildBonusTreeForTiers();

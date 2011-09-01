@@ -1909,5 +1909,11 @@
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
 			}
-		]
+		],
+
+	// something hacking	
+	"unused_creatures": [ 122, 124, 126, 128, 145, 146, 147, 148, 149, 160,
+						  161, 162, 163, 174, 175, 176, 177, 178, 179, 180,
+						  181, 182, 183, 184, 185, 186, 187, 188, 189, 190,
+						   191 ]
 }
