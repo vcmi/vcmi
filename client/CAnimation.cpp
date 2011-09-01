@@ -1,5 +1,6 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/foreach.hpp>
 
 #include <SDL_image.h>
 
@@ -947,17 +948,11 @@ void CAnimation::init(CDefFile * file)
 
 		if (!config["sequences"].isNull())
 		{
-			const JsonVector &groups = config["sequences"].Vector();
-			for (JsonVector::const_iterator groupsIter = groups.begin(); groupsIter!=groups.end(); ++groupsIter)
-			{
-				JsonNode group = *groupsIter;
+			BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector()) {
 				size_t groupID = group["group"].Float();//TODO: string-to-value conversion
 				source[groupID].clear();
 
-				const JsonVector &frames = group["frames"].Vector();
-				for (JsonVector::const_iterator framesIter = frames.begin(); framesIter!=frames.end(); ++framesIter)
-				{
-					const JsonNode &frame = *framesIter;
+				BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector()) {
 					source[groupID].push_back(frame);
 					std::string filename =  frame["file"].String();
 					source[groupID].back()["file"].String() = basepath + filename;
@@ -967,12 +962,7 @@ void CAnimation::init(CDefFile * file)
 
 		if (!config["images"].isNull())
 		{
-			const JsonVector &vector = config["images"].Vector();
-			
-			for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it)
-			{
-				const JsonNode &node = *it;
-
+			BOOST_FOREACH(const JsonNode &node, config["images"].Vector()) {
 				size_t group=0;
 				if (!node["group"].isNull())
 					group = node["group"].Float();

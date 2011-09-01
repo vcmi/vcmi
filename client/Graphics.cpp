@@ -343,10 +343,8 @@ Graphics::Graphics()
 void Graphics::loadHeroPortraits()
 {	
 	const JsonNode config(DATA_DIR "/config/portraits.json");
-	const JsonVector &portraits_vec = config["hero_portrait"].Vector();
 
-	for (JsonVector::const_iterator it = portraits_vec.begin(); it!=portraits_vec.end(); ++it) {
-		const JsonNode &portrait_node = *it;
+	BOOST_FOREACH(const JsonNode &portrait_node, config["hero_portrait"].Vector()) {
 		std::string filename = portrait_node["filename"].String();
 
 		/* Small portrait. */

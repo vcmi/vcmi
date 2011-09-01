@@ -432,11 +432,8 @@ void CCreatureHandler::loadCreatures()
 		const JsonNode *value;
 
 		/* A creature can have several names. */
-		const JsonVector &names_vec = creature["name"].Vector();
-		for (JsonVector::const_iterator it = names_vec.begin(); it!=names_vec.end(); ++it) {
-			const std::string name = (*it).String();
-
-			boost::assign::insert(nameToID)(name, creatureID);
+		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector()) {
+			boost::assign::insert(nameToID)(name.String(), creatureID);
 		}
 
 		// Set various creature properties
@@ -485,10 +482,8 @@ void CCreatureHandler::loadCreatures()
 
 	//reading creature ability names
 	const JsonNode config2(DATA_DIR "/config/bonusnames.json");
-	const JsonVector &bonuses_vec = config2["bonuses"].Vector();
 
-	for (JsonVector::const_iterator it = bonuses_vec.begin(); it!=bonuses_vec.end(); ++it) {
-		const JsonNode &bonus = *it;
+	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector()) {
 		std::map<std::string,int>::const_iterator it_map;
 		std::string bonusID = bonus["id"].String();
 

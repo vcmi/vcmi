@@ -4,6 +4,7 @@
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
 #include <boost/bimap.hpp>
+#include <boost/foreach.hpp>
 
 #include <SDL_mixer.h>
 
@@ -171,15 +172,13 @@ soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	class JsonNode config(DATA_DIR "/config/cr_sounds.json");
+	const JsonNode config(DATA_DIR "/config/cr_sounds.json");
 
 	CBattleSounds.resize(creatures.size());
 
 	if (!config["creature_sounds"].isNull()) {
-		const JsonVector &vector = config["creature_sounds"].Vector();
-	
-		for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it) {
-			const JsonNode &node = *it;
+		
+		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector()) {
 			const JsonNode *value;
 			int id;
 
@@ -231,13 +230,10 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
-	class JsonNode config(DATA_DIR "/config/sp_sounds.json");
+	const JsonNode config(DATA_DIR "/config/sp_sounds.json");
 
 	if (!config["spell_sounds"].isNull()) {
-		const JsonVector &vector = config["spell_sounds"].Vector();
-	
-		for (JsonVector::const_iterator it = vector.begin(); it!=vector.end(); ++it) {
-			const JsonNode &node = *it;
+		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector()) {
 			int spellid = node["id"].Float();
 			const CSpell *s = CGI->spellh->spells[spellid];
 
