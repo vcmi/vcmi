@@ -12,6 +12,8 @@
 //  projectile_defname: if the creature is a shooter, graphics for the projectile
 //  projectile_spin:    if the creature is a shooter, indicate whether the projectile spins
 //  turret_shooter:     indicates whether the shooter appears in the castle turrets
+//  ability_add:        adding a abilities ( [ABILITY] [value] [subtype] [additional info] )
+//	ability_remove:     removing an existing ability ( [ABILITY] )
 
 {
 	"creatures":
@@ -22,6 +24,7 @@
 				"name": [ "Pikeman" ],
 				"faction": 0,
 				"upgrade": 1,
+				"ability_add": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//pikeman immunity to Champion charge bonus
 				"defname": "CPKMAN.DEF"
 			},
 
@@ -30,6 +33,7 @@
 				"level": 1,
 				"name": [ "Halberdier" ],
 				"faction": 0,
+				"ability_add": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//halberdier immunity to Champion charge bonus
 				"defname": "CHALBD.DEF"
 			},
 
@@ -60,6 +64,7 @@
 				"level": 3,
 				"name": [ "Griffin" ],
 				"faction": 0,
+				"ability_add": [ [ "ADDITIONAL_RETALIATION", 1, 0, 0 ] ], 	//griffins retaliate twice
 				"upgrade": 5,
 				"defname": "CGRIFF.DEF"
 			},
@@ -69,6 +74,7 @@
 				"level": 3,
 				"name": [ "RoyalGriffin" ],
 				"faction": 0,
+				"ability_add": [ [ "UNLIMITED_RETALIATIONS", 0, 0, 0 ] ],	//royal griffins retaliate always
 				"defname": "CRGRIF.DEF"
 			},
 
@@ -132,6 +138,8 @@
 				"level": 7,
 				"name": [ "Angel" ],
 				"faction": 0,
+				"ability_add": [ [ "HATE", 50, 55, 0 ],					//angels hate archdevils
+							   	 [ "HATE", 50, 54, 0 ] ],			   	 	//angels hate devils
 				"upgrade": 13,
 				"defname": "CANGEL.DEF"
 			},
@@ -141,6 +149,10 @@
 				"level": 7,
 				"name": [ "Archangel" ],
 				"faction": 0,
+				"ability_add": [ [ "SPECIFIC_SPELL_POWER", 100, 38, 0 ],			// 100 hp per Archangel
+							   	 [ "SPELLCASTER", 0, 38, 0 ],			//archangels cast resurrection
+								 [ "HATE", 50, 55, 0 ],					//archangels hate arch
+								 [ "HATE", 50, 54, 0 ] ],					//archangels hate devils
 				"defname": "CRANGL.DEF"
 			},
 
@@ -166,6 +178,7 @@
 				"level": 2,
 				"name": [ "Dwarf" ],
 				"faction": 1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 20, 0, 0 ] ], 		//dwarf's magic resistance 20%
 				"upgrade": 17,
 				"defname": "CDWARF.DEF"
 			},
@@ -175,6 +188,7 @@
 				"level": 2,
 				"name": [ "BattleDwarf" ],
 				"faction": 1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 40, 0, 0 ] ], 	 	//battle dwarf's magic resistance 40%
 				"defname": "CBDWAR.DEF"
 			},
 
@@ -205,6 +219,7 @@
 				"level": 4,
 				"name": [ "Pegasus" ],
 				"faction": 1,
+				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ],	//pegasus makes spell cost higher for enemy mage
 				"upgrade": 21,
 				"defname": "CPEGAS.DEF"
 			},
@@ -214,6 +229,7 @@
 				"level": 4,
 				"name": [ "SilverPegasus" ],
 				"faction": 1,
+				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ], 	//silver pegasus makes spell cost higher for enemy mage
 				"defname": "CAPEGS.DEF"
 			},
 
@@ -222,6 +238,7 @@
 				"level": 5,
 				"name": [ "Treefolk" ],
 				"faction": 1,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],   //dendroids cast bind
 				"upgrade": 23,
 				"defname": "CTREE.DEF"
 			},
@@ -231,6 +248,7 @@
 				"level": 5,
 				"name": [ "BriarTreefolk" ],
 				"faction": 1,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],	//dendroid guards cast bind
 				"defname": "CBTREE.DEF"
 			},
 
@@ -239,6 +257,8 @@
 				"level": 6,
 				"name": [ "Unicorn" ],
 				"faction": 1,
+				"ability_add": [ [ "SPELL_RESISTANCE_AURA", 0, 55, 0 ],	//unicorn
+							   	 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//unicorns cast blind with 20% probability
 				"upgrade": 25,
 				"defname": "CUNICO.DEF"
 			},
@@ -248,6 +268,8 @@
 				"level": 6,
 				"name": [ "WarUnicorn" ],
 				"faction": 1,
+				"ability_add": [ [ "SPELL_RESISTANCE_AURA", 20, 55, 0 ], 	//war unicorn
+				 			   	 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//war unicorns cast blind with 20% probability
 				"defname": "CWUNIC.DEF"
 			},
 
@@ -256,6 +278,9 @@
 				"level": 7,
 				"name": [ "GreenDragon" ],
 				"faction": 1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//green dragon is a dragon
+							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//green dragon's breath
+				 				 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ], 	//green dragon's spell immunity
 				"upgrade": 27,
 				"defname": "CGDRAG.DEF"
 			},
@@ -265,6 +290,9 @@
 				"level": 7,
 				"name": [ "GoldDragon" ],
 				"faction": 1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//gold dragon is a dragon
+							   [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//gold dragon's breath
+							   [ "LEVEL_SPELL_IMMUNITY", 4, 0, 0 ] ], 	//gold dragon's spell immunity
 				"defname": "CDDRAG.DEF"
 			},
 
@@ -292,6 +320,7 @@
 				"level": 2,
 				"name": [ "StoneGargoyle" ],
 				"faction": 2,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],  	  		//stone gargoyles are non-living
 				"upgrade": 31,
 				"defname": "CGARGO.DEF"
 			},
@@ -301,6 +330,7 @@
 				"level": 2,
 				"name": [ "ObsidianGargoyle" ],
 				"faction": 2,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],  			//obsidian gargoyles are non-living
 				"defname": "COGARG.DEF"
 			},
 
@@ -309,6 +339,8 @@
 				"level": 3,
 				"name": [ "IronGolem" ],
 				"faction": 2,
+				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 50, -1, 0 ],		//stone golems reduce dmg from spells
+							   [ "NON_LIVING", 0, 0, 0 ] ],  			//stone golems are non-living
 				"upgrade": 33,
 				"defname": "CSGOLE.DEF"
 			},
@@ -318,6 +350,8 @@
 				"level": 3,
 				"name": [ "StoneGolem" ],
 				"faction": 2,
+				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 75, -1, 0 ],	   	//iron golems reduce dmg from spells
+							   [ "NON_LIVING", 0, 0, 0 ] ],  			//iron golems are non-living
 				"defname": "CIGOLE.DEF"
 			},
 
@@ -326,6 +360,7 @@
 				"level": 4,
 				"name": [ "Mage" ],
 				"faction": 2,
+				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ALLY", -2, 0, 0 ] ],   	//mages reduce spell cost
 				"upgrade": 35,
 				"defname": "CMAGE.DEF",
 				"projectile_defname": "PMAGEX.DEF",
@@ -338,6 +373,7 @@
 				"level": 4,
 				"name": [ "ArchMage" ],
 				"faction": 2,
+				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ALLY", -2, 0, 0 ] ],   	//archmages reduce spell cost			  	//genies hate efreets
 				"defname": "CAMAGE.DEF",
 				"projectile_defname": "PMAGEX.DEF",
 				"projectile_spin": false
@@ -348,6 +384,8 @@
 				"level": 5,
 				"name": [ "Genie" ],
 				"faction": 2,
+				"ability_add": [ [ "HATE", 50, 53, 0 ],				  	//master genies hate efreets
+							   [ "HATE", 50, 52, 0 ] ],				  	//genies hate efreet sultans
 				"upgrade": 37,
 				"defname": "CGENIE.DEF"
 			},
@@ -357,6 +395,10 @@
 				"level": 5,
 				"name": [ "Caliph" ],
 				"faction": 2,
+				"ability_add": [ [ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],		//spells last 6 turns
+							   	 [ "RANDOM_SPELLCASTER", 0, 0, 0 ],  		//master genies cast spells
+								 [ "HATE", 50, 53, 0 ],
+								 [ "HATE", 50, 52, 0 ] ],				  	//master genies hate efreet sultans
 				"defname": "CSULTA.DEF"
 			},
 
@@ -365,6 +407,7 @@
 				"level": 6,
 				"name": [ "NagaSentinel" ],
 				"faction": 2,
+				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//nagas block retaliation
 				"upgrade": 39,
 				"defname": "CNAGA.DEF"
 			},
@@ -374,6 +417,7 @@
 				"level": 6,
 				"name": [ "NagaGuardian" ],
 				"faction": 2,
+				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],  	//naga queens block retaliation
 				"defname": "CNAGAG.DEF"
 			},
 
@@ -382,6 +426,11 @@
 				"level": 7,
 				"name": [ "LesserTitan" ],
 				"faction": 2,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ],			//giants are immune to mind spells (blind)
+							   	 [ "SPELL_IMMUNITY", 0, 61, 0 ],			//giants are immune to mind spells (forgetfulness)
+								 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//giants are immune to mind spells (hypnotize)
+								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//giants are immune to mind spells (berserk)
+								 [ "SPELL_IMMUNITY", 0, 50, 0 ] ],			//giants are immune to mind spells (sorrow)
 				"upgrade": 41,
 				"defname": "CLTITA.DEF"
 			},
@@ -391,6 +440,12 @@
 				"level": 7,
 				"name": [ "GreaterTitan" ],
 				"faction": 2,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ],			//titans are immune to mind spells (blind)
+							   	 [ "SPELL_IMMUNITY", 0, 61, 0 ],			//titans are immune to mind spells (forgetfulness)
+								 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//titans are immune to mind spells (hypnotize)
+								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//titans are immune to mind spells (berserk)
+								 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//titans are immune to mind spells (sorrow)
+								 [ "HATE", 50, 83, 0 ] ],					//titans hate black dragons
 				"defname": "CGTITA.DEF",
 				"projectile_defname": "CPRGTIX.DEF",
 				"projectile_spin": false
@@ -410,6 +465,7 @@
 				"level": 1,
 				"name": [ "Familiar" ],
 				"faction": 3,
+				"ability_add": [ [ "MANA_CHANNELING", 20, 0, 0 ] ], 		//familiars
 				"defname": "CFAMIL.DEF"
 			},
 
@@ -430,6 +486,7 @@
 				"level": 2,
 				"name": [ "Magog" ],
 				"faction": 3,
+				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 21, 0 ] ], 		//magogs fire with fireballs
 				"defname": "CMAGOG.DEF",
 				"projectile_defname": "CPRGOGX.DEF",
 				"projectile_spin": false
@@ -441,6 +498,7 @@
 				"name": [ "HellHound" ],
 				"faction": 3,
 				"upgrade": 47,
+				"ability_remove": [ "FLYING" ],
 				"defname": "CHHOUN.DEF"
 			},
 
@@ -449,6 +507,9 @@
 				"level": 3,
 				"name": [ "Cerberus" ],
 				"faction": 3,
+				"ability_add": [ [ "THREE_HEADED_ATTACK", 0, 0, 0 ],
+							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
+				"ability_remove": [ "FLYING" ],
 				"defname": "CCERBU.DEF"
 			},
 
@@ -483,6 +544,7 @@
 				"level": 5,
 				"name": [ "PitFoe" ],
 				"faction": 3,
+				"ability_add": [ [ "DAEMON_SUMMONING", 0, 52, 0 ] ],		//pit lord		//Efreeti
 				"defname": "CPFOE.DEF"
 			},
 
@@ -491,6 +553,10 @@
 				"level": 6,
 				"name": [ "Efreet" ],
 				"faction": 3,
+				"ability_add": [ [ "HATE", 50, 37, 0 ],
+							   	 [ "HATE", 50, 36, 0 ],
+								 [ "FLYING", 0, 0, 0 ],  					//efreeti hate master genies
+								 [ "FIRE_IMMUNITY", 0, 0, 0 ] ], 			//efreeti hate genies
 				"upgrade": 53,
 				"defname": "CEFREE.DEF"
 			},
@@ -500,6 +566,11 @@
 				"level": 6,
 				"name": [ "EfreetSultan" ],
 				"faction": 3,
+				"ability_add": [ [ "HATE", 50, 37, 0 ],
+							   	 [ "HATE", 50, 36, 0 ],
+								 [ "FLYING", 0, 0, 0 ],		  	 		//efreet sultans hate master genies
+								 [ "FIRE_SHIELD", 0, 36, 0 ],				//efreet sultans hate genies
+								 [ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//efreet sultan		//Efreet Sultan
 				"defname": "CEFRES.DEF"
 			},
 
@@ -508,6 +579,10 @@
 				"level": 7,
 				"name": [ "Devil" ],
 				"faction": 3,
+				"ability_add": [ [ "HATE", 50, 13, 0 ],
+							   	 [ "HATE", 50, 12, 0 ],
+								 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ],	//devils				//devils hate archangles
+								 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//devils			//devils hate angels
 				"upgrade": 55,
 				"defname": "CDEVIL.DEF"
 			},
@@ -517,6 +592,10 @@
 				"level": 7,
 				"name": [ "ArchDevil" ],
 				"faction": 3,
+				"ability_add": [ [ "HATE", 50, 13, 0 ],				//wraith
+							   	 [ "HATE", 50, 12, 0 ],
+								 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ], 	//archdevils				//archdevils hate archangles
+								 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//archdevils			//archdevils hate angels
 				"defname": "CADEVL.DEF"
 			},
 
@@ -559,6 +638,7 @@
 				"level": 3,
 				"name": [ "Wight" ],
 				"faction": 4,
+				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ] ],			//wight
 				"upgrade": 61,
 				"defname": "CWIGHT.DEF"
 			},
@@ -568,6 +648,8 @@
 				"level": 3,
 				"name": [ "Wraith" ],
 				"faction": 4,
+				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ], 			//wraith
+							   	 [ "MANA_DRAIN", 2, 0, 0 ] ],
 				"defname": "CWRAIT.DEF"
 			},
 
@@ -576,6 +658,7 @@
 				"level": 4,
 				"name": [ "Vampire" ],
 				"faction": 4,
+				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampires		//vampire lords
 				"upgrade": 63,
 				"defname": "CVAMP.DEF"
 			},
@@ -585,6 +668,8 @@
 				"level": 4,
 				"name": [ "Nosferatu" ],
 				"faction": 4,
+				"ability_add": [ [ "LIFE_DRAIN", 0, 0, 0 ],
+							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampire lords
 				"defname": "CNOSFE.DEF"
 			},
 
@@ -593,6 +678,7 @@
 				"level": 5,
 				"name": [ "Lich" ],
 				"faction": 4,
+				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ],		//liches
 				"upgrade": 65,
 				"defname": "CLICH.DEF",
 				"projectile_defname": "PLICH.DEF",
@@ -605,6 +691,7 @@
 				"level": 5,
 				"name": [ "PowerLich" ],
 				"faction": 4,
+				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ], 		//power liches
 				"defname": "CPLICH.DEF",
 				"projectile_defname": "PLICH.DEF",
 				"projectile_spin": false
@@ -615,6 +702,7 @@
 				"level": 6,
 				"name": [ "BlackKnight" ],
 				"faction": 4,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ] ], 	//black knights
 				"upgrade": 67,
 				"defname": "CBKNIG.DEF"
 			},
@@ -624,6 +712,8 @@
 				"level": 6,
 				"name": [ "BlackLord" ],
 				"faction": 4,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ], 	//dread knights
+							   	 [ "DOUBLE_DAMAGE_CHANCE", 20, 0, 0 ] ],	//vampire lords
 				"defname": "CBLORD.DEF"
 			},
 
@@ -632,6 +722,7 @@
 				"level": 7,
 				"name": [ "BoneDragon" ],
 				"faction": 4,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//bone dragon is a dragon
 				"upgrade": 69,
 				"defname": "CNDRGN.DEF"
 			},
@@ -641,6 +732,8 @@
 				"level": 7,
 				"name": [ "GhostDragon" ],
 				"faction": 4,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//ghost dragon is a dragon
+							   	 [ "SPELL_AFTER_ATTACK", 20, 75, 0 ] ],  	//ghost dragon
 				"defname": "CHDRGN.DEF"
 			},
 
@@ -649,6 +742,7 @@
 				"level": 1,
 				"name": [ "Troglodyte" ],
 				"faction": 5,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],	  	   	//troglodytes are immune to blind
 				"upgrade": 71,
 				"defname": "CTROGL.DEF"
 			},
@@ -658,6 +752,7 @@
 				"level": 1,
 				"name": [ "InfernalTroglodyte" ],
 				"faction": 5,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],		   	//infernal troglodytes are immune to blind
 				"defname": "CITROG.DEF"
 			},
 
@@ -666,6 +761,7 @@
 				"level": 2,
 				"name": [ "Harpy" ],
 				"faction": 5,
+				"ability_add": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ] ],	   	//Harpies return after attack
 				"upgrade": 73,
 				"defname": "CHARPY.DEF"
 			},
@@ -675,6 +771,8 @@
 				"level": 2,
 				"name": [ "HarpyHag", "M73" ],
 				"faction": 5,
+				"ability_add": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ],	   	//Harpy Hags return after attack
+							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],	   	//Harpy Hags
 				"defname": "CHARPH.DEF"
 			},
 
@@ -704,6 +802,7 @@
 				"level": 4,
 				"name": [ "Medusa", "Medusae" ],
 				"faction": 5,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusas			//minotaurs
 				"upgrade": 77,
 				"defname": "CMEDUS.DEF",
 				"projectile_defname": "PMEDUSX.DEF",
@@ -716,6 +815,7 @@
 				"level": 4,
 				"name": [ "MedusaQueen" ],
 				"faction": 5,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusa queens			//minotaur kings
 				"defname": "CMEDUQ.DEF",
 				"projectile_defname": "PMEDUSX.DEF",
 				"projectile_spin": false
@@ -726,6 +826,7 @@
 				"level": 5,
 				"name": [ "Minotaur" ],
 				"faction": 5,
+				"ability_add": [ [ "SELF_MORALE", 0, 0, 0 ] ],
 				"upgrade": 79,
 				"defname": "CMINOT.DEF"
 			},
@@ -735,6 +836,7 @@
 				"level": 5,
 				"name": [ "MinotaurKing" ],
 				"faction": 5,
+				"ability_add": [ [ "SELF_MORALE", 0, 0, 0 ] ],
 				"defname": "CMINOK.DEF"
 			},
 
@@ -752,6 +854,7 @@
 				"level": 6,
 				"name": [ "Scorpicore" ],
 				"faction": 5,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 74, 0 ] ],   	//scorpicore
 				"defname": "CCMCOR.DEF"
 			},
 
@@ -760,6 +863,9 @@
 				"level": 7,
 				"name": [ "RedDragon" ],
 				"faction": 5,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//red dragon is a dragon
+							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Red Dragon has breath attack
+								 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ],   	//red dragon's spell immunity
 				"upgrade": 83,
 				"defname": "CRDRGN.DEF"
 			},
@@ -769,6 +875,11 @@
 				"level": 7,
 				"name": [ "BlackDragon" ],
 				"faction": 5,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//black dragon is a dragon
+							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Black Dragon has breath attack
+								 [ "HATE", 50, 41, 0 ],	//Hate Titans
+								 [ "HATE", 50, 40, 0 ],	//Hate Giants
+								 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],   	//black dragon's spell immunity
 				"defname": "CBDRGN.DEF"
 			},
 
@@ -803,6 +914,7 @@
 				"level": 2,
 				"name": [ "HobgoblinWolfRider" ],
 				"faction": 6,
+				"ability_add": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],		//wolf raider
 				"defname": "CUWLFR.DEF"
 			},
 
@@ -842,6 +954,7 @@
 				"level": 4,
 				"name": [ "OgreMage" ],
 				"faction": 6,
+				"ability_add": [ [ "SPELLCASTER", 2, 43, 6 ] ],   	   	   	//ogre magi cast bloodlust
 				"defname": "COGMAG.DEF"
 			},
 
@@ -859,6 +972,8 @@
 				"level": 5,
 				"name": [ "Thunderbird" ],
 				"faction": 6,
+				"ability_add": [ [ "SPECIFIC_SPELL_POWER", 10, 77, 0 ],	//10 damage per unit
+							   	 [ "SPELL_AFTER_ATTACK", 20, 77, 0 ] ],   	//thunderbirds
 				"defname": "CTBIRD.DEF"
 			},
 
@@ -888,6 +1003,7 @@
 				"level": 7,
 				"name": [ "YoungBehemoth" ],
 				"faction": 6,
+				"ability_add": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		//behemots
 				"upgrade": 97,
 				"defname": "CYBEHE.DEF"
 			},
@@ -897,6 +1013,7 @@
 				"level": 7,
 				"name": [ "AncientBehemoth" ],
 				"faction": 6,
+				"ability_add": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],		//ancient behemots
 				"defname": "CABEHE.DEF"
 			},
 
@@ -953,6 +1070,7 @@
 				"level": 5,
 				"name": [ "BronzeGorgon" ],
 				"faction": 7,
+				"ability_add": [ [ "DEATH_STARE", 10, 0, 0 ] ],   	//mighty gorgons
 				"defname": "CBGOG.DEF"
 			},
 
@@ -961,6 +1079,7 @@
 				"level": 3,
 				"name": [ "Dragonflies", "DragonFly", "SerpentFly" ],
 				"faction": 7,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ] ],  	//serpent fly
 				"upgrade": 105,
 				"defname": "CDRFLY.DEF"
 			},
@@ -970,6 +1089,8 @@
 				"level": 3,
 				"name": [ "FireDragonFly" ],
 				"faction": 7,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ],	//dragon fly
+							   [ "SPELL_AFTER_ATTACK", 100, 45, 0 ] ],  	//mighty gorgons
 				"defname": "CDRFIR.DEF"
 			},
 
@@ -978,6 +1099,7 @@
 				"level": 4,
 				"name": [ "Basilisk" ],
 				"faction": 7,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//basilisks
 				"upgrade": 107,
 				"defname": "CBASIL.DEF"
 			},
@@ -987,6 +1109,7 @@
 				"level": 4,
 				"name": [ "GreaterBasilisk" ],
 				"faction": 7,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//greater basilisks
 				"defname": "CGBASI.DEF"
 			},
 
@@ -1004,6 +1127,7 @@
 				"level": 6,
 				"name": [ "WyvernMonarch" ],
 				"faction": 7,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 71, 0 ] ],   	//Wyvern Monarch
 				"defname": "CWYVMN.DEF"
 			},
 
@@ -1012,6 +1136,8 @@
 				"level": 7,
 				"name": [ "Hydra" ],
 				"faction": 7,
+				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//hydras
+							   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//hydras
 				"upgrade": 111,
 				"defname": "CHYDRA.DEF"
 			},
@@ -1021,6 +1147,8 @@
 				"level": 7,
 				"name": [ "ChaosHydra" ],
 				"faction": 7,
+				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//chaos hydras
+							   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//chaos hydras
 				"defname": "CCHYDR.DEF"
 			},
 
@@ -1029,6 +1157,14 @@
 				"level": 2,
 				"name": [ "AirElemental", "AirElementals" ],
 				"faction": 8,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//air elementals are immune to mind spells (forgetfulness)	//earth elementals are non-living
+							   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//air elementals are immune to mind spells (hypnotize)
+							   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//air elementals are immune to mind spells (berserk)
+							   [ "SPELL_IMMUNITY", 0, 50, 0 ],			//air elementals are immune to mind spells (sorrow)
+							   [ "SPELL_IMMUNITY", 0, 23, 0 ],			//air elementals are immune to meteor shower
+							   [ "NON_LIVING", 0, 0, 0 ],
+							   [ "MORE_DAMAGE_FROM_SPELL", 100, 19, 0 ],		//air elementals are vulnerable to chain lightning
+							   [ "MORE_DAMAGE_FROM_SPELL", 100, 17, 0 ] ],	  	//air elementals are vulnerable to lightning bolt		//air elementals are non-living
 				"upgrade": 127,
 				"defname": "CAELEM.DEF"
 			},
@@ -1038,6 +1174,14 @@
 				"level": 5,
 				"name": [ "EarthElemental", "EarthElementals" ],
 				"faction": 8,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//earth elementals are immune to mind spells (forgetfulness)
+							   	 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//earth elementals are immune to mind spells (hypnotize)
+							   	 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//earth elementals are immune to mind spells (berserk)
+								 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//earth elementals are immune to mind spells (sorrow)
+								 [ "SPELL_IMMUNITY", 0, 19, 0 ],			//earth elementals are immune to chain lightning
+								 [ "SPELL_IMMUNITY", 0, 17, 0 ],			//earth elementals are immune to lightning bolt
+								 [ "NON_LIVING", 0, 0, 0 ],
+								 [ "MORE_DAMAGE_FROM_SPELL", 100, 23, 0 ] ],		//earth elementals are vulnerable to meteor shower
 				"upgrade": 125,
 				"defname": "CEELEM.DEF"
 			},
@@ -1047,6 +1191,14 @@
 				"level": 4,
 				"name": [ "FireElemental", "FireElementals" ],
 				"faction": 8,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//fire elementals are immune to mind spells (forgetfulness)
+							   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//fire elementals are immune to mind spells (hypnotize)	//water elemental should be treated as double-wide
+							   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//fire elementals are immune to mind spells (berserk)
+							   [ "SPELL_IMMUNITY", 0, 50, 0 ],			//fire elementals are immune to mind spells (sorrow)
+							   [ "NON_LIVING", 0, 0, 0 ],				//fire elementals are non-living
+							   [ "MORE_DAMAGE_FROM_SPELL", 100, 20, 0 ],		//fire elementals are vulnerable to frost ring
+							   [ "MORE_DAMAGE_FROM_SPELL", 100, 16, 0 ],		//fire elementals are vulnerable to ice bolt
+							   [ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//fire elementals are immune to fire spells
 				"upgrade": 129,
 				"defname": "CFELEM.DEF"
 			},
@@ -1056,6 +1208,18 @@
 				"level": 3,
 				"name": [ "WaterElemental", "WaterElementals" ],
 				"faction": 8,
+				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//water elementals are immune to mind spells (forgetfulness)
+							   	 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//water elementals are immune to mind spells (hypnotize)	//gold golems are non-living
+								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//water elementals are immune to mind spells (berserk)
+								 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//water elementals are immune to mind spells (sorrow)
+								 [ "SPELL_IMMUNITY", 0, 20, 0 ],			//water elementals are immune to frost ring
+								 [ "SPELL_IMMUNITY", 0, 16, 0 ],			//water elementals are immune to ice bolt
+								 [ "NON_LIVING", 0, 0, 0 ],				//water elementals are non-living
+								 [ "MORE_DAMAGE_FROM_SPELL", 100, 29, 0 ],		//water elementals are vulnerable to fire shield
+								 [ "MORE_DAMAGE_FROM_SPELL", 100, 22, 0 ],		//water elementals are vulnerable to inferno
+								 [ "MORE_DAMAGE_FROM_SPELL", 100, 21, 0 ],		//water elementals are vulnerable to fireball
+								 [ "MORE_DAMAGE_FROM_SPELL", 100, 13, 0 ],		//water elementals are vulnerable to fire wall
+								 [ "DOUBLE_WIDE", 0, 0, 0 ] ],
 				"upgrade": 123,
 				"defname": "CWELEM.DEF"
 			},
@@ -1065,6 +1229,8 @@
 				"level": 4,
 				"name": [ "GoldGolem" ],
 				"faction": -1,
+				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 85, -1, 0 ],		//gold golems reduce dmg from spells
+							   	 [ "NON_LIVING", 0, 0, 0 ] ],		 	   	//diamond golems are non-living
 				"defname": "CGGOLE.DEF"
 			},
 
@@ -1073,6 +1239,8 @@
 				"level": 5,
 				"name": [ "DiamondGolem" ],
 				"faction": -1,
+				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
+							   	 [ "NON_LIVING", 0, 0, 0 ] ],				//psychic elementals shouldn't get morale
 				"defname": "CDGOLE.DEF"
 			},
 
@@ -1098,6 +1266,8 @@
 				"level": 6,
 				"name": [ "PsiElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],				//magic elementals shouldn't get morale
+				"ability_remove": [ "DOUBLE_WIDE" ],
 				"upgrade": 121,
 				"defname": "CPSYEL.DEF"
 			},
@@ -1107,6 +1277,9 @@
 				"level": 6,
 				"name": [ "MagicElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],				//ice elementals shouldn't get morale
+							   	 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],	//magic elementals are immune to all spells
+				"ability_remove": [ "DOUBLE_WIDE" ],
 				"defname": "CMAGEL.DEF"
 			},
 
@@ -1115,6 +1288,8 @@
 				"level": 3,
 				"name": [ "IceElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],				//storm elementals shouldn't get morale
+							   	 [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//ice elemental should be treated as double-wide	//magma elementals shouldn't get morale
 				"defname": "CICEE.DEF",
 				"projectile_defname": "PICEE.DEF",
 				"projectile_spin": false
@@ -1125,6 +1300,7 @@
 				"level": 5,
 				"name": [ "StoneElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],				//energy elementals shouldn't get morale
 				"defname": "CSTONE.DEF"
 			},
 
@@ -1133,6 +1309,7 @@
 				"level": 2,
 				"name": [ "StormElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],
 				"defname": "CSTORM.DEF",
 				"projectile_defname": "CPRGTIX.DEF",
 				"projectile_spin": false,
@@ -1144,6 +1321,7 @@
 				"level": 4,
 				"name": [ "ElectricityElemental" ],
 				"faction": 8,
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],						//Crystal Dragons do not fly
 				"defname": "CNRG.DEF"
 			},
 
@@ -1161,6 +1339,8 @@
 				"level": 7,
 				"name": [ "Pheonix" ],
 				"faction": 8,
+				"ability_add": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
+							   	 [ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
 				"upgrade": 15,
 				"defname": "CPHX.DEF"
 			},
@@ -1170,6 +1350,7 @@
 				"level": 10,
 				"name": [ "AzureDragon" ],
 				"faction": -1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//azure dragon is a dragon
 				"defname": "CADRGN.DEF"
 			},
 
@@ -1178,6 +1359,8 @@
 				"level": 10,
 				"name": [ "CrystalDragon" ],
 				"faction": -1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
+				"ability_remove": [ "FLYING" ],
 				"defname": "CCDRGN.DEF"
 			},
 
@@ -1186,6 +1369,7 @@
 				"level": 8,
 				"name": [ "FairieDragon" ],
 				"faction": -1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//faerie dragon is a dragon
 				"defname": "CFDRGN.DEF"
 			},
 
@@ -1194,6 +1378,9 @@
 				"level": 10,
 				"name": [ "RustDragon" ],
 				"faction": -1,
+				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
+							   	 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
+								 [ "DRAGON_NATURE", 0, 0, 0 ] ],			//rust dragon is a dragon
 				"defname": "CRSDGN.DEF"
 			},
 
@@ -1202,6 +1389,7 @@
 				"level": 6,
 				"name": [ "Enchanter" ],
 				"faction": -1,
+				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ] ],			//Enchanter		//first aid tent can heal
 				"defname": "CENCH.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
@@ -1212,6 +1400,8 @@
 				"level": 4,
 				"name": [ "Sharpshooter" ],
 				"faction": -1,
+				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ],					//arrow turret
+							   	 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter	//Ammo Cart
 				"defname": "CSHARP.DEF",
 				"projectile_defname": "PELFX.DEF",
 				"projectile_spin": false
@@ -1240,6 +1430,7 @@
 				"level": 2,
 				"name": [ "Boar" ],
 				"faction": -1,
+				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//boar should be treated as double-wide
 				"defname": "CBOAR.DEF"
 			},
 
@@ -1256,6 +1447,7 @@
 				"level": 3,
 				"name": [ "warrior" ],
 				"faction": -1,
+				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//nomads should be treated as double-wide
 				"defname": "CNOMAD.DEF"
 			},
 
@@ -1272,6 +1464,7 @@
 				"level": 5,
 				"name": [ "OgreShaman" ],
 				"faction": -1,
+				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ], 			//troll
 				"defname": "CTROLL.DEF"
 			},
 
@@ -1300,6 +1493,7 @@
 				"level": 0,
 				"name": [ "FirstAidTent" ],
 				"faction": -1,
+				"ability_add": [ [ "HEALER", 0, 0, 0 ] ],					//Gorynyches fly
 				"defname": "SMTENT.DEF"
 			},
 
@@ -1308,6 +1502,7 @@
 				"level": 0,
 				"name": [ "AmmoCart" ],
 				"faction": -1,
+				"ability_add": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],						//hell hound doesn't fly
 				"defname": "SMCART.DEF"
 			},
 
@@ -1316,6 +1511,7 @@
 				"level": 0,
 				"name": [ "ArrowTower" ],
 				"faction": -1,
+				"ability_add": [ [ "SHOOTER", 0, 0, 0 ] ],						//cerberus doesn't fly
 				"defname": "x"
 			},
 
@@ -1332,6 +1528,7 @@
 				"level": 8,
 				"name": [ "DiamondDragon" ],
 				"faction": 1,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon		//psychic elemental
 				"defname": "ZM151Z.DEF"
 			},
 
@@ -1358,6 +1555,7 @@
 				"level": 8,
 				"name": [ "BloodDragon" ],
 				"faction": 4,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon		//magic elemental
 				"defname": "ZM154Z.DEF"
 			},
 
@@ -1366,6 +1564,7 @@
 				"level": 8,
 				"name": [ "DarknessDragon" ],
 				"faction": 5,
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//darkness dragon is a dragon
 				"defname": "ZM155Z.DEF"
 			},
 
@@ -1382,6 +1581,7 @@
 				"level": 8,
 				"name": [ "HellHydra" ],
 				"faction": 7,
+				"ability_remove": [ "SHOOTER" ],	//Hell Hydra certainly does not shoot
 				"defname": "ZM157Z.DEF"
 			},
 
@@ -1470,6 +1670,7 @@
 				"level": 0,
 				"name": [ "Gorynych" ],
 				"faction": -1,
+				"ability_add": [ [ "FLYING", 0, 0, 0 ] ],
 				"defname": "ZM168DG.DEF"
 			},
 

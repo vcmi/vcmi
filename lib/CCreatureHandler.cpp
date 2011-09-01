@@ -213,24 +213,70 @@ bool CCreatureHandler::isEvil (si8 faction) const
 	return faction != -1 && factionAlignments[faction] == -1;
 }
 
+static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
+{
+	Bonus *nsf = new Bonus();
+	std::string type = ability_vec[0].String();
+
+	std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
+
+	if (it == bonusNameMap.end()) {
+		if (type == "DOUBLE_WIDE")
+			cre->doubleWide = true;
+		else if (type == "ENEMY_MORALE_DECREASING") {
+			cre->addBonus(-1, Bonus::MORALE);
+			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+		}
+		else if (type == "ENEMY_LUCK_DECREASING") {
+			cre->addBonus(-1, Bonus::LUCK);
+			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+		} else
+			tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
+
+		return;
+	}
+
+	nsf->type = it->second;
+
+	nsf->val = ability_vec[1].Float();
+	nsf->subtype = ability_vec[2].Float();
+	nsf->additionalInfo = ability_vec[3].Float();
+	nsf->source = Bonus::CREATURE_ABILITY;
+	nsf->sid = cre->idNumber;
+	//nsf->duration = Bonus::ONE_BATTLE; //what the?
+	nsf->duration = Bonus::PERMANENT;
+	nsf->turnsRemain = 0;
+
+	cre->addNewBonus(nsf);
+}
+
+static void RemoveAbility(CCreature *cre, const JsonNode &ability)
+{
+	std::string type = ability.String();
+
+	std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
+
+	if (it == bonusNameMap.end()) {
+		if (type == "DOUBLE_WIDE")
+			cre->doubleWide = false;
+		else
+			tlog1 << "Error: invalid ability type " << type << " in creatures.json" << std::endl;
+
+		return;
+	}
+
+	int typeNo = it->second;
+
+	Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
+
+	Bonus *b = cre->getBonus(Selector::type(ecf));
+	cre->removeBonus(b);
+}
+
 void CCreatureHandler::loadCreatures()
 {
 	notUsedMonsters += 122,124,126,128,145,146,147,148,149,160,161,162,163,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
-	tlog5 << "\t\tReading config/cr_abils.txt and ZCRTRAIT.TXT" << std::endl;
-
-	bool useCreAbilsFromZCRTRAIT = true;
-
-	////////////reading cr_abils.txt ///////////////////
-	std::ifstream abils(DATA_DIR "/config/cr_abils.txt", std::ios::in | std::ios::binary); //this file is not in lod
-	const int MAX_LINE_SIZE = 1000;
-	char abilLine[MAX_LINE_SIZE+1];
-	for(int i=0; i<5; ++i) //removing 5 comment lines
-	{
-		abils.getline(abilLine, MAX_LINE_SIZE);
-	}
-	//reading first line (determining if we should use creature abilities from ZCRTRAIT.TXT)
-	abils.getline(abilLine, MAX_LINE_SIZE);
-	useCreAbilsFromZCRTRAIT = atoi(abilLine);
+	tlog5 << "\t\tReading config/cr_abils.json and ZCRTRAIT.TXT" << std::endl;
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
 	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
@@ -316,7 +362,7 @@ void CCreatureHandler::loadCreatures()
 		}
 		ncre.abilityRefs = buf.substr(befi, i-befi);
 		i+=2;
-		if(useCreAbilsFromZCRTRAIT)
+		if(true)
 		{ //adding abilities from ZCRTRAIT.TXT
 			if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
 				ncre.doubleWide = true;
@@ -377,99 +423,6 @@ void CCreatureHandler::loadCreatures()
 			creatures.push_back(&ncre);
 		}
 	}
-	
-	////second part of reading cr_abils.txt////
-	bool contReading = true;
-	while(contReading) //main reading loop
-	{
-		abils.getline(abilLine, MAX_LINE_SIZE);
-		std::istringstream reader(abilLine);
-		char command;
-		reader >> command;
-		switch(command)
-		{
-		case '+': //add new ability
-			{
-				int creatureID;
-				Bonus *nsf = new Bonus();
-				si32 buf;
-				std::string type;
-
-				reader >> creatureID;
-				reader >> type;
-
-				std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
-				CCreature *cre = creatures[creatureID];
-
-				if (it == bonusNameMap.end()) 
-				{
-					if(type == "DOUBLE_WIDE")
-						cre->doubleWide = true;
-					else if(type == "ENEMY_MORALE_DECREASING")
-					{
-						cre->addBonus(-1, Bonus::MORALE);
-						cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-					}
-					else if(type == "ENEMY_LUCK_DECREASING")
-					{
-						cre->addBonus(-1, Bonus::LUCK);
-						cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-					}
-					else
-						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
-					break;
-				}
-				nsf->type = it->second;
-
-				reader >> buf; nsf->val = buf;
-				reader >> buf; nsf->subtype = buf;
-				reader >> buf; nsf->additionalInfo = buf;
-				nsf->source = Bonus::CREATURE_ABILITY;
-				nsf->sid = cre->idNumber;
-				//nsf->duration = Bonus::ONE_BATTLE; //what the?
-				nsf->duration = Bonus::PERMANENT;
-				nsf->turnsRemain = 0;
-
-				cre->addNewBonus(nsf);
-				break;
-			}
-		case '-': //remove ability
-			{
-				int creatureID;
-				std::string type;
-				reader >> creatureID;
-				reader >> type;
-				std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
-				if (it == bonusNameMap.end())
-				{
-					if(type == "DOUBLE_WIDE")
-						creatures[creatureID]->doubleWide = false;
-					else
-						tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
-					break;
-				}
-				int typeNo = it->second;
-
-				Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
-
-				Bonus *b = creatures[creatureID]->getBonus(Selector::type(ecf));
-				creatures[creatureID]->removeBonus(b);
-				break;
-			}
-		case '0': //end reading
-			{
-				contReading = false;
-				break;
-			}
-		default: //invalid command
-			{
-				tlog1 << "Parse error in file config/cr_abils.txt" << std::endl;
-				break;
-			}
-		}
-	}
-
-	abils.close();
 
 	// loading creatures properties
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
@@ -510,6 +463,20 @@ void CCreatureHandler::loadCreatures()
 		value = &creature["turret_shooter"];
 		if (!value->isNull() && value->Bool())
 			factionToTurretCreature[c->faction] = creatureID;
+
+		value = &creature["ability_add"];
+		if (!value->isNull()) {
+			BOOST_FOREACH(const JsonNode &ability, value->Vector()) {
+				AddAbility(c, ability.Vector());
+			}
+		}
+
+		value = &creature["ability_remove"];
+		if (!value->isNull()) {
+			BOOST_FOREACH(const JsonNode &ability, value->Vector()) {
+				RemoveAbility(c, ability);
+			}
+		}
 	}
 
 	buildBonusTreeForTiers();
