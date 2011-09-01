@@ -506,9 +506,10 @@ void CGameHandler::afterBattleCallback() //object interaction after leveling up 
 {
 	if(battleEndCallback && *battleEndCallback)
 	{
-		(*battleEndCallback)(battleResult.data);
-		delete battleEndCallback;
-		battleEndCallback = 0;
+		boost::function<void(BattleResult*)> *backup = battleEndCallback;
+		battleEndCallback = NULL; //we need to set it to NULL or else we have infinite recursion when after battle callback gives exp (eg Pandora Box with exp)
+		(*backup)(battleResult.data);
+		delete backup;
 	}
 }
 void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex)
@@ -4994,8 +4995,8 @@ void CGameHandler::runBattle()
 
 			const CGHeroInstance * curOwner = gs->curB->battleGetOwner(next);
 
-			if( (next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::BALLISTICS) == 0)) //arrow turret, hero has no ballistics
-				|| (next->getCreature()->idNumber == 146 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0))) //ballista, hero has no artillery
+			if( (next->position < 0 || next->getCreature()->idNumber == 146)	//arrow turret or ballista
+				&& (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0)) //hero has no artillery
 			{
 				BattleAction attack;
 				attack.actionType = BattleAction::SHOOT;
