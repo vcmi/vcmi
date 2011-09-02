@@ -162,45 +162,42 @@ void CHeroHandler::loadObstacles()
 
 void CHeroHandler::loadPuzzleInfo()
 {
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/puzzle_map.txt", std::ios_base::in|std::ios_base::binary);
-	if(!inp.is_open())
-	{
-		tlog1<<"missing file: config/puzzle_map.txt"<<std::endl;
-	}
-	else
-	{
-		const int MAX_DUMP = 10000;
-		char dump[MAX_DUMP+1];
+	const JsonNode config(DATA_DIR "/config/puzzle_map.json");
 
-		inp.getline(dump, MAX_DUMP);
+	int faction = 0;
 
-		for(int fct = 0; fct < F_NUMBER; ++fct)
-		{
-			std::string dmp;
-			inp >> dmp;
+	BOOST_FOREACH(const JsonNode &puzzle, config["puzzles"].Vector()) {
 
-			for(int g=0; g<PUZZLES_PER_FACTION; ++g)
-			{
-				SPuzzleInfo spi;
-				inp >> spi.x;
-				inp >> spi.y;
-				inp >> spi.whenUncovered;
-				spi.number = g;
+		int idx = 0;
+
+		BOOST_FOREACH(const JsonNode &piece, puzzle.Vector()) {
+
+			SPuzzleInfo spi;
+
+			spi.x = piece["x"].Float();
+			spi.y = piece["y"].Float();
+			spi.whenUncovered = piece["order"].Float();
+			spi.number = idx;
 				
-				//filename calculation
-				std::ostringstream suffix;
-				suffix << std::setfill('0') << std::setw(2);
-				suffix << g << ".BMP";
+			// filename calculation
+			std::ostringstream suffix;
+			suffix << std::setfill('0') << std::setw(2);
+			suffix << idx << ".BMP";
 
-				static const std::string factionToInfix[F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
-				spi.filename = "PUZ" + factionToInfix[fct] + suffix.str();
+			static const std::string factionToInfix[F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
+			spi.filename = "PUZ" + factionToInfix[faction] + suffix.str();
 
-				puzzleInfo[fct].push_back(spi);
-			}
+			puzzleInfo[faction].push_back(spi);
+
+			idx ++;
 		}
-		inp.close();
+
+		assert(idx == PUZZLES_PER_FACTION);
+
+		faction ++;
 	}
+
+	assert(faction == F_NUMBER);
 }
 
 void CHeroHandler::loadHeroes()
