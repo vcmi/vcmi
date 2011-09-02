@@ -4789,23 +4789,24 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 94: //Stables
 		sound = soundBase::horse20;
-		CCreatureSet creatures;
+		bool someUpgradeDone = false;
+
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
 			if(i->second->type->idNumber == 10)
-				creatures.stacks.insert(*i);
+			{
+				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[11]);
+				someUpgradeDone = true;
+			}
 		}
-		if (creatures.stacks.size())
+		if (someUpgradeDone)
 		{
 			messageID = 138;
 			iw.components.push_back(Component(Component::CREATURE,11,0,1));
-			for (TSlots::const_iterator i = creatures.stacks.begin(); i != creatures.stacks.end(); ++i)
-			{
-				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[11]);
-			}
 		}
 		else
 			messageID = 137;
+
 		gbonus.bonus.type = Bonus::LAND_MOVEMENT;
 		gbonus.bonus.val = 600;
 		bonusMove = 600;
