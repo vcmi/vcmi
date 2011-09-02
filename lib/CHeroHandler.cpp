@@ -144,34 +144,19 @@ CHeroHandler::CHeroHandler()
 
 void CHeroHandler::loadObstacles()
 {
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/obstacles.txt", std::ios_base::in|std::ios_base::binary);
-	if(!inp.is_open())
-	{
-		tlog1<<"missing file: config/obstacles.txt"<<std::endl;
-	}
-	else
-	{
-		const int MAX_DUMP = 10000;
-		char dump[MAX_DUMP+1];
+	const JsonNode config(DATA_DIR "/config/obstacles.json");
 
-		for(int i=0; i<8; ++i)
-		{
-			inp.getline(dump, MAX_DUMP);
-		}
-		while(true)
-		{
-			CObstacleInfo obi;
-			inp>>obi.ID;
-			if(obi.ID == -1) break;
-			inp>>obi.defName;
-			inp>>obi.blockmap;
-			inp>>obi.allowedTerrains;
-			inp>>obi.posShift.first;
-			inp>>obi.posShift.second;
-			obstacles[obi.ID] = obi;
-		}
-		inp.close();
+	BOOST_FOREACH(const JsonNode &obs, config["obstacles"].Vector()) {
+		CObstacleInfo obi;
+
+		obi.ID = obs["id"].Float();
+		obi.defName = obs["defname"].String();
+		obi.blockmap = obs["blockmap"].String();
+		obi.allowedTerrains = obs["terrains"].String();
+		obi.posShift.first = obs["shift_x"].Float();
+		obi.posShift.second = obs["shift_y"].Float();
+
+		obstacles[obi.ID] = obi;
 	}
 }
 
