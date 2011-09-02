@@ -27,7 +27,7 @@ class CGeneralTextHandler;
 class DLL_EXPORT LibClasses
 {
 public:
-	bool IS_AI_ENABLED; //VLC is teh only object visible from both CMT and GeniusAI
+	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
