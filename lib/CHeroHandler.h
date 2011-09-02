@@ -155,8 +155,7 @@ public:
 	void loadHeroes();
 	void loadHeroClasses();
 	void initHeroClasses();
-	void initTerrainCosts();
-	void loadNativeTerrains();
+	void loadTerrains();
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 

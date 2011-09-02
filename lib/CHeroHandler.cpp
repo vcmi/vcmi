@@ -421,8 +421,8 @@ void CHeroHandler::initHeroClasses()
 	{
 		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
 	}
-	initTerrainCosts();
-	loadNativeTerrains();
+
+	loadTerrains();
 }
 
 unsigned int CHeroHandler::level (ui64 experience) const
@@ -458,56 +458,28 @@ ui64 CHeroHandler::reqExp (unsigned int level) const
 	}
 }
 
-void CHeroHandler::initTerrainCosts()
+void CHeroHandler::loadTerrains()
 {
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
-
-	if(!inp.is_open())
-	{
-		tlog1 << "Error while opening config/TERCOSTS.TXT file!" << std::endl;
-	}
-
-	int tynum;
-	inp>>tynum;
-	for(int i=0; i<2*tynum; i+=2)
-	{
-		int catNum;
-		inp>>catNum;
-		for(int k=0; k<catNum; ++k)
-		{
-			int curCost;
-			inp>>curCost;
-			heroClasses[i]->terrCosts.push_back(curCost);
-			heroClasses[i+1]->terrCosts.push_back(curCost);
-		}
-	}
-	inp.close();
-}
-
-void CHeroHandler::loadNativeTerrains()
-{
-	std::ifstream inp;
-	inp.open(DATA_DIR "/config/native_terrains.txt", std::ios_base::in|std::ios_base::binary);
-
-	if(!inp.is_open())
-	{
-		tlog1 << "Error while opening config/native_terrains.txt file!" << std::endl;
-	}
-	const int MAX_ELEM = 1000;
-	char buf[MAX_ELEM+1];
-	inp.getline(buf, MAX_ELEM);
-	inp.getline(buf, MAX_ELEM);
+	int faction = 0;
+	const JsonNode config(DATA_DIR "/config/terrains.json");
 
 	nativeTerrains.resize(F_NUMBER);
-	for(int i=0; i<F_NUMBER; ++i)
-	{
-		int faction, terrain;
-		inp >> faction;
-		inp >> terrain;
-		nativeTerrains[faction] = terrain;
+
+	BOOST_FOREACH(const JsonNode &terrain, config["terrains"].Vector()) {
+
+		BOOST_FOREACH(const JsonNode &cost, terrain["costs"].Vector()) {
+			int curCost = cost.Float();
+
+			heroClasses[2*faction]->terrCosts.push_back(curCost);
+			heroClasses[2*faction+1]->terrCosts.push_back(curCost);
+		}
+
+		nativeTerrains[faction] = terrain["native"].Float();
+
+		faction ++;
 	}
-	inp.close();
+
+	assert(faction == F_NUMBER);
 }
 
 CHero::CHero()
