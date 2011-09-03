@@ -16,6 +16,7 @@
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
 #include "NetPacks.h"
+#include "../lib/JsonNode.h"
 
 /*
  * BattleState.h, part of VCMI engine
@@ -1372,16 +1373,17 @@ void BattleInfo::localInit()
 namespace CGH
 {
 	using namespace std;
-	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
+
+	static void readBattlePositions(const JsonNode &node, vector< vector<int> > & dest)
 	{
-		for(int j=0; j<7; ++j)
+		BOOST_FOREACH(const JsonNode &level, node.Vector())
 		{
 			std::vector<int> pom;
-			for(int g=0; g<j+1; ++g)
+			BOOST_FOREACH(const JsonNode &value, level.Vector())
 			{
-				int hlp; input>>hlp;
-				pom.push_back(hlp);
+				pom.push_back(value.Float());
 			}
+
 			dest.push_back(pom);
 		}
 	}
@@ -1419,31 +1421,18 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//reading battleStartpos
-	std::ifstream positions;
-	positions.open(DATA_DIR "/config/battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
-	if(!positions.is_open())
-	{
-		tlog1<<"Unable to open battleStartpos.txt!"<<std::endl;
-	}
-	std::string dump;
-	positions>>dump; positions>>dump;
 	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
-	CGH::readItTo(positions, attackerLoose);
-	positions>>dump;
-	CGH::readItTo(positions, defenderLoose);
-	positions>>dump;
-	positions>>dump;
-	CGH::readItTo(positions, attackerTight);
-	positions>>dump;
-	CGH::readItTo(positions, defenderTight);
-	positions>>dump;
-	positions>>dump;
-	CGH::readItTo(positions, attackerCreBank);
-	positions>>dump;
-	CGH::readItTo(positions, defenderCreBank);
-	positions.close();
-	//battleStartpos read
+	const JsonNode config(DATA_DIR "/config/battleStartpos.json");
+	const JsonVector &positions = config["battle_positions"].Vector();
 
+	CGH::readBattlePositions(positions[0]["levels"], attackerLoose);
+	CGH::readBattlePositions(positions[1]["levels"], defenderLoose);
+	CGH::readBattlePositions(positions[2]["levels"], attackerTight);
+	CGH::readBattlePositions(positions[3]["levels"], defenderTight);
+	CGH::readBattlePositions(positions[4]["levels"], attackerCreBank);
+	CGH::readBattlePositions(positions[5]["levels"], defenderCreBank);
+
+	//battleStartpos read
 	int k = 0; //stack serial 
 	for(TSlots::const_iterator i = armies[0]->Slots().begin(); i!=armies[0]->Slots().end(); i++, k++)
 	{
