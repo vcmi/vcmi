@@ -27,6 +27,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include "CBuildingHandler.h"
+#include "../lib/JsonNode.h"
 
 using namespace boost::assign;
 
@@ -181,27 +182,23 @@ void CObjectHandler::readConfigLine(std::ifstream &istr, int g)
 
 void CObjectHandler::loadObjects()
 {
+	tlog5 << "\t\tReading cregens \n";
+	cregens.resize(110); //TODO: hardcoded value - change
+	for(size_t i=0; i < cregens.size(); ++i)
 	{
-		tlog5 << "\t\tReading cregens \n";
-		cregens.resize(110); //TODO: hardcoded value - change
-		for(size_t i=0; i < cregens.size(); ++i)
-		{
-			cregens[i]=-1;
-		}
-		std::ifstream ifs(DATA_DIR "/config/cregens.txt");
-		while(!ifs.eof())
-		{
-			int dw, cr;
-			ifs >> dw >> cr;
-			cregens[dw]=cr;
-		}
-		tlog5 << "\t\tDone loading objects!\n";
+		cregens[i]=-1;
+	}
 
-		ifs.close();
-		ifs.clear();
+	const JsonNode config(DATA_DIR "/config/dwellings.json");
+	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
+	{
+		cregens[dwelling["dwelling"].Float()] = dwelling["creature"].Float();
+	}
+	tlog5 << "\t\tDone loading cregens!\n";
 
+	{
 		int k = -1;
-		ifs.open(DATA_DIR "/config/resources.txt");
+		std::ifstream ifs(DATA_DIR "/config/resources.txt");
 		ifs >> k;
 		int pom;
 		for(int i=0;i<k;i++)
