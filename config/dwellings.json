@@ -71,7 +71,7 @@
 		{ "dwelling": 65, "creature": 135 },
 		{ "dwelling": 66, "creature": 136 },
 		{ "dwelling": 67, "creature": 137 },
-		{ "dwelling": 68, "creature": 24 }
+		{ "dwelling": 68, "creature": 24 },
 		{ "dwelling": 69, "creature": 112 },
 		{ "dwelling": 70, "creature": 113 },
 		{ "dwelling": 71, "creature": 114 },
@@ -103,6 +103,6 @@
 		{ "dwelling": 97, "creature": 193 },
 		{ "dwelling": 98, "creature": 194 },
 		{ "dwelling": 99, "creature": 195 },
-		{ "dwelling": 100, "creature": 196 },
+		{ "dwelling": 100, "creature": 196 }
 	]
 }
