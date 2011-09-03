@@ -13,6 +13,7 @@
 #include <assert.h>
 #include "CSpellHandler.h"
 #include <boost/foreach.hpp>
+#include "../lib/JsonNode.h"
 
 /*
  * map.cpp, part of VCMI engine
@@ -28,14 +29,18 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID, b
 {
 	std::map<int,int> mapa;
 	std::set<si32> ret;
-	std::ifstream b5(DATA_DIR "/config/buildings5.txt");
-	while(!b5.eof())
+
+	// Note: this file is parsed many times.
+	const JsonNode config(DATA_DIR "/config/buildings5.json");
+
+	BOOST_FOREACH(const JsonNode &entry, config["table"].Vector())
 	{
-		int h3, VCMI, town;
-		b5 >> town >> h3 >> VCMI;
+		int town = entry["town"].Float();
+
 		if ( town == castleID || town == -1 )
-			mapa[h3]=VCMI;
+			mapa[entry["h3"].Float()] = entry["vcmi"].Float();
 	}
+
 	for(std::set<si32>::const_iterator i=h3m.begin();i!=h3m.end();i++)
 	{
 		if(mapa[*i]>=0)
