@@ -151,12 +151,7 @@ void SetMana::applyCl( CClient *cl )
 void SetMovePoints::applyCl( CClient *cl )
 {
 	const CGHeroInstance *h = cl->getHero(hid);
-
-	if (cl->IGameCallback::getSelectedHero(LOCPLINT->playerID) == h)//if we have selected that hero
-	{
-		cl->calculatePaths(h);
-	}
-
+	cl->invalidatePaths(h);
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroMovePointsChanged, h);
 }
 
@@ -167,7 +162,7 @@ void FoWChange::applyCl( CClient *cl )
 	else
 		INTERFACE_CALL_IF_PRESENT(player, tileHidden, tiles);
 
-	cl->updatePaths();
+	cl->invalidatePaths();
 }
 
 void SetAvailableHeroes::applyCl( CClient *cl )
@@ -243,14 +238,13 @@ void HeroVisit::applyCl( CClient *cl )
 
 void NewTurn::applyCl( CClient *cl )
 {
-	//cl->updatePaths(); => may fail when there is no selected (mechanically) hero
-	if(cl->pathInfo->hero)
-		cl->calculatePaths(cl->pathInfo->hero);
+	cl->invalidatePaths();
 }
 
 
 void GiveBonus::applyCl( CClient *cl )
 {
+	cl->invalidatePaths();
 	switch(who)
 	{
 	case HERO:
@@ -280,7 +274,7 @@ void ChangeObjPos::applyCl( CClient *cl )
 	if(flags & 1)
 		CGI->mh->printObject(obj);
 
-	cl->updatePaths();
+	cl->invalidatePaths();
 }
 
 void PlayerEndsGame::applyCl( CClient *cl )
@@ -290,6 +284,7 @@ void PlayerEndsGame::applyCl( CClient *cl )
 
 void RemoveBonus::applyCl( CClient *cl )
 {
+	cl->invalidatePaths();
 	switch(who)
 	{
 	case HERO:
@@ -325,18 +320,14 @@ void RemoveObject::applyFirstCl( CClient *cl )
 	//notify interfaces about removal
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
-		if(i->first >= PLAYER_LIMIT) continue;
-		if(GS(cl)->getPlayerTeam(i->first)->fogOfWarMap[pos.x][pos.y][pos.z])
-		{
+		if(GS(cl)->isVisible(o, i->first))
 			i->second->objectRemoved(o);
-		}
 	}
 }
 
 void RemoveObject::applyCl( CClient *cl )
 {
-	if(cl->pathInfo->hero && cl->pathInfo->hero->id != id)
-		cl->updatePaths();
+	cl->invalidatePaths();
 }
 
 void TryMoveHero::applyFirstCl( CClient *cl )
@@ -365,6 +356,7 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 void TryMoveHero::applyCl( CClient *cl )
 {
 	const CGHeroInstance *h = cl->getHero(id);
+	cl->invalidatePaths();
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
 	{
@@ -781,7 +773,9 @@ void ShowInInfobox::applyCl(CClient *cl)
 
 void AdvmapSpellCast::applyCl(CClient *cl)
 {
-	cl->playerint[caster->getOwner()]->advmapSpellCast(caster, spellID);
+	cl->invalidatePaths();
+	//consider notifying other interfaces that see hero? 
+	INTERFACE_CALL_IF_PRESENT(caster->getOwner(),advmapSpellCast, caster, spellID);
 }
 
 void OpenWindow::applyCl(CClient *cl)
@@ -870,12 +864,8 @@ void NewObject::applyCl(CClient *cl)
 
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
-		//TODO: check if any covered tile is visible
-		if(i->first >= PLAYER_LIMIT) continue;
-		if(GS(cl)->getPlayerTeam(i->first)->fogOfWarMap[obj->pos.x][obj->pos.y][obj->pos.z])
-		{
+		if(GS(cl)->isVisible(obj, i->first))
 			i->second->newObject(obj);
-		}
 	}
 }
 

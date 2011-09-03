@@ -647,6 +647,12 @@ void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 	} HANDLE_EXCEPTION
 }
 
+void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
+{
+	if(!h || pathInfo->hero == h)
+		pathInfo->isValid = false;
+}
+
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );
 

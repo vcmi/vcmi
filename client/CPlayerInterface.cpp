@@ -263,7 +263,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		{
 			if(adventureInt->terrain.currentPath)
 				eraseCurrentPathOf(ho);
-			cb->recalculatePaths();
 			return; //teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
@@ -1079,7 +1078,6 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
-		cb->recalculatePaths();
 		eraseCurrentPathOf(hero, false);
 	}
 }
@@ -1172,7 +1170,6 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	cb->getGsMutex().lock_shared();
 	pim->lock();
 	eventsM.lock();
-	cb->recalculatePaths();
 	return result;
 }
 
@@ -1936,7 +1933,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 {
 	if (spellID == Spells::FLY || spellID == Spells::WATER_WALK)
 	{
-		cb->recalculatePaths();
 		eraseCurrentPathOf(caster, false);
 	}
 }

@@ -2005,6 +2005,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
 {
 	assert(hero);
+	assert(hero == getHero(hero->id));
 	if(src.x < 0)
 		src = hero->getPosition(false);
 	if(movement < 0)
@@ -2209,6 +2210,8 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 			}
 		} //neighbours loop
 	} //queue loop
+
+	out.isValid = true;
 }
 
 /**
@@ -2824,6 +2827,8 @@ CGPathNode::CGPathNode()
 
 bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 {
+	assert(isValid);
+
 	out.nodes.clear();
 	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
 	if(!curnode->theNodeBefore || curnode->accessible == CGPathNode::FLYABLE)

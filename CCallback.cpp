@@ -312,7 +312,7 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 
 	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
 	assert(cl->pathInfo->hero == h);
-	if(cl->pathInfo->hpos != h->getPosition(false)) //hero position changed, must update paths
+	if(cl->pathInfo->hpos != h->getPosition(false) || !cl->pathInfo->isValid) //hero position changed, must update paths
 	{ 
 		recalculatePaths();
 	}

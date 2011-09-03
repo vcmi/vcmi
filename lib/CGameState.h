@@ -267,6 +267,7 @@ struct DLL_EXPORT CGPath
 
 struct DLL_EXPORT CPathsInfo
 {
+	bool isValid;
 	const CGHeroInstance *hero;
 	int3 hpos;
 	int3 sizes;
