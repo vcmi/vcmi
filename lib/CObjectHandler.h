@@ -1303,7 +1303,6 @@ public:
 	std::vector<ui32> resVals; //default values of resources in gold
 
 	void loadObjects();
-	void readConfigLine(std::ifstream &istr, int g);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

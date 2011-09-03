@@ -1,0 +1,1159 @@
+//			Fight										Reward							Creatures		Artifacts				Analysis
+//Adventure Object	Level	Chance			Upgrade							Combat Value (imp = 1)	Wood	Mercury	Ore	Sulfur	Crystal	Gems	Gold			Treasure	Minor	Major	Relic	Overall Value	Reward / Difficulty	Difficult / Easiest
+
+{
+	"banks": [
+		{
+			"name" : "Cyclops Stockpile",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Cyclopes" } ],
+					"upgrade_chance": 50,
+					"combat_value": 506,
+					"reward_ressources": [ 4, 4, 4, 4, 4, 4, 0 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 10000,
+					"profitability": 20,
+					"easiest": 100
+				},
+
+				{
+					"chance": 30,
+					"guards": [ { "number": 30, "name": "Cyclopes" } ],
+					"upgrade_chance": 50,
+					"combat_value": 760,
+					"reward_ressources": [ 6, 6, 6, 6, 6, 6, 0 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 15000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 40, "name": "Cyclopes" } ],
+					"upgrade_chance": 50,
+					"combat_value": 1013,
+					"reward_ressources": [ 8, 8, 8, 8, 8, 8, 0 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 20000,
+					"profitability": 20,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 50, "name": "Cyclopes" } ],
+					"upgrade_chance": 50,
+					"combat_value": 1266,
+					"reward_ressources": [ 10, 10, 10, 10, 10, 10, 0 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 25000,
+					"profitability": 20,
+					"easiest": 250
+				}
+			]
+		},
+
+		{
+			"name" : "Dwarven Treasury",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 50, "name": "Dwarves" } ],
+					"upgrade_chance": 50,
+					"combat_value": 194,
+					"reward_ressources": [ 0, 0, 0, 0, 2, 0, 2500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3500,
+					"profitability": 18,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 75, "name": "Dwarves" } ],
+					"upgrade_chance": 50,
+					"combat_value": 291,
+					"reward_ressources": [ 0, 0, 0, 0, 3, 0, 4000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 5500,
+					"profitability": 19,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 100, "name": "Dwarves" } ],
+					"upgrade_chance": 50,
+					"combat_value": 388,
+					"reward_ressources": [ 0, 0, 0, 0, 5, 0, 5000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 7500,
+					"profitability": 19,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 150, "name": "Dwarves" } ],
+					"upgrade_chance": 50,
+					"combat_value": 582,
+					"reward_ressources": [ 0, 0, 0, 0, 10, 0, 7500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 12500,
+					"profitability": 21,
+					"easiest": 300
+				}
+			]
+		},
+
+		{
+			"name" : "Griffin Conservatory",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 50, "name": "Griffins" } ],
+					"upgrade_chance": 50,
+					"combat_value": 351,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "Angels" } ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 9,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 100, "name": "Griffins" } ],
+					"upgrade_chance": 50,
+					"combat_value": 702,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 2, "name": "Angels" } ],
+					"reward_artifacts": [ ],
+					"value": 6000,
+					"profitability": 9,
+					"easiest": 200
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 150, "name": "Griffins" } ],
+					"upgrade_chance": 50,
+					"combat_value": 1053,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 3, "name": "Angels" } ],
+					"reward_artifacts": [ ],
+					"value": 9000,
+					"profitability": 9,
+					"easiest": 300
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 200, "name": "Griffins" } ],
+					"upgrade_chance": 50,
+					"combat_value": 1404,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 4, "name": "Angels" } ],
+					"reward_artifacts": [ ],
+					"value": 12000,
+					"profitability": 9,
+					"easiest": 400
+				}
+			]
+		},
+
+		{
+			"name" : "Imp Cache",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 100, "name": "Imps" } ],
+					"upgrade_chance": 50,
+					"combat_value": 100,
+					"reward_ressources": [ 0, 2, 0, 0, 0, 0, 1000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 150, "name": "Imps" } ],
+					"upgrade_chance": 50,
+					"combat_value": 150,
+					"reward_ressources": [ 0, 3, 0, 0, 0, 0, 1500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 200, "name": "Imps" } ],
+					"upgrade_chance": 50,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 4, 0, 0, 0, 0, 2000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 20,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 300, "name": "Imps" } ],
+					"upgrade_chance": 50,
+					"combat_value": 300,
+					"reward_ressources": [ 0, 6, 0, 0, 0, 0, 3000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 6000,
+					"profitability": 20,
+					"easiest": 300
+				}
+			]
+		},
+
+		{
+			"name" : "Medusa Stores",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Medusae" } ],
+					"upgrade_chance": 50,
+					"combat_value": 207,
+					"reward_ressources": [ 0, 0, 0, 5, 0, 0, 2000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 4500,
+					"profitability": 22,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 30, "name": "Medusae" } ],
+					"upgrade_chance": 50,
+					"combat_value": 310,
+					"reward_ressources": [ 0, 0, 0, 6, 0, 0, 3000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 6000,
+					"profitability": 19,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 40, "name": "Medusae" } ],
+					"upgrade_chance": 50,
+					"combat_value": 414,
+					"reward_ressources": [ 0, 0, 0, 8, 0, 0, 4000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 8000,
+					"profitability": 19,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 50, "name": "Medusae" } ],
+					"upgrade_chance": 50,
+					"combat_value": 517,
+					"reward_ressources": [ 0, 0, 0, 10, 0, 0, 5000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 10000,
+					"profitability": 19,
+					"easiest": 250
+				}
+			]
+		},
+
+		{
+			"name" : "Naga Bank",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Nagas" } ],
+					"upgrade_chance": 50,
+					"combat_value": 403,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 8, 4000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 8000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Nagas" } ],
+					"upgrade_chance": 50,
+					"combat_value": 605,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 12, 6000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 12000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Nagas" } ],
+					"upgrade_chance": 50,
+					"combat_value": 806,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 16, 8000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 16000,
+					"profitability": 20,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Nagas" } ],
+					"upgrade_chance": 50,
+					"combat_value": 1210,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 24, 12000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 24000,
+					"profitability": 20,
+					"easiest": 300
+				}
+			]
+		},
+
+		{
+			"name" : "Dragon Fly Hive",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 30, "name": "Dragon Flies" } ],
+					"upgrade_chance": 30,
+					"combat_value": 154,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 4, "name": "Wyverns" } ],
+					"reward_artifacts": [ 0, 0, 0, 0 ],
+					"value": 3200,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 45, "name": "Dragon Flies" } ],
+					"upgrade_chance": 0,
+					"combat_value": 230,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 6, "name": "Wyverns" } ],
+					"reward_artifacts": [ 0, 0, 0, 0 ],
+					"value": 4800,
+					"profitability": 21,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 60, "name": "Dragon Flies" } ],
+					"upgrade_chance": 0,
+					"combat_value": 307,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 8, "name": "Wyverns" } ],
+					"reward_artifacts": [ 0, 0, 0, 0 ],
+					"value": 6400,
+					"profitability": 21,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 90, "name": "Dragon Flies" } ],
+					"upgrade_chance": 0,
+					"combat_value": 461,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 12, "name": "Wyverns" } ],
+					"reward_artifacts": [ 0, 0, 0, 0 ],
+					"value": 9600,
+					"profitability": 21,
+					"easiest": 300
+				}
+			]
+		},
+
+		{
+			"name" : "Shipwreck",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Wights" } ],
+					"upgrade_chance": 0,
+					"combat_value": 31,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 2000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 65,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Wights" } ],
+					"upgrade_chance": 0,
+					"combat_value": 46,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 3000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 65,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 25, "name": "Wights" } ],
+					"upgrade_chance": 0,
+					"combat_value": 77,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 4000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 0, 0, 0 ],
+					"value": 5000,
+					"profitability": 65,
+					"easiest": 250
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 50, "name": "Wights" } ],
+					"upgrade_chance": 0,
+					"combat_value": 154,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 1, 0, 0 ],
+					"value": 7000,
+					"profitability": 45,
+					"easiest": 500
+				}
+			]
+		},
+
+		{
+			"name" : "Derelict Ship",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Water Elementals" } ],
+					"upgrade_chance": 0,
+					"combat_value": 138,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 3000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 0, 0, 0 ],
+					"value": 3000,
+					"profitability": 22,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 30, "name": "Water Elementals" } ],
+					"upgrade_chance": 0,
+					"combat_value": 207,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 3000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 0, 0, 0 ],
+					"value": 4000,
+					"profitability": 19,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 40, "name": "Water Elementals" } ],
+					"upgrade_chance": 0,
+					"combat_value": 276,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 4000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 0, 0, 0 ],
+					"value": 5000,
+					"profitability": 18,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 60, "name": "Water Elementals" } ],
+					"upgrade_chance": 0,
+					"combat_value": 414,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 6000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 1, 0, 0 ],
+					"value": 8000,
+					"profitability": 19,
+					"easiest": 300
+				}
+			]
+		},
+
+		{
+			"name" : "Crypt",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 30, "name": "Skeletons" }, { "number": 20, "name": "Zombies" }, { "number": 0, "name": "Wights" } , { "number": 0, "name": "Vampires" } ],
+					"upgrade_chance": 0,
+					"combat_value": 75,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 1500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 1500,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 25, "name": "Skeletons" }, { "number": 20, "name": "Zombies" }, { "number": 5, "name": "Wights" }, { "number": 0, "name": "Vampires" } ],
+					"upgrade_chance": 0,
+					"combat_value": 94,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 2000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 21,
+					"easiest": 126
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Skeletons" }, { "number": 20, "name": "Zombies" }, { "number": 10, "name": "Wights" }, { "number": 5, "name": "Vampires" } ],
+					"upgrade_chance": 0,
+					"combat_value": 169,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 2500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 0, 0, 0 ],
+					"value": 3500,
+					"profitability": 21,
+					"easiest": 225
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 20, "name": "Skeletons" }, { "number": 20, "name": "Zombies" }, { "number": 10, "name": "Wights" }, { "number": 10, "name": "Vampires" } ],
+					"upgrade_chance": 0,
+					"combat_value": 225,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 0, 0, 0 ],
+					"value": 6000,
+					"profitability": 27,
+					"easiest": 299
+				}
+			]
+		},
+
+		{
+			"name" : "Dragon Utopia",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 8, "name": "Green Dragons" }, { "number": 5, "name": "Red Dragons" }, { "number": 2, "name": "Gold Dragons" }, { "number": 1, "name": "Black Dragons" }	],
+					"upgrade_chance": 0,
+					"combat_value": 769,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 20000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 1, 1, 1, 1 ],
+					"value": 38000,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 8, "name": "Green Dragons" }, { "number": 6, "name": "Red Dragons" }, { "number": 3, "name": "Gold Dragons" }, { "number": 2, "name": "Black Dragons" }	],
+					"upgrade_chance": 0,
+					"combat_value": 209,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 30000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 1, 1, 2 ],
+					"value": 57000,
+					"profitability": 26,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 8, "name": "Green Dragons" }, { "number": 6, "name": "Red Dragons" }, { "number": 4, "name": "Gold Dragons" }, { "number": 3, "name": "Black Dragons" }	],
+					"upgrade_chance": 0,
+					"combat_value": 556,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 40000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 0, 1, 3 ],
+					"value": 75000,
+					"profitability": 29,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 8, "name": "Green Dragons" }, { "number": 7, "name": "Red Dragons" }, { "number": 6, "name": "Gold Dragons" }, { "number": 5, "name": "Black Dragons" } ],
+					"upgrade_chance": 0,
+					"combat_value": 343,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 50000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ 0, 0, 0, 4 ],
+					"value": 90000,
+					"profitability": 27,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Hunting Lodge",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 3, "name": "Dendroid Guard" }, { "number": 4, "name": "Wood Elf" }, { "number": 3, "name": "Dendroid Guard" }, { "number": 4, "name": "Wood Elf" } ],
+					"upgrade_chance": 0,
+					"combat_value": 100,
+					"reward_ressources": [ 15, 0, 0, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 4, "name": "Dendroid Guard" }, { "number": 6, "name": "Wood Elf" }, { "number": 4, "name": "Dendroid Guard" }, { "number": 6, "name": "Wood Elf" } ],
+					"upgrade_chance": 0,
+					"combat_value": 150,
+					"reward_ressources": [ 20, 0, 0, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 5, "name": "Dendroid Guard" }, { "number": 8, "name": "Wood Elf" }, { "number": 5, "name": "Dendroid Guard" }, { "number": 8, "name": "Wood Elf" } ],
+					"upgrade_chance": 0,
+					"combat_value": 200,
+					"reward_ressources": [ 25, 0, 0, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 6, "name": "Dendroid Guard" }, { "number": 10, "name": "Wood Elf" }, { "number": 6, "name": "Dendroid Guard" }, { "number": 10, "name": "Wood Elf" } ],
+					"upgrade_chance": 100,
+					"combat_value": 300,
+					"reward_ressources": [ 40, 0, 0, 0, 0, 0, 1000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 6000,
+					"profitability": 20,
+					"easiest": 200
+				}
+			]
+		},
+
+		{
+			"name" : "Snow-covered Grotto",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 5, "name": "Iron Golem" }, { "number": 20, "name": "Master Gremlin" }, { "number": 5, "name": "Iron Golem" }, { "number": 20, "name": "Master Gremlin" } ],
+					"upgrade_chance": 0,
+					"combat_value": 100,
+					"reward_ressources": [ 0, 0, 15, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 6, "name": "Iron Golem" }, { "number": 30, "name": "Master Gremlin" }, { "number": 6, "name": "Iron Golem" }, { "number": 30, "name": "Master Gremlin" } ],
+					"upgrade_chance": 0,
+					"combat_value": 150,
+					"reward_ressources": [ 0, 0, 20, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 7, "name": "Iron Golem" }, { "number": 40, "name": "Master Gremlin" }, { "number": 7, "name": "Iron Golem" }, { "number": 40, "name": "Master Gremlin" } ],
+					"upgrade_chance": 0,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 0, 30, 0, 0, 0, 500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 8, "name": "Iron Golem" }, { "number": 50, "name": "Master Gremlin" }, { "number": 8, "name": "Iron Golem" }, { "number": 50, "name": "Master Gremlin" } ],
+					"upgrade_chance": 0,
+					"combat_value": 300,
+					"reward_ressources": [ 0, 0, 40, 0, 0, 0, 1000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 6000,
+					"profitability": 20,
+					"easiest": 200
+				}
+			]
+		},
+
+		{
+			"name" : "Palace of Martial Spirit",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Fire Messenger" },	{ "number": 10, "name": "Fire Messenger" }, { "number": 10, "name": "Fire Messenger" }, { "number": 10, "name": "Fire Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God1War" } ],
+					"reward_artifacts": [ ],
+					"value": 38000,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Fire Messenger" }, { "number": 15, "name": "Fire Messenger" }, { "number": 15, "name": "Fire Messenger" }, { "number": 15, "name": "Fire Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God1War" } ],
+					"reward_artifacts": [ ],
+					"value": 57000,
+					"profitability": 26,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Fire Messenger" }, { "number": 20, "name": "Fire Messenger" }, { "number": 20, "name": "Fire Messenger" }, { "number": 20, "name": "Fire Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God1War" } ],
+					"reward_artifacts": [ ],
+					"value": 75000,
+					"profitability": 29,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Fire Messenger" }, { "number": 30, "name": "Fire Messenger" }, { "number": 30, "name": "Fire Messenger" }, { "number": 30, "name": "Fire Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God1War" } ],
+					"reward_artifacts": [ ],
+					"value": 90000,
+					"profitability": 27,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Citadel of Pacification",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Earth Messenger" }, { "number": 10, "name": "Earth Messenger" }, { "number": 10, "name": "Earth Messenger" }, { "number": 10, "name": "Earth Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God2Peace" } ],
+					"reward_artifacts": [ ],
+					"value": 38000,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Earth Messenger" }, { "number": 15, "name": "Earth Messenger" }, { "number": 15, "name": "Earth Messenger" }, { "number": 15, "name": "Earth Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God2Peace" } ],
+					"reward_artifacts": [ ],
+					"value": 57000,
+					"profitability": 26,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Earth Messenger" }, { "number": 20, "name": "Earth Messenger" }, { "number": 20, "name": "Earth Messenger" }, { "number": 20, "name": "Earth Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God2Peace" } ],
+					"reward_artifacts": [ ],
+					"value": 75000,
+					"profitability": 29,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Earth Messenger" }, { "number": 30, "name": "Earth Messenger" }, { "number": 30, "name": "Earth Messenger" }, { "number": 30, "name": "Earth Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God2Peace" } ],
+					"reward_artifacts": [ ],
+					"value": 90000,
+					"profitability": 27,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Monastery of Magicians",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Air Messenger" }, { "number": 10, "name": "Air Messenger" }, { "number": 10, "name": "Air Messenger" }, { "number": 10, "name": "Air Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God3Mana" } ],
+					"reward_artifacts": [ ],
+					"value": 38000,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Air Messenger" }, { "number": 15, "name": "Air Messenger" }, { "number": 15, "name": "Air Messenger" }, { "number": 15, "name": "Air Messenger" }	],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God3Mana" } ],
+					"reward_artifacts": [ ],
+					"value": 57000,
+					"profitability": 26,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Air Messenger" }, { "number": 20, "name": "Air Messenger" }, { "number": 20, "name": "Air Messenger" }, { "number": 20, "name": "Air Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God3Mana" } ],
+					"reward_artifacts": [ ],
+					"value": 75000,
+					"profitability": 29,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Air Messenger" }, { "number": 30, "name": "Air Messenger" }, { "number": 30, "name": "Air Messenger" }, { "number": 30, "name": "Air Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God3Mana" } ],
+					"reward_artifacts": [ ],
+					"value": 90000,
+					"profitability": 27,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Library of Legends",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Water Messenger" }, { "number": 10, "name": "Water Messenger" }, { "number": 10, "name": "Water Messenger" }, { "number": 10, "name": "Water Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God4Lore" } ],
+					"reward_artifacts": [ ],
+					"value": 38000,
+					"profitability": 21,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Water Messenger" }, { "number": 15, "name": "Water Messenger" }, { "number": 15, "name": "Water Messenger" }, { "number": 15, "name": "Water Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God4Lore" } ],
+					"reward_artifacts": [ ],
+					"value": 57000,
+					"profitability": 26,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Water Messenger" }, { "number": 20, "name": "Water Messenger" }, { "number": 20, "name": "Water Messenger" }, { "number": 20, "name": "Water Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God4Lore" } ],
+					"reward_artifacts": [ ],
+					"value": 75000,
+					"profitability": 29,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Water Messenger" }, { "number": 30, "name": "Water Messenger" }, { "number": 30, "name": "Water Messenger" }, { "number": 30, "name": "Water Messenger" } ],
+					"upgrade_chance": 0,
+					"combat_value": 2000,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ { "number": 1, "name": "God4Lore" } ],
+					"reward_artifacts": [ ],
+					"value": 90000,
+					"profitability": 27,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Transylvanian Tavern",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Vampire" } ],
+					"upgrade_chance": 0,
+					"combat_value": 100,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 1500 ],
+					"reward_creatures": [ { "number": 3, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 10,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Vampire" } ],
+					"upgrade_chance": 0,
+					"combat_value": 150,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 2500 ],
+					"reward_creatures": [ { "number": 5, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 10,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Vampire" } ],
+					"upgrade_chance": 0,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 3500 ],
+					"reward_creatures": [ { "number": 7, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 10,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Vampire" } ],
+					"upgrade_chance": 0,
+					"combat_value": 250,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_creatures": [ { "number": 9, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 5000,
+					"profitability": 10,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Home of the Bat",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Vampire" } ],
+					"upgrade_chance": 50,
+					"combat_value": 100,
+					"reward_ressources": [ 0, 2, 0, 2, 2, 2, 0 ],
+					"reward_creatures": [ { "number": 3, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 10,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Vampire" } ],
+					"upgrade_chance": 70,
+					"combat_value": 150,
+					"reward_ressources": [ 0, 3, 0, 3, 3, 3, 0 ],
+					"reward_creatures": [ { "number": 5, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 10,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Vampire" } ],
+					"upgrade_chance": 80,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 4, 0, 4, 4, 4, 0 ],
+					"reward_creatures": [ { "number": 7, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 10,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Vampire" } ],
+					"upgrade_chance": 90,
+					"combat_value": 250,
+					"reward_ressources": [ 0, 5, 0, 5, 5, 5, 0 ],
+					"reward_creatures": [ { "number": 9, "name": "Vampire Lord" } ],
+					"reward_artifacts": [ ],
+					"value": 5000,
+					"profitability": 10,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Lost Bottle",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [ { "number": 10, "name": "Genie" } ],
+					"upgrade_chance": 50,
+					"combat_value": 100,
+					"reward_ressources": [ 0, 2, 0, 2, 2, 2, 0 ],
+					"reward_creatures": [ { "number": 3, "name": "Genie" } ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 10,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 15, "name": "Genie" } ],
+					"upgrade_chance": 70,
+					"combat_value": 150,
+					"reward_ressources": [ 0, 3, 0, 3, 3, 3, 0 ],
+					"reward_creatures": [ { "number": 5, "name": "Genie" } ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 10,
+					"easiest": 125
+				},
+				{
+					"chance": 30,
+					"guards": [ { "number": 20, "name": "Genie" } ],
+					"upgrade_chance": 80,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 4, 0, 4, 4, 4, 0 ],
+					"reward_creatures": [ { "number": 7, "name": "Genie" } ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 10,
+					"easiest": 145
+				},
+				{
+					"chance": 10,
+					"guards": [ { "number": 30, "name": "Genie" } ],
+					"upgrade_chance": 90,
+					"combat_value": 250,
+					"reward_ressources": [ 0, 5, 0, 5, 5, 5, 0 ],
+					"reward_creatures": [ { "number": 9, "name": "Genie" } ],
+					"reward_artifacts": [ ],
+					"value": 5000,
+					"profitability": 10,
+					"easiest": 189
+				}
+			]
+		},
+
+		{
+			"name" : "Grotto",
+			"levels": [
+				{
+					"chance": 30,
+					"guards": [	{ "number": 3, "name": "Harpy" }, { "number": 3, "name": "Beholder" }, { "number": 3, "name": "Harpy" }, { "number": 3, "name": "Beholder" } ],
+					"upgrade_chance": 0,
+					"combat_value": 200,
+					"reward_ressources": [ 0, 0, 20, 0,	0, 0, 1000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 2000,
+					"profitability": 20,
+					"easiest": 100
+				},
+				{
+					"chance": 30,
+					"guards": [	{ "number": 4, "name": "Harpy" }, { "number": 4, "name": "Beholder" }, { "number": 4, "name": "Harpy" }, { "number": 4, "name": "Beholder" } ],
+					"upgrade_chance": 0,
+					"combat_value": 300,
+					"reward_ressources": [ 0, 0, 25, 0,	0, 0, 1000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 3000,
+					"profitability": 20,
+					"easiest": 150
+				},
+				{
+					"chance": 30,
+					"guards": [	{ "number": 5, "name": "Harpy" }, { "number": 5, "name": "Beholder" }, { "number": 5, "name": "Harpy" }, { "number": 5, "name": "Beholder" } ],
+					"upgrade_chance": 0,
+					"combat_value": 400,
+					"reward_ressources": [ 0, 0, 30, 0,	0, 0, 1500 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 4000,
+					"profitability": 20,
+					"easiest": 200
+				},
+				{
+					"chance": 10,
+					"guards": [	{ "number": 6, "name": "Harpy" }, { "number": 6, "name": "Beholder" }, { "number": 6, "name": "Harpy" }, { "number": 6, "name": "Beholder" } ],
+					"upgrade_chance": 0,
+					"combat_value": 500,
+					"reward_ressources": [ 0, 0, 35, 0,	0, 0, 2000 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 5000,
+					"profitability": 20,
+					"easiest": 250
+				}
+			]
+		},
+
+		{
+			"name" : "Pyramid",
+			"levels": [
+				{
+					"chance": 100,
+					"guards": [	{ "number": 20, "name": "Gold Golem" }, { "number": 10, "name": "Diamond Golem" }, { "number": 20, "name": "Gold Golem" }, { "number": 10, "name": "Diamond Golem" } ],
+					"upgrade_chance": 0,
+					"combat_value": 786,
+					"reward_ressources": [ 0, 0, 0, 0, 0, 0, 0 ],
+					"reward_creatures": [ ],
+					"reward_artifacts": [ ],
+					"value": 15000,
+					"profitability": 19,
+					"easiest": 100
+				}
+			]
+		}
+	]
+}

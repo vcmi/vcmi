@@ -93,91 +93,74 @@ bool CPlayersVisited::hasVisited( ui8 player ) const
 	return vstd::contains(players,player);
 }
 
-static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //helper function for void CObjectHandler::loadObjects()
+// Bank helper. Find the creature ID and their number, and store the
+// result in storage (either guards or reward creatures).
+static void readCreatures(const JsonNode &creature, std::vector< std::pair <ui16, ui32> > &storage)
 {
-	const int MAX_BUF = 5000;
-	char buffer[MAX_BUF + 1];
-	std::pair<si16, si32> guardInfo = std::make_pair(0, 0);
-	std::string creName;
+	std::pair<si16, si32> creInfo = std::make_pair(-1, 0);
+	std::string creName = creature["name"].String();
 
-	is >> guardInfo.second;
-	//one getline just does not work... probably a kind of left whitespace
-	is.getline(buffer, MAX_BUF, '\t');
-	is.getline(buffer, MAX_BUF, '\t');
-	creName = buffer;
-
-	if( std::string(buffer) == "None" ) //no creature to be added
-		return;
-
-	//look for the best creature that is described by given name
-	if( vstd::contains(VLC->creh->nameToID, creName) )
+	// Look for the best creature that is described by given name
+	if (vstd::contains(VLC->creh->nameToID, creName))
 	{
-		guardInfo.first = VLC->creh->nameToID[creName];
+		creInfo.first = VLC->creh->nameToID[creName];
 	}
 	else
 	{
-		for(int g=0; g<VLC->creh->creatures.size(); ++g)
+		BOOST_FOREACH(const CCreature *cre, VLC->creh->creatures)
 		{
-			if(VLC->creh->creatures[g]->namePl == creName
-				|| VLC->creh->creatures[g]->nameRef == creName
-				|| VLC->creh->creatures[g]->nameSing == creName)
-			{
-				guardInfo.first = VLC->creh->creatures[g]->idNumber;
-			}
+			if (cre->namePl == creName || 
+				cre->nameRef == creName ||
+				cre->nameSing == creName)
+				creInfo.first = cre->idNumber;
 		}
 	}
-	
-	if(guards)
-		bc.guards.push_back(guardInfo);
-	else //given creatures
-		bc.creatures.push_back(guardInfo);
+	assert(creInfo.first != -1); // ensure we found the creature
+
+	creInfo.second = creature["number"].Float();
+
+	storage.push_back(creInfo);
 }
-void CObjectHandler::readConfigLine(std::ifstream &istr, int g)
+
+// Bank helper. Process a bank level.
+static void readBankLevel(const JsonNode &level, BankConfig &bc)
 {
-	banksInfo[g].push_back(new BankConfig);
+	int idx;
 
-	BankConfig &bc = *banksInfo[g].back();
-	std::string buf;
-	//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
-	istr >> buf; 
-	bc.level = atoi(buf.c_str());
+	bc.chance = level["chance"].Float();
 
-	istr >> buf;
-	bc.chance = atoi(buf.c_str());
-
-	readCreatures(istr, bc, true);
-	istr >> buf;
-	bc.upgradeChance = atoi(buf.c_str());
-
-	for(int b=0; b<3; ++b)
-		readCreatures(istr, bc, true);
-
-	istr >> bc.combatValue;
-	bc.resources.resize(RESOURCE_QUANTITY);
-			
-	//a dirty trick to make it work if there is no 0 for 0 quantity (like in grotto - last entry)
-	char buft[52];
-	istr.getline(buft, 50, '\t');
-	for(int h=0; h<7; ++h)
+	BOOST_FOREACH(const JsonNode &creature, level["guards"].Vector())
 	{
-		istr.getline(buft, 50, '\t');
-		if(buft[0] == '\0')
-			bc.resources[h] = 0;
-		else
-			bc.resources[h] = SDL_atoi(buft);
+		readCreatures(creature, bc.guards);
 	}
-	readCreatures(istr, bc, false);
+
+	bc.upgradeChance = level["upgrade_chance"].Float();
+	bc.combatValue = level["combat_value"].Float();
+
+	bc.resources.resize(RESOURCE_QUANTITY);
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &ressource, level["reward_ressources"].Vector())
+	{
+		bc.resources[idx] = ressource.Float();
+		idx ++;
+	}
+
+	BOOST_FOREACH(const JsonNode &creature, level["reward_creatures"].Vector())
+	{
+		readCreatures(creature, bc.creatures);
+	}
 
 	bc.artifacts.resize(4);
-	for(int b=0; b<4; ++b)
+	idx = 0;
+	BOOST_FOREACH(const JsonNode &artifact, level["reward_artifacts"].Vector())
 	{
-		istr >> bc.artifacts[b];
+		bc.artifacts[idx] = artifact.Float();
+		idx ++;
 	}
 
-	istr >> bc.value;
-	istr >> bc.rewardDifficulty;
-	istr >> buf;
-	bc.easiest = atoi(buf.c_str());
+	bc.value = level["value"].Float();
+	bc.rewardDifficulty = level["profitability"].Float();
+	bc.easiest = level["easiest"].Float();
 }
 
 void CObjectHandler::loadObjects()
@@ -196,6 +179,7 @@ void CObjectHandler::loadObjects()
 	}
 	tlog5 << "\t\tDone loading cregens!\n";
 
+	tlog5 << "\t\tReading ressources prices \n";
 	const JsonNode config2(DATA_DIR "/config/ressources.json");
 	BOOST_FOREACH(const JsonNode &price, config2["ressources_prices"].Vector())
 	{
@@ -203,40 +187,27 @@ void CObjectHandler::loadObjects()
 	}
 	tlog5 << "\t\tDone loading resource prices!\n";
 
-	std::ifstream istr;
-	istr.open(DATA_DIR "/config/bankconfig.txt", std::ios_base::binary);
-	if(!istr.is_open())
+	tlog5 << "\t\tReading banks configs \n";
+	const JsonNode config3(DATA_DIR "/config/bankconfig.json");
+	int bank_num = 0;
+	BOOST_FOREACH(const JsonNode &bank, config3["banks"].Vector())
 	{
-		tlog1 << "No config/bankconfig.txt file !!!\n";
-	}
+		creBanksNames[bank_num] = bank["name"].String();
 
-	const int MAX_BUF = 5000;
-	char buffer[MAX_BUF + 1];
-
-	//omitting unnecessary lines
-	istr.getline(buffer, MAX_BUF);
-	istr.getline(buffer, MAX_BUF);
-	
-	for(int g=0; g<21; ++g) //TODO: remove hardcoded value
-	{
-		//reading name
-		istr.getline(buffer, MAX_BUF, '\t');
-		creBanksNames[g] = std::string(buffer);
-		//remove trailing new line characters
-		while(creBanksNames[g][0] == 10 || creBanksNames[g][0] == 13)
-			creBanksNames[g].erase(creBanksNames[g].begin());
-
-		for(int i=0; i<4; ++i) //reading levels
+		int level_num = 0;
+		BOOST_FOREACH(const JsonNode &level, bank["levels"].Vector())
 		{
-			readConfigLine(istr,g);
+			banksInfo[bank_num].push_back(new BankConfig);
+			BankConfig &bc = *banksInfo[bank_num].back();
+			bc.level = level_num;
+
+			readBankLevel(level, bc);
+			level_num ++;
 		}
+
+		bank_num ++;
 	}
-	//reading name
-	istr.getline(buffer, MAX_BUF, '\t');
-	creBanksNames[21] = std::string(buffer);
-	while(creBanksNames[21][0] == 10 || creBanksNames[21][0] == 13)
-			creBanksNames[21].erase(creBanksNames[21].begin());
-	readConfigLine(istr,21); //pyramid
+	tlog5 << "\t\tDone loading banks configs \n";
 }
 
 int CGObjectInstance::getOwner() const
