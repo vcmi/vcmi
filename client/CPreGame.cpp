@@ -19,6 +19,7 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CCreatureHandler.h"
+#include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
 #include <cmath>
@@ -27,6 +28,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
+#include <boost/foreach.hpp>
 #include <cstdlib>
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
@@ -2701,34 +2703,32 @@ void CBonusSelection::showAll( SDL_Surface * to )
 
 void CBonusSelection::loadPositionsOfGraphics()
 {
-	std::ifstream is(DATA_DIR "/config/campaign_regions.txt", std::ios_base::binary | std::ios_base::in);
+	const JsonNode config(DATA_DIR "/config/campaign_regions.json");
+	int idx = 0;
 
-	assert(is.is_open());
-
-	for (int g=0; g<CGI->generaltexth->campaignMapNames.size(); ++g)
+	BOOST_FOREACH(const JsonNode &campaign, config["campaign_regions"].Vector())
 	{
 		SCampPositions sc;
-		is >> sc.campPrefix;
-		is >> sc.colorSuffixLength;
-		bool contReading = true;
-		while(contReading)
+
+		sc.campPrefix = campaign["prefix"].String();
+		sc.colorSuffixLength = campaign["color_suffix_length"].Float();
+
+		BOOST_FOREACH(const JsonNode &desc,  campaign["desc"].Vector())
 		{
 			SCampPositions::SRegionDesc rd;
-			is >> rd.infix;
-			if(rd.infix == "END")
-			{
-				contReading = false;
-			}
-			else
-			{
-				is >> rd.xpos >> rd.ypos;
-				sc.regions.push_back(rd);
-			}
+
+			rd.infix = desc["infix"].String();
+			rd.xpos = desc["x"].Float();
+			rd.ypos = desc["y"].Float();
+			sc.regions.push_back(rd);
 		}
 
 		campDescriptions.push_back(sc);
+
+		idx++;
 	}
 
+	assert(idx == CGI->generaltexth->campaignMapNames.size());
 }
 
 void CBonusSelection::selectMap( int whichOne )
