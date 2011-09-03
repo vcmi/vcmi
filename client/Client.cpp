@@ -378,8 +378,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
 		tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
-		CGI->mh->init();
 		initVillagesCapitols(gs->map);
+		CGI->mh->init();
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 	}
