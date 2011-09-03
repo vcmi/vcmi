@@ -196,18 +196,12 @@ void CObjectHandler::loadObjects()
 	}
 	tlog5 << "\t\tDone loading cregens!\n";
 
+	const JsonNode config2(DATA_DIR "/config/ressources.json");
+	BOOST_FOREACH(const JsonNode &price, config2["ressources_prices"].Vector())
 	{
-		int k = -1;
-		std::ifstream ifs(DATA_DIR "/config/resources.txt");
-		ifs >> k;
-		int pom;
-		for(int i=0;i<k;i++)
-		{
-			ifs >> pom;
-			resVals.push_back(pom);
-		}
-		tlog5 << "\t\tDone loading resource prices!\n";
+		resVals.push_back(price.Float());
 	}
+	tlog5 << "\t\tDone loading resource prices!\n";
 
 	std::ifstream istr;
 	istr.open(DATA_DIR "/config/bankconfig.txt", std::ios_base::binary);
