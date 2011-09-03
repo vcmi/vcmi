@@ -220,9 +220,9 @@ void Graphics::initializeBattleGraphics()
 	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
 		idx++;
 	}
-	battleBacks.resize(idx);
+	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
 
-	idx = 0;
+	idx = 1;
 	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
 		battleBacks[idx].push_back(t.String());
 		idx++;
