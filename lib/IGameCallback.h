@@ -97,6 +97,7 @@ public:
 	THex battleGetPos(int stack); //returns position (tile ID) of stack
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true); //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
+    void battleGetStackCountOutsideHexes(bool *ac); // returns hexes which when in front of a stack cause us to move the amount box back
 	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL); //returns numbers of hexes reachable by creature with id ID
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL); //returns vector of distances to [dest hex number]
 	bool battleCanShoot(const CStack * stack, THex dest); //returns true if unit with id ID can shoot to dest

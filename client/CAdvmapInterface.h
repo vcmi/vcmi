@@ -39,7 +39,25 @@ public:
 	~CAdventureOptions();
 	static void showScenarioInfo();
 };
-	 
+
+class CMinimapSurfacesRef {
+public:
+    CMinimapSurfacesRef();
+    std::vector< SDL_Surface* > &map();
+    std::vector< SDL_Surface* > &FoW();
+    std::vector< SDL_Surface* > &flObjs();
+    void free();
+private:
+	void redraw(int level=-1);// (level==-1) => redraw all levels
+	void initMap(int level=-1);// (level==-1) => redraw all levels
+	void initFoW(int level=-1);// (level==-1) => redraw all levels
+	void initFlaggableObjs(int level=-1);// (level==-1) => redraw all levels
+	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
+private:    
+    std::vector< SDL_Surface* > map_, FoW_, flObjs_; //one bitmap for each level (terrain, Fog of War, flaggable objects) (one for underworld, one for surface)
+    bool ready;
+};
+
 /// Minimap which is displayed at the right upper corner of adventure map
 class CMinimap : public CIntObject
 {
@@ -48,17 +66,13 @@ public:
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
-	std::vector<SDL_Surface *> map, FoW, flObjs; //one bitmap for each level (terrain, Fog of War, flaggable objects)
+
+    std::map<int, CMinimapSurfacesRef> surfs;
 	std::string statusbarTxt, rcText;
 
-	CMinimap(bool draw=true);
+	CMinimap();
 	~CMinimap();
 	void draw(SDL_Surface * to);
-	void redraw(int level=-1);// (level==-1) => redraw all levels
-	void initMap(int level=-1);// (level==-1) => redraw all levels
-	void initFoW(int level=-1);// (level==-1) => redraw all levels
-	void initFlaggableObjs(int level=-1);// (level==-1) => redraw all levels
-
 	void updateRadar();
 
 	void clickRight(tribool down, bool previousState);
@@ -69,7 +83,6 @@ public:
 	void deactivate(); // makes button inactive (but don't deletes)
 	void hideTile(const int3 &pos); //puts FoW
 	void showTile(const int3 &pos); //removes FoW
-	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
 };
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen

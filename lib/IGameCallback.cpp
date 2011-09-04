@@ -220,6 +220,19 @@ void CBattleInfoCallback::getStackQueue( std::vector<const CStack *> &out, int h
 	gs->curB->getStackQueue(out, howMany);
 }
 
+void CBattleInfoCallback::battleGetStackCountOutsideHexes(bool *ac)
+{
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
+        for (int i = 0; i < BFIELD_SIZE; ++i) ac[i] = false;
+	}
+    else {
+        std::set<THex> ignored;
+        gs->curB->getAccessibilityMap(ac, false /*ignored*/, false, false, ignored, false /*ignored*/, NULL);
+    }
+}
+
 std::vector<THex> CBattleInfoCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

@@ -30,7 +30,6 @@ bool CGDefInfo::isVisitable() const
 }
 CGDefInfo::CGDefInfo()
 {
-	handler = NULL;
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
 
 	width = height = -1;
@@ -59,7 +58,6 @@ void CDefObjInfoHandler::load()
 	for(int hh=0; hh<objNumber; ++hh)
 	{
 		CGDefInfo* nobj = new CGDefInfo();
-		nobj->handler = NULL;
 		std::string dump;
 		inp>>nobj->name;
 		

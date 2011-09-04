@@ -702,12 +702,12 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
-	return advmapobjGraphics[obj->defInfo->id][obj->defInfo->subid];
+	return advmapobjGraphics[obj->defInfo->id][obj->defInfo->subid][obj->defInfo->name];
 }
 
 CDefEssential * Graphics::getDef( const CGDefInfo * info )
 {
-	return advmapobjGraphics[info->id][info->subid];
+	return advmapobjGraphics[info->id][info->subid][info->name];
 }
 
 void Graphics::loadErmuToPicture()

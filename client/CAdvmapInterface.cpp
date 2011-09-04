@@ -56,7 +56,7 @@ using namespace CSDL_Ext;
 
 CAdvMapInt *adventureInt;
 
-CMinimap::CMinimap(bool draw)
+CMinimap::CMinimap()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	used = LCLICK | RCLICK | HOVER;
@@ -93,39 +93,29 @@ CMinimap::CMinimap(bool draw)
 		vinya.second.unused = 255;
 		colorsBlocked.insert(vinya);
 	}
-
-	if (draw)
-		redraw();
 }
 
 CMinimap::~CMinimap()
 {
 	SDL_FreeSurface(temps);
-	
-	for(int g=0; g<map.size(); ++g)
-		SDL_FreeSurface(map[g]);
-	map.clear();
-
-	for(int g=0; g<FoW.size(); ++g)
-		SDL_FreeSurface(FoW[g]);
-	FoW.clear();
-
-	for(int g=0; g<flObjs.size(); ++g)
-		SDL_FreeSurface(flObjs[g]);
-	flObjs.clear();
+	for (std::map<int, CMinimapSurfacesRef>::iterator it = surfs.begin(); it != surfs.end(); ++it)
+	{
+		it->second.free();
+	}
 }
 
 void CMinimap::draw(SDL_Surface * to)
 {
+	int player = adventureInt->player;
 	if(LOCPLINT->makingTurn)
 	{
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
 		//draw terrain
-		blitAt(map[adventureInt->position.z],0,0,temps);
+		blitAt(surfs[player].map()[adventureInt->position.z],0,0,temps);
 
 		//draw heroes
 		std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
-		int mw = map[0]->w, mh = map[0]->h,
+		int mw = surfs[player].map()[0]->w, mh = surfs[player].map()[0]->h,
 			wo = mw/mapSizes.x, ho = mh/mapSizes.y;
 
 		for (size_t i=0; i < hh.size(); ++i)
@@ -145,9 +135,9 @@ void CMinimap::draw(SDL_Surface * to)
 			}
 		}
 
-		blitAt(flObjs[adventureInt->position.z],0,0,temps);
+		blitAt(surfs[player].flObjs()[adventureInt->position.z],0,0,temps);
 
-		blitAt(FoW[adventureInt->position.z],0,0,temps);
+		blitAt(surfs[player].FoW()[adventureInt->position.z],0,0,temps);
 
 		//draw radar
 		const int tilesw=(ADVOPT.advmapW+31)/32;
@@ -167,8 +157,15 @@ void CMinimap::draw(SDL_Surface * to)
 		aiShield->showAll(to);
 	}
 }
-void CMinimap::redraw(int level)// (level==-1) => redraw all levels
+
+CMinimapSurfacesRef::CMinimapSurfacesRef() : ready(false)
 {
+}
+
+
+void CMinimapSurfacesRef::redraw(int level)
+{
+	ready = true;
 	initMap(level);
 
 	//FoW
@@ -181,29 +178,31 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 	showVisibleTiles();
 }
 
-void CMinimap::initMap(int level)
+void CMinimapSurfacesRef::initMap(int level)
 {
 	/*for(int g=0; g<map.size(); ++g)
 	{
 		SDL_FreeSurface(map[g]);
 	}
 	map.clear();*/
-
+	const Rect &minimap_pos = adventureInt->minimap.pos;
+	std::map<int,SDL_Color> &colors = adventureInt->minimap.colors;
+	std::map<int,SDL_Color> &colorsBlocked = adventureInt->minimap.colorsBlocked;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for (size_t i=0; i<CGI->mh->sizes.z; i++)
 	{
-		SDL_Surface * pom ;
+		SDL_Surface *pom;
 		if ((level>=0) && (i!=level))
 			continue;
-		if (map.size()<i+1)
-			pom = CSDL_Ext::newSurface(pos.w,pos.h,screen);
-		else pom = map[i];
-		for (int x=0;x<pos.w;x++)
+		if (map_.size()<i+1)
+			pom = CSDL_Ext::newSurface(minimap_pos.w,minimap_pos.h,screen);
+		else pom = map_[i];
+		for (int x=0;x<minimap_pos.w;x++)
 		{
-			for (int y=0;y<pos.h;y++)
+			for (int y=0;y<minimap_pos.h;y++)
 			{
-				int mx=(mapSizes.x*x)/pos.w;
-				int my=(mapSizes.y*y)/pos.h;
+				int mx=(mapSizes.x*x)/minimap_pos.w;
+				int my=(mapSizes.y*y)/minimap_pos.h;
 				const TerrainTile * tile = LOCPLINT->cb->getTile(int3(mx, my, i), false);
 				if(tile)
 				{
@@ -213,12 +212,12 @@ void CMinimap::initMap(int level)
 				}
 			}
 		}
-		map.push_back(pom);
+		map_.push_back(pom);
 
 	}
 }
 
-void CMinimap::initFoW(int level)
+void CMinimapSurfacesRef::initFoW(int level)
 {
 	/*for(int g=0; g<FoW.size(); ++g)
 	{
@@ -226,14 +225,15 @@ void CMinimap::initFoW(int level)
 	}
 	FoW.clear();*/
 
+	const Rect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	int mw = map[0]->w, mh = map[0]->h;//,
+	int mw = map_[0]->w, mh = map_[0]->h;//,
 		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
 		if(level>=0 && d!=level)
 			continue;
-		SDL_Surface * pt = CSDL_Ext::newSurface(pos.w, pos.h, CSDL_Ext::std32bppSurface);
+		SDL_Surface * pt = CSDL_Ext::newSurface(minimap_pos.w, minimap_pos.h, CSDL_Ext::std32bppSurface);
 		for (int i=0; i<mw; i++)
 		{
 			for (int j=0; j<mh; j++)
@@ -245,11 +245,11 @@ void CMinimap::initFoW(int level)
 				}
 			}
 		}
-		FoW.push_back(pt);
+		FoW_.push_back(pt);
 	}
 }
 
-void CMinimap::initFlaggableObjs(int level)
+void CMinimapSurfacesRef::initFlaggableObjs(int level)
 {
 	/*for(int g=0; g<flObjs.size(); ++g)
 	{
@@ -257,13 +257,14 @@ void CMinimap::initFlaggableObjs(int level)
 	}
 	flObjs.clear();*/
 
+	const Rect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	int mw = map[0]->w, mh = map[0]->h;
+	int mw = map_[0]->w, mh = map_[0]->h;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
 		if(level>=0 && d!=level)
 			continue;
-		SDL_Surface * pt = CSDL_Ext::newSurface(pos.w, pos.h, CSDL_Ext::std32bppSurface);
+		SDL_Surface * pt = CSDL_Ext::newSurface(minimap_pos.w, minimap_pos.h, CSDL_Ext::std32bppSurface);
 		for (int i=0; i<mw; i++)
 		{
 			for (int j=0; j<mh; j++)
@@ -271,7 +272,7 @@ void CMinimap::initFlaggableObjs(int level)
 				CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0,0);
 			}
 		}
-		flObjs.push_back(pt);
+		flObjs_.push_back(pt);
 	}
 }
 
@@ -287,7 +288,7 @@ void CMinimap::clickLeft(tribool down, bool previousState)
 {
 	if (down && !(used & MOVE))
 		changeUsedEvents(MOVE, true);
-	else if (!down  &&  used & MOVE)
+	else if (!down	&&	used & MOVE)
 		changeUsedEvents(MOVE, false);
 
 	//ClickableL::clickLeft(down);
@@ -330,8 +331,46 @@ void CMinimap::deactivate()
 	CIntObject::deactivate();
 }
 
+std::vector<SDL_Surface*> & CMinimapSurfacesRef::map()
+{
+	if (!ready) redraw();
+	return map_;
+}
+std::vector<SDL_Surface*> & CMinimapSurfacesRef::FoW()
+{
+	if (!ready) redraw();
+	return FoW_;
+}
+std::vector<SDL_Surface*> & CMinimapSurfacesRef::flObjs()
+{
+	if (!ready) redraw();
+	return flObjs_;
+}
+
+void CMinimapSurfacesRef::free()
+{
+	if (ready)
+	{
+		for (int g = 0; g < map_.size(); ++g)
+			SDL_FreeSurface(map_[g]);
+		map_.clear();
+	
+		for (int g = 0; g < FoW_.size(); ++g)
+			SDL_FreeSurface(FoW_[g]);
+		FoW_.clear();
+	
+		for (int g = 0; g < flObjs_.size(); ++g)
+			SDL_FreeSurface(flObjs_[g]);
+		flObjs_.clear();
+	}
+}
+
 void CMinimap::showTile(const int3 &pos)
 {
+	const int player = adventureInt->player;
+	std::vector<SDL_Surface*> &map = surfs[player].map();
+	std::vector<SDL_Surface*> &FoW = surfs[player].FoW();
+	std::vector<SDL_Surface*> &flObjs = surfs[player].flObjs();
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	//drawing terrain
 	int mw = map[0]->w, mh = map[0]->h;
@@ -347,8 +386,8 @@ void CMinimap::showTile(const int3 &pos)
 			if(tile)
 			{
 				if (tile->blocked && (!tile->visitable))
-					SDL_PutPixelWithoutRefresh(map[pos.z], pos.x*wo+ii, pos.y*ho+jj, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
-				else SDL_PutPixelWithoutRefresh(map[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
+					SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
+				else SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
 			}
 		}
 	}
@@ -403,7 +442,7 @@ void CMinimap::showTile(const int3 &pos)
 	//flaggable objects drawn
 }
 
-void CMinimap::showVisibleTiles(int level)
+void CMinimapSurfacesRef::showVisibleTiles(int level)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
@@ -416,7 +455,7 @@ void CMinimap::showVisibleTiles(int level)
 			{
 				if(LOCPLINT->cb->isVisible(int3(x, y, d)))
 				{
-					showTile(int3(x, y, d));
+					adventureInt->minimap.showTile(int3(x, y, d));
 				}
 			}
 		}
@@ -425,6 +464,9 @@ void CMinimap::showVisibleTiles(int level)
 
 void CMinimap::hideTile(const int3 &pos)
 {
+	const int player = adventureInt->player;
+	std::vector<SDL_Surface*> &map = surfs[player].map();
+	std::vector<SDL_Surface*> &FoW = surfs[player].FoW();
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	//drawing terrain
 	int mw = map[0]->w, mh = map[0]->h;

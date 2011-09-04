@@ -68,7 +68,7 @@ public:
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
 
-	std::map<int, std::map<int, CDefEssential *> > advmapobjGraphics;
+	std::map<int, std::map<int, std::map<std::string, CDefEssential *> > > advmapobjGraphics;
 	CDefEssential * getDef(const CGObjectInstance * obj);
 	CDefEssential * getDef(const CGDefInfo * info);
 	//creatures

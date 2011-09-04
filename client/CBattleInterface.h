@@ -435,8 +435,11 @@ private:
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
+    time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occured
+    static const time_t HOVER_ANIM_DELTA;
 	std::vector<THex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
+    bool stackCountOutsideHexes[BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
@@ -462,7 +465,6 @@ private:
 	void giveCommand(ui8 action, THex tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const THex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool blockedByObstacle(THex hex) const;
-	bool isHexAccessible(THex nextPos);
 	bool isCatapultAttackable(THex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects

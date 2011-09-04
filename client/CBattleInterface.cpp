@@ -40,6 +40,8 @@ const double M_PI = 3.14159265358979323846;
 #endif
 #include <boost/format.hpp>
 
+const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
+
 /*
  * CBattleInterface.cpp, part of VCMI engine
  *
@@ -1182,10 +1184,11 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
-	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), previouslyHoveredHex(-1),
+	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), spellToCast(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
+      
 {
 	ObjectConstruction h__l__p(this);
 
@@ -1453,7 +1456,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
-	
+    memset(stackCountOutsideHexes, 1, BFIELD_SIZE * sizeof(bool)); //initialize array with trues	
 }
 
 CBattleInterface::~CBattleInterface()
@@ -1990,6 +1993,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	if(activeStack!= NULL && !spellDestSelectMode)
 	{
+        int lastMouseHoveredStack = mouseHoveredStack;
 		mouseHoveredStack = -1;
 		int myNumber = -1; //number of hovered tile
 		for(int g = 0; g < BFIELD_SIZE; ++g)
@@ -2033,12 +2037,16 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
-						mouseHoveredStack = shere->ID;
-						if(creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING && creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+                        const time_t curTime = time(NULL);
+						if(shere->ID != lastMouseHoveredStack &&
+                           curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
+                           creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
+                           creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
 						{
 							creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
+                            lastMouseHoveredStackAnimationTime = curTime;
 						}
-						
+						mouseHoveredStack = shere->ID;
 					}
 					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
@@ -3527,11 +3535,11 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	{
         const THex nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
         const bool edge = stack->position % BFIELD_WIDTH == (stack->attackerOwned ? BFIELD_WIDTH - 2 : 1);
-        const bool moveInside = !edge && !isHexAccessible(nextPos);
+        const bool moveInside = !edge && !stackCountOutsideHexes[nextPos];
 		int xAdd = (stack->attackerOwned ? 220 : 202) +
                    (stack->doubleWide() ? 44 : 0) * (stack->attackerOwned ? +1 : -1) +
                    (moveInside ? amountNormal->w + 10 : 0) * (stack->attackerOwned ? -1 : +1);
-        
+        int yAdd = 260 + ((stack->attackerOwned || moveInside) ? 0 : -15);
 		//blitting amount background box
 		SDL_Surface *amountBG = NULL;
 		boost::shared_ptr<BonusList> spellEffects = stack->getSpellBonuses();
@@ -3560,13 +3568,13 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 				amountBG = amountEffNeutral;
 			}
 		}
-		SDL_Rect temp_rect = genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + 260);
+		SDL_Rect temp_rect = genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + yAdd);
 		SDL_BlitSurface(amountBG, NULL, to, &temp_rect);
 		//blitting amount
 		CSDL_Ext::printAtMiddle(
 			makeNumberShort(stack->count),
 			creAnims[ID]->pos.x + xAdd + 15,
-			creAnims[ID]->pos.y + 260 + 5,
+			creAnims[ID]->pos.y + yAdd + 5,
 			FONT_TINY,
 			zwykly,
 			to
@@ -3654,7 +3662,7 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 	attackableHexes.clear();
 	if (activeStack)
 		occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
-
+    curInt->cb->battleGetStackCountOutsideHexes(stackCountOutsideHexes);
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
 	if(curInt->sysOpts.printCellBorders)
@@ -3974,13 +3982,6 @@ void CBattleInterface::bTacticNextStack()
 		stackActivated(*it);
 	else
 		stackActivated(stacksOfMine.front());
-}
-
-bool CBattleInterface::isHexAccessible(THex nextPos)
-{
-	//!vstd::contains(curInt->cb->battleGetAvailableHexes(stack, true), nextPos)
-	//TODO has to be fast
-	return true;
 }
 
 void CBattleHero::show(SDL_Surface *to)

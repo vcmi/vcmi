@@ -249,12 +249,11 @@ void CMapHandler::initObjectRects()
 			|| (obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
 			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat wih hero (hero graphics is used)
 			|| !obj->defInfo
-			|| !obj->defInfo->handler) //no graphic...
+			|| !graphics->getDef(obj)) //no graphic...
 		{
 			continue;
 		}
-
-		const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
+		const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
 		for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
 		{
 			for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
@@ -298,64 +297,49 @@ static void processDef (const CGDefInfo* def)
 {
 	if(def->id == EVENTI_TYPE)
 	{
+        graphics->advmapobjGraphics[def->id][def->subid][def->name] = NULL;
 		return;
 	}
-
-	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten 
+    CDefEssential * ourDef = graphics->getDef(def);
+	if(!ourDef) //if object has already set handler (eg. heroes) it should not be overwritten 
 	{
 		if(def->name.size())
 		{
 			if(vstd::contains(graphics->mapObjectDefs, def->name))
 			{
-				const_cast<CGDefInfo*>(def)->handler = graphics->mapObjectDefs[def->name];
+                graphics->advmapobjGraphics[def->id][def->subid][def->name] = graphics->mapObjectDefs[def->name];
 			}
 			else
 			{
-				graphics->mapObjectDefs[def->name] = const_cast<CGDefInfo*>(def)->handler = CDefHandler::giveDefEss(def->name);
+                graphics->mapObjectDefs[def->name] = graphics->advmapobjGraphics[def->id][def->subid][def->name] = CDefHandler::giveDefEss(def->name);
 			}
 		}
 		else
 		{
 			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
-			const_cast<CGDefInfo*>(def)->handler = NULL;
 			return;
 		}
-
- 		const_cast<CGDefInfo*>(def)->width = def->handler->ourImages[0].bitmap->w/32;
- 		const_cast<CGDefInfo*>(def)->height = def->handler->ourImages[0].bitmap->h/32;
+        ourDef = graphics->getDef(def);
+        
 	}
-	
-	CGDefInfo* pom = const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[def->id][def->subid]; 
-	if(pom && def->id!=TOWNI_TYPE) 
-	{ 
-		pom->handler = def->handler; 
-		pom->width = pom->handler->ourImages[0].bitmap->w/32; 
-		pom->height = pom->handler->ourImages[0].bitmap->h/32; 
-	} 
-	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE) 
-		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl; 
-	
 	//alpha transformation
-	for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
+	for(size_t yy=0; yy < ourDef->ourImages.size(); ++yy)
 	{
-		CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
+		CSDL_Ext::alphaTransform(ourDef->ourImages[yy].bitmap);
 	}
 }
 void CMapHandler::initHeroDef(const CGHeroInstance * h)
 {
-	h->defInfo->handler = graphics->flags1[0]; 
-	h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32; 
-	h->defInfo->height = h->defInfo->handler->ourImages[0].bitmap->h/32;
+    graphics->advmapobjGraphics[h->defInfo->id][h->defInfo->subid][h->defInfo->name] = graphics->flags1[0];
 }
 void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
 
-	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][0]->handler = graphics->boatAnims[0]; 
-	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][1]->handler = graphics->boatAnims[1]; 
-	const_cast<CGameInfo*>(CGI)->dobjinfo->gobjs[8][2]->handler = graphics->boatAnims[2];
-
+    graphics->advmapobjGraphics[8][0]["AB01_.DEF"] = graphics->boatAnims[0];
+    graphics->advmapobjGraphics[8][1]["AB02_.DEF"] = graphics->boatAnims[1];
+    graphics->advmapobjGraphics[8][2]["AB03_.DEF"] = graphics->boatAnims[2];
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
 	int mapH = conf.go()->ac.advmapH;
@@ -387,7 +371,7 @@ void CMapHandler::init()
 
 	for(int i=0;i<map->heroes.size();i++)
 	{
-		if( !map->heroes[i]->defInfo->handler )
+		if( !graphics->getDef(map->heroes[i]) )
 		{
 			initHeroDef(map->heroes[i]);
 		}
@@ -527,6 +511,9 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 			for(int h=0; h < objects.size(); ++h)
 			{
 				const CGObjectInstance *obj = objects[h].first;
+                if (!graphics->getDef(obj))
+                    processDef(obj->defInfo);
+
 				ui8 color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
@@ -639,7 +626,7 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 				}
 				else //blit normal object
 				{
-					const std::vector<Cimage> &ourImages = obj->defInfo->handler->ourImages;
+					const std::vector<Cimage> &ourImages = graphics->getDef(obj)->ourImages;
 					SDL_Surface *bitmap = ourImages[(anim+obj->animPhaseShift)%ourImages.size()].bitmap;
 
 					//setting appropriate flag color
@@ -835,10 +822,10 @@ std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, cons
 
 bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
-	if(!obj->defInfo->handler)
+    if (!graphics->getDef(obj))
 		processDef(obj->defInfo);
 
-	const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
+	const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap; 
 	const int tilesW = bitmap->w/32;
 	const int tilesH = bitmap->h/32;
 
@@ -879,7 +866,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 
 bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
-	CDefEssential * curd = obj->defInfo->handler;
+	CDefEssential * curd = graphics->getDef(obj);
 	if(!curd) return false;
 	const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
 	for(int fx=0; fx<bitmap->w/32; ++fx)
