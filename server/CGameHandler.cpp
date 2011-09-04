@@ -421,23 +421,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
 	const CGHeroInstance *loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
 
-	if (winnerHero) 
-	{
-		CStackBasicDescriptor raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
-
-		// Give raised units to winner and show dialog, if any were raised.
-		if (raisedStack.type) 
-		{
-			TSlot slot = winnerHero->getSlotFor(raisedStack.type);
-
-			if (slot != -1) 
-			{
-				winnerHero->showNecromancyDialog(raisedStack);
-				addToSlot(StackLocation(winnerHero, slot), raisedStack.type, raisedStack.count);
-			}
-		}
-	}
-
+	const CStackBasicDescriptor raisedStack = winnerHero ? winnerHero->calculateNecromancy(*battleResult.data) : CStackBasicDescriptor();
+	// Give raised units to winner and show dialog, if any were raised,
+	// units will be given after casualities are taken
+	const TSlot necroSlot = raisedStack.type ? winnerHero->getSlotFor(raisedStack.type) : -1;
 
 	if(!duel)
 	{
@@ -464,6 +451,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			afterBattleCallback();
 	}
 
+	if (necroSlot != -1) 
+	{
+		winnerHero->showNecromancyDialog(raisedStack);
+		addToSlot(StackLocation(winnerHero, necroSlot), raisedStack.type, raisedStack.count);
+	}
 	sendAndApply(&resultsApplied);
 
 	if(duel)
