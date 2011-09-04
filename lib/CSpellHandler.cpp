@@ -3,8 +3,10 @@
 #include "CSpellHandler.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/JsonNode.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/set.hpp>
+#include <boost/foreach.hpp>
 #include <cctype>
 
 
@@ -294,38 +296,26 @@ void CSpellHandler::loadSpells()
 		spells.push_back(nsp);
 	}
 	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
-	//loading of additional spell traits
-	std::ifstream ast;
-	ast.open(DATA_DIR "/config/spell_info.txt", std::ios::binary);
-	if(!ast.is_open())
-	{
-		tlog1<<"lack of config/spell_info.txt file!"<<std::endl;
-	}
-	else
-	{
-		//reading header
-		std::string dump;
-		for(int i=0; i<60; ++i) ast>>dump;
-		//reading exact info
-		int spellID;
-		ast>>spellID;
-		while(spellID != -1)
-		{
-			int buf;
-			ast >> buf;
-			spells[spellID]->positiveness = buf;
-			ast >> buf;
-			spells[spellID]->mainEffectAnim = buf;
 
-			spells[spellID]->range.resize(4);
-			for(int g=0; g<4; ++g)
-				ast>>spells[spellID]->range[g];
-			ast>>spellID;
-		}
+	//loading of additional spell traits
+	const JsonNode config(DATA_DIR "/config/spell_info.json");
+
+	BOOST_FOREACH(const JsonNode &spell, config["spells"].Vector())
+	{
+		//reading exact info
+		int spellID = spell["id"].Float();
+
+		spells[spellID]->positiveness = spell["effect"].Float();
+		spells[spellID]->mainEffectAnim = spell["anim"].Float();
+
+		spells[spellID]->range.resize(4);
+		int idx = 0;
+		BOOST_FOREACH(const JsonNode &range, spell["ranges"].Vector())
+			spells[spellID]->range[idx] = range.String();
 	}
-	ast.close();
+
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
-	//forgetfulness needs to get targets automaticlaly on expert level
+	//forgetfulness needs to get targets automatically on expert level
 	boost::replace_first(spells[61]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 
 	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
