@@ -1,6 +1,12 @@
 {
-	//additional spell info, not included in original heroes III files
-	//[spellID - -1 is the end of data in file] [-1 -> spell is negative for influenced creatures; 0 - spell is indifferent for them; 1 - spell is poitive for them] [main effect animation (AC format), -1 - none] [spell range description in SRSL, none magic] [basic] [advanced] [expert]
+	// Additional spell info, not included in original heroes III files
+	//   id: spell ID
+	//   effect: -1 -> spell is negative for influenced creatures, 
+    //			  0 -> spell is indifferent for them
+    //			  1 -> spell is positive for them
+	//   anim: main effect animation (AC format), -1 - none
+    //   ranges: spell range description in SRSL ([no magic] [basic] [advanced] [expert])
+
 	"spells": [
 		{ "id": 0, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
 		{ "id": 1, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
