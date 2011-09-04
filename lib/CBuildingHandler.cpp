@@ -8,6 +8,8 @@
 #include <fstream>
 #include <assert.h>
 #include <boost/assign/list_of.hpp>
+#include <boost/foreach.hpp>
+#include "../lib/JsonNode.h"
 
 extern CLodHandler * bitmaph;
 
@@ -99,50 +101,33 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 	/////done reading BUILDING.TXT*****************************
+	const JsonNode config(DATA_DIR "/config/hall.json");
 
-	char line[100]; //bufor
-	std::ifstream ofs(DATA_DIR "/config/hall.txt");
-	int castles;
-	ofs>>castles;
-	for(int i=0;i<castles;i++)
+	BOOST_FOREACH(const JsonNode &town, config["town"].Vector())
 	{
-		int tid;
-		unsigned int it, box=0;
-		std::string pom;
-		ofs >> tid >> pom;
-		hall[tid].first = pom;
-		(hall[tid].second).resize(5); //rows
-		for(int j=0;j<5;j++)
-		{
-			box = it = 0;
-			ofs.getline(line,100);
-			if(!line[0] || line[0] == '\n' || line[0] == '\r')
-				ofs.getline(line,100);
-			std::string linia(line);
-			bool areboxes=true;
-			while(areboxes) //read all boxes
-			{
-				(hall[tid].second)[j].push_back(std::vector<int>()); //push new box
-				int seppos = linia.find_first_of('|',it); //position of end of this box data
-				if(seppos<0)
-					seppos = linia.length();
-				while(it<seppos)
-				{
-					int last = linia.find_first_of(' ',it);
-					std::istringstream ss(linia.substr(it,last-it));
-					it = last + 1;
-					ss >> last;
-					(hall[tid].second)[j][box].push_back(last);
-					areboxes = it; //wyzeruje jak nie znajdzie kolejnej spacji = koniec linii
-					if(!it)
-						it = seppos+1;
-				}
-				box++;
-				it+=2;
-			}
-		}
-	}
+		int tid = town["id"].Float();
 
+		hall[tid].first = town["image"].String();
+		(hall[tid].second).resize(5); //rows
+
+		int row_num = 0;
+		BOOST_FOREACH(const JsonNode &row, town["boxes"].Vector())
+		{
+			BOOST_FOREACH(const JsonNode &box, row.Vector())
+			{
+				(hall[tid].second)[row_num].push_back(std::vector<int>()); //push new box
+				std::vector<int> &box_vec = (hall[tid].second)[row_num].back();
+
+				BOOST_FOREACH(const JsonNode &value, box.Vector())
+				{
+					box_vec.push_back(value.Float());
+				}
+			}
+			row_num ++;
+		}
+
+		assert (row_num == 5);
+	}
 }
 
 CBuildingHandler::~CBuildingHandler()
