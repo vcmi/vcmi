@@ -177,33 +177,6 @@ void CClient::save(const std::string & fname)
 	*serv << &save_game;
 }
 
-void initVillagesCapitols(Mapa * map)
-{
-	const JsonNode config(DATA_DIR "/config/towns_defs.json");
-	int idx;
-
-	idx = 0;
-	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector()) {
-
-		map->defy.push_back(CGI->state->forts[idx]);
-
-		const CGDefInfo *n = CGI->state->villages[idx];
-		const_cast<CGDefInfo*>(n)->name = t["village"].String();
-		map->defy.push_back(const_cast<CGDefInfo*>(n));
-
-		idx++;
-	}
-
-	idx = 0;
-	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector()) {
-		const CGDefInfo *n = CGI->state->capitols[idx];
-		const_cast<CGDefInfo*>(n)->name = t["capitol"].String();
-		map->defy.push_back(const_cast<CGDefInfo*>(n));
-
-		idx++;
-	}
-}
-
 void CClient::endGame( bool closeConnection /*= true*/ )
 {
 	// Game is ending
@@ -279,7 +252,6 @@ void CClient::loadGame( const std::string & fname )
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
-		initVillagesCapitols(gs->map);
 
 		tlog0 <<"Initing maphandler: "<<tmh.getDif()<<std::endl;
 	}
@@ -378,7 +350,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
 		tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
-		initVillagesCapitols(gs->map);
 		CGI->mh->init();
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;

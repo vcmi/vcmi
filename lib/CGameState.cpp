@@ -1739,23 +1739,25 @@ void CGameState::loadTownDInfos()
 {
     int i;
 	const JsonNode config(DATA_DIR "/config/towns_defs.json");
-    JsonVector vec = config["town_defnames"].Vector();
-    assert(vec.size() == F_NUMBER);
-    for (i = 0; i < vec.size(); ++i) {
-		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-		forts[i] = VLC->dobjinfo->castles[i];
-		map->defy.push_back(forts[i]);
-		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-	}
+
+    assert(config["town_defnames"].Vector().size() == F_NUMBER);
 
     i = 0;
-    BOOST_FOREACH(const JsonNode &t, vec) {
+	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector())
+	{
+		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
         villages[i]->name = t["village"].String();
+		map->defy.push_back(villages[i]);
+
+		forts[i] = VLC->dobjinfo->castles[i];
+		map->defy.push_back(forts[i]);
+
+		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
         capitols[i]->name = t["capitol"].String();
-        ++i;
+		map->defy.push_back(capitols[i]);
+		
+		++i;
     }
-    for (i = 0; i < vec.size(); ++i) map->defy.push_back(villages[i]);
-    for (i = 0; i < vec.size(); ++i) map->defy.push_back(capitols[i]);
 }
 
 void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
