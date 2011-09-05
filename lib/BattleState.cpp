@@ -693,7 +693,7 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-std::set<CStack*> BattleInfo::getAttackedCreatures( const CSpell * s, int skillLevel, ui8 attackerOwner, THex destinationTile )
+std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, THex destinationTile )
 {
 	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, skillLevel);
 	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
@@ -792,25 +792,17 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CStack* attacker, THex 
 	ui16 hex = attacker->position.hex;
 	if (attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
 	{
-		std::vector<THex> hexes;
-		if (attacker->attackerOwned)
-		{
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes); //upper
-			THex::checkAndPush(hex + 1, hexes);
-			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes); //lower
-		}
-		else
-		{
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
-			THex::checkAndPush(hex - 1, hexes);
-			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), hexes);
-		}
+		std::vector<THex> hexes = attacker->getSurroundingHexes();
 		BOOST_FOREACH (THex tile, hexes)
 		{
-			CStack * st = getStackT(tile);
-			if(st && st->owner != attacker->owner)
+			if (THex::mutualPosition(tile, destinationTile) > -1 && THex::mutualPosition(tile, hex) > -1 //adjacent both to attacker's head and attacked tile
+				|| tile == destinationTile) //or simply attacked directly
 			{
-				attackedCres.insert(st);
+				CStack * st = getStackT(tile);
+				if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
+				{
+					attackedCres.insert(st);
+				}
 			}
 		}
 	}
