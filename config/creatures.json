@@ -1341,7 +1341,6 @@
 				"faction": 8,
 				"ability_add": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
 							   	 [ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
-				"upgrade": 15,
 				"defname": "CPHX.DEF"
 			},
 

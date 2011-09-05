@@ -249,16 +249,16 @@ struct DLL_EXPORT ArtSlotInfo
 class DLL_EXPORT IArtifactSetBase 
 { ///artifacts container
 public:
-	virtual void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked); //redundant inheritance
-	virtual const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const; //redundant inheritance
+	virtual void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
+	virtual const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const;
 	virtual CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
-	virtual bool hasArt(ui32 aid, bool onlyWorn = false) const; //redundant inheritance
-	virtual bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const; //redundant inheritance
+	virtual bool hasArt(ui32 aid, bool onlyWorn = false) const;
+	virtual bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
 
 	virtual ArtSlotInfo &retreiveNewArtSlot(ui16 slot)=0;
 	virtual void eraseArtSlot(ui16 slot)=0;
 
-		virtual const ArtSlotInfo *getSlot(ui16 pos) const=0;
+	virtual const ArtSlotInfo *getSlot(ui16 pos) const=0;
 	virtual si32 getArtPos(int aid, bool onlyWorn = true) const=0; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	virtual si32 getArtPos(const CArtifactInstance *art) const=0;
 	virtual const CArtifactInstance *getArtByInstanceId(int artInstId) const=0;
@@ -275,7 +275,7 @@ public:
 	void eraseArtSlot(ui16 slot);
 
 	const ArtSlotInfo *getSlot(ui16 pos) const;
-	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	si32 getArtPos(int aid, bool onlyWorn = true) const;
 	si32 getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(int artInstId) const;
 	si32 getArtTypeId(ui16 pos) const;

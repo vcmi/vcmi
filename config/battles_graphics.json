@@ -103,7 +103,7 @@
 		{ "id": 49, "defnames": [ "C11SPA1.DEF" ] },
 		{ "id": 50, "defnames": [ "C12SPE0.DEF" ] },
 		{ "id": 51, "defnames": [ "C12SPF0.DEF" ] },
-		{ "id": 52, "defnames": [ "C12SPE0.DEF" ] },
+		{ "id": 52, "defnames": [ "SP06_.DEF" ] },
 		{ "id": 53, "defnames": [ "C13SPF.DEF", "C13SPF0.DEF" ] },
 		{ "id": 54, "defnames": [ "C16SPE.DEF", "C16SPE0.DEF" ] },
 		{ "id": 55, "defnames": [ "C17SPE0.DEF" ] },

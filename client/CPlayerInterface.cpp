@@ -600,7 +600,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 
 		if (attacker)
 		{
-			battleInt->displayEffect(52, attacker->position);
+			battleInt->displayEffect(52, attacker->position); //TODO: transparency
 			if (attacker->count > 1)
 			{
 				textOff += 1;

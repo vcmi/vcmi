@@ -581,7 +581,6 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bsa.stackAttacked = def->ID;
 	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.deathBlow(), bat.ballistaDoubleDmg());
 	def->prepareAttacked(bsa); //calculate casualties
-	bat.bsa.push_back(bsa); //add this stack to the list of victims
 
 	//life drain handling
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
@@ -601,7 +600,8 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		{
 			bsa.healedStacks.push_back(shi);
 		}
-	} 
+	}
+	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
 	if (!bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa.killed() )
