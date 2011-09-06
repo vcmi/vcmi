@@ -214,10 +214,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 		delete pint;
 	}
 
-	BOOST_FOREACH(CCallback *cb, callbacks)
-	{
-		delete cb;
-	}
+	callbacks.clear();
 	tlog0 << "Deleted playerInts." << std::endl;
 
 	tlog0 << "Client stopped." << std::endl;
@@ -379,6 +376,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			battleints[color] = playerint[color];
 
 			playerint[color]->init(cb);
+			callbacks[color] = std::auto_ptr<CCallback>(cb);
 		}
 		else
 		{
@@ -465,10 +463,9 @@ void CClient::serialize( Handler &h, const int version )
 			else
 				nInt = new CPlayerInterface(pid);
 
-			CCallback *callback = new CCallback(gs,pid,this);
-			callbacks.insert(callback);
+			callbacks[pid] = std::auto_ptr<CCallback>(new CCallback(gs,pid,this));
 			battleints[pid] = playerint[pid] = nInt;
-			nInt->init(callback);
+			nInt->init(callbacks[pid].get());
 			nInt->serialize(h, version);
 		}
 

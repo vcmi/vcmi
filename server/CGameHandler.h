@@ -197,7 +197,7 @@ public:
 	bool makeBattleAction(BattleAction &ba);
 	void handleSpellCasting(int spellID, int spellLvl, THex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack);
 	bool makeCustomAction(BattleAction &ba);
-	bool queryReply( ui32 qid, ui32 answer );
+	bool queryReply( ui32 qid, ui32 answer, ui8 player );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, ui8 player );
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );

@@ -2941,8 +2941,14 @@ void CGCreature::endBattle( BattleResult *result ) const
 				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
 			}
 		}
+
+		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
+		if(!hasStackAtSlot(0))
+			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, 0), stacks.begin()->second->count);
+
 		while (stacks.size() > 1) //hopefully that's enough
 		{
+			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
 			i = stacks.end();
 			i--;
 			TSlot slot = getSlotFor(i->second->type);
@@ -3013,7 +3019,7 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 		case ObjProperty::MONSTER_EXP:
 			giveStackExp(val);
 			break;
-		case 13:
+		case ObjProperty::MONSTER_RESTORE_TYPE:
 			restore.basicType = val;
 			break;
 	}
@@ -3145,7 +3151,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	//split stacks
 	int totalCount; //TODO: multiple creature types in a stack?
 	int basicType = stacks.begin()->second->type->idNumber;
-	cb->setObjProperty(id, 13, basicType); //store info about creature stack
+	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 
 	float relativePower = ((float)h->getTotalStrength() / getArmyStrength());
 	int stacksCount;

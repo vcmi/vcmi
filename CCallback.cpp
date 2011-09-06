@@ -58,6 +58,8 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 void CCallback::selectionMade(int selection, int asker)
 {
 	QueryReply pack(asker,selection);
+	pack.player = player;
+
 	boost::unique_lock<boost::mutex> lock(*cl->serv->wmx);
 	*cl->serv << &pack;
 }

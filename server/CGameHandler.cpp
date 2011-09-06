@@ -635,7 +635,18 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			int packType = typeList.getTypeID(pack); //get the id of type
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
 
-			if(apply)
+			if(packType != typeList.getTypeID<QueryReply>() && states[getCurrentPlayer()].queries.size())
+			{
+				complain("Answer the query before attempting any further actions!");
+				PackageApplied applied;
+				applied.result = false;
+				applied.packType = packType;
+				{
+					boost::unique_lock<boost::mutex> lock(*c.wmx);
+					c << &applied;
+				}
+			}
+			else if(apply)
 			{
 				bool result = apply->applyOnGH(this,&c,pack);
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
@@ -2911,9 +2922,10 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	return true;
 }
 
-bool CGameHandler::queryReply( ui32 qid, ui32 answer )
+bool CGameHandler::queryReply(ui32 qid, ui32 answer, ui8 player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
+	states.removeQuery(player, qid);
 	if(vstd::contains(callbacks,qid))
 	{
 		CFunctionList<void(ui32)> callb = callbacks[qid];

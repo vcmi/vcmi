@@ -225,8 +225,9 @@ bool BuildBoat::applyGh( CGameHandler *gh )
 
 bool QueryReply::applyGh( CGameHandler *gh )
 {
-	//TODO - check if player matches the query
-	return gh->queryReply(qid,answer);
+	ERROR_IF_NOT(player);
+	assert(vstd::contains(gh->states.players, player));
+	return gh->queryReply(qid, answer, player);
 }
 
 bool MakeAction::applyGh( CGameHandler *gh )

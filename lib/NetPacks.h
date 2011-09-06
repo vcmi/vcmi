@@ -1029,7 +1029,7 @@ namespace ObjProperty
 {
 	//TODO: move non general properties out to the appropriate objs classes
 	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
-		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12};
+		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13};
 }
 
 struct SetObjectProperty : public CPackForClient//1001
@@ -1791,11 +1791,12 @@ struct QueryReply : public CPackForServer
 	QueryReply(){type = 6000;};
 	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){type = 6000;};
 	ui32 qid, answer; //hero and artifact id
+	ui8 player;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & qid & answer;
+		h & qid & answer & player;
 	}
 };
 
