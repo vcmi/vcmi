@@ -311,7 +311,7 @@ void CSpellHandler::loadSpells()
 		spells[spellID]->range.resize(4);
 		int idx = 0;
 		BOOST_FOREACH(const JsonNode &range, spell["ranges"].Vector())
-			spells[spellID]->range[idx] = range.String();
+			spells[spellID]->range[idx++] = range.String();
 	}
 
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
