@@ -552,7 +552,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 	if(!vstd::contains(cl->playerint,h->getOwner()))
 		return;
 
-	boost::function<void()> callback = boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,id);
+	boost::function<void()> callback = boost::bind(&CCallback::selectionMade,cl->callbacks[h->getOwner()].get(),0,id);
 	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,callback);
 }
 

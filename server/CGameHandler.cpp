@@ -1244,7 +1244,7 @@ void CGameHandler::run(bool resume)
 			{
 				YourTurn yt;
 				yt.player = i->first;
-				sendAndApply(&yt);
+				applyAndSend(&yt);
 			}
 
 			//wait till turn is done
@@ -1939,11 +1939,16 @@ void CGameHandler::sendToAllClients( CPackForClient * info )
 	}
 }
 
-void CGameHandler::sendAndApply( CPackForClient * info )
+void CGameHandler::sendAndApply(CPackForClient * info)
 {
-	//TODO? mutex
 	sendToAllClients(info);
 	gs->apply(info);
+}
+
+void CGameHandler::applyAndSend(CPackForClient * info)
+{
+	gs->apply(info);
+	sendToAllClients(info);
 }
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
@@ -5231,6 +5236,7 @@ void CGameHandler::spawnWanderingMonsters(int creatureID)
 		tiles.erase(tile); //not use it again
 	}
 }
+
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
 	int color = army->tempOwner;

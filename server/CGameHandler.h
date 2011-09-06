@@ -242,8 +242,8 @@ public:
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info);
+	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
-	//void sendAndApply(SetGarrisons * info);
 	void sendAndApply(SetResource * info);
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);

@@ -6291,7 +6291,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(xp);
 			iw.text.addTxt(11,132);
 			iw.text.addReplacement(xp);
-			cb->changePrimSkill(h->ID, 4, xp, false);
+			cb->changePrimSkill(h->id, 4, xp, false);
 		}
 		else
 		{
