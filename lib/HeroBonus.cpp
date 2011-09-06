@@ -147,7 +147,7 @@ void BonusList::getModifiersWDescr(TModDescr &out) const
 	}
 }
 
-void BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const
+void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector) const
 {
 // 	BOOST_FOREACH(Bonus *i, *this)
 // 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
@@ -156,7 +156,7 @@ void BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &se
 	getBonuses(out, selector, 0);
 }
 
-void BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching /*= false*/) const
+void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const bool caching /*= false*/) const
 {
 	for (unsigned int i = 0; i < bonuses.size(); i++)
 	{
@@ -170,7 +170,7 @@ void BonusList::getBonuses(boost::shared_ptr<BonusList> out, const CSelector &se
 
 int BonusList::valOfBonuses(const CSelector &select) const
 {
-	boost::shared_ptr<BonusList> ret(new BonusList());
+	TBonusListPtr ret(new BonusList());
 	CSelector limit = 0;
 	getBonuses(ret, select, limit, false);
 	ret->eliminateDuplicates();
@@ -260,7 +260,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	CSelector limit = 0;
-	boost::shared_ptr<BonusList> hlp = getAllBonuses(selector, limit, NULL, cachingStr);
+	TBonusListPtr hlp = getAllBonuses(selector, limit, NULL, cachingStr);
 	return hlp->totalValue();
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
@@ -303,12 +303,12 @@ int IBonusBearer::getBonusesCount(const CSelector &selector, const std::string &
 	return getBonuses(selector, cachingStr)->size();
 }
 
-const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
 {
 	return getAllBonuses(selector, 0, NULL, cachingStr);
 }
 
-const boost::shared_ptr<BonusList> IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
 {
 	return getAllBonuses(selector, limit, NULL, cachingStr);
 }
@@ -422,7 +422,7 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING), cachingStr.str()));
 }
 
-const boost::shared_ptr<BonusList> IBonusBearer::getSpellBonuses() const
+const TBonusListPtr IBonusBearer::getSpellBonuses() const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << Bonus::SPELL_EFFECT;
@@ -468,7 +468,7 @@ void CBonusSystemNode::getParents(TNodes &out)
 	}	
 }
 
-void CBonusSystemNode::getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const bool caching /*= false*/) const
+void CBonusSystemNode::getAllBonusesRec(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const bool caching /*= false*/) const
 {
 	TCNodes lparents; 
 	getParents(lparents); 
@@ -478,9 +478,9 @@ void CBonusSystemNode::getAllBonusesRec(boost::shared_ptr<BonusList> out, const 
 	bonuses.getBonuses(out, selector, limit, caching);
 }
 
-const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
 {
-	boost::shared_ptr<BonusList> ret(new BonusList());
+	TBonusListPtr ret(new BonusList());
 	if (CBonusSystemNode::cachingEnabled)
 	{
 		// Exclusive access for one thread
@@ -503,7 +503,7 @@ const boost::shared_ptr<BonusList> CBonusSystemNode::getAllBonuses(const CSelect
 		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
 		if (cachingStr != "")
 		{
-			std::map<std::string, boost::shared_ptr<BonusList> >::iterator it(cachedRequests.find(cachingStr));
+			std::map<std::string, TBonusListPtr >::iterator it(cachedRequests.find(cachingStr));
 			if (cachedRequests.size() > 0 && it != cachedRequests.end())
 			{
 				ret = it->second;
@@ -589,7 +589,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
 {
-	boost::shared_ptr<BonusList> bl(new BonusList);
+	TBonusListPtr bl(new BonusList);
 	exportedBonuses.getBonuses(bl, s);
 	BOOST_FOREACH(Bonus *b, *bl)
 		removeBonus(b);

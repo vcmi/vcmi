@@ -3179,7 +3179,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
 					}
 					//The %s shrivel with age, and lose %d hit points."	
-					boost::shared_ptr<BonusList> bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					TBonusListPtr bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, 75));
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
@@ -3542,7 +3542,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
         int yAdd = 260 + ((stack->attackerOwned || moveInside) ? 0 : -15);
 		//blitting amount background box
 		SDL_Surface *amountBG = NULL;
-		boost::shared_ptr<BonusList> spellEffects = stack->getSpellBonuses();
+		TBonusListPtr spellEffects = stack->getSpellBonuses();
 		if(!spellEffects->size())
 		{
 			amountBG = amountNormal;

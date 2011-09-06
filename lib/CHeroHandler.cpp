@@ -153,6 +153,7 @@ void CHeroHandler::loadObstacles()
 		obi.defName = obs["defname"].String();
 		obi.blockmap = obs["blockmap"].String();
 		obi.allowedTerrains = obs["terrains"].String();
+		assert(obi.allowedTerrains.size() >= 25);
 		obi.posShift.first = obs["shift_x"].Float();
 		obi.posShift.second = obs["shift_y"].Float();
 

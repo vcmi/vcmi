@@ -4370,7 +4370,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<ui32> spellsToCast;
-		boost::shared_ptr<BonusList> spells = attacker->getBonuses(Selector::type(attackMode));
+		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
 		BOOST_FOREACH(const Bonus *sf, *spells)
 		{
 			spellsToCast.insert (sf->subtype);
@@ -4391,7 +4391,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			if(oneOfAttacked == NULL) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
-			boost::shared_ptr<BonusList> spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
+			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
 			BOOST_FOREACH(const Bonus *sf, *spellsByType)
 			{
 				amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
@@ -4452,7 +4452,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		}
 	}
 	int acidDamage = 0;
-	boost::shared_ptr<BonusList> acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
 	BOOST_FOREACH(const Bonus *b, *acidBreath)
 	{
 		if (b->additionalInfo > rand()%100)
@@ -4935,7 +4935,7 @@ void CGameHandler::runBattle()
 	{
 		if(gs->curB->heroes[i] && gs->curB->heroes[i]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
 		{
-			boost::shared_ptr<BonusList> bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			TBonusListPtr bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			BOOST_FOREACH (Bonus *b, *bl)
 			{
 				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, SpellCasting::HERO_CASTING, NULL);

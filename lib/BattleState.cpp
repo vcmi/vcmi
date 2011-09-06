@@ -592,9 +592,15 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	{
 		multBonus *= float(defender->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0f;
 	}
-	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
+
+	TBonusListPtr curseEffects = attacker->getBonuses(Selector::type(Bonus::ALWAYS_MINIMUM_DAMAGE)); //attacker->getEffect(42);
+	TBonusListPtr blessEffects = attacker->getBonuses(Selector::type(Bonus::ALWAYS_MAXIMUM_DAMAGE)); //attacker->getEffect(43);
+	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
+	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo))->additionalInfo : 0;
+
+	if(curseMultiplicativePenalty) //curse handling (partial, the rest is below)
 	{
-		multBonus *= 0.8f * float(VLC->spellh->spells[42]->powers[attacker->getEffect(42)->val]); //the second factor is 1 or 0
+		multBonus *= 1.0 - curseMultiplicativePenalty/100;
 	}
 
 	class HLP
@@ -633,14 +639,14 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 
 	TDmgRange returnedVal;
 
-	if(attacker->getEffect(42)) //curse handling (rest)
+	if(curseEffects->size()) //curse handling (rest)
 	{
-		minDmg -= VLC->spellh->spells[42]->powers[attacker->getEffect(42)->val];
+		minDmg += curseBlessAdditiveModifier;
 		returnedVal = std::make_pair(int(minDmg), int(minDmg));
 	}
-	else if(attacker->getEffect(41)) //bless handling
+	else if(blessEffects->size()) //bless handling
 	{
-		maxDmg += VLC->spellh->spells[41]->powers[attacker->getEffect(41)->val];
+		maxDmg += curseBlessAdditiveModifier;
 		returnedVal =  std::make_pair(int(maxDmg), int(maxDmg));
 	}
 	else
@@ -1911,7 +1917,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 				break;
 			case 78:	//dispel helpful spells
 			{
-				boost::shared_ptr<BonusList> spellBon = subject->getSpellBonuses();
+				TBonusListPtr spellBon = subject->getSpellBonuses();
 				bool hasPositiveSpell = false;
 				BOOST_FOREACH(const Bonus * b, *spellBon)
 				{
@@ -1955,7 +1961,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 
-		boost::shared_ptr<BonusList> immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+		TBonusListPtr immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 		{
 			//std::remove_if(immunities->begin(), immunities->end(), NegateRemover);
@@ -2199,11 +2205,13 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.back().valType = Bonus::INDEPENDENT_MAX;
 	 	sf.back().sid = sse.sid;
 	case 41: //bless
-	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
+		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
+		sf.back().valType = Bonus::INDEPENDENT_MAX;
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 42: //curse
-	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, -1 * power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
+	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
+		sf.back().valType = Bonus::INDEPENDENT_MAX;
 	 	sf.back().sid = sse.sid;
 	 	break;
 	case 43: //bloodlust
@@ -2434,7 +2442,7 @@ std::vector<si32> CStack::activeSpells() const
 {
 	std::vector<si32> ret;
 
-	boost::shared_ptr<BonusList> spellEffects = getSpellBonuses();
+	TBonusListPtr spellEffects = getSpellBonuses();
 	BOOST_FOREACH(const Bonus *it, *spellEffects)
 	{
 		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects

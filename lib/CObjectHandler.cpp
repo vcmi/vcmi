@@ -1877,12 +1877,12 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
 		
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	boost::shared_ptr<BonusList> bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
+	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
 	BOOST_FOREACH(const Bonus *b, *bonuses)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val));
 
 	//statue-of-legion-like bonus: % to base+castle
-	boost::shared_ptr<BonusList> bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
+	TBonusListPtr bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
 	BOOST_FOREACH(const Bonus *b, *bonuses2)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
 
@@ -2239,7 +2239,7 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::recreateBuildingsBonuses()
 {
-	boost::shared_ptr<BonusList> bl(new BonusList);
+	TBonusListPtr bl(new BonusList);
 	getExportedBonusList().getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
 	BOOST_FOREACH(Bonus *b, *bl)
 		removeBonus(b);

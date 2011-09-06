@@ -23,7 +23,9 @@ struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
+class BonusList;
 
+typedef boost::shared_ptr<BonusList> TBonusListPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
@@ -139,7 +141,7 @@ namespace PrimarySkill
 	BONUS_NAME(HYPNOTIZED)								\
 	BONUS_NAME(ADDITIONAL_RETALIATION) /*value - number of additional retaliations*/ \
 	BONUS_NAME(MAGIC_MIRROR) /* value - chance of redirecting in %*/ \
-	BONUS_NAME(ALWAYS_MINIMUM_DAMAGE) /*unit does its minimum damage from range; subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage, additional info - multiplicative anti-bonus for dmg in % [eg 20 means that creature will inflict 80% of normal dmg]*/ \
+	BONUS_NAME(ALWAYS_MINIMUM_DAMAGE) /*unit does its minimum damage from range; subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage penalty (it'll subtracted from dmg), additional info - multiplicative anti-bonus for dmg in % [eg 20 means that creature will inflict 80% of normal minimal dmg]*/ \
 	BONUS_NAME(ALWAYS_MAXIMUM_DAMAGE) /*eg. bless effect, subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage, additional info - multiplicative bonus for dmg in %*/ \
 	BONUS_NAME(ATTACKS_NEAREST_CREATURE) /*while in berserk*/ \
 	BONUS_NAME(IN_FRENZY) /*value - level*/				\
@@ -272,6 +274,10 @@ struct DLL_EXPORT Bonus
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
 	}
 
+	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
+	{
+		return a->additionalInfo < b->additionalInfo;
+	}
 	static bool OneDay(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_DAY;
@@ -357,10 +363,10 @@ public:
 
 	// BonusList functions
 	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	void getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
+	void getBonuses(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
 	void getModifiersWDescr(TModDescr &out) const;
 
-	void getBonuses(boost::shared_ptr<BonusList> out, const CSelector &selector) const;
+	void getBonuses(TBonusListPtr out, const CSelector &selector) const;
 
 	//special find functions
 	Bonus *getFirst(const CSelector &select);
@@ -397,6 +403,7 @@ public:
 	friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
 	friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
 };
+
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
 // Don't touch/call this functions
@@ -466,13 +473,13 @@ public:
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
 	//interface
-	virtual const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0; 
+	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0; 
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
-	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
-	const boost::shared_ptr<BonusList> getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
+	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
+	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
 	//legacy interface 
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
@@ -495,7 +502,7 @@ public:
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	const boost::shared_ptr<BonusList> getSpellBonuses() const;
+	const TBonusListPtr getSpellBonuses() const;
 };
 
 class DLL_EXPORT CBonusSystemNode : public IBonusBearer
@@ -518,16 +525,16 @@ private:
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests. 
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
-	mutable std::map<std::string, boost::shared_ptr<BonusList> > cachedRequests;
+	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 
-	void getAllBonusesRec(boost::shared_ptr<BonusList> out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
+	void getAllBonusesRec(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
 
 public:
 
 	explicit CBonusSystemNode();
 	virtual ~CBonusSystemNode();
 	
-	const boost::shared_ptr<BonusList> getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonus(const CSelector &selector) const;
 

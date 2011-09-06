@@ -250,6 +250,12 @@ BattleAction CStupidAI::goTowards(const CStack * stack, THex hex)
 	dists = cb->battleGetDistances(stack, realDest, predecessors);
 	std::vector<THex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
+	if(!avHexes.size())
+	{
+		print("goTowards: Stack cannot move! That's " + stack->nodeName());
+		return BattleAction::makeDefend(stack);
+	}
+
 	while(1)
 	{
 		assert(realDest.isValid());
