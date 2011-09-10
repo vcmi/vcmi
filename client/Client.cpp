@@ -376,7 +376,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			battleints[color] = playerint[color];
 
 			playerint[color]->init(cb);
-			callbacks[color] = std::auto_ptr<CCallback>(cb);
+			callbacks[color] = boost::shared_ptr<CCallback>(cb);
 		}
 		else
 		{
@@ -463,7 +463,7 @@ void CClient::serialize( Handler &h, const int version )
 			else
 				nInt = new CPlayerInterface(pid);
 
-			callbacks[pid] = std::auto_ptr<CCallback>(new CCallback(gs,pid,this));
+			callbacks[pid] = boost::shared_ptr<CCallback>(new CCallback(gs,pid,this));
 			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callbacks[pid].get());
 			nInt->serialize(h, version);
