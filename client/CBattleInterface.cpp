@@ -1185,7 +1185,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), spellToCast(NULL),
+	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), spellToCast(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
       
@@ -1678,11 +1678,25 @@ void CBattleInterface::show(SDL_Surface * to)
 				}
 			}
 			else if(curInt->sysOpts.printMouseShadow) //when not casting spell
-			{
-				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
-				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
-				SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
-				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
+			{//TODO: do not check it every frame
+				if (activeStack) //highlight all attackable hexes
+				{ 
+					std::set<THex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
+					BOOST_FOREACH(THex hex, set)
+					{
+						int x = 14 + ((hex/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(hex%BFIELD_WIDTH) + pos.x;
+						int y = 86 + 42 * (hex/BFIELD_WIDTH) + pos.y;
+						SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
+					}
+				}
+				else
+				{
+					int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
+					int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
+					SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
+				}
 			}
 		}
 	}
@@ -2078,7 +2092,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
 						const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
 						const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
-						const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2;
+						const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
 						const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
 						const int zigzagCorrection = !((myNumber/BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
 
@@ -2205,9 +2219,34 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						// Find the closest direction attackable, starting with the right one.
 						// FIXME: Is this really how the original H3 client does it?
 						int i = 0;
-						while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1)
+						while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
 							i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
-						cursor->changeGraphic(1, sectorCursor[(cursorIndex + i)%sectorCursor.size()]);
+						int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
+						cursor->changeGraphic(1, sectorCursor[index]);
+						switch (index)
+						{
+							case 0:
+								attackingHex = myNumber - 1; //left
+								break;
+							case 1:
+								attackingHex = myNumber - BFIELD_WIDTH - 1 + zigzagCorrection; //top left
+								break;
+							case 2:
+								attackingHex = myNumber - BFIELD_WIDTH + zigzagCorrection; //top right
+								break;
+							case 3:
+								break;
+								attackingHex = myNumber + 1; //right
+							case 4:
+								break;
+								attackingHex = myNumber + BFIELD_WIDTH + zigzagCorrection; //bottom right
+							case 5:
+								attackingHex = myNumber + BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
+								break;
+						}
+						THex hex(attackingHex);
+						if (!hex.isValid())
+							attackingHex = -1;
 
 						//setting console info
 						char buf[500];

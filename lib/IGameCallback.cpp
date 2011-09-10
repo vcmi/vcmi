@@ -82,6 +82,18 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, T
 
 	return ret;
 }
+std::set<THex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos  /*= THex::INVALID*/)
+{
+	if(!gs->curB)
+	{
+
+		tlog1 << "battleGetAttackedHexes called when there is no battle!\n";
+		std::set<THex> set;
+		return set;
+	}
+
+	return gs->curB->getAttackedHexes(attacker, destinationTile, attackerPos);
+}
 
 SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( const CSpell * spell )
 {

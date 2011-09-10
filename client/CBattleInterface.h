@@ -442,6 +442,7 @@ private:
     bool stackCountOutsideHexes[BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
+	int attackingHex; //hex from which the stack would perform attack with current cursor
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 

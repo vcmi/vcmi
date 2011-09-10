@@ -100,6 +100,7 @@ public:
     void battleGetStackCountOutsideHexes(bool *ac); // returns hexes which when in front of a stack cause us to move the amount box back
 	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL); //returns numbers of hexes reachable by creature with id ID
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL); //returns vector of distances to [dest hex number]
+	std::set<THex> battleGetAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID);
 	bool battleCanShoot(const CStack * stack, THex dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)

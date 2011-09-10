@@ -36,6 +36,16 @@ struct DLL_EXPORT SiegeInfo
 	}
 };
 
+struct DLL_EXPORT AttackableTiles
+{
+	std::set<THex> hostileCreaturePositions;
+	std::set<THex> friendlyCreaturePositions; //for Dragon Breath
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hostileCreaturePositions & friendlyCreaturePositions;
+	}
+};
+
 struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 {
 	ui8 sides[2]; //sides[0] - attacker, sides[1] - defender
@@ -88,7 +98,9 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, THex destinationTile); //calculates stack affected by given spell
-	std::set<CStack*> getAttackedCreatures(const CStack* attacker, THex destinationTile); //calculates range of multi-hex attacks
+	void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, THex destinationTile, THex attackerPos); //hexes around target that could be attacked in melee
+	std::set<CStack*> getAttackedCreatures(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
+	std::set<THex> getAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
 	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
@@ -191,7 +203,7 @@ public:
 	THex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 	std::vector<THex> getHexes() const; //up to two occupied hexes, starting from front
 	bool coversPos(THex position) const; //checks also if unit is double-wide
-	std::vector<THex> getSurroundingHexes() const; // get six or 8 surrounding hexes depending on creature size
+	std::vector<THex> getSurroundingHexes(THex attackerPos = THex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 
 	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
 
