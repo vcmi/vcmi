@@ -825,7 +825,7 @@ void BattleInfo::getPotentiallyAttackableHexes(AttackableTiles &at, const CStack
 				break;
 			case WN-1: //16
 			case -WN-1: //-18
-				THex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 0 : -1), hexes);
+				THex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : 0), hexes);
 				break;
 		}
 		BOOST_FOREACH (THex tile, hexes)
@@ -870,15 +870,15 @@ std::set<THex> BattleInfo::getAttackedHexes(const CStack* attacker, THex destina
 	std::set<THex> attackedHexes;
 	BOOST_FOREACH (THex tile, at.hostileCreaturePositions)
 	{
-		CStack * st = getStackT(tile);
+		CStack * st = getStackT(tile, true);
 		if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedHexes.insert(tile);
 		}
 	}
-	BOOST_FOREACH (THex tile, at.hostileCreaturePositions)
+	BOOST_FOREACH (THex tile, at.friendlyCreaturePositions)
 	{
-		CStack * st = getStackT(tile);
+		CStack * st = getStackT(tile, true);
 		if(st) //friendly stacks can also be damaged by Dragon Breath
 		{
 			attackedHexes.insert(tile);

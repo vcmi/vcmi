@@ -1690,13 +1690,11 @@ void CBattleInterface::show(SDL_Surface * to)
 						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 					}
 				}
-				else
-				{
-					int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
-					int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
-					SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
-				}
+				//always highlight pointed hex
+				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
+				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
+				SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 			}
 		}
 	}
