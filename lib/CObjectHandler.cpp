@@ -695,9 +695,10 @@ CGHeroInstance::CGHeroInstance()
 	visitedTown = NULL;
 	type = NULL;
 	boat = NULL;
+	sex = 0;
 	secSkills.push_back(std::make_pair(-1, -1));
 	speciality.setNodeType(CBonusSystemNode::SPECIALITY);
-	attachTo(&speciality); //do we evert need to detach it?
+	attachTo(&speciality); //do we ever need to detach it?
 }
 
 void CGHeroInstance::initHero(int SUBID)
