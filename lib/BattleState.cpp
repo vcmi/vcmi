@@ -782,7 +782,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 void BattleInfo::getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, THex destinationTile, THex attackerPos)
 {
 	const int WN = BFIELD_WIDTH;
-	ui16 hex = (attackerPos != THex::INVALID) ? attackerPos : attacker->position.hex; //real or hypothetical (cursor) position
+	ui16 hex = (attackerPos != THex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
 		std::vector<THex> hexes = attacker->getSurroundingHexes(attackerPos);
@@ -2446,7 +2446,7 @@ bool CStack::coversPos(THex pos) const
 
 std::vector<THex> CStack::getSurroundingHexes(THex attackerPos) const
 {
-	THex hex = (attackerPos != THex::INVALID) ? attackerPos : position.hex; //use hypothetical position
+	THex hex = (attackerPos != THex::INVALID) ? attackerPos : position; //use hypothetical position
 	std::vector<THex> hexes;
 	if (doubleWide())
 	{
