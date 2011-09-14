@@ -203,15 +203,12 @@ SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fna
 
 SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
-	if (bitmaph->haveFile(fname, FILE_GRAPHICS))
-		return loadBitmapFromLod(bitmaph, fname, setKey);
+	SDL_Surface *bitmap;
 
-	if (bitmaph_ab->haveFile(fname, FILE_GRAPHICS))
-		return loadBitmapFromLod(bitmaph_ab, fname, setKey);
+	if (!(bitmap = loadBitmapFromLod(bitmaph, fname, setKey)) &&
+		!(bitmap = loadBitmapFromLod(bitmaph_ab, fname, setKey)) &&
+		!(bitmap = loadBitmapFromLod(spriteh, fname, setKey)))
+		tlog1<<"Failed to find file "<<fname<<"\n";
 
-	if (spriteh->haveFile(fname, FILE_GRAPHICS))
-		return loadBitmapFromLod(spriteh, fname, setKey);
-	
-	tlog1<<"Failed to find file "<<fname<<"\n";
-	return NULL;
+	return bitmap;
 }

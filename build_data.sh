@@ -19,7 +19,7 @@
 #   data1.cab and data1.hdr from the original 1st CDROM
 #   Heroes3.snd from the original 2nd CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_085b.rar
+#   the VCMI distribution: vcmi_086.rar
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -85,6 +85,9 @@ unrar x -o+ ../main4.wog
 #unrar x -o+ ../main8_optional.wog
 #unrar x -o+ ../main9_optional.wog
 
+mkdir -p $DESTDIR/Data/zvs/
+mv data/zvs/Lib1.res $DESTDIR/Data/zvs/
+
 rm -rf picsall Documentation Data data update
 rm -f action.txt h3bitmap.txt H3sprite.txt InstMult.txt
 rm -f ACTION.TXT H3BITMAP.TXT H3SPRITE.TXT INSTMULT.TXT
@@ -109,8 +112,7 @@ rm -rf temp
 mkdir temp
 cd temp
 
-#unzip ../vcmi_085.zip
-unrar ../vcmi_085b.rar
+unzip ../vcmi_086.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f

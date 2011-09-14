@@ -856,7 +856,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_UNIC.bmp"; break;
 	}
 	if(!fileName.empty())
-		fileName = "Data/zvs/Lib1.res/" + fileName;
+		fileName = "zvs/Lib1.res/" + fileName;
 	return fileName;
 }
 
