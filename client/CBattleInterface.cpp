@@ -1185,7 +1185,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), spellToCast(NULL),
+	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  spellDestSelectMode(false), stackCanCastSpell(false), spellToCast(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
       
@@ -3361,19 +3361,19 @@ void CBattleInterface::castThisSpell(int spellID)
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	const CSpell & spell = *CGI->spellh->spells[spellID];
-	spellSelMode = 0;
+	spellSelMode = ANY_LOCATION;
 	if(spell.getTargetType() == CSpell::CREATURE)
 	{
 		switch(spell.positiveness)
 		{
 		case -1 :
-			spellSelMode = 2;
+			spellSelMode = HOSTILE_CREATURE;
 			break;
 		case 0:
-			spellSelMode = 3;
+			spellSelMode = ANY_CREATURE;
 			break;
 		case 1:
-			spellSelMode = 1;
+			spellSelMode = FRIENDLY_CREATURE;
 			break;
 		}
 	}
@@ -3384,41 +3384,41 @@ void CBattleInterface::castThisSpell(int spellID)
 			switch(spell.positiveness)
 			{
 			case -1 :
-				spellSelMode = 2;
+				spellSelMode = HOSTILE_CREATURE;
 				break;
 			case 0:
-				spellSelMode = 3;
+				spellSelMode = ANY_CREATURE;
 				break;
 			case 1:
-				spellSelMode = 1;
+				spellSelMode = FRIENDLY_CREATURE;
 				break;
 			}
 		}
 		else
 		{
-			spellSelMode = -1;
+			spellSelMode = NO_LOCATION;
 		}
 	}
 	if(spell.getTargetType() == CSpell::OBSTACLE)
 	{
-		spellSelMode = 4;
+		spellSelMode = OBSTACLE;
 	}
 	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ] == "X") //spell has no range
 	{
-		spellSelMode = -1;
+		spellSelMode = NO_LOCATION;
 	}
 
 	if(spell.id == 63) //teleport
 	{
-		spellSelMode = 5;
+		spellSelMode = TELEPORT;
 	}
 
 	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ].size() > 1) //spell has many-hex range
 	{
-		spellSelMode = 0;
+		spellSelMode = ANY_LOCATION;
 	}
 
-	if(spellSelMode == -1) //user does not have to select location
+	if(spellSelMode == NO_LOCATION) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;
 		curInt->cb->battleMakeAction(spellToCast);
@@ -3465,6 +3465,10 @@ void CBattleInterface::activateStack()
 	bSurrender->block((curInt == attackerInt ? defendingHeroInstance : attackingHeroInstance) == NULL);
 	bFlee->block(!curInt->cb->battleCanFlee());
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
+
+	//set casting flag to true if creature can use it to not check it every time
+	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::DAEMON_SUMMONING)))
+		stackCanCastSpell = true;
 
 	GH.fakeMouseMove();
 
@@ -4115,7 +4119,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if(!down && myHero && myOwner->curInt->cb->battleCanCastSpell()) //check conditions
+	if(!down && myHero && myOwner->myTurn && myOwner->curInt->cb->battleCanCastSpell()) //check conditions
 	{
 		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{

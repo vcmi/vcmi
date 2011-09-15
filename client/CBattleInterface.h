@@ -417,6 +417,10 @@ struct CatapultProjectileInfo
 /// drawing everything correctly.
 class CBattleInterface : public CIntObject
 {
+	enum SpellSelectionType
+	{
+		ANY_LOCATION = 0, FRIENDLY_CREATURE, HOSTILE_CREATURE, ANY_CREATURE, OBSTACLE, TELEPORT, NO_LOCATION = -1
+	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
 	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
@@ -448,9 +452,9 @@ private:
 
 	CPlayerInterface *tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
+	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
-	int spellSelMode; //0 - any location, 1 - any friendly creature, 2 - any hostile creature, 3 - any creature,
-		//4 - obstacle, 5 - teleport -1 - no location
+	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
@@ -514,7 +518,7 @@ public:
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
-	bool myTurn; //if true, interface is active (commands can be ordered
+	bool myTurn; //if true, interface is active (commands can be ordered)
 	CBattleResultWindow * resWindow; //window of end of battle
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
