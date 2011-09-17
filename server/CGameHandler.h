@@ -89,6 +89,7 @@ class CGameHandler : public IGameCallback
 {
 private:
 	void makeStackDoNothing(const CStack * next);
+	bool isAllowedExchangeForQuery(int id1, int id2);
 public:
 	CVCMIServer *s;
 	std::map<int,CConnection*> connections; //player color -> connection to client with interface of that player
@@ -103,6 +104,7 @@ public:
 	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
 
 	bool isAllowedExchange(int id1, int id2);
+	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, THex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero

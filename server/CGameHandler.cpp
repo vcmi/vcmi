@@ -634,8 +634,9 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 
 			int packType = typeList.getTypeID(pack); //get the id of type
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
-
-			if(packType != typeList.getTypeID<QueryReply>() && states[getCurrentPlayer()].queries.size())
+			if(packType != typeList.getTypeID<QueryReply>() &&
+			   (packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) && // for dialogs like garrison
+			   states[getCurrentPlayer()].queries.size())
 			{
 				complain("Answer the query before attempting any further actions!");
 				PackageApplied applied;
@@ -4003,18 +4004,26 @@ void CGameHandler::showThievesGuildWindow(int requestingObjId)
 	sendAndApply(&ow);
 }
 
+bool CGameHandler::isAllowedArrangePack(const ArrangeStacks *pack)
+{
+	return isAllowedExchangeForQuery(pack->id1, pack->id2);
+}
+
+bool CGameHandler::isAllowedExchangeForQuery(int id1, int id2) {
+	boost::unique_lock<boost::recursive_mutex> lock(gsm);
+	for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
+		if((id1 == i->second.first && id2 == i->second.second) ||
+		   (id2 == i->second.first && id1 == i->second.second))
+			return true;
+}
+
 bool CGameHandler::isAllowedExchange( int id1, int id2 )
 {
 	if(id1 == id2)
 		return true;
 
-	{
-		boost::unique_lock<boost::recursive_mutex> lock(gsm);
-		for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
-			if((id1 == i->second.first && id2 == i->second.second) ||
-			   (id2 == i->second.first && id1 == i->second.second))
-				return true;
-	}
+	if (isAllowedExchangeForQuery(id1, id2))
+		return true;
 
 	const CGObjectInstance *o1 = getObj(id1), *o2 = getObj(id2);
 

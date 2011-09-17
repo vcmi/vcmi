@@ -1186,7 +1186,10 @@ bool CPlayerInterface::altPressed() const
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
 {
 	if(stillMoveHero.get() == DURING_MOVE  &&  adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
+	{
+		onEnd();
 		return;
+	}
 
 	{
 		boost::unique_lock<boost::mutex> un(showingDialog->mx);
