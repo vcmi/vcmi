@@ -1423,13 +1423,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == 8)
 	{
 		tmh.result = TryMoveHero::EMBARK;
-		if (h->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		{
-			tmh.movePoints = (h->movement - cost)*((float)(h->maxMovePoints(false)) / h->maxMovePoints(true));
-		}
-		else
-			tmh.movePoints = 0; //embarking takes all move points
-
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 		sendAndApply(&tmh);
 		return true;
@@ -1437,14 +1431,9 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//hero leaves the boat
 	else if(h->boat && t.tertype != TerrainTile::water && !t.blocked)
 	{
+		//TODO? code similarity with the block above
 		tmh.result = TryMoveHero::DISEMBARK;
-		if (h->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		{
-			tmh.movePoints = (h->movement - cost)*((float)(h->maxMovePoints(true)) / h->maxMovePoints(false));
-		}
-		else
-			tmh.movePoints = 0; //disembarking takes all move points
-
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true);
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 		sendAndApply(&tmh);
 		tryAttackingGuard(guardPos, h);

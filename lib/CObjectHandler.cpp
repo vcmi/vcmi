@@ -1479,6 +1479,14 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 
+int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/) const
+{
+	if(hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		return (MPsBefore - basicCost) * ((float)(maxMovePoints(disembark)) / maxMovePoints(!disembark));
+
+	return 0; //take all MPs otherwise
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -3573,22 +3581,8 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 103: //find nearest subterranean gate on the other level
 		{
-			int i=0;
-			for(; i < gates.size(); i++)
-			{
-				if(gates[i].first == id)
-				{
-					destinationid = gates[i].second;
-					break;
-				}
-				else if(gates[i].second == id)
-				{
-					destinationid = gates[i].first;
-					break;
-				}
-			}
-
-			if(destinationid < 0  ||  i == gates.size()) //no exit
+			destinationid = getMatchingGate(id);
+			if(destinationid < 0) //no exit
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -3674,6 +3668,19 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 		}
 	}
 	objs.erase(103);
+}
+
+int CGTeleport::getMatchingGate(int id)
+{
+	for(int i=0; i < gates.size(); i++)
+	{
+		if(gates[i].first == id)
+			return gates[i].second;
+		if(gates[i].second == id)
+			return gates[i].first;
+	}
+
+	return -1;
 }
 
 void CGArtifact::initObj()

@@ -259,25 +259,32 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	{
 		//We may need to change music - select new track, music handler will change it if needed
 		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(ho->visitablePos())->tertype]);
-		if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
+
+		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if(adventureInt->terrain.currentPath)
-				eraseCurrentPathOf(ho);
-			return; //teleport - no fancy moving animation
+			if(adventureInt->terrain.currentPath->nodes.size() && adventureInt->terrain.currentPath->nodes.back().coord == CGHeroInstance::convertPosition(hp, false))
+				removeLastNodeFromPath(ho);
+// 			else
+// 				eraseCurrentPathOf(ho);
+			return;	//teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
 
-		if ((details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
+		if(details.start == details.end) //last step
+		{
+			eraseCurrentPathOf(ho);
+			return; 
+		}
+
+		if (ho->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
 			eraseCurrentPathOf(ho);
 		}
-		else if(adventureInt->terrain.currentPath  &&  details.result == TryMoveHero::SUCCESS) //&& hero is moving
+		else if(adventureInt->terrain.currentPath  &&  ho->pos == details.end) //&& hero is moving
 		{
 			//remove one node from the path (the one we went)
-			adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
-			if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
-				eraseCurrentPathOf(ho);
+			removeLastNodeFromPath(ho);
 		}
 	}
 
@@ -1127,6 +1134,10 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 		for(int i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
+			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
+			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
+				continue;
+
 			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
 			if(path.nodes[i-1].turns)
 			{
@@ -1143,7 +1154,8 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			{
 				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
-				if (newTerrain != currentTerrain) {
+				if (newTerrain != currentTerrain) 
+				{
 					CCS->soundh->stopSound(sh);
 					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
 					currentTerrain = newTerrain;
@@ -2022,6 +2034,13 @@ void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool check
 
 	paths.erase(ho);
 	adventureInt->terrain.currentPath = NULL;
+}
+
+void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)
+{
+	adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
+	if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
+		eraseCurrentPathOf(ho);
 }
 
 CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)

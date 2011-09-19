@@ -104,8 +104,11 @@ typedef si32 TQuantity;
 typedef ui32 TCreature; //creature id
 const int ARMY_SIZE = 7;
 
-const int HEROI_TYPE = 34, 
+const int 
+	BOATI_TYPE = 8,
+	HEROI_TYPE = 34, 
 	TOWNI_TYPE = 98,
+	SUBTERRANEAN_GATE_TYPE = 103,
 	CREI_TYPE = 54,
 	EVENTI_TYPE = 26;
 

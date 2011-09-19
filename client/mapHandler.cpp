@@ -1059,7 +1059,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 		}
 	}
 
-	if(t.siodmyTajemniczyBajt & 128)
+	if(t.hasFavourableWinds())
 		out = CGI->generaltexth->names[225]; //Favourable Winds
 	else if(terName)
 		out = CGI->generaltexth->terrainNames[t.tertype];

@@ -71,6 +71,10 @@ struct DLL_EXPORT TerrainTile
 	bool entrableTerrain(const TerrainTile *from = NULL) const; //checks if terrain is not a rock. If from is water/land, same type is also required. 
 	bool entrableTerrain(bool allowLand, bool allowSea) const; //checks if terrain is not a rock. If from is water/land, same type is also required. 
 	bool isClear(const TerrainTile *from = NULL) const; //checks for blocking objs and terraint type (water / land)
+	int topVisitableID() const; //returns ID of the top visitable ovject or -1 if there is none
+
+	bool isCoastal() const;
+	bool hasFavourableWinds() const;
 };
 
 /// name of starting hero

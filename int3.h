@@ -35,6 +35,8 @@ public:
 		{return int3(-x,-y,-z);}
 	inline double dist2d(const int3 other) const //distance (z coord is not used)
 		{return std::sqrt((double)(x-other.x)*(x-other.x) + (y-other.y)*(y-other.y));}
+	inline bool areNeighbours(const int3 other) const
+		{return dist2d(other) < 2. && z == other.z;}
 	inline void operator+=(const int3 & i)
 	{
 		x+=i.x;

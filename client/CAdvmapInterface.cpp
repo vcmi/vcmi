@@ -572,17 +572,24 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 
 	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
 	{
+		const int3 &curPos = currentPath->nodes[i].coord, &nextPos = currentPath->nodes[i+1].coord;
+		if(curPos.z != adventureInt->position.z)
+			continue;
+
 		int pn=-1;//number of picture
 		if (i==0) //last tile
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(currentPath->nodes[i].coord.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
+			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			pn=0;
 		}
 		else
 		{
+			const int3 &prevPos = currentPath->nodes[i-1].coord;
+			std::vector<CGPathNode> & cv = currentPath->nodes;
+
 			/* Vector directions
 			 *  0   1   2
 			 *    \ | / 
@@ -595,20 +602,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			 *     /
 			 * is id1=7, id2=5 (pns[7][5])
 			*/ 
-			std::vector<CGPathNode> & cv = currentPath->nodes;
-			int id1=(cv[i].coord.x-cv[i+1].coord.x+1)+3*(cv[i].coord.y-cv[i+1].coord.y+1);   //Direction of entering vector
-			int id2=(cv[i-1].coord.x-cv[i].coord.x+1)+3*(cv[i-1].coord.y-cv[i].coord.y+1); //Direction of exiting vector
-
-			pn=pns[id1][id2];
-
+			bool pathContinuous = curPos.areNeighbours(nextPos) && curPos.areNeighbours(prevPos);
+			if(pathContinuous && cv[i].land == cv[i+1].land)
+			{
+				int id1=(curPos.x-nextPos.x+1)+3*(curPos.y-nextPos.y+1);   //Direction of entering vector
+				int id2=(cv[i-1].coord.x-curPos.x+1)+3*(cv[i-1].coord.y-curPos.y+1); //Direction of exiting vector
+				pn=pns[id1][id2];
+			}
+			else //path discontinuity or sea/land transition (eg. when moving through Subterranean Gate or Boat)
+			{
+				pn = 0;
+			}
 		}
 		if (currentPath->nodes[i].turns)
 			pn+=25;
 		if (pn>=0)
 		{
 			CDefEssential * arrows = graphics->heroMoveArrows;
-			int x = 32*(currentPath->nodes[i].coord.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(currentPath->nodes[i].coord.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
+			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
@@ -690,7 +702,7 @@ void CTerrainRect::show(SDL_Surface * to)
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
-	if (currentPath && adventureInt->position.z==currentPath->startPos().z) //drawing path
+	if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
 	{
 		showPath(&pos, to);
 	}
@@ -1655,7 +1667,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 				LOCPLINT->moveHero(currentHero,*terrain.currentPath);
 				return;
 			}
-			else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
+			else/* if(mp.z == currentHero->pos.z)*/ //remove old path and find a new one if we clicked on the map level on which hero is present
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
@@ -1840,11 +1852,13 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		} 
 		else //no objs 
 		{
-			if(accessible && pnode->accessible != CGPathNode::FLYABLE)
+			if(accessible/* && pnode->accessible != CGPathNode::FLYABLE*/)
 			{
-				if (guardingCreature) {
+				if (guardingCreature) 
+				{
 					CCS->curh->changeGraphic(0, 5 + turns*6);
-				} else {
+				} else 
+				{
 					if(pnode->land)
 					{
 						if(LOCPLINT->cb->getTile(h->getPosition(false))->tertype != TerrainTile::water)

@@ -486,6 +486,12 @@ void MusicEntry::load(musicBase::musicID ID)
 
 	music = Mix_LoadMUS(filename.c_str());
 
+	if(!music)
+	{
+		tlog3 << "Warning: Cannot open " << filename << ": " << Mix_GetError() << std::endl;
+		return;
+	}
+
 #ifdef _WIN32
 	//The assertion will fail if old MSVC libraries pack .dll is used
 	assert(Mix_GetMusicType(music) == MUS_MP3_MAD);

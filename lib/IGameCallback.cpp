@@ -1024,6 +1024,12 @@ CGameInfoCallback::CGameInfoCallback()
 {
 }
 
+CGameInfoCallback::CGameInfoCallback(CGameState *GS, int Player)
+{
+	gs = GS;
+	player = Player;
+}
+
 const std::vector< std::vector< std::vector<unsigned char> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

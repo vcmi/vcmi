@@ -228,13 +228,12 @@ struct CPathNode
 
 struct CGPathNode
 {
-	enum 
+	enum EAccessibility
 	{
 		ACCESSIBLE=1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighbouring tile but not passable
-		BLOCKED, //tile can't be entered nor visited
-		FLYABLE //if hero flies, he can pass this tile
+		BLOCKED //tile can't be entered nor visited
 	};
 
 	ui8 accessible; //the enum above
@@ -311,6 +310,40 @@ struct DLL_EXPORT DuelParameters
 	{
 		h & terType & bfieldType & sides;
 	}
+};
+
+class CPathfinder : private CGameInfoCallback
+{
+public:
+	bool useSubterraneanGates;
+	bool allowEmbarkAndDisembark;
+	CPathsInfo &out;
+	const CGHeroInstance *hero;
+	const std::vector<std::vector<std::vector<ui8> > > &FoW;
+
+	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
+
+
+	int3 curPos;
+	CGPathNode *cp; //current (source) path node -> we took it from the queue
+	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
+	const TerrainTile *ct, *dt; //tile info for both nodes
+	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
+	int destTopVisObjID;
+
+	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);;
+
+	CGPathNode *getNode(const int3 &coord);
+
+	void initializeGraph();
+	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
+
+	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
+
+	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
+	bool canStepOntoDst() const;
+	bool goodForLandSeaTransition(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
+
 };
 
 

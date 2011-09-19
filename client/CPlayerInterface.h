@@ -256,6 +256,7 @@ public:
 	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
 	void eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath = true );
+	void removeLastNodeFromPath(const CGHeroInstance *ho);
 	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);

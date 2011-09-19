@@ -2164,3 +2164,18 @@ bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
 {
 	return entrableTerrain(from) && !blocked;
 }
+
+int TerrainTile::topVisitableID() const
+{
+	return visitableObjects.size() ? visitableObjects.back()->ID : -1;
+}
+
+bool TerrainTile::isCoastal() const
+{
+	return siodmyTajemniczyBajt & 64;
+}
+
+bool TerrainTile::hasFavourableWinds() const
+{
+	return siodmyTajemniczyBajt & 128;
+}

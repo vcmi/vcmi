@@ -354,6 +354,7 @@ public:
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 
 	int maxMovePoints(bool onLand) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const; 
 
 // 	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
 // 	const CArtifact * getArt(int pos) const;
@@ -952,6 +953,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();	
 	static void postInit();
+	static int getMatchingGate(int id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
