@@ -111,6 +111,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
 	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::quit,this), 609, 516, "hsbtns.def", SDLK_RETURN);
+	quitButton->assignedKeys.insert(SDLK_ESCAPE);
 	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
 	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
 

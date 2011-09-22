@@ -27,11 +27,9 @@ static bool keyDown()
 
 void checkForError(bool throwing = true)
 {
-#ifdef _WIN32
 	int error = GetLastError();
 	if(!error)
 		return;
-
 
 	tlog1 << "Error " << error << " encountered!\n";
 	std::string msg;
@@ -44,7 +42,6 @@ void checkForError(bool throwing = true)
 	pTemp = NULL;
 	if(throwing)
 		throw msg;
-#endif
 }
 
 void blitBuffer(char *buffer, int x, int y, int w, int h, SDL_Surface *dst)
@@ -62,22 +59,18 @@ void blitBuffer(char *buffer, int x, int y, int w, int h, SDL_Surface *dst)
 void DLLHandler::Instantiate(const char *filename)
 {
 	name = filename;
-#ifdef _WIN32
 	dll = LoadLibraryA(filename);
 	if(!dll)
 	{
 		tlog1 << "Failed loading " << filename << std::endl;
 		checkForError(true);
 	}
-#else
-	dll = dlopen(filename,RTLD_LOCAL | RTLD_LAZY);
-#endif
 }
 
 void *DLLHandler::FindAddress(const char *symbol)
 {
 	void *ret;
-#ifdef _WIN32
+
 	if(!dll)
 	{
 		tlog1 << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!\n";
@@ -89,9 +82,6 @@ void *DLLHandler::FindAddress(const char *symbol)
 		tlog1 << "Failed to find " << symbol << " in " << name << std::endl;
 		checkForError();
 	}
-#else
-	ret = (void *)dlsym(dll, symbol);
-#endif
 	return ret;
 }
 
@@ -99,15 +89,11 @@ DLLHandler::~DLLHandler()
 {
 	if(dll)
 	{
-	#ifdef _WIN32
 		if(!FreeLibrary(dll))
 		{
 			tlog1 << "Failed to free " << name << std::endl;
 			checkForError();
 		}
-	#else
-		dlclose(dll);
-	#endif
 	}
 }
 
