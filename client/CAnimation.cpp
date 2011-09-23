@@ -938,44 +938,39 @@ void CAnimation::init(CDefFile * file)
 
 	if (spriteh->haveFile(name, FILE_TEXT))
 	{
-		std::string configFile = spriteh->getTextFile(name);
+		int size = 0;
+		unsigned char * configFile = spriteh->giveFile(name, FILE_TEXT, &size);
 
-		const JsonNode config(configFile);
+		const JsonNode config((char*)configFile, size);
+		delete configFile;
 
 		std::string basepath;
-		if (!config["basepath"].isNull())
-			basepath = config["basepath"].String();
+		basepath = config["basepath"].String();
 
-		if (!config["sequences"].isNull())
+		BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector())
 		{
-			BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector()) {
-				size_t groupID = group["group"].Float();//TODO: string-to-value conversion
-				source[groupID].clear();
+			size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
+			source[groupID].clear();
 
-				BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector()) {
-					source[groupID].push_back(frame);
-					std::string filename =  frame["file"].String();
-					source[groupID].back()["file"].String() = basepath + filename;
-				}
+			BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
+			{
+				source[groupID].push_back(frame);
+				std::string filename =  frame["file"].String();
+				source[groupID].back()["file"].String() = basepath + filename;
 			}
 		}
 
-		if (!config["images"].isNull())
+		BOOST_FOREACH(const JsonNode &node, config["images"].Vector())
 		{
-			BOOST_FOREACH(const JsonNode &node, config["images"].Vector()) {
-				size_t group=0;
-				if (!node["group"].isNull())
-					group = node["group"].Float();
+			size_t group = node["group"].Float();
+			size_t frame = node["frame"].Float();
 
-				size_t frame = node["frame"].Float();
+			if (source[group].size() <= frame)
+				source[group].resize(frame+1);
 
-				if (source[group].size() <= frame)
-					source[group].resize(frame+1);
-
-				source[group][frame] = node;
-				std::string filename =  node["file"].String();
-				source[group][frame]["file"].String() = basepath + filename;
-			}
+			source[group][frame] = node;
+			std::string filename =  node["file"].String();
+			source[group][frame]["file"].String() = basepath + filename;
 		}
 	}
 }

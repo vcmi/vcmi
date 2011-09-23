@@ -73,6 +73,7 @@ class CTextBox;
 class CArtifactInstance;
 class IBonusBearer;
 class CArtPlace;
+class CAnimImage;
 
 extern SDL_Color tytulowy, tlo, zwykly ;
 
@@ -1119,18 +1120,22 @@ public:
 class CShipyardWindow : public CIntObject
 {
 public:
-	CStatusBar *bar;
-	SDL_Surface *bg; //background
+	CGStatusBar *bar;
+	CPicture *bg; //background
+	CPicture *bgWater;
+
+	CLabel *title;
+	CLabel *costLabel;
+
+	CAnimImage *woodPic, *goldPic;
+	CLabel *woodCost, *goldCost;
+
+	CAnimImage *bgShip;
 	AdventureMapButton *build, *quit;
 
-	unsigned char frame; //frame of the boat animation
-	int boat; //which boat graphic should be used
+	CGStatusBar * statusBar;
 
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
 	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy);
-	~CShipyardWindow();
 };
 
 /// Puzzle screen which gets uncovered when you visit obilisks

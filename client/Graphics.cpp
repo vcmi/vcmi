@@ -215,11 +215,7 @@ void Graphics::initializeBattleGraphics()
 	const JsonNode config(DATA_DIR "/config/battles_graphics.json");
 	
 	// Reserve enough space for the terrains
-	// TODO: there should be a method to count the number of elements
-	int idx = 0;
-	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
-		idx++;
-	}
+	int idx = config["backgrounds"].Vector().size();
 	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
 
 	idx = 1;
@@ -229,10 +225,7 @@ void Graphics::initializeBattleGraphics()
 	}
 
 	//initializing battle hero animation
-	idx = 0;
-	BOOST_FOREACH(const JsonNode &h, config["heroes"].Vector()) {
-		idx++;
-	}
+	idx = config["heroes"].Vector().size();
 	battleHeroes.resize(idx);
 
 	idx = 0;

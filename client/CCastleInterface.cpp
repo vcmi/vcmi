@@ -282,12 +282,12 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	}
 
 	int posY = 238;
-	int posX = pos.w/2 - resAmount.size() * 40 + 24;
+	int posX = pos.w/2 - resAmount.size() * 25 + 5;
 	for (size_t i=0; i<resAmount.size(); i++)
 	{
 		resPicture[i]->moveBy(Point(posX, posY));
 		resAmount[i]->moveBy(Point(posX+16, posY+43));
-		posX += 80;
+		posX += 50;
 	}
 }
 

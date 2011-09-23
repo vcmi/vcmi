@@ -796,7 +796,7 @@ void BattleInfo::getPotentiallyAttackableHexes(AttackableTiles &at, const CStack
 		std::vector<THex> hexes = attacker->getSurroundingHexes(attackerPos);
 		BOOST_FOREACH (THex tile, hexes)
 		{
-			if (THex::mutualPosition(tile, destinationTile) > -1 && THex::mutualPosition(tile, hex) > -1 //adjacent both to attacker's head and attacked tile
+			if ((THex::mutualPosition(tile, destinationTile) > -1 && THex::mutualPosition(tile, hex) > -1) //adjacent both to attacker's head and attacked tile
 				|| tile == destinationTile) //or simply attacked directly
 			{
 				CStack * st = getStackT(tile, true);
@@ -843,7 +843,6 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CStack* attacker, THex 
 	AttackableTiles at;
 	getPotentiallyAttackableHexes(at, attacker, destinationTile, attackerPos);
 	std::set<CStack*> attackedCres;
-	const int WN = BFIELD_WIDTH;
 	BOOST_FOREACH (THex tile, at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		CStack * st = getStackT(tile, true);

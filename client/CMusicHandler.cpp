@@ -494,13 +494,12 @@ void MusicEntry::load(musicBase::musicID ID)
 
 #ifdef _WIN32
 	//The assertion will fail if old MSVC libraries pack .dll is used
-	assert(Mix_GetMusicType(music) == MUS_MP3_MAD);
+	assert(Mix_GetMusicType(music) != MUS_MP3);
 #endif
 }
 
 bool MusicEntry::play()
 {
-	tlog5<<"Playing music file "<<filename<<"\n";
 	if (loopCount == 0)
 		return false;
 
@@ -510,6 +509,7 @@ bool MusicEntry::play()
 	if (!musicVec.empty())
 		load(musicVec.at(rand() % musicVec.size()));
 
+	tlog5<<"Playing music file "<<filename<<"\n";
 	if(Mix_PlayMusic(music, 1) == -1)
 	{
 		tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;

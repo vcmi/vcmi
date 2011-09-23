@@ -59,17 +59,10 @@ void CButtonBase::update()
 	}
 
 	if (!keepFrame)
-	{
 		image->setFrame(newPos);
-	}
-	
+
 	if (active)
-	{
-		if (parent)
-			parent->redraw();
-		else
-			redraw();
-	}
+		redraw();
 }
 
 void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)

@@ -1022,7 +1022,7 @@ void CGameHandler::newTurn()
 							availableCount += t->creatureGrowth(k);
 
 						if(n.creatureid == cre->idNumber 
-							|| n.specialWeek == NewTurn::DEITYOFFIRE && (cre->idNumber == 42 || cre->idNumber == 43))
+							|| (n.specialWeek == NewTurn::DEITYOFFIRE && (cre->idNumber == 42 || cre->idNumber == 43)))
 						{
 							if(n.specialWeek == NewTurn::DOUBLE_GROWTH)
 								availableCount *= 2;
@@ -3490,7 +3490,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 					continue;
 
 				BattleStackAttacked bsa;
-				if (destination > -1 && (*it)->coversPos(destination) || spell->range[spellLvl] == "X") //display effect only upon primary target of area spell
+				if ((destination > -1 && (*it)->coversPos(destination)) || spell->range[spellLvl] == "X") //display effect only upon primary target of area spell
 				{
 					bsa.flags |= BattleStackAttacked::EFFECT;
 					bsa.effect = spell->mainEffectAnim;

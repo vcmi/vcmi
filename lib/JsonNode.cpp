@@ -14,20 +14,25 @@ JsonNode::JsonNode(JsonType Type):
 	setType(Type);
 }
 
-JsonNode::JsonNode(std::string input):
+JsonNode::JsonNode(const char *data, size_t datasize):
 	type(DATA_NULL)
 {
-	JsonParser parser(input, *this);
+	JsonParser parser(data, datasize, *this);
 }
 
-JsonNode::JsonNode(const char *filename):
+JsonNode::JsonNode(std::string filename):
 	type(DATA_NULL)
 {
-	std::ifstream file(filename);
-	std::string str((std::istreambuf_iterator<char>(file)),
-					std::istreambuf_iterator<char>());
-
-	JsonParser parser(str, *this);
+	FILE * file = fopen(filename.c_str(), "rb");
+	fseek(file, 0, SEEK_END);
+	size_t datasize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	
+	char *input = new char[datasize];
+	fread((void*)input, 1, datasize, file);
+	
+	JsonParser parser(input, datasize, *this);
+	delete [] input;
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
@@ -66,17 +71,19 @@ void JsonNode::setType(JsonType Type)
 	if (type == Type)
 		return;
 
+	//Reset node to NULL
 	if (Type != DATA_NULL)
 		setType(DATA_NULL);
 
 	switch (type)
 	{
 		break; case DATA_STRING:  delete data.String;
-		break; case DATA_VECTOR : delete data.Vector;
+		break; case DATA_VECTOR:  delete data.Vector;
 		break; case DATA_STRUCT:  delete data.Struct;
 		break; default:
 		break;
 	}
+	//Set new node type
 	type = Type;
 	switch(type)
 	{
@@ -124,33 +131,47 @@ JsonMap & JsonNode::Struct()
 	return *data.Struct;
 }
 
-
+const bool boolDefault = false;
 const bool & JsonNode::Bool() const
 {
+	if (type == DATA_NULL)
+		return boolDefault;
 	assert(type == DATA_BOOL);
 	return data.Bool;
 }
 
+const float floatDefault = 0;
 const float & JsonNode::Float() const
 {
+	if (type == DATA_NULL)
+		return floatDefault;
 	assert(type == DATA_FLOAT);
 	return data.Float;
 }
 
+const std::string stringDefault = std::string();
 const std::string & JsonNode::String() const
 {
+	if (type == DATA_NULL)
+		return stringDefault;
 	assert(type == DATA_STRING);
 	return *data.String;
 }
 
+const JsonVector vectorDefault = JsonVector();
 const JsonVector & JsonNode::Vector() const
 {
+	if (type == DATA_NULL)
+		return vectorDefault;
 	assert(type == DATA_VECTOR);
 	return *data.Vector;
 }
 
+const JsonMap mapDefault = JsonMap();
 const JsonMap & JsonNode::Struct() const
 {
+	if (type == DATA_NULL)
+		return mapDefault;
 	assert(type == DATA_STRUCT);
 	return *data.Struct;
 }
@@ -240,8 +261,8 @@ std::ostream & operator<<(std::ostream &out, const JsonNode &node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-JsonParser::JsonParser(const std::string inputString, JsonNode &root):
-	input(inputString),
+JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &root):
+	input(inputString, stringSize),
 	lineCount(1),
 	lineStart(0),
 	pos(0)
@@ -316,7 +337,8 @@ bool JsonParser::extractWhitespace(bool verbose)
 		else
 			error("Comments should have two slashes!", true);
 
-		pos = input.find('\n', pos);
+		while (pos < input.size() && input[pos] != '\n')
+			pos++;
 	}
 
 	if (pos >= input.size() && verbose)
@@ -353,13 +375,13 @@ bool JsonParser::extractString(std::string &str)
 	{
 		if (input[pos] == '\"') // Correct end of string
 		{
-			str += input.substr(first, pos-first);
+			str.append( &input[first], pos-first);
 			pos++;
 			return true;
 		}
 		if (input[pos] == '\\') // Escaping
 		{
-			str += input.substr(first, pos-first);
+			str.append( &input[first], pos-first);
 			first = pos++;
 			if (pos == input.size())
 				break;
@@ -367,12 +389,12 @@ bool JsonParser::extractString(std::string &str)
 		}
 		if (input[pos] == '\n') // end-of-line
 		{
-			str += input.substr(first, pos-first);
+			str.append( &input[first], pos-first);
 			return error("Closing quote not found!", true);
 		}
 		if (input[pos] < ' ') // control character
 		{
-			str += input.substr(first, pos-first);
+			str.append( &input[first], pos-first);
 			first = pos+1;
 			error("Illegal character in the string!", true);
 		}
@@ -394,9 +416,11 @@ bool JsonParser::extractString(JsonNode &node)
 
 bool JsonParser::extractLiteral(const std::string &literal)
 {
-	if (input.compare(pos, literal.size(), literal) != 0)
+	if (literal.compare(0, literal.size(), &input[pos], literal.size()) != 0)
 	{
-		pos = input.find_first_of(" \n\r\t", pos);
+		while (pos < input.size() && ((input[pos]>'a' && input[pos]<'z')
+		                           || (input[pos]>'A' && input[pos]<'Z')))
+			pos++;
 		return error("Unknown literal found", true);
 	}
 
