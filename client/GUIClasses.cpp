@@ -4998,7 +4998,7 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 		}
 	}
 
-	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occured
+	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occurred
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)

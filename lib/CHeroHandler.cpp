@@ -367,7 +367,7 @@ void CHeroHandler::loadHeroClasses()
 	const int BUFFER_SIZE = 5000;
 	char buffer[BUFFER_SIZE+1];
 
-	for(int i=0; i<3; ++i) str.getline(buffer, BUFFER_SIZE); //omiting rubbish
+	for(int i=0; i<3; ++i) str.getline(buffer, BUFFER_SIZE); //omitting rubbish
 
 
 	for(int ss=0; ss<18; ++ss) //18 classes of hero (including conflux)

@@ -219,7 +219,7 @@ public:
 	void battleAttack(const BattleAttack *ba) OVERRIDE; //stack performs attack
 	void battleEnd(const BattleResult *br) OVERRIDE; //end of battle
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied; used for HP regen handling
-	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleNewRound(int round) OVERRIDE; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance) OVERRIDE;
 	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
 	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE; //called when a specific effect is set to stacks

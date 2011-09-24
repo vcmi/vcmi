@@ -684,7 +684,7 @@ class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map
 {
 public:
 	ui32 identifier; //unique code for this monster (used in missions)
-	si8 character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to 0 (compliant) - 10 value (savage)
+	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to 0 (compliant) - 10 value (savage)
 	std::string message; //message printed for attacking hero
 	std::vector<ui32> resources; //[res_id], resources given to hero that has won with monsters
 	si32 gainedArtifact; //ID of artifact gained to hero, -1 if none

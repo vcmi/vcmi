@@ -75,7 +75,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 		}
 		/*int unknown2 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
 		/*int unknown3 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
-		i+=13*totalInBlock; //ommiting names
+		i+=13*totalInBlock; //omitting names
 		for (j=0; j<totalInBlock; j++)
 		{ 
 			SEntries[totalEntries+j].offset = readNormalNr<4>(i,FDef); i+=4;
@@ -314,7 +314,7 @@ inline void CCreatureAnimation::putPixel(
 		else if (palc == 5) //selection highlight or transparent
 		{
 			if(blueBorder)
-				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldnt it be reversed? its bgr instead of rgb
+				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldn't it be reversed? its bgr instead of rgb
 			else if (yellowBorder)
 				ColorPutter<bpp, 0>::PutColor(p, color.R - 0xf0 + animCount, color.G - 0xf0 + animCount, color.B);
 		}

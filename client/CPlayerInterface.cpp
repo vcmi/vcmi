@@ -690,7 +690,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 	}
 }
 
-void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+void CPlayerInterface::battleNewRound(int round) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this

@@ -899,7 +899,7 @@ public:
 	TSocket * socket;
 	bool logging;
 	bool connected;
-	bool myEndianess, contactEndianess; //true if little endian, if ednianess is different we'll have to revert recieved multi-byte vars
+	bool myEndianess, contactEndianess; //true if little endian, if endianess is different we'll have to revert received multi-byte vars
     boost::asio::io_service *io_service;
 	std::string name; //who uses this connection
 

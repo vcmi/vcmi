@@ -624,7 +624,7 @@ struct SetHeroesInTown : public CPackForClient //508
 // 		h & hid & artifacts & artifWorn;
 // 	}
 // 
-// 	std::vector<const CArtifact*> equiped, unequiped; //used locally
+// 	std::vector<const CArtifact*> equipped, unequipped; //used locally
 // 	BonusList gained, lost; //used locally as hlp when applying
 // };   
 

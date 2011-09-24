@@ -247,7 +247,7 @@ void CMapHandler::initObjectRects()
 		const CGObjectInstance *obj = map->objects[f];
 		if(	!obj
 			|| (obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat wih hero (hero graphics is used)
+			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
 			|| !obj->defInfo
 			|| !graphics->getDef(obj)) //no graphic...
 		{
@@ -349,7 +349,7 @@ void CMapHandler::init()
 	sizes.y = map->height;
 	sizes.z = map->twoLevel+1;
 
-	// Total number of visible tiles. Substract the center tile, then
+	// Total number of visible tiles. Subtract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
 	int t1, t2;
 	t1 = (mapW-32)/2;

@@ -1034,7 +1034,7 @@ public:
 
 	AdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
-	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be ommited in backpack slots
+	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
 	boost::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo

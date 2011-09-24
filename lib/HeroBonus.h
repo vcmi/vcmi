@@ -51,7 +51,7 @@ namespace PrimarySkill
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
 	BONUS_NAME(SECONDARY_SKILL_PREMY) /*%*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
-	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - substracted to this part*/ \
+	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*subtype 1 - without penalty, 2 - with penalty*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(AIR_SPELL_DMG_PREMY) \
@@ -175,7 +175,7 @@ namespace PrimarySkill
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */
 
-/// Struct for handling bonuses of several types. Can be transfered to any hero
+/// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_EXPORT Bonus
 {
 	enum BonusType
@@ -245,7 +245,7 @@ struct DLL_EXPORT Bonus
 	ui8 valType; //by ValueType enum
 
 	si32 additionalInfo;
-	ui8 effectRange; //if not NO_LIMIT, bonus will be ommitted by default
+	ui8 effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
 	boost::shared_ptr<ILimiter> limiter;
 	boost::shared_ptr<IPropagator> propagator;

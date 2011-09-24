@@ -1293,7 +1293,7 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 {
 	//checking winning condition
-	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarily
+	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarly
 	hasStack[0] = hasStack[1] = false;
 	for(int b = 0; b<stacks.size(); ++b)
 	{
@@ -3153,7 +3153,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 			int wallInitHP = gs->curB->si.wallState[attackedPart];
-			int dmgAlreadyDealt = 0; //in successive iterations damage is dealt but not yet substracted from wall's HPs
+			int dmgAlreadyDealt = 0; //in successive iterations damage is dealt but not yet subtracted from wall's HPs
 			for(int g=0; g<sbi.shots; ++g)
 			{
 				if(wallInitHP + dmgAlreadyDealt == 3) //it's not destroyed
@@ -4004,6 +4004,8 @@ bool CGameHandler::isAllowedExchangeForQuery(int id1, int id2) {
 		if((id1 == i->second.first && id2 == i->second.second) ||
 		   (id2 == i->second.first && id1 == i->second.second))
 			return true;
+
+	return false;
 }
 
 bool CGameHandler::isAllowedExchange( int id1, int id2 )
@@ -4444,7 +4446,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		staredCreatures += attacker->type->level * attacker->valOfBonuses(Bonus::DEATH_STARE, 1);
 		if (staredCreatures)
 		{
-			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally avaliable for multiple-hex attacks, but...
+			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
 			handleSpellCasting(79, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}

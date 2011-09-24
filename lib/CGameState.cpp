@@ -466,7 +466,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 			if(pavailable.find(i->first)->second & 1<<player
 				&& i->second->type->heroType/2 == town->typeID)
 			{
-				pool.push_back(i->second); //get all avaliable heroes
+				pool.push_back(i->second); //get all available heroes
 			}
 		}
 		if(!pool.size())

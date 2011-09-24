@@ -685,7 +685,7 @@ DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
 
 	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
-	//retreive all constituents
+	//retrieve all constituents
 	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
 	{
 		int pos = h->getArtPos(constituentID);

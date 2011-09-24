@@ -440,7 +440,7 @@ void CArtHandler::erasePickedArt (si32 id)
 		default: //special artifacts should not be erased
 			return;
 	}
-	ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from avaliable list
+	ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from available list
 }
 ui16 CArtHandler::getRandomArt(int flags)
 {
@@ -474,7 +474,7 @@ void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, i
 		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
 		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
 	}
-	if (!out.size()) //no arts are avaliable at all
+	if (!out.size()) //no arts are available at all
 	{
 		out.resize (64);
 		std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
@@ -482,7 +482,7 @@ void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, i
 }
 void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
 {
-	if (arts->empty()) //restock avaliable arts
+	if (arts->empty()) //restock available arts
 	{
 		for (int i = 0; i < allowedArtifacts.size(); ++i)
 		{

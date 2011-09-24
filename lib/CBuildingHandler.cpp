@@ -43,7 +43,7 @@ static CBuilding * readBg(std::string &buf, int& it)
 	for(int res=0;res<7;res++)
 		nb->resources[res] = readNr(buf,it);
 	/*nb->refName = */readTo(buf,it,'\n');
-	//reference name is ommitted, it's seems to be useless
+	//reference name is omitted, it's seems to be useless
 	return nb;
 }
 void CBuildingHandler::loadBuildings()

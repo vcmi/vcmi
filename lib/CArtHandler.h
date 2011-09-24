@@ -73,7 +73,7 @@ public:
 
 	int firstAvailableSlot(const CGHeroInstance *h) const;
 	int firstBackpackSlot(const CGHeroInstance *h) const;
-	int getGivenSpellID() const; //to be used with scrolls (and similiar arts), -1 if none
+	int getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
 	virtual bool canBeDisassembled() const;

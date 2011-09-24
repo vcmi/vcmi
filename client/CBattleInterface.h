@@ -75,7 +75,7 @@ public:
 	virtual void nextFrame()=0; //call every new frame
 	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
 
-	bool isEarliest(bool perStackConcurrency); //determines if this animation is earlies of all
+	bool isEarliest(bool perStackConcurrency); //determines if this animation is earliest of all
 
 	unsigned int ID; //unique identifier
 
@@ -439,7 +439,7 @@ private:
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
-    time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occured
+    time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occurred
     static const time_t HOVER_ANIM_DELTA;
 	std::vector<THex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack

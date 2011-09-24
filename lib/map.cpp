@@ -1761,7 +1761,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				CGHeroPlaceholder *hp = new CGHeroPlaceholder();;
 				nobj = hp;
 
-				int a = bufor[i++]; //unkown byte, seems to be always 0 (if not - scream!)
+				int a = bufor[i++]; //unknown byte, seems to be always 0 (if not - scream!)
 				tlog2 << "Unhandled Hero Placeholder detected: "<<a<<"\n";
 
 				int htid = bufor[i++]; //hero type id
@@ -1953,7 +1953,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			{
 				int artid = readNormalNr(bufor,i, 2); i+=2;
 				guard->m5arts.push_back(artid); 
-				allowedArtifact[artid] = false; //these are unavaliable for random generation
+				allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
 			break;
 		}

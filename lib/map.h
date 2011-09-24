@@ -100,7 +100,7 @@ struct DLL_EXPORT PlayerInfo
 	ui32 AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
 	ui32 allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
 	ui8 isFactionRandom;
-	ui32 mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
+	ui32 mainHeroPortrait; //it's ID of hero with chosen portrait; 255 if standard
 	std::string mainHeroName;
 	std::vector<SheroName> heroesNames;
 	ui8 hasMainTown;

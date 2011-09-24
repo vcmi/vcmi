@@ -711,7 +711,7 @@ void PackageApplied::applyCl( CClient *cl )
 	if(cl->waitingRequest.get() == packType)
 		cl->waitingRequest.setn(false);
 	else if(cl->waitingRequest.get())
-		tlog3 << "Suprising server message!\n";
+		tlog3 << "Surprising server message!\n";
 }
 
 void SystemMessage::applyCl( CClient *cl )

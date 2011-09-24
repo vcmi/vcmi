@@ -719,7 +719,7 @@ void CGHeroInstance::initHero()
 	else //remove placeholder
 		spells -= 0xffffffff;
 
-	if(!getArt(Arts::MACH4) && !getArt(Arts::SPELLBOOK) && type->startingSpell >= 0) //no catapult means we haven't read pre-existant set -> use default rules for spellbook
+	if(!getArt(Arts::MACH4) && !getArt(Arts::SPELLBOOK) && type->startingSpell >= 0) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
 		putArtifact(Arts::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 
 	if(!getArt(Arts::MACH4))
@@ -809,7 +809,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 			if(!getArt(slot))
 				putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
-				tlog3 << "Hero " << name << " already has artifact at " << slot << ", ommiting giving " << aid << std::endl;
+				tlog3 << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid << std::endl;
 		}
 		else
 			dst->setCreature(stackNo-warMachinesGiven, creID, count);
@@ -968,7 +968,7 @@ void CGHeroInstance::initObj()
 				bonus->type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
 				speciality.addNewBonus(bonus);
 				break;
-			case 3://spell damage bonus, level dependant but calculated elsehwere
+			case 3://spell damage bonus, level dependent but calculated elsewhere
 				bonus->type = Bonus::SPECIAL_SPELL_LEV;
 				bonus->subtype = it->subtype;
 				speciality.addNewBonus(bonus);
@@ -2069,7 +2069,7 @@ void CGTownInstance::newTurn() const
 					StackLocation sl(this, pos);
 
 					const CCreature *c = getCreature(pos);
-					if (rand()%100 < 90 || c->upgrades.empty()) //increase number if no upgrade avaliable
+					if (rand()%100 < 90 || c->upgrades.empty()) //increase number if no upgrade available
 					{
 						cb->changeStackCount(sl, c->growth);
 					}
@@ -2113,7 +2113,7 @@ ui8 CGTownInstance::getPassableness() const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
 		return ALL_PLAYERS;
-	if ( tempOwner == 255 )//neutral guarded - noone can visit
+	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
 		
 	ui8 mask = 0;
@@ -4478,7 +4478,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty(id,11,0); //no more mission avaliable	
+		cb->setObjProperty(id,11,0); //no more mission available	
 		completeQuest(h); //make sure to remove QuestQuard at the very end	
 	}
 }
@@ -5456,7 +5456,7 @@ ui8 CGGarrison::getPassableness() const
 {
 	if ( !stacksCount() )//empty - anyone can visit
 		return ALL_PLAYERS;
-	if ( tempOwner == 255 )//neutral guarded - noone can visit
+	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
 		
 	ui8 mask = 0;

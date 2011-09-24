@@ -433,7 +433,7 @@ void processCommand(const std::string &message)
 			conf.SetResolution(j->first.first, j->first.second);
 			conf.cc.screenx = j->first.first;
 			conf.cc.screeny = j->first.second;
-			tlog0 << "Screen resolution set to " << conf.cc.resx << " x " << conf.cc.resy <<". It will be aplied when the game starts.\n";
+			tlog0 << "Screen resolution set to " << conf.cc.resx << " x " << conf.cc.resy <<". It will be applied when the game starts.\n";
 		}
 	}
 	else if(message=="get txt")
