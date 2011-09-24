@@ -1094,6 +1094,23 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & playerID;
 	h & sysOpts;
 	h & spellbookSettings;
+
+	ui8 sleepingSize;
+	if(h.saving)
+		sleepingSize = sleepingHeroes.size();
+	h & sleepingSize;
+	for (int i = 0; i < sleepingSize; i++)
+	{
+		si32 hid;
+		if (h.saving)
+			hid = sleepingHeroes[i]->id;
+		h &	hid;
+		if (!h.saving)
+		{
+			const CGHeroInstance *hero = cb->getHero(hid);
+			sleepingHeroes += hero;	
+		}
+	}
 }
 
 void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
@@ -1115,6 +1132,15 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if (!h)
 		return false; //can't find hero
 
+	if (adventureInt && adventureInt->isHeroSleeping(h))
+	{
+		adventureInt->sleepWake.clickLeft(true, false);
+		adventureInt->sleepWake.clickLeft(false, true);
+		//could've just called 
+		//adventureInt->fsleepWake();
+		//but no authentic button click/sound ;-)
+	}
+	
 	//evil...
 	eventsM.unlock();
 	pim->unlock();

@@ -233,9 +233,13 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	bool isActive();
 
+	bool isHeroSleeping(const CGHeroInstance *hero);
+	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
+
 	void setPlayer(int Player);
 	void startHotSeatWait(int Player);
 	void startTurn();
+	void endingTurn();
 	void tileLClicked(const int3 &mp);
 	void tileHovered(const int3 &tile);
 	void tileRClicked(const int3 &mp);
@@ -244,6 +248,7 @@ public:
 	const CGHeroInstance * curHero() const;
 	const CGTownInstance * curTown() const;
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or NULL else
+	void updateSleepWake(const CGHeroInstance *h); //button update
 };
 
 extern CAdvMapInt *adventureInt;

@@ -1092,7 +1092,16 @@ void CAdvMapInt::fshowQuestlog()
 }
 void CAdvMapInt::fsleepWake()
 {
+	const CGHeroInstance *h = curHero();
+	if (!h)
+		return;
+	bool newSleep = !isHeroSleeping(h);
+	setHeroSleeping(h, newSleep);
+	updateSleepWake(h);
+	if (newSleep)
+		fnextHero();
 }
+
 void CAdvMapInt::fmoveHero()
 {	
 	const CGHeroInstance *h = curHero();
@@ -1136,7 +1145,7 @@ void CAdvMapInt::fnextHero()
 		i++;
 		if(i >= LOCPLINT->wanderingHeroes.size())
 			i = 0;
-	} while (!LOCPLINT->wanderingHeroes[i]->movement && i!=start);
+	} while ((!LOCPLINT->wanderingHeroes[i]->movement || isHeroSleeping(LOCPLINT->wanderingHeroes[i])) && i!=start);
 	heroList.select(i);
 }
 
@@ -1144,10 +1153,26 @@ void CAdvMapInt::fendTurn()
 {
 	if(!LOCPLINT->makingTurn)
 		return;
-	if(LOCPLINT->cingconsole->active)
-		LOCPLINT->cingconsole->deactivate();
-	LOCPLINT->makingTurn = false;
-	LOCPLINT->cb->endTurn();
+
+	for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
+		if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0)) // some other minimal threshold probably?
+		{
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<SComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+			return;
+		}
+	endingTurn();
+}
+
+void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
+{
+	sleepWake.block(!h);
+	if (!h)
+		return;	
+	bool state = isHeroSleeping(h);
+	sleepWake.setIndex(state ? 1 : 0, true);
+	sleepWake.assignedKeys.clear();
+	sleepWake.assignedKeys.insert(state ? SDLK_w : SDLK_z);
+	sleepWake.update();
 }
 
 void CAdvMapInt::activate()
@@ -1239,6 +1264,23 @@ void CAdvMapInt::showAll(SDL_Surface *to)
 	infoBar.showAll(to);
 	LOCPLINT->cingconsole->show(to);
 }
+
+bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
+{
+	if (!hero)
+		return false;
+
+	return vstd::contains(LOCPLINT->sleepingHeroes, hero);
+}
+
+void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
+{
+	if (sleep)
+		LOCPLINT->sleepingHeroes += hero;
+	else
+		LOCPLINT->sleepingHeroes -= hero;
+}
+
 void CAdvMapInt::show(SDL_Surface *to)
 {
 	if(state != INGAME)
@@ -1506,6 +1548,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	terrain.currentPath = NULL;
 	if(sel->ID==TOWNI_TYPE)
 	{
+		updateSleepWake(NULL);
+
 		int pos = vstd::findPos(LOCPLINT->towns,sel);
 		townList.selected = pos;
 		townList.fixPos();
@@ -1513,6 +1557,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	else //hero selected
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(sel);
+
+		updateSleepWake(h);
 
 		if(LOCPLINT->getWHero(heroList.selected) != h)
 		{
@@ -1602,6 +1648,14 @@ void CAdvMapInt::setPlayer(int Player)
 void CAdvMapInt::startTurn()
 {
 	state = INGAME;
+}
+
+void CAdvMapInt::endingTurn()
+{
+	if(LOCPLINT->cingconsole->active)
+		LOCPLINT->cingconsole->deactivate();
+	LOCPLINT->makingTurn = false;
+	LOCPLINT->cb->endTurn();
 }
 
 void CAdvMapInt::tileLClicked(const int3 &mp)
