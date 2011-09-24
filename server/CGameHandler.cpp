@@ -1655,7 +1655,7 @@ void CGameHandler::takeCreatures(int objid, const std::vector<CStackBasicDescrip
 				if(i->second->type == sbd.type)
 				{
 					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
-					changeStackCount(StackLocation(obj, i->first), take, false);
+					changeStackCount(StackLocation(obj, i->first), -take, false);
 					collected += take;
 					break;
 				}
