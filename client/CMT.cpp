@@ -430,9 +430,9 @@ void processCommand(const std::string &message)
 		else
 		{
 			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++); //move j to the i-th resolution info
-			conf.SetResolution(j->first.first, j->first.second);
-			conf.cc.screenx = j->first.first;
-			conf.cc.screeny = j->first.second;
+			conf.cc.resx = conf.cc.screenx = j->first.first;
+			conf.cc.resy = conf.cc.screeny = j->first.second;
+			conf.SetResolution(conf.cc.screenx, conf.cc.screeny);
 			tlog0 << "Screen resolution set to " << conf.cc.screenx << " x " << conf.cc.screeny <<". It will be applied when the game starts.\n";
 		}
 	}
