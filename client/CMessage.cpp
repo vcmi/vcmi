@@ -493,8 +493,6 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 		if (cur_w > box[6]->w)
 			cur_w = box[6]->w;
 
-		printf("FZ- cur_w=%d (%d %d %d)\n", cur_w, stop_x - start_x, box[6]->h);
-
 		// Top border
 		Rect srcR(0, 0, cur_w, box[6]->h);
 		Rect dstR(start_x, y, 0, 0);
