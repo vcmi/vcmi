@@ -481,28 +481,53 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {	
 	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor];
-	//obwodka I-szego rzedu pozioma //border of 1st series, horizontal
-	for (int i=0; i<w-box[6]->w; i+=box[6]->w)
-	{
-		Rect dstR(x+i, y, box[6]->w, box[6]->h);
-		CSDL_Ext::blitSurface(box[6], NULL, ret, &dstR);
-		
-		int currY = y+h-box[7]->h+1;
-		dstR=Rect(x+i, currY, box[7]->w, box[7]->h);
 
-		CSDL_Ext::blitSurface(box[7], NULL, ret, &dstR);
-	}
-	//obwodka I-szego rzedu pionowa  //border of 1st series, vertical
-	for (int i=0; i<h-box[4]->h; i+=box[4]->h)
-	{
-		Rect dstR(x, y+i, box[4]->w, box[4]->h);
-		CSDL_Ext::blitSurface(box[4], NULL, ret, &dstR);
-		
-		int currX = x+w-box[5]->w;
-		dstR=Rect(currX, y+i, box[5]->w, box[5]->h);
+	// Note: this code assumes that the corner dimensions are all the same.
 
-		CSDL_Ext::blitSurface(box[5], NULL, ret, &dstR);
+	// Horizontal borders
+	int start_x = x + box[0]->w;
+	const int stop_x = x + w - box[1]->w;
+	const int bottom_y = y+h-box[7]->h+1;
+	while (start_x < stop_x) {
+		int cur_w = stop_x - start_x;
+		if (cur_w > box[6]->w)
+			cur_w = box[6]->w;
+
+		printf("FZ- cur_w=%d (%d %d %d)\n", cur_w, stop_x - start_x, box[6]->h);
+
+		// Top border
+		Rect srcR(0, 0, cur_w, box[6]->h);
+		Rect dstR(start_x, y, 0, 0);
+		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
+		
+		// Bottom border
+		dstR.y = bottom_y;
+		CSDL_Ext::blitSurface(box[7], &srcR, ret, &dstR);
+
+		start_x += cur_w;
 	}
+
+	// Vertical borders
+	int start_y = y + box[0]->h;
+	const int stop_y = y + h - box[2]->h+1;
+	const int right_x = x+w-box[5]->w;
+	while (start_y < stop_y) {
+		int cur_h = stop_y - start_y;
+		if (cur_h > box[4]->h)
+			cur_h = box[4]->h;
+
+		// Left border
+		Rect srcR(0, 0, box[4]->w, cur_h);
+		Rect dstR(x, start_y, 0, 0);
+		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
+
+		// Right border
+		dstR.x = right_x;
+		CSDL_Ext::blitSurface(box[5], &srcR, ret, &dstR);
+
+		start_y += cur_h;
+	}
+
 	//corners
 	Rect dstR(x, y, box[0]->w, box[0]->h);
 	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
