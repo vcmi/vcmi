@@ -956,6 +956,11 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		{
 		case CMenuScreen::newGame:
 			getFiles(toParse, DATA_DIR "/Maps", "h3m"); //get all maps
+			/* Load maps from user directory too, unless it is also the
+			 * same as the data directory (as is the case on
+			 * windows). */
+			if (GVCMIDirs.UserPath != DATA_DIR)
+				getFiles(toParse, GVCMIDirs.UserPath + "/Maps", "h3m"); //get all maps
 			parseMaps(toParse);
 			positions = 18;
 			break;

@@ -41,6 +41,9 @@ public:
 			create_directory(UserPath);
 			create_directory(UserPath + "/config");
 			create_directory(UserPath + "/Games");
+
+			/* Home directory can contain some extra maps. */
+			create_directory(UserPath + "/Maps");
 		}
 		catch(const std::exception & e)
 		{

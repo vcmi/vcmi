@@ -46,13 +46,11 @@ extern std::string NAME_AFFIX; //client / server
 
 /* 
  * DATA_DIR contains the game data (Data/, MP3/, ...).
- * USER_DIR is where to save games (Games/) and the config.
  * BIN_DIR is where the vcmiclient/vcmiserver binaries reside
  * LIB_DIR is where the AI libraries reside (linux only)
  */
 #ifdef _WIN32
 	#define DATA_DIR "."
-	#define USER_DIR  "."
 	#define BIN_DIR  "."
 	#define LIB_DIR "."
 	#define SERVER_NAME "VCMI_server.exe"
