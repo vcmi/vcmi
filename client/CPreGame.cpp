@@ -597,9 +597,10 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 
 	current = to;
 
-	if(to && screenType == CMenuScreen::loadGame)
-		SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
-	if(screenType != CMenuScreen::campaignList && screenType != CMenuScreen::saveGame)
+	if(to && (screenType == CMenuScreen::loadGame ||
+			  screenType == CMenuScreen::saveGame))
+	   SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
+	if(screenType != CMenuScreen::campaignList)
 	{
 		updateStartInfo(to ? to->filename : "", sInfo, to ? to->mapHeader : NULL);
 	}
@@ -1638,14 +1639,15 @@ void InfoCard::changeSelection( const CMapInfo *to )
 {
 	if(to && mapDescription)
 	{
-
 		if (SEL->screenType == CMenuScreen::campaignList)
 			mapDescription->setTxt(to->campaignHeader->description);
 		else
 			mapDescription->setTxt(to->mapHeader->description);
 
-		if(SEL->screenType != CMenuScreen::newGame && SEL->screenType != CMenuScreen::campaignList)
+		if(SEL->screenType != CMenuScreen::newGame && SEL->screenType != CMenuScreen::campaignList) {
+			difficulty->block(true);
 			difficulty->select(SEL->sInfo.difficulty, 0);
+		}
 	}
 	GH.totalRedraw();
 }
