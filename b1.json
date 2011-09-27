@@ -1,0 +1,16 @@
+[
+	"terType" : 0,
+	"bfieldType" : 0,
+	
+	"sides" : 
+	[
+		{
+			"side" : 0,
+			"army" : [[10, 40]]
+		}
+		{
+			"side" : 1,
+			"army" : [[11, 41]]
+		}
+	]
+]

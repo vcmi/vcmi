@@ -28,7 +28,7 @@ private:
 	union JsonData
 	{
 		bool Bool;
-		float Float;
+		double Float;
 		std::string* String;
 		JsonVector* Vector;
 		JsonMap* Struct;
@@ -60,14 +60,14 @@ public:
 
 	//non-const accessors, node will change type on type mismatch
 	bool & Bool();
-	float & Float();
+	double & Float();
 	std::string & String();
 	JsonVector & Vector();
 	JsonMap & Struct();
 
 	//const accessors, will cause assertion failure on type mismatch
 	const bool & Bool() const;
-	const float & Float() const;
+	const double & Float() const;
 	const std::string & String() const;
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;

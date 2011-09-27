@@ -124,17 +124,24 @@ void CDefObjInfoHandler::load()
 			castles[nobj->subid]=nobj;
 	}
 
-	for (int i = 0; i < 8 ; i++)
+	if(vstd::contains(gobjs, 124))
 	{
-
-		static const char *holeDefs[] = {"AVLHOLD0.DEF", "AVLHLDS0.DEF", "AVLHOLG0.DEF", "AVLHLSN0.DEF",
-			"AVLHOLS0.DEF", "AVLHOLR0.DEF", "AVLHOLX0.DEF", "AVLHOLL0.DEF"};
-
-		if(i)
+		for (int i = 0; i < 8 ; i++)
 		{
-			gobjs[124][i] = new CGDefInfo(*gobjs[124][0]);
-			gobjs[124][i]->name = holeDefs[i];
+
+			static const char *holeDefs[] = {"AVLHOLD0.DEF", "AVLHLDS0.DEF", "AVLHOLG0.DEF", "AVLHLSN0.DEF",
+				"AVLHOLS0.DEF", "AVLHOLR0.DEF", "AVLHOLX0.DEF", "AVLHOLL0.DEF"};
+
+			if(i)
+			{
+				gobjs[124][i] = new CGDefInfo(*gobjs[124][0]);
+				gobjs[124][i]->name = holeDefs[i];
+			}
 		}
+	}
+	else
+	{
+		tlog1 << "No def info for holes!\n";
 	}
 }
  

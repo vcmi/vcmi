@@ -1213,12 +1213,6 @@ void CGameHandler::run(bool resume)
 		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
 	}
 
-	if(gs->scenarioOps->mode == StartInfo::DUEL)
-	{
-		runBattle();
-		return;
-	}
-
 	while (!end2)
 	{
 		if(!resume)
