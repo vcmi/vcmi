@@ -107,7 +107,7 @@ bool & JsonNode::Bool()
 	return data.Bool;
 }
 
-double & JsonNode::Float()
+float & JsonNode::Float()
 {
 	setType(DATA_FLOAT);
 	return data.Float;
@@ -140,8 +140,8 @@ const bool & JsonNode::Bool() const
 	return data.Bool;
 }
 
-const double floatDefault = 0;
-const double & JsonNode::Float() const
+const float floatDefault = 0;
+const float & JsonNode::Float() const
 {
 	if (type == DATA_NULL)
 		return floatDefault;
@@ -562,7 +562,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 {
 	assert(input[pos] == '-' || (input[pos] >= '0' && input[pos] <= '9'));
 	bool negative=false;
-	double result=0;
+	float result=0;
 
 	if (input[pos] == '-')
 	{
@@ -583,7 +583,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 	{
 		//extract fractional part
 		pos++;
-		double fractMult = 0.1;
+		float fractMult = 0.1;
 		if (input[pos] < '0' || input[pos] > '9')
 			return error("Decimal part expected!");
 

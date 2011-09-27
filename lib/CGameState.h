@@ -305,8 +305,6 @@ struct DLL_EXPORT DuelParameters
 		}
 	} sides[2];
 
-	static DuelParameters fromJSON(const std::string &fname);
-
 	DuelParameters();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

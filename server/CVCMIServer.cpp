@@ -335,6 +335,7 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 		c << ui8(0); //OK!
 	}
 
+	gh->init(&si,std::time(NULL));
 	c.addStdVecItems(gh->gs);
 	gh->conns.insert(&c);
 
@@ -498,51 +499,6 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
-void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI)
-{
-	//we need three connections
-	CConnection *conns[3] = {0};
-	for (int i = 0; i < 3 ; i++)
-	{
-		boost::system::error_code error;
-		tcp::socket * s = new tcp::socket(acceptor->get_io_service());
-		acceptor->accept(*s, error);
-
-		if (error)
-		{
-			tlog2<<"Got connection but there is an error " << std::endl << error;
-			i--;
-			delNull(s);
-		}
-		else
-		{
-			tlog0<<"We've accepted someone... " << std::endl;
-			conns[i] = new CConnection(s, NAME);
-			tlog0<<"Got connection!" << std::endl;
-		}
-	}
-
-	StartInfo si;
-	si.mode = StartInfo::DUEL;
-	si.mapname = battle;
-	
-	CGameHandler *gh = new CGameHandler();
-	gh->init(&si,std::time(NULL));
-
-	BOOST_FOREACH(CConnection *c, conns)
-	{
-		c->addStdVecItems(gh->gs, VLC);
-		gh->connections[gh->conns.size()] = c;
-		gh->conns.insert(c);
-	}
-		
-	gh->runBattle();
-
-	delNull(gh);
-	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	exit(0);
-}
-
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
@@ -567,9 +523,6 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		assert(argc == 4);
-		server.startDuel(argv[1], argv[2], argv[3]);
-
 		while(!end2)
 		{
 			server.start();

@@ -54,7 +54,6 @@ public:
 	~CVCMIServer(); //d-tor
 
 	void start();
-	void startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI);
 	CGameHandler *initGhFromHostingConnection(CConnection &c);
 
 	void newGame();

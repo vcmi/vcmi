@@ -31,7 +31,6 @@
 #include "CMapInfo.h"
 #include "BattleState.h"
 #include "../lib/JsonNode.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -940,18 +939,9 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			DuelParameters dp;
 			try
 			{
-				if(boost::algorithm::ends_with(scenarioOps->mapname, ".json"))
-				{
-					tlog0 << "Loading duel settings from JSON file: " << scenarioOps->mapname << std::endl;
-					dp = DuelParameters::fromJSON(scenarioOps->mapname);
-					tlog0 << "JSON file has been succesfully read!\n";
-				}
-				else
-				{
-					CLoadFile lf(scenarioOps->mapname);
-					lf >> dp;
-					success = true;
-				}
+				CLoadFile lf(scenarioOps->mapname);
+				lf >> dp;
+				success = true;
 			}
 			catch(...)
 			{}
@@ -2702,28 +2692,6 @@ DuelParameters::DuelParameters()
 {
 	terType = TerrainTile::dirt;
 	bfieldType = 15;
-}
-
-DuelParameters DuelParameters::fromJSON(const std::string &fname)
-{
-	DuelParameters ret;
-
-	const JsonNode duelData(fname);
-	ret.terType = duelData["terType"].Float();
-	ret.bfieldType = duelData["bfieldType"].Float();
-	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())
-	{
-		SideSettings &ss = ret.sides[(int)n["side"].Float()];
-		int i = 0;
-		BOOST_FOREACH(const JsonNode &stackNode, n["army"].Vector())
-		{
-			ss.stacks[i].type = stackNode.Vector()[0].Float();
-			ss.stacks[i].count = stackNode.Vector()[1].Float();
-			i++;
-		}
-	}
-
-	return ret;
 }
 
 TeamState::TeamState()

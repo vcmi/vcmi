@@ -271,39 +271,37 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 	if (!LOD.is_open()) 
 	{
 		tlog1 << "Cannot open " << lodFile << std::endl;
+		return;
 	}
-	else
+
+	Uint32 temp;
+	LOD.seekg(8);
+	LOD.read((char *)&temp, 4);
+	totalFiles = SDL_SwapLE32(temp);
+
+	LOD.seekg(0x5c, std::ios::beg);
+	if(!LOD)
 	{
-
-		Uint32 temp;
-		LOD.seekg(8);
-		LOD.read((char *)&temp, 4);
-		totalFiles = SDL_SwapLE32(temp);
-
-		LOD.seekg(0x5c, std::ios::beg);
-		if(!LOD)
-		{
-			tlog2 << lodFile << " doesn't store anything!\n";
-			return;
-		}
-
-		struct LodEntry *lodEntries = new struct LodEntry[totalFiles];
-		LOD.read((char *)lodEntries, sizeof(struct LodEntry) * totalFiles);
-
-		for (unsigned int i=0; i<totalFiles; i++)
-		{
-			Entry entry;
-			initEntry(entry, lodEntries[i].filename);
-
-			entry.offset= SDL_SwapLE32(lodEntries[i].offset);
-			entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
-			entry.size = SDL_SwapLE32(lodEntries[i].size);
-
-			entries.insert(entry);
-		}
-
-		delete [] lodEntries;
+		tlog2 << lodFile << " doesn't store anything!\n";
+		return;
 	}
+
+	struct LodEntry *lodEntries = new struct LodEntry[totalFiles];
+	LOD.read((char *)lodEntries, sizeof(struct LodEntry) * totalFiles);
+
+	for (unsigned int i=0; i<totalFiles; i++)
+	{
+		Entry entry;
+		initEntry(entry, lodEntries[i].filename);
+		
+		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
+		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
+		entry.size = SDL_SwapLE32(lodEntries[i].size);
+
+		entries.insert(entry);
+	}
+
+	delete [] lodEntries;
 
 	boost::filesystem::recursive_directory_iterator enddir;
 	if(boost::filesystem::exists(dirName))

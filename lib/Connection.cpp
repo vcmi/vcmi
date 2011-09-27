@@ -408,7 +408,6 @@ CSerializer::CSerializer()
 
 void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 {
-	assert(gs);
 	registerVectoredType(&gs->map->objects, &CGObjectInstance::id);
 	registerVectoredType(&lib->heroh->heroes, &CHero::ID);
 	registerVectoredType(&lib->creh->creatures, &CCreature::idNumber);
