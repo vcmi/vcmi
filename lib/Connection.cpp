@@ -121,6 +121,7 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
 		else
 		{
 			tlog1 << "Problem with connecting: " << std::endl <<  error << std::endl;
+			tlog1 << error.message() << std::endl;
 		}
 		endpoint_iterator++;
 	}

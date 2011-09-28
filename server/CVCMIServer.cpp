@@ -501,12 +501,23 @@ void CVCMIServer::loadGame()
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI)
 {
 	//we need three connections
-	CConnection *conns[3] = {0};
-	for (int i = 0; i < 3 ; i++)
+	CConnection *conns[1] = {0};
+	for (int i = 0; i < 1 ; i++)
 	{
 		boost::system::error_code error;
+
+
+		//boost::system::error_code error;
+		tlog0<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
 		tcp::socket * s = new tcp::socket(acceptor->get_io_service());
-		acceptor->accept(*s, error);
+		boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
+// 		sr->setToTrueAndNotify();
+// 		delete mr;
+
+		acc.join();
+
+		//tcp::socket * s = new tcp::socket(acceptor->get_io_service());
+		//acceptor->accept(*s, error);
 
 		if (error)
 		{
@@ -534,8 +545,14 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 		c->addStdVecItems(gh->gs, VLC);
 		gh->connections[gh->conns.size()] = c;
 		gh->conns.insert(c);
+		*c << si;
 	}
-		
+
+	*gh->connections[0] << leftAI << ui8(0);
+	//*gh->connections[1] << rightAI << ui8(1);
+	//*gh->connections[2] << std::string() << ui8(254);
+
+
 	gh->runBattle();
 
 	delNull(gh);
@@ -552,15 +569,8 @@ int main(int argc, char** argv)
 	logfile = new std::ofstream("VCMI_Server_log.txt");
 	console = new CConsoleHandler;
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
-	if(argc > 1)
-	{
-#ifdef _MSC_VER
-		port = _tstoi(argv[1]);
-#else
-		port = _ttoi(argv[1]);
-#endif
-	}
-	tlog0 << "Port " << port << " will be used." << std::endl;
+
+
 	initDLL(console,logfile);
 	srand ( (unsigned int)time(NULL) );
 	try

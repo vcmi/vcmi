@@ -944,7 +944,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				{
 					tlog0 << "Loading duel settings from JSON file: " << scenarioOps->mapname << std::endl;
 					dp = DuelParameters::fromJSON(scenarioOps->mapname);
-					tlog0 << "JSON file has been succesfully read!\n";
+					tlog0 << "JSON file has been successfully read!\n";
 				}
 				else
 				{
@@ -971,16 +971,15 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					obj = h;
 					h->subID = dp.sides[i].heroId;
 					h->initHero(h->subID);
+					obj->initObj();
 				}
 				else
 				{
 					CGCreature *c = new CGCreature();
 					armies[i] = obj = c;
 					c->subID = 34;
-					
 				}
 
-				obj->initObj();
 				obj->setOwner(i);
 
 				for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)

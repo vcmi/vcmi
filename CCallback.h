@@ -87,16 +87,13 @@ struct CPack;
 
 class CBattleCallback : public IBattleCallback, public CBattleInfoCallback
 {
-private:
-	CBattleCallback(CGameState *GS, int Player, CClient *C);
-
-
 protected:
 	void sendRequest(const CPack *request);
 	CClient *cl;
 	//virtual bool hasAccess(int playerId) const;
 
 public:
+	CBattleCallback(CGameState *GS, int Player, CClient *C);
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
 

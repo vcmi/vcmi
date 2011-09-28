@@ -1,5 +1,5 @@
-[
-	"terType" : 0,
+{
+	"terType" : 1,
 	"bfieldType" : 0,
 	
 	"sides" : 
@@ -13,4 +13,4 @@
 			"army" : [[11, 41]]
 		}
 	]
-]
+}

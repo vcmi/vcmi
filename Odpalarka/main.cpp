@@ -8,7 +8,8 @@ int main()
 	boost::thread tt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
 	boost::thread ttt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
 	boost::thread tttt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
-	boost::this_thread::sleep(boost::posix_time::seconds(5));
+	//boost::this_thread::sleep(boost::posix_time::seconds(5));
 
+	t.join();
 	return EXIT_SUCCESS;
 }
