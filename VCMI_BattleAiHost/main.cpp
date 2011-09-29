@@ -81,10 +81,17 @@ int main(int argc, char** argv)
 		tlog0 << "Cl created\n";
 		CBattleCallback * cbc = new CBattleCallback(gs, color, &cl);
 		tlog0 << "Cbc created\n";
-		CBattleGameInterface *ai = CDynLibHandler::getNewBattleAI(battleAIName);
-		tlog0 << "AI created\n";
-		ai->init(cbc);
+		if(battleAIName.size())
+		{
+			cl.ai = CDynLibHandler::getNewBattleAI(battleAIName);
+			cl.ai->playerID = color;
+			tlog0 << "AI created\n";
+			cl.ai->init(cbc);
+		}
+		else
+			tlog0 << "Not loading AI, only simulation will be run\n";
 		tlog0 << cbc->battleGetAllStacks().size() << std::endl;
+		cl.run();
 	}
 	catch(std::exception &e)
 	{

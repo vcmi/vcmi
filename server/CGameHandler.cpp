@@ -462,6 +462,16 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	{
 		CSaveFile resultFile("result.vdrst");
 		resultFile << *battleResult.data;
+
+		int casualtiesPoints = 0;
+		tlog0 << boost::format("Winner side %d\nWinner casualties:\n") % battleResult.data->winner;
+		for(std::map<ui32,si32>::const_iterator i = battleResult.data->casualties[battleResult.data->winner].begin(); i != battleResult.data->casualties[battleResult.data->winner].end(); i++)
+		{
+			const CCreature *c = VLC->creh->creatures[i->first];
+			tlog0 << boost::format("\t* %d of %s\n") % i->second % c->namePl;
+			casualtiesPoints = c->AIValue * i->second;
+		}
+		tlog0 << boost::format("Total causalties points: %d\n") % casualtiesPoints;
 		return;
 	}
 
@@ -626,17 +636,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
-			{
-				boost::unique_lock<boost::mutex> lock(*c.rmx);
-				c >> pack; //get the package
-				tlog5 << "Received client message of type " << typeid(*pack).name() << std::endl;
-			}
-
+			pack = c.retreivePack();
 			int packType = typeList.getTypeID(pack); //get the id of type
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
-			if(packType != typeList.getTypeID<QueryReply>() &&
-			   (packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) && // for dialogs like garrison
-			   states[getCurrentPlayer()].queries.size())
+			if(packType != typeList.getTypeID<QueryReply>() 
+				&&(packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) // for dialogs like garrison
+				&& vstd::contains(states.players, getCurrentPlayer()) && states[getCurrentPlayer()].queries.size())
 			{
 				complain("Answer the query before attempting any further actions!");
 				PackageApplied applied;
@@ -1997,13 +2002,7 @@ void CGameHandler::save( const std::string &fname )
 
 void CGameHandler::close()
 {
-	tlog0 << "We have been requested to close.\n";	
-
-	if(gs->initialOpts->mode == StartInfo::DUEL)
-	{
-		exit(0);
-	}
-
+	tlog0 << "We have been requested to close.\n";
 	//BOOST_FOREACH(CConnection *cc, conns)
 	//	if(cc && cc->socket && cc->socket->is_open())
 	//		cc->socket->close();

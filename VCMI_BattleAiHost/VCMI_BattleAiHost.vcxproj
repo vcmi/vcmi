@@ -135,9 +135,11 @@
     <ClCompile Include="BattleCallback.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NetPacksRunner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BattleCallback.h" />
+    <ClInclude Include="CheckTime.h" />
     <ClInclude Include="Client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

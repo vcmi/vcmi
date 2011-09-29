@@ -240,7 +240,7 @@ CPack * CConnection::retreivePack()
 	boost::unique_lock<boost::mutex> lock(*rmx);
 	tlog5 << "Listening... ";
 	*this >> ret;
-	tlog5 << "\treceived server message of type " << typeid(*ret).name() << std::endl;
+	tlog5 << "\treceived message of type " << typeid(*ret).name() << std::endl;
 	return ret;
 }
 

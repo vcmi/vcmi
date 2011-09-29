@@ -501,23 +501,14 @@ void CVCMIServer::loadGame()
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI)
 {
 	//we need three connections
-	CConnection *conns[1] = {0};
-	for (int i = 0; i < 1 ; i++)
+	CConnection *conns[3] = {0};
+	for (int i = 0; i < 3 ; i++)
 	{
 		boost::system::error_code error;
 
-
-		//boost::system::error_code error;
 		tlog0<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
 		tcp::socket * s = new tcp::socket(acceptor->get_io_service());
-		boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
-// 		sr->setToTrueAndNotify();
-// 		delete mr;
-
-		acc.join();
-
-		//tcp::socket * s = new tcp::socket(acceptor->get_io_service());
-		//acceptor->accept(*s, error);
+		acceptor->accept(*s, error);
 
 		if (error)
 		{
@@ -537,26 +528,39 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	si.mode = StartInfo::DUEL;
 	si.mapname = battle;
 	
+
+	tlog0 << "Preparing gh!\n";
 	CGameHandler *gh = new CGameHandler();
 	gh->init(&si,std::time(NULL));
 
 	BOOST_FOREACH(CConnection *c, conns)
 	{
+		ui8 player = gh->conns.size();
+		tlog0 << boost::format("Preparing connection %d!\n") % (int)player;
 		c->addStdVecItems(gh->gs, VLC);
-		gh->connections[gh->conns.size()] = c;
+		gh->connections[player] = c;
 		gh->conns.insert(c);
+		gh->states.addPlayer(player);
 		*c << si;
+
+		std::set<int> pom;
+		pom.insert(player);
+		boost::thread(boost::bind(&CGameHandler::handleConnection,gh,pom,boost::ref(*c)));
 	}
 
+	tlog0 << boost::format("Sending start info to connections!\n");
 	*gh->connections[0] << leftAI << ui8(0);
-	//*gh->connections[1] << rightAI << ui8(1);
-	//*gh->connections[2] << std::string() << ui8(254);
+	*gh->connections[1] << rightAI << ui8(1);
+	*gh->connections[2] << std::string() << ui8(254);
 
 
+	tlog0 << "Starting battle!\n";
 	gh->runBattle();
-
+	tlog0 << "Battle over!\n";
 	delNull(gh);
+	tlog0 << "Removed gh!\n";
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	tlog0 << "Dying...\n";
 	exit(0);
 }
 
