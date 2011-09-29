@@ -500,7 +500,9 @@ void CVCMIServer::loadGame()
 
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI)
 {
+
 	//we need three connections
+	boost::thread* threads[3] = {0};
 	CConnection *conns[3] = {0};
 	for (int i = 0; i < 3 ; i++)
 	{
@@ -545,7 +547,7 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 
 		std::set<int> pom;
 		pom.insert(player);
-		boost::thread(boost::bind(&CGameHandler::handleConnection,gh,pom,boost::ref(*c)));
+		threads[player] = new boost::thread(boost::bind(&CGameHandler::handleConnection, gh, pom, boost::ref(*c)));
 	}
 
 	tlog0 << boost::format("Sending start info to connections!\n");
@@ -559,7 +561,13 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	tlog0 << "Battle over!\n";
 	delNull(gh);
 	tlog0 << "Removed gh!\n";
-	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	tlog0 << "Waiting for connections to close\n";
+	BOOST_FOREACH(boost::thread *t, threads)
+	{
+		t->join();
+		delNull(t);
+	}
+
 	tlog0 << "Dying...\n";
 	exit(0);
 }
@@ -581,8 +589,10 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		assert(argc == 4);
-		server.startDuel(argv[1], argv[2], argv[3]);
+		if(argc == 4)
+			server.startDuel(argv[1], argv[2], argv[3]);
+		else
+			server.startDuel("b1.json", "StupidAI", "StupidAI");
 
 		while(!end2)
 		{

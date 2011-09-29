@@ -638,6 +638,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		{
 			pack = c.retreivePack();
 			int packType = typeList.getTypeID(pack); //get the id of type
+			if(packType == typeList.getTypeID<CloseServer>())
+			{
+				tlog0 << "Ending listening thread for side " << *players.begin() << std::endl;
+				break;
+			}
+
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
 			if(packType != typeList.getTypeID<QueryReply>() 
 				&&(packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) // for dialogs like garrison
