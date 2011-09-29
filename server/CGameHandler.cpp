@@ -456,7 +456,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		winnerHero->showNecromancyDialog(raisedStack);
 		addToSlot(StackLocation(winnerHero, necroSlot), raisedStack.type, raisedStack.count);
 	}
-	sendAndApply(&resultsApplied);
 
 	if(duel)
 	{
@@ -471,9 +470,13 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			tlog0 << boost::format("\t* %d of %s\n") % i->second % c->namePl;
 			casualtiesPoints = c->AIValue * i->second;
 		}
-		tlog0 << boost::format("Total causalties points: %d\n") % casualtiesPoints;
-		return;
+		tlog0 << boost::format("Total casualties points: %d\n") % casualtiesPoints;
 	}
+
+	sendAndApply(&resultsApplied);
+
+	if(duel)
+		return;
 
 	if(visitObjectAfterVictory && winnerHero == hero1)
 	{

@@ -272,6 +272,7 @@ void CCallback::buildBoat( const IShipyard *obj )
 CCallback::CCallback( CGameState * GS, int Player, CClient *C ) 
 	:CBattleCallback(GS, Player, C)
 {
+	cl = C;
 	waitTillRealize = false;
 }
 

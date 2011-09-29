@@ -1193,6 +1193,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	ObjectConstruction h__l__p(this);
 
 	if(!curInt) curInt = LOCPLINT; //may happen when we are defending during network MP game
+	bool duelMode = curInt->cb->getMyColor() < 0;
 
 	animsAreDisplayed.setn(false);
 	pos = myRect;
@@ -1297,8 +1298,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	bOptions = new AdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
 	bSurrender = new AdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54 + pos.x, 561 + pos.y, "icm001.def", SDLK_s);
 	bFlee = new AdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
-	bFlee->block(!curInt->cb->battleCanFlee());	
-	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
+	bFlee->block(duelMode || !curInt->cb->battleCanFlee());	
+	bSurrender->block(duelMode || curInt->cb->battleGetSurrenderCost() < 0);
 	bAutofight  = new AdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
 	bSpell = new AdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
 	bSpell->block(true);
@@ -3869,6 +3870,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	if(tacticsMode) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		redrawBackgroundWithHexes(activeStack);
+
+	waitForAnims();
 }
 
 void CBattleInterface::hideQueue()

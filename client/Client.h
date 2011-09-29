@@ -3,10 +3,9 @@
 
 
 #include "../global.h"
-#include <boost/thread.hpp>
 #include "../lib/IGameCallback.h"
-#include "../lib/CondSh.h"
 #include <queue>
+#include "../lib/CBattleCallback.h"
 
 /*
  * Client.h, part of VCMI engine
@@ -60,7 +59,7 @@ public:
 };
 
 /// Class which handles client - server logic
-class CClient : public IGameCallback
+class CClient : public IGameCallback, public IConnectionHandler
 {
 public:
 	CCallback *cb;
@@ -70,7 +69,6 @@ public:
 	std::map<ui8,CGameInterface *> playerint;
 	std::map<ui8,CBattleGameInterface *> battleints;
 	bool hotSeat;
-	CConnection *serv;
 	BattleAction *curbaction;
 
 	CPathsInfo *pathInfo;
@@ -78,7 +76,6 @@ public:
 
 	CScriptingModule *erm;
 
-	CondSh<int> waitingRequest;
 
 	std::queue<CPack *> packs;
 	boost::mutex packsM;
@@ -91,6 +88,7 @@ public:
 
 	void init();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
+	void newDuel(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
 	void endGame(bool closeConnection = true);

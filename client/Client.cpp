@@ -101,13 +101,11 @@ void CClient::init()
 }
 
 CClient::CClient(void)
-:waitingRequest(0)
 {
 	init();
 }
 
 CClient::CClient(CConnection *con, StartInfo *si)
-:waitingRequest(0)
 {
 	init();
 	newGame(con,si);
@@ -416,6 +414,56 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 // 
 // 		erm = nm; //something tells me that there'll at most one module and it'll be ERM
 // 	}
+}
+
+void CClient::newDuel(CConnection *con, StartInfo *si)
+{
+	serv = con;
+	if(!serv)
+	{
+		std::string host = "127.0.0.1";
+		std::string port = "3030";
+
+		int i = 3;
+		while(!serv)
+		{
+			try
+			{
+				tlog0 << "Establishing connection...\n";
+				serv = new CConnection(host, port, "DLL host");
+			}
+			catch(...)
+			{
+				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" << std::endl;
+				boost::this_thread::sleep(boost::posix_time::seconds(2));
+				if(!--i)
+					exit(0);
+			}
+		}
+	}
+
+
+	ui8 color;
+	std::string battleAIName;
+	*serv >> *si >> battleAIName >> color;
+	assert(si->mode == StartInfo::DUEL);
+	assert(color > 1); //we are NOT participants
+	//tlog0 << format("Server wants us to be %s in battle %s as side %d") % battleAIName % si.mapname % (int)color;
+
+	gs = new CGameState();
+	const_cast<CGameInfo*>(CGI)->state = gs;
+	//gs->scenarioOps = si;
+	gs->init(si, 0, 0);
+
+	CPlayerInterface *p = new CPlayerInterface(-1);
+	privilagedBattleEventReceivers.push_back(p);
+	p->observerInDuelMode = true;
+	battleints[254] = playerint[254] = p;
+	GH.curInt = p;
+	p->init(new CCallback(gs, -1, this));
+	battleStarted(gs->curB);
+
+	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 }
 
 template <typename Handler>

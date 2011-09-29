@@ -2720,6 +2720,12 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			ss.stacks[i].count = stackNode.Vector()[1].Float();
 			i++;
 		}
+
+		ss.heroId = n["heroid"].Float();
+		if(ss.heroId != -1)
+			BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
+				ss.spells.insert(spell.Float());
+		
 	}
 
 	return ret;

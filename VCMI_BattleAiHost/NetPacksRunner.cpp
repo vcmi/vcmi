@@ -394,12 +394,12 @@ void EndAction::applyCl( CClient *cl )
 
 void PackageApplied::applyCl( CClient *cl )
 {
-// 	ui8 player = GS(cl)->currentPlayer;
-// 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
-// 	if(cl->waitingRequest.get() == packType)
-// 		cl->waitingRequest.setn(false);
-// 	else if(cl->waitingRequest.get())
-// 		tlog3 << "Surprising server message!\n";
+ 	ui8 player = GS(cl)->currentPlayer;
+ 	//INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
+ 	if(cl->waitingRequest.get() == packType)
+ 		cl->waitingRequest.setn(false);
+ 	else if(cl->waitingRequest.get())
+ 		tlog3 << "Surprising server message!\n";
 }
 
 void SystemMessage::applyCl( CClient *cl )

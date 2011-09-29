@@ -456,6 +456,9 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
+
+	bool duelMode;
+
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show

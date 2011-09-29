@@ -22,6 +22,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Odpalarka", "Odpalarka\Odpa
 		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8C710950-7839-490C-8412-C60AC4D5238B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_client", "client\VCMI_client.vcxproj", "{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -94,6 +98,17 @@ Global
 		{27B69211-D138-4142-BBC9-40F5DEA39067}.Release|Win32.ActiveCfg = Release|Win32
 		{27B69211-D138-4142-BBC9-40F5DEA39067}.Release|Win32.Build.0 = Release|Win32
 		{27B69211-D138-4142-BBC9-40F5DEA39067}.Release|x64.ActiveCfg = Release|Win32
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Debug|Win32.Build.0 = Debug|Win32
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Debug|x64.ActiveCfg = Debug|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Debug|x64.Build.0 = Debug|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.RD|Win32.ActiveCfg = RD|Win32
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.RD|Win32.Build.0 = RD|Win32
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.RD|x64.ActiveCfg = RD|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.RD|x64.Build.0 = RD|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Release|Win32.ActiveCfg = RD|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Release|x64.ActiveCfg = RD|x64
+		{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}.Release|x64.Build.0 = RD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

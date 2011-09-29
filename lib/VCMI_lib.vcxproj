@@ -214,6 +214,7 @@
     <ClCompile Include="BattleAction.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
+    <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCampaignHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="..\CConsoleHandler.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
+    <ClInclude Include="CBattleCallback.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CCampaignHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />

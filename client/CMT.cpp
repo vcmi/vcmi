@@ -285,9 +285,6 @@ int main(int argc, char** argv)
 	{
 		StartInfo *si = new StartInfo();
 		si->mode = StartInfo::DUEL;
-		si->mapname = vm["battle"].as<std::string>();
-		si->playerInfos[0].color = 0;
-		si->playerInfos[1].color = 1;
 		startGame(si);
 	}
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
@@ -718,8 +715,10 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	{
 	case StartInfo::NEW_GAME:
 	case StartInfo::CAMPAIGN:
-	case StartInfo::DUEL:
 		client->newGame(serv, options);
+		break;
+	case StartInfo::DUEL:
+		client->newDuel(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:
 		std::string fname = options->mapname;
