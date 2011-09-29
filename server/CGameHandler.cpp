@@ -463,7 +463,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		resultFile << *battleResult.data;
 
 		int casualtiesPoints = 0;
-		tlog0 << boost::format("Winner side %d\nWinner casualties:\n") % battleResult.data->winner;
+		tlog0 << boost::format("Winner side %d\nWinner casualties:\n") % (int)battleResult.data->winner;
 		for(std::map<ui32,si32>::const_iterator i = battleResult.data->casualties[battleResult.data->winner].begin(); i != battleResult.data->casualties[battleResult.data->winner].end(); i++)
 		{
 			const CCreature *c = VLC->creh->creatures[i->first];
