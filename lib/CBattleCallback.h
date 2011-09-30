@@ -4,6 +4,7 @@
 #include "CondSh.h"
 
 class CConnection;
+struct CPack;
 
 class DLL_EXPORT IConnectionHandler
 {
