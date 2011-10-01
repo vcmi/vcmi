@@ -376,6 +376,41 @@ std::vector<THex> BattleInfo::getAccessibility( const CStack * stack, bool addOc
 
 	return ret;
 }
+
+int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
+{
+	int pos;
+	if (initialPos > -1)
+		pos = initialPos;
+	else
+	{
+		if (attackerOwned)
+			pos = 0; //top left
+		else
+			pos = BFIELD_WIDTH; //top right
+	}
+
+	bool ac[BFIELD_SIZE];
+	std::set<THex> occupyable;
+	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
+	bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
+	getAccessibilityMap(ac, twoHex, attackerOwned, true, occupyable, flying);
+	for (int g = pos; -1 < g < BFIELD_SIZE; )
+	{
+		if ((g % BFIELD_WIDTH != 0) && (g % BFIELD_WIDTH != BFIELD_WIDTH-1) && BattleInfo::isAccessible (g, ac, twoHex, attackerOwned, flying, true))
+		{
+			pos = g;
+			break;
+		}
+		if (attackerOwned)
+			++g; //probably some more sophisticated range-based iteration is needed
+		else
+			--g;
+	}
+
+	return pos;
+}
+
 bool BattleInfo::isStackBlocked(const CStack * stack) const
 {
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
@@ -1776,7 +1811,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, Spell
 
 	switch (mode)
 	{
-	case SpellCasting::HERO_CASTING:
+		case SpellCasting::HERO_CASTING:
 		{
 			if(castSpells[side] > 0)
 				return SpellCasting::ALREADY_CASTED_THIS_TURN;
@@ -1800,7 +1835,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	int cside = sides[0] == player ? 0 : 1; //caster's side
 	switch(mode)
 	{
-	case SpellCasting::HERO_CASTING:
+		case SpellCasting::HERO_CASTING:
 		{
 			const CGHeroInstance * caster = heroes[cside];
 			if(!caster->canCastThisSpell(spell))
@@ -1900,7 +1935,10 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 	if(moreGeneralProblem != SpellCasting::OK)
 		return moreGeneralProblem;
 
-	return battleIsImmune(getHero(player), spell, mode, dest);
+	if (mode != SpellCasting::CREATURE_ACTIVE_CASTING)
+		return battleIsImmune(getHero(player), spell, mode, dest);
+	else
+		return battleIsImmune(NULL, spell, mode, dest);
 }
 
 const CGHeroInstance * BattleInfo::getHero( int player ) const

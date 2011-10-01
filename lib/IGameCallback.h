@@ -104,6 +104,7 @@ public:
 	bool battleCanShoot(const CStack * stack, THex dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
+	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, THex destination); //determines if creature can cast a spell here
 	bool battleCanFlee(); //returns true if caller can flee from the battle
 	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible
 	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead

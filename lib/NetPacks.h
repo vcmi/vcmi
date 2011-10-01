@@ -1483,6 +1483,25 @@ struct BattleStacksRemoved : public CPackForClient //3016
 	}
 };
 
+struct BattleStackAdded : public CPackForClient //3017
+{
+	BattleStackAdded(){type = 3017;};
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	int attacker; // if true, stack belongs to attacker
+	int creID;
+	int amount;
+	int pos;
+	int summoned; //if true, remove it afterwards
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & attacker & creID & amount & pos & summoned;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

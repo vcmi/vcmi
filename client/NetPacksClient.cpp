@@ -632,11 +632,6 @@ void StartAction::applyFirstCl( CClient *cl )
 void BattleSpellCast::applyCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleSpellCast,this);
-
-	if(id >= 66 && id <= 69) //elemental summoning
-	{
-		BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewStackAppeared,GS(cl)->curB->stacks.back());
-	}
 }
 
 void SetStackEffect::applyCl( CClient *cl )
@@ -689,6 +684,11 @@ void BattleStacksRemoved::applyCl( CClient *cl )
 {
 	//inform interfaces about removed stacks
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksRemoved, *this);
+}
+
+void BattleStackAdded::applyCl( CClient *cl )
+{
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewStackAppeared, GS(cl)->curB->stacks.back());
 }
 
 CGameState* CPackForClient::GS( CClient *cl )

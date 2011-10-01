@@ -3283,6 +3283,35 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
+		case BattleAction::DAEMON_SUMMONING:
+			//TODO: From Strategija:
+			//Summon Demon is a level 2 spell.
+			//Cloned Pit Lord stack can use the specialty as well.
+		{
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
+
+			CStack *summoner = gs->curB->getStack(ba.stackNumber),
+				*destStack = gs->curB->getStackT(ba.destinationTile, false);
+
+			BattleStackAdded bsa;
+			bsa.attacker = summoner->attackerOwned;
+
+			bsa.creID = summoner->getBonus(Selector::type(Bonus::DAEMON_SUMMONING))->subtype; //in case summoner can summon more than one type of monsters... scream!
+			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID);
+			bsa.amount = std::min ((ui32)(risedHp/destStack->MaxHealth()), destStack->baseAmount);
+
+			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.attacker, destStack->position);
+			bsa.summoned = false;
+
+			BattleStacksRemoved bsr; //remove body
+			bsr.stackIDs.insert(destStack->ID);
+			sendAndApply(&bsr);
+			sendAndApply(&bsa);
+
+			sendAndApply(&end_action);
+			break;
+		}
 	}
 	if(ba.stackNumber == gs->curB->activeStack  ||  battleResult.get()) //active stack has moved or battle has finished
 		battleMadeAction.setn(true);
@@ -3673,6 +3702,41 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				sendAndApply(&shr);
 			break;
 		}
+	case 66:
+	case 67:
+	case 68:
+	case 69:
+		{ //elemental summoning
+			int creID;
+			switch(spellID)
+			{
+				case 66:
+					creID = 114; //fire elemental
+					break;
+				case 67:
+					creID = 113; //earth elemental
+					break;
+				case 68:
+					creID = 115; //water elemental
+					break;
+				case 69:
+					creID = 112; //air elemental
+					break;
+			}
+
+			BattleStackAdded bsa;
+
+			bsa.pos = gs->curB->getAvaliableHex(creID, !(bool)casterSide); //TODO: unify it
+
+			bsa.amount = caster->getPrimSkillLevel(2) * VLC->spellh->spells[spellID]->powers[spellLvl] *
+				(100 + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID)) / 100.0f; //new feature - percentage bonus
+
+			bsa.creID = creID;
+			bsa.attacker = !(bool)casterSide;
+			bsa.summoned = true;
+			sendAndApply(&bsa);
+		}
+		break;
 	case 64: //remove obstacle
 		{
 			ObstaclesRemoved obr;
@@ -3731,6 +3795,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	sendAndApply(&sc);
 	if(!si.stacks.empty()) //after spellcast info shows
 		sendAndApply(&si);
+
 	//Magic Mirror effect
 	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
@@ -3779,7 +3844,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
-			if (s->mainEffectAnim > -1) //TODO: special effects, like Clone
+			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69)) //allow summon elementals
+				//TODO: special effects, like Clone
 			{
 				ui8 skill = h->getSpellSchoolLevel(s); //skill level
 

@@ -156,6 +156,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<ObstaclesRemoved>();
 	s.template registerType<CatapultAttack>();
 	s.template registerType<BattleStacksRemoved>();
+	s.template registerType<BattleStackAdded>();
 	s.template registerType<ShowInInfobox>();
 	s.template registerType<AdvmapSpellCast>();
 	s.template registerType<OpenWindow>();

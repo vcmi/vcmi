@@ -5,6 +5,7 @@
 #include <list>
 #include "GUIBase.h"
 #include "../lib/CCreatureSet.h"
+#include "../lib/ConstTransitivePtr.h" //may be reundant
 #include "CAnimation.h"
 
 /*
@@ -419,7 +420,7 @@ class CBattleInterface : public CIntObject
 {
 	enum SpellSelectionType
 	{
-		ANY_LOCATION = 0, FRIENDLY_CREATURE, HOSTILE_CREATURE, ANY_CREATURE, OBSTACLE, TELEPORT, NO_LOCATION = -1
+		ANY_LOCATION = 0, FRIENDLY_CREATURE, HOSTILE_CREATURE, ANY_CREATURE, OBSTACLE, TELEPORT, NO_LOCATION = -1, STACK_SPELL_CANCELLED = -2
 	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
@@ -456,6 +457,8 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
+	CSpell * creatureSpellToCast;
+	std::vector< ConstTransitivePtr<CSpell> > stackSpells; //all spells possible to cast by the stack
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show

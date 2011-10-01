@@ -1019,9 +1019,9 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 	case BattleAction::WAIT:
 		st->state.insert(WAITING);
 		return;
-	case BattleAction::NO_ACTION: case BattleAction::WALK: case BattleAction::WALK_AND_ATTACK:
-	case BattleAction::SHOOT: case BattleAction::CATAPULT: case BattleAction::MONSTER_SPELL:
-	case BattleAction::BAD_MORALE: case BattleAction::STACK_HEAL:
+	case BattleAction::HERO_SPELL: //no change in current stack state
+		return;
+	default: //any active stack action - attack, catapult, heal, spell...
 		st->state.insert(MOVED);
 		break;
 	}
@@ -1046,7 +1046,8 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 			spellCost = VLC->spellh->spells[id]->costs[skill];
 		}
 		h->mana -= spellCost;
-		if(h->mana < 0) h->mana = 0;
+		if (h->mana < 0)
+			h->mana = 0;
 	}
 	if(side >= 0 && side < 2 && castedByHero)
 	{
@@ -1068,55 +1069,6 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 					s->popBonuses(Selector::sourceType(Bonus::SPELL_EFFECT));
 			}
 		}
-	}
-
-	//elemental summoning
-	if(id >= 66 && id <= 69)
-	{
-		int creID;
-		switch(id)
-		{
-		case 66:
-			creID = 114; //fire elemental
-			break;
-		case 67:
-			creID = 113; //earth elemental
-			break;
-		case 68:
-			creID = 115; //water elemental
-			break;
-		case 69:
-			creID = 112; //air elemental
-			break;
-		}
-// 		const int3 & tile = gs->curB->tile;
-// 		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
-
-		int pos; //position of stack on the battlefield - to be calculated
-
-		bool ac[BFIELD_SIZE];
-		std::set<THex> occupyable;
-		bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
-		bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
-		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
-		for(int g=0; g<BFIELD_SIZE; ++g)
-		{
-			if(g % BFIELD_WIDTH != 0 && g % BFIELD_WIDTH != BFIELD_WIDTH-1 && BattleInfo::isAccessible(g, ac, twoHex, !side, flying, true) )
-			{
-				pos = g;
-				break;
-			}
-		}
-
-		int summonedElementals = h->getPrimSkillLevel(2) * VLC->spellh->spells[id]->powers[skill] * (100 + h->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id) / 100.0f); //new feature - percentage bonus
-		CStackInstance *csi = new CStackInstance(creID, summonedElementals); //deleted by d-tor of summoned stack
-		csi->setArmyObj(h);
-		CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), !side, 255, pos);
-		summonedStack->state.insert(SUMMONED);
-		summonedStack->attachTo(csi);
-		summonedStack->postInit();
-		//summonedStack->addNewBonus( makeFeature(HeroBonus::SUMMONED, HeroBonus::ONE_BATTLE, 0, 0, HeroBonus::BONUS_FROM_HERO) );
-		gs->curB->stacks.push_back(summonedStack);
 	}
 }
 
@@ -1306,6 +1258,23 @@ DLL_EXPORT void BattleStacksRemoved::applyGs( CGameState *gs )
 			}
 		}
 	}
+}
+
+DLL_EXPORT void BattleStackAdded::applyGs(CGameState *gs)
+{
+	if (!THex(pos).isValid())
+	{
+		tlog2 << "No place found for new stack!\n";
+		return;
+	}
+	CStackInstance *csi = new CStackInstance(creID, amount);
+	csi->setArmyObj(gs->curB->belligerents[attacker ? 0 : 1]);
+	CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), attacker, 255, pos); //TODO: netpacks?
+	if (summoned)
+		summonedStack->state.insert(SUMMONED);
+	summonedStack->attachTo(csi);
+	summonedStack->postInit();
+	gs->curB->stacks.push_back(summonedStack); //the stack is not "SUMMONED", it is permanent
 }
 
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )

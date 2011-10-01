@@ -1184,7 +1184,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
-	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
+	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1), spellSelMode(NO_LOCATION),
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), spellDestSelectMode(false), spellToCast(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
@@ -2003,7 +2003,7 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	if(activeStack!= NULL && !spellDestSelectMode)
+	if(activeStack && !spellDestSelectMode)
 	{
         int lastMouseHoveredStack = mouseHoveredStack;
 		mouseHoveredStack = -1;
@@ -2038,6 +2038,18 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						{
 							//display the possibility to heal this creature
 							CCS->curh->changeGraphic(1,17);
+						}
+						else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING))
+						{
+							CCS->curh->changeGraphic(3, 0);
+						}
+						else if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
+						{
+							//spellDestSelectMode
+							if (curInt->cb->battleCanCastThisSpell(creatureSpellToCast, THex(myNumber)) == SpellCasting::OK)
+								CCS->curh->changeGraphic(3, 0);
+							//if (battleIsImmune(NULL, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING, myNumber) == SpellCasting::OK)
+							//if (battleCanCastThisSpell(curInt->playerID, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING))
 						}
 						else
 						{
@@ -2709,11 +2721,13 @@ void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 addit
 	//some basic validations
 	switch(action)
 	{
-	case 6:
-		assert(curInt->cb->battleGetStackByPos(additional)); //stack to attack must exist
-	case 2: case 7: case 9:
-		assert(tile < BFIELD_SIZE);
-		break;
+		case BattleAction::WALK_AND_ATTACK:
+			assert(curInt->cb->battleGetStackByPos(additional)); //stack to attack must exist
+		case BattleAction::WALK:
+		case BattleAction::SHOOT:
+		case BattleAction::CATAPULT:
+			assert(tile < BFIELD_SIZE);
+			break;
 	}
 
 	if(!tacticsMode)
@@ -2784,7 +2798,7 @@ const CGHeroInstance * CBattleInterface::getActiveHero()
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	const CStack * actSt = activeStack;
-	const CStack* dest = curInt->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
+	const CStack* dest = curInt->cb->battleGetStackByPos(whichOne, false); //creature at destination tile; -1 if there is no one
 	if(!actSt)
 	{
 		tlog3 << "Hex l-clicked when no active stack!\n";
@@ -2797,29 +2811,30 @@ void CBattleInterface::hexLclicked(int whichOne)
 	{
 		if(!myTurn)
 			return; //we are not permit to do anything
-		if(spellDestSelectMode)
+		if(spellDestSelectMode) //TODO: choose target for area creature spell
 		{
 			//checking destination
 			bool allowCasting = true;
 			bool onlyAlive = spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39; //when casting resurrection or animate dead we should be allow to select dead stack
+			//TODO: more general handling of dead targets
 			switch(spellSelMode)
 			{
-			case 1:
-				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID != curInt->cb->battleGetStackByPos(whichOne, onlyAlive)->owner )
+			case FRIENDLY_CREATURE:
+				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID != dest->owner )
 					allowCasting = false;
 				break;
-			case 2:
-				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID == curInt->cb->battleGetStackByPos(whichOne, onlyAlive)->owner )
+			case HOSTILE_CREATURE:
+				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID == dest->owner )
 					allowCasting = false;
 				break;
-			case 3:
+			case ANY_CREATURE:
 				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive))
 					allowCasting = false;
 				break;
-			case 4:
+			case OBSTACLE:
 				if(!blockedByObstacle(whichOne))
 					allowCasting = false;
-			case 5: //teleport
+			case TELEPORT: //teleport
 				const CSpell *s = CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 skill = getActiveHero()->getSpellSchoolLevel(s); //skill level
 				if (!curInt->cb->battleCanTeleportTo(activeStack, whichOne, skill))
@@ -2836,11 +2851,198 @@ void CBattleInterface::hexLclicked(int whichOne)
 				endCastingSpell();
 			}
 		}
-		else //we don't cast any spell
+		else //we don't aim for spell target
 		{
-			if(!dest || !dest->alive()) //no creature at that tile
+			bool walkableTile = false;
+			if (dest)
 			{
-				if(std::find(occupyableHexes.begin(),occupyableHexes.end(),whichOne)!=occupyableHexes.end())// and it's in our range
+				if (dest->alive())
+				{
+					if(dest->owner != actSt->owner && curInt->cb->battleCanShoot(activeStack, whichOne)) //shooting
+					{
+						CCS->curh->changeGraphic(1, 6); //cursor should be changed
+						giveCommand (BattleAction::SHOOT, whichOne, activeStack->ID);
+					}
+					else if(dest->owner != actSt->owner) //attacking
+					{
+						const CStack * actStack = activeStack;
+						int attackFromHex = -1; //hex from which we will attack chosen stack
+						switch(CCS->curh->number)
+						{
+						case 12: //from bottom right
+							{
+								bool doubleWide = actStack->doubleWide();
+								int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ) +
+									(actStack->attackerOwned && doubleWide ? 1 : 0);
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(actStack->attackerOwned) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						case 7: //from bottom left
+							{
+								int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH );
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(actStack->attackerOwned) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						case 8: //from left
+							{
+								if(actStack->doubleWide() && !actStack->attackerOwned)
+								{
+									std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+									if(vstd::contains(acc, whichOne))
+										attackFromHex = whichOne - 1;
+									else
+										attackFromHex = whichOne - 2;
+								}
+								else
+								{
+									attackFromHex = whichOne - 1;
+								}
+								break;
+							}
+						case 9: //from top left
+							{
+								int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(actStack->attackerOwned) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						case 10: //from top right
+							{
+								bool doubleWide = actStack->doubleWide();
+								int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ) +
+									(actStack->attackerOwned && doubleWide ? 1 : 0);
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(actStack->attackerOwned) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						case 11: //from right
+							{
+								if(actStack->doubleWide() && actStack->attackerOwned)
+								{
+									std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+									if(vstd::contains(acc, whichOne))
+										attackFromHex = whichOne + 1;
+									else
+										attackFromHex = whichOne + 2;
+								}
+								else
+								{
+									attackFromHex = whichOne + 1;
+								}
+								break;
+							}
+						case 13: //from bottom
+							{
+								int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						case 14: //from top
+							{
+								int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
+								if(vstd::contains(occupyableHexes, destHex))
+									attackFromHex = destHex;
+								else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+								{
+									if(vstd::contains(occupyableHexes, destHex+1))
+										attackFromHex = destHex+1;
+								}
+								else //if we are defender
+								{
+									if(vstd::contains(occupyableHexes, destHex-1))
+										attackFromHex = destHex-1;
+								}
+								break;
+							}
+						}
+
+						if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+						{
+							giveCommand(BattleAction::WALK_AND_ATTACK, attackFromHex, activeStack->ID, whichOne);
+					
+							CCS->curh->changeGraphic(1, 6); //cursor should be changed
+						}
+
+					}
+					else if (actSt->hasBonusOfType(Bonus::HEALER) && actSt->owner == dest->owner) //friendly creature we can heal
+					{ //TODO: spellDestSelectMode > -2 if we don't want to heal but perform some other (?) action
+						giveCommand(BattleAction::STACK_HEAL, whichOne, activeStack->ID); //command healing
+
+						CCS->curh->changeGraphic(1, 6); //cursor should be changed
+					}
+
+				} //stack is not alive
+				else if (actSt->hasBonusOfType(Bonus::DAEMON_SUMMONING) && actSt->casts &&
+						actSt->owner == dest->owner && spellSelMode > -2)//friendly body we can (and want) rise
+				{
+					giveCommand(BattleAction::DAEMON_SUMMONING, whichOne, activeStack->ID);
+
+					CCS->curh->changeGraphic(1, 6); //cursor should be changed
+				}
+				else //not a subject of resurrection
+					walkableTile = true;
+			}
+			else
+			{
+				walkableTile = true;
+			}
+
+			if (walkableTile) // we can try to move to this tile
+			{
+				if(std::find(occupyableHexes.begin(), occupyableHexes.end(), whichOne) != occupyableHexes.end())// and it's in our range
 				{
 					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 					if(activeStack->doubleWide())
@@ -2848,185 +3050,19 @@ void CBattleInterface::hexLclicked(int whichOne)
 						std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = whichOne + (activeStack->attackerOwned ? 1 : -1);
 						if(vstd::contains(acc, whichOne))
-							giveCommand(2,whichOne,activeStack->ID);
+							giveCommand (BattleAction::WALK ,whichOne, activeStack->ID);
 						else if(vstd::contains(acc, shiftedDest))
-							giveCommand(2,shiftedDest,activeStack->ID);
+							giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
 					}
 					else
 					{
-						giveCommand(2,whichOne,activeStack->ID);
+						giveCommand(BattleAction::WALK, whichOne, activeStack->ID);
 					}
 				}
 				else if(actSt->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(whichOne)) //attacking (catapult)
 				{
-					giveCommand(9,whichOne,activeStack->ID);
+					giveCommand(BattleAction::CATAPULT, whichOne, activeStack->ID);
 				}
-			}
-			else if(dest->owner != actSt->owner
-				&& curInt->cb->battleCanShoot(activeStack, whichOne) ) //shooting
-			{
-				CCS->curh->changeGraphic(1, 6); //cursor should be changed
-				giveCommand(7,whichOne,activeStack->ID);
-			}
-			else if(dest->owner != actSt->owner) //attacking
-			{
-				const CStack * actStack = activeStack;
-				int attackFromHex = -1; //hex from which we will attack chosen stack
-				switch(CCS->curh->number)
-				{
-				case 12: //from bottom right
-					{
-						bool doubleWide = actStack->doubleWide();
-						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ) +
-							(actStack->attackerOwned && doubleWide ? 1 : 0);
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(actStack->attackerOwned) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				case 7: //from bottom left
-					{
-						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH );
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(actStack->attackerOwned) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				case 8: //from left
-					{
-						if(actStack->doubleWide() && !actStack->attackerOwned)
-						{
-							std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-							if(vstd::contains(acc, whichOne))
-								attackFromHex = whichOne - 1;
-							else
-								attackFromHex = whichOne - 2;
-						}
-						else
-						{
-							attackFromHex = whichOne - 1;
-						}
-						break;
-					}
-				case 9: //from top left
-					{
-						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(actStack->attackerOwned) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				case 10: //from top right
-					{
-						bool doubleWide = actStack->doubleWide();
-						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ) +
-							(actStack->attackerOwned && doubleWide ? 1 : 0);
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(actStack->attackerOwned) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				case 11: //from right
-					{
-						if(actStack->doubleWide() && actStack->attackerOwned)
-						{
-							std::vector<THex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-							if(vstd::contains(acc, whichOne))
-								attackFromHex = whichOne + 1;
-							else
-								attackFromHex = whichOne + 2;
-						}
-						else
-						{
-							attackFromHex = whichOne + 1;
-						}
-						break;
-					}
-				case 13: //from bottom
-					{
-						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				case 14: //from top
-					{
-						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
-						if(vstd::contains(occupyableHexes, destHex))
-							attackFromHex = destHex;
-						else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
-						{
-							if(vstd::contains(occupyableHexes, destHex+1))
-								attackFromHex = destHex+1;
-						}
-						else //if we are defender
-						{
-							if(vstd::contains(occupyableHexes, destHex-1))
-								attackFromHex = destHex-1;
-						}
-						break;
-					}
-				}
-
-				if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-				{
-					giveCommand(6, attackFromHex, activeStack->ID, whichOne);
-					
-					CCS->curh->changeGraphic(1, 6); //cursor should be changed
-				}
-
-			}
-			else if (actSt->hasBonusOfType(Bonus::HEALER) && actSt->owner == dest->owner) //friendly creature we can heal
-			{
-				giveCommand(12, whichOne, activeStack->ID); //command healing
-
-				CCS->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}
 	}
@@ -3451,6 +3487,7 @@ void CBattleInterface::activateStack()
 	activeStack = stackToActivate;
 	stackToActivate = NULL;
 	const CStack *s = activeStack;
+	stackSpells.clear();
 
 	myTurn = true;
 	if(attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
@@ -3468,7 +3505,17 @@ void CBattleInterface::activateStack()
 
 	//set casting flag to true if creature can use it to not check it every time
 	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::DAEMON_SUMMONING)))
+	{
 		stackCanCastSpell = true;
+
+		TBonusListPtr bl = s->getBonuses(Selector::type(Bonus::SPELLCASTER));
+		BOOST_FOREACH(Bonus * b, *bl)
+		{
+			stackSpells.push_back(CGI->spellh->spells[b->subtype]);
+		}
+		if (stackSpells.size())
+			creatureSpellToCast = stackSpells[111 % stackSpells.size()]; //TODO: randomize? weighted chance?
+	}
 
 	GH.fakeMouseMove();
 

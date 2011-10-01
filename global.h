@@ -327,7 +327,7 @@ namespace SpellCasting
 	};
 
 	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
-			MAGIC_MIRROR};
+			MAGIC_MIRROR, CREATURE_ACTIVE_CASTING};
 }
 
 namespace Buildings

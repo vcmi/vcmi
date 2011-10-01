@@ -107,6 +107,18 @@ SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( con
 	return gs->curB->battleCanCastThisSpell(player, spell, SpellCasting::HERO_CASTING);
 }
 
+SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const CSpell * spell, THex destination)
+{
+	if(!gs->curB)
+	{
+
+		tlog1 << "battleCanCastThisSpell called when there is no battle!\n";
+		return SpellCasting::NO_HERO_TO_CAST_SPELL;
+	}
+
+	return gs->curB->battleCanCastThisSpellHere(player, spell, SpellCasting::CREATURE_ACTIVE_CASTING, destination);
+}
+
 si8 CBattleInfoCallback::battleGetTacticDist()
 {
 	if (!gs->curB)

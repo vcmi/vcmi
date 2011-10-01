@@ -87,6 +87,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	const CStack * getStackT(THex tileID, bool onlyAlive = true) const;
 	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<THex> & occupyable, bool flying, const CStack* stackToOmmit = NULL) const; //send pointer to at least 187 allocated bytes
 	static bool isAccessible(THex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
+	int getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos = -1) const; //find place for summon / clone effects
 	void makeBFS(THex start, bool*accessibility, THex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<THex>, int > getPath(THex start, THex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<THex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL) const; //returns vector of accessible tiles (taking into account the creature range)
