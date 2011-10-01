@@ -82,13 +82,14 @@ libvcmi_la_DEPENDENCIES =
 am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
 	libvcmi_la-CBattleCallback.lo libvcmi_la-CBuildingHandler.lo \
-	libvcmi_la-CCampaignHandler.lo libvcmi_la-CCreatureHandler.lo \
-	libvcmi_la-CCreatureSet.lo libvcmi_la-CDefObjInfoHandler.lo \
-	libvcmi_la-CFileUtility.lo libvcmi_la-CGameInterface.lo \
-	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
-	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
-	libvcmi_la-CMapInfo.lo libvcmi_la-CObjectHandler.lo \
-	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
+	libvcmi_la-CCampaignHandler.lo libvcmi_la-CConsoleHandler.lo \
+	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
+	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CFileUtility.lo \
+	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
+	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
+	libvcmi_la-CLodHandler.lo libvcmi_la-CMapInfo.lo \
+	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
+	libvcmi_la-CThreadHelper.lo libvcmi_la-CTownHandler.lo \
 	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
 	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
 	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
@@ -294,6 +295,8 @@ libvcmi_la_SOURCES = \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
 	CCampaignHandler.h \
+	CConsoleHandler.cpp \
+	CConsoleHandler.h \
 	CCreatureHandler.cpp \
 	CCreatureHandler.h \
 	CCreatureSet.cpp \
@@ -320,6 +323,8 @@ libvcmi_la_SOURCES = \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
 	CScriptingModule.h \
+	CThreadHelper.cpp \
+	CThreadHelper.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
 	CondSh.h \
@@ -426,6 +431,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBattleCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBuildingHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCampaignHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CConsoleHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CDefObjInfoHandler.Plo@am__quote@
@@ -438,6 +444,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMapInfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObjectHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CThreadHelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
@@ -520,6 +527,14 @@ libvcmi_la-CCampaignHandler.lo: CCampaignHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCampaignHandler.cpp' object='libvcmi_la-CCampaignHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CCampaignHandler.lo `test -f 'CCampaignHandler.cpp' || echo '$(srcdir)/'`CCampaignHandler.cpp
+
+libvcmi_la-CConsoleHandler.lo: CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CConsoleHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CConsoleHandler.Tpo -c -o libvcmi_la-CConsoleHandler.lo `test -f 'CConsoleHandler.cpp' || echo '$(srcdir)/'`CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CConsoleHandler.Tpo $(DEPDIR)/libvcmi_la-CConsoleHandler.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CConsoleHandler.cpp' object='libvcmi_la-CConsoleHandler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CConsoleHandler.lo `test -f 'CConsoleHandler.cpp' || echo '$(srcdir)/'`CConsoleHandler.cpp
 
 libvcmi_la-CCreatureHandler.lo: CCreatureHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CCreatureHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CCreatureHandler.Tpo -c -o libvcmi_la-CCreatureHandler.lo `test -f 'CCreatureHandler.cpp' || echo '$(srcdir)/'`CCreatureHandler.cpp
@@ -616,6 +631,14 @@ libvcmi_la-CSpellHandler.lo: CSpellHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CSpellHandler.cpp' object='libvcmi_la-CSpellHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CSpellHandler.lo `test -f 'CSpellHandler.cpp' || echo '$(srcdir)/'`CSpellHandler.cpp
+
+libvcmi_la-CThreadHelper.lo: CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CThreadHelper.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CThreadHelper.Tpo -c -o libvcmi_la-CThreadHelper.lo `test -f 'CThreadHelper.cpp' || echo '$(srcdir)/'`CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CThreadHelper.Tpo $(DEPDIR)/libvcmi_la-CThreadHelper.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CThreadHelper.cpp' object='libvcmi_la-CThreadHelper.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CThreadHelper.lo `test -f 'CThreadHelper.cpp' || echo '$(srcdir)/'`CThreadHelper.cpp
 
 libvcmi_la-CTownHandler.lo: CTownHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CTownHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CTownHandler.Tpo -c -o libvcmi_la-CTownHandler.lo `test -f 'CTownHandler.cpp' || echo '$(srcdir)/'`CTownHandler.cpp

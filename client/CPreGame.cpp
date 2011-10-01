@@ -48,7 +48,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/RegisterTypes.cpp"
 #include <boost/thread/recursive_mutex.hpp>
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "CConfigHandler.h"
 #include "../lib/CFileUtility.h"
 

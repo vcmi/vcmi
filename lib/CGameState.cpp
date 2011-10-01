@@ -1018,32 +1018,32 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	day = 0;
 	loadTownDInfos();
 
- 	//pick grail location
- 	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
- 	{
+	//pick grail location
+	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
+	{
 		if(!map->grailRadious) //radius not given -> anywhere on map
 			map->grailRadious = map->width * 2;
 
 
- 		std::vector<int3> allowedPos;
+		std::vector<int3> allowedPos;
  
 		// add all not blocked tiles in range
- 		for (int i = 0; i < map->width ; i++)
- 		{
- 			for (int j = 0; j < map->height ; j++)
- 			{
- 				for (int k = 0; k <= map->twoLevel ; k++)
- 				{
- 					const TerrainTile &t = map->terrain[i][j][k];
- 					if(!t.blocked 
+		for (int i = 0; i < map->width ; i++)
+		{
+			for (int j = 0; j < map->height ; j++)
+			{
+				for (int k = 0; k <= map->twoLevel ; k++)
+				{
+					const TerrainTile &t = map->terrain[i][j][k];
+					if(!t.blocked 
 						&& !t.visitable 
 						&& t.tertype != TerrainTile::water 
 						&& t.tertype != TerrainTile::rock
 						&& map->grailPos.dist2d(int3(i,j,k)) <= map->grailRadious)
- 						allowedPos.push_back(int3(i,j,k));
- 				}
- 			}
- 		}
+						allowedPos.push_back(int3(i,j,k));
+				}
+			}
+		}
  
 		//remove tiles with holes
 		for(unsigned int no=0; no<map->objects.size(); ++no)
@@ -1054,7 +1054,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			map->grailPos = allowedPos[ran() % allowedPos.size()];
 		else
 			tlog2 << "Warning: Grail cannot be placed, no appropriate tile found!\n";
- 	}
+	}
 
 	//picking random factions for players
 	for(std::map<int, PlayerSettings>::iterator it = scenarioOps->playerInfos.begin(); 
@@ -1417,16 +1417,16 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 			}
 		case PlayerSettings::bartifact:
 			{
- 				if(!k->second.heroes.size())
+				if(!k->second.heroes.size())
 				{
 					tlog5 << "Cannot give starting artifact - no heroes!" << std::endl;
 					break;
 				}
- 				CArtifact *toGive;
- 				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
+				CArtifact *toGive;
+				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = k->second.heroes[0];
- 				hero->giveArtifact(toGive->id);
+				hero->giveArtifact(toGive->id);
 			}
 		}
 	}
@@ -1746,27 +1746,27 @@ int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
 
 void CGameState::loadTownDInfos()
 {
-    int i;
+	int i;
 	const JsonNode config(DATA_DIR "/config/towns_defs.json");
 
-    assert(config["town_defnames"].Vector().size() == F_NUMBER);
+	assert(config["town_defnames"].Vector().size() == F_NUMBER);
 
-    i = 0;
+	i = 0;
 	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector())
 	{
 		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-        villages[i]->name = t["village"].String();
+		villages[i]->name = t["village"].String();
 		map->defy.push_back(villages[i]);
 
 		forts[i] = VLC->dobjinfo->castles[i];
 		map->defy.push_back(forts[i]);
 
 		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-        capitols[i]->name = t["capitol"].String();
+		capitols[i]->name = t["capitol"].String();
 		map->defy.push_back(capitols[i]);
 		
 		++i;
-    }
+	}
 }
 
 void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
@@ -2036,7 +2036,7 @@ int CGameState::victoryCheck( ui8 player ) const
 
 	if(p->human || map->victoryCondition.appliesToAI)
 	{
- 		switch(map->victoryCondition.condition)
+		switch(map->victoryCondition.condition)
 		{
 		case artifact:
 			//check if any hero has winning artifact
@@ -2143,7 +2143,7 @@ int CGameState::victoryCheck( ui8 player ) const
 				}
 			}
 			break;
- 		}
+		}
 	}
 
 	return 0;

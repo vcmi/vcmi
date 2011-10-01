@@ -1,7 +1,7 @@
 #include "CMusicHandler.h"
 #include "../lib/CCampaignHandler.h"
 #include "../CCallback.h"
-#include "../CConsoleHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
@@ -33,7 +33,7 @@
 #include <sstream>
 #include "CPreGame.h"
 #include "CBattleInterface.h"
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/CFileUtility.h"
 

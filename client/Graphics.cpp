@@ -10,7 +10,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -774,6 +774,6 @@ int Font::getCharWidth( char c ) const
 void Font::WriteAt(const char *text, SDL_Surface *sur, int x, int y )
 {
 	 SDL_Surface *SDL_CreateRGBSurfaceFrom(pixels, w, h, 8, int pitch,
-                        224, 28, 3, 0);
+						224, 28, 3, 0);
 }
 */

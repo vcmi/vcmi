@@ -14,6 +14,8 @@ libvcmi_la_SOURCES = \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
 	CCampaignHandler.h \
+	CConsoleHandler.cpp \
+	CConsoleHandler.h \
 	CCreatureHandler.cpp \
 	CCreatureHandler.h \
 	CCreatureSet.cpp \
@@ -40,6 +42,8 @@ libvcmi_la_SOURCES = \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
 	CScriptingModule.h \
+	CThreadHelper.cpp \
+	CThreadHelper.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
 	CondSh.h \

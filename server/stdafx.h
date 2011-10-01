@@ -27,4 +27,4 @@
 #include <sstream>
 #include <boost/format.hpp>
 #include <sstream>
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"

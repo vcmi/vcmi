@@ -613,7 +613,7 @@ void delNull(T* &ptr) //deleted pointer and sets it to NULL
 	ptr = NULL;
 }
 
-#include "CConsoleHandler.h"
+#include "lib/CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;
 
@@ -733,14 +733,14 @@ struct unaligned_Uint32 { ui32 val __attribute__(( packed )); };
 
 static inline ui16 read_unaligned_u16(const void *p)
 {
-        const struct unaligned_Uint16 *v = (const struct unaligned_Uint16 *)p;
-        return v->val;
+		const struct unaligned_Uint16 *v = (const struct unaligned_Uint16 *)p;
+		return v->val;
 }
 
 static inline ui32 read_unaligned_u32(const void *p)
 {
-        const struct unaligned_Uint32 *v = (const struct unaligned_Uint32 *)p;
-        return v->val;
+		const struct unaligned_Uint32 *v = (const struct unaligned_Uint32 *)p;
+		return v->val;
 }
 
 #else

@@ -6,10 +6,6 @@ vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../CCallback.cpp \
 	../CCallback.h \
-	../CConsoleHandler.cpp \
-	../CConsoleHandler.h \
-	../CThreadHelper.cpp \
-	../CThreadHelper.h \
 	AdventureMapButton.cpp \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \

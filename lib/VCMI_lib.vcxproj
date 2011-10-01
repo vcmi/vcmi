@@ -209,14 +209,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\CConsoleHandler.cpp" />
-    <ClCompile Include="..\CThreadHelper.cpp" />
     <ClCompile Include="BattleAction.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCampaignHandler.cpp" />
+    <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CDefObjInfoHandler.cpp" />
@@ -230,6 +229,7 @@
     <ClCompile Include="CObjectHandler.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
+    <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
@@ -242,15 +242,14 @@
     <ClCompile Include="VCMI_Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CThreadHelper.h" />
     <ClInclude Include="..\StartInfo.h" />
     <ClInclude Include="BattleAction.h" />
-    <ClInclude Include="..\CConsoleHandler.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBattleCallback.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CCampaignHandler.h" />
+    <ClInclude Include="CConsoleHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />
     <ClInclude Include="CCreatureSet.h" />
     <ClInclude Include="CDefObjInfoHandler.h" />
@@ -268,6 +267,7 @@
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSpellHandler.h" />
+    <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="IGameCallback.h" />

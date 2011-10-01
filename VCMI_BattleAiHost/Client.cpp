@@ -1,6 +1,6 @@
 #include "Client.h"
 #include "../lib/Connection.h"
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/CGameState.h"
 #include "../lib/BattleAction.h"
 #include "../lib/CGameInterface.h"

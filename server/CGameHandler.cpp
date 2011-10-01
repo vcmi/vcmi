@@ -1818,7 +1818,7 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 		return;//no scholar skill or no spellbook
 
 	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(CGHeroInstance::WISDOM)+2),
-	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(CGHeroInstance::WISDOM)+2);//heroes can receive this levels
+		h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(CGHeroInstance::WISDOM)+2);//heroes can receive this levels
 
 	ChangeSpells cs1;
 	cs1.learn = true;
@@ -2602,9 +2602,9 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	if(aid==0) //spellbook
 	{
 		if((!vstd::contains(town->builtBuildings,si32(Buildings::MAGES_GUILD_1)) && complain("Cannot buy a spellbook, no mage guild in the town!"))
-		    || (getResource(hero->getOwner(), Res::GOLD) < SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
-		    || (hero->getArt(Arts::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
-		    )
+			|| (getResource(hero->getOwner(), Res::GOLD) < SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
+			|| (hero->getArt(Arts::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
+			)
 			return false;
 
 		giveResource(hero->getOwner(),Res::GOLD,-SPELLBOOK_GOLD_COST);
@@ -2774,22 +2774,22 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 	}
 
 	int b1, b2; //base quantities for trade
- 	market->getOffer(s.type->idNumber, resourceID, b1, b2, CREATURE_RESOURCE);
- 	int units = count / b1; //how many base quantities we trade
+	market->getOffer(s.type->idNumber, resourceID, b1, b2, CREATURE_RESOURCE);
+	int units = count / b1; //how many base quantities we trade
  
- 	if(count%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
- 	{
- 		//TODO: complain?
- 		assert(0);
- 	}
+	if(count%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
+	{
+		//TODO: complain?
+		assert(0);
+	}
  
 	changeStackCount(StackLocation(hero, slot), -count);
 
- 	SetResource sr;
- 	sr.player = hero->tempOwner;
- 	sr.resid = resourceID;
- 	sr.val = getResource(hero->tempOwner, resourceID) + b2 * units;
- 	sendAndApply(&sr);
+	SetResource sr;
+	sr.player = hero->tempOwner;
+	sr.resid = resourceID;
+	sr.val = getResource(hero->tempOwner, resourceID) + b2 * units;
+	sendAndApply(&sr);
 
 	return true;
 }
@@ -3576,46 +3576,46 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				{
 					ui8 tier = (*it)->base->type->level;
 					if (bonus)
- 					{
- 	 					switch(bonus->additionalInfo)
- 	 					{
- 	 						case 0: //normal
+					{
+						switch(bonus->additionalInfo)
+						{
+							case 0: //normal
 							{
- 	 							switch(tier)
- 	 							{
- 	 								case 1: case 2:
- 	 									power = 3; 
- 	 								break;
- 	 								case 3: case 4:
- 	 									power = 2;
- 	 								break;
- 	 								case 5: case 6:
- 	 									power = 1;
- 	 								break;
- 	 							}
+								switch(tier)
+								{
+									case 1: case 2:
+										power = 3; 
+									break;
+									case 3: case 4:
+										power = 2;
+									break;
+									case 5: case 6:
+										power = 1;
+									break;
+								}
 								Bonus specialBonus(sse.effect.back());
 								specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
 								sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional premy to given effect
 							}
- 	 						break;
- 	 						case 1: //only Coronius as yet
+							break;
+							case 1: //only Coronius as yet
 							{
- 	 							power = std::max(5 - tier, 0);
+								power = std::max(5 - tier, 0);
 								Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
 								specialBonus.sid = spellID;
-				 	 			sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional attack to Slayer effect
+								sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional attack to Slayer effect
 							}
- 	 						break;
- 	 					}
- 						}
+							break;
+						}
+						}
 					if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
- 	 				{
- 	 					int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
+					{
+						int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
 						Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
 						specialBonus.valType = Bonus::PERCENT_TO_ALL;
 						specialBonus.sid = spellID;
- 	 					sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus));
- 	 				}
+						sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus));
+					}
 				}
 			}
 

@@ -8,7 +8,7 @@
 #include "CCursorHandler.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "CConfigHandler.h"
 #include <boost/lexical_cast.hpp>
 

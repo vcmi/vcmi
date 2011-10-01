@@ -17,7 +17,7 @@
 #include "../global.h"
 #include "CPreGame.h"
 #include "CCastleInterface.h"
-#include "../CConsoleHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "CCursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
@@ -176,9 +176,9 @@ static void prog_version(void)
 static void prog_help(const char *progname)
 {
 	printf("%s - A Heroes of Might and Magic 3 clone\n", NAME_VER);
-    printf("Copyright (C) 2007-2010 VCMI dev team - see AUTHORS file\n");
-    printf("This is free software; see the source for copying conditions. There is NO\n");
-    printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	printf("Copyright (C) 2007-2010 VCMI dev team - see AUTHORS file\n");
+	printf("This is free software; see the source for copying conditions. There is NO\n");
+	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
 	printf("Usage:\n");
 	printf("  -h, --help        display this help and exit\n");

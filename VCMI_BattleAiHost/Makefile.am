@@ -6,8 +6,4 @@ vcmirunner_LDFLAGS = -L$(top_builddir)/lib
 vcmirunner_SOURCES = \
 	main.cpp\
 	Client.cpp\
-	NetPacksRunner.cpp\
-	../CConsoleHandler.cpp \
-	../CConsoleHandler.h \
-	../CThreadHelper.cpp \
-	../CThreadHelper.h
+	NetPacksRunner.cpp
