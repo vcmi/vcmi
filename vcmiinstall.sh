@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function errorcheck(){
-    if [$? -gt 0]; then
+    if [ $? -gt 0 ]; then
 	echo "Error during $1"
 	quit
     else
@@ -22,7 +22,7 @@ errorcheck "make"
 unzip vcmipack.zip -d vcmi
 errorcheck "pack unzip"
 ln -s "vcmi/b1.json"
-errorckeck "b1.json symlink"
+errorcheck "b1.json symlink"
 ln -s "AI/StupidAI/.libs/libStupidAI.so"
 errorcheck "StupidAI symlink"
 ln -s "Odpalarka/odpalarka"
