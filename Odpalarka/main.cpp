@@ -4,16 +4,30 @@
 
 int main(int argc, const char **)
 {
-	boost::thread t(boost::bind(std::system, "VCMI_server.exe b1.json StupidAI StupidAI"));
-	boost::thread tt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
-	boost::thread ttt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
+	std::string runnername = 
+#ifdef _WIN32
+		"VCMI_BattleAiHost.exe"
+#else
+		"./vcmirunner"
+#endif
+	;
+	std::string servername = 
+#ifdef _WIN32
+		"VCMI_server.exe"
+#else
+		"./vcmiserver"
+#endif
+		;
+	boost::thread t(boost::bind(std::system, (servername + " b1.json StupidAI StupidAI").c_str()));
+	boost::thread tt(boost::bind(std::system, runnername.c_str()));
+	boost::thread ttt(boost::bind(std::system, runnername.c_str()));
 	if(argc == 2)
 	{
 		boost::this_thread::sleep(boost::posix_time::millisec(500)); //FIXME
 		boost::thread tttt(boost::bind(std::system, "VCMI_Client.exe -battle"));
 	}
 	else if(argc == 1)
-		boost::thread tttt(boost::bind(std::system, "VCMI_BattleAiHost.exe"));
+		boost::thread tttt(boost::bind(std::system, runnername.c_str()));
 
 	//boost::this_thread::sleep(boost::posix_time::seconds(5));
 
