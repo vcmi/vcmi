@@ -143,6 +143,8 @@ const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 
 const int SPELLBOOK_GOLD_COST = 500;
 
+
+const bool DETERMINISTIC_BATTLES = true;
 //for battle stacks' positions
 struct THex
 {

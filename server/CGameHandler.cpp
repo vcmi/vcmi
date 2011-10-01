@@ -531,11 +531,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		noLuck = true;
 	}
 
-	if(!noLuck && attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
+	if(!DETERMINISTIC_BATTLES && !noLuck && attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
 	{
 		bat.flags |= BattleAttack::LUCKY;
 	}
-	if (rand()%100 < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
+	if(!DETERMINISTIC_BATTLES && rand()%100 < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
 	{
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
@@ -545,7 +545,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
 		int chance = artilleryLvlToChance[owner->getSecSkillLevel(CGHeroInstance::ARTILLERY)];
-		if(chance > rand() % 100)
+		if(!DETERMINISTIC_BATTLES && chance > rand() % 100)
 		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
@@ -3189,9 +3189,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					break;
 				}
 
-				if(rand()%100 <= chanceForHit) //hit is successful
+				if(DETERMINISTIC_BATTLES || rand()%100 <= chanceForHit) //hit is successful
 				{
 					int dmgRand = rand()%100;
+					if(DETERMINISTIC_BATTLES)
+						dmgRand = 50;
 					//accumulating dmgChance
 					dmgChance[1] += dmgChance[0];
 					dmgChance[2] += dmgChance[1];
@@ -3734,7 +3736,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	if(!si.stacks.empty()) //after spellcast info shows
 		sendAndApply(&si);
 	//Magic Mirror effect
-	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
+	if(!DETERMINISTIC_BATTLES && spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
 		for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 		{
@@ -4369,7 +4371,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 
 void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker)
 {
-	if(attacker->hasBonusOfType(attackMode))
+	if(!DETERMINISTIC_BATTLES && attacker->hasBonusOfType(attackMode))
 	{
 		std::set<ui32> spellsToCast;
 		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
@@ -4431,7 +4433,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
 	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
 
-	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
+	if (!DETERMINISTIC_BATTLES && attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
 	{
 		int staredCreatures = 0;
 		double mean = attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0) / 100;
@@ -4453,18 +4455,22 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, SpellCasting::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
-	int acidDamage = 0;
-	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
-	BOOST_FOREACH(const Bonus *b, *acidBreath)
+
+	if(!DETERMINISTIC_BATTLES)
 	{
-		if (b->additionalInfo > rand()%100)
-			acidDamage += b->val;
-	}
-	if (acidDamage)
-	{
-		handleSpellCasting(81, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
+		int acidDamage = 0;
+		TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+		BOOST_FOREACH(const Bonus *b, *acidBreath)
+		{
+			if (b->additionalInfo > rand()%100)
+				acidDamage += b->val;
+		}
+		if (acidDamage)
+		{
+			handleSpellCasting(81, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL,
 				acidDamage * attacker->count, SpellCasting::AFTER_ATTACK_CASTING, attacker);
+		}
 	}
 }
 
@@ -4960,6 +4966,7 @@ void CGameHandler::runBattle()
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
 			if( nextStackMorale < 0 &&
+				!DETERMINISTIC_BATTLES &&
 				!(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
 				)
 			{
@@ -5034,7 +5041,7 @@ void CGameHandler::runBattle()
 				BattleAction attack;
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
 
-				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
+				attack.destinationTile = wallHexes[DETERMINISTIC_BATTLES ? 0 : rand()%ARRAY_COUNT(wallHexes)];
 				attack.actionType = BattleAction::CATAPULT;
 				attack.additionalInfo = 0;
 				attack.side = !next->attackerOwned;
@@ -5073,9 +5080,9 @@ void CGameHandler::runBattle()
 					//heal random creature
 					const CStack * toBeHealed = NULL;
 					if (possibleStacks.size() > 0)
-						toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
+						toBeHealed = possibleStacks[DETERMINISTIC_BATTLES ? 0 : rand()%possibleStacks.size() ];
 					else
-						toBeHealed = secondPriority[ rand()%secondPriority.size() ];
+						toBeHealed = secondPriority[DETERMINISTIC_BATTLES ? 0 : rand()%secondPriority.size() ];
 					
 					heal.actionType = BattleAction::STACK_HEAL;
 					heal.additionalInfo = 0;
@@ -5115,7 +5122,8 @@ void CGameHandler::runBattle()
 
 				//check for good morale
 				nextStackMorale = next->MoraleVal();
-				if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
+				if(!DETERMINISTIC_BATTLES 
+					&& !vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
 					&& !vstd::contains(next->state,DEFENDING)
 					&& !vstd::contains(next->state,WAITING)
 					&&  next->alive()

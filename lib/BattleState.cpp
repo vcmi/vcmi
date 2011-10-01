@@ -674,14 +674,21 @@ ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, c
 
 	if(range.first != range.second)
 	{
-		int valuesToAverage[10];
-		int howManyToAv = std::min<ui32>(10, attacker->count);
-		for (int g=0; g<howManyToAv; ++g)
+		if(DETERMINISTIC_BATTLES)
 		{
-			valuesToAverage[g] = range.first  +  rand() % (range.second - range.first + 1);
+			return (range.first + range.second) / 2;
 		}
+		else
+		{
+			int valuesToAverage[10];
+			int howManyToAv = std::min<ui32>(10, attacker->count);
+			for (int g=0; g<howManyToAv; ++g)
+			{
+				valuesToAverage[g] = range.first  +  rand() % (range.second - range.first + 1);
+			}
 
-		return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
+			return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
+		}
 	}
 	else
 		return range.first;
@@ -1591,7 +1598,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//randomize obstacles
-	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
+	if(town == NULL && !creatureBank && !DETERMINISTIC_BATTLES) //do it only when it's not siege and not creature bank
 	{
 		bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
 		std::vector<int> possibleObstacles;
@@ -2049,8 +2056,11 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 			bonusHero = hero2;
 
 		int prob = (*it)->magicResistance(); //probability of resistance in %
-
-		if(prob > 100) prob = 100;
+		amin(prob, 100);
+		
+		//disable spell resistance
+		if(DETERMINISTIC_BATTLES)
+			prob = 0;
 
 		if(rand()%100 < prob) //immunity from resistance
 			ret.push_back((*it)->ID);
@@ -2551,10 +2561,13 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 		if (resurrectFactor > 0 && casts) //there must be casts left
 		{
 			int resurrectedCount = base->count * resurrectFactor / 100;
-			if (resurrectedCount)
-				resurrectedCount += ((base->count * resurrectFactor / 100.0f - resurrectedCount) > ran()%100 / 100.0f) ? 1 : 0; //last stack has proportional chance to rebirth
-			else //only one unit
-				resurrectedCount += ((base->count * resurrectFactor / 100.0f) > ran()%100 / 100.0f) ? 1 : 0;
+			if(!DETERMINISTIC_BATTLES)
+			{
+				if (resurrectedCount)
+					resurrectedCount += ((base->count * resurrectFactor / 100.0f - resurrectedCount) > rand()%100 / 100.0f) ? 1 : 0; //last stack has proportional chance to rebirth
+				else //only one unit
+					resurrectedCount += ((base->count * resurrectFactor / 100.0f) > rand()%100 / 100.0f) ? 1 : 0;
+			}
 			if (hasBonusOfType(Bonus::REBIRTH, 1))
 				amax (resurrectedCount, 1); //resurrect at least one Sacred Phoenix
 			if (resurrectedCount)
