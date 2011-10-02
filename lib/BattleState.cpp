@@ -2192,13 +2192,11 @@ void CStack::postInit()
 	assert(type);
 	assert(getParentNodes().size());
 
-	firstHPleft = valOfBonuses(Bonus::STACK_HEALTH);
+	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 	casts = valOfBonuses(Bonus::CASTS); //TODO: set them in cr_abils.txt
 	state.insert(ALIVE);  //alive state indication
-
-	assert(firstHPleft > 0);
 }
 
 ui32 CStack::Speed( int turn /*= 0*/ ) const

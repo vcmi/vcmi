@@ -3286,7 +3286,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		case BattleAction::DAEMON_SUMMONING:
 			//TODO: From Strategija:
 			//Summon Demon is a level 2 spell.
-			//Cloned Pit Lord stack can use the specialty as well.
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
@@ -3299,15 +3298,18 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			bsa.creID = summoner->getBonus(Selector::type(Bonus::DAEMON_SUMMONING))->subtype; //in case summoner can summon more than one type of monsters... scream!
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID);
-			bsa.amount = std::min ((ui32)(risedHp/destStack->MaxHealth()), destStack->baseAmount);
+			bsa.amount = std::min ((ui32)(risedHp / VLC->creh->creatures[bsa.creID]->MaxHealth()), destStack->baseAmount);
 
 			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.attacker, destStack->position);
 			bsa.summoned = false;
 
-			BattleStacksRemoved bsr; //remove body
-			bsr.stackIDs.insert(destStack->ID);
-			sendAndApply(&bsr);
-			sendAndApply(&bsa);
+			if (bsa.amount) //there's rare possibility single creature cannot rise desired type
+			{
+				BattleStacksRemoved bsr; //remove body
+				bsr.stackIDs.insert(destStack->ID);
+				sendAndApply(&bsr);
+				sendAndApply(&bsa);
+			}
 
 			sendAndApply(&end_action);
 			break;
