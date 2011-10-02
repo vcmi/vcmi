@@ -1502,6 +1502,26 @@ struct BattleStackAdded : public CPackForClient //3017
 	}
 };
 
+struct BattleSetStackProperty : public CPackForClient //3018
+{
+	struct BattleSetStackProperty(){type = 3018;};
+
+	enum BattleStackProperty {CASTS, CURRENT_SPELL};
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	//void applyCl(CClient *cl){};
+
+	int stackID;
+	int which; //using enum values
+	int val;
+	int absolute;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stackID & which & val & absolute;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

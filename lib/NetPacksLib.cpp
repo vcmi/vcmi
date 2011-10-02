@@ -1276,6 +1276,22 @@ DLL_EXPORT void BattleStackAdded::applyGs(CGameState *gs)
 	gs->curB->stacks.push_back(summonedStack); //the stack is not "SUMMONED", it is permanent
 }
 
+DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
+{
+	switch (which)
+	{
+		case CASTS:
+		{
+			if (absolute)
+				gs->curB->stacks[stackID]->casts = val;
+			else
+				gs->curB->stacks[stackID]->casts--;
+			amax(gs->curB->stacks[stackID]->casts, 0);
+			break;
+		}
+	}
+}
+
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;

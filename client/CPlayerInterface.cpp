@@ -640,6 +640,7 @@ void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 
 	//changing necessary things in battle interface
 	battleInt->newStack(stack);
+	//battleInt->addNewAnim(new CDummyAnim(battleInt, 2)); //wait a moment
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
@@ -682,7 +683,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	//boost::unique_lock<boost::recursive_mutex> un(*pim); //fixme: this one caused deadlock
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
 		battleInt->stackRemoved(*it);

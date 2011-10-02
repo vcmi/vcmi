@@ -3309,6 +3309,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				bsr.stackIDs.insert(destStack->ID);
 				sendAndApply(&bsr);
 				sendAndApply(&bsa);
+
+				BattleSetStackProperty ssp;
+				ssp.stackID = ba.stackNumber;
+				ssp.which = BattleSetStackProperty::CASTS;
+				ssp.val = -1;
+				ssp.absolute = false;
+				sendAndApply(&ssp);
 			}
 
 			sendAndApply(&end_action);
