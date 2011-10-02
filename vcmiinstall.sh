@@ -28,6 +28,7 @@ if [ "$1" = "--install" ]; then
 		echo "SUBDIRS = StupidAI" > AI/Makefile.am
 		rm -rf AI/EmptyAI
 		rm -rf AI/GeniusAI
+		find . -name ".svn" -exec rm -rf {} \;
 	elif [ "$2" = "full" ]; then
 		mv "Makefile with client.am" Makefile.am
 		mv "configure with client.ac" configure.ac
