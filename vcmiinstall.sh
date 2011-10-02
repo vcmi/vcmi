@@ -21,6 +21,19 @@ if [ "$1" = "--install" ]; then
 	svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/branches/programmingChallenge/ vcmi
 	errorcheck "fetching sources"
 	cd vcmi
+	if [ "$2" = "lean" ]; then
+		mv "Makefile without client.am" Makefile.am
+		mv "configure without client.ac" configure.ac
+		rm client/Makefile.am
+		echo "SUBDIRS = StupidAI" > AI/Makefile.am
+		rm -rf AI/EmptyAI
+		rm -rf AI/GeniusAI
+	elif [ "$2" = "full" ]; then
+		mv "Makefile with client.am" Makefile.am
+		mv "configure with client.ac" configure.ac
+	else
+		incusage
+	fi
 	autoreconf -i
 	errorcheck "autoreconf -i"
 	cd ..
