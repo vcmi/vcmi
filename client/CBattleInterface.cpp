@@ -2028,50 +2028,53 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		{
             if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
 			{
-				const CStack *shere = curInt->cb->battleGetStackByPos(myNumber);
+				const CStack *shere = curInt->cb->battleGetStackByPos(myNumber, false);
 				const CStack *sactive = activeStack;
 				if(shere)
 				{
 					if(shere->owner == curInt->playerID) //our stack
 					{
-						if(sactive->hasBonusOfType(Bonus::HEALER))
+						if (shere->alive())
 						{
-							//display the possibility to heal this creature
-							CCS->curh->changeGraphic(1,17);
-						}
-						else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING))
+							if(sactive->hasBonusOfType(Bonus::HEALER))
+							{
+								//display the possibility to heal this creature
+								CCS->curh->changeGraphic(1,17);
+							}
+							else if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
+							{
+								//spellDestSelectMode
+								if (curInt->cb->battleCanCastThisSpell(creatureSpellToCast, THex(myNumber)) == SpellCasting::OK)
+									CCS->curh->changeGraphic(3, 0);
+								//if (battleIsImmune(NULL, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING, myNumber) == SpellCasting::OK)
+								//if (battleCanCastThisSpell(curInt->playerID, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING))
+							}
+							else
+							{
+								//info about creature
+								CCS->curh->changeGraphic(1,5);
+							}
+							//setting console text
+							char buf[500];
+							sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
+							console->alterTxt = buf;
+							console->whoSetAlter = 0;
+							const time_t curTime = time(NULL);
+							if(shere->ID != lastMouseHoveredStack &&
+							   curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
+							   creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
+							   creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+							{
+								creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
+								lastMouseHoveredStackAnimationTime = curTime;
+							}
+						} //end of alive
+						else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
 						{
 							CCS->curh->changeGraphic(3, 0);
 						}
-						else if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
-						{
-							//spellDestSelectMode
-							if (curInt->cb->battleCanCastThisSpell(creatureSpellToCast, THex(myNumber)) == SpellCasting::OK)
-								CCS->curh->changeGraphic(3, 0);
-							//if (battleIsImmune(NULL, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING, myNumber) == SpellCasting::OK)
-							//if (battleCanCastThisSpell(curInt->playerID, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING))
-						}
-						else
-						{
-							//info about creature
-							CCS->curh->changeGraphic(1,5);
-						}
-						//setting console text
-						char buf[500];
-						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
-						console->alterTxt = buf;
-						console->whoSetAlter = 0;
-                        const time_t curTime = time(NULL);
-						if(shere->ID != lastMouseHoveredStack &&
-                           curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
-                           creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
-                           creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-						{
-							creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
-                            lastMouseHoveredStackAnimationTime = curTime;
-						}
-						mouseHoveredStack = shere->ID;
-					}
+						mouseHoveredStack = shere->ID; //for dead also?
+					} //not our stack
 					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
 						if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
@@ -3504,7 +3507,7 @@ void CBattleInterface::activateStack()
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
 
 	//set casting flag to true if creature can use it to not check it every time
-	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::DAEMON_SUMMONING)))
+	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER)))
 	{
 		stackCanCastSpell = true;
 
@@ -3516,6 +3519,8 @@ void CBattleInterface::activateStack()
 		if (stackSpells.size())
 			creatureSpellToCast = stackSpells[111 % stackSpells.size()]; //TODO: randomize? weighted chance?
 	}
+	else
+		stackCanCastSpell = false;
 
 	GH.fakeMouseMove();
 
