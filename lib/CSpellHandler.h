@@ -64,11 +64,12 @@ public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
 	std::set<TSpell> damageSpells; //they inflict damage and require particular threatment
+	std::set<TSpell> risingSpells; //they affect dead stacks and need special target selection
 	void loadSpells();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & spells & damageSpells;
+		h & spells & damageSpells & risingSpells;
 	}
 };
 

@@ -122,7 +122,7 @@ namespace PrimarySkill
 	BONUS_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \
 	BONUS_NAME(RETURN_AFTER_STRIKE)						\
 	BONUS_NAME(SELF_MORALE) /*eg. minotaur*/			\
-	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
+	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - weighted chance. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
 	BONUS_NAME(CATAPULT)								\
 	BONUS_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
 	BONUS_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect */ \

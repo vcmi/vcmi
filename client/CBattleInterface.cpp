@@ -2818,7 +2818,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		{
 			//checking destination
 			bool allowCasting = true;
-			bool onlyAlive = spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39; //when casting resurrection or animate dead we should be allow to select dead stack
+			bool onlyAlive = vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo); //when casting resurrection or animate dead we should be allow to select dead stack
 			//TODO: more general handling of dead targets
 			switch(spellSelMode)
 			{
@@ -3507,7 +3507,7 @@ void CBattleInterface::activateStack()
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
 
 	//set casting flag to true if creature can use it to not check it every time
-	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER)))
+	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::RANDOM_SPELLCASTER)))
 	{
 		stackCanCastSpell = true;
 

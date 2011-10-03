@@ -93,8 +93,6 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside, in
 	return ret;
 }
 
-
-
 CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
@@ -436,7 +434,6 @@ bool BattleInfo::isStackBlocked(const CStack * stack) const
 	}
 	return false;
 }
-
 
 std::pair< std::vector<THex>, int > BattleInfo::getPath(THex start, THex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned)
 {
@@ -949,7 +946,6 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, b
 	ret->position = position;
 	return ret;
 }
-
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const
 {
 	int owner = attackerOwned ? sides[0] : sides[1];
@@ -1155,23 +1151,7 @@ ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int
 }
 bool BattleInfo::resurrects(TSpell spellid) const
 {
-	switch(spellid)
-	{
-		case 37: //cure
-		{
-			return false;
-			break;
-		}
-		case 38: //resurrection
-		case 39: //animate dead
-		{
-			return true;
-			break;
-		}
-		default:
-			tlog2 << "BattleInfo::resurrects called for non-healing spell!\n";
-			return false;
-	}
+	return vstd::contains(VLC->spellh->risingSpells, spellid);
 }
 
 void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int turn /*= 0*/, int lastMoved /*= -1*/ ) const
@@ -1941,6 +1921,99 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 		return battleIsImmune(NULL, spell, mode, dest);
 }
 
+TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
+{
+	std::vector<TSpell> possibleSpells;
+	for (int i = 0; i < SPELLS_QUANTITY; ++i) //should not use future spells added by mods
+	{
+		if (VLC->spellh->spells[i]->positiveness == 1) //only positive
+		{
+			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, i))
+				continue;
+			switch (i)
+			{
+				case 27: //shield
+				case 29: //fire shield - not if all enemy units are shooters
+				{
+					bool walkerPresent = false;
+					BOOST_FOREACH (CStack * stack, stacks)
+					{
+						 if ((stack->owner != subject->owner) && !stack->shots)
+						 {
+							 walkerPresent = true;
+							 break;
+						 }
+					}
+					if (!walkerPresent)
+						continue;
+				}
+					break;
+				case 28: //air shield - only against active shooters
+				{
+					bool shooterPresent = false;
+					BOOST_FOREACH (CStack * stack, stacks)
+					{
+						 if ((stack->owner != subject->owner) && stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots)
+						 {
+							 shooterPresent = true;
+							 break;
+						 }
+					}
+					if (!shooterPresent)
+						continue;
+					break;
+				}
+				case 34: //anti-magic
+				case 36: //magic mirror
+				{
+					if (!heroes[whatSide(theOtherPlayer(subject->owner))]) //only if there is enemy hero
+						continue;
+				}
+					break;
+				case 37: //Cure - only damaged units - what about affected by curse?
+				{
+					if (subject->firstHPleft >= subject->MaxHealth())
+						continue;
+				}
+					break;
+				case 43: //bloodlust
+				{
+					if (subject->shots) //if can shoot - only if enemy uits are adjacent
+						continue;
+				}
+					break;
+				case 44: //precision
+				{
+					if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
+						continue;
+				}
+					break;
+				case 55: //slayer - only if monsters are present
+				{
+					bool monsterPresent = false;
+					BOOST_FOREACH (CStack * stack, stacks)
+					{
+						 if ((stack->owner != subject->owner) &&
+							 (stack->hasBonus(Selector::type(Bonus::KING1) || Selector::type(Bonus::KING2) || Selector::type(Bonus::KING3))))
+						 {
+							 monsterPresent = true;
+							 break;
+						 }
+					}
+					if (!monsterPresent)
+						continue;
+				}
+					break;
+			}
+			possibleSpells.push_back(i);
+		}
+	}
+	if (possibleSpells.size())
+		return possibleSpells[ran() % possibleSpells.size()];
+	else
+		return -1;
+}
+
 const CGHeroInstance * BattleInfo::getHero( int player ) const
 {
 	assert(sides[0] == player || sides[1] == player);
@@ -2158,13 +2231,11 @@ CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
 	count = baseAmount = base->count;
 	setNodeType(STACK_BATTLE);
 }
-
 CStack::CStack()
 {
 	init();
 	setNodeType(STACK_BATTLE);
 }
-
 CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
 	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
 {

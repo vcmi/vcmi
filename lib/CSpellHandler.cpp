@@ -319,4 +319,5 @@ void CSpellHandler::loadSpells()
 	boost::replace_first(spells[61]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 
 	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
+	risingSpells += 38, 39, 40;
 }
