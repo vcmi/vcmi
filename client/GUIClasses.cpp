@@ -1355,6 +1355,8 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 		else
 			select(selected);
 	}
+
+	adventureInt->updateNextHero(NULL);
 }
 
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar

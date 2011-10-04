@@ -1099,7 +1099,13 @@ void CAdvMapInt::fsleepWake()
 	setHeroSleeping(h, newSleep);
 	updateSleepWake(h);
 	if (newSleep)
+	{
 		fnextHero();
+
+		//moveHero.block(true); 
+		//uncomment to enable original HoMM3 behaviour:
+		//move button is disabled for hero going to sleep, even though it's enabled when you reselect him
+	}
 }
 
 void CAdvMapInt::fmoveHero()
@@ -1134,19 +1140,10 @@ void CAdvMapInt::fsystemOptions()
 
 void CAdvMapInt::fnextHero()
 {
-	if(!LOCPLINT->wanderingHeroes.size()) //no wandering heroes
-		return; 
-
-	int start = heroList.selected;
-	int i = start;
-
-	do 
-	{
-		i++;
-		if(i >= LOCPLINT->wanderingHeroes.size())
-			i = 0;
-	} while ((!LOCPLINT->wanderingHeroes[i]->movement || isHeroSleeping(LOCPLINT->wanderingHeroes[i])) && i!=start);
-	heroList.select(i);
+	int next = getNextHeroIndex(heroList.selected);
+	if (next < 0)
+		return;
+	heroList.select(next);
 }
 
 void CAdvMapInt::fendTurn()
@@ -1155,7 +1152,7 @@ void CAdvMapInt::fendTurn()
 		return;
 
 	for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
-		if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0)) // some other minimal threshold probably?
+		if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0)) 
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<SComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
 			return;
@@ -1173,6 +1170,54 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 	sleepWake.assignedKeys.clear();
 	sleepWake.assignedKeys.insert(state ? SDLK_w : SDLK_z);
 	sleepWake.update();
+}
+
+void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
+{
+	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
+	if (hasPath == tribool::indeterminate_value) 
+		 hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
+	if (!h)
+	{
+		moveHero.block(true);	
+		return;
+	}
+	moveHero.block(!hasPath || (h->movement == 0));
+}
+
+int CAdvMapInt::getNextHeroIndex(int startIndex)
+{
+	if (LOCPLINT->wanderingHeroes.size() == 0)
+		return -1;
+	if (startIndex < 0)
+		startIndex = 0;
+	int i = startIndex;
+	do 
+	{
+		i++;
+		if (i >= LOCPLINT->wanderingHeroes.size())
+			i = 0;
+	} 
+	while (((LOCPLINT->wanderingHeroes[i]->movement == 0) || isHeroSleeping(LOCPLINT->wanderingHeroes[i])) && (i != startIndex));
+
+	if ((LOCPLINT->wanderingHeroes[i]->movement > 0) && !isHeroSleeping(LOCPLINT->wanderingHeroes[i]))
+		return i;
+	else
+		return -1;
+}
+
+void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
+{
+	int start = heroList.getPosOfHero(h); 
+	int next = getNextHeroIndex(start);
+	if (next < 0)
+	{
+		nextHero.block(true);
+		return;
+	}
+	const CGHeroInstance *nextH = LOCPLINT->wanderingHeroes[next];
+	bool noActiveHeroes = (next == start) && ((nextH->movement == 0) || isHeroSleeping(nextH));
+	nextHero.block(noActiveHeroes);
 }
 
 void CAdvMapInt::activate()
@@ -1279,6 +1324,7 @@ void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 		LOCPLINT->sleepingHeroes += hero;
 	else
 		LOCPLINT->sleepingHeroes -= hero;
+	updateNextHero(NULL);
 }
 
 void CAdvMapInt::show(SDL_Surface *to)
@@ -1548,18 +1594,15 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	terrain.currentPath = NULL;
 	if(sel->ID==TOWNI_TYPE)
 	{
-		updateSleepWake(NULL);
-
 		int pos = vstd::findPos(LOCPLINT->towns,sel);
 		townList.selected = pos;
 		townList.fixPos();
+		updateSleepWake(NULL);
+		updateMoveHero(NULL);
 	}
 	else //hero selected
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(sel);
-
-		updateSleepWake(h);
-
 		if(LOCPLINT->getWHero(heroList.selected) != h)
 		{
 			heroList.selected = heroList.getPosOfHero(h);
@@ -1567,6 +1610,9 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 		}
 
 		terrain.currentPath = LOCPLINT->getAndVerifyPath(h);
+
+		updateSleepWake(h);
+		updateMoveHero(h);
 	}
 	townList.draw(screen);
 	heroList.draw(screen);
@@ -1725,7 +1771,9 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
-				if(!LOCPLINT->cb->getPath2(mp, path)) //try getting path, erase if failed
+				bool gotPath = LOCPLINT->cb->getPath2(mp, path); //try getting path, erase if failed
+				updateMoveHero(currentHero); 	
+				if (!gotPath)
 					LOCPLINT->eraseCurrentPathOf(currentHero);
 				else
 					return;

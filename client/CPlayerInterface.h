@@ -141,7 +141,7 @@ public:
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> towns; //our heroes on the adventure map (not the garrisoned ones)
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
-	std::vector<const CGHeroInstance *> sleepingHeroes; 
+	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	struct SpellbookLastSetting
 	{

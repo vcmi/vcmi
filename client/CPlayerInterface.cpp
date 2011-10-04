@@ -488,6 +488,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		CGI->mh->printObject(town->visitingHero);
 		wanderingHeroes.push_back(town->visitingHero);
 	}
+	adventureInt->updateNextHero(NULL);
 
 	if(CCastleInterface *c = castleInt)
 	{
@@ -1142,6 +1143,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		//but no authentic button click/sound ;-)
 	}
 	
+	int i = 1;
 	//evil...
 	eventsM.unlock();
 	pim->unlock();
@@ -1159,7 +1161,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
 
-		for(int i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
 			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
 			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
@@ -1209,6 +1211,13 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	cb->getGsMutex().lock_shared();
 	pim->lock();
 	eventsM.lock();
+
+	if (adventureInt)
+	{
+		// (i == 0) means hero went through all the path
+		adventureInt->updateMoveHero(h, (i != 0)); 
+		adventureInt->updateNextHero(h);
+	}
 	return result;
 }
 
@@ -1336,6 +1345,8 @@ void CPlayerInterface::recreateHeroTownList()
 	std::vector<const CGTownInstance*> townInfo = cb->getTownsInfo();
 	for(size_t i = 0; i < townInfo.size(); i++)
 		towns.push_back(townInfo[i]);
+
+	adventureInt->updateNextHero(NULL);
 }
 
 const CGHeroInstance * CPlayerInterface::getWHero( int pos )

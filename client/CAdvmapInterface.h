@@ -235,6 +235,7 @@ public:
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
+	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
 
 	void setPlayer(int Player);
 	void startHotSeatWait(int Player);
@@ -248,7 +249,10 @@ public:
 	const CGHeroInstance * curHero() const;
 	const CGTownInstance * curTown() const;
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or NULL else
-	void updateSleepWake(const CGHeroInstance *h); //button update
+	//button updates
+	void updateSleepWake(const CGHeroInstance *h); 
+	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = tribool::indeterminate_value);
+	void updateNextHero(const CGHeroInstance *h);
 };
 
 extern CAdvMapInt *adventureInt;
