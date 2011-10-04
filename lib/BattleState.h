@@ -125,9 +125,10 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, SpellCasting::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, SpellCasting::ECastingMode mode) const; //checks if given player can cast given spell
 	SpellCasting::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest); //checks if given player can cast given spell at given tile in given mode
+	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks if given player can cast given spell at given tile in given mode
 	bool battleTestElementalImmunity(const CStack * subject, const CSpell * spell, Bonus::BonusType element, bool damageSpell) const;
 	TSpell getRandomBeneficialSpell(const CStack * subject) const;
+	TSpell getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, SpellCasting::ECastingMode mode) const;
 

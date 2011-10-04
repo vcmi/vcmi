@@ -396,7 +396,7 @@
 				"level": 5,
 				"name": [ "Caliph" ],
 				"faction": 2,
-				"ability_add": [ [ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],		//spells last 6 turns
+				"ability_add": [ [ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],		//spells last 6 turns
 							   	 [ "RANDOM_SPELLCASTER", 0, 0, 0 ],  		//master genies cast spells
 								 [ "CASTS", 3, 0, 0],
 								 [ "HATE", 50, 53, 0 ],
@@ -1291,8 +1291,11 @@
 				"level": 3,
 				"name": [ "IceElemental" ],
 				"faction": 8,
-				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],				//storm elementals shouldn't get morale
-							   	 [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//ice elemental should be treated as double-wide	//magma elementals shouldn't get morale
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],				
+							   	 [ "DOUBLE_WIDE", 0, 0, 0 ],					//ice elemental should be treated as double-wide
+								 [ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],
+								 [ "CASTS", 3, 0, 0 ],
+								 [ "SPELLCASTER", 2, 32, 0 ]], 				
 				"defname": "CICEE.DEF",
 				"projectile_defname": "PICEE.DEF",
 				"projectile_spin": false
@@ -1303,7 +1306,10 @@
 				"level": 5,
 				"name": [ "StoneElemental" ],
 				"faction": 8,
-				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],				//energy elementals shouldn't get morale
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],						//magma elementals shouldn't get morale
+								[ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],
+								[ "CASTS", 3, 0, 0 ],
+								[ "SPELLCASTER", 2, 33, 0 ]],
 				"defname": "CSTONE.DEF"
 			},
 
@@ -1312,7 +1318,10 @@
 				"level": 2,
 				"name": [ "StormElemental" ],
 				"faction": 8,
-				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],						//storm elementals shouldn't get morale
+								[ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],
+								[ "CASTS", 3, 0, 0 ],
+								[ "SPELLCASTER", 2, 30, 0 ]],				
 				"defname": "CSTORM.DEF",
 				"projectile_defname": "CPRGTIX.DEF",
 				"projectile_spin": false,
@@ -1323,8 +1332,11 @@
 				"id": 129,
 				"level": 4,
 				"name": [ "ElectricityElemental" ],
-				"faction": 8,
-				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],						//Crystal Dragons do not fly
+				"faction": 8,									
+				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale //Crystal Dragons do not fly
+								[ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],
+								[ "CASTS", 3, 0, 0 ],
+								[ "SPELLCASTER", 2, 31, 0 ]],						
 				"defname": "CNRG.DEF"
 			},
 
@@ -1371,7 +1383,17 @@
 				"level": 8,
 				"name": [ "FairieDragon" ],
 				"faction": -1,
-				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//faerie dragon is a dragon
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
+								[ "CASTS", 5, 0, 0 ],
+								[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
+								[ "SPELLCASTER", 2, 15, 10 ],			//magic arrow
+								[ "SPELLCASTER", 2, 16, 22 ],			//ice bolt
+								[ "SPELLCASTER", 2, 17, 22 ],			//thunderbolt
+								[ "SPELLCASTER", 2, 19, 5 ],			//chain lightning
+								[ "SPELLCASTER", 2, 20, 10 ],			//frost ring
+								[ "SPELLCASTER", 2, 21, 21 ],			//fireball
+								[ "SPELLCASTER", 2, 22, 5 ],			//inferno
+								[ "SPELLCASTER", 2, 23, 5 ]],			//meteor shower
 				"defname": "CFDRGN.DEF"
 			},
 

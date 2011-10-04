@@ -3511,13 +3511,7 @@ void CBattleInterface::activateStack()
 	{
 		stackCanCastSpell = true;
 
-		TBonusListPtr bl = s->getBonuses(Selector::type(Bonus::SPELLCASTER));
-		BOOST_FOREACH(Bonus * b, *bl)
-		{
-			stackSpells.push_back(CGI->spellh->spells[b->subtype]);
-		}
-		if (stackSpells.size())
-			creatureSpellToCast = stackSpells[111 % stackSpells.size()]; //TODO: randomize? weighted chance?
+
 	}
 	else
 		stackCanCastSpell = false;

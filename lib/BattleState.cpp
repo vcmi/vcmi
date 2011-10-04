@@ -1909,7 +1909,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int player, 
 	return SpellCasting::OK;
 }
 
-SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest )
+SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest ) const
 {
 	SpellCasting::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(player, spell, mode);
 	if(moreGeneralProblem != SpellCasting::OK)
@@ -1924,11 +1924,14 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 {
 	std::vector<TSpell> possibleSpells;
+	CSpell * spell;
 	for (int i = 0; i < SPELLS_QUANTITY; ++i) //should not use future spells added by mods
 	{
-		if (VLC->spellh->spells[i]->positiveness == 1) //only positive
+		spell = VLC->spellh->spells[i];
+		if (spell->positiveness == 1) //only positive
 		{
-			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, i))
+			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, i) ||
+				!battleCanCastThisSpellHere(subject->owner, spell, SpellCasting::CREATURE_ACTIVE_CASTING, subject->position))
 				continue;
 			switch (i)
 			{
@@ -2012,6 +2015,26 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 		return possibleSpells[ran() % possibleSpells.size()];
 	else
 		return -1;
+}
+TSpell BattleInfo::getRandomCastedSpell(const CStack * caster) const
+{
+	int totalWeight = 0;
+	TBonusListPtr bl = caster->getBonuses(Selector::type(Bonus::SPELLCASTER));
+	BOOST_FOREACH(Bonus * b, *bl)
+	{
+		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
+	}
+	int randomPos = ran() % totalWeight;
+	BOOST_FOREACH(Bonus * b, *bl)
+	{
+		randomPos -= b->additionalInfo;
+		if(randomPos < 0)
+		{
+			return b->subtype;
+		}
+	}
+
+	return -1;
 }
 
 const CGHeroInstance * BattleInfo::getHero( int player ) const
