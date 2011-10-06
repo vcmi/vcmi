@@ -1504,7 +1504,7 @@ struct BattleStackAdded : public CPackForClient //3017
 
 struct BattleSetStackProperty : public CPackForClient //3018
 {
-	struct BattleSetStackProperty(){type = 3018;};
+	BattleSetStackProperty(){type = 3018;};
 
 	enum BattleStackProperty {CASTS, CURRENT_SPELL};
 

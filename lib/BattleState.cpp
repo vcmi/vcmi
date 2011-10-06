@@ -393,7 +393,7 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 	bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
 	getAccessibilityMap(ac, twoHex, attackerOwned, true, occupyable, flying);
-	for (int g = pos; -1 < g < BFIELD_SIZE; )
+	for (int g = pos; (-1 < g) && (g < BFIELD_SIZE); )
 	{
 		if ((g % BFIELD_WIDTH != 0) && (g % BFIELD_WIDTH != BFIELD_WIDTH-1) && BattleInfo::isAccessible (g, ac, twoHex, attackerOwned, flying, true))
 		{
