@@ -655,7 +655,7 @@ void BattleResultsApplied::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(254, battleResultsApplied);
-	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
+	if(GS(cl)->initialOpts->mode == StartInfo::DUEL && cl->serv)
 	{
 		cl->terminate = true;
 		CloseServer cs;

@@ -471,6 +471,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			casualtiesPoints = c->AIValue * i->second;
 		}
 		tlog0 << boost::format("Total casualties points: %d\n") % casualtiesPoints;
+
+		//battle ai1 ai2 winner_side winner_casualties
+		std::ofstream resultsList("results.txt", std::fstream::out | std::fstream::app);
+		resultsList << boost::format("\n%s\t%s\t%s\t%d\t%d") % gs->scenarioOps->mapname % ais[0] % ais[1] % (int)battleResult.data->winner % casualtiesPoints;
 	}
 
 	sendAndApply(&resultsApplied);
@@ -640,6 +644,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
 			pack = c.retreivePack();
+			receivedPack(c.connectionID, pack);
 			int packType = typeList.getTypeID(pack); //get the id of type
 			if(packType == typeList.getTypeID<CloseServer>())
 			{
@@ -1929,6 +1934,7 @@ void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)>
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
+	broadcastedPack(info);
 	tlog5 << "Sending to all clients a package of type " << typeid(*info).name() << std::endl;
 	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
 	{
@@ -5244,6 +5250,25 @@ void CGameHandler::spawnWanderingMonsters(int creatureID)
 		tlog5 << "\tSpawning monster at " << *tile << std::endl;
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
+	}
+}
+
+static boost::mutex logMx;
+void CGameHandler::receivedPack(ui8 connectionNr, CPack *pack)
+{
+	if(gameLog)
+	{
+		boost::unique_lock<boost::mutex> lock(logMx);
+		*gameLog << connectionNr << pack << ui8('*');
+	}
+}
+
+void CGameHandler::broadcastedPack(CPack *pack)
+{
+	if(gameLog)
+	{
+		boost::unique_lock<boost::mutex> lock(logMx);
+		*gameLog << ui8(255) << pack << ui8('*');
 	}
 }
 

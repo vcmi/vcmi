@@ -103,6 +103,11 @@ public:
 	std::map<ui32, boost::function<void()> > garrisonCallbacks; //query id => callback - for garrison dialogs
 	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
 
+	std::string ais[2];
+	CSaveFile *gameLog;
+	void receivedPack(ui8 connectionNr, CPack *pack);
+	void broadcastedPack(CPack *pack);
+
 	bool isAllowedExchange(int id1, int id2);
 	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);

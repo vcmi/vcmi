@@ -31,6 +31,7 @@ class CClient;
 class CScriptingModule;
 struct CPathsInfo;
 namespace boost { class thread; }
+class CLoadFile;
 
 void processCommand(const std::string &message, CClient *&client);
 
@@ -96,6 +97,7 @@ public:
 	void save(const std::string & fname);
 	void loadGame(const std::string & fname);
 	void run();
+	void runReplay(CLoadFile *f);
 	void finishCampaign( CCampaignState * camp );
 	void proposeNextMission( CCampaignState * camp );
 	void invalidatePaths(const CGHeroInstance *h = NULL); //invalidates paths for hero h or for any hero if h is NULL => they'll got recalculated when the next query comes

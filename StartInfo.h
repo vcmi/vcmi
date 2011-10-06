@@ -53,7 +53,7 @@ struct PlayerSettings
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, INVALID = 255};
+	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, DUEL_REPLAY, INVALID = 255};
 
 	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible

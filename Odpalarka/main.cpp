@@ -17,8 +17,10 @@ int main(int argc, const char **)
 #else
 		"./vcmiserver"
 #endif
-		;
-	boost::thread t(boost::bind(std::system, (servername + " b1.json StupidAI StupidAI").c_str()));
+	;
+
+	std::string serverCommand = servername + " b1.json StupidAI StupidAI";
+	boost::thread t(boost::bind(std::system, serverCommand.c_str()));
 	boost::thread tt(boost::bind(std::system, runnername.c_str()));
 	boost::thread ttt(boost::bind(std::system, runnername.c_str()));
 	if(argc == 2)

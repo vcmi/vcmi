@@ -39,6 +39,7 @@
 
 #define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
+#include <fstream>
 
 extern std::string NAME;
 namespace intpr = boost::interprocess;
@@ -418,37 +419,46 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 void CClient::newDuel(CConnection *con, StartInfo *si)
 {
-	serv = con;
-	if(!serv)
+	if(si->mode == StartInfo::DUEL)
 	{
-		std::string host = "127.0.0.1";
-		std::string port = "3030";
-
-		int i = 3;
-		while(!serv)
+		serv = con;
+		if(!serv)
 		{
-			try
+			std::string host = "127.0.0.1";
+			std::string port = "3030";
+
+			int i = 3;
+			while(!serv)
 			{
-				tlog0 << "Establishing connection...\n";
-				serv = new CConnection(host, port, "DLL host");
-			}
-			catch(...)
-			{
-				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" << std::endl;
-				boost::this_thread::sleep(boost::posix_time::seconds(2));
-				if(!--i)
-					exit(0);
+				try
+				{
+					tlog0 << "Establishing connection...\n";
+					serv = new CConnection(host, port, "DLL host");
+				}
+				catch(...)
+				{
+					tlog1 << "\nCannot establish connection! Retrying within 2 seconds" << std::endl;
+					boost::this_thread::sleep(boost::posix_time::seconds(2));
+					if(!--i)
+						exit(0);
+				}
 			}
 		}
+
+
+		ui8 color;
+		std::string battleAIName;
+		*serv >> *si >> battleAIName >> color;
+		assert(si->mode == StartInfo::DUEL);
+		assert(color > 1); //we are NOT participants
+		//tlog0 << format("Server wants us to be %s in battle %s as side %d") % battleAIName % si.mapname % (int)color;
+
+
 	}
-
-
-	ui8 color;
-	std::string battleAIName;
-	*serv >> *si >> battleAIName >> color;
-	assert(si->mode == StartInfo::DUEL);
-	assert(color > 1); //we are NOT participants
-	//tlog0 << format("Server wants us to be %s in battle %s as side %d") % battleAIName % si.mapname % (int)color;
+	else
+	{
+		si->mode = StartInfo::DUEL;
+	}
 
 	gs = new CGameState();
 	const_cast<CGameInfo*>(CGI)->state = gs;
@@ -463,7 +473,8 @@ void CClient::newDuel(CConnection *con, StartInfo *si)
 	p->init(new CCallback(gs, -1, this));
 	battleStarted(gs->curB);
 
-	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
+	if(serv)
+		serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
 }
 
 template <typename Handler>
@@ -667,6 +678,79 @@ void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
 {
 	if(!h || pathInfo->hero == h)
 		pathInfo->isValid = false;
+}
+
+std::string typeName(CPack * pack)
+{
+	try
+	{
+		return typeid(*pack).name();
+	}
+	catch(...)
+	{
+		return "unknown type";
+		//tlog1 << "\Unknown type!\t" << e.what() << std::endl;
+	}
+}
+
+void CClient::runReplay(CLoadFile *f)
+{
+	setThreadName(-1, "CClient::runReplay");
+	try
+	{
+		f->sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit | std::ifstream::eofbit);
+		int i = 0;
+		std::vector<CPack *> hlp;
+		while(f->sfile)
+		{
+			i = hlp.size();
+			tlog5 << i;
+			ui8 magic;
+			std::pair<ui8, CPack *> para;
+			para.first = 254;
+			para.second = NULL;
+
+			try
+			{
+				*f >> para >> magic;
+			}
+			catch(...)
+			{
+				break;
+			}
+			if(magic != '*')
+				throw std::runtime_error("Bad magic byte!");
+			assert(para.second);
+
+			if(para.first != 255)
+			{
+				tlog5 << "\tIgnoring message from player " << (int)para.first 
+					<< " (" << typeName(para.second) << ")" << std::endl;
+			}
+			else
+			{
+				tlog5 << "\tRead message of type " << typeName(para.second) << std::endl;
+				hlp.push_back(para.second);
+			}
+		}
+
+		i = 0;
+		while(!terminate && i < hlp.size())
+		{
+			tlog1 << i << "\tHandling pack of type " << typeName(hlp[i]) << std::endl;
+			handlePack(hlp[i++]);
+		}
+	} 
+	catch (const std::exception& e)
+	{	
+		tlog3 << "Failure when replaying from file, ending reading thread!\n";
+		tlog1 << e.what() << std::endl;
+		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
+		{
+			tlog1 << "Something wrong, failed reading while game is still ongoing...\n";
+			throw;
+		}
+	}
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

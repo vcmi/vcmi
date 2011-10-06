@@ -534,11 +534,14 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	tlog0 << "Preparing gh!\n";
 	CGameHandler *gh = new CGameHandler();
 	gh->init(&si,std::time(NULL));
+	gh->ais[0] = leftAI;
+	gh->ais[1] = rightAI;
 
 	BOOST_FOREACH(CConnection *c, conns)
 	{
 		ui8 player = gh->conns.size();
 		tlog0 << boost::format("Preparing connection %d!\n") % (int)player;
+		c->connectionID = player;
 		c->addStdVecItems(gh->gs, VLC);
 		gh->connections[player] = c;
 		gh->conns.insert(c);
@@ -555,18 +558,24 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	*gh->connections[1] << rightAI << ui8(1);
 	*gh->connections[2] << std::string() << ui8(254);
 
+	std::string logFName = "duel_log.vdat";
+	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
+	gh->gameLog = new CSaveFile(logFName);
+	gh->gameLog->smartPointerSerialization = false;
+	*gh->gameLog << battle << leftAI << rightAI << ui8('$');
 
 	tlog0 << "Starting battle!\n";
 	gh->runBattle();
 	tlog0 << "Battle over!\n";
-	delNull(gh);
-	tlog0 << "Removed gh!\n";
 	tlog0 << "Waiting for connections to close\n";
 	BOOST_FOREACH(boost::thread *t, threads)
 	{
 		t->join();
 		delNull(t);
 	}
+	tlog0 << "Removing gh\n";
+	delNull(gh);
+	tlog0 << "Removed gh!\n";
 
 	tlog0 << "Dying...\n";
 	exit(0);

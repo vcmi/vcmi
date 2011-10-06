@@ -185,6 +185,7 @@ static void prog_help(const char *progname)
 	printf("  -v, --version     display version information and exit\n");
 }
 
+CLoadFile *replayLoader;
 
 #ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
@@ -197,7 +198,8 @@ int main(int argc, char** argv)
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
+		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only)")
+		("replay,r", "replays a recorded battle, use together with -b");
 		("nointro,i", "skips intro movies");
 
 	po::variables_map vm;
@@ -284,7 +286,27 @@ int main(int argc, char** argv)
 	else
 	{
 		StartInfo *si = new StartInfo();
-		si->mode = StartInfo::DUEL;
+		if(vm.count("replay"))
+		{
+			si->mode = StartInfo::DUEL_REPLAY;
+			replayLoader = new CLoadFile(vm["battle"].as<std::string>());
+			replayLoader->smartPointerSerialization = false;
+			if(!replayLoader->sfile)
+			{
+				tlog1 << "Cannot find file with recorded battle (" << si->mapname << ")!\n";
+				exit(1);
+			}
+
+			std::string bname, ai1, ai2;
+			ui8 magic;
+			*replayLoader >> bname >> ai1 >> ai2 >> magic;
+			assert(magic == '$');
+
+			si->mapname = bname;
+			tlog0 << "Replaying battle between " <<ai1 << " and "  << ai2 << " on " << bname << std::endl;
+		}
+		else
+			si->mode = StartInfo::DUEL;
 		startGame(si);
 	}
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
@@ -718,6 +740,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		client->newGame(serv, options);
 		break;
 	case StartInfo::DUEL:
+	case StartInfo::DUEL_REPLAY:
 		client->newDuel(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:
@@ -727,7 +750,11 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		break;
 	}
 
-	client->connectionHandler = new boost::thread(&CClient::run, client);
+	if(client->serv)
+		client->connectionHandler = new boost::thread(&CClient::run, client);
+	else
+		client->connectionHandler = new boost::thread(&CClient::runReplay, client, replayLoader);
+
 }
 
 void requestChangingResolution()
