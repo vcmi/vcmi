@@ -16287,7 +16287,7 @@ saved_CFLAGS=$CFLAGS
 FFMPEG_CXXFLAGS=""
 FFMPEG_LIBS=
 
-LIBS="$LIBS `pkg-config --libs libavformat libswscale`"
+LIBS="$LIBS `pkg-config --libs libavcodec libavformat libavutil libswscale`"
 CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale`"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5

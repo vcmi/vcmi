@@ -86,7 +86,7 @@ saved_CFLAGS=$CFLAGS
 FFMPEG_CXXFLAGS=""
 FFMPEG_LIBS=
 
-LIBS="$LIBS `pkg-config --libs libavformat libswscale`"
+LIBS="$LIBS `pkg-config --libs libavcodec libavformat libavutil libswscale`"
 CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale`"
 
 AC_CHECK_LIB(avformat,av_open_input_file,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
