@@ -2,7 +2,7 @@ vcmiaidir = $(VCMI_AI_LIBS_DIR)
 
 vcmiai_LTLIBRARIES = libGeniusAI.la
 libGeniusAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
-libGeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module
+libGeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module -avoid-version
 libGeniusAI_la_SOURCES = \
 	AIPriorities.cpp \
 	AIPriorities.h \
