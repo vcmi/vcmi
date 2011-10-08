@@ -54,49 +54,28 @@ SDL_Surface * CPCXConv::getSurface() const
 	int width = -1, height = -1;
 	Epcxformat format;
 	int fSize,y;
-	bool check1, check2;
 	unsigned char add;
 	int it=0;
 
 	fSize = read_le_u32(pcx + it); it+=4;
 	width = read_le_u32(pcx + it); it+=4;
 	height = read_le_u32(pcx + it); it+=4;
+	
 	if (fSize==width*height*3)
-		check1=true;
-	else 
-		check1=false;
-	if (fSize==width*height)
-		check2=true;
-	else 
-		check2=false;
-	if (check1)
 		format=PCX24B;
-	else if (check2)
+	else if (fSize==width*height)
 		format=PCX8B;
 	else 
 		return NULL;
+
 	add = 4 - width%4;
 	if (add==4)
 		add=0;
+
 	if (format==PCX8B)
 	{
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 8, 0, 0, 0, 0);
-	}
-	else
-	{
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-		int bmask = 0xff0000;
-		int gmask = 0x00ff00;
-		int rmask = 0x0000ff;
-#else
-		int bmask = 0x0000ff;
-		int gmask = 0x00ff00;
-		int rmask = 0xff0000;
-#endif
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 24, rmask, gmask, bmask, 0);
-	}
-	if (format==PCX8B)
-	{
+
 		it = pcxs-256*3;
 		for (int i=0;i<256;i++)
 		{
@@ -126,6 +105,17 @@ SDL_Surface * CPCXConv::getSurface() const
 	}
 	else
 	{
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		int bmask = 0xff0000;
+		int gmask = 0x00ff00;
+		int rmask = 0x0000ff;
+#else
+		int bmask = 0x0000ff;
+		int gmask = 0x00ff00;
+		int rmask = 0xff0000;
+#endif
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 24, rmask, gmask, bmask, 0);
+
 		for (y=height; y>0; y--)
 		{
 			it = 0xC + (y-1)*width*3;
