@@ -2044,8 +2044,10 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							if (curInt->cb->battleCanCastThisSpell(spell, THex(myNumber)) == SpellCasting::OK)
 							{
 								if (spell->positiveness > -1 && ourStack || spell->positiveness < 1 && !ourStack)
-								CCS->curh->changeGraphic(3, 0);
-								stackCastsSpell = true;
+								{
+									CCS->curh->changeGraphic(3, 0);
+									stackCastsSpell = true;
+								}
 							}
 						}
 						else if (ourStack) //must have only random positive spell (genie)
@@ -2066,7 +2068,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					{
 						if (shere->alive())
 						{
-							if (!stackCastsSpell) //use other abilities of display info
+							if (!stackCastsSpell) //use other abilities or display info
 							{
 								if(sactive->hasBonusOfType(Bonus::HEALER))
 								{
