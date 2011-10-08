@@ -119,6 +119,22 @@ SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(cons
 	return gs->curB->battleCanCastThisSpellHere(player, spell, SpellCasting::CREATURE_ACTIVE_CASTING, destination);
 }
 
+TSpell CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode)
+{
+	switch (mode)
+	{
+		case RANDOM_GENIE:
+			return gs->curB->getRandomBeneficialSpell(stack); //target
+			break;
+		case RANDOM_AIMED:
+			return gs->curB->getRandomCastedSpell(stack); //caster
+			break;
+		default:
+			tlog1 << "Incorrect mode of battleGetRandomSpell (" << mode <<")\n";
+			return -1;
+	}
+}
+
 si8 CBattleInfoCallback::battleGetTacticDist()
 {
 	if (!gs->curB)

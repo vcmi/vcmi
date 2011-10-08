@@ -457,8 +457,7 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
-	CSpell * creatureSpellToCast;
-	std::vector< ConstTransitivePtr<CSpell> > stackSpells; //all spells possible to cast by the stack
+	TSpell creatureSpellToCast;
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
@@ -570,6 +569,7 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void setBattleCursor(const int myNumber); //really complex and messy
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();

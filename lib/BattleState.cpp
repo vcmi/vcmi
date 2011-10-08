@@ -1931,7 +1931,7 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 		if (spell->positiveness == 1) //only positive
 		{
 			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, i) ||
-				!battleCanCastThisSpellHere(subject->owner, spell, SpellCasting::CREATURE_ACTIVE_CASTING, subject->position))
+				battleCanCastThisSpellHere(subject->owner, spell, SpellCasting::CREATURE_ACTIVE_CASTING, subject->position) != SpellCasting::OK)
 				continue;
 			switch (i)
 			{
@@ -2018,8 +2018,10 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 }
 TSpell BattleInfo::getRandomCastedSpell(const CStack * caster) const
 {
-	int totalWeight = 0;
 	TBonusListPtr bl = caster->getBonuses(Selector::type(Bonus::SPELLCASTER));
+	if (!bl->size())
+		return -1;
+	int totalWeight = 0;
 	BOOST_FOREACH(Bonus * b, *bl)
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
@@ -2027,7 +2029,7 @@ TSpell BattleInfo::getRandomCastedSpell(const CStack * caster) const
 	int randomPos = ran() % totalWeight;
 	BOOST_FOREACH(Bonus * b, *bl)
 	{
-		randomPos -= b->additionalInfo;
+		randomPos -= std::max(b->additionalInfo, 1);
 		if(randomPos < 0)
 		{
 			return b->subtype;
@@ -2110,7 +2112,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 				break;
 		}
 		
-		bool damageSpell = (VLC->spellh->damageSpells.find(spell->id) != VLC->spellh->damageSpells.end());
+		bool damageSpell = (vstd::contains(VLC->spellh->damageSpells, spell->id));
 
 		if (damageSpell && subject->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY))
 			return SpellCasting::STACK_IMMUNE_TO_SPELL;
@@ -2133,6 +2135,12 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 		if (spell->air)
 		{
 			if (battleTestElementalImmunity(subject, spell, Bonus::AIR_IMMUNITY, damageSpell))
+				return SpellCasting::STACK_IMMUNE_TO_SPELL;
+		}
+
+		if (vstd::contains(VLC->spellh->risingSpells, spell->id))
+		{
+			if (subject->count >= subject->baseAmount) //TODO: calculate potential hp raised
 				return SpellCasting::STACK_IMMUNE_TO_SPELL;
 		}
 

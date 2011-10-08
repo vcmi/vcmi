@@ -87,6 +87,10 @@ public:
 	{
 		ONLY_MINE, ONLY_ENEMY, MINE_AND_ENEMY
 	};
+	enum ERandomSpell
+	{
+		RANDOM_GENIE, RANDOM_AIMED
+	};
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -105,6 +109,7 @@ public:
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, THex destination); //determines if creature can cast a spell here
+	TSpell battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
 	bool battleCanFlee(); //returns true if caller can flee from the battle
 	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible
 	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead

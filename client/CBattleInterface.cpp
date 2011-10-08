@@ -2006,6 +2006,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	if(activeStack && !spellDestSelectMode)
 	{
         int lastMouseHoveredStack = mouseHoveredStack;
+		bool stackCastsSpell;
 		mouseHoveredStack = -1;
 		int myNumber = -1; //number of hovered tile
 		for(int g = 0; g < BFIELD_SIZE; ++g)
@@ -2024,7 +2025,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				console->alterTxt = "";
 			}
 		}
-		else
+		else //battlefield hex
 		{
             if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
 			{
@@ -2032,41 +2033,65 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				const CStack *sactive = activeStack;
 				if(shere)
 				{
-					if(shere->owner == curInt->playerID) //our stack
+					bool ourStack = shere->owner == curInt->playerID;
+					//determine if creature spell is going to be cast
+					stackCastsSpell = false;
+					if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
+					{
+						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
+						{
+							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
+							if (curInt->cb->battleCanCastThisSpell(spell, THex(myNumber)) == SpellCasting::OK)
+							{
+								if (spell->positiveness > -1 && ourStack || spell->positiveness < 1 && !ourStack)
+								CCS->curh->changeGraphic(3, 0);
+								stackCastsSpell = true;
+							}
+						}
+						else if (ourStack) //must have only random positive spell (genie)
+						{
+							if (shere != sactive) //can't cast on itself
+							{
+								int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
+								if (spellID > -1) //can cast any spell on target stack
+								{
+									CCS->curh->changeGraphic(3, 0);
+									stackCastsSpell = true;
+								}
+							}
+						}
+					}
+
+					if(ourStack) //our stack
 					{
 						if (shere->alive())
 						{
-							if(sactive->hasBonusOfType(Bonus::HEALER))
+							if (!stackCastsSpell) //use other abilities of display info
 							{
-								//display the possibility to heal this creature
-								CCS->curh->changeGraphic(1,17);
-							}
-							else if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
-							{
-								//spellDestSelectMode
-								if (curInt->cb->battleCanCastThisSpell(creatureSpellToCast, THex(myNumber)) == SpellCasting::OK)
-									CCS->curh->changeGraphic(3, 0);
-								//if (battleIsImmune(NULL, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING, myNumber) == SpellCasting::OK)
-								//if (battleCanCastThisSpell(curInt->playerID, spellToCast, SpellCasting::CREATURE_ACTIVE_CASTING))
-							}
-							else
-							{
-								//info about creature
-								CCS->curh->changeGraphic(1,5);
-							}
-							//setting console text
-							char buf[500];
-							sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
-							console->alterTxt = buf;
-							console->whoSetAlter = 0;
-							const time_t curTime = time(NULL);
-							if(shere->ID != lastMouseHoveredStack &&
-							   curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
-							   creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
-							   creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-							{
-								creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
-								lastMouseHoveredStackAnimationTime = curTime;
+								if(sactive->hasBonusOfType(Bonus::HEALER))
+								{
+									//display the possibility to heal this creature
+									CCS->curh->changeGraphic(1, 17);
+								}
+								else
+								{
+									//info about creature
+									CCS->curh->changeGraphic(1,5);
+								}
+								//setting console text
+								char buf[500];
+								sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
+								console->alterTxt = buf;
+								console->whoSetAlter = 0;
+								const time_t curTime = time(NULL);
+								if (shere->ID != lastMouseHoveredStack &&
+								   curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
+								   creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
+								   creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+								{
+									creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
+									lastMouseHoveredStackAnimationTime = curTime;
+								}
 							}
 						} //end of alive
 						else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
@@ -2074,212 +2099,60 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							CCS->curh->changeGraphic(3, 0);
 						}
 						mouseHoveredStack = shere->ID; //for dead also?
-					} //not our stack
-					else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
-					{
-						if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
-							curInt->cb->battleHasWallPenalty(activeStack, myNumber))
-						{
-							CCS->curh->changeGraphic(1,15);
-						}
-						else
-						{
-							CCS->curh->changeGraphic(1,3);
-						}
-						//setting console text
-						char buf[500];
-						//calculating estimated dmg
-						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-						std::ostringstream estDmg;
-						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
-						//printing
-						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), sactive->shots, estDmg.str().c_str());
-						console->alterTxt = buf;
-						console->whoSetAlter = 0;
 					}
-					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
+					//end of our stack
+					else if (!stackCastsSpell) //if not, then try attack
 					{
-						CCursorHandler *cursor = CCS->curh;
-						const CBattleHex &hoveredHex = bfield[myNumber];
-
-						const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
-						const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
-						const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
-						const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
-						const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
-						const int zigzagCorrection = !((myNumber/BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
-
-						std::vector<int> sectorCursor; // From left to bottom left.
-						sectorCursor.push_back(8);
-						sectorCursor.push_back(9);
-						sectorCursor.push_back(10);
-						sectorCursor.push_back(11);
-						sectorCursor.push_back(12);
-						sectorCursor.push_back(7);
-
-						const bool doubleWide = activeStack->doubleWide();
-						bool aboveAttackable = true, belowAttackable = true;
-
-						// Exclude directions which cannot be attacked from.
-						// Check to the left.
-						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - 1)) 
+						if (curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 						{
-							sectorCursor[0] = -1;
-						}
-						// Check top left, top right as well as above for 2-hex creatures.
-						if (myNumber/BFIELD_WIDTH == 0) 
-						{
-								sectorCursor[1] = -1;
-								sectorCursor[2] = -1;
-								aboveAttackable = false;
-						} 
-						else 
-						{
-							if (doubleWide) 
+							if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
+								curInt->cb->battleHasWallPenalty(activeStack, myNumber))
 							{
-								bool attackRow[4] = {true, true, true, true};
-
-								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
-									attackRow[0] = false;
-								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
-									attackRow[1] = false;
-								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
-									attackRow[2] = false;
-								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + 1 + zigzagCorrection))
-									attackRow[3] = false;
-
-								if (!(attackRow[0] && attackRow[1]))
-									sectorCursor[1] = -1;
-								if (!(attackRow[1] && attackRow[2]))
-									aboveAttackable = false;
-								if (!(attackRow[2] && attackRow[3]))
-									sectorCursor[2] = -1;
+								CCS->curh->changeGraphic(1,15);
 							}
 							else
 							{
-								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
-									sectorCursor[1] = -1;
-								if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
-									sectorCursor[2] = -1;
+								CCS->curh->changeGraphic(1,3);
 							}
+							//setting console text
+							char buf[500];
+							//calculating estimated dmg
+							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
+							std::ostringstream estDmg;
+							estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+							//printing
+							sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(),
+								sactive->shots, estDmg.str().c_str());
+							console->alterTxt = buf;
+							console->whoSetAlter = 0;
 						}
-						// Check to the right.
-						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + 1))
+						else if (isTileAttackable(myNumber)) //available enemy (melee attackable)
 						{
-							sectorCursor[3] = -1;
+							//handle direction of cursor and attackable tile
+							setBattleCursor(myNumber);
+
+							//setting console info
+							char buf[500];
+							//calculating estimated dmg
+							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
+							std::ostringstream estDmg;
+							estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+							//printing
+							sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(),
+								estDmg.str().c_str());
+							console->alterTxt = buf;
+							console->whoSetAlter = 0;
 						}
-						// Check bottom right, bottom left as well as below for 2-hex creatures.
-						if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1)
+						else //unavailable enemy
 						{
-							sectorCursor[4] = -1;
-							sectorCursor[5] = -1;
-							belowAttackable = false;
-						} 
-						else 
-						{
-							if (doubleWide)
-							{
-								bool attackRow[4] = {true, true, true, true};
-
-								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
-									attackRow[0] = false;
-								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
-									attackRow[1] = false;
-								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
-									attackRow[2] = false;
-								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + 1 + zigzagCorrection))
-									attackRow[3] = false;
-
-								if (!(attackRow[0] && attackRow[1]))
-									sectorCursor[5] = -1;
-								if (!(attackRow[1] && attackRow[2]))
-									belowAttackable = false;
-								if (!(attackRow[2] && attackRow[3]))
-									sectorCursor[4] = -1;
-							} 
-							else 
-							{
-								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
-									sectorCursor[4] = -1;
-								if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
-									sectorCursor[5] = -1;
-							}
+							CCS->curh->changeGraphic(1,0);
+							console->alterTxt = "";
+							console->whoSetAlter = 0;
 						}
-
-						// Determine index from sector.
-						int cursorIndex;
-						if (doubleWide) 
-						{
-							sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
-							sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
-
-							if (sector < 1.5)
-								cursorIndex = sector;
-							else if (sector >= 1.5 && sector < 2.5)
-								cursorIndex = 2;
-							else if (sector >= 2.5 && sector < 4.5)
-								cursorIndex = (int) sector + 1;
-							else if (sector >= 4.5 && sector < 5.5)
-								cursorIndex = 6;
-							else
-								cursorIndex = (int) sector + 2;
-						} 
-						else 
-						{
-							cursorIndex = sector;
-						}
-
-						// Find the closest direction attackable, starting with the right one.
-						// FIXME: Is this really how the original H3 client does it?
-						int i = 0;
-						while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
-							i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
-						int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
-						cursor->changeGraphic(1, sectorCursor[index]);
-						switch (index)
-						{
-							case 0:
-								attackingHex = myNumber - 1; //left
-								break;
-							case 1:
-								attackingHex = myNumber - BFIELD_WIDTH - 1 + zigzagCorrection; //top left
-								break;
-							case 2:
-								attackingHex = myNumber - BFIELD_WIDTH + zigzagCorrection; //top right
-								break;
-							case 3:
-								break;
-								attackingHex = myNumber + 1; //right
-							case 4:
-								break;
-								attackingHex = myNumber + BFIELD_WIDTH + zigzagCorrection; //bottom right
-							case 5:
-								attackingHex = myNumber + BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
-								break;
-						}
-						THex hex(attackingHex);
-						if (!hex.isValid())
-							attackingHex = -1;
-
-						//setting console info
-						char buf[500];
-						//calculating estimated dmg
-						std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-						std::ostringstream estDmg;
-						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
-						//printing
-						sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), estDmg.str().c_str());
-						console->alterTxt = buf;
-						console->whoSetAlter = 0;
 					}
-					else //unavailable enemy
-					{
-						CCS->curh->changeGraphic(1,0);
-						console->alterTxt = "";
-						console->whoSetAlter = 0;
-					}
-				}
-				else if( sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber) ) //catapulting
+				} //end of stack
+				//TODO: allow aiming for creature spells
+				else if (sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber)) //catapulting
 				{
 					CCS->curh->changeGraphic(1,16);
 					console->alterTxt = "";
@@ -2399,6 +2272,171 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			}
 		}
 	}
+}
+
+void CBattleInterface::setBattleCursor(const int myNumber)
+{
+	const CBattleHex & hoveredHex = bfield[myNumber];
+	CCursorHandler *cursor = CCS->curh;
+
+	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
+	const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
+	const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
+	const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
+	const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
+	const int zigzagCorrection = !((myNumber/BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
+
+	std::vector<int> sectorCursor; // From left to bottom left.
+	sectorCursor.push_back(8);
+	sectorCursor.push_back(9);
+	sectorCursor.push_back(10);
+	sectorCursor.push_back(11);
+	sectorCursor.push_back(12);
+	sectorCursor.push_back(7);
+
+	const bool doubleWide = activeStack->doubleWide();
+	bool aboveAttackable = true, belowAttackable = true;
+
+	// Exclude directions which cannot be attacked from.
+	// Check to the left.
+	if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - 1)) 
+	{
+		sectorCursor[0] = -1;
+	}
+	// Check top left, top right as well as above for 2-hex creatures.
+	if (myNumber/BFIELD_WIDTH == 0) 
+	{
+			sectorCursor[1] = -1;
+			sectorCursor[2] = -1;
+			aboveAttackable = false;
+	} 
+	else 
+	{
+		if (doubleWide) 
+		{
+			bool attackRow[4] = {true, true, true, true};
+
+			if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
+				attackRow[0] = false;
+			if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+				attackRow[1] = false;
+			if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+				attackRow[2] = false;
+			if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + 1 + zigzagCorrection))
+				attackRow[3] = false;
+
+			if (!(attackRow[0] && attackRow[1]))
+				sectorCursor[1] = -1;
+			if (!(attackRow[1] && attackRow[2]))
+				aboveAttackable = false;
+			if (!(attackRow[2] && attackRow[3]))
+				sectorCursor[2] = -1;
+		}
+		else
+		{
+			if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+				sectorCursor[1] = -1;
+			if (!vstd::contains(occupyableHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+				sectorCursor[2] = -1;
+		}
+	}
+	// Check to the right.
+	if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + 1))
+	{
+		sectorCursor[3] = -1;
+	}
+	// Check bottom right, bottom left as well as below for 2-hex creatures.
+	if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1)
+	{
+		sectorCursor[4] = -1;
+		sectorCursor[5] = -1;
+		belowAttackable = false;
+	} 
+	else 
+	{
+		if (doubleWide)
+		{
+			bool attackRow[4] = {true, true, true, true};
+
+			if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
+				attackRow[0] = false;
+			if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+				attackRow[1] = false;
+			if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+				attackRow[2] = false;
+			if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + 1 + zigzagCorrection))
+				attackRow[3] = false;
+
+			if (!(attackRow[0] && attackRow[1]))
+				sectorCursor[5] = -1;
+			if (!(attackRow[1] && attackRow[2]))
+				belowAttackable = false;
+			if (!(attackRow[2] && attackRow[3]))
+				sectorCursor[4] = -1;
+		} 
+		else 
+		{
+			if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+				sectorCursor[4] = -1;
+			if (!vstd::contains(occupyableHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+				sectorCursor[5] = -1;
+		}
+	}
+
+	// Determine index from sector.
+	int cursorIndex;
+	if (doubleWide) 
+	{
+		sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
+		sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
+
+		if (sector < 1.5)
+			cursorIndex = sector;
+		else if (sector >= 1.5 && sector < 2.5)
+			cursorIndex = 2;
+		else if (sector >= 2.5 && sector < 4.5)
+			cursorIndex = (int) sector + 1;
+		else if (sector >= 4.5 && sector < 5.5)
+			cursorIndex = 6;
+		else
+			cursorIndex = (int) sector + 2;
+	} 
+	else 
+	{
+		cursorIndex = sector;
+	}
+
+	// Find the closest direction attackable, starting with the right one.
+	// FIXME: Is this really how the original H3 client does it?
+	int i = 0;
+	while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
+		i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
+	int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
+	cursor->changeGraphic(1, sectorCursor[index]);
+	switch (index)
+	{
+		case 0:
+			attackingHex = myNumber - 1; //left
+			break;
+		case 1:
+			attackingHex = myNumber - BFIELD_WIDTH - 1 + zigzagCorrection; //top left
+			break;
+		case 2:
+			attackingHex = myNumber - BFIELD_WIDTH + zigzagCorrection; //top right
+			break;
+		case 3:
+			break;
+			attackingHex = myNumber + 1; //right
+		case 4:
+			break;
+			attackingHex = myNumber + BFIELD_WIDTH + zigzagCorrection; //bottom right
+		case 5:
+			attackingHex = myNumber + BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
+			break;
+	}
+	THex hex(attackingHex);
+	if (!hex.isValid())
+		attackingHex = -1;
 }
 
 void CBattleInterface::clickRight(tribool down, bool previousState)
@@ -3490,7 +3528,6 @@ void CBattleInterface::activateStack()
 	activeStack = stackToActivate;
 	stackToActivate = NULL;
 	const CStack *s = activeStack;
-	stackSpells.clear();
 
 	myTurn = true;
 	if(attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
@@ -3510,11 +3547,13 @@ void CBattleInterface::activateStack()
 	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::RANDOM_SPELLCASTER)))
 	{
 		stackCanCastSpell = true;
-
-
+		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 	}
 	else
+	{
 		stackCanCastSpell = false;
+		creatureSpellToCast = -1;
+	}
 
 	GH.fakeMouseMove();
 
