@@ -3312,11 +3312,44 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				BattleSetStackProperty ssp;
 				ssp.stackID = ba.stackNumber;
-				ssp.which = BattleSetStackProperty::CASTS;
+				ssp.which = BattleSetStackProperty::CASTS; //reduce number of casts
 				ssp.val = -1;
 				ssp.absolute = false;
 				sendAndApply(&ssp);
 			}
+
+			sendAndApply(&end_action);
+			break;
+		}
+		case BattleAction::MONSTER_SPELL:
+		{
+			StartAction start_action(ba);
+			sendAndApply(&start_action);
+
+			CStack * stack = gs->curB->getStack(ba.stackNumber);
+			int spellID = ba.additionalInfo;
+			THex destination(ba.destinationTile);
+
+			int spellLvl = 0;
+			Bonus * bonus = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
+			if (bonus)
+				amax(spellLvl, bonus->val);
+			bonus = stack->getBonus(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			if (bonus)
+				amax(spellLvl, bonus->val);
+			amin (spellLvl, 3);
+
+			int casterSide = gs->curB->whatSide(stack->owner);
+			const CGHeroInstance * secHero = gs->curB->getHero(gs->curB->theOtherPlayer(stack->owner));
+
+			handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, NULL, secHero, 0, SpellCasting::CREATURE_ACTIVE_CASTING, stack);
+
+			BattleSetStackProperty ssp;
+			ssp.stackID = ba.stackNumber;
+			ssp.which = BattleSetStackProperty::CASTS; //reduce number of casts
+			ssp.val = -1;
+			ssp.absolute = false;
+			sendAndApply(&ssp);
 
 			sendAndApply(&end_action);
 			break;
@@ -3520,7 +3553,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				if (unitSpellPower)
 					sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
 				else //Faerie Dragon
+				{
 					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
+					sc.dmgToDisplay = 0;
+				}
 			}
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
@@ -3536,7 +3572,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				if (spellDamage)
 					bsa.damageAmount = spellDamage;
 				else
+				{
 					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
+					sc.dmgToDisplay += bsa.damageAmount;
+				}
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
 				(*it)->prepareAttacked(bsa);

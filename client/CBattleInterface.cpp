@@ -2140,8 +2140,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							std::ostringstream estDmg;
 							estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
 							//printing
-							sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(),
-								estDmg.str().c_str());
+							sprintf(buf, CGI->generaltexth->allTexts[36].c_str(),
+								shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), estDmg.str().c_str());
 							console->alterTxt = buf;
 							console->whoSetAlter = 0;
 						}
@@ -2170,19 +2170,20 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			else //available tile
 			{
 				//setting console text and cursor
-				const CStack *sactive = activeStack;
-				if(sactive) //there can be a moment when stack is dead ut next is not yet activated
+				if(activeStack) //there can be a moment when stack is dead ut next is not yet activated
 				{
 					char buf[500];
-					if(sactive->hasBonusOfType(Bonus::FLYING))
+					if(activeStack->hasBonusOfType(Bonus::FLYING))
 					{
 						CCS->curh->changeGraphic(1,2);
-						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(),
+							activeStack->count == 1 ? activeStack->getCreature()->nameSing.c_str() : activeStack->getCreature()->namePl.c_str());
 					}
 					else
 					{
 						CCS->curh->changeGraphic(1,1);
-						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->count == 1 ? sactive->getCreature()->nameSing.c_str() : sactive->getCreature()->namePl.c_str());
+						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(),
+							activeStack->count == 1 ? activeStack->getCreature()->nameSing.c_str() : activeStack->getCreature()->namePl.c_str());
 					}
 
 					console->alterTxt = buf;
@@ -2894,11 +2895,42 @@ void CBattleInterface::hexLclicked(int whichOne)
 				endCastingSpell();
 			}
 		}
-		else //we don't aim for spell target
+		else //we don't aim for spell target area
 		{
 			bool walkableTile = false;
 			if (dest)
 			{
+				bool ourStack = actSt->owner == dest->owner;
+
+				//try to cast stack spell first
+				if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
+				{
+					if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
+					{
+						const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
+						if (curInt->cb->battleCanCastThisSpell(spell, THex(whichOne)) == SpellCasting::OK)
+						{
+							if (spell->positiveness > -1 && ourStack || spell->positiveness < 1 && !ourStack)
+							{
+								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
+							}
+						}
+					}
+					else if (ourStack) //must have only random positive spell (genie)
+					{
+						if (dest != actSt) //can't cast on itself
+						{
+							int spellID = curInt->cb->battleGetRandomStackSpell(dest, CBattleInfoCallback::RANDOM_GENIE);
+							if (spellID > -1) //can cast any spell on target stack
+							{
+								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, spellID); //use randomized spell
+							}
+						}
+					}
+					creatureSpellToCast = -1;
+					return; //no further action after cast
+				}
+
 				if (dest->alive())
 				{
 					if(dest->owner != actSt->owner && curInt->cb->battleCanShoot(activeStack, whichOne)) //shooting
@@ -2906,7 +2938,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						CCS->curh->changeGraphic(1, 6); //cursor should be changed
 						giveCommand (BattleAction::SHOOT, whichOne, activeStack->ID);
 					}
-					else if(dest->owner != actSt->owner) //attacking
+					else if(!ourStack) //attacking
 					{
 						const CStack * actStack = activeStack;
 						int attackFromHex = -1; //hex from which we will attack chosen stack

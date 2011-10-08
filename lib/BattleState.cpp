@@ -2007,6 +2007,9 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 						continue;
 				}
 					break;
+				case 65: //clone - not allowed
+					continue;
+					break;
 			}
 			possibleSpells.push_back(i);
 		}

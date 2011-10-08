@@ -102,7 +102,7 @@ namespace PrimarySkill
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
 	BONUS_NAME(NON_LIVING) /*eg. gargoyle*/				\
-	BONUS_NAME(RANDOM_SPELLCASTER) /*eg. master genie, For Genie spells, subtype - spell id */ \
+	BONUS_NAME(RANDOM_SPELLCASTER) /*eg. master genie, val - level*/ \
 	BONUS_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	BONUS_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
 	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \

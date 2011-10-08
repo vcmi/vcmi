@@ -1278,15 +1278,16 @@ DLL_EXPORT void BattleStackAdded::applyGs(CGameState *gs)
 
 DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 {
+	CStack * stack = gs->curB->getStack(stackID);
 	switch (which)
 	{
 		case CASTS:
 		{
 			if (absolute)
-				gs->curB->stacks[stackID]->casts = val;
+				stack->casts = val;
 			else
-				gs->curB->stacks[stackID]->casts--;
-			amax(gs->curB->stacks[stackID]->casts, 0);
+				stack->casts += val;
+			amax(stack->casts, 0);
 			break;
 		}
 	}
