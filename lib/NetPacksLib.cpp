@@ -847,6 +847,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= WAITING;
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
+		s->state -= FEAR;
 		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 		// new turn effects
 		s->battleTurnPassed();
@@ -889,7 +890,10 @@ DLL_EXPORT void BattleTriggerEffect::applyGs( CGameState *gs )
 			break;
 		}
 		case Bonus::ENCHANTER:
+			break;
 		case Bonus::FEAR:
+			st->state.insert(FEAR);
+			break;
 		default:
 			tlog2 << "Unrecognized trigger effect type "<< type <<"\n"; 
 	}

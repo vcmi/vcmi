@@ -3512,12 +3512,7 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 	switch (bte.effect)
 	{
 		case Bonus::HP_REGENERATION:
-			if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
-			{
-				displayEffect(74, stack->position);
-				CCS->soundh->playSound(soundBase::REGENER);
-			}
-			if( stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
+			if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
 			{
 				displayEffect(74, stack->position);
 				CCS->soundh->playSound(soundBase::REGENER);
@@ -3530,6 +3525,10 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 		case Bonus::POISON:
 			displayEffect(67, stack->position);
 			CCS->soundh->playSound(soundBase::POISON);
+			break;
+		case Bonus::FEAR:
+			displayEffect(15, stack->position);
+			CCS->soundh->playSound(soundBase::FEAR);
 			break;
 		default:
 			return;

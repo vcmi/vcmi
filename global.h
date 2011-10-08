@@ -89,7 +89,7 @@ enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colo
 enum EvictoryConditions {artifact, gatherTroop, gatherResource, buildCity, buildGrail, beatHero,
 	captureCity, beatMonster, takeDwellings, takeMines, transportItem, winStandard=255};
 enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
-enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING};
+enum ECombatInfo{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR};
 
 class CGameInfo;
 extern const CGameInfo* CGI; //game info for general use

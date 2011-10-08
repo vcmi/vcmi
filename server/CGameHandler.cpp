@@ -3987,6 +3987,26 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				}
 			}
 		}
+		if (!st->hasBonusOfType(Bonus::FEARLESS))
+		{
+			bool fearsomeCreature = false;
+			BOOST_FOREACH(CStack * stack, gs->curB->stacks)
+			{
+				if (stack->owner != st->owner && stack->hasBonusOfType(Bonus::FEAR))
+				{
+					fearsomeCreature = true;
+					break;
+				}
+			}
+			if (fearsomeCreature)
+			{
+				if (rand() % 100 < 10) //fixed 10%
+				{
+					bte.effect = Bonus::FEAR;
+					sendAndApply(&bte);
+				}
+			}
+		}
 		BonusList * bl = st->getBonuses(Selector::type(Bonus::ENCHANTER)).get();
 		if (bl->size())
 		{
@@ -5273,13 +5293,21 @@ void CGameHandler::runBattle()
 				{
 					stackTurnTrigger(next); //various effects
 
-					BattleSetActiveStack sas;
-					sas.stack = next->ID;
-					sendAndApply(&sas);
-					boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-					battleMadeAction.data = false;
-					while(next->alive() && (!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
-						battleMadeAction.cond.wait(lock);
+					if (vstd::contains(next->state, FEAR))
+					{
+						makeStackDoNothing(next); //end immediately if stack was affected by fear
+					}
+					else
+					{
+						BattleSetActiveStack sas;
+						sas.stack = next->ID;
+						sendAndApply(&sas);
+						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+						battleMadeAction.data = false;
+						while (next->alive() &&
+							(!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
+							battleMadeAction.cond.wait(lock);
+					}
 				}
 
 				if(battleResult.get()) //don't touch it, battle could be finished while waiting got action
@@ -5296,6 +5324,7 @@ void CGameHandler::runBattle()
 				if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
 					&& !vstd::contains(next->state,DEFENDING)
 					&& !vstd::contains(next->state,WAITING)
+					&& !vstd::contains(next->state, FEAR)
 					&&  next->alive()
 					&&  nextStackMorale > 0
 					&& !(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses

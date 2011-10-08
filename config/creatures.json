@@ -957,7 +957,9 @@
 				"level": 4,
 				"name": [ "OgreMage" ],
 				"faction": 6,
-				"ability_add": [ [ "SPELLCASTER", 2, 43, 6 ] ],   	   	   	//ogre magi cast bloodlust
+				"ability_add": [ [ "SPELLCASTER", 2, 43, 0 ],
+								 [ "CASTS", 3, 0, 0],
+								 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	//ogre magi cast bloodlust
 				"defname": "COGMAG.DEF"
 			},
 
@@ -1364,7 +1366,8 @@
 				"level": 10,
 				"name": [ "AzureDragon" ],
 				"faction": -1,
-				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//azure dragon is a dragon
+				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],
+								[ "FEAR", 0, 0, 0]],			//azure dragon is a dragon
 				"defname": "CADRGN.DEF"
 			},
 
