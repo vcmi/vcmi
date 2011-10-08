@@ -801,6 +801,10 @@ void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleStacksEffectsSet(sse);
 }
+void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
+{
+	battleInt->battleTriggerEffect(bte);
+}
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
 	if(LOCPLINT != this)

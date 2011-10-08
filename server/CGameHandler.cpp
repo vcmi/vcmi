@@ -3935,6 +3935,70 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 	return false;
 }
 
+void CGameHandler::stackTurnTrigger(const CStack * st)
+{
+	BattleTriggerEffect bte;
+	bte.stackID = st->ID;
+	bte.effect = -1;
+	bte.val = 0;
+	bte.additionalInfo = 0;
+	if (st->alive())
+	{
+		//regeneration
+		if(st->hasBonusOfType(Bonus::HP_REGENERATION))
+		{
+			bte.effect = Bonus::HP_REGENERATION;
+			bte.val = std::min((int)(st->MaxHealth() - st->firstHPleft), st->valOfBonuses(Bonus::HP_REGENERATION));
+		}
+		if(st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
+		{
+			bte.effect = Bonus::HP_REGENERATION;
+			bte.val = st->MaxHealth() - st->firstHPleft;
+		}
+		if (bte.val) //anything to heal
+			sendAndApply(&bte);
+
+		if(st->hasBonusOfType(Bonus::POISON))
+		{
+			const Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			if (b) //TODO: what if not?...
+			{
+				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
+				if (bte.val < b->val) //(negative) poison effect increases - update it
+				{
+					bte.effect = Bonus::POISON;
+					sendAndApply(&bte);
+				}
+			}
+		}
+		if(st->hasBonusOfType(Bonus::MANA_DRAIN))
+		{
+			const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
+			if (enemy)
+			{
+				ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);
+				amin (manaDrained, gs->curB->heroes[0]->mana);
+				if (manaDrained)
+				{
+					bte.effect = Bonus::MANA_DRAIN;
+					bte.val = manaDrained;
+					bte.additionalInfo = enemy->id; //for sanity
+					sendAndApply(&bte);
+				}
+			}
+		}
+		BonusList * bl = st->getBonuses(Selector::type(Bonus::ENCHANTER)).get();
+		if (bl->size())
+		{
+			bte.effect = Bonus::ENCHANTER;
+			int index = rand() % bl->size();
+			bte.val = (*bl)[index]->subtype; //spell ID
+			bte.additionalInfo = (*bl)[index]->val; //spell level
+			sendAndApply(&bte);
+		}
+	}
+}
+
 void CGameHandler::handleTimeEvents()
 {
 	gs->map->events.sort(evntCmp);
@@ -5207,6 +5271,8 @@ void CGameHandler::runBattle()
 			{//ask interface and wait for answer
 				if(!battleResult.get())
 				{
+					stackTurnTrigger(next); //various effects
+
 					BattleSetActiveStack sas;
 					sas.stack = next->ID;
 					sendAndApply(&sas);

@@ -126,6 +126,7 @@ public:
 	virtual void battleNewRoundFirst(int round);
 	virtual void actionFinished(const BattleAction *action);
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse);
+	//virtual void battleTriggerEffect(const BattleTriggerEffect & bte);
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr);
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles);
 	virtual void battleNewStackAppeared(const CStack * stack);

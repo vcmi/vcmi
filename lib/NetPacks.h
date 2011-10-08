@@ -1522,6 +1522,26 @@ struct BattleSetStackProperty : public CPackForClient //3018
 	}
 };
 
+struct BattleTriggerEffect : public CPackForClient //3019
+{ //activated at the beginning of turn
+	BattleTriggerEffect(){type = 3019;};
+
+	DLL_EXPORT void applyGs(CGameState *gs); //effect
+	void applyCl(CClient *cl); //play animations & stuff
+
+	//enum BattleEffect {REGENERATION, MANA_DRAIN, FEAR, MANA_CHANNELING, ENCHANTER, UNBIND, POISON, ENCHANTED, SUMMONER};
+
+	int stackID;
+	int effect; //use enumBattleEffect or corresponding Bonus type for sanity?
+	int val;
+	int additionalInfo;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stackID & effect & val & additionalInfo;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

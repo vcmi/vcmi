@@ -858,39 +858,41 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 	gs->curB->activeStack = stack;
 	CStack *st = gs->curB->getStack(stack);
 
-	if (st->alive())
-		{
-			//regeneration
-			if(st->hasBonusOfType(Bonus::HP_REGENERATION))
-				st->firstHPleft = std::min<ui32>( st->MaxHealth(), st->valOfBonuses(Bonus::HP_REGENERATION) );
-			if(st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-				st->firstHPleft = st->MaxHealth();
-			if(st->hasBonusOfType(Bonus::POISON))
-			{
-				Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
-				if (b) //TODO: what if not?...
-				{
-					b->val -= 10;
-					amax (b->val, -(st->valOfBonuses(Bonus::POISON)));
-				}
-			}
-			if(st->hasBonusOfType(Bonus::MANA_DRAIN))
-			{
-				const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
-				if (enemy)
-				{
-					ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);
-					amin (manaDrained, gs->curB->heroes[0]->mana);
-					gs->getHero(enemy->id)->mana -= manaDrained; //jeez, it's overcomplicate
-				}
-			}
-		}
-
 	//remove bonuses that last until when stack gets new turn
 	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
 
 	if(vstd::contains(st->state,MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(HAD_MORALE);
+}
+
+DLL_EXPORT void BattleTriggerEffect::applyGs( CGameState *gs )
+{
+	CStack *st = gs->curB->getStack(stackID);
+	switch (effect)
+	{
+		case Bonus::HP_REGENERATION:
+			st->firstHPleft += val;
+			amin (st->firstHPleft, (ui32)st->MaxHealth());
+			break;
+		case Bonus::MANA_DRAIN:
+		{
+			CGHeroInstance * h = gs->getHero(additionalInfo);
+			h->mana -= val;
+			amax(h->mana, 0);
+			break;
+		}
+		case Bonus::POISON:
+		{
+			Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			if (b)
+				b->val = val;
+			break;
+		}
+		case Bonus::ENCHANTER:
+		case Bonus::FEAR:
+		default:
+			tlog2 << "Unrecognized trigger effect type "<< type <<"\n"; 
+	}
 }
 
 void BattleResult::applyGs( CGameState *gs )

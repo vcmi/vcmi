@@ -587,6 +587,11 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 		boost::thread( boost::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
 }
 
+void BattleTriggerEffect::applyCl(CClient * cl)
+{
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleTriggerEffect, *this);
+}
+
 void BattleResult::applyFirstCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleEnd,this);

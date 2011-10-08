@@ -37,6 +37,7 @@ class CGTownInstance;
 struct CatapultAttack;
 class CBattleInterface;
 struct CatapultProjectileInfo;
+struct BattleTriggerEffect;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct SStackAttackedInfo
@@ -569,6 +570,7 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy
 	void endAction(const BattleAction* action);
 	void hideQueue();

@@ -2631,47 +2631,6 @@ void CBattleInterface::stackRemoved(int stackID)
 
 void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all before game state is changed due to abilities
 {
-	//don't show animation when no HP is regenerated
-	if (stack->firstHPleft != stack->MaxHealth())
-	{
-		if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
-		{
-			displayEffect(74, stack->position);
-			CCS->soundh->playSound(soundBase::REGENER);
-		}
-		if( stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
-		{
-			displayEffect(74, stack->position);
-			CCS->soundh->playSound(soundBase::REGENER);
-		}
-	}
-
-	if(stack->hasBonusOfType(Bonus::MANA_DRAIN))
-	{
-		CGHeroInstance * enemy = NULL; //probably could be smarter and not duplicated
-		if (defendingHero)
-			if (defendingHero->myHero->tempOwner != stack->owner)
-				enemy = const_cast<CGHeroInstance *>(defendingHero->myHero);
-		if (attackingHero)
-			if (attackingHero->myHero->tempOwner != stack->owner)
-				enemy = const_cast<CGHeroInstance *>(attackingHero->myHero);
-		if (enemy)
-		{
-			ui32 manaDrained = stack->valOfBonuses(Bonus::MANA_DRAIN);
-			amin (manaDrained, enemy->mana);
-			if (manaDrained)
-			{
-				displayEffect(77, stack->position);
-				CCS->soundh->playSound(soundBase::MANADRAI);
-			}
-		}
-	}
-	if(stack->hasBonusOfType(Bonus::POISON))
-	{
-		displayEffect(67, stack->position);
-		CCS->soundh->playSound(soundBase::POISON);
-	}
-
 	//givenCommand = NULL;
 	stackToActivate = stack;
 	if(pendingAnims.size() == 0)
@@ -3544,6 +3503,38 @@ void CBattleInterface::castThisSpell(int spellID)
 void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
 	addNewAnim(new CSpellEffectAnim(this, effect, destTile));
+}
+
+void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
+{
+	const CStack * stack = curInt->cb->battleGetStackByID(bte.stackID);
+	//don't show animation when no HP is regenerated
+	switch (bte.effect)
+	{
+		case Bonus::HP_REGENERATION:
+			if( stack->hasBonusOfType(Bonus::HP_REGENERATION) || stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 1))
+			{
+				displayEffect(74, stack->position);
+				CCS->soundh->playSound(soundBase::REGENER);
+			}
+			if( stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION, 0))
+			{
+				displayEffect(74, stack->position);
+				CCS->soundh->playSound(soundBase::REGENER);
+			}
+			break;
+		case Bonus::MANA_DRAIN:
+			displayEffect(77, stack->position);
+			CCS->soundh->playSound(soundBase::MANADRAI);
+			break;
+		case Bonus::POISON:
+			displayEffect(67, stack->position);
+			CCS->soundh->playSound(soundBase::POISON);
+			break;
+		default:
+			return;
+	}
+	//waitForAnims(); //fixme: freezes game :?
 }
 
 void CBattleInterface::setAnimSpeed(int set)
