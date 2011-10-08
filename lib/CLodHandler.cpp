@@ -27,28 +27,6 @@
  *
  */
 
-int readNormalNr (const unsigned char * bufor, int pos, int bytCon, bool cyclic)
-{
-	int ret=0;
-	int amp=1;
-
-	for (int ir=0; ir<bytCon; ir++)
-	{
-		ret+=bufor[pos+ir]*amp;
-		amp*=256;
-	}
-	if(cyclic && bytCon<4 && ret>=amp/2)
-	{
-		ret = ret-amp;
-	}
-	return ret;
-}
-
-char readChar(const unsigned char * bufor, int &i)
-{
-	return bufor[i++];
-}
-
 std::string readString(const unsigned char * bufor, int &i)
 {					
 	int len = read_le_u32(bufor + i); i+=4;

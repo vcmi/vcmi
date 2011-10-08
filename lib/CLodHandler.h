@@ -35,9 +35,10 @@ struct LodEntry {
 	ui32 size;				/* little endian */
 };
 
-DLL_EXPORT int readNormalNr (const unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false);
-
-DLL_EXPORT char readChar(const unsigned char * bufor, int &i);
+static inline char readChar(const unsigned char * bufor, int &i)
+{
+	return bufor[i++];
+}
 
 DLL_EXPORT std::string readString(const unsigned char * bufor, int &i);
 

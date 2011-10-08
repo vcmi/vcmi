@@ -34,19 +34,6 @@ private:
 	} ;
 	std::vector<SEntry> SEntries ;
 	std::string defName, curDir;
-	template< int bytCon > static int readNormalNr (int pos, unsigned char * str)
-	{
-		int ret=0;
-		int amp=1;
-
-		for (int i=0; i<bytCon; i++)
-		{
-			ret+=str[pos+i]*amp;
-			amp<<=8; //amp*=256;
-		}
-
-		return ret;
-	}
 
 	template<int bpp>
 	void putPixel(

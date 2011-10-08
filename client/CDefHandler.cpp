@@ -172,7 +172,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 		add=0;
 
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
-	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;

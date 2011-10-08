@@ -96,13 +96,24 @@ static unsigned char reverse(unsigned char arg)
 void readCreatureSet(CCreatureSet *out, const unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
 	const int bytesPerCre = version ? 4 : 3,
-		idBytes = version ? 2 : 1,
 		maxID = version ? 0xffff : 0xff;
 
 	for(int ir=0;ir < number; ir++)
 	{
-		int creID = readNormalNr(bufor,i+ir*bytesPerCre, idBytes);
-		int count = readNormalNr(bufor,i+ir*bytesPerCre+idBytes, 2);
+		int creID;
+		int count;
+
+		if (version)
+		{
+			creID = read_le_u16(bufor + i+ir*bytesPerCre);
+			count = read_le_u16(bufor + i+ir*bytesPerCre + 2);
+		}
+		else
+		{
+			creID = bufor[i+ir*bytesPerCre];
+			count = read_le_u16(bufor + i+ir*bytesPerCre + 1);
+		}
+
 		if(creID == maxID) //empty slot
 			continue;
 
@@ -597,8 +608,9 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 		case 5:
 			{
 				hut->rID = bufor[i]; ++i;
-				hut->rVal = readNormalNr(bufor,i, 3); i+=3;
-				i+=1;
+				/* Only the first 3 bytes are used. Skip the 4th. */
+				hut->rVal = read_le_u32(bufor + i) & 0x00ffffff;
+				i+=4;
 				break;
 			}
 		case 6:
@@ -615,7 +627,14 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 			}
 		case 8:
 			{
-				hut->rID = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
+				if (version == RoE)
+				{
+					hut->rID = bufor[i]; i++;
+				}
+				else
+				{
+					hut->rID = read_le_u16(bufor + i); i+=2;
+				}
 				break;
 			}
 		case 9:
@@ -1271,8 +1290,8 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				}
 				evnt->gainedExp = read_le_u32(bufor + i); i+=4;
 				evnt->manaDiff = read_le_u32(bufor + i); i+=4;
-				evnt->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
-				evnt->luckDiff = readNormalNr(bufor,i, 1, true); ++i;
+				evnt->moraleDiff = (si8)bufor[i]; ++i;
+				evnt->luckDiff = (si8)bufor[i]; ++i;
 
 				evnt->resources.resize(RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
@@ -1299,7 +1318,14 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				int gart = bufor[i]; ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					evnt->artifacts.push_back(readNormalNr(bufor,i, (version == RoE ? 1 : 2))); i+=(version == RoE ? 1 : 2);
+					if (version == RoE)
+					{
+						evnt->artifacts.push_back(bufor[i]); i++;
+					}
+					else
+					{
+						evnt->artifacts.push_back(read_le_u16(bufor + i)); i+=2;
+					}
 				}
 
 				int gspel = bufor[i]; ++i; //number of gained spells
@@ -1394,7 +1420,16 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 						cre->resources[j] = read_le_u32(bufor + i); i+=4;
 					}
 
-					int artID = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
+					int artID;
+					if (version == RoE)
+					{
+						artID = bufor[i]; i++;
+					}
+					else
+					{
+						artID = read_le_u16(bufor + i); i+=2;
+					}
+
 					if(version==RoE)
 					{
 						if(artID!=0xff)
@@ -1588,9 +1623,9 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 				box->gainedExp = read_le_u32(bufor + i); i+=4;
 				box->manaDiff = read_le_u32(bufor + i); i+=4;
-				box->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
-				box->luckDiff = readNormalNr(bufor,i, 1, true); ++i;				
-				
+				box->moraleDiff = (si8)bufor[i]; ++i;
+				box->luckDiff = (si8)bufor[i]; ++i;				
+
 				box->resources.resize(RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
 				{
@@ -2052,9 +2087,17 @@ void Mapa::addNewArtifactInstance( CArtifactInstance *art )
 bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i)
 {
 	const int artmask = version == RoE ? 0xff : 0xffff;
-	const int artidlen = version == RoE ? 1 : 2;
+	int aid;
 
-	int aid = readNormalNr(bufor,i, artidlen); i+=artidlen;
+	if (version == RoE)
+	{
+		aid = bufor[i]; i++;
+	}
+	else
+	{
+		aid = read_le_u16(bufor + i); i+=2;
+	}
+
 	bool isArt  =  aid != artmask;
 	if(isArt)
 	{
