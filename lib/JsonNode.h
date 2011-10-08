@@ -3,6 +3,7 @@
 #include "../global.h"
 
 #include <iostream>
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -49,8 +50,8 @@ public:
 
 	~JsonNode();
 
-	// Deep copy of this node
-	JsonNode& operator =(const JsonNode &node);
+	void swap(JsonNode &b);
+	JsonNode& operator =(JsonNode node);
 
 	//Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
@@ -72,9 +73,6 @@ public:
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
 
-	//formatted output of this node in JSON format
-	void write(std::ostream &out, std::string prefix="") const;
-
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
@@ -83,9 +81,25 @@ public:
 	static const JsonNode nullNode;
 };
 
+class JsonWriter
+{
+	//prefix for each line (tabulation)
+	std::string prefix;
+	std::ostream &out;
+public:
+	template<typename Iterator>
+	void writeContainer(Iterator begin, Iterator end);
+	void writeEntry(JsonMap::const_iterator entry);
+	void writeEntry(JsonVector::const_iterator entry);
+	void writeString(const std::string &string);
+	void writeNode(const JsonNode &node);
+	JsonWriter(std::ostream &output, const JsonNode &node);
+};
+
 std::ostream & operator<<(std::ostream &out, const JsonNode &node);
 
-//Tiny string class that use const char* as data for speed, members are private for ease of debugging
+//Tiny string class that uses const char* as data for speed, members are private
+//for ease of debugging and some compatibility with std::string
 class constString
 {
 	const char *data;
@@ -110,10 +124,9 @@ public:
 	}
 };
 
-//Internal class for std::string -> JsonNode conversion
+//Internal class for string -> JsonNode conversion
 class JsonParser
 {
-
 	std::string errors;     // Contains description of all encountered errors
 	constString input;      // Input data
 	unsigned int lineCount; // Currently parsed line, starting from 1
@@ -126,6 +139,7 @@ class JsonParser
 	bool extractString(std::string &string);
 	bool extractWhitespace(bool verbose = true);
 	bool extractSeparator();
+	bool extractElement(JsonNode &node, char terminator);
 
 	//Methods for extracting JSON data
 	bool extractArray(JsonNode &node);
@@ -142,4 +156,25 @@ class JsonParser
 
 public:
 	JsonParser(const char * inputString, size_t stringSize, JsonNode &root);
+};
+
+//Internal class for Json validation, used automaticaly in JsonNode constructor. Behaviour:
+// - "schema" entry from root node is used for validation and will be removed
+// - any missing entries will be replaced with default value from schema (if present)
+// - if entry uses different type than defined in schema it will be removed
+// - entries nod described in schema will be kept unchanged
+class JsonValidator
+{
+	std::string errors;     // Contains description of all encountered errors
+	std::list<std::string> currentPath; // path from root node to current one
+
+	bool validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type);
+	bool validateSchema(JsonNode::JsonType &type, const JsonNode &schema);
+	bool validateNode(JsonNode &node, const JsonNode &schema, const std::string &name);
+	bool validateItems(JsonNode &node, const JsonNode &schema);
+	bool validateProperties(JsonNode &node, const JsonNode &schema);
+
+	bool addMessage(const std::string &message);
+public:
+	JsonValidator(JsonNode &root);
 };

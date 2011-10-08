@@ -2856,7 +2856,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 										&& dp->accessible == CGPathNode::BLOCKVIS;
 
 				if (dp->accessible == CGPathNode::ACCESSIBLE
-					|| useEmbarkCost && allowEmbarkAndDisembark
+					|| (useEmbarkCost && allowEmbarkAndDisembark)
 					|| destTopVisObjID == SUBTERRANEAN_GATE_TYPE
 					|| (guardedDst && !guardedSource)) // Can step into a hostile tile once.
 				{
@@ -2959,7 +2959,7 @@ bool CPathfinder::goodForLandSeaTransition()
 	return true; 
 }
 
-CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : out(_out), CGameInfoCallback(_gs, -1), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
+CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : CGameInfoCallback(_gs, -1), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
 {
 	useSubterraneanGates = true;
 	allowEmbarkAndDisembark = true;

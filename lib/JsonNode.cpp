@@ -1,6 +1,9 @@
 #define VCMI_DLL
 #include "JsonNode.h"
 
+#include <boost/assign.hpp>
+#include <boost/foreach.hpp>
+
 #include <assert.h>
 #include <fstream>
 #include <sstream>
@@ -18,6 +21,7 @@ JsonNode::JsonNode(const char *data, size_t datasize):
 	type(DATA_NULL)
 {
 	JsonParser parser(data, datasize, *this);
+	JsonValidator validator(*this);
 }
 
 JsonNode::JsonNode(std::string filename):
@@ -27,18 +31,29 @@ JsonNode::JsonNode(std::string filename):
 	fseek(file, 0, SEEK_END);
 	size_t datasize = ftell(file);
 	fseek(file, 0, SEEK_SET);
-	
+
 	char *input = new char[datasize];
-	fread((void*)input, 1, datasize, file);
-	
+	datasize = fread((void*)input, 1, datasize, file);
+	fclose(file);
+
 	JsonParser parser(input, datasize, *this);
+	JsonValidator validator(*this);
 	delete [] input;
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
 	type(DATA_NULL)
 {
-	*this = copy;
+	setType(copy.getType());
+	switch(type)
+	{
+		break; case DATA_NULL:
+		break; case DATA_BOOL:   Bool() =   copy.Bool();
+		break; case DATA_FLOAT:  Float() =  copy.Float();
+		break; case DATA_STRING: String() = copy.String();
+		break; case DATA_VECTOR: Vector() = copy.Vector();
+		break; case DATA_STRUCT: Struct() = copy.Struct();
+	}
 }
 
 JsonNode::~JsonNode()
@@ -46,18 +61,16 @@ JsonNode::~JsonNode()
 	setType(DATA_NULL);
 }
 
-JsonNode & JsonNode::operator =(const JsonNode &node)
+void JsonNode::swap(JsonNode &b)
 {
-	setType(node.getType());
-	switch(type)
-	{
-		break; case DATA_NULL:
-		break; case DATA_BOOL:   Bool() =   node.Bool();
-		break; case DATA_FLOAT:  Float() =  node.Float();
-		break; case DATA_STRING: String() = node.String();
-		break; case DATA_VECTOR: Vector() = node.Vector();
-		break; case DATA_STRUCT: Struct() = node.Struct();
-	}
+	using std::swap;
+	swap(data, b.data);
+	swap(type, b.type);
+}
+
+JsonNode & JsonNode::operator =(JsonNode node)
+{
+	swap(node);
 	return *this;
 }
 
@@ -191,71 +204,100 @@ const JsonNode & JsonNode::operator[](std::string child) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Helper to write content of map/vector
-template<class iterator>
-void writeContainer(const iterator &begin, const iterator &end, std::ostream &out, std::string prefix)
+template<typename Iterator>
+void JsonWriter::writeContainer(Iterator begin, Iterator end)
 {
 	if (begin == end)
 		return;
-
-	iterator last = end;
-	last--;
-
-	for (iterator it=begin; it != last; ++it)
+	
+	prefix += '\t';
+	end--;
+	while (begin != end)
 	{
-		writeNode(it, out, prefix);
+		writeEntry(begin++);
 		out<<",\n";
 	}
-	writeNode(last, out, prefix);
+	
+	writeEntry(begin);
 	out<<"\n";
+	prefix.resize(prefix.size()-1);
 }
 
-void writeNode(JsonVector::const_iterator it, std::ostream &out, std::string prefix)
+void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 {
 	out << prefix;
-	it->write(out, prefix);
+	writeString(entry->first);
+	out << " : ";
+	writeNode(entry->second);
 }
 
-void writeNode(JsonMap::const_iterator it, std::ostream &out, std::string prefix)
+void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 {
-	out << prefix << '\"' << it->first << '\"' << " : ";
-	it->second.write(out, prefix);
+	out << prefix;
+	writeNode(*entry);
 }
 
-void JsonNode::write(std::ostream &out, std::string prefix) const
+void JsonWriter::writeString(const std::string &string)
 {
-	switch(type)
+	static const std::string escaped = "\"\\/\b\f\n\r\t";
+
+	out <<'\"';
+	size_t pos=0, start=0;
+	for (; pos<string.size(); pos++)
 	{
-		break; case DATA_NULL:
+		size_t escapedChar = escaped.find(string[pos]);
+		
+		if (escapedChar != std::string::npos)
+		{
+			out.write(string.data()+start, pos - start);
+			out << '\\' << escaped[escapedChar];
+			start = pos;
+		}
+	}
+	out.write(string.data()+start, pos - start);
+	out <<'\"';
+}
+
+void JsonWriter::writeNode(const JsonNode &node)
+{
+	switch(node.getType())
+	{
+		break; case JsonNode::DATA_NULL:
 			out << "null";
 
-		break; case DATA_BOOL:
-			if (Bool())
+		break; case JsonNode::DATA_BOOL:
+			if (node.Bool())
 				out << "true";
 			else
 				out << "false";
 
-		break; case DATA_FLOAT:
-			out << Float();
+		break; case JsonNode::DATA_FLOAT:
+			out << node.Float();
 
-		break; case DATA_STRING:
-			out << "\"" << String() << "\"";
+		break; case JsonNode::DATA_STRING:
+			writeString(node.String());
 
-		break; case DATA_VECTOR:
+		break; case JsonNode::DATA_VECTOR:
 			out << "[" << "\n";
-			writeContainer(Vector().begin(), Vector().end(), out, prefix+'\t');
+			writeContainer(node.Vector().begin(), node.Vector().end());
 			out << prefix << "]";
 
-		break; case DATA_STRUCT:
+		break; case JsonNode::DATA_STRUCT:
 			out << "{" << "\n";
-			writeContainer(Struct().begin(), Struct().end(), out, prefix+'\t');
+			writeContainer(node.Struct().begin(), node.Struct().end());
 			out << prefix << "}";
 	}
 }
 
+JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
+	out(output)
+{
+	writeNode(node);
+}
+
 std::ostream & operator<<(std::ostream &out, const JsonNode &node)
 {
-	node.write(out);
+	JsonWriter(out, node);
 	return out << "\n";
 }
 
@@ -275,7 +317,7 @@ JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &ro
 		error("Not all file was parsed!", true);
 
 	//TODO: better way to show errors (like printing file name as well)
-	tlog2<<errors;
+	std::cout<<errors;
 }
 
 bool JsonParser::extractSeparator()
@@ -335,7 +377,7 @@ bool JsonParser::extractWhitespace(bool verbose)
 		if (input[pos] == '/')
 			pos++;
 		else
-			error("Comments should have two slashes!", true);
+			error("Comments must consist from two slashes!", true);
 
 		while (pos < input.size() && input[pos] != '\n')
 			pos++;
@@ -358,7 +400,7 @@ bool JsonParser::extractEscaping(std::string &str)
 		break; case '\n': str += '\n';
 		break; case '\r': str += '\r';
 		break; case '\t': str += '\t';
-		break; default: return error("Uknown escape sequence!", true);
+		break; default: return error("Unknown escape sequence!", true);
 	};
 	return true;
 }
@@ -442,7 +484,6 @@ bool JsonParser::extractTrue(JsonNode &node)
 	if (!extractLiteral("true"))
 		return false;
 
-	node.setType(JsonNode::DATA_BOOL);
 	node.Bool() = true;
 	return true;
 }
@@ -452,7 +493,6 @@ bool JsonParser::extractFalse(JsonNode &node)
 	if (!extractLiteral("false"))
 		return false;
 
-	node.setType(JsonNode::DATA_BOOL);
 	node.Bool() = false;
 	return true;
 }
@@ -484,33 +524,17 @@ bool JsonParser::extractStruct(JsonNode &node)
 		if (node.Struct().find(key) != node.Struct().end())
 			error("Dublicated element encountered!", true);
 
-		JsonNode &child = node.Struct()[key];
-
 		if (!extractSeparator())
 			return false;
 
-		if (!extractValue(child))
+		if (!extractElement(node.Struct()[key], '}'))
 			return false;
-
-		if (!extractWhitespace())
-			return false;
-
-		bool comma = (input[pos] == ',');
-		if (comma )
-		{
-			pos++;
-			if (!extractWhitespace())
-				return false;
-		}
 
 		if (input[pos] == '}')
 		{
 			pos++;
 			return true;
 		}
-
-		if (!comma)
-			error("Comma expected!", true);
 	}
 }
 
@@ -531,31 +555,44 @@ bool JsonParser::extractArray(JsonNode &node)
 
 	while (true)
 	{
+		//NOTE: currently 50% of time is this vector resizing.
+		//May be useful to use list during parsing and then swap() all items to vector
 		node.Vector().resize(node.Vector().size()+1);
 
-		if (!extractValue(node.Vector().back()))
+		if (!extractElement(node.Vector().back(), ']'))
 			return false;
-
-		if (!extractWhitespace())
-			return false;
-
-		bool comma = (input[pos] == ',');
-		if (comma )
-		{
-			pos++;
-			if (!extractWhitespace())
-				return false;
-		}
 
 		if (input[pos] == ']')
 		{
 			pos++;
 			return true;
 		}
-
-		if (!comma)
-			error("Comma expected!", true);
 	}
+}
+
+bool JsonParser::extractElement(JsonNode &node, char terminator)
+{
+	if (!extractValue(node))
+		return false;
+
+	if (!extractWhitespace())
+		return false;
+
+	bool comma = (input[pos] == ',');
+	if (comma )
+	{
+		pos++;
+		if (!extractWhitespace())
+			return false;
+	}
+
+	if (input[pos] == terminator)
+		return true;
+
+	if (!comma)
+		error("Comma expected!", true);
+
+	return true;
 }
 
 bool JsonParser::extractFloat(JsonNode &node)
@@ -572,6 +609,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 
 	if (input[pos] < '0' || input[pos] > '9')
 		return error("Number expected!");
+
 	//Extract integer part
 	while (input[pos] >= '0' && input[pos] <= '9')
 	{
@@ -613,4 +651,165 @@ bool JsonParser::error(const std::string &message, bool warning)
 	errors += stream.str();
 
 	return warning;
+}
+
+static const std::map<std::string, JsonNode::JsonType> stringToType =
+	boost::assign::map_list_of
+		("null",   JsonNode::DATA_NULL)   ("bool",   JsonNode::DATA_BOOL)
+		("number", JsonNode::DATA_FLOAT)  ("string", JsonNode::DATA_STRING)
+		("array",  JsonNode::DATA_VECTOR) ("object", JsonNode::DATA_STRUCT);
+
+//Check current schema entry for validness and converts "type" string to JsonType
+bool JsonValidator::validateSchema(JsonNode::JsonType &type, const JsonNode &schema)
+{
+	if (schema.isNull())
+		return addMessage("Missing schema for current entry!");
+
+	const JsonNode &nodeType = schema["type"];
+	if (nodeType.isNull())
+		return addMessage("Entry type is not defined in schema!");
+
+	if (nodeType.getType() != JsonNode::DATA_STRING)
+		return addMessage("Entry type must be string!");
+
+	std::map<std::string, JsonNode::JsonType>::const_iterator iter = stringToType.find(nodeType.String());
+
+	if (iter == stringToType.end())
+		return addMessage("Unknown entry type found!");
+
+	type = iter->second;
+	return true;
+}
+
+//Replaces node with default value if needed and calls type-specific validators
+bool JsonValidator::validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type)
+{
+	if (node.isNull())
+	{
+		const JsonNode & defaultValue = schema["default"];
+		if (defaultValue.isNull())
+			return addMessage("Null entry without default entry!");
+		else
+			node = defaultValue;
+	}
+
+	if (type != node.getType())
+	{
+		node.setType(JsonNode::DATA_NULL);
+		return addMessage("Type mismatch!");
+	}
+
+	if (type == JsonNode::DATA_VECTOR)
+		return validateItems(node, schema["items"]);
+
+	if (type == JsonNode::DATA_STRUCT)
+		return validateProperties(node, schema["properties"]);
+
+	return true;
+}
+
+// Basic checks common for any nodes
+bool JsonValidator::validateNode(JsonNode &node, const JsonNode &schema, const std::string &name)
+{
+	currentPath.push_back(name);
+
+	JsonNode::JsonType type = JsonNode::DATA_NULL;
+	if (!validateSchema(type, schema))
+	{
+		currentPath.pop_back();
+		return false;
+	}
+
+	if (!validateType(node, schema, type))
+	{
+		currentPath.pop_back();
+		return false;
+	}
+
+	currentPath.pop_back();
+	return true;
+}
+
+//Checks "items" entry from schema (type-specific check for Vector)
+bool JsonValidator::validateItems(JsonNode &node, const JsonNode &schema)
+{
+	JsonNode::JsonType type = JsonNode::DATA_NULL;
+	if (!validateSchema(type, schema))
+		return false;
+
+	BOOST_FOREACH(JsonNode &entry, node.Vector())
+	{
+		if (!validateType(entry, schema, type))
+			return false;
+	}
+	return true;
+}
+
+//Checks "propertries" entry from schema (type-specific check for Struct)
+//Function is similar to merging of two sorted lists - check every entry that present in one of the input nodes
+bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
+{
+	if (schema.isNull())
+		return addMessage("Properties entry is missing for struct in schema");
+
+	JsonMap::iterator nodeIter = node.Struct().begin();
+	JsonMap::const_iterator schemaIter = schema.Struct().begin();
+
+	while (nodeIter != node.Struct().end() && schemaIter != schema.Struct().end())
+	{
+		std::string current = std::min(nodeIter->first, schemaIter->first);
+		validateNode(node[current], schema[current], current);
+
+		if (nodeIter->first < schemaIter->first)
+			nodeIter++;
+		else
+		if (schemaIter->first < nodeIter->first)
+			schemaIter++;
+		else
+		{
+			nodeIter++;
+			schemaIter++;
+		}
+	}
+	while (nodeIter != node.Struct().end())
+	{
+		validateNode(nodeIter->second, JsonNode(), nodeIter->first);
+		nodeIter++;
+	}
+
+	while (schemaIter != schema.Struct().end())
+	{
+		validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first);
+		schemaIter++;
+	}
+	return true;
+}
+
+bool JsonValidator::addMessage(const std::string &message)
+{
+	std::ostringstream stream;
+
+	stream << "At ";
+	BOOST_FOREACH(const std::string &path, currentPath)
+		stream << path<<"/";
+	stream << "\t Error: " << message <<"\n";
+	errors += stream.str();
+	return false;
+}
+
+JsonValidator::JsonValidator(JsonNode &root)
+{
+	const JsonNode schema = root["schema"];
+
+	if (!schema.isNull())
+	{
+		root.Struct().erase("schema");
+		validateProperties(root, schema);
+	}
+	//This message is quite annoying now - most files do not have schemas. May be re-enabled later
+	//else
+	//	addMessage("Schema not found!", true);
+
+	//TODO: better way to show errors (like printing file name as well)
+	std::cout<<errors;
 }

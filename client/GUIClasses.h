@@ -329,6 +329,7 @@ public:
 	bool redrawParentOnScrolling;
 
 	std::vector<std::string> lines;
+	std::vector<CAnimImage* > effects;
 	CSlider *slider;
 
 	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
@@ -943,31 +944,30 @@ public:
 class CCreInfoWindow : public CIntObject
 {
 public:
-	//bool active; //TODO: comment me
-	int type;//0 - rclick popup; 1 - normal window
-	CPicture *bitmap; //background
-	std::string count; //creature count in text format
+	CPicture *background;
+	CLabel *creatureCount;
+	CLabel *creatureName;
+	CLabel *abilityText;
 
-	boost::function<void()> dsm; //dismiss button callback
-	CCreaturePic *anim; //related creature's animation
-	const CCreature *c; //related creature
+	CCreaturePic *animation;
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
+	std::vector<CAnimImage * > effects;
+	std::map<size_t, std::pair<CLabel*, CLabel* > > infoTexts;
 
 	MoraleLuckBox *luck, *morale;
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(const CStackInstance &st, int Type = 0, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL); //c-tor
-	CCreInfoWindow(const CStack &st, int Type = 0); //c-tor
-	CCreInfoWindow(int Cid, int Type, int creatureCount); //c-tor
-	void init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount);
+
+	CCreInfoWindow(const CStackInstance &st, bool LClicked, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
+	CCreInfoWindow(const CStack &st, bool LClicked = 0);
+	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
+	~CCreInfoWindow();
+
+	void init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount, bool LClicked);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-	~CCreInfoWindow(); //d-tor
-	void activate();
+
+	void clickRight(tribool down, bool previousState);
 	void close();
-	void clickRight(tribool down, bool previousState); //call-in
-	void dismissF();
-	void keyPressed (const SDL_KeyboardEvent & key); //call-in
-	void deactivate();
 	void show(SDL_Surface * to);
 };
 
@@ -975,7 +975,7 @@ public:
 class CArtPlace: public LRClickableAreaWTextComp
 {
 public:
-	int slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
+	int slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
 
 	bool picked;
 	bool marked;

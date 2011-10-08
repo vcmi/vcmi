@@ -1184,8 +1184,8 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
-	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1), spellSelMode(NO_LOCATION),
-	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), spellDestSelectMode(false), spellToCast(NULL),
+	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1), 
+	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
       
@@ -2043,7 +2043,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
 							if (curInt->cb->battleCanCastThisSpell(spell, THex(myNumber)) == SpellCasting::OK)
 							{
-								if (spell->positiveness > -1 && ourStack || spell->positiveness < 1 && !ourStack)
+								if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
 								{
 									CCS->curh->changeGraphic(3, 0);
 									stackCastsSpell = true;
@@ -2869,7 +2869,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
 						if (curInt->cb->battleCanCastThisSpell(spell, THex(whichOne)) == SpellCasting::OK)
 						{
-							if (spell->positiveness > -1 && ourStack || spell->positiveness < 1 && !ourStack)
+							if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
 							{
 								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
 							}

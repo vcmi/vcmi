@@ -2052,122 +2052,124 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 	}
 }
 
-
-void CCreInfoWindow::show(SDL_Surface * to)
+void CCreInfoWindow::show(SDL_Surface *to)
 {
-	blitAt(*bitmap,pos.x,pos.y,to);
-	anim->show(to);
-	if(count.size())
-		printTo(count.c_str(),pos.x+114,pos.y+174,FONT_TIMES,zwykly,to);
-	if(upgrade)
-		upgrade->showAll(to);
-	if(dismiss)
-		dismiss->showAll(to);
-	if(ok)
-		ok->showAll(to);
+	CIntObject::show(to);
+	creatureCount->showAll(to);
 }
 
-CCreInfoWindow::CCreInfoWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
-	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
+CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost::function<void()> upgradeFunc, boost::function<void()> dismissFunc, UpgradeInfo *upgradeInfo)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(st.type, &st, dynamic_cast<const CGHeroInstance*>(st.armyObj), st.count);
+	init(stack.type, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj), stack.count, LClicked);
 
-	//print abilities text - if r-click popup
-	if(type)
+	//additional buttons if opened with left click
+	if(LClicked)
 	{
-		if(Upg && ui)
+		boost::function<void()> closeFunc = boost::bind(&CCreInfoWindow::close,this);
+
+		if(upgradeFunc && upgradeInfo)
 		{
-			TResources upgradeCost = ui->cost[0] * st.count;
+			TResources upgradeCost = upgradeInfo->cost[0] * stack.count;
 			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
 			{
 				BLOCK_CAPTURING;
 				upgResCost.push_back(new SComponent(SComponent::resource, i->resType, i->resVal)); 
 			}
 
-			if(LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost))
-			{
-				CFunctionList<void()> fs;
-				fs += Upg;
-				fs += boost::bind(&CCreInfoWindow::close,this);
-				CFunctionList<void()> cfl;
-				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], boost::ref(upgResCost), fs, 0, true);
-				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,76,237,"IVIEWCR.DEF",SDLK_u);
-			}
-			else
-			{
-				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,boost::function<void()>(),76,237,"IVIEWCR.DEF");
-				upgrade->callback.funcs.clear();
-				upgrade->setOffset(2);
-			}
+			CFunctionList<void()> onUpgrade;
+			onUpgrade += upgradeFunc;
+			onUpgrade += closeFunc;
 
+			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
+			                                              LOCPLINT,
+			                                              CGI->generaltexth->allTexts[207],
+			                                              boost::ref(upgResCost),
+			                                              onUpgrade, 0, false);
+
+			upgrade = new AdventureMapButton("", CGI->generaltexth->zelp[446].second, dialog, 76, 237, "IVIEWCR", SDLK_u);
+			upgrade->block(!LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost));
 		}
-		if(Dsm)
+
+		if(dismissFunc)
 		{
-			CFunctionList<void()> fs[2];
-			//on dismiss confirmed
-			fs[0] += Dsm; //dismiss
-			fs[0] += boost::bind(&CCreInfoWindow::close,this);//close this window
-			CFunctionList<void()> cfl;
-			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],true);
-			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,21,237,"IVIEWCR2.DEF",SDLK_d);
+			CFunctionList<void()> onDismiss;
+			onDismiss += dismissFunc;
+			onDismiss += closeFunc;
+
+			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
+			                                              LOCPLINT,
+			                                              CGI->generaltexth->allTexts[12], 
+			                                              std::vector<SComponent*>(),
+			                                              onDismiss, 0, true);
+
+			dismiss = new AdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
 		}
-		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),216,237,"IOKAY.DEF",SDLK_RETURN);
+
+		ok = new AdventureMapButton("", CGI->generaltexth->zelp[445].second, 
+		                            boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
 	}
 }
 
-
-
-CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount)
-	: type(Type), dismiss(0), upgrade(0), ok(0)
+CCreInfoWindow::CCreInfoWindow(int creatureID, bool LClicked, int creatureCount)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	const CCreature *cre = CGI->creh->creatures[Cid];
-	init(cre, NULL, NULL, creatureCount);
+	const CCreature *creature = CGI->creh->creatures[creatureID];
+	init(creature, NULL, NULL, creatureCount, LClicked);
 }
 
-CCreInfoWindow::CCreInfoWindow(const CStack &st, int Type /*= 0*/)
-	: type(Type), dismiss(0), upgrade(0), ok(0)
+CCreInfoWindow::CCreInfoWindow(const CStack &stack, bool LClicked)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(st.getCreature(), &st, st.getMyHero(), st.count);
+	init(stack.getCreature(), &stack, stack.getMyHero(), stack.count, LClicked);
 }
 
-void CCreInfoWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
+CCreInfoWindow::~CCreInfoWindow()
 {
-	printAt(text, 155, 48 + nr*19, FONT_SMALL, zwykly, *bitmap);
+	BOOST_FOREACH(SComponent* object, upgResCost)
+		delete object;
+}
 
-	std::string hlp;
+void CCreInfoWindow::printLine(int position, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
+{
+	infoTexts[position].first = new CLabel(155, 48 + position*19, FONT_SMALL, TOPLEFT, zwykly, text);
+	std::string valueStr;
+
 	if(range && baseVal != val)
-		hlp = boost::str(boost::format("%d - %d") % baseVal % val);
-	else if(baseVal != val && val>=0)
-		hlp = boost::str(boost::format("%d (%d)") % baseVal % val);
-	else
-		hlp = boost::lexical_cast<std::string>(baseVal);
+		valueStr = boost::str(boost::format("%d - %d") % baseVal % val);
 
-	printTo(hlp, 276, 61 + nr*19, FONT_SMALL, zwykly, *bitmap);
+	else if(baseVal != val && val>=0)
+		valueStr = boost::str(boost::format("%d (%d)") % baseVal % val);
+
+	else
+		valueStr = boost::lexical_cast<std::string>(baseVal);
+
+	infoTexts[position].second = new CLabel(276, 63 + position*19, FONT_SMALL, BOTTOMRIGHT, zwykly, valueStr);
 }
 
-//void CCreInfoWindow::init(const CCreature *cre, const CStackInstance *stack, int creatureCount)
-void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount)
+void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int count, bool LClicked)
 {
-	c = cre;
-	if(!stackNode) stackNode = c;
+	used = 0;
+	if (!LClicked)
+		used |= RCLICK;
 
-	bitmap = new CPicture("CRSTKPU.bmp");
-	bitmap->colorizeAndConvert(LOCPLINT->playerID);
-	pos = bitmap->center();
+	if(!stackNode)
+		stackNode = creature;
 
-	anim = new CCreaturePic(21, 48, c);
+	background = new CPicture("CRSTKPU");
+	background->colorize(LOCPLINT->playerID);
+	pos = background->center();
 
-	count = boost::lexical_cast<std::string>(creatureCount);
+	animation = new CCreaturePic(21, 48, creature);
 
-	printAtMiddle(c->namePl,149,30,FONT_SMALL,tytulowy,*bitmap); //creature name
+	std::string countStr = boost::lexical_cast<std::string>(count);
+	creatureCount = new CLabel(114, 174, FONT_TIMES, BOTTOMRIGHT, zwykly, countStr);
+
+	creatureName = new CLabel(149, 30, FONT_SMALL, CENTER, tytulowy, creature->namePl);
 	
-	printLine(0, CGI->generaltexth->primarySkillNames[0], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], cre->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-	//if(c->shots)
-	//	printLine(2, CGI->generaltexth->allTexts[198], c->shots);
+	printLine(0, CGI->generaltexth->primarySkillNames[0], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
+	printLine(1, CGI->generaltexth->primarySkillNames[1], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+
 	if(stackNode->valOfBonuses(Bonus::SHOTS))
 		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 
@@ -2176,65 +2178,33 @@ void CCreInfoWindow::init(const CCreature *cre, const CBonusSystemNode *stackNod
 	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
 		dmgMultiply += heroOwner->Attack(); 
 
-	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388], cre->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, cre->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
+	printLine(3, CGI->generaltexth->allTexts[199],   stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
+	printLine(4, CGI->generaltexth->allTexts[388],   creature->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
+	printLine(6, CGI->generaltexth->zelp[441].first, creature->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
 	//setting morale
-	morale = new MoraleLuckBox(true, genRect(42, 42, 24, 189));
+	morale = new MoraleLuckBox(true, genRect(42, 42, 22, 186));
 	morale->set(stackNode);
 	//setting luck
-	luck = new MoraleLuckBox(false, genRect(42, 42, 77, 189));
+	luck = new MoraleLuckBox(false, genRect(42, 42, 75, 186));
 	luck->set(stackNode);
 
-	//luck and morale
-	int luck = 3, morale = 3;
-	if(stackNode)
-	{
-		//add modifiers
-		luck += stackNode->LuckVal();
-		morale += stackNode->MoraleVal();
-	}
-
-	blitAt(graphics->morale42->ourImages[morale].bitmap, 24, 189, *bitmap);
-	blitAt(graphics->luck42->ourImages[luck].bitmap, 77, 189, *bitmap);
-
-
-	if(!type)
-	{
-		printAtWB(c->abilityText,17,231,FONT_SMALL,35,zwykly,*bitmap);
-	}
+	if(!LClicked)
+		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, zwykly, creature->abilityText);
+	else
+		abilityText = NULL;
 
 	//if we are displying window fo r stack in battle, there are several more things that we need to display
 	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
 	{
-		//spell effects
-		int printed=0; //how many effect pics have been printed
+		//print at most 3 spell effects
 		std::vector<si32> spells = battleStack->activeSpells();
-		BOOST_FOREACH(si32 effect, spells)
-		{
-			blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 127 + 52 * printed, 186, *bitmap); 
-			++printed;
-			if(printed >= 3) //we can fit only 3 effects
-				break;
-		}
+		for (size_t i=0; i< std::min(spells.size(), size_t(3)); i++)
+			effects.push_back(new CAnimImage("SpellInt", spells[i]+1, 0, 127 + 52*i, 186));
+
 		//print current health
 		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
 	}
-}
-
-
-CCreInfoWindow::~CCreInfoWindow()
-{
- 	for(int i=0; i<upgResCost.size();i++)
- 		delete upgResCost[i];
-}
-
-void CCreInfoWindow::activate()
-{
-	CIntObject::activate();
-	if(!type)
-		activateRClick();
 }
 
 void CCreInfoWindow::close()
@@ -2244,25 +2214,7 @@ void CCreInfoWindow::close()
 
 void CCreInfoWindow::clickRight(tribool down, bool previousState)
 {
-	if(down)
-		return;
 	close();
-}
-void CCreInfoWindow::dismissF()
-{
-	dsm();
-	close();
-}
-
-void CCreInfoWindow::keyPressed (const SDL_KeyboardEvent & key)
-{
-}
-
-void CCreInfoWindow::deactivate()
-{
-	if(!type)
-		deactivateRClick();
-	CIntObject::deactivate();
 }
 
 void CLevelWindow::close()
