@@ -1063,23 +1063,6 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 	else
 		tlog3 << "Warning, setPlayerColor called on not 8bpp surface!\n";
 }
-int readNormalNr (std::istream &in, int bytCon)
-{
-	int ret=0;
-	int amp=1;
-	unsigned char byte;
-	if (in.good())
-	{
-		for (int i=0; i<bytCon; i++)
-		{
-			in.read((char*)&byte,1);
-			ret+=byte*amp;
-			amp<<=8;
-		}
-	}
-	else return -1;
-	return ret;
-}
 
 const TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
 {

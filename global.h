@@ -722,30 +722,6 @@ extern DLL_EXPORT CLogger tlog6; //teal - AI info
 		throw;							\
 	}
 
-
-#if defined(linux) && defined(sparc) 
-/* SPARC does not support unaligned memory access. Let gcc know when
- * to emit the right code. */
-struct unaligned_Uint16 { ui16 val __attribute__(( packed )); };
-struct unaligned_Uint32 { ui32 val __attribute__(( packed )); };
-
-static inline ui16 read_unaligned_u16(const void *p)
-{
-        const struct unaligned_Uint16 *v = (const struct unaligned_Uint16 *)p;
-        return v->val;
-}
-
-static inline ui32 read_unaligned_u32(const void *p)
-{
-        const struct unaligned_Uint32 *v = (const struct unaligned_Uint32 *)p;
-        return v->val;
-}
-
-#else
-#define read_unaligned_u16(p) (* reinterpret_cast<const Uint16 *>(p))
-#define read_unaligned_u32(p) (* reinterpret_cast<const Uint32 *>(p))
-#endif
-
 //for explicit overrides
 #ifdef _MSC_VER
 	#define OVERRIDE override

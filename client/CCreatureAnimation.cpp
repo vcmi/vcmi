@@ -1,6 +1,7 @@
 #include "CCreatureAnimation.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/vcmi_endian.h"
 #include <assert.h>
 #include "SDL_Extensions.h"
 
@@ -46,11 +47,11 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 
 	defName=name;
 	i = 0;
-	DEFType = readNormalNr<4>(i,FDef); i+=4;
-	fullWidth = readNormalNr<4>(i,FDef); i+=4;
-	fullHeight = readNormalNr<4>(i,FDef); i+=4;
+	DEFType = read_le_u32(FDef + i); i+=4;
+	fullWidth = read_le_u32(FDef + i); i+=4;
+	fullHeight = read_le_u32(FDef + i); i+=4;
 	i=0xc;
-	totalBlocks = readNormalNr<4>(i,FDef); i+=4;
+	totalBlocks = read_le_u32(FDef + i); i+=4;
 
 	i=0x10;
 	for (int it=0;it<256;it++)
@@ -65,20 +66,20 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	for (int z=0; z<totalBlocks; z++)
 	{
 		std::vector<int> frameIDs;
-		int group = readNormalNr<4>(i,FDef); i+=4; //block ID
-		totalInBlock = readNormalNr<4>(i,FDef); i+=4;
+		int group = read_le_u32(FDef + i); i+=4; //block ID
+		totalInBlock = read_le_u32(FDef + i); i+=4;
 		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 		{
 			SEntries.push_back(SEntry());
 			SEntries[j].group = group;
 			frameIDs.push_back(j);
 		}
-		/*int unknown2 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
-		/*int unknown3 = readNormalNr<4>(i,FDef);*/ i+=4; //TODO use me
+		/*int unknown2 = read_le_u32(FDef + i);*/ i+=4; //TODO use me
+		/*int unknown3 = read_le_u32(FDef + i);*/ i+=4; //TODO use me
 		i+=13*totalInBlock; //omitting names
 		for (j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = readNormalNr<4>(i,FDef); i+=4;
+			SEntries[totalEntries+j].offset = read_le_u32(FDef + i); i+=4;
 		}
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
@@ -173,14 +174,15 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 	unsigned char SegmentType, SegmentLength;
 
 	i = BaseOffset = SEntries[SIndex].offset;
-	/*int prSize = readNormalNr<4>(i, FDef);*/ i += 4; //TODO use me
-	int defType2 = readNormalNr<4>(i, FDef); i += 4;
-	FullWidth = readNormalNr<4>(i, FDef); i += 4;
-	FullHeight = readNormalNr<4>(i, FDef); i += 4;
-	SpriteWidth = readNormalNr<4>(i, FDef); i += 4;
-	SpriteHeight = readNormalNr<4>(i, FDef); i += 4;
-	LeftMargin = readNormalNr<4>(i, FDef); i += 4;
-	TopMargin = readNormalNr<4>(i, FDef); i += 4;
+
+	/*int prSize = read_le_u32(FDef + i);*/ i += 4; //TODO use me
+	int defType2 = read_le_u32(FDef + i); i += 4;
+	FullWidth = read_le_u32(FDef + i); i += 4;
+	FullHeight = read_le_u32(FDef + i); i += 4;
+	SpriteWidth = read_le_u32(FDef + i); i += 4;
+	SpriteHeight = read_le_u32(FDef + i); i += 4;
+	LeftMargin = read_le_u32(FDef + i); i += 4;
+	TopMargin = read_le_u32(FDef + i); i += 4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
@@ -194,11 +196,11 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 		{
 			ftcp += FullWidth * TopMargin;
 		}
-		int *RLEntries = (int*)(FDef + BaseOffset);
+		ui32 *RLEntries = (ui32*)(FDef + BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i = 0; i < SpriteHeight; i++)
 		{
-			BaseOffset = BaseOffsetor + RLEntries[i];
+			BaseOffset = BaseOffsetor + SDL_SwapLE32(RLEntries[i]);
 			if (LeftMargin > 0)
 			{
 				ftcp += LeftMargin;

@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/vcmi_endian.h"
 #include "CGeneralTextHandler.h"
 #include "../StartInfo.h"
 #include "CArtHandler.h" //for hero crossover
@@ -141,8 +142,8 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLo
 CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buffer, int & outIt )
 {
 	CCampaignHeader ret;
-	ret.version = readNormalNr(buffer, outIt); outIt+=4;
-	ret.mapVersion = readChar(buffer, outIt);
+	ret.version = read_le_u32(buffer + outIt); outIt+=4;
+	ret.mapVersion = read_le_u32(buffer + outIt);
 	ret.mapVersion -= 1; //change range of it from [1, 20] to [0, 19]
 	ret.name = readString(buffer, outIt);
 	ret.description = readString(buffer, outIt);
@@ -177,10 +178,10 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char 
 	CCampaignScenario ret;
 	ret.conquered = false;
 	ret.mapName = readString(buffer, outIt);
-	ret.packedMapSize = readNormalNr(buffer, outIt); outIt += 4;
+	ret.packedMapSize = read_le_u32(buffer + outIt); outIt += 4;
 	if(mapVersion == 18)//unholy alliance
 	{
-		ret.preconditionRegion = readNormalNr(buffer, outIt, 2); outIt += 2;
+		ret.preconditionRegion = read_le_u16(buffer + outIt); outIt += 2;
 	}
 	else
 	{
@@ -237,15 +238,15 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 				{
 				case 0: //spell
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
 						bonus.info2 = buffer[outIt++]; //spell ID
 						break;
 					}
 				case 1: //monster
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
-						bonus.info2 = readNormalNr(buffer, outIt, 2); outIt += 2; //monster type
-						bonus.info3 = readNormalNr(buffer, outIt, 2); outIt += 2; //monster count
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
+						bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //monster type
+						bonus.info3 = read_le_u16(buffer + outIt); outIt += 2; //monster count
 						break;
 					}
 				case 2: //building
@@ -255,25 +256,25 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 					}
 				case 3: //artifact
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
-						bonus.info2 = readNormalNr(buffer, outIt, 2); outIt += 2; //artifact ID
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
+						bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //artifact ID
 						break;
 					}
 				case 4: //spell scroll
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
 						bonus.info2 = buffer[outIt++]; //spell ID
 						break;
 					}
 				case 5: //prim skill
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
-						bonus.info2 = readNormalNr(buffer, outIt, 4); outIt += 4; //bonuses (4 bytes for 4 skills)
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
+						bonus.info2 = read_le_u32(buffer + outIt); outIt += 4; //bonuses (4 bytes for 4 skills)
 						break;
 					}
 				case 6: //sec skills
 					{
-						bonus.info1 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero
+						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
 						bonus.info2 = buffer[outIt++]; //skill ID
 						bonus.info3 = buffer[outIt++]; //skill level
 						break;
@@ -283,7 +284,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 						bonus.info1 = buffer[outIt++]; //type
 						//FD - wood+ore
 						//FE - mercury+sulfur+crystal+gem
-						bonus.info2 = readNormalNr(buffer, outIt, 4); outIt += 4; //count
+						bonus.info2 = read_le_u32(buffer + outIt); outIt += 4; //count
 						break;
 					}
 				}
@@ -313,7 +314,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 				CScenarioTravel::STravelBonus bonus;
 				bonus.type = 9;
 				bonus.info1 = buffer[outIt++]; //player color
-				bonus.info2 = readNormalNr(buffer, outIt, 2); outIt += 2; //hero, FF FF - random
+				bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //hero, FF FF - random
 
 				ret.bonusesToChoose.push_back(bonus);
 			}
@@ -378,7 +379,7 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 			return false;
 		}
 		//size of map
-		int mapsize = readNormalNr(buffer, pos+5);
+		int mapsize = read_le_u32(buffer + pos+5);
 		if(mapsize < 10 || mapsize > 530) 
 		{
 			return false;
@@ -392,7 +393,7 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 		}
 
 		//map name
-		int len = readNormalNr(buffer, pos+10);
+		int len = read_le_u32(buffer + pos+10);
 		if(len < 0 || len > 100)
 		{
 			return false;

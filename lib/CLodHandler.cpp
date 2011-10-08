@@ -12,7 +12,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
-#include <SDL_endian.h>
+#include "vcmi_endian.h"
 #ifdef max
 #undef max
 #endif
@@ -31,6 +31,7 @@ int readNormalNr (const unsigned char * bufor, int pos, int bytCon, bool cyclic)
 {
 	int ret=0;
 	int amp=1;
+
 	for (int ir=0; ir<bytCon; ir++)
 	{
 		ret+=bufor[pos+ir]*amp;
@@ -50,7 +51,7 @@ char readChar(const unsigned char * bufor, int &i)
 
 std::string readString(const unsigned char * bufor, int &i)
 {					
-	int len = readNormalNr(bufor,i); i+=4;
+	int len = read_le_u32(bufor + i); i+=4;
 	assert(len >= 0 && len <= 500000); //not too long
 	std::string ret; ret.reserve(len);
 	for(int gg=0; gg<len; ++gg)

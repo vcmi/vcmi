@@ -6,6 +6,8 @@
 
 #include "../lib/CLodHandler.h"
 #include "../lib/JsonNode.h"
+#include "../lib/vcmi_endian.h"
+
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CAnimation.h"
@@ -95,12 +97,12 @@ CDefFile::CDefFile(std::string Name):
 	palette = new SDL_Color[256];
 	int it = 0;
 
-	unsigned int type = readNormalNr(data, it);
+	unsigned int type = read_le_u32(data + it);
 	it+=4;
-	//int width  = readNormalNr(data, it); it+=4;//not used
-	//int height = readNormalNr(data, it); it+=4;
+	//int width  = read_le_u32(data + it); it+=4;//not used
+	//int height = read_le_u32(data + it); it+=4;
 	it+=8;
-	unsigned int totalBlocks = readNormalNr(data, it);
+	unsigned int totalBlocks = read_le_u32(data + it);
 	it+=4;
 
 	for (unsigned int i= 0; i<256; i++)
@@ -117,9 +119,9 @@ CDefFile::CDefFile(std::string Name):
 
 	for (unsigned int i=0; i<totalBlocks; i++)
 	{
-		size_t blockID = readNormalNr(data, it);
+		size_t blockID = read_le_u32(data + it);
 		it+=4;
-		size_t totalEntries = readNormalNr(data, it);
+		size_t totalEntries = read_le_u32(data + it);
 		it+=12;
 		//8 unknown bytes - skipping
 
@@ -128,7 +130,7 @@ CDefFile::CDefFile(std::string Name):
 
 		for (unsigned int j=0; j<totalEntries; j++)
 		{
-			size_t currOffset = readNormalNr(data, it);
+			size_t currOffset = read_le_u32(data + it);
 			offset[blockID].push_back(currOffset);
 			it += 4;
 		}
@@ -185,7 +187,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			for (unsigned int i=0; i<sprite.height; i++)
 			{
 				//get position of the line
-				currentOffset=BaseOffset + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
+				currentOffset=BaseOffset + read_le_u32(RWEntriesLoc + i);
 				unsigned int TotalRowLength = 0;
 
 				while (TotalRowLength<sprite.width)
@@ -211,7 +213,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		}
 	case 2:
 		{
-			currentOffset = BaseOffset + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffset));
+			currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset);
 
 			for (unsigned int i=0; i<sprite.height; i++)
 			{
@@ -242,7 +244,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		{
 			for (unsigned int i=0; i<sprite.height; i++)
 			{
-				currentOffset = BaseOffset + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffset+i*2*(sprite.width/32)));
+				currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset+i*2*(sprite.width/32));
 				unsigned int TotalRowLength=0;
 
 				while (TotalRowLength<sprite.width)

@@ -4,6 +4,7 @@
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CLodHandler.h"
+#include "../lib/vcmi_endian.h"
 #include <sstream>
 #include <boost/thread.hpp>
 
@@ -57,9 +58,9 @@ SDL_Surface * CPCXConv::getSurface() const
 	unsigned char add;
 	int it=0;
 
-	fSize = readNormalNr(pcx, it); it+=4;
-	width = readNormalNr(pcx, it); it+=4;
-	height = readNormalNr(pcx, it); it+=4;
+	fSize = read_le_u32(pcx + it); it+=4;
+	width = read_le_u32(pcx + it); it+=4;
+	height = read_le_u32(pcx + it); it+=4;
 	if (fSize==width*height*3)
 		check1=true;
 	else 
@@ -142,9 +143,9 @@ SDL_Surface * CPCXConv::getSurface() const
 
 bool isPCX(const unsigned char *header)//check whether file can be PCX according to 1st 12 bytes
 {
-	int fSize  = readNormalNr(header, 0);
-	int width  = readNormalNr(header, 4);
-	int height = readNormalNr(header, 8);
+	int fSize  = read_le_u32(header + 0);
+	int width  = read_le_u32(header + 4);
+	int height = read_le_u32(header + 8);
 	return fSize == width*height || fSize == width*height*3;
 }
 

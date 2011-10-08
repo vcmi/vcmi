@@ -24,6 +24,7 @@
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
+#include "../lib/vcmi_endian.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -670,7 +671,7 @@ Font * Graphics::loadFont( const char * name )
 		return NULL;
 	}
 
-	int magic =  *(const int*)hlp;
+	int magic =  SDL_SwapLE32(*(const Uint32*)hlp);
 	if(len < 10000  || (magic != 589598 && magic != 589599))
 	{
 		tlog1 << "Suspicious font file (length " << len <<", fname " << name << "), logging to suspicious_" << name << ".fnt\n";
@@ -731,16 +732,16 @@ Font::Font(unsigned char *Data)
 	i = 32;
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].unknown1 = readNormalNr(data, i); i+=4;
-		chars[ci].width = readNormalNr(data, i); i+=4;
-		chars[ci].unknown2 =readNormalNr(data, i); i+=4;
+		chars[ci].unknown1 = read_le_u32(data + i); i+=4;
+		chars[ci].width = read_le_u32(data + i); i+=4;
+		chars[ci].unknown2 = read_le_u32(data + i); i+=4;
 
 		//if(ci>=30)
 		//	tlog0 << ci << ". (" << (char)ci << "). Width: " << chars[ci].width << " U1/U2:" << chars[ci].unknown1 << "/" << chars[ci].unknown2 << std::endl;
 	}
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].offset = readNormalNr(data, i); i+=4;
+		chars[ci].offset =  read_le_u32(data + i); i+=4;
 		chars[ci].pixels = data + 4128 + chars[ci].offset;
 	}
 }

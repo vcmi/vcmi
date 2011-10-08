@@ -4,6 +4,7 @@
 #include <sstream>
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/vcmi_endian.h"
 #include "CBitmapHandler.h"
 
 /*
@@ -80,7 +81,7 @@ void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 		SDefEntryBlock &block = * reinterpret_cast<SDefEntryBlock *>(p);
 		unsigned int totalInBlock;
 
-		totalInBlock = SDL_SwapLE32(read_unaligned_u32(&block.totalInBlock));
+		totalInBlock = read_le_u32(&block.totalInBlock);
 
 		for (unsigned int j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 			SEntries.push_back(SEntry());
@@ -96,7 +97,7 @@ void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 		}
 		for (unsigned int j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = SDL_SwapLE32(read_unaligned_u32(p));
+			SEntries[totalEntries+j].offset = read_le_u32(p);
 			p += 4;
 		}
 		//totalEntries+=totalInBlock;
@@ -222,7 +223,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor + SDL_SwapLE32(read_unaligned_u32(RWEntriesLoc + i));
+			BaseOffset=BaseOffsetor + read_le_u32(RWEntriesLoc + i);
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 
@@ -260,7 +261,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 
 	case 2:
 	{
-		BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor));
+		BaseOffset = BaseOffsetor + read_le_u16(FDef + BaseOffsetor);
 
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
@@ -304,7 +305,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	{
 		for (unsigned int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset = BaseOffsetor + SDL_SwapLE16(read_unaligned_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32)));
+			BaseOffset = BaseOffsetor + read_le_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32));
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
 

@@ -14,6 +14,7 @@
 #include "CSpellHandler.h"
 #include <boost/foreach.hpp>
 #include "../lib/JsonNode.h"
+#include "vcmi_endian.h"
 
 /*
  * map.cpp, part of VCMI engine
@@ -137,13 +138,13 @@ CMapHeader::CMapHeader()
 
 void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 {
-	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
+	version = (Eformat)(read_le_u32(bufor + i)); i+=4; //map version
 	if(version != RoE && version != AB && version != SoD && version != WoG)
 	{
 		throw std::string("Invalid map format!");
 	}
 	areAnyPLayers = readChar(bufor,i); //invalid on some maps
-	height = width = (readNormalNr(bufor,i)); i+=4; // dimensions of map
+	height = width = (read_le_u32(bufor + i)); i+=4; // dimensions of map
 	twoLevel = readChar(bufor,i); //if there is underground
 	int pom;
 	name = readString(bufor,i);
@@ -184,7 +185,7 @@ void CMapHeader::initFromMemory( const unsigned char *bufor, int &i )
 	}
 	if(version>RoE) //probably reserved for further heroes
 	{
-		int placeholdersQty = readNormalNr(bufor, i); i+=4;
+		int placeholdersQty = read_le_u32(bufor + i); i+=4;
 		for(int p = 0; p < placeholdersQty; p++)
 			placeholdedHeroes.push_back(bufor[i++]);
 	}
@@ -296,14 +297,14 @@ void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 // 				int temp1 = bufor[i+2];
 // 				int temp2 = bufor[i+3];
 				victoryCondition.ID = bufor[i+2];
-				victoryCondition.count = readNormalNr(bufor, i+(version==RoE ? 3 : 4));
+				victoryCondition.count = read_le_u32(bufor + i+(version==RoE ? 3 : 4));
 				nr=(version==RoE ? 5 : 6);
 				break;
 			}
 		case gatherResource:
 			{
 				victoryCondition.ID = bufor[i+2];
-				victoryCondition.count = readNormalNr(bufor, i+3);
+				victoryCondition.count = read_le_u32(bufor + i+3);
 				nr = 5;
 				break;
 			}
@@ -373,8 +374,8 @@ void CMapHeader::loadViCLossConditions( const unsigned char * bufor, int &i)
 		}
 	case timeExpires:
 		{
-			lossCondition.timeLimit = readNormalNr(bufor,i++,2);
-			i++;
+			lossCondition.timeLimit = read_le_u16(bufor + i);
+			i+=2;
 			break;
 		}
 	}
@@ -575,12 +576,12 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 		{
 		case 1:
 			{
-				hut->rVal = readNormalNr(bufor,i); i+=4;
+				hut->rVal = read_le_u32(bufor + i); i+=4;
 				break;
 			}
 		case 2:
 			{
-				hut->rVal = readNormalNr(bufor,i); i+=4;
+				hut->rVal = read_le_u32(bufor + i); i+=4;
 				break;
 			}
 		case 3:
@@ -626,13 +627,13 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 			{
 				if(version>RoE)
 				{
-					hut->rID = readNormalNr(bufor,i, 2); i+=2;
-					hut->rVal = readNormalNr(bufor,i, 2); i+=2;
+					hut->rID = read_le_u16(bufor + i); i+=2;
+					hut->rVal = read_le_u16(bufor + i); i+=2;
 				}
 				else
 				{
 					hut->rID = bufor[i]; ++i;
-					hut->rVal = readNormalNr(bufor,i, 2); i+=2;
+					hut->rVal = read_le_u16(bufor + i); i+=2;
 				}
 				break;
 			}
@@ -655,7 +656,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 	nt->identifier = 0;
 	if(version>RoE)
 	{	
-		nt->identifier = readNormalNr(bufor,i); i+=4;
+		nt->identifier = read_le_u32(bufor + i); i+=4;
 	}
 	nt->tempOwner = bufor[i]; ++i;
 	if(readChar(bufor,i)) //has name
@@ -724,7 +725,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 
 	/////// reading castle events //////////////////////////////////
 
-	int numberOfEvent = readNormalNr(bufor,i); i+=4;
+	int numberOfEvent = read_le_u32(bufor + i); i+=4;
 
 	for(int gh = 0; gh<numberOfEvent; ++gh)
 	{
@@ -734,7 +735,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		nce->message = readString(bufor,i);
 		for(int x=0; x < 7; x++)
 		{
-			nce->resources[x] = readNormalNr(bufor,i); 
+			nce->resources[x] = read_le_u32(bufor + i); 
 			i+=4;
 		}
 
@@ -747,7 +748,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 			nce->humanAffected = true;
 
 		nce->computerAffected = bufor[i]; ++i;
-		nce->firstOccurence = readNormalNr(bufor,i, 2); i+=2;
+		nce->firstOccurence = read_le_u16(bufor + i); i+=2;
 		nce->nextOccurence = bufor[i]; ++i;
 
 		i+=17;
@@ -765,7 +766,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int 
 		nce->creatures.resize(7);
 		for(int vv=0; vv<7; ++vv)
 		{
-			nce->creatures[vv] = readNormalNr(bufor,i, 2);i+=2;
+			nce->creatures[vv] = read_le_u16(bufor + i);i+=2;
 		}
 		i+=4;
 		nt->events.push_back(nce);
@@ -791,12 +792,12 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToB
 	int identifier = 0;
 	if(version > RoE)
 	{
-		identifier = readNormalNr(bufor,i, 4); i+=4;
+		identifier = read_le_u32(bufor + i); i+=4;
 		questIdentifierToId[identifier] = idToBeGiven;
 	}
 
 	ui8 owner = bufor[i++];
-	nhi->subID = readNormalNr(bufor,i, 1); ++i;	
+	nhi->subID = bufor[i++];
 	
 	for(unsigned int j=0; j<predefinedHeroes.size(); j++)
 	{
@@ -826,13 +827,13 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToB
 	if(version>AB)
 	{
 		if(readChar(bufor,i))//true if hero's experience is greater than 0
-		{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
+		{	nhi->exp = read_le_u32(bufor + i); i+=4;	}
 		else
 			nhi->exp = 0xffffffff;
 	}
 	else
 	{	
-		nhi->exp = readNormalNr(bufor,i); i+=4;	
+		nhi->exp = read_le_u32(bufor + i); i+=4;	
 		if(!nhi->exp) //0 means "not set" in <=AB maps
 			nhi->exp = 0xffffffff;
 	}
@@ -842,12 +843,12 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToB
 		nhi->portrait = bufor[i++];
 	if(readChar(bufor,i))//true if hero has specified abilities
 	{
-		int howMany = readNormalNr(bufor,i); i+=4;
+		int howMany = read_le_u32(bufor + i); i+=4;
 		nhi->secSkills.resize(howMany);
 		for(int yy=0; yy<howMany; ++yy)
 		{
-			nhi->secSkills[yy].first = readNormalNr(bufor,i, 1); ++i;
-			nhi->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
+			nhi->secSkills[yy].first = bufor[i++];
+			nhi->secSkills[yy].second = bufor[i++];
 		}
 	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
@@ -855,7 +856,7 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToB
 
 	nhi->formation =bufor[i]; ++i; //formation
 	loadArtifactsOfHero(bufor, i, nhi);
-	nhi->patrol.patrolRadious = readNormalNr(bufor,i, 1); ++i;
+	nhi->patrol.patrolRadious = bufor[i]; ++i;
 	if(nhi->patrol.patrolRadious == 0xff)
 		nhi->patrol.patrolling = false;
 	else 
@@ -921,14 +922,14 @@ CGObjectInstance * Mapa::loadHero(const unsigned char * bufor, int &i, int idToB
 
 void Mapa::readRumors( const unsigned char * bufor, int &i)
 {
-	int rumNr = readNormalNr(bufor,i,4);i+=4;
+	int rumNr = read_le_u32(bufor + i);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
 		Rumor ourRumor;
-		int nameL = readNormalNr(bufor,i,4);i+=4; //read length of name of rumor
+		int nameL = read_le_u32(bufor + i);i+=4; //read length of name of rumor
 		for (int zz=0; zz<nameL; zz++)
 			ourRumor.name+=bufor[i++];
-		nameL = readNormalNr(bufor,i,4);i+=4; //read length of rumor
+		nameL = read_le_u32(bufor + i);i+=4; //read length of rumor
 		for (int zz=0; zz<nameL; zz++)
 			ourRumor.text+=bufor[i++];
 		rumors.push_back(ourRumor); //add to our list
@@ -949,7 +950,7 @@ void Mapa::readHeader( const unsigned char * bufor, int &i)
 		{
 			disposedHeroes[g].ID = bufor[i++];
 			disposedHeroes[g].portrait = bufor[i++];
-			int lenbuf = readNormalNr(bufor,i); i+=4;
+			int lenbuf = read_le_u32(bufor + i); i+=4;
 			for (int zz=0; zz<lenbuf; zz++)
 				disposedHeroes[g].name+=bufor[i++];
 			disposedHeroes[g].players = bufor[i++];
@@ -1046,17 +1047,17 @@ void Mapa::readPredefinedHeroes( const unsigned char * bufor, int &i)
 				cgh->ID = HEROI_TYPE;
 				cgh->subID = z;
 				if(readChar(bufor,i))//true if hore's experience is greater than 0
-				{	cgh->exp = readNormalNr(bufor,i); i+=4;	}
+				{	cgh->exp = read_le_u32(bufor + i); i+=4;	}
 				else
 					cgh->exp = 0;
 				if(readChar(bufor,i))//true if hero has specified abilities
 				{
-					int howMany = readNormalNr(bufor,i); i+=4;
+					int howMany = read_le_u32(bufor + i); i+=4;
 					cgh->secSkills.resize(howMany);
 					for(int yy=0; yy<howMany; ++yy)
 					{
-						cgh->secSkills[yy].first = readNormalNr(bufor,i, 1); ++i;
-						cgh->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
+						cgh->secSkills[yy].first = bufor[i]; ++i;
+						cgh->secSkills[yy].second = bufor[i]; ++i;
 					}
 				}
 
@@ -1143,14 +1144,14 @@ void Mapa::readTerrain( const unsigned char * bufor, int &i)
 
 void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 {
-	int defAmount = readNormalNr(bufor,i); i+=4;
+	int defAmount = read_le_u32(bufor + i); i+=4;
 	defy.reserve(defAmount+8);
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
 		CGDefInfo * vinya = new CGDefInfo(); // info about new def 
 
 		//reading name
-		int nameLength = readNormalNr(bufor,i,4);i+=4;
+		int nameLength = read_le_u32(bufor + i);i+=4;
 		vinya->name.reserve(nameLength);
 		for (int cd=0;cd<nameLength;cd++)
 		{
@@ -1164,10 +1165,10 @@ void Mapa::readDefInfo( const unsigned char * bufor, int &i)
 		{
 			bytes[v] = bufor[i++];
 		}
-		vinya->terrainAllowed = readNormalNr(bufor,i,2);i+=2;
-		vinya->terrainMenu = readNormalNr(bufor,i,2);i+=2;
-		vinya->id = readNormalNr(bufor,i,4);i+=4;
-		vinya->subid = readNormalNr(bufor,i,4);i+=4;
+		vinya->terrainAllowed = read_le_u16(bufor + i);i+=2;
+		vinya->terrainMenu = read_le_u16(bufor + i);i+=2;
+		vinya->id = read_le_u32(bufor + i);i+=4;
+		vinya->subid = read_le_u32(bufor + i);i+=4;
 		vinya->type = bufor[i++];
 		vinya->printPriority = bufor[i++];
 		for (int zi=0; zi<6; zi++)
@@ -1227,7 +1228,7 @@ public:
 
 void Mapa::readObjects( const unsigned char * bufor, int &i)
 {
-	int howManyObjs = readNormalNr(bufor,i, 4); i+=4;
+	int howManyObjs = read_le_u32(bufor + i); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CGObjectInstance * nobj = 0;
@@ -1237,7 +1238,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		pos.y = bufor[i++];
 		pos.z = bufor[i++];
 
-		int defnum = readNormalNr(bufor,i, 4); i+=4;
+		int defnum = read_le_u32(bufor + i); i+=4;
 		int idToBeGiven = objects.size();
 
 		CGDefInfo * defInfo = defy[defnum];
@@ -1253,7 +1254,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 				bool guardMess = bufor[i]; ++i;
 				if(guardMess)
 				{
-					int messLong = readNormalNr(bufor,i, 4); i+=4;
+					int messLong = read_le_u32(bufor + i); i+=4;
 					if(messLong>0)
 					{
 						for(int yy=0; yy<messLong; ++yy)
@@ -1268,52 +1269,52 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					}
 					i+=4;
 				}
-				evnt->gainedExp = readNormalNr(bufor,i, 4); i+=4;
-				evnt->manaDiff = readNormalNr(bufor,i, 4); i+=4;
+				evnt->gainedExp = read_le_u32(bufor + i); i+=4;
+				evnt->manaDiff = read_le_u32(bufor + i); i+=4;
 				evnt->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
 				evnt->luckDiff = readNormalNr(bufor,i, 1, true); ++i;
 
 				evnt->resources.resize(RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
 				{
-					evnt->resources[x] = readNormalNr(bufor,i); 
+					evnt->resources[x] = read_le_u32(bufor + i); 
 					i+=4;
 				}
 
 				evnt->primskills.resize(PRIMARY_SKILLS);
 				for(int x=0; x<4; x++)
 				{
-					evnt->primskills[x] = readNormalNr(bufor,i, 1); 
+					evnt->primskills[x] = bufor[i]; 
 					i++;
 				}
 
 				int gabn; //number of gained abilities
-				gabn = readNormalNr(bufor,i, 1); ++i;
+				gabn = bufor[i]; ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					evnt->abilities.push_back(readNormalNr(bufor,i, 1)); ++i;
-					evnt->abilityLevels.push_back(readNormalNr(bufor,i, 1)); ++i;
+					evnt->abilities.push_back(bufor[i]); ++i;
+					evnt->abilityLevels.push_back(bufor[i]); ++i;
 				}
 
-				int gart = readNormalNr(bufor,i, 1); ++i; //number of gained artifacts
+				int gart = bufor[i]; ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
 					evnt->artifacts.push_back(readNormalNr(bufor,i, (version == RoE ? 1 : 2))); i+=(version == RoE ? 1 : 2);
 				}
 
-				int gspel = readNormalNr(bufor,i, 1); ++i; //number of gained spells
+				int gspel = bufor[i]; ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					evnt->spells.push_back(readNormalNr(bufor,i, 1)); ++i;
+					evnt->spells.push_back(bufor[i]); ++i;
 				}
 
-				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
+				int gcre = bufor[i]; ++i; //number of gained creatures
 				readCreatureSet(&evnt->creatures, bufor,i,gcre,(version>RoE));
 
 				i+=8;
-				evnt->availableFor = readNormalNr(bufor,i, 1); ++i;
-				evnt->computerActivate = readNormalNr(bufor,i, 1); ++i;
-				evnt->removeAfterVisit = readNormalNr(bufor,i, 1); ++i;
+				evnt->availableFor = bufor[i]; ++i;
+				evnt->computerActivate = bufor[i]; ++i;
+				evnt->removeAfterVisit = bufor[i]; ++i;
 				evnt->humanActivate = true;
 
 				i+=4;
@@ -1372,13 +1373,13 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 				if(version>RoE)
 				{
-					cre->identifier = readNormalNr(bufor,i); i+=4;
+					cre->identifier = read_le_u32(bufor + i); i+=4;
 					questIdentifierToId[cre->identifier] = idToBeGiven;
 					//monsters[cre->identifier] = cre;
 				}
 
 				CStackInstance *hlp = new CStackInstance();
-				hlp->count =  readNormalNr(bufor,i, 2); i+=2;
+				hlp->count =  read_le_u16(bufor + i); i+=2;
 				//type will be set during initialization
 				cre->putStack(0, hlp);
 
@@ -1390,7 +1391,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					cre->resources.resize(RESOURCE_QUANTITY);
 					for(int j=0; j<7; j++)
 					{
-						cre->resources[j] = readNormalNr(bufor,i); i+=4;
+						cre->resources[j] = read_le_u32(bufor + i); i+=4;
 					}
 
 					int artID = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
@@ -1504,7 +1505,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 				if(defInfo->id==93)
 				{
-					spellID = readNormalNr(bufor,i); i+=4;
+					spellID = read_le_u32(bufor + i); i+=4;
 					artID = 1;
 				}
 				else if(defInfo->id == 5) //specific artifact
@@ -1530,7 +1531,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					}
 					i+=4;
 				}
-				res->amount = readNormalNr(bufor,i); i+=4;
+				res->amount = read_le_u32(bufor + i); i+=4;
 				if (defInfo->subid == 6) // Gold is multiplied by 100.
 					res->amount *= 100;
 				i+=4;
@@ -1585,50 +1586,50 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 					i+=4;
 				}
 
-				box->gainedExp = readNormalNr(bufor,i, 4); i+=4;
-				box->manaDiff = readNormalNr(bufor,i, 4); i+=4;
+				box->gainedExp = read_le_u32(bufor + i); i+=4;
+				box->manaDiff = read_le_u32(bufor + i); i+=4;
 				box->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
 				box->luckDiff = readNormalNr(bufor,i, 1, true); ++i;				
 				
 				box->resources.resize(RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
 				{
-					box->resources[x] = readNormalNr(bufor,i); 
+					box->resources[x] = read_le_u32(bufor + i); 
 					i+=4;
 				}
 
 				box->primskills.resize(PRIMARY_SKILLS);
 				for(int x=0; x<4; x++)
 				{
-					box->primskills[x] = readNormalNr(bufor,i, 1); 
+					box->primskills[x] = bufor[i]; 
 					i++;
 				}
 
 				int gabn; //number of gained abilities
-				gabn = readNormalNr(bufor,i, 1); ++i;
+				gabn = bufor[i]; ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					box->abilities.push_back(readNormalNr(bufor,i, 1)); ++i;
-					box->abilityLevels.push_back(readNormalNr(bufor,i, 1)); ++i;
+					box->abilities.push_back(bufor[i]); ++i;
+					box->abilityLevels.push_back(bufor[i]); ++i;
 				}
-				int gart = readNormalNr(bufor,i, 1); ++i; //number of gained artifacts
+				int gart = bufor[i]; ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
 					if(version > RoE)
 					{
-						box->artifacts.push_back(readNormalNr(bufor,i, 2)); i+=2;
+						box->artifacts.push_back(read_le_u16(bufor + i)); i+=2;
 					}
 					else
 					{
-						box->artifacts.push_back(readNormalNr(bufor,i, 1)); i+=1;
+						box->artifacts.push_back(bufor[i]); i+=1;
 					}
 				}
-				int gspel = readNormalNr(bufor,i, 1); ++i; //number of gained spells
+				int gspel = bufor[i]; ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					box->spells.push_back(readNormalNr(bufor,i, 1)); ++i;
+					box->spells.push_back(bufor[i]); ++i;
 				}
-				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
+				int gcre = bufor[i]; ++i; //number of gained creatures
 				readCreatureSet(&box->creatures, bufor,i,gcre,(version>RoE));
 				i+=8;
 				break;
@@ -1636,15 +1637,15 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 36: //grail
 			{
 				grailPos = pos;
-				grailRadious = readNormalNr(bufor,i); i+=4;
+				grailRadious = read_le_u32(bufor + i); i+=4;
 				continue;
 			}
 		case 217:
 			{
 				nobj = new CGDwelling();
 				CCreGenObjInfo * spec = new CCreGenObjInfo;
-				spec->player = readNormalNr(bufor,i); i+=4;
-				spec->identifier =  readNormalNr(bufor,i); i+=4;
+				spec->player = read_le_u32(bufor + i); i+=4;
+				spec->identifier =  read_le_u32(bufor + i); i+=4;
 				if(!spec->identifier)
 				{
 					spec->asCastle = false;
@@ -1663,8 +1664,8 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 			{
 				nobj = new CGDwelling();
 				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
-				spec->player = readNormalNr(bufor,i); i+=4;
-				spec->identifier =  readNormalNr(bufor,i); i+=4;
+				spec->player = read_le_u32(bufor + i); i+=4;
+				spec->identifier =  read_le_u32(bufor + i); i+=4;
 				if(!spec->identifier)
 				{
 					spec->asCastle = false;
@@ -1753,7 +1754,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 87: //Shipyard
 			{
 				nobj = new CGShipyard();
-				nobj->setOwner(readNormalNr(bufor,i)); i+=4;
+				nobj->setOwner(read_le_u32(bufor + i)); i+=4;
 				break;
 			}
 		case 214: //hero placeholder
@@ -1827,7 +1828,7 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 		case 42: //Lighthouse
 			{
 				nobj = new CGLighthouse();
-				nobj->tempOwner = readNormalNr(bufor,i); i+=4;
+				nobj->tempOwner = read_le_u32(bufor + i); i+=4;
 				break;
 			}
 		case 2: //Altar of Sacrifice
@@ -1876,25 +1877,25 @@ void Mapa::readObjects( const unsigned char * bufor, int &i)
 
 void Mapa::readEvents( const unsigned char * bufor, int &i )
 {
-	int numberOfEvents = readNormalNr(bufor,i); i+=4;
+	int numberOfEvents = read_le_u32(bufor + i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
 	{
 		CMapEvent *ne = new CMapEvent();
 		ne->name = std::string();
 		ne->message = std::string();
-		int nameLen = readNormalNr(bufor,i); i+=4;
+		int nameLen = read_le_u32(bufor + i); i+=4;
 		for(int qq=0; qq<nameLen; ++qq)
 		{
 			ne->name += bufor[i]; ++i;
 		}
-		int messLen = readNormalNr(bufor,i); i+=4;
+		int messLen = read_le_u32(bufor + i); i+=4;
 		for(int qq=0; qq<messLen; ++qq)
 		{
 			ne->message +=bufor[i]; ++i;
 		}
 		for(int k=0; k < 7; k++)
 		{
-			ne->resources[k] = readNormalNr(bufor,i); i+=4;
+			ne->resources[k] = read_le_u32(bufor + i); i+=4;
 		}
 		ne->players = bufor[i]; ++i;
 		if(version>AB)
@@ -1904,7 +1905,7 @@ void Mapa::readEvents( const unsigned char * bufor, int &i )
 		else
 			ne->humanAffected = true;
 		ne->computerAffected = bufor[i]; ++i;
-		ne->firstOccurence = readNormalNr(bufor,i, 2); i+=2;
+		ne->firstOccurence = read_le_u16(bufor + i); i+=2;
 		ne->nextOccurence = bufor[i]; ++i;
 
 		char unknown[17];
@@ -1943,7 +1944,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	case 3:
 	case 4:
 		{
-			guard->m13489val = readNormalNr(bufor,i); i+=4;
+			guard->m13489val = read_le_u32(bufor + i); i+=4;
 			break;
 		}
 	case 5:
@@ -1951,7 +1952,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			int artNumber = bufor[i]; ++i;
 			for(int yy=0; yy<artNumber; ++yy)
 			{
-				int artid = readNormalNr(bufor,i, 2); i+=2;
+				int artid = read_le_u16(bufor + i); i+=2;
 				guard->m5arts.push_back(artid); 
 				allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
@@ -1963,8 +1964,8 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			guard->m6creatures.resize(typeNumber);
 			for(int hh=0; hh<typeNumber; ++hh)
 			{
-				guard->m6creatures[hh].type = VLC->creh->creatures[readNormalNr(bufor,i, 2)]; i+=2;
-				guard->m6creatures[hh].count = readNormalNr(bufor,i, 2); i+=2;
+				guard->m6creatures[hh].type = VLC->creh->creatures[read_le_u16(bufor + i)]; i+=2;
+				guard->m6creatures[hh].count = read_le_u16(bufor + i); i+=2;
 			}
 			break;
 		}
@@ -1973,7 +1974,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 			guard->m7resources.resize(7);
 			for(int x=0; x<7; x++)
 			{
-				guard->m7resources[x] = readNormalNr(bufor,i); 
+				guard->m7resources[x] = read_le_u32(bufor + i); 
 				i+=4;
 			}
 			break;
@@ -1987,7 +1988,7 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	}
 
 
-	int limit = readNormalNr(bufor,i); i+=4;
+	int limit = read_le_u32(bufor + i); i+=4;
 	if(limit == ((int)0xffffffff))
 	{
 		guard->lastDay = -1;
@@ -2098,7 +2099,7 @@ void Mapa::loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInsta
 			i+=1;
 
 		//bag artifacts //20
-		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
+		int amount = read_le_u16(bufor + i); i+=2; //number of artifacts in hero's bag
 		for(int ss = 0; ss < amount; ++ss)
 			loadArtifactToSlot(nhi, Arts::BACKPACK_START + nhi->artifactsInBackpack.size(), bufor, i);
 	} //artifacts
