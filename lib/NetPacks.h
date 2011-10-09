@@ -1382,6 +1382,8 @@ struct BattleSpellCast : public CPackForClient//3009
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id; //id of spell
 	ui8 skill; //caster's skill level
+	ui8 spellCost;
+	ui8 manaGained; //mana channeling ability
 	THex tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
@@ -1389,7 +1391,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	ui8 castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres & attackerType & castedByHero;
+		h & dmgToDisplay & side & id & skill & spellCost & manaGained & tile & resisted & affectedCres & attackerType & castedByHero;
 	}
 };
 

@@ -1044,27 +1044,20 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 {
 	assert(gs->curB);
-	CGHeroInstance *h = (side) ? gs->curB->heroes[1] : gs->curB->heroes[0];
-	if(h && castedByHero)
+	if (castedByHero)
 	{
-		int spellCost = 0;
-		if(gs->curB)
-		{
-			spellCost = gs->curB->getSpellCost(VLC->spellh->spells[id], h);
-		}
-		else
-		{
-			spellCost = VLC->spellh->spells[id]->costs[skill];
-		}
-		h->mana -= spellCost;
-		if (h->mana < 0)
-			h->mana = 0;
-	}
-	if(side >= 0 && side < 2 && castedByHero)
-	{
-		gs->curB->castSpells[side]++;
-	}
+		CGHeroInstance * h = gs->curB->heroes[side];
+		CGHeroInstance * enemy = gs->curB->heroes[1-side];
 
+		h->mana -= spellCost;
+			amax(h->mana, 0);
+		if (enemy && manaGained)
+			enemy->mana += manaGained;
+		if (side >= 0 && side < 2)
+		{
+			gs->curB->castSpells[side]++;
+		}
+	}
 
 	if(id == 35 || id == 78) //dispel and dispel helpful spells
 	{

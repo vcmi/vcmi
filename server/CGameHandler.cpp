@@ -3496,6 +3496,26 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	sc.dmgToDisplay = 0;
 	sc.castedByHero = (bool)caster;
 	sc.attackerType = (stack ? stack->type->idNumber : -1);
+	sc.manaGained = 0;
+	sc.spellCost = 0;
+
+	if (caster) //calculate spell cost
+	{
+		sc.spellCost = gs->curB->getSpellCost(VLC->spellh->spells[spellID], caster);
+
+		if (secHero && mode == SpellCasting::HERO_CASTING) //handle mana channel
+		{
+			int manaChannel = 0;
+			BOOST_FOREACH(CStack * stack, gs->curB->stacks) //TODO: shouldn't bonus system handle it somehow?
+			{
+				if (stack->owner == secHero->tempOwner)
+				{
+					amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+				}
+			}
+			sc.manaGained = (manaChannel * sc.spellCost) / 100;
+		}
+	}
 
 	//calculating affected creatures for all spells
 	std::set<CStack*> attackedCres;

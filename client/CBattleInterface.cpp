@@ -3376,6 +3376,14 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		console->addText(dmgInfo); //todo: casualties (?)
 	}
 	waitForAnims();
+	//mana absorption
+	if (sc->manaGained)
+	{
+		Point leftHero = Point(15, 30) + pos;
+		Point rightHero = Point(755, 30) + pos;
+		addNewAnim(new CSpellEffectAnim(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
+		addNewAnim(new CSpellEffectAnim(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
+	}
 }
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
