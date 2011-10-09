@@ -1416,7 +1416,14 @@
 				"level": 6,
 				"name": [ "Enchanter" ],
 				"faction": -1,
-				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ] ],			//Enchanter		//first aid tent can heal
+				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ],
+								 [ "ENCHANTER", 3, 28, 3],		//air shield
+								 [ "ENCHANTER", 3, 41, 3],		//bless
+								 [ "ENCHANTER", 3, 45, 3],		//wealness
+								 [ "ENCHANTER", 3, 46, 3],		//stone skin
+								 [ "ENCHANTER", 3, 53, 3],		//slow
+								 [ "ENCHANTER", 3, 54, 3],		//haster
+								 [ "CASTS", 5, 0, 0]],			//Enchanter
 				"defname": "CENCH.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
@@ -1427,8 +1434,8 @@
 				"level": 4,
 				"name": [ "Sharpshooter" ],
 				"faction": -1,
-				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ],					//arrow turret
-							   	 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter	//Ammo Cart
+				"ability_add": [ [ "NO_OBSTACLES_PENALTY", 0, 0, 0 ],			
+							   	 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter
 				"defname": "CSHARP.DEF",
 				"projectile_defname": "PELFX.DEF",
 				"projectile_spin": false

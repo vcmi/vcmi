@@ -839,6 +839,11 @@ DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 {
 	gs->curB->castSpells[0] = gs->curB->castSpells[1] = 0;
+	for (int i = 0; i < 2; ++i)
+	{
+		amax(--gs->curB->enchanterCounter[i], 0);
+	}
+
 	gs->curB->round = round;
 
 	BOOST_FOREACH(CStack *s, gs->curB->stacks)
@@ -1294,6 +1299,16 @@ DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 			else
 				stack->casts += val;
 			amax(stack->casts, 0);
+			break;
+		}
+		case ENCHANTER_COUNTER:
+		{
+			int side = gs->curB->whatSide(stack->owner);
+			if (absolute)
+				gs->curB->enchanterCounter[side] = val;
+			else
+				gs->curB->enchanterCounter[side] += val;
+			amax(gs->curB->enchanterCounter[side], 0);
 			break;
 		}
 	}

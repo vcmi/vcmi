@@ -1506,7 +1506,7 @@ struct BattleSetStackProperty : public CPackForClient //3018
 {
 	BattleSetStackProperty(){type = 3018;};
 
-	enum BattleStackProperty {CASTS, CURRENT_SPELL};
+	enum BattleStackProperty {CASTS, ENCHANTER_COUNTER};
 
 	DLL_EXPORT void applyGs(CGameState *gs);
 	//void applyCl(CClient *cl){};

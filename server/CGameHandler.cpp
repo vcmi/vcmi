@@ -3344,13 +3344,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, NULL, secHero, 0, SpellCasting::CREATURE_ACTIVE_CASTING, stack);
 
-			BattleSetStackProperty ssp;
-			ssp.stackID = ba.stackNumber;
-			ssp.which = BattleSetStackProperty::CASTS; //reduce number of casts
-			ssp.val = -1;
-			ssp.absolute = false;
-			sendAndApply(&ssp);
-
 			sendAndApply(&end_action);
 			break;
 		}
@@ -3505,10 +3498,27 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	sc.attackerType = (stack ? stack->type->idNumber : -1);
 
 	//calculating affected creatures for all spells
-	std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
-	for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+	std::set<CStack*> attackedCres;
+	if (mode != SpellCasting::ENCHANTER_CASTING)
 	{
-		sc.affectedCres.insert((*it)->ID);
+		attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
+		for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+		{
+			sc.affectedCres.insert((*it)->ID);
+		}
+	}
+	else //enchanter - hit all possible stacks
+	{
+		BOOST_FOREACH (CStack * stack, gs->curB->stacks)
+		{
+			/*if it's non negative spell and our unit or non positive spell and hostile unit */
+			if((spell->positiveness >= 0 && stack->owner == casterColor)
+				||(spell->positiveness <= 0 && stack->owner != casterColor ))
+			{
+				if(stack->alive()) //TODO: allow dead targets somewhere in the future
+					attackedCres.insert(stack);
+			}
+		}
 	}
 
 	//checking if creatures resist
@@ -3844,6 +3854,16 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 	if(!si.stacks.empty()) //after spellcast info shows
 		sendAndApply(&si);
 
+	if (mode == SpellCasting::CREATURE_ACTIVE_CASTING || mode == SpellCasting::ENCHANTER_CASTING) //reduce number of casts remaining
+	{
+		BattleSetStackProperty ssp;
+		ssp.stackID = stack->ID;
+		ssp.which = BattleSetStackProperty::CASTS;
+		ssp.val = -1;
+		ssp.absolute = false;
+		sendAndApply(&ssp);
+	}
+
 	//Magic Mirror effect
 	if (spell->positiveness < 0 && mode != SpellCasting::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
@@ -4007,14 +4027,25 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				}
 			}
 		}
-		BonusList * bl = st->getBonuses(Selector::type(Bonus::ENCHANTER)).get();
-		if (bl->size())
+		BonusList bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTER)));
+		int side = gs->curB->whatSide(st->owner);
+		if (bl.size() && st->casts && !gs->curB->enchanterCounter[side])
 		{
-			bte.effect = Bonus::ENCHANTER;
-			int index = rand() % bl->size();
-			bte.val = (*bl)[index]->subtype; //spell ID
-			bte.additionalInfo = (*bl)[index]->val; //spell level
-			sendAndApply(&bte);
+			int index = rand() % bl.size();
+			int spellID = bl[index]->subtype; //spell ID
+			if (gs->curB->battleCanCastThisSpell(st->owner, VLC->spellh->spells[spellID], SpellCasting::ENCHANTER_CASTING)); //TODO: select another?
+			{
+				int spellLeveL = bl[index]->val; //spell level
+				const CGHeroInstance * enemyHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
+				handleSpellCasting(spellID, spellLeveL, -1, side, st->owner, NULL, enemyHero, 0, SpellCasting::ENCHANTER_CASTING, st);
+
+				BattleSetStackProperty ssp;
+				ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
+				ssp.absolute = false;
+				ssp.val = bl[index]->additionalInfo; //increase cooldown counter
+				ssp.stackID = st->ID;
+				sendAndApply(&ssp);
+			}
 		}
 	}
 }

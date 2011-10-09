@@ -135,7 +135,7 @@ namespace PrimarySkill
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
 	BONUS_NAME(NO_OBSTACLES_PENALTY)					\
 	BONUS_NAME(SELF_LUCK) /*halfling*/					\
-	BONUS_NAME(ENCHANTER)/* for Enchanter spells, subtype - spell id */ \
+	BONUS_NAME(ENCHANTER)/* for Enchanter spells, val - skill level, subtype - spell id, additionalInfo - cooldown */ \
 	BONUS_NAME(HEALER)									\
 	BONUS_NAME(SIEGE_WEAPON)							\
 	BONUS_NAME(HYPNOTIZED)								\

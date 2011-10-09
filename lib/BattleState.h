@@ -58,7 +58,8 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
 	ui8 castSpells[2]; //how many spells each side has cast this turn [0] - attacker, [1] - defender
-	std::vector<const CSpell *> usedSpellsHistory[2]; //each time hero casts spell, it's inserted here -> eagle eye skill 
+	std::vector<const CSpell *> usedSpellsHistory[2]; //each time hero casts spell, it's inserted here -> eagle eye skill
+	si16 enchanterCounter[2]; //tends to pass through 0, so sign is needed
 	SiegeInfo si;
 	si32 battlefieldType;
 
@@ -70,7 +71,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 		h & sides & round & activeStack & siege & town & tile & stacks & belligerents & obstacles
 			& castSpells & si & battlefieldType;
 		h & heroes;
-		h & usedSpellsHistory;
+		h & usedSpellsHistory & enchanterCounter;
 		h & tacticsSide & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}

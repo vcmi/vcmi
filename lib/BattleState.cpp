@@ -1462,6 +1462,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	curB->heroes[1] = const_cast<CGHeroInstance*>(heroes[1]);
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->enchanterCounter[0] = curB->enchanterCounter[1] = 0; //ready to cast
 
 	if(town)
 	{
@@ -1915,7 +1916,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int play
 	if(moreGeneralProblem != SpellCasting::OK)
 		return moreGeneralProblem;
 
-	if (mode != SpellCasting::CREATURE_ACTIVE_CASTING)
+	if (mode != SpellCasting::CREATURE_ACTIVE_CASTING && mode != SpellCasting::ENCHANTER_CASTING)
 		return battleIsImmune(getHero(player), spell, mode, dest);
 	else
 		return battleIsImmune(NULL, spell, mode, dest);
