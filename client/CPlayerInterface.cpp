@@ -1101,8 +1101,9 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & sysOpts;
 	h & spellbookSettings;
 
+	//sleeping heroes
 	ui8 sleepingSize;
-	if(h.saving)
+	if (h.saving)
 		sleepingSize = sleepingHeroes.size();
 	h & sleepingSize;
 	for (int i = 0; i < sleepingSize; i++)
@@ -1115,6 +1116,26 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 		{
 			const CGHeroInstance *hero = cb->getHero(hid);
 			sleepingHeroes += hero;	
+		}
+	}
+
+	//hero list order
+	ui8 heroListSize;
+	if (h.saving)
+		heroListSize = wanderingHeroes.size();
+	else
+		wanderingHeroes.clear();
+	h & heroListSize;
+	for (int i = 0; i < heroListSize; i++)
+	{
+		si32 hid;
+		if (h.saving)
+			hid = wanderingHeroes[i]->id;
+		h & hid;
+		if (!h.saving)
+		{
+			const CGHeroInstance *hero = cb->getHero(hid);
+			wanderingHeroes += hero;			
 		}
 	}
 }
@@ -1339,16 +1360,40 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 void CPlayerInterface::recreateHeroTownList()
 {
+	std::vector <const CGHeroInstance *> newWanderingHeroes;
+	std::vector<const CGHeroInstance*> allHeroes = cb->getHeroesInfo();
+
+	//applying current heroes order to new heroes info
+	int j;
+	for (int i = 0; i < wanderingHeroes.size(); i++)
+		if ((j = vstd::findPos(allHeroes, wanderingHeroes[i])) >= 0)
+			if (!allHeroes[j]->inTownGarrison)
+			{
+				newWanderingHeroes += allHeroes[j];
+				allHeroes -= allHeroes[j];
+			}
+	//all the rest of new heroes go the end of the list	
 	wanderingHeroes.clear();
-	std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
-	for(size_t i = 0; i < heroes.size(); i++)
-		if(!heroes[i]->inTownGarrison)
-			wanderingHeroes.push_back(heroes[i]);
+	wanderingHeroes = newWanderingHeroes;
+	newWanderingHeroes.clear();
+	for (int i = 0; i < allHeroes.size(); i++)
+		if (!allHeroes[i]->inTownGarrison)
+			wanderingHeroes += allHeroes[i];	
+
+	std::vector<const CGTownInstance*> newTowns;
+	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
+	for (int i = 0; i < towns.size(); i++)
+		if ((j = vstd::findPos(allTowns, towns[i])) >= 0)
+		{
+			newTowns += allTowns[j];
+			allTowns -= allTowns[j];
+		}
 
 	towns.clear();
-	std::vector<const CGTownInstance*> townInfo = cb->getTownsInfo();
-	for(size_t i = 0; i < townInfo.size(); i++)
-		towns.push_back(townInfo[i]);
+	towns = newTowns;
+	newTowns.clear();
+	for(int i = 0; i < allTowns.size(); i++)
+		towns.push_back(allTowns[i]);
 
 	adventureInt->updateNextHero(NULL);
 }
