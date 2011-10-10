@@ -3213,6 +3213,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case 37: //cure
 	case 38: //resurrection
 	case 39: //animate dead
+	case 78: //Dispell beneficial spells
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
