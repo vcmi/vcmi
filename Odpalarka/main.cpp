@@ -2,7 +2,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-int main(int argc, const char **)
+int main(int argc, const char **argv)
 {
 	std::string runnername = 
 #ifdef _WIN32
@@ -19,7 +19,7 @@ int main(int argc, const char **)
 #endif
 	;
 
-	std::string serverCommand = servername + " b1.json StupidAI StupidAI";
+	std::string serverCommand = servername + " b1.json StupidAI MadAI"; // StupidAI MadAI
 	boost::thread t(boost::bind(std::system, serverCommand.c_str()));
 	boost::thread tt(boost::bind(std::system, runnername.c_str()));
 	boost::thread ttt(boost::bind(std::system, runnername.c_str()));

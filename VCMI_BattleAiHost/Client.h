@@ -15,6 +15,7 @@ public:
 	BattleAction *curbaction;
 	CGameState *gs;
 	CBattleGameInterface *ai;
+	ui8 color;
 
 	CClient();
 

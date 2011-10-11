@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 		if(battleAIName.size())
 		{
 			cl.ai = CDynLibHandler::getNewBattleAI(battleAIName);
-			cl.ai->playerID = color;
+			cl.color = color;
 			tlog0 << "AI created\n";
 			cl.ai->init(cbc);
 		}

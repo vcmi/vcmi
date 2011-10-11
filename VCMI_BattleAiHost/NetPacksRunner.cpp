@@ -12,19 +12,40 @@
 #include "CheckTime.h"
 
 
+void postInfoCall(int timeUsed)
+{
+	tlog0 << "AI was processing info for " << timeUsed << " ms.\n";
+	if(timeUsed > PROCESS_INFO_TIME + MEASURE_MARGIN)
+	{
+		tlog1 << "That's too long! AI is disqualified!\n";
+		exit(1);
+	}
+}
+
+void postDecisionCall(int timeUsed)
+{
+	tlog0 << "AI was thinking over an action for " << timeUsed << " ms.\n";
+	if(timeUsed > MAKE_DECIDION_TIME + MEASURE_MARGIN)
+	{
+		tlog1 << "That's too long! AI is disqualified!\n";
+		exit(1);
+	}
+}
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
 //awaiting variadic templates...
-
-
-#define BATTLE_INTERFACE_CALL_IF_PRESENT(function,...) 	\
-	do													\
-	{													\
-		if(cl->ai)										\
-		{												\
-			CheckTime("AI was processing info for ");	\
-			cl->ai->function(__VA_ARGS__);				\
-		}												\
+#define BATTLE_INTERFACE_CALL_IF_PRESENT(function,...) 		\
+	do														\
+	{														\
+		int timeUsed = 0;									\
+		if(cl->ai)											\
+		{													\
+			Bomb *b = new Bomb(PROCESS_INFO_TIME + HANGUP_TIME);\
+			CheckTime pr;									\
+			cl->ai->function(__VA_ARGS__);					\
+			postInfoCall(pr.timeSinceStart());				\
+			b->disarm();									\
+		}													\
 	} while(0)
 
 #define UNEXPECTED_PACK assert(0)
@@ -257,7 +278,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 void BattleStart::applyCl( CClient *cl )
 {
 	//TODO!!!!
-	BATTLE_INTERFACE_CALL_IF_PRESENT(battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->ai->playerID);
+	BATTLE_INTERFACE_CALL_IF_PRESENT(battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
 }
 
 void BattleNextRound::applyFirstCl(CClient *cl)
@@ -279,7 +300,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 	else
 		playerToCall = activated->owner;
 
-	if(cl->ai && cl->ai->playerID == playerToCall)
+	if(cl->ai && cl->color == playerToCall)
 		cl->requestMoveFromAI(activated);
 }
 

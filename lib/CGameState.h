@@ -67,6 +67,7 @@ class CCampaign;
 class CCampaignState;
 class IModableArt;
 class CGGarrison;
+struct MakeAction;
 
 namespace boost
 {
@@ -404,6 +405,8 @@ public:
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
+
+	bool isValidAction(const MakeAction &ma, bool verbose) const;
 
 	void buildBonusSystemTree();
 	void attachArmedObjects();

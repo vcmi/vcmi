@@ -473,8 +473,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		tlog0 << boost::format("Total casualties points: %d\n") % casualtiesPoints;
 
 		//battle ai1 ai2 winner_side winner_casualties
+		time_t czas;
+		time(&czas);
+		std::string resultTypes[] = {"SIDE_DEFEATED", "SIDE_RETREATED", "SIDE_SURRENDERED", "SIDE_DISQUALIFIED"};
 		std::ofstream resultsList("results.txt", std::fstream::out | std::fstream::app);
-		resultsList << boost::format("\n%s\t%s\t%s\t%d\t%d") % gs->scenarioOps->mapname % ais[0] % ais[1] % (int)battleResult.data->winner % casualtiesPoints;
+		resultsList << boost::format("%s\t%s\t%s\t%d\t%d\t%s\t%s") % gs->scenarioOps->mapname % ais[0] % ais[1] % (int)battleResult.data->winner % casualtiesPoints % resultTypes[battleResult.data->result] % asctime(localtime(&czas));
 	}
 
 	sendAndApply(&resultsApplied);
@@ -634,13 +637,30 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bat.bsa.push_back(bsa);
 	}
 }
+
+void CGameHandler::disqualifyPlayer(int side)
+{
+	tlog0 << "The side " << (int)side << " will be disqualified!\n";
+	boost::unique_lock<boost::shared_mutex> lock(*gs->mx);
+	setBattleResult(3, !side);
+	battleMadeAction.setn(true);
+}
+
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
 	setThreadName(-1, "CGameHandler::handleConnection");
 	srand(time(NULL));
 	CPack *pack = NULL;
+
+	boost::function<void()> onException;
+
 	try
 	{
+		if(gs->curB && gs->initialOpts->mode == StartInfo::DUEL)
+		{
+			onException = boost::bind(&CGameHandler::disqualifyPlayer, this, *players.begin());
+		}
+
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
 			pack = c.retreivePack();
@@ -668,6 +688,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			}
 			else if(apply)
 			{
+				boost::unique_lock<boost::recursive_mutex> lock(gsm);
 				bool result = apply->applyOnGH(this,&c,pack);
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
 
@@ -690,11 +711,16 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
-		assert(!c.connected); //make sure that connection has been marked as broken
+		boost::unique_lock<boost::recursive_mutex> lock(gsm);
+		if(gs->scenarioOps->mode != StartInfo::DUEL)
+		{
+			assert(!c.connected); //make sure that connection has been marked as broken
+		}
 		tlog1 << e.what() << std::endl;
 		end2 = true;
+		if(onException) onException();
 	}
-	HANDLE_EXCEPTION(end2 = true);
+	HANDLE_EXCEPTIONC(boost::unique_lock<boost::recursive_mutex> lock(gsm);end2 = true; if(onException) {onException();return;});
 
 	tlog1 << "Ended handling connection\n";
 }
@@ -1938,8 +1964,11 @@ void CGameHandler::sendToAllClients( CPackForClient * info )
 	tlog5 << "Sending to all clients a package of type " << typeid(*info).name() << std::endl;
 	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
 	{
-		boost::unique_lock<boost::mutex> lock(*(*i)->wmx);
-		**i << info;
+		if((**i).connected)
+		{
+			boost::unique_lock<boost::mutex> lock(*(*i)->wmx);
+			**i << info;
+		}
 	}
 }
 
@@ -2955,7 +2984,7 @@ static EndAction end_action;
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
-	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
+	tlog1 << "\tMaking action of type " << (int)ba.actionType << std::endl;
 	bool ok = true;
 
 	switch(ba.actionType)

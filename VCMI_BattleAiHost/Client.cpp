@@ -5,8 +5,9 @@
 #include "../lib/BattleAction.h"
 #include "../lib/CGameInterface.h"
 #include "CheckTime.h"
+#include "../lib/BattleState.h"
 
-#define NOT_LIB
+//#define NOT_LIB
 #include "../lib/RegisterTypes.cpp"
 
 template <typename T> class CApplyOnCL;
@@ -104,14 +105,44 @@ void CClient::requestMoveFromAIWorker(const CStack *s)
 
 	try
 	{
-		CheckTime timer("AI was thinking for ");
+		Bomb *b = new Bomb(MAKE_DECIDION_TIME + HANGUP_TIME);
+		CheckTime timer;
 		ba = ai->activeStack(s);
-		MakeAction temp_action(ba);
-		*serv << &temp_action;
+		postDecisionCall(timer.timeSinceStart());
+		b->disarm();
 	}
 	catch(...)
 	{
 		tlog0 << "AI thrown an exception!\n";
+		//TODO: disqualify?
+		ba = BattleAction::makeDefend(s);
+	}
+
+	try
+	{
+		MakeAction temp_action(ba);
+		tlog0 << "Checking if action looks valid... ";
+		bool valid = gs->isValidAction(temp_action, true);
+
+		if(gs->curB->sides[temp_action.ba.side] != color)
+		{
+			tlog1 << "Wrong side set!\n";
+			valid = false;
+		}
+
+		if(!valid)
+		{
+			tlog1 << "Warning: action seems to be invalid! Stack will defend\n";
+			temp_action.ba = BattleAction::makeDefend(s);
+		}
+		else
+			tlog1 << "Doesn't look suspicious.\n";
+
+		*serv << &temp_action;
+	}
+	catch(...)
+	{
+		tlog1 << "Failed sending action!\n";
 	}
 }
 
@@ -122,6 +153,7 @@ CClient::CClient()
 	ai = NULL;
 	curbaction = NULL;
 	terminate = false;
+	color = 250;
 
 	applier = new CApplier<CBaseForCLApply>;
 	registerTypes2(*applier);

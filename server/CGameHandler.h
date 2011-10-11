@@ -123,6 +123,8 @@ public:
 	//const CArmedInstance * bEndArmy1, * bEndArmy2;
 	bool visitObjectAfterVictory;
 	//
+
+	void disqualifyPlayer(int side);
 	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex); //distance - number of hexes travelled before attacking
 	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield

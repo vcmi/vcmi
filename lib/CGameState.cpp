@@ -32,6 +32,7 @@
 #include "BattleState.h"
 #include "../lib/JsonNode.h"
 #include <boost/algorithm/string/predicate.hpp>
+#include "BattleAction.h"
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -2462,6 +2463,75 @@ void CGameState::attachArmedObjects()
 	{
 		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
 			armed->whatShouldBeAttached()->attachTo(armed->whereShouldBeAttached(this));
+	}
+}
+
+bool CGameState::isValidAction(const MakeAction &ma, bool verbose) const
+{
+#define PROBLEM(txt) do{if(verbose) tlog1 << "Action invalid: " << txt << std::endl; return false;} while(0);
+
+	const CStack *stack = curB->getStack(ma.ba.stackNumber);
+	if(ma.ba.actionType != BattleAction::RETREAT && ma.ba.actionType != BattleAction::SURRENDER)
+	{
+		if(!stack)
+			PROBLEM("There is no such stack!");
+		if(stack->ID != curB->activeStack)
+			PROBLEM("Action has to be about the active stack!");
+	}
+
+	switch(ma.ba.actionType)
+	{
+		
+	case BattleAction::NO_ACTION:
+		PROBLEM("No action is not a valid action. Use DEFEND to do nothing!");
+	case BattleAction::HERO_SPELL:
+		PROBLEM("Casting spells by hero must be done as a custom action!");
+	case BattleAction::WALK:
+		if(!vstd::contains(curB->getAccessibility(stack, true), ma.ba.destinationTile))
+			PROBLEM("Destination tile is not accessible!");
+
+		return true;
+	case BattleAction::DEFEND:
+		return true;
+	case BattleAction::RETREAT:
+		return true;
+	case BattleAction::SURRENDER:
+		PROBLEM("SURRENDER is not considered to be a valid action. Use RETREAT instead!");
+	case BattleAction::WALK_AND_ATTACK:
+		{
+			std::vector<THex> attackable;
+			if(!vstd::contains(curB->getAccessibility(stack, true, &attackable), ma.ba.destinationTile))
+				PROBLEM("Destination tile is not accessible!");
+			if(!vstd::contains(attackable, ma.ba.additionalInfo))
+				PROBLEM("Target tile is not attackable!");
+		}
+
+		return true;
+	case BattleAction::SHOOT:
+		if(!curB->battleCanShoot(stack, ma.ba.destinationTile))
+			PROBLEM("Stack cannot make shot!");
+
+		return true;
+	case BattleAction::WAIT:
+		if(vstd::contains(stack->state, WAITING))
+			PROBLEM("Stack can be ordered to wait only once in a turn!");
+
+		return true;
+	case BattleAction::CATAPULT:
+		//TODO czy aktywna jest katapulta
+		//czy bohater posiada balistyke
+		// czy celuje w mur
+		// czy segment w ktory celuje nie jest juz zniszczony
+		return true;
+	case BattleAction::MONSTER_SPELL:
+		PROBLEM("Monster spells are not supported!");
+	case BattleAction::BAD_MORALE:
+		PROBLEM("Player can't decide when stack has a bad morale!");
+	case BattleAction::STACK_HEAL:
+		//TODO namiot
+		return true;
+	default:
+		PROBLEM("Action of invalid type!");
 	}
 }
 

@@ -1,43 +1,94 @@
 #pragma once
 
 #include "../global.h"
-#include <ctime>
-#ifndef _WIN32
-#include <sys/time.h>                // for gettimeofday()
+
+
+#ifdef _WIN32
+	#include <ctime>
+	typedef time_t TTime;
+	#define GET_TIME(var) (var = clock())
+#else
+	#include <sys/time.h>                // for gettimeofday()
+	typedef timeval TTime;
+	#define GET_TIME(var) (gettimeofday(&var, NULL))
 #endif
 
 
 struct CheckTime
 {
-#ifdef _WIN32
-	time_t t0;
-#else
-	timeval t1, t2;
-#endif
+	TTime start;
+
 	std::string msg;
 
-	CheckTime(const std::string & Msg) : msg(Msg)
-#ifdef _WIN32
-		, t0(clock())
-#endif
+	CheckTime(const std::string & Msg = "") : msg(Msg)
 	{
-
-#ifndef _WIN32
-		gettimeofday(&t1, NULL);
-#endif
+		GET_TIME(start);
 	}
+
+	int timeDiff(const TTime &t1, const TTime &t2)
+	{
+		int ret = 0;
+#ifdef _WIN32
+		ret = (float)(t2 - t1) / (CLOCKS_PER_SEC / 1000);
+#else
+		ret += (t2.tv_sec - t1.tv_sec) * 1000.0;   // sec to ms
+		ret += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms
+#endif
+
+		//TODO abs?
+		return ret;
+	}
+
+	int timeSinceStart()
+	{
+		TTime now;
+		GET_TIME(now);
+		return timeDiff(start, now);
+	}
+
 	~CheckTime()
 	{
-		float liczyloSie = 0;
+		if(msg.size())
+		{
+			float liczyloSie = timeSinceStart();
+			tlog0 << msg << ": " << liczyloSie << "ms" << std::endl;
+		}
+	}
+};
 
-#ifdef _WIN32
-		liczyloSie = (float)(clock() - t0) / (CLOCKS_PER_SEC / 1000);
-#else
-		// stop timer
-		gettimeofday(&t2, NULL);
-		liczyloSie = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
-		liczyloSie += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
-#endif
-		tlog0 << msg << ": " << liczyloSie << "ms" << std::endl;;
+//all ms
+const int PROCESS_INFO_TIME = 5; 
+const int MAKE_DECIDION_TIME = 75; 
+const int MEASURE_MARGIN = 1;
+const int HANGUP_TIME = 50;
+
+void postInfoCall(int timeUsed);
+void postDecisionCall(int timeUsed);
+
+struct Bomb
+{
+	int armed;
+
+	void run(int time)
+	{
+		boost::this_thread::sleep(boost::posix_time::milliseconds(time));
+		if(armed)
+		{
+			tlog1 << "BOOOM! The bomb exploded! AI was thinking for too long!\n";
+			exit(1);
+		}
+
+		delete this;
+	}
+
+	Bomb(int timer)
+	{
+		boost::thread t(&Bomb::run, this, timer);
+		t.detach();
+	}
+
+	void disarm()
+	{
+		armed = 0;
 	}
 };

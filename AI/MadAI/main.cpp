@@ -1,5 +1,6 @@
 #include <cstring>
 #include "../../AI_Base.h"
+#include "../../lib/CBattleCallback.h"
 
 
 const char *g_cszAiName = "Mad AI";
@@ -16,13 +17,17 @@ class CMadAI : public CBattleGameInterface
 
 	virtual BattleAction activeStack(const CStack * stack) 
 	{
+// 		int *g = 0;
+// 		*g = 4;
+//		while(1);
+
 		srand(time(NULL));
 		BattleAction ba;
 		ba.actionType = rand() % 14;
 		ba.additionalInfo = rand() % BFIELD_SIZE + 5;
 		ba.side = rand() % 7;
 		ba.destinationTile = rand() % BFIELD_SIZE + 5;
-		ba.stackNumber = rand() % 500;
+		ba.stackNumber = rand() % cb->battleGetAllStacks().size() + 1;
 		return ba;
 	}
 };
