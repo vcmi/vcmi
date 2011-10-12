@@ -34,7 +34,7 @@ class CMadAI : public CBattleGameInterface
 
 extern "C" DLL_F_EXPORT void GetAiName(char* name)
 {
-	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
+	strcpy(name, g_cszAiName);
 }
 
 extern "C" DLL_F_EXPORT CBattleGameInterface* GetNewBattleAI()
