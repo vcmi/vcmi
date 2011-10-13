@@ -166,41 +166,44 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 	if (IncrementFrame)
 		incrementFrame();
 
-	long BaseOffset, 
-		SpriteWidth, SpriteHeight, //sprite format
+#if 0
+	long SpriteWidth, SpriteHeight, //sprite format
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
-		i, FullHeight,FullWidth,
-		TotalRowLength; // length of read segment
-	unsigned char SegmentType, SegmentLength;
+		i, FullHeight,
 
-	i = BaseOffset = SEntries[SIndex].offset;
+#endif
+	unsigned char SegmentType, SegmentLength;
+	unsigned int i;
+
+	i = SEntries[SIndex].offset;
 
 	/*int prSize = read_le_u32(FDef + i);*/ i += 4; //TODO use me
-	int defType2 = read_le_u32(FDef + i); i += 4;
-	FullWidth = read_le_u32(FDef + i); i += 4;
-	FullHeight = read_le_u32(FDef + i); i += 4;
-	SpriteWidth = read_le_u32(FDef + i); i += 4;
-	SpriteHeight = read_le_u32(FDef + i); i += 4;
-	LeftMargin = read_le_u32(FDef + i); i += 4;
-	TopMargin = read_le_u32(FDef + i); i += 4;
-	RightMargin = FullWidth - SpriteWidth - LeftMargin;
-	BottomMargin = FullHeight - SpriteHeight - TopMargin;
-
-	int BaseOffsetor = BaseOffset = i;
-
-	int ftcp = 0;
+	const unsigned int defType2 = read_le_u32(FDef + i); i += 4;
+	const unsigned int FullWidth = read_le_u32(FDef + i); i += 4;
+	const unsigned int FullHeight = read_le_u32(FDef + i); i += 4;
+	const unsigned int SpriteWidth = read_le_u32(FDef + i); i += 4;
+	const unsigned int SpriteHeight = read_le_u32(FDef + i); i += 4;
+	const int LeftMargin = read_le_u32(FDef + i); i += 4;
+	const int TopMargin = read_le_u32(FDef + i); i += 4;
+	const int RightMargin = FullWidth - SpriteWidth - LeftMargin;
+	const int BottomMargin = FullHeight - SpriteHeight - TopMargin;
 
 	if (defType2 == 1) //as it should be always in creature animations
 	{
+		const int BaseOffsetor = i;
+		int ftcp = 0;
+
 		if (TopMargin > 0)
 		{
 			ftcp += FullWidth * TopMargin;
 		}
-		ui32 *RLEntries = (ui32*)(FDef + BaseOffset);
-		BaseOffset += sizeof(int) * SpriteHeight;
+		ui32 *RLEntries = (ui32 *)(FDef + BaseOffsetor);
+
 		for (int i = 0; i < SpriteHeight; i++)
 		{
-			BaseOffset = BaseOffsetor + SDL_SwapLE32(RLEntries[i]);
+			int BaseOffset = BaseOffsetor + read_le_u32(RLEntries + i);
+			int TotalRowLength; // length of read segment
+
 			if (LeftMargin > 0)
 			{
 				ftcp += LeftMargin;
@@ -218,10 +221,10 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				SegmentType = FDef[BaseOffset++];
 				SegmentLength = FDef[BaseOffset++];
 
-				int xB = (attacker ? ftcp % FullWidth : FullWidth - ftcp % FullWidth - 1) + x;
+				const int remainder = ftcp % FullWidth;
+				int xB = (attacker ? remainder : FullWidth - remainder - 1) + x;
 
-
-				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
+				const unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
 
 				for (int k = 0; k <= SegmentLength; k++)
 				{

@@ -14,15 +14,18 @@ struct unaligned_Uint32 { ui32 val __attribute__(( packed )); };
 
 static inline ui16 read_unaligned_u16(const void *p)
 {
-        const struct unaligned_Uint16 *v = (const struct unaligned_Uint16 *)p;
-        return v->val;
+	const struct unaligned_Uint16 *v = reinterpret_cast<const struct unaligned_Uint16 *>(p);
+	return v->val;
 }
 
 static inline ui32 read_unaligned_u32(const void *p)
 {
-        const struct unaligned_Uint32 *v = (const struct unaligned_Uint32 *)p;
-        return v->val;
+	const struct unaligned_Uint32 *v = reinterpret_cast<const struct unaligned_Uint32 *>(p);
+	return v->val;
 }
+
+#define read_le_u16(p) (SDL_SwapLE16(read_unaligned_u16(p)))
+#define read_le_u32(p) (SDL_SwapLE32(read_unaligned_u32(p)))
 
 #else
 #define read_le_u16(p) (SDL_SwapLE16(* reinterpret_cast<const ui16 *>(p)))
