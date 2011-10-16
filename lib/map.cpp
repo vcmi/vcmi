@@ -575,7 +575,7 @@ int Mapa::loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& n
 		{
 			hut->missionType = 0; //no mission
 		}
-		hut->isCustom = false;
+		hut->isCustomFirst = hut->isCustomNext = hut->isCustomComplete = false;
 	}
 
 	if(hut->missionType)
@@ -2035,10 +2035,9 @@ void Mapa::loadQuest(CQuest * guard, const unsigned char * bufor, int & i)
 	guard->firstVisitText = readString(bufor,i);
 	guard->nextVisitText = readString(bufor,i);
 	guard->completedText = readString(bufor,i);
-	if (guard->firstVisitText.size() && guard->nextVisitText.size() && guard->completedText.size())
-		guard->isCustom = true;
-	else
-		guard->isCustom = false;  //randomize all if any text is missing
+	guard->isCustomFirst = guard->firstVisitText.size() > 0;
+	guard->isCustomNext = guard->nextVisitText.size() > 0;
+	guard->isCustomComplete = guard->completedText.size() > 0;
 }
 
 TerrainTile & Mapa::getTile( const int3 & tile )

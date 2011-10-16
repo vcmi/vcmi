@@ -4052,13 +4052,12 @@ void CGSeerHut::initObj()
 	progress = 0;
 	if (missionType)
 	{
-		if (!isCustom)
-		{
-		
-			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
-			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
+		if (!isCustomFirst)
+			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];	
+		if (!isCustomNext)
+			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];	
+		if (!isCustomComplete)
 			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
-		}
 
 		if(missionType == MISSION_KILL_CREATURE)
 		{
@@ -4200,9 +4199,25 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	if (missionType)
 	{
-		if (!progress) //propose quest
+		bool firstVisit = !progress;
+		bool failRequirements = !checkQuest(h);
+		bool isCustom;
+		std::string text;
+		if (firstVisit) 
 		{
-			iw.text << firstVisitText;
+			isCustom = isCustomFirst;
+			text = firstVisitText;
+			cb->setObjProperty (id, 10, 1);
+		}
+		else if (failRequirements)
+		{
+			isCustom = isCustomNext;
+			text = nextVisitText;
+		}
+		iw.text << text;
+
+		if (firstVisit || failRequirements)
+		{
 			switch (missionType)
 			{
 				case MISSION_LEVEL:
@@ -4230,7 +4245,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 				case MISSION_KILL_HERO:
 					iw.components.push_back(Component(Component::HERO, heroPortrait, 0, 0));
 					if (!isCustom)
-						addReplacements(iw.text, firstVisitText);
+						addReplacements(iw.text, text);
 					break;
 				case MISSION_HERO:
 					iw.components.push_back(Component (Component::HERO, m13489val, 0, 0));
@@ -4241,7 +4256,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 					{
 						iw.components.push_back(Component(stackToKill));
 						if (!isCustom)
-							addReplacements(iw.text, firstVisitText);
+							addReplacements(iw.text, text);
 					}
 					break;
 				case MISSION_ART:
@@ -4293,17 +4308,9 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						iw.text.addReplacement(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
-			cb->setObjProperty (id,10,1);
 			cb->showInfoDialog(&iw);
 		}
-		else if (!checkQuest(h))
-		{
-			iw.text << nextVisitText;
-			if(!isCustom)
-				addReplacements(iw.text, nextVisitText);
-			cb->showInfoDialog(&iw);
-		}
-		if (checkQuest(h)) // propose completion, also on first visit
+		if (!failRequirements) // propose completion, also on first visit
 		{
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
@@ -4312,7 +4319,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			switch (missionType)
 			{
 				case CQuest::MISSION_LEVEL:
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(m13489val);
 					break;
 				case CQuest::MISSION_PRIMARY_STAT:
@@ -4328,7 +4335,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 								loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 							}
 						}
-						if (!isCustom)
+						if (!isCustomComplete)
 							bd.text.addReplacement(loot.buildList());
 					}
 					break;
@@ -4340,7 +4347,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement(MetaString::ART_NAMES, *it);
 					}
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(loot.buildList());
 				}
 					break;
@@ -4352,7 +4359,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 						loot << "%s";
 						loot.addReplacement(*it);
 					}
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(loot.buildList());
 				}
 					break;
@@ -4368,21 +4375,21 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 							loot.addReplacement(MetaString::RES_NAMES, i);
 						}
 					}
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(loot.buildList());
 				}
 					break;
 				case MISSION_KILL_HERO:
 				case MISSION_KILL_CREATURE:
-					if (!isCustom)
+					if (!isCustomComplete)
 						addReplacements(bd.text, completedText);
 					break;
 				case MISSION_HERO:
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(VLC->heroh->heroes[m13489val]->name);
 					break;
 				case MISSION_PLAYER:
-					if (!isCustom)
+					if (!isCustomComplete)
 						bd.text.addReplacement(VLC->generaltexth->colors[m13489val]);
 					break;
 			}
@@ -4578,11 +4585,14 @@ void CGQuestGuard::initObj()
 	blockVisit = true;
 	progress = 0;
 	textOption = ran()%3 + 3; //3-5
-	if (missionType && !isCustom)
+	if (missionType)
 	{
-		firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
-		nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
-		completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
+		if (!isCustomFirst)
+			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
+		if (!isCustomNext)
+			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
+		if (!isCustomComplete)
+			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
 	}
 	else
 		firstVisitText = VLC->generaltexth->seerEmpty[textOption];
