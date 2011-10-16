@@ -1,4 +1,4 @@
-#define VCMI_DLL
+﻿#define VCMI_DLL
 #include "BattleState.h"
 #include <fstream>
 #include <queue>
@@ -1527,7 +1527,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		}
 		else if(stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
 		{
-			stacks[g]->position += THex::LEFT;
+			if (stacks[g]->position.getX() > 1)
+				stacks[g]->position += THex::LEFT;
 		}
 	}
 
