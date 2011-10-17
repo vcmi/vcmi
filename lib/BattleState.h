@@ -103,6 +103,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, THex destinationTile, THex attackerPos); //hexes around target that could be attacked in melee
 	std::set<CStack*> getAttackedCreatures(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
 	std::set<THex> getAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
+	std::set<CStack*> getAdjacentCreatures (const CStack * stack);
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
 	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
@@ -180,7 +181,7 @@ public:
 	bool ableToRetaliate() const; //if stack can retaliate after attacked
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
-	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
+	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise

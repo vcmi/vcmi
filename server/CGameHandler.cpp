@@ -3663,6 +3663,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+			if (spellID == 72 && stack)//bind
+			{
+				sse.effect.back().additionalInfo = stack->ID; //we need to know who casted Bind
+			}
 			const Bonus * bonus = NULL;
 			if (caster)
 				bonus = caster->getBonus(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
@@ -3984,6 +3988,32 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
+		//unbind
+		if (st->getEffect(72))
+		{
+			bool unbind = true;
+			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));
+			std::set<CStack*> stacks = gs->curB->getAdjacentCreatures(st);
+
+			BOOST_FOREACH(Bonus * b, bl)
+			{
+				const CStack * stack = gs->curB->getStack(b->additionalInfo); //binding stack must be alive and adjacent
+				if (stack)
+				{
+					if (vstd::contains(stacks, stack)) //binding stack is still present
+					{
+						unbind = false;
+					}
+				}
+			}
+			if (unbind)
+			{
+				BattleSetStackProperty ssp;
+				ssp.which = BattleSetStackProperty::UNBIND;
+				ssp.stackID = st->ID;
+				sendAndApply(&ssp);
+			}
+		}
 		//regeneration
 		if(st->hasBonusOfType(Bonus::HP_REGENERATION))
 		{

@@ -315,15 +315,17 @@ std::vector<THex> BattleInfo::getAccessibility( const CStack * stack, bool addOc
 		}
 	}
 	
-	for (int i=0; i < BFIELD_SIZE ; ++i)
+	for (int i = 0; i < BFIELD_SIZE; ++i)
 	{
-		bool rangeFits = tacticDistance 
-						? isInTacticRange(i)
-						: dist[i] <= stack->Speed();
+		bool rangeFits;
+		if (tacticDistance)
+			rangeFits = isInTacticRange(i);
+		else
+			rangeFits = dist[i] <= stack->Speed(0, true); //we can reach the stack
 
 		if(	( !addOccupiable && rangeFits && ac[i] ) 
 			|| ( addOccupiable && rangeFits && isAccessible(i, ac, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), true) )//we can reach it
-			|| (vstd::contains(occupyable, i) && (!tacticDistance && dist[ i + (stack->attackerOwned ? 1 : -1 ) ] <= stack->Speed() ) && ac[i + (stack->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
+			|| (vstd::contains(occupyable, i) && (!tacticDistance && dist[ i + (stack->attackerOwned ? 1 : -1 ) ] <= stack->Speed(0, true) ) && ac[i + (stack->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
 			)
 		{
 			ret.push_back(i);
@@ -916,6 +918,20 @@ std::set<THex> BattleInfo::getAttackedHexes(const CStack* attacker, THex destina
 		}
 	}
 	return attackedHexes;
+}
+
+std::set<CStack*> BattleInfo::getAdjacentCreatures (const CStack * stack)
+{
+	std::set<CStack*> stacks;
+
+	CStack * localStack;
+	BOOST_FOREACH (THex hex, stack->getSurroundingHexes())
+	{
+		localStack = getStackT(hex, true); //only alive?
+		if (localStack)
+			stacks.insert(localStack);
+	}
+	return stacks;
 }
 
 int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
@@ -2306,7 +2322,7 @@ void CStack::postInit()
 	state.insert(ALIVE);  //alive state indication
 }
 
-ui32 CStack::Speed( int turn /*= 0*/ ) const
+ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 {
 	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON) && Selector::turns(turn))) //war machines cannot move
 		return 0;
@@ -2324,8 +2340,8 @@ ui32 CStack::Speed( int turn /*= 0*/ ) const
 
 	speed = ((100 + percentBonus) * speed)/100;
 
-	//bind effect check
-	if(getEffect(72)) 
+	//bind effect check - doesn't influence stack initiative
+	if (useBind && getEffect(72)) 
 	{
 		return 0;
 	}
@@ -2493,9 +2509,7 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 		sf.back().sid = sse.sid;
 		break;
 	case 72: //Bind
-		sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -100, 1, Bonus::PERCENT_TO_ALL)); //sets speed to zero
-		sf.back().sid = sse.sid;
-		sf.push_back(featureGenerator(Bonus::BIND_EFFECT, 0, 0, 0)); //marker, TODO: handle it
+		sf.push_back(featureGenerator(Bonus::BIND_EFFECT, 0, 0, 1)); //marker
 		sf.back().duration = Bonus::PERMANENT;
 	 	sf.back().sid = sse.sid;
 		break;

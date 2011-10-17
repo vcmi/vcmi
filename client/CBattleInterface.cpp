@@ -4129,7 +4129,7 @@ void CBattleInterface::bEndTacticPhase()
 
 static bool immobile(const CStack *s)
 {
-	return !s->Speed();
+	return !s->Speed(0, true); //should bound stacks be immobile?
 }
 
 void CBattleInterface::bTacticNextStack()

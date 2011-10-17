@@ -1304,6 +1304,11 @@ DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 			amax(gs->curB->enchanterCounter[side], 0);
 			break;
 		}
+		case UNBIND:
+		{
+			stack->popBonuses(Selector::type(Bonus::BIND_EFFECT));
+			break;
+		}
 	}
 }
 
