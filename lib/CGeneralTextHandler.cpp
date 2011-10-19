@@ -349,7 +349,7 @@ void CGeneralTextHandler::load()
 	{
 		loadToIt(buflet, buf, i, 2);
 		trimQuotation(buflet);
-		boost::algorithm::replace_all(temp,"\"\"","\"");
+		boost::algorithm::replace_all(buflet,"\"\"","\"");
 		allTexts.push_back(buflet);
 	}
 
@@ -430,7 +430,7 @@ void CGeneralTextHandler::load()
 		loadToIt(tmp, strin, itr, 2);
 	//	boost::algorithm::trim(tmp);
 		trimQuotation(tmp);
-		boost::algorithm::replace_all(temp,"\"\"","\"");
+		boost::algorithm::replace_all(tmp,"\"\"","\"");
 		artifEvents.push_back(tmp);
 	}
 
