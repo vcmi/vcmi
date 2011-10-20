@@ -127,6 +127,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		stackNode = c;
 	else
 		stackNode = StackNode;
+	const CStack *battleStack = dynamic_cast<const CStack*>(stackNode); //only during battle
 	heroOwner = HeroOwner;
 
 	if (Stack->count)
@@ -155,6 +156,27 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		{
 			bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, stack->bonusToString(b, true), stack->bonusToGraphics(b)));
 		}
+	}
+
+	int magicResistance = 0; //handle it separately :/
+	if (battleStack)
+	{
+		magicResistance = battleStack->magicResistance(); //include Aura of Resistance
+	}
+	else
+	{
+		magicResistance = stack->magicResistance(); //include Resiatance hero skill
+	}
+	if (magicResistance)
+	{
+		std::map<TBonusType, std::pair<std::string, std::string> >::const_iterator it = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE);
+		std::string description;
+		text = it->second.first;
+		description = it->second.second;
+		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(magicResistance));
+		Bonus b;
+		b.type = Bonus::MAGIC_RESISTANCE;
+		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, description, stack->bonusToGraphics(&b)));
 	}
 
 	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (conf.cc.resy - 230) / 60);
@@ -244,7 +266,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			creatureArtifact = NULL;
 	}
 
-	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode)) //only during battle
+	if (battleStack) //only during battle
 	{
 		//spell effects
 		int printed=0; //how many effect pics have been printed

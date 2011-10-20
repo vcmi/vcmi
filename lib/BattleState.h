@@ -182,6 +182,7 @@ public:
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool canMove(int turn = 0) const; //if stack can move
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
+	si32 magicResistance() const; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise

@@ -2349,6 +2349,22 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	return speed;
 }
 
+si32 CStack::magicResistance() const
+{
+	si32 magicResistance = base->magicResistance();
+	int auraBonus = 0;
+	BOOST_FOREACH (CStack * stack, base->armyObj->battle->getAdjacentCreatures(this))
+	{
+		if (stack->owner == owner)
+		{
+			amax(auraBonus, stack->valOfBonuses(Bonus::SPELL_RESISTANCE_AURA)); //max value
+		}
+	}
+	magicResistance += auraBonus;
+	amin (magicResistance, 100);
+	return magicResistance;
+}
+
 const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 {
 	BOOST_FOREACH(Bonus *it, getBonusList())
