@@ -28,7 +28,7 @@
 			{ "id": "MAGIC_RESISTANCE", "name": "Magic Resistance", "description": "%d% chance to resist enemy spell" },
 			{ "id": "NO_DISTANCE_PENALTY", "name": "No distance penalty", "description": "Full damage from any distance" },
 			{ "id": "NO_MELEE_PENALTY", "name": "No melee penalty", "description": "Creature has no Melee Penalty" },
-			{ "id": "NO_OBSTACLES_PENALTY", "name": "No obstacle penalty", "description": "Creature has no Obstacle Penalty" },
+			{ "id": "NO_WALL_PENALTY", "name": "No wall penalty", "description": "Full damage during siege" },
 			{ "id": "BLOCKS_RETALIATION", "name": "No retaliation", "description": "Enemy cannot Retaliate" },
 			{ "id": "NON_LIVING", "name": "Non living", "description": "Immunity to many effects" },
 			{ "id": "SELF_LUCK", "name": "Positive luck", "description": "Always has Positive Luck" },

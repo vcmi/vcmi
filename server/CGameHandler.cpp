@@ -3147,7 +3147,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(CGHeroInstance::BALLISTICS)];
 			
 			int attackedPart = gs->curB->hexToWallPart(ba.destinationTile);
-			if(attackedPart == -1)
+			if(attackedPart < 0)
 			{
 				complain("catapult tried to attack non-catapultable hex!");
 				break;

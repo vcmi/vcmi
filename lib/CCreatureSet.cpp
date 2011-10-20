@@ -565,7 +565,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::FREE_SHOOTING:
 				case Bonus::NO_MELEE_PENALTY:
 				case Bonus::NO_DISTANCE_PENALTY:
-				case Bonus::NO_OBSTACLES_PENALTY:
+				case Bonus::NO_WALL_PENALTY:
 				case Bonus::JOUSTING: //TODO: percent bonus?
 				case Bonus::RETURN_AFTER_STRIKE:
 				case Bonus::BLOCKS_RETALIATION:
@@ -743,7 +743,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_MORAL.bmp"; break;
 		case Bonus::RECEPTIVE:
 			fileName = "E_NOFRIM.bmp"; break;
-		case Bonus::NO_OBSTACLES_PENALTY:
+		case Bonus::NO_WALL_PENALTY:
 			fileName = "E_OBST.bmp"; break;
 		case Bonus::ENEMY_DEFENCE_REDUCTION:
 			fileName = "E_RDEF.bmp"; break;

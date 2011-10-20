@@ -890,7 +890,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		break;
 	case 'o':
 		enable = true;
-		b.type = Bonus::NO_OBSTACLES_PENALTY;
+		b.type = Bonus::NO_WALL_PENALTY;
 		break;
 
 	case 'a':

@@ -657,11 +657,17 @@ TDmgRange BattleInfo::calculateDmgRange( const CStack* attacker, const CStack* d
 	//wall / distance penalty + advanced air shield
 	bool distPenalty = !NBonus::hasOfType(attackerHero, Bonus::NO_DISTANCE_PENALTY) &&
 		hasDistancePenalty(attacker, defender->position);
-	bool obstaclePenalty = !NBonus::hasOfType(attackerHero, Bonus::NO_OBSTACLES_PENALTY) &&
-		hasWallPenalty(attacker, defender->position);
-	if (shooting && (distPenalty || obstaclePenalty || HLP::hasAdvancedAirShield(defender) ))
+	bool obstaclePenalty = hasWallPenalty(attacker, defender->position);
+	if (shooting)
 	{
-		multBonus *= 0.5;
+		if (distPenalty || HLP::hasAdvancedAirShield(defender))
+		{
+			multBonus *= 0.5;
+		}
+		if (obstaclePenalty)
+		{
+			multBonus *= 0.5; //cumulative
+		}
 	}
 	if (!shooting && attacker->hasBonusOfType(Bonus::SHOOTER) && !attacker->hasBonusOfType(Bonus::NO_MELEE_PENALTY))
 	{
@@ -982,7 +988,7 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) 
 	{
 		if( stacks[g]->owner == caster->tempOwner && stacks[g]->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ALLY) )
 		{
-			amin(manaReduction, stacks[g]->valOfBonuses(Bonus::CHANGES_SPELL_COST_FOR_ALLY));
+			amax(manaReduction, stacks[g]->valOfBonuses(Bonus::CHANGES_SPELL_COST_FOR_ALLY));
 		}
 		if( stacks[g]->owner != caster->tempOwner && stacks[g]->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ENEMY) )
 		{
@@ -990,7 +996,7 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) 
 		}
 	}
 
-	return ret + manaReduction + manaIncrease;
+	return ret - manaReduction + manaIncrease;
 }
 
 int BattleInfo::hexToWallPart(THex hex) const
@@ -1000,7 +1006,8 @@ int BattleInfo::hexToWallPart(THex hex) const
 
 	static const std::pair<int, int> attackable[] = //potentially attackable parts of wall
 	{std::make_pair(50, 0), std::make_pair(183, 1), std::make_pair(182, 2), std::make_pair(130, 3),
-	std::make_pair(62, 4), std::make_pair(29, 5), std::make_pair(12, 6), std::make_pair(95, 7), std::make_pair(96, 7)};
+	std::make_pair(62, 4), std::make_pair(29, 5), std::make_pair(12, 6), std::make_pair(95, 7), std::make_pair(96, 7),
+	std::make_pair(45, -2), std::make_pair(78, -2), std::make_pair(112, -2), std::make_pair(147, -2)}; // -2 - indestructible walls
 
 	for(int g = 0; g < ARRAY_COUNT(attackable); ++g)
 	{
@@ -1296,16 +1303,27 @@ si8 BattleInfo::sameSideOfWall(int pos1, int pos2) const
 
 si8 BattleInfo::hasWallPenalty( const CStack* stack, THex destHex ) const
 {
-	if (siege == 0)
-	{
-		return false;
-	}
-	if (stack->hasBonusOfType(Bonus::NO_WALL_PENALTY))
+	if (!siege || stack->hasBonusOfType(Bonus::NO_WALL_PENALTY))
 	{
 		return false;
 	}
 
-	return !sameSideOfWall(stack->position, destHex);
+	int wallInStackLine = lineToWallHex(stack->position/BFIELD_WIDTH);
+	int wallInDestLine = lineToWallHex(destHex/BFIELD_WIDTH);
+
+	bool stackLeft = stack->position < wallInStackLine;
+	bool destRight = destHex > wallInDestLine;
+
+	if (stackLeft && destRight) //shooting from outside to inside
+	{
+		int row = (stack->position + destHex) / (2 * BFIELD_WIDTH);
+		if (stack->position > destHex && ((destHex & BFIELD_WIDTH - stack->position % BFIELD_WIDTH) < 2)) //shooting up high
+			row -= 2;
+		int wallPos = lineToWallHex(row);
+		if (hexToWallPart(wallPos) != -1) //wall still exists or is indestructible
+			return true;
+	}
+	return false;
 }
 
 si8 BattleInfo::canTeleportTo(const CStack * stack, THex destHex, int telportLevel) const
