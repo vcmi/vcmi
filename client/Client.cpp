@@ -433,7 +433,7 @@ void CClient::newDuel(CConnection *con, StartInfo *si)
 				try
 				{
 					tlog0 << "Establishing connection...\n";
-					serv = new CConnection(host, port, "DLL host");
+					serv = new CConnection(host, port, NAME);
 				}
 				catch(...)
 				{

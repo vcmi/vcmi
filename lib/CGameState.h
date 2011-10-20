@@ -306,12 +306,31 @@ struct DLL_EXPORT DuelParameters
 		}
 	} sides[2];
 
+	std::vector<CObstacleInstance> obstacles;
+
 	static DuelParameters fromJSON(const std::string &fname);
+
+	struct CusomCreature
+	{
+		int id;
+		int attack, defense, dmg, HP, speed, shoots;
+
+		CusomCreature() 
+		{
+			id = attack = defense = dmg = HP = speed = shoots = -1;
+		}
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & id & attack & defense & dmg & HP & speed & shoots;
+		}
+	};
+
+	std::vector<CusomCreature> creatures;
 
 	DuelParameters();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & terType & bfieldType & sides;
+		h & terType & bfieldType & sides & obstacles & creatures;
 	}
 };
 

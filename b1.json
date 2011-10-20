@@ -1,6 +1,7 @@
 {
 	"terType" : 1,
 	"bfieldType" : 0,
+	"obstacles" : [77, 94, 111, [28, 7]], //vector of positions or vectored pairs [type, pos]
 	
 	"sides" : 
 	[
@@ -9,10 +10,18 @@
 			"army" : [[10, 40]],
 			"heroid" : 0,
 			"spells" : [1,2,3,4]
-		}
+		},
 		{
 			"side" : 1,
 			"army" : [[11, 41]]
+		}
+	],
+	
+	"creatures" : 
+	[
+		{
+			"id" : 10,
+			"attack" : 50
 		}
 	]
 }

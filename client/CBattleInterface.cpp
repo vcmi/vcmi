@@ -1577,6 +1577,7 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
+	if(!active) return;
 	deactivateKeys();
 	deactivateMouseMove();
 	deactivateRClick();
@@ -4502,7 +4503,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 
 		CCS->musich->playMusic(musicBase::winBattle);
 		CCS->videoh->open(VIDEO_WIN);
-		std::string str = CGI->generaltexth->allTexts[text];
+		std::string str = text >= 0 ? CGI->generaltexth->allTexts[text] : std::string("AI has been disqualified!");
 		
 		const CGHeroInstance * ourHero = weAreAttacker? owner->attackingHeroInstance : owner->defendingHeroInstance;
 		if (ourHero)

@@ -75,6 +75,7 @@ void CConnection::init()
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
 
+	contactName = pom;
 	handler = NULL;
 	receivedStop = sendStop = false;
 	static int cid = 1;

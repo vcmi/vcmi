@@ -17,6 +17,8 @@
 #include <boost/format.hpp>
 #include "Client.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/BattleState.h"
+#include "../lib/NetPacks.h"
 
 using namespace std;
 using namespace boost;
@@ -51,7 +53,7 @@ int main(int argc, char** argv)
 			try
 			{
 				tlog0 << "Establishing connection...\n";
-				serv = new CConnection(host, port, "DLL host");
+				serv = new CConnection(host, port, NAME);
 			}
 			catch(...)
 			{
@@ -87,6 +89,11 @@ int main(int argc, char** argv)
 			cl.color = color;
 			tlog0 << "AI created\n";
 			cl.ai->init(cbc);
+
+			BattleStart bs;
+			bs.info = gs->curB;
+			bs.applyFirstCl(&cl);
+			bs.applyCl(&cl);
 		}
 		else
 			tlog0 << "Not loading AI, only simulation will be run\n";

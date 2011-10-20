@@ -204,6 +204,16 @@ void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 {
 	print("battleStart called");
 	side = Side;
+	TStacks myStacks = cb->battleGetStacks(CBattleCallback::ONLY_MINE);
+	std::cout << "My side: " << side << std::endl
+		<< "I have " << myStacks.size() << " stacks. They are:\n";
+
+	for(int i = 0; i < myStacks.size(); i++)
+	{
+		const CStack *s = myStacks.at(i);
+		tlog5 << format("%2d) Stack of %4d %s.\n\tAttack:\t%4d, \n\tDefense:\t%4d, \n\tHP:\t%4d\n\tDamage:\t%4d-%d\n")
+			% i % s->count % s->getCreature()->namePl % s->Attack() % s->Defense() % s->MaxHealth() % s->getMinDamage() % s->getMaxDamage();
+	}
 }
 
 void CStupidAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom) 

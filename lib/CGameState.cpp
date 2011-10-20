@@ -989,9 +989,30 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					if(count || obj->hasStackAtSlot(j))
 						obj->setCreature(j, cre, count);
 				}
+
+				BOOST_FOREACH(const DuelParameters::CusomCreature &cc, dp.creatures)
+				{
+					CCreature *c = VLC->creh->creatures[cc.id];
+					if(cc.attack >= 0)
+						c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK))->val = cc.attack;
+					if(cc.defense >= 0)
+						c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))->val = cc.defense;
+					if(cc.speed >= 0)
+						c->getBonus(Selector::type(Bonus::STACKS_SPEED))->val = cc.speed;
+					if(cc.HP >= 0)
+						c->getBonus(Selector::type(Bonus::STACK_HEALTH))->val = cc.HP;
+					if(cc.dmg >= 0)
+					{
+						c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1))->val = cc.dmg;
+						c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2))->val = cc.dmg;
+					}
+					if(cc.shoots >= 0)
+						c->getBonus(Selector::type(Bonus::SHOTS))->val = cc.shoots;
+				}
 			}
 
 			curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
+			curB->obstacles = dp.obstacles;
 			curB->localInit();
 			return;
 		}
@@ -2797,6 +2818,45 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 				ss.spells.insert(spell.Float());
 		
 	}
+
+	BOOST_FOREACH(const JsonNode &n, duelData["obstacles"].Vector())
+	{
+		CObstacleInstance oi;
+		if(n.getType() == JsonNode::DATA_VECTOR)
+		{
+			oi.ID = n.Vector()[0].Float();
+			oi.pos = n.Vector()[1].Float();
+		}
+		else
+		{
+			assert(n.getType() == JsonNode::DATA_FLOAT);
+			oi.ID = 21;
+			oi.pos = n.Float();
+		}
+		oi.uniqueID = ret.obstacles.size();
+		ret.obstacles.push_back(oi);
+	}
+
+	BOOST_FOREACH(const JsonNode &n, duelData["creatures"].Vector())
+	{
+		CusomCreature cc;
+		cc.id = n["id"].Float();
+
+#define retreive(name)								\
+	if(n[ #name ].getType() == JsonNode::DATA_FLOAT)\
+			cc.name = n[ #name ].Float();			\
+	else											\
+		cc.name = -1;
+
+		retreive(attack);
+		retreive(defense);
+		retreive(HP);
+		retreive(dmg);
+		retreive(shoots);
+		retreive(speed);
+		ret.creatures.push_back(cc);
+	}
+
 
 	return ret;
 }

@@ -498,13 +498,14 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
-void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI)
+void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI, int howManyClients)
 {
 
 	//we need three connections
-	boost::thread* threads[3] = {0};
-	CConnection *conns[3] = {0};
-	for (int i = 0; i < 3 ; i++)
+	std::vector<boost::thread*> threads(howManyClients, NULL);
+	std::vector<CConnection*> conns(howManyClients, NULL);
+
+	for (int i = 0; i < howManyClients ; i++)
 	{
 		boost::system::error_code error;
 
@@ -554,9 +555,32 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	}
 
 	tlog0 << boost::format("Sending start info to connections!\n");
-	*gh->connections[0] << leftAI << ui8(0);
-	*gh->connections[1] << rightAI << ui8(1);
-	*gh->connections[2] << std::string() << ui8(254);
+	int aisSoFar = 0;
+	for (int i = 0; i < howManyClients ; i++)
+	{
+		tlog0 << "Connection nr " << i;
+		CConnection *c = conns[i];
+		
+		if(c->contactName.find("client") != std::string::npos)
+		{
+			tlog0 << " is a visualization client!\n";
+			*c << std::string() << ui8(254);
+		}
+		else
+		{
+			if(aisSoFar < 2)
+			{
+				tlog0 << " will run " << (aisSoFar ? "right" : "left") << " AI " << std::endl;
+				*c << gh->ais[aisSoFar] << ui8(aisSoFar);
+				aisSoFar++;
+			}
+			else
+			{
+				tlog0 << " will serve as a memory reference.\n";
+				*c << std::string() << ui8(254);
+			}
+		}
+	}
 
 	std::string logFName = "duel_log.vdat";
 	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
@@ -598,10 +622,10 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		if(argc == 4)
-			server.startDuel(argv[1], argv[2], argv[3]);
+		if(argc == 4 || argc == 5)
+			server.startDuel(argv[1], argv[2], argv[3], argc-1);
 		else
-			server.startDuel("b1.json", "StupidAI", "StupidAI");
+			server.startDuel("b1.json", "StupidAI", "StupidAI", 2);
 
 		while(!end2)
 		{

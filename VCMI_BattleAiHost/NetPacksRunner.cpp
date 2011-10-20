@@ -12,12 +12,12 @@
 #include "CheckTime.h"
 
 
-void postInfoCall(int timeUsed)
+void postInfoCall(int timeUsed, int limit)
 {
 	tlog0 << "AI was processing info for " << timeUsed << " ms.\n";
-	if(timeUsed > PROCESS_INFO_TIME + MEASURE_MARGIN)
+	if(timeUsed > limit + MEASURE_MARGIN)
 	{
-		tlog1 << "That's too long! AI is disqualified!\n";
+		tlog1 << "That's too long (limit=" << limit << "+" << MEASURE_MARGIN << ")! AI is disqualified!\n";
 		exit(1);
 	}
 }
@@ -34,19 +34,24 @@ void postDecisionCall(int timeUsed)
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
 //awaiting variadic templates...
-#define BATTLE_INTERFACE_CALL_IF_PRESENT(function,...) 		\
+// 
+
+#define BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(TIME_LIMIT, function, ...) 		\
 	do														\
 	{														\
 		int timeUsed = 0;									\
 		if(cl->ai)											\
 		{													\
-			Bomb *b = new Bomb(PROCESS_INFO_TIME + HANGUP_TIME);\
+			Bomb *b = new Bomb(TIME_LIMIT + HANGUP_TIME);	\
 			CheckTime pr;									\
 			cl->ai->function(__VA_ARGS__);					\
-			postInfoCall(pr.timeSinceStart());				\
+			postInfoCall(pr.timeSinceStart(), TIME_LIMIT);	\
 			b->disarm();									\
 		}													\
 	} while(0)
+
+#define BATTLE_INTERFACE_CALL_IF_PRESENT(function,...) 		\
+	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(PROCESS_INFO_TIME, function, __VA_ARGS__)
 
 #define UNEXPECTED_PACK assert(0)
 
@@ -277,8 +282,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 
 void BattleStart::applyCl( CClient *cl )
 {
-	//TODO!!!!
-	BATTLE_INTERFACE_CALL_IF_PRESENT(battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(STARTUP_TIME, battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
 }
 
 void BattleNextRound::applyFirstCl(CClient *cl)
