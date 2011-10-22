@@ -940,6 +940,11 @@ int CStackInstance::getCreatureID() const
 		return -1;
 }
 
+std::string CStackInstance::getName() const
+{
+	return (count > 1) ? type->namePl : type->nameSing;
+}
+
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
 	type = NULL;

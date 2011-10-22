@@ -2047,6 +2047,11 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 								{
 									CCS->curh->changeGraphic(3, 0);
 									stackCastsSpell = true;
+									std::string buf = CGI->generaltexth->allTexts[27]; //cast %s on &s
+									boost::replace_first (buf, "%s", spell->name);
+									boost::replace_first (buf, "%s", shere->getName());
+									console->alterTxt = buf;
+									console->whoSetAlter = 0;
 								}
 							}
 						}
@@ -2059,6 +2064,10 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 								{
 									CCS->curh->changeGraphic(3, 0);
 									stackCastsSpell = true;
+									std::string buf = CGI->generaltexth->allTexts[301]; //Cast spell on %s
+									boost::replace_first (buf, "%s", shere->getName());
+									console->alterTxt = buf;
+									console->whoSetAlter = 0;
 								}
 							}
 						}
@@ -3336,12 +3345,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
 				{
 					text = CGI->generaltexth->allTexts[textID + 1];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->getName());
 				}
 				else
 				{
 					text = CGI->generaltexth->allTexts[textID];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->getName());
 				}
 			}
 		}

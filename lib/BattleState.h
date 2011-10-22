@@ -175,6 +175,7 @@ public:
 
 	void init(); //set initial (invalid) values
 	void postInit(); //used to finish initialization when inheriting creature parameters is working
+	std::string getName() const; //plural or singular
 	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn

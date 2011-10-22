@@ -48,7 +48,7 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type)
 	else
 	{
 		CStackInstance * s = new CStackInstance(stack.type, 1); //TODO: war machines and summons should be regular stacks
-		init(s, stack.type, NULL);
+		init(s, &stack, NULL);
 		delete s;
 	}
 }

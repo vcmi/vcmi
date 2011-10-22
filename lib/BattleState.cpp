@@ -2369,17 +2369,23 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 
 si32 CStack::magicResistance() const
 {
-	si32 magicResistance = base->magicResistance();
-	int auraBonus = 0;
-	BOOST_FOREACH (CStack * stack, base->armyObj->battle->getAdjacentCreatures(this))
+	si32 magicResistance;
+	if (base) //TODO: make war machines receive aura of magic resistance
+	{
+		magicResistance = base->magicResistance();
+		int auraBonus = 0;
+		BOOST_FOREACH (CStack * stack, base->armyObj->battle->getAdjacentCreatures(this))
 	{
 		if (stack->owner == owner)
 		{
 			amax(auraBonus, stack->valOfBonuses(Bonus::SPELL_RESISTANCE_AURA)); //max value
 		}
 	}
-	magicResistance += auraBonus;
-	amin (magicResistance, 100);
+		magicResistance += auraBonus;
+		amin (magicResistance, 100);
+	}
+	else
+		magicResistance = type->magicResistance();
 	return magicResistance;
 }
 
@@ -2790,6 +2796,11 @@ bool CStack::ableToRetaliate() const
 		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
 		&& !hasBonusOfType(Bonus::HYPNOTIZED);
+}
+
+std::string CStack::getName() const
+{
+	return (count > 1) ? type->namePl : type->nameSing; //War machines can't use base
 }
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )

@@ -54,6 +54,7 @@ public:
 	int getExpRank() const;
 	si32 magicResistance() const;
 	int getCreatureID() const; //-1 if not available
+	std::string getName() const; //plural or singular
 	void init();
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count);
