@@ -23,6 +23,7 @@
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
 #include "../lib/CMapInfo.h"
+#include "../lib/CondSh.h"
 
 std::string NAME_AFFIX = "server";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
@@ -498,6 +499,52 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
+//memory monitoring
+CondSh<bool> testMem;
+
+volatile int monitringRes; //0 -- left AI violated mem limit; 1 -- right AI violated mem limit; 2 -- no mem limit violation;
+
+bool memViolated(const int pid, const int refpid, const int limit) {
+	char call[1000], c2[1000];
+	//sprintf(call, "if (( `cat /proc/%d/statm | cut -d' ' -f1` > `cat /proc/%d/statm | cut -d' ' -f1` + %d )); then cat /kle; else echo b; fi;", pid, refpid, limit);
+	sprintf(call, "/proc/%d/statm", pid);
+	sprintf(c2, "/proc/%d/statm", refpid);
+	std::ifstream proc(call),
+		ref(c2);
+	int procUsage, refUsage;
+	proc >> procUsage;
+	ref >> refUsage;
+	
+	return procUsage > refUsage + limit;
+	//return 0 != ::system(call);
+}
+
+void memoryMonitor(int lAIpid, int rAIpid, int refPid) {
+	const int MAX_MEM = 20000; //in blocks (of, I hope, 4096 B)
+	monitringRes = 2;
+	tlog0 << "Monitor is activated\n";
+	try {
+		while(testMem.get()) {
+			tlog0 << "Monitor is active 12\n";
+			if(memViolated(lAIpid, refPid, MAX_MEM)) {
+				monitringRes = 0;
+				break;
+			}
+			if(memViolated(rAIpid, refPid, MAX_MEM)) {
+				monitringRes = 1;
+				break;
+			}
+			sleep(3);
+			tlog0 << "Monitor is active 34\n";
+		}
+	}
+	catch(...) {
+		tlog0 << "Monitor is throwing something...\n";
+	}
+	tlog0 << "Monitor is closing\n";
+}
+////
+
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI, int howManyClients)
 {
 	std::map<CConnection *, si32> pidsFromConns;
@@ -588,6 +635,8 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	}
 
 	//TODO monitor memory of PIDs
+	testMem.set(true);
+	boost::thread* memMon = new boost::thread(boost::bind(memoryMonitor, PIDs[0], PIDs[1], PIDs[2]));
 
 	std::string logFName = "duel_log.vdat";
 	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
@@ -599,11 +648,17 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	gh->runBattle();
 	tlog0 << "Battle over!\n";
 	tlog0 << "Waiting for connections to close\n";
+	
+	testMem.set(false);
+	memMon->join();
+	delNull(memMon);
+	tlog0 << "Memory violation checking result: " << monitringRes << std::endl;
 	BOOST_FOREACH(boost::thread *t, threads)
 	{
 		t->join();
 		delNull(t);
 	}
+	
 	tlog0 << "Removing gh\n";
 	delNull(gh);
 	tlog0 << "Removed gh!\n";

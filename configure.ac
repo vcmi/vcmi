@@ -122,4 +122,4 @@ AC_SUBST(VCMI_AI_LIBS_DIR)
 VCMI_SCRIPTING_LIBS_DIR="$libdir/vcmi/Scripting"
 AC_SUBST(VCMI_SCRIPTING_LIBS_DIR)
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile AI/MadAI/Makefile Scripting/ERM/Makefile Odpalarka/Makefile VCMI_BattleAiHost/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile Scripting/ERM/Makefile Odpalarka/Makefile VCMI_BattleAiHost/Makefile)

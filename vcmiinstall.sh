@@ -14,14 +14,30 @@ function incusage(){
 	exit
 }
 
-if [ "$1" = "--install" ]; then
+if [ "$1" == "reconf" ]; then
+	cd vcmi
+	autoreconf -i
+	cd ..
+	vcmi/configure --datadir=`pwd` --bindir=`pwd`vcmi --libdir=`pwd`
+	exit
+fi
+
+if [ "$1" == "--install" ]; then
 	if [ $# -lt 2 ]; then
 		incusage
 	fi
+	if [ "$2" == "micro" ]; then
+	    unzip vcmipack.zip -d YourAI
+	    MAINVCMI_ROOT="/home/mateusz/vcmi_retl"
+	    ln -s "$MAINVCMI_ROOT/odpalarka"
+	    exit
+	fi
+	#only lean and full modes
 	svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/branches/programmingChallenge/ vcmi
 	errorcheck "fetching sources"
 	cd vcmi
-	if [ "$2" = "lean" ]; then
+		
+	elif [ "$2" = "lean" ]; then
 		mv "Makefile without client.am" Makefile.am
 		mv "configure without client.ac" configure.ac
 		rm client/Makefile.am
@@ -64,6 +80,7 @@ elif [ "$1" = "--help" ]; then
 	echo "--help			displays this info."
 	echo "--install full	downloads and compiles full VCMI with graphical client; requires ffmpeg."
 	echo "--install lean	downloads and compiles most of VCMI (without graphical client)."
+	echo "--install micro	unpacks vcmipack.zip and makes appropriate symbolic links."
 else
 	incusage
 fi
