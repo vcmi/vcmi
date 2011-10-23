@@ -500,7 +500,8 @@ void CVCMIServer::loadGame()
 
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI, int howManyClients)
 {
-
+	std::map<CConnection *, si32> pidsFromConns;
+	si32 PIDs[3] = {0}; //[0] left [1] right; [2] reference
 	//we need three connections
 	std::vector<boost::thread*> threads(howManyClients, NULL);
 	std::vector<CConnection*> conns(howManyClients, NULL);
@@ -548,12 +549,14 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 		gh->conns.insert(c);
 		gh->states.addPlayer(player);
 		*c << si;
+		*c >> pidsFromConns[c];
 
 		std::set<int> pom;
 		pom.insert(player);
 		threads[player] = new boost::thread(boost::bind(&CGameHandler::handleConnection, gh, pom, boost::ref(*c)));
 	}
 
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	tlog0 << boost::format("Sending start info to connections!\n");
 	int aisSoFar = 0;
 	for (int i = 0; i < howManyClients ; i++)
@@ -572,22 +575,26 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 			{
 				tlog0 << " will run " << (aisSoFar ? "right" : "left") << " AI " << std::endl;
 				*c << gh->ais[aisSoFar] << ui8(aisSoFar);
+				PIDs[aisSoFar] = pidsFromConns[c];
 				aisSoFar++;
 			}
 			else
 			{
 				tlog0 << " will serve as a memory reference.\n";
 				*c << std::string() << ui8(254);
+				PIDs[2] = pidsFromConns[c];
 			}
 		}
 	}
+
+	//TODO monitor memory of PIDs
 
 	std::string logFName = "duel_log.vdat";
 	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
 	gh->gameLog = new CSaveFile(logFName);
 	gh->gameLog->smartPointerSerialization = false;
 	*gh->gameLog << battle << leftAI << rightAI << ui8('$');
-
+	
 	tlog0 << "Starting battle!\n";
 	gh->runBattle();
 	tlog0 << "Battle over!\n";

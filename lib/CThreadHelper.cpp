@@ -80,3 +80,13 @@ void setThreadName(long threadID, const std::string &name)
 	//*nix counterpart?
 #endif
 }
+
+
+si32 getMyPid()
+{
+#ifdef _WIN32
+	return GetCurrentProcessId();
+#else
+	return getpid();
+#endif
+}

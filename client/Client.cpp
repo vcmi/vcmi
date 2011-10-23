@@ -448,6 +448,7 @@ void CClient::newDuel(CConnection *con, StartInfo *si)
 
 		ui8 color;
 		std::string battleAIName;
+		*serv << getMyPid();
 		*serv >> *si >> battleAIName >> color;
 		assert(si->mode == StartInfo::DUEL);
 		assert(color > 1); //we are NOT participants

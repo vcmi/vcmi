@@ -32,6 +32,9 @@ public:
 	void run();
 };
 
+
+si32 DLL_EXPORT getMyPid();
+
 template <typename T> inline void setData(T * data, boost::function<T()> func)
 {
 	*data = func();

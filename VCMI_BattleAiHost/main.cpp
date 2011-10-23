@@ -19,6 +19,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/BattleState.h"
 #include "../lib/NetPacks.h"
+#include "../lib/CThreadHelper.h"
 
 using namespace std;
 using namespace boost;
@@ -29,13 +30,9 @@ std::string NAME = NAME_VER + std::string(" DLL runner");
 
 int main(int argc, char** argv)
 {
-	int pid = -1;
+	int pid = getMyPid();
 
-#ifdef _WIN32
-	pid = GetCurrentProcessId();
-#else
-	pid = getpid();
-#endif
+
 	initDLL(console,logfile);
 
 	logfile = new std::ofstream(("VCMI_Runner_log_" + boost::lexical_cast<std::string>(pid) + ".txt").c_str());
@@ -67,6 +64,7 @@ int main(int argc, char** argv)
 		ui8 color;
 		StartInfo si;
 		string battleAIName;
+		*serv << getMyPid();
 		*serv >> si >> battleAIName >> color;
 		assert(si.mode == StartInfo::DUEL);
 		tlog0 << format("Server wants us to run %s in battle %s as side %d") % battleAIName % si.mapname % (int)color;
