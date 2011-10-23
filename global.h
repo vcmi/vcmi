@@ -38,7 +38,7 @@ typedef si32 TBonusSubtype;
 #define THC
 #endif
 
-#define NAME_VER ("VCMI 0.86b")
+#define NAME_VER ("VCMI 0.86c")
 extern std::string NAME; //full name
 extern std::string NAME_AFFIX; //client / server
 #define CONSOLE_LOGGING_LEVEL 5

@@ -1,3 +1,22 @@
+0.86 -> 0.87
+
+GENERAL:
+* Pathfinder can find way using ships and subterranean gates
+BATTLES
+* All attacked hexes will be highlighted
+* New combat abilities supported:
+- Spell Resistance aura
+- Random spellcaster (Genies)
+- Mana channeling
+- Daemon summoning
+- Spellcaster (Archangel Ogre Mage, Elementals, Faerie Dragon)
+- Fear
+- Fearless
+- No wall penalty
+- Enchanter
+- Bind
+- Dispell helpful spells
+
 0.85 -> 0.86 (Sep 01 2011)
 GENERAL:
 * Reinstated music support

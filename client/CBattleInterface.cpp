@@ -2866,6 +2866,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		else //we don't aim for spell target area
 		{
 			bool walkableTile = false;
+			bool spellCast = false;
 			if (dest)
 			{
 				bool ourStack = actSt->owner == dest->owner;
@@ -2881,6 +2882,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
 							{
 								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
+								spellCast = true;
 							}
 						}
 					}
@@ -2892,11 +2894,15 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if (spellID > -1) //can cast any spell on target stack
 							{
 								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, spellID); //use randomized spell
+								spellCast = true;
 							}
 						}
 					}
-					creatureSpellToCast = -1;
-					return; //no further action after cast
+					if (spellCast)
+					{
+						creatureSpellToCast = -1;
+						return; //no further action after cast
+					}
 				}
 
 				if (dest->alive())
