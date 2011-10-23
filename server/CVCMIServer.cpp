@@ -503,8 +503,8 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	std::map<CConnection *, si32> pidsFromConns;
 	si32 PIDs[3] = {0}; //[0] left [1] right; [2] reference
 	//we need three connections
-	std::vector<boost::thread*> threads(howManyClients, NULL);
-	std::vector<CConnection*> conns(howManyClients, NULL);
+	std::vector<boost::thread*> threads(howManyClients, (boost::thread*)NULL);
+	std::vector<CConnection*> conns(howManyClients, (CConnection*)NULL);
 
 	for (int i = 0; i < howManyClients ; i++)
 	{

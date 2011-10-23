@@ -6,10 +6,10 @@ namespace po = boost::program_options;
 
 void prog_help() 
 {
-	throw std::exception("The method or operation is not implemented.");
+	throw std::string("The method or operation is not implemented.");
 }
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
 	std::cout << "VCMI Odpalarka\nMy path: " << argv[0] << std::endl;
 
