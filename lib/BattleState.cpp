@@ -2122,10 +2122,19 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 					return SpellCasting::STACK_IMMUNE_TO_SPELL;
 				break;
 			case 24: // Death Ripple
+				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL; //don't break here - undeads and war machines are immune, non-living are not
 			case 41:
 			case 42: //undeads are immune to bless & curse
 				if (subject->hasBonusOfType(Bonus::UNDEAD))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL; 
+				break;
+			case 53: //haste
+			case 54: //slow
+			case 63: // Teleport
+			case 65: //clone
+				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
+					return SpellCasting::STACK_IMMUNE_TO_SPELL; //war machines are mmune to some spells than involve movement
 				break;
 			case 61: //Forgetfulness
 				if (!subject->hasBonusOfType(Bonus::SHOOTER))

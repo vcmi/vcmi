@@ -418,8 +418,8 @@ si32 IBonusBearer::magicResistance() const
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
 	std::stringstream cachingStr;
-	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING;
-	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING), cachingStr.str()));
+	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING << "s_-11type_" << Bonus::SIEGE_WEAPON; //I don't relaly get what string labels mean?
+	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING) || Selector::type(Bonus::SIEGE_WEAPON), cachingStr.str()));
 }
 
 const TBonusListPtr IBonusBearer::getSpellBonuses() const
