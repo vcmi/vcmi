@@ -1,6 +1,6 @@
 bin_PROGRAMS = vcmiclient
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ -lrt
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt
 vcmiclient_CXXFLAGS = @SDL_CXXFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
