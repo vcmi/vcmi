@@ -115,11 +115,17 @@ static void readCreatures(const JsonNode &creature, std::vector< std::pair <ui16
 				creInfo.first = cre->idNumber;
 		}
 	}
-	assert(creInfo.first != -1); // ensure we found the creature
+	if (creInfo.first != -1)
+	{
+		creInfo.second = creature["number"].Float();
 
-	creInfo.second = creature["number"].Float();
-
-	storage.push_back(creInfo);
+		storage.push_back(creInfo);
+	}
+	else
+	{
+		//FIXME: localization issues. switch to numeric ID's in bank config?
+		tlog0<<"Unknown creature in bank config: "<<creName<<"\n";
+	}
 }
 
 // Bank helper. Process a bank level.
@@ -3158,7 +3164,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
 	//split stacks
-	int totalCount; //TODO: multiple creature types in a stack?
+	//TODO: multiple creature types in a stack?
 	int basicType = stacks.begin()->second->type->idNumber;
 	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 

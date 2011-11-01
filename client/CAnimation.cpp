@@ -1241,7 +1241,7 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 {
 	size_t max = anim.size(Group);
 
-	if (max>to)
+	if (to < max)
 		max = to;
 
 	if (max < from || max == 0)
@@ -1297,7 +1297,7 @@ void CShowableAnim::show(SDL_Surface *to)
 	if ( ++value == frameDelay )
 	{
 		value = 0;
-		if ( ++frame == last)
+		if ( ++frame >= last)
 			reset();
 	}
 }

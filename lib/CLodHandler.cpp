@@ -195,10 +195,10 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-void CLodHandler::extractFile(const std::string FName, const std::string name)
+void CLodHandler::extractFile(const std::string FName, const std::string name, LodFileType type)
 {
 	int len; //length of file to write
-	unsigned char * outp = giveFile(name, FILE_ANY, &len);
+	unsigned char * outp = giveFile(name, type, &len);
 	std::ofstream out;
 	out.open(FName.c_str(), std::ios::binary);
 	if(!out.is_open())
@@ -317,7 +317,8 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 	}
 	else
 	{
-		tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
+		if (!dirName.empty())
+			tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
 	}
 }
 std::string CLodHandler::getTextFile(std::string name, LodFileType type)

@@ -19,6 +19,7 @@
 #include "../lib/Interprocess.h"
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/VCMIDirs.h"
 #include "../lib/map.h"
 #include "../lib/JsonNode.h"
 #include "mapHandler.h"
@@ -685,7 +686,8 @@ CServerHandler::~CServerHandler()
 void CServerHandler::callServer()
 {
 	setThreadName(-1, "CServerHandler::callServer");
-	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > server_log.txt";
+	std::string logName = GVCMIDirs.UserPath + "/server_log.txt";
+	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > " + logName;
 	std::system(comm.c_str());
 	tlog0 << "Server finished\n";
 }

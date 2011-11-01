@@ -317,7 +317,7 @@ JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &ro
 		error("Not all file was parsed!", true);
 
 	//TODO: better way to show errors (like printing file name as well)
-	std::cout<<errors;
+	tlog3<<errors;
 }
 
 bool JsonParser::extractSeparator()
@@ -799,7 +799,8 @@ bool JsonValidator::addMessage(const std::string &message)
 
 JsonValidator::JsonValidator(JsonNode &root)
 {
-	const JsonNode schema = root["schema"];
+	JsonNode schema;
+	schema.swap(root["schema"]);
 
 	if (!schema.isNull())
 	{
@@ -811,5 +812,5 @@ JsonValidator::JsonValidator(JsonNode &root)
 	//	addMessage("Schema not found!", true);
 
 	//TODO: better way to show errors (like printing file name as well)
-	std::cout<<errors;
+	tlog3<<errors;
 }

@@ -505,7 +505,7 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
-	logfile = new std::ofstream("VCMI_Server_log.txt");
+	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Server_log.txt").c_str());
 	console = new CConsoleHandler;
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)

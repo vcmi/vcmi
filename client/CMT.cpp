@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 
 	timeHandler total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
-	logfile = new std::ofstream("VCMI_Client_log.txt");
+	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Client_log.txt").c_str());
 	console = new CConsoleHandler;
 	*console->cb = boost::bind(&processCommand, _1);
 	console->start();
@@ -446,7 +446,7 @@ void processCommand(const std::string &message)
 		
 		BOOST_FOREACH(Entry e, txth->entries)
 			if( e.type == FILE_TEXT )
-				txth->extractFile(std::string(DATA_DIR "/Extracted_txts/")+e.name,e.name);
+				txth->extractFile(std::string(GVCMIDirs.UserPath + "/Extracted_txts/")+e.name, e.name, FILE_TEXT);
 		tlog0<<"\rExtracting done :)\n";
 	}
 	else if(cn=="crash")

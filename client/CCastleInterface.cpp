@@ -505,10 +505,21 @@ CCastleBuildings::~CCastleBuildings()
 
 void CCastleBuildings::checkRules()
 {
+	//if town tonwID have building toCheck
+	//then set animation of building buildID to firstA..lastA
+	//else set to firstB..lastB
+	struct AnimRule
+	{
+		int townID, buildID;
+		int toCheck;
+		size_t firstA, lastA;
+		size_t firstB, lastB;
+	};
+	
 	static const AnimRule animRule[2] = 
 	{
-		{5, 21, 4, 10, -1, 0, 9},//code for Mana Vortex
-		{0,  6, 8,  1, -1, 0, 0},//code for the shipyard in the Castle
+		{5, 21, 4, 10, -1, 0,  10}, //Mana Vortex, Dungeon
+		{0,  6, 8,  1, -1, 0,  1}   //Shipyard, Castle
 	};
 	
 	for (size_t i=0; i<2; i++)
@@ -516,20 +527,27 @@ void CCastleBuildings::checkRules()
 		if ( town->subID != animRule[i].townID ) //wrong town
 			continue;
 		
+		int buildingID = animRule[i].buildID;
+		//check if this building have been upgraded (Ship is upgrade of Shipyard)
 		int groupID = CGI->townh->structures[town->subID][animRule[i].buildID]->group;
-		std::map< int, std::vector<const Structure*> >::const_iterator git= groups.find(groupID);
-		if ( git == groups.end() || git->second.empty() ) //we have no buildings in this group
-			continue;
-
-		int buildID  = git->second.back()->ID;
-		for (std::vector< CBuildingRect* >::const_iterator bit=buildings.begin() ; bit !=buildings.end(); bit++ )
+		if (groupID != -1)
 		{
-			if ( (*bit)->str->ID == buildID ) //last building in group
+			std::map< int, std::vector<const Structure*> >::const_iterator git= groups.find(groupID);
+			if ( git == groups.end() || git->second.empty() )
+				continue;
+			buildingID  = git->second.back()->ID;
+		}
+
+		BOOST_FOREACH(CBuildingRect* rect, buildings)
+		{
+			if ( rect->str->ID == buildingID )
 			{
 				if (vstd::contains(town->builtBuildings, animRule[i].toCheck))
-					(*bit)->set(0,animRule[i].firstA, animRule[i].lastA);
+					rect->set(0,animRule[i].firstA, animRule[i].lastA);
 				else
-					(*bit)->set(0,animRule[i].firstB, animRule[i].lastB);
+					rect->set(0,animRule[i].firstB, animRule[i].lastB);
+
+				break;
 			}
 		}
 	}
@@ -1358,11 +1376,11 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 				int buildingID = boxList[row][col][item];
 				building = CGI->buildh->buildings[town->subID][buildingID];
 
-				//Creature hordes - select unupgraded version if dwelling upgrade was not build yet
-				if (buildingID == 18 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
-					break;
-				if (buildingID == 24 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37))
-					break;
+				if ( (buildingID == 18 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
+				  || (buildingID == 24 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37)) )
+					break; // horde present, no upgraded dwelling -> select 18 or 24
+				else
+					continue; //upgraded dwelling, no horde -> select 19 or 25
 
 				if(vstd::contains(town->builtBuildings,buildingID))
 					continue;

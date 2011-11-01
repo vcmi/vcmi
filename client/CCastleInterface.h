@@ -110,14 +110,6 @@ public:
 /// Class for town screen management (town background and structures)
 class CCastleBuildings : public CIntObject
 {
-	struct AnimRule
-	{
-		int townID, buildID;
-		int toCheck;
-		size_t firstA, lastA;
-		size_t firstB, lastB;
-	};
-	
 	CPicture *background;
 	//List of buildings for each group
 	std::map< int, std::vector<const Structure*> > groups;

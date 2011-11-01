@@ -171,7 +171,8 @@ void CMapHandler::roadsRiverTerrainInit()
 		for (int j=0-frameH;j<(int)sizes.y+frameH;j++)
 			ttiles[i][j].resize(sizes.z, 0, 0);
 	}
-
+/*
+	//FIXME: unused?
 	// prepare the map
 	for (int i=0; i<sizes.x; i++) //by width
 	{
@@ -182,7 +183,7 @@ void CMapHandler::roadsRiverTerrainInit()
 				TerrainTile2 &pom(ttiles[i][j][k]);
 			}
 		}
-	}
+	}*/
 }
 void CMapHandler::borderAndTerrainBitmapInit()
 {
