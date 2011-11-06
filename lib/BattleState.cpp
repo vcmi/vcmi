@@ -1395,18 +1395,22 @@ bool BattleInfo::battleCanFlee(int player) const
 
 const CStack * BattleInfo::battleGetStack(THex pos, bool onlyAlive)
 {
+	CStack * stack = NULL;
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if((stacks[g]->position == pos 
+		if(stacks[g]->position == pos 
 			|| (stacks[g]->doubleWide() 
 			&&( (stacks[g]->attackerOwned && stacks[g]->position-1 == pos) 
 			||	(!stacks[g]->attackerOwned && stacks[g]->position+1 == pos)	)
-			))
-			&& (!onlyAlive || stacks[g]->alive())
-			)
-			return stacks[g];
+			) )
+		{
+			if (stacks[g]->alive())
+				return stacks[g]; //we prefer living stacks - there cna be only one stack on te tile, so return it imediately
+			else if (!onlyAlive)
+				stack = stacks[g]; //dead stacks are only accessible when there's no alive stack on this tile
+		}
 	}
-	return NULL;
+	return stack;
 }
 
 const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
@@ -2131,7 +2135,7 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 				break;
 			case 53: //haste
 			case 54: //slow
-			case 63: // Teleport
+			case 63: //teleport
 			case 65: //clone
 				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL; //war machines are mmune to some spells than involve movement
