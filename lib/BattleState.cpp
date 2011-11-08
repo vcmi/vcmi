@@ -416,23 +416,10 @@ bool BattleInfo::isStackBlocked(const CStack * stack) const
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
 		return false;
 
-	for(unsigned int i=0; i<stacks.size();i++)
+	BOOST_FOREACH(CStack * s, getAdjacentCreatures(stack))
 	{
-		if( !stacks[i]->alive()
-			|| stacks[i]->owner==stack->owner
-		  )
-			continue; //we omit dead and allied stacks
-		if(stacks[i]->doubleWide())
-		{
-			if( THex::mutualPosition(stacks[i]->position, stack->position) >= 0  
-			  || THex::mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), stack->position) >= 0)
-				return true;
-		}
-		else
-		{
-			if( THex::mutualPosition(stacks[i]->position, stack->position) >= 0 )
-				return true;
-		}
+		if (s->owner != stack->owner) //blocked by enemy stack
+			return true;
 	}
 	return false;
 }
@@ -926,14 +913,14 @@ std::set<THex> BattleInfo::getAttackedHexes(const CStack* attacker, THex destina
 	return attackedHexes;
 }
 
-std::set<CStack*> BattleInfo::getAdjacentCreatures (const CStack * stack)
+std::set<CStack*> BattleInfo::getAdjacentCreatures (const CStack * stack) const
 {
 	std::set<CStack*> stacks;
 
 	CStack * localStack;
 	BOOST_FOREACH (THex hex, stack->getSurroundingHexes())
 	{
-		localStack = getStackT(hex, true); //only alive?
+		localStack = const_cast<CStack*>(getStackT(hex, true)); //only alive?
 		if (localStack)
 			stacks.insert(localStack);
 	}
@@ -2662,23 +2649,23 @@ std::vector<THex> CStack::getSurroundingHexes(THex attackerPos) const
 		const int WN = BFIELD_WIDTH;
 		if(attackerOwned)
 		{ //position is equal to front hex
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+2 : WN+1 ), hexes);
 			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
 			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), hexes);
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-1 : WN-2 ), hexes);
 			THex::checkAndPush(hex - 2, hexes);
 			THex::checkAndPush(hex + 1, hexes);
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-2 : WN-1 ), hexes);
+			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN-2 : WN-1 ), hexes);
 			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), hexes);
 			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes);
 		}
 		else
 		{
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+2 : WN+1 ), hexes);
 			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
 			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), hexes);
+			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-1 : WN-2 ), hexes);
 			THex::checkAndPush(hex + 2, hexes);
 			THex::checkAndPush(hex - 1, hexes);
-			THex::checkAndPush(hex - ( (hex/WN)%2 ? WN-1 : WN ), hexes);
+			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), hexes);
 			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), hexes);
 			THex::checkAndPush(hex + ( (hex/WN)%2 ? WN+1 : WN+2 ), hexes);
 		}

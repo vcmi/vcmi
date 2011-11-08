@@ -103,7 +103,7 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, THex destinationTile, THex attackerPos); //hexes around target that could be attacked in melee
 	std::set<CStack*> getAttackedCreatures(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
 	std::set<THex> getAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
-	std::set<CStack*> getAdjacentCreatures (const CStack * stack);
+	std::set<CStack*> getAdjacentCreatures (const CStack * stack) const;
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
 	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
