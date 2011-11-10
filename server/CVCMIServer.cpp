@@ -25,6 +25,8 @@
 #include "../lib/CMapInfo.h"
 #include "../lib/CondSh.h"
 
+std::string RESULTS_PATH = "./results.txt",
+	LOGS_DIR = ".";
 std::string NAME_AFFIX = "server";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 using namespace boost;
@@ -519,7 +521,8 @@ bool memViolated(const int pid, const int refpid, const int limit) {
 	//return 0 != ::system(call);
 }
 
-void memoryMonitor(int lAIpid, int rAIpid, int refPid) {
+void memoryMonitor(int lAIpid, int rAIpid, int refPid) 
+{
 	const int MAX_MEM = 20000; //in blocks (of, I hope, 4096 B)
 	monitringRes = 2;
 	tlog0 << "Monitor is activated\n";
@@ -534,7 +537,8 @@ void memoryMonitor(int lAIpid, int rAIpid, int refPid) {
 				monitringRes = 1;
 				break;
 			}
-			sleep(3);
+			//sleep(3);
+			boost::this_thread::sleep(boost::posix_time::seconds(3));
 			tlog0 << "Monitor is active 34\n";
 		}
 	}
@@ -673,7 +677,10 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
-	logfile = new std::ofstream("VCMI_Server_log.txt");
+	if(argc >= 6)
+		LOGS_DIR = argv[5];
+
+	logfile = new std::ofstream(LOGS_DIR + "/" + "VCMI_Server_log.txt");
 	console = new CConsoleHandler;
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 
@@ -684,8 +691,13 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		if(argc == 4 || argc == 5)
-			server.startDuel(argv[1], argv[2], argv[3], argc-1);
+		if(argc == 6 || argc == 7)
+		{
+			RESULTS_PATH = argv[4];
+			tlog1 << "Results path: " << RESULTS_PATH << std::endl;
+			tlog1 << "Logs path: " << RESULTS_PATH << std::endl;
+			server.startDuel(argv[1], argv[2], argv[3], argc-3);
+		}
 		else
 			server.startDuel("b1.json", "StupidAI", "StupidAI", 2);
 

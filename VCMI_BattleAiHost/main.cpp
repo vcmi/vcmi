@@ -30,12 +30,16 @@ std::string NAME = NAME_VER + std::string(" DLL runner");
 
 int main(int argc, char** argv)
 {
+	std::string logDir = ".";
+	if(argc >= 2)
+		logDir = argv[1];
+
 	int pid = getMyPid();
 
 
 	initDLL(console,logfile);
 
-	logfile = new std::ofstream(("VCMI_Runner_log_" + boost::lexical_cast<std::string>(pid) + ".txt").c_str());
+	logfile = new std::ofstream((logDir + "/" + "VCMI_Runner_log_" + boost::lexical_cast<std::string>(pid) + ".txt").c_str());
 
 	try
 	{

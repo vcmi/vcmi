@@ -75,9 +75,20 @@ std::string getAIFileName(std::string input)
 template<typename rett>
 rett * createAnyAI(std::string dllname, std::string methodName)
 {
-	tlog1<<"Opening "<<dllname<<"\n";
-	std::string filename = getAIFileName(dllname);
-	rett* ret = createAny<rett>(LIB_DIR "/AI/" + filename, methodName);
+	tlog1 << "Opening " << dllname<<"\n";
+
+	if(vstd::contains(dllname, '/'))
+	{
+		tlog1 << "Assuming that AI is an absolute path.\n";
+	}
+	else
+	{
+		std::string filename = getAIFileName(dllname);
+		dllname = LIB_DIR "/AI/" + filename;
+		tlog1 << "The AI path will be " << dllname << std::endl;
+	}
+
+	rett* ret = createAny<rett>(dllname, methodName);
 	ret->dllName = dllname;
 	return ret;
 }

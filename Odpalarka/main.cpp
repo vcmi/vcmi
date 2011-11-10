@@ -1,4 +1,4 @@
-#include "../global.h"
+//#include "../global.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
@@ -6,7 +6,20 @@ namespace po = boost::program_options;
 
 void prog_help() 
 {
-	throw std::string("The method or operation is not implemented.");
+	std::cout << "If run without args, then StupidAI will be run on b1.json.\n";
+}
+
+void runCommand(const std::string &command, const std::string &name, const std::string &logsDir = "")
+{
+	static std::string commands[100];
+	static int i = 0;
+	std::string &cmd = commands[i++];
+	if(logsDir.size() && name.size())
+		cmd = command + " > " + logsDir + "/" + name + ".txt";
+	else
+		cmd = command;
+
+	boost::thread tt(boost::bind(std::system, cmd.c_str()));
 }
 
 int main(int argc, char **argv)
@@ -15,42 +28,49 @@ int main(int argc, char **argv)
 
 	po::options_description opts("Allowed options");
 	opts.add_options()
-		("help,h", "display help and exit")
-		("aiLeft,l", po::value<std::string>(), "Left AI path")
-		("aiRight,r", po::value<std::string>(), "Right AI path")
-		("battle,b", po::value<std::string>(), "Duel file path")
+		("help,h", "Display help and exit")
+		("aiLeft,l", po::value<std::string>()->default_value("StupidAI"), "Left AI path")
+		("aiRight,r", po::value<std::string>()->default_value("StupidAI"), "Right AI path")
+		("battle,b", po::value<std::string>()->default_value("b1.json"), "Duel file path")
+		("resultsOut,o", po::value<std::string>()->default_value("./results.json"), "Output file when results will be appended")
+		("logsDir,d", po::value<std::string>()->default_value("."), "Directory where log files will be created")
 		("visualization,v", "Runs a client to display a visualization of battle");
 
-	std::string leftAI = "StupidAI", 
-				rightAI = "StupidAI",
-				battle = "b1.json";
+	std::string leftAI, rightAI, battle, results, logsDir;
+	bool withVisualization = false;
 
-	po::variables_map vm;
-	if(argc > 1)
+	try
 	{
-		try
+		po::variables_map vm;
+		po::store(po::parse_command_line(argc, argv, opts), vm);
+		po::notify(vm);
+
+		if(vm.count("help"))
 		{
-			po::store(po::parse_command_line(argc, argv, opts), vm);
-			po::notify(vm);
-			leftAI = vm["aiLeft"].as<std::string>();
-			rightAI = vm["aiRight"].as<std::string>();
-			battle = vm["battle"].as<std::string>();
+			opts.print(std::cout);
+			prog_help();
+			return 0;
 		}
-		catch(std::exception &e) 
-		{
-			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
-			exit(1);
-		}
+
+		leftAI = vm["aiLeft"].as<std::string>();
+		rightAI = vm["aiRight"].as<std::string>();
+		battle = vm["battle"].as<std::string>();
+		results = vm["resultsOut"].as<std::string>();
+		logsDir = vm["logsDir"].as<std::string>();
+		withVisualization = vm.count("visualization");
 	}
-	else
+	catch(std::exception &e) 
 	{
-		std::cout << "Default AIs will be used." << std::endl;
+		std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
+		exit(1);
 	}
 
-	if(vm.count("help"))
+	std::cout << "Config:\n" << leftAI << " vs " << rightAI << " on " << battle << std::endl;
+
+	if(leftAI.empty() || rightAI.empty() || battle.empty())
 	{
-		prog_help();
-		return 0;
+		std::cerr << "I wasn't able to retreive names of AI or battles. Ending.\n";
+		return 1;
 	}
 
 
@@ -70,13 +90,14 @@ int main(int argc, char **argv)
 #endif
 	;
 
-	bool withVisualization = vm.count("visualization");
-	std::string serverCommand = servername + " " + battle + " " + leftAI + " " + rightAI + (withVisualization ? " v" : "");
-	std::string runnerCommand = runnername;
+	std::string serverCommand = servername + " " + battle + " " + leftAI + " " + rightAI + " " + results + " " + logsDir + " " + (withVisualization ? " v" : "");
+	std::string runnerCommand = runnername + " " + logsDir;
+	std::cout <<"Server command: " << serverCommand << std::endl << "Runner command: " << runnername << std::endl;
+
 	boost::thread t(boost::bind(std::system, serverCommand.c_str()));
-	boost::thread tt(boost::bind(std::system, runnerCommand.c_str()));
-	boost::thread ttt(boost::bind(std::system, runnerCommand.c_str()));
-	boost::thread tttt(boost::bind(std::system, runnername.c_str()));
+	runCommand(runnerCommand, "first_runner", logsDir);
+	runCommand(runnerCommand, "second_runner", logsDir);
+	runCommand(runnerCommand, "third_runner", logsDir);
 	if(withVisualization)
 	{
 		//boost::this_thread::sleep(boost::posix_time::millisec(500)); //FIXME
