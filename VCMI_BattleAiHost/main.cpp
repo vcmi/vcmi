@@ -39,7 +39,8 @@ int main(int argc, char** argv)
 
 	initDLL(console,logfile);
 
-	logfile = new std::ofstream((logDir + "/" + "VCMI_Runner_log_" + boost::lexical_cast<std::string>(pid) + ".txt").c_str());
+	std::string logName = logDir + "/" + "VCMI_Runner_log_" + boost::lexical_cast<std::string>(pid) + ".txt";
+	logfile = new std::ofstream(logName.c_str());
 
 	try
 	{

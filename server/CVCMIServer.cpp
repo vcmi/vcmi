@@ -680,7 +680,8 @@ int main(int argc, char** argv)
 	if(argc >= 6)
 		LOGS_DIR = argv[5];
 
-	logfile = new std::ofstream(LOGS_DIR + "/" + "VCMI_Server_log.txt");
+	std::string logName = LOGS_DIR + "/" + "VCMI_Server_log.txt";
+	logfile = new std::ofstream(logName.c_str());
 	console = new CConsoleHandler;
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 
