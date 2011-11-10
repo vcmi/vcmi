@@ -14,7 +14,7 @@ function incusage(){
 	exit
 }
 
-if [ "$1" == "reconf" ]; then
+if [ "$1" = "reconf" ]; then
 	cd vcmi
 	autoreconf -i
 	cd ..
@@ -37,22 +37,22 @@ if [ "$1" == "--install" ]; then
 	errorcheck "fetching sources"
 	cd vcmi
 		
-	elif [ "$2" = "lean" ]; then
+	if [ "$2" = "lean" ]; then
 		mv "Makefile without client.am" Makefile.am
 		mv "configure without client.ac" configure.ac
 		rm client/Makefile.am
 		echo "SUBDIRS = StupidAI" > AI/Makefile.am
 		rm -rf AI/EmptyAI
 		rm -rf AI/GeniusAI
-		find . -name ".svn" -exec rm -rf {} \;
+		#find . -name ".svn" -exec rm -rf {} \;
 	elif [ "$2" = "full" ]; then
 		mv "Makefile with client.am" Makefile.am
 		mv "configure with client.ac" configure.ac
 	else
 		incusage
 	fi
-	autoreconf -i
-	errorcheck "autoreconf -i"
+	autoreconf -f
+	errorcheck "autoreconf -f"
 	cd ..
 	vcmi/configure --datadir=`pwd` --bindir=`pwd`vcmi --libdir=`pwd`
 	errorcheck "configure"

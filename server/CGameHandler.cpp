@@ -478,7 +478,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		time_t czas;
 		time(&czas);
 		std::string resultTypes[] = {"SIDE_DEFEATED", "SIDE_RETREATED", "SIDE_SURRENDERED", "SIDE_DISQUALIFIED"};
-		std::ofstream resultsList(RESULTS_PATH, std::fstream::out | std::fstream::app);
+		std::ofstream resultsList(RESULTS_PATH.c_str(), std::fstream::out | std::fstream::app);
 		if(resultsList)
 			resultsList << boost::format("%s\t%s\t%s\t%d\t%d\t%s\t%s") % gs->scenarioOps->mapname % ais[0] % ais[1] % (int)battleResult.data->winner % casualtiesPoints % resultTypes[battleResult.data->result] % asctime(localtime(&czas));
 		else
