@@ -3164,12 +3164,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	switch(sc->id)
 	{
-	case 15: //magic arrow
+	case Spells::MAGIC_ARROW:
 		{
 			//initialization of anims
 			anims.push_back("C20SPX0.DEF"); anims.push_back("C20SPX1.DEF"); anims.push_back("C20SPX2.DEF"); anims.push_back("C20SPX3.DEF"); anims.push_back("C20SPX4.DEF");
 		}
-	case 16: //ice bolt
+	case Spells::ICE_BOLT:
 		{
 			if(anims.size() == 0) //initialization of anims
 			{
@@ -3218,23 +3218,26 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 			break; //for 15 and 16 cases
 		}
-	case 17: //lightning bolt
-	case 57: //Titan's Thunder
-	case 77: //thunderbolt
+	case Spells::LIGHTNING_BOLT:
+	case Spells::TITANS_LIGHTNING_BOLT:
+	case Spells::THUNDERBOLT:
 		displayEffect(1, sc->tile);
 		displayEffect(spell.mainEffectAnim, sc->tile);
 		break;
-	case 35: //dispel
-	case 37: //cure
-	case 38: //resurrection
-	case 39: //animate dead
-	case 78: //Dispell beneficial spells
+	case Spells::DISPEL:
+	case Spells::CURE:
+	case Spells::RESURRECTION:
+	case Spells::ANIMATE_DEAD:
+	case Spells::DISPEL_HELPFUL_SPELLS:
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
 		}
 		break;
-	case 66: case 67: case 68: case 69: //summon elemental
+	case Spells::SUMMON_FIRE_ELEMENTAL:
+	case Spells::SUMMON_EARTH_ELEMENTAL:
+	case Spells::SUMMON_WATER_ELEMENTAL:
+	case Spells::SUMMON_AIR_ELEMENTAL:
 		addNewAnim(new CDummyAnim(this, 2));
 		break;
 	} //switch(sc->id)
@@ -3263,32 +3266,32 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			switch(sc->id)
 			{
-				case 70: //Stone Gaze
+				case Spells::STONE_GAZE:
 					customSpell = true;
 					plural = true;
 					textID = 558;
 					break;
-				case 71: //Poison
+				case Spells::POISON:
 					customSpell = true;
 					plural = true;
 					textID = 561;
 					break;
-				case 72: //Bind
+				case Spells::BIND:
 					customSpell = true;
 					text = CGI->generaltexth->allTexts[560];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
 					break;	//Roots and vines bind the %s to the ground!
-				case 73: //Disease
+				case Spells::DISEASE:
 					customSpell = true;
 					plural = true;
 					textID = 553;
 					break;
-				case 74: //Paralyze
+				case Spells::PARALYZE:
 					customSpell = true;
 					plural = true;
 					textID = 563;
 					break;
-				case 75: // Aging
+				case Spells::AGE:
 				{
 					customSpell = true;
 					if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
@@ -3307,7 +3310,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
-				case 77: //Thunderbolt
+				case Spells::THUNDERBOLT:
 					text = CGI->generaltexth->allTexts[367];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
 					console->addText(text);
@@ -3317,12 +3320,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					customSpell = true;
 					text = ""; //yeah, it's a terrible mess
 					break;
-				case 78: //Dispell helpful spells
+				case Spells::DISPEL_HELPFUL_SPELLS:
 					text = CGI->generaltexth->allTexts[555];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
 					customSpell = true;
 					break;
-				case 79: // Death Stare
+				case Spells::DEATH_STARE:
 					customSpell = true;
 					if (sc->dmgToDisplay)
 					{

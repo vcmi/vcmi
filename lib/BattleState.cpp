@@ -1962,8 +1962,8 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 				continue;
 			switch (i)
 			{
-				case 27: //shield
-				case 29: //fire shield - not if all enemy units are shooters
+				case Spells::SHIELD:
+				case Spells::FIRE_SHIELD: // not if all enemy units are shooters
 				{
 					bool walkerPresent = false;
 					BOOST_FOREACH (CStack * stack, stacks)
@@ -1978,7 +1978,7 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 						continue;
 				}
 					break;
-				case 28: //air shield - only against active shooters
+				case Spells::AIR_SHIELD: //only against active shooters
 				{
 					bool shooterPresent = false;
 					BOOST_FOREACH (CStack * stack, stacks)
@@ -1993,32 +1993,32 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 						continue;
 					break;
 				}
-				case 34: //anti-magic
-				case 36: //magic mirror
+				case Spells::ANTI_MAGIC:
+				case Spells::MAGIC_MIRROR:
 				{
 					if (!heroes[whatSide(theOtherPlayer(subject->owner))]) //only if there is enemy hero
 						continue;
 				}
 					break;
-				case 37: //Cure - only damaged units - what about affected by curse?
+				case Spells::CURE: //only damaged units - what about affected by curse?
 				{
 					if (subject->firstHPleft >= subject->MaxHealth())
 						continue;
 				}
 					break;
-				case 43: //bloodlust
+				case Spells::BLOODLUST:
 				{
 					if (subject->shots) //if can shoot - only if enemy uits are adjacent
 						continue;
 				}
 					break;
-				case 44: //precision
+				case Spells::PRECISION:
 				{
 					if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
 						continue;
 				}
 					break;
-				case 55: //slayer - only if monsters are present
+				case Spells::SLAYER://only if monsters are present
 				{
 					bool monsterPresent = false;
 					BOOST_FOREACH (CStack * stack, stacks)
@@ -2034,7 +2034,7 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 						continue;
 				}
 					break;
-				case 65: //clone - not allowed
+				case Spells::CLONE: //not allowed
 					continue;
 					break;
 			}
@@ -2108,30 +2108,30 @@ SpellCasting::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance 
 
 		switch (spell->id) //TODO: more general logic for new spells?
 		{
-			case 25: //Destroy Undead
+			case Spells::DESTROY_UNDEAD:
 				if (!subject->hasBonusOfType(Bonus::UNDEAD))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL;
 				break;
-			case 24: // Death Ripple
+			case Spells::DEATH_RIPPLE:
 				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL; //don't break here - undeads and war machines are immune, non-living are not
-			case 41:
-			case 42: //undeads are immune to bless & curse
+			case Spells::BLESS:
+			case Spells::CURSE: //undeads are immune to bless & curse
 				if (subject->hasBonusOfType(Bonus::UNDEAD))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL; 
 				break;
-			case 53: //haste
-			case 54: //slow
-			case 63: //teleport
-			case 65: //clone
+			case Spells::HASTE:
+			case Spells::SLOW:
+			case Spells::TELEPORT:
+			case Spells::CLONE:
 				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL; //war machines are mmune to some spells than involve movement
 				break;
-			case 61: //Forgetfulness
+			case Spells::FORGETFULNESS:
 				if (!subject->hasBonusOfType(Bonus::SHOOTER))
 					return SpellCasting::STACK_IMMUNE_TO_SPELL;
 				break;
-			case 78:	//dispel helpful spells
+			case Spells::DISPEL_HELPFUL_SPELLS:
 			{
 				TBonusListPtr spellBon = subject->getSpellBonuses();
 				bool hasPositiveSpell = false;

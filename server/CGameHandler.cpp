@@ -3551,30 +3551,30 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			continue;
 		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
-	if (spellID == 79 || spellID == 81) // Death stare or Acid Breath
+	if (spellID == Spells::DEATH_STARE || spellID == Spells::ACID_BREATH_DAMAGE)
 	{
 		sc.dmgToDisplay = usedSpellPower;
-		if (spellID == 79)
+		if (spellID == Spells::DEATH_STARE)
 			amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
 	StacksInjured si;
 
 	//applying effects
-	switch(spellID)
-	{
-	case 15: //magic arrow
-	case 16: //ice bolt
-	case 17: //lightning bolt
-	case 18: //implosion
-	case 20: //frost ring
-	case 21: //fireball
-	case 22: //inferno
-	case 23: //meteor shower
-	case 24: //death ripple
-	case 25: //destroy undead
-	case 26: //armageddon
-	case 57: //Titan's Lightning bolt
-	case 77: //Thunderbolt (thunderbirds)
+	switch (spellID)
+	{	//damage spells
+	case Spells::MAGIC_ARROW:
+	case Spells::ICE_BOLT:
+	case Spells::LIGHTNING_BOLT:
+	case Spells::IMPLOSION:
+	case Spells::FROST_RING:
+	case Spells::FIREBALL:
+	case Spells::INFERNO:
+	case Spells::METEOR_SHOWER:
+	case Spells::DEATH_RIPPLE:
+	case Spells::DESTROY_UNDEAD:
+	case Spells::ARMAGEDDON:
+	case Spells::TITANS_LIGHTNING_BOLT:
+	case Spells::THUNDERBOLT: //(thunderbirds)
 		{
 			int spellDamage = 0;
 			if (stack && mode != SpellCasting::MAGIC_MIRROR)
@@ -3613,44 +3613,44 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			}
 			break;
 		}
-	// permanent effects
-	case 27: //shield 
-	case 28: //air shield
-	case 29: //fire shield
-	case 30: //protection from air
-	case 31: //protection from fire
-	case 32: //protection from water
-	case 33: //protection from earth
-	case 34: //anti-magic
-	case 36: //magic mirror
-	case 41: //bless
-	case 42: //curse
-	case 43: //bloodlust
-	case 44: //precision
-	case 45: //weakness
-	case 46: //stone skin
-	case 47: //disrupting ray
-	case 48: //prayer
-	case 49: //mirth
-	case 50: //sorrow
-	case 51: //fortune
-	case 52: //misfortune
-	case 53: //haste
-	case 54: //slow
-	case 55: //slayer
-	case 56: //frenzy
-	case 58: //counterstrike
-	case 59: //berserk
-	case 60: //hypnotize
-	case 61: //forgetfulness
-	case 62: //blind
-	case 70: //Stone Gaze
-	case 71: //Poison
-	case 72: //Bind
-	case 73: //Disease
-	case 74: //Paralyze
-	case 75: //Aging
-	case 80: //Acid Breath defense reduction
+		// permanent effects
+	case Spells::SHIELD: 
+	case Spells::AIR_SHIELD:
+	case Spells::FIRE_SHIELD:
+	case Spells::PROTECTION_FROM_AIR:
+	case Spells::PROTECTION_FROM_FIRE:
+	case Spells::PROTECTION_FROM_WATER:
+	case Spells::PROTECTION_FROM_EARTH:
+	case Spells::ANTI_MAGIC:
+	case Spells::MAGIC_MIRROR:
+	case Spells::BLESS:
+	case Spells::CURSE:
+	case Spells::BLOODLUST:
+	case Spells::PRECISION:
+	case Spells::WEAKNESS:
+	case Spells::STONE_SKIN:
+	case Spells::DISRUPTING_RAY:
+	case Spells::PRAYER:
+	case Spells::MIRTH:
+	case Spells::SORROW:
+	case Spells::FORTUNE:
+	case Spells::MISFORTUNE:
+	case Spells::HASTE:
+	case Spells::SLOW:
+	case Spells::SLAYER:
+	case Spells::FRENZY:
+	case Spells::COUNTERSTRIKE:
+	case Spells::BERSERK:
+	case Spells::HYPNOTIZE:
+	case Spells::FORGETFULNESS:
+	case Spells::BLIND:
+	case Spells::STONE_GAZE:
+	case Spells::POISON:
+	case Spells::BIND:
+	case Spells::DISEASE:
+	case Spells::PARALYZE:
+	case Spells::AGE:
+	case Spells::ACID_BREATH_DEFENSE:
 		{
 			int stackSpellPower = 0;
 			if (stack && mode != SpellCasting::MAGIC_MIRROR)
@@ -3730,7 +3730,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				sendAndApply(&sse);
 			break;
 		}
-	case 63: //teleport
+	case Spells::TELEPORT:
 		{
 			BattleStackMoved bsm;
 			bsm.distance = -1;
@@ -3742,9 +3742,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			sendAndApply(&bsm);
 			break;
 		}
-	case 37: //cure
-	case 38: //resurrection
-	case 39: //animate dead
+	case Spells::CURE:
+	case Spells::RESURRECTION:
+	case Spells::ANIMATE_DEAD:
 		{
 			int hpGained = 0;
 			if (stack)
@@ -3761,7 +3761,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
-					|| (spellID == 39 && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack
+					|| (spellID == Spells::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack
 					) 
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
@@ -3784,25 +3784,25 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 				sendAndApply(&shr);
 			break;
 		}
-	case 66:
-	case 67:
-	case 68:
-	case 69:
+	case Spells::SUMMON_FIRE_ELEMENTAL:
+	case Spells::SUMMON_EARTH_ELEMENTAL:
+	case Spells::SUMMON_WATER_ELEMENTAL:
+	case Spells::SUMMON_AIR_ELEMENTAL:
 		{ //elemental summoning
 			int creID;
 			switch(spellID)
 			{
-				case 66:
-					creID = 114; //fire elemental
+				case Spells::SUMMON_FIRE_ELEMENTAL:
+					creID = 114;
 					break;
-				case 67:
-					creID = 113; //earth elemental
+				case Spells::SUMMON_EARTH_ELEMENTAL:
+					creID = 113;
 					break;
-				case 68:
-					creID = 115; //water elemental
+				case Spells::SUMMON_WATER_ELEMENTAL:
+					creID = 115;
 					break;
-				case 69:
-					creID = 112; //air elemental
+				case Spells::SUMMON_AIR_ELEMENTAL:
+					creID = 112;
 					break;
 			}
 
@@ -3819,7 +3819,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			sendAndApply(&bsa);
 		}
 		break;
-	case 64: //remove obstacle
+	case Spells::REMOVE_OBSTACLE:
 		{
 			ObstaclesRemoved obr;
 			for(int g=0; g<gs->curB->obstacles.size(); ++g)
@@ -3836,7 +3836,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			break;
 		}
 		break;
-	case 79: //Death stare - handled in a bit different way
+	case Spells::DEATH_STARE: //handled in a bit different way
 		{
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
@@ -3857,7 +3857,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, THex destinati
 			}
 		}
 		break;
-	case 81: //Acid breath damage - new effect, separate from acid breath defense reduction
+	case Spells::ACID_BREATH_DAMAGE: //new effect, separate from acid breath defense reduction
 		{
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
 			{
