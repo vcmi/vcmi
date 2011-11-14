@@ -1,5 +1,11 @@
 #!/bin/bash
 
+hash make 2>&- || { echo >&2 "I require make but it's not installed.  Aborting."; exit 1; }
+hash autoreconf 2>&- || { echo >&2 "I require aureconf but it's not installed.  Aborting."; exit 1; }
+hash unzip 2>&- || { echo >&2 "I require unzip but it's not installed.  Aborting."; exit 1; }
+hash svn 2>&- || { echo >&2 "I require svn but it's not installed.  Aborting."; exit 1; }
+
+
 function errorcheck(){
     if [ "$?" -gt 0 ]; then
 		echo "Error during $1"
@@ -53,6 +59,7 @@ if [ "$1" == "--install" ]; then
 	fi
 	autoreconf -f
 	errorcheck "autoreconf -f"
+	wget http://sourceforge.net/apps/trac/vcmi/export/2443/branches/programmingChallenge/vcmipack.zip
 	cd ..
 	vcmi/configure --datadir=`pwd` --bindir=`pwd`vcmi --libdir=`pwd`
 	errorcheck "configure"

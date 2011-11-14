@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 		("aiLeft,l", po::value<std::string>()->default_value("StupidAI"), "Left AI path")
 		("aiRight,r", po::value<std::string>()->default_value("StupidAI"), "Right AI path")
 		("battle,b", po::value<std::string>()->default_value("b1.json"), "Duel file path")
-		("resultsOut,o", po::value<std::string>()->default_value("./results.json"), "Output file when results will be appended")
+		("resultsOut,o", po::value<std::string>()->default_value("./results.txt"), "Output file when results will be appended")
 		("logsDir,d", po::value<std::string>()->default_value("."), "Directory where log files will be created")
 		("visualization,v", "Runs a client to display a visualization of battle");
 

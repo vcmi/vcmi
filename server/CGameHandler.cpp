@@ -60,7 +60,7 @@ CondSh<BattleResult *> battleResult(NULL);
 std::ptrdiff_t randomizer (ptrdiff_t i) {return rand();}
 std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
-extern std::string RESULTS_PATH;
+extern std::string RESULTS_PATH, LOGS_DIR;
 
 template <typename T> class CApplyOnGH;
 
@@ -461,7 +461,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	if(duel)
 	{
-		CSaveFile resultFile("result.vdrst");
+		CSaveFile resultFile(LOGS_DIR + "/result.vdrst");
 		resultFile << *battleResult.data;
 
 		int casualtiesPoints = 0;
