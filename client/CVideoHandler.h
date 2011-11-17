@@ -229,7 +229,11 @@ public:
 #else
 
 #include "CSndHandler.h"
+#include <SDL.h>
 #include <SDL_video.h>
+#if SDL_VERSION_ATLEAST(1,3,0)
+#include <SDL_compat.h>
+#endif
 
 typedef struct AVFormatContext AVFormatContext;
 typedef struct AVCodecContext AVCodecContext;

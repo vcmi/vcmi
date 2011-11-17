@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES = libvcmi.la
 libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
-libvcmi_la_CXXFLAGS = @SDL_CXXFLAGS@
+libvcmi_la_CXXFLAGS = @SDL_CFLAGS@
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \
 	BattleAction.h \

@@ -53,31 +53,16 @@ AX_BOOST_THREAD
 AX_BOOST_IOSTREAMS
 AX_BOOST_PROGRAM_OPTIONS
 
+# Check for SDL - Will accept 1.2 and 1.3
+AM_PATH_SDL("1.2.0", :, AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]))
+
 # Check for SDL headers and libraries
-saved_LIBS=$LIBS
-saved_CFLAGS=$CFLAGS
-
-AC_CHECK_PROG(HAVE_SDL_CONFIG, sdl-config, yes, no)
-if test "$HAVE_SDL_CONFIG" = no; then
-AC_MSG_ERROR(sdl-config doesn't exist. Try to check the PATH enviroment.)
-fi
-
-SDL_CXXFLAGS="`sdl-config --cflags`"
-LIBS="$LIBS `sdl-config --libs`"
-
-CFLAGS="$CFLAGS $SDL_CXXFLAGS"
-
 AC_CHECK_HEADERS([SDL/SDL.h SDL/SDL_mixer.h SDL/SDL_image.h SDL/SDL_ttf.h], [], [AC_MSG_ERROR([Header not found. Install missing devel package.])])
 
 AC_CHECK_LIB(SDL,SDL_Init,,AC_MSG_ERROR([SDL library not found. Please install it.]))
 AC_CHECK_LIB(SDL_mixer,main,,AC_MSG_ERROR([SDL_mixer library not found. Please install it.]))
 AC_CHECK_LIB(SDL_image,IMG_Load,,AC_MSG_ERROR([SDL_image library not found. Please install it.]))
 AC_CHECK_LIB(SDL_ttf,main,,AC_MSG_ERROR([SDL_ttf library not found. Please install it.]))
-
-SDL_LIBS="$LIBS"
-
-LIBS=$saved_LIBS
-CFLAGS=$saved_CFLAGS
 
 # Check for ffmpeg libraries
 saved_LIBS=$LIBS

@@ -28,6 +28,10 @@
 	#define STRONG_INLINE inline
 #endif
 
+#if SDL_VERSION_ATLEAST(1,3,0)
+#define SDL_GetKeyState SDL_GetKeyboardState
+#endif
+
 struct Rect;
 
 extern SDL_Surface * screen, *screen2, *screenBuf;

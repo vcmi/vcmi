@@ -735,7 +735,7 @@ void CResDataBar::deactivate()
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+//fz	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
@@ -752,7 +752,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+//fz	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
@@ -1347,7 +1347,8 @@ void CAdvMapInt::show(SDL_Surface *to)
 		&&  (
 			(GH.topInt() == this)
 			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
-			|| SDL_GetKeyState(NULL)[SDLK_RCTRL])
+			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
+)
 	)
 	{
 		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
@@ -1519,7 +1520,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
 				break;
 
-			k -= SDLK_KP0 + 1;
+			k -= SDLK_KP_0 + 1;
 			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
 				return;
 
