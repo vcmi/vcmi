@@ -28,6 +28,9 @@ JsonNode::JsonNode(std::string filename):
 	type(DATA_NULL)
 {
 	FILE * file = fopen(filename.c_str(), "rb");
+	if (!file)
+		return;
+
 	fseek(file, 0, SEEK_END);
 	size_t datasize = ftell(file);
 	fseek(file, 0, SEEK_SET);

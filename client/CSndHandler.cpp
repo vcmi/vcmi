@@ -126,7 +126,9 @@ const char * CMediaHandler::extract (int index, int & size)
 const char * CMediaHandler::extract (std::string srcName, int &size)
 {
 	int index;
-	srcName.erase(srcName.find_last_of('.'));
+	size_t dotPos = srcName.find_last_of('.');
+	if (dotPos != std::string::npos)
+		srcName.erase(dotPos);
 
 	std::map<std::string, int>::iterator fit;
 	if ((fit = fimap.find(srcName)) != fimap.end())

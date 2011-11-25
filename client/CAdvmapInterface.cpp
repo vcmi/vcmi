@@ -1520,7 +1520,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
 				break;
 
-			k -= SDLK_KP_0 + 1;
+			k -= SDLK_KP0 + 1;
 			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
 				return;
 

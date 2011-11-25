@@ -61,6 +61,13 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 				ret.push_back( getHeader(e.name, true) );
 			}
 		}
+		BOOST_FOREACH(Entry e, bitmaph_ab->entries)
+		{
+			if( e.type == FILE_CAMPAIGN && e.name != "TOSBLK1" )
+			{
+				ret.push_back( getHeader(e.name, true) );
+			}
+		}
 	}
 
 
@@ -143,7 +150,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 {
 	CCampaignHeader ret;
 	ret.version = read_le_u32(buffer + outIt); outIt+=4;
-	ret.mapVersion = read_le_u32(buffer + outIt);
+	ret.mapVersion = buffer[outIt++]; //1 byte only
 	ret.mapVersion -= 1; //change range of it from [1, 20] to [0, 19]
 	ret.name = readString(buffer, outIt);
 	ret.description = readString(buffer, outIt);

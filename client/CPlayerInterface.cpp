@@ -270,12 +270,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 					//TODO: smooth disappear / appear effect
 		}
 
-		if(details.start == details.end) //last step
-		{
-			eraseCurrentPathOf(ho);
-			return; 
-		}
-
 		if (ho->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
@@ -283,8 +277,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		}
 		else if(adventureInt->terrain.currentPath  &&  ho->pos == details.end) //&& hero is moving
 		{
-			//remove one node from the path (the one we went)
-			removeLastNodeFromPath(ho);
+			if (adventureInt->terrain.currentPath->endPos() != details.end)
+				removeLastNodeFromPath(ho);
 		}
 	}
 

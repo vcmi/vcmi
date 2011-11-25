@@ -780,7 +780,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-			tlog3 << "Not parsed bonus " << buf << mod << "\n";
+			tlog5 << "Not parsed bonus " << buf << mod << "\n";
 				return;
 				break;
 		}
@@ -879,7 +879,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::RECEPTIVE;
 				break;
 			default:
-				tlog3 << "Not parsed bonus " << buf << mod << "\n";
+				tlog5 << "Not parsed bonus " << buf << mod << "\n";
 				return;
 		}
 		break;
@@ -908,7 +908,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 		b.additionalInfo = 3; //always expert?
 		break;
 	default:
-		tlog3 << "Not parsed bonus " << buf << mod << "\n";
+		tlog5 << "Not parsed bonus " << buf << mod << "\n";
 		return;
 		break;
 	}

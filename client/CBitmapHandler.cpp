@@ -53,8 +53,7 @@ SDL_Surface * CPCXConv::getSurface() const
 
 	int width = -1, height = -1;
 	Epcxformat format;
-	int fSize,y;
-	unsigned char add;
+	int fSize;
 	int it=0;
 
 	fSize = read_le_u32(pcx + it); it+=4;
@@ -68,13 +67,16 @@ SDL_Surface * CPCXConv::getSurface() const
 	else 
 		return NULL;
 
-	add = 4 - width%4;
-	if (add==4)
-		add=0;
-
 	if (format==PCX8B)
 	{
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 8, 0, 0, 0, 0);
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0, 0);
+
+		it = 0xC;
+		for (int i=0; i<height; i++)
+		{
+			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width);
+			it+= width;
+		}
 
 		it = pcxs-256*3;
 		for (int i=0;i<256;i++)
@@ -90,17 +92,7 @@ SDL_Surface * CPCXConv::getSurface() const
 			tp.b = pcx[it++];
 #endif
 			tp.unused = 0;
-			*(ret->format->palette->colors+i) = tp;
-		}
-		for (y=height; y>0; --y)
-		{
-			it = 0xC + (y-1)*width;
-			memcpy((char*)ret->pixels + ret->pitch * (y-1), pcx + it, width);
-
-			if (add>0)
-			{
-				memset((char*)ret->pixels + ret->pitch * (y-1) + width, 0, add);
-			}
+			ret->format->palette->colors[i] = tp;
 		}
 	}
 	else
@@ -114,19 +106,15 @@ SDL_Surface * CPCXConv::getSurface() const
 		int gmask = 0x00ff00;
 		int rmask = 0xff0000;
 #endif
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 24, rmask, gmask, bmask, 0);
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, rmask, gmask, bmask, 0);
 
-		for (y=height; y>0; y--)
+		it = 0xC;
+		for (int i=0; i<height; i++)
 		{
-			it = 0xC + (y-1)*width*3;
-
-			memcpy((char*)ret->pixels + ret->pitch * (y-1), pcx + it, width*3);
-
-			if (add>0)
-			{
-				memset((char*)ret->pixels + ret->pitch * (y-1) + width*3, 0, add*3);
-			}
+			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width*3);
+			it+= width*3;
 		}
+
 	}
 	return ret;
 }

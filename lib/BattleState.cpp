@@ -2223,11 +2223,12 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 		if(sp->positiveness >= 0 && (*it)->owner == casterSideOwner)
 			continue;
 
+		/*
 		const CGHeroInstance * bonusHero; //hero we should take bonuses from
 		if((*it)->owner == casterSideOwner)
 			bonusHero = caster;
 		else
-			bonusHero = hero2;
+			bonusHero = hero2;*/
 
 		int prob = (*it)->magicResistance(); //probability of resistance in %
 
