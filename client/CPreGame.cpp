@@ -69,8 +69,8 @@ using boost::bind;
 using boost::ref;
 
 #if _MSC_VER >= 1600
-	#define bind boost::bind
-	#define ref boost::ref
+	//#define bind boost::bind
+	//#define ref boost::ref
 #endif
 
 void startGame(StartInfo * options, CConnection *serv = NULL);
@@ -796,7 +796,7 @@ void CSelectionScreen::startGame()
 		selectedName = GVCMIDirs.UserPath + "/Games/" + sel->txt->text + ".vlgm1";
 
 		CFunctionList<void()> overWrite;
-		overWrite += bind(&CCallback::save, LOCPLINT->cb, sel->txt->text);
+		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, sel->txt->text);
 		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
 
 		if(fs::exists(selectedName))
