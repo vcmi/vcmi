@@ -743,10 +743,13 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 
 void CSelectionScreen::startCampaign()
 {
-	CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->filename, SEL->current->lodCmpgn);
-	CCampaignState * campState = new CCampaignState();
-	campState->camp = ourCampaign;
-	GH.pushInt( new CBonusSelection(campState) );
+	if (SEL->current)
+	{
+		CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->filename, SEL->current->lodCmpgn);
+		CCampaignState * campState = new CCampaignState();
+		campState->camp = ourCampaign;
+		GH.pushInt( new CBonusSelection(campState) );
+	}
 }
 
 void CSelectionScreen::startGame()
@@ -1109,7 +1112,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				toParse[g].inLod = false;
 			}
 			//add lod cmpgns
-			cpm = CCampaignHandler::getCampaignHeaders(CCampaignHandler::ALL);
+			cpm = CCampaignHandler::getCampaignHeaders(CCampaignHandler::Custom);
 			for (int g = 0; g < cpm.size(); g++)
 			{
 				FileInfo fi;
@@ -2660,19 +2663,36 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("MUHOTSEA.bmp");
-	bg->convertToScreenBPP(); //so we could draw without problems
-	bg->printAtMiddleWBLoc(CGI->generaltexth->allTexts[446], 185, 55, FONT_BIG, 50, zwykly, *bg); //HOTSEAT	Please enter names
 	pos = bg->center(); //center, window has size of bg graphic
 
-	for(int i = 0; i < ARRAY_COUNT(txt); i++)
-		txt[i] = new CTextInput(Rect(60, 85 + i*30, 280, 16), *bg);
+	std::string text = CGI->generaltexth->allTexts[446];
+	boost::replace_all(text, "\t","\n");
+	Rect boxRect(25, 20, 315, 50);
+	title = new CTextBox(text, boxRect, 0, FONT_BIG, CENTER, zwykly);//HOTSEAT	Please enter names
 
-	txt[0]->setText(firstPlayer);
-	txt[0]->giveFocus();
+	for(int i = 0; i < ARRAY_COUNT(txt); i++)
+	{
+		txt[i] = new CTextInput(Rect(60, 85 + i*30, 280, 16), *bg);
+		txt[i]->cb += boost::bind(&CHotSeatPlayers::onChange, this, _1);
+	}
 
 	ok = new AdventureMapButton(CGI->generaltexth->zelp[560], bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF", SDLK_RETURN);
 	cancel = new AdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
+
+	txt[0]->setText(firstPlayer, true);
+	txt[0]->giveFocus();
+}
+
+void CHotSeatPlayers::onChange(std::string newText)
+{
+	size_t namesCount = 0;
+
+	for(int i = 0; i < ARRAY_COUNT(txt); i++)
+		if(!txt[i]->text.empty())
+			namesCount++;
+
+	ok->block(namesCount < 2);
 }
 
 void CHotSeatPlayers::enterSelectionScreen()
@@ -2682,7 +2702,6 @@ void CHotSeatPlayers::enterSelectionScreen()
 		if(txt[i]->text.length())
 			names[j++] = txt[i]->text;
 
-	assert(names.size() > 1); //two players at least - after all, it's hot seat mode...
 	GDefaultOptions.setPlayerName(names.begin()->second); //remember selected name
 
 	GH.popInts(2); //pop MP mode window and this

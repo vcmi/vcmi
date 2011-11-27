@@ -353,14 +353,17 @@ public:
 /// Hot seat player window
 class CHotSeatPlayers : public CIntObject
 {
-public:
 	CPicture *bg;
+	CTextBox *title;
 	CTextInput *txt[8];
 	AdventureMapButton *ok, *cancel;
 	CGStatusBar *bar;
 
-	CHotSeatPlayers(const std::string &firstPlayer);
+	void onChange(std::string newText);
 	void enterSelectionScreen();
+
+public:
+	CHotSeatPlayers(const std::string &firstPlayer);
 };
 
 /// Campaign screen where you can choose one out of three starting bonuses

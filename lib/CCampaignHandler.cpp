@@ -56,14 +56,7 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 	{
 		BOOST_FOREACH(Entry e, bitmaph->entries)
 		{
-			if( e.type == FILE_CAMPAIGN && e.name != "TOSBLK1" )
-			{
-				ret.push_back( getHeader(e.name, true) );
-			}
-		}
-		BOOST_FOREACH(Entry e, bitmaph_ab->entries)
-		{
-			if( e.type == FILE_CAMPAIGN && e.name != "TOSBLK1" )
+			if( e.type == FILE_CAMPAIGN )
 			{
 				ret.push_back( getHeader(e.name, true) );
 			}
