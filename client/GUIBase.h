@@ -300,7 +300,7 @@ struct Rect : public SDL_Rect
 class IShowable
 {
 public:
-	void redraw();
+	virtual void redraw()=0;
 	virtual void show(SDL_Surface * to)=0;
 	virtual void showAll(SDL_Surface * to)
 	{
@@ -333,7 +333,8 @@ public:
 class IShowActivable : public IShowable, public IActivable
 {
 public:
-	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2, WITH_ARTIFACTS = 4};
+	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
+	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2, WITH_ARTIFACTS = 4, REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivable();
 	virtual ~IShowActivable(){}; //d-tor
@@ -426,6 +427,7 @@ public:
 	void deactivate(ui16 what);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
+	void redraw();
 
 	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);

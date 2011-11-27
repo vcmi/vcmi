@@ -28,6 +28,7 @@ class CGStatusBar;
 class CTextBox;
 class CCampaignState;
 class CConnection;
+class JsonNode;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
 struct FileInfo;
@@ -48,7 +49,16 @@ public:
 /// The main menu screens listed in the EState enum
 class CMenuScreen : public CIntObject
 {
+	const JsonNode& config;
+
+	CTabbedInt *tabs;
+
+	std::vector<CPicture*> images;
+
+	CIntObject *createTab(size_t index);
 public:
+	std::vector<std::string> menuNameToEntry;
+
 	enum EState { //where are we?
 		mainMenu, newGame, loadGame, campaignMain, saveGame, scenarioInfo, campaignList
 	};
@@ -56,17 +66,36 @@ public:
 	enum EMultiMode {
 		SINGLE_PLAYER = 0, MULTI_HOT_SEAT, MULTI_NETWORK_HOST, MULTI_NETWORK_GUEST
 	};
+	CMenuScreen(const JsonNode& configNode);
 
-	CPicture *bgAd;
-	AdventureMapButton *buttons[5];
-
-	CMenuScreen(EState which);
-	~CMenuScreen();
-	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
-	void moveTo(CMenuScreen *next);
+	void activate();
+	void deactivate();
+
+	void switchToTab(size_t index);
 };
 
+class CMenuEntry : public CIntObject
+{
+	std::vector<CPicture*> images;
+	std::vector<AdventureMapButton*> buttons;
+
+	AdventureMapButton* createButton(CMenuScreen* parent, const JsonNode& button);
+public:
+	CMenuEntry(CMenuScreen* parent, const JsonNode &config);
+};
+
+class CreditsScreen : public CIntObject
+{
+	CTextBox* credits;
+public:
+	CreditsScreen();
+
+	void show(SDL_Surface *to);
+
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
+};
 
 /// Implementation of the chat box
 class CChatBox : public CIntObject
@@ -84,8 +113,8 @@ public:
 
 class InfoCard : public CIntObject
 {
-	CPicture *bg; 
 public:
+	CPicture *bg;
 	CMenuScreen::EState type;
 
 	bool network;
@@ -117,7 +146,7 @@ private:
 	void parseGames(std::vector<FileInfo> &files, bool multi);
 	void parseCampaigns( std::vector<FileInfo> & files );
 	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
-	CMenuScreen::EState tabType; 
+	CMenuScreen::EState tabType;
 public:
 	int positions; //how many entries (games/maps) can be shown
 	CPicture *bg; //general bg image
@@ -132,7 +161,7 @@ public:
 
 	CTextInput *txt;
 
-	
+
 	void filter(int size, bool selectFirst = false); //0 - all
 	void select(int position); //position: <0 - positions>  position on the screen
 	void selectAbs(int position); //position: absolute position in curItems vector
@@ -182,7 +211,7 @@ public:
 		SelectedBox *hero;
 		SelectedBox *bonus;
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
-		
+
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
@@ -194,7 +223,7 @@ public:
 
 	struct PlayerToRestore
 	{
-		int color, id; 
+		int color, id;
 		void reset() { color = id = -1; }
 		PlayerToRestore(){ reset(); }
 	} playerToRestore;
@@ -287,7 +316,7 @@ public:
 class CSavingScreen : public CSelectionScreen
 {
 public:
-	const CMapInfo *ourGame; 
+	const CMapInfo *ourGame;
 
 
 	CSavingScreen(bool hotseat = false);
@@ -414,58 +443,49 @@ public:
 /// Campaign selection screen
 class CCampaignScreen : public CIntObject
 {
-	public:
-		enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
-	
+public:
+	enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
+
+private:
+	/// A button which plays a video when you move the mouse cursor over it
+	class CCampaignButton : public CIntObject
+	{
 	private:
-		SDL_Surface *bg; // background image
-		SDL_Surface *noCamp; // no campaign placeholder
-		AdventureMapButton *back; // back button
+		CPicture *image;
+		CPicture *checkMark;
 
-		/// A button which plays a video when you move the mouse cursor over it
-		class CCampaignButton : public CIntObject
-		{
-		private:
-			std::string image;
-			SDL_Surface *bg;
-			SDL_Surface *button;
-			SDL_Surface *checked;
-			CLabel *hoverLabel; 
-			CampaignStatus status;
+		CLabel *hoverLabel;
+		CampaignStatus status;
 
-			void clickLeft(tribool down, bool previousState);
-			void hover(bool on);
+		std::string campFile; // the filename/resourcename of the campaign
+		std::string video; // the resource name of the video
+		std::string hoverText;
 
-		public:
-			std::string campFile; // the filename/resourcename of the campaign
-			std::string video; // the resource name of the video
-			std::string hoverText; // the text which gets shown when you move the mouse cursor over the button
+		void clickLeft(tribool down, bool previousState);
+		void hover(bool on);
 
-			CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status); // c-tor
-			~CCampaignButton(); // d-tor
-			void show(SDL_Surface *to);
-		};
+	public:
+		CCampaignButton(const JsonNode &config );
+		void show(SDL_Surface *to);
+	};
 
-		std::vector<CCampaignButton*> campButtons; // a container which holds all buttons where you can start a campaign
-		
-		void drawCampaignPlaceholder(); // draws the no campaign placeholder at the lower right position
-		std::string getMapText(int index);
-		void createButtons(const int buttonCords[7][2], const std::string campFiles[], 
-			const std::string campImages[], const std::string campVideos[], const std::string campTexts[], std::map<std::string, CampaignStatus>& camps, const CampaignStatus campDefaults[]);
+	AdventureMapButton *back;
+	std::vector<CCampaignButton*> campButtons;
+	std::vector<CPicture*> images;
+
+	AdventureMapButton* createExitButton(const JsonNode& button);
 public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
-	CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps);
-	~CCampaignScreen();
-	void show(SDL_Surface *to);
+	CCampaignScreen(const JsonNode &config);
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
+	const JsonNode * const pregameConfig;
 public:
-	SDL_Surface *mainbg;
-	CMenuScreen *scrs[4];
+	CMenuScreen* menu;
 
 	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
 	CDefHandler *bonuses;
@@ -475,10 +495,11 @@ public:
 	~CGPreGame();
 	void update();
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
-	void openCampaignScreen(CCampaignScreen::CampaignSet campaigns);
 
 	void loadGraphics();
 	void disposeGraphics();
+
+	void openCampaignScreen(std::string name);
 };
 
 extern CGPreGame *CGP;

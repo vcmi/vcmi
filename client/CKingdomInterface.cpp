@@ -466,232 +466,6 @@ bool InfoBoxCustom::prepareMessage(std::string &text, SComponent **comp)
 	return false;
 }
 
-CObjectList::CObjectList(IGuiObjectListManager *Manager):
-	manager(Manager)
-{
-}
-
-CObjectList::~CObjectList()
-{
-	delete manager;
-}
-
-void CObjectList::deleteItem(CIntObject* item)
-{
-	if (!item)
-		return;
-	if (active)
-		item->deactivate();
-	removeChild(item);
-	manager->removeObject(item);
-}
-
-CIntObject* CObjectList::createItem(size_t index)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	CIntObject * item = manager->getObject(index);
-	if (item == NULL)
-		item = new CIntObject();
-
-	item->recActions = defActions;
-
-	//May happen if object was created before call to getObject()
-	if(item->parent != this)
-	{
-		if (item->parent)
-			moveChild(item, item->parent, this);
-		else
-			addChild(item);
-	}
-
-	if (item && active)
-		item->activate();
-	return item;
-}
-
-CTabbedInt::CTabbedInt(IGuiObjectListManager *Manager, Point position, size_t ActiveID):
-	CObjectList(Manager),
-	activeTab(NULL),
-	activeID(ActiveID)
-{
-	pos += position;
-	reset();
-}
-
-void CTabbedInt::setActive(size_t which)
-{
-	if (which != activeID)
-	{
-		activeID = which;
-		reset();
-	}
-}
-
-void CTabbedInt::reset()
-{
-	deleteItem(activeTab);
-	activeTab = createItem(activeID);
-	activeTab->moveTo(pos.topLeft());
-
-	if (active)
-		redraw();
-}
-
-CIntObject * CTabbedInt::getItem()
-{
-	return activeTab;
-}
-
-CListBox::CListBox(IGuiObjectListManager *Manager, Point Pos, Point ItemOffset, size_t VisibleSize,
-                   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
-	CObjectList(Manager),
-	first(InitialPos),
-	totalSize(TotalSize),
-	itemOffset(ItemOffset)
-{
-	pos += Pos;
-	items.resize(VisibleSize, NULL);
-
-	if (Slider & 1)
-	{
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
-		                     VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4);
-	}
-	reset();
-}
-
-// Used to move active items after changing list position
-void CListBox::updatePositions()
-{
-	Point itemPos = pos.topLeft();
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
-	{
-		(*it)->moveTo(itemPos);
-		itemPos += itemOffset;
-	}
-	if (active)
-	{
-		redraw();
-		if (slider)
-			slider->moveTo(first);
-	}
-}
-
-void CListBox::reset()
-{
-	size_t current = first;
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
-	{
-		deleteItem(*it);
-		*it = createItem(current++);
-	}
-	updatePositions();
-}
-
-void CListBox::moveToPos(size_t which)
-{
-	//Calculate new position
-	size_t maxPossible;
-	if (totalSize > items.size())
-		maxPossible = totalSize - items.size();
-	else
-		maxPossible = 0;
-
-	size_t newPos = std::min(which, maxPossible);
-
-	//If move distance is 1 (most of calls from Slider) - use faster shifts instead of resetting all items
-	if (first - newPos == 1)
-		moveToPrev();
-	else if (newPos - first == 1)
-		moveToNext();
-	else if (newPos != first)
-	{
-		first = newPos;
-		reset();
-	}
-}
-
-void CListBox::moveToNext()
-{
-	//Remove front item and insert new one to end
-	if (first + items.size() < totalSize)
-	{
-		first++;
-		deleteItem(items.front());
-		items.pop_front();
-		items.push_back(createItem(first+items.size()));
-		updatePositions();
-	}
-}
-
-void CListBox::moveToPrev()
-{
-	//Remove last item and insert new one at start
-	if (first)
-	{
-		first--;
-		deleteItem(items.back());
-		items.pop_back();
-		items.push_front(createItem(first));
-		updatePositions();
-	}
-}
-
-std::list<CIntObject*> CListBox::getItems()
-{
-	return items;
-}
-
-struct OwnedObjectInfo
-{
-	int imageID;
-	unsigned int count;
-	std::string hoverText;
-};
-
-class OwnedObjectsListManager : public IGuiObjectListManager
-{
-	std::vector<OwnedObjectInfo> objects;
-public:
-	virtual CIntObject * getObject(size_t position)
-	{
-		if (position < objects.size())
-		{
-			OwnedObjectInfo &obj = objects[position];
-			std::string value = boost::lexical_cast<std::string>(obj.count);
-			return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
-			       new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
-		}
-		return NULL;
-	}
-
-	OwnedObjectsListManager(std::vector<OwnedObjectInfo> Objects):
-		objects(Objects)
-	{
-	}
-};
-
-class TownHeroListManager : public IGuiObjectListManager
-{
-public:
-	CIntObject *currentItem;
-
-	CIntObject *getObject(size_t position)
-	{
-		size_t size = conf.go()->ac.overviewSize;
-		switch (position)
-		{
-		case 0:
-			return new CKingdHeroList(size);
-		case 1:
-			return new CKingdTownList(size);
-		default:
-			return NULL;
-		}
-	}
-};
-
 CKingdomInterface::CKingdomInterface()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -700,7 +474,7 @@ CKingdomInterface::CKingdomInterface()
 	pos = background->center();
 	unsigned int footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = new CTabbedInt(new TownHeroListManager, Point(4,4));
+	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -753,15 +527,38 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			}
 		}
 	}
-	std::vector<OwnedObjectInfo> objectsVector;
-	objectsVector.reserve(visibleObjects.size());
+	objects.reserve(visibleObjects.size());
 
 	std::pair<int, OwnedObjectInfo> element;
 	BOOST_FOREACH(element, visibleObjects)
 	{
-		objectsVector.push_back(element.second);
+		objects.push_back(element.second);
 	}
-	dwellingsList = new CListBox(new OwnedObjectsListManager(objectsVector), Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
+	dwellingsList = new CListBox(boost::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
+	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
+}
+
+CIntObject* CKingdomInterface::createOwnedObject(size_t index)
+{
+	if (index < objects.size())
+	{
+		OwnedObjectInfo &obj = objects[index];
+		std::string value = boost::lexical_cast<std::string>(obj.count);
+		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
+			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
+	}
+	return NULL;
+}
+
+CIntObject * CKingdomInterface::createMainTab(size_t index)
+{
+	size_t size = conf.go()->ac.overviewSize;
+	switch (index)
+	{
+	case 0: return new CKingdHeroList(size);
+	case 1: return new CKingdTownList(size);
+	default:return NULL;
+	}
 }
 
 void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects)
@@ -887,56 +684,6 @@ void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
 		arts->artifactRemoved(artLoc);
 }
 
-class HeroListManager : public IGuiObjectListManager
-{
-	CWindowWithArtifacts * arts;
-	CArtifactsOfHero::SCommonPart * artsCommonPart;
-public:
-	HeroListManager(CWindowWithArtifacts * parent);
-	~HeroListManager();
-	CIntObject * getObject(size_t position);
-	void removeObject(CIntObject *object);
-};
-
-HeroListManager::HeroListManager(CWindowWithArtifacts * parent)
-{
-	arts = parent;
-	artsCommonPart = new CArtifactsOfHero::SCommonPart;
-}
-
-HeroListManager::~HeroListManager()
-{
-	delete artsCommonPart;
-}
-
-CIntObject * HeroListManager::getObject(size_t position)
-{
-	unsigned int picCount = conf.go()->ac.overviewPics;
-	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
-
-	if (position < heroesCount)
-	{
-		CHeroItem * hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(position, false), artsCommonPart);
-		artsCommonPart->participants.insert(hero->heroArts);
-		arts->artSets.push_back(hero->heroArts);
-		return hero;
-	}
-	else
-	{
-		return new CAnimImage("OVSLOT", (position-2) % picCount );
-	}
-};
-
-void HeroListManager::removeObject(CIntObject *object)
-{
-	if (CHeroItem * hero = dynamic_cast<CHeroItem*>(object))
-	{
-		arts->artSets.erase(std::find(arts->artSets.begin(), arts->artSets.end(), hero->heroArts));
-		artsCommonPart->participants.erase(hero->heroArts);
-	}
-	delete object;
-}
-
 CKingdHeroList::CKingdHeroList(size_t maxSize)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -947,7 +694,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	unsigned int townCount = LOCPLINT->cb->howManyHeroes(false);
 	unsigned int size = conf.go()->ac.overviewSize*116 + 19;
-	heroes = new CListBox(new HeroListManager(this), Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
+	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
+	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -960,20 +708,33 @@ void CKingdHeroList::updateGarrisons()
 	}
 }
 
-class TownListManager : public IGuiObjectListManager
+CIntObject* CKingdHeroList::createHeroItem(size_t index)
 {
-public:
-	CIntObject * getObject(size_t position)
-	{
-		unsigned int picCount = conf.go()->ac.overviewPics;
-		size_t townsCount = LOCPLINT->cb->howManyTowns();
+	unsigned int picCount = conf.go()->ac.overviewPics;
+	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
 
-		if (position < townsCount)
-			return new CTownItem(LOCPLINT->cb->getTownBySerial(position));
-		else
-			return new CAnimImage("OVSLOT", (position-2) % picCount );
+	if (index < heroesCount)
+	{
+		CHeroItem * hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false), &artsCommonPart);
+		artsCommonPart.participants.insert(hero->heroArts);
+		artSets.push_back(hero->heroArts);
+		return hero;
 	}
-};
+	else
+	{
+		return new CAnimImage("OVSLOT", (index-2) % picCount );
+	}
+}
+
+void CKingdHeroList::destroyHeroItem(CIntObject *object)
+{
+	if (CHeroItem * hero = dynamic_cast<CHeroItem*>(object))
+	{
+		artSets.erase(std::find(artSets.begin(), artSets.end(), hero->heroArts));
+		artsCommonPart.participants.erase(hero->heroArts);
+	}
+	delete object;
+}
 
 CKingdTownList::CKingdTownList(size_t maxSize)
 {
@@ -986,7 +747,8 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 	unsigned int townCount = LOCPLINT->cb->howManyTowns();
 	unsigned int size = conf.go()->ac.overviewSize*116 + 19;
-	towns = new CListBox(new TownListManager, Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
+	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
+	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
 void CKingdTownList::townChanged(const CGTownInstance *town)
@@ -1008,6 +770,17 @@ void CKingdTownList::updateGarrisons()
 		if (CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object) )
 			garrison->updateGarrisons();
 	}
+}
+
+CIntObject* CKingdTownList::createTownItem(size_t index)
+{
+	unsigned int picCount = conf.go()->ac.overviewPics;
+	size_t townsCount = LOCPLINT->cb->howManyTowns();
+
+	if (index < townsCount)
+		return new CTownItem(LOCPLINT->cb->getTownBySerial(index));
+	else
+		return new CAnimImage("OVSLOT", (index-2) % picCount );
 }
 
 CTownItem::CTownItem(const CGTownInstance* Town):
@@ -1102,64 +875,33 @@ public:
 	}
 };
 
-class HeroItemManager : public CIntObject, public IGuiObjectListManager
-{
-public:
-	ArtSlotsTab* tab1;
-	ArtSlotsTab* tab2;
-	BackpackTab* tab3;
-
-	HeroItemManager(const CGHeroInstance* Hero);
-	CIntObject * getObject(size_t position);
-	void removeObject(CIntObject * object);
-};
-
-HeroItemManager::HeroItemManager(const CGHeroInstance* Hero)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	recActions = 0;
-	defActions = DISPOSE | SHARE_POS;
-
-	tab1 = new ArtSlotsTab;
-	tab2 = new ArtSlotsTab;
-	tab3 = new BackpackTab;
-}
-
-CIntObject * HeroItemManager::getObject(size_t position)
-{
-	switch (position)
-	{
-	case 0: return tab1;
-	case 1: return tab2;
-	case 2: return tab3;
-	default: assert(0);
-	         return NULL;
-	}
-}
-
-void HeroItemManager::removeObject(CIntObject * object)
-{
-	addChild(object, false);
-}
-
 CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart * artsCommonPart):
 	hero(Hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
+	artTabs.resize(3);
+	ArtSlotsTab* arts1 = new ArtSlotsTab;
+	ArtSlotsTab* arts2 = new ArtSlotsTab;
+	BackpackTab* backpack = new BackpackTab;
+	artTabs[0] = arts1;
+	artTabs[1] = arts2;
+	artTabs[2] = backpack;
+	arts1->recActions = DISPOSE | SHARE_POS;
+	arts2->recActions = DISPOSE | SHARE_POS;
+	backpack->recActions = DISPOSE | SHARE_POS;
+
 	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, zwykly, hero->name);
 
-	HeroItemManager *manager = new HeroItemManager(hero);
-
 	std::vector<CArtPlace*> arts;
-	arts.insert(arts.end(), manager->tab1->arts.begin(), manager->tab1->arts.end());
-	arts.insert(arts.end(), manager->tab2->arts.begin(), manager->tab2->arts.end());
+	arts.insert(arts.end(), arts1->arts.begin(), arts1->arts.end());
+	arts.insert(arts.end(), arts2->arts.begin(), arts2->arts.end());
 
-	heroArts = new CArtifactsOfHero(arts, manager->tab3->arts, manager->tab3->btnLeft, manager->tab3->btnRight, false);
+	heroArts = new CArtifactsOfHero(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, false);
 	heroArts->commonInfo = artsCommonPart;
 	heroArts->setHero(hero);
 
-	artsTabs = new CTabbedInt(manager);
+	artsTabs = new CTabbedInt(boost::bind(&CHeroItem::onTabSelected, this, _1), boost::bind(&CHeroItem::onTabDeselected, this, _1));
 
 	artButtons = new CHighlightableButtonsGroup(0);
 	for (size_t it = 0; it<3; it++)
@@ -1209,6 +951,17 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 
 	morale->set(hero);
 	luck->set(hero);
+}
+
+CIntObject * CHeroItem::onTabSelected(size_t index)
+{
+	return artTabs[index];
+}
+
+void CHeroItem::onTabDeselected(CIntObject *object)
+{
+	addChild(object, false);
+	object->recActions = DISPOSE | SHARE_POS;
 }
 
 void CHeroItem::onArtChange(int tabIndex)

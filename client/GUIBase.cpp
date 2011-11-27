@@ -980,11 +980,18 @@ SetCaptureState::~SetCaptureState()
 	GH.defActionsDef = prevActions;
 }
 
-void IShowable::redraw()
+void CIntObject::redraw()
 {
-	showAll(screenBuf);
-	if(screenBuf != screen)
-		showAll(screen);
+	if (parent && (type & REDRAW_PARENT))
+	{
+		parent->redraw();
+	}
+	else
+	{
+		showAll(screenBuf);
+		if(screenBuf != screen)
+			showAll(screen);
+	}
 }
 
 SDLKey arrowToNum( SDLKey key )

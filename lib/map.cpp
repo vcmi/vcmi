@@ -397,8 +397,14 @@ CMapHeader::~CMapHeader()
 
 }
 
-void Mapa::initFromBytes(const unsigned char * bufor)
+void Mapa::initFromBytes(const unsigned char * bufor, size_t size)
 {
+	// Compute checksum
+	boost::crc_32_type  result;
+	result.process_bytes(bufor, size);
+	checksum = result.checksum();
+	tlog0 << "\tOur map checksum: "<<result.checksum() << std::endl;
+
 	int i=0;
 	initFromMemory(bufor,i);
 	timeHandler th;
@@ -438,7 +444,8 @@ void Mapa::initFromBytes(const unsigned char * bufor)
 	}
 	tlog0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
 	tlog0 << "\tMap initialization done!" << std::endl;
-}	
+}
+
 void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
 	for(int fx=0; fx<8; ++fx)
@@ -503,13 +510,7 @@ Mapa::Mapa(std::string filename)
 
 	tlog0<<"done."<<std::endl;
 
-	// Compute checksum
-	boost::crc_32_type  result;
-	result.process_bytes(initTable, mapsize);
-	checksum = result.checksum();
-	tlog0 << "\tOur map checksum: "<<result.checksum() << std::endl;
-
-	initFromBytes(initTable);
+	initFromBytes(initTable, mapsize);
 
 	delete [] initTable;
 }

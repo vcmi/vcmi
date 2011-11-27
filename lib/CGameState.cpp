@@ -930,7 +930,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
 			map = new Mapa();
-			map->initFromBytes((const unsigned char*)mapContent.c_str());
+			map->initFromBytes((const unsigned char*)mapContent.c_str(), mapContent.size());
 		}
 		break;
 	case StartInfo::DUEL:

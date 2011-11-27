@@ -61,7 +61,8 @@ public:
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
 		for(size_t i=0;i<funcs2.size(); ++i) 
 		{
-			funcs2[i]();
+			if (funcs2[i])
+				funcs2[i]();
 		}
 	}
 	template <typename Arg> 
@@ -70,7 +71,8 @@ public:
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
 		for(int i=0;i<funcs2.size(); i++) 
 		{
-			funcs2[i](a);
+			if (funcs2[i])
+				funcs2[i](a);
 		}
 	}
 };

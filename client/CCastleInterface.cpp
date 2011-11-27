@@ -1376,11 +1376,14 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 				int buildingID = boxList[row][col][item];
 				building = CGI->buildh->buildings[town->subID][buildingID];
 
-				if ( (buildingID == 18 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
-				  || (buildingID == 24 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37)) )
-					break; // horde present, no upgraded dwelling -> select 18 or 24
-				else
-					continue; //upgraded dwelling, no horde -> select 19 or 25
+				if (buildingID == 18 || buildingID == 24)
+				{
+					if ( (buildingID == 18 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[0]+37))
+					  || (buildingID == 24 && !vstd::contains(town->builtBuildings, town->town->hordeLvl[1]+37)) )
+						break; // horde present, no upgraded dwelling -> select 18 or 24
+					else
+						continue; //upgraded dwelling, no horde -> select 19 or 25
+				}
 
 				if(vstd::contains(town->builtBuildings,buildingID))
 					continue;

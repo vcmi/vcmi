@@ -48,7 +48,10 @@ void CButtonBase::update()
 			text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
 	}
 	
-	size_t newPos = (int)state + bitmapOffset;
+	int newPos = (int)state + bitmapOffset;
+	if (newPos < 0)
+		newPos = 0;
+
 	if (state == HIGHLIGHTED && image->size() < 4)
 		newPos = image->size()-1;
 
@@ -353,7 +356,8 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, 0, x, y, key);
 	if(musicLike)
 	{
-		bt->setOffset(buttons.size() - 3);
+		if (buttons.size() > 3)
+			bt->setOffset(buttons.size()-3);
 	}
 	bt->ID = uid;
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
@@ -393,6 +397,8 @@ void CHighlightableButtonsGroup::selectionChanged(int to)
 		if(buttons[i]->ID!=to && buttons[i]->isHighlighted())
 			buttons[i]->select(false);
 	onChange(to);
+	if (parent)
+		parent->redraw();
 }
 
 void CHighlightableButtonsGroup::show(SDL_Surface * to )

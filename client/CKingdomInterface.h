@@ -195,99 +195,18 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Interface used in CTabbedInt and CListBox
-class IGuiObjectListManager
-{
-public:
-	//Create object for specified position, may return NULL if no object is needed at this position
-	//NOTE: position may be greater then size (empty rows in ListBox)
-	virtual CIntObject * getObject(size_t position)=0;
-
-	//Called when object needs to be removed
-	virtual void removeObject(CIntObject * object)
-	{
-		delete object;
-	};
-	virtual ~IGuiObjectListManager(){};
-};
-
-/// Used as base for Tabs and List classes
-class CObjectList : public CIntObject
-{
-	IGuiObjectListManager *manager;
-
-protected:
-	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
-	void deleteItem(CIntObject* item);
-	CIntObject* createItem(size_t index);
-
-public:
-	CObjectList(IGuiObjectListManager *Manager);
-	~CObjectList();
-};
-
-/// Window element with multiple tabs
-class CTabbedInt : public CObjectList
-{
-private:
-	CIntObject * activeTab;
-	size_t activeID;
-
-public:
-	//Manager - object which implements this interface, will be destroyed by TabbedInt
-	//Pos - position of object, all tabs will be moved here
-	//ActiveID - ID of initially active tab
-	CTabbedInt(IGuiObjectListManager *Manager, Point position=Point(), size_t ActiveID=0);
-
-	void setActive(size_t which);
-	//recreate active tab
-	void reset();
-
-	//return currently active item
-	CIntObject * getItem();
-};
-
-/// List of IntObjects with optional slider
-class CListBox : public CObjectList
-{
-private:
-	std::list< CIntObject* > items;
-	size_t first;
-	size_t totalSize;
-
-	Point itemOffset;
-	CSlider * slider;
-
-	void updatePositions();
-public:
-	//Manager - object which implements this interface, will be destroyed by ListBox
-	//Pos - position of first item
-	//ItemOffset - distance between items in the list
-	//VisibleSize - maximal number of displayable at once items
-	//TotalSize 
-	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
-	//SliderPos - position of slider, if present
-	CListBox(IGuiObjectListManager *Manager, Point Pos, Point ItemOffset, size_t VisibleSize,
-	         size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
-
-	//recreate all visible items
-	void reset();
-
-	//return currently active items
-	std::list< CIntObject * > getItems();
-
-	//scroll list
-	void moveToPos(size_t which);
-	void moveToNext();
-	void moveToPrev();
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 /// Class which holds all parts of kingdom overview window
 class CKingdomInterface : public CGarrisonHolder, public CArtifactHolder
 {
 private:
+	struct OwnedObjectInfo
+	{
+		int imageID;
+		unsigned int count;
+		std::string hoverText;
+	};
+	std::vector<OwnedObjectInfo> objects;
+
 	CListBox * dwellingsList;
 	CTabbedInt * tabArea;
 	CPicture * background;
@@ -315,6 +234,9 @@ private:
 	void generateButtons();
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects);
+
+	CIntObject* createOwnedObject(size_t index);
+	CIntObject* createMainTab(size_t index);
 
 public:
 	CKingdomInterface();
@@ -356,6 +278,8 @@ class CHeroItem : public CWindowWithGarrison
 {
 	const CGHeroInstance * hero;
 
+	std::vector<CIntObject *> artTabs;
+
 	CAnimImage *background;
 	CAnimImage *portrait;
 	CLabel *name;
@@ -370,6 +294,9 @@ class CHeroItem : public CWindowWithGarrison
 
 	void onArtChange(int tabIndex);
 
+	CIntObject * onTabSelected(size_t index);
+	void onTabDeselected(CIntObject *object);
+
 public:
 	CArtifactsOfHero *heroArts;
 
@@ -380,12 +307,16 @@ public:
 class CKingdHeroList : public CGarrisonHolder, public CWindowWithArtifacts
 {
 private:
+	CArtifactsOfHero::SCommonPart artsCommonPart;
+
 	std::vector<CHeroItem*> heroItems;
 	CListBox * heroes;
 	CPicture * title;
 	CLabel * heroLabel;
 	CLabel * skillsLabel;
 
+	CIntObject* createHeroItem(size_t index);
+	void destroyHeroItem(CIntObject *item);
 public:
 	CKingdHeroList(size_t maxSize);
 
@@ -403,6 +334,7 @@ private:
 	CLabel * garrHeroLabel;
 	CLabel * visitHeroLabel;
 	
+	CIntObject* createTownItem(size_t index);
 public:
 	CKingdTownList(size_t maxSize);
 	

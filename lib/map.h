@@ -314,7 +314,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 	bmap<si32, si32> questIdentifierToId;
 
-	void initFromBytes( const unsigned char * bufor); //creates map from decompressed .h3m data
+	void initFromBytes( const unsigned char * bufor, size_t size); //creates map from decompressed .h3m data
 
 	void readEvents( const unsigned char * bufor, int &i);
 	void readObjects( const unsigned char * bufor, int &i);

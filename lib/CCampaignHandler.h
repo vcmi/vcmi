@@ -18,10 +18,21 @@
 struct StartInfo;
 class CGHeroInstance;
 
+namespace CampaignVersion
+{
+	enum Version
+	{
+		RoE = 4,
+		AB = 5,
+		SoD = 6,
+		WoG = 6
+	};
+}
+
 class DLL_EXPORT CCampaignHeader
 {
 public:
-	si32 version; //5 - AB, 6 - SoD, WoG - ?!?
+	si32 version; //4 - RoE, 5 - AB, 6 - SoD and WoG
 	ui8 mapVersion; //CampText.txt's format
 	std::string name, description;
 	ui8 difficultyChoosenByPlayer;

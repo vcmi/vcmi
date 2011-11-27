@@ -118,7 +118,10 @@ public:
 	std::string getTextFile(std::string name, LodFileType type=FILE_TEXT); //extracts one file
 	void extractFile(const std::string FName, const std::string name, LodFileType type=FILE_ANY); //extracts a specific file
 
-	static unsigned char * getUnpackedFile(const std::string & path, int * sizeOut); //loads given file, decompresses and returns
+	//unpack data from memory, input data will be deleted
+	static unsigned char * getUnpackedData(unsigned char *data, size_t inputSize, int * outputSize);
+	//loads given file, decompresses and returns
+	static unsigned char * getUnpackedFile(const std::string & path, int * sizeOut);
 };
 
 

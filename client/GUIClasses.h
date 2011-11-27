@@ -209,6 +209,87 @@ public:
 	void deactivate();
 	void select(bool on);
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Used as base for Tabs and List classes
+class CObjectList : public CIntObject
+{
+public:
+	typedef boost::function<CIntObject* (size_t)> CreateFunc;
+	typedef boost::function<void(CIntObject *)> DestroyFunc;
+
+private:
+	CreateFunc createObject;
+	DestroyFunc destroyObject;
+
+protected:
+	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
+	void deleteItem(CIntObject* item);
+	CIntObject* createItem(size_t index);
+	
+	CObjectList(CreateFunc create, DestroyFunc destroy = DestroyFunc());//Protected constructor
+};
+
+/// Window element with multiple tabs
+class CTabbedInt : public CObjectList
+{
+private:
+	CIntObject * activeTab;
+	size_t activeID;
+
+public:
+	//CreateFunc, DestroyFunc - see CObjectList
+	//Pos - position of object, all tabs will be moved to this position
+	//ActiveID - ID of initially active tab
+	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
+
+	void setActive(size_t which);
+	//recreate active tab
+	void reset();
+
+	//return currently active item
+	CIntObject * getItem();
+};
+
+/// List of IntObjects with optional slider
+class CListBox : public CObjectList
+{
+private:
+	std::list< CIntObject* > items;
+	size_t first;
+	size_t totalSize;
+
+	Point itemOffset;
+	CSlider * slider;
+
+	void updatePositions();
+public:
+	//CreateFunc, DestroyFunc - see CObjectList
+	//Pos - position of first item
+	//ItemOffset - distance between items in the list
+	//VisibleSize - maximal number of displayable at once items
+	//TotalSize 
+	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
+	//SliderPos - position of slider, if present
+	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
+	         size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
+
+	//recreate all visible items
+	void reset();
+
+	//return currently active items
+	std::list< CIntObject * > getItems();
+
+	//scroll list
+	void moveToPos(size_t which);
+	void moveToNext();
+	void moveToPrev();
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 class CGarrisonInt;
 
 /// A single garrison slot which holds one creature of a specific amount
@@ -798,9 +879,7 @@ public:
 
 	void pushSDLEvent(int type, int usercode);
 
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 class CTavernWindow : public CIntObject
@@ -1104,9 +1183,7 @@ public:
 	CArtifactsOfHero * artifs[2];
 
 	void close();
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 

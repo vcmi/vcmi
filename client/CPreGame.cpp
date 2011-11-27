@@ -29,6 +29,9 @@
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
 #include <boost/foreach.hpp>
+#include <boost/assign/std/vector.hpp>
+#include <boost/assign/list_of.hpp>
+
 #include <cstdlib>
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
@@ -86,7 +89,7 @@ struct EvilHlpStruct
 	CConnection *serv;
 	StartInfo *sInfo;
 
-	void reset(bool strong = true) 
+	void reset(bool strong = true)
 	{
 		if(strong)
 		{
@@ -148,7 +151,7 @@ void setPlayer(PlayerSettings &pset, unsigned player, const std::map<ui32, std::
 void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui32, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
-	if(!filename.size()) 
+	if(!filename.size())
 		return;
 
 	/*sInfo.playerInfos.resize(to->playerAmnt);*/
@@ -191,7 +194,7 @@ template <typename T> class CApplyOnPG;
 class CBaseForPGApply
 {
 public:
-	virtual void applyOnPG(CSelectionScreen *selScr, void *pack) const =0; 
+	virtual void applyOnPG(CSelectionScreen *selScr, void *pack) const =0;
 	virtual ~CBaseForPGApply(){};
 	template<typename U> static CBaseForPGApply *getApplier(const U * t=NULL)
 	{
@@ -211,111 +214,217 @@ public:
 
 static CApplier<CBaseForPGApply> *applier = NULL;
 
-CMenuScreen::CMenuScreen( EState which )
+static CPicture* createPicture(const JsonNode& config)
 {
-	OBJ_CONSTRUCTION;
-	bgAd = NULL;
-
-	switch(which)
-	{
-	case mainMenu:
-		{
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[3].second, // New game
-				bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[newGame])), 540, 10, "ZMENUNG.DEF", SDLK_n);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[4].second, // Load game
-				bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[loadGame])), 532, 132, "ZMENULG.DEF", SDLK_l);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[5].second, 0, 524, 251, "ZMENUHS.DEF", SDLK_h); // Highscore
-			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[6].second, 0 /*cb*/, 557, 359, "ZMENUCR.DEF", SDLK_c); // Credits
-			boost::function<void()> confWindow = bind(CInfoWindow::showYesNoDialog, ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
-			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[7].second, confWindow, 586, 468, "ZMENUQT.DEF", SDLK_ESCAPE); // Exit
-		}
-		break;
-	case newGame:
-		{
-			bgAd = new CPicture(BitmapHandler::loadBitmap("ZNEWGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, // Single player
-				bind(&CGPreGame::openSel, CGP, newGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, &pushIntT<CMultiMode>, 568, 120, "ZTMULTI.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, bind(&CMenuScreen::moveTo, this, ref(CGP->scrs[campaignMain])), 541, 233, "ZTCAMPN.DEF", SDLK_c);
-			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
-			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
-		}
-		break;
-	case loadGame:
-		{
-			bgAd = new CPicture(BitmapHandler::loadBitmap("ZLOADGAM.bmp"), 114, 312, true);
-			buttons[0] = new AdventureMapButton("", CGI->generaltexth->zelp[10].second, bind(&CGPreGame::openSel, CGP, loadGame, SINGLE_PLAYER), 545, 4, "ZTSINGL.DEF", SDLK_s);
-			buttons[1] = new AdventureMapButton("", CGI->generaltexth->zelp[12].second, bind(&CGPreGame::openSel, CGP, loadGame, MULTI_HOT_SEAT), 568, 120, "ZTMULTI.DEF", SDLK_m);
-			buttons[2] = new AdventureMapButton("", CGI->generaltexth->zelp[11].second, 0 /*cb*/, 541, 233, "ZTCAMPN.DEF", SDLK_c);
-			buttons[3] = new AdventureMapButton("", CGI->generaltexth->zelp[13].second, 0 /*cb*/, 545, 358, "ZTTUTOR.DEF", SDLK_t);
-			buttons[4] = new AdventureMapButton("", CGI->generaltexth->zelp[14].second, bind(&CMenuScreen::moveTo, this, CGP->scrs[mainMenu]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE);
-		}
-		break;
-	case campaignMain:
-		{
-			buttons[0] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::WOG), 535, 8, "ZSSSOD.DEF", SDLK_s); // WOG
-			buttons[1] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::ROE) , 494, 117, "ZSSROE.DEF", SDLK_m); // ROE
-			buttons[2] = new AdventureMapButton("", "", bind(&CGPreGame::openCampaignScreen, CGP, CCampaignScreen::AB), 486, 241, "ZSSARM.DEF", SDLK_c); // AB
-			buttons[3] = new AdventureMapButton("", "", bind(&CGPreGame::openSel, CGP, campaignList, SINGLE_PLAYER), 550, 358, "ZSSCUS.DEF", SDLK_t); // Custom
-			buttons[4] = new AdventureMapButton("", "", bind(&CMenuScreen::moveTo, this, CGP->scrs[newGame]), 582, 464, "ZTBACK.DEF", SDLK_ESCAPE); // Back
-
-		}
-		break;
-	}
-
-	for(int i = 0; i < ARRAY_COUNT(buttons); i++)
-		buttons[i]->hoverable = true;
+	return new CPicture(config["name"].String(), config["x"].Float(), config["y"].Float());
 }
 
-CMenuScreen::~CMenuScreen()
+CMenuScreen::CMenuScreen(const JsonNode& configNode):
+	config(configNode)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	BOOST_FOREACH(const JsonNode& node, config["items"].Vector())
+		menuNameToEntry.push_back(node["name"].String());
+
+	BOOST_FOREACH(const JsonNode& node, config["images"].Vector())
+		images.push_back(createPicture(node));
+
+	//Hardcoded entry
+	menuNameToEntry.push_back("credits");
+
+	tabs = new CTabbedInt(boost::bind(&CMenuScreen::createTab, this, _1), CTabbedInt::DestroyFunc());
+	tabs->type |= REDRAW_PARENT;
 }
 
-void CMenuScreen::showAll( SDL_Surface * to )
+CIntObject * CMenuScreen::createTab(size_t index)
 {
-	blitAt(CGP->mainbg, 0, 0, to);
-	CIntObject::showAll(to);
+	if (config["items"].Vector().size() == index)
+		return new CreditsScreen();
+
+	return new CMenuEntry(this, config["items"].Vector()[index]);
 }
 
-void CMenuScreen::show( SDL_Surface * to )
+void CMenuScreen::show(SDL_Surface * to)
 {
-	CCS->videoh->update(pos.x + 8, pos.y + 105, to, true, false);
+	if (!config["video"].isNull())
+		CCS->videoh->update(config["video"]["x"].Float(), config["video"]["y"].Float(), to, true, false);
 	CIntObject::show(to);
 }
 
-void CMenuScreen::moveTo( CMenuScreen *next )
+void CMenuScreen::activate()
 {
-	GH.popInt(this);
-	GH.pushInt(next);
+	CCS->musich->playMusic(musicBase::mainMenu, -1);
+	if (!config["video"].isNull())
+		CCS->videoh->open(config["video"]["name"].String());
+	CIntObject::activate();
 }
 
-CGPreGame::CGPreGame()
+void CMenuScreen::deactivate()
 {
+	if (!config["video"].isNull())
+		CCS->videoh->close();
+
+	CIntObject::deactivate();
+}
+
+void CMenuScreen::switchToTab(size_t index)
+{
+	tabs->setActive(index);
+}
+
+//funciton for std::string -> boost::function conversion for main menu
+static boost::function<void()> genCommand(CMenuScreen* menu, std::vector<std::string> menuType, const std::string &string)
+{
+	static const std::vector<std::string> commandType  = boost::assign::list_of
+		("to")("campaigns")("start")("load")("exit")("highscores");
+
+	static const std::vector<std::string> gameType = boost::assign::list_of
+		("single")("multi")("campaign")("tutorial");
+
+	std::list<std::string> commands;
+	boost::split(commands, string, boost::is_any_of("\t "));
+
+	if (!commands.empty())
+	{
+		size_t index = std::find(commandType.begin(), commandType.end(), commands.front()) - commandType.begin();
+		commands.pop_front();
+		if (index > 3 || !commands.empty())
+		{
+			switch (index)
+			{
+				break; case 0://to - switch to another tab, if such tab exists
+				{
+					size_t index2 = std::find(menuType.begin(), menuType.end(), commands.front()) - menuType.begin();
+					if ( index2 != menuType.size())
+						return boost::bind(&CMenuScreen::switchToTab, menu, index2);
+				}
+				break; case 1://open campaign selection window
+				{
+					return boost::bind(&CGPreGame::openCampaignScreen, CGP, commands.front());
+				}
+				break; case 2://start
+				{
+					switch (std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
+					{
+						case 0: return bind(&CGPreGame::openSel, CGP, CMenuScreen::newGame, CMenuScreen::SINGLE_PLAYER);
+						case 1: return &pushIntT<CMultiMode>;
+						case 2: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::campaignList, CMenuScreen::SINGLE_PLAYER);
+						case 3: return boost::function<void()>();//TODO: start tutorial
+					}
+				}
+				break; case 3://load
+				{
+					switch (std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
+					{
+						case 0: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_PLAYER);
+						case 1: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT);
+						case 2: return boost::function<void()>();//TODO: load campaign
+						case 3: return boost::function<void()>();//TODO: load tutorial
+					}
+				}
+				break; case 4://exit
+				{
+					return boost::bind(CInfoWindow::showYesNoDialog, boost::ref(CGI->generaltexth->allTexts[69]), (const std::vector<SComponent*>*)0, do_quit, 0, false, 1);
+				}
+				break; case 5://highscores
+				{
+					return boost::function<void()>(); //TODO: high scores &pushIntT<CHighScores>;
+				}
+			}
+		}
+	}
+	tlog0<<"Failed to parse command: "<<string<<"\n";
+	return boost::function<void()>();
+}
+
+AdventureMapButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
+{
+	boost::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
+
+	std::pair<std::string, std::string> help;
+	if (!button["help"].isNull() && button["help"].Float() > 0)
+		help = CGI->generaltexth->zelp[button["help"].Float()];
+
+	return new AdventureMapButton(help, command, button["x"].Float(), button["y"].Float(), button["name"].String(), button["hotkey"].Float());
+}
+
+CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	type |= REDRAW_PARENT;
+
+	BOOST_FOREACH(const JsonNode& node, config["images"].Vector())
+		images.push_back(createPicture(node));
+
+	BOOST_FOREACH(const JsonNode& node, config["buttons"].Vector())
+	{
+		buttons.push_back(createButton(parent, node));
+		buttons.back()->hoverable = true;
+		buttons.back()->type |= REDRAW_PARENT;
+	}
+}
+
+CreditsScreen::CreditsScreen()
+{
+	used |= LCLICK | RCLICK;
+	type |= REDRAW_PARENT;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pos.w = 800;
+	pos.h = 600;
+	std::string text = bitmaph->getTextFile("CREDITS");
+	size_t firstQuote = text.find('\"')+1;
+	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
+	credits = new CTextBox(text, Rect(450, 600, 350, 32000), 0, FONT_CREDITS, CENTER, zwykly);
+	credits->pos.h = credits->maxH;
+}
+
+void CreditsScreen::show(SDL_Surface *to)
+{
+	static int count = 0;
+	count++;
+	if (count == 2)
+	{
+		credits->pos.y--;
+		count = 0;
+	}
+	SDL_SetClipRect(screen, &credits->pos);
+	redraw();
+	SDL_SetClipRect(screen, NULL);
+
+	//end of credits, close this screen
+	if (credits->pos.y + credits->pos.h < 0)
+		clickRight(false, false);
+}
+
+void CreditsScreen::clickLeft(tribool down, bool previousState)
+{
+	clickRight(down, previousState);
+}
+
+void CreditsScreen::clickRight(tribool down, bool previousState)
+{
+	CTabbedInt* menu = dynamic_cast<CTabbedInt*>(parent);
+	assert(menu);
+	menu->setActive(0);
+}
+
+CGPreGame::CGPreGame():
+	pregameConfig(new JsonNode(DATA_DIR "/config/mainmenu.json"))
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	GH.defActionsDef = 63;
 	CGP = this;
-	mainbg = BitmapHandler::loadBitmap("ZPIC1005.bmp");
-
-	for(int i = 0; i < ARRAY_COUNT(scrs); i++)
-		scrs[i] = new CMenuScreen((CMenuScreen::EState)i);
+	menu = new CMenuScreen((*pregameConfig)["window"]);
 }
 
 CGPreGame::~CGPreGame()
 {
-	SDL_FreeSurface(mainbg);
-
-	for(int i = 0; i < ARRAY_COUNT(scrs); i++)
-		delete scrs[i];
 }
 
 void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
 {
 	GH.pushInt(new CSelectionScreen(screenType, multi));
-}
-
-void CGPreGame::openCampaignScreen(CCampaignScreen::CampaignSet campaigns)
-{
-	std::map<std::string, CCampaignScreen::CampaignStatus> defaultCamp;
-	GH.pushInt(new CCampaignScreen(campaigns, defaultCamp));
 }
 
 void CGPreGame::loadGraphics()
@@ -341,11 +450,10 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
-	if (GH.listInt.size() == 0)
+	if (GH.listInt.empty())
 	{
-		CCS->musich->playMusic(musicBase::mainMenu, -1);
-		CCS->videoh->open("ACREDIT.SMK");
-		GH.pushInt(scrs[CMenuScreen::mainMenu]);
+		GH.pushInt(menu);
+		menu->switchToTab(0);
 	}
 
 	if(SEL)
@@ -355,7 +463,7 @@ void CGPreGame::update()
 	GH.updateTime();
 	GH.handleEvents();
 
-	if (GH.curInt == 0) // no redraw, when a new game was created
+	if (GH.curInt == NULL) // no redraw, when a new game was created
 		return;
 
 	GH.topInt()->show(screen);
@@ -367,6 +475,19 @@ void CGPreGame::update()
 	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
 	CCS->curh->draw2();
+}
+
+void CGPreGame::openCampaignScreen(std::string name)
+{
+	BOOST_FOREACH(const JsonNode& node, (*pregameConfig)["campaignsset"].Vector())
+	{
+		if (node["name"].String() == name)
+		{
+			GH.pushInt(new CCampaignScreen(node));
+			return;
+		}
+	}
+	tlog1<<"Unknown campaign set: "<<name<<"\n";
 }
 
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
@@ -420,7 +541,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	if (screenType == CMenuScreen::campaignList)
 	{
 		opt = NULL;
-	} 
+	}
 	else
 	{
 		opt = new OptionsTab(); //scenario options tab
@@ -476,7 +597,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		start  = new AdventureMapButton(std::pair<std::string, std::string>(), bind(&CSelectionScreen::startCampaign, this), 411, 529, "SCNRLOD.DEF", SDLK_b);
 		break;
 	}
-	
+
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
@@ -697,7 +818,7 @@ void CSelectionScreen::difficultyChange( int to )
 	assert(screenType == CMenuScreen::newGame);
 	sInfo.difficulty = to;
 	propagateOptions();
-	GH.totalRedraw();
+	redraw();
 }
 
 void CSelectionScreen::handleConnection()
@@ -818,12 +939,12 @@ void SelectionTab::filter( int size, bool selectFirst )
 
 	if(tabType == CMenuScreen::campaignList)
 	{
-		for (size_t i=0; i<allItems.size(); i++) 
+		for (size_t i=0; i<allItems.size(); i++)
 			curItems.push_back(&allItems[i]);
 	}
 	else
 	{
-		for (size_t i=0; i<allItems.size(); i++) 
+		for (size_t i=0; i<allItems.size(); i++)
 			if( allItems[i].mapHeader && allItems[i].mapHeader->version  &&  (!size || allItems[i].mapHeader->width == size))
 				curItems.push_back(&allItems[i]);
 	}
@@ -866,7 +987,7 @@ void SelectionTab::parseMaps(std::vector<FileInfo> &files, int start, int thread
 		gzclose(tempf);
 		if(read < 50  ||  !mapBuffer[4])
 		{
-			tlog3 << "\t\tWarning: corrupted map file: " << files[start].name << std::endl; 
+			tlog3 << "\t\tWarning: corrupted map file: " << files[start].name << std::endl;
 		}
 		else //valid map
 		{
@@ -885,7 +1006,7 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
 		if(!lf.sfile)
 			continue;
 
-		ui8 sign[8]; 
+		ui8 sign[8];
 		lf >> sign;
 		if(std::memcmp(sign,"VCMISVG",7))
 		{
@@ -977,7 +1098,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 			else
 			{
 				positions = 16;
-			}	
+			}
 			if(tabType == CMenuScreen::saveGame)
 				txt = new CTextInput(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
 			break;
@@ -1011,7 +1132,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 
 
-	
+
 	if (tabType != CMenuScreen::campaignList)
 	{
 		//size filter buttons
@@ -1161,7 +1282,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 
 		if (elemIdx == selectionPos)
 			itemColor=tytulowy;
-		else 
+		else
 			itemColor=zwykly;
 
 		if(tabType != CMenuScreen::campaignList)
@@ -1215,14 +1336,14 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			//victory conditions
 			if (currentItem->mapHeader->victoryCondition.condition == winStandard)
 				temp = 11;
-			else 
+			else
 				temp = currentItem->mapHeader->victoryCondition.condition;
 			blitAt(CGP->victory->ourImages[temp].bitmap, POS(306, 117), to);
 
 			//loss conditions
 			if (currentItem->mapHeader->lossCondition.typeOfLossCon == lossStandard)
 				temp=3;
-			else 
+			else
 				temp=currentItem->mapHeader->lossCondition.typeOfLossCon;
 			blitAt(CGP->loss->ourImages[temp].bitmap, POS(339, 117), to);
 		}
@@ -1252,7 +1373,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 
 		//print name
 		CSDL_Ext::printAtMiddle(name, POS(213, 128), FONT_SMALL, itemColor, to);
-	
+
 	}
 #undef POS
 }
@@ -1311,7 +1432,7 @@ void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 		moveBy = -positions+1;
 		break;
 	case SDLK_PAGEDOWN:
-		moveBy = +positions-1; 
+		moveBy = +positions-1;
 		break;
 	case SDLK_HOME:
 		select(-slider->value);
@@ -1322,7 +1443,7 @@ void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 	default:
 		return;
 	}
-	select(selectionPos - slider->value + moveBy); 
+	select(selectionPos - slider->value + moveBy);
 }
 
 void SelectionTab::onDoubleClick()
@@ -1403,7 +1524,7 @@ InfoCard::InfoCard( bool Network )
   : bg(NULL), network(Network), chatOn(false), chat(NULL), playerListBg(NULL),
 	difficulty(NULL), sizes(NULL), sFlags(NULL)
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.x += 393;
 	used = RCLICK;
 	mapDescription = NULL;
@@ -1419,7 +1540,9 @@ InfoCard::InfoCard( bool Network )
 	else
 	{
 		bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 0, 0, true);
-		std::swap(children.front(), children.back());
+		moveChild(bg, this, parent);
+		parent->children.insert(parent->children.begin()+1, bg);
+		parent->children.pop_back();
 		pos.w = bg->pos.w;
 		pos.h = bg->pos.h;
 		sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
@@ -1504,19 +1627,6 @@ void InfoCard::showAll( SDL_Surface * to )
 	{
 		if(SEL->screenType != CMenuScreen::campaignList)
 		{
-			if(SEL->screenType != CMenuScreen::newGame)
-			{
-				for (int i = 0; i < difficulty->buttons.size(); i++)
-				{
-					//if(i == SEL->current->difficulty)
-					//	difficulty->buttons[i]->state = 3;
-					//else
-					//	difficulty->buttons[i]->state = 2;
-
-					difficulty->buttons[i]->showAll(to);
-				}
-			}
-
 			int temp = -1;
 
 			if(!chatOn)
@@ -1540,7 +1650,7 @@ void InfoCard::showAll( SDL_Surface * to )
 
 				temp=SEL->current->mapHeader->lossCondition.typeOfLossCon;
 				if (temp>12) temp=3;
-				blitAtLoc(CGP->loss->ourImages[temp].bitmap, 24, 359, to); //loss cond 
+				blitAtLoc(CGP->loss->ourImages[temp].bitmap, 24, 359, to); //loss cond
 			}
 
 			//difficulty
@@ -1576,12 +1686,12 @@ void InfoCard::showAll( SDL_Surface * to )
 			//print flags
 			int fx = 34  + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[390].c_str());
 			int ex = 200 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
-			
+
 			int myT;
 
 			if(playerColor >= 0)
 				myT = SEL->current->mapHeader->players[playerColor].team;
-			else 
+			else
 				myT = -1;
 
 			for (std::map<int, PlayerSettings>::const_iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
@@ -1619,7 +1729,7 @@ void InfoCard::showAll( SDL_Surface * to )
 		if (SEL->screenType == CMenuScreen::campaignList)
 		{
 			name = SEL->current->campaignHeader->name;
-		} 
+		}
 		else
 		{
 			name = SEL->current->mapHeader->name;
@@ -1628,10 +1738,10 @@ void InfoCard::showAll( SDL_Surface * to )
 		//name
 		if (name.length())
 			printAtLoc(name, 26, 39, FONT_BIG, tytulowy, to);
-		else 
+		else
 			printAtLoc("Unnamed", 26, 39, FONT_BIG, tytulowy, to);
 
-		
+
 	}
 }
 
@@ -1681,7 +1791,7 @@ void InfoCard::showTeamsPopup()
 		{
 			blitAt(sFlags->ourImages[flags[j]].bitmap, curx, 75 + 50*i, bmp);
 			curx += 18;
-		}	
+		}
 	}
 
 	GH.pushInt(new CInfoPopup(bmp, true));
@@ -1917,7 +2027,7 @@ void OptionsTab::recreate()
 	usedHeroes.clear();
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	for(std::map<int, PlayerSettings>::iterator it = SEL->sInfo.playerInfos.begin(); 
+	for(std::map<int, PlayerSettings>::iterator it = SEL->sInfo.playerInfos.begin();
 		it != SEL->sInfo.playerInfos.end(); ++it)
 	{
 		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
@@ -2032,9 +2142,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 
 	pos = parent->pos + Point(54, 122 + serial*50);
 
-	static const char *flags[] = {"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF", 
+	static const char *flags[] = {"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"};
-	static const char *bgs[] = {"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp", 
+	static const char *bgs[] = {"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"};
 
 	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color]), 0, 0, true);
@@ -2063,7 +2173,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	else
 		whoCanPlay = HUMAN;
 
-	if(SEL->screenType != CMenuScreen::scenarioInfo  
+	if(SEL->screenType != CMenuScreen::scenarioInfo
 		&&  SEL->current->mapHeader->players[s.color].canHumanPlay
 		&&  SEL->multiPlayer != CMenuScreen::MULTI_NETWORK_GUEST)
 	{
@@ -2194,7 +2304,7 @@ SDL_Surface * OptionsTab::SelectedBox::getImg() const
 			case 2:
 				pom=CGI->townh->towns[s.castle].bonus;
 				break;
-			default: 
+			default:
 				assert(0);
 			}
 			return CGP->bonuses->ourImages[pom].bitmap;
@@ -2206,7 +2316,7 @@ SDL_Surface * OptionsTab::SelectedBox::getImg() const
 
 const std::string * OptionsTab::SelectedBox::getText() const
 {
-	const PlayerSettings &s = SEL->sInfo.playerInfos[player];	
+	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	switch(which)
 	{
 	case TOWN:
@@ -2263,11 +2373,11 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	int val=-1;
 	switch(which)
 	{
-	case TOWN: 
-		val = s.castle; 
+	case TOWN:
+		val = s.castle;
 		break;
-	case HERO: 
-		val = s.hero; 
+	case HERO:
+		val = s.hero;
 		if(val == -2) //none => we may have some preset info
 		{
 			int p9 = SEL->current->mapHeader->players[s.color].p9;
@@ -2275,8 +2385,8 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 				val = p9;
 		}
 		break;
-	case BONUS: 
-		val = s.bonus; 
+	case BONUS:
+		val = s.bonus;
 		break;
 	}
 
@@ -2358,7 +2468,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		title = &CGI->generaltexth->allTexts[80];
 
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[79], 135, 137, FONT_MEDIUM, tytulowy, bmp);
-		
+
 		const CTown &t = CGI->townh->towns[val];
 		//print creatures
 		int x = 60, y = 159;
@@ -2414,7 +2524,7 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	for(std::map<int, PlayerSettings>::const_iterator it = startInfo->playerInfos.begin(); 
+	for(std::map<int, PlayerSettings>::const_iterator it = startInfo->playerInfos.begin();
 		it != startInfo->playerInfos.end(); ++it)
 	{
 		if(it->second.human)
@@ -2496,7 +2606,7 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 		switch(sortBy)
 		{
 			case _numOfMaps: //by number of maps in campaign
-				return CGI->generaltexth->campaignRegionNames[ aaa->campaignHeader->mapVersion ].size() < 
+				return CGI->generaltexth->campaignRegionNames[ aaa->campaignHeader->mapVersion ].size() <
 					CGI->generaltexth->campaignRegionNames[ bbb->campaignHeader->mapVersion ].size();
 				break;
 			case _name: //by name
@@ -2511,7 +2621,7 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 
 CMultiMode::CMultiMode()
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("MUPOPUP.bmp");
 	bg->convertToScreenBPP(); //so we could draw without problems
 	blitAt(CPicture("MUMAP.bmp"), 16, 77, *bg); //blit img
@@ -2548,7 +2658,7 @@ void CMultiMode::joinTCP()
 
 CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("MUHOTSEA.bmp");
 	bg->convertToScreenBPP(); //so we could draw without problems
 	bg->printAtMiddleWBLoc(CGI->generaltexth->allTexts[446], 185, 55, FONT_BIG, 50, zwykly, *bg); //HOTSEAT	Please enter names
@@ -2587,7 +2697,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
 		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
 		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"};
-	
+
 	loadPositionsOfGraphics();
 
 	background = BitmapHandler::loadBitmap(bgNames[ourCampaign->camp->header.mapVersion]);
@@ -2603,7 +2713,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
 		printAtLoc(ourCampaign->camp->header.name, 481, 28, FONT_BIG, tytulowy, background);
-	else 
+	else
 		printAtLoc("Unnamed", 481, 28, FONT_BIG, tytulowy, background);
 
 	//map size icon
@@ -2612,7 +2722,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
- 
+
 	cmpgDesc = new CTextBox(ourCampaign->camp->header.description, Rect(480, 86, 286, 117), 1);
 	cmpgDesc->showAll(background);
 
@@ -2659,7 +2769,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	std::vector<std::string> difficulty;
 	boost::split(difficulty, CGI->generaltexth->allTexts[492], boost::is_any_of(" "));
 	printAtLoc(difficulty.back(), 689, 432, FONT_MEDIUM, zwykly, background); //Difficulty
-	
+
 	//difficulty pics
 	for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
 	{
@@ -2670,7 +2780,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 
 		delete cde;
 	}
-	
+
 	//difficulty selection buttons
 	if (ourCampaign->camp->header.difficultyChoosenByPlayer)
 	{
@@ -2680,7 +2790,7 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 
 	//load miniflags
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
-	
+
 }
 
 CBonusSelection::~CBonusSelection()
@@ -2749,7 +2859,7 @@ void CBonusSelection::selectMap( int whichOne )
 	delete ourHeader;
 	ourHeader = new CMapHeader();
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
-	
+
 	std::map<ui32, std::string> names;
 	names[1] = GDefaultOptions.playerName;
 	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
@@ -2773,7 +2883,7 @@ void CBonusSelection::show( SDL_Surface * to )
 
 	if (mapName.length())
 		printAtLoc(mapName, 481, 219, FONT_BIG, tytulowy, to);
-	else 
+	else
 		printAtLoc("Unnamed", 481, 219, FONT_BIG, tytulowy, to);
 
 	//map description
@@ -2869,7 +2979,7 @@ void CBonusSelection::updateBonusSelection()
 			case 2: //building
 				{
 					int faction = -1;
-					for(std::map<int, PlayerSettings>::iterator it = sInfo.playerInfos.begin(); 
+					for(std::map<int, PlayerSettings>::iterator it = sInfo.playerInfos.begin();
 						it != sInfo.playerInfos.end(); ++it)
 					{
 						if (it->second.human)
@@ -2877,7 +2987,7 @@ void CBonusSelection::updateBonusSelection()
 							faction = it->second.castle;
 							break;
 						}
-						
+
 					}
 					assert(faction != -1);
 
@@ -3023,7 +3133,7 @@ void CBonusSelection::startMap()
 		// one of the main campaign selection screens + Bonus selection screen and
 		// deactivates the main menu
 		GH.popInts(2);
-		GH.popInt(GH.topInt()); 
+		GH.popInt(GH.topInt());
 	}
 	::startGame(si);
 }
@@ -3040,7 +3150,7 @@ void CBonusSelection::selectBonus( int id )
 		if (startB->getState() == CButtonBase::BLOCKED)
 			startB->setState(CButtonBase::NORMAL);
 	}
-	
+
 
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
@@ -3227,7 +3337,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 {
 	//assert(SEL->playerNames.size() == connectionID); //temporary, TODO when player exits
 	SEL->playerNames[connectionID] = playerName;
-	
+
 	//put new player in first slot with AI
 	for(std::map<int, PlayerSettings>::iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
 	{
@@ -3314,7 +3424,7 @@ void PlayerLeft::apply(CSelectionScreen *selScreen)
 		selScreen->setPlayer(*s, 0);
 		selScreen->opt->entries[s->color]->selectButtons();
 	}
-	
+
 	selScreen->propagateNames();
 	selScreen->propagateOptions();
 	GH.totalRedraw();
@@ -3349,217 +3459,43 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 	throw 666; //EVIL, EVIL, EVIL workaround to kill thread (does "goto catch" outside listening loop)
 }
 
-CCampaignScreen::CCampaignScreen(CampaignSet campaigns, std::map<std::string, CampaignStatus>& camps)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 {
-	OBJ_CONSTRUCTION; // sets this as parent
-	std::string bgImage;
-	if (campaigns == ROE || campaigns == AB)
-		bgImage = "CAMPBACK.BMP";
-	else if (campaigns == SOD)
-		bgImage = "CAMPBKX2.BMP";
-	else if (campaigns == WOG)
-		bgImage = "CAMPZALL.BMP";
-
-	// Load background image
-	bg = BitmapHandler::loadBitmap(bgImage);
-	pos.x = 0;
-	pos.y = 0;
-	pos.w = bg->w;
-	pos.h = bg->h;
-	
-	// Create back button
-	back = new AdventureMapButton("", "", bind(&CGuiHandler::popIntTotally, &GH, this), 658, 482, "CMPSCAN.DEF", SDLK_ESCAPE);
-	back->hoverable = true;
-	
-	// Load all campaign buttons
-	// 1.index: 0 => ROE, 1 => AB, 2 => WOG
-	static const int buttonCords[7][2]  = { {90, 72} , {539, 72} , {43, 245} , {313, 244}, {586, 246}, {34, 417}, {404, 414}};
-
-	static const std::string campFiles[3][7] = { {"GOOD1", "EVIL1", "GOOD2", "NEUTRAL1", "EVIL2", "GOOD3", "SECRET"}, 
-												 { "AB", "BLOOD", "SLAYER", "FESTIVAL", "FIRE", "FOOL" },
-												 { "ZC1", "ZC2", "ZC3", "ZC4" } };
-
-	static const std::string campImages[3][7] = { { "CAMPGD1S.BMP", "CAMPEV1S.BMP", "CAMPGD2S.BMP", "CAMPNEUS.BMP", "CAMPEV2S.BMP", "CAMPGD3S.BMP", "CAMPSCTS.BMP" }, 
-												  { "CAMP1AB7.BMP", "CAMP1DB2.BMP", "CAMP1DS1.BMP", "CAMP1FL3.BMP", "CAMP1PF2.BMP", "CAMP1FW1.BMP" },
-												  { "CAMPZ01.BMP", "CAMPZ02.BMP", "CAMPZ03.BMP", "CAMPZ04.BMP" } };
-#ifdef _WIN32
-	static const std::string campVideos[3][7] = { { "CGOOD1.BIK", "CEVIL1.BIK", "CGOOD2.BIK", "CNEUTRAL.BIK", "CEVIL2.BIK", "CGOOD3.BIK", "CSECRET.BIK" },
-												  { "C1ab7.BIK", "C1db2.BIK", "C1ds1.BIK", "C1fl3.BIK", "C1pf2.BIK", "C1fw1.BIK" } };
-#else
-	static const std::string campVideos[3][7] = { { "cgood1.mjpg", "cevil1.mjpg", "cgood2.mjpg", "cneutral.mjpg", "cevil2.mjpg", "cgood3.mjpg", "csecret.mjpg" } };
-#endif
-	static const std::string campTexts[3][7] = { { getMapText(0), getMapText(3), getMapText(1), getMapText(5), getMapText(4), getMapText(2), getMapText(6) },
-												 { "Armageddon's Blade", "Dragon's Blood", "Dragon Slayer", "Festival of Life", "Playing With Fire", "Foolhardy Waywardness" },
-												 { "In the Wake of Gods", "The Samaritan", "A Life of A-d-v-e-n-t-u-r-e", "Evil Way Home" } };
-
-	static const CampaignStatus campDefaults[3][7] = { { CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED,
-														 CCampaignScreen::DISABLED, CCampaignScreen::DISABLED }, 
-						{ CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::DISABLED},
-						{ CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED, CCampaignScreen::ENABLED } };
-
-	if (campaigns == ROE)
-	{
-		createButtons(buttonCords, campFiles[0], campImages[0], campVideos[0], campTexts[0], camps, campDefaults[0]);
-		
-		if (camps[campFiles[0][6]] == 0)
-			drawCampaignPlaceholder();
-	}
-	if (campaigns == AB)
-	{
-		// Foolhardy Waywardness -- draw deactivated image
-		SDL_Surface *ab5Dis = BitmapHandler::loadBitmap("CAMP1FWX");
-		Rect ab5DisRect(buttonCords[5][0] - 2, buttonCords[5][1] - 2, ab5Dis->w, ab5Dis->h);
-		blitAt(ab5Dis, ab5DisRect, bg);
-
-		createButtons(buttonCords, campFiles[1], campImages[1], campVideos[1], campTexts[1], camps, campDefaults[1]);
-		drawCampaignPlaceholder();
-	}
-	if (campaigns == WOG)
-	{
-		createButtons(buttonCords, campFiles[2], campImages[2], campVideos[2], campTexts[2], camps, campDefaults[2]);
-		campButtons[3]->pos.x -= 2; // special rule for the 4.th campaign
-		campButtons[3]->pos.y -= 2;
-		drawCampaignPlaceholder();
-	}
-}
-
-CCampaignScreen::~CCampaignScreen()
-{
-	// Free background image and re-start WOG main menu animation
-	SDL_FreeSurface(bg);
-	if (noCamp != 0)
-		SDL_FreeSurface(noCamp);
-
-	//campButtons.clear();
-	CCS->videoh->open("ACREDIT.SMK");
-}
-
-void CCampaignScreen::createButtons(const int buttonCords[7][2], const std::string campFiles[], 
-	const std::string campImages[], const std::string campVideos[], const std::string campTexts[], std::map<std::string, CampaignStatus>& camps, const CampaignStatus campDefaults[])
-{
-	for (int i = 0; i < 7; i++)
-	{
-		if (campFiles[i] != "") // if it's setted in the array
-		{
-			std::string file = campFiles[i];
-			
-			CCampaignButton *button = new CCampaignButton(bg, campImages[i], buttonCords[i][0], buttonCords[i][1], camps[file] != 0 ? camps[file] : campDefaults[i]);
-			button->campFile = file;
-			button->hoverText = campTexts[i];
-			button->video = campVideos[i];
-			campButtons.push_back(button);
-		}
-	}
-}
-
-std::string CCampaignScreen::getMapText(int index)
-{
-	return CGI->generaltexth->campaignMapNames[index];
-}
-
-void CCampaignScreen::drawCampaignPlaceholder()
-{
-	noCamp = BitmapHandler::loadBitmap("CAMPNOSC.BMP");
-	noCamp->w -= 2;
-	Rect noCampRect(385, 401, 238, 143);
-	blitAt(noCamp, noCampRect, bg);
-}
-
-void CCampaignScreen::show(SDL_Surface *to)
-{
-	// Draw background image and all interactive objects like buttons
-	blitAt(bg, pos.x, pos.y, to);
-	
-	for (int i = 0; i < this->campButtons.size(); i++)
-	{
-		campButtons[i]->show(to);
-	}
-
-	back->showAll(to);
-}
-
-CCampaignScreen::CCampaignButton::CCampaignButton(SDL_Surface *bg, const std::string image, const int x, const int y, CampaignStatus status)
-{
-	OBJ_CONSTRUCTION; // sets this as parent
-
-	// Initialize CCampaignButton members
-	this->bg = bg;
-	this->image = image;
-	this->status = status;
-
-	// Initialize pos and size
-	pos.x = x;
-	pos.y = y;
+	pos.x += config["x"].Float();
+	pos.y += config["y"].Float();
 	pos.w = 200;
 	pos.h = 116;
+	
+	campFile = config["file"].String();
+	video = config["video"].String();
 
-	// Creates the button image
-	button = BitmapHandler::loadBitmap(image);
-	if (status != CCampaignScreen::DISABLED && button != 0)
+//On linux we can only play *.mjpg videos from LOKI release
+#ifdef _WIN32
+	std::transform(video.begin(), video.end(), video.begin(), toupper);
+	video += ".BIK";
+#else
+	std::transform(video.begin(), video.end(), video.begin(), tolower);
+	video += ".mjpg";
+#endif
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
+
+	CCampaignHeader header = CCampaignHandler::getHeader(campFile, true);
+	hoverText = header.name;
+
+	if (status != CCampaignScreen::DISABLED)
 	{
-		blitAt(button, pos, bg);
-		used = LCLICK | HOVER; // set these flags to activate left click and hover event functions
+		used |= LCLICK | HOVER;
+		image = new CPicture(config["image"].String());
+
+		hoverLabel = new CLabel(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
+		moveChild(hoverLabel, this, parent);
 	}
 
-	// Create the checked image
 	if (status == CCampaignScreen::COMPLETED)
-		checked = BitmapHandler::loadBitmap("CAMPCHK.BMP");
-
-	// Create the button hover effect
-	hoverLabel = new CLabel(pos.w / 2., pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
-	hoverLabel->ignoreLeadingWhitespace = false;
-}
-
-CCampaignScreen::CCampaignButton::~CCampaignButton()
-{
-	if (button != 0)
-		SDL_FreeSurface(button);
-
-	if (status == CCampaignScreen::COMPLETED)
-		SDL_FreeSurface(checked);
-}
-
-void CCampaignScreen::CCampaignButton::hover(bool on)
-{	
-	if (on)
-		hoverLabel->setTxt(hoverText); // Shows the name of the campaign when you get into the bounds of the button
-
-	else
-	{
-		// Deletes the text from the screen when you hover out of the bounds of the button
-		hoverLabel->setTxt(" "); 
-	}
-
-}
-
-void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
-{
-	hoverLabel->showAll(to);
-
-	if (status == CCampaignScreen::DISABLED || video == "" || button == 0)
-		return;
-
-	// Play the campaign button video when the mouse cursor is placed over the button
-	if (CCS->curh->xpos >= pos.x && CCS->curh->ypos >= pos.y && CCS->curh->xpos < pos.x + pos.w && CCS->curh->ypos < pos.y + pos.h)
-	{
-		if (CCS->videoh->fname != video)
-			CCS->videoh->open(video);
-		
-		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-	}
-	else if (CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
-	{
-		CCS->videoh->close();
-		blitAt(button, pos, to);
-	}
-
-
-	if (status == CCampaignScreen::COMPLETED) // Draw a checked symbol when you completed the mission
-	{
-		Rect chkRect(pos.x + 5, pos.y + 74, 42, 40);
-		blitAt(checked, chkRect, to); // this is needed because the video gets drawn on top of the screen
-		blitAt(checked, chkRect, bg); // this is needed because of the totalRedraw at the hover method
-	}
+		checkMark = new CPicture("CAMPCHK");
 }
 
 void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
@@ -3573,4 +3509,62 @@ void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousStat
 		campState->camp = ourCampaign;
 		GH.pushInt( new CBonusSelection(campState) );
 	}
+}
+
+void CCampaignScreen::CCampaignButton::hover(bool on)
+{
+	if (on)
+		hoverLabel->setTxt(hoverText); // Shows the name of the campaign when you get into the bounds of the button
+	else
+		hoverLabel->setTxt(" ");
+}
+
+void CCampaignScreen::CCampaignButton::show(SDL_Surface *to)
+{
+	if (status == CCampaignScreen::DISABLED)
+		return;
+
+	CIntObject::show(to);
+
+	// Play the campaign button video when the mouse cursor is placed over the button
+	if (hovered)
+	{
+		if (CCS->videoh->fname != video)
+			CCS->videoh->open(video);
+
+		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
+	}
+	else if (CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
+	{
+		CCS->videoh->close();
+		redraw();
+	}
+}
+
+AdventureMapButton* CCampaignScreen::createExitButton(const JsonNode& button)
+{
+	std::pair<std::string, std::string> help;
+	if (!button["help"].isNull() && button["help"].Float() > 0)
+		help = CGI->generaltexth->zelp[button["help"].Float()];
+
+	boost::function<void()> close = boost::bind(&CGuiHandler::popIntTotally, &GH, this);
+	return new AdventureMapButton(help, close, button["x"].Float(), button["y"].Float(), button["name"].String(), button["hotkey"].Float());
+}
+
+
+CCampaignScreen::CCampaignScreen(const JsonNode &config)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	BOOST_FOREACH(const JsonNode& node, config["images"].Vector())
+		images.push_back(createPicture(node));
+
+	if (!config["exitbutton"].isNull())
+	{
+		back = createExitButton(config["exitbutton"]);
+		back->hoverable = true;
+	}
+	
+	BOOST_FOREACH(const JsonNode& node, config["items"].Vector())
+		campButtons.push_back(new CCampaignButton(node));
 }

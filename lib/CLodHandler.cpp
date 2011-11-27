@@ -13,6 +13,7 @@
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 #include "vcmi_endian.h"
+#include "VCMIDirs.h"
 #ifdef max
 #undef max
 #endif
@@ -345,6 +346,21 @@ CLodHandler::CLodHandler()
 CLodHandler::~CLodHandler()
 {
 	delete mutex;
+}
+
+//It is possible to use uncompress function from zlib but we  need to know decompressed size (not present in compressed data)
+unsigned char * CLodHandler::getUnpackedData(unsigned char *data, size_t inputSize, int * outputSize)
+{
+	std::string filename = GVCMIDirs.UserPath + "/tmp_gzip";
+
+	FILE * file = fopen(filename.c_str(), "wb");
+	fwrite(data, 1, inputSize, file);
+	fclose(file);
+
+	unsigned char * ret = getUnpackedFile(filename, outputSize);
+	remove(filename.c_str());
+	delete [] data;
+	return ret;
 }
 
 unsigned char * CLodHandler::getUnpackedFile( const std::string & path, int * sizeOut )

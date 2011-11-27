@@ -391,22 +391,14 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 void CGarrisonInt::createSlots()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	int h, w; //height and width of slot
-	if(smallIcons)
-	{
-		h = w = 32;
-	}
-	else
-	{
-		h = 64;
-		w = 58;
-	}
+
+	int width = smallIcons? 32 : 58;
 
 	if(armedObjs[0])
-		createSet(slotsUp, armedObjs[0], 0, 0, w+interx, 0);
+		createSet(slotsUp, armedObjs[0], 0, 0, width+interx, 0);
 
 	if(armedObjs[1])
-		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, w+interx, 1);
+		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
 }
 
 void CGarrisonInt::deleteSlots()
@@ -956,6 +948,186 @@ void CSelectableComponent::show(SDL_Surface * to)
 	}
 	
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
+}
+
+static void intDeleter(CIntObject* object)
+{
+	delete object;
+}
+
+CObjectList::CObjectList(CreateFunc create, DestroyFunc destroy):
+	createObject(create),
+	destroyObject(destroy)
+{
+	if (!destroyObject)
+		destroyObject = intDeleter;
+}
+
+void CObjectList::deleteItem(CIntObject* item)
+{
+	if (!item)
+		return;
+	if (active)
+		item->deactivate();
+	removeChild(item);
+	destroyObject(item);
+}
+
+CIntObject* CObjectList::createItem(size_t index)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	CIntObject * item = createObject(index);
+	if (item == NULL)
+		item = new CIntObject();
+
+	item->recActions = defActions;
+
+	//May happen if object was created before call to getObject()
+	if(item->parent != this)
+	{
+		if (item->parent)
+			moveChild(item, item->parent, this);
+		else
+			addChild(item);
+	}
+
+	if (item && active)
+		item->activate();
+	return item;
+}
+
+CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID):
+	CObjectList(create, destroy),
+	activeTab(NULL),
+	activeID(ActiveID)
+{
+	pos += position;
+	reset();
+}
+
+void CTabbedInt::setActive(size_t which)
+{
+	if (which != activeID)
+	{
+		activeID = which;
+		reset();
+	}
+}
+
+void CTabbedInt::reset()
+{
+	deleteItem(activeTab);
+	activeTab = createItem(activeID);
+	activeTab->moveTo(pos.topLeft());
+
+	if (active)
+		redraw();
+}
+
+CIntObject * CTabbedInt::getItem()
+{
+	return activeTab;
+}
+
+CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
+                   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
+	CObjectList(create, destroy),
+	first(InitialPos),
+	totalSize(TotalSize),
+	itemOffset(ItemOffset)
+{
+	pos += Pos;
+	items.resize(VisibleSize, NULL);
+
+	if (Slider & 1)
+	{
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
+		                     VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4);
+	}
+	reset();
+}
+
+// Used to move active items after changing list position
+void CListBox::updatePositions()
+{
+	Point itemPos = pos.topLeft();
+	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
+	{
+		(*it)->moveTo(itemPos);
+		itemPos += itemOffset;
+	}
+	if (active)
+	{
+		redraw();
+		if (slider)
+			slider->moveTo(first);
+	}
+}
+
+void CListBox::reset()
+{
+	size_t current = first;
+	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
+	{
+		deleteItem(*it);
+		*it = createItem(current++);
+	}
+	updatePositions();
+}
+
+void CListBox::moveToPos(size_t which)
+{
+	//Calculate new position
+	size_t maxPossible;
+	if (totalSize > items.size())
+		maxPossible = totalSize - items.size();
+	else
+		maxPossible = 0;
+
+	size_t newPos = std::min(which, maxPossible);
+
+	//If move distance is 1 (most of calls from Slider) - use faster shifts instead of resetting all items
+	if (first - newPos == 1)
+		moveToPrev();
+	else if (newPos - first == 1)
+		moveToNext();
+	else if (newPos != first)
+	{
+		first = newPos;
+		reset();
+	}
+}
+
+void CListBox::moveToNext()
+{
+	//Remove front item and insert new one to end
+	if (first + items.size() < totalSize)
+	{
+		first++;
+		deleteItem(items.front());
+		items.pop_front();
+		items.push_back(createItem(first+items.size()));
+		updatePositions();
+	}
+}
+
+void CListBox::moveToPrev()
+{
+	//Remove last item and insert new one at start
+	if (first)
+	{
+		first--;
+		deleteItem(items.back());
+		items.pop_back();
+		items.push_front(createItem(first));
+		updatePositions();
+	}
+}
+
+std::list<CIntObject*> CListBox::getItems()
+{
+	return items;
 }
 
 void CSimpleWindow::show(SDL_Surface * to)
@@ -3900,6 +4072,7 @@ void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, co
 
 CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	this->pos = pos;
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
 	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
@@ -3927,44 +4100,44 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	// load = new AdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
 	// std::swap(save->imgs[0][0], load->imgs[0][1]);
 
-	save = new AdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), pos.x+357, pos.y+298, "SOSAVE.DEF", SDLK_s);
+	save = new AdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
 	save->swappedImages = true;
 	save->update();
 
 	// restart = new AdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
 	// std::swap(save->imgs[0][0], restart->imgs[0][1]);
 
-	mainMenu = new AdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+357, pos.y+357, "SOMAIN.DEF", SDLK_m);
+	mainMenu = new AdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
 	mainMenu->swappedImages = true;
 	mainMenu->update();
 
-	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), pos.x+246, pos.y+415, "soquit.def", SDLK_q);
+	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
 	quitGame->swappedImages = true;
 	quitGame->update();
-	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), pos.x+357, pos.y+415, "soretrn.def", SDLK_RETURN);
+	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
 	backToMap->swappedImages = true;
 	backToMap->update();
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[349].second),CGI->generaltexth->zelp[349].second, "sysopb1.def", pos.x+28, pos.y+77, 1);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[350].second),CGI->generaltexth->zelp[350].second, "sysopb2.def", pos.x+76, pos.y+77, 2);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[351].second),CGI->generaltexth->zelp[351].second, "sysopb3.def", pos.x+124, pos.y+77, 4);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].second),CGI->generaltexth->zelp[352].second, "sysopb4.def", pos.x+172, pos.y+77, 8);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[349].second),CGI->generaltexth->zelp[349].second, "sysopb1.def", 28, 77, 1);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[350].second),CGI->generaltexth->zelp[350].second, "sysopb2.def", 76, 77, 2);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[351].second),CGI->generaltexth->zelp[351].second, "sysopb3.def", 124, 77, 4);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].second),CGI->generaltexth->zelp[352].second, "sysopb4.def", 172, 77, 8);
 	heroMoveSpeed->select(owner->sysOpts.heroMoveSpeed, 1);
 	heroMoveSpeed->onChange = boost::bind(&SystemOptions::setHeroMoveSpeed, &owner->sysOpts, _1);
 
 	mapScrollSpeed = new CHighlightableButtonsGroup(0);
-	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[357].second),CGI->generaltexth->zelp[357].second, "sysopb9.def", pos.x+28, pos.y+210, 1);
-	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[358].second),CGI->generaltexth->zelp[358].second, "sysob10.def", pos.x+92, pos.y+210, 2);
-	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].second),CGI->generaltexth->zelp[359].second, "sysob11.def", pos.x+156, pos.y+210, 4);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[357].second),CGI->generaltexth->zelp[357].second, "sysopb9.def", 28, 210, 1);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[358].second),CGI->generaltexth->zelp[358].second, "sysob10.def", 92, 210, 2);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].second),CGI->generaltexth->zelp[359].second, "sysob11.def", 156, 210, 4);
 	mapScrollSpeed->select(owner->sysOpts.mapScrollingSpeed, 1);
 	mapScrollSpeed->onChange = boost::bind(&SystemOptions::setMapScrollingSpeed, &owner->sysOpts, _1);
 
 	musicVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
 	{
-		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].second),CGI->generaltexth->zelp[326+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+359, i*11);
+		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].second),CGI->generaltexth->zelp[326+i].second, "syslb.def", 29 + 19*i, 359, i*11);
 	}
 	musicVolume->select(CCS->musich->getVolume(), 1);
 	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, &owner->sysOpts, _1);
@@ -3972,7 +4145,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
 	{
-		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].second),CGI->generaltexth->zelp[336+i].second, "syslb.def", pos.x+29 + 19*i, pos.y+425, i*11);
+		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].second),CGI->generaltexth->zelp[336+i].second, "syslb.def", 29 + 19*i, 425, i*11);
 	}
 	effectsVolume->select(CCS->soundh->getVolume(), 1);
 	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, &owner->sysOpts, _1);
@@ -3981,15 +4154,6 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 CSystemOptionsWindow::~CSystemOptionsWindow()
 {
 	SDL_FreeSurface(background);
-
-	delete save;
-	delete quitGame;
-	delete backToMap;
-	delete mainMenu;
-	delete heroMoveSpeed;
-	delete mapScrollSpeed;
-	delete musicVolume;
-	delete effectsVolume;
 }
 
 void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
@@ -4030,42 +4194,11 @@ void CSystemOptionsWindow::bsavef()
 	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);*/
 }
 
-void CSystemOptionsWindow::activate()
-{
-	save->activate();
-	quitGame->activate();
-	backToMap->activate();
-	mainMenu->activate();
-	heroMoveSpeed->activate();
-	mapScrollSpeed->activate();
-	musicVolume->activate();
-	effectsVolume->activate();
-}
-
-void CSystemOptionsWindow::deactivate()
-{
-	save->deactivate();
-	quitGame->deactivate();
-	backToMap->deactivate();
-	mainMenu->deactivate();
-	heroMoveSpeed->deactivate();
-	mapScrollSpeed->deactivate();
-	musicVolume->deactivate();
-	effectsVolume->deactivate();
-}
-
-void CSystemOptionsWindow::show(SDL_Surface *to)
+void CSystemOptionsWindow::showAll(SDL_Surface *to)
 {
 	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 
-	save->showAll(to);
-	quitGame->showAll(to);
-	backToMap->showAll(to);
-	mainMenu->showAll(to);
-	heroMoveSpeed->showAll(to);
-	mapScrollSpeed->showAll(to);
-	musicVolume->showAll(to);
-	effectsVolume->showAll(to);
+	CIntObject::showAll(to);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
@@ -5518,113 +5651,15 @@ void CExchangeWindow::close()
 	GH.popIntTotally(this);
 }
 
-void CExchangeWindow::activate()
-{
-	quit->activate();
-	garr->activate();
-
-	//artifs[0]->setHero(heroInst[0]);
-	artifs[0]->activate();
-	//artifs[1]->setHero(heroInst[1]);
-	artifs[1]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
-	{
-		for(int b=0; b<secSkillAreas[g].size(); ++b)
-		{
-			secSkillAreas[g][b]->activate();
-		}
-	}
-
-	for(int b=0; b<primSkillAreas.size(); ++b)
-		primSkillAreas[b]->activate();
-
-	GH.statusbar = ourBar;
-
-	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
-		questlogButton[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(morale); g++)
-		morale[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(luck); g++)
-		luck[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(portrait); g++)
-		portrait[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
-		spellPoints[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(experience); g++)
-		experience[g]->activate();
-
-	for(int g=0; g<ARRAY_COUNT(speciality); g++)
-		speciality[g]->activate();
-}
-
-void CExchangeWindow::deactivate()
-{
-	quit->deactivate();
-	garr->deactivate();
-
-	artifs[0]->deactivate();
-	artifs[1]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
-	{
-		for(int b=0; b<secSkillAreas[g].size(); ++b)
-		{
-			secSkillAreas[g][b]->deactivate();
-		}
-	}
-
-	for(int b=0; b<primSkillAreas.size(); ++b)
-		primSkillAreas[b]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
-		questlogButton[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(morale); g++)
-		morale[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(luck); g++)
-		luck[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(portrait); g++)
-		portrait[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
-		spellPoints[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(experience); g++)
-		experience[g]->deactivate();
-
-	for(int g=0; g<ARRAY_COUNT(speciality); g++)
-		speciality[g]->deactivate();
-}
-
-void CExchangeWindow::show(SDL_Surface * to)
+void CExchangeWindow::showAll(SDL_Surface * to)
 {
 	blitAt(bg, pos, to);
 
-	quit->showAll(to);
+	CIntObject::showAll(to);
 
 	//printing border around window
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
-
-	artifs[0]->showAll(to);
-	artifs[1]->showAll(to);
-
-	ourBar->showAll(to);
-
-	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
-	{
-		questlogButton[g]->showAll(to);//FIXME: for array count(secondary skill) show quest log button? WTF?
-	}
-
-	garr->showAll(to);
 }
 
 void CExchangeWindow::questlog(int whichHero)
@@ -5705,6 +5740,7 @@ void CExchangeWindow::prepareBackground()
 
 CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	char bufor[400];
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
 	heroInst[1] = LOCPLINT->cb->getHero(hero2);
@@ -5803,61 +5839,20 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
 
-	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
-	garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
+	{
+		BLOCK_CAPTURING;
+		garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
+		garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
+	}
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
 {
 	SDL_FreeSurface(bg);
-	delete quit;
 
-	//warning: don't experiment with these =NULL lines, they prevent heap corruption!
 	delete artifs[0]->commonInfo;
 	artifs[0]->commonInfo = NULL;
-	delete artifs[0];
 	artifs[1]->commonInfo = NULL;
-	delete artifs[1];
-
-	delete garr;
-	delete ourBar;
-
-	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
-	{
-		for(int b=0; b<secSkillAreas[g].size(); ++b)
-		{
-			delete secSkillAreas[g][b];
-		}
-	}
-
-	for(int b=0; b<primSkillAreas.size(); ++b)
-	{
-		delete primSkillAreas[b];
-	}
-
-	
-	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
-	{
-		delete questlogButton[g];
-	}
-
-	for(int g=0; g<ARRAY_COUNT(morale); g++)
-		delete morale[g];
-
-	for(int g=0; g<ARRAY_COUNT(luck); g++)
-		delete luck[g];
-
-	for(int g=0; g<ARRAY_COUNT(portrait); g++)
-		delete portrait[g];
-
-	for(int g=0; g<ARRAY_COUNT(spellPoints); g++)
-		delete spellPoints[g];
-
-	for(int g=0; g<ARRAY_COUNT(experience); g++)
-		delete experience[g];
-
-	for(int g=0; g<ARRAY_COUNT(speciality); g++)
-		delete speciality[g];
 }
 
 CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy)

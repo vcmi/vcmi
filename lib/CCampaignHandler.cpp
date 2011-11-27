@@ -154,13 +154,11 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	ret.mapVersion -= 1; //change range of it from [1, 20] to [0, 19]
 	ret.name = readString(buffer, outIt);
 	ret.description = readString(buffer, outIt);
-	ret.difficultyChoosenByPlayer = readChar(buffer, outIt);
+	if (ret.version > CampaignVersion::RoE)
+		ret.difficultyChoosenByPlayer = readChar(buffer, outIt);
+	else
+		ret.difficultyChoosenByPlayer = 0;
 	ret.music = readChar(buffer, outIt);
-	if(ret.version == 4)	//I saw one campaign with this version, without either difficulty or music - it's  
-	{						//not editable by any editor so I'll just go back by one byte.
-		outIt--;
-	}
-
 	return ret;
 }
 
@@ -213,12 +211,12 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 	memcpy(ret.monstersKeptByHero, buffer+outIt, ARRAY_COUNT(ret.monstersKeptByHero));
 	outIt += ARRAY_COUNT(ret.monstersKeptByHero);
 	int artifBytes;
-	if (version == 5) //AB
+	if (version < CampaignVersion::SoD)
 	{
 		artifBytes = 17;
 		ret.artifsKeptByHero[17] = 0;
 	} 
-	else //SoD+
+	else
 	{
 		artifBytes = 18;
 	}
@@ -433,11 +431,7 @@ unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLo
 			cmpgn = bitmaph_ab->giveFile(name, FILE_CAMPAIGN, &outSize);
 		else
 			tlog1 << "Cannot find file: " << name << std::endl;
-		FILE * tmp = fopen("tmp_cmpgn", "wb");
-		fwrite(cmpgn, 1, outSize, tmp);
-		fclose(tmp);
-		delete [] cmpgn;
-		cmpgn = CLodHandler::getUnpackedFile("tmp_cmpgn", &outSize);
+		cmpgn = CLodHandler::getUnpackedData(cmpgn, outSize, &outSize);
 	}
 	else
 	{
@@ -532,7 +526,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			bool takeable = travelOptions.artifsKeptByHero[g / 8] & ( 1 << (g%8) ) ;
 			if (!takeable)
 			{
-				BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+				//BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 				{
 					tlog1 << "TODO TODO TODO - take artifacts from hero\n";
 					//TODO how was that supposed to work with worn artifacts?
