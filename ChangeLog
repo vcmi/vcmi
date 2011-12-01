@@ -1,7 +1,9 @@
-0.86 -> 0.87
+0.86 -> 0.87 (Dec 01 2011)
 
 GENERAL:
 * Pathfinder can find way using ships and subterranean gates
+PREGAME:
+* Credits are implemented
 BATTLES
 * All attacked hexes will be highlighted
 * New combat abilities supported:
