@@ -297,12 +297,13 @@ struct DLL_EXPORT DuelParameters
 		} stacks[ARMY_SIZE];
 
 		si32 heroId; //-1 if none
+		std::vector<si32> heroPrimSkills; //may be empty
 		std::set<si32> spells;
 
 		SideSettings();
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & stacks & heroId & spells;
+			h & stacks & heroId & heroPrimSkills & spells;
 		}
 	} sides[2];
 

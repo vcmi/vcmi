@@ -9,6 +9,7 @@
 			"side" : 0,
 			"army" : [[10, 40]],
 			"heroid" : 0,
+			"heroPrimSkills" : [4, 4, 3, 2],
 			"spells" : [1,2,3,4]
 		},
 		{

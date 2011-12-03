@@ -523,6 +523,7 @@ bool memViolated(const int pid, const int refpid, const int limit) {
 
 void memoryMonitor(int lAIpid, int rAIpid, int refPid) 
 {
+	setThreadName(-1, "memoryMonitor");
 	const int MAX_MEM = 20000; //in blocks (of, I hope, 4096 B)
 	monitringRes = 2;
 	tlog0 << "Monitor is activated\n";

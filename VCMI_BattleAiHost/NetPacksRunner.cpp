@@ -22,9 +22,9 @@ void postInfoCall(int timeUsed, int limit)
 	}
 }
 
-void postDecisionCall(int timeUsed)
+void postDecisionCall(int timeUsed, const std::string &text/* = "AI was thinking over an action"*/)
 {
-	tlog0 << "AI was thinking over an action for " << timeUsed << " ms.\n";
+	tlog0 << text << " for " << timeUsed << " ms.\n";
 	if(timeUsed > MAKE_DECIDION_TIME + MEASURE_MARGIN)
 	{
 		tlog1 << "That's too long! AI is disqualified!\n";

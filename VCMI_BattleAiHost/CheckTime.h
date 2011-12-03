@@ -58,13 +58,13 @@ struct CheckTime
 
 //all ms
 const int PROCESS_INFO_TIME = 5; 
-const int MAKE_DECIDION_TIME = 75; 
+const int MAKE_DECIDION_TIME = 125; 
 const int MEASURE_MARGIN = 1;
 const int HANGUP_TIME = 50;
 const int STARTUP_TIME = 100;
 
 void postInfoCall(int timeUsed);
-void postDecisionCall(int timeUsed);
+void postDecisionCall(int timeUsed, const std::string &text = "AI was thinking over an action");
 
 struct Bomb
 {

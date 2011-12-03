@@ -645,15 +645,23 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 
 void CGameHandler::disqualifyPlayer(int side)
 {
-	tlog0 << "The side " << (int)side << " will be disqualified!\n";
-	boost::unique_lock<boost::shared_mutex> lock(*gs->mx);
-	setBattleResult(3, !side);
-	battleMadeAction.setn(true);
+	if(!battleResult.get())
+	{
+		tlog0 << "The side " << (int)side << " will be disqualified!\n";
+		boost::unique_lock<boost::shared_mutex> lock(*gs->mx);
+		setBattleResult(3, !side);
+		battleMadeAction.setn(true);
+	}
+	else
+	{
+		tlog0 << "The side " << side << " won't be disqualified since battle is over.\n";
+	}
 }
 
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
-	setThreadName(-1, "CGameHandler::handleConnection");
+	int player = players.size() ? *players.begin() : -1;
+	setThreadName(-1, "CGameHandler::handleConnection" + boost::lexical_cast<std::string>(player));
 	srand(time(NULL));
 	CPack *pack = NULL;
 
@@ -663,7 +671,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	{
 		if(gs->curB && gs->initialOpts->mode == StartInfo::DUEL)
 		{
-			onException = boost::bind(&CGameHandler::disqualifyPlayer, this, *players.begin());
+			onException = boost::bind(&CGameHandler::disqualifyPlayer, this, player);
 		}
 
 		while(1)//server should never shut connection first //was: while(!end2)
@@ -673,7 +681,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			int packType = typeList.getTypeID(pack); //get the id of type
 			if(packType == typeList.getTypeID<CloseServer>())
 			{
-				tlog0 << "Ending listening thread for side " << *players.begin() << std::endl;
+				tlog0 << "Ending listening thread for side " << player << std::endl;
 				break;
 			}
 
@@ -716,6 +724,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
+		tlog2 << "Exception when handling connection for player " << player << std::endl;
 		boost::unique_lock<boost::recursive_mutex> lock(gsm);
 		if(gs->scenarioOps->mode != StartInfo::DUEL)
 		{
@@ -725,7 +734,15 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		end2 = true;
 		if(onException) onException();
 	}
-	HANDLE_EXCEPTIONC(boost::unique_lock<boost::recursive_mutex> lock(gsm);end2 = true; if(onException) {onException();return;});
+	HANDLE_EXCEPTIONC(
+		tlog2 << "Unknown exception when handling connection for player " << player << std::endl;
+		boost::unique_lock<boost::recursive_mutex> lock(gsm);
+		end2 = true; 
+		if(onException)
+		{
+			onException();
+			return;
+		});
 
 	tlog1 << "Ended handling connection\n";
 }

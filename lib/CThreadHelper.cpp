@@ -49,8 +49,10 @@ void CThreadHelper::processTasks()
 	}
 }
 
+static std::list<std::string> names;
 void setThreadName(long threadID, const std::string &name)
 {
+ 	names.push_back(name);
 #ifdef _WIN32
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 	const DWORD MS_VC_EXCEPTION=0x406D1388;
@@ -65,9 +67,11 @@ void setThreadName(long threadID, const std::string &name)
 #pragma pack(pop)
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
-	info.szName = name.c_str();
+	info.szName = names.back().c_str();
 	info.dwThreadID = threadID;
 	info.dwFlags = 0;
+
+	tlog5 << "Thread " << GetCurrentThreadId() << " will be known as " << name << std::endl;
 
 	__try
 	{

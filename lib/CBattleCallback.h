@@ -19,11 +19,19 @@ public:
 class DLL_EXPORT IBattleCallback
 {
 public:
-	bool waitTillRealize; //if true, request functions will return after they are realized by server
-	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
+///	 if true, request functions will return after they are realized by server
+	bool waitTillRealize; 
+
+///	 if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
+	bool unlockGsWhenWaiting;
+
 	//battle
-	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
+///	 for casting spells by hero - DO NOT use it for moving active stack
+	virtual int battleMakeAction(BattleAction* action)=0; 
+
+///	 performs tactic phase actions
+	virtual bool battleMakeTacticAction(BattleAction * action) =0; 
+
 };
 
 class DLL_EXPORT CBattleCallback : public IBattleCallback, public CBattleInfoCallback
@@ -35,8 +43,12 @@ protected:
 
 public:
 	CBattleCallback(CGameState *GS, int Player, IConnectionHandler *C);
-	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
-	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
+///	 for casting spells by hero - DO NOT use it for moving active stack
+	int battleMakeAction(BattleAction* action) OVERRIDE; 
+
+///	 performs tactic phase actions
+	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; 
+
 
 	friend class CCallback;
 	friend class CClient;

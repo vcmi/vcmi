@@ -75,9 +75,10 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 
-	//////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
 	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	//////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+
 
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
@@ -146,40 +147,87 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor
 { 
 public:
-	const CStackInstance *base;
+///	 pointer to structure describing stack in garrison that was source of this stack, may be NULL (eg. summoned creatures and War Machines)
+	const CStackInstance *base; 
 
-	ui32 ID; //unique ID of stack
-	ui32 baseAmount;
-	ui32 firstHPleft; //HP of first creature in stack
-	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
-	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
-	THex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
-	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
-	si16 shots; //how many shots left
-	ui8 casts; //how many casts left
+
+///	 unique ID of stack
+	ui32 ID; 
+
+///	 how many creatures stack counted at the beginning of battle
+	ui32 baseAmount; 
+
+///	 HP of first creature in stack
+	ui32 firstHPleft; 
+
+///	 owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
+	ui8 owner, slot;  
+
+///	 if true, this stack is owned by attakcer (this one from left hand side of battle)
+	ui8 attackerOwned; 
+
+///	 position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
+	THex position; 
+
+///	 how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
+	ui8 counterAttacks; 
+
+///	 how many shots left
+	si16 shots; 
+
+///	 how many casts left
+	ui8 casts; 
+
 
 	std::set<ECombatInfo> state;
-	//overrides
 	const CCreature* getCreature() const {return type;}
 
-	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
-	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S = 255); //c-tor
-	CStack(); //c-tor
+///	 c-tor
+	CStack(const CStackInstance *base, int O, int I, bool AO, int S); 
+
+///	 c-tor
+	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S = 255); 
+
+///	 c-tor
+	CStack(); 
+
 	~CStack();
 	std::string nodeName() const OVERRIDE;
 
-	void init(); //set initial (invalid) values
-	void postInit(); //used to finish initialization when inheriting creature parameters is working
-	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
-	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
-	bool willMove(int turn = 0) const; //if stack has remaining move this turn
-	bool ableToRetaliate() const; //if stack can retaliate after attacked
-	bool moved(int turn = 0) const; //if stack was already moved this turn
-	bool canMove(int turn = 0) const; //if stack can move
-	ui32 Speed(int turn = 0) const; //get speed of creature with all modificators
+///	 set initial (invalid) values
+	void init(); 
+
+///	 used to finish initialization when inheriting creature parameters is working
+	void postInit(); 
+
+///	 effect id (SP)
+	const Bonus * getEffect(ui16 id, int turn = 0) const; 
+
+///	 returns amount of effects with given id set for this stack
+	ui8 howManyEffectsSet(ui16 id) const; 
+
+///	 if stack has remaining move this turn
+	bool willMove(int turn = 0) const; 
+
+///	 if stack can retaliate after attacked
+	bool ableToRetaliate() const; 
+
+///	 if stack was already moved this turn
+	bool moved(int turn = 0) const; 
+
+///	 if stack can move
+	bool canMove(int turn = 0) const; 
+
+///	 get speed of creature with all modificators
+	ui32 Speed(int turn = 0) const; 
+
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
-	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
-	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise
+///	 returns vector of active spell IDs sorted by time of cast
+	std::vector<si32> activeSpells() const; 
+
+///	 if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise
+	const CGHeroInstance *getMyHero() const; 
+
 
 	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
 	{
@@ -199,13 +247,25 @@ public:
 
 	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, THex attackerPos = THex::INVALID, THex defenderPos = THex::INVALID);
 
-	bool doubleWide() const;
-	THex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
-	std::vector<THex> getHexes() const; //up to two occupied hexes, starting from front
-	bool coversPos(THex position) const; //checks also if unit is double-wide
-	std::vector<THex> getSurroundingHexes(THex attackerPos = THex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+///	 checks if stack is double wide (occupies two hexes)
+	bool doubleWide() const; 
 
-	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
+///	 returns number of occupied hex (not the position) if stack is double wide; otherwise -1
+	THex occupiedHex() const; 
+
+///	 up to two occupied hexes, starting from front
+	std::vector<THex> getHexes() const; 
+
+///	 checks also if unit is double-wide
+	bool coversPos(THex position) const; 
+
+///	  get six or 8 surrounding hexes depending on creature size
+	std::vector<THex> getSurroundingHexes(THex attackerPos = THex::INVALID) const; 
+
+
+///	 requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked &bsa) const; 
+
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -236,7 +296,9 @@ public:
 		}
 
 	}
-	bool alive() const //determines if stack is alive
+///	 determines if stack is alive
+	bool alive() const 
+
 	{
 		return vstd::contains(state,ALIVE);
 	}

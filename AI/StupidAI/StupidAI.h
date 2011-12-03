@@ -6,6 +6,7 @@ class CStupidAI : public CBattleGameInterface
 	CBattleCallback *cb;
 
 	void print(const std::string &text) const;
+	void printOpeningReport();
 public:
 	CStupidAI(void);
 	~CStupidAI(void);

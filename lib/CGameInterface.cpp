@@ -22,7 +22,7 @@
 template<typename rett>
 rett * createAny(std::string dllname, std::string methodName)
 {
-	char temp[50];
+	char temp[500];
 	rett * ret=NULL;
 	rett*(*getAI)(); 
 	void(*getName)(char*); 

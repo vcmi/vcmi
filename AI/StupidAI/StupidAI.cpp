@@ -7,6 +7,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include <algorithm>
 //#include <boost/thread.hpp>
+#include "../../lib/CHeroHandler.h"
 
 CBattleCallback * cbc;
 
@@ -204,16 +205,8 @@ void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 {
 	print("battleStart called");
 	side = Side;
-	TStacks myStacks = cb->battleGetStacks(CBattleCallback::ONLY_MINE);
-	std::cout << "My side: " << side << std::endl
-		<< "I have " << myStacks.size() << " stacks. They are:\n";
+	printOpeningReport();
 
-	for(int i = 0; i < myStacks.size(); i++)
-	{
-		const CStack *s = myStacks.at(i);
-		tlog5 << format("%2d) Stack of %4d %s.\n\tAttack:\t%4d, \n\tDefense:\t%4d, \n\tHP:\t%4d\n\tDamage:\t%4d-%d\n")
-			% i % s->count % s->getCreature()->namePl % s->Attack() % s->Defense() % s->MaxHealth() % s->getMinDamage() % s->getMaxDamage();
-	}
 }
 
 void CStupidAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom) 
@@ -276,3 +269,29 @@ BattleAction CStupidAI::goTowards(const CStack * stack, THex hex)
 	}
 }
 
+void CStupidAI::printOpeningReport()
+{
+	TStacks myStacks = cb->battleGetStacks(CBattleCallback::ONLY_MINE);
+	tlog5 << "My side: " << side << std::endl;
+	if(const CGHeroInstance *h = cb->battleGetFightingHero(side))
+	{
+		tlog5 << boost::format("I have a hero named %s (Type ID=%d)\n") % h->name % h->type->ID;
+		tlog5 << boost::format("Hero skills: Attack %d, Defense %d, Spell Power %d, Knowledge %d, Mana %d/%d\n")
+			% h->Attack() % h->Defense() % h->getPrimSkillLevel(PrimarySkill::SPELL_POWER) 
+			% h->getPrimSkillLevel(PrimarySkill::KNOWLEDGE) % h->mana % h->manaLimit();
+		tlog5 << "Number of known spells: " << h->spells.size() << std::endl;
+	}
+	else
+		tlog5 << "I do not have a hero.\n";
+
+
+
+	tlog5 << "I have " << myStacks.size() << " stacks. They are:\n";
+
+	for(int i = 0; i < myStacks.size(); i++)
+	{
+		const CStack *s = myStacks.at(i);
+		tlog5 << format("%2d) Stack of %4d %s.\n\tAttack:\t\t%4d, \n\tDefense:\t%4d, \n\tHP:\t\t%4d\n\tDamage:\t\t%4d-%d\n")
+			% (i+1) % s->count % s->getCreature()->namePl % s->Attack() % s->Defense() % s->MaxHealth() % s->getMinDamage() % s->getMaxDamage();
+	}
+}

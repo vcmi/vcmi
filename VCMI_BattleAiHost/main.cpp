@@ -20,6 +20,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/NetPacks.h"
 #include "../lib/CThreadHelper.h"
+#include "CheckTime.h"
 
 using namespace std;
 using namespace boost;
@@ -88,10 +89,17 @@ int main(int argc, char** argv)
 		tlog0 << "Cbc created\n";
 		if(battleAIName.size())
 		{
+			Bomb *b = new Bomb(55 + HANGUP_TIME);
+			CheckTime timer;
+			//////////////////////////////////////////////////////////////////////////
 			cl.ai = CDynLibHandler::getNewBattleAI(battleAIName);
 			cl.color = color;
 			tlog0 << "AI created\n";
 			cl.ai->init(cbc);
+			//////////////////////////////////////////////////////////////////////////
+			postDecisionCall(timer.timeSinceStart(), "AI was being created");
+			b->disarm();
+
 
 			BattleStart bs;
 			bs.info = gs->curB;

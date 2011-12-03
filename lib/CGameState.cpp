@@ -33,6 +33,7 @@
 #include "../lib/JsonNode.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include "BattleAction.h"
+//#include <windows.h>
 
 boost::rand48 ran;
 class CGObjectInstance;
@@ -967,10 +968,14 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				CArmedInstance *obj = NULL;
 				if(dp.sides[i].heroId >= 0)
 				{
+					const DuelParameters::SideSettings &ss = dp.sides[i];
 					CGHeroInstance *h = new CGHeroInstance();
 					armies[i] = heroes[i] = h;
 					obj = h;
-					h->subID = dp.sides[i].heroId;
+					h->subID = ss.heroId;
+					for(int i = 0; i < ss.heroPrimSkills.size(); i++)
+						h->pushPrimSkill(i, ss.heroPrimSkills[i]);
+
 					h->initHero(h->subID);
 					obj->initObj();
 				}
@@ -2812,7 +2817,23 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			i++;
 		}
 
-		ss.heroId = n["heroid"].Float();
+		if(n["heroid"].getType() == JsonNode::DATA_FLOAT)
+			ss.heroId = n["heroid"].Float();
+		else
+			ss.heroId = -1;
+
+// 		int msgboxID = MessageBox(
+// 			NULL,
+// 			"Resource not available\nDo you want to try again?",
+// 			"Account Details",
+// 			MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
+// 			);
+
+		BOOST_FOREACH(const JsonNode &n, n["heroPrimSkills"].Vector())
+			ss.heroPrimSkills.push_back(n.Float());
+
+		assert(ss.heroPrimSkills.empty() || ss.heroPrimSkills.size() == PRIMARY_SKILLS);
+		
 		if(ss.heroId != -1)
 			BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
 				ss.spells.insert(spell.Float());
