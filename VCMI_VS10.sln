@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_lib", "lib\VCMI_lib.vcxproj", "{B952FFC5-3039-4DE1-9F08-90ACDA483D8F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_server", "server\VCMI_server.vcxproj", "{8AF697C3-465E-4910-B31B-576A9ECDB309}"
@@ -27,6 +27,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_client", "client\VCMI_client.vcxproj", "{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MadAI", "AI\MadAI\MadAI.vcxproj", "{DF931F3D-6DD2-4D1F-ADE9-F0098B5AE3F0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
