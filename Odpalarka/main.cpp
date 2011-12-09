@@ -4,6 +4,14 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
+std::string addQuotesIfNeeded(const std::string &s)
+{
+	if(s.find_first_of(' ') != std::string::npos)
+		return "\"" + s + "\"";
+
+	return s;
+}
+
 void prog_help() 
 {
 	std::cout << "If run without args, then StupidAI will be run on b1.json.\n";
@@ -15,7 +23,10 @@ void runCommand(const std::string &command, const std::string &name, const std::
 	static int i = 0;
 	std::string &cmd = commands[i++];
 	if(logsDir.size() && name.size())
-		cmd = command + " > " + logsDir + "/" + name + ".txt";
+	{
+		std::string directionLogs = logsDir + "/" + name + ".txt";
+		cmd = command + " > " + addQuotesIfNeeded(directionLogs);
+	}
 	else
 		cmd = command;
 
@@ -90,9 +101,9 @@ int main(int argc, char **argv)
 #endif
 	;
 
-	std::string serverCommand = servername + " " + battle + " " + leftAI + " " + rightAI + " " + results + " " + logsDir + " " + (withVisualization ? " v" : "");
-	std::string runnerCommand = runnername + " " + logsDir;
-	std::cout <<"Server command: " << serverCommand << std::endl << "Runner command: " << runnername << std::endl;
+	std::string serverCommand = servername + " " + addQuotesIfNeeded(battle) + " " + addQuotesIfNeeded(leftAI) + " " + addQuotesIfNeeded(rightAI) + " " + addQuotesIfNeeded(results) + " " + addQuotesIfNeeded(logsDir) + " " + (withVisualization ? " v" : "");
+	std::string runnerCommand = runnername + " " + addQuotesIfNeeded(logsDir);
+	std::cout <<"Server command: " << serverCommand << std::endl << "Runner command: " << runnerCommand << std::endl;
 
 	boost::thread t(boost::bind(std::system, serverCommand.c_str()));
 	runCommand(runnerCommand, "first_runner", logsDir);

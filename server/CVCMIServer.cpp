@@ -625,7 +625,7 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 		{
 			if(aisSoFar < 2)
 			{
-				tlog0 << " will run " << (aisSoFar ? "right" : "left") << " AI " << std::endl;
+				tlog0 << " (PID=" << pidsFromConns[c] << ") will run " << (aisSoFar ? "right" : "left") << " AI " << std::endl;
 				*c << gh->ais[aisSoFar] << ui8(aisSoFar);
 				PIDs[aisSoFar] = pidsFromConns[c];
 				aisSoFar++;
