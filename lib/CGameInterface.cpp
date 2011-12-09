@@ -76,8 +76,8 @@ template<typename rett>
 rett * createAnyAI(std::string dllname, std::string methodName)
 {
 	tlog1 << "Opening " << dllname<<"\n";
-
-	if(vstd::contains(dllname, '/'))
+	
+	if(vstd::contains(dllname, '/') || vstd::contains(dllname, '\\'))
 	{
 		tlog1 << "Assuming that AI is an absolute path.\n";
 	}
