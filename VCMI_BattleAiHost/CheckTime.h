@@ -63,9 +63,10 @@ const int MEASURE_MARGIN = 3;
 const int HANGUP_TIME = 250;
 const int CONSTRUCT_TIME = 50;
 const int STARTUP_TIME = 100;
+const int TACTICS_TIME = 1000;
 
 void postInfoCall(int timeUsed);
-void postDecisionCall(int timeUsed, const std::string &text = "AI was thinking over an action");
+void postDecisionCall(int timeUsed, const std::string &text = "AI was thinking over an action", int timeLimit = MAKE_DECIDION_TIME);
 
 struct Bomb
 {

@@ -159,3 +159,24 @@ CClient::CClient()
 	applier = new CApplier<CBaseForCLApply>;
 	registerTypes2(*applier);
 }
+
+void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
+{
+	setThreadName(-1, "CClient::commenceTacticPhaseForInt");
+	try
+	{
+		boost::shared_lock<boost::shared_mutex> shl(*gs->mx);
+
+		Bomb *b = new Bomb(TACTICS_TIME + HANGUP_TIME, "yourTacticPhase timer");
+		CheckTime timer;
+		battleInt->yourTacticPhase(gs->curB->tacticDistance);
+		postDecisionCall(timer.timeSinceStart(), "AI was using tactics ordering", TACTICS_TIME);
+		b->disarm();
+
+		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
+		{
+			MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
+			serv->sendPack(ma);
+		}
+	} HANDLE_EXCEPTION
+}

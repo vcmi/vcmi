@@ -23,4 +23,6 @@ public:
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void requestMoveFromAI(const CStack *s);
 	void requestMoveFromAIWorker(const CStack *s);
+
+	void commenceTacticPhaseForInt(CBattleGameInterface *battleInt);
 };

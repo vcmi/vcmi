@@ -113,9 +113,10 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 // 	const CStack *firstEnemy = cb->battleGetStacks(CBattleCallback::ONLY_ENEMY).front();
 // 	if(cb->battleCanCastThisSpell(VLC->spellh->spells[Spells::FORGETFULNESS]) == SpellCasting::OK)
 // 		castSpell(Spells::FORGETFULNESS, firstEnemy->position);
-	const CStack *firstEnemy = cb->battleGetStacks(CBattleCallback::ONLY_MINE).front();
-	if(cb->battleCanCastThisSpell(VLC->spellh->spells[Spells::AIR_SHIELD]) == SpellCasting::OK)
-		castSpell(Spells::AIR_SHIELD, firstEnemy->position);
+// 
+// 	const CStack *firstEnemy = cb->battleGetStacks(CBattleCallback::ONLY_MINE).front();
+// 	if(cb->battleCanCastThisSpell(VLC->spellh->spells[Spells::AIR_SHIELD]) == SpellCasting::OK)
+// 		castSpell(Spells::AIR_SHIELD, firstEnemy->position);
 
 	
 	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
@@ -332,4 +333,28 @@ void CStupidAI::castSpell(int spellID, int destinationTile, bool safe/* = true*/
 	ba.stackNumber = -(side+1); //-1 dla lewego bohatera, -2 dla prawego
 	ba.additionalInfo = spellID;
 	cb->battleMakeAction(&ba);
+}
+
+void CStupidAI::yourTacticPhase(int distance)
+{
+	print("yourTacticPhase called");
+
+
+	const CStack *someEnemy = cb->battleGetStacks(CBattleInfoCallback::ONLY_ENEMY).front();
+
+	BOOST_FOREACH(const CStack *someStack, cb->battleGetStacks(CBattleCallback::ONLY_MINE))
+	{
+		BattleAction move;
+		if(cb->battleCanShoot(someStack, someEnemy->position))
+			move = BattleAction::makeMove(someStack, someStack->position + THex::RIGHT);
+		else
+			move = BattleAction::makeMove(someStack, someStack->position + THex::TOP_RIGHT);
+
+
+		tlog0 << "Moving " << someStack->nodeName() << " to " << move.destinationTile << std::endl;
+		cb->battleMakeTacticAction(&move);
+	}
+
+	BattleAction endTactics = BattleAction::makeEndOFTacticPhase(side);
+	cb->battleMakeTacticAction(&endTactics); //wazne - trzeba zakonczyc faze taktyczna!
 }

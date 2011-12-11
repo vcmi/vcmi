@@ -22,10 +22,10 @@ void postInfoCall(int timeUsed, int limit)
 	}
 }
 
-void postDecisionCall(int timeUsed, const std::string &text/* = "AI was thinking over an action"*/)
+void postDecisionCall(int timeUsed, const std::string &text/* = "AI was thinking over an action"*/, int timeLimit /*= MAKE_DECIDION_TIME*/)
 {
 	tlog0 << text << " for " << timeUsed << " ms.\n";
-	if(timeUsed > MAKE_DECIDION_TIME + MEASURE_MARGIN)
+	if(timeUsed > timeLimit + MEASURE_MARGIN)
 	{
 		tlog1 << "That's too long! AI is disqualified!\n";
 		exit(1);
@@ -283,6 +283,10 @@ void GarrisonDialog::applyCl(CClient *cl)
 void BattleStart::applyCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(STARTUP_TIME, "battleStart timer", battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
+	if(info->tacticDistance && cl->color == info->tacticsSide)
+	{
+		boost::thread(&CClient::commenceTacticPhaseForInt, cl, cl->ai);
+	}
 }
 
 void BattleNextRound::applyFirstCl(CClient *cl)

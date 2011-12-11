@@ -34,5 +34,7 @@ public:
 
 	BattleAction goTowards(const CStack * stack, THex hex );
 	void castSpell(int spellID, int destinationTile, bool safe = true);
+
+	void yourTacticPhase(int distance); //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
 
