@@ -33,5 +33,6 @@ public:
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield
 
 	BattleAction goTowards(const CStack * stack, THex hex );
+	void castSpell(int spellID, int destinationTile, bool safe = true);
 };
 

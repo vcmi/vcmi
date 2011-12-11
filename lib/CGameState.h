@@ -298,6 +298,7 @@ struct DLL_EXPORT DuelParameters
 
 		si32 heroId; //-1 if none
 		std::vector<si32> heroPrimSkills; //may be empty
+		std::vector<std::pair<si32, si8> > heroSecSkills; //may be empty; pairs <id, level>, level [0-3]
 		std::set<si32> spells;
 
 		SideSettings();

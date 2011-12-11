@@ -105,7 +105,8 @@ void CClient::requestMoveFromAIWorker(const CStack *s)
 
 	try
 	{
-		Bomb *b = new Bomb(MAKE_DECIDION_TIME + HANGUP_TIME);
+		boost::shared_lock<boost::shared_mutex> shl(*gs->mx);
+		Bomb *b = new Bomb(MAKE_DECIDION_TIME + HANGUP_TIME, "activeStack timer");
 		CheckTime timer;
 		ba = ai->activeStack(s);
 		postDecisionCall(timer.timeSinceStart());

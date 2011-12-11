@@ -8,6 +8,8 @@
 #include <algorithm>
 //#include <boost/thread.hpp>
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/VCMI_Lib.h"
+#include "../../lib/CSpellHandler.h"
 
 CBattleCallback * cbc;
 
@@ -98,6 +100,8 @@ static bool willSecondHexBlockMoreEnemyShooters(const THex &h1, const THex &h2)
 	return shooters[0] < shooters[1];
 }
 
+
+
 BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
@@ -106,6 +110,14 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
+// 	const CStack *firstEnemy = cb->battleGetStacks(CBattleCallback::ONLY_ENEMY).front();
+// 	if(cb->battleCanCastThisSpell(VLC->spellh->spells[Spells::FORGETFULNESS]) == SpellCasting::OK)
+// 		castSpell(Spells::FORGETFULNESS, firstEnemy->position);
+	const CStack *firstEnemy = cb->battleGetStacks(CBattleCallback::ONLY_MINE).front();
+	if(cb->battleCanCastThisSpell(VLC->spellh->spells[Spells::AIR_SHIELD]) == SpellCasting::OK)
+		castSpell(Spells::AIR_SHIELD, firstEnemy->position);
+
+	
 	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
 	{
 		if(cb->battleCanShoot(stack, s->position))
@@ -294,4 +306,30 @@ void CStupidAI::printOpeningReport()
 		tlog5 << format("%2d) Stack of %4d %s.\n\tAttack:\t\t%4d, \n\tDefense:\t%4d, \n\tHP:\t\t%4d\n\tDamage:\t\t%4d-%d\n")
 			% (i+1) % s->count % s->getCreature()->namePl % s->Attack() % s->Defense() % s->MaxHealth() % s->getMinDamage() % s->getMaxDamage();
 	}
+}
+
+void CStupidAI::castSpell(int spellID, int destinationTile, bool safe/* = true*/)
+{
+	const CGHeroInstance *h = cb->battleGetFightingHero(side);
+	if(!h)
+	{
+		tlog1 << "A hero is required for casting spells!\n";
+		return;
+	}
+
+	SpellCasting::ESpellCastProblem canCast = safe ? cb->battleCanCastThisSpell(VLC->spellh->spells[spellID]) : SpellCasting::OK;
+	if(canCast != SpellCasting::OK)
+	{
+		tlog1 << "Spell cannot be cast (problem=" << canCast << ")!\n";
+		return;
+	}
+
+
+	BattleAction ba;
+	ba.actionType = BattleAction::HERO_SPELL;
+	ba.destinationTile = destinationTile;
+	ba.side = side;
+	ba.stackNumber = -(side+1); //-1 dla lewego bohatera, -2 dla prawego
+	ba.additionalInfo = spellID;
+	cb->battleMakeAction(&ba);
 }

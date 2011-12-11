@@ -36,13 +36,13 @@ void postDecisionCall(int timeUsed, const std::string &text/* = "AI was thinking
 //awaiting variadic templates...
 // 
 
-#define BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(TIME_LIMIT, function, ...) 		\
+#define BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(TIME_LIMIT, txt, function, ...) 		\
 	do														\
 	{														\
 		int timeUsed = 0;									\
 		if(cl->ai)											\
 		{													\
-			Bomb *b = new Bomb(TIME_LIMIT + HANGUP_TIME);	\
+			Bomb *b = new Bomb(TIME_LIMIT + HANGUP_TIME,txt);\
 			CheckTime pr;									\
 			cl->ai->function(__VA_ARGS__);					\
 			postInfoCall(pr.timeSinceStart(), TIME_LIMIT);	\
@@ -51,7 +51,7 @@ void postDecisionCall(int timeUsed, const std::string &text/* = "AI was thinking
 	} while(0)
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT(function,...) 		\
-	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(PROCESS_INFO_TIME, function, __VA_ARGS__)
+	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(PROCESS_INFO_TIME, "process info timer", function, __VA_ARGS__)
 
 #define UNEXPECTED_PACK assert(0)
 
@@ -282,7 +282,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 
 void BattleStart::applyCl( CClient *cl )
 {
-	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(STARTUP_TIME, battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
+	BATTLE_INTERFACE_CALL_IF_PRESENT_WITH_TIME_LIMIT(STARTUP_TIME, "battleStart timer", battleStart, info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], cl->color);
 }
 
 void BattleNextRound::applyFirstCl(CClient *cl)

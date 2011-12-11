@@ -58,9 +58,10 @@ struct CheckTime
 
 //all ms
 const int PROCESS_INFO_TIME = 5; 
-const int MAKE_DECIDION_TIME = 125; 
-const int MEASURE_MARGIN = 1;
-const int HANGUP_TIME = 50;
+const int MAKE_DECIDION_TIME = 150; 
+const int MEASURE_MARGIN = 3;
+const int HANGUP_TIME = 250;
+const int CONSTRUCT_TIME = 50;
 const int STARTUP_TIME = 100;
 
 void postInfoCall(int timeUsed);
@@ -68,6 +69,7 @@ void postDecisionCall(int timeUsed, const std::string &text = "AI was thinking o
 
 struct Bomb
 {
+	std::string txt;
 	int armed;
 
 	void run(int time)
@@ -76,13 +78,15 @@ struct Bomb
 		if(armed)
 		{
 			tlog1 << "BOOOM! The bomb exploded! AI was thinking for too long!\n";
+			if(txt.size())
+				tlog1 << "Bomb description: " << txt << std::endl;;
 			exit(1);
 		}
 
 		delete this;
 	}
 
-	Bomb(int timer)
+	Bomb(int timer, const std::string &TXT = "") : txt(TXT)
 	{
 		boost::thread t(&Bomb::run, this, timer);
 		t.detach();

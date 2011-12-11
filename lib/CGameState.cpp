@@ -976,6 +976,17 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					for(int i = 0; i < ss.heroPrimSkills.size(); i++)
 						h->pushPrimSkill(i, ss.heroPrimSkills[i]);
 
+					if(ss.spells.size())
+					{
+						h->putArtifact(Arts::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+						BOOST_FOREACH(si32 spell, ss.spells)
+							h->spells.insert(spell);
+					}
+
+					typedef const std::pair<si32, si8> &TSecSKill;
+					BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
+						h->setSecSkillLevel((CGHeroInstance::SecondarySkill)secSkill.first, secSkill.second, 1);
+
 					h->initHero(h->subID);
 					obj->initObj();
 				}
@@ -2831,6 +2842,14 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 		BOOST_FOREACH(const JsonNode &n, n["heroPrimSkills"].Vector())
 			ss.heroPrimSkills.push_back(n.Float());
+
+		BOOST_FOREACH(const JsonNode &skillNode, n["heroSecSkills"].Vector())
+		{
+			std::pair<si32, si8> secSkill;
+			secSkill.first = skillNode.Vector()[0].Float();
+			secSkill.second = skillNode.Vector()[1].Float();
+			ss.heroSecSkills.push_back(secSkill);
+		}
 
 		assert(ss.heroPrimSkills.empty() || ss.heroPrimSkills.size() == PRIMARY_SKILLS);
 		

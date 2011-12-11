@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 		tlog0 << "Cbc created\n";
 		if(battleAIName.size())
 		{
-			Bomb *b = new Bomb(55 + HANGUP_TIME);
+			Bomb *b = new Bomb(CONSTRUCT_TIME + 5 + HANGUP_TIME, "startup timer");
 			CheckTime timer;
 			//////////////////////////////////////////////////////////////////////////
 			cl.ai = CDynLibHandler::getNewBattleAI(battleAIName);
