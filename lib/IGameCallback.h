@@ -93,7 +93,7 @@ public:
 
 	int battleGetBattlefieldType(); 
 
-///	 returns bitfield
+///	 returns 1 if there is an obstacle or 0 otherwise
 	int battleGetObstaclesAtTile(THex tile); 
 
 ///	 returns all obstacles on the battlefield

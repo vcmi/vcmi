@@ -157,10 +157,17 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 	return gs->curB->battlefieldType;
 }
 
-int CBattleInfoCallback::battleGetObstaclesAtTile(THex tile) //returns bitfield 
+int CBattleInfoCallback::battleGetObstaclesAtTile(THex tile)
 {
-	//TODO - write
-	return -1;
+	std::vector<CObstacleInstance> obstacles = battleGetAllObstacles();
+	std::set<THex> coveredHexes;
+	for(int b = 0; b < obstacles.size(); ++b)
+	{
+		std::vector<THex> blocked = VLC->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
+		for(int w = 0; w < blocked.size(); ++w)
+			coveredHexes.insert(blocked[w]);
+	}
+	return vstd::contains(coveredHexes, tile);
 }
 
 std::vector<CObstacleInstance> CBattleInfoCallback::battleGetAllObstacles()
