@@ -32,7 +32,7 @@ fi
 # For gcc and compatible compilers, enable compilation warnings, but
 # selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -ftime-report -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
+   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
 fi
 
 # extra clang parameters
