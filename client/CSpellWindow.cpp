@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "CSpellWindow.h"
+
 #include "Graphics.h"
 #include "CDefHandler.h"
 #include "../lib/CObjectHandler.h"
@@ -6,21 +8,16 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "CVideoHandler.h"
 #include "CAdvmapInterface.h"
-#include "CBattleInterface.h"
+#include "BattleInterface/CBattleInterface.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
-#include <boost/bind.hpp>
-#include <sstream>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
 #include "CBitmapHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/BattleState.h"
+#include "../lib/GameConstants.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine
@@ -217,7 +214,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 
 	selectedTab = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap;
 	currentPage = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap;
-	abetw(currentPage, 0, pagesWithinCurrentTab());
+	vstd::abetween(currentPage, 0, pagesWithinCurrentTab());
 	computeSpellsPerArea();
 }
 
@@ -536,11 +533,11 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		case SDLK_DOWN:
 		{
 			bool down = key.keysym.sym == SDLK_DOWN;
-			static const int schoolsOrder[] = {0, 3, 1, 2, 4};
+			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
-			abetw(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			vstd::abetween(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
 			break;
@@ -621,23 +618,23 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
-			SpellCasting::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
+			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
 			switch (problem)
 			{
-			case SpellCasting::OK:
+			case ESpellCastProblem::OK:
 				{
 					int spell = mySpell;
 					owner->fexitb();
 					owner->myInt->battleInt->castThisSpell(spell);
 				}
 				break;
-			case SpellCasting::ANOTHER_ELEMENTAL_SUMMONED:
+			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
 				{
 					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
 					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
 					BOOST_FOREACH(const CStack * s, stacks)
 					{
-						if(vstd::contains(s->state, SUMMONED))
+						if(vstd::contains(s->state, EBattleStackState::SUMMONED))
 						{
 							elemental = s->getCreature()->namePl;
 							summoner = owner->myInt->cb->battleGetFightingHero(!s->attackerOwned)->name;
@@ -658,14 +655,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					owner->myInt->showInfoDialog(text);
 				}
 				break;
-			case SpellCasting::SPELL_LEVEL_LIMIT_EXCEEDED:
+			case ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED:
 				{
 					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
 					text = boost::str(boost::format(text) % caster);
 					owner->myInt->showInfoDialog(text);
 				}
 				break;
-			case SpellCasting::NO_APPROPRIATE_TARGET:
+			case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 				{
 					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[185]);
 				}

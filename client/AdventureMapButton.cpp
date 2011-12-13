@@ -1,14 +1,13 @@
+#include "StdInc.h"
 #include "AdventureMapButton.h"
+
 #include "CAnimation.h"
-//#include "CAdvmapInterface.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
-//#include "../lib/CGeneralTextHandler.h"
-//#include "../lib/CTownHandler.h"
 #include "../CCallback.h"
 #include "CConfigHandler.h"
-//#include "Graphics.h"
-#include "CBattleInterface.h"
+#include "BattleInterface/CBattleInterface.h"
+#include "BattleInterface/CBattleConsole.h"
 #include "CPlayerInterface.h"
 #include "CMessage.h"
 #include "CMusicHandler.h"
@@ -444,7 +443,7 @@ void CSlider::sliderClicked()
 
 void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	float v = 0;
+	double v = 0;
 	if(horizontal)
 	{
 		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
@@ -461,7 +460,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		v *= positions;
 		v /= (pos.h - 48);
 	}
-	v += 0.5f;
+	v += 0.5;
 	if(v!=value)
 	{
 		moveTo(v);
@@ -486,8 +485,8 @@ void CSlider::moveRight()
 
 void CSlider::moveTo(int to)
 {
-	amax(to, 0);
-	amin(to, positions);
+	vstd::amax(to, 0);
+	vstd::amin(to, positions);
 
 	//same, old position?
 	if(value == to)
@@ -498,7 +497,7 @@ void CSlider::moveTo(int to)
 	{
 		if(positions)
 		{
-			float part = (float)to/positions;
+			double part = static_cast<double>(to) / positions;
 			part*=(pos.w-48);
 			int newPos = part + pos.x + 16 - slider->pos.x;
 			slider->moveBy(Point(newPos, 0));
@@ -510,7 +509,7 @@ void CSlider::moveTo(int to)
 	{
 		if(positions)
 		{
-			float part = (float)to/positions;
+			double part = static_cast<double>(to) / positions;
 			part*=(pos.h-48);
 			int newPos = part + pos.y + 16 - slider->pos.y;
 			slider->moveBy(Point(0, newPos));
@@ -527,24 +526,24 @@ void CSlider::clickLeft(tribool down, bool previousState)
 {
 	if(down && !slider->isBlocked())
 	{
-		float pw = 0;
-		float rw = 0;
+		double pw = 0;
+		double rw = 0;
 		if(horizontal)
 		{
 			pw = GH.current->motion.x-pos.x-25;
-			rw = pw / ((float)(pos.w-48));
+			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
 			pw = GH.current->motion.y-pos.y-24;
-			rw = pw / ((float)(pos.h-48));
+			rw = pw / (pos.h-48);
 		}
 		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)
 			return;
 // 		if (rw>1) return;
 // 		if (rw<0) return;
 		slider->clickLeft(true, slider->pressedL);
-		moveTo(rw * positions  +  0.5f);
+		moveTo(rw * positions  +  0.5);
 		return;
 	}
 	if(active & MOVE)
@@ -645,7 +644,7 @@ void CSlider::setAmount( int to )
 {
 	amount = to;
 	positions = to - capacity;
-	amax(positions, 0);
+	vstd::amax(positions, 0);
 }
 
 void CSlider::showAll(SDL_Surface * to)

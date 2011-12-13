@@ -1,8 +1,6 @@
-#ifndef __ADVENTUREMAPBUTTON_H__
-#define __ADVENTUREMAPBUTTON_H__
+#pragma once
 
 #include "FunctionList.h"
-#include <boost/bind.hpp>
 #include "GUIBase.h"
 
 /*
@@ -163,6 +161,4 @@ public:
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
 	~CSlider();
 	void moveToMax();
-};	
-
-#endif // __ADVENTUREMAPBUTTON_H__
+};

@@ -1,9 +1,5 @@
-#ifndef __CBUILDINGHANDLER_H__
-#define __CBUILDINGHANDLER_H__
-#include "../global.h"
-#include <map>
-#include <vector>
-#include <set>
+#pragma once
+
 
 #include "../lib/ConstTransitivePtr.h"
 #include "ResourceSet.h"
@@ -19,7 +15,7 @@
  */
 
 //enum EbuildingType {NEUTRAL=-1, CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX};
-class DLL_EXPORT CBuilding //a typical building encountered in every castle ;]
+class DLL_LINKAGE CBuilding //a typical building encountered in every castle ;]
 {
 public:
 	si32 tid, bid; //town ID and structure ID
@@ -37,7 +33,7 @@ public:
 	CBuilding(int TID = -1, int BID = -1);
 };
 
-class DLL_EXPORT CBuildingHandler
+class DLL_LINKAGE CBuildingHandler
 {
 public:
 	std::vector< bmap<int, ConstTransitivePtr<CBuilding> > > buildings; ///< vector by castle ID, second the building ID (in ERM-U format)
@@ -52,6 +48,3 @@ public:
 		h & buildings & hall;
 	}
 };
-
-
-#endif // __CBUILDINGHANDLER_H__

@@ -1,18 +1,12 @@
 #pragma once
 
-#include "../global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
-#include <string>
-#include <vector>
 
 class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
-class DLL_EXPORT JsonNode
+class DLL_LINKAGE JsonNode
 {
 public:
 	enum JsonType
@@ -29,7 +23,7 @@ private:
 	union JsonData
 	{
 		bool Bool;
-		float Float;
+		double Float;
 		std::string* String;
 		JsonVector* Vector;
 		JsonMap* Struct;
@@ -61,14 +55,14 @@ public:
 
 	//non-const accessors, node will change type on type mismatch
 	bool & Bool();
-	float & Float();
+	double & Float();
 	std::string & String();
 	JsonVector & Vector();
 	JsonMap & Struct();
 
 	//const accessors, will cause assertion failure on type mismatch
 	const bool & Bool() const;
-	const float & Float() const;
+	const double & Float() const;
 	const std::string & String() const;
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
@@ -129,7 +123,7 @@ class JsonParser
 {
 	std::string errors;     // Contains description of all encountered errors
 	constString input;      // Input data
-	unsigned int lineCount; // Currently parsed line, starting from 1
+	ui32 lineCount; // Currently parsed line, starting from 1
 	size_t lineStart;       // Position of current line start
 	size_t pos;             // Current position of parser
 

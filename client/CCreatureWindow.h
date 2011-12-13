@@ -1,4 +1,6 @@
-#include "../global.h"
+#pragma once
+
+
 #include "GUIBase.h"
 #include "GUIClasses.h"
 #include "../lib/HeroBonus.h"

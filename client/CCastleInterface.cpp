@@ -1,13 +1,6 @@
-#include "../stdafx.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-
+#include "StdInc.h"
 #include "CCastleInterface.h"
+
 #include "../CCallback.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
@@ -28,6 +21,7 @@
 #include "CPlayerInterface.h"
 #include "Graphics.h"
 #include "SDL_Extensions.h"
+#include "../lib/GameConstants.h"
 
 using namespace boost::assign;
 
@@ -126,7 +120,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	{
 		int bid = hordeToDwellingID(str->ID);
 		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
-		if (bid < Buildings::DWELL_FIRST)
+		if (bid < EBuilding::DWELL_FIRST)
 		{
 			std::vector<SComponent*> comps(1,
 			new SComponent(SComponent::building, bld->tid, bld->bid,
@@ -136,13 +130,13 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		}
 		else
 		{
-			int level = ( bid - Buildings::DWELL_FIRST ) % CREATURES_PER_TOWN;
+			int level = ( bid - EBuilding::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
 			GH.pushInt(new CDwellingInfoBox(parent->pos.x+parent->pos.w/2, parent->pos.y+parent->pos.h/2, town, level));
 		}
 	}
 }
 
-SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, float f)
+SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, double f)
 {
 	SDL_Color ret;
 	ret.r = a.r*f + b.r*(1-f);
@@ -153,12 +147,12 @@ SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, float f)
 
 void CBuildingRect::show(SDL_Surface *to)
 {
-	const unsigned int stageDelay = 16;
+	const ui32 stageDelay = 16;
 
-	const unsigned int S1_TRANSP  = 16; //0.5 sec building appear 0->100 transparency
-	const unsigned int S2_WHITE_B = 32; //0.5 sec border glows from white to yellow
-	const unsigned int S3_YELLOW_B= 48; //0.5 sec border glows from yellow to normal
-	const unsigned int BUILDED    = 80; //  1 sec delay, nothing happens
+	const ui32 S1_TRANSP  = 16; //0.5 sec building appear 0->100 transparency
+	const ui32 S2_WHITE_B = 32; //0.5 sec border glows from white to yellow
+	const ui32 S3_YELLOW_B= 48; //0.5 sec border glows from yellow to normal
+	const ui32 BUILDED    = 80; //  1 sec delay, nothing happens
 
 	if (stateCounter < S1_TRANSP)
 	{
@@ -184,15 +178,15 @@ void CBuildingRect::show(SDL_Surface *to)
 		SDL_Color c2 = {120, 100,  60, 255};
 		SDL_Color c3 = {200, 180, 110, 255};
 
-		unsigned int colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
+		ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
 		SDL_Color oldColor = border->format->palette->colors[colorID];
 		SDL_Color newColor;
 
 		if (stateCounter < S2_WHITE_B)
-			newColor = multiplyColors(c1, c2, float(stateCounter%stageDelay)/stageDelay);
+			newColor = multiplyColors(c1, c2, static_cast<double>(stateCounter % stageDelay) / stageDelay);
 		else
 		if (stateCounter < S3_YELLOW_B)
-			newColor = multiplyColors(c2, c3, float(stateCounter%stageDelay)/stageDelay);
+			newColor = multiplyColors(c2, c3, static_cast<double>(stateCounter % stageDelay) / stageDelay);
 		else
 			newColor = oldColor;
 
@@ -224,7 +218,7 @@ std::string getBuildingSubtitle(int tid, int bid)//hover text for building
 		return CGI->buildh->buildings[tid].find(bid)->second->Name();
 	else//dwellings - recruit %creature%
 	{
-		int creaID = t->creatures[(bid-30)%CREATURES_PER_TOWN].second.back();//taking last of available creatures
+		int creaID = t->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second.back();//taking last of available creatures
 		return CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creaID]->namePl;
 	}
 }
@@ -272,7 +266,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	available = new CLabel(80,190, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->allTexts[217] + text);
 	costPerTroop = new CLabel(80, 227, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->allTexts[346]);
 	
-	for(int i = 0; i<RESOURCE_QUANTITY; i++)
+	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(creature->cost[i])
 		{
@@ -484,7 +478,7 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	if(shipyard && vstd::contains(groups, shipyard->group))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
-		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
+		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == GameConstants::HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		{
 			groups[shipyard->group].push_back(CGI->townh->structures[town->subID][20]);
 		}
@@ -652,52 +646,52 @@ void CCastleBuildings::buildingClicked(int building)
 	building = hordeToDwellingID(building);
 	const CBuilding *b = CGI->buildh->buildings[town->subID].find(building)->second;
 
-	if(building >= Buildings::DWELL_FIRST)
+	if(building >= EBuilding::DWELL_FIRST)
 	{
-		enterDwelling((building-Buildings::DWELL_FIRST)%CREATURES_PER_TOWN);
+		enterDwelling((building-EBuilding::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
 	}
 	else
 	{
 		switch(building)
 		{
-		case Buildings::MAGES_GUILD_1:
-		case Buildings::MAGES_GUILD_2:
-		case Buildings::MAGES_GUILD_3:
-		case Buildings::MAGES_GUILD_4:
-		case Buildings::MAGES_GUILD_5:
+		case EBuilding::MAGES_GUILD_1:
+		case EBuilding::MAGES_GUILD_2:
+		case EBuilding::MAGES_GUILD_3:
+		case EBuilding::MAGES_GUILD_4:
+		case EBuilding::MAGES_GUILD_5:
 				enterMagesGuild();
 				break;
 
-		case Buildings::TAVERN:
+		case EBuilding::TAVERN:
 				LOCPLINT->showTavernWindow(town);
 				break;
 
-		case Buildings::SHIPYARD:
+		case EBuilding::SHIPYARD:
 				LOCPLINT->showShipyardDialog(town);
 				break;
 
-		case Buildings::FORT:
-		case Buildings::CITADEL:
-		case Buildings::CASTLE:
+		case EBuilding::FORT:
+		case EBuilding::CITADEL:
+		case EBuilding::CASTLE:
 				GH.pushInt(new CFortScreen(town));
 				break;
 
-		case Buildings::VILLAGE_HALL:
-		case Buildings::CITY_HALL:
-		case Buildings::TOWN_HALL:
-		case Buildings::CAPITOL:
+		case EBuilding::VILLAGE_HALL:
+		case EBuilding::CITY_HALL:
+		case EBuilding::TOWN_HALL:
+		case EBuilding::CAPITOL:
 				enterTownHall();
 				break;
 
-		case Buildings::MARKETPLACE:
+		case EBuilding::MARKETPLACE:
 				GH.pushInt(new CMarketplaceWindow(town, town->visitingHero));
 				break;
 
-		case Buildings::BLACKSMITH:
+		case EBuilding::BLACKSMITH:
 				enterBlacksmith(town->town->warMachine);
 				break;
 
-		case Buildings::SPECIAL_1:
+		case EBuilding::SPECIAL_1:
 				switch(town->subID)
 				{
 				case 1://Mystic Pond
@@ -706,7 +700,7 @@ void CCastleBuildings::buildingClicked(int building)
 
 				case 2: case 5: case 8://Artifact Merchant
 						if(town->visitingHero)
-							GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, RESOURCE_ARTIFACT));
+							GH.pushInt(new CMarketplaceWindow(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT));
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 						break;
@@ -717,11 +711,11 @@ void CCastleBuildings::buildingClicked(int building)
 				}
 				break;
 
-		case Buildings::SHIP:
+		case EBuilding::SHIP:
 				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
 				break;
 
-		case Buildings::SPECIAL_2:
+		case EBuilding::SPECIAL_2:
 				switch(town->subID)
 				{
 				case 1: //Fountain of Fortune
@@ -730,7 +724,7 @@ void CCastleBuildings::buildingClicked(int building)
 
 				case 6: //Freelancer's Guild
 						if(getHero())
-							GH.pushInt(new CMarketplaceWindow(town, getHero(), CREATURE_RESOURCE));
+							GH.pushInt(new CMarketplaceWindow(town, getHero(), EMarketMode::CREATURE_RESOURCE));
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 						break;
@@ -748,7 +742,7 @@ void CCastleBuildings::buildingClicked(int building)
 				}
 				break;
 
-		case Buildings::SPECIAL_3:
+		case EBuilding::SPECIAL_3:
 				switch(town->subID)
 				{
 				case 0: //Brotherhood of sword
@@ -764,10 +758,10 @@ void CCastleBuildings::buildingClicked(int building)
 						break;
 
 				case 5: //Portal of Summoning
-						if (town->creatures[CREATURES_PER_TOWN].second.empty())//No creatures
+						if (town->creatures[GameConstants::CREATURES_PER_TOWN].second.empty())//No creatures
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30]);
 						else
-							enterDwelling(CREATURES_PER_TOWN);
+							enterDwelling(GameConstants::CREATURES_PER_TOWN);
 						break;
 
 				case 6: //Ballista Yard
@@ -887,13 +881,13 @@ void CCastleBuildings::enterMagesGuild()
 void CCastleBuildings::enterTownHall()
 {
 	if(town->visitingHero && town->visitingHero->hasArt(2) &&
-		!vstd::contains(town->builtBuildings, Buildings::GRAIL)) //hero has grail, but town does not have it
+		!vstd::contains(town->builtBuildings, EBuilding::GRAIL)) //hero has grail, but town does not have it
 	{
-		if(!vstd::contains(town->forbiddenBuildings, Buildings::GRAIL))
+		if(!vstd::contains(town->forbiddenBuildings, EBuilding::GRAIL))
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
 			                            std::vector<SComponent*>(),
-			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, Buildings::GRAIL),
+			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, EBuilding::GRAIL),
 			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
 		}
 		else
@@ -954,11 +948,11 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 
 	townlist = new CTownList(3, 744, 414, "IAM014", "IAM015");
 	townlist->fun = boost::bind(&CCastleInterface::townChange, this);
-	townlist->selected = vstd::findPos(LOCPLINT->towns, Town);
+	townlist->selected = vstd::find_pos(LOCPLINT->towns, Town);
 
 	townlist->from = townlist->selected - listPos;
-	amax(townlist->from, 0);
-	amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
+	vstd::amax(townlist->from, 0);
+	vstd::amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
 
 	LOCPLINT->castleInt = this;
 	recreateIcons();
@@ -1034,9 +1028,9 @@ void CCastleInterface::recreateIcons()
 
 	size_t iconIndex = town->subID*2;
 	if (!town->hasFort())
-		iconIndex += F_NUMBER*2;
+		iconIndex += GameConstants::F_NUMBER*2;
 
-	if(town->builded >= MAX_BUILDING_PER_TURN)
+	if(town->builded >= GameConstants::MAX_BUILDING_PER_TURN)
 		iconIndex++;
 
 	icon->setFrame(iconIndex);
@@ -1073,7 +1067,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool
 	}
 	used = LCLICK | RCLICK | HOVER;
 
-	unsigned int creatureID = town->creatures[level].second.back();
+	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->creatures[creatureID];
 
 	picture = new CAnimImage("CPRSMALL", creatureID+2, 0, 8, 0);
@@ -1297,9 +1291,9 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	if(on)
 	{
 		std::string toPrint;
-		if(state==Buildings::PREREQUIRES)
+		if(state==EBuildingState::PREREQUIRES)
 			toPrint = CGI->generaltexth->hcommands[5];
-		else if(state==Buildings::CANT_BUILD_TODAY)
+		else if(state==EBuildingState::CANT_BUILD_TODAY)
 			toPrint = CGI->generaltexth->allTexts[223];
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
@@ -1334,7 +1328,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	pos.h = 92;
 	
 	state = LOCPLINT->cb->canBuildStructure(town,building->bid);
-	assert(state < Buildings::ERROR);
+	assert(state < EBuildingState::BUILDING_ERROR);
 	static int panelIndex[9] = { 3,  3,  3, 0, 0, 2, 2,  1, 2};
 	static int  iconIndex[9] = {-1, -1, -1, 0, 0, 1, 2, -1, 1};
 
@@ -1359,7 +1353,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, zwykly, CGI->buildh->buildings[town->subID][town->hallLevel()+Buildings::VILLAGE_HALL]->Name());
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, zwykly, CGI->buildh->buildings[town->subID][town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
 	exit = new AdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1468,7 +1462,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	buildingState = new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
 
 	//Create objects for all required resources
-	for(int i = 0; i<RESOURCE_QUANTITY; i++)
+	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(building->resources[i])
 		{
@@ -1478,7 +1472,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		}
 	}
 
-	unsigned int rowSize[2];
+	ui32 rowSize[2];
 	int posY;
 	if (resAmount.size() > 4)
 	{//Resources will be placed in multiple rows
@@ -1492,7 +1486,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	}
 	rowSize[1] = resAmount.size() - rowSize[0];
 
-	unsigned int index=0;
+	ui32 index=0;
 	for (size_t row=0; row<2; row++)
 	{
 		int posX = pos.w/2 - rowSize[row] * 40 + 24;
@@ -1532,11 +1526,11 @@ void CFortScreen::close()
 CFortScreen::CFortScreen(const CGTownInstance * town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	unsigned int fortSize = town->creatures.size();
-	if (fortSize > CREATURES_PER_TOWN && town->creatures.back().second.empty())
+	ui32 fortSize = town->creatures.size();
+	if (fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
 		fortSize--;
 	
-	if (fortSize == CREATURES_PER_TOWN)
+	if (fortSize == GameConstants::CREATURES_PER_TOWN)
 		background = new CPicture("TPCASTL7");
 	else
 		background = new CPicture("TPCASTL8");
@@ -1554,20 +1548,20 @@ CFortScreen::CFortScreen(const CGTownInstance * town)
 	             Point(10, 155), Point(404,155),
 	             Point(10, 288), Point(404,288);
 
-	if (fortSize == CREATURES_PER_TOWN)
+	if (fortSize == GameConstants::CREATURES_PER_TOWN)
 		positions += Point(206,421);
 	else
 		positions += Point(10, 421), Point(404,421);
 	
-	for (unsigned int i=0; i<fortSize; i++)
+	for (ui32 i=0; i<fortSize; i++)
 	{
 		int buildingID;
-		if (fortSize == CREATURES_PER_TOWN)
+		if (fortSize == GameConstants::CREATURES_PER_TOWN)
 		{
-			if (vstd::contains(town->builtBuildings, Buildings::DWELL_UP_FIRST+i))
-				buildingID = Buildings::DWELL_UP_FIRST+i;
+			if (vstd::contains(town->builtBuildings, EBuilding::DWELL_UP_FIRST+i))
+				buildingID = EBuilding::DWELL_UP_FIRST+i;
 			else
-				buildingID = Buildings::DWELL_FIRST+i;
+				buildingID = EBuilding::DWELL_FIRST+i;
 		}
 		else
 			buildingID = 22;
@@ -1678,7 +1672,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 
 	if (vstd::contains(town->builtBuildings, buildingID))
 	{
-		unsigned int available = town->creatures[level].first;
+		ui32 available = town->creatures[level].first;
 		std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
 		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, zwykly, availableText);
 	}

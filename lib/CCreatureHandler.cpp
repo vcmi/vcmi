@@ -1,19 +1,9 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CCreatureHandler.h"
+
 #include "CLodHandler.h"
-#include <sstream>
-#include <boost/assign/std/set.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/std/list.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/find.hpp>
-#include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 #include "../lib/JsonNode.h"
 
 using namespace boost::assign;
@@ -77,7 +67,7 @@ int CCreature::getQuantityID(const int & quantity)
 	return 8;
 }
 
-int CCreature::estimateCreatureCount(unsigned int countID)
+int CCreature::estimateCreatureCount(ui32 countID)
 {
 	static const int creature_count[] = { 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
 
@@ -179,7 +169,7 @@ int readNumber(int & befi, int & i, int andame, std::string & buf) //helper func
 	return ret;
 }
 
-float readFloat(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadUnitAnimInfo()
+double readFloat(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadUnitAnimInfo()
 {
 	befi=i;
 	for(; i<andame; ++i)
@@ -188,7 +178,7 @@ float readFloat(int & befi, int & i, int andame, std::string & buf) //helper fun
 			break;
 	}
 	std::string tmp = buf.substr(befi, i-befi);
-	float ret = atof(buf.substr(befi, i-befi).c_str());
+	double ret = atof(buf.substr(befi, i-befi).c_str());
 	++i;
 	return ret;
 }
@@ -295,7 +285,7 @@ void CCreatureHandler::loadCreatures()
 	{
 		CCreature &ncre = *new CCreature;
 		ncre.idNumber = creatures.size();
-		ncre.cost.resize(RESOURCE_QUANTITY);
+		ncre.cost.resize(GameConstants::RESOURCE_QUANTITY);
 		ncre.level=0;
 
 		int befi=i;
@@ -425,7 +415,7 @@ void CCreatureHandler::loadCreatures()
 
 	// loading creatures properties
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
-	const JsonNode config(DATA_DIR "/config/creatures.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/creatures.json");
 
 	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector()) {
 		int creatureID = creature["id"].Float();
@@ -481,7 +471,7 @@ void CCreatureHandler::loadCreatures()
 	loadAnimationInfo();
 
 	//reading creature ability names
-	const JsonNode config2(DATA_DIR "/config/bonusnames.json");
+	const JsonNode config2(GameConstants::DATA_DIR + "/config/bonusnames.json");
 
 	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector()) {
 		std::map<std::string,int>::const_iterator it_map;
@@ -498,7 +488,7 @@ void CCreatureHandler::loadCreatures()
 	//std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
 	//stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
 
-	if (STACK_EXP) 	//reading default stack experience bonuses
+	if (GameConstants::STACK_EXP) 	//reading default stack experience bonuses
 	{
 		buf = bitmaph->getTextFile("CREXPBON.TXT");
 		int it = 0;
@@ -830,7 +820,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				break;
 			case ':':
 				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
-				b.val = SPELL_LEVELS; //in case someone adds higher level spells?
+				b.val = GameConstants::SPELL_LEVELS; //in case someone adds higher level spells?
 				break;
 			case 'F':
 				b.type = Bonus::FIRE_IMMUNITY;
@@ -1027,7 +1017,7 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 	}
 	else
 	{
-		assert(iswith(tier, 1, 7));
+		assert(vstd::iswithin(tier, 1, 7));
 		std::vector<int> allowed;
 		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
 		{
@@ -1051,7 +1041,7 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 
 void CCreatureHandler::addBonusForTier(int tier, Bonus *b)
 {
-	assert(iswith(tier, 1, 7));
+	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
@@ -1064,7 +1054,7 @@ void CCreatureHandler::buildBonusTreeForTiers()
 {
 	BOOST_FOREACH(CCreature *c, creatures)
 	{
-		if(isbetw(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
+		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
 			c->attachTo(&creaturesOfLevel[c->level]);
 		else
 			c->attachTo(&creaturesOfLevel[0]);

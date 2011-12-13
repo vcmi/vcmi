@@ -1,14 +1,10 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "SDL_Extensions.h"
+
 #include "SDL_ttf.h"
 #include "CGameInfo.h"
-#include <iostream>
-#include <utility>
-#include <algorithm>
 #include "CMessage.h"
-#include <boost/algorithm/string.hpp>
 #include "CDefHandler.h"
-#include <map>
 #include "Graphics.h"
 #include "GUIBase.h"
 
@@ -323,7 +319,7 @@ void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts f
 	}
 }
 
-void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
+void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, ui8 quality=2)
 {
 	if(text.length()==0) return;
 	SDL_Surface * temp;
@@ -366,7 +362,7 @@ void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts fon
 	printAt(text, nx, ny, font, kolor, dst);
 }
 
-void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2, bool refresh=false)
+void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, ui8 quality=2, bool refresh=false)
 {
 	if (text.length()==0)
 		return;
@@ -431,7 +427,7 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 
 	for(int txti = first; txti < beyondEnd; txti++)
 	{
-		const unsigned char c = text[txti];
+		const ui8 c = text[txti];
 		x += f->chars[c].unknown1;
 
 		for(int i = std::max(0, -y); i < f->height  &&  (y + i) < (dst->h - 1); i++)
@@ -462,7 +458,7 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 	}
 }
 
-void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
+void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, ui8 quality=2)
 {
 	if (text.length()==0)
 		return;
@@ -504,7 +500,7 @@ void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL
 	printAt(text, x - f->getWidth(text.c_str()), y - f->height, font, kolor, dst);
 }
 
-void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality=2)
+void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, ui8 quality=2)
 {
 	if (text.length()==0)
 		return;
@@ -1049,7 +1045,7 @@ void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &co
 	}
 }
 
-void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
+void CSDL_Ext::setPlayerColor(SDL_Surface * sur, ui8 player)
 {
 	if(player==254)
 		return;
@@ -1206,7 +1202,7 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 			{
 				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
 				{
-					unsigned char * pixels = (unsigned char*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
 					int b = pixels[0]; 
 					int g = pixels[1]; 
@@ -1242,7 +1238,7 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 			{
 				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
 				{
-					unsigned char * pixels = (unsigned char*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
 					int b = pixels[0]; 
 					int g = pixels[1]; 

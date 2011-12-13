@@ -1,7 +1,6 @@
-#ifndef __CCASTLEINTERFACE_H__
-#define __CCASTLEINTERFACE_H__
+#pragma once
 
-#include "../global.h"
+
 #include "CAnimation.h"
 #include "GUIBase.h"
 
@@ -31,6 +30,7 @@ struct Structure;
  *
  */
 
+
 /// Building "button"
 class CBuildingRect : public CShowableAnim
 {
@@ -41,7 +41,7 @@ public:
 	SDL_Surface* border;
 	SDL_Surface* area;
 	
-	unsigned int stateCounter;//For building construction - current stage in animation
+	ui32 stateCounter;//For building construction - current stage in animation
 	
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
@@ -234,7 +234,7 @@ class CHallInterface : public CIntObject
 		const CGTownInstance * town;
 		const CBuilding * building;
 
-		unsigned int state;//Buildings::EBuildStructure enum
+		ui32 state;//Buildings::EBuildStructure enum
 
 		CAnimImage * picture;
 		CAnimImage * panel;
@@ -392,5 +392,3 @@ class CBlacksmithDialog : public CIntObject
 public:
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
 };
-
-#endif // __CCASTLEINTERFACE_H__

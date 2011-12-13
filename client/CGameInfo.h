@@ -1,8 +1,7 @@
-#ifndef __CGAMEINFO_H__
-#define __CGAMEINFO_H__
-#include "../global.h"
-#include "../lib/ConstTransitivePtr.h"
+#pragma once
 
+
+#include "../lib/ConstTransitivePtr.h"
 
 /*
  * CGameInfo.h, part of VCMI engine
@@ -42,6 +41,7 @@ public:
 	CCursorHandler * curh;
 	IMainVideoPlayer * videoh;
 };
+extern CClientState * CCS;
 
 struct Mapa;
 
@@ -70,13 +70,4 @@ public:
 
 	CGameInfo();
 };
-
-//	
-// public:
-// 	
-// 	ConstTransitivePtr<CGeneralTextHandler> generaltexth;
-
-
-
-
-#endif // __CGAMEINFO_H__
+extern const CGameInfo* CGI;

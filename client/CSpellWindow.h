@@ -1,10 +1,7 @@
-#ifndef __CSPELLWINDOW_H__
-#define __CSPELLWINDOW_H__
+#pragma once
 
 
-#include "../global.h"
 #include "GUIBase.h"
-#include "boost/function.hpp"
 
 /*
  * CSpellWindow.h, part of VCMI engine
@@ -114,5 +111,3 @@ public:
 
 	void teleportTo(int town, const CGHeroInstance * hero);
 };
-
-#endif // __CSPELLWINDOW_H__

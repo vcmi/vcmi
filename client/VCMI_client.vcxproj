@@ -83,9 +83,9 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Program Files\boost\boost_1_46_1;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Program Files\boost\boost_1_46_1\stage\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(LibraryPath)</LibraryPath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">C:\C++\boost_1_42_0;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='RD|x64'">C:\C++\boost_1_42_0;$(IncludePath)</IncludePath>
@@ -102,10 +102,12 @@
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <WarningLevel>Level1</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AssemblerOutput>NoListing</AssemblerOutput>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -221,11 +223,29 @@
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</PreprocessToFile>
     </ClCompile>
+    <ClCompile Include="BattleInterface\CAttackAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CBattleAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CBattleConsole.cpp" />
+    <ClCompile Include="BattleInterface\CBattleHero.cpp" />
+    <ClCompile Include="BattleInterface\CBattleInterface.cpp" />
+    <ClCompile Include="BattleInterface\CBattleOptionsWindow.cpp" />
+    <ClCompile Include="BattleInterface\CBattleResultWindow.cpp" />
+    <ClCompile Include="BattleInterface\CBattleStackAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CDefenceAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CDummyAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CHexFieldControl.cpp" />
+    <ClCompile Include="BattleInterface\CMeleeAttackAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CMovementAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CMovementEndAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CMovementStartAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CReverseAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CShootingAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CSpellEffectAnimation.cpp" />
+    <ClCompile Include="BattleInterface\CStackQueue.cpp" />
     <ClCompile Include="CAdvmapInterface.cpp" />
     <ClCompile Include="CAnimation.cpp" />
-    <ClCompile Include="CBattleInterface.cpp" />
-    <ClCompile Include="CBitmapHandler.cpp" />
     <ClCompile Include="..\CCallback.cpp" />
+    <ClCompile Include="CBitmapHandler.cpp" />
     <ClCompile Include="CCastleInterface.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CCreatureAnimation.cpp" />
@@ -251,13 +271,35 @@
     <ClCompile Include="NetPacksClient.cpp" />
     <ClCompile Include="SDL_Extensions.cpp" />
     <ClCompile Include="SDL_framerate.cpp" />
+    <ClCompile Include="StdInc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdInc.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdventureMapButton.h" />
-    <ClInclude Include="..\AI_Base.h" />
+    <ClInclude Include="BattleInterface\CAttackAnimation.h" />
+    <ClInclude Include="BattleInterface\CBattleAnimation.h" />
+    <ClInclude Include="BattleInterface\CBattleConsole.h" />
+    <ClInclude Include="BattleInterface\CBattleHero.h" />
+    <ClInclude Include="BattleInterface\CBattleInterface.h" />
+    <ClInclude Include="BattleInterface\CBattleOptionsWindow.h" />
+    <ClInclude Include="BattleInterface\CBattleResultWindow.h" />
+    <ClInclude Include="BattleInterface\CBattleStackAnimation.h" />
+    <ClInclude Include="BattleInterface\CDefenceAnimation.h" />
+    <ClInclude Include="BattleInterface\CDummyAnimation.h" />
+    <ClInclude Include="BattleInterface\CHexFieldControl.h" />
+    <ClInclude Include="BattleInterface\CMeleeAttackAnimation.h" />
+    <ClInclude Include="BattleInterface\CMovementAnimation.h" />
+    <ClInclude Include="BattleInterface\CMovementEndAnimation.h" />
+    <ClInclude Include="BattleInterface\CMovementStartAnimation.h" />
+    <ClInclude Include="BattleInterface\CReverseAnimation.h" />
+    <ClInclude Include="BattleInterface\CShootingAnimation.h" />
+    <ClInclude Include="BattleInterface\CSpellEffectAnimation.h" />
+    <ClInclude Include="BattleInterface\CStackQueue.h" />
+    <ClInclude Include="BattleInterface\SStackAttackedInfo.h" />
     <ClInclude Include="CAdvmapInterface.h" />
     <ClInclude Include="CAnimation.h" />
-    <ClInclude Include="CBattleInterface.h" />
     <ClInclude Include="CBitmapHandler.h" />
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="CCastleInterface.h" />
@@ -281,18 +323,14 @@
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />
     <ClInclude Include="FunctionList.h" />
-    <ClInclude Include="..\global.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUIBase.h" />
     <ClInclude Include="GUIClasses.h" />
-    <ClInclude Include="..\int3.h" />
-    <ClInclude Include="..\nodrze.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SDL_Extensions.h" />
     <ClInclude Include="SDL_framerate.h" />
-    <ClInclude Include="..\stdafx.h" />
-    <ClInclude Include="..\timeHandler.h" />
+    <ClInclude Include="StdInc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.84b)				# Follow NAME_VER in global.h
+AC_INIT(vcmi, 0.84b)				# Follow VCMI_VERSION in GameConstants.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 
@@ -32,7 +32,7 @@ fi
 # For gcc and compatible compilers, enable compilation warnings, but
 # selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
+   CXXFLAGS="$CXXFLAGS -ftime-report -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
 fi
 
 # extra clang parameters
@@ -94,7 +94,7 @@ AC_CHECK_HEADERS([boost/filesystem.hpp boost/algorithm/string.hpp boost/algorith
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
 
-CXXFLAGS="$CXXFLAGS -DDATA_DIR=\\\"\$(pkgdatadir)\\\" -DBIN_DIR=\\\"\$(bindir)\\\" -DLIB_DIR=\\\"\$(pkglibdir)\\\""
+CXXFLAGS="$CXXFLAGS -DM_DATA_DIR=\\\"\$(pkgdatadir)\\\" -DM_BIN_DIR=\\\"\$(bindir)\\\" -DM_LIB_DIR=\\\"\$(pkglibdir)\\\""
 
 AC_SUBST(SDL_LIBS)
 AC_SUBST(SDL_CXXFLAGS)

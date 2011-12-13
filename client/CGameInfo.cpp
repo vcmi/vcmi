@@ -1,5 +1,6 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CGameInfo.h"
+
 #include "../lib/VCMI_Lib.h"
 
 /*

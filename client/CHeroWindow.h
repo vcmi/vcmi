@@ -1,5 +1,5 @@
-#ifndef __CHEROWINDOW_H__
-#define __CHEROWINDOW_H__
+#pragma once
+
 #include "../lib/HeroBonus.h"
 
 
@@ -95,5 +95,3 @@ public:
 	friend void CArtPlace::clickLeft(tribool down, bool previousState);
 	friend class CPlayerInterface;
 };
-
-#endif // __CHEROWINDOW_H__

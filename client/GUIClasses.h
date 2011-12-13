@@ -1,13 +1,10 @@
-#ifndef __GUICLASSES_H__
-#define __GUICLASSES_H__
+#pragma once
 
-#include "../global.h"
+
 #include "GUIBase.h"
 #include "FunctionList.h"
-#include <set>
-#include <list>
-#include <boost/thread/mutex.hpp>
 #include "../lib/ResourceSet.h"
+#include "../lib/GameConstants.h"
 
 #ifdef max
 #undef max
@@ -761,12 +758,12 @@ public:
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 	EType itemsType[2];
 
-	EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
+	EMarketMode::EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c
+	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
 
 	void showAll(SDL_Surface * to);
 
@@ -778,7 +775,7 @@ public:
 	void removeItems(const std::set<CTradeableItem *> &toRemove);
 	void removeItem(CTradeableItem * t);
 	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
-	void setMode(EMarketMode Mode); //mode setter
+	void setMode(EMarketMode::EMarketMode Mode); //mode setter
 
 	void artifactSelected(CArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
 
@@ -792,7 +789,7 @@ public:
 
 class CMarketplaceWindow : public CTradeWindow
 {
-	bool printButtonFor(EMarketMode M) const;
+	bool printButtonFor(EMarketMode::EMarketMode M) const;
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
@@ -802,7 +799,7 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
+	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 
 	Point selectionOffset(bool Left) const;
@@ -820,7 +817,7 @@ public:
 class CAltarWindow : public CTradeWindow
 {
 public:
-	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c-tor
+	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c-tor
 
 	void getExpValues();
 	~CAltarWindow(); //d-tor
@@ -889,7 +886,6 @@ public:
 	{
 	public:
 		std::string hoverName;
-		vstd::assigner<int,int> as;
 		const CGHeroInstance *h;
 		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
 
@@ -898,6 +894,10 @@ public:
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to);
+
+	private:
+		int *_sel;
+		const int _id;
 
 	} *h1, *h2; //recruitable heroes
 
@@ -1179,7 +1179,7 @@ class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 
 public:
 
-	const CGHeroInstance * heroInst[2];
+	const CGHeroInstance* heroInst[2];
 	CArtifactsOfHero * artifs[2];
 
 	void close();
@@ -1231,7 +1231,7 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to);
 
-	CPuzzleWindow(const int3 &grailPos, float discoveredRatio);
+	CPuzzleWindow(const int3 &grailPos, double discoveredRatio);
 	~CPuzzleWindow();
 };
 
@@ -1367,5 +1367,3 @@ public:
 CIntObject *createCreWindow(const CStack *s);
 CIntObject *createCreWindow(int Cid, int Type, int creatureCount);
 CIntObject *createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
-
-#endif //__GUICLASSES_H__

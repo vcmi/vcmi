@@ -1,10 +1,7 @@
-#ifndef __CMESSAGE_H__
-#define __CMESSAGE_H__
+#pragma once
 
 #include "FontBase.h"
-#include "../global.h"
-//#include <SDL.h>
-#include <boost/function.hpp>
+
 
 /*
  * CMessage.h, part of VCMI engine
@@ -74,8 +71,3 @@ public:
 	static void init();
 	static void dispose();
 };
-//
-
-
-
-#endif // __CMESSAGE_H__

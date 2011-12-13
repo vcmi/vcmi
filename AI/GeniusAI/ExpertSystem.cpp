@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "GeneralAI.h"
 #include "../../CCallback.h"
 #include "ExpertSystem.h"

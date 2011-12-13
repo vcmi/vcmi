@@ -1,11 +1,11 @@
-#ifndef __CADVMAPINTERFACE_H__
-#define __CADVMAPINTERFACE_H__
+#pragma once
+
 #include <typeinfo>
-#include "../global.h"
+
 #include "SDL.h"
-#include <map>
 #include "AdventureMapButton.h"
 #include "GUIClasses.h"
+
 class CDefHandler;
 class CCallback;
 struct CGPath;
@@ -176,8 +176,8 @@ public:
 	enum{NA, INGAME, WAITING} state;
 
 	bool updateScreen, updateMinimap ;
-	unsigned char anim, animValHitCount; //animation frame
-	unsigned char heroAnim, heroAnimValHitCount; //animation frame
+	ui8 anim, animValHitCount; //animation frame
+	ui8 heroAnim, heroAnimValHitCount; //animation frame
 
 	SDL_Surface * bg;
 	std::vector<CDefHandler *> gems;
@@ -256,5 +256,3 @@ public:
 };
 
 extern CAdvMapInt *adventureInt;
-
-#endif // __CADVMAPINTERFACE_H__

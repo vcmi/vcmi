@@ -1,13 +1,7 @@
+#include "StdInc.h"
 #include "ERMInterpreter.h"
-#include <cctype>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/assign/std/vector.hpp> // for 'operator+=()'
-#include <boost/assign/std/vector.hpp> 
-#include <boost/assign/list_of.hpp>
 
+#include <cctype>
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -372,13 +366,13 @@ void ERMInterpreter::scanForScripts()
 {
 	using namespace boost::filesystem;
 	//parser checking
-	if(!exists(DATA_DIR "/Data/s/"))
+	if(!exists(GameConstants::DATA_DIR + "/Data/s/"))
 	{
-		tlog3 << "Warning: Folder " DATA_DIR "/Data/s/ doesn't exist!\n";
+		tlog3 << "Warning: Folder " << GameConstants::DATA_DIR << "/Data/s/ doesn't exist!\n";
 		return;
 	}
 	directory_iterator enddir;
-	for (directory_iterator dir(DATA_DIR "/Data/s"); dir!=enddir; dir++)
+	for (directory_iterator dir(GameConstants::DATA_DIR + "/Data/s"); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{
@@ -2293,7 +2287,7 @@ void IexpValStr::setTo( int val )
 	}
 }
 
-void IexpValStr::setTo( float val )
+void IexpValStr::setTo( double val )
 {
 	DBG_PRINT("setting " << getName() << " to " << val);
 	switch(type)
@@ -2337,7 +2331,7 @@ int IexpValStr::getInt() const
 	}
 }
 
-float IexpValStr::getFloat() const
+double IexpValStr::getFloat() const
 {
 	switch(type)
 	{

@@ -1,16 +1,13 @@
+#include "StdInc.h"
 #include "SDL_Extensions.h"
-#include <cassert>
-#include <boost/thread/locks.hpp>
 #include "GUIBase.h"
-#include <boost/thread/mutex.hpp>
-#include <queue>
+
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "CConfigHandler.h"
-#include <boost/lexical_cast.hpp>
 
 /*
  * GUIBase.cpp, part of VCMI engine
@@ -24,6 +21,7 @@
 
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
+
 
 SDL_Color Colors::MetallicGold = createColor(173, 142, 66);
 SDL_Color Colors::Yellow = createColor(242, 226, 110);
@@ -124,7 +122,7 @@ void CGuiHandler::totalRedraw()
 
 void CGuiHandler::updateTime()
 {
-	int tv = th.getDif();
+	int tv = th.getDiff();
 	std::list<CIntObject*> hlp = timeinterested;
 	for (std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 	{
@@ -756,10 +754,10 @@ const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
 	Point newPos = pos.topLeft();
-	amax(newPos.x, borderWidth);
-	amax(newPos.y, borderWidth);
-	amin(newPos.x, screen->w - borderWidth - pos.w);
-	amin(newPos.y, screen->h - borderWidth - pos.h);
+	vstd::amax(newPos.x, borderWidth);
+	vstd::amax(newPos.y, borderWidth);
+	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
+	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }

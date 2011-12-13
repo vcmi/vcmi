@@ -1,14 +1,12 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CMessage.h"
+
 #include "SDL_ttf.h"
 #include "CDefHandler.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include "../lib/CLodHandler.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <sstream>
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
@@ -59,8 +57,8 @@ namespace NMessage
 void CMessage::init()
 {
 	{
-		piecesOfBox.resize(PLAYER_LIMIT);
-		for (int i=0;i<PLAYER_LIMIT;i++)
+		piecesOfBox.resize(GameConstants::PLAYER_LIMIT);
+		for (int i=0;i<GameConstants::PLAYER_LIMIT;i++)
 		{
 			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			if (i==1)
@@ -89,7 +87,7 @@ void CMessage::init()
 
 void CMessage::dispose()
 {
-	for (int i=0;i<PLAYER_LIMIT;i++)
+	for (int i=0;i<GameConstants::PLAYER_LIMIT;i++)
 	{
 		for (size_t j=0; j<piecesOfBox[i].size(); ++j)
 		{
@@ -127,8 +125,8 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 
 	while (text.length())
 	{
-		unsigned int lineLength = 0;	//in characters or given char metric
-		unsigned int z = 0; //our position in text
+		ui32 lineLength = 0;	//in characters or given char metric
+		ui32 z = 0; //our position in text
 		bool opened = false;//if we have an unclosed brace in current line
 		bool lineManuallyBroken = false;
 
@@ -153,10 +151,10 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 			 * possible. We backtrack on the line until we find a
 			 * suitable character.
 			 * Note: Cyrillic symbols have indexes 220-255 so we need
-			 * to use unsigned char for comparison
+			 * to use ui8 for comparison
 			 */
 			int pos = z-1;
-			while(pos > 0 &&  ((unsigned char)text[pos]) > ' ' )
+			while(pos > 0 &&  ((ui8)text[pos]) > ' ' )
 				pos --;
 
 			if (pos > 0)
@@ -341,10 +339,10 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 // 		ret->pos.x = GH.current->motion.x - ret->pos.w/2;
 // 		ret->pos.y = GH.current->motion.y - ret->pos.h/2;
 // 		// Put the window back on screen if necessary
-// 		amax(ret->pos.x, 0);
-// 		amax(ret->pos.y, 0);
-// 		amin(ret->pos.x, conf.cc.resx - ret->pos.w);
-// 		amin(ret->pos.y, conf.cc.resy - ret->pos.h);
+// 		vstd::amax(ret->pos.x, 0);
+// 		vstd::amax(ret->pos.y, 0);
+// 		vstd::amin(ret->pos.x, conf.cc.resx - ret->pos.w);
+// 		vstd::amin(ret->pos.y, conf.cc.resy - ret->pos.h);
 // 	} 
 // 	else 
 // 	{
@@ -394,6 +392,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
+
 	for(int i = 0; 
 		i < ARRAY_COUNT(sizes) 
 			&& sizes[i][0] < conf.cc.resx - 150  
@@ -425,12 +424,12 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	}
 
 	// Clip window size
-	amax(winSize.second, 50);
-	amax(winSize.first, 80);
-	amax(winSize.first, comps.w);
-	amax(winSize.first, bw);
+	vstd::amax(winSize.second, 50);
+	vstd::amax(winSize.first, 80);
+	vstd::amax(winSize.first, comps.w);
+	vstd::amax(winSize.first, bw);
 
-	amin(winSize.first, conf.cc.resx - 150);
+	vstd::amin(winSize.first, conf.cc.resx - 150);
 
 	ret->bitmap = drawBox1 (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
@@ -596,14 +595,14 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 		if (curw + toadd > maxw)
 		{
 			curr++;
-			amax(w,curw);
+			vstd::amax(w,curw);
 			curw = cur->comp->pos.w;
 			comps.resize(curr+1);
 		}
 		else
 		{
 			curw += toadd;
-			amax(w,curw);
+			vstd::amax(w,curw);
 		}
 
 		comps[curr].push_back(cur);
@@ -613,7 +612,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 	{
 		int maxh = 0;
 		for(size_t j=0;j<comps[i].size();j++)
-			amax(maxh,comps[i][j]->comp->pos.h);
+			vstd::amax(maxh,comps[i][j]->comp->pos.h);
 		h += maxh + BETWEEN_COMPS_ROWS;
 	}
 }
@@ -627,7 +626,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 		{
 			ComponentResolved *cur = (comps)[i][j];
 			totalw += cur->comp->pos.w;
-			amax(maxh,cur->comp->getImg()->h);//subtitles height will added later
+			vstd::amax(maxh,cur->comp->getImg()->h);//subtitles height will added later
 		}
 		if(_or)
 		{
@@ -670,7 +669,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 				}
 				curw+=inter;
 			}
-			amax(curh, textY);
+			vstd::amax(curh, textY);
 		}
 		curh += BETWEEN_COMPS_ROWS;
 	}

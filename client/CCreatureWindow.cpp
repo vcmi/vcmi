@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "CCreatureWindow.h"
+
 #include "../lib/CCreatureSet.h"
 #include "CGameInfo.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -14,13 +16,6 @@
 #include "CPlayerInterface.h"
 #include "CConfigHandler.h"
 
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp> 
-#include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
@@ -180,8 +175,8 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 
 	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (conf.cc.resy - 230) / 60);
-	amin(bonusRows, 4);
-	amax(bonusRows, 1);
+	vstd::amin(bonusRows, 4);
+	vstd::amax(bonusRows, 1);
 
 	bitmap = new CPicture("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
@@ -206,7 +201,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 335, 50, false); //exp icon - Print it always?
 	if (type) //not in fort window
 	{
-		if (STACK_EXP)
+		if (GameConstants::STACK_EXP)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
 			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 436, 62, FONT_MEDIUM, tytulowy,*bitmap);
@@ -214,7 +209,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			if (type > BATTLE) //we need it only on adv. map
 			{
 				int tier = stack->type->level;
-				if (!iswith(tier, 1, 7))
+				if (!vstd::iswithin(tier, 1, 7))
 					tier = 0;
 				int number;
 				std::string expText = CGI->generaltexth->zcrexp[324];
@@ -253,7 +248,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			}
 		}
 
-		if (STACK_ARTIFACT && type > BATTLE)
+		if (GameConstants::STACK_ARTIFACT && type > BATTLE)
 		{
 			//SDL_Rect rect = genRect(44,44,465,98);
 			//creatureArtifact = new CArtPlace(NULL);

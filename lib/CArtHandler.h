@@ -1,10 +1,7 @@
-#ifndef __CARTHANDLER_H__
-#define __CARTHANDLER_H__
-#include "../global.h"
-#include "../lib/HeroBonus.h"
-#include <set>
-#include <list>
+#pragma once
 
+
+#include "../lib/HeroBonus.h"
 #include "../lib/ConstTransitivePtr.h"
 
 /*
@@ -21,7 +18,18 @@ class CArtifact;
 class CGHeroInstance;
 struct ArtifactLocation;
 
-class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
+namespace ArtifactPosition
+{
+	enum ArtifactPosition
+	{
+		PRE_FIRST = -1, 
+		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
+		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
+		AFTER_LAST
+	};
+}
+
+class DLL_LINKAGE CArtifact : public CBonusSystemNode //container for artifacts
 {
 protected:
 	std::string name, description; //set if custom
@@ -54,7 +62,7 @@ public:
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 };
 
-class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
+class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
 {
 protected:
 	void init();
@@ -96,7 +104,7 @@ public:
 	static CArtifactInstance *createNewArtifactInstance(int aid);
 };
 
-class DLL_EXPORT CCombinedArtifactInstance : public CArtifactInstance
+class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
 {
 	CCombinedArtifactInstance(CArtifact *Art);
 public:
@@ -139,7 +147,7 @@ public:
 	}
 };
 
-// class DLL_EXPORT IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
+// class DLL_LINKAGE IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
 // { //used only for dynamic cast :P
 // public:
 // 	si32 ID; //used for smart serialization
@@ -151,7 +159,7 @@ public:
 // 	}
 // };
 // 
-// class DLL_EXPORT CScroll : public IModableArt // Spell Scroll
+// class DLL_LINKAGE CScroll : public IModableArt // Spell Scroll
 // {
 // public:
 // 	CScroll(){spellid=0;};
@@ -166,7 +174,7 @@ public:
 // 	}
 // };
 // 
-// class DLL_EXPORT CCustomizableArt : public IModableArt // Warlord's Banner with multiple options
+// class DLL_LINKAGE CCustomizableArt : public IModableArt // Warlord's Banner with multiple options
 // {
 // public:
 // 	ui8 mode;
@@ -180,7 +188,7 @@ public:
 // 	}
 // };
 // 
-// class DLL_EXPORT CCommanderArt : public IModableArt // Growing with time
+// class DLL_LINKAGE CCommanderArt : public IModableArt // Growing with time
 // {
 // public:
 // 	ui32 level;
@@ -195,7 +203,7 @@ public:
 // 	}
 // };
 
-class DLL_EXPORT CArtHandler //handles artifacts
+class DLL_LINKAGE CArtHandler //handles artifacts
 {
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL);
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator);
@@ -231,7 +239,7 @@ public:
 	}
 };
 
-struct DLL_EXPORT ArtSlotInfo
+struct DLL_LINKAGE ArtSlotInfo
 {
 	ConstTransitivePtr<CArtifactInstance> artifact;
 	ui8 locked; //if locked, then artifact points to the combined artifact
@@ -246,7 +254,7 @@ struct DLL_EXPORT ArtSlotInfo
 	}
 };
 
-class DLL_EXPORT IArtifactSetBase 
+class DLL_LINKAGE IArtifactSetBase 
 { ///artifacts container
 public:
 	virtual void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
@@ -265,7 +273,7 @@ public:
 	virtual si32 getArtTypeId(ui16 pos) const=0;
 };
 
-class DLL_EXPORT CArtifactSet : public IArtifactSetBase
+class DLL_LINKAGE CArtifactSet : public IArtifactSetBase
 { ///hero artifacts
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
@@ -288,7 +296,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CCreatureArtifactSet : public IArtifactSetBase
+class DLL_LINKAGE CCreatureArtifactSet : public IArtifactSetBase
 { ///creature artifacts
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //artifacts carried by creature - 4 max
@@ -310,5 +318,3 @@ public:
 		h & artifactsInBackpack & activeArtifact;
 	}
 };
-
-#endif // __CARTHANDLER_H__

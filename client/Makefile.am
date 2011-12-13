@@ -1,23 +1,59 @@
 bin_PROGRAMS = vcmiclient
+BUILT_SOURCES = StdInc.h.gch
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -c $<
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt -lz
 vcmiclient_CXXFLAGS = @SDL_CFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../CCallback.cpp \
 	../CCallback.h \
-	../CConsoleHandler.cpp \
-	../CConsoleHandler.h \
-	../CThreadHelper.cpp \
-	../CThreadHelper.h \
+	./BattleInterface/CAttackAnimation.cpp \
+	./BattleInterface/CAttackAnimation.h \
+	./BattleInterface/CBattleAnimation.cpp \
+	./BattleInterface/CBattleAnimation.h \
+	./BattleInterface/CBattleConsole.cpp \
+	./BattleInterface/CBattleConsole.h \
+	./BattleInterface/CBattleHero.cpp \
+	./BattleInterface/CBattleHero.h \
+	./BattleInterface/CBattleInterface.cpp \
+	./BattleInterface/CBattleInterface.h \
+	./BattleInterface/CBattleOptionsWindow.cpp \
+	./BattleInterface/CBattleOptionsWindow.h \
+	./BattleInterface/CBattleResultWindow.cpp \
+	./BattleInterface/CBattleResultWindow.h \
+	./BattleInterface/CBattleStackAnimation.cpp \
+	./BattleInterface/CBattleStackAnimation.h \
+	./BattleInterface/CDefenceAnimation.cpp \
+	./BattleInterface/CDefenceAnimation.h \
+	./BattleInterface/CDummyAnimation.cpp \
+	./BattleInterface/CDummyAnimation.h \
+	./BattleInterface/CHexFieldControl.cpp \
+	./BattleInterface/CHexFieldControl.h \
+	./BattleInterface/CMeleeAttackAnimation.cpp \
+	./BattleInterface/CMeleeAttackAnimation.h \
+	./BattleInterface/CMovementAnimation.cpp \
+	./BattleInterface/CMovementAnimation.h \
+	./BattleInterface/CMovementEndAnimation.cpp \
+	./BattleInterface/CMovementEndAnimation.h \
+	./BattleInterface/CMovementStartAnimation.cpp \
+	./BattleInterface/CMovementStartAnimation.h \
+	./BattleInterface/CReverseAnimation.cpp \
+	./BattleInterface/CReverseAnimation.h \
+	./BattleInterface/CShootingAnimation.cpp \
+	./BattleInterface/CShootingAnimation.h \
+	./BattleInterface/CSpellEffectAnimation.cpp \
+	./BattleInterface/CSpellEffectAnimation.h \
+	./BattleInterface/CStackQueue.cpp \
+	./BattleInterface/CStackQueue.h \
+	./BattleInterface/SStackAttackedInfo.h \
 	AdventureMapButton.cpp \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \
 	CAnimation.h \
-	CBattleInterface.cpp \
-	CBattleInterface.h \
 	CBitmapHandler.cpp \
 	CBitmapHandler.h \
 	CCastleInterface.cpp \

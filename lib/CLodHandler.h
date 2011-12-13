@@ -1,12 +1,6 @@
-#ifndef __CLODHANDLER_H__
-#define __CLODHANDLER_H__
-#include "../global.h"
-#include <vector>
-#include <string>
-#include <fstream>
-#include <set>
-#include <map>
-#include <boost/unordered_set.hpp>
+#pragma once
+
+
 
 /*
  * CLodhandler.h, part of VCMI engine
@@ -35,12 +29,12 @@ struct LodEntry {
 	ui32 size;				/* little endian */
 };
 
-static inline char readChar(const unsigned char * bufor, int &i)
+static inline char readChar(const ui8 * bufor, int &i)
 {
 	return bufor[i++];
 }
 
-DLL_EXPORT std::string readString(const unsigned char * bufor, int &i);
+DLL_LINKAGE std::string readString(const ui8 * bufor, int &i);
 
 enum LodFileType{
 	FILE_ANY,
@@ -91,17 +85,17 @@ public:
 
 }
 
-class DLL_EXPORT CLodHandler
+class DLL_LINKAGE CLodHandler
 {
 	std::map<std::string, LodFileType> extMap;// to convert extensions to file type
 	
 	std::ifstream LOD;
-	unsigned int totalFiles;
+	ui32 totalFiles;
 	boost::mutex *mutex;
 	std::string myDir; //load files from this dir instead of .lod file
 
 	void initEntry(Entry &e, const std::string name);
-	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+	int infs2(ui8 * in, int size, int realSize, ui8*& out, int wBits=15); //zlib fast handler
 
 public:
 	//convert string to upper case and remove extension. If extension!=NULL -> it will be copied here (including dot)
@@ -113,16 +107,13 @@ public:
 	~CLodHandler();
 	void init(const std::string lodFile, const std::string dirName);
 	std::string getFileName(std::string lodFile, LodFileType type=FILE_ANY);
-	unsigned char * giveFile(std::string defName, LodFileType type=FILE_ANY, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
+	ui8 * giveFile(std::string defName, LodFileType type=FILE_ANY, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
 	bool haveFile(std::string name, LodFileType type=FILE_ANY);//check if file is present in lod
 	std::string getTextFile(std::string name, LodFileType type=FILE_TEXT); //extracts one file
 	void extractFile(const std::string FName, const std::string name, LodFileType type=FILE_ANY); //extracts a specific file
 
 	//unpack data from memory, input data will be deleted
-	static unsigned char * getUnpackedData(unsigned char *data, size_t inputSize, int * outputSize);
+	static ui8 * getUnpackedData(ui8 *data, size_t inputSize, int * outputSize);
 	//loads given file, decompresses and returns
-	static unsigned char * getUnpackedFile(const std::string & path, int * sizeOut);
+	static ui8 * getUnpackedFile(const std::string & path, int * sizeOut);
 };
-
-
-#endif // __CLODHANDLER_H__

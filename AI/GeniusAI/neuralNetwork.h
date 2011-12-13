@@ -8,13 +8,8 @@
 * Bobby Anguelov - takinginitiative.wordpress.com (2008)
 * MSN & email: banguelov@cs.up.ac.za
 ********************************************************************/
-#ifndef NEURAL_NETWORK_H
-#define NEURAL_NETWORK_H
+#pragma once
 //standard includes
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <cmath>
 #include <limits>
 
 
@@ -64,4 +59,3 @@ private:
 
 std::istream & operator >> (std::istream &, neuralNetwork & ann);
 std::ostream & operator << (std::ostream &, const neuralNetwork & ann);
-#endif

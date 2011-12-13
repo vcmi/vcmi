@@ -1,9 +1,6 @@
-#ifndef __CSNDHANDLER_H__
-#define __CSNDHANDLER_H__
+#pragma once
 
-#include <vector>
 #include <iosfwd>
-#include <map>
 #include <SDL_stdinc.h>
 
 
@@ -52,8 +49,8 @@ protected:
 	struct Entry
 	{
 		std::string name;
-		unsigned int size;
-		unsigned int offset;
+		ui32 size;
+		ui32 offset;
 		const char *data;
 	};
 
@@ -82,7 +79,3 @@ class CVidHandler: public CMediaHandler
 public:
 	void add_file(std::string fname);
 };
-
-
-
-#endif // __CSNDHANDLER_H__

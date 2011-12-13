@@ -1,7 +1,7 @@
-#ifndef __CCURSORHANDLER_H__
-#define __CCURSORHANDLER_H__
-#include "../global.h"
-#include <vector>
+#pragma once
+
+
+
 struct SDL_Thread;
 class CDefHandler;
 struct SDL_Surface;
@@ -41,7 +41,3 @@ public:
 	void centerCursor();
 	~CCursorHandler();
 };
-
-
-
-#endif // __CCURSORHANDLER_H__

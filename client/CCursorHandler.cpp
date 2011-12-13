@@ -1,5 +1,6 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CCursorHandler.h"
+
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"

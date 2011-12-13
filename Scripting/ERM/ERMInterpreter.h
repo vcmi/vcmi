@@ -1,5 +1,6 @@
 #pragma once
-#include "../../global.h"
+
+
 #include "ERMParser.h"
 #include "ERMScriptModule.h"
 
@@ -135,7 +136,7 @@ namespace VERMInterpreter
 		static const int NUM_LOCALS = 100;
 		static const int NUM_STRINGS = 10;
 		static const int NUM_FLOATINGS = 100;
-
+		
 		int & getParam(int num);
 		int & getLocal(int num);
 		std::string & getString(int num);
@@ -621,10 +622,10 @@ public:
 	enum {WRONGVAL, INT, INTVAR, FLOATVAR, STRINGVAR} type;
 	void setTo(const IexpValStr & second);
 	void setTo(int val);
-	void setTo(float val);
+	void setTo(double val);
 	void setTo(const std::string & val);
 	int getInt() const;
-	float getFloat() const;
+	double getFloat() const;
 	std::string getString() const;
 
 	IexpValStr() : type(WRONGVAL)
@@ -796,7 +797,7 @@ class ERMInterpreter : public CScriptingModule
 	VERMInterpreter::Trigger * curTrigger;
 	VERMInterpreter::FunctionLocalVars * curFunc;
 	static const int TRIG_FUNC_NUM = 30000;
-	VERMInterpreter::FunctionLocalVars funcVars[TRIG_FUNC_NUM+1]; //+1 because we use [0] as a global set of y-vars
+	VERMInterpreter::FunctionLocalVars funcVars[TRIG_FUNC_NUM + 1]; //+1 because we use [0] as a global set of y-vars
 	VERMInterpreter::FunctionLocalVars * getFuncVars(int funNum); //0 is a global func-like set
 
 	IexpValStr getIexp(const ERM::TIexp & iexp) const;

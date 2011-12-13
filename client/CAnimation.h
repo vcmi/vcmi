@@ -1,14 +1,6 @@
-#ifndef __CANIMATION_H__
-#define __CANIMATION_H__
+#pragma once
 
-#include <boost/function.hpp>
 
-#include <vector>
-#include <string>
-#include <queue>
-#include <map>
-
-#include "../global.h"
 #include "GUIBase.h"
 
 /*
@@ -46,7 +38,7 @@ private:
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
 
-	unsigned char * data;
+	ui8 * data;
 	SDL_Color * palette;
 
 public:
@@ -135,7 +127,7 @@ class CompImage : public IImage
 	//RLE-d data
 	ui8 * surf;
 	//array of offsets for each line
-	unsigned int * line;
+	ui32 * line;
 	//palette
 	SDL_Color *palette;
 
@@ -237,13 +229,13 @@ private:
 	size_t frame;
 	size_t group;
 	int player;
-	unsigned char flags;
+	ui8 flags;
 
 	void init();
 
 public:
-	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, unsigned char Flags=0);
-	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, unsigned char Flags=0);
+	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	~CAnimImage();//d-tor
 
 	//size of animation
@@ -278,10 +270,10 @@ protected:
 	size_t first, last; //animation range
 
 	//TODO: replace with time delay(needed for battles)
-	unsigned int frameDelay;//delay in frames of each image
-	unsigned int value;//how many times current frame was showed
+	ui32 frameDelay;//delay in frames of each image
+	ui32 value;//how many times current frame was showed
 
-	unsigned char flags;//Flags from EFlags enum
+	ui8 flags;//Flags from EFlags enum
 
 	//blit image with optional rotation, fitting into rect, etc
 	void blitImage(size_t frame, size_t group, SDL_Surface *to);
@@ -296,9 +288,9 @@ public:
 	boost::function<void()> callback;
 
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
-	void setAlpha(unsigned int alphaValue);
+	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, unsigned char flags=0, unsigned int Delay=4, size_t Group=0);
+	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0);
 	~CShowableAnim();
 
 	//set animation to group or part of group
@@ -376,8 +368,6 @@ public:
 	void clearAndSet(EAnimType type);
 
 	CCreatureAnim(int x, int y, std::string name, Rect picPos,
-	              unsigned char flags= USE_RLE, EAnimType = HOLDING );
+	              ui8 flags= USE_RLE, EAnimType = HOLDING );
 
 };
-
-#endif // __CANIMATIONHANDLER_H__

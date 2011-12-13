@@ -1,15 +1,11 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CBuildingHandler.h"
+
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
-#include <sstream>
-#include <fstream>
-#include <assert.h>
-#include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
 #include "../lib/JsonNode.h"
+#include "GameConstants.h"
 
 extern CLodHandler * bitmaph;
 
@@ -23,7 +19,7 @@ extern CLodHandler * bitmaph;
  *
  */
 
-static unsigned int readNr(std::string &in, int &it)
+static ui32 readNr(std::string &in, int &it)
 {
 	int last=it;
 	for(;last<in.size();last++)
@@ -54,8 +50,8 @@ void CBuildingHandler::loadBuildings()
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
 
 	//read 9 special buildings for every faction
-	buildings.resize(F_NUMBER);
-	for(int i=0;i<F_NUMBER;i++)
+	buildings.resize(GameConstants::F_NUMBER);
+	for(int i=0;i<GameConstants::F_NUMBER;i++)
 	{
 		temp = readTo(buf,it,'\n');//read blank line and faction name
 		temp = readTo(buf,it,'\n');
@@ -73,7 +69,7 @@ void CBuildingHandler::loadBuildings()
 	for(int bg = 0; bg<17; bg++)
 	{
 		CBuilding *nb = readBg(buf,it);
-		for(int f=0;f<F_NUMBER;f++)
+		for(int f=0;f<GameConstants::F_NUMBER;f++)
 		{
 			buildings[f][bg] = new CBuilding(*nb);
 			buildings[f][bg]->tid = f;
@@ -83,12 +79,12 @@ void CBuildingHandler::loadBuildings()
 	}
 
 	//create Grail entries
-	for(int i=0; i<F_NUMBER; i++)
+	for(int i=0; i<GameConstants::F_NUMBER; i++)
 		buildings[i][26] = new CBuilding(i,26);
 
 	//reading 14 per faction dwellings
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//dwellings - skip 2 lines
-	for(int i=0;i<F_NUMBER;i++)
+	for(int i=0;i<GameConstants::F_NUMBER;i++)
 	{
 		temp = readTo(buf,it,'\n');//read blank line
 		temp = readTo(buf,it,'\n');// and faction name
@@ -101,7 +97,7 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 	/////done reading BUILDING.TXT*****************************
-	const JsonNode config(DATA_DIR "/config/hall.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/hall.json");
 
 	BOOST_FOREACH(const JsonNode &town, config["town"].Vector())
 	{
@@ -176,7 +172,7 @@ int CBuildingHandler::campToERMU( int camp, int townType, std::set<si32> builtBu
 		return campToERMU[camp];
 	}
 
-	static const std::vector<int> hordeLvlsPerTType[F_NUMBER] = {list_of(2), list_of(1), list_of(1)(4), list_of(0)(2),
+	static const std::vector<int> hordeLvlsPerTType[GameConstants::F_NUMBER] = {list_of(2), list_of(1), list_of(1)(4), list_of(0)(2),
 		list_of(0), list_of(0), list_of(0), list_of(0), list_of(0)};
 
 	int curPos = campToERMU.size();

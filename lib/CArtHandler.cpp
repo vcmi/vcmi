@@ -1,16 +1,9 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CArtHandler.h"
+
 #include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include <boost/random/linear_congruential.hpp>
-#include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
@@ -226,10 +219,10 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	{
 		loadToIt(dump,buf,it,3);
 	}
-	VLC->generaltexth->artifNames.resize(ARTIFACTS_QUANTITY);
-	VLC->generaltexth->artifDescriptions.resize(ARTIFACTS_QUANTITY);
+	VLC->generaltexth->artifNames.resize(GameConstants::ARTIFACTS_QUANTITY);
+	VLC->generaltexth->artifDescriptions.resize(GameConstants::ARTIFACTS_QUANTITY);
 	std::map<ui32,ui8>::iterator itr;
-	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
+	for (int i=0; i<GameConstants::ARTIFACTS_QUANTITY; i++)
 	{
 		CArtifact *art = new CArtifact();
 // 		if ((itr = modableArtifacts.find(i)) != modableArtifacts.end())
@@ -706,7 +699,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
-	giveArtBonus(126,Bonus::LEVEL_SPELL_IMMUNITY,SPELL_LEVELS,-1,Bonus::INDEPENDENT_MAX);//Orb of Inhibition
+	giveArtBonus(126,Bonus::LEVEL_SPELL_IMMUNITY,GameConstants::SPELL_LEVELS,-1,Bonus::INDEPENDENT_MAX);//Orb of Inhibition
 
 	//vial of dragon blood
 	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::ATTACK, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
@@ -945,14 +938,14 @@ int CArtifactInstance::firstAvailableSlot(const CGHeroInstance *h) const
 int CArtifactInstance::firstBackpackSlot(const CGHeroInstance *h) const
 {
 	if(!artType->isBig()) //discard big artifact
-		return Arts::BACKPACK_START + h->artifactsInBackpack.size();
+		return GameConstants::BACKPACK_START + h->artifactsInBackpack.size();
 
 	return -1;
 }
 
 bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
-	if(al.slot >= Arts::BACKPACK_START)
+	if(al.slot >= GameConstants::BACKPACK_START)
 	{
 		if(artType->isBig())
 			return false;
@@ -972,7 +965,7 @@ void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 	assert(canBePutAt(ArtifactLocation(h, slot)));
 
 	h->setNewArtSlot(slot, this, false);
-	if(slot < Arts::BACKPACK_START)
+	if(slot < GameConstants::BACKPACK_START)
 		h->attachTo(this);
 }
 
@@ -980,7 +973,7 @@ void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 {
 	assert(h->CArtifactSet::getArt(slot) == this);
 	h->eraseArtSlot(slot);
-	if(slot < Arts::BACKPACK_START)
+	if(slot < GameConstants::BACKPACK_START)
 		h->detachFrom(this);
 
 	//TODO delete me?
@@ -1024,7 +1017,7 @@ void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
 {
 	removeFrom(src.hero, src.slot);
 	putAt(dst.hero, dst.slot);
-	if (artType->id == 135 && dst.slot == Arts::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
+	if (artType->id == 135 && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
 		dst.hero->giveArtifact(0);
 }
 
@@ -1071,7 +1064,7 @@ bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assu
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(al, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
 		return false; //no is no...
-	if(al.slot >= Arts::BACKPACK_START)
+	if(al.slot >= GameConstants::BACKPACK_START)
 		return true; //we can always remove combined art to the backapck
 
 
@@ -1087,7 +1080,7 @@ bool CCombinedArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assu
 	}
 	
 	//we iterate over all active slots and check if constituents fits them
-	for (int i = 0; i < Arts::BACKPACK_START; i++)
+	for (int i = 0; i < GameConstants::BACKPACK_START; i++)
 	{
 		for(std::vector<ConstituentInfo>::iterator art = constituentsToBePlaced.begin(); art != constituentsToBePlaced.end(); art++)
 		{
@@ -1137,7 +1130,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, int slo
 
 void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 {
-	if(slot >= Arts::BACKPACK_START)
+	if(slot >= GameConstants::BACKPACK_START)
 	{
 		CArtifactInstance::putAt(h, slot);
 		BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
@@ -1153,12 +1146,12 @@ void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 			if(ci.art != mainConstituent)
 			{
 				int pos = -1;
-				if(isbetw(ci.slot, 0, Arts::BACKPACK_START)  &&  ci.art->canBePutAt(ArtifactLocation(h, ci.slot))) //there is a valid suggestion where to place lock 
+				if(vstd::isbetween(ci.slot, 0, GameConstants::BACKPACK_START)  &&  ci.art->canBePutAt(ArtifactLocation(h, ci.slot))) //there is a valid suggestion where to place lock 
 					pos = ci.slot;
 				else
 					ci.slot = pos = ci.art->firstAvailableSlot(h);
 
-				assert(pos < Arts::BACKPACK_START);
+				assert(pos < GameConstants::BACKPACK_START);
 				h->setNewArtSlot(pos, ci.art, true); //sets as lock
 			}
 			else
@@ -1171,7 +1164,7 @@ void CCombinedArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
 
 void CCombinedArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 {
-	if(slot >= Arts::BACKPACK_START)
+	if(slot >= GameConstants::BACKPACK_START)
 	{
 		CArtifactInstance::removeFrom(h, slot);
 	}
@@ -1292,7 +1285,7 @@ si32 CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact->artType->id == aid)
-			return Arts::BACKPACK_START + i;
+			return GameConstants::BACKPACK_START + i;
 
 	return -1;
 }
@@ -1305,7 +1298,7 @@ si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact == art)
-			return Arts::BACKPACK_START + i;
+			return GameConstants::BACKPACK_START + i;
 
 	return -1;
 }
@@ -1327,9 +1320,9 @@ const ArtSlotInfo * CArtifactSet::getSlot(ui16 pos) const
 {
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn[pos];
-	if(pos >= Arts::AFTER_LAST )
+	if(pos >= ArtifactPosition::AFTER_LAST )
 	{
-		int backpackPos = (int)pos - Arts::BACKPACK_START;
+		int backpackPos = (int)pos - GameConstants::BACKPACK_START;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
 			return NULL;
 		else
@@ -1358,22 +1351,22 @@ CArtifactSet::~CArtifactSet()
 ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ui16 slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
-	ArtSlotInfo &ret = slot < Arts::BACKPACK_START 
+	ArtSlotInfo &ret = slot < GameConstants::BACKPACK_START 
 		? artifactsWorn[slot]
-		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - Arts::BACKPACK_START), ArtSlotInfo());
+		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - GameConstants::BACKPACK_START), ArtSlotInfo());
 
 	return ret;
 }
 
 void CArtifactSet::eraseArtSlot(ui16 slot)
 {
-	if(slot < Arts::BACKPACK_START)
+	if(slot < GameConstants::BACKPACK_START)
 	{
 		artifactsWorn.erase(slot);
 	}
 	else
 	{
-		slot -= Arts::BACKPACK_START;
+		slot -= GameConstants::BACKPACK_START;
 		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
 	}
 }
@@ -1381,7 +1374,7 @@ void CArtifactSet::eraseArtSlot(ui16 slot)
 ArtSlotInfo & CCreatureArtifactSet::retreiveNewArtSlot(ui16 slot)
 {
 	assert(slot); //ke?
-	ArtSlotInfo &ret = slot <= Arts::CREATURE_ART
+	ArtSlotInfo &ret = slot <= GameConstants::CREATURE_ART
 		? activeArtifact
 		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - 1), ArtSlotInfo());
 
@@ -1390,7 +1383,7 @@ ArtSlotInfo & CCreatureArtifactSet::retreiveNewArtSlot(ui16 slot)
 
 void CCreatureArtifactSet::eraseArtSlot(ui16 slot)
 {
-	if(slot == Arts::CREATURE_ART)
+	if(slot == GameConstants::CREATURE_ART)
 	{
 		activeArtifact.artifact = NULL; //hmm?
 	}
@@ -1403,9 +1396,9 @@ void CCreatureArtifactSet::eraseArtSlot(ui16 slot)
 
 const ArtSlotInfo * CCreatureArtifactSet::getSlot(ui16 pos) const
 {
-	if (pos == Arts::CREATURE_ART)
+	if (pos == GameConstants::CREATURE_ART)
 		return &activeArtifact;
-	else if(pos > Arts::CREATURE_ART)
+	else if(pos > GameConstants::CREATURE_ART)
 	{
 		int backpackPos = (int)pos - 1;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
@@ -1419,7 +1412,7 @@ const ArtSlotInfo * CCreatureArtifactSet::getSlot(ui16 pos) const
 si32 CCreatureArtifactSet::getArtPos(int aid, bool onlyWorn) const
 {
 	if (aid == activeArtifact.artifact->artType->id )
-		return Arts::CREATURE_ART;
+		return GameConstants::CREATURE_ART;
 
 	if(onlyWorn)
 		return -1;
@@ -1436,11 +1429,11 @@ si32 CCreatureArtifactSet::getArtPos(int aid, bool onlyWorn) const
 si32 CCreatureArtifactSet::getArtPos(const CArtifactInstance *art) const
 {
 	if (activeArtifact.artifact == art)
-		return Arts::CREATURE_ART;
+		return GameConstants::CREATURE_ART;
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact == art)
-			return Arts::BACKPACK_START + i;
+			return GameConstants::BACKPACK_START + i;
 
 	return -1;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-struct DLL_EXPORT CObstacleInstance
+struct DLL_LINKAGE CObstacleInstance
 {
 	int uniqueID;
 	int ID; //ID of obstacle (defines type of it)

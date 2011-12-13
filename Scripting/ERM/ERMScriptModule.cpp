@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "ERMScriptModule.h"
+
 #include "ERMInterpreter.h"
 
 /*
@@ -21,12 +23,12 @@ CPrivilagedInfoCallback *icb;
 
 const char *g_cszAiName = "(V)ERM interpreter";
 
-extern "C" DLL_F_EXPORT void GetAiName(char* name)
+extern "C" DLL_EXPORT void GetAiName(char* name)
 {
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_F_EXPORT CScriptingModule* GetNewModule()
+extern "C" DLL_EXPORT CScriptingModule* GetNewModule()
 {
 	return new ERMInterpreter();
 }

@@ -1,14 +1,6 @@
-#ifndef __MAP_H__
-#define __MAP_H__
-#ifdef _MSC_VER
-#pragma warning (disable : 4482)
-#endif
-#include <cstring>
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
-#include "../global.h"
+#pragma once
+
+
 #ifndef _MSC_VER
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
@@ -16,6 +8,8 @@
 
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
+#include "int3.h"
+#include "GameConstants.h"
 
 /*
  * map.h, part of VCMI engine
@@ -37,19 +31,19 @@ class CGTownInstance;
 class IModableArt;
 
 /// Struct which describes a single terrain tile
-struct DLL_EXPORT TerrainTile
+struct DLL_LINKAGE TerrainTile
 {
 	enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 	enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
 	enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
 
 	EterrainType tertype; // type of terrain
-	unsigned char terview; // look of terrain
+	ui8 terview; // look of terrain
 	Eriver nuine; // type of Eriver (0 if there is no river)
-	unsigned char rivDir; // direction of Eriver
+	ui8 rivDir; // direction of Eriver
 	Eroad malle; // type of Eroad (0 if there is no river)
-	unsigned char roadDir; // direction of Eroad
-	unsigned char siodmyTajemniczyBajt; //first two bits - how to rotate terrain graphic (next two - river graphic, next two - road); 7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
+	ui8 roadDir; // direction of Eroad
+	ui8 siodmyTajemniczyBajt; //first two bits - how to rotate terrain graphic (next two - river graphic, next two - road); 7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
 
 	bool visitable; //false = not visitable; true = visitable
 	bool blocked; //false = free; true = blocked;
@@ -78,7 +72,7 @@ struct DLL_EXPORT TerrainTile
 };
 
 /// name of starting hero
-struct DLL_EXPORT SheroName 
+struct DLL_LINKAGE SheroName 
 {
 	int heroID;
 	std::string heroName;
@@ -91,7 +85,7 @@ struct DLL_EXPORT SheroName
 
 /// Player information regarding map. Which factions are allowed, AI tactic setting, main hero name, 
 /// position of main town,...
-struct DLL_EXPORT PlayerInfo
+struct DLL_LINKAGE PlayerInfo
 {
 	si32 p7, p8, p9;
 	ui8 powerPlacehodlers; //q-ty of hero placeholders containing hero type, WARNING: powerPlacehodlers sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning???
@@ -117,7 +111,7 @@ struct DLL_EXPORT PlayerInfo
 	si8 defaultCastle() const
 	{
 		si8 ret = -2;
-		for (int j = 0; j < F_NUMBER  &&  ret != -1; j++) //we start with none and find matching faction. if more than one, then set to random
+		for (int j = 0; j < GameConstants::F_NUMBER  &&  ret != -1; j++) //we start with none and find matching faction. if more than one, then set to random
 		{
 			if((1 << j) & allowedFactions)
 			{
@@ -148,9 +142,9 @@ struct DLL_EXPORT PlayerInfo
 };
 
 /// Small struct which holds information about the loss condition
-struct DLL_EXPORT LossCondition
+struct DLL_LINKAGE LossCondition
 {
-	ElossCon typeOfLossCon;
+	ELossConditionType::ELossConditionType typeOfLossCon;
 
 	int3 pos;
 
@@ -167,9 +161,9 @@ struct DLL_EXPORT LossCondition
 };
 
 /// Small struct which holds information about the victory condition
-struct DLL_EXPORT CVictoryCondition
+struct DLL_LINKAGE CVictoryCondition
 {
-	EvictoryConditions condition; //ID of condition
+	EVictoryConditionType::EVictoryConditionType condition; //ID of condition
 	ui8 allowNormalVictory, appliesToAI;
 
 	int3 pos; //pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6); monster pos (7); destination pos(8)
@@ -187,7 +181,7 @@ struct DLL_EXPORT CVictoryCondition
 };
 
 /// Struct which holds a name and the rumor text
-struct DLL_EXPORT Rumor
+struct DLL_LINKAGE Rumor
 {
 	std::string name, text;
 
@@ -198,7 +192,7 @@ struct DLL_EXPORT Rumor
 };
 
 /// Struct which describes who can hire this hero
-struct DLL_EXPORT DisposedHero
+struct DLL_LINKAGE DisposedHero
 {
 	ui32 ID;
 	ui16 portrait; //0xFF - default
@@ -212,7 +206,7 @@ struct DLL_EXPORT DisposedHero
 };
 
 /// Class which manages map events.
-class DLL_EXPORT CMapEvent
+class DLL_LINKAGE CMapEvent
 {
 public:
 	std::string name, message;
@@ -240,7 +234,7 @@ public:
 
 /// Sub-class derived by CMapEvent; This event can build specific buildings or add 
 /// additional creatures in a town.
-class DLL_EXPORT CCastleEvent: public CMapEvent
+class DLL_LINKAGE CCastleEvent: public CMapEvent
 {
 public:
 	std::set<si32> buildings;//build specific buildings
@@ -255,7 +249,7 @@ public:
 };
 
 /// Holds information about loss/victory condition, map format, version, players, height, width,...
-class DLL_EXPORT CMapHeader
+class DLL_LINKAGE CMapHeader
 {
 public:
 	enum Eformat {invalid, WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
@@ -272,10 +266,10 @@ public:
 	ui8 howManyTeams;
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	std::vector<ui16> placeholdedHeroes; //ID of types of heroes in placeholders
-	void initFromMemory(const unsigned char *bufor, int &i);
-	void loadViCLossConditions( const unsigned char * bufor, int &i);
-	void loadPlayerInfo( int &pom, const unsigned char * bufor, int &i);
-	CMapHeader(const unsigned char *map); //an argument is a reference to string described a map (unpacked)
+	void initFromMemory(const ui8 *bufor, int &i);
+	void loadViCLossConditions( const ui8 * bufor, int &i);
+	void loadPlayerInfo( int &pom, const ui8 * bufor, int &i);
+	CMapHeader(const ui8 *map); //an argument is a reference to string described a map (unpacked)
 	CMapHeader();
 	virtual ~CMapHeader();
 
@@ -289,7 +283,7 @@ public:
 
 /// Extends the base class and adds further map information like rumors, disposed heroes, 
 /// allowed spells, artifacts, abilities and such things.
-struct DLL_EXPORT Mapa : public CMapHeader
+struct DLL_LINKAGE Mapa : public CMapHeader
 {
 	ui32 checksum;
 	TerrainTile*** terrain; 
@@ -314,21 +308,21 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 	bmap<si32, si32> questIdentifierToId;
 
-	void initFromBytes( const unsigned char * bufor, size_t size); //creates map from decompressed .h3m data
+	void initFromBytes( const ui8 * bufor, size_t size); //creates map from decompressed .h3m data
 
-	void readEvents( const unsigned char * bufor, int &i);
-	void readObjects( const unsigned char * bufor, int &i);
-	void loadQuest( CQuest * guard, const unsigned char * bufor, int & i);
-	void readDefInfo( const unsigned char * bufor, int &i);
-	void readTerrain( const unsigned char * bufor, int &i);
-	void readPredefinedHeroes( const unsigned char * bufor, int &i);
-	void readHeader( const unsigned char * bufor, int &i);
-	void readRumors( const unsigned char * bufor, int &i);
-	CGObjectInstance *loadHero(const unsigned char * bufor, int &i, int idToBeGiven);
-	void loadArtifactsOfHero(const unsigned char * bufor, int & i, CGHeroInstance * nhi);
-	bool loadArtifactToSlot(CGHeroInstance *h, int slot, const unsigned char * bufor, int &i);
-	void loadTown( CGObjectInstance * &nobj, const unsigned char * bufor, int &i, int subid);
-	int loadSeerHut( const unsigned char * bufor, int i, CGObjectInstance *& nobj);
+	void readEvents( const ui8 * bufor, int &i);
+	void readObjects( const ui8 * bufor, int &i);
+	void loadQuest( CQuest * guard, const ui8 * bufor, int & i);
+	void readDefInfo( const ui8 * bufor, int &i);
+	void readTerrain( const ui8 * bufor, int &i);
+	void readPredefinedHeroes( const ui8 * bufor, int &i);
+	void readHeader( const ui8 * bufor, int &i);
+	void readRumors( const ui8 * bufor, int &i);
+	CGObjectInstance *loadHero(const ui8 * bufor, int &i, int idToBeGiven);
+	void loadArtifactsOfHero(const ui8 * bufor, int & i, CGHeroInstance * nhi);
+	bool loadArtifactToSlot(CGHeroInstance *h, int slot, const ui8 * bufor, int &i);
+	void loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int subid);
+	int loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj);
 
 	CArtifactInstance *createArt(int aid, int spellID = -1);
 	void addNewArtifactInstance(CArtifactInstance *art);
@@ -387,11 +381,11 @@ struct DLL_EXPORT Mapa : public CMapHeader
 // 
 // 		if(h.saving) //create vector with all defs used on map
 // 		{
-// 			for(unsigned int i=0; i<objects.size(); i++)
+// 			for(ui32 i=0; i<objects.size(); i++)
 // 				if(objects[i])
 // 					objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
 // 
-// 			for(unsigned int i=0; i<objects.size(); i++)
+// 			for(ui32 i=0; i<objects.size(); i++)
 // 			{
 // 				if(!objects[i]) continue;
 // 				CGDefInfo *cur = objects[i]->defInfo;
@@ -426,7 +420,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 
-// 		for(unsigned int i=0; i<objects.size(); i++)
+// 		for(ui32 i=0; i<objects.size(); i++)
 // 		{
 // 			CGObjectInstance *&obj = objects[i];
 // 			h & obj;
@@ -444,20 +438,20 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		if(!h.saving)
 		{
 
-			for(unsigned int i=0; i<objects.size(); i++)
+			for(ui32 i=0; i<objects.size(); i++)
 			{
 				if(!objects[i]) continue;
-				if(objects[i]->ID == HEROI_TYPE)
+				if(objects[i]->ID == GameConstants::HEROI_TYPE)
 					heroes.push_back(static_cast<CGHeroInstance*>(+objects[i]));
-				else if(objects[i]->ID == TOWNI_TYPE)
+				else if(objects[i]->ID == GameConstants::TOWNI_TYPE)
 					towns.push_back(static_cast<CGTownInstance*>(+objects[i]));
 
 				addBlockVisTiles(objects[i]); //recreate blockvis map
 			}
-			for(unsigned int i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers
+			for(ui32 i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers
 			{
 				int3 vistile = heroes[i]->pos; vistile.x++;
-				for(unsigned int j=0; j<towns.size(); j++)
+				for(ui32 j=0; j<towns.size(); j++)
 				{
 					if(vistile == towns[j]->pos) //hero stands on the town entrance
 					{
@@ -480,7 +474,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 				const TerrainTile &t = getTile(vistile);
 				if(t.tertype != TerrainTile::water) continue;
 				//hero stands on the water - he must be in the boat
-				for(unsigned int j = 0; j < t.visitableObjects.size(); j++)
+				for(ui32 j = 0; j < t.visitableObjects.size(); j++)
 				{
 					if(t.visitableObjects[j]->ID == 8)
 					{
@@ -495,4 +489,3 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		} //!saving
 	}
 };
-#endif // __MAP_H__

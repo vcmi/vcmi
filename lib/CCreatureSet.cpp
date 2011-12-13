@@ -1,16 +1,13 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "CCreatureSet.h"
+
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include <assert.h>
 #include "CObjectHandler.h"
 #include "IGameCallback.h"
 #include "CGameState.h"
 #include "CGeneralTextHandler.h"
-#include <sstream>
 #include "CSpellHandler.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/replace.hpp>
 
 const CStackInstance &CCreatureSet::operator[](TSlot slot) const
 {
@@ -240,8 +237,8 @@ void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(stacks[slot]->count + count > 0);
-	if (STACK_EXP && count > stacks[slot]->count)
-		stacks[slot]->experience *= (count/(float)stacks[slot]->count);
+	if (GameConstants::STACK_EXP && count > stacks[slot]->count)
+		stacks[slot]->experience *= (count / static_cast<double>(stacks[slot]->count));
 	stacks[slot]->count = count;
 	armyChanged();
 }
@@ -282,7 +279,7 @@ void CCreatureSet::eraseStack(TSlot slot)
 {
 	assert(hasStackAtSlot(slot));
 	CStackInstance *toErase = detachStack(slot);
-	delNull(toErase);
+	vstd::clear_pointer(toErase);
 }
 
 bool CCreatureSet::contains(const CStackInstance *stack) const
@@ -330,7 +327,7 @@ void CCreatureSet::joinStack(TSlot slot, CStackInstance * stack)
 
 	//TODO move stuff 
 	changeStackCount(slot, stack->count);
-	delNull(stack);
+	vstd::clear_pointer(stack);
 }
 
 void CCreatureSet::changeStackCount(TSlot slot, TQuantity toAdd)
@@ -396,7 +393,7 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 {
 	if(!allowMergingStacks)
 	{
-		int freeSlots = stacksCount() - ARMY_SIZE;
+		int freeSlots = stacksCount() - GameConstants::ARMY_SIZE;
 		std::set<const CCreature*> cresToAdd;
 		for(TSlots::const_iterator i = cs.stacks.begin(); i != cs.stacks.end(); i++)
 		{
@@ -480,7 +477,7 @@ int CStackInstance::getQuantityID() const
 int CStackInstance::getExpRank() const
 {
 	int tier = type->level;
-	if (iswith(tier, 1, 7))
+	if (vstd::iswithin(tier, 1, 7))
 	{
 		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
 		{ //exp values vary from 1st level to max exp at 11th level
@@ -508,22 +505,22 @@ si32 CStackInstance::magicResistance() const
 		//resistance skill
 		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::RESISTANCE);
 	}
-	amin (val, 100);
+	vstd::amin (val, 100);
 	return val;
 }
 
 void CStackInstance::giveStackExp(expType exp)
 {
 	int level = type->level;
-	if (!iswith(level, 1, 7))
+	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
 	CCreatureHandler * creh = VLC->creh;
 	ui32 maxExp = creh->expRanks[level].back();
 
-	amin(exp, (expType)maxExp); //prevent exp overflow due to different types
-	amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
-	amin(experience += exp, maxExp); //can't get more exp than this limit
+	vstd::amin(exp, (expType)maxExp); //prevent exp overflow due to different types
+	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
+	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
 void CStackInstance::setType(int creID)
@@ -539,8 +536,8 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 	{
 		detachFrom(const_cast<CCreature*>(type));
-		if (type->isMyUpgrade(c) && STACK_EXP)
-			experience *= VLC->creh->expAfterUpgrade / 100.0f;
+		if (type->isMyUpgrade(c) && GameConstants::STACK_EXP)
+			experience *= VLC->creh->expAfterUpgrade / 100.0;
 	}
 
 	type = c;
@@ -840,7 +837,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			break;
 		case Bonus::LEVEL_SPELL_IMMUNITY:
 		{
-			if (iswith(bonus->val, 1 , 5))
+			if (vstd::iswithin(bonus->val, 1 , 5))
 			{
 				fileName = "E_SPLVL" + boost::lexical_cast<std::string>(bonus->val) + ".bmp";
 			}
@@ -961,7 +958,7 @@ CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count
 {
 }
 
-DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)
+DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)
 {
 	if(!sth.valid(true))
 		str << "an invalid stack!";

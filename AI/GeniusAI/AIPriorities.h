@@ -1,7 +1,5 @@
-#ifndef AIP_H
-#define AIP_H
+#pragma once
 
-#include <string>
 #include "CGeniusAI.h"
 #include "neuralNetwork.h"
 
@@ -11,10 +9,10 @@ class Network
 {
 public:
 	Network();
-	Network(vector<unsigned int> whichFeatures);// random network
+	Network(vector<ui32> whichFeatures);// random network
 	Network(istream & input);
-	vector<unsigned int> whichFeatures;
-	float feedForward(const vector<float> & stateFeatures);
+	vector<ui32> whichFeatures;
+	double feedForward(const vector<double> & stateFeatures);
 	neuralNetwork net;					//a network with whichFeatures.size() inputs, and 1 output
 };
 
@@ -25,15 +23,14 @@ public:
 	Priorities(const string & filename);	//read brain from file
 
 
-	vector<float> stateFeatures;
+	vector<double> stateFeatures;
 	int specialFeaturesStart;
 	int numSpecialFeatures;
 	void fillFeatures(const CGeniusAI::HypotheticalGameState & AI);
-	float getValue(const CGeniusAI::AIObjective & obj);
-	float getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
+	double getValue(const CGeniusAI::AIObjective & obj);
+	double getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
 	vector<vector<Network> > objectNetworks;
 	vector<map<int,Network> > buildingNetworks;
 };
 
 }
-#endif

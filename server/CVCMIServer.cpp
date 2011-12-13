@@ -1,31 +1,41 @@
-#include "stdafx.h"
+#include "StdInc.h"
+
+#include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
+#include <boost/random/linear_congruential.hpp>
+#include <boost/system/system_error.hpp>
+#include <boost/crc.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+
+
+
 #include "../lib/CCampaignHandler.h"
-#include "../global.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "zlib.h"
-#ifndef __GNUC__
-#include <tchar.h>
-#endif
 #include "CVCMIServer.h"
-#include "../StartInfo.h"
+#include "../lib/StartInfo.h"
 #include "../lib/map.h"
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
 #include "../lib/CMapInfo.h"
+#include "../lib/CObjectHandler.h"
+#include "../lib/GameConstants.h"
+
+#include <boost/asio.hpp>
 
 std::string NAME_AFFIX = "server";
-std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
+std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
@@ -120,7 +130,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 
 	tlog0 << "Thread listening for " << *cpc << " ended\n";
 	listeningThreads--;
-	delNull(cpc->handler);
+	vstd::clear_pointer(cpc->handler);
 }
 
 void CPregameServer::run()
@@ -261,14 +271,14 @@ void CPregameServer::processPack(CPackForSelectionScreen * pack)
 	}
 	else if(SelectMap *sm = dynamic_cast<SelectMap*>(pack))
 	{
-		delNull(curmap);
+		vstd::clear_pointer(curmap);
 		curmap = sm->mapInfo;
 		sm->free = false;
 		announcePack(*pack);
 	}
 	else if(UpdateStartOptions *uso = dynamic_cast<UpdateStartOptions*>(pack))
 	{
-		delNull(curStartInfo);
+		vstd::clear_pointer(curStartInfo);
 		curStartInfo = uso->options;
 		uso->free = false;
 		announcePack(*pack);
@@ -298,7 +308,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 }
 
 CVCMIServer::CVCMIServer()
-: io(new io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(NULL)
+: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(NULL)
 {
 	tlog4 << "CVCMIServer created!" <<std::endl;
 }
@@ -351,7 +361,7 @@ void CVCMIServer::newGame()
 
 	CGameHandler *gh = initGhFromHostingConnection(c);
 	gh->run(false);
-	delNull(gh);
+	vstd::clear_pointer(gh);
 }
 
 void CVCMIServer::newPregame()
@@ -518,7 +528,7 @@ int main(int argc, char** argv)
 	}
 	tlog0 << "Port " << port << " will be used." << std::endl;
 	initDLL(console,logfile);
-	srand ( (unsigned int)time(NULL) );
+	srand ( (ui32)time(NULL) );
 	try
 	{
 		io_service io_service;

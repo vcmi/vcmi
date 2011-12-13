@@ -1,11 +1,10 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CDefObjInfoHandler.h"
+
 #include "../client/CGameInfo.h"
 #include "CLodHandler.h"
-#include <sstream>
 #include "../lib/VCMI_Lib.h"
-#include <set>
+#include "GameConstants.h"
 
 extern CLodHandler * bitmaph;
 
@@ -120,7 +119,7 @@ void CDefObjInfoHandler::load()
 
 
 		gobjs[nobj->id][nobj->subid] = nobj;
-		if(nobj->id==TOWNI_TYPE)
+		if(nobj->id==GameConstants::TOWNI_TYPE)
 			castles[nobj->subid]=nobj;
 	}
 

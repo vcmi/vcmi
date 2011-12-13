@@ -1,9 +1,8 @@
-#ifndef __CPREGAME_H__
-#define __CPREGAME_H__
-#include "../global.h"
-#include <set>
+#pragma once
+
+
 #include <SDL.h>
-#include "../StartInfo.h"
+#include "../lib/StartInfo.h"
 #include "GUIBase.h"
 #include "GUIClasses.h"
 #include "FunctionList.h"
@@ -355,7 +354,7 @@ class CHotSeatPlayers : public CIntObject
 {
 	CPicture *bg;
 	CTextBox *title;
-	CTextInput *txt[8];
+	CTextInput* txt[8];
 	AdventureMapButton *ok, *cancel;
 	CGStatusBar *bar;
 
@@ -395,7 +394,7 @@ class CBonusSelection : public CIntObject
 	class CRegion : public CIntObject
 	{
 		CBonusSelection * owner;
-		SDL_Surface * graphics[3]; //[0] - not selected, [1] - selected, [2] - striped
+		SDL_Surface* graphics[3]; //[0] - not selected, [1] - selected, [2] - striped
 		bool accessible; //false if region should be striped
 		bool selectable; //true if region should be selectable
 		int myNumber; //number of region
@@ -416,7 +415,7 @@ class CBonusSelection : public CIntObject
 	CCampaignState * ourCampaign;
 	CMapHeader *ourHeader;
 	CDefHandler *sizes; //icons of map sizes
-	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
+	SDL_Surface* diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
 	AdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
 	void changeDiff(bool increase); //if false, then decrease
 
@@ -506,5 +505,3 @@ public:
 };
 
 extern CGPreGame *CGP;
-
-#endif // __CPREGAME_H__

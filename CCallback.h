@@ -1,14 +1,5 @@
-#ifndef __CCALLBACK_H__
-#define __CCALLBACK_H__
+#pragma once
 
-#include "global.h"
-#ifdef _WIN32
-#include "tchar.h"
-#else
-#include "tchar_amigaos4.h" //XXX this is mingw header are we need this for something? for 'true'
-//support of unicode we should use ICU or some boost wraper areound it
-//(boost using this lib during compilation i dont know what for exactly)
-#endif
 
 #include "lib/IGameCallback.h"
 
@@ -148,5 +139,3 @@ public:
 //friends
 	friend class CClient;
 };
-
-#endif // __CCALLBACK_H__

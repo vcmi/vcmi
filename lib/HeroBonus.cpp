@@ -1,26 +1,22 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "HeroBonus.h"
-#include <boost/foreach.hpp>
+
 #include "VCMI_Lib.h"
 #include "CSpellHandler.h"
-#include <sstream>
 #include "CCreatureHandler.h"
-#include <boost/assign/list_of.hpp>
 #include "CCreatureSet.h"
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/bind.hpp>
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
 #include "BattleState.h"
 #include "CArtHandler.h"
-#include <boost/lexical_cast.hpp>
+#include "GameConstants.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
-	DLL_EXPORT const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
+	DLL_LINKAGE const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
@@ -85,7 +81,7 @@ int BonusList::totalValue() const
 			}
 			else
 			{
-				amax(indepMax, b->val);
+				vstd::amax(indepMax, b->val);
 			}
 
 			break;
@@ -97,7 +93,7 @@ int BonusList::totalValue() const
 			}
 			else
 			{
-				amin(indepMin, b->val);
+				vstd::amin(indepMin, b->val);
 			}
 
 			break;
@@ -110,15 +106,15 @@ int BonusList::totalValue() const
 	if(hasIndepMin && hasIndepMax)
 		assert(indepMin < indepMax);
 	if (hasIndepMax)
-		amax(valFirst, indepMax);
+		vstd::amax(valFirst, indepMax);
 	if (hasIndepMin)
-		amin(valFirst, indepMin);
+		vstd::amin(valFirst, indepMin);
 
 	return valFirst;
 }
 const Bonus * BonusList::getFirst(const CSelector &selector) const
 {
-	for (unsigned int i = 0; i < bonuses.size(); i++)
+	for (ui32 i = 0; i < bonuses.size(); i++)
 	{
 		const Bonus *b = bonuses[i];
 		if(selector(b))
@@ -129,7 +125,7 @@ const Bonus * BonusList::getFirst(const CSelector &selector) const
 
 Bonus * BonusList::getFirst(const CSelector &select)
 {
-	for (unsigned int i = 0; i < bonuses.size(); i++)
+	for (ui32 i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
 		if(select(b))
@@ -158,7 +154,7 @@ void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector) const
 
 void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const bool caching /*= false*/) const
 {
-	for (unsigned int i = 0; i < bonuses.size(); i++)
+	for (ui32 i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
 
@@ -329,9 +325,9 @@ int IBonusBearer::MoraleVal() const
 	int ret = valOfBonuses(Bonus::MORALE);
 
 	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
-		amax(ret, +1);
+		vstd::amax(ret, +1);
 
-	return abetw(ret, -3, +3);
+	return vstd::abetween(ret, -3, +3);
 }
 
 int IBonusBearer::LuckVal() const
@@ -342,9 +338,9 @@ int IBonusBearer::LuckVal() const
 	int ret = valOfBonuses(Bonus::LUCK);
 	
 	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
-		amax(ret, +1);
+		vstd::amax(ret, +1);
 
-	return abetw(ret, -3, +3);
+	return vstd::abetween(ret, -3, +3);
 }
 
 si32 IBonusBearer::Attack() const
@@ -355,7 +351,7 @@ si32 IBonusBearer::Attack() const
 	{
 		ret += frenzyPower * Defense(false);
 	}
-	amax(ret, 0);
+	vstd::amax(ret, 0);
 
 	return ret;
 }
@@ -368,7 +364,7 @@ si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
 	{
 		return 0;
 	}
-	amax(ret, 0);
+	vstd::amax(ret, 0);
 
 	return ret;
 }
@@ -393,7 +389,7 @@ ui32 IBonusBearer::getMaxDamage() const
 
 si32 IBonusBearer::manaLimit() const
 {
-	return si32(getPrimSkillLevel(3) * (100.0f + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0f);
+	return si32(getPrimSkillLevel(3) * (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0);
 }
 
 int IBonusBearer::getPrimSkillLevel(int id) const
@@ -406,7 +402,7 @@ int IBonusBearer::getPrimSkillLevel(int id) const
 	else
 		ret = valOfBonuses(Bonus::PRIMARY_SKILL, id);
 
-	amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
+	vstd::amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	return ret;
 }
 
@@ -452,7 +448,7 @@ const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
 
 void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
 {
-	for (unsigned int i = 0; i < parents.size(); i++)
+	for (ui32 i = 0; i < parents.size(); i++)
 	{
 		const CBonusSystemNode *parent = parents[i];
 		out.insert(parent);
@@ -461,7 +457,7 @@ void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent
 
 void CBonusSystemNode::getParents(TNodes &out)
 {
-	for (unsigned int i = 0; i < parents.size(); i++)
+	for (ui32 i = 0; i < parents.size(); i++)
 	{
 		const CBonusSystemNode *parent = parents[i];
 		out.insert(const_cast<CBonusSystemNode*>(parent));
@@ -618,7 +614,7 @@ void CBonusSystemNode::removeBonus(Bonus *b)
 		unpropagateBonus(b);
 	else
 		bonuses -= b;
-	delNull(b);
+	vstd::clear_pointer(b);
 	CBonusSystemNode::treeChanged++;
 }
 
@@ -777,7 +773,7 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 void CBonusSystemNode::battleTurnPassed()
 {
 	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
-	for (unsigned int i = 0; i < bonusesCpy.size(); i++)
+	for (ui32 i = 0; i < bonusesCpy.size(); i++)
 	{
 		Bonus *b = bonusesCpy[i];
 
@@ -970,36 +966,36 @@ Bonus * Bonus::addPropagator(boost::shared_ptr<IPropagator> Propagator)
 	return this;
 }
 
-CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second)
+CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second)
 {
 	return CSelectorsConjunction(first, second);
 }
-CSelector DLL_EXPORT operator||(const CSelector &first, const CSelector &second)
+CSelector DLL_LINKAGE operator||(const CSelector &first, const CSelector &second)
 {
 	return CSelectorsAlternative(first, second);
 }
 
 namespace Selector
 {
-	DLL_EXPORT CSelectFieldEqual<TBonusType> type(&Bonus::type, 0);
-	DLL_EXPORT CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype, 0);
-	DLL_EXPORT CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
-	DLL_EXPORT CSelectFieldEqual<ui16> duration(&Bonus::duration, 0);
-	DLL_EXPORT CSelectFieldEqual<ui8> sourceType(&Bonus::source, 0);
-	DLL_EXPORT CSelectFieldEqual<ui8> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
-	DLL_EXPORT CWillLastTurns turns;
+	DLL_LINKAGE CSelectFieldEqual<TBonusType> type(&Bonus::type, 0);
+	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype, 0);
+	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
+	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration, 0);
+	DLL_LINKAGE CSelectFieldEqual<ui8> sourceType(&Bonus::source, 0);
+	DLL_LINKAGE CSelectFieldEqual<ui8> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
+	DLL_LINKAGE CWillLastTurns turns;
 
-	CSelector DLL_EXPORT typeSubtype(TBonusType Type, TBonusSubtype Subtype)
+	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype)
 	{
 		return type(Type) && subtype(Subtype);
 	}
 
-	CSelector DLL_EXPORT typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info)
+	CSelector DLL_LINKAGE typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info)
 	{
 		return CSelectFieldEqual<TBonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
 	}
 
-	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID)
+	CSelector DLL_LINKAGE source(ui8 source, ui32 sourceID)
 	{
 		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::sid, sourceID);
 	}
@@ -1009,19 +1005,19 @@ namespace Selector
 		return CSelectFieldEqual<ui16>(&Bonus::duration, duration);
 	}
 
-	CSelector DLL_EXPORT sourceTypeSel(ui8 source)
+	CSelector DLL_LINKAGE sourceTypeSel(ui8 source)
 	{
 		return CSelectFieldEqual<ui8>(&Bonus::source, source);
 	}
 
-	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type)
+	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type)
 	{
 		Bonus dummy;
 		dummy.type = type;
 		return sel(&dummy);
 	}
 
-	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype)
+	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype)
 	{
 		Bonus dummy;
 		dummy.type = type;
@@ -1029,7 +1025,7 @@ namespace Selector
 		return sel(&dummy);
 	}
 
-	bool DLL_EXPORT positiveSpellEffects(const Bonus *b)
+	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b)
 	{
 		if(b->source == Bonus::SPELL_EFFECT)
 		{
@@ -1078,9 +1074,9 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	}
 }
 
-DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)
 {
-	for (unsigned int i = 0; i < bonusList.size(); i++)
+	for (ui32 i = 0; i < bonusList.size(); i++)
 	{
 		Bonus *b = bonusList[i];
 		out << "Bonus " << i << "\n" << *b << std::endl;
@@ -1088,7 +1084,7 @@ DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusLi
 	return out;
 }
 
-DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
 	for(std::map<std::string, int>::const_iterator i = bonusNameMap.begin(); i != bonusNameMap.end(); i++)
 		if(i->second == bonus.type)
@@ -1208,7 +1204,7 @@ CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
 bool CreatureNativeTerrainLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
 {
 	const CCreature *c = retrieveCreature(&node);
-	return !c || !iswith(c->faction, 0, 9) || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
+	return !c || !vstd::iswithin(c->faction, 0, 9) || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
 	//TODO neutral creatues
 }
 
@@ -1242,11 +1238,11 @@ bool CreatureAlignmentLimiter::limit(const Bonus *b, const CBonusSystemNode &nod
 		return true;
 	switch(alignment)
 	{
-	case GOOD:
+	case EAlignment::GOOD:
 		return !c->isGood(); //if not good -> return true (drop bonus)
-	case NEUTRAL:
+	case EAlignment::NEUTRAL:
 		return c->isEvil() || c->isGood();
-	case EVIL:
+	case EAlignment::EVIL:
 		return !c->isEvil();
 	default:
 		tlog1 << "Warning: illegal alignment in limiter!\n";

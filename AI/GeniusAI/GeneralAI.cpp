@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "GeneralAI.h"
+
 #include "../../CCallback.h"
 
 using namespace geniusai::GeneralAI;

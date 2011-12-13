@@ -1,11 +1,8 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CPreGame.h"
-#include <ctime>
-#include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
-#include <boost/algorithm/string.hpp>
+
 #include <zlib.h>
-#include "../timeHandler.h"
-#include <sstream>
+#include "../lib/StopWatch.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
@@ -22,17 +19,7 @@
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
-#include <cmath>
 #include "Graphics.h"
-//#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/ref.hpp>
-#include <boost/foreach.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
-
-#include <cstdlib>
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/map.h"
@@ -40,8 +27,6 @@
 #include "GUIClasses.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
-#include <boost/lexical_cast.hpp>
-#include <cstdlib>
 #include "CMessage.h"
 #include "../lib/CSpellHandler.h" /*for campaign bonuses*/
 #include "../lib/CArtHandler.h" /*for campaign bonuses*/
@@ -49,11 +34,11 @@
 #include "CBitmapHandler.h"
 #include "Client.h"
 #include "../lib/NetPacks.h"
-#include "../lib/RegisterTypes.cpp"
-#include <boost/thread/recursive_mutex.hpp>
-#include "../CThreadHelper.h"
+#include "../lib/RegisterTypes.h"
+#include "../lib/CThreadHelper.h"
 #include "CConfigHandler.h"
 #include "../lib/CFileUtility.h"
+#include "../lib/GameConstants.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -93,8 +78,8 @@ struct EvilHlpStruct
 	{
 		if(strong)
 		{
-			delNull(serv);
-			delNull(sInfo);
+			vstd::clear_pointer(serv);
+			vstd::clear_pointer(sInfo);
 		}
 		else
 		{
@@ -160,7 +145,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 
 	std::map<ui32, std::string>::const_iterator namesIt = playerNames.begin();
 
-	for (int i = 0; i < PLAYER_LIMIT; i++)
+	for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 	{
 		const PlayerInfo &pinfo = mapHeader->players[i];
 
@@ -410,7 +395,7 @@ void CreditsScreen::clickRight(tribool down, bool previousState)
 }
 
 CGPreGame::CGPreGame():
-	pregameConfig(new JsonNode(DATA_DIR "/config/mainmenu.json"))
+	pregameConfig(new JsonNode(GameConstants::DATA_DIR + "/config/mainmenu.json"))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	GH.defActionsDef = 63;
@@ -672,7 +657,7 @@ CSelectionScreen::~CSelectionScreen()
 	playerNames.clear();
 
 	assert(!serv);
-	delNull(applier);
+	vstd::clear_pointer(applier);
 	delete mx;
 }
 
@@ -713,7 +698,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 {
 	if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
 	{
-		delNull(current);
+		vstd::clear_pointer(current);
 	}
 
 	current = to;
@@ -981,7 +966,7 @@ void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirna
 void SelectionTab::parseMaps(std::vector<FileInfo> &files, int start, int threads)
 {
 	int read=0;
-	unsigned char mapBuffer[1500];
+	ui8 mapBuffer[1500];
 
 	while(start < allItems.size())
 	{
@@ -1080,11 +1065,11 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		switch(tabType)
 		{
 		case CMenuScreen::newGame:
-			getFiles(toParse, DATA_DIR "/Maps", "h3m"); //get all maps
+			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3m"); //get all maps
 			/* Load maps from user directory too, unless it is also the
 			 * same as the data directory (as is the case on
 			 * windows). */
-			if (GVCMIDirs.UserPath != DATA_DIR)
+			if (GVCMIDirs.UserPath != GameConstants::DATA_DIR)
 				getFiles(toParse, GVCMIDirs.UserPath + "/Maps", "h3m"); //get all maps
 			parseMaps(toParse);
 			positions = 18;
@@ -1106,7 +1091,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				txt = new CTextInput(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
 			break;
 		case CMenuScreen::campaignList:
-			getFiles(toParse, DATA_DIR "/Maps", "h3c"); //get all campaigns
+			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3c"); //get all campaigns
 			for (int g=0; g<toParse.size(); ++g)
 			{
 				toParse[g].inLod = false;
@@ -1173,7 +1158,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	switch(tabType)
 	{
 	case CMenuScreen::newGame:
-		selectFName(DATA_DIR "/Maps/Arrogance.h3m");
+		selectFName(GameConstants::DATA_DIR + "/Maps/Arrogance.h3m");
 		break;
 	case CMenuScreen::loadGame:
 	case CMenuScreen::campaignList:
@@ -1229,8 +1214,8 @@ void SelectionTab::select( int position )
 
 	// New selection. py is the index in curItems.
 	int py = position + slider->value;
-	amax(py, 0);
-	amin(py, curItems.size()-1);
+	vstd::amax(py, 0);
+	vstd::amin(py, curItems.size()-1);
 
 	selectionPos = py;
 
@@ -1337,14 +1322,14 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			blitAt(format->ourImages[temp].bitmap, POS(88, 117), to);
 
 			//victory conditions
-			if (currentItem->mapHeader->victoryCondition.condition == winStandard)
+			if (currentItem->mapHeader->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
 				temp = 11;
 			else
 				temp = currentItem->mapHeader->victoryCondition.condition;
 			blitAt(CGP->victory->ourImages[temp].bitmap, POS(306, 117), to);
 
 			//loss conditions
-			if (currentItem->mapHeader->lossCondition.typeOfLossCon == lossStandard)
+			if (currentItem->mapHeader->lossCondition.typeOfLossCon == ELossConditionType::LOSSSTANDARD)
 				temp=3;
 			else
 				temp=currentItem->mapHeader->lossCondition.typeOfLossCon;
@@ -1784,7 +1769,7 @@ void InfoCard::showTeamsPopup()
 		hlp.replace(hlp.find("%d"), 2, boost::lexical_cast<std::string>(i+1));
 		CSDL_Ext::printAtMiddle(hlp, 128, 65 + 50*i, FONT_SMALL, zwykly, bmp);
 
-		for(int j = 0; j < PLAYER_LIMIT; j++)
+		for(int j = 0; j < GameConstants::PLAYER_LIMIT; j++)
 			if((SEL->current->mapHeader->players[j].canHumanPlay || SEL->current->mapHeader->players[j].canComputerPlay)
 				&& SEL->current->mapHeader->players[j].team == i)
 				flags.push_back(j);
@@ -1876,8 +1861,8 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	if (cur == -1) //random => first/last available
 	{
-		int pom = (dir>0) ? (0) : (F_NUMBER-1); // last or first
-		for (;pom >= 0  &&  pom < F_NUMBER;  pom+=dir)
+		int pom = (dir>0) ? (0) : (GameConstants::F_NUMBER-1); // last or first
+		for (;pom >= 0  &&  pom < GameConstants::F_NUMBER;  pom+=dir)
 		{
 			if((1 << pom) & allowed)
 			{
@@ -1894,9 +1879,9 @@ void OptionsTab::nextCastle( int player, int dir )
 			if ((1 << cur) & allowed)
 				break;
 
-			if (cur >= F_NUMBER  ||  cur<0)
+			if (cur >= GameConstants::F_NUMBER  ||  cur<0)
 			{
-				double p1 = log((double)allowed) / log(2.0f)+0.000001f;
+				double p1 = log((double)allowed) / log(2.0)+0.000001;
 				double check = p1 - ((int)p1);
 				if (check < 0.001)
 					cur = (int)p1;
@@ -1933,16 +1918,16 @@ void OptionsTab::nextHero( int player, int dir )
 
 	if (s.hero == -1) //random => first/last available
 	{
-		int max = (s.castle*HEROES_PER_TYPE*2+15),
-			min = (s.castle*HEROES_PER_TYPE*2);
+		int max = (s.castle*GameConstants::HEROES_PER_TYPE*2+15),
+			min = (s.castle*GameConstants::HEROES_PER_TYPE*2);
 		s.hero = nextAllowedHero(min,max,0,dir);
 	}
 	else
 	{
 		if(dir > 0)
-			s.hero = nextAllowedHero(s.hero,(s.castle*HEROES_PER_TYPE*2+16),1,dir);
+			s.hero = nextAllowedHero(s.hero,(s.castle*GameConstants::HEROES_PER_TYPE*2+16),1,dir);
 		else
-			s.hero = nextAllowedHero(s.castle*HEROES_PER_TYPE*2-1,s.hero,1,dir);
+			s.hero = nextAllowedHero(s.castle*GameConstants::HEROES_PER_TYPE*2-1,s.hero,1,dir);
 	}
 
 	if(old != s.hero)
@@ -2046,7 +2031,7 @@ void OptionsTab::recreate()
 void OptionsTab::setTurnLength( int npos )
 {
 	static const int times[] = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
-	amin(npos, ARRAY_COUNT(times) - 1);
+	vstd::amin(npos, ARRAY_COUNT(times) - 1);
 
 	SEL->sInfo.turnTime = times[npos];
 	redraw();
@@ -2267,7 +2252,7 @@ SDL_Surface * OptionsTab::SelectedBox::getImg() const
 	switch(which)
 	{
 	case TOWN:
-		if (s.castle < F_NUMBER  &&  s.castle >= 0)
+		if (s.castle < GameConstants::F_NUMBER  &&  s.castle >= 0)
 			return graphics->getPic(s.castle, true, false);
 		else if (s.castle == -1)
 			return CGP->rTown;
@@ -2323,7 +2308,7 @@ const std::string * OptionsTab::SelectedBox::getText() const
 	switch(which)
 	{
 	case TOWN:
-		if (s.castle < F_NUMBER  &&  s.castle >= 0)
+		if (s.castle < GameConstants::F_NUMBER  &&  s.castle >= 0)
 			return &CGI->townh->towns[s.castle].Name();
 		else if (s.castle == -1)
 			return &CGI->generaltexth->allTexts[522];
@@ -2710,7 +2695,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 
 CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 : highlightedRegion(NULL), ourCampaign(_ourCampaign), ourHeader(NULL),
-	diffLb(NULL), diffRb(NULL), bonuses(NULL)
+	 diffLb(NULL), diffRb(NULL), bonuses(NULL)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
@@ -2839,7 +2824,7 @@ void CBonusSelection::showAll( SDL_Surface * to )
 
 void CBonusSelection::loadPositionsOfGraphics()
 {
-	const JsonNode config(DATA_DIR "/config/campaign_regions.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/campaign_regions.json");
 	int idx = 0;
 
 	BOOST_FOREACH(const JsonNode &campaign, config["campaign_regions"].Vector())
@@ -3032,7 +3017,7 @@ void CBonusSelection::updateBonusSelection()
 					int leadingSkill = -1;
 					std::vector<std::pair<int, int> > toPrint; //primary skills to be listed <num, val>
 					const ui8* ptr = reinterpret_cast<const ui8*>(&bonDescs[i].info2);
-					for (int g=0; g<PRIMARY_SKILLS; ++g)
+					for (int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 					{
 						if (leadingSkill == -1 || ptr[g] > ptr[leadingSkill])
 						{
@@ -3349,7 +3334,7 @@ void QuitMenuWithoutStarting::apply(CSelectionScreen *selScreen)
 		GH.popIntTotally(selScreen); //will wait with deleting us before this thread ends
 	}
 
-	delNull(selScreen->serv);
+	vstd::clear_pointer(selScreen->serv);
 }
 
 void PlayerJoined::apply(CSelectionScreen *selScreen)
@@ -3467,7 +3452,7 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 	}
 
 	selScreen->serv = NULL; //hide it so it won't be deleted
-	delNull(selScreen->serverHandlingThread); //detach us
+	vstd::clear_pointer(selScreen->serverHandlingThread); //detach us
 	selectedName = selScreen->sInfo.mapname;
 
 	GH.curInt = NULL;

@@ -1,6 +1,4 @@
-#ifndef __CONDSH_H__
-#define __CONDSH_H__
-#include <boost/thread.hpp>
+#pragma once
 
 /*
  * CondSh.h, part of VCMI engine
@@ -69,4 +67,3 @@ template <typename T> struct CondSh
 			cond.wait(un);
 	}
 };
-#endif // __CONDSH_H__

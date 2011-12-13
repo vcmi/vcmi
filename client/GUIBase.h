@@ -1,11 +1,9 @@
-#ifndef __GUIBASE_H__
-#define __GUIBASE_H__
+#pragma once
 
-#include "../global.h"
+
+#include "../lib/int3.h"
 #include "SDL.h"
-#include <set>
-#include <list>
-#include "../timeHandler.h"
+#include "../lib/StopWatch.h"
 #include "FontBase.h"
 #include "SDL_framerate.h"
 
@@ -56,6 +54,8 @@ class CArmedInstance;
 class CGTownInstance;
 class StackState;
 class CPlayerInterface;
+
+using boost::logic::tribool;
 
 /// A point with x/y coordinate, used mostly for graphic rendering
 struct Point
@@ -533,7 +533,7 @@ class CGuiHandler
 {
 public:
 	FPSManager *mainFPSmng; //to keep const framerate
-	timeHandler th;
+	StopWatch th;
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;
 
@@ -624,5 +624,3 @@ public:
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SetCaptureState obj__i1(true, 255); ObjectConstruction obj__i(this)
 #define BLOCK_CAPTURING SetCaptureState obj__i(false, 0)
 #define BLOCK_CAPTURING_DONT_TOUCH_REC_ACTIONS SetCaptureState obj__i(false, GH.defActionsDef)
-
-#endif //__GUIBASE_H__

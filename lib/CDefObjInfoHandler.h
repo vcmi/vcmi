@@ -1,8 +1,6 @@
-#ifndef __CDEFOBJINFOHANDLER_H__
-#define __CDEFOBJINFOHANDLER_H__
-#include <vector>
-#include <map>
-#include "../global.h"
+#pragma once
+
+
 #include "../lib/ConstTransitivePtr.h"
 
 /*
@@ -17,7 +15,7 @@
 
 class CDefEssential;
 class CLodHandler;
-class DLL_EXPORT CGDefInfo
+class DLL_LINKAGE CGDefInfo
 {
 public:
 	std::string name;
@@ -48,7 +46,7 @@ public:
 	CGDefInfo();
 void fetchInfoFromMSK();
 };
-class DLL_EXPORT CDefObjInfoHandler
+class DLL_LINKAGE CDefObjInfoHandler
 {
 public:
 	bmap<int, bmap<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
@@ -63,5 +61,3 @@ public:
 		h & castles;
 	}
 };
-
-#endif // __CDEFOBJINFOHANDLER_H__

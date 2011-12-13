@@ -1,11 +1,5 @@
+#include "StdInc.h"
 #include "BattleHelper.h"
-#include <vector>
-#include <string>
-#include <fstream>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace geniusai::BattleAI;
 using namespace std;
@@ -13,8 +7,8 @@ using namespace std;
 
 CBattleHelper::CBattleHelper():
 	InfiniteDistance(0xffff),
-	BattlefieldWidth(BFIELD_WIDTH-2),
-	BattlefieldHeight(BFIELD_HEIGHT),
+	BattlefieldWidth(GameConstants::BFIELD_WIDTH-2),
+	BattlefieldHeight(GameConstants::BFIELD_HEIGHT),
 	m_voteForMaxDamage(10),
 	m_voteForMinDamage(10),
 	m_voteForMaxSpeed(10),
@@ -106,21 +100,21 @@ CBattleHelper::~CBattleHelper()
 
 int CBattleHelper::GetBattleFieldPosition(int x, int y)
 {
-	return x + BFIELD_WIDTH * (y - 1);
+	return x + GameConstants::BFIELD_WIDTH * (y - 1);
 }
 
 int CBattleHelper::DecodeXPosition(int battleFieldPosition)
 {
-	int x = battleFieldPosition%BFIELD_WIDTH;
-	assert( x > 0 && x < BFIELD_WIDTH-1 );
+	int x = battleFieldPosition%GameConstants::BFIELD_WIDTH;
+	assert( x > 0 && x < GameConstants::BFIELD_WIDTH-1 );
 	return x;
 }
 
 int CBattleHelper::DecodeYPosition(int battleFieldPosition)
 {
 
-	int y=battleFieldPosition/BFIELD_WIDTH +1;
-	assert( y > 0 && y <= BFIELD_HEIGHT);
+	int y=battleFieldPosition/GameConstants::BFIELD_WIDTH +1;
+	assert( y > 0 && y <= GameConstants::BFIELD_HEIGHT);
 	return y;
 }
 
@@ -133,34 +127,34 @@ int CBattleHelper::StepLeft(int pos){
 }
 
 int CBattleHelper::StepUpleft(int pos){
-  if((pos/BFIELD_WIDTH)%2==0){
-    return pos-BFIELD_WIDTH;
+  if((pos/GameConstants::BFIELD_WIDTH)%2==0){
+    return pos-GameConstants::BFIELD_WIDTH;
   }else{
-    return pos-BFIELD_WIDTH-1;
+    return pos-GameConstants::BFIELD_WIDTH-1;
   }
 }
 
 int CBattleHelper::StepUpright(int pos){
-  if((pos/BFIELD_WIDTH)%2==0){
-    return pos-BFIELD_WIDTH+1;
+  if((pos/GameConstants::BFIELD_WIDTH)%2==0){
+    return pos-GameConstants::BFIELD_WIDTH+1;
   }else{
-    return pos-BFIELD_WIDTH;
+    return pos-GameConstants::BFIELD_WIDTH;
   }
 }
 
 int CBattleHelper::StepDownleft(int pos){
-  if((pos/BFIELD_WIDTH)%2==0){
-    return pos+BFIELD_WIDTH;
+  if((pos/GameConstants::BFIELD_WIDTH)%2==0){
+    return pos+GameConstants::BFIELD_WIDTH;
   }else{
-    return pos+BFIELD_WIDTH-1;
+    return pos+GameConstants::BFIELD_WIDTH-1;
   }
 }
 
 int CBattleHelper::StepDownright(int pos){
-  if((pos/BFIELD_WIDTH)%2==0){
-    return pos+BFIELD_WIDTH+1;
+  if((pos/GameConstants::BFIELD_WIDTH)%2==0){
+    return pos+GameConstants::BFIELD_WIDTH+1;
  }else{
-    return pos+BFIELD_WIDTH;
+    return pos+GameConstants::BFIELD_WIDTH;
   }
 }
 

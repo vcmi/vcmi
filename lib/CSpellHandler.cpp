@@ -1,14 +1,12 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CSpellHandler.h"
+
+
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/set.hpp>
-#include <boost/foreach.hpp>
 #include <cctype>
-
+#include "GameConstants.h"
 
 extern CLodHandler *bitmaph;
 
@@ -212,7 +210,7 @@ static bool startsWithX(const std::string &s)
 	return s.size() && s[0] == 'x';
 }
 
-bool DLL_EXPORT isInScreenRange(const int3 &center, const int3 &pos)
+bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 {
 	int3 diff = pos - center;
 	if(diff.x >= -9  &&  diff.x <= 9  &&  diff.y >= -8  &&  diff.y <= 8)
@@ -298,7 +296,7 @@ void CSpellHandler::loadSpells()
 	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
 
 	//loading of additional spell traits
-	const JsonNode config(DATA_DIR "/config/spell_info.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/spell_info.json");
 
 	BOOST_FOREACH(const JsonNode &spell, config["spells"].Vector())
 	{

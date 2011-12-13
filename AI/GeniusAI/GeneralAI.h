@@ -1,5 +1,4 @@
-#ifndef __GENERAL_AI_H__
-#define __GENERAL_AI_H__
+#pragma once
 
 #include "Common.h"
 
@@ -17,5 +16,3 @@ namespace geniusai { namespace GeneralAI {
 	};
 
 }}
-
-#endif/*__GENERAL_AI_H__*/

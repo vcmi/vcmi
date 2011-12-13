@@ -1,17 +1,13 @@
-#define VCMI_DLL
-#pragma warning(disable:4355)
+#include "StdInc.h"
 #include "Connection.h"
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <fstream>
 
 #ifndef _MSC_VER
-#include "../lib/RegisterTypes.cpp"
+#include "../lib/RegisterTypes.h"
 #endif
 
 //for smart objs serialization over net
 #include "../lib/CMapInfo.h"
-#include "../StartInfo.h"
+#include "StartInfo.h"
 #include "BattleState.h"
 #include "CGameState.h"
 #include "map.h"
@@ -25,6 +21,7 @@
 #include "CCampaignHandler.h"
 #include "NetPacks.h"
 
+#include <boost/asio.hpp>
 
 /*
  * Connection.cpp, part of VCMI engine
@@ -38,7 +35,7 @@
 
 using namespace boost;
 using namespace boost::asio::ip;
-template<typename Serializer> DLL_EXPORT void registerTypes(Serializer &s); //defined elsewhere and explicitly instantiated for used serializers
+template<typename Serializer> DLL_LINKAGE void registerTypes(Serializer &s); //defined elsewhere and explicitly instantiated for used serializers
 
 CTypeList typeList;
 

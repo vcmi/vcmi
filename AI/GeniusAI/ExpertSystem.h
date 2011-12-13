@@ -1,4 +1,4 @@
-#include "../../global.h"
+
 #include "../../CCallback.h"
 #include "../../lib/HeroBonus.h"
 #include <boost/bind.hpp>
@@ -101,7 +101,7 @@ public:
 template <typename input, typename output> class Weight : public Rule <input, output>
 {
 public:
-	float multiplier; //multiply input by value and return to output
+	double multiplier; //multiply input by value and return to output
 	void fireTule(){};
 };
 

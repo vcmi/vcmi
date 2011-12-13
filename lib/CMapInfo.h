@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../global.h"
+
 
 class CMapHeader;
 class CCampaignHeader;
@@ -8,7 +8,7 @@ struct StartInfo;
 
 /// A class which stores the count of human players and all players, the filename,
 /// scenario options, the map header information,...
-class DLL_EXPORT CMapInfo
+class DLL_LINKAGE CMapInfo
 {
 public:
 	CMapHeader * mapHeader; //may be NULL if campaign
@@ -22,9 +22,9 @@ public:
 	int actualHumanPlayers; // >1 if multiplayer game
 	CMapInfo(bool map = true);
 	~CMapInfo();
-	//CMapInfo(const std::string &fname, const unsigned char *map);
+	//CMapInfo(const std::string &fname, const ui8 *map);
 	void setHeader(CMapHeader *header);
-	void mapInit(const std::string &fname, const unsigned char *map);
+	void mapInit(const std::string &fname, const ui8 *map);
 	void campaignInit();
 	void countPlayers();
 

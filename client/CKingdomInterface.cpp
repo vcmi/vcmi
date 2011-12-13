@@ -1,10 +1,5 @@
+#include "StdInc.h"
 #include "CKingdomInterface.h"
-
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
 
 #include "../CCallback.h"
 #include "../lib/CCreatureHandler.h" //creatures name for objects list
@@ -472,7 +467,7 @@ CKingdomInterface::CKingdomInterface()
 	background = new CPicture(conf.go()->ac.overviewBg);
 	background->colorize(LOCPLINT->playerID);
 	pos = background->center();
-	unsigned int footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
 
@@ -487,7 +482,7 @@ CKingdomInterface::CKingdomInterface()
 
 void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects)
 {
-	unsigned int footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 	size_t dwellSize = (footerPos - 64)/57;
 
 	//Map used to determine image number for several objects
@@ -563,8 +558,8 @@ CIntObject * CKingdomInterface::createMainTab(size_t index)
 
 void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects)
 {
-	unsigned int footerPos = conf.go()->ac.overviewSize * 116;
-	std::vector<int> minesCount(RESOURCE_QUANTITY, 0);
+	ui32 footerPos = conf.go()->ac.overviewSize * 116;
+	std::vector<int> minesCount(GameConstants::RESOURCE_QUANTITY, 0);
 	int totalIncome=0;
 
 	BOOST_FOREACH(const CGObjectInstance * object, ownedObjects)
@@ -609,7 +604,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 void CKingdomInterface::generateButtons()
 {
-	unsigned int footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	//Main control buttons
 	btnHeroes = new AdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
@@ -692,8 +687,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	heroLabel =   new CLabel(150, 10, FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[0]);
 	skillsLabel = new CLabel(500, 10, FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[1]);
 
-	unsigned int townCount = LOCPLINT->cb->howManyHeroes(false);
-	unsigned int size = conf.go()->ac.overviewSize*116 + 19;
+	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
+	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
 	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
@@ -710,7 +705,7 @@ void CKingdHeroList::updateGarrisons()
 
 CIntObject* CKingdHeroList::createHeroItem(size_t index)
 {
-	unsigned int picCount = conf.go()->ac.overviewPics;
+	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
 
 	if (index < heroesCount)
@@ -745,8 +740,8 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	garrHeroLabel  = new CLabel(375,10,FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[4]);
 	visitHeroLabel = new CLabel(608,10,FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[5]);
 
-	unsigned int townCount = LOCPLINT->cb->howManyTowns();
-	unsigned int size = conf.go()->ac.overviewSize*116 + 19;
+	ui32 townCount = LOCPLINT->cb->howManyTowns();
+	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
 	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
@@ -774,7 +769,7 @@ void CKingdTownList::updateGarrisons()
 
 CIntObject* CKingdTownList::createTownItem(size_t index)
 {
-	unsigned int picCount = conf.go()->ac.overviewPics;
+	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t townsCount = LOCPLINT->cb->howManyTowns();
 
 	if (index < townsCount)
@@ -799,9 +794,9 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 
 	size_t iconIndex = town->subID*2;
 	if (!town->hasFort())
-		iconIndex += F_NUMBER*2;
+		iconIndex += GameConstants::F_NUMBER*2;
 
-	if(town->builded >= MAX_BUILDING_PER_TURN)
+	if(town->builded >= GameConstants::MAX_BUILDING_PER_TURN)
 		iconIndex++;
 
 	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);
@@ -929,11 +924,11 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, zwykly, hero->name);
 	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->overview[2]);
 
-	for (size_t i=0; i<PRIMARY_SKILLS; i++)
+	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i)));
 
-	for (size_t i=0; i<SKILL_PER_HERO; i++)
+	for (size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
 		heroInfo.push_back(new InfoBox(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i)));
 

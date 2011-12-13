@@ -79,15 +79,16 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(vcmiaidir)"
 LTLIBRARIES = $(vcmiai_LTLIBRARIES)
 libStupidAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
-am_libStupidAI_la_OBJECTS = main.lo stdafx.lo StupidAI.lo
+am_libStupidAI_la_OBJECTS = libStupidAI_la-main.lo \
+	libStupidAI_la-StupidAI.lo
 libStupidAI_la_OBJECTS = $(am_libStupidAI_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 libStupidAI_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(libStupidAI_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	$(libStupidAI_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libStupidAI_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -270,17 +271,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 vcmiaidir = $(VCMI_AI_LIBS_DIR)
+BUILT_SOURCES = StdInc.h.gch
 vcmiai_LTLIBRARIES = libStupidAI.la
 libStupidAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libStupidAI_la_CXXFLAGS = -DVCMI_DLL
 libStupidAI_la_LDFLAGS = -L$(top_builddir)/lib -module -avoid-version
 libStupidAI_la_SOURCES = \
 	main.cpp\
-	stdafx.cpp\
-	stdafx.h\
 	StupidAI.cpp\
 	StupidAI.h
 
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
@@ -354,9 +356,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StupidAI.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stdafx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libStupidAI_la-StupidAI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libStupidAI_la-main.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -381,6 +382,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+libStupidAI_la-main.lo: main.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libStupidAI_la_CXXFLAGS) $(CXXFLAGS) -MT libStupidAI_la-main.lo -MD -MP -MF $(DEPDIR)/libStupidAI_la-main.Tpo -c -o libStupidAI_la-main.lo `test -f 'main.cpp' || echo '$(srcdir)/'`main.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libStupidAI_la-main.Tpo $(DEPDIR)/libStupidAI_la-main.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cpp' object='libStupidAI_la-main.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libStupidAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libStupidAI_la-main.lo `test -f 'main.cpp' || echo '$(srcdir)/'`main.cpp
+
+libStupidAI_la-StupidAI.lo: StupidAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libStupidAI_la_CXXFLAGS) $(CXXFLAGS) -MT libStupidAI_la-StupidAI.lo -MD -MP -MF $(DEPDIR)/libStupidAI_la-StupidAI.Tpo -c -o libStupidAI_la-StupidAI.lo `test -f 'StupidAI.cpp' || echo '$(srcdir)/'`StupidAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libStupidAI_la-StupidAI.Tpo $(DEPDIR)/libStupidAI_la-StupidAI.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StupidAI.cpp' object='libStupidAI_la-StupidAI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libStupidAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libStupidAI_la-StupidAI.lo `test -f 'StupidAI.cpp' || echo '$(srcdir)/'`StupidAI.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -471,13 +488,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
 	for dir in "$(DESTDIR)$(vcmiaidir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -502,6 +521,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-vcmiaiLTLIBRARIES \
@@ -573,7 +593,7 @@ ps-am:
 
 uninstall-am: uninstall-vcmiaiLTLIBRARIES
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-vcmiaiLTLIBRARIES ctags distclean \
@@ -589,6 +609,8 @@ uninstall-am: uninstall-vcmiaiLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-vcmiaiLTLIBRARIES
 
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -DVCMI_DLL -fPIC -c $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

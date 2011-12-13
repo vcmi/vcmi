@@ -1,8 +1,5 @@
-#ifndef FUNCTIONLIST_H
-#define FUNCTIONLIST_H
+#pragma once
 
-#include <boost/function.hpp>
-#include <vector>
 
 /*
  * FunctionList.h, part of VCMI engine
@@ -121,5 +118,3 @@ public:
 		}
 	}
 };
-
-#endif //FUNCTIONLISt_H

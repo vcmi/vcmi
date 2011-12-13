@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include "StdInc.h"
 #include "CCallback.h"
+
 #include "lib/CCreatureHandler.h"
 #include "client/CGameInfo.h"
 #include "lib/CGameState.h"
@@ -15,11 +16,9 @@
 #include "lib/Connection.h"
 #include "lib/NetPacks.h"
 #include "client/mapHandler.h"
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include "lib/CSpellHandler.h"
 #include "lib/CArtHandler.h"
+#include "lib/GameConstants.h"
 #ifdef min
 #undef min
 #endif
@@ -247,7 +246,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	ss.id = obj->id;
 	sendRequest(&(CPackForClient&)ss);
 
-	if(obj->ID == HEROI_TYPE)
+	if(obj->ID == GameConstants::HEROI_TYPE)
 	{
 		if(cl->pathInfo->hero != obj) //calculate new paths only if we selected a different hero
 			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));

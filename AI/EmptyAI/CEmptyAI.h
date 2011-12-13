@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../../AI_Base.h"
 #include "../../CCallback.h"
 

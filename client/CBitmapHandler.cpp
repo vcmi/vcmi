@@ -1,12 +1,11 @@
-#include "../stdafx.h"
+#include "StdInc.h"
+
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/vcmi_endian.h"
-#include <sstream>
-#include <boost/thread.hpp>
 
 /*
  * CBitmapHandler.cpp, part of VCMI engine
@@ -18,14 +17,14 @@
  *
  */
 
-extern DLL_EXPORT CLodHandler *bitmaph;
-extern DLL_EXPORT CLodHandler *bitmaph_ab;
-extern DLL_EXPORT CLodHandler *spriteh;
+extern DLL_LINKAGE CLodHandler *bitmaph;
+extern DLL_LINKAGE CLodHandler *bitmaph_ab;
+extern DLL_LINKAGE CLodHandler *spriteh;
 
 void CPCXConv::openPCX(char * PCX, int len)
 {
 	pcxs=len;
-	pcx=(unsigned char*)PCX;
+	pcx=(ui8*)PCX;
 }
 void CPCXConv::fromFile(std::string path)
 {
@@ -34,7 +33,7 @@ void CPCXConv::fromFile(std::string path)
 	is.seekg(0,std::ios::end); // to the end
 	pcxs = is.tellg();  // read length
 	is.seekg(0,std::ios::beg); // wracamy na poczatek
-	pcx = new unsigned char[pcxs]; // allocate memory 
+	pcx = new ui8[pcxs]; // allocate memory 
 	is.read((char*)pcx, pcxs); // read map file to buffer
 	is.close();
 }
@@ -119,7 +118,7 @@ SDL_Surface * CPCXConv::getSurface() const
 	return ret;
 }
 
-bool isPCX(const unsigned char *header)//check whether file can be PCX according to 1st 12 bytes
+bool isPCX(const ui8 *header)//check whether file can be PCX according to 1st 12 bytes
 {
 	int fSize  = read_le_u32(header + 0);
 	int width  = read_le_u32(header + 4);
@@ -142,7 +141,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fna
 
 	SDL_Surface * ret=NULL;
 	int size;
-	unsigned char * file = 0;
+	ui8 * file = 0;
 	file = lod->giveFile(fname, FILE_GRAPHICS, &size);
 	
 	if (isPCX(file))

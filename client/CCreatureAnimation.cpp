@@ -1,8 +1,9 @@
+#include "StdInc.h"
 #include "CCreatureAnimation.h"
+
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/vcmi_endian.h"
-#include <assert.h>
 #include "SDL_Extensions.h"
 
 /*
@@ -95,7 +96,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	frames = totalEntries;
 }
 
-int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
+int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, ui8 animCount, bool incrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
 {
 	return nextFrame(dest, x-fullWidth/2, y-fullHeight/2, attacker, animCount, incrementFrame, yellowBorder, blueBorder, destRect);
 }
@@ -159,7 +160,7 @@ void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 
 
 template<int bpp>
-int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= NULL*/)
+int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= NULL*/)
 {
 	//increasing frame number
 	int SIndex = curFrame;
@@ -172,17 +173,17 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 		i, FullHeight,
 
 #endif
-	unsigned char SegmentType, SegmentLength;
-	unsigned int i;
+	ui8 SegmentType, SegmentLength;
+	ui32 i;
 
 	i = SEntries[SIndex].offset;
 
 	/*int prSize = read_le_u32(FDef + i);*/ i += 4; //TODO use me
-	const unsigned int defType2 = read_le_u32(FDef + i); i += 4;
-	const unsigned int FullWidth = read_le_u32(FDef + i); i += 4;
-	const unsigned int FullHeight = read_le_u32(FDef + i); i += 4;
-	const unsigned int SpriteWidth = read_le_u32(FDef + i); i += 4;
-	const unsigned int SpriteHeight = read_le_u32(FDef + i); i += 4;
+	const ui32 defType2 = read_le_u32(FDef + i); i += 4;
+	const ui32 FullWidth = read_le_u32(FDef + i); i += 4;
+	const ui32 FullHeight = read_le_u32(FDef + i); i += 4;
+	const ui32 SpriteWidth = read_le_u32(FDef + i); i += 4;
+	const ui32 SpriteHeight = read_le_u32(FDef + i); i += 4;
 	const int LeftMargin = read_le_u32(FDef + i); i += 4;
 	const int TopMargin = read_le_u32(FDef + i); i += 4;
 	const int RightMargin = FullWidth - SpriteWidth - LeftMargin;
@@ -224,7 +225,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				const int remainder = ftcp % FullWidth;
 				int xB = (attacker ? remainder : FullWidth - remainder - 1) + x;
 
-				const unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
+				const ui8 aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
 
 				for (int k = 0; k <= SegmentLength; k++)
 				{
@@ -265,7 +266,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 	return 0;
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
 {
 	switch(dest->format->BytesPerPixel)
 	{
@@ -296,10 +297,10 @@ inline void CCreatureAnimation::putPixel(
 	const int & ftcpX,
 	const int & ftcpY,
 	const BMPPalette & color,
-	const unsigned char & palc,
+	const ui8 & palc,
 	const bool & yellowBorder,
 	const bool & blueBorder,
-	const unsigned char & animCount
+	const ui8 & animCount
 ) const
 {	
 	if(palc!=0)

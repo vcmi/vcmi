@@ -1,11 +1,9 @@
-#ifndef __SDL_EXTENSIONS_H__
-#define __SDL_EXTENSIONS_H__
-#include "../global.h"
+#pragma once
+
+
+#include "../lib/int3.h"
 #include "SDL_video.h"
 #include "SDL_ttf.h"
-#include <string>
-#include <vector>
-#include <sstream>
 #include "FontBase.h"
 
 /*
@@ -61,7 +59,7 @@ std::string makeNumberShort(IntType number) //the output is a string containing 
 			return ost.str();
 	}
 
-	//make the number short
+	//make the number int
 	char symbol[] = {'G', 'M', 'k'};
 
 	if(negative) number = (-number); //absolute value
@@ -173,13 +171,10 @@ namespace CSDL_Ext
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
-	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral
+	void setPlayerColor(SDL_Surface * sur, ui8 player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
 };
-
-
-#endif // __SDL_EXTENSIONS_H__

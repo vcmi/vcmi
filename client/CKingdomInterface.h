@@ -1,8 +1,5 @@
 #pragma once
 
-#include "../global.h"
-
-#include <list>
 
 #include "GUIBase.h"
 #include "GUIClasses.h"
@@ -202,7 +199,7 @@ private:
 	struct OwnedObjectInfo
 	{
 		int imageID;
-		unsigned int count;
+		ui32 count;
 		std::string hoverText;
 	};
 	std::vector<OwnedObjectInfo> objects;

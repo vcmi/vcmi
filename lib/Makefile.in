@@ -82,17 +82,19 @@ libvcmi_la_DEPENDENCIES =
 am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
 	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
-	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
-	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CFileUtility.lo \
-	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
-	libvcmi_la-CLodHandler.lo libvcmi_la-CMapInfo.lo \
+	libvcmi_la-CConsoleHandler.lo libvcmi_la-CCreatureHandler.lo \
+	libvcmi_la-CCreatureSet.lo libvcmi_la-CDefObjInfoHandler.lo \
+	libvcmi_la-CFileUtility.lo libvcmi_la-CGameInterface.lo \
+	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
+	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
+	libvcmi_la-CLogger.lo libvcmi_la-CMapInfo.lo \
 	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
-	libvcmi_la-CTownHandler.lo libvcmi_la-Connection.lo \
-	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
-	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
-	libvcmi_la-ResourceSet.lo libvcmi_la-RegisterTypes.lo \
-	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
+	libvcmi_la-CTownHandler.lo libvcmi_la-CThreadHelper.lo \
+	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
+	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
+	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
+	libvcmi_la-SHexField.lo libvcmi_la-VCMI_Lib.lo \
+	libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -281,9 +283,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+BUILT_SOURCES = StdInc.h.gch
 pkglib_LTLIBRARIES = libvcmi.la
 libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
-libvcmi_la_CXXFLAGS = @SDL_CFLAGS@
+libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \
 	BattleAction.h \
@@ -295,6 +298,8 @@ libvcmi_la_SOURCES = \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
 	CCampaignHandler.h \
+	CConsoleHandler.cpp \
+	CConsoleHandler.h \
 	CCreatureHandler.cpp \
 	CCreatureHandler.h \
 	CCreatureSet.cpp \
@@ -313,6 +318,8 @@ libvcmi_la_SOURCES = \
 	CHeroHandler.h \
 	CLodHandler.cpp \
 	CLodHandler.h \
+	CLogger.cpp \
+	CLogger.h \
 	CMapInfo.cpp \
 	CMapInfo.h \
 	CObjectHandler.cpp \
@@ -323,6 +330,8 @@ libvcmi_la_SOURCES = \
 	CScriptingModule.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
+	CThreadHelper.cpp \
+	CThreadHelper.h \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
@@ -339,15 +348,17 @@ libvcmi_la_SOURCES = \
 	NetPacksLib.cpp \
 	ResourceSet.cpp \
 	ResourceSet.h \
-	RegisterTypes.cpp \
 	RegisterTypes.h \
+	SHexField.cpp \
+	SHexField.h \
 	VCMIDirs.h \
 	VCMI_Lib.cpp \
 	VCMI_Lib.h \
 	map.cpp \
 	map.h
 
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
@@ -426,6 +437,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CArtHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBuildingHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCampaignHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CConsoleHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CDefObjInfoHandler.Plo@am__quote@
@@ -435,17 +447,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CGeneralTextHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CHeroHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLodHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLogger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMapInfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObjectHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CThreadHelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-JsonNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-RegisterTypes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ResourceSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-SHexField.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-VCMI_Lib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-map.Plo@am__quote@
 
@@ -512,6 +526,14 @@ libvcmi_la-CCampaignHandler.lo: CCampaignHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCampaignHandler.cpp' object='libvcmi_la-CCampaignHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CCampaignHandler.lo `test -f 'CCampaignHandler.cpp' || echo '$(srcdir)/'`CCampaignHandler.cpp
+
+libvcmi_la-CConsoleHandler.lo: CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CConsoleHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CConsoleHandler.Tpo -c -o libvcmi_la-CConsoleHandler.lo `test -f 'CConsoleHandler.cpp' || echo '$(srcdir)/'`CConsoleHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CConsoleHandler.Tpo $(DEPDIR)/libvcmi_la-CConsoleHandler.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CConsoleHandler.cpp' object='libvcmi_la-CConsoleHandler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CConsoleHandler.lo `test -f 'CConsoleHandler.cpp' || echo '$(srcdir)/'`CConsoleHandler.cpp
 
 libvcmi_la-CCreatureHandler.lo: CCreatureHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CCreatureHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CCreatureHandler.Tpo -c -o libvcmi_la-CCreatureHandler.lo `test -f 'CCreatureHandler.cpp' || echo '$(srcdir)/'`CCreatureHandler.cpp
@@ -585,6 +607,14 @@ libvcmi_la-CLodHandler.lo: CLodHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CLodHandler.lo `test -f 'CLodHandler.cpp' || echo '$(srcdir)/'`CLodHandler.cpp
 
+libvcmi_la-CLogger.lo: CLogger.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CLogger.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CLogger.Tpo -c -o libvcmi_la-CLogger.lo `test -f 'CLogger.cpp' || echo '$(srcdir)/'`CLogger.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CLogger.Tpo $(DEPDIR)/libvcmi_la-CLogger.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CLogger.cpp' object='libvcmi_la-CLogger.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CLogger.lo `test -f 'CLogger.cpp' || echo '$(srcdir)/'`CLogger.cpp
+
 libvcmi_la-CMapInfo.lo: CMapInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CMapInfo.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CMapInfo.Tpo -c -o libvcmi_la-CMapInfo.lo `test -f 'CMapInfo.cpp' || echo '$(srcdir)/'`CMapInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CMapInfo.Tpo $(DEPDIR)/libvcmi_la-CMapInfo.Plo
@@ -616,6 +646,14 @@ libvcmi_la-CTownHandler.lo: CTownHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CTownHandler.cpp' object='libvcmi_la-CTownHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CTownHandler.lo `test -f 'CTownHandler.cpp' || echo '$(srcdir)/'`CTownHandler.cpp
+
+libvcmi_la-CThreadHelper.lo: CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CThreadHelper.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CThreadHelper.Tpo -c -o libvcmi_la-CThreadHelper.lo `test -f 'CThreadHelper.cpp' || echo '$(srcdir)/'`CThreadHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CThreadHelper.Tpo $(DEPDIR)/libvcmi_la-CThreadHelper.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CThreadHelper.cpp' object='libvcmi_la-CThreadHelper.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CThreadHelper.lo `test -f 'CThreadHelper.cpp' || echo '$(srcdir)/'`CThreadHelper.cpp
 
 libvcmi_la-Connection.lo: Connection.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-Connection.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-Connection.Tpo -c -o libvcmi_la-Connection.lo `test -f 'Connection.cpp' || echo '$(srcdir)/'`Connection.cpp
@@ -665,13 +703,13 @@ libvcmi_la-ResourceSet.lo: ResourceSet.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ResourceSet.lo `test -f 'ResourceSet.cpp' || echo '$(srcdir)/'`ResourceSet.cpp
 
-libvcmi_la-RegisterTypes.lo: RegisterTypes.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-RegisterTypes.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-RegisterTypes.Tpo -c -o libvcmi_la-RegisterTypes.lo `test -f 'RegisterTypes.cpp' || echo '$(srcdir)/'`RegisterTypes.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-RegisterTypes.Tpo $(DEPDIR)/libvcmi_la-RegisterTypes.Plo
+libvcmi_la-SHexField.lo: SHexField.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-SHexField.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-SHexField.Tpo -c -o libvcmi_la-SHexField.lo `test -f 'SHexField.cpp' || echo '$(srcdir)/'`SHexField.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-SHexField.Tpo $(DEPDIR)/libvcmi_la-SHexField.Plo
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RegisterTypes.cpp' object='libvcmi_la-RegisterTypes.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SHexField.cpp' object='libvcmi_la-SHexField.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-RegisterTypes.lo `test -f 'RegisterTypes.cpp' || echo '$(srcdir)/'`RegisterTypes.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-SHexField.lo `test -f 'SHexField.cpp' || echo '$(srcdir)/'`SHexField.cpp
 
 libvcmi_la-VCMI_Lib.lo: VCMI_Lib.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-VCMI_Lib.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-VCMI_Lib.Tpo -c -o libvcmi_la-VCMI_Lib.lo `test -f 'VCMI_Lib.cpp' || echo '$(srcdir)/'`VCMI_Lib.cpp
@@ -778,13 +816,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
 	for dir in "$(DESTDIR)$(pkglibdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -809,6 +849,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-pkglibLTLIBRARIES \
@@ -880,7 +921,7 @@ ps-am:
 
 uninstall-am: uninstall-pkglibLTLIBRARIES
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-pkglibLTLIBRARIES ctags distclean \
@@ -896,6 +937,8 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-pkglibLTLIBRARIES
 
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -DVCMI_DLL -fPIC -c $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

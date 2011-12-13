@@ -1,4 +1,5 @@
-#include "../stdafx.h"
+#include "StdInc.h"
+
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "../CCallback.h"
@@ -13,21 +14,13 @@
 #include "CSpellWindow.h"
 #include "CConfigHandler.h"
 #include "CPlayerInterface.h"
-#include "../global.h"
+
 #include "../lib/CArtHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <cstdlib>
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/foreach.hpp>
 
 #undef min
 
@@ -131,7 +124,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	//areas
 	portraitArea = new LRClickableAreaWText(Rect(18, 18, 58, 64));
 
-	for(int v=0; v<PRIMARY_SKILLS; ++v)
+	for(int v=0; v<GameConstants::PRIMARY_SKILLS; ++v)
 	{
 		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), SComponent::primskill);
 		area->text = CGI->generaltexth->arraytxt[2+v];
