@@ -120,8 +120,11 @@ public:
 ///	 returns numbers of hexes reachable by creature with id ID
 	std::vector<THex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL); 
 
-///	 returns vector of distances to [dest hex number]
+///	 returns vector of distances to [dest hex number]; WARNING: second argument is ignored
 	std::vector<int> battleGetDistances(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL); 
+
+	///	 returns vector of distances to [dest hex number]
+	std::vector<int> battleGetDistancesFromHex(const CStack * stack, THex hex = THex::INVALID, THex * predecessors = NULL); 
 
 	std::set<THex> battleGetAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID);
 ///	 returns true if unit with id ID can shoot to dest

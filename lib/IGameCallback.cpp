@@ -56,6 +56,11 @@ si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, THex destHex,
 
 std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, THex hex /*= THex::INVALID*/, THex * predecessors /*= NULL*/)
 {
+	return battleGetDistancesFromHex(stack, stack->position, predecessors);
+}
+
+std::vector<int> CBattleInfoCallback::battleGetDistancesFromHex(const CStack * stack, THex hex /*= THex::INVALID*/, THex * predecessors /*= NULL*/)
+{
 	if(!hex.isValid())
 		hex = stack->position;
 
@@ -65,7 +70,7 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, T
 	gs->curB->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
 	THex pr[BFIELD_SIZE];
 	int dist[BFIELD_SIZE];
-	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
+	gs->curB->makeBFS(hex, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
 	for(int i=0; i<BFIELD_SIZE; ++i)
 	{
@@ -82,6 +87,7 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, T
 
 	return ret;
 }
+
 std::set<THex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos  /*= THex::INVALID*/)
 {
 	if(!gs->curB)
@@ -369,8 +375,6 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 
 	return gs->curB->heroes[side];
 }
-
-
 
 CGameState *const CPrivilagedInfoCallback::gameState ()
 { 
