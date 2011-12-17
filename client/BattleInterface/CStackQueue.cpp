@@ -8,6 +8,7 @@
 #include "../CPlayerInterface.h"
 #include "../CBitmapHandler.h"
 #include "../../CCallback.h"
+#include "../UIFramework/CGuiHandler.h"
 
 void CStackQueue::update()
 {

@@ -29,6 +29,7 @@
 #include "CSoundBase.h"
 #include "../lib/CGameState.h"
 #include "CMusicHandler.h"
+#include "UIFramework/CGuiHandler.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -142,7 +143,7 @@ void CMinimap::draw(SDL_Surface * to)
 			rx = static_cast<int>((tilesw / static_cast<double>(mapSizes.x)) * pos.w), //width
 			ry = static_cast<int>((tilesh / static_cast<double>(mapSizes.y)) * pos.h); //height
 
-		CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
+		CSDL_Ext::drawDashedBorder(temps, SRect(bx, by, rx, ry), int3(255,75,125));
 
 		//blitAt(radar,bx,by,temps);
 		blitAt(temps,pos.x,pos.y,to);
@@ -180,7 +181,7 @@ void CMinimapSurfacesRef::initMap(int level)
 		SDL_FreeSurface(map[g]);
 	}
 	map.clear();*/
-	const Rect &minimap_pos = adventureInt->minimap.pos;
+	const SRect &minimap_pos = adventureInt->minimap.pos;
 	std::map<int,SDL_Color> &colors = adventureInt->minimap.colors;
 	std::map<int,SDL_Color> &colorsBlocked = adventureInt->minimap.colorsBlocked;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -220,7 +221,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 	}
 	FoW.clear();*/
 
-	const Rect &minimap_pos = adventureInt->minimap.pos;
+	const SRect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;//,
 		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
@@ -252,7 +253,7 @@ void CMinimapSurfacesRef::initFlaggableObjs(int level)
 	}
 	flObjs.clear();*/
 
-	const Rect &minimap_pos = adventureInt->minimap.pos;
+	const SRect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
@@ -629,25 +630,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
+					SRect dstRect = genRect(32, 32, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
@@ -655,25 +656,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					Rect dstRect = genRect(32, 32, x, y);
+					SRect dstRect = genRect(32, 32, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
@@ -1129,7 +1130,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(Rect::createCentered(487, 481), LOCPLINT);
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(SRect::createCentered(487, 481), LOCPLINT);
 	GH.pushInt(sysopWindow);
 }
 
@@ -1491,7 +1492,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 												int3(-1, -1, 0), int3(0, -1, 0), int3(+1, -1, 0) };
 
 			//numpad arrow
-			if(isArrowKey(SDLKey(k)))
+			if(CGuiHandler::isArrowKey(SDLKey(k)))
 			{
 				switch(k)
 				{
@@ -1509,7 +1510,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 					break;
 				}
 
-				k = arrowToNum(SDLKey(k));
+				k = CGuiHandler::arrowToNum(SDLKey(k));
 			}
 
 			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero

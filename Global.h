@@ -1,0 +1,330 @@
+#pragma once
+
+// Standard include file
+// Contents: 
+// Includes C/C++ libraries, STL libraries, IOStream and String libraries
+// Includes the most important boost headers
+// Defines the import + export, override and exception handling macros
+// Defines the vstd library
+// Includes the logger
+
+// This file shouldn't be changed, except if there is a important header file missing which is shared among several projects.
+
+/*
+ * Global.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#include <cstdio>
+#include <stdio.h>
+#ifdef _WIN32
+#include <tchar.h>
+#else
+#include "tchar_amigaos4.h"
+#endif
+
+#include <cmath>
+#include <cassert>
+#include <assert.h>
+#include <vector>
+#include <string>
+#include <map>
+#include <queue>
+#include <set>
+#include <utility>
+#include <numeric>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+#include <algorithm>
+#include <memory>
+#include <cstdlib>
+
+//filesystem version 3 causes problems (and it's default as of boost 1.46)
+#define BOOST_FILESYSTEM_VERSION 2
+
+#include <boost/algorithm/string.hpp>
+#include <boost/assert.hpp>
+#include <boost/assign.hpp>
+#include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/format.hpp>
+#include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/program_options.hpp>
+#include <boost/thread.hpp>
+#include <boost/unordered_set.hpp>
+
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
+// Integral data types
+typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
+typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
+typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
+typedef boost::uint8_t ui8; //unsigned int 8 bits (1 byte)
+typedef boost::int64_t si64; //signed int 64 bits (8 bytes)
+typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
+typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
+typedef boost::int8_t si8; //signed int 8 bits (1 byte)
+
+// Import + Export macro declarations
+#ifdef _WIN32
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define DLL_EXPORT	__attribute__ ((visibility("default")))
+#else
+#define DLL_EXPORT
+#endif
+#endif
+
+#ifdef _WIN32
+#define DLL_IMPORT __declspec(dllimport)
+#else
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define DLL_IMPORT	__attribute__ ((visibility("default")))
+#else
+#define DLL_IMPORT
+#endif
+#endif
+
+#ifdef VCMI_DLL
+#define DLL_LINKAGE DLL_EXPORT
+#else
+#define DLL_LINKAGE DLL_IMPORT
+#endif
+
+
+//a normal std::map with a const operator[] for sanity
+template<typename KeyT, typename ValT>
+class bmap : public std::map<KeyT, ValT>
+{
+public:
+	const ValT & operator[](KeyT key) const
+	{
+		return find(key)->second;
+	}
+	ValT & operator[](KeyT key) 
+	{
+		return static_cast<std::map<KeyT, ValT> &>(*this)[key];
+	}	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<std::map<KeyT, ValT> &>(*this);
+	}
+};
+
+namespace vstd
+{
+	//returns true if container c contains item i
+	template <typename Container, typename Item>
+	bool contains(const Container & c, const Item &i) 
+	{
+		return std::find(c.begin(),c.end(),i) != c.end();
+	}
+
+	//returns true if map c contains item i
+	template <typename V, typename Item, typename Item2>
+	bool contains(const std::map<Item,V> & c, const Item2 &i) 
+	{
+		return c.find(i)!=c.end();
+	}
+
+	//returns true if bmap c contains item i
+	template <typename V, typename Item, typename Item2>
+	bool contains(const bmap<Item,V> & c, const Item2 &i) 
+	{
+		return c.find(i)!=c.end();
+	}
+
+	//returns true if unordered set c contains item i
+	template <typename Item>
+	bool contains(const boost::unordered_set<Item> & c, const Item &i) 
+	{
+		return c.find(i)!=c.end();
+	}
+
+	//returns position of first element in vector c equal to s, if there is no such element, -1 is returned
+	template <typename T1, typename T2>
+	int find_pos(const std::vector<T1> & c, const T2 &s) 
+	{
+		for(size_t i=0; i < c.size(); ++i)
+			if(c[i] == s)
+				return i;
+		return -1;
+	}
+
+	//Func(T1,T2) must say if these elements matches
+	template <typename T1, typename T2, typename Func>
+	int find_pos(const std::vector<T1> & c, const T2 &s, const Func &f) 
+	{
+		for(size_t i=0; i < c.size(); ++i)
+			if(f(c[i],s))
+				return i;
+		return -1;
+	}
+
+	//returns iterator to the given element if present in container, end() if not
+	template <typename Container, typename Item>
+	typename Container::iterator find(Container & c, const Item &i) 
+	{
+		return std::find(c.begin(),c.end(),i);
+	}
+
+	//returns const iterator to the given element if present in container, end() if not
+	template <typename Container, typename Item>
+	typename Container::const_iterator find(const Container & c, const Item &i)
+	{
+		return std::find(c.begin(),c.end(),i);
+	}
+
+	//removes element i from container c, returns false if c does not contain i
+	template <typename Container, typename Item>
+	typename Container::size_type operator-=(Container &c, const Item &i) 
+	{
+		typename Container::iterator itr = find(c,i);
+		if(itr == c.end())
+			return false;
+		c.erase(itr);
+		return true;
+	}
+
+	//assigns greater of (a, b) to a and returns maximum of (a, b)
+	template <typename t1, typename t2>
+	t1 &amax(t1 &a, const t2 &b) 
+	{
+		if(a >= b)
+			return a;
+		else
+		{
+			a = b;
+			return a;
+		}
+	}
+
+	//assigns smaller of (a, b) to a and returns minimum of (a, b)
+	template <typename t1, typename t2>
+	t1 &amin(t1 &a, const t2 &b)
+	{
+		if(a <= b)
+			return a;
+		else
+		{
+			a = b;
+			return a;
+		}
+	}
+
+	//makes a to fit the range <b, c>
+	template <typename t1, typename t2, typename t3>
+	t1 &abetween(t1 &a, const t2 &b, const t3 &c) 
+	{
+		amax(a,b);
+		amin(a,c);
+		return a;
+	}
+
+	//checks if a is between b and c
+	template <typename t1, typename t2, typename t3>
+	bool isbetween(const t1 &a, const t2 &b, const t3 &c) 
+	{
+		return a > b && a < c;
+	}
+
+	//checks if a is within b and c
+	template <typename t1, typename t2, typename t3>
+	bool iswithin(const t1 &a, const t2 &b, const t3 &c) 
+	{
+		return a >= b && a <= c;
+	}
+	
+	template <typename t1, typename t2>
+	struct assigner
+	{
+	public:
+		t1 &op1;
+		t2 op2;
+		assigner(t1 &a1, const t2 & a2)
+			:op1(a1), op2(a2)
+		{}
+		void operator()()
+		{
+			op1 = op2;
+		}
+	};
+	
+	// Assigns value a2 to a1. The point of time of the real operation can be controlled
+	// with the () operator.
+	template <typename t1, typename t2>
+	assigner<t1,t2> assigno(t1 &a1, const t2 &a2)
+	{
+		return assigner<t1,t2>(a1,a2);
+	}
+
+	//deleted pointer and sets it to NULL
+	template <typename T> 
+	void clear_pointer(T* &ptr) 
+	{
+		delete ptr;
+		ptr = NULL;
+	}
+}
+using vstd::operator-=;
+
+// can be used for counting arrays
+template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  
+#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
+
+//for explicit overrides
+#ifdef _MSC_VER
+#define OVERRIDE override
+#else
+#define OVERRIDE 	//is there any working counterpart?
+#endif
+
+//XXX pls dont - 'debug macros' are usually more trouble than it's worth
+#define HANDLE_EXCEPTION  \
+	catch (const std::exception& e) {	\
+	tlog1 << e.what() << std::endl;		\
+	throw;								\
+}									\
+	catch (const std::exception * e)	\
+{									\
+	tlog1 << e->what()<< std::endl;	\
+	throw;							\
+}									\
+	catch (const std::string& e) {		\
+	tlog1 << e << std::endl;		\
+	throw;							\
+}
+
+#define HANDLE_EXCEPTIONC(COMMAND)  \
+	catch (const std::exception& e) {	\
+	COMMAND;						\
+	tlog1 << e.what() << std::endl;	\
+	throw;							\
+}									\
+	catch (const std::string &e)	\
+{									\
+	COMMAND;						\
+	tlog1 << e << std::endl;	\
+	throw;							\
+}
+
+
+#include "lib/CLogger.h"

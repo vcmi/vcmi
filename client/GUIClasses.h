@@ -1,10 +1,13 @@
 #pragma once
 
 
-#include "GUIBase.h"
 #include "FunctionList.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CSimpleWindow.h"
+#include "UIFramework/IStatusBar.h"
+#include "UIFramework/CPicture.h"
+#include "UIFramework/CKeyShortcut.h"
 
 #ifdef max
 #undef max
@@ -127,19 +130,19 @@ public:
 	virtual ~CRClickPopup(); //d-tor
 
 	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
-	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
+	static void createAndPush(const CGObjectInstance *obj, const SPoint &p, EAlignment alignment = BOTTOMRIGHT);
 };
 
 /// popup displayed on R-click
 class CRClickPopupInt : public CRClickPopup 
 {
 public:
-	IShowActivable *inner;
+	IShowActivatable *inner;
 	bool delInner;
 
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-	CRClickPopupInt(IShowActivable *our, bool deleteInt); //c-tor
+	CRClickPopupInt(IShowActivatable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
 
@@ -151,7 +154,7 @@ public:
 	void close();
 	void show(SDL_Surface * to);
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
-	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
+	CInfoPopup(SDL_Surface * Bitmap, const SPoint &p, EAlignment alignment, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface *Bitmap = NULL, bool Free = false); //default c-tor
 
 	void init(int x, int y);
@@ -190,7 +193,7 @@ public:
 	virtual void deactivate();
 };
 
-class CSelectableComponent : public SComponent, public KeyShortcut
+class CSelectableComponent : public SComponent, public CKeyShortcut
 {
 public:
 	bool selected; //if true, this component is selected
@@ -239,7 +242,7 @@ public:
 	//CreateFunc, DestroyFunc - see CObjectList
 	//Pos - position of object, all tabs will be moved to this position
 	//ActiveID - ID of initially active tab
-	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
+	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), SPoint position=SPoint(), size_t ActiveID=0);
 
 	void setActive(size_t which);
 	//recreate active tab
@@ -257,7 +260,7 @@ private:
 	size_t first;
 	size_t totalSize;
 
-	Point itemOffset;
+	SPoint itemOffset;
 	CSlider * slider;
 
 	void updatePositions();
@@ -269,8 +272,8 @@ public:
 	//TotalSize 
 	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
 	//SliderPos - position of slider, if present
-	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
-	         size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
+	CListBox(CreateFunc create, DestroyFunc destroy, SPoint Pos, SPoint ItemOffset, size_t VisibleSize,
+	         size_t TotalSize, size_t InitialPos=0, int Slider=0, SRect SliderPos=SRect() );
 
 	//recreate all visible items
 	void reset();
@@ -318,7 +321,7 @@ class CGarrisonInt :public CIntObject
 {
 public:
 	int interx; //space between slots
-	Point garOffset; //offset between garrisons (not used if only one hero)
+	SPoint garOffset; //offset between garrisons (not used if only one hero)
 	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
@@ -355,7 +358,7 @@ public:
 	//removableUnits - you can take units from top;
 	//smallImgs - units images size 64x58 or 32x32;
 	//twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
+	CGarrisonInt(int x, int y, int inx, const SPoint &garsOffset, SDL_Surface *pomsur, const SPoint &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 
@@ -387,7 +390,7 @@ public:
 	std::string text;
 	CPicture *bg;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
-	Point textOffset; //text will be blitted at pos + textOffset with appropriate alignment
+	SPoint textOffset; //text will be blitted at pos + textOffset with appropriate alignment
 	bool ignoreLeadingWhitespace; 
 
 	virtual void setTxt(const std::string &Txt);
@@ -410,8 +413,8 @@ public:
 	std::vector<CAnimImage* > effects;
 	CSlider *slider;
 
-	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
+	//CTextBox( std::string Text, const SPoint &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
+	CTextBox(std::string Text, const SRect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
 	void setTxt(const std::string &Txt);
 	void setBounds(int limitW, int limitH);
@@ -467,8 +470,8 @@ public:
 
 	void setText(const std::string &nText, bool callCb = false);
 
-	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf = NULL);
+	CTextInput(const SRect &Pos, const SPoint &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
+	CTextInput(const SRect &Pos, SDL_Surface *srf = NULL);
 	~CTextInput();
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
@@ -671,7 +674,7 @@ public:
 	CPicture *titleImage;//title image (castle gate\town portal picture)
 	AdventureMapButton *ok, *exit;
 
-	std::vector<Rect> areas;//areas for each visible item
+	std::vector<SRect> areas;//areas for each visible item
 	std::vector<int> items;//id of all items present in list
 	int selected;//currently selected item
 	int length;//size of list (=9)
@@ -737,7 +740,7 @@ public:
 		CFunctionList<void()> callback;
 		bool downSelection;
 
-		void showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to);
+		void showAllAt(const SPoint &dstPos, const std::string &customSub, SDL_Surface * to);
 
 		void clickRight(tribool down, bool previousState);
 		void hover (bool on);
@@ -771,7 +774,7 @@ public:
 	void initTypes();
 	void initItems(bool Left);
 	std::vector<int> *getItemsIds(bool Left); //NULL if default
-	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
+	void getPositionsFor(std::vector<SRect> &poss, bool Left, EType type) const;
 	void removeItems(const std::set<CTradeableItem *> &toRemove);
 	void removeItem(CTradeableItem * t);
 	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
@@ -781,7 +784,7 @@ public:
 
 	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
-	virtual Point selectionOffset(bool Left) const = 0;
+	virtual SPoint selectionOffset(bool Left) const = 0;
 	virtual std::string selectionSubtitle(bool Left) const = 0;
 	virtual void garrisonChanged() = 0; 
 	virtual void artifactsChanged(bool left) = 0;
@@ -802,7 +805,7 @@ public:
 	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 
-	Point selectionOffset(bool Left) const;
+	SPoint selectionOffset(bool Left) const;
 	std::string selectionSubtitle(bool Left) const;
 
 
@@ -843,7 +846,7 @@ public:
 	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
 	void mimicCres();
 
-	Point selectionOffset(bool Left) const;
+	SPoint selectionOffset(bool Left) const;
 	std::string selectionSubtitle(bool Left) const;
 	void garrisonChanged(); 
 	void artifactsChanged(bool left);
@@ -961,7 +964,7 @@ public:
 	std::string text;
 
 	LRClickableAreaWText();
-	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
+	LRClickableAreaWText(const SRect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
 	virtual ~LRClickableAreaWText();
 	void init();
 
@@ -978,7 +981,7 @@ public:
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
 
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	LRClickableAreaWTextComp(const SRect &Pos = SRect(0,0,0,0), int BaseType = -1);
 	SComponent * createComponent() const;
 };
 
@@ -991,7 +994,7 @@ public:
 	void set(const IBonusBearer *node);
 	void showAll(SDL_Surface * to);
 
-	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
+	MoraleLuckBox(bool Morale, const SRect &r, bool Small=false);
 	~MoraleLuckBox();
 };
 
@@ -1063,7 +1066,7 @@ public:
 	const CArtifactInstance * ourArt;
 
 	CArtPlace(const CArtifactInstance * Art); //c-tor
-	CArtPlace(Point position, const CArtifactInstance * Art = NULL); //c-tor
+	CArtPlace(SPoint position, const CArtifactInstance * Art = NULL); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void select ();
@@ -1138,13 +1141,27 @@ public:
 	void updateSlot(int i);
 	void eraseSlotData (CArtPlace* artPlace, int slotID);
 
-	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
+	CArtifactsOfHero(const SPoint& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
 	CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
 		AdventureMapButton *leftScroll, AdventureMapButton *rightScroll, bool createCommonPart = false);
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;
+};
+
+class CGarrisonHolder : public virtual CIntObject
+{
+public:
+	CGarrisonHolder();
+	virtual void updateGarrisons(){};
+};
+
+class CWindowWithGarrison : public CGarrisonHolder
+{
+public:
+	CGarrisonInt *garr;
+	virtual void updateGarrisons();
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison

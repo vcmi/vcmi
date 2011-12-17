@@ -22,6 +22,7 @@
 #include "Graphics.h"
 #include "SDL_Extensions.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 using namespace boost::assign;
 
@@ -255,7 +256,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	background->colorize(LOCPLINT->playerID);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
-	moveTo(Point(centerX - pos.w/2, centerY - pos.h/2));
+	moveTo(SPoint(centerX - pos.w/2, centerY - pos.h/2));
 
 	const CCreature * creature = CGI->creh->creatures[Town->creatures[level].second.back()];
 
@@ -279,8 +280,8 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	int posX = pos.w/2 - resAmount.size() * 25 + 5;
 	for (size_t i=0; i<resAmount.size(); i++)
 	{
-		resPicture[i]->moveBy(Point(posX, posY));
-		resAmount[i]->moveBy(Point(posX+16, posY+43));
+		resPicture[i]->moveBy(SPoint(posX, posY));
+		resAmount[i]->moveBy(SPoint(posX+16, posY+43));
 		posX += 50;
 	}
 }
@@ -927,8 +928,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
 
-	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
-	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
+	garr = new CGarrisonInt(305, 387, 4, SPoint(0,96), panel->bg, SPoint(62,374), town->getUpperArmy(), town->visitingHero);
+	heroes = new HeroSlots(town, SPoint(241, 387), SPoint(241, 483), garr, true);
 	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, zwykly, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
@@ -942,7 +943,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	removeChild(split);
 	garr->addSplitBtn(split);
 
-	Rect barRect(9, 182, 732, 18);
+	SRect barRect(9, 182, 732, 18);
 	statusbar = new CGStatusBar(new CPicture(*panel, barRect, 9, 555, false));
 	resdatabar = new CResDataBar("ZRESBAR", 3, 575, 32, 2, 85, 85);
 
@@ -1044,13 +1045,13 @@ void CCastleInterface::recreateIcons()
 	creainfo.clear();
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(Point(14+55*i, 459), town, i));
+		creainfo.push_back(new CCreaInfo(SPoint(14+55*i, 459), town, i));
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(Point(14+55*i, 507), town, i+4));
+		creainfo.push_back(new CCreaInfo(SPoint(14+55*i, 507), town, i+4));
 }
 
-CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact, bool ShowAvailable):
+CCreaInfo::CCreaInfo(SPoint position, const CGTownInstance *Town, int Level, bool compact, bool ShowAvailable):
 	town(Town),
 	level(Level),
 	showAvailable(ShowAvailable)
@@ -1262,7 +1263,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 	}
 }
 
-HeroSlots::HeroSlots(const CGTownInstance * Town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty):
+HeroSlots::HeroSlots(const CGTownInstance * Town, SPoint garrPos, SPoint visitPos, CGarrisonInt *Garrison, bool ShowEmpty):
 	showEmpty(ShowEmpty),
 	town(Town),
 	garr(Garrison)
@@ -1350,7 +1351,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	resdatabar = new CMinorResDataBar;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
-	Rect barRect(5, 556, 740, 18);
+	SRect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
 	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, zwykly, CGI->buildh->buildings[town->subID][town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
@@ -1453,13 +1454,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	background->colorize(LOCPLINT->playerID);
 
 	buildingPic = new CAnimImage(graphics->buildingPics[town->subID], building->bid, 0, 125, 50);
-	Rect barRect(9, 494, 380, 18);
+	SRect barRect(9, 494, 380, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 9, 494, false));
 
 	title = new CLabel(197, 30, FONT_MEDIUM, CENTER, zwykly, 
 	            boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	buildingDescr = new CTextBox(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
-	buildingState = new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
+	buildingDescr = new CTextBox(building->Description(), SRect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
+	buildingState = new CTextBox(getTextForState(state),  SRect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
 
 	//Create objects for all required resources
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
@@ -1492,8 +1493,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		int posX = pos.w/2 - rowSize[row] * 40 + 24;
 		for (size_t i=0; i<rowSize[row]; i++)
 		{//Move current resource to correct position
-			resPicture[index]->moveBy(Point(posX, posY));
-			resAmount[index]->moveBy(Point(posX+16, posY+48));
+			resPicture[index]->moveBy(SPoint(posX, posY));
+			resAmount[index]->moveBy(SPoint(posX+16, posY+48));
 			posX += 80;
 			index++;
 		}
@@ -1543,15 +1544,15 @@ CFortScreen::CFortScreen(const CGTownInstance * town)
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
 	exit = new AdventureMapButton(text, "", boost::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
 
-	std::vector<Point> positions;
-	positions += Point(10,  22), Point(404, 22),
-	             Point(10, 155), Point(404,155),
-	             Point(10, 288), Point(404,288);
+	std::vector<SPoint> positions;
+	positions += SPoint(10,  22), SPoint(404, 22),
+	             SPoint(10, 155), SPoint(404,155),
+	             SPoint(10, 288), SPoint(404,288);
 
 	if (fortSize == GameConstants::CREATURES_PER_TOWN)
-		positions += Point(206,421);
+		positions += SPoint(206,421);
 	else
-		positions += Point(10, 421), Point(404,421);
+		positions += SPoint(10, 421), SPoint(404,421);
 	
 	for (ui32 i=0; i<fortSize; i++)
 	{
@@ -1572,7 +1573,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town)
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
-	Rect barRect(4, 554, 740, 18);
+	SRect barRect(4, 554, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 4, 554, false));
 }
 
@@ -1582,7 +1583,7 @@ void CFortScreen::creaturesChanged()
 		recAreas[i]->creaturesChanged();
 }
 
-LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int min, int max)
+LabeledValue::LabeledValue(SRect size, std::string name, std::string descr, int min, int max)
 {
 	pos.x+=size.x;
 	pos.y+=size.y;
@@ -1591,7 +1592,7 @@ LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int m
 	init(name, descr, min, max);
 }
 
-LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int val)
+LabeledValue::LabeledValue(SRect size, std::string name, std::string descr, int val)
 {
 	pos.x+=size.x;
 	pos.y+=size.y;
@@ -1654,7 +1655,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % creature->namePl);
 	creatureAnim = new CCreaturePic(159, 4, creature, false);
 
-	Rect sizes(287, 4, 96, 18);
+	SRect sizes(287, 4, 96, 18);
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], creature->attack));
 	sizes.y+=20;
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], creature->defence));
@@ -1718,20 +1719,20 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	resdatabar = new CMinorResDataBar;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
-	Rect barRect(7, 556, 737, 18);
+	SRect barRect(7, 556, 737, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 7, 556, false));
 	
 	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	
-	std::vector<std::vector<Point> > positions;
+	std::vector<std::vector<SPoint> > positions;
 
 	positions.resize(5);
-	positions[0] += Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445);
-	positions[1] += Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429);
-	positions[2] += Point(570,82),  Point(672,82),  Point(570,157), Point(672,157);
-	positions[3] += Point(183,42),  Point(183,148), Point(183,253);
-	positions[4] += Point(491,325), Point(591,325);
+	positions[0] += SPoint(222,445), SPoint(312,445), SPoint(402,445), SPoint(520,445), SPoint(610,445), SPoint(700,445);
+	positions[1] += SPoint(48,53),   SPoint(48,147),  SPoint(48,241),  SPoint(48,335),  SPoint(48,429);
+	positions[2] += SPoint(570,82),  SPoint(672,82),  SPoint(570,157), SPoint(672,157);
+	positions[3] += SPoint(183,42),  SPoint(183,148), SPoint(183,253);
+	positions[4] += SPoint(491,325), SPoint(591,325);
 	
 	for(size_t i=0; i<owner->town->town->mageLevel; i++)
 	{
@@ -1751,7 +1752,7 @@ void CMageGuildScreen::close()
 	GH.popIntTotally(this);
 }
 
-CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
+CMageGuildScreen::Scroll::Scroll(SPoint position, const CSpell *Spell)
 	:spell(Spell)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -1810,7 +1811,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	animBG->needRefresh = true;
 
 	const CCreature *creature = CGI->creh->creatures[creMachineID];
-	anim = new CCreatureAnim(64, 50, creature->animDefName, Rect());
+	anim = new CCreatureAnim(64, 50, creature->animDefName, SRect());
 	anim->clipRect(113,125,200,150);
 	
 	title = new CLabel(165, 28, FONT_BIG, CENTER, tytulowy, 

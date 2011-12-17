@@ -20,8 +20,8 @@ class CStack;
 class CMovementAnimation : public CBattleStackAnimation
 {
 private:
-	std::vector<SHexField> destTiles; //destination
-	SHexField nextHex;
+	std::vector<SBattleHex> destTiles; //destination
+	SBattleHex nextHex;
 	ui32 nextPos;
 	int distance;
 	double stepX, stepY; //how far stack is moved in one frame
@@ -33,5 +33,5 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<SHexField> _destTiles, int _distance);
+	CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<SBattleHex> _destTiles, int _distance);
 };

@@ -1,10 +1,6 @@
 #pragma once
 
 
-#include <boost/variant.hpp>
-#include <boost/optional.hpp>
-#include <boost/spirit/home/support/unused.hpp>
-
 /*
  * ERMParser.h, part of VCMI engine
  *

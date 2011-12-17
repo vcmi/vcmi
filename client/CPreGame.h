@@ -3,10 +3,10 @@
 
 #include <SDL.h>
 #include "../lib/StartInfo.h"
-#include "GUIBase.h"
 #include "GUIClasses.h"
 #include "FunctionList.h"
 #include "../lib/CMapInfo.h"
+#include "UIFramework/IUpdateable.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -103,7 +103,7 @@ public:
 	CTextBox *chatHistory;
 	CTextInput *inputBox;
 
-	CChatBox(const Rect &rect);
+	CChatBox(const SRect &rect);
 
 	void keyPressed(const SDL_KeyboardEvent & key);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GUIBase.h"
+#include "../UIFramework/CIntObject.h"
 
 struct SDL_Surface;
 

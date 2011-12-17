@@ -106,8 +106,8 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	{
 		for (int j=0; j<h; j+=background->h)
 		{
-			Rect srcR(0,0,background->w, background->h);
-			Rect dstR(i,j,w,h);
+			SRect srcR(0,0,background->w, background->h);
+			SRect dstR(i,j,w,h);
 			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
 		}
 	}
@@ -446,7 +446,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 			curh = (ret->bitmap->h - ret->text->pos.h)/2;
 	}
 
-	ret->text->moveBy(Point(xOffset, curh));
+	ret->text->moveBy(SPoint(xOffset, curh));
 
 	curh += ret->text->pos.h;
 
@@ -463,7 +463,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
-			ret->buttons[i]->moveBy(Point(bw, curh));
+			ret->buttons[i]->moveBy(SPoint(bw, curh));
 			bw += ret->buttons[i]->pos.w + 20;
 		}
 	}
@@ -493,8 +493,8 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 			cur_w = box[6]->w;
 
 		// Top border
-		Rect srcR(0, 0, cur_w, box[6]->h);
-		Rect dstR(start_x, y, 0, 0);
+		SRect srcR(0, 0, cur_w, box[6]->h);
+		SRect dstR(start_x, y, 0, 0);
 		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
 		
 		// Bottom border
@@ -514,8 +514,8 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 			cur_h = box[4]->h;
 
 		// Left border
-		Rect srcR(0, 0, box[4]->w, cur_h);
-		Rect dstR(x, start_y, 0, 0);
+		SRect srcR(0, 0, box[4]->w, cur_h);
+		SRect dstR(x, start_y, 0, 0);
 		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
 
 		// Right border
@@ -526,16 +526,16 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 	}
 
 	//corners
-	Rect dstR(x, y, box[0]->w, box[0]->h);
+	SRect dstR(x, y, box[0]->w, box[0]->h);
 	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
 
-	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
+	dstR=SRect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
 	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
 
-	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
+	dstR=SRect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
 	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
 
-	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
+	dstR=SRect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
 	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
 }
 

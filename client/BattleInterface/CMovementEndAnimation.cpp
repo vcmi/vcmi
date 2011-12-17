@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CMovementEndAnimation.h"
 
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../../lib/BattleState.h"
@@ -46,7 +46,7 @@ void CMovementEndAnimation::endAnim()
 	delete this;
 }
 
-CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, SHexField destTile)
+CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, SBattleHex destTile)
 : CBattleStackAnimation(_owner, _stack), destinationTile(destTile)
 {
 }

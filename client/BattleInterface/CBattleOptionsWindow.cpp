@@ -2,12 +2,12 @@
 #include "CBattleOptionsWindow.h"
 
 #include "CBattleInterface.h"
-#include "../GUIBase.h"
 #include "../GUIClasses.h"
 #include "../AdventureMapButton.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../UIFramework/CGuiHandler.h"
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
 {

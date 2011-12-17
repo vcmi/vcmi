@@ -4,13 +4,13 @@
 
 #include "../../lib/BattleState.h"
 #include "CBattleInterface.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../CGameInfo.h"
 #include "../../lib/CTownHandler.h"
 #include "CMovementStartAnimation.h"
 #include "CReverseAnimation.h"
 #include "CSpellEffectAnimation.h"
-#include "CHexFieldControl.h"
+#include "CClickableHex.h"
 
 bool CShootingAnimation::init()
 {
@@ -59,16 +59,16 @@ bool CShootingAnimation::init()
 		spi.spin = false;
 	}
 
-	Point xycoord = CHexFieldControl::getXYUnitAnim(shooter->position, true, shooter, owner);
-	Point destcoord;
+	SPoint xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+	SPoint destcoord;
 
 
 	// The "master" point where all projectile positions relate to.
-	static const Point projectileOrigin(181, 252);
+	static const SPoint projectileOrigin(181, 252);
 
 	if (attackedStack)
 	{
-		destcoord = CHexFieldControl::getXYUnitAnim(dest, false, attackedStack, owner); 
+		destcoord = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner); 
 		destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
 
 		// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
@@ -185,7 +185,7 @@ void CShootingAnimation::endAnim()
 	delete this;
 }
 
-CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, SHexField _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
+CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, SBattleHex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
 	: CAttackAnimation(_owner, attacker, _dest, _attacked), catapultDamage(_catapultDmg), catapult(_catapult)
 {
 

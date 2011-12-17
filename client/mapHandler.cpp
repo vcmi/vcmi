@@ -15,6 +15,7 @@
 #include "CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/GameConstants.h"
+#include "../lib/CStopWatch.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -335,7 +336,7 @@ void CMapHandler::initHeroDef(const CGHeroInstance * h)
 }
 void CMapHandler::init()
 {
-	StopWatch th;
+	CStopWatch th;
 	th.getDiff();
 
     graphics->advmapobjGraphics[8][0]["AB01_.DEF"] = graphics->boatAnims[0];

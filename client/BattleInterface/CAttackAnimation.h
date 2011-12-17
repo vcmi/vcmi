@@ -2,7 +2,7 @@
 
 #include "CBattleStackAnimation.h"
 #include "../CAnimation.h"
-#include "../../lib/SHexField.h"
+#include "../../lib/SBattleHex.h"
 
 class CBattleInterface;
 class CStack;
@@ -21,7 +21,7 @@ class CStack;
 class CAttackAnimation : public CBattleStackAnimation
 {
 protected:
-	SHexField dest; //attacked hex
+	SBattleHex dest; //attacked hex
 	bool shooting;
 	CCreatureAnim::EAnimType group; //if shooting is true, print this animation group
 	const CStack *attackedStack;
@@ -31,5 +31,5 @@ public:
 	void nextFrame();
 	bool checkInitialConditions();
 
-	CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SHexField _dest, const CStack *defender);
+	CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SBattleHex _dest, const CStack *defender);
 };

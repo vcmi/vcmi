@@ -166,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="StupidAI.h" />
+	<ClInclude Include="..\..\Global.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

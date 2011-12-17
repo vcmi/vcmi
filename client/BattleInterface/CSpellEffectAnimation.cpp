@@ -8,6 +8,7 @@
 #include "../../CCallback.h"
 #include "../../lib/BattleState.h"
 #include "../SDL_Extensions.h"
+#include "../UIFramework/SRect.h"
 
 //effect animation
 bool CSpellEffectAnimation::init()
@@ -67,7 +68,7 @@ bool CSpellEffectAnimation::init()
 		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
 		{
 			const CStack* destStack = owner->curInt->cb->battleGetStackByPos(destTile, false);
-			Rect &tilePos = owner->bfield[destTile].pos;
+			SRect &tilePos = owner->bfield[destTile].pos;
 			SBattleEffect be;
 			be.effectID = ID;
 			if(customAnim.size())
@@ -170,7 +171,7 @@ void CSpellEffectAnimation::endAnim()
 	delete this;
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, SHexField _destTile, int _dx, int _dy, bool _Vflip)
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, SBattleHex _destTile, int _dx, int _dy, bool _Vflip)
 :CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), dx(_dx), dy(_dy), Vflip(_Vflip)
 {
 }

@@ -13,6 +13,7 @@
 #include "CConfigHandler.h"
 #include "CGameInfo.h"
 #include "CPlayerInterface.h" //LOCPLINT
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * CKingdomInterface.cpp, part of VCMI engine
@@ -26,7 +27,7 @@
 
 extern SDL_Surface *screenBuf;
 
-InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
+InfoBox::InfoBox(SPoint position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
 	size(Size),
 	infoPos(Pos),
 	data(Data),
@@ -469,7 +470,7 @@ CKingdomInterface::CKingdomInterface()
 	pos = background->center();
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
+	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), SPoint(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -530,7 +531,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 		objects.push_back(element.second);
 	}
 	dwellingsList = new CListBox(boost::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
-	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
+	                             SPoint(740,44), SPoint(0,57), dwellSize, visibleObjects.size());
 }
 
 CIntObject* CKingdomInterface::createOwnedObject(size_t index)
@@ -539,7 +540,7 @@ CIntObject* CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo &obj = objects[index];
 		std::string value = boost::lexical_cast<std::string>(obj.count);
-		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
+		return new InfoBox(SPoint(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
 			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
 	}
 	return NULL;
@@ -593,11 +594,11 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for (int i=0; i<7; i++)
 	{
 		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
-		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+		minesBox[i] = new InfoBox(SPoint(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 		              new InfoBoxCustom(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first));
 	}
 	incomeArea = new HoverableArea;
-	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
+	incomeArea->pos = SRect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
 	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, zwykly, boost::lexical_cast<std::string>(totalIncome));
 }
@@ -690,7 +691,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
-	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
+	                      SPoint(19,21), SPoint(0,116), maxSize, townCount, 0, 1, SRect(-19, -21, size, size) );
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -743,7 +744,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
-	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
+	                     SPoint(19,21), SPoint(0,116), maxSize, townCount, 0, 1, SRect(-19, -21, size, size) );
 }
 
 void CKingdTownList::townChanged(const CGTownInstance *town)
@@ -789,8 +790,8 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
-	garr = new CGarrisonInt(313, 3, 4, Point(232,0),  NULL, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
-	heroes = new HeroSlots(town, Point(244,6), Point(475,6), garr, false);
+	garr = new CGarrisonInt(313, 3, 4, SPoint(232,0),  NULL, SPoint(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
+	heroes = new HeroSlots(town, SPoint(244,6), SPoint(475,6), garr, false);
 
 	size_t iconIndex = town->subID*2;
 	if (!town->hasFort())
@@ -801,13 +802,13 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 
 	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);
 	townArea = new LRClickableAreaOpenTown;
-	townArea->pos = Rect(pos.x+5, pos.y+6, 58, 64);
+	townArea->pos = SRect(pos.x+5, pos.y+6, 58, 64);
 	townArea->town = town;
 
 	for (size_t i=0; i<town->creatures.size(); i++)
 	{
-		growth.push_back(new CCreaInfo(Point(401+37*i, 78), town, i, true, true));
-		available.push_back(new CCreaInfo(Point(48+37*i, 78), town, i, true, false));
+		growth.push_back(new CCreaInfo(SPoint(401+37*i, 78), town, i, true, true));
+		available.push_back(new CCreaInfo(SPoint(48+37*i, 78), town, i, true, false));
 	}
 }
 
@@ -846,7 +847,7 @@ public:
 		background = new CAnimImage("OVSLOT", 4);
 		pos = background->pos;
 		for (size_t i=0; i<9; i++)
-			arts.push_back(new CArtPlace(Point(270+i*48, 65)));
+			arts.push_back(new CArtPlace(SPoint(270+i*48, 65)));
 	}
 };
 
@@ -866,7 +867,7 @@ public:
 		btnLeft = new AdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 269, 66, "HSBTNS3");
 		btnRight = new AdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 675, 66, "HSBTNS5");
 		for (size_t i=0; i<8; i++)
-			arts.push_back(new CArtPlace(Point(295+i*48, 65)));
+			arts.push_back(new CArtPlace(SPoint(295+i*48, 65)));
 	}
 };
 
@@ -916,7 +917,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
 	artButtons->select(0,0);
 
-	garr = new CGarrisonInt(6, 78, 4, Point(), NULL, Point(), hero, NULL, true, true);
+	garr = new CGarrisonInt(6, 78, 4, SPoint(), NULL, SPoint(), hero, NULL, true, true);
 
 	portrait = new CAnimImage("PortraitsLarge", hero->subID, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);
@@ -925,24 +926,24 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->overview[2]);
 
 	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
+		heroInfo.push_back(new InfoBox(SPoint(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i)));
 
 	for (size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
-		heroInfo.push_back(new InfoBox(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
+		heroInfo.push_back(new InfoBox(SPoint(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i)));
 
-	heroInfo.push_back(new InfoBox(Point(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(SPoint(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_SPECIAL, hero)));
 
-	heroInfo.push_back(new InfoBox(Point(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(SPoint(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_EXPERIENCE, hero)));
 
-	heroInfo.push_back(new InfoBox(Point(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(SPoint(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_MANA, hero)));
 
-	morale = new MoraleLuckBox(true, Rect(225, 53, 30, 22), true);
-	luck  = new MoraleLuckBox(false, Rect(225, 28, 30, 22), true);
+	morale = new MoraleLuckBox(true, SRect(225, 53, 30, 22), true);
+	luck  = new MoraleLuckBox(false, SRect(225, 28, 30, 22), true);
 
 	morale->set(hero);
 	luck->set(hero);

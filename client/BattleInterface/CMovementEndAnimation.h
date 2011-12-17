@@ -20,11 +20,11 @@ class CStack;
 class CMovementEndAnimation : public CBattleStackAnimation
 {
 private:
-	SHexField destinationTile;
+	SBattleHex destinationTile;
 public:
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CMovementEndAnimation(CBattleInterface *_owner, const CStack *_stack, SHexField destTile);
+	CMovementEndAnimation(CBattleInterface *_owner, const CStack *_stack, SBattleHex destTile);
 };

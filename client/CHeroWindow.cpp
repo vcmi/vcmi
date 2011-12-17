@@ -22,6 +22,8 @@
 #include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
 
+#include "UIFramework/CGuiHandler.h"
+
 #undef min
 
 /*
@@ -82,7 +84,7 @@ CHeroWindow * CHeroSwitcher::getOwner()
 
 CHeroSwitcher::CHeroSwitcher(int serial)
 {
-	pos = Rect(612, 87 + serial * 54, 48, 32)  +  pos;
+	pos = SRect(612, 87 + serial * 54, 48, 32)  +  pos;
 	id = serial;
 	used = LCLICK;
 }
@@ -122,26 +124,26 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	flags = CDefHandler::giveDefEss("CREST58.DEF");
 
 	//areas
-	portraitArea = new LRClickableAreaWText(Rect(18, 18, 58, 64));
+	portraitArea = new LRClickableAreaWText(SRect(18, 18, 58, 64));
 
 	for(int v=0; v<GameConstants::PRIMARY_SKILLS; ++v)
 	{
-		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), SComponent::primskill);
+		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(SRect(30 + 70*v, 109, 42, 64), SComponent::primskill);
 		area->text = CGI->generaltexth->arraytxt[2+v];
 		area->type = v;
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
 		primSkillAreas.push_back(area);
 	}
 
-	specArea = new LRClickableAreaWText(Rect(18, 180, 136, 42), CGI->generaltexth->heroscrn[27]);
-	expArea = new LRClickableAreaWText(Rect(18, 228, 136, 42), CGI->generaltexth->heroscrn[9]);
-	morale = new MoraleLuckBox(true, Rect(175,179,53,45));
-	luck = new MoraleLuckBox(false, Rect(233,179,53,45));
-	spellPointsArea = new LRClickableAreaWText(Rect(162,228, 136, 42), CGI->generaltexth->heroscrn[22]);
+	specArea = new LRClickableAreaWText(SRect(18, 180, 136, 42), CGI->generaltexth->heroscrn[27]);
+	expArea = new LRClickableAreaWText(SRect(18, 228, 136, 42), CGI->generaltexth->heroscrn[9]);
+	morale = new MoraleLuckBox(true, SRect(175,179,53,45));
+	luck = new MoraleLuckBox(false, SRect(233,179,53,45));
+	spellPointsArea = new LRClickableAreaWText(SRect(162,228, 136, 42), CGI->generaltexth->heroscrn[22]);
 
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
-		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
+		SRect r = SRect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, SComponent::secskill));
 	}
 
@@ -195,7 +197,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		if(!garr)
 		{
-			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
+			garr = new CGarrisonInt(15, 485, 8, SPoint(), background->bg, SPoint(15,485), curHero);
 			{
 				BLOCK_CAPTURING;
 				split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x + 539, pos.y + 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
@@ -205,7 +207,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		}
 		if(!artSets.size())
 		{
-			CArtifactsOfHero *arts = new CArtifactsOfHero(Point(-65, -8), true);
+			CArtifactsOfHero *arts = new CArtifactsOfHero(SPoint(-65, -8), true);
 			arts->setHero(curHero);
 			artSets.push_back(arts);
 		}
@@ -243,7 +245,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa))
 			for(int g=0; g < ARRAY_COUNT(cew->heroInst); ++g)

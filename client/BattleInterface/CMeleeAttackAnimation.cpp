@@ -2,7 +2,7 @@
 #include "CMeleeAttackAnimation.h"
 
 #include "CBattleInterface.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../../lib/BattleState.h"
 #include "CReverseAnimation.h"
 
@@ -40,18 +40,18 @@ bool CMeleeAttackAnimation::init()
 
 	int revShiftattacker = (attackingStack->attackerOwned ? -1 : 1);
 
-	int mutPos = SHexField::mutualPosition(attackingStackPosBeforeReturn, dest);
+	int mutPos = SBattleHex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackingStack->doubleWide())
 	{
-		mutPos = SHexField::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->position);
+		mutPos = SBattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->position);
 	}
 	if (mutPos == -1 && attackedStack->doubleWide())
 	{
-		mutPos = SHexField::mutualPosition(attackingStackPosBeforeReturn, attackedStack->occupiedHex());
+		mutPos = SBattleHex::mutualPosition(attackingStackPosBeforeReturn, attackedStack->occupiedHex());
 	}
 	if (mutPos == -1 && attackedStack->doubleWide() && attackingStack->doubleWide())
 	{
-		mutPos = SHexField::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->occupiedHex());
+		mutPos = SBattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->occupiedHex());
 	}
 
 
@@ -89,7 +89,7 @@ void CMeleeAttackAnimation::endAnim()
 	delete this;
 }
 
-CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, SHexField _dest, const CStack * _attacked)
+CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, SBattleHex _dest, const CStack * _attacked)
 	: CAttackAnimation(_owner, attacker, _dest, _attacked)
 {
 }

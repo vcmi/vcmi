@@ -21,7 +21,7 @@ class CReverseAnimation : public CBattleStackAnimation
 private:
 	int partOfAnim; //1 - first, 2 - second
 	bool secondPartSetup;
-	SHexField hex;
+	SBattleHex hex;
 public:
 	bool priority; //true - high, false - low
 	bool init();
@@ -30,5 +30,5 @@ public:
 	void setupSecondPart();
 	void endAnim();
 
-	CReverseAnimation(CBattleInterface *_owner, const CStack *stack, SHexField dest, bool _priority);
+	CReverseAnimation(CBattleInterface *_owner, const CStack *stack, SBattleHex dest, bool _priority);
 };

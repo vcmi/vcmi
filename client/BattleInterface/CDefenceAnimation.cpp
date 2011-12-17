@@ -3,7 +3,7 @@
 
 #include "CBattleInterface.h"
 #include "../CGameInfo.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 #include "../../lib/BattleState.h"

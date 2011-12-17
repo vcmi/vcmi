@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SHexField.h"
+#include "SBattleHex.h"
 
 /*
  * BattleAction.h, part of VCMI engine
@@ -26,7 +26,7 @@ struct DLL_LINKAGE BattleAction
 		STACK_HEAL, DAEMON_SUMMONING
 	};
 	si8 actionType; //use ActionType enum for values
-	SHexField destinationTile;
+	SBattleHex destinationTile;
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -37,8 +37,8 @@ struct DLL_LINKAGE BattleAction
 
 	static BattleAction makeDefend(const CStack *stack);
 	static BattleAction makeWait(const CStack *stack);
-	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, SHexField attackFrom = SHexField::INVALID);
+	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, SBattleHex attackFrom = SBattleHex::INVALID);
 	static BattleAction makeShotAttack(const CStack *shooter, const CStack *target);
-	static BattleAction makeMove(const CStack *stack, SHexField dest);
+	static BattleAction makeMove(const CStack *stack, SBattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 };

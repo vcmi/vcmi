@@ -13,7 +13,7 @@
 #include "CSpellHandler.h"
 #include "CGeneralTextHandler.h"
 #include "IGameEventsReceiver.h"
-#include "StopWatch.h"
+#include "CStopWatch.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -161,7 +161,7 @@ DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mod
 
 void LibClasses::init()
 {
-	StopWatch pomtime;
+	CStopWatch pomtime;
 
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
@@ -234,7 +234,7 @@ void LibClasses::makeNull()
 LibClasses::LibClasses()
 {
 	//load .lod archives
-	StopWatch pomtime;
+	CStopWatch pomtime;
 	spriteh = new CLodHandler();
 	spriteh->init(GameConstants::DATA_DIR + "/Data/H3sprite.lod", GameConstants::DATA_DIR + "/Sprites");
 	bitmaph = new CLodHandler;

@@ -92,9 +92,9 @@ int CObstacleInfo::getHeight() const
 	return ret;
 }
 
-std::vector<SHexField> CObstacleInfo::getBlocked(SHexField hex) const
+std::vector<SBattleHex> CObstacleInfo::getBlocked(SBattleHex hex) const
 {
-	std::vector<SHexField> ret;
+	std::vector<SBattleHex> ret;
 	int cur = hex; //currently browsed hex
 	int curBeg = hex; //beginning of current line
 	for(int h=0; h<blockmap.size(); ++h)
@@ -121,9 +121,9 @@ std::vector<SHexField> CObstacleInfo::getBlocked(SHexField hex) const
 	return ret;
 }
 
-SHexField CObstacleInfo::getMaxBlocked(SHexField hex) const
+SBattleHex CObstacleInfo::getMaxBlocked(SBattleHex hex) const
 {
-	std::vector<SHexField> blocked = getBlocked(hex);
+	std::vector<SBattleHex> blocked = getBlocked(hex);
 	return *std::max_element(blocked.begin(), blocked.end());
 }
 

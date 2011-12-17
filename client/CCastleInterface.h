@@ -2,7 +2,7 @@
 
 
 #include "CAnimation.h"
-#include "GUIBase.h"
+#include "GUIClasses.h"
 
 class AdventureMapButton;
 class CBuilding;
@@ -19,6 +19,9 @@ class CStatusBar;
 class CTextBox;
 class CTownList;
 struct Structure;
+class CGHeroInstance;
+class CGarrisonInt;
+class CCreature;
 
 /*
  * CCastleInterface.h, part of VCMI engine
@@ -101,7 +104,7 @@ public:
 	CHeroGSlot * garrisonedHero;
 	CHeroGSlot * visitingHero;
 
-	HeroSlots(const CGTownInstance * town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty);
+	HeroSlots(const CGTownInstance * town, SPoint garrPos, SPoint visitPos, CGarrisonInt *Garrison, bool ShowEmpty);
 
 	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
 	void update();
@@ -162,7 +165,7 @@ class CCreaInfo : public CIntObject
 	std::string genGrowthText();
 	
 public:
-	CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
+	CCreaInfo(SPoint position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
 	
 	void update();
 	void hover(bool on);
@@ -301,8 +304,8 @@ class LabeledValue : public CIntObject
 	void init(std::string name, std::string descr, int min, int max);
 
 public:
-	LabeledValue(Rect size, std::string name, std::string descr, int min, int max);
-	LabeledValue(Rect size, std::string name, std::string descr, int val);
+	LabeledValue(SRect size, std::string name, std::string descr, int min, int max);
+	LabeledValue(SRect size, std::string name, std::string descr, int val);
 	void hover(bool on);
 };
 
@@ -356,7 +359,7 @@ class CMageGuildScreen : public CIntObject
 		CAnimImage *image;
 
 	public:
-		Scroll(Point position, const CSpell *Spell);
+		Scroll(SPoint position, const CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);

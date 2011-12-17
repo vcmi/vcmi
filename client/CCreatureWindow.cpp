@@ -20,6 +20,8 @@
 #include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
 
+#include "UIFramework/CGuiHandler.h"
+
 using namespace CSDL_Ext;
 
 class CBonusItem;
@@ -242,7 +244,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				number = (stack->count * (expmax - expmin)) / expmin; 
 				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience 
 			
-				expArea = new LRClickableAreaWTextComp(Rect(334, 49, 160, 44),SComponent::experience);
+				expArea = new LRClickableAreaWTextComp(SRect(334, 49, 160, 44),SComponent::experience);
 				expArea->text = expText;
 				expArea->bonusValue = 0; //TDO: some specific value or no number at all
 			}
@@ -276,7 +278,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				int duration = battleStack->getBonus(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration)); 
 				blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap);
-				spellEffects.push_back(new LRClickableAreaWText(Rect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
+				spellEffects.push_back(new LRClickableAreaWText(SRect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
 				if (++printed >= 10) //we can fit only 10 effects
 					break;
 			}
@@ -327,7 +329,7 @@ void CCreatureWindow::recreateSkillList(int Pos)
 		int offsetx = 257*j - (bonusRows == 4 ? 1 : 0);
 		int offsety = 60*i + (bonusRows > 1 ? 1 : 0); //lack of precision :/
 
-		bonusItems[n]->moveTo (Point(pos.x + offsetx + 10, pos.y + offsety + 230), true);
+		bonusItems[n]->moveTo (SPoint(pos.x + offsetx + 10, pos.y + offsety + 230), true);
 		bonusItems[n]->visible = true;
 
 		if (++j > 1) //next line
@@ -426,7 +428,7 @@ CBonusItem::CBonusItem()
 
 }
 
-CBonusItem::CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName)
+CBonusItem::CBonusItem(const SRect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName)
 {
 	OBJ_CONSTRUCTION;
 	visible = false;

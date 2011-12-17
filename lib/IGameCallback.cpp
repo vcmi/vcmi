@@ -39,31 +39,31 @@ boost::shared_mutex& CCallbackBase::getGsMutex()
 	return *gs->mx;
 }
 
-si8 CBattleInfoCallback::battleHasDistancePenalty( const CStack * stack, SHexField destHex )
+si8 CBattleInfoCallback::battleHasDistancePenalty( const CStack * stack, SBattleHex destHex )
 {
 	return gs->curB->hasDistancePenalty(stack, destHex);
 }
 
-si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, SHexField destHex )
+si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, SBattleHex destHex )
 {
 	return gs->curB->hasWallPenalty(stack, destHex);
 }
 
-si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, SHexField destHex, int telportLevel)
+si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, SBattleHex destHex, int telportLevel)
 {
 	return gs->curB->canTeleportTo(stack, destHex, telportLevel);
 }
 
-std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, SHexField hex /*= SHexField::INVALID*/, SHexField * predecessors /*= NULL*/)
+std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, SBattleHex hex /*= SBattleHex::INVALID*/, SBattleHex * predecessors /*= NULL*/)
 {
 	if(!hex.isValid())
 		hex = stack->position;
 
 	std::vector<int> ret;
 	bool ac[GameConstants::BFIELD_SIZE] = {0};
-	std::set<SHexField> occupyable;
+	std::set<SBattleHex> occupyable;
 	gs->curB->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
-	SHexField pr[GameConstants::BFIELD_SIZE];
+	SBattleHex pr[GameConstants::BFIELD_SIZE];
 	int dist[GameConstants::BFIELD_SIZE];
 	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
@@ -77,18 +77,18 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, S
 
 	if(predecessors)
 	{
-		memcpy(predecessors, pr, GameConstants::BFIELD_SIZE * sizeof(SHexField));
+		memcpy(predecessors, pr, GameConstants::BFIELD_SIZE * sizeof(SBattleHex));
 	}
 
 	return ret;
 }
-std::set<SHexField> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, SHexField destinationTile, SHexField attackerPos  /*= SHexField::INVALID*/)
+std::set<SBattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, SBattleHex destinationTile, SBattleHex attackerPos  /*= SBattleHex::INVALID*/)
 {
 	if(!gs->curB)
 	{
 
 		tlog1 << "battleGetAttackedHexes called when there is no battle!\n";
-		std::set<SHexField> set;
+		std::set<SBattleHex> set;
 		return set;
 	}
 
@@ -107,7 +107,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	return gs->curB->battleCanCastThisSpell(player, spell, ECastingMode::HERO_CASTING);
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const CSpell * spell, SHexField destination)
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const CSpell * spell, SBattleHex destination)
 {
 	if(!gs->curB)
 	{
@@ -185,7 +185,7 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 	return gs->curB->battlefieldType;
 }
 
-int CBattleInfoCallback::battleGetObstaclesAtTile(SHexField tile) //returns bitfield 
+int CBattleInfoCallback::battleGetObstaclesAtTile(SBattleHex tile) //returns bitfield 
 {
 	//TODO - write
 	return -1;
@@ -207,26 +207,26 @@ const CStack* CBattleInfoCallback::battleGetStackByID(int ID, bool onlyAlive)
 	return gs->curB->getStack(ID, onlyAlive);
 }
 
-const CStack* CBattleInfoCallback::battleGetStackByPos(SHexField pos, bool onlyAlive)
+const CStack* CBattleInfoCallback::battleGetStackByPos(SBattleHex pos, bool onlyAlive)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->curB->battleGetStack(pos, onlyAlive);
 }
 
-SHexField CBattleInfoCallback::battleGetPos(int stack)
+SBattleHex CBattleInfoCallback::battleGetPos(int stack)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetPos called when there is no battle!"<<std::endl;
-		return SHexField::INVALID;
+		return SBattleHex::INVALID;
 	}
 	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		if(gs->curB->stacks[g]->ID == stack)
 			return gs->curB->stacks[g]->position;
 	}
-	return SHexField::INVALID;
+	return SBattleHex::INVALID;
 }
 
 TStacks CBattleInfoCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/)
@@ -268,24 +268,24 @@ void CBattleInfoCallback::battleGetStackCountOutsideHexes(bool *ac)
         for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i) ac[i] = false;
 	}
     else {
-        std::set<SHexField> ignored;
+        std::set<SBattleHex> ignored;
         gs->curB->getAccessibilityMap(ac, false /*ignored*/, false, false, ignored, false /*ignored*/, NULL);
     }
 }
 
-std::vector<SHexField> CBattleInfoCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<SHexField> * attackable)
+std::vector<SBattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<SBattleHex> * attackable)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
-		return std::vector<SHexField>();
+		return std::vector<SBattleHex>();
 	}
 	return gs->curB->getAccessibility(stack, addOccupiable, attackable);
 	//return gs->battleGetRange(ID);
 }
 
-bool CBattleInfoCallback::battleCanShoot(const CStack * stack, SHexField dest)
+bool CBattleInfoCallback::battleCanShoot(const CStack * stack, SBattleHex dest)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
@@ -324,7 +324,7 @@ ui8 CBattleInfoCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
-int CBattleInfoCallback::battleGetWallUnderHex(SHexField hex)
+int CBattleInfoCallback::battleGetWallUnderHex(SBattleHex hex)
 {
 	if(!gs->curB || gs->curB->siege == 0)
 	{

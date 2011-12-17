@@ -1150,7 +1150,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
-		std::vector<SHexField> access = gs->curB->getAccessibility(changedStack, true);
+		std::vector<SBattleHex> access = gs->curB->getAccessibility(changedStack, true);
 		bool acc[GameConstants::BFIELD_SIZE];
 		for(int h=0; h<GameConstants::BFIELD_SIZE; ++h)
 			acc[h] = false;
@@ -1260,7 +1260,7 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 
 DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 {
-	if (!SHexField(pos).isValid())
+	if (!SBattleHex(pos).isValid())
 	{
 		tlog2 << "No place found for new stack!\n";
 		return;

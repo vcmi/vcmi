@@ -9,7 +9,7 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, const CS
 {
 }
 
-bool CBattleStackAnimation::isToReverseHlp(SHexField hexFrom, SHexField hexTo, bool curDir)
+bool CBattleStackAnimation::isToReverseHlp(SBattleHex hexFrom, SBattleHex hexTo, bool curDir)
 {
 	int fromMod = hexFrom % GameConstants::BFIELD_WIDTH;
 	int fromDiv = hexFrom / GameConstants::BFIELD_WIDTH;
@@ -35,7 +35,7 @@ bool CBattleStackAnimation::isToReverseHlp(SHexField hexFrom, SHexField hexTo, b
 	return false; //should never happen
 }
 
-bool CBattleStackAnimation::isToReverse(SHexField hexFrom, SHexField hexTo, bool curDir, bool toDoubleWide, bool toDir)
+bool CBattleStackAnimation::isToReverse(SBattleHex hexFrom, SBattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir)
 {
 	if(hexTo < 0) //turret
 		return false;

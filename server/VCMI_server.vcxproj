@@ -204,6 +204,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Global.h" />
     <ClInclude Include="CGameHandler.h" />
     <ClInclude Include="CVCMIServer.h" />
     <ClInclude Include="StdInc.h" />

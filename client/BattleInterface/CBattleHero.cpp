@@ -10,6 +10,7 @@
 #include "../CSpellWindow.h"
 #include "../Graphics.h"
 #include "../CConfigHandler.h"
+#include "../UIFramework/CGuiHandler.h"
 
 void CBattleHero::show(SDL_Surface *to)
 {

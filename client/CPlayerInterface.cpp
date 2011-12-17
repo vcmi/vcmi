@@ -15,7 +15,7 @@
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include "CConfigHandler.h"
-#include "CCreatureAnimation.h"
+#include "BattleInterface/CCreatureAnimation.h"
 #include "Graphics.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -32,10 +32,11 @@
 #include "../lib/map.h"
 #include "../lib/VCMIDirs.h"
 #include "mapHandler.h"
-#include "../lib/StopWatch.h"
+#include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 #ifdef min
 #undef min
@@ -482,7 +483,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->recreateSlots();
 		c->heroes->update();
 	}
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 		if (ki)
@@ -508,9 +509,9 @@ void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updat
 	if(updateInfobox)
 		updateInfo(obj);
 
-	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
+	for(std::list<IShowActivatable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
-		if((*i)->type & IShowActivable::WITH_GARRISON)
+		if((*i)->type & IShowActivatable::WITH_GARRISON)
 		{
 			CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
 			cgh->updateGarrisons();
@@ -755,7 +756,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -873,10 +874,10 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	else
 	{
 		int shift = 0;
-		if(ba->counter() && SHexField::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && SBattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = SHexField::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = SHexField::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = SBattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = SBattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
 
 			if( distp < distm )
 				shift = 1;
@@ -1052,7 +1053,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		if(fs)
 			fs->creaturesChanged();
 
-		BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 		{
 			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 			if (ki && townObj)
@@ -2339,9 +2340,9 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactRemoved(al);
 		}
@@ -2351,9 +2352,9 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactMoved(src, dst);
 		}
@@ -2363,9 +2364,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactAssembled(al);
 		}
@@ -2375,9 +2376,9 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactDisassembled(al);
 		}

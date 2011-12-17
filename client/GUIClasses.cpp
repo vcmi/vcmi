@@ -15,7 +15,7 @@
 #include "CConfigHandler.h"
 #include "SDL_framerate.h"
 #include "CConfigHandler.h"
-#include "CCreatureAnimation.h"
+#include "BattleInterface/CCreatureAnimation.h"
 #include "CPlayerInterface.h"
 #include "Graphics.h"
 #include "CAnimation.h"
@@ -30,7 +30,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/map.h"
 #include "mapHandler.h"
-#include "../lib/StopWatch.h"
+#include "../lib/CStopWatch.h"
 #include "../lib/NetPacks.h"
 #include "CSpellWindow.h"
 #include "CHeroWindow.h"
@@ -43,6 +43,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -437,8 +438,8 @@ void CGarrisonInt::splitStacks(int am2)
 	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, am2);
 }
 
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
-                            SDL_Surface *pomsur, const Point& SurOffset, 
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, const SPoint &garsOffset, 
+                            SDL_Surface *pomsur, const SPoint& SurOffset, 
                             const CArmedInstance *s1, const CArmedInstance *s2, 
                             bool _removableUnits, bool smallImgs, bool _twoRows )
 	: interx(inx), garOffset(garsOffset), highlighted(NULL), splitting(false),
@@ -481,7 +482,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 		buttons.push_back(button);
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text = new CTextBox(Text, SRect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
 	if(!text->slider)
 	{
 		text->pos.w = text->maxW;
@@ -602,13 +603,13 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
 
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->center(SPoint(GH.current->motion)); //center on mouse
 	temp->fitToScreen(10);
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
+void CRClickPopup::createAndPush(const CGObjectInstance *obj, const SPoint &p, EAlignment alignment /*= BOTTOMRIGHT*/)
 {
 	SDL_Surface *iWin = LOCPLINT->infoWin(obj); //try get custom infowindow for this obj
 	if(iWin)
@@ -632,7 +633,7 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 
 
-CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free/*=false*/)
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const SPoint &p, EAlignment alignment, bool Free/*=false*/)
  : free(Free),bitmap(Bitmap)
 {
 	switch(alignment)
@@ -934,7 +935,7 @@ void CSelectableComponent::show(SDL_Surface * to)
 	blitAt(getImg(),pos.x,pos.y,to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
+		CSDL_Ext::drawBorder(to, SRect::around(SRect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
 	}
 	
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
@@ -976,7 +977,7 @@ CIntObject* CObjectList::createItem(size_t index)
 	if(item->parent != this)
 	{
 		if (item->parent)
-			moveChild(item, item->parent, this);
+			CGuiHandler::moveChild(item, item->parent, this);
 		else
 			addChild(item);
 	}
@@ -986,7 +987,7 @@ CIntObject* CObjectList::createItem(size_t index)
 	return item;
 }
 
-CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID):
+CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, SPoint position, size_t ActiveID):
 	CObjectList(create, destroy),
 	activeTab(NULL),
 	activeID(ActiveID)
@@ -1019,8 +1020,8 @@ CIntObject * CTabbedInt::getItem()
 	return activeTab;
 }
 
-CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
-                   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
+CListBox::CListBox(CreateFunc create, DestroyFunc destroy, SPoint Pos, SPoint ItemOffset, size_t VisibleSize,
+                   size_t TotalSize, size_t InitialPos, int Slider, SRect SliderPos):
 	CObjectList(create, destroy),
 	first(InitialPos),
 	totalSize(TotalSize),
@@ -1041,7 +1042,7 @@ CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point Item
 // Used to move active items after changing list position
 void CListBox::updatePositions()
 {
-	Point itemPos = pos.topLeft();
+	SPoint itemPos = pos.topLeft();
 	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
 	{
 		(*it)->moveTo(itemPos);
@@ -1157,7 +1158,7 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text = new CTextBox(Text, SRect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
 	text->redrawParentOnScrolling = true;
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
@@ -1322,8 +1323,8 @@ void CHeroList::init()
 {
 	int w = pos.w+1, h = pos.h+4;
 	bg = CSDL_Ext::newSurface(w,h,screen);
-	Rect srcRect = genRect(w, h, pos.x, pos.y);
-	Rect dstRect = genRect(w, h, 0, 0);
+	SRect srcRect = genRect(w, h, pos.x, pos.y);
+	SRect dstRect = genRect(w, h, 0, 0);
 	CSDL_Ext::blitSurface(adventureInt->bg, &srcRect, bg, &dstRect);
 }
 
@@ -1845,7 +1846,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	else
 		bg = new CPicture(graphics->backgroundsm[cre->faction],0,0,false);
 	bg->needRefresh = true;
-	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
+	anim = new CCreatureAnim(0, 0, cre->animDefName, SRect());
 	anim->clipRect(cre->doubleWide?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview();
 }
@@ -1905,7 +1906,7 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 {
 	for(int i=0;i<creatures.size();i++)
 	{
-		Rect creaPos = Rect(creatures[i].pos) + pos;
+		SRect creaPos = SRect(creatures[i].pos) + pos;
 		if(isItIn(&creaPos, GH.current->motion.x, GH.current->motion.y))
 		{
 			which = i;
@@ -1930,7 +1931,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 		for(int i=0;i<creatures.size();i++)
 		{
 			const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
-			Rect creatureRect = genRect(132, sCREATURE_WIDTH, pos.x+curx, pos.y+64);
+			SRect creatureRect = genRect(132, sCREATURE_WIDTH, pos.x+curx, pos.y+64);
 			if(isItIn(&creatureRect, GH.current->motion.x, GH.current->motion.y))
 			{
 				CIntObject *popup = createCreWindow(creatures[i].ID, 0, 0);
@@ -1985,7 +1986,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	bitmap = new CPicture("TPRCRT.bmp");
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
 	bitmap->center();
-	pos = (bitmap->pos += Point(0, y_offset));
+	pos = (bitmap->pos += SPoint(0, y_offset));
 
 	bar = new CGStatusBar(8, 370, "APHLFTRT.bmp", 471);
 	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
@@ -2158,8 +2159,8 @@ void CSplitWindow::show(SDL_Surface * to)
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 	SDLKey k = key.keysym.sym;
-	if (isNumKey(k)) //convert numpad number to normal digit
-		k = numToDigit(k); 
+	if (CGuiHandler::isNumKey(k)) //convert numpad number to normal digit
+		k = CGuiHandler::numToDigit(k); 
 
 	if(key.state != SDL_PRESSED)
 		return;
@@ -2205,11 +2206,11 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
-		Point click(GH.current->motion.x,GH.current->motion.y);
+		SPoint click(GH.current->motion.x,GH.current->motion.y);
 		click = click - pos.topLeft();
-		if(Rect(19,216,105,40).isIn(click)) //left picture
+		if(SRect(19,216,105,40).isIn(click)) //left picture
 			which = 0;
-		else if(Rect(175,216,105,40).isIn(click)) //right picture
+		else if(SRect(175,216,105,40).isIn(click)) //right picture
 			which = 1;
 	}
 }
@@ -2680,32 +2681,32 @@ CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
-	Point posToBitmap;
-	Point posToSubCenter;
+	SPoint posToBitmap;
+	SPoint posToSubCenter;
 
 	switch(type)
 	{
 	case RESOURCE:
-		posToBitmap = Point(19,9);
-		posToSubCenter = Point(36, 59);
+		posToBitmap = SPoint(19,9);
+		posToSubCenter = SPoint(36, 59);
 		break;
 	case CREATURE_PLACEHOLDER:
 	case CREATURE:
-		posToSubCenter = Point(29, 76);
+		posToSubCenter = SPoint(29, 76);
 		if(downSelection)
 			posToSubCenter.y += 5;
 		break;
 	case PLAYER:
-		posToSubCenter = Point(31, 76);
+		posToSubCenter = SPoint(31, 76);
 		break;
 	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		posToSubCenter = Point(19, 55);
+		posToSubCenter = SPoint(19, 55);
 		if(downSelection)
 			posToSubCenter.y += 8;
 		break;
 	case ARTIFACT_TYPE:
-		posToSubCenter = Point(19, 58);
+		posToSubCenter = SPoint(19, 58);
 		break;
 	}
 
@@ -2785,9 +2786,9 @@ SDL_Surface * CTradeWindow::CTradeableItem::getSurface()
 	}
 }
 
-void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to)
+void CTradeWindow::CTradeableItem::showAllAt(const SPoint &dstPos, const std::string &customSub, SDL_Surface * to)
 {
-	Rect oldPos = pos;
+	SRect oldPos = pos;
 	std::string oldSub = subtitle;
 	downSelection = true;
 
@@ -2940,7 +2941,7 @@ void CTradeWindow::initItems(bool Left)
 
 			CTradeableItem *hlp = new CTradeableItem(itemsType[Left], -1, 1, 0);
 			hlp->recActions &= ~(UPDATE | SHOWALL);
-			hlp->pos += Rect(137, 469, 42, 42);
+			hlp->pos += SRect(137, 469, 42, 42);
 			items[Left].push_back(hlp);
 		}
 		else //ARTIFACT_EXP
@@ -2950,7 +2951,7 @@ void CTradeWindow::initItems(bool Left)
 		}
 
 		BLOCK_CAPTURING;
-		arts = new CArtifactsOfHero(Point(pos.x+xOffset, pos.y+yOffset));
+		arts = new CArtifactsOfHero(SPoint(pos.x+xOffset, pos.y+yOffset));
 		arts->commonInfo = new CArtifactsOfHero::SCommonPart;
 		arts->commonInfo->participants.insert(arts);
 		arts->recActions = 255;
@@ -2965,7 +2966,7 @@ void CTradeWindow::initItems(bool Left)
 	}
 
 	std::vector<int> *ids = getItemsIds(Left);
-	std::vector<Rect> pos;
+	std::vector<SRect> pos;
 	int amount = -1;
 
 	getPositionsFor(pos, Left, itemsType[Left]);
@@ -3035,7 +3036,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 	return ids;
 }
 
-void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const
+void CTradeWindow::getPositionsFor(std::vector<SRect> &poss, bool Left, EType type) const
 {
 	if(mode == EMarketMode::ARTIFACT_EXP && !Left)
 	{
@@ -3048,10 +3049,10 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		dy = 70;
 		for (int i = 0; i < 4 ; i++)
 			for (int j = 0; j < 5 ; j++)
-				poss += Rect(x + dx*j, y + dy*i, w, h);
+				poss += SRect(x + dx*j, y + dy*i, w, h);
 
-		poss += Rect(x + dx*1.5, y + dy*4, w, h);
-		poss += Rect(x + dx*2.5, y + dy*4, w, h);
+		poss += SRect(x + dx*1.5, y + dy*4, w, h);
+		poss += SRect(x + dx*2.5, y + dy*4, w, h);
 	}
 	else
 	{
@@ -3069,7 +3070,7 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		if(!Left)
 		{
-			BOOST_FOREACH(Rect &r, poss)
+			BOOST_FOREACH(SRect &r, poss)
 				r.x += leftToRightOffset;
 		}
 	}
@@ -3283,10 +3284,10 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		slider = NULL;
 		max = NULL;
-		deal->moveBy(Point(-30, 0));
+		deal->moveBy(SPoint(-30, 0));
 	}
 
-	Rect traderTextRect;
+	SRect traderTextRect;
 
 	//left side
 	switch(Mode)
@@ -3312,11 +3313,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::RESOURCE_ARTIFACT:
 	case EMarketMode::ARTIFACT_RESOURCE:
 		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,zwykly,*bg); //available for trade
-		traderTextRect = Rect(316, 48, 260, 75);
+		traderTextRect = SRect(316, 48, 260, 75);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,zwykly,*bg); //players
-		traderTextRect = Rect(28, 48, 260, 75);
+		traderTextRect = SRect(28, 48, 260, 75);
 		break;
 	}
 
@@ -3524,18 +3525,18 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 	return "???";
 }
 
-Point CMarketplaceWindow::selectionOffset(bool Left) const
+SPoint CMarketplaceWindow::selectionOffset(bool Left) const
 {
 	if(Left)
 	{
 		switch(itemsType[1])
 		{
 		case RESOURCE:
-			return Point(122, 446);
+			return SPoint(122, 446);
 		case CREATURE:
-			return Point(128, 450);
+			return SPoint(128, 450);
 		case ARTIFACT_INSTANCE:
-			return Point(134, 466);
+			return SPoint(134, 466);
 		}
 	}
 	else
@@ -3544,18 +3545,18 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		{
 		case RESOURCE:
 			if(mode == EMarketMode::ARTIFACT_RESOURCE)
-				return Point(410, 469);
+				return SPoint(410, 469);
 			else
-				return Point(410, 446);
+				return SPoint(410, 446);
 		case ARTIFACT_TYPE:
-			return Point(425, 447);
+			return SPoint(425, 447);
 		case PLAYER:
-			return Point(417, 451);
+			return SPoint(417, 451);
 		}
 	}
 
 	assert(0);
-	return Point(0,0);
+	return SPoint(0,0);
 }
 
 void CMarketplaceWindow::resourceChanged(int type, int val)
@@ -3854,7 +3855,7 @@ void CAltarWindow::selectionChanged(bool side)
 
 void CAltarWindow::mimicCres()
 {
-	std::vector<Rect> positions;
+	std::vector<SRect> positions;
 	getPositionsFor(positions, false, CREATURE);
 
 	BOOST_FOREACH(CTradeableItem *t, items[1])
@@ -3865,12 +3866,12 @@ void CAltarWindow::mimicCres()
 	}
 }
 
-Point CAltarWindow::selectionOffset(bool Left) const
+SPoint CAltarWindow::selectionOffset(bool Left) const
 {
 	if(Left)
-		return Point(150, 421);
+		return SPoint(150, 421);
 	else
-		return Point(396, 421);
+		return SPoint(396, 421);
 }
 
 std::string CAltarWindow::selectionSubtitle(bool Left) const
@@ -4369,7 +4370,7 @@ void CInGameConsole::show(SDL_Surface * to)
 	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
 		SDL_Color green = {0,0xff,0,0};
-		Point leftBottomCorner(0, screen->h);
+		SPoint leftBottomCorner(0, screen->h);
 		if(LOCPLINT->battleInt)
 		{
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
@@ -4578,7 +4579,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bg->center();
 
-	garr = new CGarrisonInt(92, 127, 4, Point(0,96), bg->bg, Point(93,127), up, down, removableUnits);
+	garr = new CGarrisonInt(92, 127, 4, SPoint(0,96), bg->bg, SPoint(93,127), up, down, removableUnits);
 	{
 		AdventureMapButton *split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
 		removeChild(split);
@@ -4609,7 +4610,7 @@ void CGarrisonWindow::showAll(SDL_Surface * to)
 	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
 }
 
-IShowActivable::IShowActivable()
+IShowActivatable::IShowActivatable()
 {
 	type = 0;
 }
@@ -4629,7 +4630,7 @@ void CRClickPopupInt::show(SDL_Surface * to)
 	inner->show(to);
 }
 
-CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
+CRClickPopupInt::CRClickPopupInt( IShowActivatable *our, bool deleteInt )
 {
 	CCS->curh->hide();
 	inner = our;
@@ -4659,7 +4660,7 @@ CArtPlace::CArtPlace(const CArtifactInstance* Art)
 {
 }
 
-CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
+CArtPlace::CArtPlace(SPoint position, const CArtifactInstance * Art):
 	picked(false), marked(false), locked(false), ourArt(Art)
 {
 	pos += position;
@@ -5024,7 +5025,7 @@ LRClickableAreaWText::LRClickableAreaWText()
 	init();
 }
 
-LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
+LRClickableAreaWText::LRClickableAreaWText(const SRect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
 {
 	init();
 	pos = Pos + pos;
@@ -5050,7 +5051,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 	}
 }
 
-LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
+LRClickableAreaWTextComp::LRClickableAreaWTextComp(const SRect &Pos, int BaseType)
 	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
 {
 }
@@ -5129,7 +5130,7 @@ void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 }
 
 LRClickableAreaOpenTown::LRClickableAreaOpenTown()
-	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
+	: LRClickableAreaWTextComp(SRect(0,0,0,0), -1)
 {
 }
 
@@ -5388,7 +5389,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	rightArtRoll->callback += boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1);
 }
 
-CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
+CArtifactsOfHero::CArtifactsOfHero(const SPoint& position, bool createCommonPart /*= false*/)
  : curHero(NULL), backpackPos(0), commonInfo(NULL), updateState(false), allowedAssembling(true), highlightModeCallback(0)
 {
 	if(createCommonPart)
@@ -5401,7 +5402,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	pos += position;
 	artWorn.resize(19);
 	
-	std::vector<Rect> slotPos;
+	std::vector<SRect> slotPos;
 	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80), 
 		genRect(44,44,383,68), genRect(44,44,564,183), genRect(44,44,509,130), 
 		genRect(44,44,431,68), genRect(44,44,610,183), genRect(44,44,515,295), 
@@ -5741,11 +5742,11 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	pos.h = screen->h;
 
 	
-	artifs[0] = new CArtifactsOfHero(Point(pos.x + -334, pos.y + 150));
+	artifs[0] = new CArtifactsOfHero(SPoint(pos.x + -334, pos.y + 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
 	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = new CArtifactsOfHero(Point(pos.x + 96, pos.y + 150));
+	artifs[1] = new CArtifactsOfHero(SPoint(pos.x + 96, pos.y + 150));
 	artifs[1]->commonInfo = artifs[0]->commonInfo;
 	artifs[1]->commonInfo->participants.insert(artifs[1]);
 	artifs[1]->setHero(heroInst[1]);
@@ -5826,7 +5827,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	ourBar = new CGStatusBar(pos.x + 3, pos.y + 577, "KSTATBAR");
 
 	//garrison interface
-	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
+	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, SPoint(418,0), bg, SPoint(69,131), heroInst[0],heroInst[1], true, true);
 
 	{
 		BLOCK_CAPTURING;
@@ -5855,7 +5856,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 
 	std::string boatFilenames[3] = {"AB01_", "AB02_", "AB03_"};
 
-	Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
+	SPoint waterCenter = SPoint(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
 	bgShip = new CAnimImage(boatFilenames[boatType], 0, 7, 120, 96, CShowableAnim::USE_RLE);
 	bgShip->center(waterCenter);
 
@@ -5909,7 +5910,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, double discoveredRatio)
 
 	//printing necessary things to background
 	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = genRect(544, 591, 8, 8);
+	SRect mapRect = genRect(544, 591, 8, 8);
 	CGI->mh->terrainRect
 		(grailPos - moveInt, adventureInt->anim,
 		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
@@ -6292,7 +6293,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	quit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(327, 332);
 
-	garr = new CGarrisonInt(108, 60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
+	garr = new CGarrisonInt(108, 60, 18, SPoint(),bg->bg,SPoint(108,60),hero,NULL);
 	updateGarrisons();
 }
 
@@ -6485,7 +6486,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
-	pos = center(Rect(0,0,800,600));// Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
+	pos = center(SRect(0,0,800,600));// SRect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
 
 	//loading backround and converting to more bpp form
 	SDL_Surface * bg = background = BitmapHandler::loadBitmap("TpRank.bmp", false);
@@ -6685,10 +6686,10 @@ void MoraleLuckBox::showAll(SDL_Surface * to)
 		def = morale ? graphics->morale42 : graphics->luck42;
 	SDL_Surface *img = def->ourImages[bonusValue + 3].bitmap;
 	
-	blitAt(img, Rect(img).centerIn(pos), to); //put img in the center of our pos
+	blitAt(img, SRect(img).centerIn(pos), to); //put img in the center of our pos
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
+MoraleLuckBox::MoraleLuckBox(bool Morale, const SRect &r, bool Small)
 	:morale(Morale),
 	 small(Small)
 {
@@ -6742,7 +6743,7 @@ void CLabel::setTxt(const std::string &Txt)
 	}
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
+CTextBox::CTextBox(std::string Text, const SRect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
 	:CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
 {
 	redrawParentOnScrolling = false;
@@ -6862,7 +6863,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 {
 	init();
 	bg = BG;
-	moveChild(bg, bg->parent, this);
+	CGuiHandler::moveChild(bg, bg->parent, this);
 	pos = bg->pos;
 	calcOffset();
 }
@@ -6877,7 +6878,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int 
 	if(maxw < pos.w)
 	{
 		vstd::amin(pos.w, maxw);
-		bg->srcRect = new Rect(0, 0, maxw, pos.h);
+		bg->srcRect = new SRect(0, 0, maxw, pos.h);
 	}
 	calcOffset();
 }
@@ -6903,15 +6904,15 @@ void CGStatusBar::calcOffset()
 	switch(alignment)
 	{
 	case CENTER:
-		textOffset = Point(pos.w/2, pos.h/2);
+		textOffset = SPoint(pos.w/2, pos.h/2);
 		break;
 	case BOTTOMRIGHT:
-		textOffset = Point(pos.w, pos.h);
+		textOffset = SPoint(pos.w, pos.h);
 		break;
 	}
 }
 
-CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
+CTextInput::CTextInput( const SRect &Pos, const SPoint &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
 :cb(CB)
 {
 	focus = false;
@@ -6923,14 +6924,14 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 	giveFocus();
 }
 
-CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
+CTextInput::CTextInput(const SRect &Pos, SDL_Surface *srf)
 {
 	focus = false;
 	pos += Pos;
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
-	Rect hlp = Pos;
+	SRect hlp = Pos;
 	if(srf)
 		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
 	else

@@ -39,7 +39,7 @@ struct EnemyInfo
 {
 	const CStack * s;
 	int adi, adr;
-	std::vector<SHexField> attackFrom; //for melee fight
+	std::vector<SBattleHex> attackFrom; //for melee fight
 	EnemyInfo(const CStack * _s) : s(_s)
 	{}
 	void calcDmg(const CStack * ourStack)
@@ -60,10 +60,10 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
 
-int distToNearestNeighbour(SHexField hex, const std::vector<int> & dists, SHexField *chosenHex = NULL)
+int distToNearestNeighbour(SBattleHex hex, const std::vector<int> & dists, SBattleHex *chosenHex = NULL)
 {
 	int ret = 1000000;
-	BOOST_FOREACH(SHexField n, hex.neighbouringTiles())
+	BOOST_FOREACH(SBattleHex n, hex.neighbouringTiles())
 	{
 		if(dists[n] >= 0 && dists[n] < ret)
 		{
@@ -81,12 +81,12 @@ bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const std::vector<in
 	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
 }
 
-static bool willSecondHexBlockMoreEnemyShooters(const SHexField &h1, const SHexField &h2)
+static bool willSecondHexBlockMoreEnemyShooters(const SBattleHex &h1, const SBattleHex &h2)
 {
 	int shooters[2] = {0}; //count of shooters on hexes
 
 	for(int i = 0; i < 2; i++)
-		BOOST_FOREACH(SHexField neighbour, (i ? h2 : h1).neighbouringTiles())
+		BOOST_FOREACH(SBattleHex neighbour, (i ? h2 : h1).neighbouringTiles())
 			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
 				if(s->getCreature()->isShooting())
 						shooters[i]++;
@@ -98,7 +98,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called");
-	std::vector<SHexField> avHexes = cb->battleGetAvailableHexes(stack, false);
+	std::vector<SBattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
@@ -110,7 +110,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			BOOST_FOREACH(SHexField hex, avHexes)
+			BOOST_FOREACH(SBattleHex hex, avHexes)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
@@ -182,7 +182,7 @@ void CStupidAI::battleNewRound(int round)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance) 
+void CStupidAI::battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance) 
 {
 	print("battleStackMoved called");;
 }
@@ -233,10 +233,10 @@ void CStupidAI::print(const std::string &text) const
 	tlog0 << "CStupidAI [" << this <<"]: " << text << std::endl;
 }
 
-BattleAction CStupidAI::goTowards(const CStack * stack, SHexField hex)
+BattleAction CStupidAI::goTowards(const CStack * stack, SBattleHex hex)
 {
-	SHexField realDest = hex;
-	SHexField predecessors[GameConstants::BFIELD_SIZE];
+	SBattleHex realDest = hex;
+	SBattleHex predecessors[GameConstants::BFIELD_SIZE];
 	std::vector<int> dists = cb->battleGetDistances(stack, hex);
 	if(distToNearestNeighbour(hex, dists, &realDest) > GameConstants::BFIELD_SIZE)
 	{
@@ -245,7 +245,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, SHexField hex)
 	}
 
 	dists = cb->battleGetDistances(stack, realDest, predecessors);
-	std::vector<SHexField> avHexes = cb->battleGetAvailableHexes(stack, false);
+	std::vector<SBattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
 	if(!avHexes.size())
 	{

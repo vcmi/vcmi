@@ -38,6 +38,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -95,7 +96,7 @@ void startGame(StartInfo * options, CConnection *serv = NULL);
 
 void init()
 {
-	StopWatch tmh, pomtime;
+	CStopWatch tmh, pomtime;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
 #else
@@ -220,7 +221,7 @@ int main(int argc, char** argv)
 	putenv((char*)"SDL_VIDEO_WINDOW_POS");
 	putenv((char*)"SDL_VIDEO_CENTERED=1");
 
-	StopWatch total, pomtime;
+	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Client_log.txt").c_str());
 	console = new CConsoleHandler;
@@ -479,7 +480,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gui")
 	{
-		BOOST_FOREACH(const IShowActivable *child, GH.listInt)
+		BOOST_FOREACH(const IShowActivatable *child, GH.listInt)
 		{
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);

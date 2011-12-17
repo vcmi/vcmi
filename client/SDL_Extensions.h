@@ -5,6 +5,7 @@
 #include "SDL_video.h"
 #include "SDL_ttf.h"
 #include "FontBase.h"
+#include "UIFramework/SRect.h"
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -170,7 +171,7 @@ namespace CSDL_Ext
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
-	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
+	void drawDashedBorder(SDL_Surface * sur, const SRect &r, const int3 &color);
 	void setPlayerColor(SDL_Surface * sur, ui8 player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given

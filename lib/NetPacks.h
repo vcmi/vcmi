@@ -1214,7 +1214,7 @@ struct BattleResult : public CPackForClient//3003
 struct BattleStackMoved : public CPackForClient//3004
 {
 	ui32 stack;
-	std::vector<SHexField> tilesToMove;
+	std::vector<SBattleHex> tilesToMove;
 	ui8 distance, teleporting;
 	BattleStackMoved(){type = 3004;};
 	void applyFirstCl(CClient *cl);
@@ -1382,7 +1382,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	ui8 skill; //caster's skill level
 	ui8 spellCost;
 	ui8 manaGained; //mana channeling ability
-	SHexField tile; //destination tile (may not be set in some global/mass spells
+	SBattleHex tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	TCreature attackerType;//id of caster to generate console message; -1 if not set (eg. spell casted by artifact)

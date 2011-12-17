@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include "GUIBase.h"
+#include "UIFramework/CIntObject.h"
 
 /*
  * CAnimation.h, part of VCMI engine
@@ -61,7 +60,7 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const=0;
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL, ui8 alpha=255) const=0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -84,9 +83,9 @@ public:
 	//Surface without empty borders
 	SDL_Surface * surf;
 	//size of left and top borders
-	Point margins;
+	SPoint margins;
 	//total size including borders
-	Point fullSize;
+	SPoint fullSize;
 
 public:
 	//Load image from def file
@@ -97,7 +96,7 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL,  ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL,  ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -120,9 +119,9 @@ public:
 class CompImage : public IImage
 {
 	//x,y - margins, w,h - sprite size
-	Rect sprite;
+	SRect sprite;
 	//total size including borders
-	Point fullSize;
+	SPoint fullSize;
 
 	//RLE-d data
 	ui8 * surf;
@@ -143,7 +142,7 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL, ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -367,7 +366,7 @@ public:
 	//clear queue and set animation to this sequence
 	void clearAndSet(EAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, Rect picPos,
+	CCreatureAnim(int x, int y, std::string name, SRect picPos,
 	              ui8 flags= USE_RLE, EAnimType = HOLDING );
 
 };

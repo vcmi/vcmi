@@ -15,6 +15,7 @@
 #include "../CVideoHandler.h"
 #include "../SDL_Extensions.h"
 #include "../CBitmapHandler.h"
+#include "../UIFramework/CGuiHandler.h"
 
 CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, CBattleInterface * _owner)
 : owner(_owner)

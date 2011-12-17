@@ -2,13 +2,13 @@
 #include "CMovementAnimation.h"
 
 #include "CBattleInterface.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../../lib/BattleState.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "CReverseAnimation.h"
 #include "CMovementEndAnimation.h"
-#include "CHexFieldControl.h"
+#include "CClickableHex.h"
 
 bool CMovementAnimation::init()
 {
@@ -32,10 +32,10 @@ bool CMovementAnimation::init()
 	}
 	//bool twoTiles = movedStack->doubleWide();
 
-	Point begPosition = CHexFieldControl::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
-	Point endPosition = CHexFieldControl::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
+	SPoint begPosition = CClickableHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
+	SPoint endPosition = CClickableHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
 
-	int mutPos = SHexField::mutualPosition(curStackPos, nextHex);
+	int mutPos = SBattleHex::mutualPosition(curStackPos, nextHex);
 
 	//reverse unit if necessary
 	if((begPosition.x > endPosition.x) && owner->creDir[stack->ID] == true)
@@ -116,7 +116,7 @@ void CMovementAnimation::nextFrame()
 	if(whichStep == steps)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = CHexFieldControl::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
+		SPoint coords = CClickableHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
 		myAnim()->pos = coords;
 
 		// true if creature haven't reached the final destination hex
@@ -168,7 +168,7 @@ void CMovementAnimation::endAnim()
 	delete this;
 }
 
-CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<SHexField> _destTiles, int _distance)
+CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<SBattleHex> _destTiles, int _distance)
 : CBattleStackAnimation(_owner, _stack), destTiles(_destTiles), nextPos(0), distance(_distance), stepX(0.0), stepY(0.0)
 {
 	curStackPos = stack->position;

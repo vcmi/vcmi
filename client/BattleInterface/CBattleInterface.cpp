@@ -17,7 +17,7 @@
 #include "../../CCallback.h"
 #include "../../lib/BattleState.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../Graphics.h"
 #include "../CSpellWindow.h"
 #include "../CConfigHandler.h"
@@ -29,7 +29,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/map.h"
 
-
 #include "CBattleHero.h"
 #include "CStackQueue.h"
 #include "CBattleConsole.h"
@@ -37,7 +36,7 @@
 #include "CBattleAnimation.h"
 #include "CBattleOptionsWindow.h"
 #include "CDummyAnimation.h"
-#include "CHexFieldControl.h"
+#include "CClickableHex.h"
 #include "CShootingAnimation.h"
 #include "CSpellEffectAnimation.h"
 #include "CMeleeAttackAnimation.h"
@@ -47,6 +46,7 @@
 #include "CDefenceAnimation.h"
 #include "CMovementAnimation.h"
 
+#include "../UIFramework/CGuiHandler.h"
 
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
@@ -112,7 +112,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
       
 {
-	ObjectConstruction h__l__p(this);
+	OBJ_CONSTRUCTION;
 
 	if(!curInt) curInt = LOCPLINT; //may happen when we are defending during network MP game
 
@@ -136,7 +136,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		if(curInt->sysOpts.showQueue)
 			pos.y += queue->pos.h / 2; //center whole window
 
-		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
+		queue->moveTo(SPoint(pos.x, pos.y - queue->pos.h));
 // 		queue->pos.x = pos.x;
 // 		queue->pos.y = pos.y - queue->pos.h;
 //  		pos.h += queue->pos.h;
@@ -173,7 +173,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
-			Point moatPos = graphics->wallPositions[siegeH->town->town->typeID][12],
+			SPoint moatPos = graphics->wallPositions[siegeH->town->town->typeID][12],
 				mlipPos = graphics->wallPositions[siegeH->town->town->typeID][13];
 
 			if(moat) //eg. tower has no moat
@@ -603,8 +603,8 @@ void CBattleInterface::show(SDL_Surface * to)
 			{//TODO: do not check it every frame
 				if (activeStack) //highlight all attackable hexes
 				{ 
-					std::set<SHexField> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
-					BOOST_FOREACH(SHexField hex, set)
+					std::set<SBattleHex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
+					BOOST_FOREACH(SBattleHex hex, set)
 					{
 						int x = 14 + ((hex/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(hex%GameConstants::BFIELD_WIDTH) + pos.x;
 						int y = 86 + 42 * (hex/GameConstants::BFIELD_WIDTH) + pos.y;
@@ -630,10 +630,10 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//preparing obstacles to be shown
 	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
-	std::multimap<SHexField, int> hexToObstacle;
+	std::multimap<SBattleHex, int> hexToObstacle;
 	for(size_t b = 0; b < obstacles.size(); ++b)
 	{
-		SHexField position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
+		SBattleHex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
 		hexToObstacle.insert(std::make_pair(position, b));
 	}
 	
@@ -845,7 +845,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
 
-	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
+	SRect posWithQueue = SRect(pos.x, pos.y, 800, 600);
 
 	if(curInt->sysOpts.showQueue)
 	{
@@ -891,12 +891,12 @@ void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks,
 	}
 }
 
-void CBattleInterface::showObstacles(std::multimap<SHexField, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to)
+void CBattleInterface::showObstacles(std::multimap<SBattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to)
 {
-	std::pair<std::multimap<SHexField, int>::const_iterator, std::multimap<SHexField, int>::const_iterator> obstRange =
+	std::pair<std::multimap<SBattleHex, int>::const_iterator, std::multimap<SBattleHex, int>::const_iterator> obstRange =
 		hexToObstacle->equal_range(hex);
 
-	for(std::multimap<SHexField, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
+	for(std::multimap<SBattleHex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 	{
 		CObstacleInstance & curOb = obstacles[it->second];
 		std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
@@ -963,7 +963,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
 						{
 							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-							if (curInt->cb->battleCanCastThisSpell(spell, SHexField(myNumber)) == ESpellCastProblem::OK)
+							if (curInt->cb->battleCanCastThisSpell(spell, SBattleHex(myNumber)) == ESpellCastProblem::OK)
 							{
 								if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
 								{
@@ -1210,7 +1210,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 void CBattleInterface::setBattleCursor(const int myNumber)
 {
-	const CHexFieldControl & hoveredHex = bfield[myNumber];
+	const CClickableHex & hoveredHex = bfield[myNumber];
 	CCursorHandler *cursor = CCS->curh;
 
 	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
@@ -1368,7 +1368,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 			attackingHex = myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
 			break;
 	}
-	SHexField hex(attackingHex);
+	SBattleHex hex(attackingHex);
 	if (!hex.isValid())
 		attackingHex = -1;
 }
@@ -1388,7 +1388,7 @@ void CBattleInterface::bOptionsf()
 
 	CCS->curh->changeGraphic(0,0);
 
-	Rect tempRect = genRect(431, 481, 160, 84);
+	SRect tempRect = genRect(431, 481, 160, 84);
 	tempRect += pos.topLeft();
 	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(tempRect, this);
 	GH.pushInt(optionsWin);
@@ -1516,7 +1516,7 @@ void CBattleInterface::bConsoleDownf()
 
 void CBattleInterface::newStack(const CStack * stack)
 {
-	Point coords = CHexFieldControl::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);;
+	SPoint coords = CClickableHex::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);;
 
 	if(stack->position < 0) //turret
 	{
@@ -1549,7 +1549,7 @@ void CBattleInterface::newStack(const CStack * stack)
 		creAnims[stack->ID] = new CCreatureAnimation(stack->getCreature()->animDefName);	
 	}
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
-	creAnims[stack->ID]->pos = Rect(coords.x, coords.y, creAnims[stack->ID]->fullWidth, creAnims[stack->ID]->fullHeight);
+	creAnims[stack->ID]->pos = SRect(coords.x, coords.y, creAnims[stack->ID]->fullWidth, creAnims[stack->ID]->fullHeight);
 	creDir[stack->ID] = stack->attackerOwned;
 }
 
@@ -1568,7 +1568,7 @@ void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all
 		activateStack();
 }
 
-void CBattleInterface::stackMoved(const CStack * stack, std::vector<SHexField> destHex, int distance)
+void CBattleInterface::stackMoved(const CStack * stack, std::vector<SBattleHex> destHex, int distance)
 {
 	addNewAnim(new CMovementAnimation(this, stack, destHex, distance));
 	waitForAnims();
@@ -1605,7 +1605,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<SStackAttackedInfo> attacke
 	}
 }
 
-void CBattleInterface::stackAttacking( const CStack * attacker, SHexField dest, const CStack * attacked, bool shooting )
+void CBattleInterface::stackAttacking( const CStack * attacker, SBattleHex dest, const CStack * attacked, bool shooting )
 {
 	if (shooting)
 	{
@@ -1639,7 +1639,7 @@ void CBattleInterface::newRound(int number)
 	
 }
 
-void CBattleInterface::giveCommand(ui8 action, SHexField tile, ui32 stack, si32 additional)
+void CBattleInterface::giveCommand(ui8 action, SBattleHex tile, ui32 stack, si32 additional)
 {
 	if(!curInt->cb->battleGetStackByID(stack) && action != 1 && action != 4 && action != 5)
 	{
@@ -1678,30 +1678,30 @@ void CBattleInterface::giveCommand(ui8 action, SHexField tile, ui32 stack, si32 
 	}
 }
 
-bool CBattleInterface::isTileAttackable(const SHexField & number) const
+bool CBattleInterface::isTileAttackable(const SBattleHex & number) const
 {
 	for(size_t b=0; b<occupyableHexes.size(); ++b)
 	{
-		if(SHexField::mutualPosition(occupyableHexes[b], number) != -1 || occupyableHexes[b] == number)
+		if(SBattleHex::mutualPosition(occupyableHexes[b], number) != -1 || occupyableHexes[b] == number)
 			return true;
 	}
 	return false;
 }
 
-bool CBattleInterface::blockedByObstacle(SHexField hex) const
+bool CBattleInterface::blockedByObstacle(SBattleHex hex) const
 {
 	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
-	std::set<SHexField> coveredHexes;
+	std::set<SBattleHex> coveredHexes;
 	for(size_t b = 0; b < obstacles.size(); ++b)
 	{
-		std::vector<SHexField> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
+		std::vector<SBattleHex> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
 		for(size_t w = 0; w < blocked.size(); ++w)
 			coveredHexes.insert(blocked[w]);
 	}
 	return vstd::contains(coveredHexes, hex);
 }
 
-bool CBattleInterface::isCatapultAttackable(SHexField hex) const
+bool CBattleInterface::isCatapultAttackable(SBattleHex hex) const
 {
 	if(!siegeH)
 		return false;
@@ -1799,7 +1799,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
 					{
 						const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-						if (curInt->cb->battleCanCastThisSpell(spell, SHexField(whichOne)) == ESpellCastProblem::OK)
+						if (curInt->cb->battleCanCastThisSpell(spell, SBattleHex(whichOne)) == ESpellCastProblem::OK)
 						{
 							if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
 							{
@@ -1880,7 +1880,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							{
 								if(actStack->doubleWide() && !actStack->attackerOwned)
 								{
-									std::vector<SHexField> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+									std::vector<SBattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 									if(vstd::contains(acc, whichOne))
 										attackFromHex = whichOne - 1;
 									else
@@ -1932,7 +1932,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							{
 								if(actStack->doubleWide() && actStack->attackerOwned)
 								{
-									std::vector<SHexField> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+									std::vector<SBattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 									if(vstd::contains(acc, whichOne))
 										attackFromHex = whichOne + 1;
 									else
@@ -2018,7 +2018,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					CCS->curh->changeGraphic(1, 6); //cursor should be changed
 					if(activeStack->doubleWide())
 					{
-						std::vector<SHexField> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+						std::vector<SBattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = whichOne + (activeStack->attackerOwned ? 1 : -1);
 						if(vstd::contains(acc, whichOne))
 							giveCommand (BattleAction::WALK ,whichOne, activeStack->ID);
@@ -2101,8 +2101,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{ //common ice bolt and magic arrow part
 			//initial variables
 			std::string animToDisplay;
-			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
-			Point destcoord = CHexFieldControl::getXYUnitAnim(sc->tile, !sc->side, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
+			SPoint srccoord = (sc->side ? SPoint(770, 60) : SPoint(30, 60)) + pos;
+			SPoint destcoord = CClickableHex::getXYUnitAnim(sc->tile, !sc->side, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
 			destcoord.x += 250; destcoord.y += 240;
 
 			//animation angle
@@ -2320,8 +2320,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	//mana absorption
 	if (sc->manaGained)
 	{
-		Point leftHero = Point(15, 30) + pos;
-		Point rightHero = Point(755, 30) + pos;
+		SPoint leftHero = SPoint(15, 30) + pos;
+		SPoint rightHero = SPoint(755, 30) + pos;
 		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
 		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
 	}
@@ -2632,7 +2632,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 			&& !stack->hasBonusOfType(Bonus::SIEGE_WEAPON) //and not a war machine...
 	)
 	{
-        const SHexField nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
+        const SBattleHex nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
         const bool edge = stack->position % GameConstants::BFIELD_WIDTH == (stack->attackerOwned ? GameConstants::BFIELD_WIDTH - 2 : 1);
         const bool moveInside = !edge && !stackCountOutsideHexes[nextPos];
 		int xAdd = (stack->attackerOwned ? 220 : 202) +
@@ -2769,9 +2769,9 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 
 	if(curInt->sysOpts.printStackRange)
 	{
-		std::vector<SHexField> hexesToShade = occupyableHexes;
+		std::vector<SBattleHex> hexesToShade = occupyableHexes;
 		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
-		BOOST_FOREACH(SHexField hex, hexesToShade)
+		BOOST_FOREACH(SBattleHex hex, hexesToShade)
 		{
 			int i = hex.getY(); //row
 			int j = hex.getX()-1; //column
@@ -2937,7 +2937,7 @@ void CBattleInterface::hideQueue()
 
 	if(!queue->embedded)
 	{
-		moveBy(Point(0, -queue->pos.h / 2));
+		moveBy(SPoint(0, -queue->pos.h / 2));
 		GH.totalRedraw();
 	}
 }
@@ -2950,7 +2950,7 @@ void CBattleInterface::showQueue()
 
 	if(!queue->embedded)
 	{
-		moveBy(Point(0, +queue->pos.h / 2));
+		moveBy(SPoint(0, +queue->pos.h / 2));
 		GH.totalRedraw();
 	}
 }
@@ -3170,7 +3170,7 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 /// Positions are loaded from the config file: /config/wall_pos.txt
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
-	Point pos = Point(-1, -1);
+	SPoint pos = SPoint(-1, -1);
 	
 	if (what >= 1 && what <= 17)
 	{

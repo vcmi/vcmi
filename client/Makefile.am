@@ -25,12 +25,14 @@ vcmiclient_SOURCES =  \
 	./BattleInterface/CBattleResultWindow.h \
 	./BattleInterface/CBattleStackAnimation.cpp \
 	./BattleInterface/CBattleStackAnimation.h \
+	./BattleInterface/CCreatureAnimation.h \
+	./BattleInterface/CCreatureAnimation.cpp \
 	./BattleInterface/CDefenceAnimation.cpp \
 	./BattleInterface/CDefenceAnimation.h \
 	./BattleInterface/CDummyAnimation.cpp \
 	./BattleInterface/CDummyAnimation.h \
-	./BattleInterface/CHexFieldControl.cpp \
-	./BattleInterface/CHexFieldControl.h \
+	./BattleInterface/CClickableHex.cpp \
+	./BattleInterface/CClickableHex.h \
 	./BattleInterface/CMeleeAttackAnimation.cpp \
 	./BattleInterface/CMeleeAttackAnimation.h \
 	./BattleInterface/CMovementAnimation.cpp \
@@ -48,6 +50,16 @@ vcmiclient_SOURCES =  \
 	./BattleInterface/CStackQueue.cpp \
 	./BattleInterface/CStackQueue.h \
 	./BattleInterface/SStackAttackedInfo.h \
+	./UIFramework/CGuiHandler.cpp \
+	./UIFramework/CGuiHandler.h \
+	./UIFramework/CIntObject.cpp \
+	./UIFramework/CIntObject.h \
+	./UIFramework/CKeyShortcut.cpp \
+	./UIFramework/CKeyShortcut.h \
+	./UIFramework/CPicture.cpp \
+	./UIFramework/CPicture.h \
+	./UIFramework/SRect.cpp \
+	./UIFramework/SRect.h \
 	AdventureMapButton.cpp \
 	AdventureMapButton.h \
 	CAdvmapInterface.cpp \
@@ -60,8 +72,6 @@ vcmiclient_SOURCES =  \
 	CCastleInterface.h \
 	CConfigHandler.cpp \
 	CConfigHandler.h \
-	CCreatureAnimation.cpp \
-	CCreatureAnimation.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
 	CCursorHandler.cpp \
@@ -97,8 +107,6 @@ vcmiclient_SOURCES =  \
 	FunctionList.h \
 	Graphics.cpp \
 	Graphics.h \
-	GUIBase.cpp \
-	GUIBase.h \
 	GUIClasses.cpp \
 	GUIClasses.h \
 	mapHandler.cpp \

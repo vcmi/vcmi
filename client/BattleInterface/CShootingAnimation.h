@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CAttackAnimation.h"
-#include "../../lib/SHexField.h"
+#include "../../lib/SBattleHex.h"
 
 class CBattleInterface;
 class CStack;
@@ -45,5 +45,5 @@ public:
 
 	//last param only for catapult attacks
 	CShootingAnimation(CBattleInterface *_owner, const CStack *attacker, 
-		SHexField _dest, const CStack *_attacked, bool _catapult = false, int _catapultDmg = 0);
+		SBattleHex _dest, const CStack *_attacked, bool _catapult = false, int _catapultDmg = 0);
 };

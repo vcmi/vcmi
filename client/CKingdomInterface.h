@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "GUIBase.h"
 #include "GUIClasses.h"
 
 class AdventureMapButton;
@@ -65,7 +64,7 @@ private:
 	HoverableArea *hover;
 
 public:
-	InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
+	InfoBox(SPoint position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
 	~InfoBox();
 
 	void clickRight(tribool down, bool previousState);

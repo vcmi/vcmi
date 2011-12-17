@@ -4,7 +4,7 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "CBattleInterface.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../../lib/BattleState.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
@@ -34,7 +34,7 @@ bool CAttackAnimation::checkInitialConditions()
 	return isEarliest(false);
 }
 
-CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SHexField _dest, const CStack *defender)
+CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SBattleHex _dest, const CStack *defender)
 : CBattleStackAnimation(_owner, attacker), dest(_dest), attackedStack(defender), attackingStack(attacker)
 {
 

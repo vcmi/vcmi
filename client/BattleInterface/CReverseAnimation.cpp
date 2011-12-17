@@ -1,10 +1,10 @@
 #include "StdInc.h"
 #include "CReverseAnimation.h"
 
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../../lib/BattleState.h"
 #include "CBattleInterface.h"
-#include "CHexFieldControl.h"
+#include "CClickableHex.h"
 
 bool CReverseAnimation::init()
 {
@@ -58,7 +58,7 @@ void CReverseAnimation::endAnim()
 	delete this;
 }
 
-CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, SHexField dest, bool _priority)
+CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, SBattleHex dest, bool _priority)
 : CBattleStackAnimation(_owner, stack), partOfAnim(1), secondPartSetup(false), hex(dest), priority(_priority)
 {
 }
@@ -73,7 +73,7 @@ void CReverseAnimation::setupSecondPart()
 		return;
 	}
 
-	Point coords = CHexFieldControl::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
+	SPoint coords = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
 	myAnim()->pos.x = coords.x;
 	//creAnims[stackID]->pos.y = coords.second;
 

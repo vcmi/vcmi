@@ -13,7 +13,7 @@
 #include "../lib/JsonNode.h"
 #include "vcmi_endian.h"
 #include "GameConstants.h"
-#include "StopWatch.h"
+#include "CStopWatch.h"
 
 /*
  * map.cpp, part of VCMI engine
@@ -406,7 +406,7 @@ void Mapa::initFromBytes(const ui8 * bufor, size_t size)
 
 	int i=0;
 	initFromMemory(bufor,i);
-	StopWatch th;
+	CStopWatch th;
 	th.getDiff();
 	readHeader(bufor, i);
 	tlog0<<"\tReading header: "<<th.getDiff()<<std::endl;

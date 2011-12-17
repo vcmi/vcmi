@@ -241,7 +241,7 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
-    <ClCompile Include="SHexField.cpp" />
+    <ClCompile Include="SBattleHex.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -250,6 +250,7 @@
     <ClCompile Include="VCMI_Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Global.h" />
     <ClInclude Include="..\StartInfo.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
@@ -276,6 +277,7 @@
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSpellHandler.h" />
+    <ClInclude Include="CStopWatch.h" />
     <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
     <ClInclude Include="GameConstants.h" />
@@ -289,10 +291,9 @@
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />
-    <ClInclude Include="SHexField.h" />
+    <ClInclude Include="SBattleHex.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
-    <ClInclude Include="StopWatch.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

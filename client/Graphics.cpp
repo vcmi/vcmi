@@ -20,6 +20,7 @@
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/GameConstants.h"
+#include "../lib/CStopWatch.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -364,7 +365,7 @@ void Graphics::loadWallPositions()
 		int townID = town["id"].Float();
 
 		BOOST_FOREACH(const JsonNode &coords, town["pos"].Vector()) {
-			Point pt(coords["x"].Float(), coords["y"].Float());
+			SPoint pt(coords["x"].Float(), coords["y"].Float());
 			wallPositions[townID].push_back(pt);
 		}
 
@@ -484,7 +485,7 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*,
 void Graphics::loadHeroFlags()
 {
 	using namespace boost::assign;
-	StopWatch th;
+	CStopWatch th;
 	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4];
 	pr[0].first = &Graphics::flags1;
 	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),

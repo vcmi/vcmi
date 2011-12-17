@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="AdventureMapButton.cpp" />
+    <ClCompile Include="CAdvmapInterface.cpp" />
+    <ClCompile Include="CAnimation.cpp" />
+    <ClCompile Include="..\CCallback.cpp" />
+    <ClCompile Include="CBitmapHandler.cpp" />
+    <ClCompile Include="CCastleInterface.cpp" />
+    <ClCompile Include="CConfigHandler.cpp" />
+    <ClCompile Include="CCreatureWindow.cpp" />
+    <ClCompile Include="CCursorHandler.cpp" />
+    <ClCompile Include="CDefHandler.cpp" />
+    <ClCompile Include="CGameInfo.cpp" />
+    <ClCompile Include="CHeroWindow.cpp" />
+    <ClCompile Include="CKingdomInterface.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="CMessage.cpp" />
+    <ClCompile Include="CMT.cpp" />
+    <ClCompile Include="CMusicHandler.cpp" />
+    <ClCompile Include="CPlayerInterface.cpp" />
+    <ClCompile Include="CPreGame.cpp" />
+    <ClCompile Include="CSndHandler.cpp" />
+    <ClCompile Include="CSpellWindow.cpp" />
+    <ClCompile Include="CVideoHandler.cpp" />
+    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="GUIClasses.cpp" />
+    <ClCompile Include="mapHandler.cpp" />
+    <ClCompile Include="NetPacksClient.cpp" />
+    <ClCompile Include="SDL_Extensions.cpp" />
+    <ClCompile Include="SDL_framerate.cpp" />
+    <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="BattleInterface\CAttackAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleConsole.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleHero.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleInterface.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleOptionsWindow.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleResultWindow.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleStackAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CDefenceAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CDummyAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CMeleeAttackAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CMovementAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CMovementEndAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CMovementStartAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CReverseAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CShootingAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CSpellEffectAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CStackQueue.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CGuiHandler.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CIntObject.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CKeyShortcut.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CPicture.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\SRect.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CClickableHex.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CCreatureAnimation.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AdventureMapButton.h" />
+    <ClInclude Include="CAdvmapInterface.h" />
+    <ClInclude Include="CAnimation.h" />
+    <ClInclude Include="CBitmapHandler.h" />
+    <ClInclude Include="..\CCallback.h" />
+    <ClInclude Include="CCastleInterface.h" />
+    <ClInclude Include="CConfigHandler.h" />
+    <ClInclude Include="CCreatureWindow.h" />
+    <ClInclude Include="CCursorHandler.h" />
+    <ClInclude Include="CDefHandler.h" />
+    <ClInclude Include="CGameInfo.h" />
+    <ClInclude Include="CHeroWindow.h" />
+    <ClInclude Include="CKingdomInterface.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="CMessage.h" />
+    <ClInclude Include="CMusicBase.h" />
+    <ClInclude Include="CMusicHandler.h" />
+    <ClInclude Include="CPlayerInterface.h" />
+    <ClInclude Include="CPreGame.h" />
+    <ClInclude Include="CSndHandler.h" />
+    <ClInclude Include="CSoundBase.h" />
+    <ClInclude Include="CSpellWindow.h" />
+    <ClInclude Include="CVideoHandler.h" />
+    <ClInclude Include="FontBase.h" />
+    <ClInclude Include="FunctionList.h" />
+    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="GUIClasses.h" />
+    <ClInclude Include="mapHandler.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SDL_Extensions.h" />
+    <ClInclude Include="SDL_framerate.h" />
+    <ClInclude Include="StdInc.h" />
+    <ClInclude Include="BattleInterface\CAttackAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleConsole.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleHero.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleInterface.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleOptionsWindow.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleResultWindow.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CBattleStackAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CDefenceAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CDummyAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CMeleeAttackAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CMovementAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CMovementEndAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CMovementStartAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CReverseAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CShootingAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CSpellEffectAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CStackQueue.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\SStackAttackedInfo.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CGuiHandler.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CIntObject.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CKeyShortcut.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CPicture.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CSimpleWindow.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\IActivatable.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\IShowable.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\IShowActivatable.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\IStatusBar.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\IUpdateable.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\SPoint.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\SRect.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Global.h" />
+    <ClInclude Include="BattleInterface\CClickableHex.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleInterface\CCreatureAnimation.h">
+      <Filter>BattleInterface</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VCMI_client.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ChangeLog" />
+    <None Include="vcmi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="BattleInterface">
+      <UniqueIdentifier>{3b4624b5-80f2-4bd8-b4c0-af29d3be4b58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UIFramework">
+      <UniqueIdentifier>{918a73d4-7386-4d29-9515-a3579051d4ac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

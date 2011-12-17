@@ -4,7 +4,7 @@
 #include "../CMusicHandler.h"
 #include "CBattleInterface.h"
 #include "../CGameInfo.h"
-#include "../CCreatureAnimation.h"
+#include "CCreatureAnimation.h"
 #include "../../lib/BattleState.h"
 #include "../CPlayerInterface.h"
 

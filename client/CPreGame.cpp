@@ -2,7 +2,7 @@
 #include "CPreGame.h"
 
 #include <zlib.h>
-#include "../lib/StopWatch.h"
+#include "../lib/CStopWatch.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
@@ -39,6 +39,7 @@
 #include "CConfigHandler.h"
 #include "../lib/CFileUtility.h"
 #include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -360,7 +361,7 @@ CreditsScreen::CreditsScreen()
 	std::string text = bitmaph->getTextFile("CREDITS");
 	size_t firstQuote = text.find('\"')+1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
-	credits = new CTextBox(text, Rect(450, 600, 350, 32000), 0, FONT_CREDITS, CENTER, zwykly);
+	credits = new CTextBox(text, SRect(450, 600, 350, 32000), 0, FONT_CREDITS, CENTER, zwykly);
 	credits->pos.h = credits->maxH;
 }
 
@@ -493,7 +494,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		sh->startServer();
 	}
 
-	IShowActivable::type = BLOCK_ADV_HOTKEYS;
+	IShowActivatable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;
 	pos.h = 584;
 	if(Type == CMenuScreen::saveGame)
@@ -1088,7 +1089,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				positions = 16;
 			}
 			if(tabType == CMenuScreen::saveGame)
-				txt = new CTextInput(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
+				txt = new CTextInput(SRect(32, 539, 350, 20), SPoint(-32, -25), "GSSTRIP.bmp", 0);
 			break;
 		case CMenuScreen::campaignList:
 			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3c"); //get all campaigns
@@ -1446,7 +1447,7 @@ void SelectionTab::onDoubleClick()
 int SelectionTab::getLine()
 {
 	int line = -1;
-	Point clickPos(GH.current->button.x, GH.current->button.y);
+	SPoint clickPos(GH.current->button.x, GH.current->button.y);
 	clickPos = clickPos - pos.topLeft();
 
 	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 22  &&  clickPos.x < 371)
@@ -1474,7 +1475,7 @@ void SelectionTab::selectFName( const std::string &fname )
 
 
 
-CChatBox::CChatBox(const Rect &rect)
+CChatBox::CChatBox(const SRect &rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
@@ -1482,9 +1483,9 @@ CChatBox::CChatBox(const Rect &rect)
 	captureAllKeys = true;
 
 	const int height = graphics->fonts[FONT_SMALL]->height;
-	inputBox = new CTextInput(Rect(0, rect.h - height, rect.w, height));
+	inputBox = new CTextInput(SRect(0, rect.h - height, rect.w, height));
 	inputBox->used &= ~KEYBOARD;
-	chatHistory = new CTextBox("", Rect(0, 0, rect.w, rect.h - height), 1);
+	chatHistory = new CTextBox("", SRect(0, 0, rect.w, rect.h - height), 1);
 
 	SDL_Color green = {0,252,0};
 	chatHistory->color = green;
@@ -1517,18 +1518,18 @@ InfoCard::InfoCard( bool Network )
 	used = RCLICK;
 	mapDescription = NULL;
 
-	Rect descriptionRect(26, 149, 320, 115);
+	SRect descriptionRect(26, 149, 320, 115);
 	mapDescription = new CTextBox("", descriptionRect, 1);
 
 	if(SEL->screenType == CMenuScreen::campaignList)
 	{
 		CSelectionScreen *ss = static_cast<CSelectionScreen*>(parent);
-		moveChild(new CPicture(*ss->bg, descriptionRect + Point(-393, 0)), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+		CGuiHandler::moveChild(new CPicture(*ss->bg, descriptionRect + SPoint(-393, 0)), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 	}
 	else
 	{
 		bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 0, 0, true);
-		moveChild(bg, this, parent);
+		CGuiHandler::moveChild(bg, this, parent);
 		parent->children.insert(parent->children.begin()+1, bg);
 		parent->children.pop_back();
 		pos.w = bg->pos.w;
@@ -1549,13 +1550,13 @@ InfoCard::InfoCard( bool Network )
 			difficulty->block(true);
 
 		//description needs bg
-		moveChild(new CPicture(*bg, descriptionRect), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+		CGuiHandler::moveChild(new CPicture(*bg, descriptionRect), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 		if(network)
 		{
 			playerListBg = new CPicture("CHATPLUG.bmp", 16, 276);
 			chat = new CChatBox(descriptionRect);
-			moveChild(new CPicture(*bg, chat->chatHistory->pos - pos), this, chat->chatHistory, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+			CGuiHandler::moveChild(new CPicture(*bg, chat->chatHistory->pos - pos), this, chat->chatHistory, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 			chatOn = true;
 			mapDescription->disable();
@@ -1752,7 +1753,7 @@ void InfoCard::changeSelection( const CMapInfo *to )
 
 void InfoCard::clickRight( tribool down, bool previousState )
 {
-	static const Rect flagArea(19, 397, 335, 23);
+	static const SRect flagArea(19, 397, 335, 23);
 	if(down && SEL->current && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
 		showTeamsPopup();
 }
@@ -2128,7 +2129,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 			serial++;
 	}
 
-	pos = parent->pos + Point(54, 122 + serial*50);
+	pos = parent->pos + SPoint(54, 122 + serial*50);
 
 	static const char *flags[] = {"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"};
@@ -2173,11 +2174,11 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 
 	defActions &= ~SHARE_POS;
 	town = new SelectedBox(TOWN, s.color);
-	town->pos += pos + Point(119, 2);
+	town->pos += pos + SPoint(119, 2);
 	hero = new SelectedBox(HERO, s.color);
-	hero->pos += pos + Point(195, 2);
+	hero->pos += pos + SPoint(195, 2);
 	bonus = new SelectedBox(BONUS, s.color);
-	bonus->pos += pos + Point(271, 2);
+	bonus->pos += pos + SPoint(271, 2);
 }
 
 void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
@@ -2615,8 +2616,8 @@ CMultiMode::CMultiMode()
 	blitAt(CPicture("MUMAP.bmp"), 16, 77, *bg); //blit img
 	pos = bg->center(); //center, window has size of bg graphic
 
-	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
-	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
+	bar = new CGStatusBar(new CPicture(SRect(7, 465, 440, 18), 0));//226, 472
+	txt = new CTextInput(SRect(19, 436, 334, 16), *bg);
 	txt->setText(GDefaultOptions.playerName); //Player
 
 	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
@@ -2652,18 +2653,18 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 
 	std::string text = CGI->generaltexth->allTexts[446];
 	boost::replace_all(text, "\t","\n");
-	Rect boxRect(25, 20, 315, 50);
+	SRect boxRect(25, 20, 315, 50);
 	title = new CTextBox(text, boxRect, 0, FONT_BIG, CENTER, zwykly);//HOTSEAT	Please enter names
 
 	for(int i = 0; i < ARRAY_COUNT(txt); i++)
 	{
-		txt[i] = new CTextInput(Rect(60, 85 + i*30, 280, 16), *bg);
+		txt[i] = new CTextInput(SRect(60, 85 + i*30, 280, 16), *bg);
 		txt[i]->cb += boost::bind(&CHotSeatPlayers::onChange, this, _1);
 	}
 
 	ok = new AdventureMapButton(CGI->generaltexth->zelp[560], bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF", SDLK_RETURN);
 	cancel = new AdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
-	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
+	bar = new CGStatusBar(new CPicture(SRect(7, 381, 348, 18), 0));//226, 472
 
 	txt[0]->setText(firstPlayer, true);
 	txt[0]->giveFocus();
@@ -2727,11 +2728,11 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 	//campaign description
 	printAtLoc(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, tytulowy, background);
 
-	cmpgDesc = new CTextBox(ourCampaign->camp->header.description, Rect(480, 86, 286, 117), 1);
+	cmpgDesc = new CTextBox(ourCampaign->camp->header.description, SRect(480, 86, 286, 117), 1);
 	cmpgDesc->showAll(background);
 
 	//map description
-	mapDesc = new CTextBox("", Rect(480, 280, 286, 117), 1);
+	mapDesc = new CTextBox("", SRect(480, 280, 286, 117), 1);
 
 	//bonus choosing
 	printAtLoc(CGI->generaltexth->allTexts[71], 511, 432, FONT_MEDIUM, zwykly, background); //Choose a bonus:
@@ -3495,7 +3496,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 		image = new CPicture(config["image"].String());
 
 		hoverLabel = new CLabel(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, tytulowy, "");
-		moveChild(hoverLabel, this, parent);
+		CGuiHandler::moveChild(hoverLabel, this, parent);
 	}
 
 	if (status == CCampaignScreen::COMPLETED)

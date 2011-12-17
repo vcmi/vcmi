@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "GUIBase.h"
 #include "GUIClasses.h"
 #include "../lib/HeroBonus.h"
 
@@ -79,7 +78,7 @@ public:
 	bool visible;
 
 	CBonusItem();
-	CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
+	CBonusItem(const SRect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
 	~CBonusItem();
 
 	void setBonus (const Bonus &bonus);

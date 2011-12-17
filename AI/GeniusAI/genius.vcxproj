@@ -231,6 +231,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="neuralNetwork.h" />
     <ClInclude Include="StdInc.h" />
+	<ClInclude Include="..\..\Global.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\lib\VCMI_lib.vcxproj">

@@ -101,7 +101,7 @@ public:
 	bool isAllowedExchange(int id1, int id2);
 	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
-	int moveStack(int stack, SHexField dest); //returned value - travelled distance
+	int moveStack(int stack, SBattleHex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void runBattle();
 	void checkLossVictory(ui8 player);
@@ -192,7 +192,7 @@ public:
 
 	void playerMessage( ui8 player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
-	void handleSpellCasting(int spellID, int spellLvl, SHexField destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack);
+	void handleSpellCasting(int spellID, int spellLvl, SBattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack);
 	bool makeCustomAction(BattleAction &ba);
 	void stackTurnTrigger(const CStack * stack);
 	bool queryReply( ui32 qid, ui32 answer, ui8 player );

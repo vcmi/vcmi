@@ -3,7 +3,7 @@
 
 #include "../lib/IGameCallback.h"
 #include "../lib/CondSh.h"
-#include "../lib/StopWatch.h"
+#include "../lib/CStopWatch.h"
 
 /*
  * Client.h, part of VCMI engine
@@ -38,7 +38,7 @@ class CServerHandler
 private:
 	void callServer(); //calls server via system(), should be called as thread
 public:
-	StopWatch th;
+	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
 	SharedMem *shared; //interprocess memory (for waiting for server)
 	bool verbose; //whether to print log msgs

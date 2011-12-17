@@ -1,14 +1,13 @@
 #pragma once
 
 
-#include "../GUIBase.h"
 #include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../CAnimation.h"
 #include "SStackAttackedInfo.h"
-#include "CHexFieldControl.h"
+#include "CClickableHex.h"
 #include "CShootingAnimation.h"
-#include "../../lib/SHexField.h"
+#include "../../lib/SBattleHex.h"
 #include "../../lib/GameConstants.h"
 
 /*
@@ -46,6 +45,7 @@ class CBattleHero;
 class CBattleConsole;
 class CBattleResultWindow;
 class CStackQueue;
+class CPlayerInterface;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
@@ -103,7 +103,7 @@ private:
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
     time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occurred
     static const time_t HOVER_ANIM_DELTA;
-	std::vector<SHexField> occupyableHexes, //hexes available for active stack
+	std::vector<SBattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
     bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
@@ -112,7 +112,7 @@ private:
 	double getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
-	CPlayerInterface *tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
+	CPlayerInterface * tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
 	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
@@ -124,16 +124,16 @@ private:
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
 	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
-	void showObstacles(std::multimap<SHexField, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
+	void showObstacles(std::multimap<SBattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool Multiple);
 
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, SHexField tile, ui32 stack, si32 additional=-1);
-	bool isTileAttackable(const SHexField & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-	bool blockedByObstacle(SHexField hex) const;
-	bool isCatapultAttackable(SHexField hex) const; //returns true if given tile can be attacked by catapult
+	void giveCommand(ui8 action, SBattleHex tile, ui32 stack, si32 additional=-1);
+	bool isTileAttackable(const SBattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
+	bool blockedByObstacle(SBattleHex hex) const;
+	bool isCatapultAttackable(SBattleHex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
@@ -177,7 +177,7 @@ public:
 	void setAnimSpeed(int set); //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
-	CHexFieldControl bfield[GameConstants::BFIELD_SIZE]; //11 lines, 17 hexes on each
+	CClickableHex bfield[GameConstants::BFIELD_SIZE]; //11 lines, 17 hexes on each
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
@@ -215,10 +215,10 @@ public:
 	void newStack(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
-	void stackMoved(const CStack * stack, std::vector<SHexField> destHex, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack * stack, std::vector<SBattleHex> destHex, int distance); //stack with id number moved to destHex
 	void waitForAnims();
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(const CStack * attacker, SHexField dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(const CStack * attacker, SBattleHex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
@@ -252,5 +252,5 @@ public:
 	friend class CAttackAnimation;
 	friend class CMeleeAttackAnimation;
 	friend class CShootingAnimation;
-	friend class CHexFieldControl;
+	friend class CClickableHex;
 };

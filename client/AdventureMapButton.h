@@ -1,7 +1,8 @@
 #pragma once
 
 #include "FunctionList.h"
-#include "GUIBase.h"
+#include "UIFramework/CKeyShortcut.h"
+#include "UIFramework/SRect.h"
 
 /*
  * AdventureMapButton.h, part of VCMI engine
@@ -22,7 +23,7 @@ class CLabel;
 namespace config{struct ButtonInfo;}
 
 /// Base class for buttons.
-class CButtonBase : public KeyShortcut
+class CButtonBase : public CKeyShortcut
 {
 public:
 	enum ButtonState

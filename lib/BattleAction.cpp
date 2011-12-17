@@ -32,7 +32,7 @@ BattleAction BattleAction::makeDefend(const CStack *stack)
 }
 
 
-BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, SHexField attackFrom /*= SHexField::INVALID*/)
+BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, SBattleHex attackFrom /*= SBattleHex::INVALID*/)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
@@ -62,7 +62,7 @@ BattleAction BattleAction::makeShotAttack(const CStack *shooter, const CStack *t
 	return ba;
 }
 
-BattleAction BattleAction::makeMove(const CStack *stack, SHexField dest)
+BattleAction BattleAction::makeMove(const CStack *stack, SBattleHex dest)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;

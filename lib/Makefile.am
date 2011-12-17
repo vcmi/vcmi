@@ -67,8 +67,8 @@ libvcmi_la_SOURCES = \
 	ResourceSet.cpp \
 	ResourceSet.h \
 	RegisterTypes.h \
-	SHexField.cpp \
-	SHexField.h \
+	SBattleHex.cpp \
+	SBattleHex.h \
 	VCMIDirs.h \
 	VCMI_Lib.cpp \
 	VCMI_Lib.h \

@@ -129,6 +129,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Global.h" />
     <ClInclude Include="ERMInterpreter.h" />
     <ClInclude Include="ERMParser.h" />
     <ClInclude Include="ERMScriptModule.h" />

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../lib/SHexField.h"
+#include "../../lib/SBattleHex.h"
 
 class CStupidAI : public CBattleGameInterface
 {
@@ -23,7 +23,7 @@ public:
 	//void battleResultsApplied() OVERRIDE; //called when all effects of last battle are applied
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied;
 	void battleNewRound(int round) OVERRIDE; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance) OVERRIDE;
+	void battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance) OVERRIDE;
 	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
 	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE;//called when a specific effect is set to stacks
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) OVERRIDE;
@@ -34,6 +34,6 @@ public:
 	void battleCatapultAttacked(const CatapultAttack & ca) OVERRIDE; //called when catapult makes an attack
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield
 
-	BattleAction goTowards(const CStack * stack, SHexField hex );
+	BattleAction goTowards(const CStack * stack, SBattleHex hex );
 };
 

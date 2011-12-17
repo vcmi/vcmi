@@ -12,6 +12,7 @@
 #include "CMessage.h"
 #include "CMusicHandler.h"
 #include "GUIClasses.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * AdventureMapButton.cpp, part of VCMI engine
@@ -42,9 +43,9 @@ void CButtonBase::update()
 	if (text)
 	{
 		if (state == PRESSED)
-			text->moveTo(Point(pos.x+pos.w/2+1, pos.y+pos.h/2+1));
+			text->moveTo(SPoint(pos.x+pos.w/2+1, pos.y+pos.h/2+1));
 		else
-			text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
+			text->moveTo(SPoint(pos.x+pos.w/2, pos.y+pos.h/2));
 	}
 	
 	int newPos = (int)state + bitmapOffset;
@@ -500,10 +501,10 @@ void CSlider::moveTo(int to)
 			double part = static_cast<double>(to) / positions;
 			part*=(pos.w-48);
 			int newPos = part + pos.x + 16 - slider->pos.x;
-			slider->moveBy(Point(newPos, 0));
+			slider->moveBy(SPoint(newPos, 0));
 		}
 		else
-			slider->moveTo(Point(pos.x+16, pos.y));
+			slider->moveTo(SPoint(pos.x+16, pos.y));
 	}
 	else
 	{
@@ -512,10 +513,10 @@ void CSlider::moveTo(int to)
 			double part = static_cast<double>(to) / positions;
 			part*=(pos.h-48);
 			int newPos = part + pos.y + 16 - slider->pos.y;
-			slider->moveBy(Point(0, newPos));
+			slider->moveBy(SPoint(0, newPos));
 		}
 		else
-			slider->moveTo(Point(pos.x, pos.y+16));
+			slider->moveTo(SPoint(pos.x, pos.y+16));
 	}
 
 	if(moved)

@@ -95,7 +95,7 @@ public:
 	virtual void yourTurn() OVERRIDE{};
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*) OVERRIDE{};
-	virtual void battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance) OVERRIDE{};
+	virtual void battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance) OVERRIDE{};
 	virtual void battleStackAttacking(int ID, int dest) {};
 	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE{};
 	virtual BattleAction activeStack(const CStack * stack) OVERRIDE;
@@ -127,7 +127,7 @@ public:
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr);
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles);
 	virtual void battleNewStackAppeared(const CStack * stack);
-	virtual void battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance);
+	virtual void battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance);
 	virtual void battleAttack(const BattleAttack *ba);
 	virtual void battleSpellCast(const BattleSpellCast *sc);
 	virtual void battleEnd(const BattleResult *br);

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SHexField.h"
+#include "SBattleHex.h"
 #include "../client/FunctionList.h"
 #include "CObstacleInstance.h"
 #include "ResourceSet.h"
@@ -94,33 +94,33 @@ public:
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	int battleGetObstaclesAtTile(SHexField tile); //returns bitfield
+	int battleGetObstaclesAtTile(SBattleHex tile); //returns bitfield
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
-	const CStack * battleGetStackByPos(SHexField pos, bool onlyAlive = true); //returns stack info by given pos
-	SHexField battleGetPos(int stack); //returns position (tile ID) of stack
+	const CStack * battleGetStackByPos(SBattleHex pos, bool onlyAlive = true); //returns stack info by given pos
+	SBattleHex battleGetPos(int stack); //returns position (tile ID) of stack
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true); //returns stacks on battlefield
 	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
     void battleGetStackCountOutsideHexes(bool *ac); // returns hexes which when in front of a stack cause us to move the amount box back
-	std::vector<SHexField> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<SHexField> * attackable = NULL); //returns numbers of hexes reachable by creature with id ID
-	std::vector<int> battleGetDistances(const CStack * stack, SHexField hex = SHexField::INVALID, SHexField * predecessors = NULL); //returns vector of distances to [dest hex number]
-	std::set<SHexField> battleGetAttackedHexes(const CStack* attacker, SHexField destinationTile, SHexField attackerPos = SHexField::INVALID);
-	bool battleCanShoot(const CStack * stack, SHexField dest); //returns true if unit with id ID can shoot to dest
+	std::vector<SBattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<SBattleHex> * attackable = NULL); //returns numbers of hexes reachable by creature with id ID
+	std::vector<int> battleGetDistances(const CStack * stack, SBattleHex hex = SBattleHex::INVALID, SBattleHex * predecessors = NULL); //returns vector of distances to [dest hex number]
+	std::set<SBattleHex> battleGetAttackedHexes(const CStack* attacker, SBattleHex destinationTile, SBattleHex attackerPos = SBattleHex::INVALID);
+	bool battleCanShoot(const CStack * stack, SBattleHex dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, SHexField destination); //determines if creature can cast a spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, SBattleHex destination); //determines if creature can cast a spell here
 	ui32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
 	bool battleCanFlee(); //returns true if caller can flee from the battle
 	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible
 	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead
 	ui8 battleGetWallState(int partOfWall); //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	int battleGetWallUnderHex(SHexField hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	int battleGetWallUnderHex(SBattleHex hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = NULL); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding to given side (0 - attacker, 1 - defender)
-	si8 battleHasDistancePenalty(const CStack * stack, SHexField destHex); //checks if given stack has distance penalty
-	si8 battleHasWallPenalty(const CStack * stack, SHexField destHex); //checks if given stack has wall penalty
-	si8 battleCanTeleportTo(const CStack * stack, SHexField destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
+	si8 battleHasDistancePenalty(const CStack * stack, SBattleHex destHex); //checks if given stack has distance penalty
+	si8 battleHasWallPenalty(const CStack * stack, SBattleHex destHex); //checks if given stack has wall penalty
+	si8 battleCanTeleportTo(const CStack * stack, SBattleHex destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
 	si8 battleGetTacticDist(); //returns tactic distance for calling player or 0 if player is not in tactic phase
 	ui8 battleGetMySide(); //return side of player in battle (attacker/defender)
 

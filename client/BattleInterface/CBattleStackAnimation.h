@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CBattleAnimation.h"
-#include "../../lib/SHexField.h"
+#include "../../lib/SBattleHex.h"
 
 class CStack;
 class CBattleInterface;
@@ -24,8 +24,8 @@ public:
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
-	static bool isToReverseHlp(SHexField hexFrom, SHexField hexTo, bool curDir); //helper for isToReverse
-	static bool isToReverse(SHexField hexFrom, SHexField hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
+	static bool isToReverseHlp(SBattleHex hexFrom, SBattleHex hexTo, bool curDir); //helper for isToReverse
+	static bool isToReverse(SBattleHex hexFrom, SBattleHex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 
 	CCreatureAnimation *myAnim(); //animation for our stack
 };

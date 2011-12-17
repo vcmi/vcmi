@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include "GUIBase.h"
+#include "UIFramework/CIntObject.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine
@@ -18,6 +17,7 @@ class CDefHandler;
 struct SDL_Rect;
 class CGHeroInstance;
 class CStatusBar;
+class CPlayerInterface;
 
 /// Spellbook button is used by the spell window class
 class SpellbookInteractiveArea : public CIntObject

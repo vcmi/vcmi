@@ -170,7 +170,7 @@ void CAdventureAI::battleNewStackAppeared(const CStack * stack)
 	battleAI->battleNewStackAppeared(stack);
 }
 
-void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<SHexField> dest, int distance)
+void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance)
 {
 	battleAI->battleStackMoved(stack, dest, distance);
 }

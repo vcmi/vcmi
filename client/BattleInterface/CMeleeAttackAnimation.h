@@ -24,5 +24,5 @@ public:
 	void nextFrame();
 	void endAnim();
 
-	CMeleeAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SHexField _dest, const CStack *_attacked);
+	CMeleeAttackAnimation(CBattleInterface *_owner, const CStack *attacker, SBattleHex _dest, const CStack *_attacked);
 };
