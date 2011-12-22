@@ -3,15 +3,14 @@
 #include "StdInc.h"
 #include <boost/filesystem/operations.hpp>
 #include <SDL_mixer.h>
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
 
 #include "CPreGame.h"
 #include "CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
-#include "CCursorHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"

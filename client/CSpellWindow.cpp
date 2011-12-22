@@ -10,7 +10,7 @@
 #include "CAdvmapInterface.h"
 #include "BattleInterface/CBattleInterface.h"
 #include "CGameInfo.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
@@ -31,7 +31,6 @@
  */
 
 extern SDL_Surface * screen;
-extern SDL_Color tytulowy, zwykly, darkTitle;
 
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
@@ -318,14 +317,14 @@ void CSpellWindow::fRcornerb()
 	GH.breakEventHandling();
 }
 
-void CSpellWindow::showAll(SDL_Surface *to)
+void CSpellWindow::showAll(SDL_Surface * to)
 {
 	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
 	std::ostringstream mana;
 	mana<<myHero->mana;
-	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, tytulowy, to);
+	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, Colors::Jasmine, to);
 	
 	statusBar->showAll(to);
 
@@ -611,7 +610,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((sp->combatSpell && !owner->myInt->battleInt)
 			|| (!sp->combatSpell && owner->myInt->battleInt))
 		{
-			std::vector<SComponent*> hlp(1, new SComponent(SComponent::spell, mySpell, 0));
+			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->descriptions[schoolLevel], hlp);
 			return;
 		}
@@ -805,7 +804,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	}
 }
 
-void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
+void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 {
 	if(mySpell < 0)
 		return;
@@ -819,13 +818,13 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
 	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 	{
 		static const SDL_Color unavailableSpell = {239, 189, 33, 0};
-		firstLineColor = zwykly;
+		firstLineColor = Colors::Cornsilk;
 		secondLineColor = unavailableSpell;
 	}
 	else
 	{
-		firstLineColor = tytulowy;
-		secondLineColor = zwykly;
+		firstLineColor = Colors::Jasmine;
+		secondLineColor = Colors::Cornsilk;
 	}
 	//printing spell's name
 	CSDL_Ext::printAtMiddle(spell->name, pos.x + 39, pos.y + 70, FONT_TINY, firstLineColor, to);

@@ -57,7 +57,7 @@ private:
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
-		void showAll(SDL_Surface *to);
+		void showAll(SDL_Surface * to);
 	};
 
 	SDL_Surface * background, * leftCorner, * rightCorner;

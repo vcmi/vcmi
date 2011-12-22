@@ -20,7 +20,7 @@ class MapSel;
 class CSimpleWindow;
 class CInfoWindow;
 class CDefHandler;
-class SComponent;
+class CComponent;
 class CSelWindow;
 class CSelectableComponent;
 namespace NMessage
@@ -32,14 +32,14 @@ namespace NMessage
 
 struct ComponentResolved
 {
-	SComponent *comp;
+	CComponent *comp;
 
 	SDL_Surface *img;
 	std::vector<std::vector<SDL_Surface*> > * txt;
 	int txtFontHeight;
 
 	ComponentResolved(); //c-tor
-	ComponentResolved(SComponent *Comp); //c-tor
+	ComponentResolved(CComponent *Comp); //c-tor
 	~ComponentResolved(); //d-tor
 };
 
@@ -49,7 +49,7 @@ struct ComponentsToBlit
 	int w, h;
 
 	void blitCompsOnSur(SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret);
-	ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, SDL_Surface* _or); //c-tor
+	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, SDL_Surface* _or); //c-tor
 	~ComponentsToBlit(); //d-tor
 };
 

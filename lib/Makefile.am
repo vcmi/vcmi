@@ -67,8 +67,8 @@ libvcmi_la_SOURCES = \
 	ResourceSet.cpp \
 	ResourceSet.h \
 	RegisterTypes.h \
-	SBattleHex.cpp \
-	SBattleHex.h \
+	BattleHex.cpp \
+	BattleHex.h \
 	VCMIDirs.h \
 	VCMI_Lib.cpp \
 	VCMI_Lib.h \

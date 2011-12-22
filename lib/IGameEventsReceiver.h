@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SBattleHex.h"
+#include "BattleHex.h"
 #include "int3.h"
 
 class CGTownInstance;
@@ -45,7 +45,7 @@ public:
 	virtual void battleEnd(const BattleResult *br){};
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance){};
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance){};
 	virtual void battleSpellCast(const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleTriggerEffect & bte){}; //called for various one-shot effects

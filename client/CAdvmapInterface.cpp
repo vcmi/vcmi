@@ -1,16 +1,15 @@
 #include "StdInc.h"
 #include "CAdvmapInterface.h"
 
-#include "AdventureMapButton.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
-#include "CCursorHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "CConfigHandler.h"
 #include "CSpellWindow.h"
@@ -30,6 +29,7 @@
 #include "../lib/CGameState.h"
 #include "CMusicHandler.h"
 #include "UIFramework/CGuiHandler.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -143,7 +143,7 @@ void CMinimap::draw(SDL_Surface * to)
 			rx = static_cast<int>((tilesw / static_cast<double>(mapSizes.x)) * pos.w), //width
 			ry = static_cast<int>((tilesh / static_cast<double>(mapSizes.y)) * pos.h); //height
 
-		CSDL_Ext::drawDashedBorder(temps, SRect(bx, by, rx, ry), int3(255,75,125));
+		CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
 
 		//blitAt(radar,bx,by,temps);
 		blitAt(temps,pos.x,pos.y,to);
@@ -181,7 +181,7 @@ void CMinimapSurfacesRef::initMap(int level)
 		SDL_FreeSurface(map[g]);
 	}
 	map.clear();*/
-	const SRect &minimap_pos = adventureInt->minimap.pos;
+	const Rect &minimap_pos = adventureInt->minimap.pos;
 	std::map<int,SDL_Color> &colors = adventureInt->minimap.colors;
 	std::map<int,SDL_Color> &colorsBlocked = adventureInt->minimap.colorsBlocked;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -221,7 +221,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 	}
 	FoW.clear();*/
 
-	const SRect &minimap_pos = adventureInt->minimap.pos;
+	const Rect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;//,
 		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
@@ -253,7 +253,7 @@ void CMinimapSurfacesRef::initFlaggableObjs(int level)
 	}
 	flObjs.clear();*/
 
-	const SRect &minimap_pos = adventureInt->minimap.pos;
+	const Rect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
@@ -630,25 +630,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					SRect dstRect = genRect(32, 32, x + moveX, y + moveY);
+					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
@@ -656,25 +656,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					SRect dstRect = genRect(32, 32, x, y);
+					Rect dstRect = genRect(32, 32, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
-					SRect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					SRect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
+					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
+					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
 					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
@@ -774,24 +774,24 @@ void CResDataBar::draw(SDL_Surface * to)
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		printAt(buf,txtpos[i].first,txtpos[i].second,FONT_SMALL,zwykly,to);
+		printAt(buf,txtpos[i].first,txtpos[i].second,FONT_SMALL,Colors::Cornsilk,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
-	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,FONT_SMALL,zwykly,to);
+	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,FONT_SMALL,Colors::Cornsilk,to);
 	temp.clear();
 	//updateRect(&pos,screen);
 	delete[] buf;
 }
 
-void CResDataBar::show( SDL_Surface * to )
+void CResDataBar::show(SDL_Surface * to)
 {
 
 }
 
-void CResDataBar::showAll( SDL_Surface * to )
+void CResDataBar::showAll(SDL_Surface * to)
 {
 	draw(to);
 }
@@ -874,7 +874,7 @@ void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
 	}
 	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
-	printAtMiddle(txt.str(),pos.x+95,pos.y+31,FONT_MEDIUM,zwykly);
+	printAtMiddle(txt.str(),pos.x+95,pos.y+31,FONT_MEDIUM,Colors::Cornsilk);
 	if (pom == anim->ourImages.size()-1)
 		toNextTick+=750;
 }
@@ -914,9 +914,9 @@ void CInfoBar::newDay(int Day)
 	blitAnim(mode);
 }
 
-void CInfoBar::showComp(SComponent * comp, int time)
+void CInfoBar::showComp(CComponent * comp, int time)
 {
-	if(comp->type != SComponent::hero)
+	if(comp->type != CComponent::hero)
 	{
 		curSel = NULL;
 	}
@@ -924,8 +924,8 @@ void CInfoBar::showComp(SComponent * comp, int time)
 	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
 	blitAt(comp->getImg(),pos.x+52,pos.y+54);
-	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,zwykly);
-	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,zwykly);
+	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,Colors::Cornsilk);
+	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,Colors::Cornsilk);
 	SDL_FreeSurface(b);
 	if(!(active & TIME))
 		activateTimer();
@@ -958,7 +958,7 @@ void CInfoBar::tick()
 	}
 }
 
-void CInfoBar::show( SDL_Surface * to )
+void CInfoBar::show(SDL_Surface * to)
 {
 
 }
@@ -1130,7 +1130,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(SRect::createCentered(487, 481), LOCPLINT);
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(Rect::createCentered(487, 481), LOCPLINT);
 	GH.pushInt(sysopWindow);
 }
 
@@ -1150,7 +1150,7 @@ void CAdvMapInt::fendTurn()
 	for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
 		if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0)) 
 		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<SComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<CComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
 			return;
 		}
 	endingTurn();
@@ -1274,7 +1274,7 @@ void CAdvMapInt::deactivate()
 	if(LOCPLINT->cingconsole->active) //TODO
 		LOCPLINT->cingconsole->deactivate();
 }
-void CAdvMapInt::showAll(SDL_Surface *to)
+void CAdvMapInt::showAll(SDL_Surface * to)
 {
 	blitAt(bg,0,0,to);
 
@@ -1323,7 +1323,7 @@ void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 	updateNextHero(NULL);
 }
 
-void CAdvMapInt::show(SDL_Surface *to)
+void CAdvMapInt::show(SDL_Surface * to)
 {
 	if(state != INGAME)
 		return;
@@ -1482,7 +1482,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(townWithMarket) //if any town has marketplace, open window
 				GH.pushInt(new CMarketplaceWindow(townWithMarket)); 
 			else //if not - complain
-				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<SComponent*>(), soundBase::sound_todo);
+				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<CComponent*>(), soundBase::sound_todo);
 			return;
 		}
 	default: 
@@ -2068,18 +2068,18 @@ CAdventureOptions::CAdventureOptions()
 	bg = new CPicture("ADVOPTS.bmp");
 	graphics->blueToPlayersAdv(bg->bg, LOCPLINT->playerID);
 	pos = bg->center();
-	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	exit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	//scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 24, "ADVINFO.DEF",SDLK_i);
-	scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	//scenInfo = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 24, "ADVINFO.DEF",SDLK_i);
+	scenInfo = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
-	//viewWorld = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
-	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");
+	puzzle = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");
 	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 
-	dig = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 139, "ADVDIG.DEF");
+	dig = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 139, "ADVDIG.DEF");
 	if(const CGHeroInstance *h = adventureInt->curHero())
 		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
 	else

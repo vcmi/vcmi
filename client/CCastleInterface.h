@@ -4,7 +4,7 @@
 #include "CAnimation.h"
 #include "GUIClasses.h"
 
-class AdventureMapButton;
+class CAdventureMapButton;
 class CBuilding;
 class CCastleBuildings;
 class CCreaturePic;
@@ -53,8 +53,8 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Dwelling info box - right-click screen for dwellings
@@ -104,7 +104,7 @@ public:
 	CHeroGSlot * garrisonedHero;
 	CHeroGSlot * visitingHero;
 
-	HeroSlots(const CGTownInstance * town, SPoint garrPos, SPoint visitPos, CGarrisonInt *Garrison, bool ShowEmpty);
+	HeroSlots(const CGTownInstance * town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty);
 
 	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
 	void update();
@@ -146,8 +146,8 @@ public:
 	void addBuilding(int building);
 	void removeBuilding(int building);//FIXME: not tested!!!
 	
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Creature info window
@@ -165,7 +165,7 @@ class CCreaInfo : public CIntObject
 	std::string genGrowthText();
 	
 public:
-	CCreaInfo(SPoint position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
+	CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
 	
 	void update();
 	void hover(bool on);
@@ -201,8 +201,8 @@ class CCastleInterface : public CWindowWithGarrison
 	CTownInfo *hall, *fort;
 	CTownList * townlist;
 
-	AdventureMapButton *exit;
-	AdventureMapButton *split;
+	CAdventureMapButton *exit;
+	CAdventureMapButton *split;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 
@@ -221,7 +221,7 @@ public:
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface * to);
 	void close();
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
@@ -257,7 +257,7 @@ class CHallInterface : public CIntObject
 	CLabel *title;
 	CGStatusBar *statusBar;
 	CMinorResDataBar * resdatabar;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 
 public:
 	CHallInterface(const CGTownInstance * Town); //c-tor
@@ -274,8 +274,8 @@ class CBuildWindow: public CIntObject
 
 	CPicture *background;
 	CAnimImage *buildingPic;
-	AdventureMapButton *buy;
-	AdventureMapButton *cancel;
+	CAdventureMapButton *buy;
+	CAdventureMapButton *cancel;
 
 	CLabel * title;
 	CTextBox * buildingDescr;
@@ -304,8 +304,8 @@ class LabeledValue : public CIntObject
 	void init(std::string name, std::string descr, int min, int max);
 
 public:
-	LabeledValue(SRect size, std::string name, std::string descr, int min, int max);
-	LabeledValue(SRect size, std::string name, std::string descr, int val);
+	LabeledValue(Rect size, std::string name, std::string descr, int min, int max);
+	LabeledValue(Rect size, std::string name, std::string descr, int val);
 	void hover(bool on);
 };
 
@@ -341,7 +341,7 @@ class CFortScreen : public CIntObject
 	std::vector<RecruitArea*> recAreas;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 
 public:
 	CFortScreen(const CGTownInstance * town); //c-tor
@@ -359,14 +359,14 @@ class CMageGuildScreen : public CIntObject
 		CAnimImage *image;
 
 	public:
-		Scroll(SPoint position, const CSpell *Spell);
+		Scroll(Point position, const CSpell *Spell);
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 	};
 	CPicture *background;
 	CPicture *window;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
@@ -380,7 +380,7 @@ public:
 /// The blacksmith window where you can buy available in town war machine
 class CBlacksmithDialog : public CIntObject
 {
-	AdventureMapButton *buy, *cancel;
+	CAdventureMapButton *buy, *cancel;
 	CPicture *background;
 	CPicture *animBG;
 	CCreatureAnim * anim;

@@ -4,7 +4,7 @@
 
 
 /*
- * SBattleHex.h, part of VCMI engine
+ * BattleHex.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,15 +14,15 @@
  */
 
 // for battle stacks' positions
-struct DLL_LINKAGE SBattleHex
+struct DLL_LINKAGE BattleHex
 {
 	static const si16 INVALID = -1;
 	enum EDir{RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT};
 
 	si16 hex;
 
-	SBattleHex() : hex(INVALID) {}
-	SBattleHex(si16 _hex) : hex(_hex) {}
+	BattleHex() : hex(INVALID) {}
+	BattleHex(si16 _hex) : hex(_hex) {}
 	
 	operator si16() const
 	{
@@ -35,13 +35,13 @@ struct DLL_LINKAGE SBattleHex
 	}
 
 	template<typename inttype>
-	SBattleHex(inttype x, inttype y)
+	BattleHex(inttype x, inttype y)
 	{
 		setXY(x, y);
 	}
 
 	template<typename inttype>
-	SBattleHex(std::pair<inttype, inttype> xy)
+	BattleHex(std::pair<inttype, inttype> xy)
 	{
 		setXY(xy);
 	}
@@ -89,21 +89,21 @@ struct DLL_LINKAGE SBattleHex
 	//moving to direction
 	void operator+=(EDir dir);
 
-	//generates new SBattleHex moved by given dir
-	SBattleHex operator+(EDir dir) const;
+	//generates new BattleHex moved by given dir
+	BattleHex operator+(EDir dir) const;
 
-	std::vector<SBattleHex> neighbouringTiles() const;
+	std::vector<BattleHex> neighbouringTiles() const;
 
 	//returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
-	static signed char mutualPosition(SBattleHex hex1, SBattleHex hex2);
+	static signed char mutualPosition(BattleHex hex1, BattleHex hex2);
 
 	//returns distance between given hexes
-	static char getDistance(SBattleHex hex1, SBattleHex hex2);
+	static char getDistance(BattleHex hex1, BattleHex hex2);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hex;
 	}
-	static void checkAndPush(int tile, std::vector<SBattleHex> & ret);
+	static void checkAndPush(int tile, std::vector<BattleHex> & ret);
 
 };

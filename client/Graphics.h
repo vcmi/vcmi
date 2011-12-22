@@ -3,8 +3,7 @@
 
 #include "FontBase.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/SPoint.h"
-#include "UIFramework/SRect.h"
+#include "UIFramework/Geometries.h"
 
 /*
  * Graphics.h, part of VCMI engine
@@ -87,7 +86,7 @@ public:
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-	std::vector< SPoint > wallPositions[GameConstants::F_NUMBER]; //positions of different pieces of wall <x, y>
+	std::vector< Point > wallPositions[GameConstants::F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
 	CDefEssential * abils32, * abils44, * abils82;
 	//spells

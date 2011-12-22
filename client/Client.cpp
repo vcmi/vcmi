@@ -553,7 +553,7 @@ void CClient::battleStarted(const BattleInfo * info)
 		def = NULL;
 
 	if(att || def || gs->scenarioOps->mode == StartInfo::DUEL)
-		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], SRect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
+		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
 
 	if(vstd::contains(battleints,info->sides[0]))
 		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);

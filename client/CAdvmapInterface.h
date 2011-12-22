@@ -3,7 +3,7 @@
 #include <typeinfo>
 
 #include "SDL.h"
-#include "AdventureMapButton.h"
+#include "UIFramework/CIntObjectClasses.h"
 #include "GUIClasses.h"
 
 class CDefHandler;
@@ -33,7 +33,7 @@ class CAdventureOptions : public CIntObject
 {
 public:
 	CPicture *bg;
-	AdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
+	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
 
 	CAdventureOptions();
 	~CAdventureOptions();
@@ -135,7 +135,7 @@ public:
 class CInfoBar : public CIntObject
 {
 	CDefHandler *day, *week1, *week2, *week3, *week4;
-	SComponent * current;
+	CComponent * current;
 	int pom;
 	SDL_Surface *selInfoWin; //info box for selection
 	CDefHandler * getAnim(int mode);
@@ -146,7 +146,7 @@ public:
 	CInfoBar();
 	~CInfoBar();
 	void newDay(int Day); //start showing new day/week animation
-	void showComp(SComponent * comp, int time=5000);
+	void showComp(CComponent * comp, int time=5000);
 	void tick();
 	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town
 	void blitAnim(int mode);//0 - day, 1 - week
@@ -184,7 +184,7 @@ public:
 	CMinimap minimap;
 	CStatusBar statusbar;
 
-	AdventureMapButton kingOverview,//- kingdom overview
+	CAdventureMapButton kingOverview,//- kingdom overview
 		underground,//- underground switch
 		questlog,//- questlog
 		sleepWake, //- sleep/wake hero

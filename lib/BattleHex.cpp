@@ -1,7 +1,7 @@
 #include "StdInc.h"
-#include "SBattleHex.h"
+#include "BattleHex.h"
 
-void SBattleHex::operator+=(EDir dir)
+void BattleHex::operator+=(EDir dir)
 {
 	si16 x = getX(),
 		y = getY();
@@ -27,21 +27,21 @@ void SBattleHex::operator+=(EDir dir)
 		setXY(x-1, y);
 		break;
 	default:
-		throw std::string("Disaster: wrong direction in SBattleHex::operator+=!\n");
+		throw std::string("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
 	}
 }
 
-SBattleHex SBattleHex::operator+(EDir dir) const
+BattleHex BattleHex::operator+(EDir dir) const
 {
-	SBattleHex ret(*this);
+	BattleHex ret(*this);
 	ret += dir;
 	return ret;
 }
 
-std::vector<SBattleHex> SBattleHex::neighbouringTiles() const
+std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
-	std::vector<SBattleHex> ret;
+	std::vector<BattleHex> ret;
 	const int WN = GameConstants::BFIELD_WIDTH;
 	checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret);
 	checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret);
@@ -53,7 +53,7 @@ std::vector<SBattleHex> SBattleHex::neighbouringTiles() const
 	return ret;
 }
 
-signed char SBattleHex::mutualPosition(SBattleHex hex1, SBattleHex hex2)
+signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
 	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
 		return 0;
@@ -70,16 +70,16 @@ signed char SBattleHex::mutualPosition(SBattleHex hex1, SBattleHex hex2)
 	return -1;
 }
 
-char SBattleHex::getDistance(SBattleHex hex1, SBattleHex hex2)
+char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {
 	int xDst = std::abs(hex1 % GameConstants::BFIELD_WIDTH - hex2 % GameConstants::BFIELD_WIDTH),
 		yDst = std::abs(hex1 / GameConstants::BFIELD_WIDTH - hex2 / GameConstants::BFIELD_WIDTH);
 	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + 1)/2;
 }
 
-void SBattleHex::checkAndPush(int tile, std::vector<SBattleHex> & ret)
+void BattleHex::checkAndPush(int tile, std::vector<BattleHex> & ret)
 {
 	if( tile>=0 && tile<GameConstants::BFIELD_SIZE && (tile%GameConstants::BFIELD_WIDTH != (GameConstants::BFIELD_WIDTH - 1)) 
 		&& (tile%GameConstants::BFIELD_WIDTH != 0) )
-		ret.push_back(SBattleHex(tile));
+		ret.push_back(BattleHex(tile));
 }

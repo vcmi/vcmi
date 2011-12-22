@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "mapHandler.h"
 
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/CDefObjInfoHandler.h"

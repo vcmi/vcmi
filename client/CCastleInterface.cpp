@@ -9,7 +9,6 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
-#include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "CAnimation.h"
 #include "CBitmapHandler.h"
@@ -20,9 +19,10 @@
 #include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "Graphics.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 using namespace boost::assign;
 
@@ -123,8 +123,8 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		if (bid < EBuilding::DWELL_FIRST)
 		{
-			std::vector<SComponent*> comps(1,
-			new SComponent(SComponent::building, bld->tid, bld->bid,
+			std::vector<CComponent*> comps(1,
+			new CComponent(CComponent::building, bld->tid, bld->bid,
 			               LOCPLINT->castleInt->bicons->ourImages[bld->bid].bitmap, false));
 
 			CRClickPopup::createAndPush(bld->Description(), comps);
@@ -146,7 +146,7 @@ SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, double f)
 	return ret;
 }
 
-void CBuildingRect::show(SDL_Surface *to)
+void CBuildingRect::show(SDL_Surface * to)
 {
 	const ui32 stageDelay = 16;
 
@@ -200,7 +200,7 @@ void CBuildingRect::show(SDL_Surface *to)
 		stateCounter++;
 }
 
-void CBuildingRect::showAll(SDL_Surface *to)
+void CBuildingRect::showAll(SDL_Surface * to)
 {
 	if (stateCounter == 0)
 		return;
@@ -256,23 +256,23 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	background->colorize(LOCPLINT->playerID);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
-	moveTo(SPoint(centerX - pos.w/2, centerY - pos.h/2));
+	moveTo(Point(centerX - pos.w/2, centerY - pos.h/2));
 
 	const CCreature * creature = CGI->creh->creatures[Town->creatures[level].second.back()];
 
-	title = new CLabel(80, 30, FONT_SMALL, CENTER, zwykly, creature->namePl);
+	title = new CLabel(80, 30, FONT_SMALL, CENTER, Colors::Cornsilk, creature->namePl);
 	animation =  new CCreaturePic(30, 44, creature, true, true);
 	
 	std::string text = boost::lexical_cast<std::string>(Town->creatures[level].first);
-	available = new CLabel(80,190, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->allTexts[217] + text);
-	costPerTroop = new CLabel(80, 227, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->allTexts[346]);
+	available = new CLabel(80,190, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[217] + text);
+	costPerTroop = new CLabel(80, 227, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[346]);
 	
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(creature->cost[i])
 		{
 			resPicture.push_back(new CPicture(graphics->resources32->ourImages[i].bitmap, 0, 0, false));
-			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, zwykly, boost::lexical_cast<std::string>(creature->cost[i])));
+			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(creature->cost[i])));
 		}
 	}
 
@@ -280,8 +280,8 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	int posX = pos.w/2 - resAmount.size() * 25 + 5;
 	for (size_t i=0; i<resAmount.size(); i++)
 	{
-		resPicture[i]->moveBy(SPoint(posX, posY));
-		resAmount[i]->moveBy(SPoint(posX+16, posY+43));
+		resPicture[i]->moveBy(Point(posX, posY));
+		resAmount[i]->moveBy(Point(posX+16, posY+43));
 		posX += 50;
 	}
 }
@@ -366,12 +366,12 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
-					LOCPLINT->showInfoDialog(tmp,std::vector<SComponent*>(), soundBase::sound_todo);
+					LOCPLINT->showInfoDialog(tmp,std::vector<CComponent*>(), soundBase::sound_todo);
 					allow = false;
 				}
 				else if(!other->hero->stacksCount()) //hero has no creatures - strange, but if we have appropriate error message...
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<SComponent*>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<CComponent*>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
 					allow = false;
 				}
 			}
@@ -618,14 +618,14 @@ void CCastleBuildings::removeBuilding(int building)
 	checkRules();
 }
 
-void CCastleBuildings::show(SDL_Surface *to)
+void CCastleBuildings::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 	for (std::vector< CBuildingRect* >::const_iterator it=buildings.begin() ; it !=buildings.end(); it++ )
 		(*it)->show(to);
 }
 
-void CCastleBuildings::showAll(SDL_Surface *to)
+void CCastleBuildings::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	for (std::vector< CBuildingRect* >::const_iterator it=buildings.begin() ; it !=buildings.end(); it++ )
@@ -797,8 +797,8 @@ void CCastleBuildings::enterBlacksmith(int ArtifactID)
 
 void CCastleBuildings::enterBuilding(int building)
 {
-	std::vector<SComponent*> comps(1,
-		new SComponent(SComponent::building, town->subID,building, 
+	std::vector<CComponent*> comps(1,
+		new CComponent(CComponent::building, town->subID,building, 
 		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap, false));
 
 	LOCPLINT->showInfoDialog(
@@ -836,8 +836,8 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterFountain(int building)
 {
-	std::vector<SComponent*> comps(1,
-		new SComponent(SComponent::building,town->subID,building,
+	std::vector<CComponent*> comps(1,
+		new CComponent(CComponent::building,town->subID,building,
 		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap,false));
 
 	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
@@ -868,7 +868,7 @@ void CCastleBuildings::enterMagesGuild()
 		{
 			CFunctionList<void()> functionList = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,0);
 			functionList += boost::bind(&CCastleBuildings::openMagesGuild,this);
-			std::vector<SComponent*> components(1, new SComponent(SComponent::artifact,0,0));
+			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
 
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], components, functionList, 0, true);
 		}
@@ -887,7 +887,7 @@ void CCastleBuildings::enterTownHall()
 		if(!vstd::contains(town->forbiddenBuildings, EBuilding::GRAIL))
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-			                            std::vector<SComponent*>(),
+			                            std::vector<CComponent*>(),
 			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, EBuilding::GRAIL),
 			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
 		}
@@ -928,22 +928,22 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
 
-	garr = new CGarrisonInt(305, 387, 4, SPoint(0,96), panel->bg, SPoint(62,374), town->getUpperArmy(), town->visitingHero);
-	heroes = new HeroSlots(town, SPoint(241, 387), SPoint(241, 483), garr, true);
-	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, zwykly, town->name);
+	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
+	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
+	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
 
-	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CCastleInterface::close,this), 744, 544, "TSBTNS", SDLK_RETURN);
+	exit = new CAdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CCastleInterface::close,this), 744, 544, "TSBTNS", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	exit->setOffset(4);
 
-	split = new AdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick,garr), 744, 382, "TSBTNS.DEF");
+	split = new CAdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick,garr), 744, 382, "TSBTNS.DEF");
 	split->callback += boost::bind(&HeroSlots::splitClicked, heroes);
 	removeChild(split);
 	garr->addSplitBtn(split);
 
-	SRect barRect(9, 182, 732, 18);
+	Rect barRect(9, 182, 732, 18);
 	statusbar = new CGStatusBar(new CPicture(*panel, barRect, 9, 555, false));
 	resdatabar = new CResDataBar("ZRESBAR", 3, 575, 32, 2, 85, 85);
 
@@ -980,7 +980,7 @@ void CCastleInterface::close()
 	GH.popIntTotally(this);
 }
 
-void CCastleInterface::showAll(SDL_Surface *to)
+void CCastleInterface::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	if(screen->w != 800 || screen->h !=600)
@@ -1045,13 +1045,13 @@ void CCastleInterface::recreateIcons()
 	creainfo.clear();
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(SPoint(14+55*i, 459), town, i));
+		creainfo.push_back(new CCreaInfo(Point(14+55*i, 459), town, i));
 
 	for (size_t i=0; i<4; i++)
-		creainfo.push_back(new CCreaInfo(SPoint(14+55*i, 507), town, i+4));
+		creainfo.push_back(new CCreaInfo(Point(14+55*i, 507), town, i+4));
 }
 
-CCreaInfo::CCreaInfo(SPoint position, const CGTownInstance *Town, int Level, bool compact, bool ShowAvailable):
+CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact, bool ShowAvailable):
 	town(Town),
 	level(Level),
 	showAvailable(ShowAvailable)
@@ -1081,14 +1081,14 @@ CCreaInfo::CCreaInfo(SPoint position, const CGTownInstance *Town, int Level, boo
 
 	if (compact)
 	{
-		label = new CLabel(40, 32, FONT_TINY, BOTTOMRIGHT, zwykly, value);
+		label = new CLabel(40, 32, FONT_TINY, BOTTOMRIGHT, Colors::Cornsilk, value);
 		pos.x += 8;
 		pos.w = 32;
 		pos.h = 32;
 	}
 	else
 	{
-		label = new CLabel(24, 40, FONT_SMALL, CENTER, zwykly, value);
+		label = new CLabel(24, 40, FONT_SMALL, CENTER, Colors::Cornsilk, value);
 		pos.w = 48;
 		pos.h = 48;
 	}
@@ -1263,7 +1263,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 	}
 }
 
-HeroSlots::HeroSlots(const CGTownInstance * Town, SPoint garrPos, SPoint visitPos, CGarrisonInt *Garrison, bool ShowEmpty):
+HeroSlots::HeroSlots(const CGTownInstance * Town, Point garrPos, Point visitPos, CGarrisonInt *Garrison, bool ShowEmpty):
 	showEmpty(ShowEmpty),
 	town(Town),
 	garr(Garrison)
@@ -1337,7 +1337,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	panel = new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
 	if ( iconIndex[state] >=0 )
 		icon  = new CAnimImage("TPTHCHK",  iconIndex[state], 0, 136, 56);
-	label = new CLabel(75, 81, FONT_SMALL, CENTER, zwykly, building->Name());
+	label = new CLabel(75, 81, FONT_SMALL, CENTER, Colors::Cornsilk, building->Name());
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
@@ -1351,11 +1351,11 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	resdatabar = new CMinorResDataBar;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
-	SRect barRect(5, 556, 740, 18);
+	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, zwykly, CGI->buildh->buildings[town->subID][town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
-	exit = new AdventureMapButton(CGI->generaltexth->hcommands[8], "", 
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->buildh->buildings[town->subID][town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
+	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1454,13 +1454,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	background->colorize(LOCPLINT->playerID);
 
 	buildingPic = new CAnimImage(graphics->buildingPics[town->subID], building->bid, 0, 125, 50);
-	SRect barRect(9, 494, 380, 18);
+	Rect barRect(9, 494, 380, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 9, 494, false));
 
-	title = new CLabel(197, 30, FONT_MEDIUM, CENTER, zwykly, 
+	title = new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::Cornsilk, 
 	            boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	buildingDescr = new CTextBox(building->Description(), SRect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
-	buildingState = new CTextBox(getTextForState(state),  SRect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
+	buildingDescr = new CTextBox(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
+	buildingState = new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
 
 	//Create objects for all required resources
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
@@ -1468,7 +1468,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		if(building->resources[i])
 		{
 			resPicture.push_back(new CPicture(graphics->resources32->ourImages[i].bitmap, 0, 0, false));
-			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, zwykly, 
+			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, 
 			                        boost::lexical_cast<std::string>(building->resources[i])));
 		}
 	}
@@ -1493,8 +1493,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		int posX = pos.w/2 - rowSize[row] * 40 + 24;
 		for (size_t i=0; i<rowSize[row]; i++)
 		{//Move current resource to correct position
-			resPicture[index]->moveBy(SPoint(posX, posY));
-			resAmount[index]->moveBy(SPoint(posX+16, posY+48));
+			resPicture[index]->moveBy(Point(posX, posY));
+			resAmount[index]->moveBy(Point(posX+16, posY+48));
 			posX += 80;
 			index++;
 		}
@@ -1503,12 +1503,12 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(!mode)
 	{
-		buy = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
+		buy = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
 		          "", boost::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
 		buy->borderColor = Colors::MetallicGold;
 		buy->borderEnabled = true;
 		
-		cancel = new AdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name()),
+		cancel = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name()),
 		             "", boost::bind(&CBuildWindow::close,this), 290, 445, "ICANCEL", SDLK_ESCAPE);
 		cancel->borderColor = Colors::MetallicGold;
 		cancel->borderEnabled = true;
@@ -1539,20 +1539,20 @@ CFortScreen::CFortScreen(const CGTownInstance * town)
 	pos = background->center();
 
 	const CBuilding *fortBuilding = CGI->buildh->buildings[town->subID][town->fortLevel()+6];
-	title = new CLabel(400, 12, FONT_BIG, CENTER, zwykly, fortBuilding->Name());
+	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::Cornsilk, fortBuilding->Name());
 	
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
-	exit = new AdventureMapButton(text, "", boost::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
+	exit = new CAdventureMapButton(text, "", boost::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
 
-	std::vector<SPoint> positions;
-	positions += SPoint(10,  22), SPoint(404, 22),
-	             SPoint(10, 155), SPoint(404,155),
-	             SPoint(10, 288), SPoint(404,288);
+	std::vector<Point> positions;
+	positions += Point(10,  22), Point(404, 22),
+	             Point(10, 155), Point(404,155),
+	             Point(10, 288), Point(404,288);
 
 	if (fortSize == GameConstants::CREATURES_PER_TOWN)
-		positions += SPoint(206,421);
+		positions += Point(206,421);
 	else
-		positions += SPoint(10, 421), SPoint(404,421);
+		positions += Point(10, 421), Point(404,421);
 	
 	for (ui32 i=0; i<fortSize; i++)
 	{
@@ -1573,7 +1573,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town)
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
-	SRect barRect(4, 554, 740, 18);
+	Rect barRect(4, 554, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 4, 554, false));
 }
 
@@ -1583,7 +1583,7 @@ void CFortScreen::creaturesChanged()
 		recAreas[i]->creaturesChanged();
 }
 
-LabeledValue::LabeledValue(SRect size, std::string name, std::string descr, int min, int max)
+LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int min, int max)
 {
 	pos.x+=size.x;
 	pos.y+=size.y;
@@ -1592,7 +1592,7 @@ LabeledValue::LabeledValue(SRect size, std::string name, std::string descr, int 
 	init(name, descr, min, max);
 }
 
-LabeledValue::LabeledValue(SRect size, std::string name, std::string descr, int val)
+LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int val)
 {
 	pos.x+=size.x;
 	pos.y+=size.y;
@@ -1613,8 +1613,8 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 		if (min != max)
 			valueText += '-' + boost::lexical_cast<std::string>(max);
 	}
-	name =  new CLabel(3, 0, FONT_SMALL, TOPLEFT, zwykly, nameText);
-	value = new CLabel(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, zwykly, valueText);
+	name =  new CLabel(3, 0, FONT_SMALL, TOPLEFT, Colors::Cornsilk, nameText);
+	value = new CLabel(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, valueText);
 }
 
 void LabeledValue::hover(bool on)
@@ -1655,7 +1655,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % creature->namePl);
 	creatureAnim = new CCreaturePic(159, 4, creature, false);
 
-	SRect sizes(287, 4, 96, 18);
+	Rect sizes(287, 4, 96, 18);
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], creature->attack));
 	sizes.y+=20;
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], creature->defence));
@@ -1668,14 +1668,14 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	sizes.y+=20;
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
 
-	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, zwykly, creature->namePl);
-	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, zwykly, CGI->buildh->buildings[town->subID][buildingID]->Name());
+	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::Cornsilk, creature->namePl);
+	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->buildh->buildings[town->subID][buildingID]->Name());
 
 	if (vstd::contains(town->builtBuildings, buildingID))
 	{
 		ui32 available = town->creatures[level].first;
 		std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
-		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, zwykly, availableText);
+		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, Colors::Cornsilk, availableText);
 	}
 }
 
@@ -1719,20 +1719,20 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	resdatabar = new CMinorResDataBar;
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
-	SRect barRect(7, 556, 737, 18);
+	Rect barRect(7, 556, 737, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 7, 556, false));
 	
-	exit = new AdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
+	exit = new CAdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	
-	std::vector<std::vector<SPoint> > positions;
+	std::vector<std::vector<Point> > positions;
 
 	positions.resize(5);
-	positions[0] += SPoint(222,445), SPoint(312,445), SPoint(402,445), SPoint(520,445), SPoint(610,445), SPoint(700,445);
-	positions[1] += SPoint(48,53),   SPoint(48,147),  SPoint(48,241),  SPoint(48,335),  SPoint(48,429);
-	positions[2] += SPoint(570,82),  SPoint(672,82),  SPoint(570,157), SPoint(672,157);
-	positions[3] += SPoint(183,42),  SPoint(183,148), SPoint(183,253);
-	positions[4] += SPoint(491,325), SPoint(591,325);
+	positions[0] += Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445);
+	positions[1] += Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429);
+	positions[2] += Point(570,82),  Point(672,82),  Point(570,157), Point(672,157);
+	positions[3] += Point(183,42),  Point(183,148), Point(183,253);
+	positions[4] += Point(491,325), Point(591,325);
 	
 	for(size_t i=0; i<owner->town->town->mageLevel; i++)
 	{
@@ -1752,7 +1752,7 @@ void CMageGuildScreen::close()
 	GH.popIntTotally(this);
 }
 
-CMageGuildScreen::Scroll::Scroll(SPoint position, const CSpell *Spell)
+CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 	:spell(Spell)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -1766,8 +1766,8 @@ void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
-		std::vector<SComponent*> comps(1,
-			new SComponent(SComponent::spell,spell->id,0)
+		std::vector<CComponent*> comps(1,
+			new CComponent(CComponent::spell,spell->id,0)
 		);
 		LOCPLINT->showInfoDialog(spell->descriptions[0],comps, soundBase::sound_todo);
 	}
@@ -1811,20 +1811,20 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	animBG->needRefresh = true;
 
 	const CCreature *creature = CGI->creh->creatures[creMachineID];
-	anim = new CCreatureAnim(64, 50, creature->animDefName, SRect());
+	anim = new CCreatureAnim(64, 50, creature->animDefName, Rect());
 	anim->clipRect(113,125,200,150);
 	
-	title = new CLabel(165, 28, FONT_BIG, CENTER, tytulowy, 
+	title = new CLabel(165, 28, FONT_BIG, CENTER, Colors::Jasmine, 
 	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
-	costText = new CLabel(165, 218, FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->jktexts[43]);
-	costValue = new CLabel(165, 290, FONT_MEDIUM, CENTER, zwykly,
+	costText = new CLabel(165, 218, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->jktexts[43]);
+	costValue = new CLabel(165, 290, FONT_MEDIUM, CENTER, Colors::Cornsilk,
 	                boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
-	buy = new AdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 42, 312,"IBUY30.DEF",SDLK_RETURN);
+	buy = new CAdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 42, 312,"IBUY30.DEF",SDLK_RETURN);
 	
 	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->nameSing);
-	cancel = new AdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
+	cancel = new CAdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
 
 	if(possible)
 		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHero(hid),aid);

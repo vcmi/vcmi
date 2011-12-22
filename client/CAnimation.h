@@ -60,7 +60,7 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL, ui8 alpha=255) const=0;
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const=0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -83,9 +83,9 @@ public:
 	//Surface without empty borders
 	SDL_Surface * surf;
 	//size of left and top borders
-	SPoint margins;
+	Point margins;
 	//total size including borders
-	SPoint fullSize;
+	Point fullSize;
 
 public:
 	//Load image from def file
@@ -96,7 +96,7 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL,  ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL,  ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -119,9 +119,9 @@ public:
 class CompImage : public IImage
 {
 	//x,y - margins, w,h - sprite size
-	SRect sprite;
+	Rect sprite;
 	//total size including borders
-	SPoint fullSize;
+	Point fullSize;
 
 	//RLE-d data
 	ui8 * surf;
@@ -142,7 +142,7 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, SRect *src=NULL, ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const;
 	void playerColored(int player);
 	int width() const;
 	int height() const;
@@ -246,7 +246,7 @@ public:
 	//makes image player-colored
 	void playerColored(int player);
 
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -306,8 +306,8 @@ public:
 	virtual void reset();
 
 	//show current frame and increase counter
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Creature-dependend animations like attacking, moving,...
@@ -366,7 +366,7 @@ public:
 	//clear queue and set animation to this sequence
 	void clearAndSet(EAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, SRect picPos,
+	CCreatureAnim(int x, int y, std::string name, Rect picPos,
 	              ui8 flags= USE_RLE, EAnimType = HOLDING );
 
 };

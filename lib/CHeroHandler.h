@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SBattleHex.h"
+#include "BattleHex.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
 
@@ -96,8 +96,8 @@ struct DLL_LINKAGE CObstacleInfo
 	std::pair<si16, si16> posShift; //shift of obstacle's position in the battlefield <x shift, y shift>, eg. if it's <-1, 2> obstacle will be printed one pixel to the left and two to the bottom
 	int getWidth() const; //returns width of obstacle in hexes
 	int getHeight() const; //returns height of obstacle in hexes
-	std::vector<SBattleHex> getBlocked(SBattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
-	SBattleHex getMaxBlocked(SBattleHex hex) const; //returns maximal hex (max number) covered by this obstacle
+	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
+	BattleHex getMaxBlocked(BattleHex hex) const; //returns maximal hex (max number) covered by this obstacle
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & defName & blockmap & allowedTerrains & posShift;

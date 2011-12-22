@@ -3,7 +3,7 @@
 #include "CSndHandler.h"
 #include "CVideoHandler.h"
 
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 
 extern SystemOptions GDefaultOptions; 
@@ -568,7 +568,6 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 #endif
 #include <stdint.h>
 
-#include "SDL_framerate.h"
 
 extern "C" {
 #include <libavformat/avformat.h>

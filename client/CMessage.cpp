@@ -5,14 +5,14 @@
 #include "CDefHandler.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
-#include "AdventureMapButton.h"
 #include "CConfigHandler.h"
 #include "CBitmapHandler.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 /*
  * CMessage.cpp, part of VCMI engine
@@ -23,11 +23,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-SDL_Color tytulowy = {229, 215, 123, 0}, 
-	tlo = {66, 44, 24, 0}, 
-	zwykly = {255, 243, 222, 0},
-	darkTitle = {215, 175, 78, 0};
 
 extern SDL_Surface * screen;
 
@@ -106,8 +101,8 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	{
 		for (int j=0; j<h; j+=background->h)
 		{
-			SRect srcR(0,0,background->w, background->h);
-			SRect dstR(i,j,w,h);
+			Rect srcR(0,0,background->w, background->h);
+			Rect dstR(i,j,w,h);
 			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
 		}
 	}
@@ -261,7 +256,7 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 	return ret;
 }
 
-SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= zwykly)
+SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= Colors::Cornsilk)
 {
 	if (graphics->fontsTrueType[font])
 		return TTF_RenderText_Blended(graphics->fontsTrueType[font], text.c_str(), kolor);
@@ -296,7 +291,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), zwykly));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::Cornsilk));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i].length() && (*brtext)[i][0] == '{')
@@ -313,7 +308,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), tytulowy));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::Jasmine));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i].length() && (*brtext)[i][0] == '}')
@@ -377,7 +372,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
-	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,zwykly,ret);
+	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,Colors::Cornsilk,ret);
 	delete txtg;
 	return ret;
 }
@@ -389,7 +384,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	//int fontHeight = f.height;
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
-		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],zwykly);
+		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],Colors::Cornsilk);
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 
@@ -446,7 +441,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 			curh = (ret->bitmap->h - ret->text->pos.h)/2;
 	}
 
-	ret->text->moveBy(SPoint(xOffset, curh));
+	ret->text->moveBy(Point(xOffset, curh));
 
 	curh += ret->text->pos.h;
 
@@ -463,7 +458,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
-			ret->buttons[i]->moveBy(SPoint(bw, curh));
+			ret->buttons[i]->moveBy(Point(bw, curh));
 			bw += ret->buttons[i]->pos.w + 20;
 		}
 	}
@@ -493,8 +488,8 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 			cur_w = box[6]->w;
 
 		// Top border
-		SRect srcR(0, 0, cur_w, box[6]->h);
-		SRect dstR(start_x, y, 0, 0);
+		Rect srcR(0, 0, cur_w, box[6]->h);
+		Rect dstR(start_x, y, 0, 0);
 		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
 		
 		// Bottom border
@@ -514,8 +509,8 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 			cur_h = box[4]->h;
 
 		// Left border
-		SRect srcR(0, 0, box[4]->w, cur_h);
-		SRect dstR(x, start_y, 0, 0);
+		Rect srcR(0, 0, box[4]->w, cur_h);
+		Rect dstR(x, start_y, 0, 0);
 		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
 
 		// Right border
@@ -526,16 +521,16 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 	}
 
 	//corners
-	SRect dstR(x, y, box[0]->w, box[0]->h);
+	Rect dstR(x, y, box[0]->w, box[0]->h);
 	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
 
-	dstR=SRect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
+	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
 	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
 
-	dstR=SRect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
+	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
 	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
 
-	dstR=SRect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
+	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
 	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
 }
 
@@ -547,7 +542,7 @@ ComponentResolved::ComponentResolved()
 	txtFontHeight = 0;
 }
 
-ComponentResolved::ComponentResolved( SComponent *Comp )
+ComponentResolved::ComponentResolved( CComponent *Comp )
 {
 	comp = Comp;
 	img = comp->getImg();
@@ -577,7 +572,7 @@ ComponentsToBlit::~ComponentsToBlit()
 
 }
 
-ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, SDL_Surface* _or)
+ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, SDL_Surface* _or)
 {
 	w = h = 0;
 	if(SComps.empty())

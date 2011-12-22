@@ -15,7 +15,7 @@
  *
  */
 
-class AdventureMapButton;
+class CAdventureMapButton;
 struct SDL_Surface;
 class CGHeroInstance;
 class CDefHandler;
@@ -60,7 +60,7 @@ class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 	CDefEssential *flags;
 
 	//buttons
-	//AdventureMapButton * gar4button; //splitting
+	//CAdventureMapButton * gar4button; //splitting
 	std::vector<CHeroSwitcher *> heroListMi; //new better list of heroes
 
 	//clickable areas
@@ -75,7 +75,7 @@ class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 
 public:
 	const CGHeroInstance * curHero;
-	AdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
+	CAdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
 		
 	CHighlightableButton *tacticsButton; //garrison / formation handling;
 	CHighlightableButtonsGroup *formations;

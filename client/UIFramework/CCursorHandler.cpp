@@ -1,10 +1,10 @@
 #include "StdInc.h"
 #include "CCursorHandler.h"
 
-#include "SDL.h"
+#include <SDL.h>
 #include "SDL_Extensions.h"
-#include "CGameInfo.h"
-#include "CDefHandler.h"
+#include "../CGameInfo.h"
+#include "../CDefHandler.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine

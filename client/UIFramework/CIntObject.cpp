@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CIntObject.h"
 #include "CGuiHandler.h"
-#include "../SDL_Extensions.h"
+#include "SDL_Extensions.h"
 
 void CIntObject::activateLClick()
 {
@@ -139,7 +139,7 @@ CIntObject::CIntObject()
 		parent = NULL;
 }
 
-void CIntObject::show( SDL_Surface * to )
+void CIntObject::show(SDL_Surface * to)
 {
 	if(defActions & UPDATE)
 		for(size_t i = 0; i < children.size(); i++)
@@ -147,7 +147,7 @@ void CIntObject::show( SDL_Surface * to )
 				children[i]->show(to);
 }
 
-void CIntObject::showAll( SDL_Surface * to )
+void CIntObject::showAll(SDL_Surface * to)
 {
 	if(defActions & SHOWALL)
 	{
@@ -239,17 +239,17 @@ CIntObject::~CIntObject()
 		parent->children -= this;
 }
 
-void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
 {
 	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
 {
 	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc(const std::string & text, const SPoint &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
 	printAtMiddleLoc(text, p.x, p.y, font, kolor, dst);
 }
@@ -259,7 +259,7 @@ void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 	blitAt(src, pos.x + x, pos.y + y, dst);
 }
 
-void CIntObject::blitAtLoc(SDL_Surface * src, const SPoint &p, SDL_Surface * dst)
+void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
 {
 	blitAtLoc(src, p.x, p.y, dst);
 }
@@ -295,7 +295,7 @@ bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
 	return isItIn(&rect, x - pos.x, y - pos.y);
 }
 
-bool CIntObject::isItInLoc( const SDL_Rect &rect, const SPoint &p )
+bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
 {
 	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
 }
@@ -338,7 +338,7 @@ void CIntObject::onDoubleClick()
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
-	SPoint newPos = pos.topLeft();
+	Point newPos = pos.topLeft();
 	vstd::amax(newPos.x, borderWidth);
 	vstd::amax(newPos.y, borderWidth);
 	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
@@ -347,7 +347,7 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 		moveTo(newPos, propagate);
 }
 
-void CIntObject::moveBy( const SPoint &p, bool propagate /*= true*/ )
+void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
 {
 	pos.x += p.x;
 	pos.y += p.y;
@@ -356,9 +356,9 @@ void CIntObject::moveBy( const SPoint &p, bool propagate /*= true*/ )
 			children[i]->moveBy(p, propagate);
 }
 
-void CIntObject::moveTo( const SPoint &p, bool propagate /*= true*/ )
+void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )
 {
-	moveBy(SPoint(p.x - pos.x, p.y - pos.y), propagate);
+	moveBy(Point(p.x - pos.x, p.y - pos.y), propagate);
 }
 
 void CIntObject::delChild(CIntObject *child)
@@ -403,7 +403,7 @@ void CIntObject::changeUsedEvents(ui16 what, bool enable, bool adjust /*= true*/
 	}
 }
 
-void CIntObject::drawBorderLoc(SDL_Surface * sur, const SRect &r, const int3 &color)
+void CIntObject::drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color)
 {
 	CSDL_Ext::drawBorder(sur, r + pos, color);
 }
@@ -422,22 +422,40 @@ void CIntObject::redraw()
 	}
 }
 
-const SRect & CIntObject::center( const SRect &r, bool propagate )
+const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	return center(SPoint(screen->w/2, screen->h/2), propagate);
+	return center(Point(screen->w/2, screen->h/2), propagate);
 }
 
-const SRect & CIntObject::center( bool propagate )
+const Rect & CIntObject::center( bool propagate )
 {
 	return center(pos, propagate);
 }
 
-const SRect & CIntObject::center(const SPoint &p, bool propagate /*= true*/)
+const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
 {
-	moveBy(SPoint(p.x - pos.w/2 - pos.x, 
+	moveBy(Point(p.x - pos.w/2 - pos.x, 
 		p.y - pos.h/2 - pos.y), 
 		propagate);
 	return pos;
+}
+
+void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(vstd::contains(assignedKeys,key.keysym.sym))
+	{
+		bool prev = pressedL;
+		if(key.state == SDL_PRESSED) 
+		{
+			pressedL = true;
+			clickLeft(true, prev);
+		} 
+		else 
+		{
+			pressedL = false;
+			clickLeft(false, prev);
+		}
+	}
 }

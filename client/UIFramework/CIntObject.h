@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SDL_events.h>
-#include "IShowActivatable.h"
-#include "SRect.h"
+#include "Geometries.h"
 #include "../FontBase.h"
 
 struct SDL_Surface;
@@ -19,6 +18,56 @@ struct SDL_Surface;
 
 using boost::logic::tribool;
 
+// Defines a activate/deactive method
+class IActivatable
+{
+public:
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+	virtual ~IActivatable(){}; //d-tor
+};
+
+class IUpdateable
+{
+public:
+	virtual void update()=0;
+	virtual ~IUpdateable(){}; //d-tor
+};
+
+// Defines a show method
+class IShowable
+{
+public:
+	virtual void redraw()=0;
+	virtual void show(SDL_Surface * to) = 0;
+	virtual void showAll(SDL_Surface * to)
+	{
+		show(to);
+	}
+	virtual ~IShowable(){}; //d-tor
+};
+
+class IShowActivatable : public IShowable, public IActivatable
+{
+public:
+	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
+	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2, WITH_ARTIFACTS = 4, REDRAW_PARENT=8};
+	int type; //bin flags using etype
+	IShowActivatable();
+	virtual ~IShowActivatable(){}; //d-tor
+};
+
+// Status bar interface
+class IStatusBar
+{
+public:
+	virtual ~IStatusBar(){}; //d-tor
+	virtual void print(const std::string & text)=0; //prints text and refreshes statusbar
+	virtual void clear()=0;//clears statusbar and refreshes
+	virtual void show(SDL_Surface * to)=0; //shows statusbar (with current text)
+	virtual std::string getCurrent()=0; //returns currently displayed text
+};
+
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
@@ -26,7 +75,7 @@ public:
 	CIntObject *parent; //parent object
 	std::vector<CIntObject *> children;
 
-	SRect pos, //position of object on the screen
+	Rect pos, //position of object on the screen
 		posRelative; //position of object in the parent (not used if no parent)
 
 	CIntObject();
@@ -100,22 +149,22 @@ public:
 	void showAll(SDL_Surface * to);
 	void redraw();
 
-	void drawBorderLoc(SDL_Surface * sur, const SRect &r, const int3 &color);
+	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const SPoint &p, EFonts font, SDL_Color kolor, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst);
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
-	void blitAtLoc(SDL_Surface * src, const SPoint &p, SDL_Surface * dst);
+	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const SPoint &p);
-	const SRect & center(const SRect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
-	const SRect & center(const SPoint &p, bool propagate = true);  //moves object so that point p will be in its center
-	const SRect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
+	bool isItInLoc(const SDL_Rect &rect, const Point &p);
+	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
+	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
+	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
-	void moveBy(const SPoint &p, bool propagate = true);
-	void moveTo(const SPoint &p, bool propagate = true);
+	void moveBy(const Point &p, bool propagate = true);
+	void moveTo(const Point &p, bool propagate = true);
 	void changeUsedEvents(ui16 what, bool enable, bool adjust = true);
 
 	void addChild(CIntObject *child, bool adjustPosition = false);
@@ -132,4 +181,16 @@ public:
 		delChild(child);
 		child = NULL;
 	}
+};
+
+/// Class for binding keys to left mouse button clicks
+/// Classes wanting use it should have it as one of their base classes
+class CKeyShortcut : public virtual CIntObject
+{
+public:
+	std::set<int> assignedKeys;
+	CKeyShortcut(){}; //c-tor
+	CKeyShortcut(int key){assignedKeys.insert(key);}; //c-tor
+	CKeyShortcut(std::set<int> Keys):assignedKeys(Keys){}; //c-tor
+	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };

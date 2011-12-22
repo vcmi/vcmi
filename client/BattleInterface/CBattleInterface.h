@@ -4,10 +4,6 @@
 #include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../CAnimation.h"
-#include "SStackAttackedInfo.h"
-#include "CClickableHex.h"
-#include "CShootingAnimation.h"
-#include "../../lib/SBattleHex.h"
 #include "../../lib/GameConstants.h"
 
 /*
@@ -26,7 +22,7 @@ class CGHeroInstance;
 class CDefHandler;
 class CStack;
 class CCallback;
-class AdventureMapButton;
+class CAdventureMapButton;
 class CHighlightableButton;
 class CHighlightableButtonsGroup;
 struct BattleResult;
@@ -37,8 +33,7 @@ struct SetStackEffect;;
 struct BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
-class CBattleInterface;
-struct SCatapultSProjectileInfo;
+struct CatapultProjectileInfo;
 struct BattleTriggerEffect;
 class CBattleAnimation;
 class CBattleHero;
@@ -46,6 +41,10 @@ class CBattleConsole;
 class CBattleResultWindow;
 class CStackQueue;
 class CPlayerInterface;
+class CCreatureAnimation;
+struct ProjectileInfo;
+class CClickableHex;
+struct BattleHex;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
@@ -53,8 +52,20 @@ class CBattleObstacle
 	std::vector<int> lockedHexes;
 };
 
+/// Small struct which contains information about the id of the attacked stack, the damage dealt,...
+struct StackAttackedInfo
+{
+	const CStack * defender; //attacked stack
+	int dmg; //damage dealt
+	int amountKilled; //how many creatures in stack has been killed
+	const CStack * attacker; //attacking stack
+	bool byShooting; //if true, stack has been attacked by shooting
+	bool killed; //if true, stack has been killed
+	bool rebirth; //if true, play rebirth animation after all
+};
+
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
-struct SBattleEffect
+struct BattleEffect
 {
 	int x, y; //position on the screen
 	int frame, maxFrame;
@@ -63,13 +74,13 @@ struct SBattleEffect
 };
 
 /// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
-struct SCatapultSProjectileInfo
+struct CatapultProjectileInfo
 {
 	const double facA, facB, facC;
 	const int fromX, toX;
 
-	SCatapultSProjectileInfo() : facA(0), facB(0), facC(0), fromX(0), toX(0) { };
-	SCatapultSProjectileInfo(double factorA, double factorB, double factorC, int fromXX, int toXX) : facA(factorA), facB(factorB), facC(factorC),
+	CatapultProjectileInfo() : facA(0), facB(0), facC(0), fromX(0), toX(0) { };
+	CatapultProjectileInfo(double factorA, double factorB, double factorC, int fromXX, int toXX) : facA(factorA), facB(factorB), facC(factorC),
 		fromX(fromXX), toX(toXX) { };
 
 	double calculateY(double x);
@@ -85,7 +96,7 @@ class CBattleInterface : public CIntObject
 	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
-	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
+	CAdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown, *btactNext, *btactEnd;
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
@@ -103,7 +114,7 @@ private:
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
     time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occurred
     static const time_t HOVER_ANIM_DELTA;
-	std::vector<SBattleHex> occupyableHexes, //hexes available for active stack
+	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
     bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
@@ -124,18 +135,18 @@ private:
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
 	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
-	void showObstacles(std::multimap<SBattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
+	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool Multiple);
 
-	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
+	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, SBattleHex tile, ui32 stack, si32 additional=-1);
-	bool isTileAttackable(const SBattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-	bool blockedByObstacle(SBattleHex hex) const;
-	bool isCatapultAttackable(SBattleHex hex) const; //returns true if given tile can be attacked by catapult
+	void giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 additional=-1);
+	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
+	bool blockedByObstacle(BattleHex hex) const;
+	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 
-	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
+	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
 	/// Class which is responsible for drawing the wall of a siege during battle
 	class SiegeHelper
@@ -177,7 +188,7 @@ public:
 	void setAnimSpeed(int set); //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
-	CClickableHex bfield[GameConstants::BFIELD_SIZE]; //11 lines, 17 hexes on each
+	std::vector<CClickableHex> bfield; //11 lines, 17 hexes on each
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
@@ -215,10 +226,10 @@ public:
 	void newStack(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack * stack); //active stack has been changed
-	void stackMoved(const CStack * stack, std::vector<SBattleHex> destHex, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack * stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void waitForAnims();
-	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(const CStack * attacker, SBattleHex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
+	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
+	void stackAttacking(const CStack * attacker, BattleHex dest, const CStack * attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
@@ -238,7 +249,7 @@ public:
 	
 	
 	friend class CPlayerInterface;
-	friend class AdventureMapButton;
+	friend class CAdventureMapButton;
 	friend class CInGameConsole;
 	
 	friend class CBattleResultWindow;

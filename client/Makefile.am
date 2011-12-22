@@ -9,59 +9,26 @@ vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../CCallback.cpp \
 	../CCallback.h \
-	./BattleInterface/CAttackAnimation.cpp \
-	./BattleInterface/CAttackAnimation.h \
-	./BattleInterface/CBattleAnimation.cpp \
-	./BattleInterface/CBattleAnimation.h \
-	./BattleInterface/CBattleConsole.cpp \
-	./BattleInterface/CBattleConsole.h \
-	./BattleInterface/CBattleHero.cpp \
-	./BattleInterface/CBattleHero.h \
+	./BattleInterface/CBattleAnimations.cpp \
+	./BattleInterface/CBattleAnimations.h \
 	./BattleInterface/CBattleInterface.cpp \
 	./BattleInterface/CBattleInterface.h \
-	./BattleInterface/CBattleOptionsWindow.cpp \
-	./BattleInterface/CBattleOptionsWindow.h \
-	./BattleInterface/CBattleResultWindow.cpp \
-	./BattleInterface/CBattleResultWindow.h \
-	./BattleInterface/CBattleStackAnimation.cpp \
-	./BattleInterface/CBattleStackAnimation.h \
+	./BattleInterface/CBattleInterfaceClasses.cpp \
+	./BattleInterface/CBattleInterfaceClasses.h \
 	./BattleInterface/CCreatureAnimation.h \
 	./BattleInterface/CCreatureAnimation.cpp \
-	./BattleInterface/CDefenceAnimation.cpp \
-	./BattleInterface/CDefenceAnimation.h \
-	./BattleInterface/CDummyAnimation.cpp \
-	./BattleInterface/CDummyAnimation.h \
-	./BattleInterface/CClickableHex.cpp \
-	./BattleInterface/CClickableHex.h \
-	./BattleInterface/CMeleeAttackAnimation.cpp \
-	./BattleInterface/CMeleeAttackAnimation.h \
-	./BattleInterface/CMovementAnimation.cpp \
-	./BattleInterface/CMovementAnimation.h \
-	./BattleInterface/CMovementEndAnimation.cpp \
-	./BattleInterface/CMovementEndAnimation.h \
-	./BattleInterface/CMovementStartAnimation.cpp \
-	./BattleInterface/CMovementStartAnimation.h \
-	./BattleInterface/CReverseAnimation.cpp \
-	./BattleInterface/CReverseAnimation.h \
-	./BattleInterface/CShootingAnimation.cpp \
-	./BattleInterface/CShootingAnimation.h \
-	./BattleInterface/CSpellEffectAnimation.cpp \
-	./BattleInterface/CSpellEffectAnimation.h \
-	./BattleInterface/CStackQueue.cpp \
-	./BattleInterface/CStackQueue.h \
-	./BattleInterface/SStackAttackedInfo.h \
 	./UIFramework/CGuiHandler.cpp \
 	./UIFramework/CGuiHandler.h \
 	./UIFramework/CIntObject.cpp \
 	./UIFramework/CIntObject.h \
-	./UIFramework/CKeyShortcut.cpp \
-	./UIFramework/CKeyShortcut.h \
-	./UIFramework/CPicture.cpp \
-	./UIFramework/CPicture.h \
-	./UIFramework/SRect.cpp \
-	./UIFramework/SRect.h \
-	AdventureMapButton.cpp \
-	AdventureMapButton.h \
+	./UIFramework/CIntObjectClasses.cpp \
+	./UIFramework/CIntObjectClasses.h \
+	./UIFramework/Geometries.cpp \
+	./UIFramework/Geometries.h \
+	./UIFramework/CCursorHandler.cpp \
+	./UIFramework/CCursorHandler.h \
+	./UIFramework/SDL_Extensions.cpp \
+	./UIFramework/SDL_Extensions.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \
@@ -74,8 +41,6 @@ vcmiclient_SOURCES =  \
 	CConfigHandler.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
-	CCursorHandler.cpp \
-	CCursorHandler.h \
 	CDefHandler.cpp \
 	CDefHandler.h \
 	CGameInfo.cpp \
@@ -111,8 +76,4 @@ vcmiclient_SOURCES =  \
 	GUIClasses.h \
 	mapHandler.cpp \
 	mapHandler.h \
-	NetPacksClient.cpp \
-	SDL_Extensions.cpp \
-	SDL_Extensions.h \
-	SDL_framerate.cpp \
-	SDL_framerate.h
+	NetPacksClient.cpp

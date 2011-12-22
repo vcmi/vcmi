@@ -526,7 +526,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		std::vector<SBattleHex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
+		std::vector<BattleHex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
 
 		if(fields.size() == 0)
 		{
@@ -540,11 +540,11 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		ba.destinationTile = static_cast<ui16>(dest_tile);
 		//simplified checking for possibility of attack (previous was too simplified)
 		int destStackPos = m_cb->battleGetPos(destinationID);
-		if(SBattleHex::mutualPosition(dest_tile, destStackPos) != -1)
+		if(BattleHex::mutualPosition(dest_tile, destStackPos) != -1)
 			ba.additionalInfo = destStackPos;
-		else if(SBattleHex::mutualPosition(dest_tile, destStackPos+1) != -1)
+		else if(BattleHex::mutualPosition(dest_tile, destStackPos+1) != -1)
 			ba.additionalInfo = destStackPos+1;
-		else if(SBattleHex::mutualPosition(dest_tile, destStackPos-1) != -1)
+		else if(BattleHex::mutualPosition(dest_tile, destStackPos-1) != -1)
 			ba.additionalInfo = destStackPos-1;
 		else
 			return BattleAction::makeDefend(attackerStack);
@@ -581,7 +581,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		for (std::vector<SBattleHex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
+		for (std::vector<BattleHex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
 		{
 			if (*it == dest_tile)
 			{

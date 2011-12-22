@@ -6,7 +6,6 @@
 #include "GUIClasses.h"
 #include "FunctionList.h"
 #include "../lib/CMapInfo.h"
-#include "UIFramework/IUpdateable.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -77,9 +76,9 @@ public:
 class CMenuEntry : public CIntObject
 {
 	std::vector<CPicture*> images;
-	std::vector<AdventureMapButton*> buttons;
+	std::vector<CAdventureMapButton*> buttons;
 
-	AdventureMapButton* createButton(CMenuScreen* parent, const JsonNode& button);
+	CAdventureMapButton* createButton(CMenuScreen* parent, const JsonNode& button);
 public:
 	CMenuEntry(CMenuScreen* parent, const JsonNode &config);
 };
@@ -90,7 +89,7 @@ class CreditsScreen : public CIntObject
 public:
 	CreditsScreen();
 
-	void show(SDL_Surface *to);
+	void show(SDL_Surface * to);
 
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -103,7 +102,7 @@ public:
 	CTextBox *chatHistory;
 	CTextInput *inputBox;
 
-	CChatBox(const SRect &rect);
+	CChatBox(const Rect &rect);
 
 	void keyPressed(const SDL_KeyboardEvent & key);
 
@@ -204,8 +203,8 @@ public:
 		PlayerInfo &pi;
 		PlayerSettings &s;
 		CPicture *bg;
-		AdventureMapButton *btns[6]; //left and right for town, hero, bonus
-		AdventureMapButton *flag;
+		CAdventureMapButton *btns[6]; //left and right for town, hero, bonus
+		CAdventureMapButton *flag;
 		SelectedBox *town;
 		SelectedBox *hero;
 		SelectedBox *bonus;
@@ -279,7 +278,7 @@ public:
 	CPicture *bg; //general bg image
 	InfoCard *card;
 	OptionsTab *opt;
-	AdventureMapButton *start, *back;
+	CAdventureMapButton *start, *back;
 
 	SelectionTab *sel;
 	CIntObject *curTab;
@@ -326,7 +325,7 @@ public:
 class CScenarioInfo : public CIntObject, public ISelectionScreenInfo
 {
 public:
-	AdventureMapButton *back;
+	CAdventureMapButton *back;
 	InfoCard *card;
 	OptionsTab *opt;
 
@@ -340,7 +339,7 @@ class CMultiMode : public CIntObject
 public:
 	CPicture *bg;
 	CTextInput *txt;
-	AdventureMapButton *btns[7]; //0 - hotseat, 6 - cancel
+	CAdventureMapButton *btns[7]; //0 - hotseat, 6 - cancel
 	CGStatusBar *bar;
 
 	CMultiMode();
@@ -355,7 +354,7 @@ class CHotSeatPlayers : public CIntObject
 	CPicture *bg;
 	CTextBox *title;
 	CTextInput* txt[8];
-	AdventureMapButton *ok, *cancel;
+	CAdventureMapButton *ok, *cancel;
 	CGStatusBar *bar;
 
 	void onChange(std::string newText);
@@ -369,7 +368,7 @@ public:
 class CBonusSelection : public CIntObject
 {
 	SDL_Surface * background;
-	AdventureMapButton * startB, * backB;
+	CAdventureMapButton * startB, * backB;
 
 	//campaign & map descriptions:
 	CTextBox * cmpgDesc, * mapDesc;
@@ -416,7 +415,7 @@ class CBonusSelection : public CIntObject
 	CMapHeader *ourHeader;
 	CDefHandler *sizes; //icons of map sizes
 	SDL_Surface* diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
-	AdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
+	CAdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
 	void changeDiff(bool increase); //if false, then decrease
 
 	//bonus selection
@@ -468,14 +467,14 @@ private:
 
 	public:
 		CCampaignButton(const JsonNode &config );
-		void show(SDL_Surface *to);
+		void show(SDL_Surface * to);
 	};
 
-	AdventureMapButton *back;
+	CAdventureMapButton *back;
 	std::vector<CCampaignButton*> campButtons;
 	std::vector<CPicture*> images;
 
-	AdventureMapButton* createExitButton(const JsonNode& button);
+	CAdventureMapButton* createExitButton(const JsonNode& button);
 public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 

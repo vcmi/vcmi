@@ -8,7 +8,7 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CAnimation.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine
@@ -39,7 +39,7 @@ public:
 	inline void Load(size_t size, ui8 color=0);
 	inline void EndLine();
 	//init image with these sizes and palette
-	inline void init(SPoint SpriteSize, SPoint Margins, SPoint FullSize, SDL_Color *pal);
+	inline void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
 
 	SDLImageLoader(SDLImage * Img);
 	~SDLImageLoader();
@@ -63,7 +63,7 @@ public:
 	inline void Load(size_t size, ui8 color=0);
 	inline void EndLine();
 	//init image with these sizes and palette
-	inline void init(SPoint SpriteSize, SPoint Margins, SPoint FullSize, SDL_Color *pal);
+	inline void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
 
 	CompImageLoader(CompImage * Img);
 	~CompImageLoader();
@@ -158,9 +158,9 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	ui32 currentOffset = sizeof(SSpriteDef);
 	ui32 BaseOffset =    sizeof(SSpriteDef);
 
-	loader.init(SPoint(sprite.width, sprite.height),
-	            SPoint(sprite.leftMargin, sprite.topMargin),
-	            SPoint(sprite.fullWidth, sprite.fullHeight), palette);
+	loader.init(Point(sprite.width, sprite.height),
+	            Point(sprite.leftMargin, sprite.topMargin),
+	            Point(sprite.fullWidth, sprite.fullHeight), palette);
 
 	switch (sprite.format)
 	{
@@ -297,7 +297,7 @@ SDLImageLoader::SDLImageLoader(SDLImage * Img):
 {
 }
 
-void SDLImageLoader::init(SPoint SpriteSize, SPoint Margins, SPoint FullSize, SDL_Color *pal)
+void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal)
 {
 	//Init image
 	image->surf = SDL_CreateRGBSurface(SDL_SWSURFACE, SpriteSize.x, SpriteSize.y, 8, 0, 0, 0, 0);
@@ -353,9 +353,9 @@ CompImageLoader::CompImageLoader(CompImage * Img):
 	
 }
 
-void CompImageLoader::init(SPoint SpriteSize, SPoint Margins, SPoint FullSize, SDL_Color *pal)
+void CompImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal)
 {
-	image->sprite = SRect(Margins, SpriteSize);
+	image->sprite = Rect(Margins, SpriteSize);
 	image->fullSize = FullSize;
 	if (SpriteSize.x && SpriteSize.y)
 	{
@@ -588,17 +588,17 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, SRect *src, ui8 rotation) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotation) const
 {
 	if (!surf)
 		return;
-	SRect sourceRect(margins.x, margins.y, surf->w, surf->h);
+	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
 	//TODO: rotation and scaling
 	if (src)
 	{
 		sourceRect = sourceRect & *src;
 	}
-	SRect destRect(posX, posY, surf->w, surf->h);
+	Rect destRect(posX, posY, surf->w, surf->h);
 	destRect += sourceRect.topLeft();
 	sourceRect -= margins;
 	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
@@ -640,22 +640,22 @@ CompImage::CompImage(SDL_Surface * surf)
 	assert(0);
 }
 
-void CompImage::draw(SDL_Surface *where, int posX, int posY, SRect *src, ui8 alpha) const
+void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
 	int rotation = 0; //TODO
 	//rotation & 2 = horizontal rotation
 	//rotation & 4 = vertical rotation
 	if (!surf)
 		return;
-	SRect sourceRect(sprite);
+	Rect sourceRect(sprite);
 	//TODO: rotation and scaling
 	if (src)
 		sourceRect = sourceRect & *src;
 	//Limit source rect to sizes of surface
-	sourceRect = sourceRect & SRect(0, 0, where->w, where->h);
+	sourceRect = sourceRect & Rect(0, 0, where->w, where->h);
 
 	//Starting point on SDL surface
-	SPoint dest(posX+sourceRect.x, posY+sourceRect.y);
+	Point dest(posX+sourceRect.x, posY+sourceRect.y);
 	if (rotation & 2)
 		dest.y += sourceRect.h;
 	if (rotation & 4)
@@ -1166,7 +1166,7 @@ CAnimImage::~CAnimImage()
 	delete anim;
 }
 
-void CAnimImage::showAll(SDL_Surface *to)
+void CAnimImage::showAll(SDL_Surface * to)
 {
 	IImage *img = anim->getImage(frame, group);
 	if (img)
@@ -1285,7 +1285,7 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 	pos.h = height;
 }
 
-void CShowableAnim::show(SDL_Surface *to)
+void CShowableAnim::show(SDL_Surface * to)
 {
 	if ( flags & BASE && frame != first)
 		blitImage(first, group, to);
@@ -1299,7 +1299,7 @@ void CShowableAnim::show(SDL_Surface *to)
 	}
 }
 
-void CShowableAnim::showAll(SDL_Surface *to)
+void CShowableAnim::showAll(SDL_Surface * to)
 {
 	if ( flags & BASE && frame != first)
 		blitImage(first, group, to);
@@ -1309,7 +1309,7 @@ void CShowableAnim::showAll(SDL_Surface *to)
 void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 {
 	assert(to);
-	SRect src( xOffset, yOffset, pos.w, pos.h);
+	Rect src( xOffset, yOffset, pos.w, pos.h);
 	IImage * img = anim.getImage(frame, group);
 	if (img)
 		img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
@@ -1324,7 +1324,7 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, SRect picPos, ui8 flags, EAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 flags, EAnimType type):
 	CShowableAnim(x,y,name,flags,3,type)
 {
 	xOffset = picPos.x;

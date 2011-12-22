@@ -219,30 +219,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AdventureMapButton.cpp">
-      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
-      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</PreprocessToFile>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CAttackAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CBattleAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CBattleConsole.cpp" />
-    <ClCompile Include="BattleInterface\CBattleHero.cpp" />
+    <ClCompile Include="BattleInterface\CBattleAnimations.cpp" />
     <ClCompile Include="BattleInterface\CBattleInterface.cpp" />
-    <ClCompile Include="BattleInterface\CBattleOptionsWindow.cpp" />
-    <ClCompile Include="BattleInterface\CBattleResultWindow.cpp" />
-    <ClCompile Include="BattleInterface\CBattleStackAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CClickableHex.cpp" />
+    <ClCompile Include="BattleInterface\CBattleInterfaceClasses.cpp" />
     <ClCompile Include="BattleInterface\CCreatureAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CDefenceAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CDummyAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CMeleeAttackAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CMovementAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CMovementEndAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CMovementStartAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CReverseAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CShootingAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CSpellEffectAnimation.cpp" />
-    <ClCompile Include="BattleInterface\CStackQueue.cpp" />
     <ClCompile Include="CAdvmapInterface.cpp" />
     <ClCompile Include="CAnimation.cpp" />
     <ClCompile Include="..\CCallback.cpp" />
@@ -250,7 +230,6 @@
     <ClCompile Include="CCastleInterface.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CCreatureWindow.cpp" />
-    <ClCompile Include="CCursorHandler.cpp" />
     <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
     <ClCompile Include="CHeroWindow.cpp" />
@@ -268,42 +247,23 @@
     <ClCompile Include="GUIClasses.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
-    <ClCompile Include="SDL_Extensions.cpp" />
-    <ClCompile Include="SDL_framerate.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="UIFramework\CCursorHandler.cpp" />
     <ClCompile Include="UIFramework\CGuiHandler.cpp" />
     <ClCompile Include="UIFramework\CIntObject.cpp" />
-    <ClCompile Include="UIFramework\CKeyShortcut.cpp" />
-    <ClCompile Include="UIFramework\CPicture.cpp" />
-    <ClCompile Include="UIFramework\SRect.cpp" />
+    <ClCompile Include="UIFramework\CIntObjectClasses.cpp" />
+    <ClCompile Include="UIFramework\Geometries.cpp" />
+    <ClCompile Include="UIFramework\SDL_Extensions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
-    <ClInclude Include="AdventureMapButton.h" />
-    <ClInclude Include="BattleInterface\CAttackAnimation.h" />
-    <ClInclude Include="BattleInterface\CBattleAnimation.h" />
-    <ClInclude Include="BattleInterface\CBattleConsole.h" />
-    <ClInclude Include="BattleInterface\CBattleHero.h" />
+    <ClInclude Include="BattleInterface\CBattleAnimations.h" />
     <ClInclude Include="BattleInterface\CBattleInterface.h" />
-    <ClInclude Include="BattleInterface\CBattleOptionsWindow.h" />
-    <ClInclude Include="BattleInterface\CBattleResultWindow.h" />
-    <ClInclude Include="BattleInterface\CBattleStackAnimation.h" />
-    <ClInclude Include="BattleInterface\CClickableHex.h" />
+    <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h" />
     <ClInclude Include="BattleInterface\CCreatureAnimation.h" />
-    <ClInclude Include="BattleInterface\CDefenceAnimation.h" />
-    <ClInclude Include="BattleInterface\CDummyAnimation.h" />
-    <ClInclude Include="BattleInterface\CMeleeAttackAnimation.h" />
-    <ClInclude Include="BattleInterface\CMovementAnimation.h" />
-    <ClInclude Include="BattleInterface\CMovementEndAnimation.h" />
-    <ClInclude Include="BattleInterface\CMovementStartAnimation.h" />
-    <ClInclude Include="BattleInterface\CReverseAnimation.h" />
-    <ClInclude Include="BattleInterface\CShootingAnimation.h" />
-    <ClInclude Include="BattleInterface\CSpellEffectAnimation.h" />
-    <ClInclude Include="BattleInterface\CStackQueue.h" />
-    <ClInclude Include="BattleInterface\SStackAttackedInfo.h" />
     <ClInclude Include="CAdvmapInterface.h" />
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
@@ -311,7 +271,6 @@
     <ClInclude Include="CCastleInterface.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CCreatureWindow.h" />
-    <ClInclude Include="CCursorHandler.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
     <ClInclude Include="CHeroWindow.h" />
@@ -332,21 +291,13 @@
     <ClInclude Include="GUIClasses.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SDL_Extensions.h" />
-    <ClInclude Include="SDL_framerate.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="UIFramework\CCursorHandler.h" />
     <ClInclude Include="UIFramework\CGuiHandler.h" />
     <ClInclude Include="UIFramework\CIntObject.h" />
-    <ClInclude Include="UIFramework\CKeyShortcut.h" />
-    <ClInclude Include="UIFramework\CPicture.h" />
-    <ClInclude Include="UIFramework\CSimpleWindow.h" />
-    <ClInclude Include="UIFramework\IActivatable.h" />
-    <ClInclude Include="UIFramework\IShowable.h" />
-    <ClInclude Include="UIFramework\IShowActivatable.h" />
-    <ClInclude Include="UIFramework\IStatusBar.h" />
-    <ClInclude Include="UIFramework\IUpdateable.h" />
-    <ClInclude Include="UIFramework\SPoint.h" />
-    <ClInclude Include="UIFramework\SRect.h" />
+    <ClInclude Include="UIFramework\CIntObjectClasses.h" />
+    <ClInclude Include="UIFramework\Geometries.h" />
+    <ClInclude Include="UIFramework\SDL_Extensions.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />

@@ -682,7 +682,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	tlog1 << "Ended handling connection\n";
 }
 
-int CGameHandler::moveStack(int stack, SBattleHex dest)
+int CGameHandler::moveStack(int stack, BattleHex dest)
 {
 	int ret = 0;
 
@@ -699,7 +699,7 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 
 	//initing necessary tables
 	bool accessibility[GameConstants::BFIELD_SIZE];
-	std::vector<SBattleHex> accessible = gs->curB->getAccessibility(curStack, false);
+	std::vector<BattleHex> accessible = gs->curB->getAccessibility(curStack, false);
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
 		accessibility[b] = false;
@@ -715,12 +715,12 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 		if(curStack->attackerOwned)
 		{
 			if(accessibility[dest+1])
-				dest += SBattleHex::RIGHT;
+				dest += BattleHex::RIGHT;
 		}
 		else
 		{
 			if(accessibility[dest-1])
-				dest += SBattleHex::LEFT;
+				dest += BattleHex::LEFT;
 		}
 	}
 
@@ -728,7 +728,7 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 		return 0;
 
 	bool accessibilityWithOccupyable[GameConstants::BFIELD_SIZE];
-	std::vector<SBattleHex> accOc = gs->curB->getAccessibility(curStack, true);
+	std::vector<BattleHex> accOc = gs->curB->getAccessibility(curStack, true);
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
 		accessibilityWithOccupyable[b] = false;
@@ -741,7 +741,7 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::pair< std::vector<SBattleHex>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasBonusOfType(Bonus::FLYING), curStack->doubleWide(), curStack->attackerOwned);
+	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasBonusOfType(Bonus::FLYING), curStack->doubleWide(), curStack->attackerOwned);
 
 	ret = path.second;
 
@@ -754,7 +754,7 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 			//inform clients about move
 			BattleStackMoved sm;
 			sm.stack = curStack->ID;
-			std::vector<SBattleHex> tiles;
+			std::vector<BattleHex> tiles;
 			tiles.push_back(path.first[0]);
 			sm.tilesToMove = tiles;
 			sm.distance = path.second;
@@ -765,7 +765,7 @@ int CGameHandler::moveStack(int stack, SBattleHex dest)
 	else //for non-flying creatures
 	{
 		// send one package with the creature path information
-		std::vector<SBattleHex> tiles;
+		std::vector<BattleHex> tiles;
 		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		for(int v=path.first.size()-1; v>=tilesToMove; --v)
 		{
@@ -3330,7 +3330,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			CStack * stack = gs->curB->getStack(ba.stackNumber);
 			int spellID = ba.additionalInfo;
-			SBattleHex destination(ba.destinationTile);
+			BattleHex destination(ba.destinationTile);
 
 			int spellLvl = 0;
 			Bonus * bonus = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
@@ -3486,7 +3486,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, SBattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack)
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack)
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 
@@ -3737,7 +3737,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, SBattleHex des
 			BattleStackMoved bsm;
 			bsm.distance = -1;
 			bsm.stack = gs->curB->activeStack;
-			std::vector<SBattleHex> tiles;
+			std::vector<BattleHex> tiles;
 			tiles.push_back(destination);
 			bsm.tilesToMove = tiles;
 			bsm.teleporting = true;
@@ -3826,7 +3826,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, SBattleHex des
 			ObstaclesRemoved obr;
 			for(int g=0; g<gs->curB->obstacles.size(); ++g)
 			{
-				std::vector<SBattleHex> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
+				std::vector<BattleHex> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
 
 				if(vstd::contains(blockedHexes, destination)) //this obstacle covers given hex
 				{

@@ -214,6 +214,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
+    <ClCompile Include="BattleHex.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
@@ -241,7 +242,6 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
-    <ClCompile Include="SBattleHex.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -254,6 +254,7 @@
     <ClInclude Include="..\StartInfo.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
+    <ClInclude Include="BattleHex.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
@@ -291,7 +292,6 @@
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />
-    <ClInclude Include="SBattleHex.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="VCMI_Lib.h" />

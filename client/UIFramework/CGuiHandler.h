@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../../lib/CStopWatch.h"
-#include "SPoint.h"
+#include "Geometries.h"
 
-class FPSManager;
+class CFramerateManager;
 class IStatusBar;
 class CIntObject;
 class IUpdateable;
@@ -20,11 +20,28 @@ class IShowable;
  *
  */
 
+// A fps manager which holds game updates at a constant rate
+class CFramerateManager
+{
+private:
+	double rateticks;
+	ui32 lastticks, timeElapsed;
+	int rate;
+
+public:
+	int fps; // the actual fps value
+
+	CFramerateManager(int rate); // initializes the manager with a given fps rate
+	void init(); // needs to be called directly before the main game loop to reset the internal timer
+	void framerateDelay(); // needs to be called every game update cycle
+	double getElapsedSeconds() const { return this->timeElapsed / 1000; }
+};
+
 // Handles GUI logic and drawing
 class CGuiHandler
 {
 public:
-	FPSManager * mainFPSmng; //to keep const framerate
+	CFramerateManager * mainFPSmng; //to keep const framerate
 	CStopWatch th;
 	std::list<IShowActivatable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;
@@ -45,7 +62,7 @@ public:
 	SDL_Event * current; //current event - can be set to NULL to stop handling event
 	IUpdateable *curInt;
 
-	SPoint lastClick;
+	Point lastClick;
 	unsigned lastClickTime;
 	bool terminate;
 
@@ -105,10 +122,7 @@ struct SSetCaptureState
 
 namespace Colors
 {
-	SDL_Color createColor(int r, int g, int b);
-
-	const SDL_Color MetallicGold = createColor(173, 142, 66);
-	const SDL_Color Yellow = createColor(242, 226, 110);
+	
 };
 
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)

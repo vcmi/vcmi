@@ -2,18 +2,17 @@
 
 #include "CAdvmapInterface.h"
 #include "BattleInterface/CBattleInterface.h"
-#include "BattleInterface/CBattleConsole.h"
+#include "BattleInterface/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
-#include "CCursorHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
-//#include "SDL_Extensions.h"
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
+//#include "UIFramework/SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CConfigHandler.h"
 #include "BattleInterface/CCreatureAnimation.h"
 #include "Graphics.h"
@@ -187,8 +186,8 @@ void CPlayerInterface::yourTurn()
 			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
-			std::vector<SComponent*> cmp;
-			cmp.push_back(new SComponent(SComponent::flag, playerID, 0));
+			std::vector<CComponent*> cmp;
+			cmp.push_back(new CComponent(CComponent::flag, playerID, 0));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -756,7 +755,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<SBattleHex> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -802,7 +801,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	tlog5 << "done!\n";
 
 
-	std::vector<SStackAttackedInfo> arg;
+	std::vector<StackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
 		const CStack *defender = cb->battleGetStackByID(i->stackAttacked, false);
@@ -812,7 +811,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 			if (defender && !i->isSecondary())
 				battleInt->displayEffect(i->effect, defender->position);
 		}
-		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
+		StackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
 		arg.push_back(to_put);
 
 	}
@@ -874,10 +873,10 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	else
 	{
 		int shift = 0;
-		if(ba->counter() && SBattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = SBattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = SBattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = BattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = BattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
 
 			if( distp < distm )
 				shift = 1;
@@ -895,7 +894,7 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(SComponent comp)
+void CPlayerInterface::showComp(CComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -906,13 +905,13 @@ void CPlayerInterface::showComp(SComponent comp)
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
-	std::vector<SComponent*> intComps;
+	std::vector<CComponent*> intComps;
 	for(int i=0;i<components.size();i++)
-		intComps.push_back(new SComponent(*components[i]));
+		intComps.push_back(new CComponent(*components[i]));
 	showInfoDialog(text,intComps,soundID);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, int soundID, bool delComps)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -932,7 +931,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
+void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<CComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -951,9 +950,9 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 	if(!selection && cancel) //simple yes/no dialog
 	{
-		std::vector<SComponent*> intComps;
+		std::vector<CComponent*> intComps;
 		for(int i=0;i<components.size();i++)
-			intComps.push_back(new SComponent(components[i])); //will be deleted by close in window
+			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
 
 		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true);
 	}
@@ -1281,7 +1280,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
 	std::string text = artifact.Description();
 	text += "\n\n";
-	std::vector<SComponent*> scs;
+	std::vector<CComponent*> scs;
 
 	if (assemble) {
 		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
@@ -1290,8 +1289,8 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
 
 		// Picture of assembled artifact at bottom.
-		SComponent* sc = new SComponent;
-		sc->type = SComponent::artifact;
+		CComponent* sc = new CComponent;
+		sc->type = CComponent::artifact;
 		sc->subtype = assembledArtifact.id;
 		sc->description = assembledArtifact.Description();
 		sc->subtitle = assembledArtifact.Name();
@@ -1994,7 +1993,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		{
 			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
 			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-			showInfoDialog(txt,std::vector<SComponent*>(1, new SComponent(SComponent::flag, player, 0)));
+			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
 		}
 	}
 }

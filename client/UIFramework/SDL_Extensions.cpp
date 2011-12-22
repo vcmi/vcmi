@@ -1,11 +1,11 @@
 #include "StdInc.h"
 #include "SDL_Extensions.h"
 
-#include "SDL_ttf.h"
-#include "CGameInfo.h"
-#include "CMessage.h"
-#include "CDefHandler.h"
-#include "Graphics.h"
+#include <SDL_ttf.h>
+#include "../CGameInfo.h"
+#include "../CMessage.h"
+#include "../CDefHandler.h"
+#include "../Graphics.h"
 
 /*
  * SDL_Extensions.cpp, part of VCMI engine
@@ -16,6 +16,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+SDL_Color Colors::createColor(int r, int g, int b, int a /*= 0*/)
+{
+	SDL_Color temp = {r, g, b, a};
+	return temp;
+}
 
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
@@ -298,7 +304,7 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, in
 }
 
 
-void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=tytulowy*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=Colors::Jasmine*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -347,7 +353,7 @@ void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -395,7 +401,7 @@ void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 
 
 
-void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
 {
 	if(!text.size())
 		return;
@@ -488,7 +494,7 @@ void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -1019,7 +1025,7 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const SDL_Rect &r, const int3 &col
 	drawBorder(sur, r.x, r.y, r.w, r.h, color);
 }
 
-void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const SRect &r, const int3 &color)
+void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color)
 {
 	const int y1 = r.y, y2 = r.y + r.h-1;
 	for (int i=0; i<r.w; i++)
@@ -1269,7 +1275,7 @@ void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface *
 		}
 		else
 		{
-			betterDst = SRect(0, 0, dst->w, dst->h);
+			betterDst = Rect(0, 0, dst->w, dst->h);
 		}
 
 		SDL_BlitSurface(src, srcRect, dst, &betterDst);
@@ -1285,7 +1291,7 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	}
 	else
 	{
-		newRect = SRect(0, 0, dst->w, dst->h);
+		newRect = Rect(0, 0, dst->w, dst->h);
 	}
 	SDL_FillRect(dst, &newRect, color);
 }

@@ -1,25 +1,16 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
 
-#include "IShowActivatable.h"
-#include "../SDL_Extensions.h"
+#include "SDL_Extensions.h"
 #include "CIntObject.h"
 #include "../CGameInfo.h"
-#include "../CCursorHandler.h"
+#include "CCursorHandler.h"
 #include "../../lib/CThreadHelper.h"
 #include "../CConfigHandler.h"
-#include "../SDL_framerate.h"
-#include "IUpdateable.h"
 
 extern SDL_Surface * screenBuf, * screen2, * screen;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
-
-SDL_Color Colors::createColor(int r, int g, int b)
-{
-	SDL_Color temp = {r, g, b, 0};
-	return temp;
-}
 
 SObjectConstruction::SObjectConstruction( CIntObject *obj )
 :myObj(obj)
@@ -372,7 +363,7 @@ CGuiHandler::CGuiHandler()
 	statusbar = NULL;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new FPSManager(48);
+	mainFPSmng = new CFramerateManager(48);
 	mainFPSmng->init(); // resets internal clock, needed for FPS manager
 }
 
@@ -458,4 +449,32 @@ bool CGuiHandler::isNumKey( SDLKey key, bool number )
 bool CGuiHandler::isArrowKey( SDLKey key )
 {
 	return key >= SDLK_UP && key <= SDLK_LEFT;
+}
+
+
+CFramerateManager::CFramerateManager(int rate)
+{
+	this->rate = rate;
+	this->rateticks = (1000.0 / rate);
+	this->fps = 0;
+}
+
+void CFramerateManager::init()
+{
+	this->lastticks = SDL_GetTicks();
+}
+
+void CFramerateManager::framerateDelay()
+{
+	ui32 currentTicks = SDL_GetTicks();
+	this->timeElapsed = currentTicks - this->lastticks;
+
+	// FPS is higher than it should be, then wait some time
+	if (this->timeElapsed < this->rateticks)
+	{
+		SDL_Delay(ceil(this->rateticks) - this->timeElapsed);
+	}
+
+	this->fps = ceil(1000.0 / this->timeElapsed);
+	this->lastticks = SDL_GetTicks();
 }

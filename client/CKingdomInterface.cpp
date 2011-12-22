@@ -6,7 +6,6 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CObjectHandler.h" //Hero/Town objects
 #include "../lib/CHeroHandler.h" // only for calculating required xp? worth it?
-#include "AdventureMapButton.h"
 #include "CAnimation.h" //CAnimImage
 #include "CAdvmapInterface.h" //CResDataBar
 #include "CCastleInterface.h" //various town-specific classes
@@ -14,6 +13,7 @@
 #include "CGameInfo.h"
 #include "CPlayerInterface.h" //LOCPLINT
 #include "UIFramework/CGuiHandler.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 /*
  * CKingdomInterface.cpp, part of VCMI engine
@@ -27,7 +27,7 @@
 
 extern SDL_Surface *screenBuf;
 
-InfoBox::InfoBox(SPoint position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
+InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
 	size(Size),
 	infoPos(Pos),
 	data(Data),
@@ -45,21 +45,21 @@ InfoBox::InfoBox(SPoint position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data
 	pos = image->pos;
 
 	if (infoPos == POS_CORNER)
-		value = new CLabel(pos.w, pos.h, font, BOTTOMRIGHT, zwykly, data->getValueText());
+		value = new CLabel(pos.w, pos.h, font, BOTTOMRIGHT, Colors::Cornsilk, data->getValueText());
 
 	if (infoPos == POS_INSIDE)
-		value = new CLabel(pos.w/2, pos.h-6, font, CENTER, zwykly, data->getValueText());
+		value = new CLabel(pos.w/2, pos.h-6, font, CENTER, Colors::Cornsilk, data->getValueText());
 
 	if (infoPos == POS_UP_DOWN || infoPos == POS_DOWN)
-		value = new CLabel(pos.w/2, pos.h+8, font, CENTER, zwykly, data->getValueText());
+		value = new CLabel(pos.w/2, pos.h+8, font, CENTER, Colors::Cornsilk, data->getValueText());
 
 	if (infoPos == POS_UP_DOWN)
-		name = new CLabel(pos.w/2, -12, font, CENTER, zwykly, data->getNameText());
+		name = new CLabel(pos.w/2, -12, font, CENTER, Colors::Cornsilk, data->getNameText());
 
 	if (infoPos == POS_RIGHT)
 	{
-		name = new CLabel(pos.w+6, 6, font, TOPLEFT, zwykly, data->getNameText());
-		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, zwykly, data->getValueText());
+		name = new CLabel(pos.w+6, 6, font, TOPLEFT, Colors::Cornsilk, data->getNameText());
+		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, Colors::Cornsilk, data->getValueText());
 	}
 	pos = image->pos;
 	if (name)
@@ -67,7 +67,7 @@ InfoBox::InfoBox(SPoint position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data
 	if (value)
 		pos = pos | value->pos;
 	
-	hover = new HoverableArea;
+	hover = new CHoverableArea;
 	hover->hoverText = data->getHoverText();
 	hover->pos = pos;
 }
@@ -81,7 +81,7 @@ void InfoBox::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
-		SComponent *comp;
+		CComponent *comp;
 		std::string text;
 		data->prepareMessage(text, &comp);
 		if (comp)
@@ -95,11 +95,11 @@ void InfoBox::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		SComponent *comp;
+		CComponent *comp;
 		std::string text;
 		data->prepareMessage(text, &comp);
 
-		std::vector<SComponent*> compVector;
+		std::vector<CComponent*> compVector;
 		if (comp)
 			compVector.push_back(comp);
 		LOCPLINT->showInfoDialog(text, compVector);
@@ -253,7 +253,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	}
 }
 
-bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, SComponent **comp)
+bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **comp)
 {
 	switch (type)
 	{
@@ -263,7 +263,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, SComponent **com
 		return true;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
-		*comp =new SComponent(SComponent::primskill, getSubID(), getValue());
+		*comp =new CComponent(CComponent::primskill, getSubID(), getValue());
 		return true;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
@@ -281,7 +281,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, SComponent **com
 				return false;
 
 			text = CGI->generaltexth->skillInfoTexts[subID][value-1];
-			*comp = new SComponent(SComponent::secskill, subID, value);
+			*comp = new CComponent(CComponent::secskill, subID, value);
 			return true;
 		}
 	default:
@@ -380,7 +380,7 @@ std::string InfoBoxHeroData::getValueText()
 	}
 }
 
-bool InfoBoxHeroData::prepareMessage(std::string &text, SComponent**comp)
+bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
 {
 	switch(type)
 	{
@@ -457,7 +457,7 @@ std::string InfoBoxCustom::getValueText()
 	return valueText;
 }
 
-bool InfoBoxCustom::prepareMessage(std::string &text, SComponent **comp)
+bool InfoBoxCustom::prepareMessage(std::string &text, CComponent **comp)
 {
 	return false;
 }
@@ -470,7 +470,7 @@ CKingdomInterface::CKingdomInterface()
 	pos = background->center();
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), SPoint(4,4));
+	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -531,7 +531,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 		objects.push_back(element.second);
 	}
 	dwellingsList = new CListBox(boost::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
-	                             SPoint(740,44), SPoint(0,57), dwellSize, visibleObjects.size());
+	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
 CIntObject* CKingdomInterface::createOwnedObject(size_t index)
@@ -540,7 +540,7 @@ CIntObject* CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo &obj = objects[index];
 		std::string value = boost::lexical_cast<std::string>(obj.count);
-		return new InfoBox(SPoint(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
+		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
 			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
 	}
 	return NULL;
@@ -594,13 +594,13 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for (int i=0; i<7; i++)
 	{
 		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
-		minesBox[i] = new InfoBox(SPoint(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 		              new InfoBoxCustom(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first));
 	}
-	incomeArea = new HoverableArea;
-	incomeArea->pos = SRect(pos.x+580, pos.y+31+footerPos, 136, 68);
+	incomeArea = new CHoverableArea;
+	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
-	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, zwykly, boost::lexical_cast<std::string>(totalIncome));
+	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, Colors::Cornsilk, boost::lexical_cast<std::string>(totalIncome));
 }
 
 void CKingdomInterface::generateButtons()
@@ -608,31 +608,31 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	//Main control buttons
-	btnHeroes = new AdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
+	btnHeroes = new CAdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
 	                                    boost::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
 	btnHeroes->block(true);
 
-	btnTowns = new AdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
+	btnTowns = new CAdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
 	                                   boost::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
 
-	btnExit = new AdventureMapButton (CGI->generaltexth->allTexts[600],"",
+	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
 	                                  boost::bind(&CGuiHandler::popIntTotally,&GH, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
 	btnExit->setOffset(3);
 
 	//Object list control buttons
-	dwellTop = new AdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, 0),
+	dwellTop = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, 0),
 	                                   733, 4, "OVBUTN4.DEF");
 
-	dwellBottom = new AdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, -1),
+	dwellBottom = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, -1),
 	                                      733, footerPos+2, "OVBUTN4.DEF");
 	dwellBottom->setOffset(2);
 
-	dwellUp = new AdventureMapButton ("", "", boost::bind(&CListBox::moveToPrev, dwellingsList),
+	dwellUp = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPrev, dwellingsList),
 	                                  733, 24, "OVBUTN4.DEF");
 	dwellUp->setOffset(4);
 
-	dwellDown = new AdventureMapButton ("", "", boost::bind(&CListBox::moveToNext, dwellingsList),
+	dwellDown = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToNext, dwellingsList),
 	                                    733, footerPos-18, "OVBUTN4.DEF");
 	dwellDown->setOffset(6);
 }
@@ -685,13 +685,13 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CPicture("OVTITLE",16,0);
 	title->colorize(LOCPLINT->playerID);
-	heroLabel =   new CLabel(150, 10, FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[0]);
-	skillsLabel = new CLabel(500, 10, FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[1]);
+	heroLabel =   new CLabel(150, 10, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[0]);
+	skillsLabel = new CLabel(500, 10, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[1]);
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
-	                      SPoint(19,21), SPoint(0,116), maxSize, townCount, 0, 1, SRect(-19, -21, size, size) );
+	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -737,14 +737,14 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CPicture("OVTITLE",16,0);
 	title->colorize(LOCPLINT->playerID);
-	townLabel   = new CLabel(146,10,FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[3]);
-	garrHeroLabel  = new CLabel(375,10,FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[4]);
-	visitHeroLabel = new CLabel(608,10,FONT_MEDIUM, CENTER, zwykly, CGI->generaltexth->overview[5]);
+	townLabel   = new CLabel(146,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[3]);
+	garrHeroLabel  = new CLabel(375,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[4]);
+	visitHeroLabel = new CLabel(608,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[5]);
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
 	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
-	                     SPoint(19,21), SPoint(0,116), maxSize, townCount, 0, 1, SRect(-19, -21, size, size) );
+	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
 void CKingdTownList::townChanged(const CGTownInstance *town)
@@ -784,14 +784,14 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	background =  new CAnimImage("OVSLOT", 6);
-	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, zwykly, town->name);
+	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::Cornsilk, town->name);
 
-	income = new CLabel( 190, 60, FONT_SMALL, CENTER, zwykly, boost::lexical_cast<std::string>(town->dailyIncome()));
+	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(town->dailyIncome()));
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
-	garr = new CGarrisonInt(313, 3, 4, SPoint(232,0),  NULL, SPoint(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
-	heroes = new HeroSlots(town, SPoint(244,6), SPoint(475,6), garr, false);
+	garr = new CGarrisonInt(313, 3, 4, Point(232,0),  NULL, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
+	heroes = new HeroSlots(town, Point(244,6), Point(475,6), garr, false);
 
 	size_t iconIndex = town->subID*2;
 	if (!town->hasFort())
@@ -802,13 +802,13 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 
 	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);
 	townArea = new LRClickableAreaOpenTown;
-	townArea->pos = SRect(pos.x+5, pos.y+6, 58, 64);
+	townArea->pos = Rect(pos.x+5, pos.y+6, 58, 64);
 	townArea->town = town;
 
 	for (size_t i=0; i<town->creatures.size(); i++)
 	{
-		growth.push_back(new CCreaInfo(SPoint(401+37*i, 78), town, i, true, true));
-		available.push_back(new CCreaInfo(SPoint(48+37*i, 78), town, i, true, false));
+		growth.push_back(new CCreaInfo(Point(401+37*i, 78), town, i, true, true));
+		available.push_back(new CCreaInfo(Point(48+37*i, 78), town, i, true, false));
 	}
 }
 
@@ -847,7 +847,7 @@ public:
 		background = new CAnimImage("OVSLOT", 4);
 		pos = background->pos;
 		for (size_t i=0; i<9; i++)
-			arts.push_back(new CArtPlace(SPoint(270+i*48, 65)));
+			arts.push_back(new CArtPlace(Point(270+i*48, 65)));
 	}
 };
 
@@ -856,18 +856,18 @@ class BackpackTab : public CIntObject
 public:
 	CAnimImage * background;
 	std::vector<CArtPlace*> arts;
-	AdventureMapButton *btnLeft;
-	AdventureMapButton *btnRight;
+	CAdventureMapButton *btnLeft;
+	CAdventureMapButton *btnRight;
 
 	BackpackTab()
 	{
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		background = new CAnimImage("OVSLOT", 5);
 		pos = background->pos;
-		btnLeft = new AdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 269, 66, "HSBTNS3");
-		btnRight = new AdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 675, 66, "HSBTNS5");
+		btnLeft = new CAdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 269, 66, "HSBTNS3");
+		btnRight = new CAdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 675, 66, "HSBTNS5");
 		for (size_t i=0; i<8; i++)
-			arts.push_back(new CArtPlace(SPoint(295+i*48, 65)));
+			arts.push_back(new CArtPlace(Point(295+i*48, 65)));
 	}
 };
 
@@ -887,7 +887,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	arts2->recActions = DISPOSE | SHARE_POS;
 	backpack->recActions = DISPOSE | SHARE_POS;
 
-	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, zwykly, hero->name);
+	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, Colors::Cornsilk, hero->name);
 
 	std::vector<CArtPlace*> arts;
 	arts.insert(arts.end(), arts1->arts.begin(), arts1->arts.end());
@@ -911,39 +911,39 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 		size_t begin = overlay.find('{');
 		size_t end   = overlay.find('}', begin);
 		overlay = overlay.substr(begin+1, end - begin);
-		artButtons->buttons[it]->addTextOverlay(overlay, FONT_SMALL, tytulowy);
+		artButtons->buttons[it]->addTextOverlay(overlay, FONT_SMALL, Colors::Jasmine);
 	}
 	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
 	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
 	artButtons->select(0,0);
 
-	garr = new CGarrisonInt(6, 78, 4, SPoint(), NULL, SPoint(), hero, NULL, true, true);
+	garr = new CGarrisonInt(6, 78, 4, Point(), NULL, Point(), hero, NULL, true, true);
 
 	portrait = new CAnimImage("PortraitsLarge", hero->subID, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);
 
-	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, zwykly, hero->name);
-	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, zwykly, CGI->generaltexth->overview[2]);
+	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, Colors::Cornsilk, hero->name);
+	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[2]);
 
 	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-		heroInfo.push_back(new InfoBox(SPoint(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
+		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i)));
 
 	for (size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
-		heroInfo.push_back(new InfoBox(SPoint(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
+		heroInfo.push_back(new InfoBox(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i)));
 
-	heroInfo.push_back(new InfoBox(SPoint(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(Point(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_SPECIAL, hero)));
 
-	heroInfo.push_back(new InfoBox(SPoint(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(Point(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_EXPERIENCE, hero)));
 
-	heroInfo.push_back(new InfoBox(SPoint(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
+	heroInfo.push_back(new InfoBox(Point(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 	                   new InfoBoxHeroData(IInfoBoxData::HERO_MANA, hero)));
 
-	morale = new MoraleLuckBox(true, SRect(225, 53, 30, 22), true);
-	luck  = new MoraleLuckBox(false, SRect(225, 28, 30, 22), true);
+	morale = new MoraleLuckBox(true, Rect(225, 53, 30, 22), true);
+	luck  = new MoraleLuckBox(false, Rect(225, 28, 30, 22), true);
 
 	morale->set(hero);
 	luck->set(hero);

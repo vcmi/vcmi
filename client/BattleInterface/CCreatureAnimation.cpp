@@ -4,7 +4,7 @@
 #include "../../lib/CLodHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/vcmi_endian.h"
-#include "../SDL_Extensions.h"
+#include "../UIFramework/SDL_Extensions.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine

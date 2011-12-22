@@ -1311,7 +1311,7 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, std::vector<SBattleHex> dest, int distance)
+void CGeniusAI::battleStackMoved(int ID, std::vector<BattleHex> dest, int distance)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
@@ -1345,7 +1345,7 @@ void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
  *
  */
 // void CGeniusAI::battleStackMoved(int ID,
-//                                  SBattleHex dest,
+//                                  BattleHex dest,
 //                                  bool startMoving,
 //                                  bool endMoving)
 // {

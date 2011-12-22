@@ -18,7 +18,7 @@
 #include "mapHandler.h"
 #include "GUIClasses.h"
 #include "CConfigHandler.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "BattleInterface/CBattleInterface.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CGameState.h"
@@ -766,7 +766,7 @@ void SetSelection::applyCl(CClient *cl)
 
 void ShowInInfobox::applyCl(CClient *cl)
 {
-	SComponent sc(c);
+	CComponent sc(c);
 	text.toString(sc.description);
 	if(vstd::contains(cl->playerint, player) && cl->playerint[player]->human)
 	{

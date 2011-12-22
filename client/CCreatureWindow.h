@@ -1,8 +1,8 @@
 #pragma once
 
-
-#include "GUIClasses.h"
+#include "UIFramework/CIntObject.h"
 #include "../lib/HeroBonus.h"
+#include "GUIClasses.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine
@@ -18,9 +18,23 @@ struct Bonus;
 class CCreature;
 class CStackInstance;
 class CStack;
-class AdventureMapButton;
+class CAdventureMapButton;
 class CBonusItem;
+class CGHeroInstance;
+class CComponent;
+class LRClickableAreaWText;
+class MoraleLuckBox;
+class CAdventureMapButton;
+struct UpgradeInfo;
+class CPicture;
+class CCreaturePic;
+class LRClickableAreaWTextComp;
+class CArtPlace;
+class CSlider;
+class CLabel;
+class CAnimImage;
 
+// Classical creature window
 class CCreatureWindow : public CIntObject
 {
 public:
@@ -34,7 +48,7 @@ public:
 	const CStackInstance *stack;
 	const CBonusSystemNode *stackNode;
 	const CGHeroInstance *heroOwner;
-	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
+	std::vector<CComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 	std::vector<CBonusItem*> bonusItems;
 	std::vector<LRClickableAreaWText*> spellEffects;
 
@@ -44,8 +58,8 @@ public:
 	LRClickableAreaWTextComp * expArea; //displays exp details
 	CArtPlace *creatureArtifact;
 	CSlider * slider; //Abilities
-	AdventureMapButton *dismiss, *upgrade, *ok;
-	AdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
+	CAdventureMapButton *dismiss, *upgrade, *ok;
+	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
 	//TODO: Artifact drop
 
 	boost::function<void()> dsm; //dismiss button callback
@@ -78,9 +92,44 @@ public:
 	bool visible;
 
 	CBonusItem();
-	CBonusItem(const SRect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
+	CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
 	~CBonusItem();
 
 	void setBonus (const Bonus &bonus);
 	void showAll (SDL_Surface * to);
 };
+
+/// New Creature info window
+class CCreInfoWindow : public CIntObject
+{
+public:
+	CPicture * background;
+	CLabel * creatureCount;
+	CLabel * creatureName;
+	CLabel * abilityText;
+
+	CCreaturePic * animation;
+	std::vector<CComponent *> upgResCost; //cost of upgrade (if not possible then empty)
+	std::vector<CAnimImage *> effects;
+	std::map<size_t, std::pair<CLabel *, CLabel * > > infoTexts;
+
+	MoraleLuckBox * luck, * morale;
+
+	CAdventureMapButton * dismiss, * upgrade, * ok;
+
+	CCreInfoWindow(const CStackInstance & st, bool LClicked, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo * ui = NULL);
+	CCreInfoWindow(const CStack & st, bool LClicked = 0);
+	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
+	~CCreInfoWindow();
+
+	void init(const CCreature * cre, const CBonusSystemNode * stackNode, const CGHeroInstance * heroOwner, int creatureCount, bool LClicked);
+	void printLine(int nr, const std::string & text, int baseVal, int val = -1, bool range = false);
+
+	void clickRight(tribool down, bool previousState);
+	void close();
+	void show(SDL_Surface * to);
+};
+
+CIntObject *createCreWindow(const CStack *s);
+CIntObject *createCreWindow(int Cid, int Type, int creatureCount);
+CIntObject *createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);

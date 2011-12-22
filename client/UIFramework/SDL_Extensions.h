@@ -1,11 +1,10 @@
 #pragma once
 
-
-#include "../lib/int3.h"
-#include "SDL_video.h"
-#include "SDL_ttf.h"
-#include "FontBase.h"
-#include "UIFramework/SRect.h"
+#include <SDL_video.h>
+#include <SDL_ttf.h>
+#include "../../lib/int3.h"
+#include "../FontBase.h"
+#include "Geometries.h"
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -34,11 +33,20 @@
 struct Rect;
 
 extern SDL_Surface * screen, *screen2, *screenBuf;
-extern SDL_Color tytulowy, tlo, zwykly ;
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
+
+namespace Colors
+{
+	SDL_Color createColor(int r, int g, int b, int a = 0);
+
+	const SDL_Color	Jasmine = createColor(229, 215, 123, 0); // http://en.wikipedia.org/wiki/Jasmine_%28color%29
+	const SDL_Color Cornsilk = createColor(255, 243, 222, 0); // http://en.wikipedia.org/wiki/Shades_of_white
+	const SDL_Color MetallicGold = createColor(173, 142, 66); // http://en.wikipedia.org/wiki/Gold_%28color%29
+	const SDL_Color Maize = createColor(242, 226, 110); // http://en.wikipedia.org/wiki/Maize_%28color%29
+}
 
 template<typename IntType>
 std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
@@ -162,16 +170,16 @@ namespace CSDL_Ext
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 
-	void printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=zwykly, SDL_Surface * dst=screen);
-	void printAt(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=zwykly, SDL_Surface * dst=screen);
-	void printTo(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=zwykly, SDL_Surface * dst=screen);
-	void printAtMiddle(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=zwykly, SDL_Surface * dst=screen);
-	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
+	void printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
+	void printAt(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
+	void printTo(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
+	void printAtMiddle(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
+	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::Jasmine, SDL_Surface * dst=screen);
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
-	void drawDashedBorder(SDL_Surface * sur, const SRect &r, const int3 &color);
+	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
 	void setPlayerColor(SDL_Surface * sur, ui8 player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given

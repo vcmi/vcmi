@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AdventureMapButton.cpp" />
     <ClCompile Include="CAdvmapInterface.cpp" />
     <ClCompile Include="CAnimation.cpp" />
     <ClCompile Include="..\CCallback.cpp" />
@@ -9,7 +8,6 @@
     <ClCompile Include="CCastleInterface.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CCreatureWindow.cpp" />
-    <ClCompile Include="CCursorHandler.cpp" />
     <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
     <ClCompile Include="CHeroWindow.cpp" />
@@ -27,62 +25,9 @@
     <ClCompile Include="GUIClasses.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
-    <ClCompile Include="SDL_Extensions.cpp" />
-    <ClCompile Include="SDL_framerate.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="BattleInterface\CAttackAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleConsole.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleHero.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleInterface.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleOptionsWindow.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleResultWindow.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CBattleStackAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CDefenceAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CDummyAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CMeleeAttackAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CMovementAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CMovementEndAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CMovementStartAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CReverseAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CShootingAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CSpellEffectAnimation.cpp">
-      <Filter>BattleInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleInterface\CStackQueue.cpp">
-      <Filter>BattleInterface</Filter>
+    <ClCompile Include="UIFramework\CCursorHandler.cpp">
+      <Filter>UIFramework</Filter>
     </ClCompile>
     <ClCompile Include="UIFramework\CGuiHandler.cpp">
       <Filter>UIFramework</Filter>
@@ -90,16 +35,22 @@
     <ClCompile Include="UIFramework\CIntObject.cpp">
       <Filter>UIFramework</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\CKeyShortcut.cpp">
+    <ClCompile Include="UIFramework\CIntObjectClasses.cpp">
       <Filter>UIFramework</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\CPicture.cpp">
+    <ClCompile Include="UIFramework\Geometries.cpp">
       <Filter>UIFramework</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\SRect.cpp">
+    <ClCompile Include="UIFramework\SDL_Extensions.cpp">
       <Filter>UIFramework</Filter>
     </ClCompile>
-    <ClCompile Include="BattleInterface\CClickableHex.cpp">
+    <ClCompile Include="BattleInterface\CBattleAnimations.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleInterface.cpp">
+      <Filter>BattleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleInterface\CBattleInterfaceClasses.cpp">
       <Filter>BattleInterface</Filter>
     </ClCompile>
     <ClCompile Include="BattleInterface\CCreatureAnimation.cpp">
@@ -107,7 +58,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdventureMapButton.h" />
     <ClInclude Include="CAdvmapInterface.h" />
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
@@ -115,7 +65,6 @@
     <ClInclude Include="CCastleInterface.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CCreatureWindow.h" />
-    <ClInclude Include="CCursorHandler.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
     <ClInclude Include="CHeroWindow.h" />
@@ -136,65 +85,10 @@
     <ClInclude Include="GUIClasses.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SDL_Extensions.h" />
-    <ClInclude Include="SDL_framerate.h" />
     <ClInclude Include="StdInc.h" />
-    <ClInclude Include="BattleInterface\CAttackAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleConsole.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleHero.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleInterface.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleOptionsWindow.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleResultWindow.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CBattleStackAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CDefenceAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CDummyAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CMeleeAttackAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CMovementAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CMovementEndAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CMovementStartAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CReverseAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CShootingAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CSpellEffectAnimation.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\CStackQueue.h">
-      <Filter>BattleInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleInterface\SStackAttackedInfo.h">
-      <Filter>BattleInterface</Filter>
+    <ClInclude Include="..\Global.h" />
+    <ClInclude Include="UIFramework\CCursorHandler.h">
+      <Filter>UIFramework</Filter>
     </ClInclude>
     <ClInclude Include="UIFramework\CGuiHandler.h">
       <Filter>UIFramework</Filter>
@@ -202,38 +96,22 @@
     <ClInclude Include="UIFramework\CIntObject.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CKeyShortcut.h">
+    <ClInclude Include="UIFramework\CIntObjectClasses.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CPicture.h">
+    <ClInclude Include="UIFramework\Geometries.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CSimpleWindow.h">
+    <ClInclude Include="UIFramework\SDL_Extensions.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\IActivatable.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="BattleInterface\CBattleAnimations.h">
+      <Filter>BattleInterface</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\IShowable.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="BattleInterface\CBattleInterface.h">
+      <Filter>BattleInterface</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\IShowActivatable.h">
-      <Filter>UIFramework</Filter>
-    </ClInclude>
-    <ClInclude Include="UIFramework\IStatusBar.h">
-      <Filter>UIFramework</Filter>
-    </ClInclude>
-    <ClInclude Include="UIFramework\IUpdateable.h">
-      <Filter>UIFramework</Filter>
-    </ClInclude>
-    <ClInclude Include="UIFramework\SPoint.h">
-      <Filter>UIFramework</Filter>
-    </ClInclude>
-    <ClInclude Include="UIFramework\SRect.h">
-      <Filter>UIFramework</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Global.h" />
-    <ClInclude Include="BattleInterface\CClickableHex.h">
+    <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h">
       <Filter>BattleInterface</Filter>
     </ClInclude>
     <ClInclude Include="BattleInterface\CCreatureAnimation.h">
