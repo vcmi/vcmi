@@ -136,6 +136,9 @@ public:
 ///	 determines if given spell can be casted (and returns problem description)
 	SpellCasting::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); 
 
+	///estimates how much damage a spell will inflict upon a destination stack. If it's NULL a base damage value will be returned. If spell is not a plain offensive spell, 0 will be returned. The function doesn't check, if hero can cast given spell.
+	int battleEstimateSpellDamage(const CGHeroInstance *caster, const CSpell * spell, const CStack *destination = NULL); 
+
 ///	 returns true if caller can flee from the battle
 	bool battleCanFlee(); 
 

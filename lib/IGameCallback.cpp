@@ -376,6 +376,13 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 	return gs->curB->heroes[side];
 }
 
+int CBattleInfoCallback::battleEstimateSpellDamage(const CGHeroInstance *caster, const CSpell * spell, const CStack *destination /*= NULL*/)
+{
+	if(!caster)
+		return 0;
+	return gs->curB->calculateSpellDmg(spell, caster, destination, caster->getSpellSchoolLevel(spell), caster->getPrimSkillLevel(2));
+}
+
 CGameState *const CPrivilagedInfoCallback::gameState ()
 { 
 	return gs;
