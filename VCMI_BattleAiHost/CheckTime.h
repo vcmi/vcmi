@@ -68,6 +68,8 @@ const int TACTICS_TIME = 1000;
 void postInfoCall(int timeUsed);
 void postDecisionCall(int timeUsed, const std::string &text = "AI was thinking over an action", int timeLimit = MAKE_DECIDION_TIME);
 
+void mySleep(int ms);
+
 struct Bomb
 {
 	std::string txt;
@@ -75,7 +77,8 @@ struct Bomb
 
 	void run(int time)
 	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(time));
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(time));
+		mySleep(time);
 		if(armed)
 		{
 			tlog1 << "BOOOM! The bomb exploded! AI was thinking for too long!\n";
@@ -98,3 +101,4 @@ struct Bomb
 		armed = 0;
 	}
 };
+

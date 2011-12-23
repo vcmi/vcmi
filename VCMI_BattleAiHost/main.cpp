@@ -27,7 +27,16 @@ using namespace boost;
 
 std::string NAME = NAME_VER + std::string(" DLL runner");
 
-
+void mySleep(int ms)
+{
+	CheckTime timer;
+#ifdef _WIN32
+	Sleep(ms);
+#else
+	usleep(ms * 1000);
+#endif
+	tlog0 << "We were ordered to sleep for " << ms << " ms and we did for " << timer.timeSinceStart() << std::endl;
+}
 
 int main(int argc, char** argv)
 {
